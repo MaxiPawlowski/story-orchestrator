@@ -1,0 +1,95 @@
+== P08 live-quality-macro-run2 test/scenarios/live-v24-08-quality-macro.json lane 1 start 2026-09-25T19:01:23Z fixture-sha256 320bd0192e149ffda27ca86a2994916459029e303e7d9c79697e455f19fb8678
+{
+  "opened": {
+    "found": true,
+    "alreadyOpen": true,
+    "id": "1759606632088",
+    "name": "Group: Arin, DM Narrator"
+  },
+  "state": {
+    "groupId": "1759606632088",
+    "chatId": "2026-09-24@04h05m33s739ms",
+    "chatLength": 7
+  }
+}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T19-01-29-175Z_st-navigation-open-group.json
+open-group exit=0
+bundle.served=65733265d3015e620e5f26221d4cbfdbce59541b49e356c69c13642f386f0cab
+1/10 eval ok 8ms
+1/10 eval -> {"macroEngine":true}
+2/10 import_story ok 296ms
+3/10 eval ok 8ms
+3/10 eval -> {"go":"(unset)","location":"(unset)","coins":"(unset)"}
+4/10 eval ok 19ms
+4/10 eval -> "[Story state: location={{story_quality_location}} coins={{story_quality_coins}}]"
+5/10 slash ok 1669ms
+6/10 send_generate ok 35017ms
+7/10 eval ok 5ms
+7/10 eval -> "[Story state: location=yard coins=(unset)]"
+8/10 eval ok 6ms
+9/10 import_story ok 1089ms
+10/10 eval ok 6ms
+10/10 eval -> {"kept":"(unset)","gone":"{{story_quality_coins}}"}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T19-02-17-340Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 10,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-783f9c3c",
+      "v2-ed9ddba5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@16h01m34s525ms",
+    "owned": [
+      "2026-09-25@16h01m34s525ms"
+    ],
+    "deleted": [
+      "2026-09-25@16h01m34s525ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@16h01m34s525ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}
+scenario exit=0 2026-09-25T19:02:17Z

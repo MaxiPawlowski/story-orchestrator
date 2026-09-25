@@ -1,0 +1,99 @@
+== P08 live-preview-capture-run2 test/scenarios/live-v24-08-preview-capture.json lane 1 start 2026-09-25T18:51:56Z fixture-sha256 bba4c42ef14f45d079186483850908f29d14e91a7a322471df50cda09af664fe
+{
+  "opened": {
+    "found": true,
+    "alreadyOpen": true,
+    "id": "1759606632088",
+    "name": "Group: Arin, DM Narrator"
+  },
+  "state": {
+    "groupId": "1759606632088",
+    "chatId": "2026-09-24@04h05m33s739ms",
+    "chatLength": 7
+  }
+}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T18-52-02-031Z_st-navigation-open-group.json
+open-group exit=0
+bundle.served=65733265d3015e620e5f26221d4cbfdbce59541b49e356c69c13642f386f0cab
+1/12 eval ok 5ms
+2/12 import_story ok 272ms
+3/12 eval ok 6ms
+3/12 eval -> {"group":"1759606632088","chat":"2026-09-25@15h52m07s173ms"}
+4/12 wait ok 3141ms
+5/12 eval ok 6ms
+5/12 eval -> {"label":"group turn 1","own":["story_orchestrator_guidance"],"foreign":["2_floating_prompt"],"budget":97704,"counting":0}
+6/12 send_generate ok 22453ms
+6/12 send_generate -> {"sent":"I step up to the counter and ask what the posted job pays.","messagesBefore":1,"messagesAfter":3,"newMessages":2,"replied":true,"lastSpeaker":"Ponticius","lastLength":896}
+7/12 eval ok 834ms
+7/12 eval -> {"label":"group turn 1","blocks":2,"counted":2,"estimated":[],"budget":97704,"lastGenerationBudget":97704,"generationsAfterPreview":1,"fail":[]}
+8/12 wait ok 3158ms
+9/12 eval ok 6ms
+9/12 eval -> {"label":"group turn 2","own":["story_orchestrator_guidance"],"foreign":["2_floating_prompt"],"budget":97704,"counting":0}
+10/12 send_generate ok 20669ms
+10/12 send_generate -> {"sent":"I tell them we are ready to head out to the yard.","messagesBefore":3,"messagesAfter":5,"newMessages":2,"replied":true,"lastSpeaker":"Arin","lastLength":954}
+11/12 eval ok 11ms
+11/12 eval -> {"label":"group turn 2","blocks":2,"counted":2,"estimated":[],"budget":97704,"lastGenerationBudget":97704,"generationsAfterPreview":1,"fail":[]}
+12/12 eval ok 9ms
+12/12 eval -> [{"label":"group turn 1","blocks":2,"counted":2,"estimated":[],"budget":97704,"lastGenerationBudget":97704,"generationsAfterPreview":1,"fail":[]},{"label":"group turn 2","blocks":2,"counted":2,"estimated":[],"budget":97704,"lastGenerationBudget":97704,"generationsAfterPreview":1,"fail":[]}]
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T18-53-03-226Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 12,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-783f9c3c"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@15h52m07s173ms",
+    "owned": [
+      "2026-09-25@15h52m07s173ms"
+    ],
+    "deleted": [
+      "2026-09-25@15h52m07s173ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@15h52m07s173ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}
+scenario exit=0 2026-09-25T18:53:03Z

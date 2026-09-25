@@ -1,0 +1,5 @@
+DONE P08 live-routing-run3 scenario=0 diff=0 blocking=0
+DONE P08 live-routing-run4 scenario=0 diff=0 blocking=0
+BATCH DONE diff=0
+cl-j7 moved to lane 3 (cl-j7-lane3.sh)
+J7 DONE

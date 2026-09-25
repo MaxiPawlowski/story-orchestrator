@@ -1,0 +1,14 @@
+{
+  "baseline": "test/journeys/records/v2.4-acceptance/P05/mirror-rate-run1/J3-b/header-start.json",
+  "label": "diff-end",
+  "allow": [
+    "build.head"
+  ],
+  "differences": 0,
+  "progress": 0,
+  "blocking": 0,
+  "blockingPaths": [],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\3\\debug\\run-header-diff-end.json",
+  "ok": true
+}

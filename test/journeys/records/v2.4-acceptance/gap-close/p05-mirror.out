@@ -1,0 +1,7 @@
+DONE P05/mirror-rate-run1/J3-a J3 journey=0 headerdiff=0 blocking=0 record=C:\dev\so-lanes\3\debug\2026-09-25T18-55-04-042Z_journey-J3.json
+DONE P05/mirror-rate-run1/J3-b J3 journey=0 headerdiff=0 blocking=0 record=C:\dev\so-lanes\3\debug\2026-09-25T18-59-08-055Z_journey-J3.json
+DONE P05 mirror-rate-run1 scenario=1 diff=0 blocking=0
+DONE P05/mirror-rate-run2/J3-a J3 journey=0 headerdiff=0 blocking=0 record=C:\dev\so-lanes\3\debug\2026-09-25T19-03-04-954Z_journey-J3.json
+DONE P05/mirror-rate-run2/J3-b J3 journey=0 headerdiff=0 blocking=0 record=C:\dev\so-lanes\3\debug\2026-09-25T19-06-40-331Z_journey-J3.json
+DONE P05 mirror-rate-run2 scenario=1 diff=0 blocking=0
+BATCH DONE diff=0

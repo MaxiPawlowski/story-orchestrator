@@ -1,0 +1,141 @@
+{
+  "file": "test/scenarios/live-v24-08-preview-capture.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    },
+    {
+      "index": 1,
+      "key": "import_story",
+      "ok": true,
+      "ms": 272
+    },
+    {
+      "index": 2,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 3,
+      "key": "wait",
+      "ok": true,
+      "ms": 3141
+    },
+    {
+      "index": 4,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 5,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 22453
+    },
+    {
+      "index": 6,
+      "key": "eval",
+      "ok": true,
+      "ms": 834
+    },
+    {
+      "index": 7,
+      "key": "wait",
+      "ok": true,
+      "ms": 3158
+    },
+    {
+      "index": 8,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 9,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 20669
+    },
+    {
+      "index": 10,
+      "key": "eval",
+      "ok": true,
+      "ms": 11
+    },
+    {
+      "index": 11,
+      "key": "eval",
+      "ok": true,
+      "ms": 9
+    }
+  ],
+  "ok": true,
+  "error": null,
+  "retries": [],
+  "firstAttempt": "pass",
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-783f9c3c"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@15h52m07s173ms",
+    "owned": [
+      "2026-09-25@15h52m07s173ms"
+    ],
+    "deleted": [
+      "2026-09-25@15h52m07s173ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@15h52m07s173ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

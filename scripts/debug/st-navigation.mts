@@ -297,6 +297,18 @@ export async function deleteSandboxChats(page, guard) {
     if (!group) return { sandboxChatId: owned[0], owned, deleted, skipped: owned.map((id) => ({ id, reason: 'group not found' })), currentChatAtCleanup };
     const isOpen = (id) => SillyTavern.getContext().groupId === groupId && SillyTavern.getContext().chatId === id;
     const ordered = [...owned].sort((a, b) => Number(isOpen(a)) - Number(isOpen(b)));
+    // A chat save already in flight when the open chat is deleted lands after the delete and re-creates the file
+    // (2026-09-25, P08 routing run 2: "Deleted file" then the file back 1 ms later with both messages). So no delete
+    // starts until ST has not been saving a chat for a continuous quiet window.
+    const script = await import(/* webpackIgnore: true */ '/script.js' as string) as { isChatSaving?: boolean };
+    const settleStarted = Date.now();
+    let quietSince = Date.now();
+    while (Date.now() - settleStarted < 30000) {
+      if (script.isChatSaving) quietSince = Date.now();
+      else if (Date.now() - quietSince >= 1500) break;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    const saveSettleMs = Date.now() - settleStarted;
     let jumped = false;
     for (const id of ordered) {
       if (preexisting.includes(id)) { skipped.push({ id, reason: 'existed before the run' }); continue; }
@@ -332,12 +344,29 @@ export async function deleteSandboxChats(page, guard) {
       }
     }
     const stillBack = back(await serverGroup());
+    // A late save re-creates the FILE without listing it (the group no longer names the chat). Such a file is the
+    // run's own chat, so it is deleted again and reported, never counted as deleted silently: the check above ran
+    // before the late write could land.
+    const fileExists = async (id: string) => { const data = await post('/api/chats/group/get', { id }); return Array.isArray(data) && data.length > 0; };
+    const listedNow = (await serverGroup())?.chats ?? [];
+    const lateFiles = [];
+    for (const id of deleted) if (!listedNow.includes(id) && await fileExists(id)) lateFiles.push(id);
+    const lateFileRepaired = [];
+    for (const id of lateFiles) {
+      await fetch('/api/chats/group/delete', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ id }) });
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      if (!(await fileExists(id))) lateFileRepaired.push(id);
+    }
+    const finallyGone = [];
+    for (const id of deleted) if (!stillBack.includes(id) && !(await fileExists(id))) finallyGone.push(id);
     return {
       sandboxChatId: owned[0],
       owned,
-      deleted: gone.filter((id) => !stillBack.includes(id)),
-      notDeleted: [...deleted.filter((id) => !gone.includes(id)), ...stillBack],
+      deleted: finallyGone,
+      notDeleted: deleted.filter((id) => !finallyGone.includes(id)),
       resurrected,
+      lateFileRepaired,
+      saveSettleMs,
       skipped,
       currentChatAtCleanup,
       currentGroupAtCleanup,

@@ -1,0 +1,130 @@
+{
+  "file": "test/scenarios/live-v24-08-quality-macro.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    },
+    {
+      "index": 1,
+      "key": "import_story",
+      "ok": true,
+      "ms": 298
+    },
+    {
+      "index": 2,
+      "key": "eval",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 3,
+      "key": "eval",
+      "ok": true,
+      "ms": 17
+    },
+    {
+      "index": 4,
+      "key": "slash",
+      "ok": true,
+      "ms": 1678
+    },
+    {
+      "index": 5,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 16830
+    },
+    {
+      "index": 6,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    },
+    {
+      "index": 7,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    },
+    {
+      "index": 8,
+      "key": "import_story",
+      "ok": true,
+      "ms": 578
+    },
+    {
+      "index": 9,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    }
+  ],
+  "ok": true,
+  "error": null,
+  "retries": [],
+  "firstAttempt": "pass",
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-783f9c3c",
+      "v2-ed9ddba5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@16h00m55s275ms",
+    "owned": [
+      "2026-09-25@16h00m55s275ms"
+    ],
+    "deleted": [
+      "2026-09-25@16h00m55s275ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@16h00m55s275ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

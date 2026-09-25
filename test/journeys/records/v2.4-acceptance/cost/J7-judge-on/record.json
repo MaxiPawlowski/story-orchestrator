@@ -1,0 +1,2881 @@
+{
+  "id": "J7",
+  "title": "long-haul",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j7-long-haul.journey.json",
+  "ranAt": "2026-09-25T19:39:31.741Z",
+  "strict": true,
+  "partial": false,
+  "only": null,
+  "tally": {
+    "pass": 8,
+    "skipped": 2
+  },
+  "tallies": {
+    "automated": {
+      "pass": 8,
+      "fail": 0,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 2
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 8,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [],
+  "humanRecord": null,
+  "runnerError": null,
+  "releasedRoutes": null,
+  "capabilities": {},
+  "results": [
+    {
+      "id": "J7.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp1 → cp2: the player approaches the job board Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.2",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp2 → cp3: the party accepts the Sun Ruins mission Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.3",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp3 → cp-4a: the player agrees to bring Luke along Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.4",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp-4a → cp-4a1: the sphinx riddle is answered correctly Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.5",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp-4a1 → cp-5: the party enters the inner chamber, and convergence progress is recorded Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.6",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp-5 → cp-6: the artifact is secured and the party returns to the guild Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.7",
+      "mode": "auto",
+      "findings": [],
+      "goal": "every anchor was visited and none was skipped",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.8",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the long session left a coherent journal and memory behind",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.9",
+      "mode": "human",
+      "findings": [],
+      "goal": "",
+      "prompt": "Over the whole play-through, did the story feel authored — arriving where it was meant to — or did it feel like it was dragging you along rails?",
+      "anchors": "1 = pure rails · 3 = authored but visible machinery · 5 = felt like a GM running my choices",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    },
+    {
+      "id": "J7.10",
+      "mode": "human",
+      "findings": [],
+      "goal": "",
+      "prompt": "Did the finale land, given what actually happened in your run?",
+      "anchors": "1 = disconnected from my choices · 3 = generic ending · 5 = paid off my run specifically",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    }
+  ],
+  "cleanup": {
+    "judgeCalls": {
+      "count": 82,
+      "events": [
+        {
+          "at": "2026-09-25T19:10:45.705Z",
+          "boundary": 1,
+          "messageId": 3,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2516 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 9,
+            "stateChars": 3426,
+            "latencyMs": 2516,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T19:10:45.912Z",
+          "boundary": 2,
+          "messageId": 3,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2509 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 9,
+            "stateChars": 3426,
+            "latencyMs": 2509,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T19:10:46.255Z",
+          "boundary": 1,
+          "messageId": 3,
+          "kind": "judge",
+          "summary": "judge warden in 3064 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "questions": 1,
+            "stateChars": 832,
+            "latencyMs": 3064,
+            "inputTokens": 671,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.12
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:10:55.546Z",
+          "boundary": 2,
+          "messageId": 4,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 585 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1392,
+            "latencyMs": 585,
+            "inputTokens": 793,
+            "outputTokens": 22,
+            "p": {
+              "line:0": 0.94
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:11:21.429Z",
+          "boundary": 3,
+          "messageId": 5,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 1665 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 4,
+            "stateChars": 2960,
+            "latencyMs": 1665,
+            "inputTokens": 1507,
+            "outputTokens": 76,
+            "p": {
+              "line:0": 0.98,
+              "line:1": 0.97,
+              "line:2": 0.97,
+              "line:3": 0.98
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:11:51.950Z",
+          "boundary": 3,
+          "messageId": 6,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 583 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 3,
+            "stateChars": 4191,
+            "latencyMs": 583,
+            "inputTokens": 1746,
+            "outputTokens": 58,
+            "p": {
+              "line:0": 0.97,
+              "line:1": 0.98,
+              "line:2": 0.97
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:12:04.889Z",
+          "boundary": 3,
+          "messageId": 7,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2504 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 10,
+            "stateChars": 6291,
+            "latencyMs": 2504,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T19:12:06.171Z",
+          "boundary": 3,
+          "messageId": 7,
+          "kind": "judge",
+          "summary": "judge warden in 3785 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "questions": 3,
+            "stateChars": 1455,
+            "latencyMs": 3785,
+            "inputTokens": 1063,
+            "outputTokens": 53,
+            "p": {
+              "facts": 2,
+              "flagged": 0,
+              "agency": 0.13
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:12:08.764Z",
+          "boundary": 3,
+          "messageId": 7,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 238 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 2,
+            "stateChars": 2960,
+            "latencyMs": 238,
+            "inputTokens": 1297,
+            "outputTokens": 40,
+            "p": {
+              "line:0": 0.98,
+              "line:1": 0.97
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:12:24.006Z",
+          "boundary": 3,
+          "messageId": 8,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 549 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 3,
+            "stateChars": 4191,
+            "latencyMs": 549,
+            "inputTokens": 1737,
+            "outputTokens": 58,
+            "p": {
+              "line:0": 0.97,
+              "line:1": 0.97,
+              "line:2": 0.85
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:12:32.282Z",
+          "boundary": 4,
+          "messageId": 8,
+          "kind": "judge",
+          "summary": "judge warden in 604 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "questions": 3,
+            "stateChars": 1871,
+            "latencyMs": 604,
+            "inputTokens": 1125,
+            "outputTokens": 53,
+            "p": {
+              "facts": 2,
+              "flagged": 0,
+              "agency": 0.42
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:12:32.313Z",
+          "boundary": 4,
+          "messageId": 8,
+          "kind": "judge",
+          "summary": "judge scene in 636 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 10,
+            "stateChars": 7710,
+            "latencyMs": 636,
+            "inputTokens": 2847,
+            "outputTokens": 276,
+            "p": {
+              "break": 0.07
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:12:34.528Z",
+          "boundary": 5,
+          "messageId": 8,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2512 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 10,
+            "stateChars": 7710,
+            "latencyMs": 2512,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T19:12:42.491Z",
+          "boundary": 5,
+          "messageId": 9,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 570 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 1,
+            "stateChars": 2872,
+            "latencyMs": 570,
+            "inputTokens": 1150,
+            "outputTokens": 22,
+            "p": {
+              "line:0": 0.97
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:13:53.859Z",
+          "boundary": 6,
+          "messageId": 12,
+          "kind": "judge",
+          "summary": "judge scene in 604 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 12,
+            "stateChars": 9074,
+            "latencyMs": 604,
+            "inputTokens": 3272,
+            "outputTokens": 321,
+            "p": {
+              "break": 0.06
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:13:53.957Z",
+          "boundary": 6,
+          "messageId": 12,
+          "kind": "judge",
+          "summary": "judge warden in 700 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "questions": 3,
+            "stateChars": 2109,
+            "latencyMs": 700,
+            "inputTokens": 1218,
+            "outputTokens": 53,
+            "p": {
+              "facts": 2,
+              "flagged": 0,
+              "agency": 0.41
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:13:54.164Z",
+          "boundary": 7,
+          "messageId": 12,
+          "kind": "judge",
+          "summary": "judge scene in 586 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 12,
+            "stateChars": 9074,
+            "latencyMs": 586,
+            "inputTokens": 3272,
+            "outputTokens": 321,
+            "p": {
+              "break": 0.06
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:14:11.415Z",
+          "boundary": 7,
+          "messageId": 14,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 558 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 3,
+            "stateChars": 8186,
+            "latencyMs": 558,
+            "inputTokens": 2758,
+            "outputTokens": 58,
+            "p": {
+              "line:0": 0.98,
+              "line:1": 0.97,
+              "line:2": 0.92
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:15:02.158Z",
+          "boundary": 8,
+          "messageId": 15,
+          "kind": "judge",
+          "summary": "judge warden in 622 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "questions": 3,
+            "stateChars": 1715,
+            "latencyMs": 622,
+            "inputTokens": 1097,
+            "outputTokens": 53,
+            "p": {
+              "facts": 2,
+              "flagged": 0,
+              "agency": 0.73
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:15:02.158Z",
+          "boundary": 8,
+          "messageId": 15,
+          "kind": "judge",
+          "summary": "judge scene in 623 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 12,
+            "stateChars": 10350,
+            "latencyMs": 623,
+            "inputTokens": 3618,
+            "outputTokens": 321,
+            "p": {
+              "break": 0.07
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:15:04.348Z",
+          "boundary": 9,
+          "messageId": 15,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2507 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 12,
+            "stateChars": 10350,
+            "latencyMs": 2507,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T19:15:32.642Z",
+          "boundary": 9,
+          "messageId": 17,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 549 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 3,
+            "stateChars": 7158,
+            "latencyMs": 549,
+            "inputTokens": 2481,
+            "outputTokens": 58,
+            "p": {
+              "line:0": 0.95,
+              "line:1": 0.98,
+              "line:2": 0.83
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:15:48.298Z",
+          "boundary": 10,
+          "messageId": 17,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2501 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 12,
+            "stateChars": 10958,
+            "latencyMs": 2501,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T19:15:49.798Z",
+          "boundary": 10,
+          "messageId": 17,
+          "kind": "judge",
+          "summary": "judge warden fell back (timeout) in 4001 ms",
+          "detail": {
+            "use": "warden",
+            "model": null,
+            "questions": 4,
+            "stateChars": 2918,
+            "latencyMs": 4001,
+            "fallback": "timeout",
+            "p": {
+              "facts": 3,
+              "flagged": 0,
+              "agency": -1
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:15:57.004Z",
+          "boundary": 10,
+          "messageId": 17,
+          "kind": "judge",
+          "summary": "judge memoryPairs in 562 ms",
+          "detail": {
+            "use": "memoryPairs",
+            "model": "jev-1.13.0",
+            "questions": 2,
+            "stateChars": 244,
+            "latencyMs": 562,
+            "inputTokens": 636,
+            "outputTokens": 66,
+            "p": {
+              "relation": "update",
+              "confidence": 0.79
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:15:57.032Z",
+          "boundary": 10,
+          "messageId": 17,
+          "kind": "judge",
+          "summary": "judge memoryPairs in 590 ms",
+          "detail": {
+            "use": "memoryPairs",
+            "model": "jev-1.13.0",
+            "questions": 2,
+            "stateChars": 303,
+            "latencyMs": 590,
+            "inputTokens": 655,
+            "outputTokens": 66,
+            "p": {
+              "relation": "duplicate",
+              "confidence": 1
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:16:13.072Z",
+          "boundary": 10,
+          "messageId": 17,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 563 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 5,
+            "stateChars": 5132,
+            "latencyMs": 563,
+            "inputTokens": 2159,
+            "outputTokens": 94,
+            "p": {
+              "line:0": 0.97,
+              "line:1": 0.84,
+              "line:2": 0.9,
+              "line:3": 0.93,
+              "line:4": 0.98
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:17:18.974Z",
+          "boundary": 11,
+          "messageId": 20,
+          "kind": "judge",
+          "summary": "judge warden in 614 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "questions": 6,
+            "stateChars": 1878,
+            "latencyMs": 614,
+            "inputTokens": 1447,
+            "outputTokens": 107,
+            "p": {
+              "facts": 5,
+              "flagged": 0,
+              "agency": 0.29
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:17:18.988Z",
+          "boundary": 11,
+          "messageId": 20,
+          "kind": "judge",
+          "summary": "judge scene in 629 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 10,
+            "stateChars": 8553,
+            "latencyMs": 629,
+            "inputTokens": 3044,
+            "outputTokens": 279,
+            "p": {
+              "break": 0.09
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:18:49.938Z",
+          "boundary": 12,
+          "messageId": 24,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2538 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 10,
+            "stateChars": 9103,
+            "latencyMs": 2538,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T19:18:50.044Z",
+          "boundary": 13,
+          "messageId": 24,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2512 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 10,
+            "stateChars": 9103,
+            "latencyMs": 2512,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T19:18:50.235Z",
+          "boundary": 14,
+          "messageId": 24,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2511 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 10,
+            "stateChars": 9103,
+            "latencyMs": 2511,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T19:18:51.411Z",
+          "boundary": 12,
+          "messageId": 24,
+          "kind": "judge",
+          "summary": "judge warden fell back (timeout) in 4009 ms",
+          "detail": {
+            "use": "warden",
+            "model": null,
+            "questions": 6,
+            "stateChars": 2133,
+            "latencyMs": 4009,
+            "fallback": "timeout",
+            "p": {
+              "facts": 5,
+              "flagged": 0,
+              "agency": -1
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:18:59.277Z",
+          "boundary": 14,
+          "messageId": 25,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 558 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 1,
+            "stateChars": 3170,
+            "latencyMs": 558,
+            "inputTokens": 1224,
+            "outputTokens": 22,
+            "p": {
+              "line:0": 0.94
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:19:22.693Z",
+          "boundary": 14,
+          "messageId": 26,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 576 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 3,
+            "stateChars": 3027,
+            "latencyMs": 576,
+            "inputTokens": 1354,
+            "outputTokens": 58,
+            "p": {
+              "line:0": 0.97,
+              "line:1": 0.97,
+              "line:2": 0.85
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:20:03.677Z",
+          "boundary": 15,
+          "messageId": 27,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2501 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 10,
+            "stateChars": 8965,
+            "latencyMs": 2501,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T19:20:04.038Z",
+          "boundary": 16,
+          "messageId": 27,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2512 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 10,
+            "stateChars": 8965,
+            "latencyMs": 2512,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T19:20:05.178Z",
+          "boundary": 15,
+          "messageId": 27,
+          "kind": "judge",
+          "summary": "judge warden fell back (timeout) in 4001 ms",
+          "detail": {
+            "use": "warden",
+            "model": null,
+            "questions": 6,
+            "stateChars": 2385,
+            "latencyMs": 4001,
+            "fallback": "timeout",
+            "p": {
+              "facts": 5,
+              "flagged": 0,
+              "agency": -1
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:20:44.527Z",
+          "boundary": 16,
+          "messageId": 29,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 2287 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 2,
+            "stateChars": 3864,
+            "latencyMs": 2287,
+            "inputTokens": 1456,
+            "outputTokens": 40,
+            "p": {
+              "line:0": 0.12,
+              "line:1": 0.73
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:21:17.488Z",
+          "boundary": 17,
+          "messageId": 29,
+          "kind": "judge",
+          "summary": "judge stall in 566 ms",
+          "detail": {
+            "use": "stall",
+            "model": "jev-1.13.0",
+            "questions": 3,
+            "stateChars": 9803,
+            "latencyMs": 566,
+            "inputTokens": 2871,
+            "outputTokens": 58,
+            "p": {
+              "riddle_answer==\"moon\"": 0.02,
+              "guardian_respect>=4": 0.01,
+              "riddle_answer==\"wrong\"": 0.53
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:21:17.496Z",
+          "boundary": 17,
+          "messageId": 29,
+          "kind": "judge",
+          "summary": "judge scene in 572 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 10,
+            "stateChars": 10311,
+            "latencyMs": 572,
+            "inputTokens": 3406,
+            "outputTokens": 279,
+            "p": {
+              "break": 0.16
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:21:17.525Z",
+          "boundary": 17,
+          "messageId": 29,
+          "kind": "judge",
+          "summary": "judge warden in 599 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "questions": 6,
+            "stateChars": 1931,
+            "latencyMs": 599,
+            "inputTokens": 1468,
+            "outputTokens": 107,
+            "p": {
+              "facts": 5,
+              "flagged": 0,
+              "agency": 1.22
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:21:34.003Z",
+          "boundary": 17,
+          "messageId": 29,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 577 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 3,
+            "stateChars": 9896,
+            "latencyMs": 577,
+            "inputTokens": 3089,
+            "outputTokens": 58,
+            "p": {
+              "line:0": 0.94,
+              "line:1": 0.95,
+              "line:2": 0.96
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:22:26.872Z",
+          "boundary": 18,
+          "messageId": 31,
+          "kind": "judge",
+          "summary": "judge scene in 1570 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 10,
+            "stateChars": 8111,
+            "latencyMs": 1570,
+            "inputTokens": 2884,
+            "outputTokens": 279,
+            "p": {
+              "break": 0.5
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:22:26.921Z",
+          "boundary": 18,
+          "messageId": 31,
+          "kind": "judge",
+          "summary": "judge warden in 1617 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "questions": 7,
+            "stateChars": 1356,
+            "latencyMs": 1617,
+            "inputTokens": 1457,
+            "outputTokens": 125,
+            "p": {
+              "facts": 6,
+              "flagged": 0,
+              "agency": 0.33
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:22:42.408Z",
+          "boundary": 18,
+          "messageId": 33,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 558 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 1,
+            "stateChars": 2372,
+            "latencyMs": 558,
+            "inputTokens": 1043,
+            "outputTokens": 22,
+            "p": {
+              "line:0": 0.52
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:23:00.558Z",
+          "boundary": 18,
+          "messageId": 33,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 589 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 3,
+            "stateChars": 7587,
+            "latencyMs": 589,
+            "inputTokens": 2513,
+            "outputTokens": 58,
+            "p": {
+              "line:0": 0.95,
+              "line:1": 0.97,
+              "line:2": 0.98
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:23:01.283Z",
+          "boundary": 19,
+          "messageId": 34,
+          "kind": "judge",
+          "summary": "judge scene in 283 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 9,
+            "stateChars": 6191,
+            "latencyMs": 283,
+            "inputTokens": 2379,
+            "outputTokens": 255,
+            "p": {
+              "break": 0.08
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:23:01.610Z",
+          "boundary": 19,
+          "messageId": 34,
+          "kind": "judge",
+          "summary": "judge warden in 609 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "questions": 7,
+            "stateChars": 2092,
+            "latencyMs": 609,
+            "inputTokens": 1608,
+            "outputTokens": 125,
+            "p": {
+              "facts": 6,
+              "flagged": 0,
+              "agency": 0.31
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:23:15.754Z",
+          "boundary": 19,
+          "messageId": 34,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 571 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 2,
+            "stateChars": 7548,
+            "latencyMs": 571,
+            "inputTokens": 2433,
+            "outputTokens": 40,
+            "p": {
+              "line:0": 0.76,
+              "line:1": 0.96
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:24:26.361Z",
+          "boundary": 20,
+          "messageId": 36,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2502 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 9,
+            "stateChars": 5817,
+            "latencyMs": 2502,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T19:24:26.912Z",
+          "boundary": 20,
+          "messageId": 36,
+          "kind": "judge",
+          "summary": "judge warden in 3051 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "questions": 8,
+            "stateChars": 2185,
+            "latencyMs": 3051,
+            "inputTokens": 1737,
+            "outputTokens": 143,
+            "p": {
+              "facts": 7,
+              "flagged": 0,
+              "agency": 0.51
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:24:35.234Z",
+          "boundary": 20,
+          "messageId": 36,
+          "kind": "judge",
+          "summary": "judge memoryPairs in 592 ms",
+          "detail": {
+            "use": "memoryPairs",
+            "model": "jev-1.13.0",
+            "questions": 2,
+            "stateChars": 213,
+            "latencyMs": 592,
+            "inputTokens": 619,
+            "outputTokens": 66,
+            "p": {
+              "relation": "distinct",
+              "confidence": 0.33
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:24:40.652Z",
+          "boundary": 20,
+          "messageId": 36,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 546 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 2,
+            "stateChars": 3209,
+            "latencyMs": 546,
+            "inputTokens": 1341,
+            "outputTokens": 40,
+            "p": {
+              "line:0": 0.96,
+              "line:1": 0.93
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:27:03.203Z",
+          "boundary": 21,
+          "messageId": 40,
+          "kind": "judge",
+          "summary": "judge warden in 655 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "questions": 8,
+            "stateChars": 2753,
+            "latencyMs": 655,
+            "inputTokens": 1860,
+            "outputTokens": 143,
+            "p": {
+              "facts": 7,
+              "flagged": 0,
+              "agency": 0.25
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:27:03.204Z",
+          "boundary": 21,
+          "messageId": 40,
+          "kind": "judge",
+          "summary": "judge scene in 658 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 9,
+            "stateChars": 9312,
+            "latencyMs": 658,
+            "inputTokens": 3061,
+            "outputTokens": 255,
+            "p": {
+              "break": 0.14
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:27:05.202Z",
+          "boundary": 22,
+          "messageId": 40,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2502 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 9,
+            "stateChars": 9312,
+            "latencyMs": 2502,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T19:27:05.485Z",
+          "boundary": 23,
+          "messageId": 40,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2510 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 9,
+            "stateChars": 9312,
+            "latencyMs": 2510,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T19:27:30.998Z",
+          "boundary": 23,
+          "messageId": 40,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 580 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 3,
+            "stateChars": 6045,
+            "latencyMs": 580,
+            "inputTokens": 2178,
+            "outputTokens": 58,
+            "p": {
+              "line:0": 0.97,
+              "line:1": 0.97,
+              "line:2": 0.95
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:28:00.322Z",
+          "boundary": 23,
+          "messageId": 42,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 559 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 3,
+            "stateChars": 4100,
+            "latencyMs": 559,
+            "inputTokens": 1631,
+            "outputTokens": 58,
+            "p": {
+              "line:0": 0.97,
+              "line:1": 0.91,
+              "line:2": 0.96
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:28:56.638Z",
+          "boundary": 24,
+          "messageId": 44,
+          "kind": "judge",
+          "summary": "judge scene in 593 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 8,
+            "stateChars": 10278,
+            "latencyMs": 593,
+            "inputTokens": 3203,
+            "outputTokens": 235,
+            "p": {
+              "break": 0.05
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:28:56.660Z",
+          "boundary": 24,
+          "messageId": 44,
+          "kind": "judge",
+          "summary": "judge warden in 613 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "questions": 8,
+            "stateChars": 2669,
+            "latencyMs": 613,
+            "inputTokens": 1816,
+            "outputTokens": 143,
+            "p": {
+              "facts": 7,
+              "flagged": 0,
+              "agency": 0.4
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:28:58.829Z",
+          "boundary": 25,
+          "messageId": 44,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2511 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 8,
+            "stateChars": 10278,
+            "latencyMs": 2511,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T19:30:39.147Z",
+          "boundary": 26,
+          "messageId": 47,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2513 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 8,
+            "stateChars": 10528,
+            "latencyMs": 2513,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T19:30:39.446Z",
+          "boundary": 27,
+          "messageId": 47,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2504 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 8,
+            "stateChars": 10528,
+            "latencyMs": 2504,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T19:30:40.638Z",
+          "boundary": 26,
+          "messageId": 47,
+          "kind": "judge",
+          "summary": "judge warden fell back (timeout) in 4002 ms",
+          "detail": {
+            "use": "warden",
+            "model": null,
+            "questions": 8,
+            "stateChars": 2627,
+            "latencyMs": 4002,
+            "fallback": "timeout",
+            "p": {
+              "facts": 7,
+              "flagged": 0,
+              "agency": -1
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:31:05.437Z",
+          "boundary": 27,
+          "messageId": 47,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 577 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 6,
+            "stateChars": 7939,
+            "latencyMs": 577,
+            "inputTokens": 2873,
+            "outputTokens": 112,
+            "p": {
+              "line:0": 0.97,
+              "line:1": 0.94,
+              "line:2": 0.94,
+              "line:3": 0.94,
+              "line:4": 0.96,
+              "line:5": 0.78
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:32:17.590Z",
+          "boundary": 28,
+          "messageId": 49,
+          "kind": "judge",
+          "summary": "judge warden in 581 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "questions": 11,
+            "stateChars": 2846,
+            "latencyMs": 581,
+            "inputTokens": 2189,
+            "outputTokens": 197,
+            "p": {
+              "facts": 10,
+              "flagged": 0,
+              "agency": 0.96
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:32:17.596Z",
+          "boundary": 28,
+          "messageId": 49,
+          "kind": "judge",
+          "summary": "judge scene in 589 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 8,
+            "stateChars": 10543,
+            "latencyMs": 589,
+            "inputTokens": 3307,
+            "outputTokens": 235,
+            "p": {
+              "break": 0.1
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:32:31.017Z",
+          "boundary": 28,
+          "messageId": 50,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 545 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 2,
+            "stateChars": 4265,
+            "latencyMs": 545,
+            "inputTokens": 1529,
+            "outputTokens": 40,
+            "p": {
+              "line:0": 0.97,
+              "line:1": 0.95
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:34:02.288Z",
+          "boundary": 29,
+          "messageId": 54,
+          "kind": "judge",
+          "summary": "judge scene in 1460 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 7,
+            "stateChars": 9073,
+            "latencyMs": 1460,
+            "inputTokens": 2932,
+            "outputTokens": 215,
+            "p": {
+              "break": 0.08
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:34:02.290Z",
+          "boundary": 29,
+          "messageId": 54,
+          "kind": "judge",
+          "summary": "judge warden in 1460 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "questions": 13,
+            "stateChars": 3886,
+            "latencyMs": 1460,
+            "inputTokens": 2655,
+            "outputTokens": 235,
+            "p": {
+              "facts": 12,
+              "flagged": 0,
+              "agency": 1.28
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:34:03.067Z",
+          "boundary": 30,
+          "messageId": 54,
+          "kind": "judge",
+          "summary": "judge scene in 2026 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 7,
+            "stateChars": 9073,
+            "latencyMs": 2026,
+            "inputTokens": 2932,
+            "outputTokens": 215,
+            "p": {
+              "break": 0.09
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:34:22.315Z",
+          "boundary": 30,
+          "messageId": 55,
+          "kind": "judge",
+          "summary": "judge memoryPairs in 0 ms",
+          "detail": {
+            "use": "memoryPairs",
+            "model": "jev-1.13.0",
+            "questions": 2,
+            "stateChars": 213,
+            "latencyMs": 0,
+            "cached": true,
+            "p": {
+              "relation": "distinct",
+              "confidence": 0.33
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:34:22.866Z",
+          "boundary": 30,
+          "messageId": 55,
+          "kind": "judge",
+          "summary": "judge memoryPairs in 551 ms",
+          "detail": {
+            "use": "memoryPairs",
+            "model": "jev-1.13.0",
+            "questions": 2,
+            "stateChars": 241,
+            "latencyMs": 551,
+            "inputTokens": 628,
+            "outputTokens": 66,
+            "p": {
+              "relation": "distinct",
+              "confidence": 0.24
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:34:43.614Z",
+          "boundary": 30,
+          "messageId": 55,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 567 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 5,
+            "stateChars": 8983,
+            "latencyMs": 567,
+            "inputTokens": 3071,
+            "outputTokens": 94,
+            "p": {
+              "line:0": 0.98,
+              "line:1": 0.96,
+              "line:2": 0.97,
+              "line:3": 0.91,
+              "line:4": 0.93
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:35:26.551Z",
+          "boundary": 30,
+          "messageId": 56,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 600 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 2,
+            "stateChars": 4563,
+            "latencyMs": 600,
+            "inputTokens": 1642,
+            "outputTokens": 40,
+            "p": {
+              "line:0": 0.62,
+              "line:1": 0.96
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:36:56.700Z",
+          "boundary": 31,
+          "messageId": 57,
+          "kind": "judge",
+          "summary": "judge scene in 748 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 7,
+            "stateChars": 12074,
+            "latencyMs": 748,
+            "inputTokens": 3676,
+            "outputTokens": 215,
+            "p": {
+              "break": 0.05
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:36:56.700Z",
+          "boundary": 31,
+          "messageId": 57,
+          "kind": "judge",
+          "summary": "judge warden in 747 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "questions": 15,
+            "stateChars": 3975,
+            "latencyMs": 747,
+            "inputTokens": 2881,
+            "outputTokens": 273,
+            "p": {
+              "facts": 14,
+              "flagged": 0,
+              "agency": 1.15
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T19:36:58.638Z",
+          "boundary": 32,
+          "messageId": 57,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2510 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 7,
+            "stateChars": 12074,
+            "latencyMs": 2510,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T19:36:58.970Z",
+          "boundary": 33,
+          "messageId": 57,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2510 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 7,
+            "stateChars": 12074,
+            "latencyMs": 2510,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T19:37:31.536Z",
+          "boundary": 33,
+          "messageId": 59,
+          "kind": "judge",
+          "summary": "judge memoryVerify in 537 ms",
+          "detail": {
+            "use": "memoryVerify",
+            "model": "jev-1.13.0",
+            "questions": 1,
+            "stateChars": 4735,
+            "latencyMs": 537,
+            "inputTokens": 1576,
+            "outputTokens": 22,
+            "p": {
+              "line:0": 0.97
+            }
+          }
+        }
+      ]
+    },
+    "judgeMode": {
+      "mode": {
+        "label": "on",
+        "uses": [
+          "director",
+          "memoryVerify",
+          "memoryPairs",
+          "sceneTrigger",
+          "sceneTracker",
+          "lookahead",
+          "loreSelect",
+          "typedExtraction",
+          "stallCheck",
+          "expansionCritic",
+          "expansionLookahead",
+          "curatorFilter",
+          "agencyCheck",
+          "houseRules",
+          "warden"
+        ],
+        "wardenMode": "auto"
+      }
+    },
+    "judgeMeter": {
+      "calls": 81,
+      "cachedCalls": 1,
+      "inputTokens": 118115,
+      "outputTokens": 7098,
+      "cost": 0,
+      "lastAnsweredModel": "jev-1.13.0"
+    },
+    "boundaries": 33,
+    "warden": {
+      "flagged": 0,
+      "applied": 0,
+      "lapsed": 0,
+      "rejected": 0,
+      "pending": 0
+    },
+    "wardenNotes": [],
+    "rescore": {
+      "factsSource": "live facts-tier and pinned memory rows at cleanup; ledger-bound rows not included; player line = the newest player message before each reply; house rules = the played story at cleanup",
+      "rows": [
+        {
+          "id": "m0",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+          },
+          "player": "Max"
+        },
+        {
+          "id": "m2",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin follows close behind, his shoulder brushing yours as he peeks over at the quest board. The scent of ale and old parchment fills the air as the crowd murmurs around you.*\n\"Alright, what've we got? Hopefully something that won't get us killed *too* quickly this time,\" *he says with a grin, his eyes scanning the pinned notices.* \"Anything with decent pay? I'm running low on coin, and my boots are starting to give out.\"\n*He shifts his weight, crossing his arms as he looks at you, waiting to see which quest catches your eye.* \"Or are we thinking of something more ambitious? Don't tell me you're feeling adventurous today. That'd mean we're in for some real trouble.\""
+          },
+          "player": "Max",
+          "playerMessage": "I push through the crowd and get close to the job board to read the postings."
+        },
+        {
+          "id": "m3",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The Guild board is crammed with faded notices, some curling at the edges, their ink barely legible in the dim light cast by the nearby hearth. Most are routine: pest control in the storage cellars, escort missions to the scavenging teams, or retrieval of lost supplies from the outer walls.*\n*But one catches your eye—a larger piece of parchment, newer than the others, its ink crisp and dark. It's titled 'Sun Ruins Expedition,' and the writing is bold and purposeful.*\n**Quest: Sun Ruins Expedition**\n**Ranking: C-Rank**\n**Target: Retrieve an ancient artifact from the ruins**\n**Reward: 1500 coin**\n**Questgiver: Guild Receptionist**\n**Questgiver: Council Elder Aethelgard**\n**Location: Sun Ruins**\n**Additional Notes: Proceed with caution. Area is known for residual magical instability. Potential hazards include ancient guardians and magical anomalies. Detailed map provided upon acceptance.**\n*The board's surface creaks as you lean in closer to read. The paper is with a yellowed ribbon attached to the binding, marking its importance.*\n*Arin's expression shifts as his read the notice. His grin fades slightly, a hint of tension in his jaw.*\n\"The Sun Ruins,\" *he murmurs, his voice dropping.* \"That's not a good sign. I've heard stories about that place. Dangerous, but the pay is good. You thinking about taking it?\" *He glances at you, his hand unconsciously reaching for the hilt of his sword.* \"What do you think, Max? This is a good chance to make some coin, but we might not come back.\""
+          },
+          "player": "Max",
+          "playerMessage": "I push through the crowd and get close to the job board to read the postings."
+        },
+        {
+          "id": "m5",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin's eyes narrow as he listens to you read the quest, his posture stiffening slightly. He knows how dangerous this is, but he doesn't want to show it. He lets out a soft sigh, trying to regain his composure.*\n\"Sun Ruins, huh? That's a bad idea,\" *he says quietly, his voice low.* \"C-Rank, 1500 coins... that's a good reward, but it comes with a reason. No one wants to go to that place.\"\n*He glances around the guild, his hand resting on the hilt of his dagger, his expression grim.* \"I've heard rumors of ancient guardians, things that have been left behind to guard the ruins for centuries. Things that can't be killed by normal means.\"\n*He pauses, and then looks at you with a sharp, knowing look.* \"But we've done worse, right? We've survived this much, and we'll survive that too. Right?\" *He tries to laugh, but it doesn't-off.* \"Just don't let me get killed in there. That's what I'm really gonna miss you for.\"\n*He looks back at the board, his face set in determination.* \"Alright. Let's go talk to Tobias. Maybe he's got more info on this quest.\""
+          },
+          "player": "Max",
+          "playerMessage": "I read the Sun Ruins notice aloud to Arin, tracing the seal with a finger."
+        },
+        {
+          "id": "m6",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The tavern is alive with the low hum of conversation as you and Arin turn away from the quest board, your eyes fixed on the board’s newest addition.*\n*You walk toward the reception desk, the sound of your boots echoing on the worn wooden floor. Other adventurers are scattered around the guild-hall, some laughing and drinking, others huddled in corners, planning their next move.*\n*The reception desk is a long, dark-wood counter, its surface polished and worn from years of use. Behind it sits Tobias, the Guild’s Receptionist, an elven man with messy light-green hair and ocean-blue eyes. His black vest and white shirt are immaculate, his sleeves rolled up as he sorts through a stack of papers.*\n*Tobias doesn't look up as you approach, his long pointed ears twitching slightly as he hears the sound of your footsteps. His eyes are focused on the paperwork before him, his expression one of focused concentration.*\n\"Yes, please hold a moment,\" *he says calmly, his voice steady and polite, but there's no warmth in his tone.* \"I'm finishing up with a few things here. Thank you.\"\n*He continues to sort through the papers, his fingers moving with precision and his pointed ears twitching as he hear the sound of your movement.*\n*You and Arin wait for a moment, the scent of old parchment and ink filling the air.*\n*Arin glances at you with an expectant look, his hand resting casually on the hip of his breeches as he waits for Tobias to Tobias finish his paperwork.*"
+          },
+          "player": "Max",
+          "playerMessage": "I read the Sun Ruins notice aloud to Arin, tracing the seal with a finger."
+        },
+        {
+          "id": "m8",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "*The heavy wooden door of the guild hall groans open as a broad-shouldered man enters, the scent of the outdoors clinging to him. His face is weathered, lines of experience etched into every feature. This is Ponticius, the Guild Master, his boots caked with dust from the day's travels.*\n\"Tobias!\" *He calls out, his voice booming through the hall, cutting through the low chatter of the tavern.* \"Toss me the quest logs, will you? I've got a feeling something's brewing out there.\"\n*He makes his way toward the desk, his movements heavy but purposeful, and nods toward you and Arin as he passes. His eyes linger on you for a moment, noting the way you stand, the way you carry yourself.*\n\"Evening, boys,\" *he says gruffly, but there's a hint of something like affection in his voice.* \"You two look like you've got something on your mind.\"\n*He stops beside the desk and looks at Tobias, waiting for the logs. His expression is one of expectation, anticipation.*\n\"Well, go on. What's got you two so interested in the board?\" *His voice is rough, like sandpaper on wood, but not unkind.* \"The Sun Ruins, is it? That one's a bold choice.\"\n*He pauses, crossing his arms over his chest, his gaze steady and penetrating. He's not asking, but stating.*\n\"Told you two, didn't I? Some quests are worth the coin, and some are just a good way to get yourself killed.\" *He lets out a short, bark-like laugh.* \"But I suppose that's what an adventurer does. Takes a risk. Hopes for the best.\"\n*He looks at you again, and this time his gaze holds yours, challenging you, gauging your strength.*\n\"So, what do you say? You two brave enough to go after that artifact? Or are you going to play it safe?\" *His voice is steady, unblinking.* \"No shame in being smart. But no shame in being brave, either.\""
+          },
+          "player": "Max",
+          "playerMessage": "I read the Sun Ruins notice aloud to Arin, tracing the seal with a finger."
+        },
+        {
+          "id": "m10",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The crowd around the quest board thins as you point to the notice, the yellowed ribbon seeming to catch the dim lantern light. The murmurs of the tavern grow quiet for a moment, as if the other adventurers are watching your decision.*\n*Arin shifts beside you, his weight leaning back against the board’s rough timber frame. His expression is unreadable, but his hand tightens on the hilt of the dagger at his belt.*\n*Ponticius' gaze follows your finger to the notice, his eyes narrowing as he looks at the bold lettering and the guild's official seal. He stands silent for a heartbeat, the only sound the crackle of the hearth and the distant clink of tankards from the tavern.*\n\"The Sun Ruins,\" *he says quietly, his rough voice cutting through the stillness.* \"A bold choice. Very bold.\"\n*He moves closer, his heavy boots thumping softly on the floor. He stops beside you, peering at the parchment with a furrowed brow.*\n\"That's an old place, full of old dangers. The kind that don't just go away.\" *He pauses, looking at you directly, his eyes searching.* \"You sure about this? It's C-Rank, but don't let the number fool you. The Sun Ruins have a reputation for swallowing adventurers whole.\"\n*He steps back, his hands clasped behind his back. His voice is low, steady.*\n\"But then again, an adventurer who plays it safe isn't an adventurer at all. They're just a coward in boots.\" *He lets out a short, dry laugh.* \"So, what's it going to be? You going to take the quest, or are you going to keep staring at it?\"\n*Arin looks at you, his grin returning, but there's something sharper in his eyes.*\n\"Well, Max? What do you say?\" *He asks, his tone challenging.* \"Are we doing this, or not?\""
+          },
+          "player": "Max",
+          "playerMessage": "\"This one — the Sun Ruins job.\" I stay at the board, pointing at the notice."
+        },
+        {
+          "id": "m11",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*The heavy guild hall door slams open with a sudden bang, echoing through the tavern. A young man stumbles in, his chainmail several sizes too large for him and his short sword clattering at his hip.*\n\"Wait! Please, wait!\" *He shouts, his voice cracking with urgency as he scans the room, his pale face flushed from running. His messy brown hair is plastered to his forehead, and he's breathing hard.*\n*Luke spots you and Arin standing near the quest board and rushes forward, nearly tripping over his own oversized boots.* \"You're them! You're the adventurers taking the Sun Ruins quest!\" *He says, his voice breathless and eager, his eyes wide with desperate hope.*\n*He skids to a halt in front of you, his chest heaving, his gaze moving between you and Arin with a mixture of awe and desperation.* \"Please! You have to let me come with you! My brother... he's missing. He went to the Sun Ruins and never came back!\" *His words come out fast, stumbling over each other as he struggles to catch his breath.*\n*Luke's hands are shaking as he reaches toward you, then pulls them back, as if afraid you might push him away.* \"I know I'm not much, but I'll do whatever you need! I'll carry the gear, I'll keep watch, I'll cook the food—anything! Just please, let me help you find him!\" *His voice is thick with emotion, pleading, his eyes begging you for a chance.*\n*Luke takes a shaky breath, his expression one of desperate hope mixed with fear.* \"I'm Luke. I'm not... I'm not an adventurer yet. But I'm not going to let my brother die. I can't.\" *His voice falters for a moment before it steadies, determination flashing in his eyes.* \"Please, let me come along. I'm begging you.\"\n*He looks at you with wide, desperate eyes, waiting for your answer.*"
+          },
+          "player": "Max",
+          "playerMessage": "\"This one — the Sun Ruins job.\" I stay at the board, pointing at the notice."
+        },
+        {
+          "id": "m14",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin pushes off the board, the parchment crinkling beneath his touch as he steps back. He looks at you, a slow grin spreading across his face.*\n\"Alright, let's do it.\" *He says, his tone light and casual as if it were nothing more than a casual decision.*\nHe turns to Tobias, the guild receptionist, his eyes sparkling with anticipation.\n\"We'll take the Sun Ruins expedition,\" *he says, his voice clear and ring-out.* \"Get us the map and any information you've got.\"\nHe looks at you, his shoulders relaxed, his posture easy and confident.*\n\"Looks like we've got ourselves an adventure.\"*He says with a grin.*\"1500 coins is a good start. Might help me finally replace those boots.\"\n*He follows you over to the reception desk, his hand resting lightly on the belt of his dagger as he walks. He looks around the guild hall, his expression one of excitement and readiness.*\n\"Let's get this show on the road.\"*He says, his voice full of energy.*\n*He stops beside you at the desk, waiting for Tobias to finish his paperwork. He looks at you with a questioning look.*\n\"So, you thinking of we're going to need anything else for this trip? Some supplies, maybe? Some extra rations or anything?\"*He asks, his voice thoughtful, as he's considering the possibility of the quest.*\n*He looks at Tobias as he waits, his expression patient and expectant.*"
+          },
+          "player": "Max",
+          "playerMessage": "We take a breath, look around, and carry on."
+        },
+        {
+          "id": "m15",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke's eyes widen at your words, a wave of relief washing over his face as he exhales a long, shaky breath.*\n\"Thank you! Thank you so much!\" *He says, his voice choked with emotion, nearly spilling over into tears.*\n\"I'll do anything! I promise! I'll be useful, I swear!\" *He says, his words rushing out as he tries to breathe properly, his hands trembling as he grips the strap of his sword-belt.*\n*Luke's chest is still heaving as he catches his breath, his excitement and desperation making him seem unsteady on his feet.* \"My brother... his name is Kieran. He's been missing for weeks now. They said he went to the Sun Ruins to find something, but...\" *His voice falters, and his voice is thick withemotion.* \"He's a strong adventurer, but I don't know what happened to him. I just can't stop looking for him.\"\n*Luke's and eyes are full of desperate hope as he look at you and Arin.* \"I'm not going to get in the way, I promise. I'll do my best to keep up. I'll just... I need to find him.\"\n*Luke's voice is fast and uncertain when emotional, but there is a determination in his eyes that betrays his fear, an earnest and eager drive that pushes him.*\n\"Please, just... let's find my brother.\" *He says quietly, his voice filled with a quiet desperation.*\n*Luke looks at you both, waiting for you to see how this can be-\n*Just then, a hooded figure emerges from the shadows of the tavern, its face obscured by the hood. The figure approaches the reception desk with a slow, deliberate pace, its voice low and raspy, and it draws closer, its attention fixed on you and Arin.*\n\"The Sun Ruins,\"*it says, its voice like grinding stones, and itC-Rank.*\"You're fools, I say. Fools.\"\n*The hooded figure looks at you and Arin, its eyes unreadable beneath the hood, and its voice is low and raspy.*\n\"No one goes there. No one comes back. And you're thinking of taking that quest. You're fools.\"\n*The hooded figure's gaze lingers on you, its expression unreadable as it watches you and Arin. Its voice is low and rasping.*\n\"Tread carefully, fools.\"\n*The hooded figure turns and walks away, disappearing into the shadows as quickly as it came.*\n*The guild hall is suddenly silent, the words of the hooded figure echoing in the air. Even Luke's expression is one of confusion and apprehension.*\n\"Who... who was that?\"*Luke asks, his voice uncertain, as his eyes"
+          },
+          "player": "Max",
+          "playerMessage": "We take a breath, look around, and carry on."
+        },
+        {
+          "id": "m17",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke's expression is uncertain and full of fear as he looks in your direction, his brow furrowed with confusion.*\n\"Who was that?\" *He asks his voice barely echoing in the hall as the mysterious figure disappears into the shadows.*\n*Luke's eyes move back to you and Arin, his gaze wide with worry and desperation. His hand rests on the hilt of the sword at his side, his knuckles white with tension.*\n\"I'm not sure who that was, but...\" *He says, his voice trailing off as he looks around the guild, the strange hooded figure having sent a chill through the air.*\n*Luke's face is pale and his chest is heaving with nervousness, his hand still trembling slightly as he takes a step forward, his feeling like he's about to trip over his own gear.*\n*Luke looks at you with desperate hope in his eyes, as his look is eager to see if you'll let him come along, his anticipation making him look unsteady on his feet.*\n\"Please... just let me come with you. I won't get in the way, I swear.\" *His voice is urgent and pleading.*\n*Luke's gaze moves between you and Arin, waiting for a response, his expression earnest and eager as he waits.*\n*You and Arin take a breath and look around.*\n*You move closer to the guild master, your eyes fixed on the contract in front of you. Ponticius is watching you closely, his expression unreadable.*\n*The guild master steps back and his gaze follows your movements, his eyes narrowed as he looks on.*\n\"Good,\" *Ponticius says, his voice low and steady.* \"Tread carefully. And don't come back in pieces.\"\n*The guild master watches as you sign your name on the contract, his eyes narrowing.*\n\"We've had a few of these quests come in over the years. And they're not all for easy money.\"\n*Ponticius reaches over and grabs the contract from you, his eyes fixed on theHilt of a sword, his face grim.*\n\"Here's the map of the Sun Ruins. And a few notes about the area.\"\n*The guild master hands you the parchment, its edges curled and yellowed with age, the ink faded in spots but still legible.*\n*Ponticius's face is stern as he watches you, and his eyes are and cold, his voice flat and emotionless.*\n\"Try and don't die. It's a bad look.\"\n*Ponticius walks away, leaving you and Arin with the parchment in hand, his footsteps heavy as he walks away.*\n*You look at the map, its lines faded and yellowed, the ink barely legible.*\n*You and Arin look at each other, and the Arin gives you a grin"
+          },
+          "player": "Max",
+          "playerMessage": "I take the Sun Ruins contract from Ponticius and sign it."
+        },
+        {
+          "id": "m19",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin studies the map over your shoulder, his eyes scanning the faded lines and faded ink. His grin doesn't reach his eyes this time, the weight of the hooded figure's warning and Ponticius's grim parting words lingering in the air.*\n\"Alright, so according to this old piece of parchment, the Sun Ruins are located in the eastern district of the buried city,\" *he says, tracing a finger along the map's worn surface.* \"We'll need to head east through the outer walls, past the old residential area. The map shows a series of tunnels that lead down into the buried district.\"\n*He shifts his weight and glances at you, then at Luke, who's still standing there with his oversized chainmail and desperate eyes.*\n\"We should probably grab some supplies first,\" *Arin suggests, his voice taking on a pragmatic edge.* \"Rations, water, and maybe some extra medicine. We don't want to run out of stuff in the middle of some ancient ruins. Especially not when we're dealing with magical anomalies.\"\n*He straightens up and looks around the guild hall again, as if making sure they''re ready.*\n\"What do you say, Max? You want to get supplies first, or do you want to head straight out? I'm thinking supplies would be a good idea, but I'm open to whatever you're thinking.\""
+          },
+          "player": "Max",
+          "playerMessage": "We take a breath, look around, and carry on."
+        },
+        {
+          "id": "m22",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke's eyes light up as you agree, his whole body seeming to vibrate with relief and gratitude.*\n\"Thank you! You won't regret this, I promise!\" *He says his voice cracking slightly, a mixture of awe and hope washing over him.*\n*Luke takes a shaky breath, trying to steady himself. He looks over at you and then at Arin, his gaze full of earnest determination.*\n\"I know I'm not much right now, but I'll do whatever you need. I'll carry the gear, I'll keep watch, I'll cook the food, I'll help in any way I can.\" *He says, his words spilling out fast, and desperate.*\n*Luke's hands are trembling as he reaches for the strap of his short sword-belt, adjusting it as if to make sure it's properly secured.* \"Just... please, let me help find Kieran. I can't... I can't leave him behind.\"\n*Luke's voice falters for a moment, and a hint of sadness enters his eyes before they clear and determination returns.*\n\"I'm begging you. Just... please, let me find my brother.\" *His voice is soft and quiet, but steady and filled with a truth that runs deep.*\n*Luke's expression is full of hope, as he looks over at you and Arin for a decision, his anticipation making him feel like he'll be unsteady on his feet.*\n\"So... so what do we need to do? Do we need any supplies?\" *He asks, his voice eager and impatient, as if he's already ready to go.*\n*Luke's gaze shifts to you and then Arin, anticipation making him look like he's eager to start the process, his chest heaving with nervousness and hope.*"
+          },
+          "player": "Max",
+          "playerMessage": "Luke begs to come with us. I agree to bring Luke on the expedition."
+        },
+        {
+          "id": "m23",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin rubs the back of his neck, his sharp green eyes flicking between you and Luke's oversized gear.*\n\"Alright, alright. No use crying over spilt milk now.\" *He mutters, his voice taking on that familiar teasing edge that masks his concern.* \"But seriously, kid, your gear is falling apart. If we're gonna do this, we need to make sure you're not a liability.\"\n*He straightens up, his posture shifting into tactical mode as he considers the logistics.* \"We're taking you with us, fine. But we can't afford to be distracted or slow down because your chainmail is too big and your boots are giving out.\"\n*Arin turns back to you, his expression serious.* \"Max, we're already short on supplies for two, and now we're planning for three. We'll need more rations and water, and maybe a few medical supplies. I know our coin purse is pretty thin right now, but we can't exactly skimp on basic needs.\"\n*He leans closer, lowering his voice slightly.* \"And we need to decide when we're leaving. The earlier we start, the better. The sun's still up, and I'd rather not be trekking through ruins at night if we can avoid it. But... we'll need to spend some time and coin getting supplies first.\"\n*Arin looks at Luke again, then back at you.* \"So, Max, what's the plan? Supplies first, or do we head out straight away? We're deciding on a more efficient approach here, so I've gotta know what you're thinking.\""
+          },
+          "player": "Max",
+          "playerMessage": "Luke begs to come with us. I agree to bring Luke on the expedition."
+        },
+        {
+          "id": "m24",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The guild-hall is starting to buzz with activity as the morning advances. Adventurers are packing their gear, sharing last-minute advice, and finishing their drinks before heading out for the day.*\n*You and Arin stand with Luke by the reception desk, where Tobias is sorting through a stack of paperwork, his pointed ears occasionally twitching as he catches fragments of conversation around them.*\n*Ponticius is moving toward the back of the the hall now, his heavy boots echoing as he heads for the door, his broad-shouldered silhouette framed by the sunlight streaming in from the high windows.*\n*The air in the guild-hall is thick with the smell of old parchment, stale ale, and the faint scent of roasted meat from the hearth-fire, a comforting but temporary solace against the dangers that lie beyond.*\n*You have the Sun Ruins map and contract in your possession now, the worn parchment feeling rough beneath your fingers as you glance at its faded lines and notes.*\n*Luke stands beside you, his oversized chainmail clinking with every movement, his eyes wide with a mixture of hope and anxiety as he awaits theCdecision.*\n*The weight of the hooded figure's words—\"No one goes there. No one comes back.\"—still hangs in the air, a reminder of the risks you've taken.*\n*Your decision is yours to make: supply-gathering, or a direct approach to the ruins. Each choice carries its own consequence.*"
+          },
+          "player": "Max",
+          "playerMessage": "Luke begs to come with us. I agree to bring Luke on the expedition."
+        },
+        {
+          "id": "m26",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke's face breaks into a smile of pure relief, his eyes shining with unshed tears as he practically bounces on the spot.*\n\"Thank you! I can't thank you enough!\" *He says, his voice thick with emotion.*\n\"I'll be the best helper you've ever had, I promise! I won't get in the way, and I'll do everything you ask, anything at all!\" *He says, his eagerness nearly overwhelming as he struggles to contain his excitement.*\n*Luke reaches out to pat you on the shoulder, then quickly draws his back, realizing he's too tall for you to be quite comfortable with that. He laughs nervously, his chest still heaving from his earlier exertion.*\n\"My brother... he's a good man. He always told me to be careful, but I know he wouldn't give to up on me, either. He'd be so happy to see us looking for him.\" *His voice is soft now, and full of a quiet determination.*\n*Luke's voice trail off as he looks around the guild-hall, his eyes taking in the scene as and his face is pale with uncertainty.*\n*But his expression hardens, and he looks at you with an earnest gaze.* \"I'll do my best, sir. I promise.\"\n*He looks at you as you sling his pack over your shoulder.* \"Oh! You don't have to do that! I can carry my own pack!\" *He says, rushing forward, his movements clumsy and eager to help.*\n*Luke tries to grab his pack from you, but his movements are awkward and uncoordinated, the oversized chainmail making him look slightly off-balance.*\n*His oversized boots scuff against the floor as he tries to reach for his pack, his face flushed with a combination of embarrassment and anxiety.*\n*Luke looks at you, and you can't say himself, his hand still outstretched, his chest heaving from his desperation as he looks at you for a response.*"
+          },
+          "player": "Max",
+          "playerMessage": "\"Fine — Luke comes with us.\" I sling his pack over my shoulder and we set out."
+        },
+        {
+          "id": "m27",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*You sling Luke's pack over your shoulder and turn to leave the guild-hall as the door swings open behind you, the morning light streaming in and illuminating the dust motes dancing in the air.*\n*The sound of the guild-hall's chatter fades behind you as you step out onto the cobbled streets of Xentar, the cool morning air refreshing against your skin.*\n*Luke hurries along behind you, his oversized boots clunking with each step and his oversized chainmail rattling with every movement.*\n*Arin follows, his posture relaxed and confident, his eyes scanning the rooftops and alleyways with practiced ease.*\n*The streets are quiet for now, the early morning air still thick with the scent of damp earth and old stone as you make your way toward the eastern district, the faded map in your possession guiding your way.*\n*The town is a mix of ruins and temporary settlements, the remnants of a city that once was. You walk past abandoned buildings and makeshift shelters, the sounds of distant calls and the clatter of hoofbeats echoing through the streets.*\n*The path forward is clear, but you know it doesn't lead far before you'll have to venture into the wilds beyond the city walls—and into the ruins themselves.*\n*The sun's light is soft and pale as you leave the city behind, the road ahead opening up to the dusty, cracked expanse of the ruined eastern district. The air feels colder here, and the wind carries the scent of old stone and something else—something old and forgotten.*\n*Luke walks beside you, his expression a mixture of anticipation and fear, his eyes constantly shifting as he looks for any sign of his brother's gear or a struggle.*\n*You and Arin exchange a look, silently acknowledging the weight of what lies ahead. The road is long, and the ruins wait for you.*"
+          },
+          "player": "Max",
+          "playerMessage": "\"Fine — Luke comes with us.\" I sling his pack over my shoulder and we set out."
+        },
+        {
+          "id": "m29",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin adjusts the strap of his bow on his shoulder, his green eyes scanning the horizon with a sharp, calculating gaze.*\n\"The eastern district is a mess,\" *he says, his voice cutting through the silence.* \"We're heading into some of the oldest parts of Xentar. These ruins predate the fall—some of them are still standing, but they're full of unstable residual magic.\"\n*He looks over at you, a slight smirk on his face.* \"We'll need to be careful. The last thing I want is for some ancient curse to turn me into a frog. I hear that's in all the wrong neighborhoods.\"\n*He glances at Luke, his tone softening slightly but still keeping that pragmatic edge.* \"And you, kid. Try not to trip over your own feet. These ruins are no place for someone who can't walk in a straight line.\"\n*Arin shifts his weight, his hand resting casually on the belt of his dagger as he keeps his eyes on the road ahead.* \"Let's keep moving. The map shows the main entrance to the Sun Ruins is further east, past the residential area. We've got a long walk ahead of us.\"\n*He starts walking again, his pace steady and confident as he leads the way forward into the ruined city.*\n*You and Luke follow, the scent of old stone and decay thick in the air.*\n*The path ahead is unclear, but you know where you're going. The Sun Ruins await.*"
+          },
+          "player": "Max",
+          "playerMessage": "We take a breath, look around, and carry on."
+        },
+        {
+          "id": "m31",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin's eyes widen as he watches you step forward, and his hand instinctively goes to the hilt of his dagger.*\n\"Max, what the hell are you doing?\" *he hisses, his voice low and urgent.*\n*He moves to stand beside you, his bow drawn and an arrow nocked, his eyes locked on the sphinx's golden gaze.*\n\"If you're wrong, this thing is gonna kill us all. Are you sure about this?\" *He asks, his voice sharp and full of worry, but his hand is steady as he holds the bow.*\n*He looks at you, then at the sphinx, then back to you. He can't make out the expression in your eyes, but he's waiting for your answer.*\n*He takes a breath, and then he waits for you to speak.*"
+          },
+          "player": "Max",
+          "playerMessage": "I face the sphinx and answer its riddle: \"The moon.\""
+        },
+        {
+          "id": "m33",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin's knuckles turn white around the bow's grip, his breathing shallow as he watches you face down the ancient guardian.*\n\"Dammit, Max.\" *He whispers, the words barely audible over the hum of magic emanating from the sphinx.*\n*His sharp green eyes flick between you and the sphinx, his body coiled like a spring, ready to react the instant something goes wrong.*\n\"If this works, you're a genius. If not...\" *He doesn't finish the sentence. He doesn't need to.*\n*He stays motionless, his arrow still nocked and aimed at the sphinx's chest, his jaw clenched tight. He's not going to let anything happen to you without a fight, even if it means facing something he's probably outmatched by.*\n*The air feels thick and heavy around the sphinx, the magic building and pressing in on you both as the golden-eyed creature stares down your answer.*\n\"Just... tell me you're right.\" *He murmurs under his breath, his expression grim and determined.*\n*He looks at the sphinx, and this time his eyes are locked onto the creature's golden gaze, waiting to see if it accepts your answer or turns violently against you.*\n*The moment stretches out, silent and tense, as Arin's breath catches in his throat, waiting for the outcome.*\n*He doesn't look away from the sphinx, and his expression is one of focus and determination, ready for whatever comes next.*\n*The air is still, and then...*"
+          },
+          "player": "Max",
+          "playerMessage": "\"My answer is the moon,\" I repeat to the sphinx, meeting its gaze."
+        },
+        {
+          "id": "m36",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The sphinx's eyes glow brighter for a moment, then dim to their original soft gold. The creature's mouth curves upward into a subtle smile.*\n\"You may pass,\" *it speaks, the deep voice echoing across the ruins.*\n*With a heavy grinding sound, the sphinx steps aside, revealing the sealed archway behind it. The massive stone door opens slowly, revealing a darkened chamber beyond.*\n*Arin lets out a long, shaky breath and lowers his bow, his shoulders sagging in relief.*\n\"Holy shit, you actually did it,\" *he says, wiping the sweat from his brow.* \"I swear, my heart nearly stopped.\"\n*He looks back at the archway, then at you, his grin returning, though this time it's more weary.*\n\"Well, that's one obstacle down. I guess that's what we do—take risks and hope for the best.\"\n*He shifts his weight and adjusts the strap of his bow, his eyes already scanning the chamber ahead, looking for any threats that might lie in wait.*\n\"Come on, let's get this over with. The sooner we get the artifact and get out of here, the better.\"\n*He steps aside and gestures for you to go first into the darkened chamber, his hand returning to the hilt of his sword as he follows behind.*\n*The air is cool and damp in the chamber, and the faint hum of ancient magic pulses faintly from the darkness ahead.*\n*Arin stays close, his steps quiet and cautious, his gaze alert and alert. He's ready for whatever comes next.*"
+          },
+          "player": "Max",
+          "playerMessage": "We take a breath, look around, and carry on."
+        },
+        {
+          "id": "m38",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke follows closely behind you and Arin, his oversized chainmail jingling softly with each hesitant step.*\n\"Is this it? Is this where it is?\" *he asks, his voice hushed and filled with wonder as they enter the chamber.*\n*The air is thick with the scent of old metal and ozone, and a faint blue glow emanates from the ancient machinery surrounding them. Luke's eyes are wide with awe and anticipation, his gaze darting around the chamber, trying to make sense of the strange devices and the hum of power.*\n\"I've never seen anything like this before,\" *he whispers, his voice trembling slightly.* \"Do you think... do you think my brother was in here? Do you think we'll find him?\"\n*Luke's voice is thick with hope and fear, and he looks at you both, seeking reassurance.*\n*But his gaze lingers on a broken piece of machinery in the corner, a strange metallic object half-buried in dust. He pauses, his chest heaving slightly, and his gaze softens.*\n\"This looks like... like a workshop, right? Like someone lived here.\" *He says softly, his voice full of a tentative hope.*\n*Luke steps forward, his boots scuffing against the stone floor, his gaze locked on the strange device. He reaches out a shaky hand, as if to touch the metallic object.*\n\"Do you think Kieran would have worked on this? Or... or maybe he was searching for something?\" *He asks quietly, his voice filled with a tentative hope.*\n*Luke's eyes are full of desperation and hope, his gaze shifting between you and Arin as he awaits a response, his anticipation making him look unsteady on his feet.*\n*The air is still around them, the only sound the faint hum of power and the soft rattle of Luke's gear as he takes a cautious step toward the metallic device.*\n*Luke's expression is one of cautious hope and fear, as he looks over at you and Arin for guidance, his voice soft and hesitant.*\n\"Should we... should we keep looking?\" *he asks quietly, his gaze shifting to you and Arin.*"
+          },
+          "player": "Max",
+          "playerMessage": "We step past the archway and enter the chamber of ancient machinery."
+        },
+        {
+          "id": "m39",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin moves to Luke's side, his hand gently resting on the boy's shoulder to steady him.*\n\"Easy, kid,\" *he says softly, his tone lacking its usual sharp edge.* \"We can't just wander off. Not in a place like this.\"\n*He glances around the chamber, his sharp green eyes taking in every detail of the ancient machinery and the faint blue glow.*\n\"The Sun's Heart is probably in the center of the room. That's where all these devices are pointing,\" *he observes, his voice returning to its pragmatic edge.*\n*He shifts his gaze to you, his expression thoughtful.*\n\"We need to be smart about this. We came here for the artifact, but if we're lucky, we might find something about Kieran too.\"\n*Arin's hand remains on Luke's shoulder, steadying him as he looks back at the chamber ahead, his eyes narrow and calculating.*\n\"Let's stay focused. One step at a time, alright?\"\n*He steps back from Luke, his hand returning to his hilt as he scans the chamber once more, his posture alert and ready.*\n\"Max, you take point. I'll watch the rear.\" *He says, his voice quiet and steady.*\n*He glances over at Luke, his expression stern but not unkind.*\n\"And you, Luke. Stay close to us. If something happens, you stay behind me.\"\n*He looks at you again, his expression trusting and steady.*\n\"Ready to go?\" *He asks, his hand relaxing slightly on his hilt, though his eyes remain alert and calculating.*\n*The hum of power pulses softly in the chamber around them, the blue glow casting long shadows against the ancient stone walls.*\n*Arin takes a step back, positioning himself between you and Luke and the entrance they came from, his posture relaxed but alert, his green eyes watching the chamber ahead with a sharp, focused gaze.*\n*He's ready for whatever the chamber holds, his trust in your lead unwavering.*"
+          },
+          "player": "Max",
+          "playerMessage": "We step past the archway and enter the chamber of ancient machinery."
+        },
+        {
+          "id": "m40",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The chamber opens up before you, a vast space filled with towering structures of brass and copper. Ancient gears and levers rise from the floor, some still turning with a slow, grinding rhythm while others have seized in place, frozen in time.*\n*The air hums with a low, resonant energy that vibrates in your chest. Faint blue light emanates from various points on the machinery, casting long shadows and illuminating the layers of dust that have accumulated over centuries.*\n*In the center of the chamber, on a pedestal carved from white stone, rests the Sun's Heart Artifact. It's a crystalline core the size of a human head, pulsing with a soft, golden light that seems to breathe in time with the chamber's hum.*\n*The artifact draws every eye toward it, its beauty and power unmistakable. But between you and the pedestal, the floor is crisscrossed with intricate patterns of glowing blue lines, and several large crystals jut from the ground, pulsing with the same blue light as the machinery.*\n*Arin steps back, his hand resting lightly on his bow's grip as he takes in the scene.*\n\"We've got a problem.\" *he says, his voice low and steady.* \"Those crystals look like some kind of security system. And that artifact isn't just sitting there for the taking.\"\n*He glances over at you and Luke, his expression calculating.*\n\"What's the plan, Max? We can't exactly just walk up to it. Those crystals could be anything from alarm bells to lethal traps.\"\n*The chamber remains silent except for the hum of energy, the blue and golden light playing across the walls and floors as you and your companions study the scene before you.*\n*The artifact pulses steadily on its pedestal, its dormant energy calling out to be awakened.*"
+          },
+          "player": "Max",
+          "playerMessage": "We step past the archway and enter the chamber of ancient machinery."
+        },
+        {
+          "id": "m42",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin's gaze tracks over the ancient mechanisms as you all move into the heart of the chamber. His footsteps are light and careful, his hand never straying far from the hilt of his daggers.*\n\"This isn't just machinery,\" *he says quietly, his eyes narrowing.* \"Look at the way these conduits are arranged. This is a magical array—some kind of energy grid. And the crystals... they're focusing points, like nodes on a network.\"\n*He stops by one of the larger crystals, not touching it, but studying its pulsing blue light.*\n\"If we disrupt one part of the system, the whole thing could react unpredictably.\" *He glances back at you, his expression serious.* \"We need to find the control point—wherever they'd be managing this whole array from. Probably some kind of console or terminal that would explain how this entire security system works.\"\n*His gaze sweeps the chamber again, searching for something that fits the description.* \"And we need to find it fast. This whole place feels like it's on a timer, or like it's waiting for something to trigger it.\"\n*Arin steps away from the crystal, his eyes flicking back toward the artifact and then to Luke, who's still staring at the machinery with wide-eyed wonder.*\n\"Keep your eyes open. If we can find that control point, we can figure out how to disable the security system and get the Sun's Heart without triggering any traps.\"\n*He shifts his posture, alert and ready, his green eyes continuing their calculated assessment of the chamber.* \"What do you think, Max? Any leads on where the control point might be? Or should we start checking the machinery more closely?\"\n*The hum of the chamber intensLly around you, the blue and golden lights shifting and playing across the ancient walls as you continue your investigation.*\n*Arin remains alert and watchful, his trusting gaze fixed on you as he waits for your lead.*"
+          },
+          "player": "Max",
+          "playerMessage": "We walk into the chamber and start examining the machinery inside."
+        },
+        {
+          "id": "m43",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke's eyes wide with wonder and curiosity as he walks around the chamber.*\n\"It's amazing...\" *he whispers, his voice echoing softly.* \"I've never seen anything this grand. Do you think this place was meant to be something important? Like... like a temple, or maybe a fortress?\"\n*Luke's hand reaches out tentatively, as if to touch one of the brass tubes running along the wall, but he catches himself and pulls back, his face a mixture of fear and excitement.*\n\"The magic feels so strong here,\" *he says softly, almost to himself.* \"I can feel it buzzing in the air, making my hair stand on end. Do you think Kieran felt this too when he was here?\"\n*Luke's gaze shifts to the broken device in the corner—the one that looked like a workshop—and a flicker of hope crosses his face.*\n\"Maybe that's where he was. Maybe he found something useful there. We should check it, right?\" *He asks quietly, turning to look at you and Arin.*\n*Luke's chest heaves slightly with excitement, his oversized gear clanking softly as he takes another tentative step forward.*\n\"We have to find him, right? We have to... we have to know if he's okay.\" *His voice is thick with emotion, and he looks at you with pleading eyes, desperate for any sign of hope.*\n*Luke's face is pale and his chest is heaving with anticipation, his eyes wide with a mixture of awe, hope, and fear.*\n*He takes another shaky step toward the workshop-like area, his movements clumsy but determined.*\n*Luke's gaze remains focused on the broken device in the corners, his expression full of longing and hope, as he waits for a response from you or Arin.*\n*The blue and golden light of the chamber reflects in his eyes, casting long shadows across his pale face.*\n*Luke's expression is a mixture of eagerness and fear, his voice soft but hopeful.*\n\"Can we... can we go there?\" *he asks softly, his gaze shifting between you andArin, seeking permission to investigate the area.*"
+          },
+          "player": "Max",
+          "playerMessage": "We walk into the chamber and start examining the machinery inside."
+        },
+        {
+          "id": "m46",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke's expression is uncertain and full of fear as he looks in your direction.*\n\"Who... who was that?\" *He asks softly, his voice barely a whisper.*\n*Luke's chest is heaving with nervousness, his hand still trembling as he grips the strap of the sword-belt.*\n\"That hooded figure said no one comes back from the Sun Ruins...\" *He says, his words trembling with emotion.* \"Do you... do you think he was right? Do you think... Kieran is still in here somewhere?\"\n*Luke's voice falters, and he and eyes are full of hope and desperation as he looks at you for a response.*\n\"I'm not going to let them tell me... I'm not going to give up on him.\" *He says firmly, his voice steadying as he speaks.*\n*Luke's and eyes are filled with a determined look, his hand resting on the hilt of the sword at his side, his knuckles white with tension.*\n*Luke's gaze moves between you and Arin, anticipation making him feel like he'll be unsteady on his feet.*\n\"We can find him, can't we?\" *he asks, his voice a quiet plea.*\n*Luke's expression is full of desperation and hope, as his look is eager for a decision, his anticipation making him feel like his face is pale with fear and expectation.*\n*You and Arin take a breath, and look around.*\n*Luke's eyes flicker with fear, but he looks toward the entrance of the chamber, then looks back at you.*\n\"I'm scared, but... but I'm not scared enough to give up.\" *he says softly, as he catches his breath.*\n*Luke's voice trails off as heLlooks over at the workshop-like device in the corner, his anticipation making him looks unsteady on his feet.*\n\"Can we... can we please check that place? Maybe there's something we can find out about Kieran there.\" *He says softly, and and eyes full of hope and desperation.*\n*Luke's expression is full with a hope and anticipation, as he looks at you and Arin for a response.*"
+          },
+          "player": "Max",
+          "playerMessage": "We take a breath, look around, and carry on."
+        },
+        {
+          "id": "m47",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin's sharp green eyes flicker toward Luke, then back toward the chamber's center. He can't help but notice the tremor in the boy's voice, the raw desperation. He sighs softly, his expression softening.*\n\"Alright, kid. Let's check it out,\" *he says, his voice losing some of its usual sharp edge.*\n*He straightens up and steps toward Luke, keeping his gaze alert as they move toward the workshop area in the corner. His hand rests lightly on his dagger's hilt, ready to react to anything.*\n\"Stay behind me,\" *he orders quietly, and then glances over at you.*\n\"Max, if any of this goes sideways, you've got my back, right?\" *He says with a grin, though this time it's more genuine, less teasing.*\n*Arin shifts his weight, his body coiled and ready as he continues walking toward the workshop with Luke close behind him.*\n\"And don't let anything sneak up on us.\" *He adds, his eyes scanning the chamber for any signs of movement or threat.*\n*Arin's expression is focused and alert, his posture alert as he moves into the workshop area. He's ready for anything that might lie in wait.*\n*The air in the workshop area is cool and damp, the scent of old metal and decay thick in the air. The faint blue glow of the chamber pulses softly against the walls.*\n*Arin looks around the workshop area, his eyes sharp and scanning for any signs of activity or danger.*\n\"Let's see what we can find here,\" *he says quietly, as he steps further into the corner.*\n*His expression is focused and calculating, his green eyes locked on the workshop's mysterious contents.*\n*Arin's body is alert and ready, his hand resting on his dagger as he waits for you to provide more guidance on how to proceed.*\n*The hum of the chamber pulses around them, and the blue and golden light plays across the stone walls and the ancient machinery.*\n*Arin stays close and alert, ready to act if any threat arises.*\n*His trusting gaze remains fixed on you as he follows your lead, his expression one of steady determination.*\n*Arin keeps his hand on his dagger, his body alert as he watches over Luke and scans the workshop for any clues or dangers.*\n*He remains focused and ready for whatever may lie ahead.*"
+          },
+          "player": "Max",
+          "playerMessage": "We take a breath, look around, and carry on."
+        },
+        {
+          "id": "m49",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The moment you grasp the Sun's Heart, the chamber erupts in a deafening shriek of magical energy.*\n*The golden crystal pulses violently in your grip, and the blue lines on the floor blaze to blinding intensity. The focusing crystals erupt like grenades, sending shards of magical force tearing through the air.*\n*From the depths of the machinery, a deep, metallic roar bellows forth as a guardian construct—a hulking mass of bronze and stone—tears its way through the wall and floors, its glowing red eyes locking onto you with singular focus.*\n*The chamber's hum rises to a bone-jarring scream, and the stone beneath your feet begins to crumble.*\n*Arin reacts instantly, his dagger in his hand and his face twisted in grim determination.*\n\"Run!\" *he roars over the sound of the collapsing machinery, and his hand shoots out to grab Luke's arm.*\n\"Go, kid! Get out of here!\"\n*He looks at you, his eyes sharp with desperation.*\n\"Max! We've triggered the whole damn system! Move!\"\n*The guardian construct makes a booming step forward, its massive bronze arm swinging in a devastating arc toward where you stand.*\n*Luke is frozen in terror, his oversized chainmail jingling as he trembles. Arin's grip on his arm is the only thing keeping him from being crushed.*\n*The chamber is falling apart around you, shards of blue crystals flying through the air like shrapnel as the guardian closes in.*\n*Arin's dagger flashes as he turns to face the construct, his eyes locked on its glowing red gaze, ready to fight a losing battle to buy you time.*\n\"Go!\" *he screams again, his voice raw and full of urgency.*\n*You have the Sun's Heart in your pack, but the chamber is collapsing, and a massive guardian is between you and the exit.*"
+          },
+          "player": "Max",
+          "playerMessage": "I lift the Sun's Heart from its pedestal and secure the artifact in my pack."
+        },
+        {
+          "id": "m51",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The chamber crumbles behind you, the roar of the guardian and the crash of falling stone echoing in your wake. Arin and Luke stumble through the sealed archway, their breathing ragged, their faces pale with terror and adrenaline.*\n*Arin glances back once more, his jaw tight, his chest heaving. He doesn't say a word, but the look in his eyes says everything.*\n\"We made it out,\" *he mutters, his voice shaky but relieved.* \"We actually made it out.\"\n*Luke is trembling, his oversized chainmail clinking and clattering with every unsteady step. His eyes are wide with shock and awe, his chest still heaving.*\n\"We... we did it. We got the artifact,\" *he whispers, his voice full of disbelief.* \"And we... we almost didn't come back.\"\n*Arin shakes his head, a weary grin tugging at his lips.*\n\"Almost doesn't count.\" *He says quietly, his voice raspy and full of adrenaline.*\n*As you emerge from the ruins into the soft light of late afternoon, the air is cool and refreshing against your skin. The road back to Xentar lies open before you, and the memories of the expedition are still fresh in your minds.*\n*Luke walks beside you, his movements tentative and unsteady, his gaze fixed forward as he processes everything that just happened.*\n*Arin follows close behind, his eyes scanning the horizon for any sign of danger, his posture relaxed but alert.*\n*The road is long, but you have the Sun's Heart safely secured in your pack and the knowledge of what lies beneath the ruined city of Xentar.*\n*As you make your way back to the Adventurer's Guild, the memories of the hooded figure's warning and the sphinx's riddle still echo in your minds.*\n*The sun sets over the horizon, and the shadows grow long as you enter the streets of Xentar. The guild hall is in sight, its sign creaking softly in the cool evening breeze.*\n*Arin glances at you, a tired but knowing look in his eyes.*\n\"We're back,\" *he says quietly, his tone lacking its usual sharp edge.*\n\"Now let's see what Tobias says about the Sun's Heart.\"\n*Arin and Luke follow you toward the entrance, their steps heavy but purposeful.*\n*The memories of the expedition linger in the air, a reminder of what lies ahead and what you have yet to discover.*\n*Arin and Luke walk beside you, their faces a mixture of relief and weariness, their eyes locked on the guild hall ahead.*\n*The evening air is cool and crisp, the scent of damp earth and old stone still hanging in the air.*\n*You have the artifact in your possession, and with it, you have the chance to change everything"
+          },
+          "player": "Max",
+          "playerMessage": "\"Back to Xentar.\" We head back to the guild with the artifact."
+        },
+        {
+          "id": "m52",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin's shoulders slump slightly as they enter the guild-hall, the tension of the day finally beginning to drain from his body.*\n\"We're back,\" *he says quietly, his voice lacking its usual teasing edge.*\n*He looks at you, then at Luke, his expression weary but satisfied.*\n\"And we've got the artifact.\" *He adds, a slow grin spreading across his face.*\n*Arin shifts his weight and glances toward the reception desk, where Tobias is sorting through a stack of papers.*\n\"Let's see if the old man's word was true.\" *He mutters, his tone low.*\n*Arin adjusts the strap of his bow, his fingers lingering on the hilt of his daggers, his green eyes scanning the guild-hall for any signs of trouble.*\n*He looks at Tobias, then back to you, his expression focused and calculating.*\n\"So, Max, what do you say?\" *He asks, his voice low and steady.*\n\"Do you want to go first? Or do you want me to do the talking this time?\"\n*Arin's a eyes flicker toward the door, a subtle reminder of the hooded figure from earlier. His expression is wary and calculating, his posture ready to act at a moment's notice.*\n*He doesn't move from his position, his gaze locked onto Tobias as he awaits your lead.*\n*The memories of the day's expedition still fresh in his mind, the scent of ancient stone and magic still clinging to his clothes.*\n*Arin waits for your response, his expression patient and expectant.*\n*The guild-hall is quiet, save for the low hum of conversation and the occasional clink of tankards from the tavern.*\n*Arin and Luke stand beside you, waiting for the next step, their faces a mixture of weariness and anticipation.*\n*You have the Sun's Heart and the quest completed.*"
+          },
+          "player": "Max",
+          "playerMessage": "\"Back to Xentar.\" We head back to the guild with the artifact."
+        },
+        {
+          "id": "m55",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "*The guild hall falls silent as you push through the heavy oak doors, your boots echoing against the worn stone floor. Heads turn as you walk toward the reception desk, the artifact still secure in your pack.*\n*Tobias looks up from his paperwork, his ocean-blue eyes widening slightly as he sees you approach. He straightens in his seat, his long pointed ears twitching with interest.*\n\"Ah, you've returned,\" *he says, his voice calm and professional.*\n*Tobias looks at you, then to Arin and Luke beside you, his expression unreadable.*\n\"I assume the mission was a success?\" *He asks quietly, his gaze fixed on the artifact in your pack.*\n*Tobias waits for your answer, his hands folded on the desk before him.*\n*The guild master, Ponticius, emerges from the back room, his broad shoulders filling the doorway. His eyes scan the guild-hall before settling on you.*\n\"So,\" *Ponticius says, his voice booming through the hall.* \"You two came back.\"\n*He walks toward you, his boots thudding heavily on the stone floor.*\n\"And the boy came back, too.\" *He glances at Luke, who stands trembling slightly beside you.*\n*Ponticius looks at the artifact in your pack, a small smile playing at the corners of his mouth.*\n\"Told you it was a bold choice.\" *He says gruffly, but there's a hint of approval in his voice.*\n\"Show me what you retrieved.\" *He orders, his voice firm and steady.*\n*Tobias straightens in his seat as he watches Ponticius approach, his ocean-blue eyes fixed on the artifact with interest.*\n*The guild-hall remains silent as you and your companions stand before the desk, awaiting Ponticius's next word.*\n*The memories of the sphinx's riddle and the guardian's roar still fresh in your mind, the weight of the Sun's Heart still in your pack.*\n*Ponticius waits for your response, his face set and his gaze steady, awaiting the artifact you retrieved from the ruins.*\n*Tobias's hand hovers over the paperwork, ready to process the quest's completion.*\n*The air in the guild-hall is thick with anticipation as the survivors of Xentar watch, hoping for a glimpse of the hope you've brought back from the ruins.*\n*Ponticius's gaze is locked on you, his face hard but fair, awaiting proof of your success.*\n*You have the artifact, and with it, the hope of a brighter future for Xentar.*"
+          },
+          "player": "Max",
+          "playerMessage": "We carry the artifact back through the ruins and into the guild hall at Xentar."
+        },
+        {
+          "id": "m56",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin shifts beside you, his hand resting lightly on his daggers.*\n\"Told you so, old man.\" *He says to Ponticius with a small, weary grin.*\n\"We've got it. All because of our brilliant plan of just charging in.\" *He mutters, his eyes flicking toward the artifact in your pack.*\n*Arin looks at Ponticius, his green eyes sharp with determination.*\n\"We almost died for this thing.\" *He says quietly, his tone more serious than before.*\n*He glances at you, then back to Ponticius, his expression unwavering.*\n\"So let's see those 1500 coins.\" *He says with a slight smirk.*\n*Arin's voice is low and steady, but there's an edge to it, a reminder of the risk you took to get that artifact. The memories of the chamber collapsing and the guardian closing in still fresh in his mind.*\n*He steps back slightly, his eyes locked onto Ponticius as he awaits the payment for the quest.*\n*Arin doesn't look away from Ponticius, his gaze steady and unblinking. He's ready for what comes next, his posture alert and focused.*\n*The memories of the danger and the risks they took to get the artifact still fresh, his face etched with weariness but determination.*\n*Arin's expression is unwavering, his green eyes fixed on Ponticius, awaiting the payment for the risk and reward.*\n*He waits for your lead, his body ready to act, his trust in your decision unwavering.*\n*He stays silent, his hand still resting on his dagger, ready for any threat that might arise.*\n*Arin's face is set in grim determination as he looks at Ponticius and Tobias, awaiting the reward for the quest.*\n*His gaze remains fixed on the guild master, his expression calculating and calculating, awaiting the moment he can collect the coin.*\n*He remains silent, his eyes flickering toward the artifact in the pack, a reminder of the value they carried back into the guild.*\n*Arin's expression remains unwavering, his gaze steady and calculating, awaiting the final word from Ponticius.*\n*His hand remains on his dagger, his posture alert and ready.*\n*He waits for your next move, his trusting gaze fixed on you.*"
+          },
+          "player": "Max",
+          "playerMessage": "We carry the artifact back through the ruins and into the guild hall at Xentar."
+        },
+        {
+          "id": "m57",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke stands beside you, his oversized chainmail still jingling with every movement. His face is pale and his chest is still heaving, his eyes wide with a mixture of hope and anxiety.*\n\"We got it! We really got it!\" *He says, his voice trembling with emotion, a mixture of excitement and fear.*\n*Luke's eyes are locked on the artifact in your pack as Ponticius approaches, his gaze full of desperate hope.*\n\"Do you... do you think this will help? Do you think this can save the city?\" *He asks softly, his voice full of hope.*\n*Luke's voice falters for a moment as he thinks about his brother, his gaze shifting toward the ground.*\n\"Do you think... do you think Kieran would be proud?\" *He whispers, his voice thick with emotion.*\n*Luke's face is pale, and his eyes are filled with hope and desperation, his gaze locked on the artifact.*\n*He looks over at you and Arin, seeking reassurance, his expression full of anticipation and fear.*\n*Luke's expression is full of desperation and hope as he waits for Ponticius to speak, his anticipation making him look unsteady on his feet.*\n*Luke's chest is heaving with anxiety and anticipation, his voice soft but hopeful, his words echoing through the silent guild-hall.*\n*He looks at Ponticius for a response, his eyes wide and eager for a decision, his anticipation making his look unsteady on his feet.*\n*Luke's gaze remains fixed on Ponticius as he approaches, his expression full with desperation and hope, and he's eager to find out what will happen next.*\n*The blue and golden light of the artifact pulses faintly against the wall, casting long shadows across Luke's pale face.*\n*Luke's expression is one of fear and expectation, his voice soft and hopeful, as he waits for the outcome of the quest.*\n*He remains silent for a moment, his gaze fixed on Ponticius.*\n*Luke's hand grips the strap of the sword-belt, his knuckles white with tension as he looks at the guild master.*\n*His eyes are wide with hope and fear, his gaze locked onto the artifact in the pack.*\n*He looks at you for reassurance, seeking a decision, his expression full of anxiety and hope.*\n*The air in the guild-hal is thick with expectation and anticipation as Luke awaits the response from Ponticius.*\n*Luke's expression is pale with fear and hope, as he looks toward the guild master with desperate eyes.*\n*He waits for Ponticius' response, his voice soft but eager for a decision.*\n*Luke's face is full of desperation and anticipation, and he looks at you andArin for reassurance.*\n*He looks at the artifact, his expression one of hope and fear as he waits"
+          },
+          "player": "Max",
+          "playerMessage": "We carry the artifact back through the ruins and into the guild hall at Xentar."
+        },
+        {
+          "id": "m59",
+          "arm": "on",
+          "established": [
+            "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+            "The Sun Ruins are known for residual magical instability, ancient guardians, and magical anomalies.",
+            "Luke interrupted the party to beg to join the Sun Ruins expedition to find his missing brother.",
+            "Luke's missing brother is named Kieran.",
+            "A mysterious hooded figure warned the party that no one returns from the Sun Ruins.",
+            "Luke joined the expedition to find his missing brother Kieran.",
+            "Max decided to bring Luke along on the expedition to the Sun Ruins.",
+            "The Sun's Heart Artifact is a crystalline core the size of a human head that pulses with golden light.",
+            "The inner chamber contains a magical energy grid with crystals acting as focusing nodes.",
+            "The inner chamber has a workshop-like area with a broken device in the corner.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "Retrieving the Sun's Heart Artifact triggered the chamber's collapse and activated a guardian construct.",
+            "Arin grabbed Luke and urged the party to flee as the chamber collapsed and a guardian construct appeared.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins, narrowly escaping a guardian construct and the chamber's collapse.",
+            "The party successfully retrieved the Sun's Heart Artifact from the Sun Ruins and narrowly escaped the chamber's collapse and a guardian construct."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin shifts his gaze toward Tobias at the reception desk, then back to the guild master Ponticius.*\n\"1500 coin.\" *He says quietly, the words hanging in the air.*\n*His green eyes are sharp and steady, his expression serious and calculating.*\n\"That's what the quest is worth.\" *He adds softly, his voice low but firm.*\n*Arin's body is alert and ready, his posture steady as he awaits Ponticius's response.*\n\"We completed the quest. We retrieved the artifact.\" *He says quietly, his voice steady and firm.*\n*His expression is focused and calculating, his green eyes locked on the guild master.*\n*Arin remains alert and alert, his hand resting on his dagger as he awaits Ponticius' response.*\n*His body is alert and steady, ready for anything that might arise.*\n*Arin's gaze is steady and unwavering, his eyes locked on Ponticius.*\n*He waits for you to make the next move, his expression patient but calculating, ready to act on your behalf.*\n*The guild-hall remains quiet as they all wait for the decision, the air thick with tension.*\n*Arin stays silent, his gaze fixed on Tobias as he waits.*\n*Arin's green eyes flick toward you, and his expression softens slightly, a flicker of trust and concern in his gaze.*\n*He stays alert and focused, his posture ready for anything.*\n*Arin's hand is steady on his dagger's hilt, ready to react in an instant.*\n*His expression remains unwavering, awaiting the response from Tobias and Ponticius.*\n*The silence in the guild-hall grows as they wait, the memories of the expedition still fresh in their minds.*\n*Arin awaits the response, his green eyes steady and calculating, and he remains alert as he follows your lead.*"
+          },
+          "player": "Max",
+          "playerMessage": "We take a breath, look around, and carry on."
+        }
+      ]
+    },
+    "debugResponses": {
+      "cleared": []
+    },
+    "lorebooks": {
+      "Xentar Checkpoints": {
+        "deactivated": true
+      }
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 2,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "judgeRestore": {
+      "restored": true,
+      "ok": true
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [
+        "sun-ruins"
+      ],
+      "preservedSessions": []
+    },
+    "stories": {
+      "removed": 1,
+      "saved": {
+        "status": 200
+      }
+    },
+    "chat": {
+      "sandboxChatId": "2026-09-25@16h10m01s027ms",
+      "owned": [
+        "2026-09-25@16h10m01s027ms"
+      ],
+      "deleted": [
+        "2026-09-25@16h10m01s027ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "lateFileRepaired": [],
+      "saveSettleMs": 1538,
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-25@16h10m01s027ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-20@07h06m38s396ms"
+    },
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "member:DM Narrator": {
+      "enabled": true
+    },
+    "member:Arin": {
+      "enabled": true
+    },
+    "member:Ponticius": {
+      "enabled": true
+    },
+    "member:Luke": {
+      "enabled": true
+    },
+    "disabledMembers": []
+  }
+}

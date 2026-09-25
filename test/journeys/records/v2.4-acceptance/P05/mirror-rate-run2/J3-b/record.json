@@ -1,0 +1,318 @@
+{
+  "id": "J3",
+  "title": "player-session",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j3-player-session.journey.json",
+  "ranAt": "2026-09-25T19:06:40.297Z",
+  "strict": true,
+  "partial": false,
+  "only": null,
+  "tally": {
+    "pass": 8,
+    "skipped": 5
+  },
+  "tallies": {
+    "automated": {
+      "pass": 8,
+      "fail": 0,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 5
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 8,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [],
+  "humanRecord": null,
+  "runnerError": null,
+  "releasedRoutes": null,
+  "capabilities": {
+    "narrative-status": true,
+    "stall-signal": true
+  },
+  "results": [
+    {
+      "id": "J3.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the story loads and the first real transition fires from play alone",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J3.2",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the checkpoint change is announced in the chat itself",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J3.3",
+      "mode": "auto",
+      "findings": [
+        "U3"
+      ],
+      "goal": "in player mode the drawer shows no author-only internals",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J3.4",
+      "mode": "auto",
+      "findings": [
+        "U8"
+      ],
+      "goal": "player surfaces speak the story's language, not the implementation's",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J3.5",
+      "mode": "auto",
+      "findings": [
+        "U4"
+      ],
+      "goal": "one composed narrative 'where am I' surface exists",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J3.6",
+      "mode": "auto",
+      "findings": [
+        "U5"
+      ],
+      "goal": "a stalled pipeline is visibly distinct from a slow one, and the signal clears when the re-check lands",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J3.7",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the session produced memory and injected it into the next generation",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J3.8",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the session journal correlates extraction, transition, payload and flag on one timeline",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J3.9",
+      "mode": "human",
+      "findings": [
+        "U4"
+      ],
+      "goal": "",
+      "prompt": "During the session, did you always know where the story was and what it wanted from you?",
+      "anchors": "1 = lost most of the time · 3 = had to open the drawer to be sure · 5 = always obvious from play",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    },
+    {
+      "id": "J3.10",
+      "mode": "human",
+      "findings": [
+        "U3"
+      ],
+      "goal": "",
+      "prompt": "Did anything you saw spoil what was coming, or reveal what a character was supposed to be hiding?",
+      "anchors": "1 = major spoilers · 3 = one small leak · 5 = nothing leaked",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    },
+    {
+      "id": "J3.11",
+      "mode": "human",
+      "findings": [
+        "U8"
+      ],
+      "goal": "",
+      "prompt": "Did the on-screen wording sound like the game, or like the machine running it?",
+      "anchors": "1 = debug output · 3 = mixed · 5 = all in-world",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    },
+    {
+      "id": "J3.12",
+      "mode": "human",
+      "findings": [
+        "U5"
+      ],
+      "goal": "",
+      "prompt": "When the story did not move on a turn, could you tell whether it was stuck, thinking, or waiting for you?",
+      "anchors": "1 = indistinguishable · 3 = guessed right eventually · 5 = always clear",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    },
+    {
+      "id": "J3.13",
+      "mode": "human",
+      "findings": [],
+      "goal": "",
+      "prompt": "Pacing: did the story push when it should have pushed and breathe when it should have breathed?",
+      "anchors": "1 = fought me constantly · 3 = acceptable · 5 = felt directed",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    }
+  ],
+  "cleanup": {
+    "judgeCalls": {
+      "count": 0,
+      "events": []
+    },
+    "debugResponses": {
+      "cleared": []
+    },
+    "lorebooks": {
+      "Xentar Checkpoints": {
+        "deactivated": true
+      }
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 2,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [
+        "sun-ruins"
+      ],
+      "preservedSessions": []
+    },
+    "stories": {
+      "removed": 1,
+      "saved": {
+        "status": 200
+      }
+    },
+    "chat": {
+      "sandboxChatId": "2026-09-25@16h03m23s709ms",
+      "owned": [
+        "2026-09-25@16h03m23s709ms"
+      ],
+      "deleted": [
+        "2026-09-25@16h03m23s709ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-25@16h03m23s709ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-20@07h06m38s396ms"
+    },
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "member:DM Narrator": {
+      "enabled": true
+    },
+    "member:Arin": {
+      "enabled": true
+    },
+    "member:Ponticius": {
+      "enabled": true
+    },
+    "member:Luke": {
+      "enabled": true
+    },
+    "disabledMembers": []
+  }
+}

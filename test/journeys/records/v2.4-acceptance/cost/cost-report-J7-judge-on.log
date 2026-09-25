@@ -1,0 +1,134 @@
+{
+  "records": 1,
+  "metered": 1,
+  "unmetered": [],
+  "unmeteredRing": {
+    "records": [],
+    "calls": 0,
+    "inputTokens": 0
+  },
+  "boundaries": 33,
+  "meter": {
+    "calls": 81,
+    "cachedCalls": 1,
+    "inputTokens": 118115,
+    "outputTokens": 7098,
+    "cost": 0
+  },
+  "estimatedUsd": 0.004961,
+  "usdPer1000Boundaries": 0.150328,
+  "hostCost": null,
+  "notInRing": {
+    "calls": 0,
+    "inputTokens": 0
+  },
+  "perUse": [
+    {
+      "use": "memoryPairs",
+      "calls": 4,
+      "cachedCalls": 1,
+      "callsPerBoundary": 0.1212,
+      "latencyMs": {
+        "p50": 562,
+        "p90": 592,
+        "max": 592
+      },
+      "ringTokens": {
+        "input": 2538,
+        "output": 264
+      },
+      "fallbackRate": {},
+      "fallbacks": 0,
+      "models": [
+        "jev-1.13.0"
+      ]
+    },
+    {
+      "use": "memoryVerify",
+      "calls": 24,
+      "cachedCalls": 0,
+      "callsPerBoundary": 0.7273,
+      "latencyMs": {
+        "p50": 567,
+        "p90": 600,
+        "max": 2287
+      },
+      "ringTokens": {
+        "input": 44581,
+        "output": 1248
+      },
+      "fallbackRate": {},
+      "fallbacks": 0,
+      "models": [
+        "jev-1.13.0"
+      ]
+    },
+    {
+      "use": "scene",
+      "calls": 33,
+      "cachedCalls": 0,
+      "callsPerBoundary": 1,
+      "latencyMs": {
+        "p50": 2502,
+        "p90": 2512,
+        "max": 2538
+      },
+      "ringTokens": {
+        "input": 43833,
+        "output": 3701
+      },
+      "fallbackRate": {
+        "timeout": 0.5758
+      },
+      "fallbacks": 19,
+      "models": [
+        "jev-1.13.0"
+      ]
+    },
+    {
+      "use": "stall",
+      "calls": 1,
+      "cachedCalls": 0,
+      "callsPerBoundary": 0.0303,
+      "latencyMs": {
+        "p50": 566,
+        "p90": 566,
+        "max": 566
+      },
+      "ringTokens": {
+        "input": 2871,
+        "output": 58
+      },
+      "fallbackRate": {},
+      "fallbacks": 0,
+      "models": [
+        "jev-1.13.0"
+      ]
+    },
+    {
+      "use": "warden",
+      "calls": 19,
+      "cachedCalls": 0,
+      "callsPerBoundary": 0.5758,
+      "latencyMs": {
+        "p50": 747,
+        "p90": 4002,
+        "max": 4009
+      },
+      "ringTokens": {
+        "input": 24292,
+        "output": 1827
+      },
+      "fallbackRate": {
+        "timeout": 0.2105
+      },
+      "fallbacks": 4,
+      "models": [
+        "jev-1.13.0"
+      ]
+    }
+  ],
+  "priceSource": "docs.typesafe.ai/models 2026-09-24: $0.042 per million input tokens, output free",
+  "note": "totals and $ from the meters (X23); per-use tokens are ring readings, a floor by notInRing"
+}
+Wrote JSON: C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\acc-gaps\2026-09-25T19-41-52-364Z_so-judge-cost-report.json

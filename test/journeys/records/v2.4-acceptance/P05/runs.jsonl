@@ -9,3 +9,5 @@
 {"row":"P05","fixture":"test/scenarios/live-v24-05-t13-spike.json","label":"t13-spike-run1","code":0,"headerCapture":0,"headerDiffCode":1,"blocking":"1","began":"2026-09-25T14:31:47Z","ended":"2026-09-25T14:35:43Z"}
 {"row":"P05","fixture":"test/scenarios/live-v24-05-t13-spike.json","label":"t13-spike-run2","code":0,"headerCapture":0,"headerDiffCode":0,"blocking":"0","began":"2026-09-25T14:36:13Z","ended":"2026-09-25T14:39:53Z"}
 {"row":"P05","fixture":"test/scenarios/live-v24-05-t13-manual.json","label":"t13-manual-run1","code":0,"headerCapture":0,"headerDiffCode":1,"blocking":"2","began":"2026-09-25T14:40:21Z","ended":"2026-09-25T14:51:58Z"}
+{"row":"P05","lane":3,"fixture":"test/scenarios/live-v24-05-mirror-rate.json","label":"mirror-rate-run1","code":1,"headerCapture":0,"served":"65733265d301","headerDiffCode":0,"blocking":"0","began":"2026-09-25T18:59:17Z","ended":"2026-09-25T18:59:33Z"}
+{"row":"P05","lane":3,"fixture":"test/scenarios/live-v24-05-mirror-rate.json","label":"mirror-rate-run2","code":1,"headerCapture":0,"served":"65733265d301","headerDiffCode":0,"blocking":"0","began":"2026-09-25T19:06:48Z","ended":"2026-09-25T19:07:04Z"}

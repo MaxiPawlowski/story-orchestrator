@@ -1,0 +1,81 @@
+== P05 mirror-rate-run1 test/scenarios/live-v24-05-mirror-rate.json lane 3 start 2026-09-25T18:59:17Z fixture-sha256 5ea974aa28473e4efe77ac1174af080d01dc6f9e403137fa54a2eaaa8872acfd
+{
+  "opened": {
+    "found": true,
+    "alreadyOpen": true,
+    "id": "1759606632088",
+    "name": "Group: Arin, DM Narrator"
+  },
+  "state": {
+    "groupId": "1759606632088",
+    "chatId": "2026-09-20@07h06m38s396ms",
+    "chatLength": 0
+  }
+}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T18-59-23-706Z_st-navigation-open-group.json
+open-group exit=0
+bundle.served=65733265d3015e620e5f26221d4cbfdbce59541b49e356c69c13642f386f0cab
+1/1 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: nothing to measure: no mirror entry was eligible in 3+ loud generations ([])
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:226)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:706)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T18-59-29-139Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T18-59-33-512Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 1,
+  "cleanup": {
+    "removedStoryHashes": [],
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@15h59m28s791ms",
+    "owned": [
+      "2026-09-25@15h59m28s791ms"
+    ],
+    "deleted": [
+      "2026-09-25@15h59m28s791ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@15h59m28s791ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}
+scenario exit=1 2026-09-25T18:59:33Z

@@ -1,0 +1,16 @@
+ok   build.head  "27d0bf8b11c1aacc8eb9450c159822578bfe8039" -> "582d56a95b01b72f4e530943a49f1735b9db3b9e"  (allowed by build.head)
+ok   chat.chatLength  0 -> 1  (allowed by progress)
+{
+  "baseline": "test/journeys/records/v2.4-acceptance/P05/header-mirror-batch-start.json",
+  "label": "diff-end",
+  "allow": [
+    "build.head"
+  ],
+  "differences": 2,
+  "progress": 1,
+  "blocking": 0,
+  "blockingPaths": [],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\3\\debug\\run-header-diff-end.json",
+  "ok": true
+}

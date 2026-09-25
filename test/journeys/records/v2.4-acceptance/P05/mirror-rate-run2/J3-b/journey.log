@@ -1,0 +1,87 @@
+start 2026-09-25T19:03:13Z lane 3 args: 
+bundle.served=65733265d3015e620e5f26221d4cbfdbce59541b49e356c69c13642f386f0cab
+
+=== J3 player-session ===
+A real play session on the shipped example: transitions announced, memory recalled, nothing the player should not see, and the session journal correlates it all.
+
+extraction before this run: {"enabled":true,"cadence":3,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","profiles":{}}
+Global config snapshot: C:\dev\so-lanes\3\debug\so-journey-config-snapshot.json
+extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+--- J3.1 the story loads and the first real transition fires from play alone
+J3.1 1/11 import_story ok 1135ms
+J3.1 2/11 ui ok 289ms
+J3.1 3/11 eval ok 10ms
+J3.1 4/11 eval ok 39ms
+J3.1 5/11 expect ok 67ms
+J3.1 6/11 send_generate ok 16518ms
+J3.1 7/11 wait ok 1521ms
+J3.1 8/11 send_generate ok 81306ms
+J3.1 9/11 send_generate ok 41942ms
+J3.1 10/11 wait ok 67ms
+J3.1 11/11 expect ok 67ms
+--- J3.2 the checkpoint change is announced in the chat itself
+J3.2 1/1 expect_ui ok 6ms
+--- J3.3 in player mode the drawer shows no author-only internals
+J3.3 1/4 ui ok 77ms
+J3.3 2/4 ui ok 439ms
+J3.3 3/4 ui ok 75ms
+J3.3 4/4 expect_ui ok 7ms
+--- J3.4 player surfaces speak the story's language, not the implementation's
+J3.4 1/3 ui ok 98ms
+J3.4 2/3 expect_ui ok 4ms
+J3.4 3/3 expect_ui ok 4ms
+--- J3.5 one composed narrative 'where am I' surface exists
+J3.5 1/2 eval ok 5ms
+J3.5 2/2 expect_ui ok 6ms
+--- J3.6 a stalled pipeline is visibly distinct from a slow one, and the signal clears when the re-check lands
+J3.6 1/5 ui ok 72ms
+J3.6 2/5 eval ok 11ms
+J3.6 3/5 expect_ui ok 510ms
+J3.6 4/5 eval ok 36873ms
+J3.6 5/5 eval ok 49ms
+--- J3.7 the session produced memory and injected it into the next generation
+J3.7 1/3 wait ok 170ms
+J3.7 2/3 wait ok 91ms
+J3.7 3/3 expect ok 52ms
+--- J3.8 the session journal correlates extraction, transition, payload and flag on one timeline
+J3.8 1/2 ui ok 226ms
+J3.8 2/2 eval ok 5ms
+Restored global config from C:\dev\so-lanes\3\debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"],"saved":{"status":200},"preservedStories":["sun-ruins"],"preservedSessions":[]}
+
+PASS         J3.1     the story loads and the first real transition fires from play alone
+PASS         J3.2     the checkpoint change is announced in the chat itself
+PASS         J3.3     in player mode the drawer shows no author-only internals
+PASS         J3.4     player surfaces speak the story's language, not the implementation's
+PASS         J3.5     one composed narrative 'where am I' surface exists
+PASS         J3.6     a stalled pipeline is visibly distinct from a slow one, and the signal clears when the re-check lands
+PASS         J3.7     the session produced memory and injected it into the next generation
+PASS         J3.8     the session journal correlates extraction, transition, payload and flag on one timeline
+SKIP         J3.9      — human check — operator scores it
+SKIP         J3.10     — human check — operator scores it
+SKIP         J3.11     — human check — operator scores it
+SKIP         J3.12     — human check — operator scores it
+SKIP         J3.13     — human check — operator scores it
+
+J3
+automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped
+human:     0 scored, 5 unscored
+cleanup:   clean
+first try: 8 of 8 passing check(s) needed no retry
+
+--- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+[J3.9] (U4) During the session, did you always know where the story was and what it wanted from you?
+      anchors: 1 = lost most of the time · 3 = had to open the drawer to be sure · 5 = always obvious from play
+[J3.10] (U3) Did anything you saw spoil what was coming, or reveal what a character was supposed to be hiding?
+      anchors: 1 = major spoilers · 3 = one small leak · 5 = nothing leaked
+[J3.11] (U8) Did the on-screen wording sound like the game, or like the machine running it?
+      anchors: 1 = debug output · 3 = mixed · 5 = all in-world
+[J3.12] (U5) When the story did not move on a turn, could you tell whether it was stuck, thinking, or waiting for you?
+      anchors: 1 = indistinguishable · 3 = guessed right eventually · 5 = always clear
+[J3.13] (—) Pacing: did the story push when it should have pushed and breathe when it should have breathed?
+      anchors: 1 = fought me constantly · 3 = acceptable · 5 = felt directed
+[free] What would make you stop using this?
+
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T19-06-40-331Z_journey-J3.json
+Matrix: C:\dev\so-lanes\3\debug\journey-J3.md
+journey exit=0 2026-09-25T19:06:40Z
+header diff exit=0

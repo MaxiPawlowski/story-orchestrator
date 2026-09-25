@@ -1,0 +1,71 @@
+{
+  "file": "test/scenarios/live-v24-05-mirror-rate.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "eval",
+      "ok": false,
+      "ms": 5,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: Error: nothing to measure: no mirror entry was eligible in 3+ loud generations ([])\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:226)\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:706)\n    at eval (eval at evaluate (:290:30), <anonymous>:3:12)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+    }
+  ],
+  "ok": false,
+  "error": "Evaluation failed in SillyTavern page: page.evaluate: Error: nothing to measure: no mirror entry was eligible in 3+ loud generations ([])\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:226)\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:706)\n    at eval (eval at evaluate (:290:30), <anonymous>:3:12)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+  "retries": [],
+  "firstAttempt": "fail",
+  "cleanup": {
+    "removedStoryHashes": [],
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@16h06m59s242ms",
+    "owned": [
+      "2026-09-25@16h06m59s242ms"
+    ],
+    "deleted": [
+      "2026-09-25@16h06m59s242ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@16h06m59s242ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}
