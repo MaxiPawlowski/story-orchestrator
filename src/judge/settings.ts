@@ -15,6 +15,8 @@ export const JUDGE_USE_KEYS = [
   "stallCheck",
   "expansionCritic",
   "expansionLookahead",
+  "agencyCheck",
+  "houseRules",
 ] as const;
 
 export type JudgeUseKey = (typeof JUDGE_USE_KEYS)[number];
@@ -164,9 +166,11 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
   stallCheck: { label: "Stall check", description: "Checks a stalled gate before spending a full re-read; writes only what the messages clearly show.", sends: "the messages since the checkpoint began and the unmet conditions' descriptions and values" },
   expansionCritic: { label: "Expansion review", description: "Reviews generated story beats instead of a second model call; the code checks still run first.", sends: "up to 40 established facts, the target checkpoint's name and goal, cast names with your persona, the tension trajectory and the generated beats" },
   expansionLookahead: { label: "Prepare ahead", description: "Writes the generated beats one checkpoint ahead, where play is heading, before the story gets there.", sends: "nothing beyond Heading toward and the expansion itself (reviewed by Expansion review when that is on)" },
+  agencyCheck: { label: "Agency check (warden)", description: "Not measured yet. After a character reply, asks whether it wrote what only you do, say or decide; when it did, the next reply's prompt carries one line leaving your part to you. Uses the continuity warden's review or auto mode.", sends: "the character reply, your latest message and your persona name" },
+  houseRules: { label: "House rules (warden)", description: "Not measured yet. After a character reply, checks it against the story's house rules; a broken rule is named in the next reply's prompt. Uses the continuity warden's review or auto mode.", sends: "the character reply and the story's house rules" },
 };
 
-export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = ["director", "memoryVerify", "memoryPairs", "sceneTrigger", "sceneTracker", "lookahead", "loreSelect", "typedExtraction", "stallCheck", "expansionCritic", "expansionLookahead", "curatorFilter"];
+export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = ["director", "memoryVerify", "memoryPairs", "sceneTrigger", "sceneTracker", "lookahead", "loreSelect", "typedExtraction", "stallCheck", "expansionCritic", "expansionLookahead", "curatorFilter", "agencyCheck", "houseRules"];
 
 // v2.2 plan 07: steering-grade usages, listed only in author view.
-export const AUTHOR_JUDGE_USES: readonly JudgeUseKey[] = ["expansionCritic", "expansionLookahead"];
+export const AUTHOR_JUDGE_USES: readonly JudgeUseKey[] = ["expansionCritic", "expansionLookahead", "agencyCheck", "houseRules"];

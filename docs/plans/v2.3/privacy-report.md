@@ -122,3 +122,22 @@ Manual heavy passes (Memorize chat, `/so-mem backlog`, `/cp memorize`, author `/
 the road ahead") now state "N requests, about T tokens to <profile>" and send nothing on cancel when
 N > 3 or T > 50 % of the limit. §5 item 7 ("memorize shape") is still the measurement that would make
 this a claim rather than a code reading; it is plan 03 live gate 3 and has not run.
+
+## v2.4 addendum (plan 07 part 2, T22/T23, 2026-09-25)
+
+Code-verified, not captured: the two new warden families are built on a worktree branch behind their own
+default-off keys and have not run live. Both ride **T2** (the judge plugin → TypeSafe), in the warden's one
+call per character reply (`src/judge/warden.ts buildWardenRequests`, `WARDEN_ARM = "combined"`).
+
+| New crossing | Key (default) | What leaves, beyond what the warden sent before | Code |
+|---|---|---|---|
+| **Agency check** (T22) | `judge.uses.agencyCheck` (off) | the player's **latest message** (`state.player_message`, the newest `is_user` line before the reply, cleaned by the same window hygiene) and the **persona name** (`state.player`, `getPlayerName()`), beside the reply. Before, the warden sent only the reply and the established facts (§3 above) | `stagecraftCoordinator.readPlayerLine`, `warden.ts agencyPart` |
+| **House rules** (T23) | `judge.uses.houseRules` (off) | the story's **authored rule text** (`state.house_rules`, ≤ 8 rules, ≤ 240 chars each), the same class as `lore_select`'s authored entry text. No preset, no card, no persona text (C13) | `warden.ts rulesPart`, `continuity.ts wardenFamilies` |
+
+With both on, the facts, the player line, the persona name and the rules share one request (the combined
+shape the Phase A regression family measures). The persona **description** still never leaves (§2); only
+the name, as the director and scene read already send.
+
+**Per host:** one host, TypeSafe (D10: hosted routes and local Jev-likes are v2.5). TypeSafe's published
+terms were not read in this pass; the row stands on the code inventory above, and a capture of a live
+`agencyCheck` + `houseRules` request (J8.10/J8.12 on arm) is what turns it into a measurement.

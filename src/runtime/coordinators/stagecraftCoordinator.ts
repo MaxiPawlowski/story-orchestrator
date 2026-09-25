@@ -22,11 +22,23 @@ import {
   type CuratorOpStatus,
   type CuratorProposalRecord,
   type WardenNoteOp,
+  anyWardenFamily,
+  composeWardenNote,
+  newestCarriedNote,
+  wardenFlagJournal,
+  wardenNoteJournal,
+  wardenNoteOps,
+  wardenReason,
+  wardenSummary,
+  withdrawRemovedRules,
+  type WardenCheckFinding,
+  type WardenCheckInput,
+  type WardenFamiliesActive,
 } from "@stagecraft/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import type { RunOwnership, RunToken } from "../runToken";
 import {
-  clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, getContext, loadLorebook, readWIEntry, readWIEntryAt,
+  clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, getContext, getPlayerName, loadLorebook, readWIEntry, readWIEntryAt,
   restoreWIEntryAt, setStoryExtensionPrompt, upsertWIEntry, type WIEntryTarget,
 } from "@services/STAPI";
 import { lorebookFileId } from "@utils/string";
@@ -46,7 +58,12 @@ export interface StagecraftCoordinatorDeps {
   getCanon: () => string;
   getOpenArcs: () => string[];
   filterEntries?: (entries: CuratorEntryView[], context: { checkpoint: { name: string; objective: string }; canon: string; openThreads: string[] }) => Promise<CuratorEntryView[]>;
-  warden?: { check: (reply: { speaker: string; text: string }, facts: string[]) => Promise<{ facts: string[]; text: string } | null>; facts: () => EstablishedFact[]; nudgeActive: () => boolean };
+  warden?: {
+    check: (input: WardenCheckInput) => Promise<WardenCheckFinding[] | null>;
+    facts: () => EstablishedFact[];
+    families?: () => Omit<WardenFamiliesActive, "continuity">;
+    nudgeActive: () => boolean;
+  };
   journal: (summary: string, note?: string) => void;
   persist: () => Promise<void>;
   notify: () => void;
@@ -69,6 +86,16 @@ const readReply = (messageId: number): { speaker: string; text: string } | null 
   return { speaker: typeof raw?.name === "string" && raw.name ? raw.name : "Narrator", text: message.text };
 };
 
+const readPlayerLine = (replyMessageId: number): string | null => {
+  const chat = getContext().chat;
+  if (!Array.isArray(chat)) return null;
+  for (let index = Math.min(replyMessageId, chat.length) - 1; index >= 0; index -= 1) {
+    const message = cleanWindowMessage(chat[index]);
+    if (message.keep && message.isUser) return message.text;
+  }
+  return null;
+};
+
 // Owns extras.stagecraft: the World Info curator's off-path pass, the review ring the author acts
 // on, and the boundary write. It holds no engine or memory dependency **by construction** — a
 // curator can never move the blackboard or a memory tier (spec addendum §Stagecraft).
@@ -87,7 +114,7 @@ export class StagecraftCoordinator {
   private curatorHold: PassHold | null = null;
   private wardenHold: PassHold | null = null;
   private noteActive = false;
-  private carriedNote: { recordId: string; index: number } | null = null;
+  private carriedNote: { recordId: string; indices: number[] } | null = null;
 
   constructor(private readonly deps: StagecraftCoordinatorDeps) {}
 
@@ -402,16 +429,27 @@ export class StagecraftCoordinator {
 
   // v2.2 plan 05: fire-and-forget after a committed character reply, never a scheduler job. The judge
   // decides which established facts the reply broke; the note itself is composed in code.
+  private activeFamilies(): WardenFamiliesActive {
+    const extra = this.deps.warden?.families?.() ?? { agency: false, houseRules: [] };
+    return { continuity: this.state.settings.wardenEnabled, agency: extra.agency, houseRules: extra.houseRules };
+  }
+
+  // T23: a story swap that drops a rule withdraws the unapplied notes that named it.
+  private withdrawRemovedRules(): number {
+    const rules = this.deps.getStory()?.house_rules ?? [];
+    return this.settleNotes((op, status) => status !== "applied" && withdrawRemovedRules(op, rules), "rule removed");
+  }
+
   async runWardenPass(replyMessageId: number): Promise<boolean> {
     const settings = this.state.settings;
     const state = this.deps.getState();
     const warden = this.deps.warden;
-    if (!warden || !state || !settings.wardenEnabled || settings.wardenAcceptMode === "off") return false;
+    if (!warden || !state || settings.wardenAcceptMode === "off") return false;
+    const families = this.activeFamilies();
+    if (!anyWardenFamily(families)) return false;
     const reply = readReply(replyMessageId);
     if (!reply) return false;
-    // The lapse happens before the in-flight guard: a newer reply supersedes an older unapplied note
-    // whether or not this pass gets to ask, or a slow judge call leaves the stale note to inject.
-    const lapsed = this.settleNotes((op, status) => op.replyMessageId < replyMessageId && status !== "applied", "lapsed");
+    const lapsed = this.settleNotes((op, status) => op.replyMessageId < replyMessageId && status !== "applied", "lapsed") + this.withdrawRemovedRules();
     if (this.busy(this.wardenHold)) {
       if (lapsed) await this.save();
       return false;
@@ -420,14 +458,14 @@ export class StagecraftCoordinator {
     const hold: PassHold = { token };
     this.wardenHold = hold;
     try {
-      const established = warden.facts();
-      const facts = established.map((fact) => fact.text);
-      const note = facts.length ? await warden.check(reply, facts).catch(() => null) : null;
-      // The reply-text comparison below catches an edit. It does not catch a chat switch landing on
-      // a message with the same index and the same text, which is what the token is for.
+      const established = families.continuity ? warden.facts() : [];
+      const playerLine = families.agency ? readPlayerLine(replyMessageId) : null;
+      const input: WardenCheckInput = { reply, facts: established.map((fact) => fact.text), agency: playerLine !== null ? { player: getPlayerName(), message: playerLine } : null, houseRules: families.houseRules };
+      const asks = input.facts.length > 0 || input.agency !== null || input.houseRules.length > 0;
+      const findings = asks ? await warden.check(input).catch(() => null) : null;
       const owned = token ? this.deps.ownership?.check(token) : undefined;
       if (owned && owned.ok === false) return false;
-      if (!note || readReply(replyMessageId)?.text !== reply.text) {
+      if (!findings?.length || readReply(replyMessageId)?.text !== reply.text) {
         if (lapsed) await this.save();
         return false;
       }
@@ -438,20 +476,15 @@ export class StagecraftCoordinator {
         boundary: state.boundary,
         messageId: replyMessageId,
         checkpointId: state.activeCheckpointId,
-        reason: "continuity",
-        summary: `${reply.speaker}'s reply contradicts ${note.facts.length === 1 ? "an established fact" : `${note.facts.length} established facts`}`,
+        reason: wardenReason(findings),
+        summary: wardenSummary(reply.speaker, findings),
         mode: settings.wardenAcceptMode,
-        ops: [{
-          op: { kind: "note", text: note.text, facts: note.facts, replyMessageId, sources: established.filter((fact) => note.facts.includes(fact.text)) },
-          status: settings.wardenAcceptMode === "auto" ? "accepted" : "pending",
-        }],
+        ops: wardenNoteOps(findings, established, replyMessageId, settings.wardenAcceptMode),
         dropped: [],
-        // The warden read a reply against the fact list it was handed, so both travel as inputs and
-        // the card can send the author back to the fact that was broken.
         provenance: { source: "curator", messageId: replyMessageId, boundary: state.boundary, pass: "continuity-warden", inputs: [{ store: "memory" as const, id: `reply:${replyMessageId}` }], validity: "live" },
       };
       this.patch({ proposals: capProposalRing([...this.state.proposals, record]) });
-      this.deps.journal(`Continuity warden flagged ${reply.speaker}'s reply`, note.facts.join(" | "));
+      this.deps.journal(...wardenFlagJournal(reply.speaker, findings));
       await this.save();
       return true;
     } finally {
@@ -480,15 +513,16 @@ export class StagecraftCoordinator {
   // and the note waits for the next one.
   onGenerationStarted(type: unknown, dryRun: unknown) {
     const settings = this.state.settings;
-    if (dryRun === true || type === "quiet" || type === "impersonate" || !settings.wardenEnabled || settings.wardenAcceptMode === "off" || this.deps.warden?.nudgeActive()) return;
-    const record = this.state.proposals.find((candidate) => candidate.curator === "warden" && candidate.ops.some((entry) => entry.status === "accepted"));
-    const index = record ? record.ops.findIndex((candidate) => candidate.status === "accepted") : -1;
-    const entry = record?.ops[index];
-    if (!record || !entry || !isNoteOp(entry.op)) return;
-    setStoryExtensionPrompt(INJECTION_REGISTRY.continuityNote.key, entry.op.text, INJECTION_REGISTRY.continuityNote.depth);
+    if (dryRun === true || type === "quiet" || type === "impersonate" || settings.wardenAcceptMode === "off" || this.deps.warden?.nudgeActive()) return;
+    this.withdrawRemovedRules();
+    const active = this.activeFamilies();
+    const carried = newestCarriedNote(this.state.proposals, active);
+    if (!carried) return;
+    const ops = carried.indices.map((index) => carried.record.ops[index].op).filter(isNoteOp);
+    setStoryExtensionPrompt(INJECTION_REGISTRY.continuityNote.key, composeWardenNote(ops), INJECTION_REGISTRY.continuityNote.depth);
     this.noteActive = true;
-    this.carriedNote = { recordId: record.id, index };
-    this.deps.journal("Continuity note added to this reply's prompt", entry.op.facts.join(" | "));
+    this.carriedNote = { recordId: carried.record.id, indices: carried.indices };
+    this.deps.journal(...wardenNoteJournal(ops));
   }
 
   // A stopped or reply-less generation leaves the note accepted, so it rides the next loud one.
@@ -499,7 +533,7 @@ export class StagecraftCoordinator {
     this.updateOps(carried.recordId, (current) => ({
       ...current,
       appliedAt: new Date().toISOString(),
-      ops: current.ops.map((candidate, index) => (index === carried.index && candidate.status === "accepted" ? { ...candidate, status: "applied" as const } : candidate)),
+      ops: current.ops.map((candidate, index) => (carried.indices.includes(index) && candidate.status === "accepted" ? { ...candidate, status: "applied" as const } : candidate)),
     }));
     void this.save();
   }

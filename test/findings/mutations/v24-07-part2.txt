@@ -1,0 +1,55 @@
+v2.4 plan 07 part 2 (T22 agency check, T23 house rules, harness): mutations 2026-09-25 (worktree branch worktree-agent-ada3cc3683bdf6057, on master e4d69db; script .debug/p07b-mutants.py, each mutant an exact-text replacement in one file, restored byte-for-byte after its run; a non-zero exit of the named suite = KILLED)
+Suites per group:
+  W/C: jest src/judge/warden.test.ts
+  K:   jest src/runtime/coordinators/wardenFamilies.review.test.ts src/runtime/continuity.test.ts src/runtime/coordinators/stagecraftCoordinator.test.ts
+  S:   jest src/engine/houseRules.test.ts src/engine/storyDiff.test.ts src/studio/diagnostics.test.ts
+  R:   jest src/judge/readiness.test.ts
+  H:   node --test scripts/debug/lib/judgeHarness.test.mts scripts/debug/lib/overSteer.test.mts
+UI mutants (U1, U2): applied together, Storybook rebuilt, full test-runner over the served index.json (218 stories), then the sources restored and the build and run repeated green (218/218). Each is killed by a different story, so they are attributed separately.
+First sweep: 39/40, K1 survived (the coordinator's own "anything to ask" guard had no case where a family is on but its input is empty); a case was added ("agency on with no player line asks nothing") and K1 re-run KILLED. Final sweep after moving the op/journal/carry helpers into src/stagecraft/warden.ts (K5/K6 retargeted there): 40/40.
+Result: 42/42 killed (40 jest/node, 2 Storybook).
+
+- W1 continuity-only request no longer byte-identical (reply first): KILLED
+- W2 asks an empty request when every family is off: KILLED
+- W3 agency flags at >= 2.5 (raw threshold boundary): KILLED
+- W4 house rule flags only above HOUSE_RULE_P: KILLED
+- W5 note names every broken rule (no cap of 2): KILLED
+- W6 broken rules not ordered by certainty: KILLED
+- W7 rules not capped at eight: KILLED
+- W8 agency note keeps "the player" instead of the persona: KILLED
+- W9 arm B drops the reply from the family calls: KILLED
+- C1 agency calibration ignores the labelled family: KILLED
+- C2 an unanswered agency row counts as right: KILLED
+- C3 house-rule families swapped (broken read as kept): KILLED
+- C4 combined continuity asked without the agency family: KILLED
+- C5 agency rescore asks a row with no player line: KILLED
+- K1 coordinator asks with nothing to ask: KILLED (after the added case)
+- K2 warden runs with the shared accept mode off: KILLED
+- K3 player line sent while the agency check is off: KILLED
+- K4 facts sent while continuity is off: KILLED
+- K5 note carried from the oldest noted reply: KILLED
+- K6 a switched-off family still injected: KILLED
+- K7 composed note not capped at four lines: KILLED
+- K8 a render spends only the first carried op: KILLED
+- K9 a removed rule is not withdrawn at generation start: KILLED
+- K10 agency check ignores never_narrate_player_action: KILLED
+- K11 house rules sent without judge.uses.houseRules: KILLED
+- K12 warden asks with the judge master switch off: KILLED
+- K13 agency check on without its key: KILLED
+- S1 more than eight rules accepted: KILLED
+- S2 duplicate rules accepted: KILLED
+- S3 rules kept untrimmed: KILLED
+- S4 house_rules not carried into the parsed story: KILLED
+- S5 no storyDiff row for a house_rules edit: KILLED
+- S6 compound rule never diagnosed: KILLED
+- R1 a Phase-A-pending use reports a calibration: KILLED
+- R2 agency check listed outside author view: KILLED
+- H1 judge-on mode leaves the accept mode for agencyCheck/houseRules: KILLED
+- H2 over-steer columns read every family: KILLED
+- H3 cost report totals from the ring: KILLED
+- H4 cache hits counted in latency: KILLED
+- H5 agency family misses OOC: KILLED
+- U1 StagecraftPanel labels an agency note "continuity note": KILLED
+    Drawer/StagecraftPanel > Warden Families Awaiting Review
+- U2 house-rule list never disables its add button at 8: KILLED
+    Studio/StoryEditor > House Rules

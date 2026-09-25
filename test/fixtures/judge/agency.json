@@ -1,0 +1,688 @@
+{
+  "use": "agency",
+  "floors": {
+    "writes": 0.85,
+    "clean": 0.95
+  },
+  "labelledAt": "2026-09-25",
+  "source": "v2.4 plan 07 T22 Phase A. Labels (family + rubric level 0-4, after Jeved Puppet) written before any answer was read. writes = level 3-4 (a new player act or words, a decision, concession or dialogue, second person \"you agree\" included); clean = level 0-2 (world, NPC or perception only, restating the player's own line, the world deciding the outcome of an attempt the player stated (T15, D6), a small reflex). Six clean rows are real Artemis replies from the part-1 J8.5 records (source names each); the rest are authored. Group-chat rows (group: true) sit in both families. Floors predeclared: writes recall >= 0.85, clean specificity >= 0.95; flag at AGENCY_SCORE > 2.5 on the raw Score, never retuned.",
+  "rows": [
+    {
+      "id": "A01",
+      "lang": "en",
+      "group": true,
+      "player": "Max",
+      "playerMessage": "Then we head back the same way. Lead on to the river crossing.",
+      "reply": {
+        "speaker": "Arin",
+        "text": "\"Right. If we're heading back the same way, then it's back to that bridge.\"\n*Arin pushes off the wall and starts walking, his leather boots crunching on the cobblestones.*\n\"And let me guess, you're thinking this is an easy trip, right?\"\n*He glances back over his shoulder with a smirk, his green eyes glinting with amusement.*\n\"You always say that before we-know-what-it-all-goes-to-hell. But hey, I'm in. I'll watch your back, same as we always do.\"\n*He leads the way, his cloak fluttering slightly in the breeze.*"
+      },
+      "family": "clean",
+      "level": 0,
+      "source": "record: test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/J8.5-off-run1.journey.json cleanup.rescore.rows m4 (Artemis, 2026-09-25)"
+    },
+    {
+      "id": "A02",
+      "lang": "en",
+      "group": true,
+      "player": "Max",
+      "playerMessage": "We walk on in silence for a while.",
+      "reply": {
+        "speaker": "Luke",
+        "text": "*The silence stretches, and Luke shifts his weight, the chainmail clinking softly.*\n\"Yeah... I mean, not always, right?\"\n*He tries for a laugh, but it comes out as a small, anxious sound, like a ripple in a water bucket.*\n\"Just a few times. Nothing to get used to, anyway.\"\n*He walks with his shoulders hunched, his oversized gear clanking with each step as he looks around at the path ahead, eyes wide and taking in everything.*\n\"Do you think the Sun Ruins are still... you know... dangerous?\"\n*His voice drops a bit, turning quieter, and he glances up at the Max.*\n\"I mean, my brother went there and... and he never came back.\"\n*He speaks the quickly, the words tumbling out before he stops, realizing what he said, his face going pale.*\n\"Sorry. I shouldn't have. That's not what I'm thinking about right now, right?\""
+      },
+      "family": "clean",
+      "level": 0,
+      "source": "record: test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/J8.5-off-run1.journey.json cleanup.rescore.rows m6 (Artemis, 2026-09-25)"
+    },
+    {
+      "id": "A03",
+      "lang": "en",
+      "group": true,
+      "player": "Max",
+      "playerMessage": "Then we head back the same way. Lead on to the river crossing.",
+      "reply": {
+        "speaker": "Arin",
+        "text": "\"Got it,\" *Arin nods and turns, his cloak swirling as he starts walking. His stride is confident, guiding the way back toward the river. As you approach the forest edge where the river cuts through the valley, he suddenly stops short, squinting at the rushing water ahead.*\n\"Well, that's a problem,\" *he mutters, his hand instinctively dropping to the hilt of one of his daggers. He gestures toward where the bridge should be—only to show jagged stumps of stone and empty space, the current below white and churning.*\n\"Bridge is gone. Seems the flood did more damage than the courier thought, or maybe they're just not as observant as most people,\" *he says, with a sharp edge of annoyance in his voice. He steps closer to the edge, scanning the riverbank, his green eyes darting across the churning water.* \"We can't exactly swim across that—not without getting swept downstream. Need to find another way.\"\n*He turns to you, his brow furrowed.* \"Any bright ideas, or should we start looking for another route?\""
+      },
+      "family": "clean",
+      "level": 1,
+      "source": "record: test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/J8.5-on-run1.journey.json cleanup.rescore.rows m3 (Artemis, 2026-09-25)"
+    },
+    {
+      "id": "A04",
+      "lang": "en",
+      "group": true,
+      "player": "Max",
+      "playerMessage": "We walk on in silence for a while.",
+      "reply": {
+        "speaker": "DM Narrator",
+        "text": "*The river's roar gradually softens as you walk upstream, the sound of rushing water becoming a low rumble in the distance. The forest path is damp and quiet, with only the occasional rustle of leaves and the distant call of birds overhead. The scent of wet earth and crushed ferns fills the air, cool and refreshing after the dust and noise of the city.*\n*After a while, the path opens into a small clearing. There, stretched across the turbulent river, is the cable ferry crossing Ponticius spoke of—a sturdy-looking rope and wooden platform, though the rope itself appears worn and frayed in places, hanging loosely over the churning water.*\n*The platform itself, a simple wooden slab with iron rings bolted to its surface, sits at the river's edge, ready to be used. A smaller wooden pulley system on the near bank is bolted into a large stone pillar, the rope stretching from it to the far shore.*\n*The water below is treacherous, white foam and debris whipping past at high speed, but the cable and platform seem stable enough—provided they don't slip or hold.*\n*Arin glances at the frayed rope with a frown, his eyes scanning the river's width. He shifts his weight, testing the platform with a tentative step.*\n\"Well, this looks... promising,\" *he says, his voice tinged with a mix of sarcasm and caution. He glances over at you and Luke, his expression unreadable.* \"So... who's going to be the first to try it?\""
+      },
+      "family": "clean",
+      "level": 1,
+      "source": "record: test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/J8.5-on-run1.journey.json cleanup.rescore.rows m9 (Artemis, 2026-09-25)"
+    },
+    {
+      "id": "A05",
+      "lang": "en",
+      "group": true,
+      "player": "Max",
+      "playerMessage": "Then we head back the same way. Lead on to the river crossing.",
+      "reply": {
+        "speaker": "Luke",
+        "text": "“Wait, the bridge is gone?!” *Luke's voice pitches higher, his eyes widening as he stares at the river.* “I—I mean, that's not what we're supposed to find!” *He looks back and forth between Arin and the collapsed bridge, his voice rapid and uncertain.* “But if it's gone, then… then we can still cross, right? There must be some other way.” *He looks over to Arin, his eager-to-please expression shifting into a bit of worry.*\n*Luke's hand goes to the hilt of his short sword, his fingers clutching it with a bit too much excitement.* “Maybe we can… maybe we can jump over? No, that's too wide.” *He looks back at the river, his pale face creasing in concern.* “But we can't just swim! What if there are monsters in the river? What if we're—what if we're being swept downstream into some monster's nest?” *His words tumble out of his mouth quickly, his chainmail clattering as he shifts his weight.*\n*He turns to look at Arin, his eagerness shining through.* \"But we can find a way, right? We've got—we've got you and Max!\" *He looks at Max with a bit of awe, as if he's just sure that they'll find a solution.* \"You guys are legends! You'll know exactly what to do!\"\n*Luke's oversized chainmail clatters as he stands there, his short sword clattering against his hip as he looks between Arin and and the river.* \"So... so what should we do? Maybe we can build a raft? Or... or look for another crossing?\" *He looks back at Arin with hopeful eyes.*"
+      },
+      "family": "clean",
+      "level": 0,
+      "source": "record: test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/J8.5-on-run2.journey.json cleanup.rescore.rows m4 (Artemis, 2026-09-25)"
+    },
+    {
+      "id": "A06",
+      "lang": "en",
+      "group": true,
+      "player": "Max",
+      "playerMessage": "We walk on in silence for a while.",
+      "reply": {
+        "speaker": "Arin",
+        "text": "*Arin walks in silence, his green eyes scanning the path ahead, his movements efficient and quiet. His cloak swishes lightly against his leather armor, and his hand rests loosely on the pommel of one of his daggers. He doesn't speak, but his jaw is tight, and his brow is furrowed in thought. The forest is alive with the sound of birds and the wind in the trees, but Arin's expression is quiet and settled.*\n*He glances at you briefly, and for a moment his gaze softens, but the expression is gone quickly, replaced by the more guarded look he's worn since the river. The silence between you is heavy, but not uncomfortable.*\n*He keeps his pace steady, his brow creased in a thought that he can't quite shake.*\n*He glances back at Ponticius and Luke, and his eyes narrow slightly, as he've noticed that they're not speaking either.*\n*He glances back at you again, a moment later, hisL. And this time, his eyes linger for a moment longer.*\n*He stays silent, though, and doesn't and his mouth is set in a line, and his expression is guarded.*\n*He keeps walking, and hisL. But it's clear that he's thinking about something, his jaw set and his expression quiet.*\n*The silence continues for a while as you all walk, and Arin'sL. And he doesn't say a word, but his eyes are alert, and hisL.*\n*He keeps his gaze fixed on the path ahead, but hisL. He's not speaking, but hisL. But he's clearly thinking about something.*\n*The silence between you continues for a while, and Arin doesn't speak, and he doesn't look at you, but his eyes- they'reL. They're alert and sharp, as he'sS. And he's not saying a word, but he's not saying anything at all.*\n*He walks on in silence, and he- and hisL.*\n*The silence continues, and Arin- and he doesn'tL.*\n*The silence is heavy, and Arin doesn'tS.*\n*The silence is heavy.*"
+      },
+      "family": "clean",
+      "level": 0,
+      "source": "record: test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/J8.5-on-run2.journey.json cleanup.rescore.rows m8 (Artemis, 2026-09-25)"
+    },
+    {
+      "id": "A07",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I ask the innkeeper about rooms.",
+      "reply": {
+        "speaker": "Innkeeper",
+        "text": "\"Two silver a night,\" the innkeeper says. You slide the coins across the bar and take the key without another word."
+      },
+      "family": "writes",
+      "level": 3,
+      "source": "authored"
+    },
+    {
+      "id": "A08",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I study the map.",
+      "reply": {
+        "speaker": "Narrator",
+        "text": "The map shows two roads through the hills. \"We take the northern pass,\" you announce, rolling it up and tucking it into your belt."
+      },
+      "family": "writes",
+      "level": 4,
+      "source": "authored"
+    },
+    {
+      "id": "A09",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "What do you want for the sword?",
+      "reply": {
+        "speaker": "Merchant",
+        "text": "\"Fifty crowns, not a copper less.\" You agree to the price and hand over your purse."
+      },
+      "family": "writes",
+      "level": 4,
+      "source": "authored"
+    },
+    {
+      "id": "A10",
+      "lang": "en",
+      "group": true,
+      "player": "Max",
+      "playerMessage": "Arin, keep watch.",
+      "reply": {
+        "speaker": "Arin",
+        "text": "\"Fine,\" Arin mutters, taking the first watch. Max rolls out his bedroll, lies down and is asleep within minutes."
+      },
+      "family": "writes",
+      "level": 3,
+      "source": "authored"
+    },
+    {
+      "id": "A11",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I knock on the door.",
+      "reply": {
+        "speaker": "Narrator",
+        "text": "The door creaks open under your knuckles. You step inside, draw your dagger and call out, \"Anyone here?\""
+      },
+      "family": "writes",
+      "level": 4,
+      "source": "authored"
+    },
+    {
+      "id": "A12",
+      "lang": "en",
+      "player": "Seren",
+      "playerMessage": "Who are you?",
+      "reply": {
+        "speaker": "Stranger",
+        "text": "\"A friend of your father's.\" Seren feels a surge of trust and decides to follow her down to the harbor."
+      },
+      "family": "writes",
+      "level": 4,
+      "source": "authored"
+    },
+    {
+      "id": "A13",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "Tell me the plan.",
+      "reply": {
+        "speaker": "Captain Vey",
+        "text": "\"We hit the convoy at dawn, before the escort wakes.\" You nod slowly. You're in."
+      },
+      "family": "writes",
+      "level": 4,
+      "source": "authored"
+    },
+    {
+      "id": "A14",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I sit by the fire.",
+      "reply": {
+        "speaker": "Narrator",
+        "text": "You sit by the fire, then pull out your journal and write a long letter to your sister about everything that happened in the mine."
+      },
+      "family": "writes",
+      "level": 3,
+      "source": "authored"
+    },
+    {
+      "id": "A15",
+      "lang": "en",
+      "group": true,
+      "player": "Max",
+      "playerMessage": "Luke, stay behind me.",
+      "reply": {
+        "speaker": "Luke",
+        "text": "\"Okay!\" Luke ducks behind you. You turn to Ponticius and say, \"We move on my signal.\""
+      },
+      "family": "writes",
+      "level": 4,
+      "source": "authored"
+    },
+    {
+      "id": "A16",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I refuse the offer.",
+      "reply": {
+        "speaker": "Duke Harlan",
+        "text": "The Duke smiles thinly and waits. After a long moment you sigh, take the quill and sign the contract after all."
+      },
+      "family": "writes",
+      "level": 4,
+      "source": "authored"
+    },
+    {
+      "id": "A17",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I look at the stranger.",
+      "reply": {
+        "speaker": "Narrator",
+        "text": "The stranger's hood hides his face. Your hand drifts to your sword and you ask him, \"What business do you have here?\""
+      },
+      "family": "writes",
+      "level": 4,
+      "source": "authored"
+    },
+    {
+      "id": "A18",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "*I wait by the gate.*",
+      "reply": {
+        "speaker": "Gate Guard",
+        "text": "The guard waves the hay cart through and ignores you. Tired of waiting, you shoulder your pack and walk off toward the market."
+      },
+      "family": "writes",
+      "level": 3,
+      "source": "authored"
+    },
+    {
+      "id": "A19",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I examine the lock.",
+      "reply": {
+        "speaker": "Narrator",
+        "text": "It is an old tumbler lock, rusted at the edges. You pick it in seconds, slip into the vault and pocket the ruby."
+      },
+      "family": "writes",
+      "level": 3,
+      "source": "authored"
+    },
+    {
+      "id": "A20",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "Hello?",
+      "reply": {
+        "speaker": "Mira",
+        "text": "Mira turns from the window. \"Oh. It's you.\" You blush, stammer an apology and confess that you have been following her for days."
+      },
+      "family": "writes",
+      "level": 4,
+      "source": "authored"
+    },
+    {
+      "id": "A21",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I watch the dancers.",
+      "reply": {
+        "speaker": "Narrator",
+        "text": "The dancers whirl past in red and gold. You decide then and there that you will never go back to the capital."
+      },
+      "family": "writes",
+      "level": 4,
+      "source": "authored"
+    },
+    {
+      "id": "A22",
+      "lang": "en",
+      "group": true,
+      "player": "Max",
+      "playerMessage": "Ponticius, what does the job pay?",
+      "reply": {
+        "speaker": "Ponticius",
+        "text": "\"Three hundred crowns, half up front.\" Max shakes his hand. \"Deal,\" Max says. \"We leave tonight.\""
+      },
+      "family": "writes",
+      "level": 4,
+      "source": "authored"
+    },
+    {
+      "id": "A23",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I draw my bow.",
+      "reply": {
+        "speaker": "Narrator",
+        "text": "You draw your bow, loose three arrows in quick succession and vault over the wall after the fleeing bandit."
+      },
+      "family": "writes",
+      "level": 3,
+      "source": "authored"
+    },
+    {
+      "id": "A24",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I tell him I'll think about it.",
+      "reply": {
+        "speaker": "Merchant",
+        "text": "\"Take your time.\" But you have already made up your mind, and you buy the whole crate before he can blink."
+      },
+      "family": "writes",
+      "level": 4,
+      "source": "authored"
+    },
+    {
+      "id": "A25",
+      "lang": "es",
+      "player": "Max",
+      "playerMessage": "Pregunto por el camino al puerto.",
+      "reply": {
+        "speaker": "Pescadora",
+        "text": "\"Sigue la costa hacia el sur\", dice la pescadora. Le das las gracias, le compras un pescado y echas a andar hacia el puerto."
+      },
+      "family": "writes",
+      "level": 3,
+      "source": "authored"
+    },
+    {
+      "id": "A26",
+      "lang": "es",
+      "group": true,
+      "player": "Max",
+      "playerMessage": "Arin, ¿qué opinas?",
+      "reply": {
+        "speaker": "Arin",
+        "text": "\"Que es una trampa.\" Max asiente y dice: \"Entonces entramos por la puerta de atrás.\""
+      },
+      "family": "writes",
+      "level": 4,
+      "source": "authored"
+    },
+    {
+      "id": "A27",
+      "lang": "es",
+      "player": "Max",
+      "playerMessage": "Rechazo el trato.",
+      "reply": {
+        "speaker": "Conde Ruiz",
+        "text": "El conde insiste con una sonrisa. Al final aceptas, firmas el pergamino y le estrechas la mano."
+      },
+      "family": "writes",
+      "level": 4,
+      "source": "authored"
+    },
+    {
+      "id": "A28",
+      "lang": "es",
+      "player": "Max",
+      "playerMessage": "Me quedo mirando el mapa.",
+      "reply": {
+        "speaker": "Narrador",
+        "text": "El mapa muestra dos rutas entre las colinas. Decides tomar la del norte y guardas el mapa en la mochila."
+      },
+      "family": "writes",
+      "level": 4,
+      "source": "authored"
+    },
+    {
+      "id": "A29",
+      "lang": "es",
+      "player": "Max",
+      "playerMessage": "Llamo a la puerta.",
+      "reply": {
+        "speaker": "Narrador",
+        "text": "La puerta se abre sola. Entras, desenvainas la espada y gritas: «¿Hay alguien aquí?»"
+      },
+      "family": "writes",
+      "level": 4,
+      "source": "authored"
+    },
+    {
+      "id": "A30",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I ask the innkeeper about rooms.",
+      "reply": {
+        "speaker": "Innkeeper",
+        "text": "\"Two silver a night, breakfast included,\" the innkeeper says, wiping a mug. \"Stairs are on the left.\""
+      },
+      "family": "clean",
+      "level": 0,
+      "source": "authored"
+    },
+    {
+      "id": "A31",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I draw my sword and charge the goblin.",
+      "reply": {
+        "speaker": "Narrator",
+        "text": "Your blade bites into the goblin's shoulder; it shrieks and scrambles back behind the barrels while the others draw their knives."
+      },
+      "family": "clean",
+      "level": 1,
+      "source": "authored"
+    },
+    {
+      "id": "A32",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I try to climb the wall.",
+      "reply": {
+        "speaker": "Narrator",
+        "text": "Halfway up, the mortar crumbles under your fingers and you slide back down into the mud."
+      },
+      "family": "clean",
+      "level": 1,
+      "source": "authored"
+    },
+    {
+      "id": "A33",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I step into the cave.",
+      "reply": {
+        "speaker": "Narrator",
+        "text": "You step into the cave. The air is cold and wet, and somewhere deeper you hear water dripping onto stone."
+      },
+      "family": "clean",
+      "level": 1,
+      "source": "authored"
+    },
+    {
+      "id": "A34",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I open the chest.",
+      "reply": {
+        "speaker": "Narrator",
+        "text": "The lid springs up and a cloud of dust bursts out; you flinch and cough as it settles over a pile of old coins."
+      },
+      "family": "clean",
+      "level": 2,
+      "source": "authored"
+    },
+    {
+      "id": "A35",
+      "lang": "en",
+      "group": true,
+      "player": "Max",
+      "playerMessage": "Luke, stay behind me.",
+      "reply": {
+        "speaker": "Luke",
+        "text": "\"O-okay!\" Luke scurries behind you, clutching his short sword so tightly his knuckles go white."
+      },
+      "family": "clean",
+      "level": 0,
+      "source": "authored"
+    },
+    {
+      "id": "A36",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "What do you want for the sword?",
+      "reply": {
+        "speaker": "Merchant",
+        "text": "\"Fifty crowns, and I'm being generous.\" He sets the blade on the counter and waits, one eyebrow raised."
+      },
+      "family": "clean",
+      "level": 0,
+      "source": "authored"
+    },
+    {
+      "id": "A37",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I refuse the offer.",
+      "reply": {
+        "speaker": "Duke Harlan",
+        "text": "The Duke's smile thins. \"A pity. The offer stands until the bells ring at dusk.\" He turns back to his wine."
+      },
+      "family": "clean",
+      "level": 1,
+      "source": "authored"
+    },
+    {
+      "id": "A38",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I hold out my hand.",
+      "reply": {
+        "speaker": "Healer",
+        "text": "The healer takes your hand, turns it palm up and frowns at the burn. \"This needs a salve, and soon.\""
+      },
+      "family": "clean",
+      "level": 1,
+      "source": "authored"
+    },
+    {
+      "id": "A39",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I shiver and pull my cloak tighter.",
+      "reply": {
+        "speaker": "Narrator",
+        "text": "The wind rises off the lake, carrying the smell of snow. Across the square a lantern gutters and goes out."
+      },
+      "family": "clean",
+      "level": 0,
+      "source": "authored"
+    },
+    {
+      "id": "A40",
+      "lang": "en",
+      "group": true,
+      "player": "Max",
+      "playerMessage": "*I say nothing and keep walking.*",
+      "reply": {
+        "speaker": "Arin",
+        "text": "Arin matches your pace, glancing sideways. \"Silent treatment, huh? Fine by me.\""
+      },
+      "family": "clean",
+      "level": 1,
+      "source": "authored"
+    },
+    {
+      "id": "A41",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I tell him I'll think about it.",
+      "reply": {
+        "speaker": "Merchant",
+        "text": "\"Take your time. The crate isn't going anywhere. Well, not before Thursday.\""
+      },
+      "family": "clean",
+      "level": 0,
+      "source": "authored"
+    },
+    {
+      "id": "A42",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I listen at the door.",
+      "reply": {
+        "speaker": "Narrator",
+        "text": "You hear two voices, low and urgent: one mentions the harbor, the other the word \"tonight\"."
+      },
+      "family": "clean",
+      "level": 1,
+      "source": "authored"
+    },
+    {
+      "id": "A43",
+      "lang": "en",
+      "group": true,
+      "player": "Max",
+      "playerMessage": "Max waves to the guards.",
+      "reply": {
+        "speaker": "Guard Captain",
+        "text": "The captain squints at Max, then raises a gauntleted hand in return. \"Papers first, traveller.\""
+      },
+      "family": "clean",
+      "level": 1,
+      "source": "authored"
+    },
+    {
+      "id": "A44",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I read the letter.",
+      "reply": {
+        "speaker": "Narrator",
+        "text": "The letter is from your brother. Your breath catches at the first line: \"If you are reading this, I am already gone.\""
+      },
+      "family": "clean",
+      "level": 2,
+      "source": "authored"
+    },
+    {
+      "id": "A45",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I knock three times.",
+      "reply": {
+        "speaker": "Narrator",
+        "text": "Your knocks echo down the hall. Footsteps approach, a bolt slides back, and a girl of about ten peers up at you."
+      },
+      "family": "clean",
+      "level": 1,
+      "source": "authored"
+    },
+    {
+      "id": "A46",
+      "lang": "en",
+      "player": "Max",
+      "playerMessage": "I grab the idol.",
+      "reply": {
+        "speaker": "Narrator",
+        "text": "The idol comes free of its pedestal with a click. Somewhere below, stone grinds on stone and the floor begins to tilt."
+      },
+      "family": "clean",
+      "level": 1,
+      "source": "authored"
+    },
+    {
+      "id": "A47",
+      "lang": "es",
+      "player": "Max",
+      "playerMessage": "Pregunto por el camino al puerto.",
+      "reply": {
+        "speaker": "Pescadora",
+        "text": "\"Sigue la costa hacia el sur, dos horas a pie\", responde la pescadora sin dejar de remendar la red."
+      },
+      "family": "clean",
+      "level": 0,
+      "source": "authored"
+    },
+    {
+      "id": "A48",
+      "lang": "es",
+      "player": "Max",
+      "playerMessage": "Abro el cofre.",
+      "reply": {
+        "speaker": "Narrador",
+        "text": "La tapa cede con un chasquido; te sobresaltas cuando sale una nube de polvo, y debajo brillan unas monedas antiguas."
+      },
+      "family": "clean",
+      "level": 2,
+      "source": "authored"
+    },
+    {
+      "id": "A49",
+      "lang": "es",
+      "group": true,
+      "player": "Max",
+      "playerMessage": "Luke, quédate detrás de mí.",
+      "reply": {
+        "speaker": "Luke",
+        "text": "\"¡V-vale!\" Luke se esconde detrás de ti, agarrando la espada con las dos manos."
+      },
+      "family": "clean",
+      "level": 0,
+      "source": "authored"
+    },
+    {
+      "id": "A50",
+      "lang": "es",
+      "player": "Max",
+      "playerMessage": "Intento trepar el muro.",
+      "reply": {
+        "speaker": "Narrador",
+        "text": "A mitad de camino la piedra se desmorona bajo tus dedos y resbalas de nuevo hasta el barro."
+      },
+      "family": "clean",
+      "level": 1,
+      "source": "authored"
+    },
+    {
+      "id": "A51",
+      "lang": "es",
+      "player": "Max",
+      "playerMessage": "Rechazo el trato.",
+      "reply": {
+        "speaker": "Conde Ruiz",
+        "text": "El conde frunce el ceño. \"Como quieras. La oferta sigue en pie hasta el anochecer.\""
+      },
+      "family": "clean",
+      "level": 0,
+      "source": "authored"
+    }
+  ]
+}

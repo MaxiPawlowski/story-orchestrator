@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { applyJudgeMode, armSummary, costReport, diffArms, filterJudgeCalls, judgeModeSettings, markJudgeMode, withEstablished, overSteerColumns, parseJudgeMode, rescoreRates, restoreJudgeConfig, ringTotals, wardenNotes, wardenTally } from './judgeHarness.mts';
+import { applyJudgeMode, armSummary, costInputOf, costReport, costReportAcross, diffArms, filterJudgeCalls, judgeModeSettings, markJudgeMode, withEstablished, overSteerColumns, parseJudgeMode, rescoreRates, restoreJudgeConfig, ringTotals, wardenNotes, wardenTally } from './judgeHarness.mts';
 import { OVER_STEER_FAMILIES } from './overSteer.mts';
 import { RUNNER_SET_GLOBALS } from './scenarioSchema.mts';
 
@@ -130,7 +130,7 @@ test('warden notes keep the applied notes only, with the reply each one answered
     { curator: 'warden', messageId: 5, ops: [{ status: 'rejected', message: 'lapsed', op: { kind: 'note', text: 'x', replyMessageId: 5 } }] },
     { curator: 'wi', messageId: 2, ops: [{ status: 'applied', op: { kind: 'patch' } }] },
   ]);
-  assert.deepEqual(notes, [{ text: NOTE, replyMessageId: 1 }]);
+  assert.deepEqual(notes, [{ text: NOTE, replyMessageId: 1, family: 'continuity' }]);
 });
 
 test('over-steer columns measure reply N+1 after each applied note against the control arm at the same turn', () => {
@@ -160,4 +160,61 @@ test('a rescore can hold every arm to one declared fact set, and refuses an empt
   assert.deepEqual(withEstablished(rows, ['bridge gone']).map((row) => row.established), [['bridge gone'], ['bridge gone']]);
   assert.equal(withEstablished(rows, null), rows);
   assert.throws(() => withEstablished(rows, []), /names no fact/);
+});
+
+// ---- v2.4 plan 07 part 2 -------------------------------------------------------------------
+
+const wardenBefore = { judge: { enabled: false, model: 'jev-1.13.0', uses: { agencyCheck: false, houseRules: false, loreSelect: false } }, warden: { wardenEnabled: false, wardenAcceptMode: 'review' }, curator: { curatorEnabled: true, acceptMode: 'auto' } };
+
+test('T22/T23 uses ride the warden accept mode without switching the continuity warden on', () => {
+  const agency = judgeModeSettings(wardenBefore, { label: 'on', uses: ['agencyCheck'], wardenMode: 'auto' });
+  assert.deepEqual(agency.judge.uses, { agencyCheck: true, houseRules: false, loreSelect: false });
+  assert.deepEqual(agency.warden, { wardenEnabled: false, wardenAcceptMode: 'auto' });
+  assert.deepEqual(judgeModeSettings(wardenBefore, { label: 'on', uses: ['houseRules'], wardenMode: 'auto' }).warden, { wardenEnabled: false, wardenAcceptMode: 'auto' });
+  assert.deepEqual(judgeModeSettings(wardenBefore, { label: 'on', uses: ['loreSelect'], wardenMode: 'auto' }).warden, { wardenEnabled: false, wardenAcceptMode: 'review' });
+});
+
+test('warden notes carry their family, and the over-steer columns read only the family asked for', () => {
+  const notes = wardenNotes([{ curator: 'warden', messageId: 1, ops: [
+    { status: 'applied', op: { kind: 'note', text: NOTE, replyMessageId: 1 } },
+    { status: 'applied', op: { kind: 'note', family: 'agency', text: 'Agency: Max...', replyMessageId: 1 } },
+  ] }]);
+  assert.deepEqual(notes.map((note) => note.family), ['continuity', 'agency']);
+  const rows = [row(1, 'x'), row(3, 'Seren waits for Max to answer.')];
+  const agency = overSteerColumns({ notes, rows }, { rows }, OVER_STEER_FAMILIES.agency, { m3: 1.2 });
+  assert.equal(agency.length, 1);
+  assert.equal(agency[0].note, 'Agency: Max...');
+  assert.equal('replyScore' in agency[0] ? agency[0].replyScore : null, 1.2);
+  assert.equal(overSteerColumns({ notes, rows }, { rows }, OVER_STEER_FAMILIES.continuity).length, 1);
+  assert.equal(overSteerColumns({ notes, rows }, { rows }, OVER_STEER_FAMILIES['house-rule']).length, 0);
+});
+
+test('plan 09 cost report: totals and $ from the meters, per-use detail from the ring, never summed from the ring', () => {
+  const event = (use: string, detail: Record<string, unknown>) => ({ kind: 'judge', summary: `judge ${use}`, detail: { use, model: 'jev-1.13.0', ...detail } });
+  const first = costInputOf({ cleanup: { boundaries: 10, judgeMeter: { calls: 5, cachedCalls: 1, inputTokens: 1000, outputTokens: 50, cost: 0 }, judgeCalls: { events: [
+    event('warden', { latencyMs: 400, inputTokens: 300, outputTokens: 10 }),
+    event('warden', { latencyMs: 900, inputTokens: 300, outputTokens: 10 }),
+    event('director', { latencyMs: 1700, inputTokens: 200, outputTokens: 5 }),
+    event('director', { latencyMs: 0, cached: true }),
+    event('lore', { fallback: 'timeout', latencyMs: 1500 }),
+  ] } } }, 'a.json');
+  const second = costInputOf({ cleanup: { boundaries: 30, judgeMeter: { calls: 1, cachedCalls: 0, inputTokens: 1000, outputTokens: 0, cost: 0 }, judgeCalls: { events: [] } } }, 'b.json');
+  const report = costReportAcross([first, second, costInputOf({ cleanup: { judgeCalls: { events: [] } } }, 'c.json')]);
+  assert.deepEqual(report.meter, { calls: 6, cachedCalls: 1, inputTokens: 2000, outputTokens: 50, cost: 0 });
+  assert.equal(report.boundaries, null);
+  assert.deepEqual(report.unmetered, ['c.json']);
+  const counted = costReportAcross([first, second]);
+  assert.equal(counted.boundaries, 40);
+  assert.equal(counted.estimatedUsd, 0.000084);
+  assert.equal(counted.usdPer1000Boundaries, 0.0021);
+  assert.deepEqual(counted.notInRing, { calls: 2, inputTokens: 1200 });
+  const warden = counted.perUse.find((use) => use.use === 'warden')!;
+  assert.deepEqual(warden.latencyMs, { p50: 400, p90: 900, max: 900 });
+  assert.equal(warden.callsPerBoundary, 0.05);
+  const director = counted.perUse.find((use) => use.use === 'director')!;
+  assert.equal(director.cachedCalls, 1);
+  assert.deepEqual(director.latencyMs, { p50: 1700, p90: 1700, max: 1700 });
+  assert.equal(director.overBudget, 1);
+  assert.deepEqual(counted.perUse.find((use) => use.use === 'lore')!.fallbackRate, { timeout: 1 });
+  assert.equal(counted.perUse.find((use) => use.use === 'warden')!.overBudget, undefined);
 });

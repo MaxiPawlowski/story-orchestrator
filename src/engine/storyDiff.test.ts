@@ -86,6 +86,15 @@ describe("storyDiff classification table", () => {
     expect(codes(result)).toContain("lore-select-changed");
   });
 
+  it("keeps a house_rules edit compatible, adding, editing or removing a rule (v2.4 plan 07 T23)", () => {
+    const withRules = edited((draft) => { draft.house_rules = ["No guns.", "No swearing."]; });
+    const added = run(withRules);
+    expect(added.classification).toBe("compatible");
+    expect(added.entries).toEqual([expect.objectContaining({ code: "house-rules-changed", path: "house_rules", message: "What the narrator is held to changed." })]);
+    expect(codes(diffStories(parseStoryV2OrThrow(withRules), parseStoryV2OrThrow(edited((draft) => { draft.house_rules = ["No guns."]; })), playedState()))).toEqual(["house-rules-changed"]);
+    expect(codes(diffStories(parseStoryV2OrThrow(withRules), parseStoryV2OrThrow(withRules), playedState()))).toEqual([]);
+  });
+
   it("keeps a scene_read vocabulary edit compatible (v2.2 plan 03)", () => {
     const result = run(edited((draft) => { draft.scene_read = { locations: ["guild hall"], inject: false }; }));
     expect(result.classification).toBe("compatible");

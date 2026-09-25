@@ -16,7 +16,7 @@ case with the ordinary scripts (st-actions send / send-empty / swipe / continue,
 vetoed member), then "dump --label <case>" writes .debug/so-lore-probe-<case>.json and clears the log.
 It never forces, never asks the judge, and never writes a lorebook.
 
-       node scripts/debug/so-lore-probe.mts diff <off-record.json> <on-record.json> [--rescore <so-judge-rescore.json>] [--family continuity|guidance]
+       node scripts/debug/so-lore-probe.mts diff <off-record.json> <on-record.json> [--rescore <so-judge-rescore.json>] [--family continuity|agency|house-rule|guidance]
 
 v2.4 plan 07: the judge-off control column. Compares a journey record run with --judge-uses off against
 one run with the uses under test (same journey, same scripted turns): meter calls/tokens, fallbacks,
@@ -97,10 +97,12 @@ export async function diffRecords(offFile: string, onFile: string, rescoreFile: 
   const off = armSummary(await read(offFile), offFile);
   const on = armSummary(await read(onFile), onFile);
   if (off.label !== 'off' || on.label !== 'on') throw new Error(`expected a judge-off record then a judge-on record, got "${off.label}" then "${on.label}" (run each with --judge-uses)`);
-  const rates = rescoreFile ? (await read(rescoreFile)).summary?.rates ?? [] : [];
+  const rescore = rescoreFile ? await read(rescoreFile) : null;
+  const rates = rescore?.summary?.rates ?? [];
+  const scores: Record<string, number> = Object.fromEntries((rescore?.results ?? []).filter((row) => row.arm === 'on' && typeof row.score === 'number').map((row) => [row.id, row.score]));
   const family = OVER_STEER_FAMILIES[familyName];
   if (!family) throw new Error(`unknown over-steer family "${familyName}" (known: ${Object.keys(OVER_STEER_FAMILIES).join(', ')})`);
-  return { off, on, rows: diffArms(off, on, rates), overSteer: overSteerColumns(on, off, family) };
+  return { off, on, rows: diffArms(off, on, rates), overSteer: overSteerColumns(on, off, family, scores) };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

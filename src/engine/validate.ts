@@ -25,6 +25,8 @@ import {
   type QualityCriterion,
   type QualityRatingLevel,
   type StoryLoreSelect,
+  HOUSE_RULES_MAX,
+  HOUSE_RULE_MAX_CHARS,
   type StorySceneRead,
   type StoryStagecraft,
   type StoryV2,
@@ -597,6 +599,23 @@ const readLoreSelect = (value: unknown, errors: ValidationError[]): StoryLoreSel
   return lorebooks.length ? { lorebooks, ...(topK !== undefined ? { top_k: topK } : {}), ...(minP !== undefined ? { min_p: minP } : {}) } : undefined;
 };
 
+const readHouseRules = (value: unknown, errors: ValidationError[]): string[] | undefined => {
+  if (!Array.isArray(value)) {
+    addError(errors, "house_rules", "house_rules must be a list of rules");
+    return undefined;
+  }
+  if (value.length > HOUSE_RULES_MAX) addError(errors, "house_rules", `house_rules holds at most ${HOUSE_RULES_MAX} rules`);
+  const rules: string[] = [];
+  value.forEach((entry, index) => {
+    const rule = typeof entry === "string" ? entry.trim() : "";
+    if (!rule) addError(errors, `house_rules.${index}`, "a house rule must be non-empty text");
+    else if (rule.length > HOUSE_RULE_MAX_CHARS) addError(errors, `house_rules.${index}`, `a house rule is at most ${HOUSE_RULE_MAX_CHARS} characters`);
+    else if (rules.some((kept) => kept.toLowerCase() === rule.toLowerCase())) addError(errors, `house_rules.${index}`, `duplicate house rule '${rule}'`);
+    else rules.push(rule);
+  });
+  return rules.length ? rules : undefined;
+};
+
 const readArcTemplate = (value: unknown, errors: ValidationError[]): ArcTemplate | undefined => {
   if (isOneOf(value, ARC_TEMPLATE_NAMES)) return value;
   if (isRecord(value) && Array.isArray(value.points)) {
@@ -645,6 +664,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const stagecraft = json.stagecraft !== undefined ? readStagecraft(json.stagecraft, errors) : undefined;
   const sceneRead = json.scene_read !== undefined ? readSceneRead(json.scene_read, errors) : undefined;
   const loreSelect = json.lore_select !== undefined ? readLoreSelect(json.lore_select, errors) : undefined;
+  const houseRules = json.house_rules !== undefined ? readHouseRules(json.house_rules, errors) : undefined;
   const roster = readRoster(json.roster as StoryV2["roster"], errors);
   const arcBridges = Array.isArray(json.arc_bridges) ? json.arc_bridges.map((entry, index) => {
     const bridgePath = `arc_bridges.${index}`;
@@ -733,6 +753,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     ...(stagecraft ? { stagecraft } : {}),
     ...(sceneRead ? { scene_read: sceneRead } : {}),
     ...(loreSelect ? { lore_select: loreSelect } : {}),
+    ...(houseRules ? { house_rules: houseRules } : {}),
     startCheckpointId,
     checkpointById,
     outgoingByCheckpoint,

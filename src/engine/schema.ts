@@ -254,6 +254,11 @@ export interface StoryLoreSelect {
 
 export const STORY_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,63}$/;
 
+// v2.4 plan 07 T23: what the narrator is held to, story-level only. Sent to the judge only when
+// judge.uses.houseRules is on; absent means no rules (today).
+export const HOUSE_RULES_MAX = 8;
+export const HOUSE_RULE_MAX_CHARS = 240;
+
 export interface StoryV2 {
   format: 2;
   id?: string;
@@ -270,6 +275,7 @@ export interface StoryV2 {
   stagecraft?: StoryStagecraft;
   scene_read?: StorySceneRead;
   lore_select?: StoryLoreSelect;
+  house_rules?: string[];
   scaffolding?: Record<string, Scaffolding>;
 }
 

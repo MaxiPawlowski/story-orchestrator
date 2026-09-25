@@ -1,8 +1,8 @@
 import React from "react";
-import { ARC_TEMPLATE_NAMES, type ArcTemplateName, type StoryRequirements } from "@engine/index";
+import { ARC_TEMPLATE_NAMES, HOUSE_RULES_MAX, type ArcTemplateName, type StoryRequirements } from "@engine/index";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import { useDraftStore } from "../draft";
-import { addArcBridge, removeArcBridge, setArcTemplate, setLoreSelect, setRequirements, setSceneRead, setStagecraft, setStoryField, setStoryId, slugifyStoryId, updateArcBridge } from "../mutations";
+import { addArcBridge, removeArcBridge, setArcTemplate, setHouseRules, setLoreSelect, setRequirements, setSceneRead, setStagecraft, setStoryField, setStoryId, slugifyStoryId, updateArcBridge } from "../mutations";
 
 export interface StoryEditorProps {
   personaNames?: string[];
@@ -32,10 +32,11 @@ const RequirementList: React.FC<{
   values: string[];
   options: string[];
   listId: string;
+  max?: number;
   onChange: (next: string[]) => void;
-}> = ({ label, hint, values, options, listId, onChange }) => (
+}> = ({ label, hint, values, options, listId, max, onChange }) => (
   <div className="flex flex-col gap-1">
-    <span className="text-xs st-muted">{label}<HelpTooltip title={hint} /></span>
+    <span className="text-xs st-muted">{label}<HelpTooltip title={hint} />{max !== undefined ? <span data-so="list-count"> {values.length}/{max}</span> : null}</span>
     {values.map((value, index) => (
       <div key={index} className="flex items-center gap-2">
         <input
@@ -48,7 +49,7 @@ const RequirementList: React.FC<{
         <button type="button" className="st-button danger" aria-label={`Remove ${label} ${index + 1}`} onClick={() => onChange(values.filter((_, entryIndex) => entryIndex !== index))}>×</button>
       </div>
     ))}
-    <button type="button" className="st-button secondary self-start" onClick={() => onChange([...values, options[0] ?? ""])}>+ {label}</button>
+    <button type="button" className="st-button secondary self-start" disabled={max !== undefined && values.length >= max} onClick={() => onChange([...values, options[0] ?? ""])}>+ {label}</button>
     <datalist id={listId}>
       {options.map((option) => <option key={option} value={option} />)}
     </datalist>
@@ -156,6 +157,19 @@ const StoryEditor: React.FC<StoryEditorProps> = ({ personaNames = [], memberName
             />
           </label>
         ) : null}
+      </div>
+
+      <div data-so="house-rules" className="st-subpanel flex flex-col gap-3 p-3">
+        <div className="text-sm font-medium">House rules <span className="st-muted font-normal">— what every character reply is held to</span></div>
+        <RequirementList
+          label="House rule"
+          hint="Sent to the judgment model with each character reply, only when House rules is on. One demand per rule, stated so a reply either keeps it or breaks it; a broken rule is named in the next reply's prompt."
+          values={draft.house_rules ?? []}
+          options={[]}
+          listId="so-house-rules"
+          max={HOUSE_RULES_MAX}
+          onChange={(rules) => mutate((current) => setHouseRules(current, rules))}
+        />
       </div>
 
       <div data-so="scene-read-field" className="st-subpanel flex flex-col gap-3 p-3">

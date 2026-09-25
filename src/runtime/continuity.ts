@@ -1,4 +1,5 @@
-import { buildContinuityRequest, continuityNote, CONTINUITY_MAX_FACTS, CONTINUITY_TIMEOUT_MS, type ContinuityNote } from "@judge/index";
+import { agencyForCheckpoint, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { buildWardenRequests, CONTINUITY_MAX_FACTS, CONTINUITY_TIMEOUT_MS, readWarden, wardenRecordP, type WardenFinding, type WardenInput } from "@judge/index";
 import { isLive, type ConflictPair, type LedgerView, type MemoryEntry } from "@memory/index";
 import type { Provenance } from "@memory/provenance";
 import type { JudgeRuntime } from "./judge";
@@ -16,7 +17,7 @@ export interface EstablishedFact {
   conflictingValue?: string;
 }
 
-export type ContinuityCheck = (reply: { speaker: string; text: string }, facts: string[]) => Promise<ContinuityNote | null>;
+export type WardenCheck = (input: WardenInput) => Promise<WardenFinding[] | null>;
 
 const factTexts = (facts: EstablishedFact[]) => facts.map((fact) => fact.text);
 
@@ -56,13 +57,28 @@ export function establishedFacts(
 export const establishedFactTexts = (facts: EstablishedFact[]) => factTexts(facts);
 
 // The warden's own switch is `stagecraft.wardenEnabled`; the judge's master switch still gates
-// every call, so nothing is sent while the judgment model is off.
-export const createContinuityCheck = (judge: () => JudgeRuntime | null): ContinuityCheck => async (reply, facts) => {
+// every call, so nothing is sent while the judgment model is off. v2.4 plan 07: one call asks every
+// family that is on (WARDEN_ARM), and no facts no longer skips it when another family is on.
+export const createWardenCheck = (judge: () => JudgeRuntime | null): WardenCheck => async (input) => {
   const runtime = judge();
-  if (!runtime?.enabled() || !facts.length) return null;
-  const result = await runtime.ask("warden", buildContinuityRequest(reply, facts), {
-    timeoutMs: CONTINUITY_TIMEOUT_MS,
-    summarize: (answers) => ({ facts: Math.min(facts.length, CONTINUITY_MAX_FACTS), flagged: answers ? continuityNote(answers, facts)?.facts.length ?? 0 : 0 }),
-  });
-  return result.answers ? continuityNote(result.answers, facts) : null;
+  const requests = buildWardenRequests(input);
+  if (!runtime?.enabled() || !requests.length) return null;
+  const results = await Promise.all(requests.map((request) => runtime.ask("warden", request, { timeoutMs: CONTINUITY_TIMEOUT_MS, summarize: (answers) => wardenRecordP(answers, input) })));
+  if (results.some((result) => !result.answers)) return null;
+  return readWarden(Object.assign({}, ...results.map((result) => result.answers)), input);
 };
+
+// T22/T23 are their own judge.uses opt-ins. The agency check stands down where the checkpoint lets
+// narration write the player (never_narrate_player_action false): the author allowed it.
+export const wardenFamilies = (judge: () => JudgeRuntime | null, view: { getStory: () => NormalizedStoryV2 | null; getState: () => EngineState | null }) => () => {
+  const runtime = judge();
+  const story = view.getStory();
+  const agency = Boolean(runtime?.active("agencyCheck")) && agencyForCheckpoint(story, view.getState()?.activeCheckpointId).never_narrate_player_action;
+  return { agency, houseRules: runtime?.active("houseRules") ? [...(story?.house_rules ?? [])] : [] };
+};
+
+export const createWarden = (judge: () => JudgeRuntime | null, view: Parameters<typeof wardenFamilies>[1], own: { facts: () => EstablishedFact[]; nudgeActive: () => boolean }) => ({
+  check: createWardenCheck(judge),
+  families: wardenFamilies(judge, view),
+  ...own,
+});

@@ -8,7 +8,7 @@
 
 import { evaluateInST } from './evaluate.mts';
 import { saveSettingsNow } from './settingsSave.mts';
-import { restateCheck, swing, type OverSteerFamily } from './overSteer.mts';
+import { restateCheck, swing, WARDEN_OVER_STEER_FAMILIES, type OverSteerFamily } from './overSteer.mts';
 
 // docs.typesafe.ai/models, read 2026-09-24: jev-1.13.0 costs $0.042 per million INPUT tokens and
 // output is free. An estimate from the meter, never a host-reported cost.
@@ -111,15 +111,19 @@ export interface JudgeConfigCapture {
   curator: { curatorEnabled: boolean; acceptMode: string };
 }
 
+/** v2.4 plan 07 T22/T23: judge uses that ride the warden's note path and share its accept mode. */
+export const WARDEN_JUDGE_USES = ['agencyCheck', 'houseRules'];
+
 /** The settings a mode writes. An unknown use is refused: a typo would otherwise run the "on" arm with nothing on. */
 export function judgeModeSettings(before: JudgeConfigCapture, mode: JudgeMode): JudgeConfigCapture {
   const known = Object.keys(before.judge.uses);
   const unknown = mode.uses.filter((use) => use !== 'warden' && !known.includes(use));
   if (unknown.length) throw new Error(`unknown judge use(s) ${unknown.join(', ')}; this build declares ${known.join(', ')} (and warden)`);
   const warden = mode.uses.includes('warden');
+  const wardenFamily = warden || WARDEN_JUDGE_USES.some((use) => mode.uses.includes(use));
   return {
     judge: { ...before.judge, enabled: mode.uses.length > 0, uses: Object.fromEntries(known.map((use) => [use, mode.uses.includes(use)])) },
-    warden: { wardenEnabled: warden, wardenAcceptMode: warden ? mode.wardenMode ?? before.warden.wardenAcceptMode : before.warden.wardenAcceptMode },
+    warden: { wardenEnabled: warden, wardenAcceptMode: wardenFamily ? mode.wardenMode ?? before.warden.wardenAcceptMode : before.warden.wardenAcceptMode },
     curator: before.curator,
   };
 }
@@ -207,6 +211,7 @@ export function wardenTally(proposals: Array<{ curator?: string; ops?: Array<{ s
 export interface WardenNote {
   text: string;
   replyMessageId: number;
+  family?: string;
 }
 
 type ProposalView = { curator?: string; messageId?: number; ops?: Array<{ status?: string; message?: string; op?: { text?: unknown; replyMessageId?: unknown; [key: string]: unknown } }> };
@@ -216,12 +221,15 @@ export function wardenNotes(proposals: ProposalView[] = []): WardenNote[] {
     .filter((record) => record.curator === 'warden')
     .flatMap((record) => (record.ops ?? [])
       .filter((op) => op.status === 'applied' && typeof op.op?.text === 'string')
-      .map((op) => ({ text: op.op?.text as string, replyMessageId: Number.isInteger(op.op?.replyMessageId) ? op.op?.replyMessageId as number : record.messageId ?? -1 })));
+      .map((op) => ({ text: op.op?.text as string, replyMessageId: Number.isInteger(op.op?.replyMessageId) ? op.op?.replyMessageId as number : record.messageId ?? -1, family: typeof op.op?.family === 'string' ? op.op.family as string : 'continuity' })));
 }
 
 export interface ReplyRow {
   id: string;
   reply?: { speaker?: string; text?: string };
+  player?: string;
+  playerMessage?: string;
+  houseRules?: string[];
 }
 
 export interface ArmSummary {
@@ -303,8 +311,9 @@ const replyAfter = (rows: ReplyRow[], messageId: number) => rows
   .sort((left, right) => rowIndex(left) - rowIndex(right))[0] ?? null;
 
 /** Plan 01's over-steer probe over two archived arms: reply N+1 after each applied note, and the control arm's reply to the same turn. */
-export function overSteerColumns(on: Pick<ArmSummary, 'notes' | 'rows'>, off: Pick<ArmSummary, 'rows'>, family: OverSteerFamily) {
-  return on.notes.map((note) => {
+export function overSteerColumns(on: Pick<ArmSummary, 'notes' | 'rows'>, off: Pick<ArmSummary, 'rows'>, family: OverSteerFamily, scores: Record<string, number> = {}) {
+  const notes = WARDEN_OVER_STEER_FAMILIES.includes(family.name) ? on.notes.filter((note) => (note.family ?? 'continuity') === family.name) : on.notes;
+  return notes.map((note) => {
     const reply = replyAfter(on.rows, note.replyMessageId);
     const control = replyAfter(off.rows, note.replyMessageId);
     const view = (row: ReplyRow | null) => (row ? { id: row.id, speaker: row.reply?.speaker ?? '' } : null);
@@ -318,7 +327,86 @@ export function overSteerColumns(on: Pick<ArmSummary, 'notes' | 'rows'>, off: Pi
       restate: restateCheck(note.text, text, family),
       controlRestate: control ? restateCheck(note.text, controlText, family) : null,
       swing: control ? swing(text, controlText) : null,
+      ...(scores[reply.id] !== undefined ? { replyScore: scores[reply.id] } : {}),
       missing: null,
     };
   });
+}
+
+// ---- plan 09's cost report (CL): totals from the METER, per-call detail from the ring -----------
+
+export interface CostRecordInput {
+  file?: string;
+  meter: JudgeMeter | null;
+  events: JudgeCallEvent[];
+  boundaries: number | null;
+}
+
+export const costInputOf = (record, file?: string): CostRecordInput => ({
+  ...(file ? { file } : {}),
+  meter: record?.cleanup?.judgeMeter ?? null,
+  events: record?.cleanup?.judgeCalls?.events ?? [],
+  boundaries: typeof record?.cleanup?.boundaries === 'number' ? record.cleanup.boundaries : null,
+});
+
+const percentile = (values: number[], share: number): number | null => {
+  if (!values.length) return null;
+  const sorted = [...values].sort((left, right) => left - right);
+  return sorted[Math.min(sorted.length - 1, Math.ceil(share * sorted.length) - 1)];
+};
+
+export const ON_PATH_USES = ['director', 'lore'];
+export const ON_PATH_BUDGET_MS = 1500;
+
+/**
+ * X23: the totals are the meters' (monotonic, never cut by a rollback), summed over the records. The ring
+ * rows supply what the meter cannot: which use spent it, latency, fallbacks, and the answering model.
+ * Per-use tokens are therefore a ring reading and are labelled as a floor; `notInRing` says by how much.
+ */
+export function costReportAcross(inputs: CostRecordInput[]) {
+  const metered = inputs.filter((input) => input.meter);
+  const meter = metered.reduce((sum, input) => ({
+    calls: sum.calls + input.meter!.calls,
+    cachedCalls: sum.cachedCalls + input.meter!.cachedCalls,
+    inputTokens: sum.inputTokens + input.meter!.inputTokens,
+    outputTokens: sum.outputTokens + input.meter!.outputTokens,
+    cost: sum.cost + input.meter!.cost,
+  }), { calls: 0, cachedCalls: 0, inputTokens: 0, outputTokens: 0, cost: 0 });
+  const boundaries = inputs.every((input) => input.boundaries !== null) ? inputs.reduce((sum, input) => sum + (input.boundaries ?? 0), 0) : null;
+  const events = inputs.flatMap((input) => filterJudgeCalls(input.events));
+  const ring = ringTotals(events);
+  const uses = [...new Set(events.map(useOf))].sort();
+  const perUse = uses.map((use) => {
+    const own = events.filter((event) => useOf(event) === use);
+    const totals = ring.byUse[use];
+    const latencies = own.filter((event) => !event.detail?.cached && typeof event.detail?.latencyMs === 'number' && !(event.detail?.fallback && NEVER_SENT.has(event.detail.fallback))).map((event) => event.detail!.latencyMs as number);
+    const fallbackTotal = Object.values(totals.fallbacks).reduce((sum, count) => sum + count, 0);
+    return {
+      use,
+      calls: totals.calls,
+      cachedCalls: totals.cachedCalls,
+      callsPerBoundary: boundaries ? Number((totals.calls / boundaries).toFixed(4)) : null,
+      latencyMs: { p50: percentile(latencies, 0.5), p90: percentile(latencies, 0.9), max: latencies.length ? Math.max(...latencies) : null },
+      ringTokens: { input: totals.inputTokens, output: totals.outputTokens },
+      fallbackRate: own.length ? Object.fromEntries(Object.entries(totals.fallbacks).map(([reason, count]) => [reason, Number((count / own.length).toFixed(4))])) : {},
+      fallbacks: fallbackTotal,
+      models: [...new Set(own.map((event) => event.detail?.model).filter((model): model is string => typeof model === 'string' && model.length > 0))],
+      ...(ON_PATH_USES.includes(use) ? { onPathBudgetMs: ON_PATH_BUDGET_MS, overBudget: latencies.filter((value) => value > ON_PATH_BUDGET_MS).length } : {}),
+    };
+  });
+  const usd = (meter.inputTokens / 1_000_000) * JEV_USD_PER_MTOK_INPUT;
+  return {
+    records: inputs.length,
+    metered: metered.length,
+    unmetered: inputs.filter((input) => !input.meter).map((input) => input.file ?? '(record)'),
+    boundaries,
+    meter,
+    estimatedUsd: Number(usd.toFixed(6)),
+    usdPer1000Boundaries: boundaries ? Number(((usd / boundaries) * 1000).toFixed(6)) : null,
+    hostCost: meter.cost > 0 ? meter.cost : null,
+    notInRing: { calls: meter.calls - ring.calls, inputTokens: meter.inputTokens - ring.inputTokens },
+    perUse,
+    priceSource: 'docs.typesafe.ai/models 2026-09-24: $0.042 per million input tokens, output free',
+    note: 'totals and $ from the meters (X23); per-use tokens are ring readings, a floor by notInRing',
+  };
 }

@@ -1122,3 +1122,147 @@ In the two judge-on runs:
 **Limit, unchanged.** A contradiction with both low word overlap and low cosine is still missed. There is no polarity or negation check.
 
 **Harness note.** Plan 04's 5 ms wall-clock check (`windowHygiene.test.ts`, "cheap enough for the reply path") failed once in a full jest run while three agent builds loaded the machine. Run alone it passed 3/3. A wall-clock floor flakes under load. It is noted for plan 09 hardening and was not retuned.
+
+### Build part 2: new uses (worktree, 2026-09-25)
+
+Worktree branch `worktree-agent-ada3cc3683bdf6057`, on master `e4d69db` (plan 04 merge + the contradiction fix). **No
+backend, no browser, no TypeSafe key here: no calibration and no live gate ran, none is claimed green.** Scope: T22,
+T23, the over-steer families, J8.10-J8.13, the privacy rows and plan 09's cost report reading the meter.
+
+**Verdict state: Phase A NOT RUN for either use.** Both are built behind their own default-off keys, with the fixtures
+labelled and the floors predeclared (commit 1, before any runtime code). What ships is decided by the calibration
+runs below, never by this build: a use below any family floor is recorded as **not built** and its commits are dropped
+(T23's schema, diff row, diagnostic and Studio control with it); no floor is retuned.
+
+**Predeclared floors (unchanged from §6, in the fixtures):**
+
+| use | fixture | rows | Spanish | families (floor) | flag |
+|---|---|---|---|---|---|
+| T22 `agencyCheck` | `test/fixtures/judge/agency.json` | 51 (23 writes / 28 clean; 14 group-chat, both families; 6 real Artemis replies from the part-1 J8.5 records, the rest authored) | 10 | writes recall ≥ 0.85, clean specificity ≥ 0.95 | raw Score `> 2.5` (`AGENCY_SCORE`) |
+| T23 `houseRules` | `test/fixtures/judge/house-rules.json` | 24 cases, 96 (reply, rule) rows over 18 rules (13 EN + 5 ES); 3 cases are real replies (H01 is Arin's real "Fuck") | 16 rows | broken recall ≥ 0.85, kept specificity ≥ 0.95, untouched specificity ≥ 0.966 | Noul `≥ 0.7` (`HOUSE_RULE_P`) |
+| regression | `test/fixtures/judge/continuity-combined.json` | the 28 continuity rows verbatim, inside the combined request (agency + 2 untouched rules) | 5 cases | continuity's own: reply 0.9, broken 0.85, consistent 0.966 | else arm B: `WARDEN_ARM = "separate"` |
+
+`labelledAt: 2026-09-25`, before any answer was read. p50 ≤ 1500 ms is the latency bar; the warden's off-path budget
+stays 4000 ms.
+
+**As built**
+- Judge core (`src/judge/warden.ts`, pure): `buildWardenRequests(input, arm)` asks every family that is on in one request
+  (`WARDEN_ARM = "combined"`): `fact:<i>` Nouls (today's continuity request byte for byte when only continuity is on),
+  one `agency` Score over 5 described levels (after Jeved Puppet; state `player`, `player_message`), one
+  `rule:<i>` Noul per house rule (≤ 8, criteria "follows it or does not touch it"). Arm B (`"separate"`) asks each
+  family as its own call; the continuity call is unchanged. `readWarden` reads the Score raw, names ≤ 2 rules verbatim,
+  most certain first, and composes `Agency: <PLAYER_ACTION_CLAUSE with the persona name>` (one wording with
+  `agency.ts:21`). `wardenRecordP` extends the ring summary (`agency`, `rules`, `broken`); the ring `use` stays `warden`.
+- Calibration (`src/judge/wardenCalibration.ts`): `runAgencyCalibration` (`<case>.writes|clean`),
+  `runHouseRuleCalibration` (`<case>.broken|kept|untouched:<i>`), `runCombinedContinuityCalibration`, and
+  `runWardenRescore` for `continuity | agency | house-rules`. Wired into `JudgeRuntime.calibrate/rescore`, `so-judge
+  calibrate` family scoring, and `calibrate-node.mts` (which records the replayable golden). Jest replays each golden
+  once recorded (3 `todo` until then).
+- Keys: `judge.uses.agencyCheck`, `judge.uses.houseRules`, both `false`, both author-view only (`AUTHOR_JUDGE_USES`, rule
+  7: no player surface), copy says "Not measured yet" and what each sends. Readiness rows carry `calibration: null`,
+  `measuredOn: null` (`PHASE_A_PENDING`), so turning one on reads `unproven`.
+- Runtime: `runtime/continuity.ts` `createWarden` builds the warden deps (`createWardenCheck`, `wardenFamilies`): the
+  agency family needs its key and stands down where `agencyFor(...).never_narrate_player_action` is false; the rule
+  family needs its key and the pinned story's `house_rules`. The stagecraft coordinator still imports no `@judge` /
+  `@memory`: it gets both through the injected accessor. `runWardenPass` runs when any family is on (continuity =
+  `wardenEnabled`) and the shared `wardenAcceptMode` is not `off`; no facts no longer skips the call. It sends facts only
+  while continuity is on, and the agency block only when a player line precedes the reply (cleaned by the plan 04
+  window hygiene, persona **name** from `getPlayerName()`). One record per reply (`warden-<boundary>-<replyId>`), one
+  op per family (`family`, `rules`, `score` on `WardenNoteOp`), `reason`/`summary` derived per family.
+  `onGenerationStarted` composes every accepted op of the NEWEST noted reply whose family is still on into the one
+  `continuityNote` block, continuity → agency → house rules, ≤ 4 lines (`composeWardenNote`); `commitNote` spends them
+  together. Lapse, revert and "the nudge wins" are unchanged. A house-rule note whose rule left the story is withdrawn
+  (`rejected`, `rule removed`) at the next warden pass or generation start.
+- T23 schema: `StoryV2.house_rules?: string[]`; `validate` trims, refuses a non-list, an empty rule, > 240 chars, a
+  duplicate (case-insensitive) and > 8 rules; `storyDiff` `house-rules-changed`, compatible, "What the narrator is held to
+  changed."; diagnostic `house-rule-compound` (warning, `;` or ` and `/` y `) with its consequence line; Studio Story tab
+  `[data-so="house-rules"]` list editor with an `n/8` count and a disabled add at 8, via `setHouseRules`.
+- Author UI: `StagecraftPanel` labels `agency note (score x.xx)` / `house-rule note`, lists `house rule: …`, and heads a
+  non-continuity record "Warden:". Stories `WardenFamiliesAwaitingReview`, `HouseRules`.
+- Harness (X12): over-steer families `agency` (meta `Agency:`, `House rule`, `OOC`, `the rules`) and `house-rule`
+  (meta `House rule`, `keep the next reply within`, `OOC`, `the rules`; the rule text rides the restate span);
+  `wardenNotes` carry the family and `overSteerColumns` reads only the asked family, with the N+1 agency score from a
+  rescore file (`replyScore`). The judge-on mode (`--judge-uses agencyCheck,houseRules --warden-mode auto`) sets the
+  shared accept mode without switching the continuity warden on. The control-column rows now carry the player line
+  before each reply, the persona name and the played story's rules, so `so-judge rescore --use agency|house-rules`
+  works on archived records; the record keeps `cleanup.boundaries`.
+- Plan 09 cost report: `so-judge cost-report --records <dir|files>` (offline): meter totals summed across records,
+  `$` and `$ per 1000 boundaries` from the meters, `notInRing`, and per use from the archived ring: calls, calls per
+  boundary, latency p50/p90/max (cache hits and never-sent fallbacks excluded), fallback rate by reason, the answering
+  model, and `director`/`lore` against the 1500 ms budget. Run over the part-1 records it reproduces the recorded
+  meters exactly: 6 calls, 4,718 / 276 tokens, $0.000198, `notInRing` 0.
+- J8.10-J8.13 (`test/journeys/j8-stagecraft.journey.json`, capability `warden-families`), story
+  `test/journeys/j8-house-rules.story.json`, catalog rows in `docs/plans/v2.1/test-plan.md`.
+
+**Tests.** `src/judge/warden.test.ts` (17 + 3 golden todos), `src/runtime/coordinators/wardenFamilies.review.test.ts`
+(16), `src/engine/houseRules.test.ts` (3), plus rows in `storyDiff.test`, `diagnostics.test` (seeded story fires
+`house-rule-compound` once), `readiness.test`, `judgeHarness.test.mts` (3), `overSteer.test.mts` (1).
+
+**Mutations** (`test/findings/mutations/v24-07-part2.txt`): **42/42 killed** (40 jest/node, 2 Storybook). The first
+sweep left K1 alive (no case with a family on but nothing to send); the added case kills it.
+
+**Gates (worktree, exact)**
+- OK: `npm run typecheck`, `npm run typecheck:test`, `npm run lint`, `npm run debug:typecheck`.
+- `npm test`: 235 suites, **3468 passed, 3 todo** (the golden replays); fault matrix 75/10/25/0 of 110; findings ledger 2
+  open / 48 settled; `architecture.test.ts`, `ownership.guard.test.ts`, `faultMatrix.guard.test.ts` green.
+- `npm run test:debug`: 262 tests, 261 pass, 1 skipped, 0 fail. `npm run test:plugin`: 9, 8 pass, 1 skipped (`JUDGE_LIVE`).
+- `npm run build`: OK (2 known size warnings), bundle `69e4fca6e234`, `ST unknown` (worktree path).
+- Storybook: `storybook:build` (`ST_PUBLIC` set), served on 6451, `test-storybook --index-json`: 32 suites, **218/218**;
+  the server was stopped afterwards.
+- Not run: `test:release` (rewrites `dist/manifest.json`; no release tooling changed).
+- Budgets: manager **736/740** (−1: the warden deps moved into `createWarden`); `stagecraftCoordinator` **594/620**;
+  `memoryCoordinator` 619/620 (untouched). Census row `runWardenPass` stays `checked`, note updated.
+
+**Decisions made on evidence (small, stated)**
+- **Order.** Phase A's inputs (fixtures, floors, runners) were committed before any runtime code, but the runs need the
+  live judge, so the runtime was built behind default-off keys rather than waiting. The ship verdict stays the
+  calibration's: nothing merges on this build alone, and a miss is a not-built record plus dropped commits.
+- **T22 inherits T15 (D6).** A reply that decides, from the world, the outcome of an attempt the player's line stated is
+  `clean` (level 1), whether or not `player_attempts_only` is on; the attempts clause is not a T22 input. T22 is opt-in
+  and off, like T15's pieces; D6's "revisit after a player session, together with T22" stands.
+- **Only live families inject.** An accepted note whose family was switched off afterwards stays out of the prompt and
+  accepted (it lapses with the next reply), so turning a use off takes effect on the next generation.
+- **Newest noted reply.** The composed block takes the newest reply with accepted ops; the old path took the first.
+- **Rule removal is withdrawn lazily** (next warden pass or generation start), not in the story-swap path: the manager
+  has 4 lines of budget and the result for the prompt is the same (a withdrawn note never injects).
+- **Agency needs a player line.** No player message before the reply means no agency question (nothing to compare with).
+- **Ring use.** The combined call records `use: "warden"` for every family, so readiness keeps one mapping and the cost
+  report attributes the warden's spend to the warden; the `p` summary says which families were asked.
+- **Cost report per use from the ring, totals from the meter.** The meter was not split per use: X23's exemption stays
+  one named field, and per-use tokens are reported as ring readings with `notInRing` beside them.
+- **Compound rule detection** is `/;|\s(and|y)\s/i`: it will also warn on a rule like "salt and pepper are rare", which
+  is a warning, never a refusal.
+
+**Deviations from the plan text**
+- Red-first held only for the coordinator's `wardenFamilies` wiring case (red on a story whose `house_rules` the parser
+  dropped, before `validate` read the field) and K1's added case; the rest was written beside its code, and the mutants
+  are the evidence. Existing tests moved to the new check API (`createContinuityCheck` → `createWardenCheck`).
+- `recommended-config.md` gained the two rows as "Not measured: Phase A pending", not as built uses.
+- The plan's "on a hot-swap" withdrawal happens at the next pass/generation (above).
+
+**Line corrections (Rule 1, re-verified on `e4d69db`)**: `PLAYER_ACTION_CLAUSE` is `agency.ts:21` (not :20); the
+warden's boundary work is order 57 at `boundaryWork.ts:112-113` ✓; the no-facts skip at `continuity.ts:62` and the
+hard-coded `reason`/`summary` and first-op-only injection in `stagecraftCoordinator.ts` are gone (now
+`buildWardenRequests` returns no request, `wardenReason`/`wardenSummary`, `newestCarriedNote` + `composeWardenNote`).
+
+**Live and calibration, written not run** (real judge through the plugin; lane 2; reload the page between arms, since
+`JudgeRuntime` caches by request):
+1. Phase A, off-page then in-page, each `--record`:
+   `node --no-warnings --experimental-transform-types scripts/spike/typesafe/calibrate-node.mts agency --record`,
+   `… house-rules --record`, `… continuity --fixture continuity-combined --record` (goldens `test/goldens/judge/<name>.json`,
+   which un-todo the jest replays); then `node scripts/debug/so-judge.mts calibrate --use agency --record`,
+   `--use house-rules --record`, `--use continuity --fixture continuity-combined --record`. A family miss exits 1 and
+   is recorded as not built. If only the combined regression misses, set `WARDEN_ARM = "separate"` (arm B) and re-run
+   the regression (it is then the plain continuity request).
+2. J8 on arms ×2 and off ×1: `so-journey.mts run J8 --only J8.10 --judge-uses agencyCheck --warden-mode auto` ×2,
+   `--judge-uses off` ×1; the same for `J8.12` with `--judge-uses houseRules`; `J8.11`, `J8.13` ×2 as written; J8.5/J8.6
+   ×1 each to prove the generalised pass kept them green.
+3. Control column: `so-judge.mts rescore --use agency --records <dir>` (and `--use house-rules`), then
+   `so-lore-probe.mts diff <off> <on> --rescore <file> --family agency` (`house-rule`), which fills the over-steer
+   columns (restate, meta, swing vs control, N+1 agency score ≤ 2.5); the human rubric row stays owed.
+4. `so-judge.mts cost-report --records test/journeys/records/v2.4-plan07/<dir>` over the archived batch (plan 09 CL).
+5. Run-header capture/diff around the batch; `--allow judge.uses.agencyCheck,judge.uses.houseRules` is NOT needed
+   (both stay `false`), but the first header on this build lists two new keys under `judge.uses`.
+
+**Remains:** the Phase A runs and their verdicts (the only thing that decides whether T22/T23 ship), the live J8 rows and
+the control column, the over-steer human row, the TypeSafe terms citation for the privacy row, and the merge.

@@ -464,20 +464,24 @@ async function captureControlColumn(page, arm: string) {
     const runtime = globalThis.storyOrchestratorRuntime;
     const snapshot = runtime?.getSnapshot?.();
     const chat = SillyTavern.getContext().chat ?? [];
+    const player = SillyTavern.getContext().name1 ?? '';
+    const houseRules = runtime?.getPlayedStoryRaw?.()?.house_rules ?? [];
+    const playerBefore = (index) => { for (let at = index - 1; at >= 0; at -= 1) { const message = chat[at]; if (message?.is_user && !message.is_system && typeof message.mes === 'string') return message.mes; } return undefined; };
     const facts = (snapshot?.memory?.entries ?? [])
       .filter((entry) => (entry.tier === 'facts' || entry.pinned) && !entry.supersededBy && !entry.foldedInto && !entry.contradicted && (!entry.provenance || entry.provenance.validity === 'live'))
       .map((entry) => entry.text);
     const rows = chat
       .map((message, index) => ({ message, index }))
       .filter(({ message }) => !message.is_user && !message.is_system && typeof message.mes === 'string' && message.mes.trim())
-      .map(({ message, index }) => ({ id: `m${index}`, arm: label, established: facts, reply: { speaker: message.name ?? '', text: message.mes } }));
-    return { judgeMeter: snapshot?.judgeMeter ?? null, proposals: snapshot?.stagecraft?.proposals ?? [], rows };
+      .map(({ message, index }) => ({ id: `m${index}`, arm: label, established: facts, reply: { speaker: message.name ?? '', text: message.mes }, player, ...(playerBefore(index) !== undefined ? { playerMessage: playerBefore(index) } : {}), ...(houseRules.length ? { houseRules } : {}) }));
+    return { judgeMeter: snapshot?.judgeMeter ?? null, proposals: snapshot?.stagecraft?.proposals ?? [], rows, boundaries: typeof snapshot?.boundary === 'number' ? snapshot.boundary : null };
   }, arm);
   return {
     judgeMeter: captured.judgeMeter,
+    boundaries: captured.boundaries,
     warden: wardenTally(captured.proposals),
     wardenNotes: wardenNotes(captured.proposals),
-    rescore: { factsSource: 'live facts-tier and pinned memory rows at cleanup; ledger-bound rows not included', rows: captured.rows },
+    rescore: { factsSource: 'live facts-tier and pinned memory rows at cleanup; ledger-bound rows not included; player line = the newest player message before each reply; house rules = the played story at cleanup', rows: captured.rows },
   };
 }
 

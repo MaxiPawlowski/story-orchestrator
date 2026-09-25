@@ -172,3 +172,10 @@ on 1.18.0 with the same shape; only line numbers move.
 | 04-H2 | `extensions/regex/engine.js` is byte-identical to 1.19.0 (`diff --strip-trailing-cr`, no output): `:334` signature, `:342` disabled → raw, `:350-354` placement gate, `:363-371` depth, placements `:281-292` | holds, same lines |
 | 04-H5 | `slash-commands.js:6019` `sendNarratorMessage` (`is_system: bias && !removeMacros(text).length`, `extra.type: NARRATOR`); `:6112` `sendCommentMessage` (`is_system: true`, `extra.type: COMMENT`) | holds, lines −1 |
 | 04-H6 | `stable-diffusion/index.js:4966-5001` `sendMessage` (identical text to 1.19.0 over `:4960-5030`), visibility `:5009-5019`; `generationMode` `:113-128` (FREE 6); `constants.js:75-78` `MEDIA_SOURCE.GENERATED = 'generated'` | holds, same lines |
+
+## Plan 07 part 2 (T22/T23, 2026-09-25)
+
+| # | Fact | Source | Verified |
+|---|---|---|---|
+| 07-H9 | A Score answer is a continuous value on `[0, levels − 1]`, not a level index: T22 reads it raw and flags at `> 2.5` on its 5-level rubric (0..4) | Our own recorded answers: `test/goldens/judge/lore-relevance.json` holds 1600 Score answers on a 6-level scale, min 0, max 4.14, 1591 non-integer (recounted 2026-09-25); Jeved reads it raw too (`extension-research/jeved.md` F1) | Yes, from recorded real answers; the agency rubric itself is unmeasured until Phase A |
+| 07-H10 | `getPlayerName()` reads `context.name1` (the persona NAME, never its description) | `src/services/stHost/context.ts:58-61`, vendored `hostTypes.ts:68` | Code fact; T22 sends only this name |

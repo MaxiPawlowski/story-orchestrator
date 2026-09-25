@@ -6,28 +6,35 @@ import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { calibrationOk, type ModelVerdict } from './lib/calibrationVerdict.mts';
-import { costReport, filterJudgeCalls, rescoreRates, withEstablished } from './lib/judgeHarness.mts';
+import { costInputOf, costReport, costReportAcross, filterJudgeCalls, rescoreRates, withEstablished } from './lib/judgeHarness.mts';
 import { classifyProbe, limitProbeCases, probeRequest, requestChars, JEV_USD_PER_MTOK_INPUT, type ProbeResult } from './lib/limitProbe.mts';
 
 const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
 
   status                              plugin reachability, key source (never the key), install settings
   ask <request.json>                  POST one System One request through the plugin from the page
-  calibrate [--use director|memory-verify|memory-pairs|scene|lore|lore-relevance|curator-filter|continuity|backgrounds|typed|stall|critic|variants] [--fixture <name>] [--model <id>] [--min 0.85] [--record]
+  calibrate [--use director|memory-verify|memory-pairs|scene|lore|lore-relevance|curator-filter|continuity|backgrounds|typed|stall|critic|variants|agency|house-rules] [--fixture <name>] [--model <id>] [--min 0.85] [--record]
                                       run test/fixtures/judge/<fixture|use>.json page -> plugin -> TypeSafe;
                                       --model asks that model without changing install settings; the report records the model that answered
                                       and a modelVerdict (matched | resolved, with resolvedTo | mismatch | unknown; the last two exit 1);
                                       exit 1 below the fixture's family floors, or below --min when there are none;
-                                      an explicit --min also binds the overall rate; --record writes test/goldens/judge/<use>.calibration.json
+                                      an explicit --min also binds the overall rate; --record writes test/goldens/judge/<use>.calibration.json;
+                                      --use continuity --fixture continuity-combined asks the continuity rows inside the combined warden request (T22/T23 regression)
   calls [--last 20] [--use <use>] [--chat <chatId>]
                                       the open chat's judge call ring (extras.judge.calls), one use only with --use; --chat refuses
                                       unless that chat is the one open (a ring is read from the open chat, never guessed)
   cost [--chat <chatId>]              v2.4 plan 07 (X23): the open chat's judge METER (monotonic, not cut by rollback) beside the ring
                                       totals per use, what the ring no longer shows, and an estimate at the documented price
-  rescore --use continuity --records <dir|record.json,...> [--model <id>] [--facts <facts.json>]
+  rescore --use continuity|agency|house-rules --records <dir|record.json,...> [--model <id>] [--facts <facts.json>]
                                       the judge-off control column: re-ask the calibrated question over the replies each journey
                                       record captured (--judge-uses runs); prints the next-reply defect rate per arm; --facts (a JSON array)
-                                      holds every arm to one declared fact set instead of each record's live facts at cleanup
+                                      holds every arm to one declared fact set instead of each record's live facts at cleanup; agency reads each reply's
+                                      captured player line and persona, house-rules the story's rules, and each result carries the raw agency score
+  cost-report --records <dir|record.json,...>
+                                      v2.4 plan 09 (CL), offline: totals and $ per 1000 boundaries from each journey record's
+                                      judge METER (cleanup.judgeMeter, never the ring), per-use calls/latency p50/p90/max/fallback
+                                      rate/answering model from the archived ring; director/lore against the 1500 ms budget.
+                                      Reads every *.json with a cleanup block; writes .debug/so-judge-cost-report.json
   limit-probe [--send]                T25: the documented token limit, probed. Without --send prints the plan and its cost; with it,
                                       six calls through the plugin (< $0.01), then refuses / truncates / answers past the limit and
                                       chars per token by language; writes .debug/so-judge-limit-probe.json
@@ -142,7 +149,7 @@ async function calibrate(page: any, use: string, fixtureName: string, min: numbe
   for (const row of report.rows) console.log(`${row.right ? 'ok  ' : 'MISS'} ${row.id.padEnd(5)} ${String(row.picked).padEnd(16)} ${String(row.latencyMs).padStart(5)} ms  ${tagsOf(row.id).join(',')}${row.fallback ? `  fallback=${row.fallback}` : ''}${row.detail ? `  [${row.id in labelOf ? labelOf[row.id] : ''}] ${row.detail}` : ''}`);
   const rate = report.total ? report.right / report.total : 0;
   const spanish = report.rows.filter((row: any) => tagsOf(row.id).includes('spanish'));
-  const families = ['scene', 'lore', 'curator-filter', 'continuity', 'backgrounds', 'typed', 'stall', 'critic', 'variants'].includes(use) ? familyScores(report.rows, fixture.floors ?? {}) : [];
+  const families = ['scene', 'lore', 'curator-filter', 'continuity', 'backgrounds', 'typed', 'stall', 'critic', 'variants', 'agency', 'house-rules'].includes(use) ? familyScores(report.rows, fixture.floors ?? {}) : [];
   families.forEach((row) => console.log(`${row.ok ? 'ok  ' : 'FAIL'} ${row.family.padEnd(9)} ${row.right}/${row.total} floor ${row.floor}`));
   const summary = { use, fixture: fixtureName, right: report.right, total: report.total, rate: Number(rate.toFixed(4)), ...(families.length ? { families } : {}), spanish: `${spanish.filter((row: any) => row.right).length}/${spanish.length}`, p50LatencyMs: report.p50LatencyMs, requestedModel: requestedModel ?? null, model: report.model, modelVerdict: report.verdict.verdict as ModelVerdict, ...(report.verdict.resolvedTo ? { resolvedTo: report.verdict.resolvedTo } : {}), min, minGiven: process.argv.includes('--min'), ok: calibrationOk({ rate, min, minGiven: process.argv.includes('--min'), families, modelVerdict: report.verdict.verdict }) };
   console.log(JSON.stringify(summary, null, 2));
@@ -238,7 +245,27 @@ async function limitProbe(page: any, send: boolean) {
   return { ok: verdict.conclusive };
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+export async function readCostRecords(spec: string) {
+  const files: string[] = [];
+  for (const path of spec.split(',').map((entry) => entry.trim()).filter(Boolean)) {
+    if (path.endsWith('.json')) files.push(path);
+    else files.push(...(await readdir(path)).filter((name) => name.endsWith('.json')).map((name) => join(path, name)));
+  }
+  const records = await Promise.all(files.map(async (file) => ({ file, record: JSON.parse(await readFile(file, 'utf-8')) })));
+  return records.filter(({ record }) => record && typeof record === 'object' && record.cleanup).map(({ file, record }) => costInputOf(record, file));
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url) && process.argv[2] === 'cost-report') {
+  if (!process.argv.includes('--records')) {
+    console.log(USAGE);
+    process.exit(1);
+  }
+  const inputs = await readCostRecords(argValue('--records', ''));
+  const report = costReportAcross(inputs);
+  console.log(JSON.stringify(report, null, 2));
+  await writeJSON(report, 'so-judge-cost-report');
+  process.exit(report.metered > 0 ? 0 : 1);
+} else if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [command, arg] = process.argv.slice(2);
   if (!command || hasHelpFlag() || !['status', 'ask', 'calibrate', 'calls', 'cost', 'rescore', 'limit-probe'].includes(command) || (command === 'ask' && !arg) || (command === 'rescore' && !process.argv.includes('--records'))) {
     console.log(USAGE);
