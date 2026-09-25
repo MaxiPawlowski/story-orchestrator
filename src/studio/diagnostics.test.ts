@@ -75,6 +75,7 @@ const seeded: StoryV2 = {
   ],
   roster: [{ id: "guide", name: "The Guide" }, { id: "warden", name: "The Warden" }],
   lore_select: { lorebooks: ["Unlisted Lore"] },
+  house_rules: ["No guns; no swords.", "Magic cannot heal wounds."],
 };
 
 describe("runDiagnostics", () => {

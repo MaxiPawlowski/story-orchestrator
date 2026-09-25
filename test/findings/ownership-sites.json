@@ -215,7 +215,7 @@
     },
     "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.runWardenPass": {
       "status": "checked",
-      "note": "v2.3 plan 03: mints before the judge call and checks after it. The reply-text comparison that was already there catches an edit but NOT a chat switch landing on the same index with the same text, which is the case the token adds."
+      "note": "v2.3 plan 03: mints before the judge call and checks after it. The reply-text comparison that was already there catches an edit but NOT a chat switch landing on the same index with the same text, which is the case the token adds. v2.4 plan 07 T22/T23: one call now carries every warden family that is on (continuity, agency, house rules); the same mint/check brackets it, and the check still precedes the ring write (wardenFamilies.review.test.ts)."
     },
     "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.save": {
       "status": "delegate",

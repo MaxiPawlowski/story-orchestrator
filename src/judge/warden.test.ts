@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { HOUSE_RULES_MAX } from "@engine/index";
 import { buildContinuityRequest } from "./curators";
 import { AGENCY_SCORE, HOUSE_RULE_P, WARDEN_MAX_RULES } from "./policy";
 import { validateJudgeRequest } from "./questions";
@@ -47,7 +48,8 @@ describe("warden request (v2.4 plan 07 T22/T23)", () => {
     expect(wardenFamiliesAsked(input({ facts: ["F."], houseRules: ["R."] }))).toEqual(["continuity", "house-rule"]);
   });
 
-  it("caps the rules at eight", () => {
+  it("caps the rules at eight, the schema's own cap", () => {
+    expect(WARDEN_MAX_RULES).toBe(HOUSE_RULES_MAX);
     const rules = Array.from({ length: WARDEN_MAX_RULES + 3 }, (_, index) => `Rule ${index}.`);
     const [request] = buildWardenRequests(input({ houseRules: rules }));
     expect(Object.keys(request.questions)).toHaveLength(WARDEN_MAX_RULES);

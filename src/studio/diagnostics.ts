@@ -33,6 +33,7 @@ export const DIAGNOSTIC_CODES = [
   "latching-enum-placeholder",
   "quality-rating-no-scale",
   "quality-outcome-player-evidence",
+  "house-rule-compound",
 ] as const;
 
 // v2.3 plan 09. Every code says what it costs the story before it says what is technically wrong: the
@@ -61,6 +62,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   "latching-enum-placeholder": "Once the first read lands this can never change, and the unset state is not one of its values.",
   "quality-rating-no-scale": "This quality is never read, because there is no scale to score it against.",
   "quality-outcome-player-evidence": "A player's line alone can move the story here: writing that they did it counts as done.",
+  "house-rule-compound": "The check asks one question per rule, so a rule that demands two things is judged on whichever one the model reads.",
 };
 
 const namesOption = (text: string, option: string) => {
@@ -275,6 +277,10 @@ export const runDiagnostics = (draft: StoryV2): Diagnostic[] => {
   const required = new Set((draft.requirements?.lorebooks ?? []).map((name) => name.trim().toLowerCase()));
   (draft.lore_select?.lorebooks ?? []).forEach((name, index) => {
     if (name.trim() && !required.has(name.trim().toLowerCase())) push("lore-select-inactive", "warning", `lore_select.lorebooks.${index}`, `'${name}' is not a required lorebook, so it may not be active; lore-select only reaches books ST is scanning. Add it under Requirements`);
+  });
+
+  (draft.house_rules ?? []).forEach((rule, index) => {
+    if (/;|\s(and|y)\s/i.test(rule)) push("house-rule-compound", "warning", `house_rules.${index}`, `house rule ${index + 1} asks for two things at once; split it into one rule per demand`);
   });
 
   const locationIndex = draft.qualities.findIndex((quality) => quality.key === "location");

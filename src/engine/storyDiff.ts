@@ -34,6 +34,7 @@ export type StoryDiffCode =
   | "stagecraft-changed"
   | "scene-read-changed"
   | "lore-select-changed"
+  | "house-rules-changed"
   | "arc-template-changed"
   | "arc-bridges-changed"
   | "text-changed";
@@ -231,6 +232,7 @@ export function diffStories(previous: NormalizedStoryV2, next: NormalizedStoryV2
   // Presentation scope only: widening or narrowing the curator's allowlist never invalidates a run.
   if (!sameValue(previous.stagecraft, next.stagecraft)) push("compatible", "stagecraft-changed", "stagecraft", "Which lorebooks the background curator may edit changed.");
   if (!sameValue(previous.lore_select, next.lore_select)) push("compatible", "lore-select-changed", "lore_select", "Which lorebooks lore-select may judge changed.");
+  if (!sameValue(previous.house_rules, next.house_rules)) push("compatible", "house-rules-changed", "house_rules", "What the narrator is held to changed.");
   if (!sameValue(previous.scene_read, next.scene_read)) push("compatible", "scene-read-changed", "scene_read", "The scene tracker's places or times changed.");
   if (!sameValue(previous.arc_template, next.arc_template)) push("compatible", "arc-template-changed", "arc_template", "The dramatic shape changed.");
   if (!sameValue(previous.arc_bridges, next.arc_bridges)) push("compatible", "arc-bridges-changed", "arc_bridges", "How resolved threads feed convergence changed.");

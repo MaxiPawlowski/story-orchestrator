@@ -28,7 +28,7 @@ import { MemoryCoordinator } from "./coordinators/memoryCoordinator";
 import type { MemoryMirrorSummary } from "./memoryMirror";
 import { StagecraftCoordinator } from "./coordinators/stagecraftCoordinator";
 import { createCuratorFilter } from "./curatorFilter";
-import { createContinuityCheck, establishedFacts } from "./continuity";
+import { createWarden, establishedFacts } from "./continuity";
 import { activeSpeakerId, enabledCharacterIds, namesForRosterId, rosterIdForName } from "./roster";
 import { EffectsApplier } from "./effectsApplier";
 import { createExtras, hydrateExtras, TALK_DECISION_LIMIT } from "./extras";
@@ -179,11 +179,10 @@ export class RuntimeManager {
     getCanon: () => this.memory.getCanon(),
     getOpenArcs: () => this.memory.getOpenArcs(),
     filterEntries: createCuratorFilter(() => this.judge),
-    warden: {
-      check: createContinuityCheck(() => this.judge),
+    warden: createWarden(() => this.judge, this.view, {
       facts: () => establishedFacts(this.extras.memory.entries, this.memory.getLedger(), this.memory.boundProvenance(), this.extras.memory.conflicts),
       nudgeActive: () => this.copilot.getActiveNudge() !== null,
-    },
+    }),
     journal: (summary, note) => { this.journal.record("stagecraft", summary, this.journalContext(), note); this.extras.journal = this.journal.getRecords(); },
     ...this.lifecycle,
   });

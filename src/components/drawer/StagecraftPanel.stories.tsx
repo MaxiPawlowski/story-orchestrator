@@ -183,3 +183,34 @@ export const WardenNoteLapsed: Story = {
   },
 };
 
+// v2.4 plan 07 T22/T23: one reply, one record, one card per family, each decided on its own.
+const familiesNote: CuratorProposalRecord = {
+  id: "warden-6-9",
+  curator: "warden",
+  at: "2026-09-25T10:00:00.000Z",
+  boundary: 6,
+  messageId: 9,
+  checkpointId: "gate",
+  reason: "agency+house-rule",
+  summary: "Guard's reply writes the player's own part; breaks a house rule",
+  mode: "review",
+  ops: [
+    { op: { kind: "note", family: "agency", text: "Agency: Max's own words and decisions are theirs to write: do not narrate Max acting, accepting, agreeing or refusing.", facts: [], replyMessageId: 9, score: 3.41 }, status: "pending" },
+    { op: { kind: "note", family: "house-rule", text: 'House rule: "No character uses a gun." — keep the next reply within it.', facts: [], rules: ["No character uses a gun."], replyMessageId: 9 }, status: "pending" },
+  ],
+  dropped: [],
+};
+
+export const WardenFamiliesAwaitingReview: Story = {
+  args: { snapshot: snapshot({ proposals: [familiesNote] }), manager: fakeManager() },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/Warden: Guard's reply writes the player's own part; breaks a house rule/)).toBeInTheDocument();
+    await expect(canvas.getByText(/agency note \(score 3\.41\)/)).toBeInTheDocument();
+    await expect(canvas.getByText("house rule: No character uses a gun.")).toBeInTheDocument();
+    await expect(canvas.queryByText(/^established:/)).toBeNull();
+    await userEvent.click(canvas.getAllByRole("button", { name: "Decline" })[1]);
+    await expect(args.manager.setCuratorOpDecision).toHaveBeenCalledWith("warden-6-9", 1, "rejected");
+  },
+};
+

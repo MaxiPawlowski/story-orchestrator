@@ -6,6 +6,7 @@ import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
 import { callExtractionModel } from "@extraction/client";
 import { StagecraftCoordinator } from "@runtime/coordinators/stagecraftCoordinator";
 import { createStagecraft } from "@runtime/extras";
+import type { WardenCheckInput } from "@stagecraft/index";
 import { loadLorebook, upsertWIEntry, readWIEntry, readWIEntryAt, restoreWIEntryAt, enableWIEntry, disableWIEntry } from "@services/STAPI";
 import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
 import { control, finding, must } from "../../../test/findings/ledger";
@@ -91,7 +92,7 @@ function harness(options: { uidKnown?: boolean } = {}) {
     journal: () => {},
     persist: async () => {},
     notify: () => {},
-    warden: { check: (reply: never, facts: never) => wardenGate.check!(reply, facts), facts: () => wardenFacts.current, nudgeActive: () => false },
+    warden: { check: async (input: WardenCheckInput) => { const note = await wardenGate.check!(input.reply, input.facts); return note ? [{ family: "continuity" as const, ...note }] : null; }, facts: () => wardenFacts.current.map((text) => ({ id: text, text })), nudgeActive: () => false },
     ownership: { mint: () => mintToken(context()), check: (token: RunToken) => tokenMatches(context(), token) },
   } as never);
   return {

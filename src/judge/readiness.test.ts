@@ -1,5 +1,5 @@
-import { judgeReadiness, judgeReadinessConcerns, JUDGE_READINESS } from "./readiness";
-import { BUILT_JUDGE_USES, defaultJudgeSettings, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES, JUDGE_USE_KEYS, type JudgeSettings } from "./settings";
+import { judgeReadiness, judgeReadinessConcerns, JUDGE_READINESS, PHASE_A_PENDING } from "./readiness";
+import { AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, defaultJudgeSettings, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES, JUDGE_USE_KEYS, type JudgeSettings } from "./settings";
 
 const settings = (uses: Partial<Record<string, boolean>> = {}, patch: Partial<JudgeSettings> = {}): JudgeSettings => ({
   ...defaultJudgeSettings(),
@@ -42,8 +42,10 @@ describe("judge readiness (v2.3 plan 09)", () => {
     const rows = judgeReadiness(settings({ stallCheck: true }));
     expect(rows.find((row) => row.key === "stallCheck")).toMatchObject({ enabled: true, verdict: "measured", calibration: 1, live: "J11.23" });
     expect([...BUILT_JUDGE_USES].sort()).toEqual([...JUDGE_USE_KEYS].sort());
-    expect(JUDGE_USE_KEYS.filter((key) => JUDGE_READINESS[key].calibration === null)).toEqual([]);
+    expect(JUDGE_USE_KEYS.filter((key) => JUDGE_READINESS[key].calibration === null)).toEqual([...PHASE_A_PENDING]);
     expect(JUDGE_USE_KEYS.every((key) => !JUDGE_USE_COPY[key].description.startsWith("Not built"))).toBe(true);
+    expect(PHASE_A_PENDING.every((key) => JUDGE_USE_COPY[key].description.startsWith("Not measured yet") && JUDGE_READINESS[key].measuredOn === null && AUTHOR_JUDGE_USES.includes(key))).toBe(true);
+    expect(judgeReadiness(settings({ agencyCheck: true, houseRules: true })).filter((row) => row.enabled).map((row) => row.verdict)).toEqual(["unproven", "unproven"]);
   });
 
   it("calls an enabled use with its dependency off blocked, not measured", () => {

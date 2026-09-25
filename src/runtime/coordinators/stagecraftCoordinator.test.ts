@@ -395,8 +395,8 @@ describe("continuity warden (v2.2 plan 05)", () => {
   const KEY = "story_orchestrator_continuity";
   const note = { facts: ["The bridge fell in the flood."], text: "Continuity: established — The bridge fell in the flood. Keep the next reply consistent with it." };
   const warden = (options: { note?: typeof note | null; nudge?: boolean; onCheck?: () => void } = {}) => {
-    const check = jest.fn(async () => { options.onCheck?.(); return options.note === undefined ? note : options.note; });
-    return { check, facts: () => ["The bridge fell in the flood."], nudgeActive: () => options.nudge === true };
+    const check = jest.fn(async () => { options.onCheck?.(); const found = options.note === undefined ? note : options.note; return found ? [{ family: "continuity" as const, ...found }] : null; });
+    return { check, facts: () => [{ id: "f1", text: "The bridge fell in the flood." }], nudgeActive: () => options.nudge === true };
   };
   const wardenOn = (mode: "auto" | "review" | "off" = "auto") => ({ curatorEnabled: false, acceptMode: "review" as const, wardenEnabled: true, wardenAcceptMode: mode });
 

@@ -101,6 +101,24 @@ export const LoreSelectScope: Story = {
   },
 };
 
+// v2.4 plan 07 T23: house rules are a list of one-demand rules, capped at 8, with the count shown.
+export const HouseRules: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const panel = canvasElement.querySelector('[data-so="house-rules"]') as HTMLElement;
+    await expect(within(panel).getByText("0/8")).toBeInTheDocument();
+    await userEvent.click(canvas.getByRole("button", { name: "+ House rule" }));
+    await userEvent.type(canvas.getByLabelText("House rule 1"), "No character uses a gun.");
+    await expect(useDraftStore.getState().draft.house_rules).toEqual(["No character uses a gun."]);
+    await expect(within(panel).getByText("1/8")).toBeInTheDocument();
+    for (let count = 1; count < 8; count += 1) await userEvent.click(canvas.getByRole("button", { name: "+ House rule" }));
+    await expect(canvas.getByRole("button", { name: "+ House rule" })).toBeDisabled();
+    await expect(within(panel).getByText("8/8")).toBeInTheDocument();
+    for (let count = 8; count > 0; count -= 1) await userEvent.click(canvas.getByRole("button", { name: `Remove House rule ${count}` }));
+    await expect(useDraftStore.getState().draft.house_rules).toBeUndefined();
+  },
+};
+
 // v2.2 plan 03: the places the scene tracker may pick from, typed by hand (spaces included).
 export const ScenePlaces: Story = {
   play: async ({ canvasElement }) => {

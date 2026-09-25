@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { isNoteOp, type CuratorOp, type CuratorOpRecord, type CuratorProposalRecord } from "@stagecraft/index";
+import { isNoteOp, wardenFamilyOf, type CuratorOp, type CuratorOpRecord, type CuratorProposalRecord } from "@stagecraft/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
 
@@ -45,7 +45,11 @@ const withText = (op: CuratorOp, text: string): CuratorOp => {
 };
 
 const describe = (op: CuratorOp): string => {
-  if (op.kind === "note") return "continuity note";
+  if (op.kind === "note") {
+    const family = wardenFamilyOf(op);
+    if (family === "agency") return `agency note${op.score !== undefined ? ` (score ${op.score.toFixed(2)})` : ""}`;
+    return family === "house-rule" ? "house-rule note" : "continuity note";
+  }
   if (op.kind === "enable") return `switch on "${op.comment}"`;
   if (op.kind === "disable") return `switch off "${op.comment}"`;
   if (op.kind === "rewrite") return `rewrite "${op.comment}"`;
@@ -90,6 +94,7 @@ const OpCard = ({ record, index, entry, manager, onOpenFact }: { record: Curator
           </div>
         ))
         : entry.op.facts.map((fact) => <div key={fact} data-so="warden-fact" className="opacity-80">established: {fact}</div>))}
+      {isNoteOp(entry.op) && entry.op.rules?.map((rule) => <div key={rule} data-so="warden-rule" className="opacity-80">house rule: {rule}</div>)}
       {entry.status === "failed" && entry.message && <div className="text-red-300">{entry.message}</div>}
       {text !== null && (decidable ? (
         <textarea data-so="curator-text" aria-label={`Text for ${describe(entry.op)}`} className="text_pole w-full" rows={2} value={draft} onChange={(event) => setDraft(event.target.value)} />
@@ -138,7 +143,7 @@ export const StagecraftPanel = ({ snapshot, manager, onOpenFact }: { snapshot: R
       ) : (
         records.map((record) => (
           <div key={record.id} data-so="curator-proposal" data-curator={record.curator} className="border-t border-solid border-white/10 mt-1 pt-1">
-            <div className="opacity-100">{record.curator === "warden" ? "Continuity warden: " : ""}{record.summary}</div>
+            <div className="opacity-100">{record.curator === "warden" ? (record.reason === "continuity" ? "Continuity warden: " : "Warden: ") : ""}{record.summary}</div>
             <div>{record.checkpointId} · {record.reason} · boundary {record.boundary}{record.appliedAt ? " · applied" : ""}</div>
             {record.ops.map((entry, index) => <OpCard key={`${record.id}-${index}`} record={record} index={index} entry={entry} manager={manager} onOpenFact={onOpenFact} />)}
             {record.dropped.map((line) => <div key={line} className="opacity-50">dropped — {line}</div>)}

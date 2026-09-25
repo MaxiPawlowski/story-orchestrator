@@ -10,7 +10,7 @@ jest.mock("@services/STAPI", () => ({
 import { defaultJudgeSettings, type JudgeRequest, type JudgeSettings } from "@judge/index";
 import type { ConflictPair, LedgerView, MemoryEntry } from "@memory/index";
 import { provenance } from "@memory/provenance";
-import { createContinuityCheck, establishedFacts } from "./continuity";
+import { createWardenCheck, establishedFacts } from "./continuity";
 import { JudgeRuntime } from "./judge";
 
 const fact = (id: string, text: string, patch: Partial<MemoryEntry> = {}): MemoryEntry => ({
@@ -59,7 +59,8 @@ describe("continuity check (v2.2 plan 05)", () => {
       record: () => undefined,
       context: () => ({ boundary: 1, messageId: 4 }),
     });
-    return { check: createContinuityCheck(() => judge), requests };
+    const warden = createWardenCheck(() => judge);
+    return { check: async (reply: { speaker: string; text: string }, facts: string[]) => (await warden({ reply, facts, agency: null, houseRules: [] }))?.find((finding) => finding.family === "continuity") ?? null, requests };
   };
   const reply = { speaker: "Mira", text: "I crossed the bridge this morning." };
 
