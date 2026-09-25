@@ -7,6 +7,11 @@ describe("wordDiff (v2.4 plan 06 T17.4)", () => {
     expect(render(wordDiff("The bridge stands, its ropes new.", "The bridge fell, its ropes cut."))).toBe("The bridge [-stands,-]{+fell,+} its ropes [-new.-]{+cut.+}");
   });
 
+  it("reads a multi-word change as one deletion and one insertion, not word-by-word fragments", () => {
+    expect(render(wordDiff("The wards hold the gate until dawn.", "The wards are broken."))).toBe("The wards [-hold the gate until dawn.-]{+are broken.+}");
+    expect(render(wordDiff("a b c d", "a x c y"))).toBe("a [-b-]{+x+} c [-d-]{+y+}");
+  });
+
   it("round-trips both sides", () => {
     const before = "Nobody has seen the ferryman for a season.";
     const after = "The ferryman is back, poling a flat skiff, for a season.";

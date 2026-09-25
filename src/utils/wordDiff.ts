@@ -39,5 +39,33 @@ export function wordDiff(before: string, after: string): WordDiffPart[] {
   }
   left.slice(row).forEach((token) => push(parts, "del", token));
   right.slice(column).forEach((token) => push(parts, "ins", token));
-  return parts;
+  return coalesce(parts);
+}
+
+const isChange = (part: WordDiffPart | undefined) => part !== undefined && part.kind !== "same";
+
+function coalesce(parts: WordDiffPart[]): WordDiffPart[] {
+  const out: WordDiffPart[] = [];
+  let del = "";
+  let ins = "";
+  const flush = () => {
+    push(out, "del", del);
+    push(out, "ins", ins);
+    del = "";
+    ins = "";
+  };
+  parts.forEach((part, index) => {
+    const bridge = part.kind === "same" && !part.text.trim() && isChange(parts[index - 1]) && isChange(parts[index + 1]);
+    if (bridge) {
+      del += part.text;
+      ins += part.text;
+    } else if (part.kind === "del") del += part.text;
+    else if (part.kind === "ins") ins += part.text;
+    else {
+      flush();
+      push(out, "same", part.text);
+    }
+  });
+  flush();
+  return out;
 }

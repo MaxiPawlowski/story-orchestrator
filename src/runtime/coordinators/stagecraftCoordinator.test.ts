@@ -260,6 +260,19 @@ describe("StagecraftCoordinator", () => {
     expect(read().lastPass?.dropped).toEqual(['rewrite: "The bridge" was declined earlier']);
   });
 
+  it("T17.3: a decline from an earlier visit to this checkpoint does not bind the next visit", async () => {
+    const state = engineState(10, 20);
+    const { coordinator, read } = harness({ state });
+    respond("[rewrite] The bridge || The bridge is gone.");
+    const first = await coordinator.runCuratorPass();
+    await coordinator.setOpDecision(first.record!.id, 0, "rejected");
+    Object.assign(state, { boundary: 30, lastMessageId: 60, checkpointStartedBoundary: 25 });
+    respond("[rewrite] #1 || The bridge is gone.");
+    const second = await coordinator.runCuratorPass();
+    expect(read().lastPass?.prompt).not.toContain("THE AUTHOR DECLINED");
+    expect(second.record?.ops.map((entry) => entry.op.kind)).toEqual(["rewrite"]);
+  });
+
   it("T17.5: accepting a near-match patch writes the exact span it showed", async () => {
     const { coordinator } = harness();
     respond("[patch] The bridge || bridge stand its ropes || new and taut || bridge is ash.");
