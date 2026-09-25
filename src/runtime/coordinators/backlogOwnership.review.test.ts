@@ -1,5 +1,5 @@
 const host = { chat: Array.from({ length: 12 }, (_, index) => ({ name: index % 2 ? "Mira" : "Max", mes: `line ${index}`, is_user: index % 2 === 0 })) };
-const reads: Array<{ reason: string; release: () => void; done?: boolean }> = [];
+const reads: Array<{ reason: string; release: () => void; fail: (error: Error) => void; done?: boolean }> = [];
 const sceneBreakAt = new Set<number>();
 
 jest.mock("@services/STAPI", () => ({
@@ -14,10 +14,10 @@ jest.mock("@extraction/index", () => {
   const actual = jest.requireActual("@extraction/index");
   return {
     ...actual,
-    runSharedRead: (options: { reason: string; window: { from: number; to: number } }) => new Promise((resolve) => {
+    runSharedRead: (options: { reason: string; window: { from: number; to: number } }) => new Promise((resolve, reject) => {
       const index = reads.length;
       const sceneBreak = sceneBreakAt.has(index) ? { sceneBreak: { reason: "location" } } : {};
-      const read: { reason: string; release: () => void; done?: boolean } = { reason: options.reason, release: () => { read.done = true; resolve({ audit: { reason: options.reason, window: { from: options.window.from, to: options.window.to }, acceptedDeltas: [], ...sceneBreak }, facts: [{ text: `fact ${reads.length}`, importance: 2, evidence: "x" }], memory: [], arcs: [], epistemic: [], ledger: [] }); } };
+      const read: { reason: string; release: () => void; fail: (error: Error) => void; done?: boolean } = { reason: options.reason, fail: (error) => { read.done = true; reject(error); }, release: () => { read.done = true; resolve({ audit: { reason: options.reason, window: { from: options.window.from, to: options.window.to }, acceptedDeltas: [], ...sceneBreak }, facts: [{ text: `fact ${reads.length}`, importance: 2, evidence: "x" }], memory: [], arcs: [], epistemic: [], ledger: [] }); } };
       reads.push(read);
     }),
   };
@@ -196,6 +196,56 @@ describe("v2.4 plan 03 D4: the memorize backlog always leaves running when it ow
     expect(await pending).toBe(true);
     expect(h.coordinator.cancelMemorizeBacklog()).toBe(false);
     expect(h.backfill()).toMatchObject({ running: false, processed: 4, total: 4, lastError: null });
+  });
+});
+
+// AE-04 (external review, 2026-09-25): `memory|delayedError` cited a backlog that failed on a missing
+// profile before any read was held open. These fail a window's read after it has been waiting.
+describe("AE-04 memory|delayedError: a backlog window whose read fails after a wait", () => {
+  it("records the error, leaves running, keeps the earlier window's facts and saves that state", async () => {
+    const h = harness();
+    const pending = h.coordinator.runMemorizeBacklog(4);
+    await settle();
+    reads[0].release();
+    await settle();
+    expect(h.backfill()).toMatchObject({ running: true, processed: 1, lastError: null });
+    const savesBefore = h.saves.count;
+    reads[1].fail(new Error("the memory model answered 500"));
+    expect(await pending).toBe(false);
+    expect(h.stored).toEqual(["fact 1"]);
+    expect(reads).toHaveLength(2);
+    expect(h.commits()).toBe(0);
+    expect(h.backfill()).toMatchObject({ running: false, processed: 1, total: 4, lastError: "the memory model answered 500" });
+    expect(h.saves.count).toBeGreaterThan(savesBefore);
+    expect(h.coordinator.cancelMemorizeBacklog()).toBe(false);
+  });
+
+  it("a failure that lands after the chat switched writes no error and stores nothing", async () => {
+    const h = harness();
+    const pending = h.coordinator.runMemorizeBacklog(4);
+    await settle();
+    h.switchChat();
+    reads[0].fail(new Error("the memory model answered 500"));
+    expect(await pending).toBe(false);
+    expect(h.stored).toEqual([]);
+    expect(h.backfill()).toMatchObject({ running: true, lastError: null });
+  });
+
+  it("control: the same held window that answers is stored and the pass goes on to the next window", async () => {
+    const h = harness();
+    const pending = h.coordinator.runMemorizeBacklog(4);
+    await settle();
+    reads[0].release();
+    await settle();
+    expect(h.stored).toEqual(["fact 1"]);
+    expect(reads).toHaveLength(2);
+    expect(h.backfill()).toMatchObject({ running: true, processed: 1, lastError: null });
+    for (let index = 1; index < 4; index += 1) {
+      reads[index].release();
+      await settle();
+    }
+    expect(await pending).toBe(true);
+    expect(h.backfill()).toMatchObject({ running: false, lastError: null });
   });
 });
 

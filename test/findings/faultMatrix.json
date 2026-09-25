@@ -8,8 +8,9 @@
     },
     "extraction|delayedError": {
       "status": "covered",
-      "evidence": "src/extraction/scheduler.test.ts#onBoundary returns synchronously and never rejects",
-      "note": "A job's failure is not allowed to surface at the boundary however late it arrives; the scheduler owns the error."
+      "evidence": "src/extraction/schedulerDelayedError.review.test.ts#retries it, then records the error on the scheduler, applies nothing and keeps serving reads",
+      "alsoEvidence": ["src/extraction/schedulerDelayedError.review.test.ts#a failure that lands after the world moved records nothing in the new world", "src/extraction/schedulerDelayedError.review.test.ts#a recorded error is dropped at the next boundary instead of standing forever"],
+      "note": "AE-04 (2026-09-25): the read's model call is held open and rejected after the wait. The scheduler retries it (250 ms, 500 ms), then records the message as lastError and in noteHealth, applies no audit, leaves the breaker closed and extraction.enabled untouched, and serves the next read; the next boundary clears lastError. A rejection that lands after the world moved records nothing. Control: the same held read that answers is applied. Previously cited 'onBoundary returns synchronously and never rejects', which injected no failure."
     },
     "extraction|malformedResponse": {
       "status": "covered",
@@ -57,8 +58,9 @@
     },
     "memory|delayedError": {
       "status": "covered",
-      "evidence": "src/runtime/runtimeManager.test.ts#records a backfill error without leaving it stuck running",
-      "note": "A pass that errors late is recorded and its running flag is cleared."
+      "evidence": "src/runtime/coordinators/backlogOwnership.review.test.ts#records the error, leaves running, keeps the earlier window's facts and saves that state",
+      "alsoEvidence": ["src/runtime/coordinators/backlogOwnership.review.test.ts#a failure that lands after the chat switched writes no error and stores nothing", "src/runtime/runtimeManager.test.ts#records a backfill error without leaving it stuck running"],
+      "note": "AE-04 (2026-09-25): a backlog window's read is held open and rejected after the previous window landed. The pass stops, backfill records the model's message as lastError with running:false and processed kept, the earlier window's facts stay, nothing commits, and the state is saved. A rejection after a chat switch writes no error. The manager-level case (alsoEvidence) fails on a missing profile before any read is held, which is why it is no longer the primary citation."
     },
     "memory|malformedResponse": {
       "status": "covered",
@@ -126,13 +128,12 @@
       "note": "No answer is what a timeout, an error and an unreachable plugin all look like, and the tracker survives one."
     },
     "scene|beforeHostWrite": {
-      "status": "partial",
-      "evidence": "src/runtime/sceneCoordinator.test.ts#a story that switches the block off keeps the read but injects nothing",
-      "note": "Covers the injection never reaching the prompt; no failure is injected at that write."
+      "status": "todo",
+      "note": "AE-04 (2026-09-25): the designed behaviour is missing. A refused tracker write is recorded as injected and never retried: SceneCoordinator.sync sets `injected` before deps.inject, and the runtime's inject (runtime/index.ts) discards setStoryExtensionPrompt's WriteResult. Open finding AE04-S1 in test/findings/ledger.json, reproduced by src/runtime/sceneInjectWrite.review.test.ts (its controls: the stored read survives the refusal; a write that lands is made once). Previously partial, citing a story that switches the block off, which injects no failure at the write."
     },
     "scene|afterHostWrite": {
       "status": "na",
-      "note": "The scene block is composed into the prompt from state at each generation (sync() -> inject()), not written anywhere; there is no post-write state left behind to fail."
+      "note": "The tracker IS a host write (setStoryExtensionPrompt through the inject wired in runtime/index.ts), but it is the last step of both run() and sync(): nothing the coordinator does after it can fail, so there is no post-write step to inject a fault into. Its post-write STATE (SceneCoordinator.injected, and extensionPrompts' lastWritten) is what makes a refused write stick, which is the beforeHostWrite row (AE04-S1). Corrected 2026-09-25 (AE-04): this note used to say the block is not written anywhere."
     },
     "scene|persistFailure": {
       "status": "na",
@@ -193,10 +194,10 @@
       "note": "The world moves during the host read and the selection forces nothing."
     },
     "lore|aborted": {
-      "status": "covered",
-      "evidence": "src/runtime/c1Surfaces.review.test.ts#C1/lore: a selection that outlives its chat does not force entries into the next prompt",
-      "alsoEvidence": ["src/judge/cancelled.review.test.ts#a call WE cancelled is recorded as cancelled, not as a timeout"],
-      "note": "v2.4 plan 03: lore selection asks the judge, whose transport aborts on the epoch; a selection whose chat moved (the case that aborts it) forces nothing into the next prompt."
+      "status": "partial",
+      "evidence": "src/runtime/loreAborted.review.test.ts#AE-04 lore|aborted: a lore call cancelled by a chat switch forces nothing into the next prompt",
+      "alsoEvidence": ["src/runtime/loreAborted.review.test.ts#AE-04 lore|aborted: the same selection that is not cancelled forces the picked entry", "src/judge/cancelled.review.test.ts#a call WE cancelled is recorded as cancelled, not as a timeout"],
+      "note": "AE-04 (2026-09-25). COVERED: a judge call cancelled because the chat moved (the epoch signal's case) forces nothing into the next prompt; control: the uncancelled selection forces its pick. NOT COVERED, open finding AE04-L1: the cancelled selection is cached as an empty pick list under the departed chat's key before the ownership check, so returning to that chat at the same message serves 'the judge picked nothing' without asking again. Previously covered, citing a chat that moved while the HOST was read (before the judge was asked, no cancelled call) and a pure judge-client test."
     },
     "stagecraft|delayedSuccess": {
       "status": "covered",
@@ -255,7 +256,8 @@
     "expansion|delayedError": {
       "status": "covered",
       "evidence": "src/generation/judgedExpansion.test.ts#falls back to today's LLM critic when the judge gives no answer",
-      "note": "A critic that answers nothing falls back to the LLM critic."
+      "alsoEvidence": ["src/runtime/coordinators/abortedCall.review.test.ts#expansion: a transport failure fails the chain and reaches the scheduler, so the breaker can count it"],
+      "note": "A critic that answers nothing falls back to the LLM critic; the generation's own model call failing after the awaits files the chain as failed with its lastError and rethrows a transport failure for the scheduler's breaker (alsoEvidence, added 2026-09-25 by AE-04)."
     },
     "expansion|malformedResponse": {
       "status": "covered",
@@ -303,7 +305,8 @@
     "judgeRing|delayedError": {
       "status": "covered",
       "evidence": "src/judge/cancelled.review.test.ts#a call the model is simply slow to answer is recorded as a timeout",
-      "note": "A slow call is recorded as a timeout, distinct from a cancellation."
+      "alsoEvidence": ["src/runtime/judge.test.ts#falls back on a transport error and re-probes the plugin next time"],
+      "note": "A slow call is recorded as a timeout, distinct from a cancellation; a transport error that reaches JudgeRuntime lands in the ring as fallback:error and re-probes the plugin (alsoEvidence, added 2026-09-25 by AE-04 because the primary citation asserts the client's answer, not the ring row)."
     },
     "judgeRing|malformedResponse": {
       "status": "covered",
@@ -340,19 +343,21 @@
     },
     "judgeRing|aborted": {
       "status": "covered",
-      "evidence": "src/runtime/epochAbort.review.test.ts#replacing the epoch aborts the signal work started under",
-      "alsoEvidence": ["src/judge/cancelled.review.test.ts#a call WE cancelled is recorded as cancelled, not as a timeout"],
-      "note": "The judge transport already aborted on the epoch (v2.3); a call we cancelled lands in the ring as cancelled, never as a timeout or error."
+      "evidence": "src/runtime/judgeMeter.review.test.ts#cancels the request, and records it as cancelled, charged to the chat that asked and kept out of its ring",
+      "alsoEvidence": ["src/runtime/judgeMeter.review.test.ts#control: the same call nobody cancels is answered and ringed in its own chat", "src/runtime/epochAbort.review.test.ts#replacing the epoch aborts the signal work started under", "src/judge/cancelled.review.test.ts#a call WE cancelled is recorded as cancelled, not as a timeout"],
+      "note": "AE-04 (2026-09-25): JudgeRuntime's own call, given RunOwner's epoch signal, is aborted by an epoch change in the same chat: the request's signal is aborted, the row reads fallback:cancelled with discarded:epoch, it is metered to the chat that asked and kept out of that chat's ring. Control: the uncancelled call is ringed. The epoch-signal and client tests stay as the lower layers; before AE-04 they were the only citations and neither reached the ring."
     },
     "persistence|delayedSuccess": {
       "status": "covered",
       "evidence": "src/runtime/saveHealth.test.ts#clears the pending boundary when a save is observed to land",
-      "note": "A save observed to land clears the pending boundary and records it applied."
+      "alsoEvidence": ["src/runtime/saveEvidence.test.ts#reports nothing when the request succeeded and the server's copy agrees"],
+      "note": "A save observed to land clears the pending boundary and records it applied. alsoEvidence (AE-04, 2026-09-25) drives the observation itself: the pending boundary is written while the observation is awaited and cleared once it answers."
     },
     "persistence|delayedError": {
       "status": "covered",
       "evidence": "src/runtime/saveHealth.test.ts#keeps the pending boundary and counts the failure when a save does not land",
-      "note": "A save that does not land keeps saying unsaved and counts the failure."
+      "alsoEvidence": ["src/runtime/saveEvidence.test.ts#keeps the pending boundary and counts the failure when the server refused the write"],
+      "note": "A save that does not land keeps saying unsaved and counts the failure. alsoEvidence (AE-04, 2026-09-25) injects the refusal through the awaited observation (a 500) rather than into the pure reducer."
     },
     "persistence|malformedResponse": {
       "status": "covered",
@@ -362,17 +367,20 @@
     "persistence|duplicateCompletion": {
       "status": "covered",
       "evidence": "src/runtime/storyUpdate.test.ts#does nothing when the chat already plays the saved version",
-      "note": "Re-applying the version the chat already plays is a no-op."
+      "alsoEvidence": ["src/runtime/chatSave.test.ts#a failed save after select+persist journals exactly one row, labelled with the selection"],
+      "note": "Re-applying the version the chat already plays is a no-op. alsoEvidence (AE-04, 2026-09-25): one save request answering two writes (select + persist) is recorded once, not twice."
     },
     "persistence|backendUnavailable": {
       "status": "covered",
       "evidence": "src/runtime/saveHealth.test.ts#says unconfirmed when the server holds nothing for this chat",
-      "note": "With nothing held for the chat the read-back says unconfirmed."
+      "alsoEvidence": ["src/runtime/saveEvidence.test.ts#tells a request that never left apart from one that left and failed"],
+      "note": "With nothing held for the chat the read-back says unconfirmed. alsoEvidence (AE-04, 2026-09-25): a save request that throws before the server answers (the blocked route) is recorded as lost with that reason."
     },
     "persistence|beforeHostWrite": {
       "status": "covered",
       "evidence": "src/runtime/stateExport.test.ts#falls back to the console when the clipboard refuses, and says that instead",
-      "note": "The write fails before landing and the author still gets the state, and is told."
+      "alsoEvidence": ["src/runtime/saveEvidence.test.ts#says so when no save request went out at all (a timeout is not a refusal)"],
+      "note": "The write fails before landing and the author still gets the state, and is told. alsoEvidence (AE-04, 2026-09-25): a chat save that never left the page keeps the boundary pending and names that no request went out."
     },
     "persistence|afterHostWrite": {
       "status": "partial",
@@ -382,7 +390,8 @@
     "persistence|persistFailure": {
       "status": "covered",
       "evidence": "src/runtime/saveHealth.test.ts#says unconfirmed when the server holds a boundary BEHIND what we believe we wrote",
-      "note": "The call returned and the server holds an older boundary: unconfirmed, not success."
+      "alsoEvidence": ["src/runtime/saveEvidence.test.ts#catches a 2xx write the server did NOT keep, which nothing else can see"],
+      "note": "The call returned and the server holds an older boundary: unconfirmed, not success. alsoEvidence (AE-04, 2026-09-25) drives it through the observation and read-back rather than the pure verifier."
     },
     "persistence|worldSwitched": {
       "status": "covered",
@@ -401,7 +410,8 @@
     "effects|delayedError": {
       "status": "partial",
       "evidence": "src/runtime/effectLedger.test.ts#is left alone when the host cannot be read at all",
-      "note": "An unreadable host leaves the row pending rather than guessing; no test for a host write that errors."
+      "alsoEvidence": ["src/runtime/effectsApplier.test.ts#journals a toggle the host refused, carries on with the rest, and journals nothing when both land", "src/runtime/effectsApplier.test.ts#retries a refused flip at the next apply, because every apply rebuilds the whole gated set (v2.4 plan 05)"],
+      "note": "COVERED: an unreadable host leaves the ledger row pending rather than guessing; an awaited world_info write the host answers as refused is journaled, the rest of the apply carries on, and the next apply retries it (alsoEvidence, AE-04 2026-09-25). NOT COVERED: no test makes a host write REJECT (throw) after a wait."
     },
     "effects|malformedResponse": {
       "status": "na",
