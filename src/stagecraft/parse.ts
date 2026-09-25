@@ -15,6 +15,13 @@ const ENTRY_REF = /^#(\d+(?:\.\d+)?)(?![\d.])/;
 
 const REASON_SEPARATOR = /\s\|\s/;
 
+const LISTED_ENTRY = /^(.+?)\s*\(([^()]+)\)$/;
+
+const titled = (entries: CuratorEntryView[], title: string): CuratorEntryView[] => {
+  const wanted = title.toLowerCase();
+  return wanted ? entries.filter((entry) => entry.comment.trim().toLowerCase() === wanted) : [];
+};
+
 // Titles are a closed vocabulary: the entry the model named has to be one the prompt listed, and it
 // is that entry's lorebook that gets written — never a book the model asks for.
 const findEntry = (entries: CuratorEntryView[], named: string): { entry?: CuratorEntryView; reason: string } => {
@@ -24,10 +31,17 @@ const findEntry = (entries: CuratorEntryView[], named: string): { entry?: Curato
     const entry = entries.find((candidate) => entryRef(candidate, entries) === `#${ref[1]}`);
     return { entry, reason: `#${ref[1]} is not an entry this story owns` };
   }
-  const wanted = text.toLowerCase();
-  const matches = wanted ? entries.filter((entry) => entry.comment.trim().toLowerCase() === wanted) : [];
+  const matches = titled(entries, text);
   if (matches.length > 1) return { reason: `ambiguous: ${matches.length} entries titled "${text.slice(0, 60)}"` };
-  return { entry: matches[0], reason: `"${text.slice(0, 60)}" is not an entry this story owns` };
+  const listed = matches.length ? null : LISTED_ENTRY.exec(named.trim());
+  if (!listed) return { entry: matches[0], reason: `"${text.slice(0, 60)}" is not an entry this story owns` };
+  const title = unquote(listed[1]);
+  const lorebook = listed[2].trim();
+  const sameTitle = titled(entries, title);
+  if (!sameTitle.length) return { reason: `"${title.slice(0, 60)}" (${lorebook.slice(0, 60)}) is not an entry this story owns` };
+  const inBook = sameTitle.filter((entry) => entry.lorebook.trim().toLowerCase() === lorebook.toLowerCase());
+  if (inBook.length > 1) return { reason: `ambiguous: ${inBook.length} entries titled "${title.slice(0, 60)}" in ${lorebook.slice(0, 60)}` };
+  return { entry: inBook[0], reason: `"${title.slice(0, 60)}" is not in ${lorebook.slice(0, 60)}` };
 };
 
 const readOp = (kind: CuratorOpKind, rest: string, entries: CuratorEntryView[]): { op?: WiCuratorOp; dropped?: string } => {

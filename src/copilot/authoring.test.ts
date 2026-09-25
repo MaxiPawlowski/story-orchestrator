@@ -93,6 +93,25 @@ describe("runAuthoringStage", () => {
     expect(result.audit.repairResponse).toBeUndefined();
   });
 
+  it("a checkpoints proposal adding an intermediate is ok on the first answer, carrying the transitions stage's deferred note", async () => {
+    const response = JSON.stringify({ summary: "", ops: [{ kind: "addCheckpoint", checkpoint: { id: "lobby", name: "Lobby", objective: "Crack the lobby door.", type: "intermediate" } }] });
+    const result = await runAuthoringStage({ draft: baseDraft(), stage: "checkpoints", message: "", history: [] }, { profileId: null, debugResponse: response });
+    expect(result.status).toBe("ok");
+    expect(result.issues).toEqual([]);
+    expect(result.deferred).toEqual(["checkpoints.2: intermediate checkpoint 'lobby' has no route to an anchor yet; the transitions stage must connect it"]);
+    expect(result.audit.repairResponse).toBeUndefined();
+  });
+
+  it("control: a transitions proposal that leaves that intermediate unconnected fails, and carries no deferred note", async () => {
+    const draft: StoryV2 = { ...baseDraft(), checkpoints: [...baseDraft().checkpoints, { id: "lobby", name: "Lobby", objective: "Crack the lobby door.", type: "intermediate" }] };
+    const response = JSON.stringify({ summary: "", ops: [{ kind: "addTransition", transition: { from: "start", to: "vault", priority: 1, gate: { q: "has_key", op: "==", v: true } } }] });
+    const result = await runAuthoringStage({ draft, stage: "transitions", message: "", history: [] }, { profileId: null, debugResponse: response });
+    expect(result.status).toBe("failed");
+    expect(result.issues).toEqual(["checkpoints.2: intermediate checkpoint has no reachable anchor beyond it"]);
+    expect(result.deferred).toBeUndefined();
+    expect(result.audit.repairPrompt).toContain("checkpoints.2: intermediate checkpoint has no reachable anchor beyond it");
+  });
+
   it("returns the interview instead of a proposal, without spending a repair pass", async () => {
     const result = await runAuthoringStage(
       { draft: baseDraft(), stage: "qualities", message: "a heist, but make it strange", history: [] },

@@ -638,6 +638,8 @@ const readArcTemplate = (value: unknown, errors: ValidationError[]): ArcTemplate
   return undefined;
 };
 
+export const INTERMEDIATE_UNREACHABLE = "intermediate checkpoint has no reachable anchor beyond it";
+
 export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError[] => {
   const errors: ValidationError[] = [];
   if (!isRecord(json)) return [{ path: "$", message: "story must be an object" }];
@@ -729,7 +731,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   checkpoints.forEach((checkpoint, index) => {
     if (checkpoint.type !== "intermediate") return;
     const reachableAnchors = reachableByCheckpoint[checkpoint.id]?.some((id) => checkpointById[id]?.type === "anchor");
-    if (!reachableAnchors) addError(errors, `checkpoints.${index}`, "intermediate checkpoint has no reachable anchor beyond it");
+    if (!reachableAnchors) addError(errors, `checkpoints.${index}`, INTERMEDIATE_UNREACHABLE);
   });
 
   if (errors.length) return errors;

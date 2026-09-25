@@ -55,6 +55,7 @@ export async function runAuthoringStage(input: AuthoringStageInput, client: Extr
     preview: { errors: validation.errors, diagnostics: validation.diagnostics },
     status: parsed.questions.length ? "questions" : issues.length ? "failed" : "ok",
     issues,
+    ...(!parsed.questions.length && validation.deferred.length ? { deferred: validation.deferred } : {}),
     questions: parsed.questions,
     audit,
   };

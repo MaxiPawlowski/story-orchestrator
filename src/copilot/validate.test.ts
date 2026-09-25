@@ -1,8 +1,8 @@
-import type { StoryV2 } from "@engine/index";
+import { isValidationErrorList, parseStoryV2, type StoryV2 } from "@engine/index";
 import { parseProposal } from "./parse";
 import { validateProposal } from "./validate";
 import { renderStagePrompt } from "./prompts";
-import { STAGE_OPS, stageOpIssues } from "./stages";
+import { defersReachability, STAGE_OPS, stageOpIssues } from "./stages";
 import { COPILOT_STAGES, type ProposalOp } from "./types";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -136,6 +136,72 @@ describe("validateProposal", () => {
       expect(listed).toEqual([...STAGE_OPS[stage]]);
       for (const kind of STAGE_OPS[stage]) expect(stageOpIssues(stage, [{ kind } as ProposalOp])).toEqual([]);
     }
+  });
+
+  describe("an intermediate the checkpoints stage adds is connected by the transitions stage", () => {
+    const linked = (): StoryV2 => ({ ...baseDraft(), transitions: [{ from: "start", to: "vault", priority: 1, gate: { q: "has_key", op: "==", v: true } }] });
+    const lobby: ProposalOp = { kind: "addCheckpoint", checkpoint: { id: "lobby", name: "Lobby", objective: "Crack the lobby door.", type: "intermediate" } };
+    const withLobby = (): StoryV2 => validateProposal(linked(), [lobby], "checkpoints").next;
+
+    it("only a stage before the transitions stage defers it; no stage (Studio save, import) never does", () => {
+      expect(COPILOT_STAGES.map((stage) => [stage, defersReachability(stage)])).toEqual([
+        ["qualities", true],
+        ["checkpoints", true],
+        ["transitions", false],
+        ["effects", false],
+        ["provisioning", false],
+      ]);
+      expect(defersReachability(undefined)).toBe(false);
+    });
+
+    it("defers the reachability finding for a checkpoint the proposal adds, as a note naming the transitions stage", () => {
+      const result = validateProposal(linked(), [lobby], "checkpoints");
+      expect(result.blocking).toEqual([]);
+      expect(result.deferred).toEqual(["checkpoints.2: intermediate checkpoint 'lobby' has no route to an anchor yet; the transitions stage must connect it"]);
+      expect(isValidationErrorList(parseStoryV2(result.next))).toBe(true);
+    });
+
+    it("control: without a stage (Studio save, import) the same proposal stays blocking", () => {
+      const result = validateProposal(linked(), [lobby]);
+      expect(result.deferred).toEqual([]);
+      expect(result.blocking).toEqual(["checkpoints.2: intermediate checkpoint has no reachable anchor beyond it"]);
+    });
+
+    it("control: the transitions stage and every later stage block an intermediate still unconnected", () => {
+      const ops: ProposalOp[] = [{ kind: "addTransition", transition: { from: "start", to: "vault", priority: 2, gate: { q: "has_key", op: "==", v: false } } }];
+      for (const stage of ["transitions", "effects"] as const) {
+        const result = validateProposal(withLobby(), stage === "transitions" ? ops : [], stage);
+        expect(result.deferred).toEqual([]);
+        expect(result.blocking).toEqual(["checkpoints.2: intermediate checkpoint has no reachable anchor beyond it"]);
+      }
+    });
+
+    it("control: in the checkpoints stage, an unconnected intermediate the draft already held, or one an update makes, stays blocking", () => {
+      const held = validateProposal(withLobby(), [{ kind: "updateCheckpoint", id: "lobby", patch: { objective: "Crack it quietly." } }], "checkpoints");
+      expect(held.deferred).toEqual([]);
+      expect(held.blocking).toEqual(["checkpoints.2: intermediate checkpoint has no reachable anchor beyond it"]);
+      const demoted = validateProposal(linked(), [{ kind: "updateCheckpoint", id: "vault", patch: { type: "intermediate" } }], "checkpoints");
+      expect(demoted.deferred).toEqual([]);
+      expect(demoted.blocking).toContain("checkpoints.1: intermediate checkpoint has no reachable anchor beyond it");
+    });
+
+    it("control: every other finding in the same proposal stays blocking", () => {
+      const ops: ProposalOp[] = [lobby, { kind: "setCheckpointSnapshot", id: "lobby", snapshot: { ghost: true } }];
+      const result = validateProposal(linked(), ops, "checkpoints");
+      expect(result.deferred).toHaveLength(1);
+      expect(result.blocking).toEqual(["checkpoints.2.state_snapshot.ghost: unknown quality 'ghost'"]);
+    });
+
+    it("the transitions stage that connects it validates clean, and the story then parses", () => {
+      const ops: ProposalOp[] = [
+        { kind: "updateTransition", ref: { from: "start", to: "vault" }, patch: { to: "lobby" } },
+        { kind: "addTransition", transition: { from: "lobby", to: "vault", priority: 1, gate: { q: "has_key", op: "==", v: true } } },
+      ];
+      const result = validateProposal(withLobby(), ops, "transitions");
+      expect(result.blocking).toEqual([]);
+      expect(result.deferred).toEqual([]);
+      expect(isValidationErrorList(parseStoryV2(result.next))).toBe(false);
+    });
   });
 
   it("surfaces warnings without blocking", () => {

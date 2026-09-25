@@ -1,0 +1,85 @@
+v24-08 recal fixes, 2026-09-25 (each mutant applied alone via scripts/mutate.mjs --find/--replace, run, restored)
+defects: v2.4 plan 08 recalibration on e420eab0c646 (test/journeys/records/v2.4-plan08/recal-e420eab0c646/)
+  F1 regression from 5cfa5b6: the checkpoints stage could not add an intermediate (a05/a07/a15). STAGE_OPS refuses the
+     transition ops that would connect it, and parseStoryV2 then blocks "intermediate checkpoint has no reachable anchor
+     beyond it". Fix: validateProposal defers that one finding, only for a checkpoint the proposal itself adds, only in a
+     stage before the transitions stage (defersReachability: qualities, checkpoints). It becomes a non-blocking note
+     (ProposalValidation.deferred, ProposalResult.deferred) naming the transitions stage. The transitions/effects/
+     provisioning stages, no-stage validation (Studio save, import) and parseStoryV2 itself keep it blocking. Transition
+     ops stay refused in the checkpoints stage.
+  F2 the curator parser dropped an entry named the way the prompt lists it: [enable] "La Cripta" (Abadia Lore) (c13).
+     findEntry now tries the whole title first, then the listed shape "<title>" (<lorebook>). The lorebook must hold that
+     title: it picks the entry when two books share the title, and a lorebook that does not hold it drops the op instead
+     of resolving to another book's entry.
+pre-fix controls: new tests red before the fix. F1: 7 red in src/copilot (5 validate cases, the controls only on the new
+  `deferred` field, plus the authoring ok case), and the 2 authoring golden replays. F2: 6 red in hardening.test.ts
+  (controls on the new drop reasons), and the curator e420 golden replay.
+scope: npx jest --runInBand src/copilot/validate.test.ts src/copilot/authoring.test.ts src/runtime/roleCalibration.test.ts src/stagecraft/hardening.test.ts src/stagecraft/stagecraft.test.ts
+baseline (no mutant): Tests:       114 passed, 114 total
+M1 deferral in every stage (transitions/effects too) [src/copilot/stages.ts]
+  x validateProposal › an intermediate the checkpoints stage adds is connected by the transitions stage › only a stage before the transitions stage defers it; no stage (Studio save, import) never does
+  Tests:       1 failed, 113 passed, 114 total -> KILLED
+M2 deferral with no stage (Studio save / import path) [src/copilot/stages.ts]
+  x validateProposal › blocks an intermediate checkpoint that cannot reach an anchor
+  x validateProposal › an intermediate the checkpoints stage adds is connected by the transitions stage › only a stage before the transitions stage defers it; no stage (Studio save, import) never does
+  x validateProposal › an intermediate the checkpoints stage adds is connected by the transitions stage › control: without a stage (Studio save, import) the same proposal stays blocking
+  Tests:       3 failed, 111 passed, 114 total -> KILLED
+M3 defer any unconnected intermediate, not only one the proposal adds [src/copilot/validate.ts]
+  x validateProposal › an intermediate the checkpoints stage adds is connected by the transitions stage › control: in the checkpoints stage, an unconnected intermediate the draft already held, or one an update makes, stays blocking
+  Tests:       1 failed, 113 passed, 114 total -> KILLED
+M4 defer every finding about an added checkpoint, not only reachability [src/copilot/validate.ts]
+  x validateProposal › an intermediate the checkpoints stage adds is connected by the transitions stage › control: every other finding in the same proposal stays blocking
+  Tests:       1 failed, 113 passed, 114 total -> KILLED
+M5 no deferral at all (pre-fix behaviour) [src/copilot/validate.ts]
+  x validateProposal › an intermediate the checkpoints stage adds is connected by the transitions stage › defers the reachability finding for a checkpoint the proposal adds, as a note naming the transitions stage
+  x validateProposal › an intermediate the checkpoints stage adds is connected by the transitions stage › control: every other finding in the same proposal stays blocking
+  x recorded live goldens replay through the same run path › authoring-shared-e420eab0c646.json: every case re-scores to the recorded score, and the summary to the recorded summary
+  x recorded live goldens replay through the same run path › authoring-shared.json: every case re-scores to the recorded score, and the summary to the recorded summary
+  x runAuthoringStage › a checkpoints proposal adding an intermediate is ok on the first answer, carrying the transitions stage's deferred note
+  Tests:       5 failed, 109 passed, 114 total -> KILLED
+M6 deferred note dropped from the stage result [src/copilot/authoring.ts]
+  x runAuthoringStage › a checkpoints proposal adding an intermediate is ok on the first answer, carrying the transitions stage's deferred note
+  Tests:       1 failed, 113 passed, 114 total -> KILLED
+M7 deferred finding dropped silently (no note) [src/copilot/validate.ts]
+  x runAuthoringStage › a checkpoints proposal adding an intermediate is ok on the first answer, carrying the transitions stage's deferred note
+  x validateProposal › an intermediate the checkpoints stage adds is connected by the transitions stage › defers the reachability finding for a checkpoint the proposal adds, as a note naming the transitions stage
+  x validateProposal › an intermediate the checkpoints stage adds is connected by the transitions stage › control: every other finding in the same proposal stays blocking
+  Tests:       3 failed, 111 passed, 114 total -> KILLED
+M8 listed shape not read (pre-fix parser) [src/stagecraft/parse.ts]
+  x recorded live goldens replay through the same run path › curator-shared-e420eab0c646.json: every case re-scores to the recorded score, and the summary to the recorded summary
+  x T17.2 uid addressing › an entry named the way the prompt lists it › resolves a quoted title with its trailing (Lorebook), the listed shape (live c13)
+  x T17.2 uid addressing › an entry named the way the prompt lists it › the trailing lorebook is case-insensitive, may follow an unquoted title, and keeps the reason and patch parts
+  x T17.2 uid addressing › an entry named the way the prompt lists it › the trailing lorebook disambiguates two books sharing a title
+  x T17.2 uid addressing › an entry named the way the prompt lists it › control: a lorebook that does not hold the title never resolves to another book's entry
+  x T17.2 uid addressing › an entry named the way the prompt lists it › control: a bare title shared by two books stays ambiguous, and a title holding parentheses still matches whole
+  x T17.2 uid addressing › an entry named the way the prompt lists it › control: an unknown title with a real lorebook is still unknown
+  Tests:       7 failed, 107 passed, 114 total -> KILLED
+M9 trailing lorebook ignored (title alone decides) [src/stagecraft/parse.ts]
+  x T17.2 uid addressing › an entry named the way the prompt lists it › the trailing lorebook disambiguates two books sharing a title
+  x T17.2 uid addressing › an entry named the way the prompt lists it › control: a lorebook that does not hold the title never resolves to another book's entry
+  Tests:       2 failed, 112 passed, 114 total -> KILLED
+M10 mismatched lorebook falls back to the title's only entry [src/stagecraft/parse.ts]
+  x T17.2 uid addressing › an entry named the way the prompt lists it › control: a lorebook that does not hold the title never resolves to another book's entry
+  Tests:       1 failed, 113 passed, 114 total -> KILLED
+M11 lorebook compared case-sensitively [src/stagecraft/parse.ts]
+  x T17.2 uid addressing › an entry named the way the prompt lists it › the trailing lorebook is case-insensitive, may follow an unquoted title, and keeps the reason and patch parts
+  Tests:       1 failed, 113 passed, 114 total -> KILLED
+M12 listed shape tried before the whole title [src/stagecraft/parse.ts]
+  x T17.2 uid addressing › an entry named the way the prompt lists it › control: a bare title shared by two books stays ambiguous, and a title holding parentheses still matches whole
+  Tests:       1 failed, 113 passed, 114 total -> KILLED
+restored (all mutants reverted): Tests:       114 passed, 114 total
+12/12 killed.
+
+golden replay (goldens, floors and recorded answers not edited; the before->after cases are declared per golden in
+roleCalibration.test.ts CHANGED_BY_CODE, which also asserts each recorded score still reproduces the recorded summary):
+  authoring-shared-e420eab0c646.json  a05 failed->ok (repaired), a07 failed->ok first try (recorded repair answer unused),
+    a15 failed->ok (repaired)
+    overall validity 17/20 -> 20/20, opShape 17/20 -> 20/20, firstTry 14/20 -> 15/20
+    es      validity 7/8 -> 8/8,     opShape 7/8 -> 8/8,     firstTry 6/8 -> 6/8
+  authoring-shared.json (56f299a98ea5; a05/a15/a16 refused by stage, repair unanswered = lower bound, as before)
+    a07 failed->ok first try. Under current code: overall validity 16 -> 17, opShape 16 -> 17, firstTry 15 -> 16 (of 20);
+    es unchanged 6/6/6 of 8
+  curator-shared-e420eab0c646.json  c13 dropped -> kept (enable:La Cripta)
+    overall validity 20/20, opShape 13/14 -> 14/14, decision 18/20 -> 19/20
+    es      validity 8/8,   opShape 5/6 -> 6/6,     decision 6/8 -> 7/8
+  replay only: a live re-run decides the recommendation.

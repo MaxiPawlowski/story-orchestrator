@@ -10,6 +10,9 @@ export const STAGE_OPS: Record<CopilotStage, readonly ProposalOpKind[]> = {
 
 export const stageOnlyEmitLine = (stage: CopilotStage): string => `Only emit ${STAGE_OPS[stage].join("/")} ops.`;
 
+export const defersReachability = (stage: CopilotStage | undefined): boolean =>
+  stage !== undefined && COPILOT_STAGES.indexOf(stage) < COPILOT_STAGES.indexOf("transitions");
+
 export const isStageOp = (stage: CopilotStage, kind: ProposalOpKind): boolean => STAGE_OPS[stage].includes(kind);
 
 const allowedBy = (kind: ProposalOpKind): string => {
