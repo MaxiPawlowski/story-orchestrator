@@ -1,0 +1,39 @@
+{
+  "_note": "v2.4 plan 04 T15 control arm, LIVE. The same vault with evidence_from and the attempts clause absent (live-v24-04-control.story.json). The player writes the same line; no read may mark player lines, state the world rule, or refuse a player-line proof, and no request carries the attempts clause. Whether idol_taken was accepted from the player line is recorded (today's behaviour allows it). Run x2: so-scenario run <this> --sandbox --group 1759606632088.",
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; return { cleared: true };"
+    },
+    {
+      "import_story": {
+        "file": "./live-v24-04-control.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error(`needs a group chat: run with --sandbox --group 1759606632088 (groupId=${ctx.groupId}, chatId=${ctx.chatId})`); const snap = rt.getSnapshot(); if (!snap.requirements?.ready) throw new Error('the story requirements are not ready here: ' + JSON.stringify(snap.requirements)); rt.setExtractionSettings({ cadence: 1 }); const R = globalThis.__v2404 = { startedAt: Date.now(), requests: [], type: null, marks: {} }; ctx.eventSource.on(ctx.eventTypes.GENERATION_STARTED, (type, params, dryRun) => { if (!dryRun && typeof type === 'string') R.type = type; }); ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, (data, dryRun) => { if (dryRun) return; R.requests.push({ at: Date.now(), type: R.type, active: rt.getEngineState()?.activeCheckpointId ?? null, body: JSON.stringify(data ?? null) }); }); R.audits = () => rt.getSnapshot().extraction.audits.filter((a) => Date.parse(a.createdAt) >= R.startedAt); R.brief = (a) => ({ reason: a.reason, window: a.window, windowForm: a.windowForm ?? null, accepted: a.acceptedDeltas.map((d) => ({ q: d.delta.q, v: d.delta.v, messageId: d.messageId ?? null, evidence: String(d.evidence).slice(0, 120) })), rejected: a.rejected.map((r) => ({ reason: r.reason, line: String(r.line).slice(0, 160) })) }); return { groupId: ctx.groupId, chatId: ctx.chatId, cadence: rt.getGlobalSettings().extraction.cadence, story: rt.getSnapshot().storyId };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I grab the Sun Idol from the altar.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const R = globalThis.__v2404; const ctx = SillyTavern.getContext(); const id = ctx.chat.map((m, i) => (m.is_user && /grab the Sun Idol/.test(String(m.mes)) ? i : -1)).filter((i) => i >= 0).at(-1); if (id === undefined) throw new Error('the player line is not in the chat'); R.marks.player = id; const audits = R.audits().filter((a) => a.window.from <= id && a.window.to >= id); if (!audits.length) throw new Error('no read covered the player line ' + id + ': ' + JSON.stringify(R.audits().map(R.brief))); const accepted = audits.flatMap((a) => a.acceptedDeltas.filter((d) => d.delta.q === 'idol_taken').map((d) => ({ reason: a.reason, messageId: d.messageId ?? null, v: d.delta.v, evidence: d.evidence }))); const refused = audits.flatMap((a) => a.rejected.filter((r) => r.reason === \"evidence only in the player's line\").map((r) => ({ reason: a.reason, line: r.line }))); const marked = audits.filter((a) => a.prompt.includes('(player): ')).length; const ruled = audits.filter((a) => a.prompt.includes('Evidence must quote a line the player did not write.')).length; R.marks.afterGrab = { accepted, refused, marked, ruled, audits: audits.map(R.brief) }; if (marked || ruled) throw new Error('the control prompt must be today\\'s: no player mark, no world rule: ' + JSON.stringify({ marked, ruled })); if (refused.length) throw new Error('the control arm refused a player-line proof, which is not today\\'s behaviour: ' + JSON.stringify(refused)); const outcome = accepted.length ? 'accepted (today: the player line may prove it)' : 'not proposed'; R.marks.outcome = outcome; return { outcome, accepted, refused, marked, ruled };",
+      "log": true
+    },
+    {
+      "eval": "const R = globalThis.__v2404; const normal = R.requests.filter((r) => r.type !== 'impersonate' && r.type !== 'quiet' && r.active === 'altar'); if (!normal.length) throw new Error('no normal generation was recorded on the altar checkpoint'); const leaked = R.requests.filter((r) => r.body.includes(\"The player's message states an attempt; decide its outcome from the world — it may fail.\")); if (leaked.length) throw new Error('the control arm carries the attempts clause: ' + leaked.length); return { requests: normal.length, types: normal.map((r) => r.type) };",
+      "log": true
+    }
+  ]
+}

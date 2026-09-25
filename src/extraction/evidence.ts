@@ -35,17 +35,31 @@ function spanAt(message: string[], fragment: string[], from: number): number {
   return -1;
 }
 
+const holdsSpan = (message: string, fragments: string[][]): boolean => {
+  const text = words(normalizeEvidenceText(message).split(ELISION).join(" "));
+  let cursor = 0;
+  for (const fragment of fragments) {
+    const at = spanAt(text, fragment, cursor);
+    if (at < 0) return false;
+    cursor = at + fragment.length;
+  }
+  return true;
+};
+
+const evidenceFragments = (evidence: string): string[][] => normalizeEvidenceText(evidence).split(ELISION).map(words).filter((fragment) => fragment.length);
+
+export interface EvidenceMessage {
+  messageId: number;
+  text: string;
+  isUser: boolean;
+}
+
+export function evidenceSources(evidence: string, messages: readonly EvidenceMessage[]): number[] {
+  const fragments = evidenceFragments(evidence);
+  if (!fragments.length) return [];
+  return messages.filter((message) => holdsSpan(message.text, fragments)).map((message) => message.messageId);
+}
+
 export function evidenceInWindow(evidence: string, messages: string[]): boolean {
-  const fragments = normalizeEvidenceText(evidence).split(ELISION).map(words).filter((fragment) => fragment.length);
-  if (!fragments.length) return false;
-  return messages.some((message) => {
-    const text = words(normalizeEvidenceText(message).split(ELISION).join(" "));
-    let cursor = 0;
-    for (const fragment of fragments) {
-      const at = spanAt(text, fragment, cursor);
-      if (at < 0) return false;
-      cursor = at + fragment.length;
-    }
-    return true;
-  });
+  return evidenceSources(evidence, messages.map((text, messageId) => ({ messageId, text, isUser: false }))).length > 0;
 }

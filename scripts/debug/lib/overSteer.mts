@@ -53,17 +53,18 @@ export const CONTINUITY_FAMILY: OverSteerFamily = { name: 'continuity', metaToke
 export const OVER_STEER_FAMILIES: Record<string, OverSteerFamily> = { guidance: GUIDANCE_FAMILY, continuity: CONTINUITY_FAMILY };
 
 /** `block` is the injected prompt key; `controlRun` is the control arm's reply N+1, literal or a page global holding it. */
-export type OverSteerSpec = { block: string; family: string; controlRun?: string | { global: string } };
+export type OverSteerSpec = { block: string; family: string; controlRun?: string | { global: string }; record?: boolean };
 
 export function overSteerSpec(value: unknown): OverSteerSpec {
   const spec = value as OverSteerSpec;
-  if (!spec || typeof spec.block !== 'string' || !spec.block || typeof spec.family !== 'string') throw new Error('expect.overSteer: expected {block: "<injected prompt key>", family, controlRun?}');
+  if (!spec || typeof spec.block !== 'string' || !spec.block || typeof spec.family !== 'string') throw new Error('expect.overSteer: expected {block: "<injected prompt key>", family, controlRun?, record?}');
+  if (spec.record !== undefined && typeof spec.record !== 'boolean') throw new Error('expect.overSteer: record is true (report the columns, never fail) or absent');
   if (!OVER_STEER_FAMILIES[spec.family]) throw new Error(`expect.overSteer: unknown family "${spec.family}" (known: ${Object.keys(OVER_STEER_FAMILIES).join(', ')})`);
   const control = spec.controlRun;
   if (control !== undefined && !(typeof control === 'string' && control) && !(typeof control === 'object' && control !== null && typeof control.global === 'string' && control.global)) {
     throw new Error('expect.overSteer: controlRun is the control reply text or {global: "<name>"}');
   }
-  return { block: spec.block, family: spec.family, ...(control === undefined ? {} : { controlRun: control }) };
+  return { block: spec.block, family: spec.family, ...(control === undefined ? {} : { controlRun: control }), ...(spec.record ? { record: true } : {}) };
 }
 
 /** What the page offers: the block as the last generation carried it, as the next prompt holds it, reply N+1, and the control reply. */
@@ -75,6 +76,7 @@ export type OverSteerVerdict = {
   block: { key: string; source: 'capture' | 'current' | null; chars: number };
   restate: RestateVerdict | null;
   swing: ReturnType<typeof swing> | null;
+  recorded?: boolean;
 };
 
 export function overSteerVerdict(spec: OverSteerSpec, reading: OverSteerReading): OverSteerVerdict {

@@ -95,7 +95,7 @@
     },
     "src/runtime/coordinators/memoryCoordinator.ts#MemoryCoordinator.applyEntries": {
       "status": "checked",
-      "note": "v2.3 plan 03: minted with the entry window before counting tokens, checked after the host tokenizer await and before the tier write. The caller had already checked, but that check is on the far side of this await."
+      "note": "v2.3 plan 03: minted with the entry window before counting tokens, checked after the host tokenizer await and the band read (v2.4 plan 07: findHeldContradictions may query ST vectors) and before the tier write; the hold that follows is synchronous with the write. The caller had already checked, but that check is on the far side of these awaits."
     },
     "src/runtime/coordinators/memoryCoordinator.ts#MemoryCoordinator.commit": {
       "status": "delegate",

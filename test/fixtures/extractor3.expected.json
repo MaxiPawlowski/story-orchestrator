@@ -4,7 +4,7 @@
     { "q": "rats_seen", "v": 3, "evidence": "Three rats scurry" }
   ],
   "rejected": [
-    { "reason": "missing evidence" }
+    { "reason": "missing evidence", "scope": "golden" }
   ],
   "facts": {
     "minCount": 1,

@@ -1,4 +1,8 @@
-import { addMemoryEntries, CONFLICT_LIMIT, conflictWindowOf, detectConflicts, excludeEntry, hashMemoryText, markConflicted, provenance, recordDerived, removeEpistemic, removeLedger, resolveConflict, withOverride, type ConflictPair, type ConflictWindow, type LedgerBinding, type SceneConflictValue } from "@memory/index";
+import {
+  addMemoryEntries, buildJaccardMatchSets, CONFLICT_LIMIT, conflictWindowOf, detectConflicts, excludeEntry, hashMemoryText, heldConflictPair, heldContradictions, heldGroup,
+  isEstablished, markConflicted, markContradicted, provenance, recordDerived, removeEpistemic, removeLedger, resolveConflict, standsEstablished, withOverride,
+  type ConflictPair, type ConflictWindow, type HeldContradiction, type LedgerBinding, type MatchSets, type MemoryEntry, type SceneConflictValue, type UncertainPair,
+} from "@memory/index";
 import type { Provenance, Provenanced } from "@memory/provenance";
 import type { RunGuard } from "./runToken";
 import type { MemoryRuntimeState } from "./types";
@@ -30,6 +34,8 @@ export interface MemoryQueueDeps {
   save: () => Promise<void>;
   run?: () => RunGuard;
   refused?: (refusal: DecisionRefusal | null) => void;
+  /** v2.4 plan 07: the consolidation bands (ST vectors, else Jaccard). Absent means Jaccard. */
+  matchSets?: (group: MemoryEntry[]) => Promise<MatchSets>;
 }
 
 export function getConflicts(deps: MemoryQueueDeps): ConflictPair[] {
@@ -74,13 +80,56 @@ export function detectMemoryConflicts(deps: MemoryQueueDeps): ConflictPair[] {
   const known = new Set(state.conflicts.map((pair) => pair.key));
   const fresh = found.filter((pair) => !known.has(pair.key));
   const queued = [...state.conflicts, ...fresh].sort(byNewest).slice(0, CONFLICT_LIMIT);
-  const memoryIds = queued.flatMap((pair) => pair.sides.filter((side) => side.store === "memory").map((side) => side.id));
+  const memoryIds = queued.flatMap((pair) => pair.sides.filter((side) => side.store === "memory" && !side.standing).map((side) => side.id));
   const ledgerIds = queued.flatMap((pair) => pair.sides.filter((side) => side.store === "ledger" && !side.id.startsWith("bound:")).map((side) => side.id));
   const entries = markConflicted(state.entries, memoryIds, (entry) => entry.id);
   const ledger = markConflicted(state.ledger, ledgerIds, (row) => row.id);
   const changed = fresh.length > 0 || entries !== state.entries || ledger !== state.ledger;
   if (changed) deps.patch({ conflicts: queued, entries, ledger }, false);
   return queued;
+}
+
+/** v2.4 plan 07 (J8.5). Which of these new rows land in an established row's band. A read, not a
+ *  write: the bands may cost host calls, and the caller writes after its own ownership check. */
+export async function findHeldContradictions(deps: MemoryQueueDeps, candidates: MemoryEntry[]): Promise<HeldContradiction[]> {
+  const established = deps.getMemory().entries.filter(standsEstablished);
+  if (!deps.getMemory().settings.enabled || !established.length || !candidates.length) return [];
+  const group = heldGroup(established, candidates);
+  const matches = deps.matchSets ? await deps.matchSets(group) : buildJaccardMatchSets(group);
+  return heldContradictions(established, candidates, matches);
+}
+
+/** Queue each held claim with its established row standing, and take the claim out of play. Only
+ *  rows still in the store are held: a tier cap may have trimmed a candidate since the read. */
+export function holdMemoryContradictions(deps: MemoryQueueDeps, held: HeldContradiction[]): ConflictPair[] {
+  const state = deps.getMemory();
+  const present = new Set(state.entries.map((entry) => entry.id));
+  const known = new Set([...state.resolvedConflicts, ...state.conflicts.map((pair) => pair.key)]);
+  const at = new Date().toISOString();
+  const fresh = held.filter((pair) => present.has(pair.candidate.id) && present.has(pair.established.id)).map((pair) => heldConflictPair(pair, at)).filter((pair) => !known.has(pair.key));
+  if (!fresh.length) return [];
+  const conflicts = [...state.conflicts, ...fresh].sort(byNewest).slice(0, CONFLICT_LIMIT);
+  deps.patch({ conflicts, entries: markConflicted(state.entries, fresh.map((pair) => pair.sides[1].id), (entry) => entry.id) }, false);
+  return fresh;
+}
+
+/** Consolidation's undecided pairs. Against an established row the NEWER claim is held, and the
+ *  established row is never marked `contradicted`: that flag drops a row from the warden's facts,
+ *  and it used to land on the older side, which is the seed. Every other pair keeps today's mark. */
+export function settleUncertain(deps: MemoryQueueDeps, uncertain: UncertainPair[]): void {
+  if (!uncertain.length) return;
+  const byId = new Map(deps.getMemory().entries.map((entry) => [entry.id, entry]));
+  const heldOnes = uncertain.filter((pair) => {
+    const existing = byId.get(pair.existingId);
+    return existing ? isEstablished(existing) : false;
+  });
+  const soft = uncertain.filter((pair) => !heldOnes.includes(pair));
+  if (soft.length) deps.patch({ entries: markContradicted(deps.getMemory(), soft).entries }, false);
+  holdMemoryContradictions(deps, heldOnes.flatMap((pair) => {
+    const established = byId.get(pair.existingId);
+    const candidate = byId.get(pair.candidateId);
+    return established && candidate ? [{ established, candidate }] : [];
+  }));
 }
 
 /** Both sides were conflicted; neither may steer until the author says which one is true. */

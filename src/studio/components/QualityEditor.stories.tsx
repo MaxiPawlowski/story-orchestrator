@@ -86,3 +86,23 @@ export const JudgeReading: Story = {
     await expect(route()?.read_as).toBeUndefined();
   },
 };
+
+// v2.4 plan 04 T15: which lines can prove a value. Absent is today's behaviour; "decided" says the
+// author chose it, which silences the Studio's suggestion; code qualities read no evidence at all.
+export const EvidenceFromWorld: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: /alarm/ }));
+    const evidence = canvas.getByLabelText("Evidence may come from");
+    const alarm = () => useDraftStore.getState().draft.qualities.find((quality) => quality.key === "alarm");
+    await expect(evidence).toHaveValue("");
+    await expect(evidence).toBeEnabled();
+    await userEvent.selectOptions(evidence, "world");
+    await expect(alarm()?.evidence_from).toBe("world");
+    await userEvent.selectOptions(evidence, "any");
+    await expect(alarm()?.evidence_from).toBe("any");
+    await userEvent.selectOptions(canvas.getByLabelText("Source"), "code");
+    await expect(alarm()?.evidence_from).toBeUndefined();
+    await expect(canvas.getByLabelText("Evidence may come from")).toBeDisabled();
+  },
+};

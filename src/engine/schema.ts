@@ -1,5 +1,6 @@
 export const QUALITY_TYPES = ["int", "float", "bool", "enum", "string"] as const;
 export const QUALITY_SOURCES = ["code", "extractor"] as const;
+export const EVIDENCE_FROM = ["any", "world"] as const;
 export const GATE_OPERATORS = ["==", "!=", ">=", "<=", ">", "<", "in"] as const;
 export const TENSION_LEVELS = ["calm", "stirring", "tense", "critical", "peak"] as const;
 // v2.3 plan 02 (S1). A latching enum freezes on the first read, so a value meaning "not set yet"
@@ -62,7 +63,10 @@ export interface Quality {
   ledger_binding?: QualityLedgerBinding;
   read_as?: QualityReadAs;
   criteria?: QualityCriteria;
+  evidence_from?: EvidenceFrom;
 }
+
+export type EvidenceFrom = typeof EVIDENCE_FROM[number];
 
 export type GateNode = GateLeaf | GateAll | GateAny | GateNot;
 
@@ -139,6 +143,7 @@ export interface AgencyPolicy {
   objective_kind: ObjectiveKind;
   /** Optional: the checkpoint to fall back to when the player refuses the prepared route. */
   alternate?: string;
+  player_attempts_only?: boolean;
 }
 
 export interface Checkpoint {

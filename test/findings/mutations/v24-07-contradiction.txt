@@ -1,0 +1,69 @@
+v2.4 plan 07, contradicted seeded fact (J8.5 live finding): mutations 2026-09-25 (worktree branch worktree-agent-a6f2bab29efef9f15, on the plan 04 merge 0f3904d; script .debug/v24-07-contradiction-mutants.py, each mutant an exact-text replacement in one file, restored byte-for-byte after its run; a jest exit other than 0 = KILLED)
+Suites per mutant: jest src/runtime/coordinators/contradictedSeed.review.test.ts (8) + src/runtime/memoryQueueHeld.test.ts (14). Baseline green before and after the sweep.
+UI mutants (U1, U2): applied together, Storybook rebuilt, full test-runner over the served index.json (216 stories), then the sources restored and the build and run repeated green (216/216). Each is killed by a different story, so they are attributed separately.
+Result: 25/25 killed.
+
+- C1 applyEntries never holds the claim (holdMemoryContradictions call removed): KILLED
+    "holds both Courier rows in the queue and leaves the pinned seed as the warden's only fact"
+- C2 applyEntries never looks for a contradiction (findHeldContradictions -> []): KILLED
+    "holds both Courier rows in the queue and leaves the pinned seed as the warden's only fact"
+- C3 consolidation back to the pre-fix soft mark on the older row: KILLED
+    "holds a claim consolidation finds against a seed pinned after the claim went live"
+- C4 consolidation settles nothing (settleUncertain call removed): KILLED
+    "holds a claim consolidation finds against a seed pinned after the claim went live"
+- Q1 only a lock counts as established (findHeldContradictions): KILLED
+    "builds the bands through the injected matcher, over established rows first"
+- Q2 asks the matcher with no established row: KILLED
+    "asks nothing when no established row is live"
+- Q3 ignores the injected (vectors) matcher: KILLED
+    "builds the bands through the injected matcher, over established rows first"
+- Q4 holds a claim the store no longer has (present filter removed): KILLED
+    "does not hold a claim the store no longer has, or a pair the author already decided"
+- Q5 re-holds a pair the author decided (known filter removed): KILLED
+    "does not hold a claim the store no longer has, or a pair the author already decided"
+- Q6 marks the established side conflicted too: KILLED
+    "marks only the claim conflicted, and the conflict detector keeps it that way"
+- Q7 detectMemoryConflicts re-marks the standing side: KILLED
+    "marks only the claim conflicted, and the conflict detector keeps it that way"
+- Q8 settleUncertain soft-marks the established row: KILLED
+    "holds the newer claim against an established row and never marks the established row contradicted"
+- Q9 settleUncertain drops today's soft mark for a non-established row: KILLED
+    "keeps today's soft mark on the older row when it is not established"
+- P1 heldContradictions holds every claim, band or not: KILLED
+    "finds the J8.5 pair in the Jaccard same-topic band once both rows read as one type"
+- P2 holds a verbatim restatement: KILLED
+    "never holds a verbatim restatement"
+- P3 an M5 update against a pin is held: KILLED
+    "lets a state-change update through against a pin (M5), and holds it against a lock"
+- P4 a lock lets a marker update through: KILLED
+    "lets a state-change update through against a pin (M5), and holds it against a lock"
+- P5 heldGroup keeps the row types (band pairs only same-typed rows): KILLED
+    "finds the J8.5 pair in the Jaccard same-topic band once both rows read as one type"
+- P6 conflictWindow spans the standing row: KILLED
+    "marks only the claim conflicted, and the conflict detector keeps it that way"
+- P7 the established side is not marked standing: KILLED
+    "marks only the claim conflicted, and the conflict detector keeps it that way"
+- P8 a pin is not established: KILLED
+    "is a pin, a lock, an author decision or an authored row, and nothing an extractor merely read"
+- P9 an author decision is not established: KILLED
+    "is a pin, a lock, an author decision or an authored row, and nothing an extractor merely read"
+- P10 a quarantined established row still holds claims (isLive dropped from standsEstablished): KILLED
+    "asks nothing when no established row is live"
+- U1 player Memory tab lists a conflicted row (DrawerTabs visible filter): KILLED
+    "Drawer/DrawerTabs > Player Memory Leaves Out A Held Claim > play-test"
+- U2 the queue card does not say the established side still steers (ConflictQueue): KILLED
+    "Drawer/ConflictQueue > A Held Claim Leaves The Established Fact Standing > play-test"
+
+Revision 2026-09-25 (main-session decision: a PIN is retention, not truth, v2.3 M5). Established = locked as canon, author-decided (provenance override) or author-written (source "author"); a pinned extracted row no longer holds a claim. Same script (P8/P9 rewritten, P11 added), same two suites (now 9 + 16 cases), whole sweep re-run on the revised code: 24/24 killed. UI mutants U1/U2 untouched by the revision (ConflictQueue/DrawerTabs unchanged); Storybook re-run green 216/216.
+
+- C1-C4, Q1-Q9, P1-P7, P10: KILLED again (same guards; the tests now seed a LOCKED or author-decided row)
+- P8 a pin counts as established again (M5 decision reverted): KILLED, 3 failing
+    "is a lock, an author decision or an authored row; never a pin, never a plain read (v2.3 M5)"
+    "treats a pinned extracted row as today: soft mark, nothing held (v2.3 M5)"
+    "a pinned (not locked) extracted fact does not hold a contradicting claim"
+- P9 an author decision is not established (only a lock): KILLED
+    "is a lock, an author decision or an authored row; never a pin, never a plain read (v2.3 M5)"
+- P11 an author-written row is not established: KILLED
+    "is a lock, an author decision or an authored row; never a pin, never a plain read (v2.3 M5)"
+- Not run as a mutant: "a lock alone is not established". setLocked always writes the "lock" override too (stores.ts setLocked), so on the product path it is equivalent.
+Result (revision): 24/24 killed.

@@ -19,8 +19,11 @@ describe("example story: Quest for the Sun Ruins", () => {
     expect(isValidationErrorList(parsed)).toBe(false);
   });
 
-  it("has zero diagnostics, warnings included", () => {
-    expect(runDiagnostics(exampleJson)).toEqual([]);
+  it("has zero diagnostics, warnings included, beside the D6 evidence suggestion it leaves for the player session", () => {
+    const diagnostics = runDiagnostics(exampleJson);
+    expect(diagnostics.filter((entry) => entry.code !== "quality-outcome-player-evidence")).toEqual([]);
+    expect(diagnostics.every((entry) => entry.severity === "info")).toBe(true);
+    expect(diagnostics.map((entry) => exampleJson.qualities[Number(entry.path.split(".")[1])].key)).toEqual(["approached_board", "mission_accepted", "riddle_answer", "chamber_entered", "artifact_secured"]);
   });
 
   it("plays the Luke-accepted / riddle-solved path to the finale, reaching every anchor", () => {

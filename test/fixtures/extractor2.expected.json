@@ -4,7 +4,7 @@
     { "q": "threat_level", "v": 2, "evidence": "two out of five" }
   ],
   "rejected": [
-    { "reason": "invalid value" }
+    { "reason": "invalid value", "scope": "golden" }
   ],
   "facts": {
     "minCount": 1,

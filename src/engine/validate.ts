@@ -4,6 +4,7 @@ import {
   NPC_REPLY_KINDS,
   NPC_REPLY_TRIGGERS,
   QUALITY_SOURCES,
+  EVIDENCE_FROM,
   QUALITY_TYPES,
   STORY_ID_PATTERN,
   TENSION_CURRENT_KEY,
@@ -68,6 +69,19 @@ const readCriterion = (value: unknown): string | QualityCriterion | null => {
   if (!isRecord(value) || typeof value.what !== "string" || !value.what.trim()) return null;
   const examples = Array.isArray(value.examples) ? value.examples.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0) : [];
   return { what: value.what.trim(), ...(typeof value.not_for === "string" && value.not_for.trim() ? { not_for: value.not_for.trim() } : {}), ...(examples.length ? { examples } : {}) };
+};
+
+const readEvidenceFrom = (value: Record<string, unknown>, source: Quality["source"], path: string, errors: ValidationError[]): Pick<Quality, "evidence_from"> => {
+  if (value.evidence_from === undefined) return {};
+  if (!isOneOf(value.evidence_from, EVIDENCE_FROM)) {
+    addError(errors, `${path}.evidence_from`, "evidence_from must be any or world");
+    return {};
+  }
+  if (source !== "extractor") {
+    addError(errors, `${path}.evidence_from`, "only extractor qualities read evidence");
+    return {};
+  }
+  return { evidence_from: value.evidence_from };
 };
 
 // v2.2 plan 06: `read_as` + `criteria`. A hint that cannot work is an error, never a silent no-op.
@@ -165,6 +179,7 @@ const readQuality = (value: unknown, path: string, errors: ValidationError[]): Q
     ...(isRecord(value.scope_hint) ? { scope_hint: value.scope_hint as Quality["scope_hint"] } : {}),
     ...(ledgerBinding ? { ledger_binding: ledgerBinding } : {}),
     ...readQualityRead(value, type, source, rubric, values, path, errors),
+    ...readEvidenceFrom(value, source, path, errors),
   };
 };
 
@@ -246,6 +261,10 @@ const readAgency = (value: unknown, path: string, errors: ValidationError[]): Pa
   }
   const alternate = asString(value.alternate ?? value.fallback);
   if (alternate) agency.alternate = alternate;
+  if (value.player_attempts_only !== undefined) {
+    if (typeof value.player_attempts_only !== "boolean") addError(errors, `${path}.player_attempts_only`, "must be a boolean");
+    else agency.player_attempts_only = value.player_attempts_only;
+  }
   return agency;
 };
 

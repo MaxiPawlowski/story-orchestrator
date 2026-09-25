@@ -198,7 +198,7 @@ const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapshot: Run
   const characterIds = Array.from(new Set(snapshot.memory.entries.map((entry) => entry.characterId).filter((id): id is string => Boolean(id)))).sort();
   const filtered = characterFilter ? snapshot.memory.entries.filter((entry) => entry.characterId === characterFilter) : snapshot.memory.entries;
   // Superseded and folded entries are bookkeeping: the player curates established facts only.
-  const visible = authorView ? filtered : filtered.filter((entry) => !entry.supersededBy && !entry.foldedInto);
+  const visible = authorView ? filtered : filtered.filter((entry) => !entry.supersededBy && !entry.foldedInto && entry.provenance?.validity !== "conflicted");
   const searchable = snapshot.memory.entries.length > MEMORY_SEARCH_FROM;
   const needle = query.trim().toLowerCase();
   const shown = visible

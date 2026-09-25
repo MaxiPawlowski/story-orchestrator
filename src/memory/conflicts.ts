@@ -1,5 +1,7 @@
-import { withOverride, withValidity, type Provenance, type Provenanced } from "./provenance";
+import { isLive, withOverride, withValidity, type Provenance, type Provenanced } from "./provenance";
 import { ledgerKey } from "./ledger";
+import { hasStateChangeMarker } from "./similarity";
+import type { MatchSets } from "./consolidate";
 import type { LedgerEntry, MemoryEntry } from "./types";
 
 // v2.3 plan 05 (C3). Two stores can both hold a claim about the same thing and disagree. The soft
@@ -19,6 +21,8 @@ export interface ConflictSide {
    *  own edit) and say so by leaving it out. */
   confidence?: number;
   provenance?: Provenance;
+  /** v2.4 plan 07: the established side of a held claim. It keeps steering while the pair waits. */
+  standing?: true;
 }
 
 export interface ConflictWindow {
@@ -74,8 +78,8 @@ const sideOf = (record: { id: string; messageId?: number; confidence?: number; p
 // The span the pair's claims came from: oldest source message to newest. A side with no message
 // cannot place the conflict in the transcript, and the caller falls back to reading the newest
 // window — the honest answer when nothing names a span.
-export function conflictWindow(pair: ConflictPair): ConflictWindow | null {
-  const ids = pair.sides.flatMap((side) => (typeof side.messageId === "number" ? [side.messageId] : []));
+export function conflictWindow(pair: Pick<ConflictPair, "sides">): ConflictWindow | null {
+  const ids = pair.sides.flatMap((side) => (!side.standing && typeof side.messageId === "number" ? [side.messageId] : []));
   if (!ids.length) return null;
   return { from: Math.min(...ids), to: Math.max(...ids) };
 }
@@ -200,6 +204,49 @@ export function markConflicted<T extends Provenanced>(records: T[], ids: string[
   const wanted = new Set(ids);
   if (!records.some((record) => wanted.has(idOf(record)))) return records;
   return records.map((record) => (wanted.has(idOf(record)) ? { ...record, ...withValidity(record, "conflicted") } : record));
+}
+
+// v2.4 plan 07 (J8.5). A row the story has settled: locked as canon, decided by the author, or written
+// by the author. A pin is retention, not truth (v2.3 M5), so a pinned extracted row is not settled. A new claim in its band is HELD — queued with the established row standing — instead of
+// joining the live facts on its own. "In its band" is the consolidation bands (vectors, else
+// Jaccard), which cannot tell a contradiction from an agreeing paraphrase: both are held, and an
+// agreeing one loses nothing because the established row already says it. A contradiction worded with
+// too little overlap to reach the same-topic band is not seen at all.
+export const isEstablished = (entry: MemoryEntry): boolean => Boolean(entry.locked || entry.provenance?.override || entry.provenance?.source === "author");
+
+export const standsEstablished = (entry: MemoryEntry): boolean => isEstablished(entry) && isLive(entry) && !entry.supersededBy && !entry.foldedInto;
+
+export interface HeldContradiction {
+  established: MemoryEntry;
+  candidate: MemoryEntry;
+}
+
+/** The group the bands are built over: established rows first, then the candidates. Every row reads
+ *  as one type, because the same-topic band only pairs rows of the same type, and whether a claim
+ *  contradicts a settled fact does not depend on the extractor calling it a fact or an event. */
+export const heldGroup = (established: MemoryEntry[], candidates: MemoryEntry[]): MemoryEntry[] =>
+  [...established, ...candidates].map((entry) => ({ ...entry, type: "fact" as const }));
+
+/** Below a lock, a candidate carrying a state-change marker is an UPDATE that consolidation may
+ *  supersede the row with, exactly as it would today. A lock is truth: every candidate in its band is held. */
+export function heldContradictions(established: MemoryEntry[], candidates: MemoryEntry[], matches: MatchSets): HeldContradiction[] {
+  const same = (left: string, right: string) => left.trim().toLowerCase() === right.trim().toLowerCase();
+  return candidates.flatMap((candidate, offset) => {
+    const at = established.length + offset;
+    return established.flatMap((row, index) => {
+      if (!matches.dup[at]?.has(index) && !matches.sameTopic[at]?.has(index)) return [];
+      if (same(row.text, candidate.text)) return [];
+      if (!row.locked && hasStateChangeMarker(candidate.text)) return [];
+      return [{ established: row, candidate }];
+    });
+  });
+}
+
+export const heldConflictKey = (pair: HeldContradiction) => `held:${pair.established.id}>${pair.candidate.id}`;
+
+export function heldConflictPair(pair: HeldContradiction, at: string): ConflictPair {
+  const sides: [ConflictSide, ConflictSide] = [{ ...sideOf(pair.established, "memory", pair.established.text), standing: true }, sideOf(pair.candidate, "memory", pair.candidate.text)];
+  return { key: heldConflictKey(pair), sides, detectedAt: at, window: conflictWindow({ sides }) };
 }
 
 export interface ConflictResolution {

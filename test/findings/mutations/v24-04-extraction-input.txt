@@ -1,0 +1,154 @@
+v2.4 plan 04 extraction input quality (T7 window hygiene, T15 speaker-aware evidence, attempts clause, seed C), mutations 2026-09-24 (worktree build on 4151bc8; scripts .debug/mut-v24-04.py (jest), .debug/mut-v24-04-node.py (node:test), .debug/mut-v24-04-sb.py (Storybook); each mutant applied alone as exact-text replacement(s), files restored byte-for-byte after its run; a replacement that does not match is reported DID NOT APPLY, and in the final sweep none did)
+Plan-table mutations (§Tests and gates "Mutation file"): speaker branch = P1, /sd rule = H3, marker rule = H4/H5, windowForm hash = H12, judge answered reorder = P7; the "cleaning only the rendering / only the check" pair = H1/H2, both killed by the same-text case.
+A first sweep found the reply-path cost bound (min of 5 runs < 5 ms) flaking under a loaded parallel jest run; the cleaner was rewritten to drop elements in one pass and the bound takes the min of 20 runs. A second sweep found H9 DID NOT APPLY (text moved by that rewrite) and H1 killed without the same-text case (the tracker was glued to a word, so the raw check missed it by word boundary); the fixture was spaced so the raw check can see it. The final sweep below is after both fixes: 40/40 jest mutants, 4/4 node mutants, 3/3 Storybook mutants killed, 0 survived.
+
+== jest (15 suites / 320 tests) ==
+Baseline 15 suites / 320 tests, 0 failing.
+- H1 only the rendering is cleaned (the window keeps raw text, renderTranscript cleans it): KILLED, 4 of 320
+    "takes the newest kept message, skipping an in-flight reply and a foreign post"
+    "getChatWindow keeps the player and the cleaned reply, drops the foreign posts, and states its form"
+    "getLastMessageText skips a trailing foreign post and an in-flight reply"
+    "the prompt, the evidence check and the stored evidence read one text: a quote from a hidden tracker is refused"
+- H2 only the check is cleaned (the window keeps raw text, screenDeltas cleans it): KILLED, 4 of 320
+    "takes the newest kept message, skipping an in-flight reply and a foreign post"
+    "getChatWindow keeps the player and the cleaned reply, drops the foreign posts, and states its form"
+    "getLastMessageText skips a trailing foreign post and an in-flight reply"
+    "the prompt, the evidence check and the stored evidence read one text: a quote from a hidden tracker is refused"
+- H3 /sd post rule removed: KILLED, 3 of 320
+    "drops a visible /sd post but keeps a reply that gained an image through the per-message button (04-H6, 04-H7)"
+    "getChatWindow keeps the player and the cleaned reply, drops the foreign posts, and states its form"
+    "the prompt, the evidence check and the stored evidence read one text: a quote from a hidden tracker is refused"
+- H4 Stepped Thinking marker rule removed: KILLED, 2 of 320
+    "drops a Stepped Thinking 3.2.0 thought post, default template or customised (04-H8)"
+    "does not judge a foreign post at the reply's id"
+- H5 CYOA marker rule removed: KILLED, 5 of 320
+    "takes the newest kept message, skipping an in-flight reply and a foreign post"
+    "drops a CYOA suggestion post, whose button labels would read as the player's own actions (04-H9)"
+    "getChatWindow keeps the player and the cleaned reply, drops the foreign posts, and states its form"
+    "getLastMessageText skips a trailing foreign post and an in-flight reply"
+    "the prompt, the evidence check and the stored evidence read one text: a quote from a hidden tracker is refused"
+- H6 ST system-type rule removed: KILLED, 1 of 320
+    "drops an ST system type other than narrator, and keeps /sys narration (host facts 04-H4, 04-H5)"
+- H7 narrator counted as a system type: KILLED, 1 of 320
+    "drops an ST system type other than narrator, and keeps /sys narration (host facts 04-H4, 04-H5)"
+- H8 <details> no longer dropped: KILLED, 4 of 320
+    "drops a Stepped Thinking 3.2.0 thought post, default template or customised (04-H8)"
+    "drops <details>, open or closed, and script, style and template"
+    "survives a hostile corpus"
+    "drops story text an author put inside <details>, which the fixture pins (plan §Risks)"
+- H9 display:none elements no longer dropped: KILLED, 7 of 320
+    "drops a message with nothing left after cleaning"
+    "drops an element whose inline style hides it, nested content and all"
+    "getChatWindow keeps the player and the cleaned reply, drops the foreign posts, and states its form"
+    "getLastMessageText skips a trailing foreign post and an in-flight reply"
+    "the prompt, the evidence check and the stored evidence read one text: a quote from a hidden tracker is refused"
+    "the fixture path takes the same cleaner, so jest and the live suite read what play reads"
+    "judges the text the player saw, not a hidden tracker block"
+- H10 tagged fences kept: KILLED, 2 of 320
+    "drops a tagged fence and unwraps an untagged one"
+    "survives a hostile corpus"
+- H11 reasoning no longer stripped: KILLED, 1 of 320
+    "strips leading reasoning with the extraction parser's own forms"
+- H12 windowForm left out of the contract hash (plan mutation): KILLED, 1 of 320
+    "the audit records the window form, and the contract hash follows it"
+- H13 the audit does not record windowForm: KILLED, 2 of 320
+    "the audit records the window form, and the contract hash follows it"
+    "a read tail-fit to its budget still states the form of the window it sent"
+- H14 a tail-fit window loses its form: KILLED, 1 of 320
+    "a read tail-fit to its budget still states the form of the window it sent"
+- H15 the scorer reads the raw newest message: KILLED, 1 of 320
+    "takes the newest kept message, skipping an in-flight reply and a foreign post"
+- H16 the warden reads the raw reply: KILLED, 1 of 320
+    "judges the text the player saw, not a hidden tracker block"
+- H17 the fixture path skips the cleaner: KILLED, 1 of 320
+    "the fixture path takes the same cleaner, so jest and the live suite read what play reads"
+- H18 the window loses the speaker kind: KILLED, 1 of 320
+    "getChatWindow keeps the player and the cleaned reply, drops the foreign posts, and states its form"
+- P1 speaker branch removed from the screen (plan mutation): KILLED, 1 of 320
+    "rejects a world quality proven only by the player's line"
+- P2 accepted delta records the first source even for world: KILLED, 1 of 320
+    "records the first non-player source when the quote is in both lines"
+- P3 accepted delta records no messageId: KILLED, 3 of 320
+    "accepts a world quality proven by a narrator line, recording that line"
+    "records the first non-player source when the quote is in both lines"
+    "control: absent and explicit any keep today's behaviour, and record the first source"
+- P4 prompt never marks player lines: KILLED, 1 of 320
+    "marks player lines and states the rule on the world quality's line"
+- P5 world rule not stated on the quality line: KILLED, 1 of 320
+    "marks player lines and states the rule on the world quality's line"
+- P6 player-lines flag left out of the hash: KILLED, 1 of 320
+    "is byte-identical to today with no world quality, and the flag is in the contract hash"
+- P7 judge marks a world quality answered before the speaker check (plan mutation: answered reorder): KILLED, 2 of 320
+    "leaves a world quality named on the player's line to the LLM read"
+    "a world quality whose decoder names the player's message is not answered, so the LLM read keeps it"
+- P8 judge speaker check removed: KILLED, 2 of 320
+    "leaves a world quality named on the player's line to the LLM read"
+    "a world quality whose decoder names the player's message is not answered, so the LLM read keeps it"
+- P9 typed read drops the speaker kind: KILLED, 1 of 320
+    "leaves a world quality named on the player's line to the LLM read"
+- P10 typed read drops the message id: KILLED, 1 of 320
+    "answers it from a narrator line, and the delta names that line"
+- P11 stall judge writes a world leaf directly: KILLED, 1 of 320
+    "the stall judge never writes a world quality directly: a confident yes becomes a re-read"
+- P12 stall plan does not carry the world flag: KILLED, 1 of 320
+    "the stall plan marks a world leaf"
+- P13 validate accepts evidence_from on a code quality: KILLED, 1 of 320
+    "rejects evidence_from on a code quality and an unknown value"
+- P14 storyDiff quality-evidence-changed row removed: KILLED, 1 of 320
+    "keeps an evidence_from edit compatible, and the held value stays (v2.4 plan 04 X14)"
+- P15 storyDiff checkpoint-agency-changed row removed: KILLED, 1 of 320
+    "keeps an agency edit compatible, for every agency field (v2.4 plan 04 X14)"
+- P16 diagnostic ignores an explicit choice: KILLED, 2 of 320
+    "fires every diagnostic exactly once on the seeded-error story"
+    "is silenced by an explicit choice either way"
+- P17 diagnostic fires for gates into any checkpoint: KILLED, 3 of 320
+    "has zero diagnostics, warnings included, beside the D6 evidence suggestion it leaves for the player session"
+    "fires every diagnostic exactly once on the seeded-error story"
+    "says nothing for a number, a code quality, or a gate into an intermediate"
+- P18 diagnostic has no consequence line: KILLED, 2 of 320
+    "gives every code a plain consequence, so a new one cannot ship without one"
+    "suggests world evidence for a bool or enum that gates the way into an anchor, as info"
+- C1 attempts clause missing from agencyClauses: KILLED, 1 of 320
+    "adds the opt-in attempts clause only when the checkpoint asks for it (v2.4 plan 04, D6/X13)"
+- C2 attempts clause missing from the guidance block: KILLED, 2 of 320
+    "adds the opt-in attempts clause after the guidance, and carries it alone when there is no guidance (v2.4 plan 04, X13)"
+    "carries the opt-in attempts clause in the block while its checkpoint is active, alone when there is no guidance (v2.4 plan 04)"
+- C3 attempts clause on by default: KILLED, 10 of 320
+    "renders the checkpoint's guidance, trimmed, under the scene-direction header"
+    "is empty for no checkpoint, no guidance or whitespace-only guidance, so the writer clears the block"
+    "adds the opt-in attempts clause after the guidance, and carries it alone when there is no guidance (v2.4 plan 04, X13)"
+    "is the defaults when a checkpoint declares nothing, not 'absent = today'"
+    "adds the opt-in attempts clause only when the checkpoint asks for it (v2.4 plan 04, D6/X13)"
+    "sets the active checkpoint's guidance on load and on activate, at depth 4, owned by the config tab"
+    "carries the opt-in attempts clause in the block while its checkpoint is active, alone when there is no guidance (v2.4 plan 04)"
+    "clears the block on a checkpoint whose guidance is empty"
+    "swaps the block on a rollback to a guidance-less checkpoint"
+    "carries a merged generated checkpoint's guidance once the story enters it"
+- C4 validate drops player_attempts_only: KILLED, 3 of 320
+    "adds the opt-in attempts clause only when the checkpoint asks for it (v2.4 plan 04, D6/X13)"
+    "validate, and only the variant declares world evidence and the attempts clause"
+    "carries the opt-in attempts clause in the block while its checkpoint is active, alone when there is no guidance (v2.4 plan 04)"
+Restored: 320 tests, 0 failing.
+
+== node:test (liveSuiteScore.test 15, interopVerbs.test 9) ==
+- S1 scoreRejected ignores the golden scope (seed C): KILLED, 2 of 15
+    "a golden-scoped rejection is not scored live, and a live-scoped one beside it still is (v2.4 plan 04 seed C)"
+    "replayed on the v2.3 record, the rejected tier reads 14 of 15 and meets its unchanged 0.9 floor (v2.4 plan 04 seed C)"
+- S2 a wholly golden expectation is scored as nothing-rejected (seed C): KILLED, 2 of 15
+    "a golden-scoped rejection is not scored live, and a live-scoped one beside it still is (v2.4 plan 04 seed C)"
+    "replayed on the v2.3 record, the rejected tier reads 14 of 15 and meets its unchanged 0.9 floor (v2.4 plan 04 seed C)"
+- S3 overSteer record:true still throws (X8 recorded, not gated): KILLED, 1 of 9
+    "overSteer with record reports the same columns and never fails (v2.4 plan 04: the guidance block is recorded, not gated, X8)"
+- S4 overSteerSpec drops record: KILLED, 1 of 9
+    "overSteer with record reports the same columns and never fails (v2.4 plan 04: the guidance block is recorded, not gated, X8)"
+Restored scripts/debug/liveSuiteScore.test.mts: 15 tests, 0 failing.
+Restored scripts/debug/lib/interopVerbs.test.mts: 9 tests, 0 failing.
+
+== Storybook (32 suites / 206 stories, rebuilt per mutant, served on :6344) ==
+- SB1 switching a quality to code keeps its evidence_from: KILLED (1 failed, 205 passed, 206 total)
+    "Studio/QualityEditor › Evidence From World › play-test"
+- SB2 the attempts checkbox writes nothing: KILLED (1 failed, 205 passed, 206 total)
+    "Studio/AgencyEditor › Opts Into Player Attempts › play-test"
+- SB3 the evidence select is enabled on a code quality: KILLED (1 failed, 205 passed, 206 total)
+    "Studio/QualityEditor › Evidence From World › play-test"
+Restored: 206 passed, 206 total, 0 failing (the one ● line is a Console block, not a failure).

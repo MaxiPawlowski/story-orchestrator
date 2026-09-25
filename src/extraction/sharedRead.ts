@@ -3,9 +3,9 @@ import { stableStringify } from "@runtime/hash";
 import { callExtractionReply, type ExtractionClientOptions, type ExtractionReply } from "./client";
 import { getChatWindow } from "./chatWindow";
 import { getCanonLite } from "./canonLite";
-import { hashContract, renderSharedReadPrompt } from "./contract";
+import { hashContract, PLAYER_MARK, renderSharedReadPrompt } from "./contract";
 import { detectDegenerate } from "./degenerate";
-import { evidenceInWindow } from "./evidence";
+import { evidenceSources } from "./evidence";
 import { parseSharedReadResponse } from "./parse";
 import { inputBudget, tailFit, type TokenCounter } from "./inputBudget";
 import { deriveScope } from "./scope";
@@ -22,6 +22,8 @@ export const MAX_DELTAS_PER_READ = 24;
 
 const CHARS_PER_TOKEN = 4;
 const DEFAULT_RESPONSE_TOKENS = 512;
+
+export const PLAYER_ONLY_EVIDENCE = "evidence only in the player's line";
 
 const describeDelta = (entry: ParsedDelta) => `DELTA ${entry.delta.q} value=${String(entry.delta.v)} evidence="${entry.evidence}"`;
 
@@ -42,22 +44,29 @@ const refusal = (reply: ExtractionReply, parsed: ParsedSharedRead, maxTokens?: n
  * settled it. Evidence is checked for the same reason: a quote that is not in the window the read
  * was given is a claim about a transcript the read never saw.
  */
-const screenDeltas = (parsed: ParsedSharedRead, residualKeys: Set<string>, answered: Set<string>, window: SharedReadWindow) => {
-  const texts = window.messages.map((message) => message.text);
+const screenDeltas = (parsed: ParsedSharedRead, residual: readonly ScopedQuality[], answered: Set<string>, window: SharedReadWindow) => {
+  const byKey = new Map(residual.map((entry) => [entry.key, entry.quality]));
   const accepted: ParsedDelta[] = [];
   const rejected: Array<{ line: string; reason: string }> = [];
   for (const entry of parsed.deltas) {
     if (answered.has(entry.delta.q)) continue;
     const line = entry.line ?? describeDelta(entry);
-    if (!residualKeys.has(entry.delta.q)) {
+    const quality = byKey.get(entry.delta.q);
+    if (!quality) {
       rejected.push({ line, reason: "outside requested scope" });
       continue;
     }
-    if (!evidenceInWindow(entry.evidence, texts)) {
+    const sources = evidenceSources(entry.evidence, window.messages);
+    if (!sources.length) {
       rejected.push({ line, reason: "evidence not in window" });
       continue;
     }
-    accepted.push(entry);
+    const worldSources = sources.filter((id) => window.messages.some((message) => message.messageId === id && !message.isUser));
+    if (quality.evidence_from === "world" && !worldSources.length) {
+      rejected.push({ line, reason: PLAYER_ONLY_EVIDENCE });
+      continue;
+    }
+    accepted.push({ ...entry, messageId: quality.evidence_from === "world" ? worldSources[0] : sources[0] });
   }
   return { accepted, rejected };
 };
@@ -113,7 +122,7 @@ export const sharedReadOverhead = (options: RunSharedReadOptions): string =>
   renderSharedReadPrompt(readContract(options, { from: 0, to: -1, messages: [] }, scopeOf(options)));
 
 export const transcriptPrefixCost = (messages: readonly ChatMessageWindowEntry[], count: TokenCounter): number =>
-  messages.reduce((top, message) => Math.max(top, count(`[${message.index}] ${message.speaker}: \n`)), 0);
+  messages.reduce((top, message) => Math.max(top, count(`[${message.index}] ${message.speaker}${message.isUser ? PLAYER_MARK : ""}: \n`)), 0);
 
 interface FittedRead {
   window: SharedReadWindow;
@@ -137,7 +146,7 @@ export async function fitReadWindow(window: SharedReadWindow, overheadPrompt: st
     const tokens = window.messages.reduce((sum, message) => sum + meter.count(message.text) + perMessage, promptOverhead);
     return { window, record: { ...base, tokens, overBudget: fit.reason }, trimmedFrom: null, truncated: [] };
   }
-  return { window: { from: fit.from, to: fit.to, messages: fit.messages }, record: { ...base, tokens: promptOverhead + fit.tokens }, trimmedFrom: fit.trimmedFrom, truncated: fit.truncated };
+  return { window: { from: fit.from, to: fit.to, messages: fit.messages, ...(window.form ? { form: window.form } : {}) }, record: { ...base, tokens: promptOverhead + fit.tokens }, trimmedFrom: fit.trimmedFrom, truncated: fit.truncated };
 }
 
 export async function runSharedRead(options: RunSharedReadOptions): Promise<SharedReadResult> {
@@ -164,7 +173,7 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
   }
   const rawResponse = reply.text;
   const refused = refusal(reply, parsed, options.client.maxTokens);
-  const screened = refused ? { accepted: [], rejected: [{ line: rawResponse.slice(0, 500), reason: refused }] } : screenDeltas(parsed, new Set(residual.map((entry) => entry.key)), answered, window);
+  const screened = refused ? { accepted: [], rejected: [{ line: rawResponse.slice(0, 500), reason: refused }] } : screenDeltas(parsed, residual, answered, window);
   const audit: SharedReadAudit = {
     id: createId({ prompt, rawResponse, at: Date.now() }),
     createdAt: new Date().toISOString(),
@@ -183,6 +192,7 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     ...(fitted.record ? { budget: fitted.record } : {}),
     ...(fitted.trimmedFrom !== null ? { trimmedFrom: fitted.trimmedFrom } : {}),
     ...(fitted.truncated.length ? { truncated: fitted.truncated } : {}),
+    ...(window.form ? { windowForm: window.form } : {}),
   };
   // A refused response is refused whole: the lines that survived a truncation are not more
   // trustworthy than the ones that did not, and the fact/memory/arc lines have no bound of their own.

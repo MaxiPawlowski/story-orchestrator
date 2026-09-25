@@ -8,7 +8,7 @@
   ],
   "rejected": [
     {
-      "reason": "unrecognized line"
+      "reason": "unrecognized line", "scope": "golden"
     }
   ],
   "facts": {

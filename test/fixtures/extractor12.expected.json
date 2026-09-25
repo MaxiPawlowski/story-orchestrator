@@ -8,7 +8,7 @@
   ],
   "rejected": [
     {
-      "reason": "missing evidence"
+      "reason": "missing evidence", "scope": "golden"
     }
   ],
   "facts": {
