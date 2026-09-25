@@ -1,0 +1,72 @@
+{
+  "_note": "v2.4 plan 05 T12 live, the foreign-scan-filter Repair (real LLM; so-scenario run <file> --sandbox --group <the sun-ruins group>, twice). test/fixtures/interop/wi-foreign.js splices every 'Xentar Checkpoints' entry out of WORLDINFO_ENTRIES_LOADED (05-H2), which is what a scan-filtering extension does. After TWO loud generations the Repair step must read 'Another extension is hiding this story's lorebook from the model.' naming the book and no extension; after ONE it must not (the predeclared two-generation rule). The splicer is then removed, and one more generation must clear the step. The last step removes the splicer whatever happened.",
+  "steps": [
+    {
+      "import_story": {
+        "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; if (!rt.getSnapshot().requirements.ready) throw new Error(`requirements not ready: ${JSON.stringify(rt.getSnapshot().requirements)}`); if (rt.getSnapshot().loreEvidence?.hiddenBooks?.length) throw new Error('a book already reads hidden before the splicer is installed'); return { ready: true };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "select-profile"
+      }
+    },
+    {
+      "inject_script": "../fixtures/interop/wi-foreign.js"
+    },
+    {
+      "eval": "return globalThis.__soWiForeign.splice('Xentar Checkpoints');",
+      "log": true
+    },
+    {
+      "send": "I look around the guild hall."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const snapshot = globalThis.storyOrchestratorRuntime.getSnapshot(); if (globalThis.__soWiForeign.state.spliced < 1) throw new Error('the splicer removed nothing, so the case measures nothing'); if (snapshot.loreEvidence?.hiddenBooks?.length) throw new Error(`reported hidden after ONE generation, below the predeclared two: ${JSON.stringify(snapshot.loreEvidence.hiddenBooks)}`); return { afterOne: 'not yet reported', spliced: globalThis.__soWiForeign.state.spliced };",
+      "log": true
+    },
+    {
+      "send": "I ask Arin whether he has seen the mission board."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "expect_ui": {
+        "selector": "#so-entry-points",
+        "contains": "Another extension is hiding this story",
+        "timeoutMs": 10000
+      }
+    },
+    {
+      "eval": "const snapshot = globalThis.storyOrchestratorRuntime.getSnapshot(); if (!(snapshot.loreEvidence?.hiddenBooks ?? []).includes('Xentar Checkpoints')) throw new Error(`the hidden book is not reported after two generations: ${JSON.stringify(snapshot.loreEvidence)}`); globalThis.__soWiForeign.off(); return { hidden: snapshot.loreEvidence.hiddenBooks, splicer: 'removed' };",
+      "log": true
+    },
+    {
+      "send": "We walk over to the board together."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const snapshot = globalThis.storyOrchestratorRuntime.getSnapshot(); if (globalThis.__soWiForeign) globalThis.__soWiForeign.off(); if (snapshot.loreEvidence?.hiddenBooks?.length) throw new Error(`the Repair step outlived the splicer: ${JSON.stringify(snapshot.loreEvidence.hiddenBooks)}`); return { cleared: true };",
+      "log": true
+    }
+  ]
+}

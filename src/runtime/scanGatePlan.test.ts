@@ -1,5 +1,6 @@
 import { gatedWorldInfo, parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
-import { applyScanGate, restsOffIn, scanGatePlan, type ScanEntry } from "./scanGatePlan";
+import { applyScanGate, restsOffIn, scanGatePlan, type ScanEntry, type ScanGateRow } from "./scanGatePlan";
+import { noteScanGate, scanGateView, setScanGatingActive } from "./worldInfoMode";
 import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoGates";
 import { bookKey } from "./worldInfoMatch";
 
@@ -124,10 +125,36 @@ describe("applyScanGate", () => {
     expect(personaLore[0].disable).toBe(false);
   });
 
+  it("reports, per gated entry, the state the scan loaded and the state it used (S5)", () => {
+    const entries = [copy("Ruins", 1, "On", { disable: true }), copy("Ruins", 2, "Off"), copy("Ruins", 4, "NoKey", {})];
+    const rows: ScanGateRow[] = [];
+    applyScanGate([entries], gate, () => true, rows);
+    expect(rows).toEqual([
+      { lorebook: "Ruins", comment: "On", uid: 1, fileDisabled: true, effectiveDisabled: false },
+      { lorebook: "Ruins", comment: "Off", uid: 2, fileDisabled: false, effectiveDisabled: true },
+      { lorebook: "Ruins", comment: "NoKey", uid: 4, fileDisabled: null, effectiveDisabled: null },
+    ]);
+  });
+
   it("reads the normalised ledger by file id", () => {
     const restsOff = restsOffIn({ Ruins: ["On"] });
     expect(restsOff("ruins", "On")).toBe(true);
     expect(restsOff("Ruins", "Off")).toBe(false);
     expect(restsOff("Elsewhere", "On")).toBe(false);
+  });
+});
+
+describe("scanGateView (S5)", () => {
+  it("shows the last gated scan only while scan gating is active, and forgets it when it goes off", () => {
+    noteScanGate({ chatId: "chat-a", owner: "story", rows: [] });
+    expect(scanGateView()).toBeNull();
+    setScanGatingActive(true);
+    noteScanGate({ chatId: "chat-a", owner: "story", rows: [{ lorebook: "Ruins", comment: "On", uid: 1, fileDisabled: true, effectiveDisabled: false }] });
+    expect(scanGateView()?.rows).toHaveLength(1);
+    setScanGatingActive(false);
+    expect(scanGateView()).toBeNull();
+    setScanGatingActive(true);
+    expect(scanGateView()).toBeNull();
+    setScanGatingActive(false);
   });
 });

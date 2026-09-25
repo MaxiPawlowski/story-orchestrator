@@ -1,5 +1,5 @@
 import type { NormalizedStoryV2 } from "@engine/index";
-import { applyScanGate, emptyScanGateStats, restsOffIn, scanGatePlan, type NormalizedLedger, type ScanEntry, type ScanGate, type ScanGateStats } from "./scanGatePlan";
+import { applyScanGate, emptyScanGateStats, restsOffIn, scanGatePlan, type NormalizedLedger, type ScanEntry, type ScanGate, type ScanGateRow, type ScanGateStats } from "./scanGatePlan";
 
 // v2.4 plan 05 T13 spike (host-free). Which gate a scan gets. The scan belongs to the loaded story
 // only when the chat SillyTavern is scanning for is the chat that story was loaded into and its
@@ -50,9 +50,9 @@ export class ScanGateProvider {
     return this.restsOff;
   }
 
-  apply(arrays: ScanEntry[][]): ScanGateStats & { owner: "story" | "no-story" } {
+  apply(arrays: ScanEntry[][], rows?: ScanGateRow[]): ScanGateStats & { owner: "story" | "no-story" } {
     const choice = this.choose();
     if (!choice.gate.size) return { ...emptyScanGateStats(), owner: choice.owner };
-    return { ...applyScanGate(arrays, choice.gate, this.restsOffFor()), owner: choice.owner };
+    return { ...applyScanGate(arrays, choice.gate, this.restsOffFor(), rows), owner: choice.owner };
   }
 }

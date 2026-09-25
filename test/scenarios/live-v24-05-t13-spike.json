@@ -1,0 +1,1040 @@
+{
+  "_note": "v2.4 plan 05 T13 scan-time gating SPIKE, the live measurement (real LLM for S1 (a)'s three generations; LANES ONLY: it flips worldInfo.gatingMode install-wide and reloads twice; so-scenario run <file> --sandbox --group <a group holding Arin, Ponticius and Luke's cards>, ONCE per condition, never retuned). Everything it writes is marker-named: the books `SO-T13 Xentar` (a copy of examples/sun-ruins/Xentar Checkpoints.json) and `SO-T13 Bulk` (500 entries), and the stories so-t13-a (sun-ruins' gated world info re-pointed at the marker book; no cast, AN or npc effects; the only requirement is the book), so-t13-c (shares the book), so-t13-d (grows the gated set), so-t13-e (gates 250 of the bulk entries). The last step deletes the books (so-assets --marker SO-T13) and puts worldInfo back to {gatingMode: file, normalized: {}}; after a FAILED run do both by hand (`so-assets.mts remove --marker SO-T13`, then restore the setting) and diff a run header. The record is kept in localStorage `so-t13-spike` and printed by the last step; copy it into docs/plans/v2.4/05-t13-spike-report.md. The expected effective set is recomputed by test/fixtures/interop/t13-spike.js from the AUTHORED effects, not by src/runtime. Automated here: S1 (a) no-story chat + 3 real generations through the T12 ring, (b) story C's chat, S2 (A at cp-4a, B = story A at its start, C = story C; A->B->C->A x3, 0 /api/worldinfo/edit), S3 (first run flips exactly the gated entries, second writes nothing, growth normalises only the new entry, JSON diff), S5 (author table == scan view, player view clean), S6 (the file path over normalised books gives the same sets), S8 (p95 over 40 scans + 10 dry scans of a 500-entry book). Manual, see _design: S1 (c), S4, S7, S9.",
+  "_design": {
+    "S1c": "After this fixture's S3 phase on a lane: disable Story Orchestrator in ST's Extensions panel, reload, open chat C, run `st-eval \"(await import('/scripts/world-info.js')).getSortedEntries().then((e) => e.filter((x) => x.world === 'SO-T13 Xentar' && x.disable !== true).map((x) => x.comment))\"`. PASS = none of the normalised comments (localStorage so-t13-spike S3 ledger); the file rests off, so nothing gates and nothing leaks. Re-enable the extension.",
+    "S4": "Vectors extension on with `enabled_world_info` and a working embedding source (transformers). Mark two SO-T13 Xentar entries `vectorized: true`, one gated ON at chat A's path (CP4 - Sphinx) and one OFF (CP1 - Mission). Send one real message whose text matches both. PASS = the ON entry is in the T12 ring (vectors forces it, 05-H10) and the OFF one is not, AND __soT13.counters.vectorInsert + vectorDelete during the S2 switches (recorded in T.S2.vector) is <= the same count with gatingMode=file over the same script.",
+    "S7": "judge.uses.loreSelect on, a story whose lore_select scope is SO-T13 Xentar, chat B (story A at its start, so CP4 entries are gated off). One real turn. PASS = no CP4 comment appears among the judge's lore candidates (rt.getSnapshot().loreForced.p keys) and none in the ring; a forced gated-off copy never lands (05-H6, disable is checked before the forced check at world-info.js:4801 < :4885).",
+    "S9": "In file mode, give 'CP1 - Mission' `sticky: 3`, play one real turn in chat A at cp-1 so it activates, switch gatingMode to scan and reload, play one more turn. PASS = the entry is still active (ring), or the one-time loss is stated in the report; FAIL only if it recurs on the next switch. 1.18.0: H5 is not re-checked live (this install is 1.19.0)."
+  },
+  "steps": [
+    {
+      "inject_script": "../fixtures/interop/t13-spike.js"
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const S = globalThis.__soT13; if (!S) throw new Error('the t13-spike helper is not injected'); if (!ctx.groupId) throw new Error('needs a sandbox GROUP chat (it is chat A)'); if (rt.getGlobalSettings().worldInfo?.gatingMode !== 'file') throw new Error('the install is already in scan mode; a previous spike run did not clean up (restore worldInfo.gatingMode = file)'); const made = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-T13 Xentar' }, { requirements: { lorebooks: [] } }); if (!made.ok && !made.message.includes('already exists')) throw new Error(`marker book: ${made.message}`); await S.copyExampleBook('SO-T13 Xentar'); const bulk = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-T13 Bulk' }, { requirements: { lorebooks: [] } }); if (!bulk.ok && !bulk.message.includes('already exists')) throw new Error(`bulk book: ${bulk.message}`); const comments = [\"Bulk 000\", \"Bulk 001\", \"Bulk 002\", \"Bulk 003\", \"Bulk 004\", \"Bulk 005\", \"Bulk 006\", \"Bulk 007\", \"Bulk 008\", \"Bulk 009\", \"Bulk 010\", \"Bulk 011\", \"Bulk 012\", \"Bulk 013\", \"Bulk 014\", \"Bulk 015\", \"Bulk 016\", \"Bulk 017\", \"Bulk 018\", \"Bulk 019\", \"Bulk 020\", \"Bulk 021\", \"Bulk 022\", \"Bulk 023\", \"Bulk 024\", \"Bulk 025\", \"Bulk 026\", \"Bulk 027\", \"Bulk 028\", \"Bulk 029\", \"Bulk 030\", \"Bulk 031\", \"Bulk 032\", \"Bulk 033\", \"Bulk 034\", \"Bulk 035\", \"Bulk 036\", \"Bulk 037\", \"Bulk 038\", \"Bulk 039\", \"Bulk 040\", \"Bulk 041\", \"Bulk 042\", \"Bulk 043\", \"Bulk 044\", \"Bulk 045\", \"Bulk 046\", \"Bulk 047\", \"Bulk 048\", \"Bulk 049\", \"Bulk 050\", \"Bulk 051\", \"Bulk 052\", \"Bulk 053\", \"Bulk 054\", \"Bulk 055\", \"Bulk 056\", \"Bulk 057\", \"Bulk 058\", \"Bulk 059\", \"Bulk 060\", \"Bulk 061\", \"Bulk 062\", \"Bulk 063\", \"Bulk 064\", \"Bulk 065\", \"Bulk 066\", \"Bulk 067\", \"Bulk 068\", \"Bulk 069\", \"Bulk 070\", \"Bulk 071\", \"Bulk 072\", \"Bulk 073\", \"Bulk 074\", \"Bulk 075\", \"Bulk 076\", \"Bulk 077\", \"Bulk 078\", \"Bulk 079\", \"Bulk 080\", \"Bulk 081\", \"Bulk 082\", \"Bulk 083\", \"Bulk 084\", \"Bulk 085\", \"Bulk 086\", \"Bulk 087\", \"Bulk 088\", \"Bulk 089\", \"Bulk 090\", \"Bulk 091\", \"Bulk 092\", \"Bulk 093\", \"Bulk 094\", \"Bulk 095\", \"Bulk 096\", \"Bulk 097\", \"Bulk 098\", \"Bulk 099\", \"Bulk 100\", \"Bulk 101\", \"Bulk 102\", \"Bulk 103\", \"Bulk 104\", \"Bulk 105\", \"Bulk 106\", \"Bulk 107\", \"Bulk 108\", \"Bulk 109\", \"Bulk 110\", \"Bulk 111\", \"Bulk 112\", \"Bulk 113\", \"Bulk 114\", \"Bulk 115\", \"Bulk 116\", \"Bulk 117\", \"Bulk 118\", \"Bulk 119\", \"Bulk 120\", \"Bulk 121\", \"Bulk 122\", \"Bulk 123\", \"Bulk 124\", \"Bulk 125\", \"Bulk 126\", \"Bulk 127\", \"Bulk 128\", \"Bulk 129\", \"Bulk 130\", \"Bulk 131\", \"Bulk 132\", \"Bulk 133\", \"Bulk 134\", \"Bulk 135\", \"Bulk 136\", \"Bulk 137\", \"Bulk 138\", \"Bulk 139\", \"Bulk 140\", \"Bulk 141\", \"Bulk 142\", \"Bulk 143\", \"Bulk 144\", \"Bulk 145\", \"Bulk 146\", \"Bulk 147\", \"Bulk 148\", \"Bulk 149\", \"Bulk 150\", \"Bulk 151\", \"Bulk 152\", \"Bulk 153\", \"Bulk 154\", \"Bulk 155\", \"Bulk 156\", \"Bulk 157\", \"Bulk 158\", \"Bulk 159\", \"Bulk 160\", \"Bulk 161\", \"Bulk 162\", \"Bulk 163\", \"Bulk 164\", \"Bulk 165\", \"Bulk 166\", \"Bulk 167\", \"Bulk 168\", \"Bulk 169\", \"Bulk 170\", \"Bulk 171\", \"Bulk 172\", \"Bulk 173\", \"Bulk 174\", \"Bulk 175\", \"Bulk 176\", \"Bulk 177\", \"Bulk 178\", \"Bulk 179\", \"Bulk 180\", \"Bulk 181\", \"Bulk 182\", \"Bulk 183\", \"Bulk 184\", \"Bulk 185\", \"Bulk 186\", \"Bulk 187\", \"Bulk 188\", \"Bulk 189\", \"Bulk 190\", \"Bulk 191\", \"Bulk 192\", \"Bulk 193\", \"Bulk 194\", \"Bulk 195\", \"Bulk 196\", \"Bulk 197\", \"Bulk 198\", \"Bulk 199\", \"Bulk 200\", \"Bulk 201\", \"Bulk 202\", \"Bulk 203\", \"Bulk 204\", \"Bulk 205\", \"Bulk 206\", \"Bulk 207\", \"Bulk 208\", \"Bulk 209\", \"Bulk 210\", \"Bulk 211\", \"Bulk 212\", \"Bulk 213\", \"Bulk 214\", \"Bulk 215\", \"Bulk 216\", \"Bulk 217\", \"Bulk 218\", \"Bulk 219\", \"Bulk 220\", \"Bulk 221\", \"Bulk 222\", \"Bulk 223\", \"Bulk 224\", \"Bulk 225\", \"Bulk 226\", \"Bulk 227\", \"Bulk 228\", \"Bulk 229\", \"Bulk 230\", \"Bulk 231\", \"Bulk 232\", \"Bulk 233\", \"Bulk 234\", \"Bulk 235\", \"Bulk 236\", \"Bulk 237\", \"Bulk 238\", \"Bulk 239\", \"Bulk 240\", \"Bulk 241\", \"Bulk 242\", \"Bulk 243\", \"Bulk 244\", \"Bulk 245\", \"Bulk 246\", \"Bulk 247\", \"Bulk 248\", \"Bulk 249\", \"Bulk 250\", \"Bulk 251\", \"Bulk 252\", \"Bulk 253\", \"Bulk 254\", \"Bulk 255\", \"Bulk 256\", \"Bulk 257\", \"Bulk 258\", \"Bulk 259\", \"Bulk 260\", \"Bulk 261\", \"Bulk 262\", \"Bulk 263\", \"Bulk 264\", \"Bulk 265\", \"Bulk 266\", \"Bulk 267\", \"Bulk 268\", \"Bulk 269\", \"Bulk 270\", \"Bulk 271\", \"Bulk 272\", \"Bulk 273\", \"Bulk 274\", \"Bulk 275\", \"Bulk 276\", \"Bulk 277\", \"Bulk 278\", \"Bulk 279\", \"Bulk 280\", \"Bulk 281\", \"Bulk 282\", \"Bulk 283\", \"Bulk 284\", \"Bulk 285\", \"Bulk 286\", \"Bulk 287\", \"Bulk 288\", \"Bulk 289\", \"Bulk 290\", \"Bulk 291\", \"Bulk 292\", \"Bulk 293\", \"Bulk 294\", \"Bulk 295\", \"Bulk 296\", \"Bulk 297\", \"Bulk 298\", \"Bulk 299\", \"Bulk 300\", \"Bulk 301\", \"Bulk 302\", \"Bulk 303\", \"Bulk 304\", \"Bulk 305\", \"Bulk 306\", \"Bulk 307\", \"Bulk 308\", \"Bulk 309\", \"Bulk 310\", \"Bulk 311\", \"Bulk 312\", \"Bulk 313\", \"Bulk 314\", \"Bulk 315\", \"Bulk 316\", \"Bulk 317\", \"Bulk 318\", \"Bulk 319\", \"Bulk 320\", \"Bulk 321\", \"Bulk 322\", \"Bulk 323\", \"Bulk 324\", \"Bulk 325\", \"Bulk 326\", \"Bulk 327\", \"Bulk 328\", \"Bulk 329\", \"Bulk 330\", \"Bulk 331\", \"Bulk 332\", \"Bulk 333\", \"Bulk 334\", \"Bulk 335\", \"Bulk 336\", \"Bulk 337\", \"Bulk 338\", \"Bulk 339\", \"Bulk 340\", \"Bulk 341\", \"Bulk 342\", \"Bulk 343\", \"Bulk 344\", \"Bulk 345\", \"Bulk 346\", \"Bulk 347\", \"Bulk 348\", \"Bulk 349\", \"Bulk 350\", \"Bulk 351\", \"Bulk 352\", \"Bulk 353\", \"Bulk 354\", \"Bulk 355\", \"Bulk 356\", \"Bulk 357\", \"Bulk 358\", \"Bulk 359\", \"Bulk 360\", \"Bulk 361\", \"Bulk 362\", \"Bulk 363\", \"Bulk 364\", \"Bulk 365\", \"Bulk 366\", \"Bulk 367\", \"Bulk 368\", \"Bulk 369\", \"Bulk 370\", \"Bulk 371\", \"Bulk 372\", \"Bulk 373\", \"Bulk 374\", \"Bulk 375\", \"Bulk 376\", \"Bulk 377\", \"Bulk 378\", \"Bulk 379\", \"Bulk 380\", \"Bulk 381\", \"Bulk 382\", \"Bulk 383\", \"Bulk 384\", \"Bulk 385\", \"Bulk 386\", \"Bulk 387\", \"Bulk 388\", \"Bulk 389\", \"Bulk 390\", \"Bulk 391\", \"Bulk 392\", \"Bulk 393\", \"Bulk 394\", \"Bulk 395\", \"Bulk 396\", \"Bulk 397\", \"Bulk 398\", \"Bulk 399\", \"Bulk 400\", \"Bulk 401\", \"Bulk 402\", \"Bulk 403\", \"Bulk 404\", \"Bulk 405\", \"Bulk 406\", \"Bulk 407\", \"Bulk 408\", \"Bulk 409\", \"Bulk 410\", \"Bulk 411\", \"Bulk 412\", \"Bulk 413\", \"Bulk 414\", \"Bulk 415\", \"Bulk 416\", \"Bulk 417\", \"Bulk 418\", \"Bulk 419\", \"Bulk 420\", \"Bulk 421\", \"Bulk 422\", \"Bulk 423\", \"Bulk 424\", \"Bulk 425\", \"Bulk 426\", \"Bulk 427\", \"Bulk 428\", \"Bulk 429\", \"Bulk 430\", \"Bulk 431\", \"Bulk 432\", \"Bulk 433\", \"Bulk 434\", \"Bulk 435\", \"Bulk 436\", \"Bulk 437\", \"Bulk 438\", \"Bulk 439\", \"Bulk 440\", \"Bulk 441\", \"Bulk 442\", \"Bulk 443\", \"Bulk 444\", \"Bulk 445\", \"Bulk 446\", \"Bulk 447\", \"Bulk 448\", \"Bulk 449\", \"Bulk 450\", \"Bulk 451\", \"Bulk 452\", \"Bulk 453\", \"Bulk 454\", \"Bulk 455\", \"Bulk 456\", \"Bulk 457\", \"Bulk 458\", \"Bulk 459\", \"Bulk 460\", \"Bulk 461\", \"Bulk 462\", \"Bulk 463\", \"Bulk 464\", \"Bulk 465\", \"Bulk 466\", \"Bulk 467\", \"Bulk 468\", \"Bulk 469\", \"Bulk 470\", \"Bulk 471\", \"Bulk 472\", \"Bulk 473\", \"Bulk 474\", \"Bulk 475\", \"Bulk 476\", \"Bulk 477\", \"Bulk 478\", \"Bulk 479\", \"Bulk 480\", \"Bulk 481\", \"Bulk 482\", \"Bulk 483\", \"Bulk 484\", \"Bulk 485\", \"Bulk 486\", \"Bulk 487\", \"Bulk 488\", \"Bulk 489\", \"Bulk 490\", \"Bulk 491\", \"Bulk 492\", \"Bulk 493\", \"Bulk 494\", \"Bulk 495\", \"Bulk 496\", \"Bulk 497\", \"Bulk 498\", \"Bulk 499\"]; await S.writeBook('SO-T13 Bulk', { entries: Object.fromEntries(comments.map((comment, uid) => [uid, { uid, comment, key: [`zqx-bulk-${uid}`], keysecondary: [], content: `Bulk entry ${uid}.`, constant: false, disable: false, position: 0, order: 100, depth: 4 }])) }); const T = { before: await S.serverBook('SO-T13 Xentar'), chats: {} }; localStorage.setItem('so-t13-spike', JSON.stringify(T)); return { books: 'copied', bulk: comments.length };",
+      "log": true
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-t13-c",
+        "version": 1,
+        "title": "SO-T13 C",
+        "description": "v2.4 plan 05 T13 spike: a second story sharing the marker book.",
+        "qualities": [
+          {
+            "key": "step",
+            "type": "int",
+            "source": "code",
+            "rubric": "Spike step."
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "c1",
+            "name": "C One",
+            "objective": "x",
+            "type": "anchor",
+            "start": true,
+            "effects": {
+              "world_info": {
+                "enable": [
+                  {
+                    "lorebook": "SO-T13 Xentar",
+                    "comments": [
+                      "CP4 - Sphinx",
+                      "Places - Moon Ruins (archives district)"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "c2",
+            "name": "C Two",
+            "objective": "x",
+            "type": "anchor",
+            "effects": {
+              "world_info": {
+                "disable": [
+                  {
+                    "lorebook": "SO-T13 Xentar",
+                    "comments": [
+                      "CP4 - Sphinx"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "from": "c1",
+            "to": "c2",
+            "priority": 1,
+            "gate": {
+              "q": "step",
+              "op": ">=",
+              "v": 1
+            }
+          }
+        ],
+        "roster": [],
+        "requirements": {
+          "lorebooks": [
+            "SO-T13 Xentar"
+          ]
+        }
+      }
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-t13-d",
+        "version": 1,
+        "title": "SO-T13 D",
+        "description": "v2.4 plan 05 T13 spike: a second story sharing the marker book.",
+        "qualities": [
+          {
+            "key": "step",
+            "type": "int",
+            "source": "code",
+            "rubric": "Spike step."
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "d1",
+            "name": "D One",
+            "objective": "x",
+            "type": "anchor",
+            "start": true,
+            "effects": {
+              "world_info": {
+                "enable": [
+                  {
+                    "lorebook": "SO-T13 Xentar",
+                    "comments": [
+                      "Places - Xentar"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "transitions": [],
+        "roster": [],
+        "requirements": {
+          "lorebooks": [
+            "SO-T13 Xentar"
+          ]
+        }
+      }
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-t13-e",
+        "version": 1,
+        "title": "SO-T13 E",
+        "description": "v2.4 plan 05 T13 spike: a second story sharing the marker book.",
+        "qualities": [
+          {
+            "key": "step",
+            "type": "int",
+            "source": "code",
+            "rubric": "Spike step."
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "e1",
+            "name": "E One",
+            "objective": "x",
+            "type": "anchor",
+            "start": true,
+            "effects": {
+              "world_info": {
+                "enable": [
+                  {
+                    "lorebook": "SO-T13 Bulk",
+                    "comments": [
+                      "Bulk 000",
+                      "Bulk 001",
+                      "Bulk 002",
+                      "Bulk 003",
+                      "Bulk 004",
+                      "Bulk 005",
+                      "Bulk 006",
+                      "Bulk 007",
+                      "Bulk 008",
+                      "Bulk 009",
+                      "Bulk 010",
+                      "Bulk 011",
+                      "Bulk 012",
+                      "Bulk 013",
+                      "Bulk 014",
+                      "Bulk 015",
+                      "Bulk 016",
+                      "Bulk 017",
+                      "Bulk 018",
+                      "Bulk 019",
+                      "Bulk 020",
+                      "Bulk 021",
+                      "Bulk 022",
+                      "Bulk 023",
+                      "Bulk 024",
+                      "Bulk 025",
+                      "Bulk 026",
+                      "Bulk 027",
+                      "Bulk 028",
+                      "Bulk 029",
+                      "Bulk 030",
+                      "Bulk 031",
+                      "Bulk 032",
+                      "Bulk 033",
+                      "Bulk 034",
+                      "Bulk 035",
+                      "Bulk 036",
+                      "Bulk 037",
+                      "Bulk 038",
+                      "Bulk 039",
+                      "Bulk 040",
+                      "Bulk 041",
+                      "Bulk 042",
+                      "Bulk 043",
+                      "Bulk 044",
+                      "Bulk 045",
+                      "Bulk 046",
+                      "Bulk 047",
+                      "Bulk 048",
+                      "Bulk 049",
+                      "Bulk 050",
+                      "Bulk 051",
+                      "Bulk 052",
+                      "Bulk 053",
+                      "Bulk 054",
+                      "Bulk 055",
+                      "Bulk 056",
+                      "Bulk 057",
+                      "Bulk 058",
+                      "Bulk 059",
+                      "Bulk 060",
+                      "Bulk 061",
+                      "Bulk 062",
+                      "Bulk 063",
+                      "Bulk 064",
+                      "Bulk 065",
+                      "Bulk 066",
+                      "Bulk 067",
+                      "Bulk 068",
+                      "Bulk 069",
+                      "Bulk 070",
+                      "Bulk 071",
+                      "Bulk 072",
+                      "Bulk 073",
+                      "Bulk 074",
+                      "Bulk 075",
+                      "Bulk 076",
+                      "Bulk 077",
+                      "Bulk 078",
+                      "Bulk 079",
+                      "Bulk 080",
+                      "Bulk 081",
+                      "Bulk 082",
+                      "Bulk 083",
+                      "Bulk 084",
+                      "Bulk 085",
+                      "Bulk 086",
+                      "Bulk 087",
+                      "Bulk 088",
+                      "Bulk 089",
+                      "Bulk 090",
+                      "Bulk 091",
+                      "Bulk 092",
+                      "Bulk 093",
+                      "Bulk 094",
+                      "Bulk 095",
+                      "Bulk 096",
+                      "Bulk 097",
+                      "Bulk 098",
+                      "Bulk 099",
+                      "Bulk 100",
+                      "Bulk 101",
+                      "Bulk 102",
+                      "Bulk 103",
+                      "Bulk 104",
+                      "Bulk 105",
+                      "Bulk 106",
+                      "Bulk 107",
+                      "Bulk 108",
+                      "Bulk 109",
+                      "Bulk 110",
+                      "Bulk 111",
+                      "Bulk 112",
+                      "Bulk 113",
+                      "Bulk 114",
+                      "Bulk 115",
+                      "Bulk 116",
+                      "Bulk 117",
+                      "Bulk 118",
+                      "Bulk 119",
+                      "Bulk 120",
+                      "Bulk 121",
+                      "Bulk 122",
+                      "Bulk 123",
+                      "Bulk 124"
+                    ]
+                  }
+                ],
+                "disable": [
+                  {
+                    "lorebook": "SO-T13 Bulk",
+                    "comments": [
+                      "Bulk 125",
+                      "Bulk 126",
+                      "Bulk 127",
+                      "Bulk 128",
+                      "Bulk 129",
+                      "Bulk 130",
+                      "Bulk 131",
+                      "Bulk 132",
+                      "Bulk 133",
+                      "Bulk 134",
+                      "Bulk 135",
+                      "Bulk 136",
+                      "Bulk 137",
+                      "Bulk 138",
+                      "Bulk 139",
+                      "Bulk 140",
+                      "Bulk 141",
+                      "Bulk 142",
+                      "Bulk 143",
+                      "Bulk 144",
+                      "Bulk 145",
+                      "Bulk 146",
+                      "Bulk 147",
+                      "Bulk 148",
+                      "Bulk 149",
+                      "Bulk 150",
+                      "Bulk 151",
+                      "Bulk 152",
+                      "Bulk 153",
+                      "Bulk 154",
+                      "Bulk 155",
+                      "Bulk 156",
+                      "Bulk 157",
+                      "Bulk 158",
+                      "Bulk 159",
+                      "Bulk 160",
+                      "Bulk 161",
+                      "Bulk 162",
+                      "Bulk 163",
+                      "Bulk 164",
+                      "Bulk 165",
+                      "Bulk 166",
+                      "Bulk 167",
+                      "Bulk 168",
+                      "Bulk 169",
+                      "Bulk 170",
+                      "Bulk 171",
+                      "Bulk 172",
+                      "Bulk 173",
+                      "Bulk 174",
+                      "Bulk 175",
+                      "Bulk 176",
+                      "Bulk 177",
+                      "Bulk 178",
+                      "Bulk 179",
+                      "Bulk 180",
+                      "Bulk 181",
+                      "Bulk 182",
+                      "Bulk 183",
+                      "Bulk 184",
+                      "Bulk 185",
+                      "Bulk 186",
+                      "Bulk 187",
+                      "Bulk 188",
+                      "Bulk 189",
+                      "Bulk 190",
+                      "Bulk 191",
+                      "Bulk 192",
+                      "Bulk 193",
+                      "Bulk 194",
+                      "Bulk 195",
+                      "Bulk 196",
+                      "Bulk 197",
+                      "Bulk 198",
+                      "Bulk 199",
+                      "Bulk 200",
+                      "Bulk 201",
+                      "Bulk 202",
+                      "Bulk 203",
+                      "Bulk 204",
+                      "Bulk 205",
+                      "Bulk 206",
+                      "Bulk 207",
+                      "Bulk 208",
+                      "Bulk 209",
+                      "Bulk 210",
+                      "Bulk 211",
+                      "Bulk 212",
+                      "Bulk 213",
+                      "Bulk 214",
+                      "Bulk 215",
+                      "Bulk 216",
+                      "Bulk 217",
+                      "Bulk 218",
+                      "Bulk 219",
+                      "Bulk 220",
+                      "Bulk 221",
+                      "Bulk 222",
+                      "Bulk 223",
+                      "Bulk 224",
+                      "Bulk 225",
+                      "Bulk 226",
+                      "Bulk 227",
+                      "Bulk 228",
+                      "Bulk 229",
+                      "Bulk 230",
+                      "Bulk 231",
+                      "Bulk 232",
+                      "Bulk 233",
+                      "Bulk 234",
+                      "Bulk 235",
+                      "Bulk 236",
+                      "Bulk 237",
+                      "Bulk 238",
+                      "Bulk 239",
+                      "Bulk 240",
+                      "Bulk 241",
+                      "Bulk 242",
+                      "Bulk 243",
+                      "Bulk 244",
+                      "Bulk 245",
+                      "Bulk 246",
+                      "Bulk 247",
+                      "Bulk 248",
+                      "Bulk 249"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "transitions": [],
+        "roster": [],
+        "requirements": {
+          "lorebooks": [
+            "SO-T13 Bulk"
+          ]
+        }
+      }
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-t13-a",
+        "version": 1,
+        "title": "SO-T13 A",
+        "description": "Humanity's last survivors shelter in the ruined city of Xentar as its magical wards fail. The Adventurers Guild sends a team to recover the legendary Sun's Heart Artifact from the perilous Sun Ruins, past ancient traps and a riddling sphinx.",
+        "arc_template": "rising",
+        "qualities": [
+          {
+            "key": "approached_board",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did the player move close to or examine the guild job board?"
+          },
+          {
+            "key": "mission_accepted",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did the party accept the Sun Ruins mission from the board?"
+          },
+          {
+            "key": "luke_decision",
+            "type": "enum",
+            "values": [
+              "undecided",
+              "accepted",
+              "declined"
+            ],
+            "source": "extractor",
+            "rubric": "Has the player decided whether to bring Luke along? accepted if they agree, declined if they refuse, otherwise undecided."
+          },
+          {
+            "key": "riddle_answer",
+            "type": "enum",
+            "values": [
+              "unanswered",
+              "moon",
+              "wrong"
+            ],
+            "source": "extractor",
+            "scope_hint": {
+              "from": "cp3",
+              "until": "cp-5"
+            },
+            "rubric": "What answer was given to the sphinx's riddle? moon if the correct answer 'the moon' was spoken, wrong if an incorrect answer was given, otherwise unanswered."
+          },
+          {
+            "key": "luke_alive",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is Luke still alive?"
+          },
+          {
+            "key": "chamber_entered",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Has the party entered the inner chamber where the artifact rests?"
+          },
+          {
+            "key": "artifact_secured",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Has the party secured the Sun's Heart Artifact?"
+          },
+          {
+            "key": "reward_claimed",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Has the party returned to the guild and claimed their reward?"
+          },
+          {
+            "key": "guardian_respect",
+            "type": "int",
+            "source": "extractor",
+            "ledger_binding": {
+              "entity": "Sphinx",
+              "field": "respect"
+            },
+            "rubric": "How much does the sphinx guardian respect the party, from 0 (contempt) to 5 (deep respect)?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "cp1",
+            "name": "Investigate the Job Board",
+            "objective": "Get close to the guild's job board to see available missions.",
+            "type": "anchor",
+            "start": true,
+            "tension_target": "calm",
+            "guidance": "A relaxed guild-hall opening. Let the player wander toward the job board at their own pace.",
+            "target_turn_length": 3,
+            "effects": {
+              "world_info": {
+                "enable": [
+                  {
+                    "lorebook": "SO-T13 Xentar",
+                    "comments": [
+                      "CP1 - Mission",
+                      "CP1 - Scenario"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "cp2",
+            "name": "Accept the Mission",
+            "objective": "Pick up the Sun Ruins mission from the board.",
+            "type": "anchor",
+            "tension_target": "stirring",
+            "target_turn_length": 3,
+            "effects": {
+              "world_info": {
+                "enable": [
+                  {
+                    "lorebook": "SO-T13 Xentar",
+                    "comments": [
+                      "CP2 - Mission",
+                      "CP2 - Scenario"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "cp3",
+            "name": "Departure Preparations",
+            "objective": "Decide whether to take Luke along before departing for the Sun Ruins.",
+            "type": "anchor",
+            "tension_target": "stirring",
+            "target_turn_length": 3,
+            "effects": {
+              "world_info": {
+                "enable": [
+                  {
+                    "lorebook": "SO-T13 Xentar",
+                    "comments": [
+                      "CP3 - Luke"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "cp-4a",
+            "name": "Travel with Luke",
+            "objective": "Reach the Sun Ruins with Luke and face the sphinx's riddle.",
+            "type": "intermediate",
+            "tension_target": "tense",
+            "state_snapshot": {
+              "luke_alive": true
+            },
+            "guidance": "The sphinx blocks the only way in. It can be passed by answering its riddle — or by earning its deep respect.",
+            "effects": {
+              "world_info": {
+                "enable": [
+                  {
+                    "lorebook": "SO-T13 Xentar",
+                    "comments": [
+                      "CP4 - Scenario",
+                      "CP4 - Sphinx",
+                      "CP4 - Sphinx's Riddle"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "cp-4b",
+            "name": "Travel Alone",
+            "objective": "Reach the Sun Ruins with only your companion and face the sphinx's riddle.",
+            "type": "intermediate",
+            "tension_target": "tense",
+            "effects": {
+              "world_info": {
+                "enable": [
+                  {
+                    "lorebook": "SO-T13 Xentar",
+                    "comments": [
+                      "CP4 - Scenario",
+                      "CP4 - Sphinx",
+                      "CP4 - Sphinx's Riddle"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "cp-4a1",
+            "name": "Riddle Solved",
+            "objective": "Enter the chamber and approach the artifact.",
+            "type": "intermediate",
+            "tension_target": "tense"
+          },
+          {
+            "id": "cp-4a2",
+            "name": "Riddle Failed",
+            "objective": "Enter the chamber and approach the artifact despite the loss.",
+            "type": "intermediate",
+            "tension_target": "critical",
+            "state_snapshot": {
+              "luke_alive": false
+            },
+            "guidance": "Luke paid for the wrong answer. Grief hangs over the party, but the chamber lies open ahead."
+          },
+          {
+            "id": "cp-5",
+            "name": "Find the Artifact",
+            "objective": "Recover the Sun's Heart Artifact from the inner chamber.",
+            "type": "anchor",
+            "tension_target": "critical",
+            "target_turn_length": 3
+          },
+          {
+            "id": "cp-6",
+            "name": "Return to the Guild",
+            "objective": "Deliver the artifact to the Guild Master and claim your reward.",
+            "type": "anchor",
+            "tension_target": "peak",
+            "target_turn_length": 3,
+            "convergence_threshold": 1,
+            "state_snapshot": {
+              "reward_claimed": true
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "from": "cp1",
+            "to": "cp2",
+            "priority": 1,
+            "gate": {
+              "q": "approached_board",
+              "op": "==",
+              "v": true
+            },
+            "extractor_trigger": "\\b(get close|approach|move closer|examine|investigate|look at|read)\\b.*\\b(board|posting|mission)\\b",
+            "extraction_hint": "Watch for the player moving toward or reading the job board."
+          },
+          {
+            "from": "cp2",
+            "to": "cp3",
+            "priority": 1,
+            "gate": {
+              "q": "mission_accepted",
+              "op": "==",
+              "v": true
+            },
+            "extractor_trigger": "\\b(accept|take|pick up|choose|claim)\\b.*\\b(mission|quest|job|task)\\b",
+            "extraction_hint": "Watch for the player accepting the Sun Ruins mission."
+          },
+          {
+            "from": "cp3",
+            "to": "cp-4a",
+            "priority": 2,
+            "gate": {
+              "q": "luke_decision",
+              "op": "==",
+              "v": "accepted"
+            },
+            "extractor_trigger": "\\b(agree|allow|let|take|bring|include)\\b.*\\b(luke|young adventurer|new companion)\\b",
+            "extraction_hint": "Set luke_decision to accepted when the player agrees to bring Luke."
+          },
+          {
+            "from": "cp3",
+            "to": "cp-4b",
+            "priority": 1,
+            "gate": {
+              "q": "luke_decision",
+              "op": "==",
+              "v": "declined"
+            },
+            "extractor_trigger": "\\b(decline|refuse|deny|leave|go without)\\b.*\\b(luke|young adventurer|new companion)\\b",
+            "extraction_hint": "Set luke_decision to declined when the player refuses to bring Luke."
+          },
+          {
+            "from": "cp-4a",
+            "to": "cp-4a1",
+            "priority": 2,
+            "gate": {
+              "any": [
+                {
+                  "q": "riddle_answer",
+                  "op": "==",
+                  "v": "moon"
+                },
+                {
+                  "q": "guardian_respect",
+                  "op": ">=",
+                  "v": 4
+                }
+              ]
+            },
+            "extractor_trigger": "\\b(the moon|moon)\\b",
+            "extraction_hint": "Set riddle_answer to moon only if the correct answer 'the moon' is spoken. Track guardian_respect if the party impresses the sphinx."
+          },
+          {
+            "from": "cp-4a",
+            "to": "cp-4a2",
+            "priority": 1,
+            "gate": {
+              "q": "riddle_answer",
+              "op": "==",
+              "v": "wrong"
+            },
+            "extraction_hint": "Set riddle_answer to wrong if an incorrect answer is given to the sphinx.",
+            "extractor_trigger": "\b(wrong|incorrect|fail(s|ed|ure)?)\b"
+          },
+          {
+            "from": "cp-4b",
+            "to": "cp-5",
+            "priority": 1,
+            "gate": {
+              "q": "riddle_answer",
+              "op": "==",
+              "v": "moon"
+            },
+            "effects": {
+              "progress": {
+                "anchor": "cp-6",
+                "amount": 1
+              }
+            },
+            "extractor_trigger": "\\b(the moon|moon)\\b"
+          },
+          {
+            "from": "cp-4a1",
+            "to": "cp-5",
+            "priority": 1,
+            "gate": {
+              "q": "chamber_entered",
+              "op": "==",
+              "v": true
+            },
+            "effects": {
+              "progress": {
+                "anchor": "cp-6",
+                "amount": 1
+              }
+            },
+            "extractor_trigger": "\\b(investigate|approach|examine|enter|inspect|study)\\b.*\\b(chamber|room|hall|space)\\b"
+          },
+          {
+            "from": "cp-4a2",
+            "to": "cp-5",
+            "priority": 1,
+            "gate": {
+              "q": "chamber_entered",
+              "op": "==",
+              "v": true
+            },
+            "effects": {
+              "progress": {
+                "anchor": "cp-6",
+                "amount": 1
+              }
+            },
+            "extractor_trigger": "\\b(investigate|approach|examine|enter|inspect|study)\\b.*\\b(chamber|room|hall|space)\\b"
+          },
+          {
+            "from": "cp-5",
+            "to": "cp-6",
+            "priority": 1,
+            "gate": {
+              "all": [
+                {
+                  "q": "artifact_secured",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "progress_toward_cp-6",
+                  "op": ">=",
+                  "v": 1
+                }
+              ]
+            },
+            "extractor_trigger": "\\b(return|go back|head back|depart|travel back)\\b.*\\b(guild|xentar)\\b",
+            "extraction_hint": "Watch for the party securing the artifact and setting out for the guild."
+          }
+        ],
+        "roster": [
+          {
+            "id": "dm",
+            "name": "DM Narrator"
+          },
+          {
+            "id": "companion",
+            "name": "Arin"
+          },
+          {
+            "id": "guild_master",
+            "name": "Ponticius"
+          },
+          {
+            "id": "little_brother",
+            "name": "Luke"
+          }
+        ],
+        "arc_bridges": [
+          {
+            "arcMatch": "sun's heart",
+            "anchor": "cp-6",
+            "amount": 1
+          },
+          {
+            "arcMatch": "missing brother",
+            "anchor": "cp-6",
+            "amount": 1
+          }
+        ],
+        "requirements": {
+          "lorebooks": [
+            "SO-T13 Xentar"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); if (rt.getSnapshot().storyId !== 'so-t13-a') throw new Error(`chat A plays ${rt.getSnapshot().storyId}`); if (!rt.getSnapshot().requirements.ready) throw new Error(`requirements not ready in chat A: ${JSON.stringify(rt.getSnapshot().requirements)}`); T.chats.A = globalThis.__soT13.here(); save(); return T.chats.A;",
+      "log": true
+    },
+    {
+      "slash": "/cp activate cp-4a"
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); const path = rt.getEngineState()?.visitedPath ?? []; if (!path.includes('cp-4a')) throw new Error(`chat A did not reach cp-4a: ${JSON.stringify(path)}`); T.pathA = path; save(); return { pathA: path };",
+      "log": true
+    },
+    {
+      "solo_chat": {
+        "character": "Arin"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); await rt.selectStory('so-t13-a'); if (rt.getSnapshot().storyId !== 'so-t13-a') throw new Error('chat B does not play story A'); T.chats.B = globalThis.__soT13.here(); T.pathB = rt.getEngineState()?.visitedPath ?? []; save(); return { B: T.chats.B, pathB: T.pathB };",
+      "log": true
+    },
+    {
+      "solo_chat": {
+        "leave": true
+      }
+    },
+    {
+      "solo_chat": {
+        "character": "Ponticius"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); await rt.selectStory('so-t13-c'); if (rt.getSnapshot().storyId !== 'so-t13-c') throw new Error('chat C does not play story C'); T.chats.C = globalThis.__soT13.here(); T.pathC = rt.getEngineState()?.visitedPath ?? []; save(); return { C: T.chats.C, pathC: T.pathC };",
+      "log": true
+    },
+    {
+      "solo_chat": {
+        "leave": true
+      }
+    },
+    {
+      "solo_chat": {
+        "character": "Luke"
+      }
+    },
+    {
+      "eval": "const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); if (globalThis.storyOrchestratorRuntime.getSnapshot().storyId) throw new Error('the no-story chat plays a story'); T.chats.none = globalThis.__soT13.here(); save(); return { none: T.chats.none };",
+      "log": true
+    },
+    {
+      "solo_chat": {
+        "leave": true
+      }
+    },
+    {
+      "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.worldInfo = { gatingMode: 'scan', normalized: {} }; SillyTavern.getContext().saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); return { gatingMode: 'scan', note: 'takes effect at the next startRuntime (the reload below)' };",
+      "log": true
+    },
+    {
+      "reload": {
+        "timeoutMs": 90000
+      }
+    },
+    {
+      "inject_script": "../fixtures/interop/t13-spike.js"
+    },
+    {
+      "eval": "const G = globalThis.storyOrchestratorScanGating; if (!G) throw new Error('S6: storyOrchestratorScanGating is absent after the reload: scan mode did not start'); const started = Date.now(); while (!G.capability() && Date.now() - started < 10000) await new Promise((resolve) => setTimeout(resolve, 200)); const capability = G.capability(); if (capability?.state !== 'present') throw new Error(`S6: wiScanGating is ${JSON.stringify(capability)}, so the file path is still in charge and nothing below measures scan mode`); return { capability };",
+      "log": true
+    },
+    {
+      "eval": "const G = globalThis.storyOrchestratorScanGating; const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); globalThis.__soT13.arm(); globalThis.__soT13.reset(); const first = await G.normalize(); const firstEdits = globalThis.__soT13.counters.edits; const after = await globalThis.__soT13.serverBook('SO-T13 Xentar'); const gatedAll = new Set(['so-t13-a','so-t13-c','so-t13-d'].flatMap((id) => globalThis.storyOrchestratorRuntime.getSnapshot().library.filter((r) => r.id === id).flatMap((r) => r.raw.checkpoints.flatMap((cp) => ['enable','disable'].flatMap((side) => (cp.effects?.world_info?.[side] ?? []).flatMap((ref) => ref.comments)))))); const changedOutside = Object.values(after.entries).filter((entry) => !gatedAll.has(String(entry.comment).trim()) && JSON.stringify(entry) !== JSON.stringify(T.before.entries[entry.uid])); const gatedNotOff = Object.values(after.entries).filter((entry) => gatedAll.has(String(entry.comment).trim()) && entry.disable !== true); const gatedOtherwiseChanged = Object.values(after.entries).filter((entry) => gatedAll.has(String(entry.comment).trim()) && JSON.stringify({ ...entry, disable: null }) !== JSON.stringify({ ...T.before.entries[entry.uid], disable: null })); globalThis.__soT13.reset(); const second = await G.normalize(); const secondEdits = globalThis.__soT13.counters.edits; const S3 = { firstWrites: first?.writes, firstEdits, secondWrites: second?.writes, secondEdits, changedOutside: changedOutside.map((e) => e.comment), gatedNotOff: gatedNotOff.map((e) => e.comment), gatedOtherwiseChanged: gatedOtherwiseChanged.map((e) => e.comment) }; T.S3 = S3; localStorage.setItem('so-t13-spike', JSON.stringify(T)); if (changedOutside.length || gatedNotOff.length || gatedOtherwiseChanged.length || secondEdits !== 0 || second?.writes !== 0) throw new Error(`S3 FAIL: ${JSON.stringify(S3)}`); return { S3: 'pass (growth measured next)', ...S3 };",
+      "log": true
+    },
+    {
+      "eval": "const G = globalThis.storyOrchestratorScanGating; const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); const G2 = { gatingNormalized: globalThis.storyOrchestratorRuntime.getGlobalSettings().worldInfo.normalized }; return { S3ledger: G2.gatingNormalized };",
+      "log": true
+    },
+    {
+      "eval": "const G = globalThis.storyOrchestratorScanGating; const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); const S = globalThis.__soT13; if (!S) throw new Error('the t13-spike helper is not injected'); S.reset(); const library = globalThis.storyOrchestratorRuntime.getSnapshot().library.map((record) => record.raw); const d = library.find((raw) => raw?.id === 'so-t13-d'); if (!d) throw new Error('story D is not in the library'); const grownD = { ...d, version: 2, checkpoints: d.checkpoints.map((cp) => ({ ...cp, effects: { world_info: { enable: [{ lorebook: 'SO-T13 Xentar', comments: ['Places - Xentar', 'General - Magic'] }] } } })) }; const before = globalThis.storyOrchestratorRuntime.getGlobalSettings().worldInfo.normalized['SO-T13 Xentar'] ?? []; const current = globalThis.storyOrchestratorRuntime.getSnapshot().storyId; await globalThis.storyOrchestratorRuntime.importStory(JSON.stringify(grownD)); if (current) await globalThis.storyOrchestratorRuntime.selectStory(current); const outcome = await G.normalize(); const after = globalThis.storyOrchestratorRuntime.getGlobalSettings().worldInfo.normalized['SO-T13 Xentar'] ?? []; const added = after.filter((comment) => !before.includes(comment)); T.S3growth = { added, flipped: outcome?.flipped, edits: S.counters.edits }; localStorage.setItem('so-t13-spike', JSON.stringify(T)); if (added.length !== 1 || added[0] !== 'General - Magic') throw new Error(`S3 FAIL growth: normalised ${JSON.stringify(added)}, expected only General - Magic`); return { S3: 'pass', growth: T.S3growth };",
+      "log": true
+    },
+    {
+      "eval": "const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); const S = globalThis.__soT13; if (!S) throw new Error('the t13-spike helper is not injected'); const data = await S.serverBook('SO-T13 Xentar'); const gated = Object.values(data.entries).map((entry) => String(entry.comment).trim()).filter((comment) => (globalThis.storyOrchestratorRuntime.getGlobalSettings().worldInfo.normalized['SO-T13 Xentar'] ?? []).includes(comment)); await S.setDisabled('SO-T13 Xentar', gated, false); T.adversarial = gated; localStorage.setItem('so-t13-spike', JSON.stringify(T)); return { S1: 'every normalised gated entry forced ON on disk', entries: gated.length };",
+      "log": true
+    },
+    {
+      "eval": "const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); const S = globalThis.__soT13; if (!S) throw new Error('the t13-spike helper is not injected'); const library = globalThis.storyOrchestratorRuntime.getSnapshot().library.map((record) => record.raw).filter((raw) => String(raw?.id ?? '').startsWith('so-t13-')); await S.goto(T.chats.none, null); const result = await S.check('S1a no-story chat', library, null, [], ['SO-T13 Xentar']); const leaked = [...(await S.effective(['SO-T13 Xentar']))].filter(([id, on]) => on && T.adversarial.some((comment) => id.endsWith(`|${comment}`))); T.S1a = { ...result, leaked: leaked.map(([id]) => id) }; localStorage.setItem('so-t13-spike', JSON.stringify(T)); if (leaked.length) throw new Error(`S1 FAIL (a): gated lore visible in a no-story chat: ${JSON.stringify(leaked)}`); return T.S1a;",
+      "log": true
+    },
+    {
+      "send": "I look around."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send": "I wait by the door."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send": "I sit down."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); const slots = globalThis.storyOrchestratorLoreEvidence.slotsForChat().slice(-3); const fired = slots.flatMap((slot) => slot.scans.flatMap((scan) => scan.entries.map((entry) => entry.comment))); const leaked = fired.filter((comment) => T.adversarial.includes(comment)); T.S1aRing = { slots: slots.length, leaked }; localStorage.setItem('so-t13-spike', JSON.stringify(T)); if (slots.length < 3) throw new Error(`S1 (a) ring: only ${slots.length} loud generations were observed`); if (leaked.length) throw new Error(`S1 FAIL (a) ring: gated entries fired in a no-story chat: ${JSON.stringify(leaked)}`); return T.S1aRing;",
+      "log": true
+    },
+    {
+      "eval": "const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); const S = globalThis.__soT13; if (!S) throw new Error('the t13-spike helper is not injected'); const library = globalThis.storyOrchestratorRuntime.getSnapshot().library.map((record) => record.raw).filter((raw) => String(raw?.id ?? '').startsWith('so-t13-')); await S.goto(T.chats.C, 'so-t13-c'); const loaded = library.find((raw) => raw.id === 'so-t13-c'); const result = await S.check('S1b story C chat', library, loaded, T.pathC, ['SO-T13 Xentar']); T.S1b = result; localStorage.setItem('so-t13-spike', JSON.stringify(T)); if (result.wrong.length) throw new Error(`S1 FAIL (b): ${JSON.stringify(result)}`); return result;",
+      "log": true
+    },
+    {
+      "eval": "const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); const S = globalThis.__soT13; if (!S) throw new Error('the t13-spike helper is not injected'); const library = globalThis.storyOrchestratorRuntime.getSnapshot().library.map((record) => record.raw).filter((raw) => String(raw?.id ?? '').startsWith('so-t13-')); S.reset(); const rounds = []; const legs = [['A', 'so-t13-a', T.pathA], ['B', 'so-t13-a', T.pathB], ['C', 'so-t13-c', T.pathC]]; for (let round = 0; round < 3; round += 1) for (const [name, storyId, path] of [...legs, legs[0]]) { await S.goto(T.chats[name], storyId); const loaded = library.find((raw) => raw.id === storyId); rounds.push(await S.check(`S2 round ${round + 1} chat ${name}`, library, loaded, path, ['SO-T13 Xentar'])); } const failed = rounds.filter((row) => row.wrong.length || row.unseen.length); T.S2 = { checks: rounds.length, failed, edits: S.counters.edits, vector: { insert: S.counters.vectorInsert, delete: S.counters.vectorDelete } }; localStorage.setItem('so-t13-spike', JSON.stringify(T)); if (failed.length || S.counters.edits !== 0) throw new Error(`S2 FAIL: ${JSON.stringify(T.S2)}`); return T.S2;",
+      "log": true
+    },
+    {
+      "eval": "const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); const S = globalThis.__soT13; if (!S) throw new Error('the t13-spike helper is not injected'); await S.goto(T.chats.A, 'so-t13-a'); const actual = await S.effective(['SO-T13 Xentar']); const view = globalThis.storyOrchestratorRuntime.getSnapshot().scanGate; if (!view) throw new Error('S5 FAIL: no scan-gate view while scan gating is active'); const mismatched = view.rows.filter((row) => actual.get(S.key(row.lorebook, row.comment)) !== (row.effectiveDisabled === false)); T.S5 = { rows: view.rows.length, mismatched: mismatched.map((row) => row.comment) }; localStorage.setItem('so-t13-spike', JSON.stringify(T)); if (!view.rows.length || mismatched.length) throw new Error(`S5 FAIL: ${JSON.stringify(T.S5)}`); return T.S5;",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    },
+    {
+      "eval": "const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); const G = globalThis.storyOrchestratorScanGating; const S = globalThis.__soT13; if (!S) throw new Error('the t13-spike helper is not injected'); const before = G.timings().length; for (let index = 0; index < 40; index += 1) await S.effective(['SO-T13 Bulk']); const chat = (SillyTavern.getContext().chat ?? []).map((message) => String(message?.mes ?? '')).reverse(); for (let index = 0; index < 10; index += 1) await SillyTavern.getContext().getWorldInfoPrompt(chat, 8192, true, { personaDescription: '', characterDescription: '', characterPersonality: '', characterDepthPrompt: '', scenario: '', creatorNotes: '', trigger: 'normal' }); const times = G.timings().slice(before).sort((a, b) => a - b); const p95 = times[Math.min(times.length - 1, Math.ceil(times.length * 0.95) - 1)]; T.S8 = { scans: times.length, p95, max: times[times.length - 1] }; localStorage.setItem('so-t13-spike', JSON.stringify(T)); if (times.length < 50) throw new Error(`S8: only ${times.length} scans were timed`); if (!(p95 <= 5)) throw new Error(`S8 FAIL: p95 ${p95} ms over 5 ms`); return T.S8;",
+      "log": true
+    },
+    {
+      "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.worldInfo = { ...root.settings.worldInfo, gatingMode: 'file' }; SillyTavern.getContext().saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); return { gatingMode: 'file', note: 'S6: the file path runs over normalised books after the reload' };",
+      "log": true
+    },
+    {
+      "reload": {
+        "timeoutMs": 90000
+      }
+    },
+    {
+      "inject_script": "../fixtures/interop/t13-spike.js"
+    },
+    {
+      "eval": "const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); const S = globalThis.__soT13; if (!S) throw new Error('the t13-spike helper is not injected'); const library = globalThis.storyOrchestratorRuntime.getSnapshot().library.map((record) => record.raw).filter((raw) => String(raw?.id ?? '').startsWith('so-t13-')); if (globalThis.storyOrchestratorScanGating) throw new Error('scan gating still running in file mode'); S.arm(); S.reset(); const rows = []; for (const [name, storyId, path] of [['A', 'so-t13-a', T.pathA], ['B', 'so-t13-a', T.pathB], ['C', 'so-t13-c', T.pathC]]) { await S.goto(T.chats[name], storyId); await new Promise((resolve) => setTimeout(resolve, 1500)); const loaded = library.find((raw) => raw.id === storyId); rows.push(await S.check(`S6 file path chat ${name}`, library, loaded, path, ['SO-T13 Xentar'])); } const failed = rows.filter((row) => row.wrong.length); T.S6 = { rows, failed: failed.length, edits: S.counters.edits }; localStorage.setItem('so-t13-spike', JSON.stringify(T)); if (failed.length) throw new Error(`S6 FAIL: the file path over normalised books gave another set: ${JSON.stringify(failed)}`); return T.S6;",
+      "log": true
+    },
+    {
+      "eval": "const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.worldInfo = { gatingMode: 'file', normalized: {} }; SillyTavern.getContext().saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); if (globalThis.__soT13?.disarm) globalThis.__soT13.disarm(); console.log('[T13 spike record]', JSON.stringify(T)); return { record: T, restored: 'worldInfo = file, empty ledger' };",
+      "log": true
+    },
+    {
+      "solo_chat": {
+        "leave": true
+      }
+    },
+    {
+      "assets": {
+        "action": "remove",
+        "marker": "SO-T13"
+      }
+    }
+  ]
+}

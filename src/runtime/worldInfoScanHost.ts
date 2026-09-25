@@ -3,10 +3,10 @@ import { disableWIEntry, installScanGating, loadLorebook, probeScanGating } from
 import { onSettingsWrite } from "./librarySave";
 import { evaluateRequirements } from "./requirements";
 import type { RunOwnership } from "./runToken";
-import type { NormalizedLedger, ScanGateStats } from "./scanGatePlan";
+import type { NormalizedLedger, ScanGateRow, ScanGateStats } from "./scanGatePlan";
 import { getGlobalSettings, setGlobalSettings } from "./settingsStore";
 import { listStoryRecords } from "./storyLibrary";
-import { setScanGatingActive } from "./worldInfoMode";
+import { noteScanGate, setScanGatingActive } from "./worldInfoMode";
 import { normalizeGatedEntries, spikeBook, type NormalizeOutcome } from "./worldInfoNormalize";
 import { ScanGateProvider, type ScanGateChoice } from "./worldInfoScan";
 
@@ -51,9 +51,11 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
   });
   const handle = installScanGating((arrays) => {
     const started = performance.now();
-    lastScan = provider.apply(arrays);
+    const rows: ScanGateRow[] = [];
+    lastScan = provider.apply(arrays, rows);
     timings.push(performance.now() - started);
     if (timings.length > SCAN_TIMING_LIMIT) timings.shift();
+    noteScanGate({ chatId: deps.chatId(), owner: lastScan.owner, rows });
   });
   let running: Promise<NormalizeOutcome | null> | null = null;
   const normalize = (): Promise<NormalizeOutcome | null> => {

@@ -14,6 +14,7 @@ import type { NextTurnContributor } from "./nextTurn";
 import type { PipelineStatus } from "./pipeline";
 import type { OrphanedLorebook } from "./mirrorReaper";
 import type { LoreEvidenceView } from "./worldInfoEvidence";
+import type { ScanGateView } from "./worldInfoMode";
 import type { MessageFingerprints } from "./fingerprints";
 import type { ChatIdentitySnapshot } from "./chatIdentity";
 import type { InjectedPromptBlock } from "@services/STAPI";
@@ -387,6 +388,8 @@ export interface RuntimeSnapshot {
   loreForced: JudgeCallRecord | null;
   /** v2.4 plan 05 T12: what the last loud generation's scans activated, and books a foreign filter hid. */
   loreEvidence?: LoreEvidenceView;
+  /** v2.4 plan 05 T13 spike (S5, author only): the last gated scan, per gated entry; null unless scan gating is active. */
+  scanGate?: ScanGateView | null;
   // The story's authored curator allowlist, so the review panel can say what is in scope without
   // reading the story record itself.
   stagecraftScope: string[];

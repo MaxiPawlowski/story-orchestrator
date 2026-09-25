@@ -558,6 +558,51 @@ export const PayloadLoreFired: Story = {
   },
 };
 
+// v2.4 plan 05 T13 spike (S5): shown only while scan-time gating is active.
+export const PayloadScanGate: Story = {
+  render: () => {
+    const snapshot = sceneSnapshot(true) as unknown as Record<string, unknown>;
+    snapshot.loreEvidence = { hiddenBooks: [], last: { chatId: "chat-1", epoch: 1, revision: 0, type: "normal", openedAt: "2026-09-24T00:00:00.000Z", closedAt: "2026-09-24T00:00:05.000Z", rendered: true, lastMessageId: 9, forced: [], landed: [], lost: [], constantMissed: [], scanCount: 1, nestedScans: 0, fired: [{ world: "SO-T13 Xentar", uid: 9, comment: "CP1 - Mission", constant: true, key0: null, origin: "gated" }] } };
+    snapshot.scanGate = {
+      chatId: "chat-1",
+      owner: "story",
+      rows: [
+        { lorebook: "SO-T13 Xentar", comment: "CP1 - Mission", uid: 9, fileDisabled: true, effectiveDisabled: false },
+        { lorebook: "SO-T13 Xentar", comment: "CP2 - Mission", uid: 17, fileDisabled: true, effectiveDisabled: true },
+      ],
+    };
+    return (
+      <div style={{ maxWidth: 360 }}>
+        <DrawerTabs snapshot={snapshot as unknown as RuntimeSnapshot} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
+    const table = within(await canvas.findByText(/Scan-time gating \(spike\): this chat's path/).then((node) => node.closest("[data-so=\"scan-gate\"]") as HTMLElement));
+    await expect(table.getByText(/SO-T13 Xentar · file off · this chat on · fired/)).toBeInTheDocument();
+    await expect(table.getByText(/SO-T13 Xentar · file off · this chat off$/)).toBeInTheDocument();
+  },
+};
+
+export const ScanGateHiddenWhenFileMode: Story = {
+  render: () => {
+    const snapshot = sceneSnapshot(true) as unknown as Record<string, unknown>;
+    snapshot.scanGate = null;
+    return (
+      <div style={{ maxWidth: 360 }}>
+        <DrawerTabs snapshot={snapshot as unknown as RuntimeSnapshot} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
+    await expect(canvas.queryByText(/Scan-time gating/)).toBeNull();
+  },
+};
+
 export const PlayerNeverSeesLoreFired: Story = {
   render: () => {
     const snapshot = sceneSnapshot(false) as unknown as Record<string, unknown>;

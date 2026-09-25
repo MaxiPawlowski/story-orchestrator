@@ -5,13 +5,14 @@ Plan-table mutations: the handler's chatId guard = S1, compare-and-set = S2, the
 - S1 the handler's chatId guard: a scan for any chat gets the loaded story's gate (plan mutation): KILLED, 2 of 7
     "a scan for any other chat is a no-story scan: every library gated entry stays off"
     "ST's CHAT_CHANGED pre-cache scan, before our hydrate, is a no-story scan (05-H9)"
-- S2 compare-and-set: an ON entry is cleared whatever its resting value (plan mutation): KILLED, 2 of 15
+- S2 compare-and-set: an ON entry is cleared whatever its resting value (plan mutation): KILLED, 2 of 17 (re-run on the S5 refactor, `gateEntry`)
     "an entry the ledger does not say rests off is never switched on (compare-and-set)"
     "compare-and-set: an entry that rests ON and was disabled by another listener stays disabled"
 - S3 the not-ready -> no-story branch: not-ready requirements still get the story's gate (plan mutation): KILLED, 1 of 7
     "not-ready requirements are a no-story scan"
-- S4 off adds a disable key the copy lacked (05-H5): KILLED, 1 of 8
+- S4 off adds a disable key the copy lacked (05-H5): KILLED, 2 of 10 (re-run on the S5 refactor, `gateEntry`)
     "never adds a disable key the copy lacks (the timed-effects hash, 05-H5)"
+    "reports, per gated entry, the state the scan loaded and the state it used (S5)"
 - S5 a gated comment switches its LAST entry, not the first the file path writes: KILLED, 1 of 8
     "takes only the first entry that carries a comment, as the file path does"
 - S6 scanGatePlan drops the release half (only the loaded story's plan): KILLED, 1 of 15
@@ -46,5 +47,11 @@ Plan-table mutations: the handler's chatId guard = S1, compare-and-set = S2, the
     "the capability is present only when the handler was seen on a probe scan (S6)"
 - C2 the scan handler is not re-placed last at each generation: KILLED, 1 of 5
     "runs synchronously as the last listener, over the four arrays of the scan's own copies"
+- V1 the S5 view is shown while scan gating is off: KILLED, 1 of 10
+    "shows the last gated scan only while scan gating is active, and forgets it when it goes off"
+- V2 the S5 file state is read after the gate wrote the copy: KILLED, 1 of 10
+    "reports, per gated entry, the state the scan loaded and the state it used (S5)"
 
-Tally: 17/18 killed, 1 equivalent (S7, argued above).
+S2 and S4 were first run against the pre-S5 body of applyScanGate (KILLED 2 of 15 and 1 of 8); the S5 author table moved the per-entry gate into `gateEntry`, so both were re-pointed at the new text and re-run, with the results above.
+
+Tally: 19/20 killed, 1 equivalent (S7, argued above).

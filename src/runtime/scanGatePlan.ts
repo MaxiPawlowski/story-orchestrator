@@ -54,12 +54,42 @@ export interface ScanGateStats {
 
 export const emptyScanGateStats = (): ScanGateStats => ({ off: 0, on: 0, keptForeign: 0, missingKey: 0, unmatched: 0 });
 
-// Applied to the ENTRIES_LOADED copies (05-H2/H3), so every write here is scan-local. The book is
-// indexed once per scan, and each gated comment takes its FIRST entry, as the file path does.
+export interface ScanGateRow {
+  lorebook: string;
+  comment: string;
+  uid: number;
+  /** The copy as the scan loaded it: the file's state, unless a listener before us changed it. Null = no key. */
+  fileDisabled: boolean | null;
+  /** What this scan used. */
+  effectiveDisabled: boolean | null;
+}
+
+const disableOf = (entry: ScanEntry): boolean | null => (Object.prototype.hasOwnProperty.call(entry, "disable") ? entry.disable === true : null);
+
 // Off -> `disable = true`, but never by adding a key the copy lacks (05-H5: the timed-effects hash).
 // On -> `disable = false` only when the copy still holds the file's resting value (normalised: off);
 // a disable some other listener set on an entry that rests ON is left alone (compare-and-set).
-export function applyScanGate(arrays: ScanEntry[][], gate: ScanGate, restsOff: (lorebook: string, comment: string) => boolean): ScanGateStats {
+function gateEntry(entry: ScanEntry, on: boolean, restsOff: boolean, stats: ScanGateStats) {
+  if (!on) {
+    if (disableOf(entry) === null) stats.missingKey += 1;
+    else if (entry.disable !== true) {
+      entry.disable = true;
+      stats.off += 1;
+    }
+    return;
+  }
+  if (entry.disable !== true) return;
+  if (restsOff) {
+    entry.disable = false;
+    stats.on += 1;
+  } else {
+    stats.keptForeign += 1;
+  }
+}
+
+// Applied to the ENTRIES_LOADED copies (05-H2/H3), so every write here is scan-local. The book is
+// indexed once per scan, and each gated comment takes its FIRST entry, as the file path does.
+export function applyScanGate(arrays: ScanEntry[][], gate: ScanGate, restsOff: (lorebook: string, comment: string) => boolean, rows?: ScanGateRow[]): ScanGateStats {
   const stats = emptyScanGateStats();
   const byBook = new Map<string, ScanEntry[]>();
   for (const array of arrays) {
@@ -80,21 +110,9 @@ export function applyScanGate(arrays: ScanEntry[][], gate: ScanGate, restsOff: (
         stats.unmatched += 1;
         continue;
       }
-      if (!on) {
-        if (!Object.prototype.hasOwnProperty.call(entry, "disable")) stats.missingKey += 1;
-        else if (entry.disable !== true) {
-          entry.disable = true;
-          stats.off += 1;
-        }
-        continue;
-      }
-      if (entry.disable !== true) continue;
-      if (restsOff(book.lorebook, comment)) {
-        entry.disable = false;
-        stats.on += 1;
-      } else {
-        stats.keptForeign += 1;
-      }
+      const fileDisabled = disableOf(entry);
+      gateEntry(entry, on, restsOff(book.lorebook, comment), stats);
+      rows?.push({ lorebook: book.lorebook, comment, uid: entry.uid, fileDisabled, effectiveDisabled: disableOf(entry) });
     }
   }
   return stats;

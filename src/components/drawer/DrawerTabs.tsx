@@ -3,6 +3,7 @@ import { describeProvenance, originLabel, MEMORY_TIERS, type MemoryEntry, type M
 import type { EffectTarget, RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
 import { nextRepairStep } from "@runtime/repair";
+import { lorebookFileId } from "@utils/string";
 import DriverPanel, { type DriverController } from "./DriverPanel";
 import ConflictQueue from "./ConflictQueue";
 import PlayerOverview from "./PlayerOverview";
@@ -655,6 +656,29 @@ const LoreFired = ({ evidence }: { evidence: RuntimeSnapshot["loreEvidence"] }) 
   );
 };
 
+// v2.4 plan 05 T13 spike (S5), author only and only while scan-time gating is active: per gated
+// entry, the state the last scan loaded (the file's), the state it used, and whether it fired.
+const flagText = (disabled: boolean | null) => (disabled === null ? "no flag" : disabled ? "off" : "on");
+
+const ScanGateTable = ({ view, evidence }: { view: RuntimeSnapshot["scanGate"]; evidence: RuntimeSnapshot["loreEvidence"] }) => {
+  if (!view) return null;
+  const fired = evidence?.last?.fired ?? [];
+  const firedRow = (lorebook: string, uid: number) => fired.some((entry) => entry.uid === uid && entry.world.trim().toLowerCase() === lorebookFileId(lorebook).toLowerCase());
+  return (
+    <div id="so-scan-gate" data-so="scan-gate">
+      <div className="font-medium opacity-100">Scan-time gating (spike): {view.owner === "story" ? "this chat's path" : "no story"}</div>
+      {view.rows.length === 0 ? (
+        <div className="opacity-60">No gated entry was in the last scan.</div>
+      ) : view.rows.map((row) => (
+        <div key={`${row.lorebook}.${row.uid}`} data-so="scan-gate-row" data-effective={flagText(row.effectiveDisabled)} className="flex flex-wrap items-center gap-2">
+          <span>{row.comment}</span>
+          <span className="opacity-60">{row.lorebook} · file {flagText(row.fileDisabled)} · this chat {flagText(row.effectiveDisabled)}{firedRow(row.lorebook, row.uid) ? " · fired" : ""}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 // v2.3 plan 09. What the NEXT reply will carry, in the order ST assembles it, with the one control
 // this surface owns per contributor. It is read from ST's own extension prompts rather than from the
 // last capture — a capture answers what the previous turn carried, which is a different question.
@@ -706,6 +730,7 @@ const PayloadTab = ({ snapshot, manager, onOpenOwner }: { snapshot: RuntimeSnaps
     <div className="text-xs opacity-80 flex flex-col gap-2">
       <LoreForced record={snapshot.loreForced} />
       <LoreFired evidence={snapshot.loreEvidence} />
+      <ScanGateTable view={snapshot.scanGate} evidence={snapshot.loreEvidence} />
       <NextTurnPanel snapshot={snapshot} manager={manager} onOpenOwner={onOpenOwner} />
       <div className="font-medium opacity-100">Injected prompt payload</div>
       {captures.length === 0 ? (
