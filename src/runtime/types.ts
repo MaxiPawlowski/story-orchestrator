@@ -23,6 +23,7 @@ import type { MessageFingerprints } from "./fingerprints";
 import type { ChatIdentitySnapshot } from "./chatIdentity";
 import type { InjectedPromptBlock } from "@services/STAPI";
 import type { TalkDecisionSource } from "@talk/index";
+import type { BLOB_VERSION } from "./persistence";
 
 export interface PayloadCapture {
   at: string;
@@ -323,7 +324,7 @@ export interface PersistedStoryRuntime {
 }
 
 export interface StoryOrchestratorMetadataBlob {
-  version: 4;
+  version: typeof BLOB_VERSION;
   /**
    * v2.3 plan 03. The chat this blob belongs to.
    *

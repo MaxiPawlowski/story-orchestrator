@@ -14,7 +14,7 @@ jest.mock("@services/STAPI", () => ({
   saveOpenChat: (tag?: string | null) => saveOpenChat(tag),
 }));
 
-import { dropPersistedRuntime, onChatWrite, replaceUnreadableBlob, restampRenamedChat, setSelectedStoryId, type ChatWrite } from "./persistence";
+import { BLOB_VERSION, dropPersistedRuntime, onChatWrite, replaceUnreadableBlob, restampRenamedChat, setSelectedStoryId, type ChatWrite } from "./persistence";
 
 const settle = async () => { for (let index = 0; index < 5; index += 1) await Promise.resolve(); };
 
@@ -37,7 +37,7 @@ describe("v2.4 E3: chat writes hand their observation on", () => {
     dropPersistedRuntime("s1");
     metadata.story_orchestrator = { version: 99 };
     replaceUnreadableBlob();
-    metadata.story_orchestrator = { version: 4, chatId: "old-name", selectedStoryId: null, stories: {} };
+    metadata.story_orchestrator = { version: BLOB_VERSION, chatId: "old-name", selectedStoryId: null, stories: {} };
     context.chatId = "new-name";
     restampRenamedChat("old-name.jsonl", "new-name.jsonl");
     await settle();
@@ -47,7 +47,7 @@ describe("v2.4 E3: chat writes hand their observation on", () => {
   });
 
   it("control: a write refused before it reached the chat hands nothing on", async () => {
-    metadata.story_orchestrator = { version: 4, chatId: "chat-z", selectedStoryId: "s1", stories: {} };
+    metadata.story_orchestrator = { version: BLOB_VERSION, chatId: "chat-z", selectedStoryId: "s1", stories: {} };
     setSelectedStoryId("s2");
     dropPersistedRuntime("s1");
     await settle();

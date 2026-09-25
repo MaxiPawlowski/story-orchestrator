@@ -5,6 +5,8 @@ import type { PersistedStoryRuntime, StoryOrchestratorMetadataBlob } from "./typ
 
 const METADATA_KEY = "story_orchestrator";
 
+export const BLOB_VERSION = 4;
+
 // Keep the selected story plus the most recent others; a pinned copy is ~17 KB, so an unbounded
 // map would grow chat_metadata without limit.
 export const STORY_STATE_RETENTION = 5;
@@ -37,7 +39,7 @@ const saveChatWrite = (kind: ChatWriteKind) => {
   });
 };
 
-const createBlob = (): StoryOrchestratorMetadataBlob => ({ version: 4, chatId: openChatId(), selectedStoryId: null, stories: {} });
+const createBlob = (): StoryOrchestratorMetadataBlob => ({ version: BLOB_VERSION, chatId: openChatId(), selectedStoryId: null, stories: {} });
 
 /**
  * v2.3 plan 03. A blob stamped for another chat is not this chat's to read.
@@ -81,7 +83,7 @@ export const describeMismatch = (found: BlobMismatch): string => (found.kind ===
 
 export type UnreadableBlob = Extract<BlobMismatch, { kind: "unreadable" }>;
 
-export const unreadableNotice = (found: UnreadableBlob): string => (typeof found.foundVersion === "number" && found.foundVersion > 4
+export const unreadableNotice = (found: UnreadableBlob): string => (typeof found.foundVersion === "number" && found.foundVersion > BLOB_VERSION
   ? `saved by a newer Story Orchestrator (v${found.foundVersion}): update, or Restart to replace it`
   : `${describeMismatch(found)}: Restart to replace it`);
 
@@ -89,7 +91,7 @@ const storedBlob = (): StoryOrchestratorMetadataBlob | null => {
   const metadata = getContext().chatMetadata as Record<string, unknown>;
   const existing = storedValue();
   if (!recognized(existing)) return null;
-  const current = existing.version === 4
+  const current = existing.version === BLOB_VERSION
     ? (existing as unknown as StoryOrchestratorMetadataBlob)
     // v3 is one step behind: it has the right shape and only wants the stamp. v2 and earlier go
     // through the full migration, which ends by calling migrateV3ToV4 itself.
@@ -134,7 +136,7 @@ export function getMetadataBlob(): StoryOrchestratorMetadataBlob {
  *  holds none. */
 export const storedBoundaryFor = (storyId: string): number | null => {
   const existing = storedValue();
-  if (!recognized(existing) || existing.version !== 4 || existing.chatId !== openChatId() || existing.selectedStoryId !== storyId) return null;
+  if (!recognized(existing) || existing.version !== BLOB_VERSION || existing.chatId !== openChatId() || existing.selectedStoryId !== storyId) return null;
   const boundary = (existing.stories as Record<string, Partial<PersistedStoryRuntime>>)[storyId]?.engineState?.boundary;
   return typeof boundary === "number" ? boundary : null;
 };

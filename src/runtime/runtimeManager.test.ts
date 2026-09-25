@@ -4,6 +4,7 @@ import { PLAYER_ATTEMPTS_CLAUSE, objectiveClause } from "@engine/index";
 import type { SharedReadAudit } from "@extraction/index";
 import { disableWIEntry, enableWIEntry, executeSlashCommands, getActiveGroup } from "@services/STAPI";
 import { RuntimeManager } from "./runtimeManager";
+import { BLOB_VERSION } from "./persistence";
 import { control } from "../../test/findings/ledger";
 
 const mockExtensionPrompts: Record<string, { value: string; depth: number }> = {};
@@ -1744,7 +1745,7 @@ describe("V5: opening a chat whose saved state is stamped for another chat", () 
   beforeEach(() => resetHost());
 
   it("journals the mismatch and leaves the stored state untouched", async () => {
-    const foreign = { version: 4, chatId: "chat-elsewhere", selectedStoryId: "s1", stories: {} };
+    const foreign = { version: BLOB_VERSION, chatId: "chat-elsewhere", selectedStoryId: "s1", stories: {} };
     mockContext.chatMetadata = { story_orchestrator: foreign };
     const manager = new RuntimeManager();
     await manager.loadSelectedFromChat();

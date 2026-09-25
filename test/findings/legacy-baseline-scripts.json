@@ -1,0 +1,20 @@
+{
+  "$comment": "v2.5 plan 11 step 0. S1 twin baseline for scripts/debug, scripts/release, test/fixtures, test/scenarios and test/journeys/*.journey.json (scripts/debug/legacyFree.test.mts, npm run test:debug). Per-file count of lines matching the S1 regex plus selectedStoryHash|legacy-v2|v3-chat-blob|persistenceMigration. Only shrinks; 'closed' flips true once it is empty. Kept history (test/journeys/records, test/findings/mutations, scripts/review, docs) is not scanned.",
+  "closed": false,
+  "baseline": {
+    "scripts/debug/lib/assetScope.mts": 7,
+    "scripts/debug/lib/assetScope.test.mts": 4,
+    "scripts/debug/so-assets.mts": 10,
+    "scripts/debug/so-library.mts": 10,
+    "scripts/debug/so-scenario.mts": 4,
+    "scripts/debug/so-state.mts": 1,
+    "test/fixtures/legacy-v2-chat-blob.json": 1,
+    "test/fixtures/v3-chat-blob.json": 7,
+    "test/journeys/j10-identity-and-settings.journey.json": 8,
+    "test/scenarios/live-v12-legacy-expansion.json": 2,
+    "test/scenarios/v24-02-unrecognized-blob.json": 2,
+    "test/scenarios/v24-acc-I6.json": 2,
+    "test/scenarios/v24-acc-I7.json": 7
+  },
+  "allowlist": []
+}

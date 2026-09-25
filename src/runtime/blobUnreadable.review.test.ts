@@ -16,7 +16,7 @@ jest.mock("./storyLibrary", () => ({
   loadStoryRecord: (record: { id: string }) => ({ record: { id: record.id }, story: {} }),
 }));
 
-import { adoptChatState, blobMismatch, dropPersistedRuntime, getMetadataBlob, restampRenamedChat, savePersistedRuntime, setSelectedStoryId } from "./persistence";
+import { adoptChatState, BLOB_VERSION, blobMismatch, dropPersistedRuntime, getMetadataBlob, restampRenamedChat, savePersistedRuntime, setSelectedStoryId } from "./persistence";
 import { loadSelectedStory, restartStory, selectStory, type StorySelectionDeps } from "./storySelection";
 
 declare global {
@@ -59,7 +59,7 @@ describe("T11: a blob this build cannot read is read detached and never overwrit
   it.each(SHAPES)("%s: every read and every automatic write leaves chat_metadata byte-identical, and the load journals blob-unreadable", async (_label, shape, foundVersion) => {
     open(shape());
     const before = bytes();
-    expect(getMetadataBlob()).toEqual({ version: 4, chatId: "chat-a", selectedStoryId: null, stories: {} });
+    expect(getMetadataBlob()).toEqual({ version: BLOB_VERSION, chatId: "chat-a", selectedStoryId: null, stories: {} });
     expect(blobMismatch()).toEqual({ kind: "unreadable", foundVersion, openChat: "chat-a" });
     expect(savePersistedRuntime(record("s2"))).toEqual([]);
     setSelectedStoryId("s2");
@@ -103,7 +103,7 @@ describe("T11: a blob this build cannot read is read detached and never overwrit
     open(SHAPES[0][1]());
     const d = deps();
     expect(await restartStory(d as unknown as StorySelectionDeps, null)).toBe(true);
-    expect(stored()).toEqual({ version: 4, chatId: "chat-a", selectedStoryId: null, stories: {} });
+    expect(stored()).toEqual({ version: BLOB_VERSION, chatId: "chat-a", selectedStoryId: null, stories: {} });
     expect(globalThis.__unreadableContext.chatMetadata.integrity).toBe("i-1");
     expect(globalThis.__unreadableContext.saveMetadata).toHaveBeenCalled();
     expect(d.setStatus).toHaveBeenLastCalledWith("Unreadable story state replaced", expect.stringMatching(/^blob-unreadable: replaced on a confirmed Restart/));

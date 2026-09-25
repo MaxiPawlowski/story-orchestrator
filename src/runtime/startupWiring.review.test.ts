@@ -11,7 +11,7 @@ const branchMetadata = () => ({
   integrity: "i-branch",
   world_info: PARENT_BOOK,
   story_orchestrator: {
-    version: 4,
+    version: BLOB_VERSION,
     chatId: "chat-a",
     integrity: "i-a",
     selectedStoryId: "branch-story",
@@ -21,7 +21,7 @@ const branchMetadata = () => ({
 
 const refusedSettingsSave = () => ({ requested: true, status: 500, ok: false, timedOut: false, failed: false });
 const mockHost = {
-  context: { chat: [] as unknown[], chatId: "branch-1", extensionSettings: {} as Record<string, unknown>, chatMetadata: branchMetadata() as Record<string, unknown>, characters: [], groups: [], saveSettingsDebounced: () => {} },
+  context: { chat: [] as unknown[], chatId: "branch-1", extensionSettings: {} as Record<string, unknown>, chatMetadata: {} as Record<string, unknown>, characters: [], groups: [], saveSettingsDebounced: () => {} },
   unbound: [] as string[],
   settingsSave: async () => refusedSettingsSave(),
 };
@@ -70,7 +70,7 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 import { runtimeManager } from "./runtimeManager";
-import { setSelectedStoryId } from "./persistence";
+import { BLOB_VERSION, setSelectedStoryId } from "./persistence";
 import { saveWizardSession } from "./wizardSessions";
 import { setGlobalSettings } from "./settingsStore";
 import { TurnBridge } from "./turnBridge";
@@ -107,7 +107,7 @@ describe("v2.4 E5: startRuntime's first load", () => {
   it("control: a chat of its own keeps its binding", async () => {
     const own = branchMetadata();
     delete (own as Record<string, unknown>).main_chat;
-    own.story_orchestrator = { version: 4, chatId: "branch-1", integrity: "i-branch", selectedStoryId: null, stories: {} } as never;
+    own.story_orchestrator = { version: BLOB_VERSION, chatId: "branch-1", integrity: "i-branch", selectedStoryId: null, stories: {} } as never;
     mockHost.context.chatMetadata = own;
     const { startRuntime, stopRuntime } = await import("./index");
     startRuntime();

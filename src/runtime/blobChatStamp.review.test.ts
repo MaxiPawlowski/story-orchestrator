@@ -23,7 +23,7 @@ jest.mock("@services/STAPI", () => ({
   readServerBoundary: async () => null, getContext: () => globalThis.__blobContext }));
 jest.mock("./storyLibrary", () => ({ listStoryRecords: () => [] }));
 
-import { getMetadataBlob, loadPersistedRuntime, savePersistedRuntime } from "./persistence";
+import { BLOB_VERSION, getMetadataBlob, loadPersistedRuntime, savePersistedRuntime } from "./persistence";
 import { migrateV3ToV4 } from "./persistenceMigration";
 
 declare global {
@@ -38,13 +38,13 @@ function openChat(chatId: string, blob: unknown) {
 }
 
 control("a blob stamped for this chat is read normally", () => {
-  openChat("chat-a", { version: 4, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: story("s1") } });
+  openChat("chat-a", { version: BLOB_VERSION, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: story("s1") } });
   expect(getMetadataBlob().selectedStoryId).toBe("s1");
   expect(loadPersistedRuntime("s1")).not.toBeNull();
 });
 
 control("a blob stamped for ANOTHER chat is not read, and its stories are not adopted", () => {
-  openChat("chat-b", { version: 4, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: story("s1") } });
+  openChat("chat-b", { version: BLOB_VERSION, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: story("s1") } });
   const blob = getMetadataBlob();
   must(
     blob.selectedStoryId === null && Object.keys(blob.stories).length === 0,

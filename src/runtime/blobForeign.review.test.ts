@@ -9,7 +9,7 @@ jest.mock("@services/STAPI", () => ({
 }));
 jest.mock("./storyLibrary", () => ({ listStoryRecords: () => [], findStoryRecord: () => null, loadPinnedStory: (id: string) => ({ record: { id } }) }));
 
-import { adoptChatState, blobMismatch, dropPersistedRuntime, getMetadataBlob, loadPersistedRuntime, restampRenamedChat, savePersistedRuntime, setSelectedStoryId } from "./persistence";
+import { adoptChatState, BLOB_VERSION, blobMismatch, dropPersistedRuntime, getMetadataBlob, loadPersistedRuntime, restampRenamedChat, savePersistedRuntime, setSelectedStoryId } from "./persistence";
 import { loadSelectedStory, selectStory, type StorySelectionDeps } from "./storySelection";
 import { finding } from "../../test/findings/ledger";
 
@@ -19,7 +19,7 @@ declare global {
 }
 
 const story = (id: string) => ({ storyId: id, storyTitle: "S", pinnedStory: null, playedVersion: 1, contentHashAtLoad: "h", engineState: null, extras: {} }) as never;
-const chatA = () => ({ version: 4, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: story("s1") } });
+const chatA = () => ({ version: BLOB_VERSION, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: story("s1") } });
 
 function open(chatId: string, blob: unknown) {
   globalThis.__foreignContext = { chatId, chatMetadata: { story_orchestrator: blob }, saveMetadata: jest.fn() };
