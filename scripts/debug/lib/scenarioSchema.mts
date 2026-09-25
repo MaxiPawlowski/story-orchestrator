@@ -206,12 +206,15 @@ export function validateSteps(steps: unknown, where = 'steps'): string[] {
  * in the sentence a reader would have believed (2026-09-22). Exported so the rule is unit-testable on
  * synthetic text rather than only observably green over a corpus that happens to be clean.
  */
+/** Set by the runner, never by a fixture: so-journey's judge mode (`markJudgeMode`, v2.4 plan 07) names the arm a check runs in. */
+export const RUNNER_SET_GLOBALS = new Set(['__soJudgeMode']);
+
 export function globalsReadButNeverWritten(files: Array<{ name: string; text: string }>): string[] {
   const broken: string[] = [];
   for (const file of files) {
     const reads = [...file.text.matchAll(/globalThis\.(__[A-Za-z0-9_]+)/g)].map((match) => match[1]);
     const writes = new Set([...file.text.matchAll(/globalThis\.(__[A-Za-z0-9_]+)\s*=/g)].map((match) => match[1]));
-    for (const name of new Set(reads)) if (!writes.has(name)) broken.push(`${file.name}: reads ${name} and never sets it`);
+    for (const name of new Set(reads)) if (!writes.has(name) && !RUNNER_SET_GLOBALS.has(name)) broken.push(`${file.name}: reads ${name} and never sets it`);
   }
   return broken;
 }

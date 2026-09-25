@@ -36,6 +36,16 @@ test('validateRequest mirrors the API limits', () => {
     } }), ['a: choice needs 2-255 options (has 1)', 'b: score needs 2-10 levels (has 1)', 'c: noul criteria only takes true/false (got maybe)', 'd: unknown type', 'e: missing instructions']);
 });
 
+test('T25: the token guard mirrors the page: state + longest question over the documented limit minus 10% is refused, never truncated', () => {
+    assert.equal(plugin.MAX_ESTIMATED_TOKENS, 29491);
+    const over = { ...question, state: { text: 'a '.repeat(55_000) } };
+    assert.ok(JSON.stringify(over).length < plugin.MAX_REQUEST_CHARS);
+    assert.deepEqual(plugin.validateRequest(over), [`request is over 29491 estimated tokens (${plugin.estimateTokens(over)})`]);
+    assert.deepEqual(plugin.validateRequest({ ...question, state: { text: 'x'.repeat(100_000) } }), []);
+    const questions = Object.fromEntries(Array.from({ length: 40 }, (_, index) => [`fact:${index}`, { type: 'noul', instructions: `fact ${index} ${'detail '.repeat(120)}` }]));
+    assert.deepEqual(plugin.validateRequest({ state: { text: 'x'.repeat(95_000) }, questions }), []);
+});
+
 test('info satisfies the ST loader contract', () => {
     assert.match(plugin.info.id, /^[a-z0-9_-]+$/);
     for (const field of ['id', 'name', 'description']) assert.equal(typeof plugin.info[field], 'string');

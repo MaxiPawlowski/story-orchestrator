@@ -2,7 +2,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { askJudge, JUDGE_CACHE_LIMIT, JudgeTimeoutError } from "./client";
 import { buildDirectorRequest, decideDirector, directorJudgeEligible, directorRecordP, DIRECTOR_NOBODY, type JudgeDirectorInput } from "./director";
-import { choice, noul, score, validateJudgeRequest } from "./questions";
+import { choice, estimateJudgeTokens, noul, score, validateJudgeRequest } from "./questions";
+import { JUDGE_CHARS_PER_TOKEN, JUDGE_MAX_ESTIMATED_TOKENS } from "./types";
 import { JUDGE_CALL_RING_LIMIT } from "./policy";
 import { runJudgeDirectorSelfTest, runMemoryPairsCalibration, runMemoryVerifyCalibration } from "./selfTest";
 import { buildPairRequest, buildVerifyRequest, pairDecision, PAIR_SAME_THING_CRITERIA, verifyVerdict, VERIFY_CRITERIA, type JudgePairRelation } from "./memory";
@@ -42,10 +43,35 @@ describe("validateJudgeRequest", () => {
     ]);
     expect(validateJudgeRequest(request({ questions: {} }))).toEqual(["questions is empty"]);
   });
+
+  it("T25: refuses a request whose estimated state + longest question tokens pass the documented limit minus 10%, under the character cap", () => {
+    expect(JUDGE_MAX_ESTIMATED_TOKENS).toBe(29491);
+    expect(JUDGE_CHARS_PER_TOKEN).toBe(3.488);
+    const over = request({ state: { text: "a ".repeat(55_000) } });
+    expect(JSON.stringify(over).length).toBeLessThan(140_000);
+    expect(estimateJudgeTokens(over)).toBeGreaterThan(JUDGE_MAX_ESTIMATED_TOKENS);
+    expect(validateJudgeRequest(over)).toEqual([`request is over ${JUDGE_MAX_ESTIMATED_TOKENS} estimated tokens (${estimateJudgeTokens(over)})`]);
+    expect(validateJudgeRequest(request({ state: { text: "x".repeat(100_000) } }))).toEqual([]);
+  });
+
+  it("T25: counts the longest question once, not every question, as the documented limit does", () => {
+    const questions = Object.fromEntries(Array.from({ length: 40 }, (_, index) => [`fact:${index}`, noul(`Does \`reply\` contradict fact ${index}? ${"detail ".repeat(120)}`)]));
+    const many = request({ state: { text: "x".repeat(95_000) }, questions });
+    expect(validateJudgeRequest(many)).toEqual([]);
+    const longest = Math.max(...Object.values(questions).map((question) => JSON.stringify(question).length));
+    expect(estimateJudgeTokens(many)).toBe(Math.ceil((JSON.stringify(many.state).length + longest) / JUDGE_CHARS_PER_TOKEN));
+  });
 });
 
 describe("askJudge", () => {
   const answers = { q: { type: "noul", noul: 0.9 } as JudgeAnswer };
+
+  it("T25: never sends a request past the token guard, and never truncates it to fit", async () => {
+    const transport = jest.fn<ReturnType<JudgeTransport>, Parameters<JudgeTransport>>();
+    const result = await askJudge(transport, request({ state: { text: "a ".repeat(55_000) } }), { timeoutMs: 1000 });
+    expect(transport).not.toHaveBeenCalled();
+    expect(result).toMatchObject({ answers: null, fallback: "invalid", cached: false });
+  });
 
   it("returns answers and the answering model, and serves a repeat from the cache", async () => {
     const transport = jest.fn<ReturnType<JudgeTransport>, Parameters<JudgeTransport>>().mockResolvedValue(respond(answers));

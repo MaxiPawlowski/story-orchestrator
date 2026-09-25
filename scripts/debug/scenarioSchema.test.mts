@@ -7,7 +7,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { globalsReadButNeverWritten, validateSteps, validateFixture } from './lib/scenarioSchema.mts';
+import { globalsReadButNeverWritten, RUNNER_SET_GLOBALS, validateSteps, validateFixture } from './lib/scenarioSchema.mts';
 import { validateJourneyExtraction } from './lib/configRestore.mts';
 
 const ROOT = join(import.meta.dirname, '..', '..');
@@ -44,6 +44,8 @@ test('no fixture reads a page global it never sets', () => {
   // clears it, on synthetic text — a corpus that happens to be clean proves nothing about the check.
   assert.deepEqual(globalsReadButNeverWritten([{ name: 'synthetic', text: 'globalThis.__x = 1; rt.get(globalThis.__y);' }]), ['synthetic: reads __y and never sets it']);
   assert.deepEqual(globalsReadButNeverWritten([{ name: 'synthetic', text: 'globalThis.__y = 1; rt.get(globalThis.__y);' }]), []);
+  assert.deepEqual(globalsReadButNeverWritten([{ name: 'synthetic', text: 'if (globalThis.__soJudgeMode?.label === "off") return;' }]), []);
+  assert.deepEqual([...RUNNER_SET_GLOBALS], ['__soJudgeMode']);
 });
 
 test('a typo in an expect key is rejected, and the key is named', () => {

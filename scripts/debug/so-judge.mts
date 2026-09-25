@@ -6,7 +6,7 @@ import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { calibrationOk, type ModelVerdict } from './lib/calibrationVerdict.mts';
-import { costReport, filterJudgeCalls, rescoreRates } from './lib/judgeHarness.mts';
+import { costReport, filterJudgeCalls, rescoreRates, withEstablished } from './lib/judgeHarness.mts';
 import { classifyProbe, limitProbeCases, probeRequest, requestChars, JEV_USD_PER_MTOK_INPUT, type ProbeResult } from './lib/limitProbe.mts';
 
 const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
@@ -24,9 +24,10 @@ const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
                                       unless that chat is the one open (a ring is read from the open chat, never guessed)
   cost [--chat <chatId>]              v2.4 plan 07 (X23): the open chat's judge METER (monotonic, not cut by rollback) beside the ring
                                       totals per use, what the ring no longer shows, and an estimate at the documented price
-  rescore --use continuity --records <dir|record.json,...> [--model <id>]
+  rescore --use continuity --records <dir|record.json,...> [--model <id>] [--facts <facts.json>]
                                       the judge-off control column: re-ask the calibrated question over the replies each journey
-                                      record captured (--judge-uses runs); prints the next-reply defect rate per arm
+                                      record captured (--judge-uses runs); prints the next-reply defect rate per arm; --facts (a JSON array)
+                                      holds every arm to one declared fact set instead of each record's live facts at cleanup
   limit-probe [--send]                T25: the documented token limit, probed. Without --send prints the plan and its cost; with it,
                                       six calls through the plugin (< $0.01), then refuses / truncates / answers past the limit and
                                       chars per token by language; writes .debug/so-judge-limit-probe.json
@@ -193,9 +194,11 @@ async function readRecords(spec: string): Promise<Array<{ file: string; record: 
   return Promise.all(files.map(async (file) => ({ file, record: JSON.parse(await readFile(file, 'utf-8')) })));
 }
 
-async function rescore(page: any, use: string, spec: string, requestedModel?: string) {
+async function rescore(page: any, use: string, spec: string, requestedModel?: string, factsFile?: string) {
   const records = await readRecords(spec);
-  const rows = records.flatMap(({ record }) => record?.cleanup?.rescore?.rows ?? []);
+  const facts = factsFile ? JSON.parse(await readFile(factsFile, 'utf-8')) : null;
+  if (facts !== null && (!Array.isArray(facts) || facts.some((fact) => typeof fact !== 'string'))) throw new Error(`--facts ${factsFile}: expected a JSON array of fact strings`);
+  const rows = withEstablished(records.flatMap(({ record }) => record?.cleanup?.rescore?.rows ?? []), facts);
   if (!rows.length) throw new Error(`no captured replies in ${spec}: run the journey with --judge-uses (on) and --judge-uses off (control) first`);
   const results = await evaluateInST(page, async ({ use, rows, model }: { use: string; rows: unknown[]; model?: string }) => {
     const judge = (globalThis as any).storyOrchestratorJudge;
@@ -203,7 +206,7 @@ async function rescore(page: any, use: string, spec: string, requestedModel?: st
     return judge.rescore(use, rows, model);
   }, { use, rows, model: requestedModel });
   const rates = rescoreRates(results);
-  const summary = { use, records: records.map(({ file }) => file), model: results.find((row: any) => row.model)?.model ?? null, rates };
+  const summary = { use, records: records.map(({ file }) => file), ...(facts ? { factsOverride: { file: factsFile, facts } } : {}), model: results.find((row: any) => row.model)?.model ?? null, rates };
   console.log(JSON.stringify(summary, null, 2));
   await writeJSON({ summary, results }, `so-judge-rescore-${use}`);
   return { ok: rates.every((rate) => rate.answered > 0) };
@@ -248,7 +251,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (command === 'calls') return calls(page, Number(argValue('--last', '20')), process.argv.includes('--use') ? argValue('--use', '') || null : null, chat);
     if (command === 'cost') return cost(page, chat);
     if (command === 'limit-probe') return limitProbe(page, process.argv.includes('--send'));
-    if (command === 'rescore') return rescore(page, argValue('--use', 'continuity'), argValue('--records', ''), process.argv.includes('--model') ? argValue('--model', '') : undefined);
+    if (command === 'rescore') return rescore(page, argValue('--use', 'continuity'), argValue('--records', ''), process.argv.includes('--model') ? argValue('--model', '') : undefined, process.argv.includes('--facts') ? argValue('--facts', '') : undefined);
     const requestedModel = process.argv.includes('--model') ? argValue('--model', '') : undefined;
     if (argValue('--use', 'director') === 'lore-relevance') return calibrateRelevance(page, argValue('--fixture', 'lore-relevance'), requestedModel);
     return calibrate(page, argValue('--use', 'director'), argValue('--fixture', argValue('--use', 'director')), Number(argValue('--min', '0.85')), process.argv.includes('--record'), requestedModel);

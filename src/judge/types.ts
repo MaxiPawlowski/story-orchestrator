@@ -1,5 +1,12 @@
 export const JUDGE_MAX_CHOICE_OPTIONS = 255;
 export const JUDGE_MAX_REQUEST_CHARS = 140_000;
+// v2.4 plan 07 T25: docs.typesafe.ai/models (2026-09-24) caps `state` + the longest question at 32k tokens;
+// the live probe (2026-09-25) found the API refuses past its limit (400 max_tokens_exceeded), never truncates.
+// The ratio is the lowest natural-language one it measured (Spanish 3.488, English 4.525 chars per token).
+export const JUDGE_TOKEN_LIMIT = 32_768;
+export const JUDGE_TOKEN_MARGIN = 0.1;
+export const JUDGE_MAX_ESTIMATED_TOKENS = Math.floor(JUDGE_TOKEN_LIMIT * (1 - JUDGE_TOKEN_MARGIN));
+export const JUDGE_CHARS_PER_TOKEN = 3.488;
 
 export interface JudgeCriterion {
   what: string;

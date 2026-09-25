@@ -1,0 +1,15 @@
+{
+  "baseline": "C:/dev/so-lanes/2/debug/run-header-v24-07-part1-pre.json",
+  "label": "diff-end",
+  "allow": [
+    "judge.uses.sceneOoc",
+    "judge.uses.memoryRerank"
+  ],
+  "differences": 0,
+  "progress": 0,
+  "blocking": 0,
+  "blockingPaths": [],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\2\\debug\\run-header-diff-end.json",
+  "ok": true
+}

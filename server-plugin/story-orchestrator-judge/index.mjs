@@ -8,6 +8,10 @@ export const SECRET_KEY = 'typesafe_api_key';
 export const DEFAULT_MODEL = 'jev-1.13.0';
 export const MAX_CHOICE_OPTIONS = 255;
 export const MAX_REQUEST_CHARS = 140_000;
+// Mirrors src/judge/types.ts (v2.4 plan 07 T25): the documented 32k state + longest-question limit minus 10%,
+// estimated at the lowest measured natural-language ratio. Past it the API refuses; this refuses first.
+export const MAX_ESTIMATED_TOKENS = Math.floor(32_768 * 0.9);
+export const CHARS_PER_TOKEN = 3.488;
 export const UPSTREAM_TIMEOUT_MS = 10_000;
 const RETRY_STATUSES = new Set([429, 529]);
 const RETRY_DELAY_MS = 600;
@@ -68,6 +72,12 @@ export async function resolveKey(request) {
 
 const isRecord = (value) => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 
+export function estimateTokens(body) {
+    const questions = isRecord(body?.questions) ? Object.values(body.questions) : [];
+    const longest = Math.max(0, ...questions.map((question) => JSON.stringify(question).length));
+    return Math.ceil((JSON.stringify(body?.state ?? {}).length + longest) / CHARS_PER_TOKEN);
+}
+
 export function validateRequest(body) {
     const issues = [];
     if (!isRecord(body)) return ['body must be a JSON object'];
@@ -94,6 +104,8 @@ export function validateRequest(body) {
         }
     }
     if (JSON.stringify(body).length > MAX_REQUEST_CHARS) issues.push(`request is over ${MAX_REQUEST_CHARS} chars`);
+    const tokens = estimateTokens(body);
+    if (tokens > MAX_ESTIMATED_TOKENS) issues.push(`request is over ${MAX_ESTIMATED_TOKENS} estimated tokens (${tokens})`);
     return issues;
 }
 

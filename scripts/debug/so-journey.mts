@@ -22,7 +22,7 @@ import { archiveJourneyRecord, unselectedDependencies } from './lib/journeyArchi
 import { applyExtSetting, restoreExtSettings } from './lib/interopVerbs.mts';
 import { cleanupBranchChats, settleReapPrompts, withoutBranchChats } from './lib/identityVerbs.mts';
 import { BLOCKING_DIALOGS, mergeRestore, removableStories, shouldRecoverConfig, validateJourneyExtraction, type DeclaredExtraction, type LibraryCapture } from './lib/configRestore.mts';
-import { applyJudgeMode, modeFromSetup, parseJudgeMode, restoreJudgeConfig, wardenTally, type JudgeMode } from './lib/judgeHarness.mts';
+import { applyJudgeMode, modeFromSetup, parseJudgeMode, restoreJudgeConfig, wardenNotes, wardenTally, type JudgeMode } from './lib/judgeHarness.mts';
 
 const JOURNEY_DIR = resolve(PROJECT_ROOT, 'test/journeys');
 const CONFIG_SNAPSHOT = resolve(DEBUG_DIR, 'so-journey-config-snapshot.json');
@@ -476,6 +476,7 @@ async function captureControlColumn(page, arm: string) {
   return {
     judgeMeter: captured.judgeMeter,
     warden: wardenTally(captured.proposals),
+    wardenNotes: wardenNotes(captured.proposals),
     rescore: { factsSource: 'live facts-tier and pinned memory rows at cleanup; ledger-bound rows not included', rows: captured.rows },
   };
 }

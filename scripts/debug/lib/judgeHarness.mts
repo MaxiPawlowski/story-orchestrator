@@ -8,6 +8,7 @@
 
 import { evaluateInST } from './evaluate.mts';
 import { saveSettingsNow } from './settingsSave.mts';
+import { restateCheck, swing, type OverSteerFamily } from './overSteer.mts';
 
 // docs.typesafe.ai/models, read 2026-09-24: jev-1.13.0 costs $0.042 per million INPUT tokens and
 // output is free. An estimate from the meter, never a host-reported cost.
@@ -107,6 +108,7 @@ export const modeFromSetup = (setup: { judge?: { uses?: string[]; wardenMode?: '
 export interface JudgeConfigCapture {
   judge: { enabled: boolean; uses: Record<string, boolean> } & Record<string, unknown>;
   warden: { wardenEnabled: boolean; wardenAcceptMode: string };
+  curator: { curatorEnabled: boolean; acceptMode: string };
 }
 
 /** The settings a mode writes. An unknown use is refused: a typo would otherwise run the "on" arm with nothing on. */
@@ -118,6 +120,7 @@ export function judgeModeSettings(before: JudgeConfigCapture, mode: JudgeMode): 
   return {
     judge: { ...before.judge, enabled: mode.uses.length > 0, uses: Object.fromEntries(known.map((use) => [use, mode.uses.includes(use)])) },
     warden: { wardenEnabled: warden, wardenAcceptMode: warden ? mode.wardenMode ?? before.warden.wardenAcceptMode : before.warden.wardenAcceptMode },
+    curator: before.curator,
   };
 }
 
@@ -128,6 +131,7 @@ export async function readJudgeConfig(page): Promise<JudgeConfigCapture | null> 
     return {
       judge: JSON.parse(JSON.stringify(settings.judge)),
       warden: { wardenEnabled: settings.stagecraft.wardenEnabled === true, wardenAcceptMode: settings.stagecraft.wardenAcceptMode },
+      curator: { curatorEnabled: settings.stagecraft.curatorEnabled === true, acceptMode: settings.stagecraft.acceptMode },
     };
   });
 }
@@ -138,7 +142,7 @@ export async function writeJudgeConfig(page, config: JudgeConfigCapture) {
     if (!root?.settings) throw new Error('the extension settings root is missing');
     root.settings.judge = next.judge;
     globalThis.storyOrchestratorJudge?.invalidateStatus?.();
-    globalThis.storyOrchestratorRuntime?.setStagecraftSettings?.(next.warden);
+    globalThis.storyOrchestratorRuntime?.setStagecraftSettings?.({ ...next.warden, ...next.curator });
     return true;
   }, config);
   const saved = await saveSettingsNow(page).catch((error) => ({ error: error.message }));
@@ -146,7 +150,8 @@ export async function writeJudgeConfig(page, config: JudgeConfigCapture) {
   const matches = verified !== null
     && JSON.stringify(verified.judge.uses) === JSON.stringify(config.judge.uses)
     && verified.judge.enabled === config.judge.enabled
-    && JSON.stringify(verified.warden) === JSON.stringify(config.warden);
+    && JSON.stringify(verified.warden) === JSON.stringify(config.warden)
+    && JSON.stringify(verified.curator) === JSON.stringify(config.curator);
   return { saved, verified, ok: matches && !('error' in saved) };
 }
 
@@ -156,10 +161,21 @@ export async function applyJudgeMode(page, mode: JudgeMode) {
   const next = judgeModeSettings(before, mode);
   const written = await writeJudgeConfig(page, next);
   if (!written.ok) throw new Error(`the judge mode did not read back as written: ${JSON.stringify(written.verified)}`);
+  await markJudgeMode(page, mode);
   return { mode, before, applied: next };
 }
 
+/** A check that writes the judge settings itself (J8.5) reads this, so a `--judge-uses off` arm stays off. */
+export async function markJudgeMode(page, mode: JudgeMode | null) {
+  return evaluateInST(page, (next) => {
+    if (next) (globalThis as any).__soJudgeMode = next;
+    else delete (globalThis as any).__soJudgeMode;
+    return true;
+  }, mode);
+}
+
 export async function restoreJudgeConfig(page, before: JudgeConfigCapture | null) {
+  await markJudgeMode(page, null);
   if (!before) return { restored: false, reason: 'no pre-run capture' };
   const current = await readJudgeConfig(page);
   if (current && JSON.stringify(current) === JSON.stringify(before)) return { restored: false, unchanged: true };
@@ -188,6 +204,26 @@ export function wardenTally(proposals: Array<{ curator?: string; ops?: Array<{ s
   };
 }
 
+export interface WardenNote {
+  text: string;
+  replyMessageId: number;
+}
+
+type ProposalView = { curator?: string; messageId?: number; ops?: Array<{ status?: string; message?: string; op?: { text?: unknown; replyMessageId?: unknown; [key: string]: unknown } }> };
+
+export function wardenNotes(proposals: ProposalView[] = []): WardenNote[] {
+  return proposals
+    .filter((record) => record.curator === 'warden')
+    .flatMap((record) => (record.ops ?? [])
+      .filter((op) => op.status === 'applied' && typeof op.op?.text === 'string')
+      .map((op) => ({ text: op.op?.text as string, replyMessageId: Number.isInteger(op.op?.replyMessageId) ? op.op?.replyMessageId as number : record.messageId ?? -1 })));
+}
+
+export interface ReplyRow {
+  id: string;
+  reply?: { speaker?: string; text?: string };
+}
+
 export interface ArmSummary {
   label: string;
   file?: string;
@@ -197,6 +233,8 @@ export interface ArmSummary {
   ring: ReturnType<typeof ringTotals>;
   warden: WardenTally | null;
   replies: number;
+  notes: WardenNote[];
+  rows: ReplyRow[];
 }
 
 export function armSummary(record, file?: string): ArmSummary {
@@ -211,6 +249,8 @@ export function armSummary(record, file?: string): ArmSummary {
     ring: ringTotals(events),
     warden: cleanup.warden ?? null,
     replies: cleanup.rescore?.rows?.length ?? 0,
+    notes: cleanup.wardenNotes ?? [],
+    rows: cleanup.rescore?.rows ?? [],
   };
 }
 
@@ -220,6 +260,13 @@ export interface RescoreRate {
   answered: number;
   flagged: number;
   defectRate: number | null;
+}
+
+/** One declared fact set for every arm: live facts differ per arm when extraction read the replies differently, and a contradictory set flags whichever side a reply takes. */
+export function withEstablished<T extends { established?: string[] }>(rows: T[], facts: string[] | null): T[] {
+  if (!facts) return rows;
+  if (!facts.length) throw new Error('--facts names no fact');
+  return rows.map((row) => ({ ...row, established: [...facts] }));
 }
 
 export function rescoreRates(results: Array<{ arm: string; flagged: boolean | null }>): RescoreRate[] {
@@ -247,4 +294,31 @@ export function diffArms(off: ArmSummary, on: ArmSummary, rates: RescoreRate[] =
     row('replies captured', off.replies, on.replies),
     row('next-reply defect rate (rescore)', rate(off.label), rate(on.label)),
   ];
+}
+
+const rowIndex = (row: ReplyRow) => Number(String(row.id).replace(/^m/, ''));
+
+const replyAfter = (rows: ReplyRow[], messageId: number) => rows
+  .filter((row) => Number.isInteger(rowIndex(row)) && rowIndex(row) > messageId && row.reply?.text?.trim())
+  .sort((left, right) => rowIndex(left) - rowIndex(right))[0] ?? null;
+
+/** Plan 01's over-steer probe over two archived arms: reply N+1 after each applied note, and the control arm's reply to the same turn. */
+export function overSteerColumns(on: Pick<ArmSummary, 'notes' | 'rows'>, off: Pick<ArmSummary, 'rows'>, family: OverSteerFamily) {
+  return on.notes.map((note) => {
+    const reply = replyAfter(on.rows, note.replyMessageId);
+    const control = replyAfter(off.rows, note.replyMessageId);
+    const view = (row: ReplyRow | null) => (row ? { id: row.id, speaker: row.reply?.speaker ?? '' } : null);
+    const base = { family: family.name, note: note.text, replyMessageId: note.replyMessageId, control: view(control) };
+    if (!reply) return { ...base, reply: null, restate: null, controlRestate: null, swing: null, missing: `no reply after message ${note.replyMessageId} in the on arm` };
+    const text = reply.reply?.text ?? '';
+    const controlText = control?.reply?.text ?? '';
+    return {
+      ...base,
+      reply: view(reply),
+      restate: restateCheck(note.text, text, family),
+      controlRestate: control ? restateCheck(note.text, controlText, family) : null,
+      swing: control ? swing(text, controlText) : null,
+      missing: null,
+    };
+  });
 }

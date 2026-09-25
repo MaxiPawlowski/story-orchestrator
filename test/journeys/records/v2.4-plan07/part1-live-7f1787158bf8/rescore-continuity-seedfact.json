@@ -1,0 +1,203 @@
+{
+  "summary": {
+    "use": "continuity",
+    "records": [
+      "test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/J8.5-off-run1.journey.json",
+      "test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/J8.5-on-run1.journey.json",
+      "test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/J8.5-on-run2.journey.json"
+    ],
+    "factsOverride": {
+      "file": "test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/rescore-facts-seed.json",
+      "facts": [
+        "The old stone bridge over the river collapsed in the flood and is gone."
+      ]
+    },
+    "model": "jev-1.13.0",
+    "rates": [
+      {
+        "arm": "off",
+        "asked": 5,
+        "answered": 5,
+        "flagged": 2,
+        "defectRate": 0.4
+      },
+      {
+        "arm": "on",
+        "asked": 15,
+        "answered": 15,
+        "flagged": 2,
+        "defectRate": 0.1333
+      }
+    ]
+  },
+  "results": [
+    {
+      "id": "m0",
+      "arm": "off",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 597,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m1",
+      "arm": "off",
+      "flagged": true,
+      "broken": [
+        "The old stone bridge over the river collapsed in the flood and is gone."
+      ],
+      "latencyMs": 591,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m3",
+      "arm": "off",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 558,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m4",
+      "arm": "off",
+      "flagged": true,
+      "broken": [
+        "The old stone bridge over the river collapsed in the flood and is gone."
+      ],
+      "latencyMs": 599,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m6",
+      "arm": "off",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 713,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m0",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 591,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m1",
+      "arm": "on",
+      "flagged": true,
+      "broken": [
+        "The old stone bridge over the river collapsed in the flood and is gone."
+      ],
+      "latencyMs": 800,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m3",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 844,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m4",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 817,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m5",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 816,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m6",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 836,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m8",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 975,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m9",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 1024,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m0",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 1018,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m1",
+      "arm": "on",
+      "flagged": true,
+      "broken": [
+        "The old stone bridge over the river collapsed in the flood and is gone."
+      ],
+      "latencyMs": 1029,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m3",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 1053,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m4",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 1058,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m5",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 1177,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m6",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 1237,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m8",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 1272,
+      "model": "jev-1.13.0"
+    }
+  ]
+}

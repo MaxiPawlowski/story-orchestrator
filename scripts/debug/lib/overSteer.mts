@@ -46,7 +46,11 @@ export function swing(reply: string, controlReply: string) {
   return { words, controlWords, lengthRatio: controlWords ? Number((words / controlWords).toFixed(3)) : null, sharedWithControl: longestSharedSpan(reply, controlReply) };
 }
 
-export const OVER_STEER_FAMILIES: Record<string, OverSteerFamily> = { guidance: GUIDANCE_FAMILY };
+// v2.4 plan 07: the warden's continuity note. The fact it carries is not a meta token; a consistent
+// reply may name it, which the restate span measures against the control arm's reply to the same turn.
+export const CONTINUITY_FAMILY: OverSteerFamily = { name: 'continuity', metaTokens: ['Continuity:', 'Keep the next reply consistent'] };
+
+export const OVER_STEER_FAMILIES: Record<string, OverSteerFamily> = { guidance: GUIDANCE_FAMILY, continuity: CONTINUITY_FAMILY };
 
 /** `block` is the injected prompt key; `controlRun` is the control arm's reply N+1, literal or a page global holding it. */
 export type OverSteerSpec = { block: string; family: string; controlRun?: string | { global: string } };

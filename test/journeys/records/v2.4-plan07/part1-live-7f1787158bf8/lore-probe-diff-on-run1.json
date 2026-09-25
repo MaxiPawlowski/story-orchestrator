@@ -1,0 +1,368 @@
+{
+  "off": {
+    "label": "off",
+    "file": "test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/J8.5-off-run1.journey.json",
+    "journey": "J8",
+    "mode": {
+      "label": "off",
+      "uses": []
+    },
+    "meter": {
+      "calls": 0,
+      "cachedCalls": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "cost": 0,
+      "lastAnsweredModel": null
+    },
+    "ring": {
+      "calls": 0,
+      "cachedCalls": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "cost": 0,
+      "fallbacks": {},
+      "byUse": {}
+    },
+    "warden": {
+      "flagged": 0,
+      "applied": 0,
+      "lapsed": 0,
+      "rejected": 0,
+      "pending": 0
+    },
+    "replies": 5,
+    "notes": [],
+    "rows": [
+      {
+        "id": "m0",
+        "arm": "off",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river is still standing and intact.",
+          "The old stone bridge over the river is intact and usable."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+        }
+      },
+      {
+        "id": "m1",
+        "arm": "off",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river is still standing and intact.",
+          "The old stone bridge over the river is intact and usable."
+        ],
+        "reply": {
+          "speaker": "Courier",
+          "text": "I crossed the old stone bridge over the river this morning. It held firm under my boots, same as ever."
+        }
+      },
+      {
+        "id": "m3",
+        "arm": "off",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river is still standing and intact.",
+          "The old stone bridge over the river is intact and usable."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*Ponticius lets out a short, gruff laugh, his weathered hand slapping the table.*\n\"Easy enough, boy. You came in dry, you'll go out dry as long as you're smart about it.\"\n*He nods toward the door, then pauses, his eyes narrowing.*\n\"That courier's a lucky bastard, but luck's a thin coin. Keep your wits sharp on the road. There's worse things in the river than just water.\"\n*With that, he's already turning away, his mind already drifting back to the maps and ledgers waiting for him. His job's done.*"
+        }
+      },
+      {
+        "id": "m4",
+        "arm": "off",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river is still standing and intact.",
+          "The old stone bridge over the river is intact and usable."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "\"Right. If we're heading back the same way, then it's back to that bridge.\"\n*Arin pushes off the wall and starts walking, his leather boots crunching on the cobblestones.*\n\"And let me guess, you're thinking this is an easy trip, right?\"\n*He glances back over his shoulder with a smirk, his green eyes glinting with amusement.*\n\"You always say that before we-know-what-it-all-goes-to-hell. But hey, I'm in. I'll watch your back, same as we always do.\"\n*He leads the way, his cloak fluttering slightly in the breeze.*"
+        }
+      },
+      {
+        "id": "m6",
+        "arm": "off",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river is still standing and intact.",
+          "The old stone bridge over the river is intact and usable."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*The silence stretches, and Luke shifts his weight, the chainmail clinking softly.*\n\"Yeah... I mean, not always, right?\"\n*He tries for a laugh, but it comes out as a small, anxious sound, like a ripple in a water bucket.*\n\"Just a few times. Nothing to get used to, anyway.\"\n*He walks with his shoulders hunched, his oversized gear clanking with each step as he looks around at the path ahead, eyes wide and taking in everything.*\n\"Do you think the Sun Ruins are still... you know... dangerous?\"\n*His voice drops a bit, turning quieter, and he glances up at the Max.*\n\"I mean, my brother went there and... and he never came back.\"\n*He speaks the quickly, the words tumbling out before he stops, realizing what he said, his face going pale.*\n\"Sorry. I shouldn't have. That's not what I'm thinking about right now, right?\""
+        }
+      }
+    ]
+  },
+  "on": {
+    "label": "on",
+    "file": "test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/J8.5-on-run1.journey.json",
+    "journey": "J8",
+    "mode": {
+      "label": "on",
+      "uses": [
+        "warden"
+      ],
+      "wardenMode": "auto"
+    },
+    "meter": {
+      "calls": 4,
+      "cachedCalls": 0,
+      "inputTokens": 3266,
+      "outputTokens": 196,
+      "cost": 0,
+      "lastAnsweredModel": "jev-1.13.0"
+    },
+    "ring": {
+      "calls": 4,
+      "cachedCalls": 0,
+      "inputTokens": 3266,
+      "outputTokens": 196,
+      "cost": 0,
+      "fallbacks": {},
+      "byUse": {
+        "warden": {
+          "calls": 4,
+          "cachedCalls": 0,
+          "inputTokens": 3266,
+          "outputTokens": 196,
+          "cost": 0,
+          "fallbacks": {}
+        }
+      }
+    },
+    "warden": {
+      "flagged": 2,
+      "applied": 1,
+      "lapsed": 1,
+      "rejected": 0,
+      "pending": 0
+    },
+    "replies": 8,
+    "notes": [
+      {
+        "text": "Continuity: established — The old stone bridge over the river collapsed in the flood and is gone. Keep the next reply consistent with it.",
+        "replyMessageId": 1
+      }
+    ],
+    "rows": [
+      {
+        "id": "m0",
+        "arm": "on",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river is still standing and intact.",
+          "The old stone bridge over the river is intact and usable.",
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river collapsed in the flood and is gone."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+        }
+      },
+      {
+        "id": "m1",
+        "arm": "on",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river is still standing and intact.",
+          "The old stone bridge over the river is intact and usable.",
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river collapsed in the flood and is gone."
+        ],
+        "reply": {
+          "speaker": "Courier",
+          "text": "I crossed the old stone bridge over the river this morning. It held firm under my boots, same as ever."
+        }
+      },
+      {
+        "id": "m3",
+        "arm": "on",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river is still standing and intact.",
+          "The old stone bridge over the river is intact and usable.",
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river collapsed in the flood and is gone."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "\"Got it,\" *Arin nods and turns, his cloak swirling as he starts walking. His stride is confident, guiding the way back toward the river. As you approach the forest edge where the river cuts through the valley, he suddenly stops short, squinting at the rushing water ahead.*\n\"Well, that's a problem,\" *he mutters, his hand instinctively dropping to the hilt of one of his daggers. He gestures toward where the bridge should be—only to show jagged stumps of stone and empty space, the current below white and churning.*\n\"Bridge is gone. Seems the flood did more damage than the courier thought, or maybe they're just not as observant as most people,\" *he says, with a sharp edge of annoyance in his voice. He steps closer to the edge, scanning the riverbank, his green eyes darting across the churning water.* \"We can't exactly swim across that—not without getting swept downstream. Need to find another way.\"\n*He turns to you, his brow furrowed.* \"Any bright ideas, or should we start looking for another route?\""
+        }
+      },
+      {
+        "id": "m4",
+        "arm": "on",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river is still standing and intact.",
+          "The old stone bridge over the river is intact and usable.",
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river collapsed in the flood and is gone."
+        ],
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "*The river roars below, cold and relentless, the current a white torrent that churns with foam and spray. The remains ofs the bridge, slick with mud and algae, are scattered across the riverbed below, its once-stable foundation now eroded by the flood's fury.*\n\"Let me see...\" *Arin murmurs, his gaze fixed on the river's flow. He kneels down, picking up a heavy stone and tossing it into the water. It's immediately swept downstream, barely a ripple against the forceful current.*\n\"You know, I'm thinking we could try to build a raft from fallen trees—the current's strong, but maybe if we could find some sturdy wood, we could make it across. Or we could trek back up the river, find a-maybe a shallower spot or an old bridge further upstream. But...that would add at least a day to our journey.\" *He stands, brushing off the dirt from his knees.*\n*He pauses, his eyes catching something. He tilts his head slightly, watching the river carefully for a moment.* \"Wait...do you see that?\"\n*His voice drops to a whisper. He points across the river, his finger aimed at a distant shoreline on the other side.*\n\"There's something over there...some kind of structure. Looks like a small building, maybe a ruin? Hard to tell from here, but it looks like it's sturdy enough. Maybe if we can get across and check it out? I don't know...could be dangerous, but...\" *he trails off, his voice trailing uncertain, his gaze lingering on the distant structure across the river.*"
+        }
+      },
+      {
+        "id": "m5",
+        "arm": "on",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river is still standing and intact.",
+          "The old stone bridge over the river is intact and usable.",
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river collapsed in the flood and is gone."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "\"Oh! Oh, I see it!\" *Luke leans forward eagerly, his oversized chainmail clanking softly as he shifts his weight. His brown hair falls into his eyes, and he quickly brushes it back, his gaze locked on the distant ruin Arin pointed out.*\n\"That building across the river—could it be an old ferry station or something? My brother always said there were old structures left over from the Lich Queen's reign that sometimes served as waypoints for adventurers and locals before the guild became so organized. Maybe there's a-a-an old rope or something there?\" *his voice speeds up with excitement, his hands gesturing animatedly.*\n\"Arin, if we can figure out a way to cross safely, that would be amazing! We could save so much time! And...and maybe I'd find something useful in there? Something my brother would have known about?\" *he looks at Arin, his pale face lit with a determination that makes him look a little older than his years.*\n\"We don't need to go upstream. Not if we can just get across there!\" *Luke insists, his optimism shining through despite the uncertain situation. He turns back to the river, already scanning the opposite shore for any possible crossing point, his mind racing with possibilities.*"
+        }
+      },
+      {
+        "id": "m6",
+        "arm": "on",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river is still standing and intact.",
+          "The old stone bridge over the river is intact and usable.",
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river collapsed in the flood and is gone."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "\"If you're looking to get across that river, you might consider using the old ferry crossing.\" *Ponticius stands tall and still, his weathered hands clasped behind his back, eyes surveying the rushing river from the ridge overlooking the valley. His voice is gravelly but steady, carrying a weight that comes from years of seeing men and women push themselves to their limits.*\n\"The old ferry is just upstream from here—a simple cable and platform arrangement. The current's too strong for swimming or rafting, but you can use the cable to guide yourself across. It's built to withstand the floods, the locals use it for all sorts of things.\" *He gestures toward the upstream direction, his face impassive as he describes the way.*\n\"You'll need to be careful though. The cable's been under strain from the flood, and it've likely been worn by debris—somehow or some people might've even tried to cross on it and failed.\" *His tone shifts slightly, and there's a warning in his eyes. He's no longer just offering strategies, but advising his adventurers in his coming times.*\n\"Move with caution, keep your balance, and don't let the current pull you down. One slip, and you'll be sure to be swept away. But it's your best shot at getting across.\" *He speaks plainly, and-with a pause, and his words hang in the air as his weight.*\n\"Now, go on. Don't linger. The longer you stay, the slower your mission progresses.\" *He dismisses them with a wave of his hand, already turning back toward the guild, his mind already moving on to the next problem, the next adventurer, the desire to see the guild's survival in his balance.*"
+        }
+      },
+      {
+        "id": "m8",
+        "arm": "on",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river is still standing and intact.",
+          "The old stone bridge over the river is intact and usable.",
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river collapsed in the flood and is gone."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "\"It's quiet, isn't it?\" *Ponticius remarks, breaking the silence with a gravelly voice that sometimes ends with a chuckle as he observes the young adventurers moving forward.* \"Sometimes a little bit of quiet is all you need to clear your head before you get into a real mess.\"\n*He watches them walk for a moment, his arms crossed over his chest, a weathered face betraying nothing. Then, he turns away with a slow nod, his eyes lingering on their backs for just a bit longer than necessary before he starts to walk back towards the guildhall.*\n\"The river will be waiting. Make sure you get there before it gets too dark. You'll find the cable crossing is easier in the daylight.\" *His words carry the weight of experience, a simple reminder that lingers in the air even as he fades into the distance.*\n*He doesn't linger long after the handoff, his job is to send them off and not to watch the outcome. But as he walks back, he thinks about the losses he knows everyone's name, and the losses he'd carry personally.*\n\"Take care of yourselves, and try to make it back in one piece.\" *he mutters under his breath, a final piece of advice that no longer reaches their ears as he continues his path back to the Guild.*"
+        }
+      },
+      {
+        "id": "m9",
+        "arm": "on",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river is still standing and intact.",
+          "The old stone bridge over the river is intact and usable.",
+          "The old stone bridge over the river collapsed in the flood and is gone.",
+          "The old stone bridge over the river collapsed in the flood and is gone."
+        ],
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "*The river's roar gradually softens as you walk upstream, the sound of rushing water becoming a low rumble in the distance. The forest path is damp and quiet, with only the occasional rustle of leaves and the distant call of birds overhead. The scent of wet earth and crushed ferns fills the air, cool and refreshing after the dust and noise of the city.*\n*After a while, the path opens into a small clearing. There, stretched across the turbulent river, is the cable ferry crossing Ponticius spoke of—a sturdy-looking rope and wooden platform, though the rope itself appears worn and frayed in places, hanging loosely over the churning water.*\n*The platform itself, a simple wooden slab with iron rings bolted to its surface, sits at the river's edge, ready to be used. A smaller wooden pulley system on the near bank is bolted into a large stone pillar, the rope stretching from it to the far shore.*\n*The water below is treacherous, white foam and debris whipping past at high speed, but the cable and platform seem stable enough—provided they don't slip or hold.*\n*Arin glances at the frayed rope with a frown, his eyes scanning the river's width. He shifts his weight, testing the platform with a tentative step.*\n\"Well, this looks... promising,\" *he says, his voice tinged with a mix of sarcasm and caution. He glances over at you and Luke, his expression unreadable.* \"So... who's going to be the first to try it?\""
+        }
+      }
+    ]
+  },
+  "rows": [
+    {
+      "metric": "judge calls (meter)",
+      "off": 0,
+      "on": 4,
+      "delta": 4
+    },
+    {
+      "metric": "cached calls (meter)",
+      "off": 0,
+      "on": 0,
+      "delta": 0
+    },
+    {
+      "metric": "input tokens (meter)",
+      "off": 0,
+      "on": 3266,
+      "delta": 3266
+    },
+    {
+      "metric": "output tokens (meter)",
+      "off": 0,
+      "on": 196,
+      "delta": 196
+    },
+    {
+      "metric": "fallbacks (ring)",
+      "off": 0,
+      "on": 0,
+      "delta": 0
+    },
+    {
+      "metric": "flagged replies (warden)",
+      "off": 0,
+      "on": 2,
+      "delta": 2
+    },
+    {
+      "metric": "notes applied (warden)",
+      "off": 0,
+      "on": 1,
+      "delta": 1
+    },
+    {
+      "metric": "replies captured",
+      "off": 5,
+      "on": 8,
+      "delta": 3
+    },
+    {
+      "metric": "next-reply defect rate (rescore)",
+      "off": 0.4,
+      "on": 0.1333,
+      "delta": -0.2667
+    }
+  ],
+  "overSteer": [
+    {
+      "family": "continuity",
+      "note": "Continuity: established — The old stone bridge over the river collapsed in the flood and is gone. Keep the next reply consistent with it.",
+      "replyMessageId": 1,
+      "control": {
+        "id": "m3",
+        "speaker": "Ponticius"
+      },
+      "reply": {
+        "id": "m3",
+        "speaker": "Arin"
+      },
+      "restate": {
+        "ok": true,
+        "span": 2,
+        "maxSpan": 6,
+        "metaHits": []
+      },
+      "controlRestate": {
+        "ok": true,
+        "span": 2,
+        "maxSpan": 6,
+        "metaHits": []
+      },
+      "swing": {
+        "words": 174,
+        "controlWords": 89,
+        "lengthRatio": 1.955,
+        "sharedWithControl": 2
+      },
+      "missing": null
+    }
+  ]
+}

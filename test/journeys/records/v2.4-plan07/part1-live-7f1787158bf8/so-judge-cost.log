@@ -1,0 +1,28 @@
+{
+  "chatId": "2026-09-24@21h18m57s889ms",
+  "meter": {
+    "calls": 1,
+    "cachedCalls": 0,
+    "inputTokens": 447,
+    "outputTokens": 22,
+    "cost": 0,
+    "lastAnsweredModel": null
+  },
+  "ring": {
+    "calls": 0,
+    "cachedCalls": 0,
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "cost": 0,
+    "fallbacks": {},
+    "byUse": {}
+  },
+  "notInRing": {
+    "calls": 1,
+    "inputTokens": 447
+  },
+  "estimatedUsd": 0.000019,
+  "hostCost": null,
+  "priceSource": "docs.typesafe.ai/models 2026-09-24: $0.042 per million input tokens, output free"
+}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T00-19-40-839Z_so-judge-cost-2026-09-24_21h18m57s889ms.json

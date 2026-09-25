@@ -1,0 +1,69 @@
+{
+  "ranAt": "2026-09-25T00:40:42.030Z",
+  "results": [
+    {
+      "id": "en-20k",
+      "lang": "en",
+      "chars": 80115,
+      "http": 200,
+      "inputTokens": 17740,
+      "answered": true
+    },
+    {
+      "id": "en-30k",
+      "lang": "en",
+      "chars": 120115,
+      "http": 200,
+      "inputTokens": 26510,
+      "answered": true
+    },
+    {
+      "id": "es-30k",
+      "lang": "es",
+      "chars": 105115,
+      "http": 200,
+      "inputTokens": 30132,
+      "answered": true
+    },
+    {
+      "id": "dense-10k",
+      "lang": "dense",
+      "chars": 25115,
+      "http": 200,
+      "inputTokens": 16876,
+      "answered": true
+    },
+    {
+      "id": "dense-40k",
+      "lang": "dense",
+      "chars": 100115,
+      "http": 400,
+      "inputTokens": null,
+      "answered": false,
+      "error": "{\"detail\":{\"error_type\":\"max_tokens_exceeded\"}}"
+    },
+    {
+      "id": "dense-50k",
+      "lang": "dense",
+      "chars": 130115,
+      "http": 400,
+      "inputTokens": null,
+      "answered": false,
+      "error": "{\"detail\":{\"error_type\":\"max_tokens_exceeded\"}}"
+    }
+  ],
+  "verdict": {
+    "charsPerToken": {
+      "en": 4.525,
+      "dense": 1.488
+    },
+    "pastLimit": [
+      "dense-40k",
+      "dense-50k"
+    ],
+    "behaviour": "refuses",
+    "spentTokens": 91258,
+    "spentUsd": 0.003833,
+    "conclusive": false
+  }
+}

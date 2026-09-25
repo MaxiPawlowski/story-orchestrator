@@ -1,6 +1,6 @@
 # Plan 07 — Judge
 
-**Status: PART 1 BUILT in a worktree on `4151bc8` (2026-09-24/25): T24, T25 narrowed (guard NOT built, see Gate record), dead toggles removed, judge-off control harness. Live gates NOT run. T22/T23 NOT STARTED (wait on plan 04's T15 decision).** Written 2026-09-23 against the working tree on `fcc33cc` + uncommitted V15b/V25 edits.
+**Status: PART 1 BUILT in a worktree on `4151bc8` (2026-09-24/25): T24, T25 narrowed, dead toggles removed, judge-off control harness. Part 1 live gates RUN 2026-09-25 (bundle `7f1787158bf8`; see Gate record): meter green ×2, J8.5 control column on ×2 / off ×1, limit probe → token guard BUILT (bundle `0ac21d135bc0`; plugin half not installed), `jev-latest` resolved. T22/T23 NOT STARTED (wait on plan 04's T15 decision).** Written 2026-09-23 against the working tree on `fcc33cc` + uncommitted V15b/V25 edits.
 T24 and T25 depend only on plan 01 (the T21 and T4 corrections), so they can start early.
 Dead toggles need nothing. T22 and T23 come last:
 - T22 needs plan 01's T6 generation tracker (the note path) and plan 04's T15 decision (D6: opt-in).
@@ -671,3 +671,161 @@ were `types.ts:81-92`/`:94-104`; the manager is 737/740 effective lines and the 
 
 **Remains for part 2**: T22 and T23 (Phase A each, fixtures, calibration, build or not-built record),
 J8.10-J8.13, the live runs above, the privacy-report rows, plan 09's cost report reading the meter.
+
+### Part 1 live gates (2026-09-25, bundle 7f1787158bf8)
+
+Main checkout on `59c34b4` (+ this record's edits), lane 2 only (`st-lanes run 2`, group `1759606632088`, profile
+`Artemis RunPod RP`, real judge through the plugin, key source `dotenv`). Served `dist/index.js` sha verified against
+`dist/manifest.json` before every run (`7f1787158bf8…`). The token guard (item 3) rebuilt the bundle to
+**`0ac21d135bc0`** after every other live record was taken; only the guard's own live check ran on it.
+Records: `test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/` and `…/part1-live-0ac21d135bc0/`.
+
+| Item | Result | Record |
+|---|---|---|
+| 1. `live-v24-07-meter.json` ×2 | **green ×2** after a fixture fix (first batch: run 1 green, run 2 red) | `batch-meter-green.json`, `meter-green-run{1,2}.log`; red: `batch-meter-red.json`, `meter-red-run{1,2}.log` |
+| 1b. `so-judge calls` / `cost` vs meter | **match** | `meter-keep-run.log`, `so-judge-calls-warden.log`, `so-judge-cost.log` |
+| 2. J8.5 warden baseline, on ×2 + off ×1 | **PASS ×3, first try** (after a harness fix); rescore, diff and over-steer below | `J8.5-{on-run1,on-run2,off-run1}.journey.json` + `.log`, `rescore-continuity-*.json`, `lore-probe-diff-on-run{1,2}.json` |
+| 3. `limit-probe --send` | **refuses** past the limit (HTTP 400 `max_tokens_exceeded`); guard **BUILT** | `limit-probe.json`/`.log`; guard live check in `…0ac21d135bc0/token-guard-live-check.log` |
+| 4. `calibrate --use continuity --model jev-latest` | **`resolved` → `jev-1.13.0`**, 83/85 = 0.9765, every family floor met | `calibrate-continuity-jev-latest.json`/`.log` |
+| Run header | `diff` vs `run-header-pre.json`: **0 differences** before the rebuild; after it, only the 7 `build.*`/`bundle.*` paths | `run-header-diff-end.json`, `…0ac21d135bc0/run-header-diff-after-build.json` |
+
+Every journey run exits 1 only because `--strict` counts the five checks `--only J8.5` skips; `automated: 1 pass,
+0 fail`, `cleanup: clean`, `judgeRestore {restored: true, ok: true}` in all three.
+
+**1. Meter.** First batch run 2 failed at step 4, "the ring row carries no input tokens", on a row reading
+`latencyMs: 0, cached: true`. That is correct product behaviour: `JudgeRuntime` caches by request for the page
+session, and run 2 sent byte-identical text. Fixture fix: the Courier reply now carries a per-run errand number.
+The failed run also left the install with `stagecraft.curatorEnabled: false`: the fixture turns the WI curator off, and
+the runner's judge restore only covered the warden fields. Harness fix: `readJudgeConfig`/`restoreJudgeConfig` now
+capture and restore `curator {curatorEnabled, acceptMode}` too (node tests + mutations H1/H2). Lane 2 was put back by
+hand (`curatorEnabled: true`) before the rerun. Green runs: row `447 in / 22 out`, meter step identical; after the
+rollback the ring holds 0 warden rows, the meter still holds `{calls 1, 447, 22}`, and `notInRing 1`. `--keep` run on
+chat `2026-09-24@21h18m57s889ms`: `calls --use warden --chat` → 0 rows; `cost --chat` → meter `{1, 447, 22}`, ring 0,
+`notInRing {calls 1, inputTokens 447}`, `estimatedUsd 0.000019`. That equals the scenario's logged meter. The kept
+chat was deleted (`/delchat`), then `so-library remove "SO-J8 Stagecraft"`. The group's chat list read back as
+before.
+
+**2. J8.5 control column.** As built, `--judge-uses off` could not be a control. J8.5's first eval switches the judge
+and the warden on itself, so the off arm would have run the on arm. Harness fix:
+- the runner marks the page with the arm (`markJudgeMode` → `globalThis.__soJudgeMode`), and `restoreJudgeConfig`
+  always clears it;
+- J8.5 leaves the judge settings to the mode when one is set;
+- in the off arm, J8.5 asserts the control: no warden call, no warden record, and no `Continuity: established` in any
+  captured prompt;
+- the fixture guard allowlists the one runner-set global (`RUNNER_SET_GLOBALS`, H8).
+
+Each run started on a reloaded page (`st-session reload`, `open-group`, `/profile`). Otherwise on-run 2 would have been
+a cache hit on on-run 1's warden request.
+
+| | off | on run 1 | on run 2 |
+|---|---|---|---|
+| judge calls (meter) | 0 | 4 | 2 |
+| input / output tokens | 0 / 0 | 3,266 / 196 | 1,452 / 80 |
+| warden flagged / applied / lapsed | 0 / 0 / 0 | 2 / 1 / 1 | 2 / 1 / 1 |
+| replies captured | 5 | 8 | 7 |
+
+Read by eye, the note works. In both on runs, the replies after the note portray the bridge as gone. In the off run,
+Arin says "it's back to that bridge".
+
+**Rescore.** The live-facts rescore reads off 1/5 = 0.2 and on 8/15 = 0.533. **This is confounded, and it is not
+evidence that the warden hurts.** In every arm, extraction stored two facts-tier rows from the Courier's scripted
+claim: "The old stone bridge over the river is still standing and intact." and "…is intact and usable.". Both
+contradict the seeded permanent fact, and nothing marked them `contradicted`. The rescore's fact set is therefore
+self-contradictory, and it flags the on-arm replies for obeying the seed.
+
+`so-judge rescore` gained `--facts <file.json>`, which holds every arm to one declared set (`withEstablished`, H9).
+Rescored against the seed fact only (`rescore-facts-seed.json`):
+- off: 2/5 = 0.4 (m1, the scripted Courier; m4, Arin);
+- on: 2/15 = 0.133 (m1 ×2 only).
+
+Without m1, which is identical in every arm and a defect by construction: **off 1/4, on 0/13**. The diff's rescore
+row pools both on runs, because one rescore file scored all three records.
+
+**Over-steer (plan 01's probe, warden baseline).** A new `continuity` family, whose meta tokens are `Continuity:` and
+`Keep the next reply consistent`. `so-lore-probe diff` now carries `overSteer` columns: reply N+1 after each applied
+note, against the control arm's reply to the same turn (`overSteerColumns`, H5-H7, H10, H11).
+
+| | N+1 | span | meta | restate | control span | swing (words, ratio) |
+|---|---|---|---|---|---|---|
+| on run 1 | m3 | 2 | — | ok | 2 | 174 vs 89, 1.955 |
+| on run 2 | m3 | 3 | — | ok | 2 | 269 vs 89, 3.022 |
+
+The swing is speaker-confounded: Arin answered N+1 in both on runs and Ponticius in the control. It is recorded, not
+gated. The human rubric row is **not scored**: no human session was run.
+
+**Defect found, not fixed (product, beyond "small and obvious").** Extraction takes a character's in-fiction claim
+that contradicts a permanent seeded fact and stores it as new facts-tier rows. The warden then enforces the wrong side.
+At message 6 in both on runs, the warden call reads `{facts: 3, flagged: 2}`: the two extracted "intact" rows,
+flagged against a reply consistent with the seed. That note lapsed in both runs only because a newer reply committed
+first. The ring rows are in `cleanup.judgeCalls` of both on records. The warden reads facts-tier rows with no check
+against permanent or pinned contradictions. That belongs to the memory contradiction path (plan 02/04 territory), not
+to this plan's accounting.
+
+**3. Token limit.** Six calls:
+
+| case | input tokens | answer |
+|---|---|---|
+| en-20k | 17,740 | answered |
+| en-30k | 26,510 | answered |
+| es-30k | 30,132 | answered |
+| dense-10k | 16,876 | answered |
+| dense-40k | — | HTTP 400 `{"detail":{"error_type":"max_tokens_exceeded"}}` |
+| dense-50k | — | HTTP 400 `{"detail":{"error_type":"max_tokens_exceeded"}}` |
+
+Total 91,258 input tokens, **$0.003833**. Past the limit the API **refuses; no silent truncation**. The verdict says
+`conclusive: false` only because es-30k (30,132 tokens) fell inside the classifier's 10% exclusion band. Its raw
+ratio is 105,115 / 30,132 = 3.488 chars per token, and English measured 4.525. The refusal point lies between 30.1k
+tokens (answered) and about 67k (dense-40k at 1.488): the probe does not say whether 32k or 64k is enforced.
+
+**Decision: BUILT.** §2's not-built condition is "no doc *and* an inconclusive probe". The doc states 32k for state plus
+the longest question (07-H1), and the probe settles the over-limit behaviour.
+- `estimateJudgeTokens` = ⌈(state chars + longest question chars) / 3.488⌉.
+- The cap is ⌊32,768 × 0.9⌋ = **29,491** estimated tokens, refused as `invalid` and never truncated.
+- It sits in `src/judge/questions.ts` beside the 140k character check. The plugin's `validateRequest` mirrors it
+  (`estimateTokens`, same constants, same refusal). The character caps stay.
+
+This is conservative by design. English requests above about 103k chars are now refused, although the API answered
+120k chars of English. No current use comes near: a lore chunk is ≤ 64 × 600 chars and the warden holds ≤ 40 facts.
+
+Tests: red first (3 jest, 1 plugin), then green. Mutations are in `test/findings/mutations/v24-07-live-guard.txt`:
+**21/21 killed** (G1-G6 page, P1-P4 plugin, H1-H11 harness).
+
+Live check on `0ac21d135bc0`: `storyOrchestratorJudge.probe` on a 111,811-char state (under the character cap) →
+`fallback: invalid`, 0 plugin requests. A small request → answered (p 0.98, 291 input tokens, 1 request).
+
+**The plugin half is not installed.** `npm run plugin:install` and an ST restart would touch every server on this box
+(port 8000 and both lanes). Once it is installed, `limit-probe --send`'s dense-40k/50k are refused by the plugin
+before TypeSafe, so a re-probe of the API past the cap needs the guard bypassed.
+
+**4. Calibration.** `modelVerdict: resolved`, `resolvedTo: jev-1.13.0`. Overall 0.9765 (83/85):
+- reply 27/28 (floor 0.9);
+- broken 14/15 (floor 0.85);
+- consistent 42/42 (floor 0.966).
+
+Spanish 18/18, p50 1,015 ms. The one miss is CX06.
+
+**Gates (main checkout, after the edits):**
+- OK: `npm run typecheck`, `npm run typecheck:test`, `npm run lint`, `npm run debug:typecheck`.
+- `npm test`: 224 suites, **3314 passed**.
+- `npm run test:debug`: 254/254.
+- `npm run test:plugin`: 8 pass, 1 skip (`JUDGE_LIVE`).
+- `npm run build` OK (the 2 known size warnings), then `npm run test:release`: 21/21.
+- Storybook was not re-run: no UI file changed.
+
+**Cost on the TypeSafe key.**
+
+| what | tokens | cost |
+|---|---|---|
+| limit probe | 91,258 | $0.00383 |
+| meter runs + J8.5 + guard check (metered) | 6,788 input | about $0.0003 |
+| 40 rescore calls + 28 calibration requests (not metered) | about 40-50k, estimated | about $0.002 |
+| **total** | | **about $0.006** |
+
+**Bundle change:** `.debug/bundle-change.txt` gained a line at 2026-09-25T00:47:50Z, before `npm run build`
+(`7f1787158bf8` → `0ac21d135bc0`). Lane 1 must reload before trusting a new record.
+
+**Still open (part 1):**
+- the human over-steer rubric row;
+- a warden baseline with a non-contradictory fact set (the rescore needs `--facts` until the extraction contradiction
+  above is handled);
+- installing the plugin guard.

@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { applyJudgeMode, armSummary, costReport, diffArms, filterJudgeCalls, judgeModeSettings, parseJudgeMode, rescoreRates, restoreJudgeConfig, ringTotals, wardenTally } from './judgeHarness.mts';
+import { applyJudgeMode, armSummary, costReport, diffArms, filterJudgeCalls, judgeModeSettings, markJudgeMode, withEstablished, overSteerColumns, parseJudgeMode, rescoreRates, restoreJudgeConfig, ringTotals, wardenNotes, wardenTally } from './judgeHarness.mts';
+import { OVER_STEER_FAMILIES } from './overSteer.mts';
+import { RUNNER_SET_GLOBALS } from './scenarioSchema.mts';
 
 const judge = (use: string, detail: Record<string, unknown> = {}, messageId = 4) => ({ kind: 'judge', messageId, summary: `judge ${use} in 300 ms`, detail: { use, model: 'jev-1.13.0', ...detail } });
 
@@ -37,7 +39,7 @@ test('--judge-uses: a list is the on arm, off is the control, warden rides the s
   assert.throws(() => parseJudgeMode('warden', 'sometimes'), /auto or review/);
 });
 
-const before = { judge: { enabled: false, model: 'jev-1.13.0', uses: { loreSelect: false, stallCheck: true } }, warden: { wardenEnabled: false, wardenAcceptMode: 'review' } };
+const before = { judge: { enabled: false, model: 'jev-1.13.0', uses: { loreSelect: false, stallCheck: true } }, warden: { wardenEnabled: false, wardenAcceptMode: 'review' }, curator: { curatorEnabled: true, acceptMode: 'auto' } };
 
 test('the on arm switches the master switch on with exactly the listed uses; the control switches everything off', () => {
   const on = judgeModeSettings(before, { label: 'on', uses: ['loreSelect', 'warden'], wardenMode: 'auto' });
@@ -64,9 +66,19 @@ test('a judge mode refuses to write when the settings cannot be read back later'
 });
 
 test('restore is a no-op when nothing moved, and refuses to claim a restore with no capture', async () => {
-  const page = fakePage({ settings: { judge: before.judge, stagecraft: before.warden } });
+  const page = fakePage({ settings: { judge: before.judge, stagecraft: { ...before.warden, ...before.curator } } });
   assert.deepEqual(await restoreJudgeConfig(page, before as never), { restored: false, unchanged: true });
   assert.deepEqual(await restoreJudgeConfig(page, null), { restored: false, reason: 'no pre-run capture' });
+});
+
+test('restore puts back the WI curator switches a live judge fixture turned off, and a mode never moves them', async () => {
+  assert.deepEqual(judgeModeSettings(before, { label: 'on', uses: ['warden'], wardenMode: 'auto' }).curator, before.curator);
+  const state = { settings: { judge: before.judge, stagecraft: { ...before.warden, ...before.curator, curatorEnabled: false } } };
+  (globalThis as any).storyOrchestratorRuntime = { getGlobalSettings: () => state.settings, setStagecraftSettings: (next) => { state.settings.stagecraft = { ...state.settings.stagecraft, ...next }; } };
+  (globalThis as any).SillyTavern = { getContext: () => ({ extensionSettings: { 'story-orchestrator': { settings: state.settings } } }) };
+  const result = await restoreJudgeConfig({ evaluate: (fn, arg) => fn(arg) }, before as never);
+  assert.equal(result.restored, true);
+  assert.deepEqual({ curatorEnabled: state.settings.stagecraft.curatorEnabled, acceptMode: state.settings.stagecraft.acceptMode }, before.curator);
 });
 
 test('the warden tally reads flagged, applied, lapsed and pending notes from the proposal ring', () => {
@@ -96,4 +108,56 @@ test('the arm diff tabulates meter, warden and rescore columns, and refuses two 
   assert.deepEqual(rows.find((row) => row.metric === 'notes applied (warden)'), { metric: 'notes applied (warden)', off: 0, on: 1, delta: 1 });
   assert.deepEqual(rows.find((row) => row.metric === 'next-reply defect rate (rescore)'), { metric: 'next-reply defect rate (rescore)', off: 0.5, on: 0, delta: -0.5 });
   assert.throws(() => diffArms(off, armSummary(record('on', { calls: 1, cachedCalls: 0, inputTokens: 1, outputTokens: 0, cost: 0 }, 'J5'))), /different journeys/);
+});
+
+test('the page is told which judge arm is running, and a restore always takes the marker away', async () => {
+  const page = { evaluate: (fn, arg) => fn(arg) };
+  await markJudgeMode(page, { label: 'off', uses: [] });
+  assert.deepEqual((globalThis as any).__soJudgeMode, { label: 'off', uses: [] });
+  assert.ok(RUNNER_SET_GLOBALS.has('__soJudgeMode'), 'the fixture guard must know the runner sets this global');
+  await markJudgeMode(page, { label: 'on', uses: ['warden'], wardenMode: 'auto' });
+  assert.deepEqual((globalThis as any).__soJudgeMode, { label: 'on', uses: ['warden'], wardenMode: 'auto' });
+  await restoreJudgeConfig(page, null);
+  assert.equal('__soJudgeMode' in globalThis, false);
+});
+
+const NOTE = 'Continuity: established — The old stone bridge over the river collapsed in the flood and is gone. Keep the next reply consistent with it.';
+const row = (index: number, text: string) => ({ id: `m${index}`, reply: { speaker: 'Seren', text } });
+
+test('warden notes keep the applied notes only, with the reply each one answered', () => {
+  const notes = wardenNotes([
+    { curator: 'warden', messageId: 1, ops: [{ status: 'applied', op: { kind: 'note', text: NOTE, replyMessageId: 1 } }] },
+    { curator: 'warden', messageId: 5, ops: [{ status: 'rejected', message: 'lapsed', op: { kind: 'note', text: 'x', replyMessageId: 5 } }] },
+    { curator: 'wi', messageId: 2, ops: [{ status: 'applied', op: { kind: 'patch' } }] },
+  ]);
+  assert.deepEqual(notes, [{ text: NOTE, replyMessageId: 1 }]);
+});
+
+test('over-steer columns measure reply N+1 after each applied note against the control arm at the same turn', () => {
+  const on = { notes: [{ text: NOTE, replyMessageId: 1 }], rows: [row(1, 'I crossed the old stone bridge this morning.'), row(3, 'Seren stops. "The old stone bridge over the river collapsed in the flood, remember?"'), row(5, 'They walk on.')] };
+  const off = { notes: [], rows: [row(1, 'I crossed the old stone bridge this morning.'), row(3, 'Seren nods and leads the way down to the water.'), row(5, 'They walk on.')] };
+  const [column] = overSteerColumns(on, off, OVER_STEER_FAMILIES.continuity);
+  assert.equal(column.reply?.id, 'm3');
+  assert.equal(column.control?.id, 'm3');
+  assert.equal(column.restate?.ok, false);
+  assert.ok((column.restate?.span ?? 0) >= 6);
+  assert.equal(column.controlRestate?.ok, true);
+  assert.deepEqual(column.swing, { words: 14, controlWords: 10, lengthRatio: 1.4, sharedWithControl: 1 });
+  const [orphan] = overSteerColumns({ notes: [{ text: NOTE, replyMessageId: 5 }], rows: on.rows }, off, OVER_STEER_FAMILIES.continuity);
+  assert.equal(orphan.reply, null);
+  assert.match(orphan.missing ?? '', /no reply after message 5/);
+});
+
+test('an arm summary carries the notes and reply rows the over-steer columns read', () => {
+  const summary = armSummary({ id: 'J8', cleanup: { judgeMode: { mode: { label: 'on', uses: ['warden'] } }, wardenNotes: [{ text: NOTE, replyMessageId: 1 }], rescore: { rows: [row(3, 'x')] } } });
+  assert.deepEqual(summary.notes, [{ text: NOTE, replyMessageId: 1 }]);
+  assert.equal(summary.rows.length, 1);
+  assert.deepEqual(armSummary({ id: 'J8', cleanup: {} }).notes, []);
+});
+
+test('a rescore can hold every arm to one declared fact set, and refuses an empty one', () => {
+  const rows = [{ id: 'm1', arm: 'off', established: ['bridge gone', 'bridge intact'] }, { id: 'm3', arm: 'on', established: ['bridge gone'] }];
+  assert.deepEqual(withEstablished(rows, ['bridge gone']).map((row) => row.established), [['bridge gone'], ['bridge gone']]);
+  assert.equal(withEstablished(rows, null), rows);
+  assert.throws(() => withEstablished(rows, []), /names no fact/);
 });

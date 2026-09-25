@@ -1,0 +1,73 @@
+1/9 import_story ok 269ms
+2/9 eval ok 268ms
+2/9 eval -> {"meter":{"calls":0,"cachedCalls":0,"inputTokens":0,"outputTokens":0,"cost":0,"lastAnsweredModel":null}}
+3/9 slash ok 1790ms
+4/9 eval ok 6ms
+4/9 eval -> {"courier":1,"row":{"use":"warden","model":"jev-1.13.0","questions":1,"stateChars":248,"latencyMs":695,"inputTokens":438,"outputTokens":22,"p":{"facts":1,"flagged":1}},"meter":{"calls":1,"cachedCalls":0,"inputTokens":438,"outputTokens":22,"cost":0,"lastAnsweredModel":"jev-1.13.0"}}
+5/9 wait ok 18149ms
+6/9 eval ok 9ms
+6/9 eval -> {"deleted":1,"length":1}
+7/9 wait ok 3109ms
+8/9 eval ok 6ms
+8/9 eval -> {"meter":{"calls":1,"cachedCalls":0,"inputTokens":438,"outputTokens":22,"cost":0,"lastAnsweredModel":null},"ringSent":0,"notInRing":1}
+9/9 eval ok 10ms
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T00-15-28-676Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 9,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-fff69068"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-24@21h15m00s401ms",
+    "owned": [
+      "2026-09-24@21h15m00s401ms"
+    ],
+    "deleted": [
+      "2026-09-24@21h15m00s401ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@21h15m00s401ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    },
+    "judge": {
+      "restored": true,
+      "ok": true
+    }
+  }
+}

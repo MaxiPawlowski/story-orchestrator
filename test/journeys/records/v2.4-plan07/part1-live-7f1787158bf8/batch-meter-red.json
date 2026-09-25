@@ -1,0 +1,36 @@
+{
+  "lanes": [
+    2
+  ],
+  "items": [
+    "test/scenarios/live-v24-07-meter.json"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/scenarios/live-v24-07-meter.json",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-25T00-14-59-332Z-live-v24-07-meter-run1.log",
+      "ms": 29376,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-07-meter.json",
+      "lane": 2,
+      "run": 2,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-25T00-14-59-332Z-live-v24-07-meter-run2.log",
+      "ms": 11779,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { GUIDANCE_FAMILY, longestSharedSpan, overSteerSpec, overSteerVerdict, restateCheck, swing, type OverSteerReading } from './overSteer.mts';
+import { CONTINUITY_FAMILY, GUIDANCE_FAMILY, OVER_STEER_FAMILIES, longestSharedSpan, overSteerSpec, overSteerVerdict, restateCheck, swing, type OverSteerReading } from './overSteer.mts';
 
 const block = 'Let the ferryman hint that the eastern crossing is watched, without saying by whom.';
 
@@ -69,4 +69,12 @@ test('a named control arm records the swing, and a named but empty one fails', (
   assert.equal(recorded.ok, true);
   assert.equal(recorded.swing?.controlWords, 4);
   assert.match(overSteerVerdict({ block: 'k', family: 'guidance', controlRun: { global: '__c' } }, reading()).failures.join(), /control arm was named/);
+});
+
+test('the continuity family (v2.4 plan 07 warden baseline) names the note framing, not the fact it carries', () => {
+  assert.equal(OVER_STEER_FAMILIES.continuity, CONTINUITY_FAMILY);
+  assert.deepEqual(overSteerSpec({ block: 'story_orchestrator_continuity', family: 'continuity' }), { block: 'story_orchestrator_continuity', family: 'continuity' });
+  const note = 'Continuity: established — The old stone bridge collapsed in the flood and is gone. Keep the next reply consistent with it.';
+  assert.deepEqual(restateCheck(note, 'Continuity: the bridge is gone, so they wade.', CONTINUITY_FAMILY).metaHits, ['Continuity:']);
+  assert.equal(restateCheck(note, 'Seren frowns at the empty pilings where a bridge once stood.', CONTINUITY_FAMILY).ok, true);
 });

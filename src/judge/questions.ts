@@ -1,4 +1,4 @@
-import { JUDGE_MAX_CHOICE_OPTIONS, JUDGE_MAX_REQUEST_CHARS, type JudgeAnswer, type JudgeChoiceAnswer, type JudgeChoiceQuestion, type JudgeNoulQuestion, type JudgeOption, type JudgeRequest, type JudgeScoreAnswer, type JudgeScoreQuestion } from "./types";
+import { JUDGE_CHARS_PER_TOKEN, JUDGE_MAX_CHOICE_OPTIONS, JUDGE_MAX_ESTIMATED_TOKENS, JUDGE_MAX_REQUEST_CHARS, type JudgeAnswer, type JudgeChoiceAnswer, type JudgeChoiceQuestion, type JudgeNoulQuestion, type JudgeOption, type JudgeRequest, type JudgeScoreAnswer, type JudgeScoreQuestion } from "./types";
 
 export const noul = (instructions: string, criteria?: { true: string; false: string }): JudgeNoulQuestion => (criteria ? { type: "noul", instructions, criteria } : { type: "noul", instructions });
 
@@ -9,6 +9,11 @@ export const score = (instructions: string, levels: string[]): JudgeScoreQuestio
 export const withNoMatch = (criteria: Record<string, JudgeOption>, key: string, description: string): Record<string, JudgeOption> => ({ ...criteria, [key]: description });
 
 export const stateRef = (path: string) => `\`${path}\``;
+
+export function estimateJudgeTokens(request: JudgeRequest): number {
+  const longest = Math.max(0, ...Object.values(request.questions ?? {}).map((question) => JSON.stringify(question).length));
+  return Math.ceil((JSON.stringify(request.state ?? {}).length + longest) / JUDGE_CHARS_PER_TOKEN);
+}
 
 export function validateJudgeRequest(request: JudgeRequest): string[] {
   const issues: string[] = [];
@@ -27,6 +32,8 @@ export function validateJudgeRequest(request: JudgeRequest): string[] {
     }
   }
   if (JSON.stringify(request).length > JUDGE_MAX_REQUEST_CHARS) issues.push(`request is over ${JUDGE_MAX_REQUEST_CHARS} chars`);
+  const tokens = estimateJudgeTokens(request);
+  if (tokens > JUDGE_MAX_ESTIMATED_TOKENS) issues.push(`request is over ${JUDGE_MAX_ESTIMATED_TOKENS} estimated tokens (${tokens})`);
   return issues;
 }
 

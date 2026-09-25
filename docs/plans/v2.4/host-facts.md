@@ -105,13 +105,14 @@ not a measurement (rule 1); the rows that need a measurement say so.
 
 | # | Fact | Source | Measured? |
 |---|---|---|---|
-| 07-H1 | `jev-1.13.0` context: **64k tokens per request; 32k for `state` plus the longest question** | `models.md` §Current models, "Context length" row and bullet | **No.** What happens past it (refusal, silent truncation, an answer) is not documented; `so-judge limit-probe --send` measures it (not run in part 1) |
+| 07-H1 | `jev-1.13.0` context: **64k tokens per request; 32k for `state` plus the longest question** | `models.md` §Current models, "Context length" row and bullet | **Partly (2026-09-25, `limit-probe --send`).** Past the limit the API **refuses**: HTTP 400 `{"detail":{"error_type":"max_tokens_exceeded"}}`, no silent truncation. It answered 30,132 tokens and refused about 67k; whether 32k or 64k is enforced is not pinned. Record: `test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/limit-probe.json` |
 | 07-H2 | Aliases `jev-latest` and `jev-preview` both point to `jev-1.13.0`; "the response's `model` field reports the versioned ID that answered" | `models.md` §Aliases | Partly: v2.3 plan 10 §B saw `--model jev-latest` answered by `jev-1.13.0` (`10-judge-seeds.md` §B). `jev-preview` is new to our map (the plan named only `jev-latest`) |
 | 07-H3 | `usage` is `{input_tokens, output_tokens}` (integers, required); **no cost field** | `api.md` §Response, `usage` ResponseField + four examples | Yes, by the v2.3 spike (334,328 input tokens metered, `docs/spikes/2026-09-19-typesafe-jev/report.md:8-9`) |
 | 07-H4 | Price: charged per **input** token, `$0.042` per million; output free | `models.md` §Current models, "Price" | Consistent with the spike: 334,328 tokens → $0.01404 = $0.042/Mtok |
 | 07-H5 | A malformed request is `422 Unprocessable Entity` upstream; rate limit `429`, overload `529` | `api.md` §Errors | The plugin refuses first with its own `400` (`index.mjs:135-136`) and retries 429/529 once (`:12-13`, `:116`) |
 | 07-H6 | The plugin's `/status` reports its constant `DEFAULT_MODEL`, not the install's configured model | `index.mjs:132` (`:8`) | Code fact; the page-side mismatch uses the ring's last answered model instead (plan 07 §2) |
 | 07-H7 | The plugin passes the upstream body back verbatim, so `usage` reaches the page | `index.mjs:141` | Code fact; jest covers the page side (`accounting.review.test.ts`) |
+| 07-H8 | Characters per token, whole request, as reported by `usage.input_tokens`: English 4.525 (17,740 and 26,510 tokens), Spanish 3.488 (30,132), random base36 1.488 | `limit-probe --send`, 2026-09-25 | Yes. The token guard estimates at 3.488, the lowest natural-language ratio measured. A one-fact warden call costs 447 input / 22 output tokens |
 
 ## Plan 05 (World Info, 2026-09-24)
 

@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "value": {
+    "over": {
+      "fallback": "invalid",
+      "answers": null,
+      "stateChars": 111811,
+      "sent": 0
+    },
+    "small": {
+      "fallback": null,
+      "model": "jev-1.13.0",
+      "p": 0.98,
+      "inputTokens": 291,
+      "sent": 1
+    }
+  }
+}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T00-48-41-874Z_st-eval.json

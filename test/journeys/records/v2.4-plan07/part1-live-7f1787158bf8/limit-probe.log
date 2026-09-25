@@ -1,0 +1,62 @@
+{
+  "plan": [
+    {
+      "id": "en-20k",
+      "lang": "en",
+      "aimTokens": 20000,
+      "chars": 80115
+    },
+    {
+      "id": "en-30k",
+      "lang": "en",
+      "aimTokens": 30000,
+      "chars": 120115
+    },
+    {
+      "id": "es-30k",
+      "lang": "es",
+      "aimTokens": 30000,
+      "chars": 105115
+    },
+    {
+      "id": "dense-10k",
+      "lang": "dense",
+      "aimTokens": 10000,
+      "chars": 25115
+    },
+    {
+      "id": "dense-40k",
+      "lang": "dense",
+      "aimTokens": 40000,
+      "chars": 100115
+    },
+    {
+      "id": "dense-50k",
+      "lang": "dense",
+      "aimTokens": 50000,
+      "chars": 130115
+    }
+  ],
+  "estimatedUsd": 0.0076
+}
+en-20k     http 200 input_tokens 17740
+en-30k     http 200 input_tokens 26510
+es-30k     http 200 input_tokens 30132
+dense-10k  http 200 input_tokens 16876
+dense-40k  http 400 input_tokens —
+dense-50k  http 400 input_tokens —
+{
+  "charsPerToken": {
+    "en": 4.525,
+    "dense": 1.488
+  },
+  "pastLimit": [
+    "dense-40k",
+    "dense-50k"
+  ],
+  "behaviour": "refuses",
+  "spentTokens": 91258,
+  "spentUsd": 0.003833,
+  "conclusive": false
+}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T00-40-42-041Z_so-judge-limit-probe.json

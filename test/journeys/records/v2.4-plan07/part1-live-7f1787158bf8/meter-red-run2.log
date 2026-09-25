@@ -1,0 +1,76 @@
+1/9 import_story ok 265ms
+2/9 eval ok 376ms
+2/9 eval -> {"meter":{"calls":0,"cachedCalls":0,"inputTokens":0,"outputTokens":0,"cost":0,"lastAnsweredModel":null}}
+3/9 slash ok 1759ms
+4/9 eval attempt 1/3 failed, retrying from step 3: Evaluation failed in SillyTavern page: page.evaluate: Error: the ring row carries no input tokens: {"use":"warden","model":"jev-1.13.0","questions":1,"stateChars":248,"latencyMs":0,"cached":true,"p":{"facts":1,"flagged":1}}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:945)
+    at async <anonymous>:316:30
+3/9 slash ok 1756ms
+4/9 eval attempt 2/3 failed, retrying from step 3: Evaluation failed in SillyTavern page: page.evaluate: Error: the ring row carries no input tokens: {"use":"warden","model":"jev-1.13.0","questions":1,"stateChars":248,"latencyMs":0,"cached":true,"p":{"facts":1,"flagged":1}}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:945)
+    at async <anonymous>:316:30
+3/9 slash ok 1768ms
+4/9 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the ring row carries no input tokens: {"use":"warden","model":"jev-1.13.0","questions":1,"stateChars":248,"latencyMs":0,"cached":true,"p":{"facts":1,"flagged":1}}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:945)
+    at async <anonymous>:316:30 (after 3 attempts)
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T00-15-36-055Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T00-15-40-465Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 8,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-fff69068"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-24@21h15m29s768ms",
+    "owned": [
+      "2026-09-24@21h15m29s768ms"
+    ],
+    "deleted": [
+      "2026-09-24@21h15m29s768ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@21h15m29s768ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    },
+    "judge": {
+      "restored": true,
+      "ok": true
+    }
+  }
+}

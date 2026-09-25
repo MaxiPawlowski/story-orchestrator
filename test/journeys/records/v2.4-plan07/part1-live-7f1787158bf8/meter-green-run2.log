@@ -1,0 +1,74 @@
+1/9 import_story ok 265ms
+2/9 eval ok 253ms
+2/9 eval -> {"meter":{"calls":0,"cachedCalls":0,"inputTokens":0,"outputTokens":0,"cost":0,"lastAnsweredModel":null}}
+3/9 eval ok 232ms
+3/9 eval -> {"text":"I crossed the old stone bridge over the river this morning on errand 90066. It held firm under my boots, same as ever."}
+4/9 eval ok 1018ms
+4/9 eval -> {"courier":1,"row":{"use":"warden","model":"jev-1.13.0","questions":1,"stateChars":264,"latencyMs":589,"inputTokens":447,"outputTokens":22,"p":{"facts":1,"flagged":1}},"meter":{"calls":1,"cachedCalls":0,"inputTokens":447,"outputTokens":22,"cost":0,"lastAnsweredModel":"jev-1.13.0"}}
+5/9 wait ok 20190ms
+6/9 eval ok 8ms
+6/9 eval -> {"deleted":1,"length":1}
+7/9 wait ok 3077ms
+8/9 eval ok 5ms
+8/9 eval -> {"meter":{"calls":1,"cachedCalls":0,"inputTokens":447,"outputTokens":22,"cost":0,"lastAnsweredModel":null},"ringSent":0,"notInRing":1}
+9/9 eval ok 8ms
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T00-18-39-034Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 9,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-fff69068"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-24@21h18m09s340ms",
+    "owned": [
+      "2026-09-24@21h18m09s340ms"
+    ],
+    "deleted": [
+      "2026-09-24@21h18m09s340ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@21h18m09s340ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    },
+    "judge": {
+      "restored": true,
+      "ok": true
+    }
+  }
+}

@@ -1,0 +1,53 @@
+v2.4 plan 07 part 1 live gates: T25 token guard + the control-column harness fixes the live runs forced, mutations 2026-09-25 (main checkout on 59c34b4; script .debug/mut-v24-07-live.mjs driving scripts/mutate.mjs, each mutant an exact-text replacement in one file, restored byte-for-byte after its run; exit 0 = the suite failed = KILLED, 3 = SURVIVED, 1 = DID NOT APPLY)
+Suites per mutant: page = jest src/judge/judge.test.ts (32), plugin = npm run test:plugin (9, 1 live-only skip), harness = node:test judgeHarness + overSteer + scenarioSchema (debug). Baseline all green before and after the sweep.
+H3 first ran as DID NOT APPLY (its find text carried a newline the CRLF file does not have); re-run alone with the single-line find: KILLED, 1 failing, "the page is told which judge arm is running, and a restore always takes the marker away". Result: 21/21 killed.
+
+- G1 page guard never refuses: KILLED, 2 failing
+    "validateJudgeRequest › T25: refuses a request whose estimated state + longest question tokens pass the documented limit minus 10%, under the character cap"
+    "askJudge › T25: never sends a request past the token guard, and never truncates it to fit"
+- G2 page estimate sums every question instead of the longest: KILLED, 1 failing
+    "validateJudgeRequest › T25: counts the longest question once, not every question, as the documented limit does"
+- G3 page cap drops the 10% margin: KILLED, 2 failing
+    "validateJudgeRequest › T25: refuses a request whose estimated state + longest question tokens pass the documented limit minus 10%, under the character cap"
+    "askJudge › T25: never sends a request past the token guard, and never truncates it to fit"
+- G4 page estimate uses the English ratio: KILLED, 2 failing
+    "validateJudgeRequest › T25: refuses a request whose estimated state + longest question tokens pass the documented limit minus 10%, under the character cap"
+    "askJudge › T25: never sends a request past the token guard, and never truncates it to fit"
+- G5 page estimate leaves the state out: KILLED, 3 failing
+    "validateJudgeRequest › T25: refuses a request whose estimated state + longest question tokens pass the documented limit minus 10%, under the character cap"
+    "validateJudgeRequest › T25: counts the longest question once, not every question, as the documented limit does"
+    "askJudge › T25: never sends a request past the token guard, and never truncates it to fit"
+- G6 askJudge sends an invalid request anyway: KILLED, 2 failing
+    "askJudge › T25: never sends a request past the token guard, and never truncates it to fit"
+    "askJudge › never calls the transport for an invalid request"
+- P1 plugin guard never refuses: KILLED, 1 failing
+    "T25: the token guard mirrors the page: state + longest question over the documented limit minus 10% is refused, never truncated"
+- P2 plugin estimate sums every question: KILLED, 1 failing
+    "T25: the token guard mirrors the page: state + longest question over the documented limit minus 10% is refused, never truncated"
+- P3 plugin cap drops the margin: KILLED, 1 failing
+    "T25: the token guard mirrors the page: state + longest question over the documented limit minus 10% is refused, never truncated"
+- P4 plugin estimate uses the English ratio: KILLED, 1 failing
+    "T25: the token guard mirrors the page: state + longest question over the documented limit minus 10% is refused, never truncated"
+- H1 judge restore leaves the WI curator switches as the fixture left them: KILLED, 1 failing
+    "restore puts back the WI curator switches a live judge fixture turned off, and a mode never moves them"
+- H2 a judge mode rewrites the curator switches: KILLED, 1 failing
+    "restore puts back the WI curator switches a live judge fixture turned off, and a mode never moves them"
+- H3 restore leaves the judge-arm marker in the page: KILLED (re-run alone), 1 failing
+    "the page is told which judge arm is running, and a restore always takes the marker away"
+- H4 the judge-arm marker is never set: KILLED, 1 failing
+    "the page is told which judge arm is running, and a restore always takes the marker away"
+- H5 warden notes keep lapsed notes: KILLED, 1 failing
+    "warden notes keep the applied notes only, with the reply each one answered"
+- H6 the control reply is read from the on arm: KILLED, 1 failing
+    "over-steer columns measure reply N+1 after each applied note against the control arm at the same turn"
+- H7 reply N+1 may be the flagged reply itself: KILLED, 1 failing
+    "over-steer columns measure reply N+1 after each applied note against the control arm at the same turn"
+- H8 the fixture guard forgets the runner-set global: KILLED, 1 failing
+    "no fixture reads a page global it never sets"
+- H9 rescore --facts is ignored: KILLED, 1 failing
+    "a rescore can hold every arm to one declared fact set, and refuses an empty one"
+- H10 the continuity family is not registered: KILLED, 2 failing
+    "over-steer columns measure reply N+1 after each applied note against the control arm at the same turn"
+    "the continuity family (v2.4 plan 07 warden baseline) names the note framing, not the fact it carries"
+- H11 an arm summary drops the notes: KILLED, 1 failing
+    "an arm summary carries the notes and reply rows the over-steer columns read"

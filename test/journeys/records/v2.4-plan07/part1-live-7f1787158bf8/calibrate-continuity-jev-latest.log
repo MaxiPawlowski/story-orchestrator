@@ -1,0 +1,128 @@
+ok   C01.reply Pell's left arm is broken and in a sling.   577 ms  
+ok   C01.broken:0 p=0.81             577 ms    [] Pell's left arm is broken and in a sling.
+ok   C01.consistent:1 p=0.03             577 ms    [] The reactor is unstable.
+ok   C02.reply no note            733 ms  
+ok   C02.consistent:0 p=0.02             733 ms    [] Pell's left arm is broken and in a sling.
+ok   C02.consistent:1 p=0.04             733 ms    [] The reactor is unstable.
+ok   C03.reply Maeve does not know that Max has the ledger.   663 ms  
+ok   C03.consistent:0 p=0.53             663 ms    [] The ledger is in Max's coat pocket.
+ok   C03.broken:1 p=0.87             663 ms    [] Maeve does not know that Max has the ledger.
+ok   C04.reply no note            578 ms  
+ok   C04.consistent:0 p=0.07             578 ms    [] The ledger is in Max's coat pocket.
+ok   C04.consistent:1 p=0.13             578 ms    [] Maeve does not know that Max has the ledger.
+ok   C05.reply Luke died in the sphinx's chamber.   641 ms  
+ok   C05.broken:0 p=0.81             641 ms    [] Luke died in the sphinx's chamber.
+ok   C06.reply no note            578 ms  
+ok   C06.consistent:0 p=0.08             578 ms    [] Luke died in the sphinx's chamber.
+ok   C07.reply It is night and raining heavily.   815 ms  
+ok   C07.broken:0 p=0.97             815 ms    [] It is night and raining heavily.
+ok   C07.consistent:1 p=0.04             815 ms    [] The party is in the guild hall.
+ok   C08.reply no note            801 ms  
+ok   C08.consistent:0 p=0.02             801 ms    [] Brandt drives a black sedan.
+ok   C09.reply Arin distrusts Max since the lie about the map.   779 ms  
+ok   C09.broken:0 p=0.82             779 ms    [] Arin distrusts Max since the lie about the map.
+ok   C10.reply no note            856 ms  
+ok   C10.consistent:0 p=0.05             856 ms    [] Arin distrusts Max since the lie about the map.
+ok   C11.reply The hull breach on deck three is sealed.   879 ms  
+ok   C11.broken:0 p=0.92             879 ms    [] The hull breach on deck three is sealed.
+ok   C11.consistent:1 p=0.04             879 ms    [] Two crew members are injured.
+ok   C12.reply no note            943 ms  
+ok   C12.consistent:0 p=0.03             943 ms    [] The hull breach on deck three is sealed.
+ok   C12.consistent:1 p=0.03             943 ms    [] Two crew members are injured.
+ok   C13.reply In the portrait, Lord Ashworth's painted hand now points at the door.   990 ms  
+ok   C13.consistent:0 p=0.03             990 ms    [] Graves is loyal to Lady Ashworth.
+ok   C13.broken:1 p=0.93             990 ms    [] In the portrait, Lord Ashworth's painted hand now points at the door.
+ok   C14.reply Max answered the sphinx's riddle correctly.  1015 ms  spanish
+ok   C14.broken:0 p=0.79            1015 ms  spanish  [] Max answered the sphinx's riddle correctly.
+ok   C15.reply no note           1026 ms  
+ok   C15.consistent:0 p=0.03            1026 ms    [] Mae Hollis is left-handed.
+ok   C16.reply no note           1052 ms  
+ok   C16.consistent:0 p=0.04            1052 ms    [] Luke is twelve years old.
+ok   C17.reply Max has never met Lieutenant Brandt.  1092 ms  
+ok   C17.broken:0 p=0.76            1092 ms    [] Max has never met Lieutenant Brandt.
+ok   C18.reply no note           1149 ms  
+ok   C18.consistent:0 p=0.37            1149 ms    [] Max has never met Lieutenant Brandt.
+ok   CX01.reply Arin was badly cut in the gate collapse and is bleeding.  1202 ms  
+ok   CX01.broken:0 p=0.93            1202 ms    [] Arin was badly cut in the gate collapse and is bleeding.
+ok   CX01.consistent:1 p=0.03            1202 ms    [] The reward is 500 crowns.
+ok   CX01.consistent:2 p=0.03            1202 ms    [] Luke joined the expedition.
+ok   CX01.consistent:3 p=0.03            1202 ms    [] The sphinx's riddle was answered wrong.
+ok   CX02.reply no note           1243 ms  
+ok   CX02.consistent:0 p=0.09            1243 ms    [] Arin was badly cut in the gate collapse and is bleeding.
+ok   CX02.consistent:1 p=0.03            1243 ms    [] The reward is 500 crowns.
+ok   CX02.consistent:2 p=0.03            1243 ms    [] Luke joined the expedition.
+ok   CX03.reply The reward is 500 crowns.  1265 ms  
+ok   CX03.broken:0 p=0.88            1265 ms    [] The reward is 500 crowns.
+ok   CX03.consistent:1 p=0.05            1265 ms    [] Ponticius signed the contract.
+ok   CX03.consistent:2 p=0.03            1265 ms    [] The party entered the ruins through a side tunnel.
+ok   CX04.reply The front gate of the ruins collapsed.  1308 ms  
+ok   CX04.broken:0 p=0.93            1308 ms    [] The front gate of the ruins collapsed.
+ok   CX04.consistent:1 p=0.2             1308 ms    [] The party entered the ruins through a side tunnel.
+ok   CX04.consistent:2 p=0.08            1308 ms    [] It is night outside the ruins.
+ok   CX05.reply no note           1346 ms  
+ok   CX05.consistent:0 p=0.03            1346 ms    [] Luke joined the expedition.
+ok   CX05.consistent:1 p=0.03            1346 ms    [] Luke is twelve years old.
+ok   CX05.consistent:2 p=0.04            1346 ms    [] Luke is afraid of the dark.
+MISS CX06.reply no note           1404 ms  
+ok   CX06.consistent:0 p=0.18            1404 ms    [] Max carries the Sun's Heart in his pack.
+MISS CX06.broken:1 p=0.62            1404 ms    [] Arin does not know where the Sun's Heart is.
+ok   CX06.consistent:2 p=0.07            1404 ms    [] The inner chamber is flooded.
+ok   CX07.reply no note           1406 ms  spanish
+ok   CX07.consistent:0 p=0.04            1406 ms  spanish  [] Arin fue herida en el derrumbe y sangra.
+ok   CX07.consistent:1 p=0.03            1406 ms  spanish  [] La recompensa es de 500 coronas.
+ok   CX07.consistent:2 p=0.03            1406 ms  spanish  [] Luke se unió a la expedición.
+ok   CX08.reply Es de noche fuera de las ruinas.  1452 ms  spanish
+ok   CX08.consistent:0 p=0.05            1452 ms  spanish  [] La puerta principal de las ruinas se derrumbó.
+ok   CX08.consistent:1 p=0.05            1452 ms  spanish  [] El grupo entró por un túnel lateral.
+ok   CX08.broken:2 p=0.91            1452 ms  spanish  [] Es de noche fuera de las ruinas.
+ok   CX09.reply no note           1492 ms  spanish
+ok   CX09.consistent:0 p=0.06            1492 ms  spanish  [] Luke tiene doce años.
+ok   CX09.consistent:1 p=0.07            1492 ms  spanish  [] Luke se unió a la expedición.
+ok   CX09.consistent:2 p=0.1             1492 ms  spanish  [] Ponticius firmó el contrato.
+ok   CX10.reply La cámara interior está inundada.  1512 ms  spanish
+ok   CX10.consistent:0 p=0.03            1512 ms  spanish  [] Max lleva el Corazón del Sol en su mochila.
+ok   CX10.consistent:1 p=0.04            1512 ms  spanish  [] Arin no sabe dónde está el Corazón del Sol.
+ok   CX10.broken:2 p=0.97            1512 ms  spanish  [] La cámara interior está inundada.
+ok   reply     27/28 floor 0.9
+ok   broken    14/15 floor 0.85
+ok   consistent 42/42 floor 0.966
+{
+  "use": "continuity",
+  "fixture": "continuity",
+  "right": 83,
+  "total": 85,
+  "rate": 0.9765,
+  "families": [
+    {
+      "family": "reply",
+      "right": 27,
+      "total": 28,
+      "floor": 0.9,
+      "ok": true
+    },
+    {
+      "family": "broken",
+      "right": 14,
+      "total": 15,
+      "floor": 0.85,
+      "ok": true
+    },
+    {
+      "family": "consistent",
+      "right": 42,
+      "total": 42,
+      "floor": 0.966,
+      "ok": true
+    }
+  ],
+  "spanish": "18/18",
+  "p50LatencyMs": 1015,
+  "requestedModel": "jev-latest",
+  "model": "jev-1.13.0",
+  "modelVerdict": "resolved",
+  "resolvedTo": "jev-1.13.0",
+  "min": 0.85,
+  "minGiven": false,
+  "ok": true
+}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T00-41-31-494Z_so-judge-calibrate-continuity.json

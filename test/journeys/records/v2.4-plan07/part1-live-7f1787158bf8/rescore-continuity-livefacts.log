@@ -1,0 +1,26 @@
+{
+  "use": "continuity",
+  "records": [
+    "test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/J8.5-off-run1.journey.json",
+    "test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/J8.5-on-run1.journey.json",
+    "test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/J8.5-on-run2.journey.json"
+  ],
+  "model": "jev-1.13.0",
+  "rates": [
+    {
+      "arm": "off",
+      "asked": 5,
+      "answered": 5,
+      "flagged": 1,
+      "defectRate": 0.2
+    },
+    {
+      "arm": "on",
+      "asked": 15,
+      "answered": 15,
+      "flagged": 8,
+      "defectRate": 0.5333
+    }
+  ]
+}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T00-37-58-569Z_so-judge-rescore-continuity.json
