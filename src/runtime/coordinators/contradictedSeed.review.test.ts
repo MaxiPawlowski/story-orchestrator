@@ -26,7 +26,11 @@ jest.mock("@services/STAPI", () => ({
   getActiveGroup: () => null,
   getCharacterNameById: () => null,
   countTokens: () => 4,
-  capabilityState: async () => "absent",
+  capabilityState: async () => (mockVectors.on ? "present" : "absent"),
+  DEFAULT_VECTOR_SOURCE: "transformers",
+  vectorInsert: async (id: string, items: Array<{ index: number; text: string }>) => { mockVectors.inserts += 1; mockVectors.collections.set(id, items.map(({ index, text }) => ({ index, text }))); },
+  vectorQuery: async (id: string, text: string, _topK: number, threshold: number) => (mockVectors.collections.get(id) ?? []).filter((item) => mockCosine(text, item.text) >= threshold),
+  vectorPurge: async (id: string) => { mockVectors.collections.delete(id); },
   bindChatLorebook: async () => {},
   ensureLorebook: async () => {},
   loadLorebook: async () => null,
@@ -49,6 +53,15 @@ const SEED = "The old stone bridge over the river collapsed in the flood and is 
 const STANDING = "The old stone bridge over the river is still standing and intact.";
 const USABLE = "The old stone bridge over the river is intact and usable.";
 const COURIER_QUOTE = "It held firm under my boots, same as ever.";
+
+// ST vectors as lane 2 answered them (test/journeys/records/v2.4-plan07/contradiction-live-9b2f890a5987/
+// pair-cosine-probe.json): the server keeps a match only when its cosine reaches the threshold.
+const mockVectors = { on: false, inserts: 0, collections: new Map<string, Array<{ index: number; text: string }>>() };
+const MEASURED_COSINE = new Map<string, number>([[`${SEED}|${STANDING}`, 0.4102], [`${SEED}|${USABLE}`, 0.3587]]);
+function mockCosine(left: string, right: string): number {
+  if (left === right) return 1;
+  return MEASURED_COSINE.get(`${left}|${right}`) ?? MEASURED_COSINE.get(`${right}|${left}`) ?? 0;
+}
 
 // The record keeps the two stored texts but not the line kind each came from, so the read below emits
 // both kinds a shared read can: a FACT line and a MEMORY line of another type (event).
@@ -255,6 +268,61 @@ describe("a new claim that contradicts an established fact is held, not stored l
     const env = harness();
     await env.seed("none");
     await env.read(COURIER_READ);
+    expect(isLive(row(env.memory(), STANDING)!)).toBe(true);
+    expect(env.memory().conflicts).toEqual([]);
+  });
+});
+
+// Found live (2026-09-25, bundle 9b2f890a5987, RED x2): with ST vectors present the vectors band alone
+// decided the pair, and the Courier claims sit at cosine 0.410 / 0.359 against the seed, under the 0.55
+// same-topic band, so both were stored live. Jaccard scores the same pairs 0.533 / 0.571 against its 0.4
+// band. Decision: for an ESTABLISHED row, either band holds the claim; ordinary consolidation keeps one source.
+describe("an established fact is guarded by the vectors band OR the Jaccard band (v2.4 plan 07, live RED)", () => {
+  beforeEach(() => { mockVectors.on = true; mockVectors.inserts = 0; mockVectors.collections.clear(); });
+  afterEach(() => { mockVectors.on = false; });
+
+  it("holds both Courier rows against the locked seed when the vectors query misses the pair", async () => {
+    const env = harness();
+    await env.seed("lock");
+    await env.read(COURIER_READ);
+    const memory = env.memory();
+    expect(mockVectors.inserts).toBeGreaterThan(0);
+    for (const text of [STANDING, USABLE]) {
+      expect({ text, stored: Boolean(row(memory, text)), live: isLive(row(memory, text) ?? {}) }).toEqual({ text, stored: true, live: false });
+    }
+    expect(heldPairs(memory)).toHaveLength(2);
+    expect(env.warden()).toEqual([SEED]);
+  });
+
+  it.each(["pin", "none"] as const)("stores the same claims live next to a %s (not established) seed", async (as) => {
+    const env = harness();
+    await env.seed(as);
+    await env.read(COURIER_READ);
+    expect(isLive(row(env.memory(), STANDING)!)).toBe(true);
+    expect(isLive(row(env.memory(), USABLE)!)).toBe(true);
+    expect(env.memory().conflicts).toEqual([]);
+  });
+
+  it("stores an unrelated claim live next to the locked seed", async () => {
+    const env = harness();
+    await env.seed("lock");
+    await env.read(`FACT importance=2 text="Arin carries two curved daggers." evidence="${COURIER_QUOTE}"`);
+    expect(mockVectors.inserts).toBeGreaterThan(0);
+    expect(isLive(row(env.memory(), "Arin carries two curved daggers.")!)).toBe(true);
+    expect(env.memory().conflicts).toEqual([]);
+  });
+
+  // Ordinary fact-vs-fact consolidation keeps the single source: with vectors present, Jaccard's band
+  // does not reach the walk, so the undecided pair it would find is not soft-marked.
+  it("consolidation between two ordinary rows still reads the vectors band alone", async () => {
+    const env = harness();
+    await env.seed("none");
+    await env.read(`FACT importance=3 text="${STANDING}" evidence="${COURIER_QUOTE}"`, 1);
+    const fillers = ["Arin carries two curved daggers.", "Ponticius keeps the guild ledger locked.", "Rain fell on the eastern hills all week.", "The market sells dried figs cheaply.", "A grey mare waits tied near the inn.", "Wolves were heard beyond the northern ridge."];
+    for (const [index, text] of fillers.entries()) await env.read(`FACT importance=1 text="${text}" evidence="${COURIER_QUOTE}"`, index + 2);
+    await env.coordinator.runConsolidation();
+    expect(mockVectors.inserts).toBeGreaterThan(0);
+    expect(row(env.memory(), SEED)!.contradicted).toBeFalsy();
     expect(isLive(row(env.memory(), STANDING)!)).toBe(true);
     expect(env.memory().conflicts).toEqual([]);
   });

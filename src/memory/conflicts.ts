@@ -1,7 +1,7 @@
 import { isLive, withOverride, withValidity, type Provenance, type Provenanced } from "./provenance";
 import { ledgerKey } from "./ledger";
 import { hasStateChangeMarker } from "./similarity";
-import type { MatchSets } from "./consolidate";
+import { buildJaccardMatchSets, type MatchSets } from "./consolidate";
 import type { LedgerEntry, MemoryEntry } from "./types";
 
 // v2.3 plan 05 (C3). Two stores can both hold a claim about the same thing and disagree. The soft
@@ -226,6 +226,21 @@ export interface HeldContradiction {
  *  contradicts a settled fact does not depend on the extractor calling it a fact or an event. */
 export const heldGroup = (established: MemoryEntry[], candidates: MemoryEntry[]): MemoryEntry[] =>
   [...established, ...candidates].map((entry) => ({ ...entry, type: "fact" as const }));
+
+export function unionMatchSets(left: MatchSets, right: MatchSets): MatchSets {
+  const merge = (a: Set<number>[], b: Set<number>[]) => Array.from({ length: Math.max(a.length, b.length) }, (_, index) => new Set([...(a[index] ?? []), ...(b[index] ?? [])]));
+  return { dup: merge(left.dup, right.dup), sameTopic: merge(left.sameTopic, right.sameTopic) };
+}
+
+/** v2.4 plan 07 (live, bundle 9b2f890a5987): the bands that guard an ESTABLISHED row are the vectors
+ *  bands OR the Jaccard bands. Measured on lane 2, "the bridge is gone" vs "the bridge is intact" sat at
+ *  cosine 0.410 / 0.359 (under the 0.55 same-topic band) and at Jaccard 0.533 / 0.571 (over its 0.4
+ *  band): a sentence embedding barely moves on polarity, so vectors alone stored the claim live. The
+ *  union only widens the hold on settled rows; ordinary consolidation keeps its single source. */
+export const establishedBands = (group: MemoryEntry[], vectors: MatchSets | null): MatchSets => {
+  const jaccard = buildJaccardMatchSets(group);
+  return vectors ? unionMatchSets(vectors, jaccard) : jaccard;
+};
 
 /** Below a lock, a candidate carrying a state-change marker is an UPDATE that consolidation may
  *  supersede the row with, exactly as it would today. A lock is truth: every candidate in its band is held. */
