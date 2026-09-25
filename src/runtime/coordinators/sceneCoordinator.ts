@@ -17,6 +17,7 @@ export interface SceneCoordinatorDeps {
   getScene: () => SceneReadRecord | null;
   setScene: (record: SceneReadRecord | null) => void;
   inject: (text: string | null) => WriteResult<{ changed: boolean }>;
+  applied?: () => string | null;
   journal?: (summary: string, note: string) => void;
   withheldFields?: () => ReadonlySet<string>;
   // v2.3 plan 03 (C1, the "scene" surface). Optional: an unwired caller never lapses.
@@ -163,7 +164,7 @@ export class SceneCoordinator {
     const stale = SceneCoordinator.isStale(record);
     const facts = stale ? null : confirmedSceneFacts(record, this.deps.withheldFields?.());
     const text = facts && story && this.families().tracker && story.scene_read?.inject !== false ? sceneTrackerText(facts) : null;
-    if (text === this.injected) return;
+    if (text === (this.deps.applied ? this.deps.applied() : this.injected)) return;
     const result = this.deps.inject(text);
     if (result.ok) {
       this.injected = text;

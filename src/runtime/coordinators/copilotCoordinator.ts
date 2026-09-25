@@ -32,12 +32,13 @@ export interface CopilotCoordinatorDeps {
   // v2.3 plan 02 (R8). Which lorebooks this story may write into, and the author's way to add one.
   wizardSession?: (key: string) => WizardSessionState | null;
   saveWizardSession?: (session: WizardSessionState) => void;
+  openChat?: () => string | null;
 }
 
 // Authoring stages, the driver read-model and the one-turn nudge. Stateless apart from the
-// nudge currently injected — nothing here is persisted.
+// nudge currently injected — nothing here is persisted. The nudge belongs to the chat it was set in.
 export class CopilotCoordinator {
-  private activeNudge: string | null = null;
+  private nudge: { text: string; depth: number; chatId: string | null } | null = null;
 
   constructor(private readonly deps: CopilotCoordinatorDeps) {}
 
@@ -216,18 +217,31 @@ export class CopilotCoordinator {
     const trimmed = text.trim();
     if (!trimmed || !this.deps.getSettings().enabled) return;
     setStoryExtensionPrompt(COPILOT_NUDGE_KEY, trimmed, depth);
-    this.activeNudge = trimmed;
+    this.nudge = { text: trimmed, depth, chatId: this.openChat() };
     this.deps.notify();
   }
 
   clearNudge() {
-    if (this.activeNudge === null) return;
+    if (this.nudge === null) return;
     clearStoryExtensionPrompt(COPILOT_NUDGE_KEY);
-    this.activeNudge = null;
+    this.nudge = null;
     this.deps.notify();
   }
 
+  reapplyNudge() {
+    if (this.nudge === null) return;
+    if (this.nudge.chatId !== this.openChat()) {
+      this.clearNudge();
+      return;
+    }
+    setStoryExtensionPrompt(COPILOT_NUDGE_KEY, this.nudge.text, this.nudge.depth);
+  }
+
   getActiveNudge(): string | null {
-    return this.activeNudge;
+    return this.nudge !== null && this.nudge.chatId === this.openChat() ? this.nudge.text : null;
+  }
+
+  private openChat(): string | null {
+    return this.deps.openChat?.() ?? null;
   }
 }

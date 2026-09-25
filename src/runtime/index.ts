@@ -1,7 +1,7 @@
 import { callExtractionModel, getChatWindow, ExtractionScheduler, probeModel, setProfileRouter, type SchedulerHost, type SchedulerJob, type SchedulerSettings } from "@extraction/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { sceneFieldsInConflict } from "@memory/index";
-import { clearStoryExtensionPrompt, countTokens, executeSlashCommands, forceActivateEntries, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, getScannableEntries, judgeStatus, judgeTransport, noteHostSettingsLoaded, profileExists, readExtensionPromptBlocks, readPromptBudget, setStoryExtensionPrompt, settingsReady, subscribeToHostEvents, willAddUserMessage, EXTENSION_SETTINGS_LOADED_EVENT, type HostSubscriptionEntry } from "@services/STAPI";
+import { clearStoryExtensionPrompt, countTokens, executeSlashCommands, forceActivateEntries, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, getScannableEntries, judgeStatus, judgeTransport, noteHostSettingsLoaded, profileExists, readExtensionPromptBlocks, readInjectedPromptBlocks, readPromptBudget, setStoryExtensionPrompt, settingsReady, subscribeToHostEvents, willAddUserMessage, EXTENSION_SETTINGS_LOADED_EVENT, type HostSubscriptionEntry } from "@services/STAPI";
 import { breakerWatchEntries } from "./breakerWatch";
 import { quoteSlashArg } from "@utils/string";
 import { runBoundaryWork } from "./boundaryWork";
@@ -169,6 +169,7 @@ export function startRuntime() {
     ownership: runtimeManager.getOwnership(),
     setScene: (record) => runtimeManager.recordSceneRead(record),
     inject: (text) => (text ? setStoryExtensionPrompt(tracker.key, text, tracker.depth) : clearStoryExtensionPrompt(tracker.key)),
+    applied: () => readInjectedPromptBlocks().find((block) => block.key === tracker.key)?.value ?? null,
     withheldFields: () => sceneFieldsInConflict(runtimeManager.getSnapshot().memory.conflicts),
     journal: (summary, note) => runtimeManager.noteRecap(summary, note),
   });

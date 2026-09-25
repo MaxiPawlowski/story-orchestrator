@@ -28,7 +28,7 @@ const state = { activeCheckpointId: "cp1", boundary: 3, lastMessageId: 9 } as ne
 
 type Write = { ok: true; changed: boolean } | { ok: false; reason: string };
 
-function harness(answer: (attempt: number) => Write) {
+function harness(answer: (attempt: number) => Write, host?: { held: string | null }) {
   const current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(current, window), check: (token: RunToken) => tokenMatches(current, token) };
   let scene: { facts?: { location?: string | null } } | null = null;
@@ -46,7 +46,8 @@ function harness(answer: (attempt: number) => Write) {
     getLastMessageId: () => 9,
     getScene: () => scene as never,
     setScene: (next: unknown) => { scene = next as typeof scene; },
-    inject: ((text: string | null) => { writes.push(text); return answer(writes.length); }) as never,
+    inject: ((text: string | null) => { writes.push(text); const result = answer(writes.length); if (host && result.ok) host.held = text; return result; }) as never,
+    ...(host ? { applied: () => host.held } : {}),
     journal: (summary: string, note: string) => { journal.push({ summary, note }); },
     ownership,
     now: () => 0,
@@ -99,4 +100,27 @@ test("AE04-S1: a tracker write that lands after a refusal is not journaled again
   h.coordinator.sync();
   expect(h.writes).toHaveLength(2);
   expect(h.journal).toHaveLength(1);
+});
+
+// v2.4 acceptance A1 (2026-09-25): ST's clearChat reassigns `extension_prompts = {}` on every chat load,
+// a same-chat reload included (script.js:1590, 1712). A tracker that remembers what it wrote claims a
+// block the host no longer holds; the runtime wires `applied` to what the host holds.
+test("A1: a tracker block ST dropped on a chat load is written again by the next sync", async () => {
+  const host = { held: null as string | null };
+  const h = harness(() => ({ ok: true, changed: true }), host);
+  await h.run();
+  expect(host.held).toContain("the road");
+  host.held = null;
+  h.coordinator.sync();
+  expect(h.writes).toHaveLength(2);
+  expect(host.held).toContain("the road");
+});
+
+test("A1 control: while the host still holds the tracker block, a sync writes nothing", async () => {
+  const host = { held: null as string | null };
+  const h = harness(() => ({ ok: true, changed: true }), host);
+  await h.run();
+  h.coordinator.sync();
+  h.coordinator.sync();
+  expect(h.writes).toHaveLength(1);
 });

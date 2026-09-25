@@ -40,6 +40,8 @@ function harness() {
     fireAfterSpeak: jest.fn(async () => undefined),
     rollbackFromMessage: jest.fn(async (_id: number, _journal?: unknown) => undefined),
     loadSelectedFromChat: jest.fn(async () => undefined),
+    reapplyPromptBlocks: jest.fn(),
+    reapplyCopilotNudge: jest.fn(),
     getOwnership: () => undefined,
     notify: jest.fn(),
   };
