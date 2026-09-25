@@ -78,7 +78,8 @@ version bump), which existed for downgrade safety and are retired by E9. The del
 | 10 | **Acceptance** | v2.4 plan 09's shape, scan-mode journeys, and the production-readiness checklist as a gate table | all | — | outline |
 
 11 runs first: it deletes read branches and narrows the types every later plan touches, and it frees `memoryCoordinator`
-and manager lines (legacy inventory §5 ranks 2–3). Then 01 and 02 run in parallel (different subsystems). 03 comes before
+and manager lines (legacy inventory §5 ranks 2–3). Then 01 and 02 run in parallel (different subsystems), but **01's live sign-off (G1–G8) waits for 02 C2's attribution of the
+save race or a recorded non-reproduction** (Sol PR-09); a wedged lane is neither a pass nor a waived attempt. 03 comes before
 04 and 06, because both need coordinator lines. 07 is independent. 08 waits for 01. 12 is independent of all of them and
 can start at once, except that its bundle budget (F1) is measured after 03's extractions. Each item in 09 is its own spike
 with predeclared conditions, the T13 pattern.
@@ -115,6 +116,35 @@ with predeclared conditions, the T13 pattern.
 - **Docs:** install without npm, first run, uninstall/cleanup (mirror lorebooks, wizard assets), troubleshooting, supported
   ST versions, a privacy section (what each role sends where; the judge sends `state` to TypeSafe), changelog 2.4/2.5.
 - **CI:** every gate on push to master.
+- **Added by the 2026-09-25 Codex review** (`research/review-codex-2026-09-25.md`, each item verified against the source):
+  - **Two proofs, not one (Sol PR-02).** Instrumented journeys keep running on a dev build. The release artifact gets its own
+    **black-box smoke journey** through the ordinary ST UI and observable chat/asset state: fresh install from the artifact,
+    first run, story selection, one real turn, restart, and **zero `storyOrchestrator*` debug globals**. Archive the artifact
+    hash and the served bundle hash.
+  - **First run is tested, not only documented (PR-06):** start with no memory profile and no judge plugin. The UI names the
+    missing step and offers a working path, nothing calls an unintended model, and advancement resumes after configuration.
+    The published walkthrough matches the recorded screens.
+  - **Uninstall is tested (PR-07):** an inventory of everything the extension creates or changes (mirror and gated lorebooks,
+    wizard cards/groups, library records, wizard sessions, chat metadata, settings, judge secret, server plugin), then a
+    create → uninstall exercise with a before/after inventory. Two documented modes: keep authored data, or remove owned data.
+    Foreign assets are never touched.
+  - **Judge plugin on an artifact install (PR-03):** `scripts/plugin-install.mjs` is not in the allowlist, so an artifact user
+    has no install path. Ship an installer or a tested manual route: enable server plugins, restart, `/status`, one opt-in call.
+  - **Judge plugin security gate (PR-05):** the handler forwards any non-empty `model` string (`server-plugin/…/index.mjs:151`).
+    Add a permitted model list, a body-size bound before parsing, per-user concurrency/rate limits, and a two-user
+    key-isolation test on a real ST route. Resolve U7 first.
+  - **Served-tree check over the whole tree (PR-04):** move the existing `.debug/` contents too, not only the default dir.
+    Check representative logs, journals, payload captures, profiles, source maps and internal docs on the dev install and on
+    the artifact. Pass = 404 for each, and the artifact contains only its allowlist.
+  - **Egress verified against real requests (PR-16):** judge off → no TypeSafe request; judge on → only the documented fields
+    to the configured host; logs and support exports follow a stated redaction/retention rule. The README privacy section is
+    written from that record.
+  - **Licences (PR-17):** an SBOM / licence inventory for shipped dependencies and the vendored Smart-Memory code, the AGPL
+    source-offer statement checked against the release tag.
+  - **Backup/restore (PR-14):** state what a user can export and restore. A round-trip test for library stories and a documented
+    backup of settings and owned assets. The clipboard state export is not a backup and is not described as one.
+  - **Update mechanics (PR-15):** tested with two deliberately versioned release candidates through the chosen install route
+    (U6). v2.5 is the first baseline; no attestation claims an upgrade from a previous public release.
 
 ### 03 Code health and budget headroom
 - **Targets (prod-readiness S2–S8, predeclared, never retuned):** manager ≤ 700 and every coordinator ≤ 560 effective lines
@@ -123,6 +153,12 @@ with predeclared conditions, the T13 pattern.
   helper. Each new guard lands with a negative control.
 - **Comments (T3, V11):** plan/ticket/date narration goes; host-fact `file:line` citations and JSDoc on host seams stay, allowlisted
   by a scanner guard.
+- **Declared before measuring (Sol PR-18):** the helper allowlist and scanner scope for S8, the error-copy inventory with
+  pass/fail fields for E2, and the exact parallel-load command and environment for "`npm test` ×3 under load" are committed
+  in the plan doc before the plan runs, each guard with a negative control.
+- **Fault-matrix honesty (Astra AE-04):** a `covered` cell must cite a test that injects its fault. Three did not
+  (`extraction|delayedError`, `stagecraft|duplicateCompletion`, `scene|beforeHostWrite`); being corrected on 2026-09-25 with a
+  sweep of every other cell. If a structural check is feasible without false positives, it lands here.
 - **Budgets:** `MANAGER_LINE_BUDGET = 740` and `COORDINATOR_LINE_BUDGET = 620` (`src/runtime/architecture.test.ts:17-18`).
   Measured with the test's own formula: manager **736/740**, `memoryCoordinator` **619/620** on master HEAD, and the same on
   the 06/08 integration branch. Every v2.4 plan cites 736–737 and 619 (`v2.4/06-steering-stagecraft.md:344`,
@@ -215,6 +251,16 @@ Each needs its own measurement before a build. None has one yet.
 - Added: every journey in scan mode (plan 01 G3/G4), a clean host for each ST version the README claims (V10: the latest
   stable ST at release), the plan 02 C1 live proof of the generating branch, the human sessions (below), and
   **`research/prod-readiness-criteria.md` as a gate table**: every row met or a deferral the user signs off, never loosened.
+- **The label "production ready" cannot be reached by deferral (Sol PR-01).** R1–R4, D1–D3, P1–P3, the artifact smoke journey
+  and the uninstall test are required for it. A deferred critical row makes the verdict PARTIAL, as v2.4 plan 09 does.
+- **Added by the Codex review:** a **long-session soak** (a 1 000-message chat and a sustained 100-turn session on the
+  artifact, reference hardware and latency/heap budgets predeclared, compared against a 100-message baseline; PR-11); a
+  **backend-outage chaos row** (cut the memory model during an extraction and during a boundary with pending work: no stale
+  result applies after ownership moves, the player can still generate, status explains the pause, queued work resumes or is
+  discarded explicitly; PR-12); a **touch/keyboard pass** at phone and desktop sizes in two ST themes over first-run settings,
+  drawer, Studio, wizard, Repair and confirmations (PR-13); and the **v2.3 L7 carry-ins** that v2.4 plan 09 promised as `C*`
+  rows but never instantiated: the live fault-matrix run, three independently authored stories through both routes, and the
+  two-story privacy capture (Astra AE-05).
 
 ## v2.4 residue: enters v2.5 only if v2.4 plan 09 defers it
 

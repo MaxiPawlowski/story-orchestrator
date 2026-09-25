@@ -147,7 +147,8 @@ mention v3 keying: re-read them). **Keep** plan docs and gate records as history
 6. **A1–A3, A7** (schema input); `storyDiff` is unaffected, because it diffs normalised stories.
 7. **Debug and docs**: H19–H21, D rows, the S9 re-point, and the `citations-known.json` `removed` rows.
 8. **One-time data actions on this install and the lanes** (Q3): discard or leave the 59 old blobs, which reset on
-   next open anyway; delete 8 fixed-name mirror books and the unmarked per-chat books; re-seed lanes
+   next open anyway; ~~delete~~ **move (overview V10: to a backup folder outside the ST tree, never deleted; the exact inventory,
+   destination, collision rule, manifest and a byte-for-byte restore test are predeclared in plan 11 first — Sol PR-08)** 8 fixed-name mirror books and the unmarked per-chat books; re-seed lanes
    (`st-lanes.mts seed n --fresh`), because lane data roots are copies that carry the same old blobs.
 
 Gates per CLAUDE.md: steps 1–5 touch the runtime, so they need `npm run typecheck && npm run lint && npm test` plus

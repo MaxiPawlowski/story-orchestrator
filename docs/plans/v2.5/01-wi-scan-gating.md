@@ -152,9 +152,9 @@ gated entries), 9 (the author table and diagnostics stay author-only), 20 (real-
 
 | # | Decision | Evidence |
 |---|---|---|
-| W1 | Keep the `normalized` key shape; add `normalizedFrom` | a v2.4 read keeps only string arrays (`settingsStore.ts:40-43`), so a reshape turns into an empty ledger on downgrade, and every gated-on entry resting off then stays off (`keptForeign`, `scanGatePlan.ts:84-88`) |
+| W1 | Keep the `normalized` key shape; add `normalizedFrom` | extending the key keeps one ledger shape for every reader (`settingsStore.ts:40-43` keeps only string arrays today), and plan 11's `schema: 1` stamp is the baseline any later reshape bumps; no downgrade reader exists (E9) |
 | W2 | Normalise, then activate | `missingKey` leaks by construction before normalisation (`scanGatePlan.ts:73-74`) |
-| W3 | Keep `gatingMode: "scan"` as the stored value | a v2.4 downgrade then runs the spike handler over the same ledger (`worldInfoScanHost.ts:42-51`), which S1–S8 measured. What it loses is growth normalisation on real books (`:62-63`); the downgrade leg (G6) measures that |
+| W3 | Keep `gatingMode: "scan"` as the stored value | it is the value the spike handler (`worldInfoScanHost.ts:42-51`) was measured under in S1–S8, so the build ships what was measured |
 | W4 | No write-ahead row for the normaliser | a crash between the file write and the ledger save leaves the entry off at rest and outside the ledger; the next run records it through the `alreadyOff` branch (`worldInfoNormalize.ts:72-76`). The interval shows the entry off where the path says on; this is stated as a risk, not hidden |
 | W5 | Growth through the author's own save needs no second modal | the author's save is already the one automatic library→chat path (architecture invariant) |
 
@@ -198,7 +198,7 @@ normalising the lane's real-named books damages nothing real. **No gate normalis
 | G4 | J3 in scan mode, J7 in file mode (regression of the fallback) | J3 ×2, J7 ×1, strict |
 | G5 | Drift: hand-enable a normalised entry through ST's API, reload | the Repair row appears on start-up; with SO disabled the entry is the only leak, and re-normalise clears it; ×2 |
 | ~~G6~~ | ~~Downgrade leg~~ — dropped by v2.4 E9 | — |
-| G7 | Clean host at each ST version the README claims (overview V10): `05-H5` sticky across the switch, live | stays active, or the one-time loss is stated; a recurrence fails |
+| G7 | Clean host at each ST version the README claims (overview V10): `05-H5` sticky across the switch, live | stays active across the switch; if a one-time loss is accepted instead, the user-visible state and the recovery action are predeclared here before the run, and a recurrence fails (Sol PR-10) |
 | G8 | S8 cost over the lane's real library plus the 500-entry bulk book | ≤ 5 ms p95 over 50 scans incl. dry |
 
 **Machine gates:** typecheck, typecheck:test, lint, test, debug:typecheck, build, test:release, test:debug,
@@ -217,7 +217,7 @@ Storybook runner (settings row + author table stories), then `st-session.mts rel
   reads the view (`05-H10`). Any other reader is found by the interop corpus, not assumed.
 - **Shared-browser collisions** during lane runs (gotchas): pin the group, diff run headers.
 - **Plan 02's save race** can wedge a lane page mid-gate, as in spike run A (`05-t13-spike-report.md:33`). The
-  harness waits already in place stay; a wedge is a harness stop, not a product verdict.
+  harness waits already in place stay. A wedge is neither a pass nor a waived attempt: the affected series re-runs in full on a stable lane after 02 C2 closes (overview sequence, Sol PR-09).
 
 ## Unresolved questions (the user's)
 - **Q1** Approve normalising real library books behind the confirm in A? Without it, this plan stops at step 2
