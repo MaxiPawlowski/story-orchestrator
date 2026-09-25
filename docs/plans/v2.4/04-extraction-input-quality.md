@@ -1,6 +1,6 @@
 # Plan 04 — Extraction input quality
 
-**Status: NOT STARTED (doc written 2026-09-23, reconciled with overview X9, X13, X14, X15).**
+**Status: BUILT in a worktree 2026-09-24 (machine gates green, 47/47 mutants killed); every live gate owed, so NOT green. Regex parity not built. See §Gate record.** (Doc written 2026-09-23, reconciled with overview X9, X13, X14, X15.)
 
 Depends on **01 and 03** (X15):
 - **01** writes the T20 rows this plan turns green, the guidance block the attempts clause rides
@@ -408,3 +408,213 @@ session.** The defaults to revisit are `evidence_from` absent = `any`, and the a
 _Placeholder — to be written when the plan's gates run: date, exact commands and exit codes, the
 suite A/B reports and floor outcome, scenario and journey runs ×2, run-header diff, mutations,
 deviations, and whether regex parity was built._
+
+### Build (worktree, 2026-09-24/25)
+
+Built on master `4151bc8` in an agent worktree (branch `worktree-agent-aa52c2ae9a6cab5e4`). Machine gates and Storybook
+only: **no backend and no browser, so no live gate ran and none is claimed green.** Master moved to `c7f3248` (plan 07
+part 1) during the build; the only file both touch is `host-facts.md` (both append a section).
+
+**Preconditions (step 1).**
+- Rule 1 re-verification on `4151bc8`. The §Verified table holds except these line drifts:
+  - `readReply` is `stagecraftCoordinator.ts:63`, not `:58`.
+  - `screenDeltas` is `sharedRead.ts:45`, moved by plan 03's tail-fit.
+  - `answered.push` is `judge/extraction.ts:160`.
+  - V25 landed as `CADENCE_WINDOW_MAX = 24` at `scheduler.ts:81`.
+  - The manager is 661 raw lines (737/740 effective per plan 03), not 677/700.
+- Host facts `04-H1`…`04-H10` were re-read on 1.19.0 by absolute path and written to `host-facts.md` §Plan 04.
+  - H7 is sharper than the plan's row: the button sets `inline_image = !(media.length && !inline_image)`
+    (`stable-diffusion/index.js:5227`), so an `/sd` post keeps `false`.
+  - **The 1.18.0 check was not done.** The worktree is refused `git` against the ST checkout, the same limit plan 02 hit.
+    H1/H2/H5/H6 on `51ad27fb` are owed.
+- **Plan 01 wrote no T20 rows for T7**, so this plan wrote them: `test/scenarios/v24-04-window-hygiene.json`.
+  - It needs no backend. It posts a visible `/sd` post, a Stepped Thinking 3.2.0 thought, a CYOA post and an HTML-tracker
+    reply in the host's own shapes, runs one mocked read, and asserts on the audited prompt and `windowForm`.
+  - It is red on master by construction. It has not been run: there is no browser.
+
+**Seed C (step 2).**
+- The six golden-only `rejected` expectations (`extractor2/3/4/11/12/15`) carry `"scope": "golden"` per entry.
+- `scoreRejected` scores only live-scoped entries. A wholly golden expectation is `scored:false`.
+- Jest still reads the reasons.
+- The node test replays the v2.3 record and gets **14/15 = 0.933 at the unchanged 0.9 floor**. This is a re-read of old
+  data, not a new measurement.
+- `DEFAULT_TIER_FLOORS.facts` stays 0.85, the target. The run-A/B command passes `facts=0.68` explicitly.
+
+**Live suite run A (step 3): NOT RUN** (no backend).
+- The 22 prompts are byte-identical after this plan, which jest asserts, so run A on the merged tree measures the same
+  prompt path.
+
+**T7 as built.**
+- `src/extraction/windowHygiene.ts` is pure and synchronous. `cleanWindowMessage(raw) → {keep:false, reason} |
+  {keep:true, text, isUser, speaker}` applies these rules in order:
+  1. hidden and in-flight messages;
+  2. ST system types other than `narrator`;
+  3. the `/sd` shape: `!is_user`, `inline_image === false`, `media[0].source === 'generated'`, numeric `generation_type`;
+  4. empty after cleaning;
+  5. the Stepped Thinking marker, then the CYOA marker.
+- `cleanMessageText` does the following, in order:
+  - strips leading reasoning with `stripReasoningBlocks`;
+  - removes HTML comments;
+  - drops `<details>` (open or closed), `script`, `style`, `template` and inline `display:none` elements, nested content
+    included, in one pass;
+  - drops tagged fences and unwraps untagged ones;
+  - removes the remaining tags (block tags become a newline);
+  - decodes entities once;
+  - collapses whitespace.
+- `HYGIENE_VERSION = 1`, and `CLEANED_FORM = {hygiene: 1, promptRegex: false}`.
+- Readers:
+  - `getChatWindow` / `getLastMessageText` go through the cleaner. `getChatWindow` now cleans only `[from, to]`, not the
+    whole chat.
+  - `ChatMessageWindowEntry.isUser` is new, and `SharedReadWindow.form` is optional.
+  - `lastSpokenText` was removed; `buildScoreContext` calls `getLastMessageText()`, so it also skips in-flight messages.
+  - `stagecraftCoordinator.readReply` uses the cleaner (+1 import line).
+  - `buildFixtureRun` cleans each transcript entry.
+  - The cue scan, talk director, reconcile and every pass inherit the cleaner through `getChatWindow`.
+- Audit and hash:
+  - `SharedReadAudit.windowForm` is additive, with no blob bump.
+  - `hashContract` includes `windowForm` when the window states one, so live contract hashes change once.
+  - `fitReadWindow` carries the form through a tail-fit.
+- The evidence corpus replay through the cleaner covers **136 quotes, 0 newly rejected**, and all 22 fixture transcripts
+  are identity.
+- Cost bound: 24 × 8 KB messages clean in about 2.0 ms here. The test asserts the minimum of 20 runs is under 5 ms.
+
+**T15 as built (D6 opt-in).**
+- `Quality.evidence_from?: "any" | "world"` (`EVIDENCE_FROM`).
+  - `validate` rejects an unknown value and any value on a non-extractor quality.
+  - An explicit `any` is kept, so the diagnostic can tell it apart from absent.
+- `evidenceSources(evidence, {messageId, text, isUser}[]) → messageId[]` uses V14's unchanged span rule.
+  `evidenceInWindow` is now its wrapper.
+- `screenDeltas` takes the residual `ScopedQuality[]`.
+  - A `world` quality with no non-player source is rejected as `evidence only in the player's line`
+    (`PLAYER_ONLY_EVIDENCE`).
+  - Every accepted delta records `ParsedDelta.messageId`: the first non-player source for `world`, otherwise the first
+    source.
+- Prompt: only when a residual quality is `world`, player lines read `[i] Name (player): …` and that quality's line ends
+  with `Evidence must quote a line the player did not write.`
+  - `hashContract` gains `playerLines: true`.
+  - With no `world` quality the prompt is byte-identical, asserted over all 22 fixtures.
+- Judge typed path:
+  - `TypedWindowMessage.isUser` is new.
+  - `readTypedDeltas` resolves the message before `answered`, so a `world` quality is answered only when its decoder names
+    a non-player message.
+  - `typedRead` carries `isUser` in and `messageId` out.
+- `storyDiff` gains `quality-evidence-changed`, which is compatible and keeps held values.
+- The diagnostic `quality-outcome-player-evidence` is `info`.
+  - It fires once per extractor bool/enum quality that is a leaf (any operator, `not` included) of a gate into an anchor,
+    when `evidence_from` is absent.
+  - It has a consequence line.
+- Studio: an "Evidence may come from" select in `QualityEditor` offers "Any line (default)" / "Any line (decided)" /
+  "Only lines the player did not write". It is disabled for code qualities, and switching to code clears the value.
+  Story `EvidenceFromWorld`.
+
+**Attempts clause as built (X13).**
+- `AgencyPolicy.player_attempts_only?`, with `DEFAULT_AGENCY.player_attempts_only = false`. `validate` reads it.
+- `PLAYER_ATTEMPTS_CLAUSE` joins `agencyClauses`. `composeGuidanceBlock` appends it after the guidance, or carries it
+  alone.
+- `pacingCoordinator` changed by **0 lines**: its writer already passes the policy.
+- `storyDiff` gains `checkpoint-agency-changed`, which is compatible and covers every agency field.
+- `AgencyEditor` gains a checkbox, with story `OptsIntoPlayerAttempts`.
+
+**Regex parity (step 7): NOT BUILT.** Its build rule needs a planted-tracker live run that shows residue, and none ran.
+
+**Red first.**
+- Against a stub carrying today's `readMessage` behaviour: `windowHygiene.test` failed 13 of 42 (the controls and the
+  22-fixture identity cases passed), and `windowHygieneWiring.review` failed 5 of 6.
+- `diagnostics.test` failed 2 cases before the code. The clause cases failed 2 (`agency.test`, `guidance.test`).
+- The T15 screen, prompt and judge cases, the `storyDiff` rows, the typed-read, tail-fit and warden cases were written with
+  or after their code. Their red is evidenced by the mutants below, not by a first run.
+
+**Mutations** (`test/findings/mutations/v24-04-extraction-input.txt`): **47/47 killed** (40 jest, 4 node:test,
+3 Storybook), 0 survived.
+- The plan-table rows are the speaker branch (P1), the `/sd` rule (H3), the marker rules (H4/H5), the `windowForm` hash
+  (H12) and the judge `answered` reorder (P7).
+- The "clean only the rendering / only the check" pair is H1/H2. Both are killed by the same-text case.
+- Two sweeps found gaps, both fixed before the final sweep:
+  - The cost bound flaked under a loaded parallel run. The cleaner was made one-pass, and the bound takes the minimum of
+    20 runs.
+  - H1 was not killed by the same-text case: a tracker glued to a word escaped the raw check by word boundary. The
+    fixture is now spaced.
+
+**Guards.**
+- Census and fault matrix are unchanged: 70/10/20/0 of 100. No new write-after-await site.
+- The architecture guard is green.
+- Budgets:
+  - manager 0 lines;
+  - `memoryCoordinator` +0 (`isUser` added on the existing line);
+  - `stagecraftCoordinator` +1;
+  - `extractionCoordinator` and `pacingCoordinator` 0.
+
+**Gates** (worktree root, `node_modules` junctioned to the main checkout's)
+
+| Gate | Result |
+|---|---|
+| `npm run typecheck` | exit 0 |
+| `npm run typecheck:test` | exit 0 |
+| `npm run lint` | exit 0 |
+| `npm run debug:typecheck` | exit 0 |
+| `npm test` | 219/219 suites, 3297/3297 tests; fault matrix 70/10/20/0 of 100; findings ledger 2 open / 48 settled |
+| `npm run test:debug` | 231 tests: 230 pass, 1 skipped, 0 fail |
+| `npm run build` | compiled, 2 webpack size warnings; manifest `bundle 421bb9f346c4`, `ST unknown` (worktree path) |
+| Storybook (`storybook:build`, `http-server .sb-static -p 6344`, `test-storybook --index-json --url http://127.0.0.1:6344`) | 32 suites, 206/206 (+2: `EvidenceFromWorld`, `OptsIntoPlayerAttempts`); server killed afterwards |
+
+Not run: `test:release`, because it rewrites `dist/manifest.json`. The capability list is unchanged, since the regex seam
+was not built.
+
+**Live fixtures written, not run.** The evals are syntax-checked (`new Function`) and `validateFixture` + the
+globals-read guard pass. Every run is `so-scenario run <file> --sandbox --group 1759606632088`, ×2.
+- `test/scenarios/v24-04-window-hygiene.json` is the T20 row, no backend.
+- `test/scenarios/live-v24-04-window-hygiene.json` takes a host-shaped `/sd` post, a `/sendas` reply with a
+  `display:none` tracker naming `idol_taken`/`door_open`, and a real turn. For every read covering the tracker it asserts:
+  - no foreign text in the prompt;
+  - the visible half kept;
+  - `windowForm` stated;
+  - no delta citing the tracker.
+- `test/scenarios/live-v24-04-player-evidence.json` uses a `world` quality gating an anchor, with the attempts clause on.
+  After the player's "I grab the Sun Idol":
+  - every covering read marks player lines and states the rule;
+  - `idol_taken` is never accepted on the player line;
+  - which of refused / accepted-on-reply / not-proposed happened is recorded;
+  - every normal request on the checkpoint carries the clause (`GENERATE_AFTER_DATA`);
+  - the over-steer columns are recorded with `record:true`;
+  - after a narrator confirmation, `idol_taken` lands with a non-player `messageId` (`onNarrator` recorded).
+- `test/scenarios/live-v24-04-player-evidence-control.json` is the control arm. It asserts no mark, no rule, no player-line
+  refusal and no clause, and records whether the player line was accepted.
+- Stories: `live-v24-04.story.json` and `live-v24-04-control.story.json`. Jest validates both.
+
+**Deviations**
+- The mutation file is `v24-04-extraction-input.txt`, per the build instruction, not `V04-extraction-input.txt`.
+- **The stall judge follows `world` too.** The plan named only the LLM and typed paths.
+  - `StallLeaf.world` is set by `planReconciliation`, and `stallDirectValue` never writes a `world` leaf directly.
+  - A confident yes becomes today's LLM reconcile re-read, which screens. Otherwise gates would diverge by path, the
+    plan's own reason.
+- **`expect.overSteer` gained `record: true`.** It reports the same columns and never fails. The existing verb gated on
+  restate, and X8 says the guidance block is recorded, not gated.
+- **The example story's diagnostics test** now allows exactly the five D6 `info` suggestions, by quality key, and nothing
+  else.
+  - The shipped example was left untouched. Adding `evidence_from` would move its content hash and every pinned chat's
+    drift reading.
+  - The choice of value is D6's, to revisit after the player session.
+- The seeded diagnostics story sets `route.evidence_from: "any"`, so every code still fires exactly once.
+- The live window-hygiene fixture posts the `/sd` row by eval in the host's shape, rather than through a real `/sd` with
+  `command_visible` on: no image backend is assumed on a lane.
+- `cleanWindowMessage` takes no `index` parameter, because it did not need one.
+- `transcriptPrefixCost` counts ` (player)` on every player line, even when unmarked. The budget is conservative by a few
+  tokens.
+
+**Decisions made here (small, on evidence)**
+- **Whitespace:** horizontal runs collapse and lines are trimmed, but paragraph breaks survive (at most one blank line).
+  Real replies keep their structure, and the 22 fixtures are identity.
+- **Unclosed elements:** an unclosed dropped element (`<details>`, `display:none`, script, style, template) or tagged
+  fence drops to the end of the message. An unclosed ordinary tag just loses the tag.
+- **Tag boundaries:** a removed element leaves a newline, and block tags become newlines, so words never glue across a tag.
+- **Diff rows:** the `storyDiff` evidence row compares the raw values, so absent → `any` is a compatible row. It records an
+  explicit author decision, and behaviour is the same.
+- **Studio select:** it offers three options, because an explicit `any` must be settable to silence the diagnostic.
+
+**NOT run / NOT green**
+- Live suite runs A and B (`so-live-suite run --min 0.9 --min-tier facts=0.68,rejected=0.9 --expect-count 22`).
+- The four fixtures above, ×2 each.
+- J3 ×2 `--strict`.
+- The run-header capture and diff.
+- The 1.18.0 host-fact check.
+- Records are owed under `test/journeys/records/v2.4-plan04/`.
