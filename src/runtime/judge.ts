@@ -1,4 +1,4 @@
-import { askJudge, modelVerdict, runContinuityRescore, type RescoreResult, type RescoreRow, buildDirectorRequest, runJudgeDirectorSelfTest, runMemoryPairsCalibration, runMemoryVerifyCalibration, runSceneCalibration, type SceneCalibrationCase, runLoreCalibration, type LoreCalibrationCase, runLoreRelevanceCalibration, type LoreRelevanceReport, runCuratorFilterCalibration, type CuratorFilterCase, runContinuityCalibration, type ContinuityCase, runBackgroundCalibration, type BackgroundCase, runTypedCalibration, type TypedCase, runStallCalibration, type StallCase, runCriticCalibration, type CriticCase, runVariantCalibration, type VariantStub, type MemoryPairCase, type MemoryVerifyCase, type JudgeSelfTestCase, type JudgeSelfTestReport, decideDirector, directorJudgeEligible, directorRecordP, judgeUseActive, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord, type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeRequest, type JudgeResponse, type JudgeResult, type JudgeSettings, type JudgeTransport, type JudgeUseKey } from "@judge/index";
+import { askJudge, modelVerdict, runWardenRescore, WARDEN_RESCORE_USES, type WardenRescoreUse, type WardenRescoreRow, runAgencyCalibration, type AgencyCase, runHouseRuleCalibration, type HouseRuleCase, runCombinedContinuityCalibration, isCombinedCase, type CombinedContinuityCase, type RescoreResult, buildDirectorRequest, runJudgeDirectorSelfTest, runMemoryPairsCalibration, runMemoryVerifyCalibration, runSceneCalibration, type SceneCalibrationCase, runLoreCalibration, type LoreCalibrationCase, runLoreRelevanceCalibration, type LoreRelevanceReport, runCuratorFilterCalibration, type CuratorFilterCase, runContinuityCalibration, type ContinuityCase, runBackgroundCalibration, type BackgroundCase, runTypedCalibration, type TypedCase, runStallCalibration, type StallCase, runCriticCalibration, type CriticCase, runVariantCalibration, type VariantStub, type MemoryPairCase, type MemoryVerifyCase, type JudgeSelfTestCase, type JudgeSelfTestReport, decideDirector, directorJudgeEligible, directorRecordP, judgeUseActive, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord, type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeRequest, type JudgeResponse, type JudgeResult, type JudgeSettings, type JudgeTransport, type JudgeUseKey } from "@judge/index";
 import type { RunOwnership } from "./runToken";
 
 export interface JudgeStatusLike {
@@ -87,7 +87,9 @@ export class JudgeRuntime {
     if (use === "scene") return runSceneCalibration(ask, cases as SceneCalibrationCase[]);
     if (use === "lore") return runLoreCalibration(ask, cases as LoreCalibrationCase[]);
     if (use === "curator-filter") return runCuratorFilterCalibration(ask, cases as CuratorFilterCase[]);
-    if (use === "continuity") return runContinuityCalibration(ask, cases as ContinuityCase[]);
+    if (use === "continuity") return (cases as CombinedContinuityCase[]).some(isCombinedCase) ? runCombinedContinuityCalibration(ask, cases as CombinedContinuityCase[]) : runContinuityCalibration(ask, cases as ContinuityCase[]);
+    if (use === "agency") return runAgencyCalibration(ask, cases as AgencyCase[]);
+    if (use === "house-rules") return runHouseRuleCalibration(ask, cases as HouseRuleCase[]);
     if (use === "typed") return runTypedCalibration(ask, cases as TypedCase[]);
     if (use === "stall") return runStallCalibration(ask, cases as StallCase[]);
     if (use === "critic") return runCriticCalibration(ask, cases as CriticCase[]);
@@ -97,8 +99,8 @@ export class JudgeRuntime {
   }
 
   // v2.4 plan 07 (X12): so-judge rescore — both arms of a judge-off control scored by one question.
-  rescore(use: string, rows: RescoreRow[], model?: string): Promise<RescoreResult[]> {
-    if (use === "continuity") return runContinuityRescore((request) => this.probe(request, model), rows);
+  rescore(use: string, rows: WardenRescoreRow[], model?: string): Promise<RescoreResult[]> {
+    if ((WARDEN_RESCORE_USES as readonly string[]).includes(use)) return runWardenRescore((request) => this.probe(request, model), use as WardenRescoreUse, rows);
     return Promise.reject(new Error(`no rescore for judge use '${use}' yet`));
   }
 

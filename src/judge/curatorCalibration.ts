@@ -70,6 +70,7 @@ export interface RescoreResult {
   broken: string[];
   latencyMs: number;
   model: string | null;
+  score?: number;
   fallback?: string;
 }
 

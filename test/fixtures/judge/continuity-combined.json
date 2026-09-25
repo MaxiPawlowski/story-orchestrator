@@ -1,0 +1,575 @@
+{
+  "use": "continuity",
+  "floors": {
+    "reply": 0.9,
+    "broken": 0.85,
+    "consistent": 0.966
+  },
+  "labelledAt": "2026-09-19",
+  "source": "v2.4 plan 07 §6 regression family: test/fixtures/judge/continuity.json row for row (labels untouched), each asked inside the combined warden request with the agency question (player Max, a neutral player line) and two house rules no reply touches. Every continuity family must stay at its existing floor, else the families ship as separate calls (arm B, WARDEN_ARM = \"separate\").",
+  "rows": [
+    {
+      "id": "C01",
+      "lang": "en",
+      "established": [
+        "Pell's left arm is broken and in a sling.",
+        "The reactor is unstable."
+      ],
+      "reply": {
+        "speaker": "Pell",
+        "text": "Pell grabs the ladder with both hands and hauls himself up to the catwalk two rungs at a time."
+      },
+      "contradicts": [
+        0
+      ],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "C02",
+      "lang": "en",
+      "established": [
+        "Pell's left arm is broken and in a sling.",
+        "The reactor is unstable."
+      ],
+      "reply": {
+        "speaker": "Pell",
+        "text": "Pell winces, adjusts the sling, and types one-handed at the console. \"Containment's still jumping.\""
+      },
+      "contradicts": [],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "C03",
+      "lang": "en",
+      "established": [
+        "The ledger is in Max's coat pocket.",
+        "Maeve does not know that Max has the ledger."
+      ],
+      "reply": {
+        "speaker": "Maeve",
+        "text": "\"Nice of you to bring the ledger along in your coat, detective. Hand it over.\""
+      },
+      "contradicts": [
+        1
+      ],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "C04",
+      "lang": "en",
+      "established": [
+        "The ledger is in Max's coat pocket.",
+        "Maeve does not know that Max has the ledger."
+      ],
+      "reply": {
+        "speaker": "Maeve",
+        "text": "\"You look like a man with something heavy in his pocket.\""
+      },
+      "contradicts": [],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "C05",
+      "lang": "en",
+      "established": [
+        "Luke died in the sphinx's chamber."
+      ],
+      "reply": {
+        "speaker": "Luke",
+        "text": "Luke tugs at your sleeve. \"Can we go home now?\""
+      },
+      "contradicts": [
+        0
+      ],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "C06",
+      "lang": "en",
+      "established": [
+        "Luke died in the sphinx's chamber."
+      ],
+      "reply": {
+        "speaker": "Arin",
+        "text": "\"Luke would have loved this view,\" Arin says quietly."
+      },
+      "contradicts": [],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "C07",
+      "lang": "en",
+      "established": [
+        "It is night and raining heavily.",
+        "The party is in the guild hall."
+      ],
+      "reply": {
+        "speaker": "DM Narrator",
+        "text": "Sunlight pours through the guild hall windows as Ponticius counts the coins."
+      },
+      "contradicts": [
+        0
+      ],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "C08",
+      "lang": "en",
+      "established": [
+        "Brandt drives a black sedan."
+      ],
+      "reply": {
+        "speaker": "Narrator",
+        "text": "Brandt's black sedan idles at the curb, wipers ticking."
+      },
+      "contradicts": [],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "C09",
+      "lang": "en",
+      "established": [
+        "Arin distrusts Max since the lie about the map."
+      ],
+      "reply": {
+        "speaker": "Arin",
+        "text": "Arin claps you on the back. \"I'd trust you with my life, you know that.\""
+      },
+      "contradicts": [
+        0
+      ],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "C10",
+      "lang": "en",
+      "established": [
+        "Arin distrusts Max since the lie about the map."
+      ],
+      "reply": {
+        "speaker": "Arin",
+        "text": "\"Fine, we'll use your map,\" Arin mutters, \"but I'm checking every turn myself.\""
+      },
+      "contradicts": [],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "C11",
+      "lang": "en",
+      "established": [
+        "The hull breach on deck three is sealed.",
+        "Two crew members are injured."
+      ],
+      "reply": {
+        "speaker": "HALO",
+        "text": "\"Warning: deck three is still venting atmosphere through the breach.\""
+      },
+      "contradicts": [
+        0
+      ],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "C12",
+      "lang": "en",
+      "established": [
+        "The hull breach on deck three is sealed.",
+        "Two crew members are injured."
+      ],
+      "reply": {
+        "speaker": "Captain Okafor",
+        "text": "\"Both of our injured are stable. Good.\""
+      },
+      "contradicts": [],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "C13",
+      "lang": "en",
+      "established": [
+        "Graves is loyal to Lady Ashworth.",
+        "In the portrait, Lord Ashworth's painted hand now points at the door."
+      ],
+      "reply": {
+        "speaker": "Narrator",
+        "text": "The portrait of Lord Ashworth hangs exactly as it always has, his painted hand resting on his sword."
+      },
+      "contradicts": [
+        1
+      ],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "C14",
+      "lang": "es",
+      "established": [
+        "Max answered the sphinx's riddle correctly."
+      ],
+      "reply": {
+        "speaker": "DM Narrator",
+        "text": "La esfinge ruge: \"Tu respuesta fue incorrecta, mortal.\""
+      },
+      "contradicts": [
+        0
+      ],
+      "player": "Max",
+      "playerMessage": "Sigo observando.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "C15",
+      "lang": "en",
+      "established": [
+        "Mae Hollis is left-handed."
+      ],
+      "reply": {
+        "speaker": "Narrator",
+        "text": "Mae draws her revolver with her left hand and steps into the doorway."
+      },
+      "contradicts": [],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "C16",
+      "lang": "en",
+      "established": [
+        "Luke is twelve years old."
+      ],
+      "reply": {
+        "speaker": "Luke",
+        "text": "\"When I'm thirteen next spring, I'm joining the guild.\""
+      },
+      "contradicts": [],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "C17",
+      "lang": "en",
+      "established": [
+        "Max has never met Lieutenant Brandt."
+      ],
+      "reply": {
+        "speaker": "Lt. Brandt",
+        "text": "\"Detective. Good to see you again. How's the arm since our little talk at the Blue Anchor?\""
+      },
+      "contradicts": [
+        0
+      ],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "C18",
+      "lang": "en",
+      "established": [
+        "Max has never met Lieutenant Brandt."
+      ],
+      "reply": {
+        "speaker": "Lt. Brandt",
+        "text": "\"You must be the detective everyone keeps warning me about.\""
+      },
+      "contradicts": [],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "CX01",
+      "lang": "en",
+      "established": [
+        "Arin was badly cut in the gate collapse and is bleeding.",
+        "The reward is 500 crowns.",
+        "Luke joined the expedition.",
+        "The sphinx's riddle was answered wrong."
+      ],
+      "reply": {
+        "speaker": "Arin",
+        "text": "Arin vaults the rubble without a scratch on her and grins. \"Not a mark on me. Let's move.\""
+      },
+      "contradicts": [
+        0
+      ],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "CX02",
+      "lang": "en",
+      "established": [
+        "Arin was badly cut in the gate collapse and is bleeding.",
+        "The reward is 500 crowns.",
+        "Luke joined the expedition."
+      ],
+      "reply": {
+        "speaker": "Arin",
+        "text": "Arin presses a strip of cloth to her side and hisses. \"It's fine. Five hundred crowns buys a lot of bandages.\""
+      },
+      "contradicts": [],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "CX03",
+      "lang": "en",
+      "established": [
+        "The reward is 500 crowns.",
+        "Ponticius signed the contract.",
+        "The party entered the ruins through a side tunnel."
+      ],
+      "reply": {
+        "speaker": "Ponticius",
+        "text": "\"Two hundred crowns, as agreed, and not a copper more,\" Ponticius grumbles, sliding the purse across the desk."
+      },
+      "contradicts": [
+        0
+      ],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "CX04",
+      "lang": "en",
+      "established": [
+        "The front gate of the ruins collapsed.",
+        "The party entered the ruins through a side tunnel.",
+        "It is night outside the ruins."
+      ],
+      "reply": {
+        "speaker": "DM Narrator",
+        "text": "The party walks back out through the great front gate, which stands as solid as the day it was built."
+      },
+      "contradicts": [
+        0
+      ],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "CX05",
+      "lang": "en",
+      "established": [
+        "Luke joined the expedition.",
+        "Luke is twelve years old.",
+        "Luke is afraid of the dark."
+      ],
+      "reply": {
+        "speaker": "Luke",
+        "text": "Luke clutches the torch tighter as the tunnel narrows. \"Can we hurry? I really don't like it down here.\""
+      },
+      "contradicts": [],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "CX06",
+      "lang": "en",
+      "established": [
+        "Max carries the Sun's Heart in his pack.",
+        "Arin does not know where the Sun's Heart is.",
+        "The inner chamber is flooded."
+      ],
+      "reply": {
+        "speaker": "Arin",
+        "text": "\"Keep that pack of yours shut, Max. The Sun's Heart glows through the canvas.\""
+      },
+      "contradicts": [
+        1
+      ],
+      "player": "Max",
+      "playerMessage": "I keep watching.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "CX07",
+      "lang": "es",
+      "established": [
+        "Arin fue herida en el derrumbe y sangra.",
+        "La recompensa es de 500 coronas.",
+        "Luke se unió a la expedición."
+      ],
+      "reply": {
+        "speaker": "Arin",
+        "text": "Arin se aprieta la herida del costado y hace una mueca. \"Sigo en pie. Vamos.\""
+      },
+      "contradicts": [],
+      "player": "Max",
+      "playerMessage": "Sigo observando.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "CX08",
+      "lang": "es",
+      "established": [
+        "La puerta principal de las ruinas se derrumbó.",
+        "El grupo entró por un túnel lateral.",
+        "Es de noche fuera de las ruinas."
+      ],
+      "reply": {
+        "speaker": "DM Narrator",
+        "text": "El sol del mediodía cae a plomo sobre la arena cuando el grupo sale del túnel."
+      },
+      "contradicts": [
+        2
+      ],
+      "player": "Max",
+      "playerMessage": "Sigo observando.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "CX09",
+      "lang": "es",
+      "established": [
+        "Luke tiene doce años.",
+        "Luke se unió a la expedición.",
+        "Ponticius firmó el contrato."
+      ],
+      "reply": {
+        "speaker": "Luke",
+        "text": "\"¡Cuando cumpla trece, Ponticius me dejará firmar mis propios contratos!\""
+      },
+      "contradicts": [],
+      "player": "Max",
+      "playerMessage": "Sigo observando.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    },
+    {
+      "id": "CX10",
+      "lang": "es",
+      "established": [
+        "Max lleva el Corazón del Sol en su mochila.",
+        "Arin no sabe dónde está el Corazón del Sol.",
+        "La cámara interior está inundada."
+      ],
+      "reply": {
+        "speaker": "DM Narrator",
+        "text": "La cámara interior está completamente seca; el polvo de siglos cubre el suelo de piedra."
+      },
+      "contradicts": [
+        2
+      ],
+      "player": "Max",
+      "playerMessage": "Sigo observando.",
+      "houseRules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "No character mentions phones, computers or any modern technology."
+      ]
+    }
+  ]
+}

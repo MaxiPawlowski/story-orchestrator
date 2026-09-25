@@ -66,6 +66,14 @@ export const CONTINUITY_P = 0.7;
 export const CONTINUITY_MAX_FACTS = 40;
 export const CONTINUITY_MAX_NOTE_FACTS = 2;
 export const CONTINUITY_TIMEOUT_MS = 4000;
+export const AGENCY_SCORE = 2.5;
+export const HOUSE_RULE_P = 0.7;
+export const HOUSE_RULE_MAX_NOTE = 2;
+export const WARDEN_MAX_RULES = 8;
+export const WARDEN_NOTE_MAX_LINES = 4;
+export const WARDEN_ARMS = ["combined", "separate"] as const;
+export type WardenArm = (typeof WARDEN_ARMS)[number];
+export const WARDEN_ARM: WardenArm = "combined";
 export const BACKGROUND_CONFIDENCE = 0.6;
 export const BACKGROUND_MAX_OPTIONS = 254;
 

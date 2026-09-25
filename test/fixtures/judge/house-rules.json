@@ -1,0 +1,475 @@
+{
+  "use": "house-rules",
+  "floors": {
+    "broken": 0.85,
+    "kept": 0.95,
+    "untouched": 0.966
+  },
+  "labelledAt": "2026-09-25",
+  "source": "v2.4 plan 07 T23 Phase A. One case = one reply against the story's house rules as the warden asks them (one Noul per rule in one request, state = the reply and the rules only). Labels written before any answer was read: broken = the reply breaks the rule; kept = the reply touches the rule and follows it; untouched = every other rule of the case (the reply never touches it: the T23 failure mode). 13 objective rules (content, format, world constraints; no taste rules, C13) plus 5 Spanish ones. Three cases are real Artemis replies from the part-1 J8.5 records (source names each; H01 is the real \"Fuck\"). Floors predeclared: broken recall >= 0.85, kept specificity >= 0.95, untouched specificity >= 0.966 (the warden's own bar, at most 1 false alarm per 30); flag at HOUSE_RULE_P 0.7, never retuned.",
+  "rows": [
+    {
+      "id": "H01",
+      "lang": "en",
+      "rules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "Magic cannot heal wounds.",
+        "Characters never swear or use profanity.",
+        "Dragons are extinct: none appears alive in the present day."
+      ],
+      "reply": {
+        "speaker": "Arin",
+        "text": "“You got it,” *Arin says with a nod, turning on his point heel and setting off back the way they came. His cloak flutters slightly as he strides confidently through the forest, the sounds of the forest alive around them.*\n*He pauses for a moment, glancing over his shoulder with a playful smirk.* “Let’s make this quick. I don’t trust this place. Feels like it’s waiting for something.” *His hand instinctively rests on the hilt of one of his daggers, fingers tapping against the leather grip as they walk.*\n*They reach the riverbank soon enough, the sound of rushing water growing louder. But as Arin steps forward, he stops short, eyes narrowing as he gaze lands on the river.*\n“Fuck,” *he mutters, his voice losing its playful edge. He looks back at you, his brow furrowed in frustration.* “The bridge is gone.” *He points toward the gaping hole where the old stone structure once stood, the current swift and violent.*\n*Arin runs his hand through his tousled brown hair, clearly annoyed.* “Well, that’s just fantastic. Anyone else get a mess like this when they’re on a quick trip back to town?” *He looks around the riverbank, trying to find a few logs or rocks that could help them cross.* “Looks like we’re going to have to find another way across, or we’ll be taking a long detour.”\n*He shifts his weight, and his shortbow is still slung over his shoulder. His eyes scan the river, calculating.* “Any thoughts, Max? Or should we start swimming and hope we don’t get swept downstream?”"
+      },
+      "broken": [
+        2
+      ],
+      "kept": [],
+      "source": "record: test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/J8.5-on-run2.journey.json cleanup.rescore.rows m3 (Artemis, 2026-09-25)"
+    },
+    {
+      "id": "H02",
+      "lang": "en",
+      "rules": [
+        "No character mentions phones, computers or any modern technology.",
+        "There are no horses in this world.",
+        "Characters never swear or use profanity.",
+        "No character is killed on screen."
+      ],
+      "reply": {
+        "speaker": "Luke",
+        "text": "“Wait, the bridge is gone?!” *Luke's voice pitches higher, his eyes widening as he stares at the river.* “I—I mean, that's not what we're supposed to find!” *He looks back and forth between Arin and the collapsed bridge, his voice rapid and uncertain.* “But if it's gone, then… then we can still cross, right? There must be some other way.” *He looks over to Arin, his eager-to-please expression shifting into a bit of worry.*\n*Luke's hand goes to the hilt of his short sword, his fingers clutching it with a bit too much excitement.* “Maybe we can… maybe we can jump over? No, that's too wide.” *He looks back at the river, his pale face creasing in concern.* “But we can't just swim! What if there are monsters in the river? What if we're—what if we're being swept downstream into some monster's nest?” *His words tumble out of his mouth quickly, his chainmail clattering as he shifts his weight.*\n*He turns to look at Arin, his eagerness shining through.* \"But we can find a way, right? We've got—we've got you and Max!\" *He looks at Max with a bit of awe, as if he's just sure that they'll find a solution.* \"You guys are legends! You'll know exactly what to do!\"\n*Luke's oversized chainmail clatters as he stands there, his short sword clattering against his hip as he looks between Arin and and the river.* \"So... so what should we do? Maybe we can build a raft? Or... or look for another crossing?\" *He looks back at Arin with hopeful eyes.*"
+      },
+      "broken": [],
+      "kept": [],
+      "source": "record: test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/J8.5-on-run2.journey.json cleanup.rescore.rows m4 (Artemis, 2026-09-25)"
+    },
+    {
+      "id": "H03",
+      "lang": "en",
+      "rules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "Coins are called marks, never gold pieces or dollars.",
+        "Dragons are extinct: none appears alive in the present day.",
+        "The narrator never addresses the reader directly."
+      ],
+      "reply": {
+        "speaker": "DM Narrator",
+        "text": "*The river's roar gradually softens as you walk upstream, the sound of rushing water becoming a low rumble in the distance. The forest path is damp and quiet, with only the occasional rustle of leaves and the distant call of birds overhead. The scent of wet earth and crushed ferns fills the air, cool and refreshing after the dust and noise of the city.*\n*After a while, the path opens into a small clearing. There, stretched across the turbulent river, is the cable ferry crossing Ponticius spoke of—a sturdy-looking rope and wooden platform, though the rope itself appears worn and frayed in places, hanging loosely over the churning water.*\n*The platform itself, a simple wooden slab with iron rings bolted to its surface, sits at the river's edge, ready to be used. A smaller wooden pulley system on the near bank is bolted into a large stone pillar, the rope stretching from it to the far shore.*\n*The water below is treacherous, white foam and debris whipping past at high speed, but the cable and platform seem stable enough—provided they don't slip or hold.*\n*Arin glances at the frayed rope with a frown, his eyes scanning the river's width. He shifts his weight, testing the platform with a tentative step.*\n\"Well, this looks... promising,\" *he says, his voice tinged with a mix of sarcasm and caution. He glances over at you and Luke, his expression unreadable.* \"So... who's going to be the first to try it?\""
+      },
+      "broken": [],
+      "kept": [],
+      "source": "record: test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/J8.5-on-run1.journey.json cleanup.rescore.rows m9 (Artemis, 2026-09-25)"
+    },
+    {
+      "id": "H04",
+      "lang": "en",
+      "rules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "Magic cannot heal wounds.",
+        "Characters never swear or use profanity.",
+        "Coins are called marks, never gold pieces or dollars."
+      ],
+      "reply": {
+        "speaker": "Captain Rhee",
+        "text": "Captain Rhee levels her flintlock pistol at the boarding party and fires; the shot cracks across the deck and the smoke hangs in the rigging."
+      },
+      "broken": [
+        0
+      ],
+      "kept": [],
+      "source": "authored"
+    },
+    {
+      "id": "H05",
+      "lang": "en",
+      "rules": [
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "Characters never swear or use profanity.",
+        "No character mentions phones, computers or any modern technology.",
+        "There are no horses in this world."
+      ],
+      "reply": {
+        "speaker": "Wall Guard",
+        "text": "\"Crossbows only up here, lad. The Guild burned every powder keg in the city last spring.\" He hefts his crossbow and squints along the wall."
+      },
+      "broken": [],
+      "kept": [
+        0
+      ],
+      "source": "authored"
+    },
+    {
+      "id": "H06",
+      "lang": "en",
+      "rules": [
+        "Magic cannot heal wounds.",
+        "No character is killed on screen.",
+        "The reply never describes graphic gore.",
+        "Coins are called marks, never gold pieces or dollars."
+      ],
+      "reply": {
+        "speaker": "Narrator",
+        "text": "Selene presses her glowing palm to the gash in his side. Light seeps into the wound, the torn flesh knits closed and the bleeding stops."
+      },
+      "broken": [
+        0
+      ],
+      "kept": [],
+      "source": "authored"
+    },
+    {
+      "id": "H07",
+      "lang": "en",
+      "rules": [
+        "Magic cannot heal wounds.",
+        "The reply never describes graphic gore.",
+        "Characters never swear or use profanity.",
+        "No character drinks alcohol."
+      ],
+      "reply": {
+        "speaker": "Healer Maren",
+        "text": "\"Magic won't close this,\" the healer says, threading a needle by the lamp. \"Hold still. I'll stitch it the old way.\""
+      },
+      "broken": [],
+      "kept": [
+        0
+      ],
+      "source": "authored"
+    },
+    {
+      "id": "H08",
+      "lang": "en",
+      "rules": [
+        "No character mentions phones, computers or any modern technology.",
+        "It is always night in the city of Vael.",
+        "Dragons are extinct: none appears alive in the present day.",
+        "Coins are called marks, never gold pieces or dollars."
+      ],
+      "reply": {
+        "speaker": "Pip",
+        "text": "\"Hang on, let me check my phone,\" Pip mutters, thumbing the cracked screen. \"The map says the tavern is two streets over.\""
+      },
+      "broken": [
+        0
+      ],
+      "kept": [],
+      "source": "authored"
+    },
+    {
+      "id": "H09",
+      "lang": "en",
+      "rules": [
+        "No character is killed on screen.",
+        "The reply never describes graphic gore.",
+        "Magic cannot heal wounds.",
+        "There are no horses in this world."
+      ],
+      "reply": {
+        "speaker": "Narrator",
+        "text": "The bandit lunges; Arin's blade takes him through the throat and he drops dead in the mud, blood spraying across the cart wheel and pooling around his open eyes."
+      },
+      "broken": [
+        0,
+        1
+      ],
+      "kept": [],
+      "source": "authored"
+    },
+    {
+      "id": "H10",
+      "lang": "en",
+      "rules": [
+        "No character is killed on screen.",
+        "The reply never describes graphic gore.",
+        "Characters never swear or use profanity.",
+        "The reply is written in the past tense."
+      ],
+      "reply": {
+        "speaker": "Narrator",
+        "text": "The duel ended at first blood. Kael lowered his sword, the thin cut on his rival's arm already bandaged, and both men walked away alive."
+      },
+      "broken": [],
+      "kept": [
+        0,
+        1,
+        3
+      ],
+      "source": "authored"
+    },
+    {
+      "id": "H11",
+      "lang": "en",
+      "rules": [
+        "Coins are called marks, never gold pieces or dollars.",
+        "No character drinks alcohol.",
+        "No character mentions phones, computers or any modern technology.",
+        "No character uses a gun, rifle or any gunpowder weapon."
+      ],
+      "reply": {
+        "speaker": "Barkeep",
+        "text": "\"That's ten gold pieces for the room, friend, and the ale's extra.\" He slides a foaming tankard down the bar and you watch the stranger drain it in one go."
+      },
+      "broken": [
+        0,
+        1
+      ],
+      "kept": [],
+      "source": "authored"
+    },
+    {
+      "id": "H12",
+      "lang": "en",
+      "rules": [
+        "Coins are called marks, never gold pieces or dollars.",
+        "No character drinks alcohol.",
+        "There are no horses in this world.",
+        "It is always night in the city of Vael."
+      ],
+      "reply": {
+        "speaker": "Merchant Oda",
+        "text": "\"Twelve marks for the lot,\" Oda says, counting the coins twice. \"And the tea is on the house.\""
+      },
+      "broken": [],
+      "kept": [
+        0,
+        1
+      ],
+      "source": "authored"
+    },
+    {
+      "id": "H13",
+      "lang": "en",
+      "rules": [
+        "There are no horses in this world.",
+        "Dragons are extinct: none appears alive in the present day.",
+        "The narrator never addresses the reader directly.",
+        "No character uses a gun, rifle or any gunpowder weapon."
+      ],
+      "reply": {
+        "speaker": "Narrator",
+        "text": "The messenger reined in his horse at the gate, the stallion snorting and stamping in the cold."
+      },
+      "broken": [
+        0
+      ],
+      "kept": [],
+      "source": "authored"
+    },
+    {
+      "id": "H14",
+      "lang": "en",
+      "rules": [
+        "There are no horses in this world.",
+        "Coins are called marks, never gold pieces or dollars.",
+        "Characters never swear or use profanity.",
+        "Magic cannot heal wounds."
+      ],
+      "reply": {
+        "speaker": "Narrator",
+        "text": "The ox cart creaked up the hill at walking pace, the drover singing to the two tired beasts in the traces."
+      },
+      "broken": [],
+      "kept": [
+        0
+      ],
+      "source": "authored"
+    },
+    {
+      "id": "H15",
+      "lang": "en",
+      "rules": [
+        "Dragons are extinct: none appears alive in the present day.",
+        "It is always night in the city of Vael.",
+        "No character is killed on screen.",
+        "No character mentions phones, computers or any modern technology."
+      ],
+      "reply": {
+        "speaker": "Narrator",
+        "text": "A shadow falls over the square. Above the rooftops a living dragon wheels, green scales flashing, and roars at the crowd below."
+      },
+      "broken": [
+        0
+      ],
+      "kept": [],
+      "source": "authored"
+    },
+    {
+      "id": "H16",
+      "lang": "en",
+      "rules": [
+        "It is always night in the city of Vael.",
+        "Dragons are extinct: none appears alive in the present day.",
+        "No character drinks alcohol.",
+        "The reply is written in the past tense."
+      ],
+      "reply": {
+        "speaker": "Narrator",
+        "text": "Noon sun blazed over Vael, bleaching the white walls of the city and driving the beggars into the shade of the arches."
+      },
+      "broken": [
+        0
+      ],
+      "kept": [
+        3
+      ],
+      "source": "authored"
+    },
+    {
+      "id": "H17",
+      "lang": "en",
+      "rules": [
+        "The narrator never addresses the reader directly.",
+        "The reply is written in the past tense.",
+        "No character mentions phones, computers or any modern technology.",
+        "The reply never describes graphic gore."
+      ],
+      "reply": {
+        "speaker": "Narrator",
+        "text": "Now, dear reader, you might wonder why Tomas did not simply run. Be patient: you will find out soon enough."
+      },
+      "broken": [
+        0,
+        1
+      ],
+      "kept": [],
+      "source": "authored"
+    },
+    {
+      "id": "H18",
+      "lang": "en",
+      "rules": [
+        "The reply is written in the past tense.",
+        "The narrator never addresses the reader directly.",
+        "No character is killed on screen.",
+        "No character drinks alcohol."
+      ],
+      "reply": {
+        "speaker": "Narrator",
+        "text": "Mira walks to the well. She draws a bucket of water and drinks deeply, watching the children chase a goat across the yard."
+      },
+      "broken": [
+        0
+      ],
+      "kept": [
+        3
+      ],
+      "source": "authored"
+    },
+    {
+      "id": "H19",
+      "lang": "en",
+      "rules": [
+        "No character drinks alcohol.",
+        "Characters never swear or use profanity.",
+        "No character uses a gun, rifle or any gunpowder weapon.",
+        "Magic cannot heal wounds."
+      ],
+      "reply": {
+        "speaker": "Old Tom",
+        "text": "\"Another round of whiskey!\" Old Tom bellows, and the whole table raises their cups and drinks."
+      },
+      "broken": [
+        0
+      ],
+      "kept": [],
+      "source": "authored"
+    },
+    {
+      "id": "H20",
+      "lang": "en",
+      "rules": [
+        "Characters never swear or use profanity.",
+        "No character mentions phones, computers or any modern technology.",
+        "No character is killed on screen.",
+        "Dragons are extinct: none appears alive in the present day."
+      ],
+      "reply": {
+        "speaker": "Sergeant Brok",
+        "text": "\"Watch your tongue around the recruits,\" the sergeant says, kicking the broken wheel. \"We keep it clean in this company.\""
+      },
+      "broken": [],
+      "kept": [
+        0
+      ],
+      "source": "authored"
+    },
+    {
+      "id": "H21",
+      "lang": "es",
+      "rules": [
+        "Ningún personaje usa armas de fuego.",
+        "La magia no puede curar heridas.",
+        "Los personajes nunca dicen palabrotas.",
+        "En este mundo no existen los caballos."
+      ],
+      "reply": {
+        "speaker": "Capitana Rhee",
+        "text": "La capitana apunta con su pistola de chispa y dispara; el estampido retumba en la cubierta y el humo se queda enredado en las jarcias."
+      },
+      "broken": [
+        0
+      ],
+      "kept": [],
+      "source": "authored"
+    },
+    {
+      "id": "H22",
+      "lang": "es",
+      "rules": [
+        "La magia no puede curar heridas.",
+        "Ningún personaje bebe alcohol.",
+        "Los personajes nunca dicen palabrotas.",
+        "Ningún personaje usa armas de fuego."
+      ],
+      "reply": {
+        "speaker": "Curandera",
+        "text": "\"La magia no cerrará esto\", dice la curandera mientras enhebra la aguja. \"Quédate quieto, lo coseré a la antigua.\""
+      },
+      "broken": [],
+      "kept": [
+        0
+      ],
+      "source": "authored"
+    },
+    {
+      "id": "H23",
+      "lang": "es",
+      "rules": [
+        "Los personajes nunca dicen palabrotas.",
+        "En este mundo no existen los caballos.",
+        "Ningún personaje bebe alcohol.",
+        "La magia no puede curar heridas."
+      ],
+      "reply": {
+        "speaker": "Arin",
+        "text": "\"¡Joder!\", masculla Arin al ver el puente derrumbado. Da una patada a una piedra y se pasa la mano por el pelo."
+      },
+      "broken": [
+        0
+      ],
+      "kept": [],
+      "source": "authored"
+    },
+    {
+      "id": "H24",
+      "lang": "es",
+      "rules": [
+        "En este mundo no existen los caballos.",
+        "Ningún personaje bebe alcohol.",
+        "Ningún personaje usa armas de fuego.",
+        "Los personajes nunca dicen palabrotas."
+      ],
+      "reply": {
+        "speaker": "Narrador",
+        "text": "El carro de bueyes subía la colina despacio; el carretero bebía agua de su odre y tarareaba una canción."
+      },
+      "broken": [],
+      "kept": [
+        0,
+        1
+      ],
+      "source": "authored"
+    }
+  ]
+}
