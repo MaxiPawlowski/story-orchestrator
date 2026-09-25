@@ -381,6 +381,7 @@ export class EffectsApplier {
       if (typeof reply.probability === "number" && Math.random() > reply.probability) continue;
       extras.firedNpcReplies[key] = count + 1;
       await fireReply(reply);
+      if (!run.stillOwns()) return;
       extras.lastSelfInjectionMessageId = lastMessageId();
     }
   }

@@ -438,8 +438,10 @@
       "note": "The sequence stops before the write that outlives the chat."
     },
     "effects|aborted": {
-      "status": "na",
-      "note": "Performs no model call, so nothing can be cancelled mid-call."
+      "status": "partial",
+      "evidence": "src/runtime/npcRepliesOwnership.review.test.ts#a chat switch during a generating reply writes nothing into the departed chat's state",
+      "alsoEvidence": ["src/runtime/npcRepliesOwnership.review.test.ts#a generating reply in a chat that did not move records its own last message"],
+      "note": "Was na (\"performs no model call\"), which was wrong: an `llm` NPC reply is `/trigger await=true`, a main-model generation (v2.5 plan 02 C1). COVERED (v2.4 follow-up 2026-09-25): a sequence whose chat moved during the awaited reply writes nothing after it (the post-await check in fireNpcReplies); control: an unmoved chat records its own last message. NOT COVERED: nothing cancels the in-flight generation (executeSlashCommands takes no signal, nothing calls stopGeneration), and where that reply lands after a switch is unmeasured; the stop is v2.5 plan 02 C1 step 2, measure-first."
     },
     "hostDeletes|delayedSuccess": {
       "status": "covered",

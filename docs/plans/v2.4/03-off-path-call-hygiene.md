@@ -1209,3 +1209,44 @@ New cases:
 **Known, not fixed:**
 - The token estimate runs about 1 % under true size. It stays inside the 10 % margin.
 - Two parallel lanes that both send budget-sized memorize prompts starve each other's turns. That is a property of the shared test pod, not of one install.
+
+### Follow-up: NPC reply writes into the previous chat (worktree build, 2026-09-25)
+
+**Finding confirmed (code read on `96b4fe6`).** `EffectsApplier.fireNpcReplies` (`src/runtime/effectsApplier.ts:363-386`)
+mints its run at `:371` and checks it at the loop top (`:373`), so the check guards the NEXT reply only. After
+`await fireReply(reply)` (`:383`; an `llm` reply is `/trigger await=true <member>`, `:127`, a real generation) it wrote
+`extras.lastSelfInjectionMessageId = lastMessageId()` (`:384`) with no check: `extras` is the entry chat's object and
+`lastMessageId()` (`:130-133`) reads the OPEN chat. A switch during the last (or only) reply stamped chat B's index into
+chat A, where `afterSpeak` later compares it with A's own messages (`:364`). The census row called the site `checked`
+(the body has a check; the write after the await did not follow one).
+
+**Fix.** One `if (!run.stillOwns()) return;` between the await and the write. The in-flight `/trigger` generation is
+NOT cancelled: that is v2.5 plan 02 C1 step 2, measure-first, and was not built.
+
+**Tests (red first).** `src/runtime/npcRepliesOwnership.review.test.ts`: the mocked host chat became mutable, and one
+`llm` reply is fired with the ownership switched (and the open chat replaced by an 8-message chat B) inside the
+`/trigger` call. Before the fix: `Expected: -1, Received: 7`. After: green. Control: an unmoved chat whose reply lands
+records its own last message (`1`).
+
+**Mutants** (`test/findings/mutations/v24-followups-npc.txt`): M1 check deleted, KILLED by exactly the switch case
+(control green); M2 write moved above the await, KILLED by both the switch case and the control.
+
+**Ledgers.** Census row `EffectsApplier.fireNpcReplies` note corrected (stays `checked`, now true of every write).
+Fault matrix `effects|aborted`: `na` ("performs no model call", false for `/trigger`) -> `partial`, citing the switch
+case + control; the note names the uncancelled generation as the open part. Counts: 75 covered / 10 partial / 25 na /
+0 todo -> 75 / 11 / 24 / 0 (of 110).
+
+**Gates (worktree, exact).**
+- `npm run typecheck` exit 0; `npm run typecheck:test` exit 0; `npm run lint` exit 0; `npm run debug:typecheck` exit 0.
+- `npm test`: 255 suites, 3693/3693 passed.
+- `npm run test:debug`: first run 264 pass / 1 fail / 1 skipped, the fail being `so-run-header.test.mts` "the build
+  half reads plan 08s nested manifest" (`extension.version is read`), because a fresh worktree has no
+  `dist/manifest.json` before its first build. After `npm run build`: 265 pass / 0 fail / 1 skipped.
+- `npm run build`: exit 0 (webpack: 2 warnings, both asset/entrypoint size limits, index.js 1.73 MiB).
+
+**NOT run / NOT green: the live gate.** Owed on a lane with the real model, built on `test/scenarios/plan03a-llm-npc-reply.json`: a story whose checkpoint carries an `llm`
+`npc_replies` `onEnter`; enter it, switch chats (`open-group` another group) while the `/trigger` reply streams, then
+reopen the first chat and read `lastSelfInjectionMessageId` from its persisted blob (`so-state current`): it must not
+hold the other chat's index, and an unswitched control run must record the reply's own id. ×2. Also re-run
+`live-v4-turn-identity.json` to confirm the scripted branch is unchanged. Where the in-flight reply itself lands
+stays unmeasured (C1 step 0).
