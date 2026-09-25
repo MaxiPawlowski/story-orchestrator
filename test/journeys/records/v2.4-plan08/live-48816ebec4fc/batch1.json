@@ -1,0 +1,136 @@
+{
+  "lanes": [
+    2
+  ],
+  "items": [
+    "test/scenarios/live-v24-08-preview-capture.json",
+    "test/scenarios/live-v24-08-preview-capture-solo.json",
+    "test/scenarios/live-v24-08-fates-jump.json",
+    "test/scenarios/live-v24-08-quality-macro.json",
+    "test/scenarios/live-v24-08-routing.json"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/scenarios/live-v24-08-preview-capture.json",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-25T06-43-59-395Z-live-v24-08-preview-capture-run1.log",
+      "ms": 52756,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-08-preview-capture.json",
+      "lane": 2,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-25T06-43-59-395Z-live-v24-08-preview-capture-run2.log",
+      "ms": 55771,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-08-preview-capture-solo.json",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-25T06-43-59-395Z-live-v24-08-preview-capture-solo-run1.log",
+      "ms": 60332,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-08-preview-capture-solo.json",
+      "lane": 2,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-25T06-43-59-395Z-live-v24-08-preview-capture-solo-run2.log",
+      "ms": 57237,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-08-fates-jump.json",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-25T06-43-59-395Z-live-v24-08-fates-jump-run1.log",
+      "ms": 88518,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-08-fates-jump.json",
+      "lane": 2,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-25T06-43-59-395Z-live-v24-08-fates-jump-run2.log",
+      "ms": 84428,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-08-quality-macro.json",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-25T06-43-59-395Z-live-v24-08-quality-macro-run1.log",
+      "ms": 26739,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-08-quality-macro.json",
+      "lane": 2,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-25T06-43-59-395Z-live-v24-08-quality-macro-run2.log",
+      "ms": 35735,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-08-routing.json",
+      "lane": 2,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-25T06-43-59-395Z-live-v24-08-routing-run1.log",
+      "ms": 6818,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-08-routing.json",
+      "lane": 2,
+      "run": 2,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-25T06-43-59-395Z-live-v24-08-routing-run2.log",
+      "ms": 6527,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

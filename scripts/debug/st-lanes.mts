@@ -161,6 +161,8 @@ async function batch(lanes: number[], items: string[], repeat: number, strict: b
   return { summary, green: results.filter((result) => result.code === 0).length, runs: results.length };
 }
 
+export const batchExitCode = (out: { green: number; runs: number }): number => (out.runs > 0 && out.green === out.runs ? 0 : 1);
+
 async function main() {
   const [command, ...rest] = process.argv.slice(2);
   if (!command || command === '--help') { console.log(USAGE); return; }
@@ -183,7 +185,9 @@ async function main() {
     const lanes = String(argValue('--lanes', '1')).split(',').map(Number).filter(Boolean);
     const flags = new Set(['--lanes', '--repeat', '--group']);
     const items = rest.filter((arg, index) => !arg.startsWith('--') && !flags.has(rest[index - 1] ?? ''));
-    out = await batch(lanes, items, Number(argValue('--repeat', '1')), rest.includes('--strict'), argValue('--group'));
+    const result = await batch(lanes, items, Number(argValue('--repeat', '1')), rest.includes('--strict'), argValue('--group'));
+    process.exitCode = batchExitCode(result);
+    out = result;
   } else { console.log(USAGE); process.exitCode = 2; return; }
   console.log(typeof out === 'string' ? out : JSON.stringify(out, null, 2));
 }

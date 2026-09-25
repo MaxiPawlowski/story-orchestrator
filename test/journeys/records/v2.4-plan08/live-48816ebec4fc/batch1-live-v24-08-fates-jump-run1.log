@@ -1,0 +1,78 @@
+1/13 eval ok 9ms
+2/13 import_story ok 310ms
+3/13 eval ok 6ms
+3/13 eval -> {"group":"1759606632088","chat":"2026-09-25@03h47m46s534ms"}
+4/13 send_generate ok 15910ms
+5/13 send_generate ok 19386ms
+6/13 send_generate ok 26563ms
+7/13 wait ok 18341ms
+8/13 eval ok 15ms
+9/13 ui ok 211ms
+9/13 ui -> {"rendered":{"injected":7},"snapshot":{"injected":7},"trim":{"facts":{"candidates":2,"injected":2,"dropped":0,"tokensUsed":47,"budget":800,"hostCounted":2,"filtered":0,"highWater":47},"session_details":{"candidates":5,"injected":5,"dropped":0,"tokensUsed":120,"budget":600,"hostCounted":5,"filtered":0,"highWater":120},"short_term":{"candidates":0,"injected":0,"dropped":0,"tokensUsed":0,"budget":300,"hostCounted":0,"filtered":0,"highWater":0},"scene_history":{"candidates":0,"injected":0,"dropped":0,"tokensUsed":0,"budget":500,"hostCounted":0,"filtered":0,"highWater":0}},"highWater":null}
+10/13 eval ok 8ms
+10/13 eval -> {"fated":7,"rendered":{"injected":7},"trim":{"facts":{"candidates":2,"injected":2,"dropped":0,"tokensUsed":47,"budget":800,"hostCounted":2,"filtered":0,"highWater":47},"session_details":{"candidates":5,"injected":5,"dropped":0,"tokensUsed":120,"budget":600,"hostCounted":5,"filtered":0,"highWater":120},"short_term":{"candidates":0,"injected":0,"dropped":0,"tokensUsed":0,"budget":300,"hostCounted":0,"filtered":0,"highWater":0},"scene_history":{"candidates":0,"injected":0,"dropped":0,"tokensUsed":0,"budget":500,"hostCounted":0,"filtered":0,"highWater":0}},"pinnedOverflow":0}
+11/13 ui ok 1319ms
+11/13 ui -> {"ok":true,"cited":{"mesid":2,"fingerprint":"same","label":"message 2"},"rendered":true,"inView":true,"drawerOpen":true}
+12/13 eval ok 19ms
+13/13 ui ok 412ms
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T06-49-13-990Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 13,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-783f9c3c"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@03h47m46s534ms",
+    "owned": [
+      "2026-09-25@03h47m46s534ms"
+    ],
+    "deleted": [
+      "2026-09-25@03h47m46s534ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@03h47m46s534ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

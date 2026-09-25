@@ -1,0 +1,81 @@
+1/14 import_story ok 275ms
+2/14 eval ok 5ms
+3/14 eval ok 25ms
+3/14 eval -> {"role":"director","label":"Speaker direction","profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","state":"untested","detail":"Speaker direction: not tested yet"}
+4/14 ui ok 80ms
+5/14 eval ok 7ms
+6/14 ui ok 57ms
+7/14 eval ok 4026ms
+7/14 eval -> {"role":"director","label":"Speaker direction","profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","state":"ok","detail":"Speaker direction: 3 of 3 director cases answered a usable SPEAKER line"}
+8/14 send_generate ok 16908ms
+9/14 wait ok 49ms
+10/14 eval ok 5ms
+10/14 eval -> {"last":{"at":"2026-09-25T06:52:49.789Z","messageId":1,"checkpointId":"hall","chosenRosterId":"guild_master","chosenName":"Ponticius","source":"rules","latencyMs":0},"route":{"role":"director","label":"Speaker direction","profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","state":"ok","detail":"Speaker direction: 3 of 3 director cases answered a usable SPEAKER line"}}
+11/14 eval ok 17ms
+11/14 eval -> {"role":"curator","label":"World Info curator","profileId":"so-p08-dangling-profile","state":"missing","detail":"The profile chosen for World Info curator no longer exists (ID: so-p08-dangling-profile)"}
+12/14 ui ok 138ms
+13/14 eval ok 4ms
+13/14 eval -> "The World Info curator stops proposing changes.The profile chosen for World Info curator no longer exists (ID: so-p08-dangling-profile)Show me the setting"
+14/14 eval ok 22ms
+14/14 eval -> {}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T06-53-10-022Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 14,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-783f9c3c"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@03h52m43s000ms",
+    "owned": [
+      "2026-09-25@03h52m43s000ms"
+    ],
+    "deleted": [
+      "2026-09-25@03h52m43s000ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@03h52m43s000ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

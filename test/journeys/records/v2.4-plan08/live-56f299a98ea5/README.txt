@@ -1,0 +1,1 @@
+Run-header diff around the calibration batch (lane 2, bundle.served 56f299a98ea5): 0 differences, ok. Goldens (raw answers, per-case scores, summaries): test/goldens/live/role-calibration/{director-routed,director-shared,curator-shared,synthesis-shared,authoring-shared}.json, replayed in src/runtime/roleCalibration.test.ts.

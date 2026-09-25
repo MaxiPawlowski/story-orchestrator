@@ -1,0 +1,365 @@
+{
+  "role": "synthesis",
+  "arm": "shared",
+  "profile": {
+    "id": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+    "name": "Story Orchestrator Memory RunPod",
+    "fallback": true
+  },
+  "routeDuringRun": {
+    "role": "synthesis",
+    "label": "Summaries and canon",
+    "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+    "state": "fallback",
+    "detail": "Same as memory model"
+  },
+  "roleMapRestored": {},
+  "fixtureFrozenAt": "2026-09-25",
+  "bundle": "56f299a98ea5",
+  "runAt": "2026-09-25T07:12:47.420Z",
+  "cases": 8,
+  "summary": {
+    "role": "synthesis",
+    "overall": {
+      "cases": 8,
+      "metrics": {
+        "validity": {
+          "passed": 8,
+          "total": 8,
+          "rate": 1,
+          "floor": null,
+          "ok": null
+        }
+      }
+    },
+    "es": {
+      "cases": 3,
+      "metrics": {
+        "validity": {
+          "passed": 3,
+          "total": 3,
+          "rate": 1,
+          "floor": null,
+          "ok": null
+        }
+      }
+    },
+    "meetsFloors": null
+  },
+  "incomplete": [],
+  "notGreen": [],
+  "records": [
+    {
+      "role": "synthesis",
+      "id": "s01",
+      "lang": "en",
+      "responses": [
+        "Max lit a brass lantern and followed Bel into the tunnel. The atmosphere was tense and determined as they descended together."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 2650,
+      "score": {
+        "valid": true,
+        "empty": false,
+        "truncated": false,
+        "noise": false
+      },
+      "case": {
+        "id": "s01",
+        "lang": "en",
+        "messages": [
+          {
+            "speaker": "Max",
+            "text": "I pick up the brass lantern from the crate and light it."
+          },
+          {
+            "speaker": "Bel",
+            "text": "Bel nods. \"Then we go down.\" She leads the way into the tunnel."
+          },
+          {
+            "speaker": "Max",
+            "text": "I follow Bel into the tunnel, lantern raised."
+          }
+        ]
+      }
+    },
+    {
+      "role": "synthesis",
+      "id": "s02",
+      "lang": "en",
+      "responses": [
+        "In a tense negotiation, Max and Arin agreed to Ponticius's final offer of two hundred and fifty gold to retrieve an artifact from the Sun Ruins. After a brief dispute over the price, Max accepted the initial payment and the party prepared to depart."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 3292,
+      "score": {
+        "valid": true,
+        "empty": false,
+        "truncated": false,
+        "noise": false
+      },
+      "case": {
+        "id": "s02",
+        "lang": "en",
+        "messages": [
+          {
+            "speaker": "Ponticius",
+            "text": "\"Two hundred gold for the Sun Ruins. Half now, half when you bring back the artifact.\" He slides a pouch across the counter."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Make it three hundred and we leave tonight.\""
+          },
+          {
+            "speaker": "Ponticius",
+            "text": "He scowls, then laughs. \"Two fifty. Final offer.\""
+          },
+          {
+            "speaker": "Arin",
+            "text": "\"Take it, Max. We need the coin.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Deal.\" I take the pouch."
+          }
+        ]
+      }
+    },
+    {
+      "role": "synthesis",
+      "id": "s03",
+      "lang": "en",
+      "responses": [
+        "In a rain-drenched abandoned mill, Lady Ashworth met with Max and handed him a sealed letter proving the governor ordered the fire. The exchange was tense and urgent, with Lady Ashworth warning him to guard the evidence with his life."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 2837,
+      "score": {
+        "valid": true,
+        "empty": false,
+        "truncated": false,
+        "noise": false
+      },
+      "case": {
+        "id": "s03",
+        "lang": "en",
+        "messages": [
+          {
+            "speaker": "Narrator",
+            "text": "Rain hammers the roof of the abandoned mill. Somewhere below, the wheel groans in the flood."
+          },
+          {
+            "speaker": "Lady Ashworth",
+            "text": "\"You were followed. I told you to come alone.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Nobody followed me. What do you have for me?\""
+          },
+          {
+            "speaker": "Lady Ashworth",
+            "text": "She hands over a sealed letter. \"Proof that the governor ordered the fire. Guard it with your life.\""
+          }
+        ]
+      }
+    },
+    {
+      "role": "synthesis",
+      "id": "s04",
+      "lang": "en",
+      "responses": [
+        "Max searched the fallen guard for keys and a duty roster before freeing the prisoner from his cell. The elderly man clutched Max's arm and whispered the name \"Corvin\" as Vex urged them to move quickly before the next patrol arrived."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 3016,
+      "score": {
+        "valid": true,
+        "empty": false,
+        "truncated": false,
+        "noise": false
+      },
+      "case": {
+        "id": "s04",
+        "lang": "en",
+        "messages": [
+          {
+            "speaker": "Max",
+            "text": "I kneel by the fallen guard and check his pockets."
+          },
+          {
+            "speaker": "Narrator",
+            "text": "You find a ring of iron keys and a folded duty roster."
+          },
+          {
+            "speaker": "Vex",
+            "text": "\"The roster says the next patrol is in ten minutes. Move.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I unlock the cell door and pull the prisoner out."
+          },
+          {
+            "speaker": "Narrator",
+            "text": "The prisoner, a thin old man, clutches your arm and whispers a name: Corvin."
+          }
+        ]
+      }
+    },
+    {
+      "role": "synthesis",
+      "id": "s05",
+      "lang": "en",
+      "responses": [
+        "Arin expressed distrust toward Oskar for lying about the map, but Max insisted they continue using the ferryman's boat. In silence, Oskar pushed off from the bank and began crossing the water."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 2505,
+      "score": {
+        "valid": true,
+        "empty": false,
+        "truncated": false,
+        "noise": false
+      },
+      "case": {
+        "id": "s05",
+        "lang": "en",
+        "messages": [
+          {
+            "speaker": "Arin",
+            "text": "\"I don't trust him. He lied about the map.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Then we watch him. We still need his boat.\""
+          },
+          {
+            "speaker": "Oskar",
+            "text": "The ferryman pushes off from the bank without a word. The reeds close behind the boat."
+          }
+        ]
+      }
+    },
+    {
+      "role": "synthesis",
+      "id": "s06",
+      "lang": "es",
+      "responses": [
+        "Max and Mara descended into a damp, dimly lit crypt beneath the altar to retrieve a relic. Mara warned Max not to touch anything as he approached the final niche to lift its lid."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 2142,
+      "score": {
+        "valid": true,
+        "empty": false,
+        "truncated": false,
+        "noise": false
+      },
+      "case": {
+        "id": "s06",
+        "lang": "es",
+        "messages": [
+          {
+            "speaker": "Max",
+            "text": "Empujo la losa detrás del altar y bajo por la escalera de piedra."
+          },
+          {
+            "speaker": "Narrador",
+            "text": "La cripta huele a humedad. Las antorchas apenas iluminan los nichos de los antiguos abades."
+          },
+          {
+            "speaker": "Mara",
+            "text": "\"La reliquia debería estar en el nicho del fondo. No toques nada más.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "Me acerco al nicho del fondo y levanto la tapa."
+          }
+        ]
+      }
+    },
+    {
+      "role": "synthesis",
+      "id": "s07",
+      "lang": "es",
+      "responses": [
+        "After the soldiers departed at dawn, Doña Elena met with Max and served wine. She revealed that Mayor Ruiz had fled to the port with tax money and was not alone."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 2884,
+      "score": {
+        "valid": true,
+        "empty": false,
+        "truncated": false,
+        "noise": false
+      },
+      "case": {
+        "id": "s07",
+        "lang": "es",
+        "messages": [
+          {
+            "speaker": "Doña Elena",
+            "text": "\"Los soldados se fueron al amanecer. Ahora puedo hablar.\" Sirve dos vasos de vino."
+          },
+          {
+            "speaker": "Max",
+            "text": "\"¿Qué sabe del alcalde Ruiz?\""
+          },
+          {
+            "speaker": "Doña Elena",
+            "text": "\"Que huyó con el dinero de los impuestos hacia el puerto. Y que no iba solo.\""
+          }
+        ]
+      }
+    },
+    {
+      "role": "synthesis",
+      "id": "s08",
+      "lang": "es",
+      "responses": [
+        "Max boarded a derelict, crewless ship that appeared through the fog. He discovered the deck deserted and found disturbing fingernail marks on the captain's cabin door, creating an ominous atmosphere."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1923,
+      "score": {
+        "valid": true,
+        "empty": false,
+        "truncated": false,
+        "noise": false
+      },
+      "case": {
+        "id": "s08",
+        "lang": "es",
+        "messages": [
+          {
+            "speaker": "Narrador",
+            "text": "La niebla se abre y aparece el casco negro de un barco a la deriva, sin luces ni tripulación."
+          },
+          {
+            "speaker": "Max",
+            "text": "Lanzo un garfio a la borda y subo a la cubierta."
+          },
+          {
+            "speaker": "Narrador",
+            "text": "La cubierta está desierta. En la puerta del camarote del capitán hay marcas de uñas."
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+lane 2 test/scenarios/live-v24-08-preview-capture.json run 1: code 0 (53 s)
+lane 2 test/scenarios/live-v24-08-preview-capture.json run 2: code 0 (56 s)
+lane 2 test/scenarios/live-v24-08-preview-capture-solo.json run 1: code 0 (60 s)
+lane 2 test/scenarios/live-v24-08-preview-capture-solo.json run 2: code 0 (57 s)
+lane 2 test/scenarios/live-v24-08-fates-jump.json run 1: code 0 (89 s)
+lane 2 test/scenarios/live-v24-08-fates-jump.json run 2: code 0 (84 s)
+lane 2 test/scenarios/live-v24-08-quality-macro.json run 1: code 0 (27 s)
+lane 2 test/scenarios/live-v24-08-quality-macro.json run 2: code 0 (36 s)
+lane 2 test/scenarios/live-v24-08-routing.json run 1: code 1 (7 s)
+lane 2 test/scenarios/live-v24-08-routing.json run 2: code 1 (7 s)
+{
+  "summary": "C:\\dev\\so-lanes\\batch-2026-09-25T06-43-59-395Z.json",
+  "green": 8,
+  "runs": 10
+}
+exit=0

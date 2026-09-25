@@ -1,0 +1,8 @@
+lane 2 test/scenarios/live-v24-08-routing.json run 1: code 0 (64 s)
+lane 2 test/scenarios/live-v24-08-routing.json run 2: code 0 (50 s)
+{
+  "summary": "C:\\dev\\so-lanes\\batch-2026-09-25T07-03-42-222Z.json",
+  "green": 2,
+  "runs": 2
+}
+exit=0

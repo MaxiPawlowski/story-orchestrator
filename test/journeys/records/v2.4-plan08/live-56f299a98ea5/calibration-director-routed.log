@@ -1,0 +1,88 @@
+D01 en PASS pick=Ponticius 1416 ms
+D02 en PASS pick=Ponticius 816 ms
+D03 en FAIL pick=Ponticius 825 ms
+D04 en PASS pick=Arin 827 ms
+D05 en PASS pick=Arin 924 ms
+D06 en PASS pick=DM Narrator 1099 ms
+D07 en PASS pick=Ponticius 896 ms
+D08 en PASS pick=NONE 901 ms
+D09 en PASS pick=Arin 831 ms
+D10 en PASS pick=Ponticius 915 ms
+D11 en PASS pick=Ponticius 2303 ms
+D12 en PASS pick=Maeve 1070 ms
+D13 en PASS pick=Mae Hollis 961 ms
+D14 en FAIL pick=Luke 1079 ms
+D15 es FAIL pick=Ponticius 1139 ms
+D16 en FAIL pick=DM Narrator 1142 ms
+D17 en PASS pick=HALO 1078 ms
+D18 en PASS pick=Pell 994 ms
+D19 en PASS pick=Captain Okafor 1023 ms
+D20 en PASS pick=Lady Ashworth 1095 ms
+D21 en PASS pick=Graves 976 ms
+D22 en PASS pick=Graves 915 ms
+D23 en PASS pick=Lady Ashworth 992 ms
+D24 en PASS pick=Ponticius 1112 ms
+D25 en PASS pick=Arin 963 ms
+D26 en PASS pick=Narrator 1113 ms
+D27 es PASS pick=Ponticius 1080 ms
+D28 es FAIL pick=Captain Okafor 1175 ms
+D29 es PASS pick=Mae Hollis 1121 ms
+D30 es FAIL pick=Graves 1099 ms
+D31 es PASS pick=Luke 1084 ms
+D32 es PASS pick=Graves 1096 ms
+D33 es PASS pick=NONE 985 ms
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T07-10-15-623Z_so-role-calibration-director-routed.json
+recorded test/goldens/live/role-calibration/director-routed.json
+{
+  "role": "director",
+  "arm": "routed",
+  "profile": {
+    "id": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+    "name": "Artemis RunPod RP"
+  },
+  "cases": 33,
+  "summary": {
+    "role": "director",
+    "overall": {
+      "cases": 26,
+      "metrics": {
+        "correct": {
+          "passed": 22,
+          "total": 26,
+          "rate": 0.8461538461538461,
+          "floor": 0.8461538461538461,
+          "ok": true
+        },
+        "answerCorrect": {
+          "passed": 22,
+          "total": 26,
+          "rate": 0.8461538461538461,
+          "floor": null,
+          "ok": null
+        }
+      }
+    },
+    "es": {
+      "cases": 8,
+      "metrics": {
+        "correct": {
+          "passed": 5,
+          "total": 8,
+          "rate": 0.625,
+          "floor": null,
+          "ok": null
+        },
+        "answerCorrect": {
+          "passed": 5,
+          "total": 8,
+          "rate": 0.625,
+          "floor": null,
+          "ok": null
+        }
+      }
+    },
+    "meetsFloors": true
+  },
+  "restored": {}
+}
+exit=0

@@ -2,6 +2,7 @@ import { buildFixtureRun, callExtractionModel, parseSharedReadResponse, type Ext
 import { buildTypedPlan, readTypedDeltas } from "@judge/index";
 import { buildCreateCandidatePrompt, caseContext, caseScope, scoreCreateSample, type CreateCase, type CreateCaseSample } from "@stagecraft/createCandidate";
 import type { RuntimeManager } from "./runtimeManager";
+import { runRoleCase, summarizeRoleCalibration, type CalibrationCaseMap, type CalibrationRole, type RoleCaseRecord, type RoleSummary } from "./roleCalibration";
 
 export interface LiveFixtureResult {
   prompt: string;
@@ -31,6 +32,8 @@ export interface LiveFixtureOptions {
 export interface LiveSuiteHandle {
   runFixture: (spec: ExtractionFixtureSpec, options?: LiveFixtureOptions) => Promise<LiveFixtureResult>;
   runCuratorCreate: (entry: CreateCase) => Promise<{ prompt: string; rawResponse: string; sample: CreateCaseSample }>;
+  runRoleCase: <R extends CalibrationRole>(role: R, entry: CalibrationCaseMap[R]) => Promise<RoleCaseRecord<R>>;
+  summarizeRoleCalibration: (role: CalibrationRole, records: RoleCaseRecord[], options?: { floorIds?: string[] }) => RoleSummary;
 }
 
 const withHints = (story: unknown, hints: LiveFixtureOptions["hints"]) => {
@@ -42,6 +45,8 @@ const withHints = (story: unknown, hints: LiveFixtureOptions["hints"]) => {
 export function registerLiveSuite(manager: RuntimeManager) {
   const handle: LiveSuiteHandle = {
     runCuratorCreate: curatorCreateRunner(manager),
+    runRoleCase: (role, entry) => runRoleCase(role, entry, { profileId: manager.getExtractionSettings().profileId }),
+    summarizeRoleCalibration,
     runFixture: async (spec, options = {}) => {
       const hinted = { ...spec, story: withHints(spec.story, options.hints) };
       const first = buildFixtureRun(hinted);

@@ -1,0 +1,6 @@
+Run-header diffs around each batch (lane 2, so-run-header diff <pre> after the batch). bundle.served 48816ebec4fc throughout.
+batch1 (5 scenarios x2)      vs run-header-pre.json : 1 blocking, build.head 96b4fe6 -> 7b2230a (this plan's fixture+floors commit, docs/fixtures only, no rebuild)
+batch2 (routing, J3, J5 x2)   vs run-header-pre2.json: 1 blocking, build.head 7b2230a -> 700db62 (other sessions' v2.5 docs commits, no rebuild)
+batch3 (routing x2, fix 1)    vs run-header-pre3.json: 0 differences, ok
+batch4 (routing x2, fix 2)    vs run-header-pre4.json: 1 blocking, build.head 0e1bbbe -> 72bb818 (another session's v2.5 docs commit, no rebuild); end header in run-header-end-batch4.json
+extraction.profiles, judge, stagecraft, chat and inventories: no difference in any batch.

@@ -1,0 +1,86 @@
+{
+  "lanes": [
+    2
+  ],
+  "items": [
+    "test/scenarios/live-v24-08-routing.json",
+    "J3",
+    "J5"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/scenarios/live-v24-08-routing.json",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-25T06-52-41-940Z-live-v24-08-routing-run1.log",
+      "ms": 28106,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-08-routing.json",
+      "lane": 2,
+      "run": 2,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-25T06-52-41-940Z-live-v24-08-routing-run2.log",
+      "ms": 40055,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "J3",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-25T06-52-41-940Z-J3-run1.log",
+      "ms": 195588,
+      "automated": "automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\2\\debug\\2026-09-25T06-57-05-663Z_journey-J3.json",
+      "failures": []
+    },
+    {
+      "item": "J3",
+      "lane": 2,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-25T06-52-41-940Z-J3-run2.log",
+      "ms": 194296,
+      "automated": "automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\2\\debug\\2026-09-25T07-00-19-964Z_journey-J3.json",
+      "failures": []
+    },
+    {
+      "item": "J5",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-25T06-52-41-940Z-J5-run1.log",
+      "ms": 92175,
+      "automated": "automated: 7 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\2\\debug\\2026-09-25T07-01-52-140Z_journey-J5.json",
+      "failures": []
+    },
+    {
+      "item": "J5",
+      "lane": 2,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-25T06-52-41-940Z-J5-run2.log",
+      "ms": 79791,
+      "automated": "automated: 7 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\2\\debug\\2026-09-25T07-03-11-933Z_journey-J5.json",
+      "failures": []
+    }
+  ]
+}

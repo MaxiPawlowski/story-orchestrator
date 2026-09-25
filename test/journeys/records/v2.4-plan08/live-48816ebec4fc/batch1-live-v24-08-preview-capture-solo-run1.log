@@ -1,0 +1,110 @@
+1/14 eval ok 5ms
+2/14 solo_chat ok 939ms
+2/14 solo_chat -> {"solo":"DM Narrator - 2026-09-25@03h45m49s572ms","character":"DM Narrator","returnTo":"2026-09-25@03h45m48s953ms"}
+3/14 eval ok 6ms
+4/14 import_story ok 279ms
+5/14 wait ok 3126ms
+6/14 eval ok 5ms
+6/14 eval -> {"label":"solo turn 1","own":["story_orchestrator_guidance"],"foreign":["2_floating_prompt"],"budget":97704,"counting":0}
+7/14 send_generate ok 15887ms
+7/14 send_generate -> {"sent":"I look around the guild hall. What stands out?","messagesBefore":0,"messagesAfter":2,"newMessages":2,"replied":true,"lastSpeaker":"DM Narrator","lastLength":1243}
+8/14 eval ok 5ms
+8/14 eval -> {"label":"solo turn 1","blocks":2,"counted":2,"estimated":[],"budget":97704,"lastGenerationBudget":97704,"generationsAfterPreview":1,"fail":[]}
+9/14 wait ok 17799ms
+10/14 eval ok 8ms
+10/14 eval -> {"label":"solo turn 2","own":["story_orchestrator_memory_session_details","story_orchestrator_guidance"],"foreign":["2_floating_prompt","DEPTH_PROMPT"],"budget":97704,"counting":0}
+11/14 send_generate ok 15903ms
+11/14 send_generate -> {"sent":"I walk out to the yard behind the hall.","messagesBefore":2,"messagesAfter":4,"newMessages":2,"replied":true,"lastSpeaker":"DM Narrator","lastLength":1041}
+12/14 eval ok 6ms
+12/14 eval -> {"label":"solo turn 2","blocks":4,"counted":4,"estimated":[],"budget":97704,"lastGenerationBudget":97704,"generationsAfterPreview":1,"fail":[]}
+13/14 eval ok 4ms
+13/14 eval -> [{"label":"solo turn 1","blocks":2,"counted":2,"estimated":[],"budget":97704,"lastGenerationBudget":97704,"generationsAfterPreview":1,"fail":[]},{"label":"solo turn 2","blocks":4,"counted":4,"estimated":[],"budget":97704,"lastGenerationBudget":97704,"generationsAfterPreview":1,"fail":[]}]
+14/14 solo_chat ok 658ms
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T06-46-48-234Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 14,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-61b6ca2e"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [
+        "DM Narrator - 2026-09-25@03h45m49s572ms"
+      ],
+      "leaked": [],
+      "results": [
+        {
+          "chatId": "DM Narrator - 2026-09-25@03h45m49s572ms",
+          "gone": true
+        }
+      ]
+    },
+    "activeEntity": {
+      "captured": true,
+      "before": {
+        "character": null,
+        "group": "1759606632088"
+      },
+      "found": {
+        "character": "DM Narrator.png",
+        "group": null
+      },
+      "after": {
+        "character": null,
+        "group": "1759606632088"
+      },
+      "restored": true,
+      "saved": {
+        "status": 200
+      }
+    },
+    "sandboxChatId": "2026-09-25@03h45m48s953ms",
+    "owned": [
+      "2026-09-25@03h45m48s953ms"
+    ],
+    "deleted": [
+      "2026-09-25@03h45m48s953ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@03h45m48s953ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

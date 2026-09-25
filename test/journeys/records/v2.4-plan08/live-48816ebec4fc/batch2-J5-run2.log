@@ -1,0 +1,61 @@
+
+=== J5 group-direction ===
+Speaker direction, npc_replies and cast_changes across checkpoints in a real group chat, with per-speaker private injection asserted in the captured payload.
+
+extraction before this run: {"enabled":true,"cadence":1,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","profiles":{}}
+Global config snapshot: C:\dev\so-lanes\2\debug\so-journey-config-snapshot.json
+extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+--- J5.1 a talk-control checkpoint loads with speaker direction enabled
+J5.1 1/5 import_story ok 772ms
+J5.1 2/5 ui ok 200ms
+J5.1 3/5 eval ok 8ms
+J5.1 4/5 eval ok 18ms
+J5.1 5/5 expect ok 50ms
+--- J5.2 cast_changes applied the checkpoint's roster (Luke disabled at the briefing)
+J5.2 1/1 eval ok 5ms
+--- J5.3 the scripted npc_reply for entering the checkpoint fired
+J5.3 1/1 expect ok 37ms
+--- J5.4 a real group turn is routed by speaker direction and the decision is recorded
+J5.4 1/3 send_generate ok 22439ms
+J5.4 2/3 wait ok 52ms
+J5.4 3/3 eval ok 7ms
+J5.4 3/3 eval -> {"at":"2026-09-25T07:01:57.712Z","messageId":2,"checkpointId":"brief","chosenRosterId":"guild_master","chosenName":"Ponticius","source":"director","latencyMs":934}
+--- J5.5 the injected payload for that turn was captured
+J5.5 1/1 eval ok 6ms
+--- J5.6 private per-speaker injection: the drafted member sees their own epistemic block, not another's
+J5.6 1/4 eval ok 23ms
+J5.6 2/4 slash ok 2065ms
+J5.6 3/4 eval ok 9239ms
+J5.6 4/4 eval ok 13ms
+--- J5.8 final-payload privacy: with the party's private knowledge established first, the request ST actually sends for an enabled member's draft carries the knowledge that member held BEFORE the draft inside its private block, and never another member's The recorder reads GENERATE_AFTER_DATA (ST's main Generate() payload, dry runs skipped), not every /api/backends/ fetch: the fetch wrapper also caught our own memory-model calls made while a member was drafted, which carry no private block (L2 J5 run 1). A foreign entry whose text is identical to one of the member's own is set aside and recorded (sharedWithOwn): text alone cannot say whose it is (L2 J5 run 2).
+J5.8 1/7 eval ok 19ms
+J5.8 2/7 slash ok 1668ms
+J5.8 3/7 eval ok 5ms
+J5.8 4/7 eval ok 5ms
+J5.8 5/7 slash ok 11524ms
+J5.8 6/7 slash ok 18541ms
+J5.8 7/7 eval ok 5ms
+Restored global config from C:\dev\so-lanes\2\debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"],"saved":{"status":200},"preservedStories":["legacy-v2-3a7f8d89"],"preservedSessions":[]}
+
+PASS         J5.1     a talk-control checkpoint loads with speaker direction enabled
+PASS         J5.2     cast_changes applied the checkpoint's roster (Luke disabled at the briefing)
+PASS         J5.3     the scripted npc_reply for entering the checkpoint fired
+PASS         J5.4     a real group turn is routed by speaker direction and the decision is recorded
+PASS         J5.5     the injected payload for that turn was captured
+PASS         J5.6     private per-speaker injection: the drafted member sees their own epistemic block, not another's
+PASS         J5.8     final-payload privacy: with the party's private knowledge established first, the request ST actually sends for an enabled member's draft carries the knowledge that member held BEFORE the draft inside its private block, and never another member's The recorder reads GENERATE_AFTER_DATA (ST's main Generate() payload, dry runs skipped), not every /api/backends/ fetch: the fetch wrapper also caught our own memory-model calls made while a member was drafted, which carry no private block (L2 J5 run 1). A foreign entry whose text is identical to one of the member's own is set aside and recorded (sharedWithOwn): text alone cannot say whose it is (L2 J5 run 2).
+SKIP         J5.7      — human check — operator scores it
+
+J5
+automated: 7 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped
+human:     0 scored, 1 unscored
+cleanup:   clean
+first try: 7 of 7 passing check(s) needed no retry
+
+--- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+[J5.7] (—) Did the right characters speak at the right moments, and did silence read as a choice rather than a bug?
+      anchors: 1 = wrong speaker constantly · 3 = mostly right · 5 = felt directed by a GM
+[free] What would make you stop using this?
+
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T07-03-11-933Z_journey-J5.json
+Matrix: C:\dev\so-lanes\2\debug\journey-J5.md

@@ -1,0 +1,27 @@
+v24-08-calibration mutations 2026-09-25 (each mutant applied alone, then reverted; npx jest <file> / node --test <file>)
+- correct drops the production timeout [src/runtime/roleCalibration.ts] -> src/runtime/roleCalibration.test.ts: Tests:       1 failed, 23 passed, 24 total
+    x scoreDirector › a reply slower than the production timeout is not correct, even when right
+- opShape counts only parsed ops, not dropped lines [src/runtime/roleCalibration.ts] -> src/runtime/roleCalibration.test.ts: Tests:       1 failed, 23 passed, 24 total
+    x scoreCurator › an op naming an unknown entry counts against shape; an op the planner refuses does too
+- a none case ignores kept records [src/runtime/roleCalibration.ts] -> src/runtime/roleCalibration.test.ts: Tests:       1 failed, 23 passed, 24 total
+    x scoreCurator › NONE is valid and the right answer on a none case; any kept record fails it
+- forbidden entries are not checked [src/runtime/roleCalibration.ts] -> src/runtime/roleCalibration.test.ts: Tests:       1 failed, 23 passed, 24 total
+    x scoreCurator › touching a forbidden entry fails a change case
+- questions always well-shaped [src/runtime/roleCalibration.ts] -> src/runtime/roleCalibration.test.ts: Tests:       1 failed, 23 passed, 24 total
+    x scoreAuthoring › questions are valid, and well-shaped only where the premise was labelled thin
+- ops outside the stage are allowed [src/runtime/roleCalibration.ts] -> src/runtime/roleCalibration.test.ts: Tests:       1 failed, 23 passed, 24 total
+    x scoreAuthoring › the wrong type, a kind the stage forbids, or a failed status is not
+- channel noise ignored [src/runtime/roleCalibration.ts] -> src/runtime/roleCalibration.test.ts: Tests:       1 failed, 23 passed, 24 total
+    x scoreSynthesis › empty, cut off, or carrying a channel marker is not
+- es slice not floored [src/runtime/roleCalibration.ts] -> src/runtime/roleCalibration.test.ts: Tests:       1 failed, 23 passed, 24 total
+    x summarizeRoleCalibration › curator: every floor binds overall and on the Spanish slice
+- director floor 21 [src/runtime/roleCalibration.ts] -> src/runtime/roleCalibration.test.ts: Tests:       1 failed, 23 passed, 24 total
+    x summarizeRoleCalibration › director: the floor is 22 of D01-D26; Spanish rows are reported, never floored
+- prose counts as valid [src/runtime/roleCalibration.ts] -> src/runtime/roleCalibration.test.ts: Tests:       1 failed, 23 passed, 24 total
+    x scoreCurator › prose with no op line and no NONE is invalid
+- a batch with a red run exits 0 [scripts/debug/st-lanes.mts batchExitCode -> 0] -> scripts/debug/st-lanes.test.mts: # pass 0 / # fail 2
+    x a batch with any red run exits non-zero, so `$?` after it is evidence
+    x an all-green batch exits 0; an empty batch is not green
+- an empty batch reads green [scripts/debug/st-lanes.mts drops runs > 0] -> scripts/debug/st-lanes.test.mts: # pass 1 / # fail 1
+    x an all-green batch exits 0; an empty batch is not green
+12 mutants, 12 killed, each by its own case.

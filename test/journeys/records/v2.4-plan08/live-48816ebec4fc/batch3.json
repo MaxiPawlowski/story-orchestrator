@@ -1,0 +1,36 @@
+{
+  "lanes": [
+    2
+  ],
+  "items": [
+    "test/scenarios/live-v24-08-routing.json"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/scenarios/live-v24-08-routing.json",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-25T07-03-42-222Z-live-v24-08-routing-run1.log",
+      "ms": 63663,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-08-routing.json",
+      "lane": 2,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-25T07-03-42-222Z-live-v24-08-routing-run2.log",
+      "ms": 50281,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

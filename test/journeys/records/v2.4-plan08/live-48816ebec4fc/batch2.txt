@@ -1,0 +1,12 @@
+lane 2 test/scenarios/live-v24-08-routing.json run 1: code 0 (28 s)
+lane 2 test/scenarios/live-v24-08-routing.json run 2: code 1 (40 s)
+lane 2 J3 run 1: code 0 · automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped (196 s)
+lane 2 J3 run 2: code 0 · automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped (194 s)
+lane 2 J5 run 1: code 0 · automated: 7 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped (92 s)
+lane 2 J5 run 2: code 0 · automated: 7 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped (80 s)
+{
+  "summary": "C:\\dev\\so-lanes\\batch-2026-09-25T06-52-41-940Z.json",
+  "green": 5,
+  "runs": 6
+}
+exit=0

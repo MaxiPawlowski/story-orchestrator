@@ -11,7 +11,7 @@
         { "id": "start", "name": "Casing the Bank", "objective": "Case the bank and get the vault key.", "type": "anchor", "start": true },
         { "id": "vault", "name": "The Vault", "objective": "Open the vault.", "type": "anchor" }
       ],
-      "transitions": [{ "from": "start", "to": "vault", "priority": 1, "gate": { "q": "has_key", "op": "eq", "v": true } }],
+      "transitions": [{ "from": "start", "to": "vault", "priority": 1, "gate": { "q": "has_key", "op": "==", "v": true } }],
       "roster": []
     },
     "heist-open": {
@@ -52,7 +52,7 @@
         { "id": "start", "name": "Casing the Bank", "objective": "Case the bank and get the vault key.", "type": "anchor", "start": true },
         { "id": "vault", "name": "The Vault", "objective": "Open the vault.", "type": "anchor" }
       ],
-      "transitions": [{ "from": "start", "to": "vault", "priority": 1, "gate": { "q": "has_key", "op": "eq", "v": true } }],
+      "transitions": [{ "from": "start", "to": "vault", "priority": 1, "gate": { "q": "has_key", "op": "==", "v": true } }],
       "roster": [{ "id": "vex", "name": "Vex", "role": "The crew's lockpick" }],
       "requirements": { "members": ["Vex"], "lorebooks": ["Vault Job Lore"] }
     },
@@ -63,7 +63,7 @@
         { "id": "entrada", "name": "La entrada", "objective": "Encontrar la forma de abrir la cripta.", "type": "anchor", "start": true },
         { "id": "cripta", "name": "La cripta", "objective": "Recuperar la reliquia.", "type": "anchor" }
       ],
-      "transitions": [{ "from": "entrada", "to": "cripta", "priority": 1, "gate": { "q": "puerta_abierta", "op": "eq", "v": true } }],
+      "transitions": [{ "from": "entrada", "to": "cripta", "priority": 1, "gate": { "q": "puerta_abierta", "op": "==", "v": true } }],
       "roster": []
     },
     "cripta-open": {

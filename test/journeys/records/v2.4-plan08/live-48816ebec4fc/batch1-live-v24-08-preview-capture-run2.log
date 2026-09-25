@@ -1,0 +1,81 @@
+1/12 eval ok 5ms
+2/12 import_story ok 280ms
+3/12 eval ok 5ms
+3/12 eval -> {"group":"1759606632088","chat":"2026-09-25@03h44m53s176ms"}
+4/12 wait ok 3146ms
+5/12 eval ok 5ms
+5/12 eval -> {"label":"group turn 1","own":["story_orchestrator_guidance"],"foreign":["2_floating_prompt"],"budget":97704,"counting":0}
+6/12 send_generate ok 11844ms
+6/12 send_generate -> {"sent":"I step up to the counter and ask what the posted job pays.","messagesBefore":1,"messagesAfter":3,"newMessages":2,"replied":true,"lastSpeaker":"Ponticius","lastLength":513}
+7/12 eval ok 259ms
+7/12 eval -> {"label":"group turn 1","blocks":2,"counted":2,"estimated":[],"budget":97704,"lastGenerationBudget":97704,"generationsAfterPreview":1,"fail":[]}
+8/12 wait ok 18420ms
+9/12 eval ok 6ms
+9/12 eval -> {"label":"group turn 2","own":["story_orchestrator_ledger","story_orchestrator_memory_session_details","story_orchestrator_guidance"],"foreign":["2_floating_prompt"],"budget":97704,"counting":0}
+10/12 send_generate ok 15932ms
+10/12 send_generate -> {"sent":"I tell them we are ready to head out to the yard.","messagesBefore":3,"messagesAfter":5,"newMessages":2,"replied":true,"lastSpeaker":"Arin","lastLength":797}
+11/12 eval ok 6ms
+11/12 eval -> {"label":"group turn 2","blocks":4,"counted":4,"estimated":[],"budget":97704,"lastGenerationBudget":97704,"generationsAfterPreview":1,"fail":[]}
+12/12 eval ok 5ms
+12/12 eval -> [{"label":"group turn 1","blocks":2,"counted":2,"estimated":[],"budget":97704,"lastGenerationBudget":97704,"generationsAfterPreview":1,"fail":[]},{"label":"group turn 2","blocks":4,"counted":4,"estimated":[],"budget":97704,"lastGenerationBudget":97704,"generationsAfterPreview":1,"fail":[]}]
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T06-45-47-902Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 12,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-783f9c3c"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@03h44m53s176ms",
+    "owned": [
+      "2026-09-25@03h44m53s176ms"
+    ],
+    "deleted": [
+      "2026-09-25@03h44m53s176ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@03h44m53s176ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

@@ -1,0 +1,79 @@
+1/10 eval ok 5ms
+1/10 eval -> {"macroEngine":true}
+2/10 import_story ok 272ms
+3/10 eval ok 6ms
+3/10 eval -> {"go":"(unset)","location":"(unset)","coins":"(unset)"}
+4/10 eval ok 20ms
+4/10 eval -> "[Story state: location={{story_quality_location}} coins={{story_quality_coins}}]"
+5/10 slash ok 1693ms
+6/10 send_generate ok 27214ms
+7/10 eval ok 5ms
+7/10 eval -> "[Story state: location=yard coins=(unset)]"
+8/10 eval ok 5ms
+9/10 import_story ok 680ms
+10/10 eval ok 5ms
+10/10 eval -> {"kept":"(unset)","gone":"{{story_quality_coins}}"}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T06-51-40-887Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 10,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-783f9c3c"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "keptPreExistingStories": [
+      "v2-ed9ddba5"
+    ],
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@03h51m06s274ms",
+    "owned": [
+      "2026-09-25@03h51m06s274ms"
+    ],
+    "deleted": [
+      "2026-09-25@03h51m06s274ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@03h51m06s274ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@05h22m36s897ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

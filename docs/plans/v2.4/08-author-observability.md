@@ -486,3 +486,109 @@ runs today. `read` is not re-run here: its route is the memory model, calibrated
 Recommendation rule (decided now): a role is recommended on a profile only when every floor for that role
 passes on that profile, overall and on the es slice. A role below a floor stays selectable (unset = memory model
 remains the default) and is left out of the recommended config.
+
+### Live gates (2026-09-25, bundle 48816ebec4fc; calibration on bundle 56f299a98ea5)
+
+Lane 2 only (`st-lanes`, ST :8102, CDP 9302), group `1759606632088`, main profile `Artemis RunPod RP`, memory
+profile `Story Orchestrator Memory RunPod`, both on Artemis 31B at `127.0.0.1:18080`. Before the runs:
+`st-session reload`, `open-group`, `/profile`, served `dist/index.js` sha checked against the manifest. Every batch
+was wrapped in `so-run-header capture` / `diff`. The only difference in any batch was `build.head`: this plan's
+fixture commit, and other sessions' docs commits, with no rebuild inside a batch. `bundle.served`,
+`extraction.profiles`, judge, stagecraft and inventories never moved. Records:
+`test/journeys/records/v2.4-plan08/live-48816ebec4fc/` (scenario/journey logs, batch summaries, journey records, run
+headers) and `live-56f299a98ea5/` (calibration logs and headers).
+
+**Scenario and journey gates (bundle 48816ebec4fc, `st-lanes batch --lanes 2 --repeat 2 --strict`)**
+
+| Gate | Result | Evidence |
+|---|---|---|
+| `live-v24-08-preview-capture.json` (group) | **green x2** | both turns: every own and foreign non-NONE block the preview listed is in the request ST posted, in slot key order; host token counts = `getTokenCountAsync` (2 and 5 blocks, 0 estimates); M = 97704 = the interceptor's `contextSize` (98304 - 600). Foreign `2_floating_prompt` present |
+| `live-v24-08-preview-capture-solo.json` | **green x2** | same checks, 2 and 4 blocks; foreign `2_floating_prompt` + `DEPTH_PROMPT` |
+| `live-v24-08-fates-jump.json` | **green x2** | real extraction; 7 fated rows = badges, injected rows are a subset of the blocks, trim telemetry per tier (facts 47/800, session 120/600 budget units), the jump lands in view, player sweep clean |
+| `live-v24-08-quality-macro.json` | **green x2** | an AN carrying `{{story_quality_location}}` / `_coins` reached the real request as `location=yard coins=(unset)`; unregistered on a story swap |
+| `live-v24-08-routing.json` | **green x2** (after the fixture fixes below) | director routed (source `role`); settings self-test 3/3 on the routed profile; a real turn decided **by the routed director** (`source: director`, 1015 ms); a dangling curator id gives the `model-role` Repair row naming the curator's consequence; role map restored |
+| J3 `--strict` | **green x2** | 8/8 pass, cleanup clean, both runs |
+| J5 `--strict` | **green x2** | 7/7 pass, cleanup clean, both runs |
+
+Routing history (all four batches are in the archive):
+- Batch 1 failed x2 at step 6. `pointer-click` on the director self-test button reported "centre (470,1232) is outside
+  the viewport": the fixture opened `#so-role-profiles` but never scrolled. It now scrolls the button into view (a user
+  scrolls too; the hit-test stays strict).
+- Batch 2: run 1 green; run 2 red on cleanup only (`notDeleted` sandbox chat `2026-09-25@03h53m11s097ms`). ST logged
+  the delete, then the file came back at 06:53:45.647Z carrying `lastSessionAt` 06:53:43.880Z (boundary 1 committed at
+  06:53:42). A write in flight when cleanup deleted the open chat re-created it; the file is orphaned (not in the
+  group's `chats`, left in lane 2's data root). The fixture now ends with `wait {schedulerIdle, quietMs 5000}` before
+  cleanup. Batch 3 was green x2.
+- Batch 3's talk decisions came from `rules`: `live-v24-08.story.json` never turns the LLM director on, so the reply
+  path never asked the routed profile. The routing fixture now imports `live-v24-08-director.story.json` (the same
+  story with `director: true`) and requires a decision with `source: director`. Batch 4 was green x2. The other four
+  scenarios keep the original story, so their runs stand.
+
+**Per-role calibration (bundle 56f299a98ea5, floors predeclared above, one sample per case)**
+
+Driver: `scripts/debug/so-role-calibration.mts`. Goldens: `test/goldens/live/role-calibration/*.json`, replayed
+through the same `runRoleCase` in `src/runtime/roleCalibration.test.ts` (every case re-scores to its recorded score,
+and every summary to its recorded summary).
+
+| Role (route) | Metric | Overall | es slice | Floor | Verdict |
+|---|---|---|---|---|---|
+| director routed (`Artemis RunPod RP`) | correct, D01-D26 | **22/26** (0.846) | D15 + D27-D33: 5/8 (reported) | >= 22/26 | **meets** |
+| director control (unset = memory profile) | correct, D01-D26 | 22/26 | 5/8 (reported) | reported | same picks as routed. Both arms miss D03, D14, D15 and D16, plus D28 and D30. p50 ~1.0 s, max 2.3 s |
+| curator (unset) | validity | 20/20 | 8/8 | 0.90 | meets |
+| curator | opShape | **13/23 = 0.565** | **5/10 = 0.50** | 0.85 | **MISS** |
+| curator | decision | 20/20 | 8/8 | 0.70 | meets |
+| authoring (unset) | validity | 19/20 = 0.95 | 8/8 | 0.90 | meets |
+| authoring | opShape | 16/20 = 0.80 | **6/8 = 0.75** | 0.80 | **MISS (es slice)** |
+| synthesis (unset) | validity | 8/8 | 3/3 | none | recorded, **not quality-calibrated** |
+
+What the misses are:
+- **Curator opShape.** All 10 lost op lines are `[enable]` on an entry that is already on. They come from 5 of the 8
+  `none` cases (c04, c05, c10, c15, c20), each with the reason "making it relevant to the current scene". The review
+  planner drops every one ("already on"), so no author ever sees them and the end-to-end decision is 20/20. The
+  model-side contract is still broken. The prompt marks only off entries (`[currently off]`) and never says an on
+  entry must not be enabled. Candidate fix, not built here: a rule line "[enable] only an entry marked [currently
+  off]", then a re-measure against the same labels and floors.
+- **Authoring opShape.** a05 (en), a15 and a16 (es) answered `ok` with ops outside the stage. The checkpoints stage says
+  "Only emit addCheckpoint/...", and the model added `addTransition`, `updateTransition`, `removeTransition`,
+  `addQuality` and `setCheckpointSnapshot`. a07 failed validation after its repair (an intermediate checkpoint with no
+  reachable anchor), which is a correct refusal. `validateProposal` does not enforce the stage's op list, so those ops
+  reach review as `ok`. firstTry 18/20.
+- **Synthesis.** All three Spanish scenes were summarized in English (the prompt is English). They are valid by the
+  declared metric; this is a quality note, not a score.
+
+**Recommended config** (predeclared rule: a role is recommended on a profile only when every floor passes there)
+
+| Role | Recommended | Why |
+|---|---|---|
+| read | Same as memory model (default) | not re-run here; plan 04's live-suite floors |
+| director | **Same as memory model**. Routing to `Artemis RunPod RP` also qualifies | both arms 22/26 with identical picks, so a split buys nothing and adds a profile to keep live |
+| curator | **none recommended** | opShape 0.565 (es 0.50) is below 0.85 on the only measured route. Unset stays the default because it is the fallback, not because it is recommended |
+| authoring | **none recommended** | es opShape 0.75 is below 0.80 |
+| synthesis | Same as memory model (default), validity only | 8/8 valid; not quality-calibrated, so no quality claim |
+
+**Code and harness changes in this run**
+- `src/runtime/roleCalibration.ts` (new; pure over the client). It holds the four role runners over the product's own
+  prompt/parse/plan code, the scorers, `ROLE_CALIBRATION_FLOORS` and `summarizeRoleCalibration`. They are exposed as
+  `storyOrchestratorLiveSuite.runRoleCase` / `summarizeRoleCalibration` (`liveSuite.ts`), and the role census
+  (`passProfiles.test.ts`) lists the file. `scripts/debug/so-role-calibration.mts` drives it: it routes the role for
+  the run, then restores the map with a read-back save.
+- `scripts/debug/st-lanes.mts`: `batch` exited 0 with red runs (batch 1: 8/10 green, exit 0). It now exits 1 unless
+  every run is green (`batchExitCode`, `st-lanes.test.mts`).
+- Fixtures: the routing scroll, the quiet wait and the director-on story. The authoring base drafts used gate op `eq`,
+  which is invalid; the fixture sanity test caught it before any model answer. It is now `==`, labels unchanged.
+- Mutations: `test/findings/mutations/v24-08-calibration.txt`, 12 mutants, 12 killed, each by its own case.
+- Gates:
+  - `npm run typecheck`, `typecheck:test`, `lint`, `debug:typecheck`: clean.
+  - `npm test`: 256 suites, 3722 tests passed, with all 5 goldens replaying (`roleCalibration.test.ts` 29/29).
+  - `npm run test:debug`: 273/273.
+  - `npm run build` -> 56f299a98ea5. That build also carries the plan-06 agent's uncommitted `stagecraftCoordinator.ts`
+    change, noted in `.debug/bundle-change.txt`. `test:release` 21/21.
+  - No component changed, so no Storybook run.
+
+**Defects found, not fixed**
+- A write in flight when a chat is deleted re-creates the deleted chat file (orphaned, unlisted); evidence above
+  (routing batch 2 run 2). The runtime has no guard against persisting into a chat ST has just deleted, and ST's own
+  debounced saves have the same shape. The writer needs naming with a recorder run (`.debug/arm-save-recorder.js`
+  shape) before a fix.
+- The curator prompt invites `[enable]` on entries that are already on (above).
+- The wizard stages do not enforce their own op list in code (above).

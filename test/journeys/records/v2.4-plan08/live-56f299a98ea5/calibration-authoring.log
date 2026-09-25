@@ -1,0 +1,90 @@
+a01 en valid=true (ok) shape=true kinds=[addQuality]
+a02 en valid=true (ok) shape=true kinds=[addQuality]
+a03 en valid=true (ok) shape=true kinds=[addQuality]
+a04 en valid=true (questions) shape=true kinds=[]
+a05 en valid=true (ok) shape=false kinds=[addCheckpoint, updateTransition, addTransition]
+a06 en valid=true (ok) shape=true kinds=[addCheckpoint]
+a07 en valid=false (failed, repaired) shape=false kinds=[addCheckpoint]
+a08 en valid=true (ok) shape=true kinds=[addTransition]
+a09 en valid=true (ok) shape=true kinds=[addTransition, addTransition]
+a10 en valid=true (ok) shape=true kinds=[setCheckpointEffects]
+a11 en valid=true (ok) shape=true kinds=[addRosterMember]
+a12 en valid=true (ok, repaired) shape=true kinds=[createCharacterCard, createStoryLorebook, upsertLorebookEntry, createGroup]
+a13 es valid=true (ok) shape=true kinds=[addQuality]
+a14 es valid=true (ok) shape=true kinds=[addQuality]
+a15 es valid=true (ok) shape=false kinds=[addCheckpoint, removeTransition, addTransition, addTransition]
+a16 es valid=true (ok) shape=false kinds=[addQuality, addCheckpoint, setCheckpointSnapshot, addTransition]
+a17 es valid=true (ok) shape=true kinds=[addTransition]
+a18 es valid=true (ok) shape=true kinds=[addTransition, addTransition]
+a19 es valid=true (ok) shape=true kinds=[setCheckpointEffects]
+a20 es valid=true (ok) shape=true kinds=[addRosterMember]
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T07-16-51-982Z_so-role-calibration-authoring-shared.json
+recorded test/goldens/live/role-calibration/authoring-shared.json
+{
+  "role": "authoring",
+  "arm": "shared",
+  "profile": {
+    "id": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+    "name": "Story Orchestrator Memory RunPod",
+    "fallback": true
+  },
+  "cases": 20,
+  "summary": {
+    "role": "authoring",
+    "overall": {
+      "cases": 20,
+      "metrics": {
+        "validity": {
+          "passed": 19,
+          "total": 20,
+          "rate": 0.95,
+          "floor": 0.9,
+          "ok": true
+        },
+        "opShape": {
+          "passed": 16,
+          "total": 20,
+          "rate": 0.8,
+          "floor": 0.8,
+          "ok": true
+        },
+        "firstTry": {
+          "passed": 18,
+          "total": 20,
+          "rate": 0.9,
+          "floor": null,
+          "ok": null
+        }
+      }
+    },
+    "es": {
+      "cases": 8,
+      "metrics": {
+        "validity": {
+          "passed": 8,
+          "total": 8,
+          "rate": 1,
+          "floor": 0.9,
+          "ok": true
+        },
+        "opShape": {
+          "passed": 6,
+          "total": 8,
+          "rate": 0.75,
+          "floor": 0.8,
+          "ok": false
+        },
+        "firstTry": {
+          "passed": 8,
+          "total": 8,
+          "rate": 1,
+          "floor": null,
+          "ok": null
+        }
+      }
+    },
+    "meetsFloors": false
+  },
+  "restored": {}
+}
+exit=0

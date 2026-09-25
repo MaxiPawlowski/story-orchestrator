@@ -1,0 +1,50 @@
+s01 en valid=true
+s02 en valid=true
+s03 en valid=true
+s04 en valid=true
+s05 en valid=true
+s06 es valid=true
+s07 es valid=true
+s08 es valid=true
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T07-12-47-434Z_so-role-calibration-synthesis-shared.json
+recorded test/goldens/live/role-calibration/synthesis-shared.json
+{
+  "role": "synthesis",
+  "arm": "shared",
+  "profile": {
+    "id": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+    "name": "Story Orchestrator Memory RunPod",
+    "fallback": true
+  },
+  "cases": 8,
+  "summary": {
+    "role": "synthesis",
+    "overall": {
+      "cases": 8,
+      "metrics": {
+        "validity": {
+          "passed": 8,
+          "total": 8,
+          "rate": 1,
+          "floor": null,
+          "ok": null
+        }
+      }
+    },
+    "es": {
+      "cases": 3,
+      "metrics": {
+        "validity": {
+          "passed": 3,
+          "total": 3,
+          "rate": 1,
+          "floor": null,
+          "ok": null
+        }
+      }
+    },
+    "meetsFloors": null
+  },
+  "restored": {}
+}
+exit=0
