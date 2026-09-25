@@ -1,0 +1,24 @@
+{
+  "lanes": [
+    1
+  ],
+  "items": [
+    "test/scenarios/live-v24-05-t13-manual.json"
+  ],
+  "repeat": 1,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/scenarios/live-v24-05-t13-manual.json",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T01-45-34-477Z-live-v24-05-t13-manual-run1.log",
+      "ms": 705165,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

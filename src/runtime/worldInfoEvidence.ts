@@ -17,6 +17,7 @@ export interface ScanInput {
   constant?: unknown;
   disable?: unknown;
   key?: unknown;
+  characterFilter?: unknown;
 }
 
 export interface ScannedEntry {
@@ -33,6 +34,7 @@ export interface LoadedCopy {
   comment: string;
   constant: boolean;
   disable: boolean;
+  filtered?: boolean;
 }
 
 export interface LoreScan {
@@ -93,9 +95,17 @@ export function toScanned(entry: ScanInput): ScannedEntry | null {
   return { world: entry.world, uid, comment: entryComment(entry), constant: entry.constant === true, key0 };
 }
 
+const listed = (value: unknown) => Array.isArray(value) && value.length > 0;
+
+const characterFiltered = (value: unknown): boolean => {
+  if (!value || typeof value !== "object") return false;
+  const filter = value as { names?: unknown; tags?: unknown };
+  return listed(filter.names) || listed(filter.tags);
+};
+
 export function toLoadedCopy(entry: ScanInput): LoadedCopy | null {
   const scanned = toScanned(entry);
-  return scanned ? { world: scanned.world, uid: scanned.uid, comment: scanned.comment, constant: scanned.constant, disable: entry.disable === true } : null;
+  return scanned ? { world: scanned.world, uid: scanned.uid, comment: scanned.comment, constant: scanned.constant, disable: entry.disable === true, filtered: characterFiltered(entry.characterFilter) } : null;
 }
 
 const refKey = (ref: { world: string; uid: number }) => `${ref.world.toLowerCase()}\u0000${ref.uid}`;
@@ -126,7 +136,7 @@ export function constantMisses(story: NormalizedStoryV2, path: string[], loaded:
   for (const plan of worldInfoPlan(story, path)) {
     for (const comment of plan.enable) {
       const copy = firstMatch(loaded, plan.lorebook, comment);
-      if (!copy || !copy.constant || copy.disable) continue;
+      if (!copy || !copy.constant || copy.disable || copy.filtered) continue;
       if (!firedKeys.has(refKey(copy))) missed.push({ lorebook: plan.lorebook, comment });
     }
   }

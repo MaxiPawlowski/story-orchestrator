@@ -1,0 +1,8 @@
+452764:File not found: C:\dev\so-lanes\1\data\default-user\group chats\2026-09-24@22h19m22s775ms.jsonl. The chat does not exist or is empty.
+452765:File "C:\dev\so-lanes\1\data\default-user\group chats\2026-09-24@22h19m22s775ms.jsonl" does not have integrity metadata matching "5ba414fa-8f1e-421e-b056-f942ea1bf9a3". The integrity validation has been skipped.
+452766:File not found: C:\dev\so-lanes\1\data\default-user\chats\Arin\Arin - 2026-09-24@22h19m27s260ms.jsonl. The chat does not exist or is empty.
+452767:Chat integrity check failed for "C:\dev\so-lanes\1\data\default-user\chats\Ponticius\Ponticius - 2025-10-27 @11h 06m 58s 578ms.jsonl". The expected integrity slug was "5ba414fa-8f1e-421e-b056-f942ea1bf9a3".
+452768:Deleted file: C:\dev\so-lanes\1\data\default-user\group chats\2026-09-24@22h19m22s775ms.jsonl
+452769:Deleted vector index at C:\dev\so-lanes\1\data\default-user\vectors\transformers\2026-09-24@22h19m22s775ms
+452770:File not found: C:\dev\so-lanes\1\data\default-user\group chats\2026-09-24@22h19m22s775ms.jsonl. The chat does not exist or is empty.
+453675:Deleted file: C:\dev\so-lanes\1\data\default-user\chats\Arin\Arin - 2026-09-24@22h19m27s260ms.jsonl

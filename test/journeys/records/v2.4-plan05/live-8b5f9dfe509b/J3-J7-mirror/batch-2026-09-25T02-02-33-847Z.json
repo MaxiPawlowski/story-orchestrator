@@ -1,0 +1,38 @@
+{
+  "lanes": [
+    1
+  ],
+  "items": [
+    "J3"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "J3",
+      "lane": 1,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T02-02-33-847Z-J3-run1.log",
+      "ms": 224770,
+      "automated": "automated: 7 pass, 1 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\1\\debug\\2026-09-25T02-06-18-593Z_journey-J3.json",
+      "failures": [
+        "FAIL J3.7"
+      ]
+    },
+    {
+      "item": "J3",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T02-02-33-847Z-J3-run2.log",
+      "ms": 150871,
+      "automated": "automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\1\\debug\\2026-09-25T02-08-49-460Z_journey-J3.json",
+      "failures": []
+    }
+  ]
+}

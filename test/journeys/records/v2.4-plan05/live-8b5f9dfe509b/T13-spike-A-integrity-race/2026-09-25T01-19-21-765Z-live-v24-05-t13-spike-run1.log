@@ -1,0 +1,108 @@
+1/43 inject_script ok 5ms
+2/43 eval ok 426ms
+2/43 eval -> {"books":"copied","bulk":500}
+3/43 import_story ok 298ms
+4/43 import_story ok 704ms
+5/43 import_story ok 430ms
+6/43 import_story ok 325ms
+7/43 eval ok 6ms
+7/43 eval -> {"groupId":"1759606632088","chatId":"2026-09-24@22h19m22s775ms"}
+8/43 slash ok 1738ms
+9/43 eval ok 4ms
+9/43 eval -> {"pathA":["cp1","cp-4a"]}
+10/43 solo_chat ok 825ms
+11/43 eval ok 261ms
+11/43 eval -> {"B":{"avatar":"Arin.png","chatId":"Arin - 2026-09-24@22h19m27s260ms"},"pathB":["cp1"]}
+12/43 solo_chat ok 181ms
+13/43 solo_chat FAIL Evaluation failed in SillyTavern page: page.evaluate: SlashCommandExecutionError: Timed out waiting for condition to be true
+    at SlashCommandClosure.executeStep (http://127.0.0.1:8101/scripts/slash-commands/SlashCommandClosure.js:440:27)
+    at async SlashCommandClosure.executeDirect (http://127.0.0.1:8101/scripts/slash-commands/SlashCommandClosure.js:360:20)
+    at async SlashCommandClosure.execute (http://127.0.0.1:8101/scripts/slash-commands/SlashCommandClosure.js:248:20)
+    at async Object.executeSlashCommandsWithOptions (http://127.0.0.1:8101/scripts/slash-commands.js:7033:24)
+    at async eval (eval at evaluate (:290:30), <anonymous>:2:5)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T01-19-34-571Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T01-19-43-872Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 13,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-2adf4999",
+      "v2-2eebd920",
+      "v2-b573019c",
+      "v2-f7c61ac5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: Error: Timed out waiting for condition to be true\n    at http://127.0.0.1:8101/scripts/utils.js:1941:23",
+      "leaked": [
+        "Arin - 2026-09-24@22h19m27s260ms"
+      ]
+    },
+    "activeEntity": {
+      "captured": true,
+      "before": {
+        "character": null,
+        "group": "1759606632088"
+      },
+      "found": {
+        "character": "Ponticius.png",
+        "group": null
+      },
+      "after": {
+        "character": null,
+        "group": "1759606632088"
+      },
+      "restored": true,
+      "saved": {
+        "status": 200
+      }
+    },
+    "sandboxChatId": "2026-09-24@22h19m22s775ms",
+    "owned": [
+      "2026-09-24@22h19m22s775ms"
+    ],
+    "deleted": [
+      "2026-09-24@22h19m22s775ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "Ponticius - 2025-10-27 @11h 06m 58s 578ms",
+    "currentGroupAtCleanup": null,
+    "chatAfterCleanup": "Ponticius - 2025-10-27 @11h 06m 58s 578ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

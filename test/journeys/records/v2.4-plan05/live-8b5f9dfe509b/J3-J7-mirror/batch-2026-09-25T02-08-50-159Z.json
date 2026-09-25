@@ -1,0 +1,37 @@
+{
+  "lanes": [
+    1
+  ],
+  "items": [
+    "J7",
+    "test/scenarios/live-v24-05-mirror-rate.json"
+  ],
+  "repeat": 1,
+  "strict": true,
+  "results": [
+    {
+      "item": "J7",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T02-08-50-159Z-J7-run1.log",
+      "ms": 1835842,
+      "automated": "automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\1\\debug\\2026-09-25T02-39-25-975Z_journey-J7.json",
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-05-mirror-rate.json",
+      "lane": 1,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T02-08-50-159Z-live-v24-05-mirror-rate-run1.log",
+      "ms": 5668,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

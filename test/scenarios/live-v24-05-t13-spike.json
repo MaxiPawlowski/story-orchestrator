@@ -1,5 +1,5 @@
 {
-  "_note": "v2.4 plan 05 T13 scan-time gating SPIKE, the live measurement (real LLM for S1 (a)'s three generations; LANES ONLY: it flips worldInfo.gatingMode install-wide and reloads twice; so-scenario run <file> --sandbox --group <a group holding Arin, Ponticius and Luke's cards>, ONCE per condition, never retuned). Everything it writes is marker-named: the books `SO-T13 Xentar` (a copy of examples/sun-ruins/Xentar Checkpoints.json) and `SO-T13 Bulk` (500 entries), and the stories so-t13-a (sun-ruins' gated world info re-pointed at the marker book; no cast, AN or npc effects; the only requirement is the book), so-t13-c (shares the book), so-t13-d (grows the gated set), so-t13-e (gates 250 of the bulk entries). The last step deletes the books (so-assets --marker SO-T13) and puts worldInfo back to {gatingMode: file, normalized: {}}; after a FAILED run do both by hand (`so-assets.mts remove --marker SO-T13`, then restore the setting) and diff a run header. The record is kept in localStorage `so-t13-spike` and printed by the last step; copy it into docs/plans/v2.4/05-t13-spike-report.md. The expected effective set is recomputed by test/fixtures/interop/t13-spike.js from the AUTHORED effects, not by src/runtime. Automated here: S1 (a) no-story chat + 3 real generations through the T12 ring, (b) story C's chat, S2 (A at cp-4a, B = story A at its start, C = story C; A->B->C->A x3, 0 /api/worldinfo/edit), S3 (first run flips exactly the gated entries, second writes nothing, growth normalises only the new entry, JSON diff), S5 (author table == scan view, player view clean), S6 (the file path over normalised books gives the same sets), S8 (p95 over 40 scans + 10 dry scans of a 500-entry book). Manual, see _design: S1 (c), S4, S7, S9.",
+  "_note": "v2.4 plan 05 T13 scan-time gating SPIKE, the live measurement (real LLM for S1 (a)'s three generations; LANES ONLY: it flips worldInfo.gatingMode install-wide and reloads twice; so-scenario run <file> --sandbox --group <a group holding Arin, Ponticius and Luke's cards>, ONCE per condition, never retuned). Everything it writes is marker-named: the books `SO-T13 Xentar` (a copy of examples/sun-ruins/Xentar Checkpoints.json) and `SO-T13 Bulk` (500 entries), and the stories so-t13-a (sun-ruins' gated world info re-pointed at the marker book; no cast, AN or npc effects; the only requirement is the book), so-t13-c (shares the book), so-t13-d (grows the gated set), so-t13-e (gates 250 of the bulk entries). The last step deletes the books (so-assets --marker SO-T13) and puts worldInfo back to {gatingMode: file, normalized: {}}; after a FAILED run do both by hand (`so-assets.mts remove --marker SO-T13`, then restore the setting) and diff a run header. The record is kept in localStorage `so-t13-spike` and printed by the last step; copy it into docs/plans/v2.4/05-t13-spike-report.md. The expected effective set is recomputed by test/fixtures/interop/t13-spike.js from the AUTHORED effects, not by src/runtime. Automated here: S1 (a) no-story chat + 3 real generations through the T12 ring, (b) story C's chat, S2 (A at cp-4a, B = story A at its start, C = story C; A->B->C->A x3, 0 /api/worldinfo/edit), S3 (first run flips exactly the gated entries, second writes nothing, growth normalises only the new entry, JSON diff), S5 (author table == scan view, player view clean), S6 (the file path over normalised books gives the same sets), S8 (p95 over 40 scans + 10 dry scans of a 500-entry book). Manual, see _design: S1 (c), S4, S7, S9. Fixed 2026-09-25 (first live run of its siblings): S1 (a)'s three generations used `send`, which is `/send compact` and never generates, so the ring could never see three loud generations; they are `send_generate` now. Fixed 2026-09-25 (first spike run): switching chats while a save was still pending wrote chat A's metadata (its integrity slug) into the Ponticius solo chat during `/go` (ST's save binds to the chat open when it RUNS, gotchas 2026-09-24); the server's integrity check refused it and the popup wedged the page. Every solo_chat step now waits for the scheduler to be idle and quiet first, and the helper's goto waits out `isChatSaving` plus 2 s before and after each switch. No condition changed. Fixed 2026-09-25 (second spike run): the S1 (a) ring check matched comments only, and the sun-ruins book 'Xentar Checkpoints' (globally selected on that lane for the T12 fixtures) carries the same comments ('Places - Xentar', 'General - Magic'), which fired by keyword and read as a leak; the ring check is now scoped to the marker book and records same-comment activations from other books separately. The grown story D (imported through the runtime, so the harness does not own it) is removed by the last step and by the first step of a later run. Fixed 2026-09-25 (third spike run): the helper check() compared against the whole library while reading only the named books, so every SO-T13 Bulk entry read as unseen in the Xentar-only S2 checks; it is now scoped to the books it reads. Its goto opened a group chat with openGroupChat alone, which ST ignores from a solo chat (gotchas: it returns silently unless the group is open); it now opens the group first. S5 compares every row of the author table against the scan view of the books those rows name (it read only SO-T13 Xentar, while the table also lists the SO-T13 Bulk rows story E gates).",
   "_design": {
     "S1c": "After this fixture's S3 phase on a lane: disable Story Orchestrator in ST's Extensions panel, reload, open chat C, run `st-eval \"(await import('/scripts/world-info.js')).getSortedEntries().then((e) => e.filter((x) => x.world === 'SO-T13 Xentar' && x.disable !== true).map((x) => x.comment))\"`. PASS = none of the normalised comments (localStorage so-t13-spike S3 ledger); the file rests off, so nothing gates and nothing leaks. Re-enable the extension.",
     "S4": "Vectors extension on with `enabled_world_info` and a working embedding source (transformers). Mark two SO-T13 Xentar entries `vectorized: true`, one gated ON at chat A's path (CP4 - Sphinx) and one OFF (CP1 - Mission). Send one real message whose text matches both. PASS = the ON entry is in the T12 ring (vectors forces it, 05-H10) and the OFF one is not, AND __soT13.counters.vectorInsert + vectorDelete during the S2 switches (recorded in T.S2.vector) is <= the same count with gatingMode=file over the same script.",
@@ -11,7 +11,7 @@
       "inject_script": "../fixtures/interop/t13-spike.js"
     },
     {
-      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const S = globalThis.__soT13; if (!S) throw new Error('the t13-spike helper is not injected'); if (!ctx.groupId) throw new Error('needs a sandbox GROUP chat (it is chat A)'); if (rt.getGlobalSettings().worldInfo?.gatingMode !== 'file') throw new Error('the install is already in scan mode; a previous spike run did not clean up (restore worldInfo.gatingMode = file)'); const made = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-T13 Xentar' }, { requirements: { lorebooks: [] } }); if (!made.ok && !made.message.includes('already exists')) throw new Error(`marker book: ${made.message}`); await S.copyExampleBook('SO-T13 Xentar'); const bulk = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-T13 Bulk' }, { requirements: { lorebooks: [] } }); if (!bulk.ok && !bulk.message.includes('already exists')) throw new Error(`bulk book: ${bulk.message}`); const comments = [\"Bulk 000\", \"Bulk 001\", \"Bulk 002\", \"Bulk 003\", \"Bulk 004\", \"Bulk 005\", \"Bulk 006\", \"Bulk 007\", \"Bulk 008\", \"Bulk 009\", \"Bulk 010\", \"Bulk 011\", \"Bulk 012\", \"Bulk 013\", \"Bulk 014\", \"Bulk 015\", \"Bulk 016\", \"Bulk 017\", \"Bulk 018\", \"Bulk 019\", \"Bulk 020\", \"Bulk 021\", \"Bulk 022\", \"Bulk 023\", \"Bulk 024\", \"Bulk 025\", \"Bulk 026\", \"Bulk 027\", \"Bulk 028\", \"Bulk 029\", \"Bulk 030\", \"Bulk 031\", \"Bulk 032\", \"Bulk 033\", \"Bulk 034\", \"Bulk 035\", \"Bulk 036\", \"Bulk 037\", \"Bulk 038\", \"Bulk 039\", \"Bulk 040\", \"Bulk 041\", \"Bulk 042\", \"Bulk 043\", \"Bulk 044\", \"Bulk 045\", \"Bulk 046\", \"Bulk 047\", \"Bulk 048\", \"Bulk 049\", \"Bulk 050\", \"Bulk 051\", \"Bulk 052\", \"Bulk 053\", \"Bulk 054\", \"Bulk 055\", \"Bulk 056\", \"Bulk 057\", \"Bulk 058\", \"Bulk 059\", \"Bulk 060\", \"Bulk 061\", \"Bulk 062\", \"Bulk 063\", \"Bulk 064\", \"Bulk 065\", \"Bulk 066\", \"Bulk 067\", \"Bulk 068\", \"Bulk 069\", \"Bulk 070\", \"Bulk 071\", \"Bulk 072\", \"Bulk 073\", \"Bulk 074\", \"Bulk 075\", \"Bulk 076\", \"Bulk 077\", \"Bulk 078\", \"Bulk 079\", \"Bulk 080\", \"Bulk 081\", \"Bulk 082\", \"Bulk 083\", \"Bulk 084\", \"Bulk 085\", \"Bulk 086\", \"Bulk 087\", \"Bulk 088\", \"Bulk 089\", \"Bulk 090\", \"Bulk 091\", \"Bulk 092\", \"Bulk 093\", \"Bulk 094\", \"Bulk 095\", \"Bulk 096\", \"Bulk 097\", \"Bulk 098\", \"Bulk 099\", \"Bulk 100\", \"Bulk 101\", \"Bulk 102\", \"Bulk 103\", \"Bulk 104\", \"Bulk 105\", \"Bulk 106\", \"Bulk 107\", \"Bulk 108\", \"Bulk 109\", \"Bulk 110\", \"Bulk 111\", \"Bulk 112\", \"Bulk 113\", \"Bulk 114\", \"Bulk 115\", \"Bulk 116\", \"Bulk 117\", \"Bulk 118\", \"Bulk 119\", \"Bulk 120\", \"Bulk 121\", \"Bulk 122\", \"Bulk 123\", \"Bulk 124\", \"Bulk 125\", \"Bulk 126\", \"Bulk 127\", \"Bulk 128\", \"Bulk 129\", \"Bulk 130\", \"Bulk 131\", \"Bulk 132\", \"Bulk 133\", \"Bulk 134\", \"Bulk 135\", \"Bulk 136\", \"Bulk 137\", \"Bulk 138\", \"Bulk 139\", \"Bulk 140\", \"Bulk 141\", \"Bulk 142\", \"Bulk 143\", \"Bulk 144\", \"Bulk 145\", \"Bulk 146\", \"Bulk 147\", \"Bulk 148\", \"Bulk 149\", \"Bulk 150\", \"Bulk 151\", \"Bulk 152\", \"Bulk 153\", \"Bulk 154\", \"Bulk 155\", \"Bulk 156\", \"Bulk 157\", \"Bulk 158\", \"Bulk 159\", \"Bulk 160\", \"Bulk 161\", \"Bulk 162\", \"Bulk 163\", \"Bulk 164\", \"Bulk 165\", \"Bulk 166\", \"Bulk 167\", \"Bulk 168\", \"Bulk 169\", \"Bulk 170\", \"Bulk 171\", \"Bulk 172\", \"Bulk 173\", \"Bulk 174\", \"Bulk 175\", \"Bulk 176\", \"Bulk 177\", \"Bulk 178\", \"Bulk 179\", \"Bulk 180\", \"Bulk 181\", \"Bulk 182\", \"Bulk 183\", \"Bulk 184\", \"Bulk 185\", \"Bulk 186\", \"Bulk 187\", \"Bulk 188\", \"Bulk 189\", \"Bulk 190\", \"Bulk 191\", \"Bulk 192\", \"Bulk 193\", \"Bulk 194\", \"Bulk 195\", \"Bulk 196\", \"Bulk 197\", \"Bulk 198\", \"Bulk 199\", \"Bulk 200\", \"Bulk 201\", \"Bulk 202\", \"Bulk 203\", \"Bulk 204\", \"Bulk 205\", \"Bulk 206\", \"Bulk 207\", \"Bulk 208\", \"Bulk 209\", \"Bulk 210\", \"Bulk 211\", \"Bulk 212\", \"Bulk 213\", \"Bulk 214\", \"Bulk 215\", \"Bulk 216\", \"Bulk 217\", \"Bulk 218\", \"Bulk 219\", \"Bulk 220\", \"Bulk 221\", \"Bulk 222\", \"Bulk 223\", \"Bulk 224\", \"Bulk 225\", \"Bulk 226\", \"Bulk 227\", \"Bulk 228\", \"Bulk 229\", \"Bulk 230\", \"Bulk 231\", \"Bulk 232\", \"Bulk 233\", \"Bulk 234\", \"Bulk 235\", \"Bulk 236\", \"Bulk 237\", \"Bulk 238\", \"Bulk 239\", \"Bulk 240\", \"Bulk 241\", \"Bulk 242\", \"Bulk 243\", \"Bulk 244\", \"Bulk 245\", \"Bulk 246\", \"Bulk 247\", \"Bulk 248\", \"Bulk 249\", \"Bulk 250\", \"Bulk 251\", \"Bulk 252\", \"Bulk 253\", \"Bulk 254\", \"Bulk 255\", \"Bulk 256\", \"Bulk 257\", \"Bulk 258\", \"Bulk 259\", \"Bulk 260\", \"Bulk 261\", \"Bulk 262\", \"Bulk 263\", \"Bulk 264\", \"Bulk 265\", \"Bulk 266\", \"Bulk 267\", \"Bulk 268\", \"Bulk 269\", \"Bulk 270\", \"Bulk 271\", \"Bulk 272\", \"Bulk 273\", \"Bulk 274\", \"Bulk 275\", \"Bulk 276\", \"Bulk 277\", \"Bulk 278\", \"Bulk 279\", \"Bulk 280\", \"Bulk 281\", \"Bulk 282\", \"Bulk 283\", \"Bulk 284\", \"Bulk 285\", \"Bulk 286\", \"Bulk 287\", \"Bulk 288\", \"Bulk 289\", \"Bulk 290\", \"Bulk 291\", \"Bulk 292\", \"Bulk 293\", \"Bulk 294\", \"Bulk 295\", \"Bulk 296\", \"Bulk 297\", \"Bulk 298\", \"Bulk 299\", \"Bulk 300\", \"Bulk 301\", \"Bulk 302\", \"Bulk 303\", \"Bulk 304\", \"Bulk 305\", \"Bulk 306\", \"Bulk 307\", \"Bulk 308\", \"Bulk 309\", \"Bulk 310\", \"Bulk 311\", \"Bulk 312\", \"Bulk 313\", \"Bulk 314\", \"Bulk 315\", \"Bulk 316\", \"Bulk 317\", \"Bulk 318\", \"Bulk 319\", \"Bulk 320\", \"Bulk 321\", \"Bulk 322\", \"Bulk 323\", \"Bulk 324\", \"Bulk 325\", \"Bulk 326\", \"Bulk 327\", \"Bulk 328\", \"Bulk 329\", \"Bulk 330\", \"Bulk 331\", \"Bulk 332\", \"Bulk 333\", \"Bulk 334\", \"Bulk 335\", \"Bulk 336\", \"Bulk 337\", \"Bulk 338\", \"Bulk 339\", \"Bulk 340\", \"Bulk 341\", \"Bulk 342\", \"Bulk 343\", \"Bulk 344\", \"Bulk 345\", \"Bulk 346\", \"Bulk 347\", \"Bulk 348\", \"Bulk 349\", \"Bulk 350\", \"Bulk 351\", \"Bulk 352\", \"Bulk 353\", \"Bulk 354\", \"Bulk 355\", \"Bulk 356\", \"Bulk 357\", \"Bulk 358\", \"Bulk 359\", \"Bulk 360\", \"Bulk 361\", \"Bulk 362\", \"Bulk 363\", \"Bulk 364\", \"Bulk 365\", \"Bulk 366\", \"Bulk 367\", \"Bulk 368\", \"Bulk 369\", \"Bulk 370\", \"Bulk 371\", \"Bulk 372\", \"Bulk 373\", \"Bulk 374\", \"Bulk 375\", \"Bulk 376\", \"Bulk 377\", \"Bulk 378\", \"Bulk 379\", \"Bulk 380\", \"Bulk 381\", \"Bulk 382\", \"Bulk 383\", \"Bulk 384\", \"Bulk 385\", \"Bulk 386\", \"Bulk 387\", \"Bulk 388\", \"Bulk 389\", \"Bulk 390\", \"Bulk 391\", \"Bulk 392\", \"Bulk 393\", \"Bulk 394\", \"Bulk 395\", \"Bulk 396\", \"Bulk 397\", \"Bulk 398\", \"Bulk 399\", \"Bulk 400\", \"Bulk 401\", \"Bulk 402\", \"Bulk 403\", \"Bulk 404\", \"Bulk 405\", \"Bulk 406\", \"Bulk 407\", \"Bulk 408\", \"Bulk 409\", \"Bulk 410\", \"Bulk 411\", \"Bulk 412\", \"Bulk 413\", \"Bulk 414\", \"Bulk 415\", \"Bulk 416\", \"Bulk 417\", \"Bulk 418\", \"Bulk 419\", \"Bulk 420\", \"Bulk 421\", \"Bulk 422\", \"Bulk 423\", \"Bulk 424\", \"Bulk 425\", \"Bulk 426\", \"Bulk 427\", \"Bulk 428\", \"Bulk 429\", \"Bulk 430\", \"Bulk 431\", \"Bulk 432\", \"Bulk 433\", \"Bulk 434\", \"Bulk 435\", \"Bulk 436\", \"Bulk 437\", \"Bulk 438\", \"Bulk 439\", \"Bulk 440\", \"Bulk 441\", \"Bulk 442\", \"Bulk 443\", \"Bulk 444\", \"Bulk 445\", \"Bulk 446\", \"Bulk 447\", \"Bulk 448\", \"Bulk 449\", \"Bulk 450\", \"Bulk 451\", \"Bulk 452\", \"Bulk 453\", \"Bulk 454\", \"Bulk 455\", \"Bulk 456\", \"Bulk 457\", \"Bulk 458\", \"Bulk 459\", \"Bulk 460\", \"Bulk 461\", \"Bulk 462\", \"Bulk 463\", \"Bulk 464\", \"Bulk 465\", \"Bulk 466\", \"Bulk 467\", \"Bulk 468\", \"Bulk 469\", \"Bulk 470\", \"Bulk 471\", \"Bulk 472\", \"Bulk 473\", \"Bulk 474\", \"Bulk 475\", \"Bulk 476\", \"Bulk 477\", \"Bulk 478\", \"Bulk 479\", \"Bulk 480\", \"Bulk 481\", \"Bulk 482\", \"Bulk 483\", \"Bulk 484\", \"Bulk 485\", \"Bulk 486\", \"Bulk 487\", \"Bulk 488\", \"Bulk 489\", \"Bulk 490\", \"Bulk 491\", \"Bulk 492\", \"Bulk 493\", \"Bulk 494\", \"Bulk 495\", \"Bulk 496\", \"Bulk 497\", \"Bulk 498\", \"Bulk 499\"]; await S.writeBook('SO-T13 Bulk', { entries: Object.fromEntries(comments.map((comment, uid) => [uid, { uid, comment, key: [`zqx-bulk-${uid}`], keysecondary: [], content: `Bulk entry ${uid}.`, constant: false, disable: false, position: 0, order: 100, depth: 4 }])) }); const T = { before: await S.serverBook('SO-T13 Xentar'), chats: {} }; localStorage.setItem('so-t13-spike', JSON.stringify(T)); return { books: 'copied', bulk: comments.length };",
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const S = globalThis.__soT13; if (!S) throw new Error('the t13-spike helper is not injected'); if (!ctx.groupId) throw new Error('needs a sandbox GROUP chat (it is chat A)'); if (rt.getGlobalSettings().worldInfo?.gatingMode !== 'file') throw new Error('the install is already in scan mode; a previous spike run did not clean up (restore worldInfo.gatingMode = file)'); if (rt.getSnapshot().library.some((record) => record.id === 'so-t13-d')) await rt.removeStory('so-t13-d'); const made = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-T13 Xentar' }, { requirements: { lorebooks: [] } }); if (!made.ok && !made.message.includes('already exists')) throw new Error(`marker book: ${made.message}`); await S.copyExampleBook('SO-T13 Xentar'); const bulk = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-T13 Bulk' }, { requirements: { lorebooks: [] } }); if (!bulk.ok && !bulk.message.includes('already exists')) throw new Error(`bulk book: ${bulk.message}`); const comments = [\"Bulk 000\", \"Bulk 001\", \"Bulk 002\", \"Bulk 003\", \"Bulk 004\", \"Bulk 005\", \"Bulk 006\", \"Bulk 007\", \"Bulk 008\", \"Bulk 009\", \"Bulk 010\", \"Bulk 011\", \"Bulk 012\", \"Bulk 013\", \"Bulk 014\", \"Bulk 015\", \"Bulk 016\", \"Bulk 017\", \"Bulk 018\", \"Bulk 019\", \"Bulk 020\", \"Bulk 021\", \"Bulk 022\", \"Bulk 023\", \"Bulk 024\", \"Bulk 025\", \"Bulk 026\", \"Bulk 027\", \"Bulk 028\", \"Bulk 029\", \"Bulk 030\", \"Bulk 031\", \"Bulk 032\", \"Bulk 033\", \"Bulk 034\", \"Bulk 035\", \"Bulk 036\", \"Bulk 037\", \"Bulk 038\", \"Bulk 039\", \"Bulk 040\", \"Bulk 041\", \"Bulk 042\", \"Bulk 043\", \"Bulk 044\", \"Bulk 045\", \"Bulk 046\", \"Bulk 047\", \"Bulk 048\", \"Bulk 049\", \"Bulk 050\", \"Bulk 051\", \"Bulk 052\", \"Bulk 053\", \"Bulk 054\", \"Bulk 055\", \"Bulk 056\", \"Bulk 057\", \"Bulk 058\", \"Bulk 059\", \"Bulk 060\", \"Bulk 061\", \"Bulk 062\", \"Bulk 063\", \"Bulk 064\", \"Bulk 065\", \"Bulk 066\", \"Bulk 067\", \"Bulk 068\", \"Bulk 069\", \"Bulk 070\", \"Bulk 071\", \"Bulk 072\", \"Bulk 073\", \"Bulk 074\", \"Bulk 075\", \"Bulk 076\", \"Bulk 077\", \"Bulk 078\", \"Bulk 079\", \"Bulk 080\", \"Bulk 081\", \"Bulk 082\", \"Bulk 083\", \"Bulk 084\", \"Bulk 085\", \"Bulk 086\", \"Bulk 087\", \"Bulk 088\", \"Bulk 089\", \"Bulk 090\", \"Bulk 091\", \"Bulk 092\", \"Bulk 093\", \"Bulk 094\", \"Bulk 095\", \"Bulk 096\", \"Bulk 097\", \"Bulk 098\", \"Bulk 099\", \"Bulk 100\", \"Bulk 101\", \"Bulk 102\", \"Bulk 103\", \"Bulk 104\", \"Bulk 105\", \"Bulk 106\", \"Bulk 107\", \"Bulk 108\", \"Bulk 109\", \"Bulk 110\", \"Bulk 111\", \"Bulk 112\", \"Bulk 113\", \"Bulk 114\", \"Bulk 115\", \"Bulk 116\", \"Bulk 117\", \"Bulk 118\", \"Bulk 119\", \"Bulk 120\", \"Bulk 121\", \"Bulk 122\", \"Bulk 123\", \"Bulk 124\", \"Bulk 125\", \"Bulk 126\", \"Bulk 127\", \"Bulk 128\", \"Bulk 129\", \"Bulk 130\", \"Bulk 131\", \"Bulk 132\", \"Bulk 133\", \"Bulk 134\", \"Bulk 135\", \"Bulk 136\", \"Bulk 137\", \"Bulk 138\", \"Bulk 139\", \"Bulk 140\", \"Bulk 141\", \"Bulk 142\", \"Bulk 143\", \"Bulk 144\", \"Bulk 145\", \"Bulk 146\", \"Bulk 147\", \"Bulk 148\", \"Bulk 149\", \"Bulk 150\", \"Bulk 151\", \"Bulk 152\", \"Bulk 153\", \"Bulk 154\", \"Bulk 155\", \"Bulk 156\", \"Bulk 157\", \"Bulk 158\", \"Bulk 159\", \"Bulk 160\", \"Bulk 161\", \"Bulk 162\", \"Bulk 163\", \"Bulk 164\", \"Bulk 165\", \"Bulk 166\", \"Bulk 167\", \"Bulk 168\", \"Bulk 169\", \"Bulk 170\", \"Bulk 171\", \"Bulk 172\", \"Bulk 173\", \"Bulk 174\", \"Bulk 175\", \"Bulk 176\", \"Bulk 177\", \"Bulk 178\", \"Bulk 179\", \"Bulk 180\", \"Bulk 181\", \"Bulk 182\", \"Bulk 183\", \"Bulk 184\", \"Bulk 185\", \"Bulk 186\", \"Bulk 187\", \"Bulk 188\", \"Bulk 189\", \"Bulk 190\", \"Bulk 191\", \"Bulk 192\", \"Bulk 193\", \"Bulk 194\", \"Bulk 195\", \"Bulk 196\", \"Bulk 197\", \"Bulk 198\", \"Bulk 199\", \"Bulk 200\", \"Bulk 201\", \"Bulk 202\", \"Bulk 203\", \"Bulk 204\", \"Bulk 205\", \"Bulk 206\", \"Bulk 207\", \"Bulk 208\", \"Bulk 209\", \"Bulk 210\", \"Bulk 211\", \"Bulk 212\", \"Bulk 213\", \"Bulk 214\", \"Bulk 215\", \"Bulk 216\", \"Bulk 217\", \"Bulk 218\", \"Bulk 219\", \"Bulk 220\", \"Bulk 221\", \"Bulk 222\", \"Bulk 223\", \"Bulk 224\", \"Bulk 225\", \"Bulk 226\", \"Bulk 227\", \"Bulk 228\", \"Bulk 229\", \"Bulk 230\", \"Bulk 231\", \"Bulk 232\", \"Bulk 233\", \"Bulk 234\", \"Bulk 235\", \"Bulk 236\", \"Bulk 237\", \"Bulk 238\", \"Bulk 239\", \"Bulk 240\", \"Bulk 241\", \"Bulk 242\", \"Bulk 243\", \"Bulk 244\", \"Bulk 245\", \"Bulk 246\", \"Bulk 247\", \"Bulk 248\", \"Bulk 249\", \"Bulk 250\", \"Bulk 251\", \"Bulk 252\", \"Bulk 253\", \"Bulk 254\", \"Bulk 255\", \"Bulk 256\", \"Bulk 257\", \"Bulk 258\", \"Bulk 259\", \"Bulk 260\", \"Bulk 261\", \"Bulk 262\", \"Bulk 263\", \"Bulk 264\", \"Bulk 265\", \"Bulk 266\", \"Bulk 267\", \"Bulk 268\", \"Bulk 269\", \"Bulk 270\", \"Bulk 271\", \"Bulk 272\", \"Bulk 273\", \"Bulk 274\", \"Bulk 275\", \"Bulk 276\", \"Bulk 277\", \"Bulk 278\", \"Bulk 279\", \"Bulk 280\", \"Bulk 281\", \"Bulk 282\", \"Bulk 283\", \"Bulk 284\", \"Bulk 285\", \"Bulk 286\", \"Bulk 287\", \"Bulk 288\", \"Bulk 289\", \"Bulk 290\", \"Bulk 291\", \"Bulk 292\", \"Bulk 293\", \"Bulk 294\", \"Bulk 295\", \"Bulk 296\", \"Bulk 297\", \"Bulk 298\", \"Bulk 299\", \"Bulk 300\", \"Bulk 301\", \"Bulk 302\", \"Bulk 303\", \"Bulk 304\", \"Bulk 305\", \"Bulk 306\", \"Bulk 307\", \"Bulk 308\", \"Bulk 309\", \"Bulk 310\", \"Bulk 311\", \"Bulk 312\", \"Bulk 313\", \"Bulk 314\", \"Bulk 315\", \"Bulk 316\", \"Bulk 317\", \"Bulk 318\", \"Bulk 319\", \"Bulk 320\", \"Bulk 321\", \"Bulk 322\", \"Bulk 323\", \"Bulk 324\", \"Bulk 325\", \"Bulk 326\", \"Bulk 327\", \"Bulk 328\", \"Bulk 329\", \"Bulk 330\", \"Bulk 331\", \"Bulk 332\", \"Bulk 333\", \"Bulk 334\", \"Bulk 335\", \"Bulk 336\", \"Bulk 337\", \"Bulk 338\", \"Bulk 339\", \"Bulk 340\", \"Bulk 341\", \"Bulk 342\", \"Bulk 343\", \"Bulk 344\", \"Bulk 345\", \"Bulk 346\", \"Bulk 347\", \"Bulk 348\", \"Bulk 349\", \"Bulk 350\", \"Bulk 351\", \"Bulk 352\", \"Bulk 353\", \"Bulk 354\", \"Bulk 355\", \"Bulk 356\", \"Bulk 357\", \"Bulk 358\", \"Bulk 359\", \"Bulk 360\", \"Bulk 361\", \"Bulk 362\", \"Bulk 363\", \"Bulk 364\", \"Bulk 365\", \"Bulk 366\", \"Bulk 367\", \"Bulk 368\", \"Bulk 369\", \"Bulk 370\", \"Bulk 371\", \"Bulk 372\", \"Bulk 373\", \"Bulk 374\", \"Bulk 375\", \"Bulk 376\", \"Bulk 377\", \"Bulk 378\", \"Bulk 379\", \"Bulk 380\", \"Bulk 381\", \"Bulk 382\", \"Bulk 383\", \"Bulk 384\", \"Bulk 385\", \"Bulk 386\", \"Bulk 387\", \"Bulk 388\", \"Bulk 389\", \"Bulk 390\", \"Bulk 391\", \"Bulk 392\", \"Bulk 393\", \"Bulk 394\", \"Bulk 395\", \"Bulk 396\", \"Bulk 397\", \"Bulk 398\", \"Bulk 399\", \"Bulk 400\", \"Bulk 401\", \"Bulk 402\", \"Bulk 403\", \"Bulk 404\", \"Bulk 405\", \"Bulk 406\", \"Bulk 407\", \"Bulk 408\", \"Bulk 409\", \"Bulk 410\", \"Bulk 411\", \"Bulk 412\", \"Bulk 413\", \"Bulk 414\", \"Bulk 415\", \"Bulk 416\", \"Bulk 417\", \"Bulk 418\", \"Bulk 419\", \"Bulk 420\", \"Bulk 421\", \"Bulk 422\", \"Bulk 423\", \"Bulk 424\", \"Bulk 425\", \"Bulk 426\", \"Bulk 427\", \"Bulk 428\", \"Bulk 429\", \"Bulk 430\", \"Bulk 431\", \"Bulk 432\", \"Bulk 433\", \"Bulk 434\", \"Bulk 435\", \"Bulk 436\", \"Bulk 437\", \"Bulk 438\", \"Bulk 439\", \"Bulk 440\", \"Bulk 441\", \"Bulk 442\", \"Bulk 443\", \"Bulk 444\", \"Bulk 445\", \"Bulk 446\", \"Bulk 447\", \"Bulk 448\", \"Bulk 449\", \"Bulk 450\", \"Bulk 451\", \"Bulk 452\", \"Bulk 453\", \"Bulk 454\", \"Bulk 455\", \"Bulk 456\", \"Bulk 457\", \"Bulk 458\", \"Bulk 459\", \"Bulk 460\", \"Bulk 461\", \"Bulk 462\", \"Bulk 463\", \"Bulk 464\", \"Bulk 465\", \"Bulk 466\", \"Bulk 467\", \"Bulk 468\", \"Bulk 469\", \"Bulk 470\", \"Bulk 471\", \"Bulk 472\", \"Bulk 473\", \"Bulk 474\", \"Bulk 475\", \"Bulk 476\", \"Bulk 477\", \"Bulk 478\", \"Bulk 479\", \"Bulk 480\", \"Bulk 481\", \"Bulk 482\", \"Bulk 483\", \"Bulk 484\", \"Bulk 485\", \"Bulk 486\", \"Bulk 487\", \"Bulk 488\", \"Bulk 489\", \"Bulk 490\", \"Bulk 491\", \"Bulk 492\", \"Bulk 493\", \"Bulk 494\", \"Bulk 495\", \"Bulk 496\", \"Bulk 497\", \"Bulk 498\", \"Bulk 499\"]; await S.writeBook('SO-T13 Bulk', { entries: Object.fromEntries(comments.map((comment, uid) => [uid, { uid, comment, key: [`zqx-bulk-${uid}`], keysecondary: [], content: `Bulk entry ${uid}.`, constant: false, disable: false, position: 0, order: 100, depth: 4 }])) }); const T = { before: await S.serverBook('SO-T13 Xentar'), chats: {} }; localStorage.setItem('so-t13-spike', JSON.stringify(T)); return { books: 'copied', bulk: comments.length };",
       "log": true
     },
     {
@@ -876,6 +876,13 @@
       "log": true
     },
     {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 3000,
+        "timeoutMs": 240000
+      }
+    },
+    {
       "solo_chat": {
         "character": "Arin"
       }
@@ -885,8 +892,22 @@
       "log": true
     },
     {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 3000,
+        "timeoutMs": 240000
+      }
+    },
+    {
       "solo_chat": {
         "leave": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 3000,
+        "timeoutMs": 240000
       }
     },
     {
@@ -899,8 +920,22 @@
       "log": true
     },
     {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 3000,
+        "timeoutMs": 240000
+      }
+    },
+    {
       "solo_chat": {
         "leave": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 3000,
+        "timeoutMs": 240000
       }
     },
     {
@@ -911,6 +946,13 @@
     {
       "eval": "const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); if (globalThis.storyOrchestratorRuntime.getSnapshot().storyId) throw new Error('the no-story chat plays a story'); T.chats.none = globalThis.__soT13.here(); save(); return { none: T.chats.none };",
       "log": true
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 3000,
+        "timeoutMs": 240000
+      }
     },
     {
       "solo_chat": {
@@ -954,34 +996,28 @@
       "log": true
     },
     {
-      "send": "I look around."
-    },
-    {
-      "wait": {
-        "idle": true,
+      "send_generate": {
+        "text": "I look around.",
+        "expectReply": true,
         "timeoutMs": 300000
       }
     },
     {
-      "send": "I wait by the door."
-    },
-    {
-      "wait": {
-        "idle": true,
+      "send_generate": {
+        "text": "I wait by the door.",
+        "expectReply": true,
         "timeoutMs": 300000
       }
     },
     {
-      "send": "I sit down."
-    },
-    {
-      "wait": {
-        "idle": true,
+      "send_generate": {
+        "text": "I sit down.",
+        "expectReply": true,
         "timeoutMs": 300000
       }
     },
     {
-      "eval": "const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); const slots = globalThis.storyOrchestratorLoreEvidence.slotsForChat().slice(-3); const fired = slots.flatMap((slot) => slot.scans.flatMap((scan) => scan.entries.map((entry) => entry.comment))); const leaked = fired.filter((comment) => T.adversarial.includes(comment)); T.S1aRing = { slots: slots.length, leaked }; localStorage.setItem('so-t13-spike', JSON.stringify(T)); if (slots.length < 3) throw new Error(`S1 (a) ring: only ${slots.length} loud generations were observed`); if (leaked.length) throw new Error(`S1 FAIL (a) ring: gated entries fired in a no-story chat: ${JSON.stringify(leaked)}`); return T.S1aRing;",
+      "eval": "const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); const slots = globalThis.storyOrchestratorLoreEvidence.slotsForChat().slice(-3); const fired = slots.flatMap((slot) => slot.scans.flatMap((scan) => scan.entries.filter((entry) => String(entry.world).trim().toLowerCase() === 'so-t13 xentar').map((entry) => entry.comment))); const leaked = fired.filter((comment) => T.adversarial.includes(comment)); const elsewhere = [...new Set(slots.flatMap((slot) => slot.scans.flatMap((scan) => scan.entries.filter((entry) => String(entry.world).trim().toLowerCase() !== 'so-t13 xentar' && T.adversarial.includes(entry.comment)).map((entry) => `${entry.world}: ${entry.comment}`))))]; T.S1aRing = { slots: slots.length, leaked, sameCommentOtherBooks: elsewhere }; localStorage.setItem('so-t13-spike', JSON.stringify(T)); if (slots.length < 3) throw new Error(`S1 (a) ring: only ${slots.length} loud generations were observed`); if (leaked.length) throw new Error(`S1 FAIL (a) ring: gated entries fired in a no-story chat: ${JSON.stringify(leaked)}`); return T.S1aRing;",
       "log": true
     },
     {
@@ -993,7 +1029,7 @@
       "log": true
     },
     {
-      "eval": "const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); const S = globalThis.__soT13; if (!S) throw new Error('the t13-spike helper is not injected'); await S.goto(T.chats.A, 'so-t13-a'); const actual = await S.effective(['SO-T13 Xentar']); const view = globalThis.storyOrchestratorRuntime.getSnapshot().scanGate; if (!view) throw new Error('S5 FAIL: no scan-gate view while scan gating is active'); const mismatched = view.rows.filter((row) => actual.get(S.key(row.lorebook, row.comment)) !== (row.effectiveDisabled === false)); T.S5 = { rows: view.rows.length, mismatched: mismatched.map((row) => row.comment) }; localStorage.setItem('so-t13-spike', JSON.stringify(T)); if (!view.rows.length || mismatched.length) throw new Error(`S5 FAIL: ${JSON.stringify(T.S5)}`); return T.S5;",
+      "eval": "const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); const S = globalThis.__soT13; if (!S) throw new Error('the t13-spike helper is not injected'); await S.goto(T.chats.A, 'so-t13-a'); await S.effective(['SO-T13 Xentar']); const view = globalThis.storyOrchestratorRuntime.getSnapshot().scanGate; if (!view) throw new Error('S5 FAIL: no scan-gate view while scan gating is active'); const actual = await S.effective([...new Set(view.rows.map((row) => row.lorebook))]); const mismatched = view.rows.filter((row) => actual.get(S.key(row.lorebook, row.comment)) !== (row.effectiveDisabled === false)); T.S5 = { rows: view.rows.length, mismatched: mismatched.map((row) => row.comment) }; localStorage.setItem('so-t13-spike', JSON.stringify(T)); if (!view.rows.length || mismatched.length) throw new Error(`S5 FAIL: ${JSON.stringify(T.S5)}`); return T.S5;",
       "log": true
     },
     {
@@ -1022,8 +1058,15 @@
       "log": true
     },
     {
-      "eval": "const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.worldInfo = { gatingMode: 'file', normalized: {} }; SillyTavern.getContext().saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); if (globalThis.__soT13?.disarm) globalThis.__soT13.disarm(); console.log('[T13 spike record]', JSON.stringify(T)); return { record: T, restored: 'worldInfo = file, empty ledger' };",
+      "eval": "await globalThis.storyOrchestratorRuntime.removeStory('so-t13-d'); const T = JSON.parse(localStorage.getItem('so-t13-spike') ?? '{}'); const save = () => localStorage.setItem('so-t13-spike', JSON.stringify(T)); const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.worldInfo = { gatingMode: 'file', normalized: {} }; SillyTavern.getContext().saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); if (globalThis.__soT13?.disarm) globalThis.__soT13.disarm(); console.log('[T13 spike record]', JSON.stringify(T)); return { record: T, restored: 'worldInfo = file, empty ledger' };",
       "log": true
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 3000,
+        "timeoutMs": 240000
+      }
     },
     {
       "solo_chat": {

@@ -1,0 +1,55 @@
+{
+  "ok": true,
+  "value": {
+    "normalized": [
+      "CP1 - Mission",
+      "CP1 - Scenario",
+      "CP2 - Mission",
+      "CP2 - Scenario",
+      "CP3 - Luke",
+      "CP4 - Scenario",
+      "CP4 - Sphinx",
+      "CP4 - Sphinx's Riddle",
+      "General - Magic"
+    ],
+    "onDiskBefore": [],
+    "chat": "2026-09-24@22h58m41s353ms",
+    "viewEnabled": [],
+    "ring": {
+      "scans": 7,
+      "leaked": [],
+      "xentarFired": [
+        "SO-T13 Xentar :: Races - Humans",
+        "SO-T13 Xentar :: Places - Continent (macro backdrop)",
+        "SO-T13 Xentar :: Places - Guild of Adventurers",
+        "SO-T13 Xentar :: Places - Xentar",
+        "SO-T13 Xentar :: General - Artifacts",
+        "SO-T13 Xentar :: General - Sun’s Heart Artifact",
+        "SO-T13 Xentar :: General - Barriers (city wards)",
+        "SO-T13 Xentar :: Places - Continent (macro backdrop)",
+        "SO-T13 Xentar :: Places - Xentar",
+        "SO-T13 Xentar :: Places - Guild of Adventurers",
+        "SO-T13 Xentar :: Races - Humans",
+        "SO-T13 Xentar :: Places - Sun Ruins (workshops district)",
+        "SO-T13 Xentar :: General - Sun’s Heart Artifact",
+        "SO-T13 Xentar :: General - Barriers (city wards)",
+        "SO-T13 Xentar :: General - Artifacts",
+        "SO-T13 Xentar :: General - Artifacts",
+        "SO-T13 Xentar :: Races - Humans",
+        "SO-T13 Xentar :: General - Sun’s Heart Artifact",
+        "SO-T13 Xentar :: General - Barriers (city wards)",
+        "SO-T13 Xentar :: Races - Humans",
+        "SO-T13 Xentar :: Races - Humans",
+        "SO-T13 Xentar :: Places - Continent (macro backdrop)",
+        "SO-T13 Xentar :: Places - Xentar",
+        "SO-T13 Xentar :: General - Artifacts",
+        "SO-T13 Xentar :: General - Sun’s Heart Artifact",
+        "SO-T13 Xentar :: Places - Xentar",
+        "SO-T13 Xentar :: Places - Continent (macro backdrop)",
+        "SO-T13 Xentar :: Places - Guild of Adventurers",
+        "SO-T13 Xentar :: General - Artifacts",
+        "SO-T13 Xentar :: General - Sun’s Heart Artifact"
+      ]
+    }
+  }
+}

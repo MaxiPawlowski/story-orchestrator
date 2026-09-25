@@ -363,3 +363,81 @@ Branch `worktree-agent-afd20cf3b9e97ab17` off master `4151bc8`. Commits `e35daa6
 3. The mirror-rate measurement, then the strip (plus its keyless-row mutant) only if the median is ≥ 0.8.
 4. T13 S1–S9 on a lane, with the manual legs; then the spike report verdict. On PASS, write `05b` for v2.5. On FAIL, remove the spike code before plan 09.
 5. `test:release`; the CLAUDE.md status row.
+
+### Live gates (2026-09-25, bundle 8b5f9dfe509b)
+
+Main checkout, master `59c34b4` + this work. Lane 1 only (`st-lanes batch --lanes 1 --strict --group 1759606632088`), real LLM (Artemis 31B via the
+main session's tunnel), no `debugResponse`. Each batch has a run-header capture/diff around it (0 blocking differences at the end of every final
+batch). Three bundles were served during the session, and each record names one of them:
+- `7f1787158bf8`: the build this record started from.
+- `0ac21d135bc0`: lane 2's plan 07 token-guard rebuild, landed mid-J7 (the page kept running 7f17 until the next reload).
+- `8b5f9dfe509b`: this work's build (T12c + the constant-miss filter). `.debug/bundle-change.txt` records it for lane 2.
+
+Records: `test/journeys/records/v2.4-plan05/live-<bundle12>/`.
+
+**Results**
+
+| Gate | Bundle | Result | Record |
+|---|---|---|---|
+| J3 `--strict` ×2 | 7f17 | 8/8 automated ×2 (5 human rows unscored) | `live-7f1787158bf8/J3/` |
+| J7 `--strict` ×1 | 7f17 | 8/8 | `live-7f1787158bf8/J7/` |
+| J3 `--strict` ×2 (re-run on the final bundle) | 8b5f | run A: 7/8 then 8/8 (J3.7 `memoryInjection.facts present=false` with a facts row stored, the known unresolved J3.7 case in v2.3 plan 05's gate record); run B: **8/8, 8/8** (consecutive, the pair this gate rests on) | `live-8b5f9dfe509b/J3-J7-mirror/` |
+| J7 `--strict` ×1 | 8b5f | 8/8 (1836 s) | `live-8b5f9dfe509b/J3-J7-mirror/` |
+| `live-v24-05-gated-constant` ×2 | 8b5f | green ×2: DM Narrator turn fired `CP1 - Scenario` + `CP1 - Mission` (origin gated), no flag; Arin turn fired `CP1 - Scenario`, `CP1 - Mission` filtered, no flag | `live-8b5f9dfe509b/T12-fixtures/` |
+| `live-v24-05-foreign-filter` ×2 | 8b5f | green ×2: one /trigger → not reported (spliced 44), two → Repair "Another extension is hiding this story's lorebook…", splicer off + one generation → cleared | same |
+| `live-v24-05-forced-pick` ×2 | 0ac2 / 8b5f | 0ac2 ×2 (and ×2 earlier): case 1 landed, case 2 **pick LOST** to the foreign dry scan (4 of 4 runs). 8b5f ×2: case 1 landed, case 2 **survived** (dryScans 2, lost []) | `live-0ac21d135bc0/forced-pick/`, `live-8b5f9dfe509b/T12-fixtures/` |
+| `live-v24-05-mirror-rate` | 7f17, 8b5f | nothing to measure, ×3 (after J3 ×2, J7, and the final J3 ×2 + J7) | `live-7f1787158bf8/mirror-rate/`, `…/J7/`, `live-8b5f9dfe509b/J3-J7-mirror/` |
+| `live-v24-05-t13-spike` ×2 | 8b5f | green ×2 (S1a/b, S2, S3, S5, S6, S8) | `live-8b5f9dfe509b/T13-spike/` |
+| `live-v24-05-t13-manual` ×1 (new) + S1c by hand | 8b5f | S4, S7, S9 measured; S1c measured with the extension disabled | `live-8b5f9dfe509b/T13-manual-legs/` |
+
+**Predeclared decisions**
+- **T12c: BUILT.** Forced-pick case 2 lost the pick in 4 of 4 runs on 0ac2, which is the plan's trigger. The non-send force moved from `GENERATION_STARTED` into the generate
+  interceptor (`runtime/index.ts`, `onLoreIntercept`). It forces after the talk-control decision, never when talk control aborts, and never for a quiet interceptor. A nested
+  quiet STARTED does not clear the loud run's arm. `MESSAGE_SENT` is unchanged: ST emits it after GAC (`script.js:4453` → `:5910` > `:4321`; 05-H14 re-read,
+  1.18.0 static). On 8b5f case 2 survived ×2. Red first (`loreForceWiring.review.test.ts`, 2 of 5 red), mutants C1–C8 8/8 killed.
+- **Mirror key strip: NOT BUILT, rate unmeasurable.** Measured after J3 ×2 + J7 on 7f17 and again on 8b5f, no mirror entry was ever eligible, because no mirror book was created at all
+  (`cleanup.mirrorBooks.deleted: []`). Relationship rows are mirrored only at a scene-summary or consolidation sync, and a J3/J7 session reaches neither. The
+  predeclared rule builds only at a measured median ≥ 0.8, so nothing changes. It is not retuned. Measuring it needs a session long enough to mirror, and that is not scheduled here.
+- **T13 spike: PASS.** S1–S8 hold and S9 shows no loss. See `05-t13-spike-report.md`. Plan `05b-wi-scan-gating.md` for v2.5 is owed, for user approval; it is not written here.
+  The spike code stays behind `gatingMode = "file"`.
+
+**Defects**
+- **Fixed: the constant-miss flag fired for character-filtered constants.** Sun-ruins `CP1 - Mission` is DM Narrator only, and ST checks
+  `characterFilter` before the constant check (`world-info.js:4816`, new host fact 05-H17). So `lore-constant-missed` was journaled on every other member's
+  turn: 2 of 2 red on 0ac2 (`live-0ac21d135bc0/C-…`). `toLoadedCopy` now carries `filtered`, and `constantMisses` skips it. An empty filter is still a
+  miss. Red first (2 cases), mutants F1–F4 4/4 killed.
+- **Not fixed, reported: the chat-switch save race.** In the first spike run, a save that carried the sandbox group chat's metadata (integrity slug `5ba414fa…`)
+  was posted under the Ponticius solo chat's name during `/go`. The server refused it ("Chat integrity check failed", lane server log in
+  `T13-spike-A-integrity-race/server-log-excerpt.txt`). ST's popup then held `isChatSaving` true, and after OK the reload hung at "Initializing…" until the lane
+  browser was killed. The integrity check prevented any data loss. Separately, in forced-pick run 2 on 0ac2, a sandbox chat deleted by cleanup came back as
+  an unlisted file with its 4 messages. Both are the save-binds-late shape (gotchas 2026-09-24). Which caller issued either save is NOT established: no save
+  recorder was armed. The harness now waits for scheduler idle plus `isChatSaving` before switching chats.
+- **Observation, not measured:** `LoreEvidence.hiddenRuns` is page-global, not chat-keyed, so a hidden count could carry from one chat of a story to another. It was not seen live.
+
+**Fixture defects fixed** (each re-run ×2 green after the fix; the red runs are archived as `A-…`/`B-…`/`C-…` and `T13-spike-A…D`)
+- The `send` verb is `/send compact` and never generates. gated-constant, foreign-filter and the spike's S1a used it for real turns.
+- A failed run leaves the `wi-foreign.js` splicer on the page, and it hid Xentar Checkpoints from later runs. `wi-foreign.js` now removes an earlier instance's listeners when injected.
+- A player send in a group drafts several members, so "one generation" was two. foreign-filter and gated-constant now draft exactly one member per generation with `/trigger`.
+- The spike ring check ignored `world`. `check()` compared the whole library against the books it read. `goto` used `openGroupChat` from a solo chat.
+  S5 read one book while the table lists every library story's rows.
+- Every `solo_chat` step now waits for the scheduler to be idle.
+- `live-v24-05-t13-manual.json` + `t13-manual.js` are new. They measure the `_design` legs; the deviations are stated in the spike report.
+
+**Machine gates** (after the last code change, before the 8b5f live runs)
+
+| Gate | Result |
+|---|---|
+| `npm run typecheck && npm run typecheck:test && npm run lint && npm run debug:typecheck` | exit 0 |
+| `npm test` | 225 suites, 3323 tests pass |
+| `npm run build` | bundle `8b5f9dfe509b`, ST 1.19.0 (2 size warnings, as before) |
+| `npm run test:debug` | 254 / 254 (one red on the first run: the globals guard caught a fixture that read `__soWiForeign` without injecting it; fixed) |
+| `npm run test:release` | 21 / 21 |
+| `st-session reload` + served sha == manifest | 8b5f, verified in-page |
+
+Mutation records: `test/findings/mutations/v24-05-live.txt` (C1–C8, F1–F4, 12/12 killed).
+
+**Still open**
+- The J3/J5 human rubric rows, as before.
+- `05b` for v2.5 (PASS consequence), for user approval.
+- The `.claude/CLAUDE.md` status row is left to the main session, because parallel plans edit it.
+- 1.18.0: H5 (sticky across the switch) was not re-checked live; H14/H17 are static only.

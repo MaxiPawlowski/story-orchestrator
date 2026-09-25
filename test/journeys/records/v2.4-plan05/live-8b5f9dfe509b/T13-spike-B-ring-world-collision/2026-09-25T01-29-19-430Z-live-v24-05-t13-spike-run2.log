@@ -1,0 +1,63 @@
+1/50 inject_script ok 6ms
+2/50 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the install is already in scan mode; a previous spike run did not clean up (restore worldInfo.gatingMode = file)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:351)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:7464)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T01-30-55-106Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T01-30-59-421Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 2,
+  "cleanup": {
+    "removedStoryHashes": [],
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-24@22h30m54s831ms",
+    "owned": [
+      "2026-09-24@22h30m54s831ms"
+    ],
+    "deleted": [
+      "2026-09-24@22h30m54s831ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@22h30m54s831ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

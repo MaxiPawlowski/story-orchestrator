@@ -162,6 +162,20 @@ describe("LoreEvidence ring", () => {
     expect(flags).toEqual([expect.objectContaining({ kind: "lore-constant-missed", missed: [{ lorebook: "Ruins", comment: "CP1 Road" }] })]);
   });
 
+  it("never flags a constant entry the author filtered to certain characters: its absence on another member's turn is authored (live 2026-09-25, CP1 - Mission is DM Narrator only)", () => {
+    const { evidence, turn } = harness();
+    const narratorOnly = { names: ["DM Narrator"], tags: [], isExclude: false };
+    expect(turn(6, [{ entries: [entry(9, "Weather", {}, "Lore")] }], { loaded: [entry(1, "CP1 Road", { constant: true, characterFilter: narratorOnly })] })).toEqual([]);
+    expect(turn(7, [{ entries: [entry(9, "Weather", {}, "Lore")] }], { loaded: [entry(1, "CP1 Road", { constant: true, characterFilter: { names: [], tags: ["guild"], isExclude: true } })] })).toEqual([]);
+    expect(evidence.view(story, null).last?.constantMissed).toEqual([]);
+  });
+
+  it("control: an empty character filter is no filter, so the miss is still flagged", () => {
+    const { turn } = harness();
+    const flags = turn(6, [{ entries: [entry(9, "Weather", {}, "Lore")] }], { loaded: [entry(1, "CP1 Road", { constant: true, characterFilter: { names: [], tags: [], isExclude: false } })] });
+    expect(flags).toEqual([expect.objectContaining({ kind: "lore-constant-missed", missed: [{ lorebook: "Ruins", comment: "CP1 Road" }] })]);
+  });
+
   it("with no loud scan observed there is nothing to judge, so a slot raises no flag", () => {
     const { turn } = harness();
     expect(turn(6, [], { forced: [{ world: "Lore", uid: 4, comment: "NPC - Ellie" }], loaded: [entry(1, "CP1 Road", { constant: true })] })).toEqual([]);

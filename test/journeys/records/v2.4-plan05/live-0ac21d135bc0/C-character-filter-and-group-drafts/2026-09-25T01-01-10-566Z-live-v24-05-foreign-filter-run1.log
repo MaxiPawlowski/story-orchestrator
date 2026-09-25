@@ -1,0 +1,76 @@
+1/13 import_story ok 1418ms
+2/13 eval ok 16ms
+2/13 eval -> {"ready":true}
+3/13 ui ok 217ms
+4/13 inject_script ok 6ms
+5/13 eval ok 5ms
+5/13 eval -> {"splicing":"Xentar Checkpoints"}
+6/13 send_generate ok 15449ms
+7/13 eval ok 5ms
+7/13 eval -> {"afterOne":"not yet reported","spliced":44}
+8/13 send_generate ok 14456ms
+9/13 expect_ui ok 5ms
+10/13 eval ok 5ms
+10/13 eval -> {"hidden":["Xentar Checkpoints"],"splicer":"removed"}
+11/13 send_generate ok 17537ms
+12/13 eval ok 4ms
+12/13 eval -> {"cleared":true}
+13/13 wait ok 14140ms
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T01-03-07-982Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 13,
+  "cleanup": {
+    "removedStoryHashes": [],
+    "keptPreExistingStories": [
+      "v2-ea8a94f1"
+    ],
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-24@22h02m00s065ms",
+    "owned": [
+      "2026-09-24@22h02m00s065ms"
+    ],
+    "deleted": [
+      "2026-09-24@22h02m00s065ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@22h02m00s065ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

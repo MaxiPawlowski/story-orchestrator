@@ -20,6 +20,11 @@
   };
   const counters = { edits: 0, vectorInsert: 0, vectorDelete: 0, armed: false };
   const wiModule = () => import('/scripts/world-info.js');
+  const settle = async () => {
+    const script = await import('/script.js');
+    for (let index = 0; index < 150 && script.isChatSaving; index += 1) await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  };
   globalThis.__soT13 = {
     counters,
     key,
@@ -83,17 +88,20 @@
       return new Map([...all].map((id) => [id, on.has(id)]));
     },
     async check(label, library, loaded, path, books) {
-      const expected = this.expected(library, loaded, path);
+      const scope = new Set(books.map((book) => book.trim().toLowerCase()));
+      const expected = new Map([...this.expected(library, loaded, path)].filter(([id]) => scope.has(id.split("|")[0])));
       const actual = await this.effective(books);
       const wrong = [...expected].filter(([id, on]) => actual.has(id) && actual.get(id) !== on).map(([id, on]) => `${id}: expected ${on ? 'on' : 'off'}`);
       const unseen = [...expected.keys()].filter((id) => !actual.has(id));
       return { label, gated: expected.size, matched: expected.size - wrong.length - unseen.length, wrong, unseen };
     },
     async goto(target, storyId, timeoutMs = 30000) {
+      await settle();
       const script = await import('/script.js');
       if (target.groupId) {
         const groups = await import('/scripts/group-chats.js');
-        await groups.openGroupChat(target.groupId, target.chatId);
+        if (String(ctx().groupId ?? '') !== String(target.groupId)) await groups.openGroupById(target.groupId);
+        if (ctx().chatId !== target.chatId) await groups.openGroupChat(target.groupId, target.chatId);
       } else {
         const chid = ctx().characters.findIndex((card) => card?.avatar === target.avatar);
         if (chid < 0) throw new Error(`no character with avatar ${target.avatar}`);
@@ -103,11 +111,15 @@
       const started = Date.now();
       for (;;) {
         const snapshot = globalThis.storyOrchestratorRuntime.getSnapshot();
-        if (ctx().chatId === target.chatId && (storyId === null ? !snapshot.storyId : snapshot.storyId === storyId && snapshot.ready)) return { chatId: ctx().chatId, storyId: snapshot.storyId };
+        if (ctx().chatId === target.chatId && (storyId === null ? !snapshot.storyId : snapshot.storyId === storyId && snapshot.ready)) {
+          await settle();
+          return { chatId: ctx().chatId, storyId: snapshot.storyId };
+        }
         if (Date.now() - started > timeoutMs) throw new Error(`goto ${target.chatId}: still on ${ctx().chatId} with story ${snapshot.storyId}`);
         await new Promise((resolve) => setTimeout(resolve, 250));
       }
     },
+    settle,
     here() {
       const c = ctx();
       return c.groupId ? { groupId: c.groupId, chatId: c.chatId } : { avatar: c.characters[c.characterId]?.avatar, chatId: c.chatId };

@@ -1,0 +1,81 @@
+1/14 import_story ok 266ms
+2/14 eval ok 7ms
+2/14 eval -> {"book":"ready","entries":4}
+3/14 ui ok 174ms
+4/14 eval ok 9ms
+4/14 eval -> {"loreSelect":true,"plugin":"1.0.0"}
+5/14 send ok 1672ms
+6/14 wait ok 1537ms
+7/14 eval ok 17612ms
+7/14 eval -> {"triggered":"Ponticius"}
+8/14 wait ok 1520ms
+9/14 eval ok 4ms
+9/14 eval -> {"forced":["Vault combination"],"landed":["Vault combination"],"fired":["Vault combination:pick","Adventurer:other","Adventurer's Guild:other","World - Primer:other"]}
+10/14 inject_script ok 5ms
+11/14 eval ok 21750ms
+11/14 eval -> {"triggered":"Ponticius","foreignDryScan":"armed"}
+12/14 wait ok 1540ms
+13/14 eval ok 6ms
+13/14 eval -> {"T12c":"PICK LOST to a foreign dry scan: T12c is owed","forced":["Vault combination"],"lost":["Vault combination"],"dryScans":2}
+14/14 eval ok 4ms
+14/14 eval -> {"judge":"restored"}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T00-54-27-801Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 14,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-22f8addb"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-24@21h53m36s123ms",
+    "owned": [
+      "2026-09-24@21h53m36s123ms"
+    ],
+    "deleted": [],
+    "notDeleted": [
+      "2026-09-24@21h53m36s123ms"
+    ],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@21h53m36s123ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

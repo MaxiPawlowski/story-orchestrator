@@ -4,6 +4,7 @@
 // checkWorldInfo between our WORLDINFO_FORCE_ACTIVATE and the real scan, which clears pending forces
 // (05-H7, world-info.js:418,5275). Loaded by the `inject_script` verb; `off()` removes both.
 (() => {
+  if (globalThis.__soWiForeign?.off) globalThis.__soWiForeign.off();
   const ctx = () => globalThis.SillyTavern.getContext();
   const state = { spliced: 0, dryScans: 0, dryErrors: [], listeners: [] };
   const on = (key, listener) => {

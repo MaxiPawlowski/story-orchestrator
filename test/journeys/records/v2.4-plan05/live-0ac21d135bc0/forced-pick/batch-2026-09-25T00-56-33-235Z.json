@@ -1,0 +1,86 @@
+{
+  "lanes": [
+    1
+  ],
+  "items": [
+    "test/scenarios/live-v24-05-gated-constant.json",
+    "test/scenarios/live-v24-05-foreign-filter.json",
+    "test/scenarios/live-v24-05-forced-pick.json"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/scenarios/live-v24-05-gated-constant.json",
+      "lane": 1,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T00-56-33-235Z-live-v24-05-gated-constant-run1.log",
+      "ms": 19466,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-05-gated-constant.json",
+      "lane": 1,
+      "run": 2,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T00-56-33-235Z-live-v24-05-gated-constant-run2.log",
+      "ms": 20314,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-05-foreign-filter.json",
+      "lane": 1,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T00-56-33-235Z-live-v24-05-foreign-filter-run1.log",
+      "ms": 7313,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-05-foreign-filter.json",
+      "lane": 1,
+      "run": 2,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T00-56-33-235Z-live-v24-05-foreign-filter-run2.log",
+      "ms": 7132,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-05-forced-pick.json",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T00-56-33-235Z-live-v24-05-forced-pick-run1.log",
+      "ms": 104083,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-05-forced-pick.json",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T00-56-33-235Z-live-v24-05-forced-pick-run2.log",
+      "ms": 77441,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

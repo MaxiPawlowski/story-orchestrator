@@ -1,0 +1,38 @@
+v2.4 plan 05 live-gate fixes, mutations 2026-09-25 (main checkout, master 59c34b4 + working tree; scripts .debug/mut_t12c.py and .debug/mut_filter.py, each mutant applied alone as an exact-text replacement to one file, the file restored byte-for-byte after its run and checked; a replacement that does not match is reported DID NOT APPLY, and none did).
+
+T12c (the non-send lore force moved from GENERATION_STARTED into the generate interceptor, src/runtime/index.ts), built because forced-pick case 2 lost the pick to a foreign dry scan in 4 of 4 live runs on bundle 0ac21d135bc0. Suites: loreForceWiring.review (7, new), generationWiring.review (5).
+baseline: 12 tests, 0 failing
+- C1 the non-send generation no longer arms the interceptor force: KILLED, 3 of 12
+    "a non-send generation forces from the interceptor, after GAC, not at GENERATION_STARTED"
+    "a quiet run's interceptor inside the loud one neither forces nor consumes the loud run's force"
+    "forces once per generation: a second interceptor call without a new STARTED forces nothing"
+- C2 the force goes back to GENERATION_STARTED (the pre-T12c force point): KILLED, 4 of 12
+    "a non-send generation forces from the interceptor, after GAC, not at GENERATION_STARTED"
+    "a quiet run's interceptor inside the loud one neither forces nor consumes the loud run's force"
+    "a generation talk control aborts (another member is drafted instead) forces nothing"
+    "an arm left by a generation that never reached its interceptor does not force in the next send generation"
+- C3 a quiet interceptor consumes the loud run's force: KILLED, 1 of 12
+    "a quiet run's interceptor inside the loud one neither forces nor consumes the loud run's force"
+- C4 the interceptor never disarms (forces on every interceptor call): KILLED, 1 of 12
+    "forces once per generation: a second interceptor call without a new STARTED forces nothing"
+- C5 an aborted generation still forces: KILLED, 1 of 12
+    "a generation talk control aborts (another member is drafted instead) forces nothing"
+- C6 a nested quiet STARTED clears the loud run's arm: KILLED, 1 of 12
+    "a quiet run's interceptor inside the loud one neither forces nor consumes the loud run's force"
+- C7 a new loud STARTED does not clear a stale arm: KILLED, 1 of 12
+    "an arm left by a generation that never reached its interceptor does not force in the next send generation"
+- C8 the talk-control abort is not observed (aborted never set): KILLED, 1 of 12
+    "a generation talk control aborts (another member is drafted instead) forces nothing"
+restored byte-for-byte: True
+
+The constant-miss flag skips an entry with an authored character filter (src/runtime/worldInfoEvidence.ts), found by live gated-constant: 'CP1 - Mission' is filtered to DM Narrator (world-info.js:4816 checks the filter before the constant check), so the flag fired on every other member's turn. Suites: worldInfoEvidence.test (21, 2 new), worldInfoEvidenceHost.test (6), generationWiring.review (5).
+baseline: 32 tests, 0 failing
+- F1 the constant-miss check ignores the character filter: KILLED, 1 of 32
+    "never flags a constant entry the author filtered to certain characters: its absence on another member's turn is authored (live 2026-09-25, CP1 - Mission is DM Narrator only)"
+- F2 no loaded copy ever reads as filtered: KILLED, 1 of 32
+    "never flags a constant entry the author filtered to certain characters: its absence on another member's turn is authored (live 2026-09-25, CP1 - Mission is DM Narrator only)"
+- F3 a tag-only filter is not a filter: KILLED, 1 of 32
+    "never flags a constant entry the author filtered to certain characters: its absence on another member's turn is authored (live 2026-09-25, CP1 - Mission is DM Narrator only)"
+- F4 an empty names/tags list reads as a filter: KILLED, 1 of 32
+    "control: an empty character filter is no filter, so the miss is still flagged"
+restored byte-for-byte: True

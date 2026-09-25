@@ -1,0 +1,71 @@
+1/6 import_story ok 1420ms
+2/6 eval ok 7ms
+2/6 eval -> {"checkpoint":"cp1"}
+3/6 ui ok 165ms
+4/6 send ok 1670ms
+5/6 wait ok 1541ms
+6/6 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: no evidence slot for the reply
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:307)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1088)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T00-52-30-627Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T00-52-34-980Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 6,
+  "cleanup": {
+    "removedStoryHashes": [],
+    "keptPreExistingStories": [
+      "v2-ea8a94f1"
+    ],
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-24@21h52m25s549ms",
+    "owned": [
+      "2026-09-24@21h52m25s549ms"
+    ],
+    "deleted": [
+      "2026-09-24@21h52m25s549ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@21h52m25s549ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

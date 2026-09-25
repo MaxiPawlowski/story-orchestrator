@@ -1,0 +1,82 @@
+1/15 import_story ok 264ms
+2/15 eval ok 8ms
+2/15 eval -> {"book":"ready","entries":4}
+3/15 ui ok 182ms
+4/15 eval ok 8ms
+4/15 eval -> {"loreSelect":true,"plugin":"1.0.0"}
+5/15 send ok 1665ms
+6/15 wait ok 1549ms
+7/15 eval ok 16447ms
+7/15 eval -> {"triggered":"Ponticius"}
+8/15 wait ok 1514ms
+9/15 eval ok 5ms
+9/15 eval -> {"forced":["Vault combination"],"landed":["Vault combination"],"fired":["Vault combination:pick","Adventurer:other","Adventurer's Guild:other","World - Primer:other"]}
+10/15 inject_script ok 6ms
+11/15 eval ok 16496ms
+11/15 eval -> {"triggered":"Ponticius","foreignDryScan":"armed"}
+12/15 wait ok 1538ms
+13/15 eval ok 6ms
+13/15 eval -> {"T12c":"PICK LOST to a foreign dry scan: T12c is owed","forced":["Vault combination"],"lost":["Vault combination"],"dryScans":2}
+14/15 wait ok 58760ms
+15/15 eval ok 4ms
+15/15 eval -> {"judge":"restored"}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T00-59-11-523Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 15,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-22f8addb"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-24@21h57m28s455ms",
+    "owned": [
+      "2026-09-24@21h57m28s455ms"
+    ],
+    "deleted": [
+      "2026-09-24@21h57m28s455ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@21h57m28s455ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

@@ -1,0 +1,783 @@
+{
+  "id": "J7",
+  "title": "long-haul",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j7-long-haul.journey.json",
+  "ranAt": "2026-09-25T00:50:14.811Z",
+  "strict": true,
+  "partial": false,
+  "only": null,
+  "tally": {
+    "pass": 8,
+    "skipped": 2
+  },
+  "tallies": {
+    "automated": {
+      "pass": 8,
+      "fail": 0,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 2
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 8,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [],
+  "humanRecord": null,
+  "runnerError": null,
+  "releasedRoutes": null,
+  "capabilities": {},
+  "results": [
+    {
+      "id": "J7.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp1 → cp2: the player approaches the job board Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.2",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp2 → cp3: the party accepts the Sun Ruins mission Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.3",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp3 → cp-4a: the player agrees to bring Luke along Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.4",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp-4a → cp-4a1: the sphinx riddle is answered correctly Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.5",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp-4a1 → cp-5: the party enters the inner chamber, and convergence progress is recorded Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.6",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp-5 → cp-6: the artifact is secured and the party returns to the guild Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.7",
+      "mode": "auto",
+      "findings": [],
+      "goal": "every anchor was visited and none was skipped",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.8",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the long session left a coherent journal and memory behind",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.9",
+      "mode": "human",
+      "findings": [],
+      "goal": "",
+      "prompt": "Over the whole play-through, did the story feel authored — arriving where it was meant to — or did it feel like it was dragging you along rails?",
+      "anchors": "1 = pure rails · 3 = authored but visible machinery · 5 = felt like a GM running my choices",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    },
+    {
+      "id": "J7.10",
+      "mode": "human",
+      "findings": [],
+      "goal": "",
+      "prompt": "Did the finale land, given what actually happened in your run?",
+      "anchors": "1 = disconnected from my choices · 3 = generic ending · 5 = paid off my run specifically",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    }
+  ],
+  "cleanup": {
+    "judgeCalls": {
+      "count": 30,
+      "events": [
+        {
+          "at": "2026-09-25T00:26:28.163Z",
+          "boundary": 1,
+          "messageId": 3,
+          "kind": "judge",
+          "summary": "judge scene in 574 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 7,
+            "stateChars": 2901,
+            "latencyMs": 574,
+            "inputTokens": 1473,
+            "outputTokens": 215,
+            "p": {
+              "break": 0.05
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T00:26:30.203Z",
+          "boundary": 2,
+          "messageId": 3,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2504 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 7,
+            "stateChars": 2901,
+            "latencyMs": 2504,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T00:27:55.298Z",
+          "boundary": 3,
+          "messageId": 8,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2506 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 7,
+            "stateChars": 5444,
+            "latencyMs": 2506,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T00:27:55.377Z",
+          "boundary": 4,
+          "messageId": 8,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2513 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 7,
+            "stateChars": 5444,
+            "latencyMs": 2513,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T00:28:32.641Z",
+          "boundary": 5,
+          "messageId": 9,
+          "kind": "judge",
+          "summary": "judge scene in 540 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 7,
+            "stateChars": 6903,
+            "latencyMs": 540,
+            "inputTokens": 2406,
+            "outputTokens": 215,
+            "p": {
+              "break": 0.06
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T00:28:34.732Z",
+          "boundary": 6,
+          "messageId": 9,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2503 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 7,
+            "stateChars": 6903,
+            "latencyMs": 2503,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T00:30:38.721Z",
+          "boundary": 7,
+          "messageId": 14,
+          "kind": "judge",
+          "summary": "judge scene in 643 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 7,
+            "stateChars": 7265,
+            "latencyMs": 643,
+            "inputTokens": 2532,
+            "outputTokens": 215,
+            "p": {
+              "break": 0.07
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T00:30:38.841Z",
+          "boundary": 9,
+          "messageId": 14,
+          "kind": "judge",
+          "summary": "judge scene in 0 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 7,
+            "stateChars": 7265,
+            "latencyMs": 0,
+            "cached": true,
+            "p": {
+              "break": 0.07
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T00:30:40.385Z",
+          "boundary": 8,
+          "messageId": 14,
+          "kind": "judge",
+          "summary": "judge scene in 1888 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 7,
+            "stateChars": 7265,
+            "latencyMs": 1888,
+            "inputTokens": 2532,
+            "outputTokens": 215,
+            "p": {
+              "break": 0.06
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T00:31:13.303Z",
+          "boundary": 10,
+          "messageId": 16,
+          "kind": "judge",
+          "summary": "judge scene in 2106 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 7,
+            "stateChars": 7741,
+            "latencyMs": 2106,
+            "inputTokens": 2695,
+            "outputTokens": 215,
+            "p": {
+              "break": 0.06
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T00:32:14.424Z",
+          "boundary": 11,
+          "messageId": 18,
+          "kind": "judge",
+          "summary": "judge scene in 576 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 7,
+            "stateChars": 7082,
+            "latencyMs": 576,
+            "inputTokens": 2546,
+            "outputTokens": 215,
+            "p": {
+              "break": 0.1
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T00:33:18.469Z",
+          "boundary": 12,
+          "messageId": 21,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2501 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 7,
+            "stateChars": 5157,
+            "latencyMs": 2501,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T00:33:18.625Z",
+          "boundary": 13,
+          "messageId": 21,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2506 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 7,
+            "stateChars": 5157,
+            "latencyMs": 2506,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T00:34:53.938Z",
+          "boundary": 14,
+          "messageId": 23,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2501 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 7,
+            "stateChars": 6324,
+            "latencyMs": 2501,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T00:35:25.786Z",
+          "boundary": 15,
+          "messageId": 25,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2513 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 7,
+            "stateChars": 6310,
+            "latencyMs": 2513,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T00:36:55.646Z",
+          "boundary": 16,
+          "messageId": 29,
+          "kind": "judge",
+          "summary": "judge scene in 563 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 7,
+            "stateChars": 6347,
+            "latencyMs": 563,
+            "inputTokens": 2353,
+            "outputTokens": 215,
+            "p": {
+              "break": 0.15
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T00:36:55.749Z",
+          "boundary": 17,
+          "messageId": 29,
+          "kind": "judge",
+          "summary": "judge scene in 546 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 7,
+            "stateChars": 6347,
+            "latencyMs": 546,
+            "inputTokens": 2353,
+            "outputTokens": 215,
+            "p": {
+              "break": 0.13
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T00:38:24.072Z",
+          "boundary": 18,
+          "messageId": 32,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2514 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 7,
+            "stateChars": 7910,
+            "latencyMs": 2514,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T00:38:24.984Z",
+          "boundary": 19,
+          "messageId": 32,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2505 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 7,
+            "stateChars": 7910,
+            "latencyMs": 2505,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T00:38:57.584Z",
+          "boundary": 20,
+          "messageId": 34,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2511 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 7,
+            "stateChars": 7467,
+            "latencyMs": 2511,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T00:40:08.770Z",
+          "boundary": 21,
+          "messageId": 38,
+          "kind": "judge",
+          "summary": "judge scene in 563 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 7,
+            "stateChars": 5975,
+            "latencyMs": 563,
+            "inputTokens": 2256,
+            "outputTokens": 215,
+            "p": {
+              "break": 0.05
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T00:40:09.178Z",
+          "boundary": 22,
+          "messageId": 39,
+          "kind": "judge",
+          "summary": "judge scene in 222 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 7,
+            "stateChars": 4623,
+            "latencyMs": 222,
+            "inputTokens": 1915,
+            "outputTokens": 215,
+            "p": {
+              "break": 0.05
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T00:41:46.333Z",
+          "boundary": 23,
+          "messageId": 41,
+          "kind": "judge",
+          "summary": "judge scene in 557 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 7,
+            "stateChars": 3982,
+            "latencyMs": 557,
+            "inputTokens": 1756,
+            "outputTokens": 215,
+            "p": {
+              "break": 0.1
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T00:42:19.444Z",
+          "boundary": 24,
+          "messageId": 43,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2501 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 7,
+            "stateChars": 4270,
+            "latencyMs": 2501,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T00:43:08.159Z",
+          "boundary": 25,
+          "messageId": 45,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2502 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 7,
+            "stateChars": 4386,
+            "latencyMs": 2502,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T00:43:54.578Z",
+          "boundary": 26,
+          "messageId": 47,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2502 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 7,
+            "stateChars": 5694,
+            "latencyMs": 2502,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T00:44:55.130Z",
+          "boundary": 27,
+          "messageId": 50,
+          "kind": "judge",
+          "summary": "judge scene in 578 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 7,
+            "stateChars": 7478,
+            "latencyMs": 578,
+            "inputTokens": 2549,
+            "outputTokens": 215,
+            "p": {
+              "break": 0.06
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T00:44:57.210Z",
+          "boundary": 28,
+          "messageId": 50,
+          "kind": "judge",
+          "summary": "judge scene fell back (timeout) in 2507 ms",
+          "detail": {
+            "use": "scene",
+            "model": null,
+            "questions": 7,
+            "stateChars": 7478,
+            "latencyMs": 2507,
+            "fallback": "timeout",
+            "p": {}
+          }
+        },
+        {
+          "at": "2026-09-25T00:46:36.949Z",
+          "boundary": 29,
+          "messageId": 55,
+          "kind": "judge",
+          "summary": "judge scene in 605 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 7,
+            "stateChars": 4747,
+            "latencyMs": 605,
+            "inputTokens": 1933,
+            "outputTokens": 215,
+            "p": {
+              "break": 0.31
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T00:46:37.127Z",
+          "boundary": 30,
+          "messageId": 55,
+          "kind": "judge",
+          "summary": "judge scene in 554 ms",
+          "detail": {
+            "use": "scene",
+            "model": "jev-1.13.0",
+            "questions": 7,
+            "stateChars": 4747,
+            "latencyMs": 554,
+            "inputTokens": 1933,
+            "outputTokens": 215,
+            "p": {
+              "break": 0.33
+            }
+          }
+        }
+      ]
+    },
+    "lorebooks": {
+      "Xentar Checkpoints": {
+        "deactivated": true
+      }
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 2,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [],
+      "preservedSessions": []
+    },
+    "keptPreExistingStories": [
+      "v2-ea8a94f1"
+    ],
+    "chat": {
+      "sandboxChatId": "2026-09-24@21h25m53s022ms",
+      "owned": [
+        "2026-09-24@21h25m53s022ms"
+      ],
+      "deleted": [
+        "2026-09-24@21h25m53s022ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-24@21h25m53s022ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-24@04h05m33s739ms"
+    },
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "member:DM Narrator": {
+      "enabled": true
+    },
+    "member:Arin": {
+      "enabled": true
+    },
+    "member:Ponticius": {
+      "enabled": true
+    },
+    "member:Luke": {
+      "enabled": true
+    },
+    "disabledMembers": []
+  }
+}

@@ -1,0 +1,159 @@
+1/50 inject_script ok 5ms
+2/50 eval ok 304ms
+2/50 eval -> {"books":"copied","bulk":500}
+3/50 import_story ok 288ms
+4/50 import_story ok 280ms
+5/50 import_story ok 597ms
+6/50 import_story ok 291ms
+7/50 eval ok 6ms
+7/50 eval -> {"groupId":"1759606632088","chatId":"2026-09-24@22h35m48s634ms"}
+8/50 slash ok 1701ms
+9/50 eval ok 4ms
+9/50 eval -> {"pathA":["cp1","cp-4a"]}
+10/50 wait ok 3184ms
+11/50 solo_chat ok 454ms
+12/50 eval ok 246ms
+12/50 eval -> {"B":{"avatar":"Arin.png","chatId":"Arin - 2026-09-24@22h35m55s598ms"},"pathB":["cp1"]}
+13/50 wait ok 3164ms
+14/50 solo_chat ok 108ms
+15/50 wait ok 3146ms
+16/50 solo_chat ok 549ms
+17/50 eval ok 247ms
+17/50 eval -> {"C":{"avatar":"Ponticius.png","chatId":"Ponticius - 2026-09-24@22h36m02s830ms"},"pathC":["c1"]}
+18/50 wait ok 3103ms
+19/50 solo_chat ok 123ms
+20/50 wait ok 3159ms
+21/50 solo_chat ok 564ms
+22/50 eval ok 7ms
+22/50 eval -> {"none":{"avatar":"Luke.png","chatId":"Luke - 2026-09-24@22h36m10s015ms"}}
+23/50 wait ok 3176ms
+24/50 solo_chat ok 103ms
+25/50 eval ok 2518ms
+25/50 eval -> {"gatingMode":"scan","note":"takes effect at the next startRuntime (the reload below)"}
+26/50 reload ok 5514ms
+27/50 inject_script ok 6ms
+28/50 eval ok 4ms
+28/50 eval -> {"capability":{"state":"present","detail":"the handler ran on a probe scan"}}
+29/50 eval ok 12ms
+29/50 eval -> {"S3":"pass (growth measured next)","firstWrites":0,"firstEdits":0,"secondWrites":0,"secondEdits":0,"changedOutside":[],"gatedNotOff":[],"gatedOtherwiseChanged":[]}
+30/50 eval ok 6ms
+30/50 eval -> {"S3ledger":{"SO-T13 Xentar":["CP1 - Mission","CP1 - Scenario","CP2 - Mission","CP2 - Scenario","CP3 - Luke","CP4 - Scenario","CP4 - Sphinx","CP4 - Sphinx's Riddle","Places - Moon Ruins (archives district)","Places - Xentar"],"SO-T13 Bulk":["Bulk 000","Bulk 001","Bulk 002","Bulk 003","Bulk 004","Bulk 005","Bulk 006","Bulk 007","Bulk 008","Bulk 009","Bulk 010","Bulk 011","Bulk 012","Bulk 013","Bulk 014","Bulk 015","Bulk 016","Bulk 017","Bulk 018","Bulk 019","Bulk 020","Bulk 021","Bulk 022","Bulk 023","Bulk 024","Bulk 025","Bulk 026","Bulk 027","Bulk 028","Bulk 029","Bulk 030","Bulk 031","Bulk 032","Bulk 033","Bulk 034","Bulk 035","Bulk 036","Bulk 037","Bulk 038","Bulk 039","Bulk 040","Bulk 041","Bulk 042","Bulk 043","Bulk 044","Bulk 045","Bulk 046","Bulk 047","Bulk 048","Bulk 049","Bulk 050
+31/50 eval ok 665ms
+31/50 eval -> {"S3":"pass","growth":{"added":["General - Magic"],"flipped":{"SO-T13 Xentar":["General - Magic"]},"edits":1}}
+32/50 eval ok 22ms
+32/50 eval -> {"S1":"every normalised gated entry forced ON on disk","entries":11}
+33/50 eval ok 4229ms
+33/50 eval -> {"label":"S1a no-story chat","gated":11,"matched":11,"wrong":[],"unseen":[],"leaked":[]}
+34/50 send_generate ok 13368ms
+35/50 send_generate ok 17469ms
+36/50 send_generate ok 19045ms
+37/50 eval ok 4ms
+37/50 eval -> {"slots":3,"leaked":[],"sameCommentOtherBooks":[]}
+38/50 eval ok 4209ms
+38/50 eval -> {"label":"S1b story C chat","gated":11,"matched":11,"wrong":[],"unseen":[]}
+39/50 eval ok 49492ms
+39/50 eval -> {"checks":12,"failed":[],"edits":0,"vector":{"insert":0,"delete":0}}
+40/50 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: S5 FAIL: {"rows":354,"mismatched":["CP nightriver-house - Scene","Nightriver - The Seal","Cast - The Household","CP fathers-summons - Scene","CP whispers - Scene","Nightriver - The Conspiracy","CP the-duel - Scene","CP night-of-knives - Scene","Nightriver - The Rite","CP confront-father - Scene","CP follow-the-trail - Scene","CP the-sealed-crypt - Scene","CP house-in-daylight - Scene","Aegis Academy","Aegis Academy Classes","Amthir Draxford","Ashleigh Delarise","Ashton Delarise","Bianca Kelevaran","Blake Tallaboros","Bryne the Knight","Cecilia Sheridan","Cedric Sheridan","Celenora Rennetoa","Chester Thornwick","Clarissa Nevarron","Delarise Family","Dion Thornwick","Eriana Valtara","General Leevon","Golden Age","Irian Elthorien","Isidora Frolovan - Nightriver General","Kane Winstonehl","Lady Hana Nightriver","Lady Noellavi","Leila Rainshadow","Lord Javon Nightriver","Lord Tibalt","Lucia Bruchelle","Mira Thornwick","Natalia Nightriver","Nendira Draxford","Nicolai Nevarron","Reiner Dalmead","Rhea Allstadt","Ronan the Knight","Sheridan Family","Shiya Mordred","Succession Crisis","Suzusa Calenor","Tahlia Winstonehl","Tatoshi Calenor","The 8 Great Houses of the Darran Kingdom","The Bertoanal Family","The Bruchelle's","The Calenor's","The Draxford's","The Elthorien's","The Nightriver's","The Silent Whisperers","The Thornwicks","The Valtara's","The Winstonehl's","The Witch King","Thornwick Mansion","Tlaloc Valencius","Trial by Combat","Vellere Elthorien","War with the Zegallan Empire","Welden Nightriver","CP guild-hall - Scene","Cast - The Party","CP road-to-wendhope - Scene","CP at-the-walls - Scene","Wendhope - Defenders","CP first-night - Scene","Wendhope - The Screechers","CP what-wendhope-knows - Scene","Wendhope - Clues","CP into-needlehaven - Scene","Wendhope - The Truth","CP the-lord-spirit - Scene","CP after-the-fog - Scene","CP driftmere - Scene","Driftmere - The Town","CP the-first-descent - Scene","Driftmere Mines - The Dungeon","CP the-changed-deep - Scene","CP the-sealed-wall - Scene","Driftmere - The Truth","CP the-devourer - Scene","CP what-filwern-left - Scene","Bulk 000","Bulk 001","Bulk 002","Bulk 003","Bulk 004","Bulk 005","Bulk 006","Bulk 007","Bulk 008","Bulk 009","Bulk 010","Bulk 011","Bulk 012","Bulk 013","Bulk 014","Bulk 015","Bulk 016","Bulk 017","Bulk 018","Bulk 019","Bulk 020","Bulk 021","Bulk 022","Bulk 023","Bulk 024","Bulk 025","Bulk 026","Bulk 027","Bulk 028","Bulk 029","Bulk 030","Bulk 031","Bulk 032","Bulk 033","Bulk 034","Bulk 035","Bulk 036","Bulk 037","Bulk 038","Bulk 039","Bulk 040","Bulk 041","Bulk 042","Bulk 043","Bulk 044","Bulk 045","Bulk 046","Bulk 047","Bulk 048","Bulk 049","Bulk 050","Bulk 051","Bulk 052","Bulk 053","Bulk 054","Bulk 055","Bulk 056","Bulk 057","Bulk 058","Bulk 059","Bulk 060","Bulk 061","Bulk 062","Bulk 063","Bulk 064","Bulk 065","Bulk 066","Bulk 067","Bulk 068","Bulk 069","Bulk 070","Bulk 071","Bulk 072","Bulk 073","Bulk 074","Bulk 075","Bulk 076","Bulk 077","Bulk 078","Bulk 079","Bulk 080","Bulk 081","Bulk 082","Bulk 083","Bulk 084","Bulk 085","Bulk 086","Bulk 087","Bulk 088","Bulk 089","Bulk 090","Bulk 091","Bulk 092","Bulk 093","Bulk 094","Bulk 095","Bulk 096","Bulk 097","Bulk 098","Bulk 099","Bulk 100","Bulk 101","Bulk 102","Bulk 103","Bulk 104","Bulk 105","Bulk 106","Bulk 107","Bulk 108","Bulk 109","Bulk 110","Bulk 111","Bulk 112","Bulk 113","Bulk 114","Bulk 115","Bulk 116","Bulk 117","Bulk 118","Bulk 119","Bulk 120","Bulk 121","Bulk 122","Bulk 123","Bulk 124","Bulk 125","Bulk 126","Bulk 127","Bulk 128","Bulk 129","Bulk 130","Bulk 131","Bulk 132","Bulk 133","Bulk 134","Bulk 135","Bulk 136","Bulk 137","Bulk 138","Bulk 139","Bulk 140","Bulk 141","Bulk 142","Bulk 143","Bulk 144","Bulk 145","Bulk 146","Bulk 147","Bulk 148","Bulk 149","Bulk 150","Bulk 151","Bulk 152","Bulk 153","Bulk 154","Bulk 155","Bulk 156","Bulk 157","Bulk 158","Bulk 159","Bulk 160","Bulk 161","Bulk 162","Bulk 163","Bulk 164","Bulk 165","Bulk 166","Bulk 167","Bulk 168","Bulk 169","Bulk 170","Bulk 171","Bulk 172","Bulk 173","Bulk 174","Bulk 175","Bulk 176","Bulk 177","Bulk 178","Bulk 179","Bulk 180","Bulk 181","Bulk 182","Bulk 183","Bulk 184","Bulk 185","Bulk 186","Bulk 187","Bulk 188","Bulk 189","Bulk 190","Bulk 191","Bulk 192","Bulk 193","Bulk 194","Bulk 195","Bulk 196","Bulk 197","Bulk 198","Bulk 199","Bulk 200","Bulk 201","Bulk 202","Bulk 203","Bulk 204","Bulk 205","Bulk 206","Bulk 207","Bulk 208","Bulk 209","Bulk 210","Bulk 211","Bulk 212","Bulk 213","Bulk 214","Bulk 215","Bulk 216","Bulk 217","Bulk 218","Bulk 219","Bulk 220","Bulk 221","Bulk 222","Bulk 223","Bulk 224","Bulk 225","Bulk 226","Bulk 227","Bulk 228","Bulk 229","Bulk 230","Bulk 231","Bulk 232","Bulk 233","Bulk 234","Bulk 235","Bulk 236","Bulk 237","Bulk 238","Bulk 239","Bulk 240","Bulk 241","Bulk 242","Bulk 243","Bulk 244","Bulk 245","Bulk 246","Bulk 247","Bulk 248","Bulk 249"]}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:833)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T01-38-14-339Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T01-38-18-874Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 40,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-2adf4999",
+      "v2-2eebd920",
+      "v2-b573019c",
+      "v2-f7c61ac5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [
+        "Arin - 2026-09-24@22h35m55s598ms",
+        "Ponticius - 2026-09-24@22h36m02s830ms",
+        "Luke - 2026-09-24@22h36m10s015ms"
+      ],
+      "leaked": [],
+      "results": [
+        {
+          "chatId": "Arin - 2026-09-24@22h35m55s598ms",
+          "gone": true
+        },
+        {
+          "chatId": "Ponticius - 2026-09-24@22h36m02s830ms",
+          "gone": true
+        },
+        {
+          "chatId": "Luke - 2026-09-24@22h36m10s015ms",
+          "gone": true
+        }
+      ]
+    },
+    "activeEntity": {
+      "captured": true,
+      "before": {
+        "character": null,
+        "group": "1759606632088"
+      },
+      "found": {
+        "character": "Luke.png",
+        "group": null
+      },
+      "after": {
+        "character": null,
+        "group": "1759606632088"
+      },
+      "restored": true,
+      "saved": {
+        "status": 200
+      }
+    },
+    "sandboxChatId": "2026-09-24@22h35m48s634ms",
+    "owned": [
+      "2026-09-24@22h35m48s634ms"
+    ],
+    "deleted": [
+      "2026-09-24@22h35m48s634ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@22h35m48s634ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

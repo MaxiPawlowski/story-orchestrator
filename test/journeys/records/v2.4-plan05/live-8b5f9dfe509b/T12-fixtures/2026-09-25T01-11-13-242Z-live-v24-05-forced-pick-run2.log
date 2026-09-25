@@ -1,0 +1,82 @@
+1/15 import_story ok 269ms
+2/15 eval ok 7ms
+2/15 eval -> {"book":"ready","entries":4}
+3/15 ui ok 165ms
+4/15 eval ok 7ms
+4/15 eval -> {"loreSelect":true,"plugin":"1.0.0"}
+5/15 send ok 1651ms
+6/15 wait ok 1546ms
+7/15 eval ok 12835ms
+7/15 eval -> {"triggered":"Ponticius"}
+8/15 wait ok 1527ms
+9/15 eval ok 5ms
+9/15 eval -> {"forced":["Vault combination"],"landed":["Vault combination"],"fired":["General - Barriers (city wards):other","General - Artifacts:other","General - Sun’s Heart Artifact:other","Vault combination:pick","Places - Continent (macro backdrop):other","Places - Guild of Adventurers:other","Adventurer:other","Adventurer's Guild:other","World - Primer:other","Places - Xentar:other","General - Magic:other","Races - Humans:other"]}
+10/15 inject_script ok 5ms
+11/15 eval ok 12231ms
+11/15 eval -> {"triggered":"Ponticius","foreignDryScan":"armed"}
+12/15 wait ok 1537ms
+13/15 eval ok 4ms
+13/15 eval -> {"T12c":"pick survived the foreign dry scan: T12c not built","forced":["Vault combination"],"lost":[],"dryScans":2}
+14/15 wait ok 30104ms
+15/15 eval ok 5ms
+15/15 eval -> {"judge":"restored"}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T01-18-54-385Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 15,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-22f8addb"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-24@22h17m47s886ms",
+    "owned": [
+      "2026-09-24@22h17m47s886ms"
+    ],
+    "deleted": [
+      "2026-09-24@22h17m47s886ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@22h17m47s886ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

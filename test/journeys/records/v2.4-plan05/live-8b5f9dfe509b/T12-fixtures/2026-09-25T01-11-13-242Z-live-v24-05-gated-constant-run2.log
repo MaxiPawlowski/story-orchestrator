@@ -1,0 +1,68 @@
+1/7 import_story ok 1476ms
+2/7 eval ok 6ms
+2/7 eval -> {"checkpoint":"cp1"}
+3/7 ui ok 174ms
+4/7 send ok 1691ms
+5/7 eval ok 14279ms
+5/7 eval -> {"narrator":["CP1 - Scenario","CP1 - Mission"],"scans":1,"rendered":true}
+6/7 eval ok 12408ms
+6/7 eval -> {"arin":["CP1 - Scenario"],"filteredOut":"CP1 - Mission","flags":0}
+7/7 wait ok 30239ms
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T01-13-12-457Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 7,
+  "cleanup": {
+    "removedStoryHashes": [],
+    "keptPreExistingStories": [
+      "v2-ea8a94f1"
+    ],
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-24@22h12m07s540ms",
+    "owned": [
+      "2026-09-24@22h12m07s540ms"
+    ],
+    "deleted": [
+      "2026-09-24@22h12m07s540ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@22h12m07s540ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

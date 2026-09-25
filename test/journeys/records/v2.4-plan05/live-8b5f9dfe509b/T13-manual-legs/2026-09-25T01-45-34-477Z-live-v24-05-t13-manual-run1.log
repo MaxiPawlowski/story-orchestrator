@@ -1,0 +1,167 @@
+1/51 inject_script ok 5ms
+2/51 inject_script ok 6ms
+3/51 eval ok 171ms
+3/51 eval -> {"book":"SO-T13 Xentar","sticky":"CP1 - Scenario = 3","vectorized":["CP4 - Sphinx","CP2 - Scenario"]}
+4/51 import_story ok 292ms
+5/51 import_story ok 378ms
+6/51 eval ok 5ms
+6/51 eval -> {"A":{"groupId":"1759606632088","chatId":"2026-09-24@22h45m35s424ms"},"path":["cp1"]}
+7/51 ui ok 196ms
+8/51 eval ok 5ms
+8/51 eval -> {"before":0}
+9/51 send_generate ok 41155ms
+10/51 eval ok 13ms
+10/51 eval -> {"fired":["Places - Continent (macro backdrop)","Places - Xentar","Places - Guild of Adventurers","CP1 - Scenario","General - Artifacts","Races - Humans","General - Sun’s Heart Artifact","General - Barriers (city wards)"],"probe":{"label":"file: after the first real turn at cp1","mode":"file","chatLength":5,"scanHash":4021784051273102,"scanDisable":false,"sticky":{"hash":4021784051273102,"start":2,"end":5,"protected":false},"hashMatches":true}}
+11/51 slash ok 3338ms
+12/51 eval ok 11ms
+12/51 eval -> {"path":["cp1","cp-4a"],"start":{"mode":"file","collectionId":"world_2471461555232207","purged":true,"vectors":{"enabled_world_info":true,"source":"transformers"}}}
+13/51 send_generate ok 63656ms
+14/51 eval ok 4ms
+14/51 eval -> {"leg":"A1","fired":["CP1 - Scenario","CP4 - Sphinx","CP4 - Scenario"],"forcedByVectors":["CP4 - Sphinx","CP4 - Sphinx","CP4 - Sphinx"],"counters":{"insert":2,"delete":0}}
+15/51 wait ok 115123ms
+16/51 solo_chat ok 655ms
+17/51 eval ok 256ms
+17/51 eval -> {"B":{"avatar":"Arin.png","chatId":"Arin - 2026-09-24@22h49m20s174ms"},"path":["cp1"]}
+18/51 send_generate ok 16482ms
+19/51 eval ok 4ms
+19/51 eval -> {"leg":"B1","fired":["CP1 - Scenario"],"forcedByVectors":[],"counters":{"insert":4,"delete":1}}
+20/51 wait ok 24808ms
+21/51 solo_chat ok 197ms
+22/51 eval ok 4030ms
+22/51 eval -> {"before":0}
+23/51 send_generate ok 78104ms
+24/51 eval ok 5ms
+24/51 eval -> {"leg":{"leg":"A2","fired":["CP1 - Scenario","CP4 - Sphinx","CP4 - Scenario"],"forcedByVectors":["CP4 - Sphinx","CP4 - Sphinx","CP4 - Sphinx"],"counters":{"insert":6,"delete":1}},"result":{"mode":"file","insert":6,"delete":1,"onFired":true,"offLeaked":0,"legs":3}}
+25/51 wait ok 106238ms
+26/51 eval ok 2516ms
+26/51 eval -> {"gatingMode":"scan"}
+27/51 reload ok 6179ms
+28/51 inject_script ok 7ms
+29/51 inject_script ok 7ms
+30/51 eval ok 4035ms
+30/51 eval -> {"capability":{"state":"present","detail":"the handler ran on a probe scan"},"normalized":{"SO-T13 Xentar":["CP1 - Mission","CP1 - Scenario","CP2 - Mission","CP2 - Scenario","CP3 - Luke","CP4 - Scenario","CP4 - Sphinx","CP4 - Sphinx's Riddle","General - Magic"]},"probe":{"label":"scan: after the switch and normalisation, before a turn","mode":"scan","chatLength":13,"scanHash":4021784051273102,"scanDisable":false,"sticky":{"hash":4021784051273102,"start":13,"end":16,"protected":false},"hashMatches":true}}
+31/51 eval ok 5ms
+31/51 eval -> {"before":0}
+32/51 send_generate ok 22123ms
+33/51 eval ok 17ms
+33/51 eval -> {"fired":["General - Barriers (city wards)","General - Artifacts","General - Sun’s Heart Artifact","Races - Humans","CP4 - Sphinx","Places - Continent (macro backdrop)","CP1 - Scenario","CP1 - Mission","CP4 - Scenario","CP4 - Sphinx's Riddle","Places - Sun Ruins (workshops district)"],"cp1Scenario":true,"probe":{"label":"scan: after the first real turn in scan mode","mode":"scan","chatLength":15,"scanHash":4021784051273102,"scanDisable":false,"sticky":{"hash":4021784051273102,"start":13,"end":16,"protected":false},"hashMatches":true}}
+34/51 eval ok 122ms
+34/51 eval -> {"mode":"scan","collectionId":"world_2471461555232207","purged":true,"vectors":{"enabled_world_info":true,"source":"transformers"}}
+35/51 send_generate ok 48191ms
+36/51 eval ok 5ms
+36/51 eval -> {"leg":"A1","fired":["CP1 - Scenario","CP4 - Sphinx","CP4 - Scenario"],"forcedByVectors":["CP4 - Sphinx","CP4 - Sphinx"],"counters":{"insert":2,"delete":0}}
+37/51 eval ok 4096ms
+37/51 eval -> {"before":0}
+38/51 send_generate ok 22089ms
+39/51 eval ok 5ms
+39/51 eval -> {"leg":"B1","fired":["CP1 - Scenario"],"forcedByVectors":[],"counters":{"insert":3,"delete":1}}
+40/51 eval ok 4184ms
+40/51 eval -> {"before":0}
+41/51 send_generate ok 44605ms
+42/51 eval ok 9ms
+42/51 eval -> {"leg":{"leg":"A2","fired":["CP4 - Sphinx","CP1 - Scenario","CP4 - Scenario"],"forcedByVectors":["CP4 - Sphinx","CP4 - Sphinx"],"counters":{"insert":5,"delete":1}},"result":{"mode":"scan","insert":5,"delete":1,"onFired":true,"offLeaked":0,"legs":3}}
+43/51 wait ok 42572ms
+44/51 solo_chat ok 562ms
+45/51 eval ok 269ms
+45/51 eval -> {"restingMagicOnDisk":true,"adversarial":"General - Magic set enabled on disk","magicInScanView":{"disable":true},"candidates":["General - Barriers (city wards)","Places - Sun Ruins (workshops district)","Places - Xentar","Places - Guild of Adventurers","General - Artifacts","General - Sun’s Heart Artifact","Races - Humans","Places - Continent (macro backdrop)"],"magicIsCandidate":false,"controlIsCandidate":true}
+46/51 send_generate ok 18513ms
+47/51 eval ok 715ms
+47/51 eval -> {"fired":["Places - Guild of Adventurers","CP1 - Scenario","Places - Xentar","General - Artifacts","General - Sun’s Heart Artifact"],"magicLanded":false,"controlLanded":true,"judgePicks":[],"judgeQuestions":8,"judgeFallback":null,"magicPicked":false}
+48/51 wait ok 18199ms
+49/51 wait ok 3152ms
+50/51 solo_chat ok 165ms
+51/51 eval ok 2013ms
+51/51 eval -> {"record":{"chats":{"A":{"groupId":"1759606632088","chatId":"2026-09-24@22h45m35s424ms"},"B":{"avatar":"Arin.png","chatId":"Arin - 2026-09-24@22h49m20s174ms"},"S":{"avatar":"Ponticius.png","chatId":"Ponticius - 2026-09-24@22h56m31s769ms"}},"startedAt":"2026-09-25T01:45:35.810Z","S9":[{"label":"file: after the first real turn at cp1","mode":"file","chatLength":5,"scanHash":4021784051273102,"scanDisable":false,"sticky":{"hash":4021784051273102,"start":2,"end":5,"protected":false},"hashMatches":true},{"label":"scan: after the switch and normalisation, before a turn","mode":"scan","chatLength":13,"scanHash":4021784051273102,"scanDisable":false,"sticky":{"hash":4021784051273102,"start":13,"end":16,"protected":false},"hashMatches":true},{"label":"scan: after the first real turn in scan mode","mo
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T01-57-19-616Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 51,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-6991dbd7",
+      "v2-f7c61ac5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [
+        "Arin - 2026-09-24@22h49m20s174ms",
+        "Ponticius - 2026-09-24@22h56m31s769ms"
+      ],
+      "leaked": [],
+      "results": [
+        {
+          "chatId": "Arin - 2026-09-24@22h49m20s174ms",
+          "gone": true
+        },
+        {
+          "chatId": "Ponticius - 2026-09-24@22h56m31s769ms",
+          "gone": true
+        }
+      ]
+    },
+    "activeEntity": {
+      "captured": true,
+      "before": {
+        "character": null,
+        "group": "1759606632088"
+      },
+      "found": {
+        "character": "Ponticius.png",
+        "group": null
+      },
+      "after": {
+        "character": null,
+        "group": "1759606632088"
+      },
+      "restored": true,
+      "saved": {
+        "status": 200
+      }
+    },
+    "sandboxChatId": "2026-09-24@22h45m35s424ms",
+    "owned": [
+      "2026-09-24@22h45m35s424ms"
+    ],
+    "deleted": [
+      "2026-09-24@22h45m35s424ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@22h45m35s424ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

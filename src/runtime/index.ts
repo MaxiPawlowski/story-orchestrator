@@ -218,14 +218,22 @@ export function startRuntime() {
   });
   runtimeDisposers.push(() => { scanGatingDisposed = true; scanGating?.dispose(); scanGating = null; });
   let loreAwaitsMessage = false;
+  let loreAwaitsIntercept = false;
   const selectLore = (trigger: "MESSAGE_SENT" | "GENERATION_STARTED") => lore.select(trigger)
     .then((selection) => { if (selection) loreWatch.forced(selection.picks); })
     .catch((error) => console.warn("[Story Orchestrator] lore-select failed", error));
   const onLoreGenerationStarted = async (type: string | undefined, params: Record<string, unknown> | undefined, dryRun: boolean | undefined) => {
     loreAwaitsMessage = false;
-    if (!lore.active() || dryRun || type === "quiet" || params?.quiet_prompt) return;
+    if (dryRun || type === "quiet" || params?.quiet_prompt) return;
+    loreAwaitsIntercept = false;
+    if (!lore.active()) return;
     if (willAddUserMessage(type, params, dryRun)) loreAwaitsMessage = true;
-    else await selectLore("GENERATION_STARTED");
+    else loreAwaitsIntercept = true;
+  };
+  const onLoreIntercept = async (type: string, aborted: boolean) => {
+    if (type === "quiet" || !loreAwaitsIntercept) return;
+    loreAwaitsIntercept = false;
+    if (!aborted) await selectLore("GENERATION_STARTED");
   };
   const talkHost: TalkControlHost = {
     isGroupChat: () => Boolean(getActiveGroup()),
@@ -255,7 +263,11 @@ export function startRuntime() {
     ownership: runtimeManager.getOwnership(),
   };
   talkController = new TalkController(talkHost);
-  globalThis.talkControlInterceptor = (_chat, _contextSize, abort, type) => talkController?.intercept(abort, type);
+  globalThis.talkControlInterceptor = async (_chat, _contextSize, abort, type) => {
+    let aborted = false;
+    await talkController?.intercept((immediate) => { aborted = true; abort(immediate); }, type);
+    await onLoreIntercept(type, aborted);
+  };
   const generation = new GenerationLifecycle(isTurnMessageType);
   const applyGeneration = (intents: GenerationIntent[]) => {
     for (const intent of intents) {

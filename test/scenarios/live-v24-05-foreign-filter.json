@@ -1,5 +1,5 @@
 {
-  "_note": "v2.4 plan 05 T12 live, the foreign-scan-filter Repair (real LLM; so-scenario run <file> --sandbox --group <the sun-ruins group>, twice). test/fixtures/interop/wi-foreign.js splices every 'Xentar Checkpoints' entry out of WORLDINFO_ENTRIES_LOADED (05-H2), which is what a scan-filtering extension does. After TWO loud generations the Repair step must read 'Another extension is hiding this story's lorebook from the model.' naming the book and no extension; after ONE it must not (the predeclared two-generation rule). The splicer is then removed, and one more generation must clear the step. The last step removes the splicer whatever happened.",
+  "_note": "v2.4 plan 05 T12 live, the foreign-scan-filter Repair (real LLM; so-scenario run <file> --sandbox --group <the sun-ruins group>, twice). test/fixtures/interop/wi-foreign.js splices every 'Xentar Checkpoints' entry out of WORLDINFO_ENTRIES_LOADED (05-H2), which is what a scan-filtering extension does. After TWO loud generations the Repair step must read 'Another extension is hiding this story's lorebook from the model.' naming the book and no extension; after ONE it must not (the predeclared two-generation rule). The splicer is then removed, and one more generation must clear the step. Each generation is one /trigger of one member, so 'one generation' is exactly one: the first live runs used a player send, and in a group one send drafted two members, which is two loud generations (run 2 of 2026-09-25 read hidden after 'one' send, correctly). The first eval removes any earlier run's listeners, and the last step removes the splicer whatever happened.",
   "steps": [
     {
       "import_story": {
@@ -7,7 +7,7 @@
       }
     },
     {
-      "eval": "const rt = globalThis.storyOrchestratorRuntime; for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; if (!rt.getSnapshot().requirements.ready) throw new Error(`requirements not ready: ${JSON.stringify(rt.getSnapshot().requirements)}`); if (rt.getSnapshot().loreEvidence?.hiddenBooks?.length) throw new Error('a book already reads hidden before the splicer is installed'); return { ready: true };",
+      "eval": "if (globalThis.__soWiForeign) globalThis.__soWiForeign.off(); const rt = globalThis.storyOrchestratorRuntime; for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; if (!rt.getSnapshot().requirements.ready) throw new Error(`requirements not ready: ${JSON.stringify(rt.getSnapshot().requirements)}`); if (rt.getSnapshot().loreEvidence?.hiddenBooks?.length) throw new Error('a book already reads hidden before the splicer is installed'); return { ready: true };",
       "log": true
     },
     {
@@ -26,23 +26,12 @@
       "send": "I look around the guild hall."
     },
     {
-      "wait": {
-        "idle": true,
-        "timeoutMs": 300000
-      }
-    },
-    {
-      "eval": "const snapshot = globalThis.storyOrchestratorRuntime.getSnapshot(); if (globalThis.__soWiForeign.state.spliced < 1) throw new Error('the splicer removed nothing, so the case measures nothing'); if (snapshot.loreEvidence?.hiddenBooks?.length) throw new Error(`reported hidden after ONE generation, below the predeclared two: ${JSON.stringify(snapshot.loreEvidence.hiddenBooks)}`); return { afterOne: 'not yet reported', spliced: globalThis.__soWiForeign.state.spliced };",
+      "eval": "const trig = async (name) => { const ev = globalThis.storyOrchestratorLoreEvidence; const before = ev.slotsForChat().length; await SillyTavern.getContext().executeSlashCommandsWithOptions(`/trigger await=true \"${name}\"`, { handleParserErrors: false }); for (let i = 0; i < 240 && ev.slotsForChat().length <= before; i += 1) await new Promise((resolve) => setTimeout(resolve, 500)); return ev.slotsForChat().length - before; }; const added = await trig('Arin'); const snapshot = globalThis.storyOrchestratorRuntime.getSnapshot(); if (added !== 1) throw new Error(`expected exactly one loud generation from one /trigger, saw ${added}`); if (globalThis.__soWiForeign.state.spliced < 1) throw new Error('the splicer removed nothing, so the case measures nothing'); if (snapshot.loreEvidence?.hiddenBooks?.length) throw new Error(`reported hidden after ONE generation, below the predeclared two: ${JSON.stringify(snapshot.loreEvidence.hiddenBooks)}`); return { afterOne: 'not yet reported', generations: added, spliced: globalThis.__soWiForeign.state.spliced };",
       "log": true
     },
     {
-      "send": "I ask Arin whether he has seen the mission board."
-    },
-    {
-      "wait": {
-        "idle": true,
-        "timeoutMs": 300000
-      }
+      "eval": "const trig = async (name) => { const ev = globalThis.storyOrchestratorLoreEvidence; const before = ev.slotsForChat().length; await SillyTavern.getContext().executeSlashCommandsWithOptions(`/trigger await=true \"${name}\"`, { handleParserErrors: false }); for (let i = 0; i < 240 && ev.slotsForChat().length <= before; i += 1) await new Promise((resolve) => setTimeout(resolve, 500)); return ev.slotsForChat().length - before; }; const added = await trig('Arin'); const snapshot = globalThis.storyOrchestratorRuntime.getSnapshot(); if (added !== 1) throw new Error(`expected exactly one loud generation from one /trigger, saw ${added}`); if (!(snapshot.loreEvidence?.hiddenBooks ?? []).includes('Xentar Checkpoints')) throw new Error(`the hidden book is not reported after two generations: ${JSON.stringify(snapshot.loreEvidence)}`); return { afterTwo: snapshot.loreEvidence.hiddenBooks };",
+      "log": true
     },
     {
       "expect_ui": {
@@ -52,21 +41,18 @@
       }
     },
     {
-      "eval": "const snapshot = globalThis.storyOrchestratorRuntime.getSnapshot(); if (!(snapshot.loreEvidence?.hiddenBooks ?? []).includes('Xentar Checkpoints')) throw new Error(`the hidden book is not reported after two generations: ${JSON.stringify(snapshot.loreEvidence)}`); globalThis.__soWiForeign.off(); return { hidden: snapshot.loreEvidence.hiddenBooks, splicer: 'removed' };",
+      "eval": "const trig = async (name) => { const ev = globalThis.storyOrchestratorLoreEvidence; const before = ev.slotsForChat().length; await SillyTavern.getContext().executeSlashCommandsWithOptions(`/trigger await=true \"${name}\"`, { handleParserErrors: false }); for (let i = 0; i < 240 && ev.slotsForChat().length <= before; i += 1) await new Promise((resolve) => setTimeout(resolve, 500)); return ev.slotsForChat().length - before; }; globalThis.__soWiForeign.off(); const added = await trig('Arin'); const snapshot = globalThis.storyOrchestratorRuntime.getSnapshot(); if (!added) throw new Error('no loud generation after the splicer was removed'); if (snapshot.loreEvidence?.hiddenBooks?.length) throw new Error(`the Repair step outlived the splicer: ${JSON.stringify(snapshot.loreEvidence.hiddenBooks)}`); return { cleared: true, generations: added };",
       "log": true
     },
     {
-      "send": "We walk over to the board together."
+      "eval": "if (globalThis.__soWiForeign) globalThis.__soWiForeign.off(); return { splicer: 'removed' };"
     },
     {
       "wait": {
-        "idle": true,
-        "timeoutMs": 300000
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 240000
       }
-    },
-    {
-      "eval": "const snapshot = globalThis.storyOrchestratorRuntime.getSnapshot(); if (globalThis.__soWiForeign) globalThis.__soWiForeign.off(); if (snapshot.loreEvidence?.hiddenBooks?.length) throw new Error(`the Repair step outlived the splicer: ${JSON.stringify(snapshot.loreEvidence.hiddenBooks)}`); return { cleared: true };",
-      "log": true
     }
   ]
 }

@@ -1,0 +1,156 @@
+1/50 inject_script ok 6ms
+2/50 eval ok 314ms
+2/50 eval -> {"books":"copied","bulk":500}
+3/50 import_story ok 292ms
+4/50 import_story ok 772ms
+5/50 import_story ok 317ms
+6/50 import_story ok 290ms
+7/50 eval ok 6ms
+7/50 eval -> {"groupId":"1759606632088","chatId":"2026-09-24@22h29m20s295ms"}
+8/50 slash ok 1701ms
+9/50 eval ok 4ms
+9/50 eval -> {"pathA":["cp1","cp-4a"]}
+10/50 wait ok 3143ms
+11/50 solo_chat ok 686ms
+12/50 eval ok 249ms
+12/50 eval -> {"B":{"avatar":"Arin.png","chatId":"Arin - 2026-09-24@22h29m27s603ms"},"pathB":["cp1"]}
+13/50 wait ok 3154ms
+14/50 solo_chat ok 117ms
+15/50 wait ok 3180ms
+16/50 solo_chat ok 762ms
+17/50 eval ok 253ms
+17/50 eval -> {"C":{"avatar":"Ponticius.png","chatId":"Ponticius - 2026-09-24@22h29m35s057ms"},"pathC":["c1"]}
+18/50 wait ok 3177ms
+19/50 solo_chat ok 111ms
+20/50 wait ok 3183ms
+21/50 solo_chat ok 777ms
+22/50 eval ok 6ms
+22/50 eval -> {"none":{"avatar":"Luke.png","chatId":"Luke - 2026-09-24@22h29m42s561ms"}}
+23/50 wait ok 3161ms
+24/50 solo_chat ok 106ms
+25/50 eval ok 2521ms
+25/50 eval -> {"gatingMode":"scan","note":"takes effect at the next startRuntime (the reload below)"}
+26/50 reload ok 5549ms
+27/50 inject_script ok 5ms
+28/50 eval ok 4ms
+28/50 eval -> {"capability":{"state":"present","detail":"the handler ran on a probe scan"}}
+29/50 eval ok 10ms
+29/50 eval -> {"S3":"pass (growth measured next)","firstWrites":0,"firstEdits":0,"secondWrites":0,"secondEdits":0,"changedOutside":[],"gatedNotOff":[],"gatedOtherwiseChanged":[]}
+30/50 eval ok 5ms
+30/50 eval -> {"S3ledger":{"SO-T13 Xentar":["CP1 - Mission","CP1 - Scenario","CP2 - Mission","CP2 - Scenario","CP3 - Luke","CP4 - Scenario","CP4 - Sphinx","CP4 - Sphinx's Riddle","Places - Moon Ruins (archives district)","Places - Xentar"],"SO-T13 Bulk":["Bulk 000","Bulk 001","Bulk 002","Bulk 003","Bulk 004","Bulk 005","Bulk 006","Bulk 007","Bulk 008","Bulk 009","Bulk 010","Bulk 011","Bulk 012","Bulk 013","Bulk 014","Bulk 015","Bulk 016","Bulk 017","Bulk 018","Bulk 019","Bulk 020","Bulk 021","Bulk 022","Bulk 023","Bulk 024","Bulk 025","Bulk 026","Bulk 027","Bulk 028","Bulk 029","Bulk 030","Bulk 031","Bulk 032","Bulk 033","Bulk 034","Bulk 035","Bulk 036","Bulk 037","Bulk 038","Bulk 039","Bulk 040","Bulk 041","Bulk 042","Bulk 043","Bulk 044","Bulk 045","Bulk 046","Bulk 047","Bulk 048","Bulk 049","Bulk 050
+31/50 eval ok 672ms
+31/50 eval -> {"S3":"pass","growth":{"added":["General - Magic"],"flipped":{"SO-T13 Xentar":["General - Magic"]},"edits":1}}
+32/50 eval ok 19ms
+32/50 eval -> {"S1":"every normalised gated entry forced ON on disk","entries":11}
+33/50 eval ok 4226ms
+33/50 eval -> {"label":"S1a no-story chat","gated":261,"matched":11,"wrong":[],"unseen":["so-t13 bulk|Bulk 000","so-t13 bulk|Bulk 001","so-t13 bulk|Bulk 002","so-t13 bulk|Bulk 003","so-t13 bulk|Bulk 004","so-t13 bulk|Bulk 005","so-t13 bulk|Bulk 006","so-t13 bulk|Bulk 007","so-t13 bulk|Bulk 008","so-t13 bulk|Bulk 009","so-t13 bulk|Bulk 010","so-t13 bulk|Bulk 011","so-t13 bulk|Bulk 012","so-t13 bulk|Bulk 013","so-t13 bulk|Bulk 014","so-t13 bulk|Bulk 015","so-t13 bulk|Bulk 016","so-t13 bulk|Bulk 017","so-t13 bulk|Bulk 018","so-t13 bulk|Bulk 019","so-t13 bulk|Bulk 020","so-t13 bulk|Bulk 021","so-t13 bulk|Bulk 022","so-t13 bulk|Bulk 023","so-t13 bulk|Bulk 024","so-t13 bulk|Bulk 025","so-t13 bulk|Bulk 026","so-t13 bulk|Bulk 027","so-t13 bulk|Bulk 028","so-t13 bulk|Bulk 029","so-t13 bulk|Bulk 030","so-t13 bulk
+34/50 send_generate ok 11322ms
+35/50 send_generate ok 17445ms
+36/50 send_generate ok 20584ms
+37/50 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: S1 FAIL (a) ring: gated entries fired in a no-story chat: ["Places - Xentar","General - Magic","Places - Xentar","General - Magic"]
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:670)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:788)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T01-30-48-713Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T01-30-53-838Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 37,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-2adf4999",
+      "v2-2eebd920",
+      "v2-b573019c",
+      "v2-f7c61ac5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [
+        "Arin - 2026-09-24@22h29m27s603ms",
+        "Ponticius - 2026-09-24@22h29m35s057ms",
+        "Luke - 2026-09-24@22h29m42s561ms"
+      ],
+      "leaked": [],
+      "results": [
+        {
+          "chatId": "Arin - 2026-09-24@22h29m27s603ms",
+          "gone": true
+        },
+        {
+          "chatId": "Ponticius - 2026-09-24@22h29m35s057ms",
+          "gone": true
+        },
+        {
+          "chatId": "Luke - 2026-09-24@22h29m42s561ms",
+          "gone": true
+        }
+      ]
+    },
+    "activeEntity": {
+      "captured": true,
+      "before": {
+        "character": null,
+        "group": "1759606632088"
+      },
+      "found": {
+        "character": "Luke.png",
+        "group": null
+      },
+      "after": {
+        "character": null,
+        "group": "1759606632088"
+      },
+      "restored": true,
+      "saved": {
+        "status": 200
+      }
+    },
+    "sandboxChatId": "2026-09-24@22h29m20s295ms",
+    "owned": [
+      "2026-09-24@22h29m20s295ms"
+    ],
+    "deleted": [
+      "2026-09-24@22h29m20s295ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@22h29m20s295ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}
