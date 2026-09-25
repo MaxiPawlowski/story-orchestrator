@@ -1,7 +1,7 @@
 import { chromium, type Browser, type Page } from 'playwright';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { resolve, dirname } from 'node:path';
+import { resolve, dirname, relative, isAbsolute } from 'node:path';
 
 const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 
@@ -13,6 +13,17 @@ const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..'
 export function debugDirFor(env: NodeJS.ProcessEnv, root: string = PROJECT_ROOT): string {
   const configured = String(env.SO_DEBUG_DIR ?? "").trim();
   return configured ? resolve(root, configured) : resolve(root, ".debug");
+}
+
+export function browserProfileFor(env: NodeJS.ProcessEnv, debugDir: string, root: string = PROJECT_ROOT): string {
+  const configured = String(env.ST_DEBUG_PROFILE_DIR ?? "").trim();
+  if (configured) return resolve(configured);
+  const stRoot = resolve(root, "..", "..", "..", "..", "..");
+  const fromServed = relative(resolve(stRoot, "public"), debugDir);
+  const served = fromServed !== "" && !fromServed.startsWith("..") && !isAbsolute(fromServed);
+  if (!served) return resolve(debugDir, "chromium-profile");
+  const lanesRoot = String(env.SO_LANES_ROOT ?? "").trim();
+  return resolve(lanesRoot ? resolve(lanesRoot) : resolve(stRoot, "..", "so-lanes"), "0", "chromium-profile");
 }
 
 const DEBUG_DIR = debugDirFor(process.env);

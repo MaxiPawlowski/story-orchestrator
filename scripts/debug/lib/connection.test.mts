@@ -7,9 +7,24 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
-import { debugDirFor, settleDialogs } from './connection.mts';
+import { browserProfileFor, debugDirFor, settleDialogs } from './connection.mts';
 
 const ROOT = resolve('C:/dev/SillyTavern-MainBranch/public/scripts/extensions/third-party/story-orchestrator');
+
+test('the browser profile never sits under ST public/, which ST serves to the network', () => {
+  const profile = browserProfileFor({}, resolve(ROOT, '.debug'), ROOT);
+  assert.equal(profile, resolve('C:/dev/so-lanes/0/chromium-profile'));
+  assert.ok(!profile.split(/[\\/]/).includes('public'));
+});
+
+test('a lane debug dir outside the served tree keeps its profile beside it', () => {
+  assert.equal(browserProfileFor({}, resolve('C:/dev/so-lanes/2/debug'), ROOT), resolve('C:/dev/so-lanes/2/debug/chromium-profile'));
+});
+
+test('ST_DEBUG_PROFILE_DIR and SO_LANES_ROOT override the default', () => {
+  assert.equal(browserProfileFor({ ST_DEBUG_PROFILE_DIR: 'D:/profiles/so' }, resolve(ROOT, '.debug'), ROOT), resolve('D:/profiles/so'));
+  assert.equal(browserProfileFor({ SO_LANES_ROOT: 'E:/lanes' }, resolve(ROOT, '.debug'), ROOT), resolve('E:/lanes/0/chromium-profile'));
+});
 
 test('an unset or blank SO_DEBUG_DIR keeps the historical directory', () => {
   assert.equal(debugDirFor({}, ROOT), resolve(ROOT, '.debug'));

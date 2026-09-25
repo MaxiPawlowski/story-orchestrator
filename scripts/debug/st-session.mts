@@ -3,7 +3,7 @@ import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
-import { clearSession, DEBUG_DIR, DEFAULT_CDP_PORT, DEFAULT_ST_URL, DEFAULT_TIMEOUT_MS, getSessionStatus, SESSION_PATH, writeSession } from './lib/connection.mts';
+import { browserProfileFor, clearSession, DEBUG_DIR, DEFAULT_CDP_PORT, DEFAULT_ST_URL, DEFAULT_TIMEOUT_MS, getSessionStatus, SESSION_PATH, writeSession } from './lib/connection.mts';
 import { ensureSTReady } from './lib/st-ready.mts';
 
 const USAGE = `Usage: node scripts/debug/st-session.mts <start|stop|status|reload> [--headed]
@@ -103,7 +103,7 @@ async function runStarter() {
   const stUrl = argValue('--st-url', DEFAULT_ST_URL);
   const port = Number(argValue('--port', DEFAULT_CDP_PORT));
   const cdpEndpoint = `http://127.0.0.1:${port}`;
-  const userDataDir = resolve(DEBUG_DIR, 'chromium-profile');
+  const userDataDir = browserProfileFor(process.env, DEBUG_DIR);
   await mkdir(userDataDir, { recursive: true });
 
   const chromeArgs = [
