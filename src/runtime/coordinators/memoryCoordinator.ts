@@ -72,7 +72,7 @@ export interface MemoryCoordinatorDeps {
 // consolidation, World Info mirroring and prompt injection. The manager keeps the persist
 // boundary — this class only mutates the slice and asks for a save.
 export class MemoryCoordinator {
-  private readonly injector = new MemoryInjector({
+  readonly injector = new MemoryInjector({
     getStory: () => this.deps.getStory(),
     getState: () => this.deps.getState(),
     memory: () => this.state,

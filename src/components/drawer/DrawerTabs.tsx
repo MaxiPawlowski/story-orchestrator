@@ -10,6 +10,7 @@ import PlayerOverview from "./PlayerOverview";
 import StagecraftPanel from "./StagecraftPanel";
 import ScenePanel from "./ScenePanel";
 import { NextTurnPanel, type NextTurnOwnerTab } from "./NextTurnPanel";
+import { FATE_LABELS } from "./memoryFate";
 
 
 export type DrawerTabId = "overview" | "blackboard" | "memory" | "scheduler" | "payload";
@@ -341,6 +342,7 @@ const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapshot: Run
                       {/* v2.3 plan 05: a legacy envelope is a STATED unknown, not a read — showing "legacy"
                           would dress it as an extractor source the row never had. */}
                       {authorView && <span data-so="memory-origin" title={originTitle(entry)}>{originLabel(entry.provenance)}</span>}
+                      {authorView && snapshot.memoryInjection?.fates[entry.id] && <span data-so="memory-fate" data-fate={snapshot.memoryInjection.fates[entry.id]}>{FATE_LABELS[snapshot.memoryInjection.fates[entry.id]]}</span>}
                       <button className="menu_button" onClick={() => void manager.setMemoryPinned(entry.id, !entry.pinned)}>{entry.pinned ? "Unpin" : "Pin"}</button>
                       {authorView && <button className="menu_button" data-so="memory-lock" title="Lock: freeze this as the story's truth. No extraction or consolidation may retire it, and a contradicting claim goes to the queue you decide." onClick={() => void manager.memoryActions.setMemoryLocked(entry.id, !entry.locked)}>{entry.locked ? "Unlock" : "Lock"}</button>}
                       <button className="menu_button" onClick={() => startEdit(entry.id, entry.text)}>Edit</button>

@@ -2,7 +2,7 @@ import type { AgencyPolicy, ArcTemplate, EngineState, NormalizedStoryV2, Primiti
 import type { JudgeCallRecord, JudgeMeterView, JudgeRuntimeState, SceneReadRecord } from "@judge/index";
 import type { ExtractionHealth, ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
-import type { ConflictPair, ArcEntry, DerivedRecord, EpistemicEntry, LedgerEntry, LedgerView, MemoryEntry, MemoryStoreState, MemoryTier, Provenance, ScoreWeights } from "@memory/index";
+import type { ConflictPair, ArcEntry, DerivedRecord, EpistemicEntry, LedgerEntry, LedgerView, MemoryEntry, MemoryInjectionView, MemoryStoreState, MemoryTier, Provenance, ScoreWeights } from "@memory/index";
 import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
 import type { CuratorPassAudit, CuratorProposalRecord, StagecraftAcceptMode } from "@stagecraft/index";
@@ -415,6 +415,8 @@ export interface RuntimeSnapshot {
   lastRollback: RollbackNotice | null;
   rollbackUnavailable: RollbackUnavailable | null;
   ledger: LedgerView[];
+  /** v2.4 plan 08 T19c: each memory row's fate and each tier's trim, from the last injection (author view, in memory only). */
+  memoryInjection: MemoryInjectionView | null;
   driver: DriverContext | null;
   activeNudge: string | null;
   payloadCaptures: PayloadCapture[];

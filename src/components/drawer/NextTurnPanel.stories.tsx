@@ -87,3 +87,26 @@ export const ForeignBlocks: Story = {
     await expect(group.querySelectorAll("button").length).toBe(0);
   },
 };
+
+export const MemoryTrim: Story = {
+  args: {
+    snapshot: {
+      ...snapshotWith(host, BUDGET),
+      memoryInjection: {
+        fates: {},
+        trim: {
+          facts: { candidates: 5, injected: 3, dropped: 2, tokensUsed: 380, budget: 400, hostCounted: 3, filtered: 1, highWater: 400 },
+          session_details: { candidates: 0, injected: 0, dropped: 0, tokensUsed: 0, budget: 400, hostCounted: 0, filtered: 0, highWater: 0 },
+          short_term: { candidates: 0, injected: 0, dropped: 0, tokensUsed: 0, budget: 400, hostCounted: 0, filtered: 0, highWater: 0 },
+          scene_history: { candidates: 0, injected: 0, dropped: 0, tokensUsed: 0, budget: 400, hostCounted: 0, filtered: 0, highWater: 0 },
+        },
+      },
+    } as RuntimeSnapshot,
+  },
+  play: async ({ canvasElement }) => {
+    const trim = canvasElement.querySelector('[data-so="next-turn-row"][data-key="story_orchestrator_memory_facts"] [data-so="next-turn-trim"]');
+    await expect(trim).toHaveTextContent("3 of 5 rows · 380 of 400 budget tokens · 2 trimmed · 1 held out before the budget");
+    await expect(trim).toHaveTextContent("this session's largest 400");
+    await expect(canvasElement.querySelector('[data-so="next-turn-row"][data-key="story_orchestrator_pacing"] [data-so="next-turn-trim"]')).toBeNull();
+  },
+};

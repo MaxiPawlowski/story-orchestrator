@@ -1101,3 +1101,50 @@ export const PlayerNeverSeesTheHistoryFloor: Story = {
     await expect(canvasElement.querySelector("#so-history-floor")).toBeNull();
   },
 };
+
+const FATE_ROWS = [
+  ["f-injected", "injected", "The sun-key opens the inner sanctum."],
+  ["f-quarantined", "quarantined", "The gate is sealed by dawn wards."],
+  ["f-superseded", "superseded", "The key is lost."],
+  ["f-folded", "folded", "The key is golden."],
+  ["f-other", "other-speaker", "Kael owes Mara a crossing."],
+  ["f-over", "over-budget", "The dunes shift at night."],
+  ["f-pinned", "pinned-overflow", "The ferryman never lies."],
+] as const;
+
+const fateSnapshot = (authorView: boolean): RuntimeSnapshot => {
+  const snapshot = memorySnapshot() as unknown as { memory: Record<string, unknown>; ui: Record<string, unknown>; memoryInjection: unknown };
+  snapshot.memory = { ...snapshot.memory, entries: FATE_ROWS.map(([id, , text], index) => ({ id, tier: "facts", text, type: "fact", importance: 2, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: "e", createdAt: index, recallCount: 0 })) };
+  snapshot.memoryInjection = { fates: Object.fromEntries(FATE_ROWS.map(([id, fate]) => [id, fate])), trim: {} };
+  snapshot.ui = { ...snapshot.ui, authorView };
+  return derive(snapshot as unknown as RuntimeSnapshot);
+};
+
+export const MemoryFates: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={fateSnapshot(true)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    const badges = [...canvasElement.querySelectorAll('[data-so="memory-fate"]')].map((node) => node.getAttribute("data-fate"));
+    await expect(badges.sort()).toEqual(FATE_ROWS.map(([, fate]) => fate).sort());
+    await expect(canvas.getByText("trimmed: pinned, did not fit")).toBeInTheDocument();
+    await expect(canvas.getByText("held out: another speaker's")).toBeInTheDocument();
+  },
+};
+
+export const PlayerNeverSeesMemoryFates: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={fateSnapshot(false)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await expect(canvasElement.querySelectorAll('[data-so="memory-fate"]').length).toBe(0);
+  },
+};

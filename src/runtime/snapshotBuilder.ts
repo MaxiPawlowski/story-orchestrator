@@ -1,6 +1,6 @@
 import { agencyFor, type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type ValidationError } from "@engine/index";
 import type { DriverContext } from "@copilot/index";
-import { sceneFieldsInConflict, type LedgerView } from "@memory/index";
+import { sceneFieldsInConflict, type LedgerView, type MemoryInjectionView } from "@memory/index";
 import { curatorLorebooks } from "@stagecraft/index";
 import { confirmedSceneFacts, isSceneStale, judgeMeterView } from "@judge/index";
 import { buildConvergenceReadout, buildLastTransition, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot } from "./snapshot";
@@ -37,6 +37,7 @@ export interface SnapshotSources {
   lastRollback: RollbackNotice | null;
   rollbackUnavailable: RollbackUnavailable | null;
   ledger: LedgerView[];
+  memoryInjection?: MemoryInjectionView | null;
   driver: DriverContext | null;
   activeNudge: string | null;
   payloadCaptures: PayloadCapture[];
@@ -169,6 +170,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     lastRollback: sources.lastRollback,
     rollbackUnavailable: sources.rollbackUnavailable,
     ledger: sources.ledger,
+    memoryInjection: sources.memoryInjection ?? null,
     driver: sources.driver,
     activeNudge: sources.activeNudge,
     payloadCaptures: sources.payloadCaptures,

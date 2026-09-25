@@ -511,7 +511,7 @@ export class RuntimeManager {
       openThreads: this.memory.getOpenArcs(),
       canon: this.memory.getCanonProse(),
       ...this.notices,
-      ledger: this.memory.getLedger(),
+      ...this.memory.injector.readModels(),
       driver: this.copilot.getDriverContext(),
       activeNudge: this.copilot.getActiveNudge(),
       payloadCaptures: this.journal.getCaptures(),
