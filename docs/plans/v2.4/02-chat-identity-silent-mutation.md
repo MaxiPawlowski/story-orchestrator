@@ -1279,3 +1279,13 @@ The records are in `test/journeys/records/v2.4-plan02/followups-100696d1d4a0/`.
 With this, all four follow-up checks (E2, E3, E4, E5) are green ×2. E2, E4 and E5 are green on `9b70d79e3b2a`. The code since then touches neither the epistemic render, the mirror marker nor the startup unbind; it touches only `librarySave.ts`, the settings journaling in `runtime/index.ts`, the plan 03 scheduler and the harness.
 
 **Still owed for plan 02 (unchanged):** the downgrade leg. That is `persistenceDowngrade.test.ts` with a captured v2.3 blob, J10.12 and the clean-host run.
+
+### Downgrade leg dropped (2026-09-25, user decision E9)
+
+The user decided: "this plugin has never been released to the public. And i have never used it properly 100%. So, no downgrade leg is needed."
+
+`persistenceDowngrade.test.ts`, the captured v2.3 blob, J10.12 and the clean-host downgrade leg are therefore **not built, by decision**. They are not owed.
+
+With this, every plan 02 item is either built and live-green ×2, or removed by E9 (`00-overview.md` §Decisions 2026-09-24).
+
+Legacy-state migrations are now v2.5 removal candidates.

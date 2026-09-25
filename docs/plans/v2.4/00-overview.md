@@ -368,7 +368,7 @@ consecutive, and `--strict`. It adds:
 |---|---|
 | 00 overview | APPROVED 2026-09-23, reconciled |
 | 01 | built + integrated 2026-09-24; every live item green ×2 on `14402df10a0e` incl. `so-turn-types-check` + lane-0 header diff (0 diffs); open: J6.4/J6.7/J5.8/J8.5 intermittents (not reproduced on final); `01-carry-in.md` §Gate record, Final build |
-| 02 | integrated on master 2026-09-24 (`34227e5`); 13 fixtures red→green ×2, J6/J10 ×2 on `14402df10a0e`; 4 live-found save/drain defects fixed; NOT accepted: downgrade leg (test, v2.3 blob, J10.12, clean-host) not built; `02-chat-identity-silent-mutation.md` §Integration and live gate |
+| 02 | integrated on master 2026-09-24 (`34227e5`); 13 fixtures red→green ×2, J6/J10 ×2 on `14402df10a0e`; follow-ups E2–E5 live ×2; 4 live-found save/drain defects fixed; downgrade leg DROPPED by user decision E9 (never released, no compat needed) — live side complete; `02-chat-identity-silent-mutation.md` §Integration and live gate |
 | 03 | built + integrated 2026-09-24; every live gate green ×2 (final bundle `100696d1d4a0`; gate 3 on `27d0f711bf9b`); 4 live-found defects fixed; `03-off-path-call-hygiene.md` §Final live gates |
 | 04 | built + integrated 2026-09-25 (`e4d69db`); every live gate green ×2 on `9b2f890a5987` (4 fixtures, J3, live suite A/B: plot deltas 22/22, facts 0.727 ≥ 0.68, rejected 0.933/1.0 ≥ 0.9); regex parity not built (rule not met); `04-extraction-input-quality.md` §Live gates |
 | 05 | built + integrated 2026-09-25; live gates green on `8b5f9dfe509b` (J3 ×2, J7, 5 fixtures ×2); T12c built live; T13 spike PASS (S1–S9) → v2.5 `05b` plan awaits the user; mirror key strip not built (nothing to measure); `05-world-info.md` §Live gates, `05-t13-spike-report.md` |
@@ -415,8 +415,9 @@ Each one is reversible, and the user can overturn any row.
 | E6 | H19: another extension's no-op `MESSAGE_UPDATED` is silent for consumed rows | **Keep** | A no-op edit changes no hashed field; rolling back on it rewinds a story for nothing (`turnBridge.ts:203` returns before any rollback). It is not journaled; a refresh that moved nothing leaves nothing to show |
 | E7 | The integrity guard (`81e25e4`) also holds back empty no-integrity saves from ST and other extensions | **Keep** | ST stamps `integrity` on every chat it loads (`script.js:7665-7666`, `group-chats.js:276-278`), so an empty save with no integrity only exists in the switch window where metadata is `{}`. It never blocks a save of a loaded chat, including one whose every message was deleted (that one carries integrity) |
 | E8 | Fault matrix 10th package for host deletes | **Yes**, added in plan 03's fault-matrix edit alongside the `aborted` column, so the count moves once, deliberately | Plan 02's reaper and chat-delete handling have tests but no census row; an uncensused package cannot be `todo` |
+| E9 | Plan 02 downgrade leg (`persistenceDowngrade.test.ts`, captured v2.3 blob, J10.12, clean-host downgrade) | **Dropped (user decision, 2026-09-25).** No downgrade or backward-compatibility work until a public release | User: "this plugin has never been released to the public. And i have never used it properly 100%. So, no downgrade leg is needed." With no installs or saved data in the wild, a v2.4→v2.3 round trip protects nothing. X1's "no blob version bump" existed for downgrade safety, so it no longer binds v2.5, and legacy-state migrations become removal candidates there (v2.5 production-readiness plan) |
 
-Built by plan 02 follow-ups (E2–E5) and plan 03 (E1, E8); each lands in its plan's gate record.
+Built by plan 02 follow-ups (E2–E5) and plan 03 (E1, E8); each lands in its plan's gate record. E9 closes plan 02's last open item by removing it.
 
 ## Reconciliation (2026-09-23, after writing the plan docs)
 
