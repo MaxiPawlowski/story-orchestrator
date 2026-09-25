@@ -1,4 +1,4 @@
-import { DEFAULT_AGENCY, type Checkpoint } from "@engine/index";
+import { DEFAULT_AGENCY, PLAYER_ATTEMPTS_CLAUSE, type Checkpoint } from "@engine/index";
 import { INJECTION_REGISTRY, findInjectionRegistryProblems } from "@constants/injectionRegistry";
 import { composeGuidanceBlock } from "./guidance";
 
@@ -17,6 +17,14 @@ describe("composeGuidanceBlock (v2.4 plan 01, D7)", () => {
 
   it("does not restate the objective: that line is plan 06's, under its own rule", () => {
     expect(composeGuidanceBlock(checkpoint("Let the player wander."), DEFAULT_AGENCY)).not.toContain("Reach the gate.");
+  });
+
+  it("adds the opt-in attempts clause after the guidance, and carries it alone when there is no guidance (v2.4 plan 04, X13)", () => {
+    const attempts = { ...DEFAULT_AGENCY, player_attempts_only: true };
+    expect(composeGuidanceBlock(checkpoint("Let the player wander."), attempts)).toBe(`Scene direction: Let the player wander.\n${PLAYER_ATTEMPTS_CLAUSE}`);
+    expect(composeGuidanceBlock(checkpoint(), attempts)).toBe(PLAYER_ATTEMPTS_CLAUSE);
+    expect(composeGuidanceBlock(null, attempts)).toBe(PLAYER_ATTEMPTS_CLAUSE);
+    expect(composeGuidanceBlock(checkpoint("Let the player wander."), DEFAULT_AGENCY)).not.toContain(PLAYER_ATTEMPTS_CLAUSE);
   });
 
   it("is a registered depth-4 block whose collision with facts and epistemic is allowlisted", () => {

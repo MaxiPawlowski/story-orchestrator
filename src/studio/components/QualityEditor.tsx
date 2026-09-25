@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { QUALITY_SOURCES, QUALITY_TYPES, READ_AS_TYPES, type Quality, type QualitySource, type QualityType } from "@engine/index";
+import { QUALITY_SOURCES, QUALITY_TYPES, READ_AS_TYPES, type EvidenceFrom, type Quality, type QualitySource, type QualityType } from "@engine/index";
 import { useDraftStore } from "../draft";
 import { addQuality, newQuality, nextId, removeQuality, updateQuality } from "../mutations";
 import { findQualityUsages, reservedQualityKeys } from "../qualityUsage";
@@ -70,6 +70,7 @@ const QualityEditor: React.FC = () => {
       change.ledger_binding = undefined;
       change.read_as = undefined;
       change.criteria = undefined;
+      change.evidence_from = undefined;
     }
     patch(change);
   };
@@ -199,6 +200,14 @@ const QualityEditor: React.FC = () => {
                 </Field>
               </div>
             ) : null}
+
+            <Field label="Evidence may come from">
+              <select data-so="quality-evidence-from" className="text_pole st-input" value={selected.evidence_from ?? ""} disabled={isReserved || selected.source !== "extractor"} onChange={(event) => patch({ evidence_from: (event.target.value || undefined) as EvidenceFrom | undefined })}>
+                <option value="">Any line (default)</option>
+                <option value="any">Any line (decided)</option>
+                <option value="world">Only lines the player did not write</option>
+              </select>
+            </Field>
 
             {selected.source === "extractor" && !isReserved ? (
               <QualityReadEditor quality={selected} storyTitle={draft.title} checkpoint={draft.checkpoints.find((checkpoint) => checkpoint.start) ?? draft.checkpoints[0] ?? null} onChange={patch} />

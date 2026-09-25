@@ -16,6 +16,8 @@ export type StoryDiffCode =
   | "quality-latch-enabled-live"
   | "quality-latch-disabled-live"
   | "quality-source-changed-live"
+  | "quality-evidence-changed"
+  | "checkpoint-agency-changed"
   | "checkpoint-added"
   | "checkpoint-removed"
   | "checkpoint-removed-visited"
@@ -137,6 +139,7 @@ export function diffStories(previous: NormalizedStoryV2, next: NormalizedStoryV2
       drop(quality.key);
       push("invalidating", "quality-enum-narrowed-live", path, `“${quality.key}” no longer allows “${String(value)}”, which this chat holds.`);
     }
+    if (!sameValue(quality.evidence_from, after.evidence_from)) push("compatible", "quality-evidence-changed", `${path}.evidence_from`, `Which lines can prove “${quality.key}” changed; it applies from the next read, and values already held stay.`);
     if (!droppedQualityKeys.has(quality.key) && live(quality.key)) {
       if (!quality.latching && after.latching) push("compatible", "quality-latch-enabled-live", path, `“${quality.key}” now locks once set; the value this chat holds locks on its next write.`);
       if (quality.latching && !after.latching && latched[quality.key]) {
@@ -165,6 +168,11 @@ export function diffStories(previous: NormalizedStoryV2, next: NormalizedStoryV2
       return;
     }
     push("compatible", "checkpoint-removed", path, `“${checkpoint.name}” removed (never reached here).`);
+  });
+
+  previous.checkpoints.forEach((checkpoint) => {
+    const after = next.checkpointById[checkpoint.id];
+    if (after && !sameValue(checkpoint.agency, after.agency)) push("compatible", "checkpoint-agency-changed", `checkpoints.${checkpoint.id}.agency`, `How “${checkpoint.name}” treats the player's choices changed; it applies from the next turn.`);
   });
 
   next.checkpoints.filter((checkpoint) => !previous.checkpointById[checkpoint.id]).forEach((checkpoint) => {

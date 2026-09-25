@@ -2,6 +2,7 @@ import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import { failureClass } from "@extraction/breaker";
 import { callExtractionModel } from "@extraction/client";
 import { maxTokensForInput } from "@extraction/callBudget";
+import { cleanWindowMessage } from "@extraction/windowHygiene";
 import {
   buildWiCuratorPrompt,
   curatorHasScope,
@@ -62,9 +63,10 @@ const acceptedOps = (record: CuratorProposalRecord) => record.ops.filter((entry)
 // judge answers, the player may already have written.
 const readReply = (messageId: number): { speaker: string; text: string } | null => {
   const chat = getContext().chat;
-  const message = Array.isArray(chat) ? (chat[messageId] as { name?: unknown; mes?: unknown; is_user?: unknown; is_system?: unknown } | undefined) : undefined;
-  if (!message || message.is_user === true || message.is_system === true || typeof message.mes !== "string" || !message.mes.trim()) return null;
-  return { speaker: typeof message.name === "string" && message.name ? message.name : "Narrator", text: message.mes };
+  const raw = Array.isArray(chat) ? (chat[messageId] as { name?: unknown } | undefined) : undefined;
+  const message = cleanWindowMessage(raw);
+  if (!message.keep || message.isUser) return null;
+  return { speaker: typeof raw?.name === "string" && raw.name ? raw.name : "Narrator", text: message.text };
 };
 
 // Owns extras.stagecraft: the World Info curator's off-path pass, the review ring the author acts

@@ -140,3 +140,23 @@ against the ST checkout. "Δ" marks a correction of the plan's citation.
 | 05-H16 | `getWorldInfoNames()` is a copy of `world_names` on the context (`st-context.js:284`); `deleteWorldInfo`/`updateWorldInfoList`/`worldInfoCache` are module exports only (not on the context), so harness code imports `/scripts/world-info.js` | ✓ | not read |
 
 Still owed on 1.18.0 (live, plan 09 clean-host-older covers them only as jest seam tests): H5, H14, and H15/H16 (not read).
+
+## Plan 04 (extraction input quality, 2026-09-24)
+
+Re-read on the live 1.19.0 tree (`7c3994196`, `package.json:118`) by absolute path. **1.18.0 was not checked**: the
+build worktree is refused `git` against the ST checkout (`git -C … show 51ad27fb:…` is blocked by the worktree
+isolation), the same limit plan 02 recorded. Rows 04-H1, 04-H2, 04-H5 and 04-H6 are the ones the plan asked to
+check on 1.18.0; they are owed to the integration session. Third-party rows are marked "not ST".
+
+| # | Fact | 1.19.0 |
+|---|---|---|
+| 04-H1 | The prompt chat is `chat.filter(x => !x.is_system \|\| (canUseTools && tool_invocations))`; each message is `getRegexedString(mes, is_user ? USER_INPUT : AI_OUTPUT, {isPrompt:true, depth: coreChat.length - index - (isContinue ? 2 : 1)})`, then `extra.append_title` / media `append_title` titles are appended | `script.js:4496` (filter), `:4501-4506` (regex call), `:4510-4521` (titles) |
+| 04-H2 | `isPrompt:true` runs only `promptOnly` scripts ("all cases" scripts already rewrote the stored `mes`); depth bounds come from `minDepth`/`maxDepth`; with the regex extension disabled the text comes back raw | `extensions/regex/engine.js:334` (signature), `:341-343` (disabled → raw), `:348-355` (placement gate), `:361-371` (depth), placements `:281-292` |
+| 04-H3 | `getRegexedString` is **not** on `getContext()` (no hit in `st-context.js`), so a regex seam would be a dynamic import of `regex/engine.js` | grep, 2026-09-24 |
+| 04-H4 | `system_message_types` = help, welcome, empty, generic, narrator, comment, slash_commands, formatting, hotkeys, macros, welcome_prompt, assistant_note, assistant_message; ST's own system posts are `is_system:true` | `system-messages.js:18-32`, defaults `:36-43` |
+| 04-H5 | `/sys` posts `extra.type:'narrator'` with `is_system:false` unless the text is bias-only (story narration); `/comment` posts `is_system:true`, `extra.type:'comment'` | `slash-commands.js:6019-6041`, `:6113-6128` |
+| 04-H6 | An `/sd` post is `{name: groupId ? systemUserName : name2, is_user:false, is_system: !visible, mes: template(prompt), extra:{media:[{…, generation_type, source:'generated'}], media_display, media_index:0, inline_image:false}}`; `generation_type` is a `generationMode` number (`:113-126`); `'extension'` is only the event argument; visibility comes from `sd.{interactive,wand,command,tool}_visible` | `stable-diffusion/index.js:4966-5000`, `:5009-5024` |
+| 04-H7 | The per-message image button sets `inline_image = !(media.length && !inline_image)`: a reply's FIRST generated image makes it `true`, and a post that already holds a non-inline image (an `/sd` post) keeps `false`. So "has generated media" alone does not identify an `/sd` post; `inline_image === false` plus a numeric `generation_type` on `media[0]` does | `stable-diffusion/index.js:5226-5229`; media source enum `constants.js:75-80` |
+| 04-H8 | (not ST) Stepped Thinking 3.2.0 posts a separated thought as `{is_user:false, is_system: bias-only, is_thoughts:true, owner_extension:'st-stepped-thinking', extra:{type: asSystem ? 'narrator' : undefined, api:'script', model:'stepped thinking'}}`; the default `mes` is `<details type="executing" …><summary>Thinking ({{char}}) 💭</summary>` + a ```` ```md ```` fence + `</details>`; `is_thoughts_spoiler_open` (default false) only toggles the `open` attribute | `third-party/st-stepped-thinking/thinking/mode.js:596-614`, `settings/settings.js:134`, `:147-155`, `index.js:27`, `manifest.json:9` |
+| 04-H9 | (not ST) CYOA pushes `{name:'CYOA Suggestions', is_user:true, is_system:false, mes: <html buttons>, extra:{api:'manual', model:'cyoa'}}` with no event; not installed here | `C:/dev/st-extensions-research/cyoa-extension/source/index.js:154-169` |
+| 04-H10 | `/hide` flips `is_system` and saves with no event, so hidden rows are already out of every window (D5) | `chats.js:147-168` |

@@ -184,8 +184,8 @@ export async function readOverSteer(page: Page, spec: OverSteerSpec): Promise<Ov
 export async function expectOverSteer(page: Page, value: unknown) {
   const spec = overSteerSpec(value);
   const verdict = overSteerVerdict(spec, await readOverSteer(page, spec));
-  if (!verdict.ok) throw new Error(verdict.failures.join('; '));
-  return verdict;
+  if (!verdict.ok && !spec.record) throw new Error(verdict.failures.join('; '));
+  return spec.record ? { ...verdict, recorded: true } : verdict;
 }
 
 /** Evaluate a test-only script file in the page (the foreign-emitter fixture). Never installs anything. */

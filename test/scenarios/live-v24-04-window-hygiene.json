@@ -1,0 +1,60 @@
+{
+  "_note": "v2.4 plan 04 T7, LIVE (real model, extraction profile selected, no debugResponse). A group sandbox chat takes, in order: a visible /sd post in the host's own shape (stable-diffusion/index.js sendMessage, host fact 04-H6; posted by eval because no image backend is assumed on a lane, and emitted with the host's 'extension' type), a /sendas reply whose display:none block names two gate values (V2404TRACKER idol_taken: true; door_open: true), and a real turn. Asserts: every read whose window covers the tracker reply has a prompt without either foreign text, keeps the reply's visible half, states windowForm {hygiene:1, promptRegex:false}, and accepts no delta citing the tracker. Run x2: so-scenario run <this> --sandbox --group 1759606632088.",
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; return { cleared: true };"
+    },
+    {
+      "import_story": {
+        "file": "./live-v24-04.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error(`needs a group chat: run with --sandbox --group 1759606632088 (groupId=${ctx.groupId}, chatId=${ctx.chatId})`); const snap = rt.getSnapshot(); if (!snap.requirements?.ready) throw new Error('the story requirements are not ready here: ' + JSON.stringify(snap.requirements)); rt.setExtractionSettings({ cadence: 1 }); const R = globalThis.__v2404 = { startedAt: Date.now(), requests: [], type: null, marks: {} }; ctx.eventSource.on(ctx.eventTypes.GENERATION_STARTED, (type, params, dryRun) => { if (!dryRun && typeof type === 'string') R.type = type; }); ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, (data, dryRun) => { if (dryRun) return; R.requests.push({ at: Date.now(), type: R.type, active: rt.getEngineState()?.activeCheckpointId ?? null, body: JSON.stringify(data ?? null) }); }); R.audits = () => rt.getSnapshot().extraction.audits.filter((a) => Date.parse(a.createdAt) >= R.startedAt); R.brief = (a) => ({ reason: a.reason, window: a.window, windowForm: a.windowForm ?? null, accepted: a.acceptedDeltas.map((d) => ({ q: d.delta.q, v: d.delta.v, messageId: d.messageId ?? null, evidence: String(d.evidence).slice(0, 120) })), rejected: a.rejected.map((r) => ({ reason: r.reason, line: String(r.line).slice(0, 160) })) }); return { groupId: ctx.groupId, chatId: ctx.chatId, cadence: rt.getGlobalSettings().extraction.cadence, story: rt.getSnapshot().storyId };",
+      "log": true
+    },
+    {
+      "slash": "/sendas name=DM Narrator The vault is silent. On the altar ahead, the Sun Idol glows on its stone plate."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const { systemUserName } = await import('/script.js'); const row = { name: systemUserName, is_user: false, is_system: false, send_date: new Date().toISOString(), mes: 'V2404SD the Sun Idol glowing on a stone altar, torchlight', extra: { media: [{ url: '/img/ai4.png', type: 'image', title: 'V2404SD the Sun Idol glowing', generation_type: 6, negative: '', source: 'generated' }], media_display: 'gallery', media_index: 0, inline_image: false } }; ctx.chat.push(row); const id = ctx.chat.length - 1; await ctx.eventSource.emit(ctx.eventTypes.MESSAGE_RECEIVED, id, 'extension'); ctx.addOneMessage(row); await ctx.eventSource.emit(ctx.eventTypes.CHARACTER_MESSAGE_RENDERED, id, 'extension'); await ctx.saveChat(); globalThis.__v2404.marks.sd = id; return { sd: id };",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const R = globalThis.__v2404; const result = await ctx.executeSlashCommandsWithOptions(\"/sendas name=Luke Luke keeps his hands at his sides and watches the altar.<div style='display: none'>V2404TRACKER idol_taken: true; door_open: true</div>\"); if (result?.isError) throw new Error('sendas failed: ' + result.errorMessage); const id = ctx.chat.length - 1; const mes = String(ctx.chat[id]?.mes ?? ''); if (!mes.includes('V2404TRACKER')) throw new Error('the tracker block did not reach the stored message: ' + mes.slice(0, 200)); R.marks.tracker = id; return { tracker: id, stored: mes.slice(0, 200) };",
+      "log": true
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I stay where I am and ask Luke what he sees on the altar.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const R = globalThis.__v2404; const rt = globalThis.storyOrchestratorRuntime; const covering = R.audits().filter((a) => a.window.from <= R.marks.tracker && a.window.to >= R.marks.tracker); if (!covering.length) throw new Error('no read covered the tracker reply (id ' + R.marks.tracker + '), so nothing was measured: ' + JSON.stringify(R.audits().map(R.brief))); const problems = []; for (const audit of covering) { for (const needle of ['V2404TRACKER', 'V2404SD']) if (audit.prompt.includes(needle)) problems.push(audit.reason + ' prompt carries ' + needle); if (!audit.prompt.includes('Luke keeps his hands at his sides')) problems.push(audit.reason + ' prompt lost the visible half of the tracker reply'); if (!audit.windowForm || audit.windowForm.hygiene !== 1 || audit.windowForm.promptRegex !== false) problems.push(audit.reason + ' states no cleaned window form: ' + JSON.stringify(audit.windowForm ?? null)); for (const delta of audit.acceptedDeltas) if (/V2404TRACKER|idol_taken: true|door_open: true/.test(String(delta.evidence))) problems.push(audit.reason + ' accepted a delta citing the tracker: ' + delta.evidence); } if (problems.length) throw new Error(problems.join('; ')); return { covering: covering.map(R.brief), blackboard: rt.getSnapshot().blackboard };",
+      "log": true
+    }
+  ]
+}

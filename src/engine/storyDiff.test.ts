@@ -92,6 +92,30 @@ describe("storyDiff classification table", () => {
     expect(codes(result)).toContain("scene-read-changed");
   });
 
+  it("keeps an evidence_from edit compatible, and the held value stays (v2.4 plan 04 X14)", () => {
+    const next = edited((draft) => { draft.qualities[1].evidence_from = "world"; });
+    const result = run(next);
+    expect(result.classification).toBe("compatible");
+    expect(result.entries).toEqual([expect.objectContaining({ code: "quality-evidence-changed", path: "qualities.pact.evidence_from" })]);
+    expect(pruneEngineState(playedState(), parseStoryV2OrThrow(next), result).blackboard.values.pact).toBe(true);
+    expect(codes(diffStories(parseStoryV2OrThrow(next), parseStoryV2OrThrow(edited((draft) => { draft.qualities[1].evidence_from = "any"; })), playedState()))).toEqual(["quality-evidence-changed"]);
+  });
+
+  it("keeps an agency edit compatible, for every agency field (v2.4 plan 04 X14)", () => {
+    const fields: Array<(draft: StoryV2) => void> = [
+      (draft) => { draft.checkpoints[1].agency = { player_attempts_only: true }; },
+      (draft) => { draft.checkpoints[1].agency = { protect_player_choice: false }; },
+      (draft) => { draft.checkpoints[1].agency = { never_narrate_player_action: false }; },
+      (draft) => { draft.checkpoints[1].agency = { objective_kind: "player_action" }; },
+      (draft) => { draft.checkpoints[1].agency = { alternate: "end" }; },
+    ];
+    fields.forEach((patch) => {
+      const result = run(edited(patch));
+      expect(result.classification).toBe("compatible");
+      expect(result.entries).toEqual([expect.objectContaining({ code: "checkpoint-agency-changed", path: "checkpoints.middle.agency" })]);
+    });
+  });
+
   it("treats an added quality as compatible", () => {
     const result = run(edited((draft) => draft.qualities.push({ key: "coin", type: "int", source: "extractor", rubric: "How much coin?" })));
     expect(result).toMatchObject({ classification: "compatible" });

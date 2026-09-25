@@ -33,7 +33,7 @@ const seeded: StoryV2 = {
   description: "",
   qualities: [
     { key: "trust", type: "int", source: "extractor", rubric: "r" },
-    { key: "route", type: "enum", values: ["stealth", "force"], source: "extractor", rubric: "r" },
+    { key: "route", type: "enum", values: ["stealth", "force"], source: "extractor", rubric: "r", evidence_from: "any" },
     { key: "alarm", type: "bool", source: "extractor", rubric: "r" },
     { key: "secret", type: "string", source: "extractor", rubric: "r", scope_hint: { until: "start" } },
     { key: "morale", type: "int", source: "extractor", latching: true, rubric: "r" },
@@ -166,6 +166,40 @@ describe("latching enums with a placeholder (S1)", () => {
 
   it("keeps the diagnostic code list in step with what it emits", () => {
     expect(DIAGNOSTIC_CODES).toContain("latching-enum-placeholder");
+  });
+});
+
+describe("an outcome a player's line alone can prove (v2.4 plan 04 T15)", () => {
+  const story = (quality: Partial<StoryV2["qualities"][number]>, to: "cache" | "start" = "cache"): StoryV2 => ({
+    ...clean,
+    qualities: [{ key: "idol_taken", type: "bool", source: "extractor", rubric: "Does the player hold the idol?", ...quality } as StoryV2["qualities"][number]],
+    transitions: [
+      to === "cache"
+        ? { from: "start", to: "cache", priority: 0, gate: { all: [{ q: "idol_taken", op: "==", v: true }] } }
+        : { from: "cache", to: "start", priority: 0, gate: { q: "idol_taken", op: "==", v: true } },
+    ],
+  });
+  const hits = (draft: StoryV2) => runDiagnostics(draft).filter((entry) => entry.code === "quality-outcome-player-evidence");
+
+  it("suggests world evidence for a bool or enum that gates the way into an anchor, as info", () => {
+    expect(hits(story({}))).toEqual([expect.objectContaining({ severity: "info", path: "qualities.0", consequence: "A player's line alone can move the story here: writing that they did it counts as done." })]);
+    expect(hits({ ...story({ type: "enum", values: ["held", "left"] } as never), transitions: [{ from: "start", to: "cache", priority: 0, gate: { q: "idol_taken", op: "==", v: "held" } }] })).toHaveLength(1);
+  });
+
+  it("is silenced by an explicit choice either way", () => {
+    expect(hits(story({ evidence_from: "any" }))).toHaveLength(0);
+    expect(hits(story({ evidence_from: "world" }))).toHaveLength(0);
+  });
+
+  it("says nothing for a number, a code quality, or a gate into an intermediate", () => {
+    expect(hits(story({ type: "int" }))).toHaveLength(0);
+    expect(hits(story({ source: "code" }))).toHaveLength(0);
+    expect(hits(story({}, "start"))).toHaveLength(0);
+  });
+
+  it("reports a quality once however many anchor gates read it", () => {
+    const twice: StoryV2 = { ...story({}), checkpoints: [...clean.checkpoints, { id: "vault", name: "Vault", objective: "", type: "anchor" }], transitions: [...story({}).transitions, { from: "start", to: "vault", priority: 0, gate: { not: { q: "idol_taken", op: "==", v: false } } }] };
+    expect(hits(twice)).toHaveLength(1);
   });
 });
 

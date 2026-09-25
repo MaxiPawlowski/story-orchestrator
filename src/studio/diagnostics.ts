@@ -32,6 +32,7 @@ export const DIAGNOSTIC_CODES = [
   "quality-criteria-self-exclusion",
   "latching-enum-placeholder",
   "quality-rating-no-scale",
+  "quality-outcome-player-evidence",
 ] as const;
 
 // v2.3 plan 09. Every code says what it costs the story before it says what is technically wrong: the
@@ -59,6 +60,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   "quality-criteria-self-exclusion": "One option says it is not itself, which tells the model nothing.",
   "latching-enum-placeholder": "Once the first read lands this can never change, and the unset state is not one of its values.",
   "quality-rating-no-scale": "This quality is never read, because there is no scale to score it against.",
+  "quality-outcome-player-evidence": "A player's line alone can move the story here: writing that they did it counts as done.",
 };
 
 const namesOption = (text: string, option: string) => {
@@ -241,6 +243,13 @@ export const runDiagnostics = (draft: StoryV2): Diagnostic[] => {
   draft.qualities.forEach((quality, index) => {
     if (quality.read_as !== "rating" || ratingLevels(quality)) return;
     push("quality-rating-no-scale", "blocking", `qualities.${index}`, `'${quality.key}' is read as a rating, so its scale has to be readable: either criteria.levels, or a rubric of the form rubric: "from 1 (barely) to 5 (completely)". As written the judge has no levels to score against and the quality is never read.`);
+  });
+
+  const anchorLeaves = new Set<string>();
+  draft.transitions.filter((transition) => checkpointById.get(transition.to)?.type === "anchor").forEach((transition) => walkLeaves(transition.gate, (leaf) => anchorLeaves.add(leaf.q)));
+  draft.qualities.forEach((quality, index) => {
+    if (quality.source !== "extractor" || (quality.type !== "bool" && quality.type !== "enum") || quality.evidence_from !== undefined || !anchorLeaves.has(quality.key)) return;
+    push("quality-outcome-player-evidence", "info", `qualities.${index}`, `'${quality.key}' gates the way into an anchor, and a line the player wrote can prove it; set evidence_from to world if only the world should, or to any to keep it`);
   });
 
   // v2.3 plan 02 (S1): a latching enum that lists an unset-shaped member freezes on it.

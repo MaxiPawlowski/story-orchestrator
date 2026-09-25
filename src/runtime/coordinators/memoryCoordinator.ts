@@ -534,7 +534,7 @@ export class MemoryCoordinator {
     const messages = supersedingEntries.map((entry, index) => ({
       index,
       messageId: entry.messageId ?? state.boundary,
-      speaker: "narration",
+      speaker: "narration", isUser: false,
       text: entry.text,
     }));
     const window: SharedReadWindow = { from: messages[0].messageId, to: messages[messages.length - 1].messageId, messages };

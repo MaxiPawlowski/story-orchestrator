@@ -1,0 +1,78 @@
+{
+  "format": 2,
+  "id": "live-v24-04",
+  "version": 1,
+  "title": "Live v2.4 04 — The Sun Idol",
+  "description": "A vault where the Sun Idol rests on a pressure plate. (v2.4 plan 04 live gates: idol_taken gates the way into the next anchor and reads evidence only from lines the player did not write; the altar checkpoint opts into the player-attempts clause; door_open is an ordinary quality so each reply schedules a cadence read.)",
+  "qualities": [
+    {
+      "key": "idol_taken",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "rubric": "Does the player now hold the Sun Idol in their hands? True only once the idol is actually in hand."
+    },
+    {
+      "key": "door_open",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Is the vault door behind the party open?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "altar",
+      "name": "The Altar",
+      "objective": "The party stands before the Sun Idol on its altar.",
+      "type": "anchor",
+      "start": true,
+      "guidance": "The Sun Idol rests on a pressure plate; the stone shifts if it is lifted carelessly.",
+      "agency": {
+        "player_attempts_only": true
+      }
+    },
+    {
+      "id": "escape",
+      "name": "The Escape",
+      "objective": "The party flees the collapsing vault with the idol.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "altar",
+      "to": "escape",
+      "priority": 1,
+      "gate": {
+        "q": "idol_taken",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": [
+    {
+      "id": "dm",
+      "name": "DM Narrator"
+    },
+    {
+      "id": "companion",
+      "name": "Arin"
+    },
+    {
+      "id": "guild_master",
+      "name": "Ponticius"
+    },
+    {
+      "id": "little_brother",
+      "name": "Luke"
+    }
+  ],
+  "requirements": {
+    "members": [
+      "Arin",
+      "Ponticius"
+    ]
+  }
+}

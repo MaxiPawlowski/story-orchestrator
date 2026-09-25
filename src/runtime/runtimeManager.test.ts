@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { PLAYER_ATTEMPTS_CLAUSE } from "@engine/index";
 import type { SharedReadAudit } from "@extraction/index";
 import { disableWIEntry, enableWIEntry, executeSlashCommands, getActiveGroup } from "@services/STAPI";
 import { RuntimeManager } from "./runtimeManager";
@@ -237,6 +238,19 @@ describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
     await manager.activateCheckpoint("sphinx");
     expect(block()).toEqual({ value: `Scene direction: ${SPHINX}`, depth: 4 });
     expect(manager.getSnapshot().nextTurn.find((row) => row.key === "story_orchestrator_guidance")).toMatchObject({ label: "Checkpoint guidance", owner: "runtime/coordinators/pacingCoordinator", ownerTab: "config", depth: 4 });
+  });
+
+  it("carries the opt-in attempts clause in the block while its checkpoint is active, alone when there is no guidance (v2.4 plan 04)", async () => {
+    const story = guided(WANDER);
+    story.checkpoints[0] = { ...story.checkpoints[0], agency: { player_attempts_only: true } } as typeof story.checkpoints[0];
+    story.checkpoints[2] = { ...story.checkpoints[2], agency: { player_attempts_only: true } } as typeof story.checkpoints[2];
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(story));
+    expect(block()).toEqual({ value: `Scene direction: ${WANDER}\n${PLAYER_ATTEMPTS_CLAUSE}`, depth: 4 });
+    await manager.activateCheckpoint("plain");
+    expect(block()).toEqual({ value: PLAYER_ATTEMPTS_CLAUSE, depth: 4 });
+    await manager.activateCheckpoint("sphinx");
+    expect(block()).toEqual({ value: `Scene direction: ${SPHINX}`, depth: 4 });
   });
 
   it("clears the block on a checkpoint whose guidance is empty", async () => {
