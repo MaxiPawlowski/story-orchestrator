@@ -71,6 +71,9 @@ const engineState = (boundary = 10, lastMessageId = 20): EngineState => ({
 const harness = (options: { story?: NormalizedStoryV2 | null; state?: EngineState; settings?: Partial<StagecraftRuntimeState["settings"]>; filterEntries?: StagecraftCoordinatorDeps["filterEntries"]; warden?: StagecraftCoordinatorDeps["warden"]; owned?: boolean } = {}) => {
   let state: StagecraftRuntimeState = { ...createStagecraft(), settings: { curatorEnabled: true, acceptMode: "review", ...options.settings } };
   const journal: string[] = [];
+  let writes = 0;
+  let persists = 0;
+  let nextPersist: (() => Promise<void>) | null = null;
   // The world this work belongs to, exactly as a live run's RunOwner reports it. A curator write
   // reaches a lorebook FILE shared by every chat that uses the book, so a batch that outlives its
   // chat must stop where it is — these tests are what holds that.
@@ -81,18 +84,46 @@ const harness = (options: { story?: NormalizedStoryV2 | null; state?: EngineStat
     getStory: () => (options.story === undefined ? story() : options.story),
     getState: () => options.state ?? engineState(),
     getStagecraft: () => state,
-    setStagecraft: (next) => { state = next; },
+    setStagecraft: (next) => { state = next; writes += 1; },
     getExtractionSettings: () => ({ profileId: "p" } as ExtractionRuntimeSettings),
     getCanon: () => "The flood took the bridge.",
     getOpenArcs: () => ["Who cut the ropes?"],
     ...(options.filterEntries ? { filterEntries: options.filterEntries } : {}),
     ...(options.warden ? { warden: options.warden } : {}),
     journal: (summary) => journal.push(summary),
-    persist: async () => undefined,
+    persist: async () => {
+      persists += 1;
+      const hold = nextPersist;
+      nextPersist = null;
+      if (hold) await hold();
+    },
     notify: () => undefined,
     ...(ownership ? { ownership } : {}),
   } as StagecraftCoordinatorDeps);
-  return { coordinator, journal, read: () => state, switchChat: () => { chatId = `chat-${Math.random().toString(36).slice(2, 8)}`; } };
+  return {
+    coordinator,
+    journal,
+    read: () => state,
+    switchChat: () => { chatId = `chat-${Math.random().toString(36).slice(2, 8)}`; },
+    returnTo: (id: string) => { chatId = id; },
+    holdNextPersist: (hold: () => Promise<void>) => { nextPersist = hold; },
+    counts: () => ({ writes, persists, journal: journal.length }),
+  };
+};
+
+const gate = () => {
+  let release!: () => void;
+  const opened = new Promise<void>((resolve) => { release = resolve; });
+  return { opened, release };
+};
+const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+const holdNextRead = (opened: Promise<void>) => {
+  const through = (readWIEntryAt as jest.Mock).getMockImplementation()!;
+  (readWIEntryAt as jest.Mock).mockImplementationOnce(async (target: unknown) => { await opened; return through(target); });
+};
+const holdNextWrite = (opened: Promise<void>) => {
+  const through = (updateWIEntryByUid as jest.Mock).getMockImplementation()!;
+  (updateWIEntryByUid as jest.Mock).mockImplementationOnce(async (target: unknown, patch: unknown) => { await opened; return through(target, patch); });
 };
 
 const respond = (text: string) => (callExtractionModel as jest.Mock).mockResolvedValueOnce(text);
@@ -131,6 +162,8 @@ describe("StagecraftCoordinator", () => {
       return { ok: true, confirmed: true };
     });
     (updateWIEntryByUid as jest.Mock).mockClear();
+    (readWIEntryAt as jest.Mock).mockClear();
+    (restoreWIEntryAt as jest.Mock).mockClear();
     (disableWIEntry as jest.Mock).mockClear();
     (callExtractionModel as jest.Mock).mockClear();
   });
@@ -483,6 +516,184 @@ describe("ownership: a curator batch belongs to one chat", () => {
       });
       expect(await coordinator.revertAppliedSince(0)).toBe(1);
       expect(restores).toBe(1);
+    });
+  });
+
+  describe("AE-01: the token is re-checked after every await that precedes a write", () => {
+    const ORIGINAL = "The bridge stands, its ropes new and taut.";
+    const acceptedRewrite = async () => {
+      const env = harness({ settings: { acceptMode: "auto" } });
+      respond("[rewrite] The bridge || The bridge is gone.");
+      await env.coordinator.runCuratorPass();
+      return env;
+    };
+    const frozen = (env: ReturnType<typeof harness>) => ({ state: JSON.stringify(env.read()), counts: env.counts() });
+
+    it("a switch during the write-edge read writes nothing: no write-ahead row, no host write, no journal", async () => {
+      const env = await acceptedRewrite();
+      const read = gate();
+      holdNextRead(read.opened);
+      const applying = env.coordinator.applyAccepted();
+      await settle();
+      expect(readWIEntryAt).toHaveBeenCalledTimes(1);
+      env.switchChat();
+      const atSwitch = frozen(env);
+      read.release();
+      expect(await applying).toBe(0);
+      expect(updateWIEntryByUid).not.toHaveBeenCalled();
+      expect(frozen(env)).toEqual(atSwitch);
+      expect(entryOf("The bridge")?.content).toBe(ORIGINAL);
+    });
+
+    it("control: the same held read in its own chat still writes", async () => {
+      const env = await acceptedRewrite();
+      const read = gate();
+      holdNextRead(read.opened);
+      const applying = env.coordinator.applyAccepted();
+      await settle();
+      read.release();
+      expect(await applying).toBe(1);
+      expect(updateWIEntryByUid).toHaveBeenCalledTimes(1);
+      expect(env.read().proposals[0].ops[0]).toMatchObject({ status: "applied", before: { content: ORIGINAL } });
+    });
+
+    it("a switch during the write-ahead save never starts the host write and files nothing into the new chat", async () => {
+      const env = await acceptedRewrite();
+      const save = gate();
+      env.holdNextPersist(() => save.opened);
+      const applying = env.coordinator.applyAccepted();
+      await settle();
+      expect(env.read().proposals[0].ops[0].writeAhead?.status).toBe("pending");
+      env.switchChat();
+      const atSwitch = frozen(env);
+      save.release();
+      expect(await applying).toBe(0);
+      expect(updateWIEntryByUid).not.toHaveBeenCalled();
+      expect(frozen(env)).toEqual(atSwitch);
+      expect(entryOf("The bridge")?.content).toBe(ORIGINAL);
+    });
+
+    it("the op a lapse left accepted is written from a fresh read at its own chat's next boundary", async () => {
+      const env = await acceptedRewrite();
+      const save = gate();
+      env.holdNextPersist(() => save.opened);
+      const applying = env.coordinator.applyAccepted();
+      await settle();
+      env.switchChat();
+      save.release();
+      await applying;
+      expect(env.read().proposals[0].ops[0].status).toBe("accepted");
+      env.returnTo("chat-a");
+      expect(await env.coordinator.applyAccepted()).toBe(1);
+      expect(updateWIEntryByUid).toHaveBeenCalledTimes(1);
+      expect(env.read().proposals[0].ops[0]).toMatchObject({ status: "applied", before: { content: ORIGINAL } });
+      expect(env.read().proposals[0].ops[0].writeAhead).toBeUndefined();
+    });
+
+    it("control: the same held save in its own chat still writes", async () => {
+      const env = await acceptedRewrite();
+      const save = gate();
+      env.holdNextPersist(() => save.opened);
+      const applying = env.coordinator.applyAccepted();
+      await settle();
+      save.release();
+      expect(await applying).toBe(1);
+      expect(updateWIEntryByUid).toHaveBeenCalledTimes(1);
+      expect(entryOf("The bridge")?.content).toBe("The bridge is gone.");
+    });
+
+    it("a switch during the last host write files no record, journal line or save into the new chat", async () => {
+      const env = await acceptedRewrite();
+      const write = gate();
+      holdNextWrite(write.opened);
+      const applying = env.coordinator.applyAccepted();
+      await settle();
+      expect(updateWIEntryByUid).toHaveBeenCalledTimes(1);
+      env.switchChat();
+      const atSwitch = frozen(env);
+      write.release();
+      expect(await applying).toBe(1);
+      expect(frozen(env)).toEqual(atSwitch);
+    });
+
+    it("a switch during the revert's compare-and-set read restores nothing and settles nothing", async () => {
+      const env = await acceptedRewrite();
+      expect(await env.coordinator.applyAccepted()).toBe(1);
+      const read = gate();
+      holdNextRead(read.opened);
+      const reverting = env.coordinator.revertAppliedSince(0);
+      await settle();
+      env.switchChat();
+      const atSwitch = frozen(env);
+      read.release();
+      expect(await reverting).toBe(0);
+      expect(restoreWIEntryAt).not.toHaveBeenCalled();
+      expect(upsertWIEntry).not.toHaveBeenCalled();
+      expect(frozen(env)).toEqual(atSwitch);
+      expect(entryOf("The bridge")?.content).toBe("The bridge is gone.");
+    });
+
+    it("control: the same held revert read in its own chat restores", async () => {
+      const env = await acceptedRewrite();
+      expect(await env.coordinator.applyAccepted()).toBe(1);
+      const read = gate();
+      holdNextRead(read.opened);
+      const reverting = env.coordinator.revertAppliedSince(0);
+      await settle();
+      read.release();
+      expect(await reverting).toBe(1);
+      expect(restoreWIEntryAt).toHaveBeenCalledTimes(1);
+      expect(entryOf("The bridge")?.content).toBe(ORIGINAL);
+      expect(env.read().proposals).toEqual([]);
+    });
+  });
+
+  describe("duplicate completion: one accepted op completed twice is one write and one record", () => {
+    it("a second apply started while the first is at the host writes nothing more", async () => {
+      const env = harness({ settings: { acceptMode: "auto" } });
+      respond("[rewrite] The bridge || The bridge is gone.");
+      await env.coordinator.runCuratorPass();
+      const write = gate();
+      holdNextWrite(write.opened);
+      const first = env.coordinator.applyAccepted();
+      await settle();
+      const second = env.coordinator.applyAccepted();
+      await settle();
+      write.release();
+      expect((await first) + (await second)).toBe(1);
+      expect(updateWIEntryByUid).toHaveBeenCalledTimes(1);
+      expect(env.read().proposals).toHaveLength(1);
+      expect(env.read().proposals[0].ops.map((entry) => entry.status)).toEqual(["applied"]);
+      expect(env.journal.filter((entry) => entry.includes("applied")).length).toBe(1);
+    });
+
+    it("the same boundary applied again after it finished is a no-op", async () => {
+      const env = harness({ settings: { acceptMode: "auto" } });
+      respond("[rewrite] The bridge || The bridge is gone.");
+      await env.coordinator.runCuratorPass();
+      expect(await env.coordinator.applyAccepted()).toBe(1);
+      expect(await env.coordinator.applyAccepted()).toBe(0);
+      expect(updateWIEntryByUid).toHaveBeenCalledTimes(1);
+      expect(env.read().proposals[0].ops.map((entry) => entry.status)).toEqual(["applied"]);
+    });
+
+    it("control: an op accepted while the first apply is at the host is written by the second", async () => {
+      const env = harness({ settings: { acceptMode: "auto" } });
+      respond("[rewrite] The bridge || The bridge is gone.");
+      await env.coordinator.runCuratorPass();
+      const write = gate();
+      holdNextWrite(write.opened);
+      const first = env.coordinator.applyAccepted();
+      await settle();
+      Object.assign(env.read(), { lastRunBoundary: -1 });
+      respond("[enable] The ferryman");
+      await env.coordinator.runCuratorPass();
+      const second = env.coordinator.applyAccepted();
+      write.release();
+      expect(await first).toBe(1);
+      expect(await second).toBe(1);
+      expect(updateWIEntryByUid).toHaveBeenCalledTimes(2);
+      expect(env.read().proposals.flatMap((record) => record.ops.map((entry) => entry.status))).toEqual(["applied", "applied"]);
     });
   });
 });

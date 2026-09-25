@@ -38,7 +38,7 @@ import {
   type WardenFamiliesActive,
 } from "@stagecraft/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
-import type { RunOwnership, RunToken } from "../runToken";
+import { beginRun, type RunGuard, type RunOwnership, type RunToken } from "../runToken";
 import {
   clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, getContext, getPlayerName, loadLorebook, readWIEntry, readWIEntryAt,
   restoreWIEntryAt, setStoryExtensionPrompt, updateWIEntryByUid, upsertWIEntry, type WIEntryTarget,
@@ -124,6 +124,7 @@ export class StagecraftCoordinator {
   private wardenHold: PassHold | null = null;
   private noteActive = false;
   private carriedNote: { recordId: string; indices: number[] } | null = null;
+  private applying: Promise<unknown> = Promise.resolve();
 
   constructor(private readonly deps: StagecraftCoordinatorDeps) {}
 
@@ -285,22 +286,27 @@ export class StagecraftCoordinator {
   }
 
   // Boundary-applied, like every other effect: an accepted change reaches World Info here and
-  // nowhere else, and the allowlist is re-checked at the write edge.
-  async applyAccepted(): Promise<number> {
+  // nowhere else, and the allowlist is re-checked at the write edge. One apply at a time: two that
+  // overlap both read an op as accepted and write it twice.
+  applyAccepted(): Promise<number> {
+    const run = beginRun(this.deps.ownership);
+    const turn = this.applying.then(() => this.applyInTurn(run));
+    this.applying = turn.catch(() => undefined);
+    return turn;
+  }
+
+  // These ops reach a real lorebook FILE, shared by every chat that uses the book, so a boundary
+  // commit that outlives its chat does not merely record something in the wrong place — it edits
+  // a file another story is reading. `writeOp` checks the run after each of its awaits, before the
+  // write that follows it, and the proposal patch is checked again after the last op.
+  private async applyInTurn(run: RunGuard): Promise<number> {
     const story = this.deps.getStory();
     if (!story || !this.state.proposals.some((record) => acceptedOps(record).length)) return 0;
-    // These ops reach a real lorebook FILE, shared by every chat that uses the book, so a boundary
-    // commit that outlives its chat does not merely record something in the wrong place — it edits
-    // a file another story is reading. The token is checked inside the loop, before each write.
-    const token = this.deps.ownership?.mint();
     const messageId = this.deps.getState()?.lastMessageId ?? -1;
     let applied = 0;
-    const proposals: CuratorProposalRecord[] = [];
+    const updated = new Map<string, CuratorProposalRecord>();
     for (const record of [...this.state.proposals]) {
-      if (!acceptedOps(record).length) {
-        proposals.push(record);
-        continue;
-      }
+      if (!acceptedOps(record).length) continue;
       const ops: CuratorOpRecord[] = [];
       for (let index = 0; index < record.ops.length; index += 1) {
         const entry = record.ops[index];
@@ -308,23 +314,24 @@ export class StagecraftCoordinator {
           ops.push(entry);
           continue;
         }
-        const beforeWrite = token ? this.deps.ownership?.check(token) : undefined;
-        if (beforeWrite && beforeWrite.ok === false) return applied;
-        const result = await this.writeOp(story, entry, async (pending) => this.markWriteAhead(record.id, index, pending));
+        const result = await this.writeOp(story, entry, run, async (pending) => this.markWriteAhead(record.id, index, pending));
+        if (result.lapsed) return applied;
         if (result.ok) applied += 1;
         ops.push(result.record);
       }
-      proposals.push({ ...record, ops, appliedAt: new Date().toISOString(), messageId });
+      updated.set(record.id, { ...record, ops, appliedAt: new Date().toISOString(), messageId });
     }
-    const owned = token ? this.deps.ownership?.check(token) : undefined;
-    if (owned && owned.ok === false) return applied;
+    if (run.lapsed()) return applied;
+    const proposals = this.state.proposals.map((record) => updated.get(record.id) ?? record);
     this.patch({ proposals });
     if (applied) this.deps.journal(`World Info curator applied ${applied} change(s)`, proposals[proposals.length - 1]?.summary);
     await this.save();
     return applied;
   }
 
-  private async writeOp(story: NormalizedStoryV2, entry: CuratorOpRecord, beforeHostWrite: (pending: CuratorOpRecord) => Promise<void>): Promise<{ ok: boolean; record: CuratorOpRecord }> {
+  // A lapse returns before the next write and records nothing: after a switch, the state and the
+  // save both resolve to the chat that replaced this one.
+  private async writeOp(story: NormalizedStoryV2, entry: CuratorOpRecord, run: RunGuard, beforeHostWrite: (pending: CuratorOpRecord) => Promise<void>): Promise<{ ok: boolean; record: CuratorOpRecord; lapsed?: true }> {
     const op = entry.op;
     if (isNoteOp(op)) return { ok: false, record: entry };
     if (!isCuratorWritable(story, op.lorebook, op.comment)) {
@@ -337,6 +344,7 @@ export class StagecraftCoordinator {
     // an entry that is gone is a failed op, never a created one.
     const fileId = lorebookFileId(op.lorebook);
     const live = op.uid !== undefined ? await readWIEntryAt({ lorebookFileId: fileId, uid: op.uid }) : await readWIEntry(op.lorebook, op.comment);
+    if (run.lapsed()) return { ok: false, record: entry, lapsed: true };
     const uid = op.uid ?? live?.uid;
     if (!live || uid === undefined) return { ok: false, record: { ...entry, status: "failed", message: `"${op.comment}" is no longer in ${op.lorebook}` } };
     const comment = "comment" in live && typeof live.comment === "string" ? live.comment : op.comment;
@@ -347,6 +355,7 @@ export class StagecraftCoordinator {
     const after = op.kind === "enable" || op.kind === "disable" ? { content: before.content, disabled: op.kind === "disable" } : { content: preview.content ?? "", disabled: before.disabled };
     const pending: CuratorOpRecord = { ...entry, before, after, target: { lorebookFileId: fileId, uid }, writeAhead: { status: "pending", at: new Date().toISOString() } };
     await beforeHostWrite(pending);
+    if (run.lapsed()) return { ok: false, record: pending, lapsed: true };
     try {
       const written = await updateWIEntryByUid({ lorebookFileId: fileId, uid }, after);
       if (!written.ok) return { ok: false, record: { ...pending, status: "failed", message: written.reason, writeAhead: undefined } };
@@ -360,7 +369,7 @@ export class StagecraftCoordinator {
   // pre-write content is recorded on the op, so putting it back needs no history of its own.
   async revertAppliedSince(messageId: number): Promise<number> {
     const story = this.deps.getStory();
-    const token = this.deps.ownership?.mint();
+    const run = beginRun(this.deps.ownership);
     const withdrawn = this.settleNotes((op) => op.replyMessageId >= messageId, "reverted");
     // v2.3 plan 04 (R2). NEWEST RECORD FIRST, and within a record newest op first, so two writes to
     // one entry walk back through their own chain: Original -> First -> Second reverts to Original,
@@ -376,8 +385,7 @@ export class StagecraftCoordinator {
     for (const record of affected) {
       const ops: CuratorOpRecord[] = [];
       for (const entry of [...record.ops].reverse()) {
-        const owned = token ? this.deps.ownership?.check(token) : undefined;
-        if (owned && owned.ok === false) { ops.unshift(entry); continue; }
+        if (run.lapsed()) { ops.unshift(entry); continue; }
         if (isNoteOp(entry.op) || entry.status !== "applied" || !entry.before || !isCuratorWritable(story, entry.op.lorebook, entry.op.comment)) {
           ops.unshift(entry);
           continue;
@@ -386,6 +394,7 @@ export class StagecraftCoordinator {
         // else edited the book after us and putting our before-image back would silently undo them.
         const at = uidTarget(entry);
         const current: { content: string; disabled: boolean; comment?: string } | null = at ? await readWIEntryAt(at) : await readWIEntry(entry.op.lorebook, entry.op.comment);
+        if (run.lapsed()) { ops.unshift(entry); continue; }
         if (current?.comment !== undefined && current.comment !== entry.op.comment && !isCuratorWritable(story, entry.op.lorebook, current.comment)) {
           ops.unshift({ ...entry, status: "externally-edited", message: `"${entry.op.comment}" is now "${current.comment}", which the curator may not write, so it was left alone` });
           continue;
@@ -401,6 +410,7 @@ export class StagecraftCoordinator {
       if (!ops.some((kept) => RETAINED_OP_STATUSES.has(kept.status))) settled.add(record.id);
       updates.push({ id: record.id, ops });
     }
+    if (run.lapsed()) return reverted;
     const byId = new Map(updates.map((update) => [update.id, update.ops]));
     this.patch({ proposals: this.state.proposals.filter((record) => !settled.has(record.id)).map((record) => (byId.has(record.id) ? { ...record, ops: byId.get(record.id)! } : record)) });
     if (reverted) this.deps.journal(`World Info curator changes rolled back (${reverted})`);

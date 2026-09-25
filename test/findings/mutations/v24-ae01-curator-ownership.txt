@@ -1,0 +1,31 @@
+AE-01 (external review): the curator write edge re-checks ownership after every await that precedes a write, mutations 2026-09-25 (worktree on 4ebe1db; each mutant applied alone as an exact-text replacement to src/runtime/coordinators/stagecraftCoordinator.ts by a throwaway python script, the file restored byte-for-byte after each run; a replacement that did not match exactly once would fail the script's assert, and none did)
+Suites per mutant: stagecraftCoordinator.test + stagecraftCoordinator.review.test (85 tests). Baseline 85/85 green; restored after the sweep 85/85 green.
+Red first: before the fix the new tests failed as follows (the AE-01 controls passed on the old code):
+  "a switch during the write-edge read writes nothing: no write-ahead row, no host write, no journal"  Expected: 0, Received: 1 (the departed chat's op was written)
+  "a switch during the write-ahead save never starts the host write and files nothing into the new chat"  Expected: 0, Received: 1
+  "the op a lapse left accepted is written from a fresh read at its own chat's next boundary"  Expected: 1, Received: 0 (the lapsed run had already written it)
+  "a switch during the revert's compare-and-set read restores nothing and settles nothing"  Expected: 0, Received: 1 (the before-image was restored after the switch)
+  "a second apply started while the first is at the host writes nothing more"  Expected: 1, Received: 2 (one accepted op written twice)
+  "control: an op accepted while the first apply is at the host is written by the second"  Expected: 1, Received: 2
+
+- M1 writeOp: check after the write-edge read (before the write-ahead record) deleted: KILLED, 1 of 85
+    "a switch during the write-edge read writes nothing: no write-ahead row, no host write, no journal"
+  The M2 check still stops the host write here; the kill comes from the foreign-state assertion (the write-ahead row and its save landed after the switch).
+- M2 writeOp: check after the write-ahead save (before updateWIEntryByUid) deleted: KILLED, 2 of 85
+    "a switch during the write-ahead save never starts the host write and files nothing into the new chat"
+    "the op a lapse left accepted is written from a fresh read at its own chat's next boundary"
+- M3 revertAppliedSince: check after the compare-and-set read (before restoreBefore) deleted: KILLED, 1 of 85
+    "a switch during the revert's compare-and-set read restores nothing and settles nothing"
+- M4 revertAppliedSince: check before the proposal patch deleted: KILLED, 1 of 85
+    "a switch during the revert's compare-and-set read restores nothing and settles nothing"
+  Killed by the foreign-state half of that test (setStagecraft + save after the switch); M3 is killed by its host-write half.
+- M5 applyAccepted: serialization removed (applyInTurn called directly): KILLED, 2 of 85
+    "a second apply started while the first is at the host writes nothing more"
+    "control: an op accepted while the first apply is at the host is written by the second"
+- M6 applyInTurn: patch the list snapshotted at the start instead of merging touched records into the current list: KILLED, 1 of 85
+    "control: an op accepted while the first apply is at the host is written by the second"
+- M7 (pre-existing check, converted to the RunGuard) applyInTurn: check before the proposal patch deleted: KILLED, 1 of 85
+    "a switch during the last host write files no record, journal line or save into the new chat"
+  First sweep: SURVIVED. The review control "a world lost during the LAST accepted write does not file the result here" asserted only that the new chat's proposal list stays empty, and once the patch merges by id into the current list, an empty list stays empty while the journal line and the save still land in the new chat. The AE-01 test above was added for it and kills it on the second sweep.
+
+Not mutated: `if (result.lapsed) return applied;` in applyInTurn's loop. Without it the loop runs on, and the next op's writeOp lapses at its own post-read check before any write, then the post-loop check refuses the patch: an equivalent mutant except for one extra read. The pre-existing top-of-op check in revertAppliedSince is equivalent for the same reason (it only saves the compare-and-set read).

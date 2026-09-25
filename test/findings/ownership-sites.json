@@ -189,9 +189,9 @@
       "status": "checked",
       "note": "v2.3 plan 03 (C1, the scene surface). The pre-existing getLastMessageId check only asks whether the chat moved ON; it passes unchanged across a chat switch or story swap landing on the same message index."
     },
-    "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.applyAccepted": {
+    "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.applyInTurn": {
       "status": "checked",
-      "note": "v2.3 plan 03: these ops reach a real lorebook FILE shared by every chat using the book, so a boundary commit outliving its chat edits a file another story reads. The token is minted first (the batch readScope before the loop was removed in v2.4 plan 06: each op reads its own entry by uid) and checked inside the loop before each writeOp and again before the proposal patch."
+      "note": "AE-01 (2026-09-25; was the body of `applyAccepted`, which is now a synchronous wrapper that mints the RunGuard at call time and serializes applies, so two overlapping applies cannot both read one op as accepted and write it twice). These ops reach a real lorebook FILE shared by every chat using the book. The guard is threaded into `writeOp`, which checks it after each of its own awaits; a lapse there returns before any further write and this loop returns without patching. The proposal patch is checked once more after the last op, and it merges the touched records by id into the CURRENT list instead of replacing the list with the snapshot taken at the start. Before AE-01 the only in-loop check sat before the `writeOp` call, so both awaits inside it were unguarded."
     },
     "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.decideProposal": {
       "status": "delegate",
@@ -199,7 +199,7 @@
     },
     "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.markWriteAhead": {
       "status": "local",
-      "note": "v2.3 plan 04: the write-ahead record itself, persisted before the host call. It only replaces the in-memory proposal list through updateOps and awaits the same save the caller already owns; it starts no work of its own and mints no token, because the caller (applyAccepted) has checked immediately before calling it."
+      "note": "v2.3 plan 04: the write-ahead record itself, persisted before the host call. It only replaces the in-memory proposal list through updateOps and awaits the same save the caller already owns; it starts no work of its own and mints no token, because its only caller, `writeOp` (through `beforeHostWrite`), checks the run immediately before calling it, after the write-edge read (AE-01)."
     },
     "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.readScope": {
       "status": "local",
@@ -207,11 +207,11 @@
     },
     "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.restoreBefore": {
       "status": "partial",
-      "note": "v2.3 plan 04 (R2). The inverse of one curator write: it puts the entry's before-image back and reports whether the host agreed. Partial, not checked, for the same reason `runRollback` is: the token is checked by its caller `revertAppliedSince` before each inverse, and it is that loop which decides whether to keep or settle the record, so a check in here would be a second, weaker copy of the same decision. Every failure path returns false and leaves the record `revert-failed` with its before-image."
+      "note": "v2.3 plan 04 (R2). The inverse of one curator write: it puts the entry's before-image back and reports whether the host agreed. Partial, not checked, for the same reason `runRollback` is: the token is checked by its caller `revertAppliedSince` immediately before each call, AFTER the compare-and-set read (AE-01, 2026-09-25; the check used to sit before that read, so a switch during it reached this write unchecked), and it is that loop which decides whether to keep or settle the record, so a check in here would be a second, weaker copy of the same decision. Every failure path returns false and leaves the record `revert-failed` with its before-image."
     },
     "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.revertAppliedSince": {
       "status": "checked",
-      "note": "v2.3 plan 03: mints before the settle, checks at the top of each affected record, so a rollback that outlives its chat stops restoring pre-write content into a shared lorebook. The per-op host writes inside one record are not separately checked; they restore one record own before-images."
+      "note": "v2.3 plan 03 + AE-01 (2026-09-25): a RunGuard minted before the settle and checked at three places: at the top of each op, immediately after the compare-and-set read (before `restoreBefore`, the host write), and once more before the proposal patch. So a rollback that outlives its chat neither restores pre-write content into a shared lorebook nor settles records, journals or saves in the chat that replaced it. Before AE-01 the only check preceded the read, and the patch after the loop was unchecked."
     },
     "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.runCuratorPass": {
       "status": "checked",
@@ -230,8 +230,8 @@
       "note": "v2.3 plan 03: its only recognised write is the awaited StagecraftCoordinator.save, which awaits ChatSave.persist (through the manager's persist delegate) and that is where the check lives. The in-memory op update runs before the first await."
     },
     "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.writeOp": {
-      "status": "partial",
-      "note": "PARTIAL: v2.4 plan 06 T17.2 made it ONE host write, a uid-addressed updateWIEntryByUid that carries the entry's own flag (the old upsert + re-disable pair is gone, and so is the create-on-miss path). Its awaits before that write are the write-edge read and the write-ahead save; its caller checks the token before every call, so a lapse prevents the write from starting. Any new caller must check the same way."
+      "status": "checked",
+      "note": "AE-01 (2026-09-25): was `partial` on \"its caller checks the token before every call\", the census blind spot, since that check preceded both awaits in here. The RunGuard is now threaded in and checked immediately after the write-edge read (before `beforeHostWrite`, the write-ahead record) and immediately after the write-ahead save (before `updateWIEntryByUid`, its one host write). A lapse returns `lapsed` and records nothing: after a switch, state and save both resolve to the chat that replaced this one. A lapse after the write-ahead save leaves the departed chat's op `accepted` with its pending marker, the same row a crash before the host call leaves; nothing reconciles that marker on hydrate, and the op's next boundary in its own chat re-reads the entry and writes it (stagecraftCoordinator.test.ts, AE-01 block)."
     },
     "src/runtime/effectHost.ts#restoreEffectTarget": {
       "status": "partial",

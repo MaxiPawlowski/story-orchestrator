@@ -215,8 +215,8 @@
     },
     "stagecraft|duplicateCompletion": {
       "status": "covered",
-      "evidence": "src/runtime/coordinators/stagecraftCoordinator.test.ts#coalesces: one pass per boundary gap, and never while one is in flight",
-      "note": "A second pass in the same gap is not started."
+      "evidence": "src/runtime/coordinators/stagecraftCoordinator.test.ts#a second apply started while the first is at the host writes nothing more",
+      "note": "AE-01 review (2026-09-25): the old citation ran ONE pass and checked `dueForRun()`, which delivers no duplicate. This test completes one accepted op twice: a second `applyAccepted` for the same boundary starts while the first is held at its host write. Both used to read the op as accepted and write it (2 host writes); applies are now serialized, so it is one host write, one `applied` op in one record and one journal line. Its control (\"control: an op accepted while the first apply is at the host is written by the second\") proves the second apply is not simply dropped: an op accepted mid-apply is still written, and the first apply's patch no longer erases a record appended during its awaits. The sequential repeat is pinned too (\"the same boundary applied again after it finished is a no-op\"). The curator pass itself cannot complete twice for one call; a second pass while one is in flight is refused by the hold (\"coalesces: one pass per boundary gap, and never while one is in flight\")."
     },
     "stagecraft|backendUnavailable": {
       "status": "covered",
