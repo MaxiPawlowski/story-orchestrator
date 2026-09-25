@@ -1,0 +1,16 @@
+{
+  "format": 2,
+  "id": "so-v2406-steering-off",
+  "version": 1,
+  "title": "SO-V2406 Steering Off",
+  "description": "v2.4 plan 06 live control: the same cp-bare as live-v24-06.story.json, with objective_block off.",
+  "objective_block": "off",
+  "qualities": [
+    { "key": "key_found", "type": "bool", "source": "extractor", "rubric": "Has the party found the hidden key?" }
+  ],
+  "checkpoints": [
+    { "id": "cp-bare", "name": "The Empty House", "objective": "Find the brass key hidden under the loose floorboard in the study.", "type": "anchor", "start": true }
+  ],
+  "transitions": [],
+  "roster": []
+}

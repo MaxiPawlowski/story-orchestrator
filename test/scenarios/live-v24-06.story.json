@@ -1,0 +1,19 @@
+{
+  "format": 2,
+  "id": "so-v2406-steering",
+  "version": 1,
+  "title": "SO-V2406 Steering",
+  "description": "v2.4 plan 06 live: cp-bare has an objective and no Author's Note (the objective line applies, as on a generated checkpoint); cp-noted authors its own note (the line does not apply); cp-overlay carries a checkpoint preset (the sampler overlay) and its own note.",
+  "qualities": [
+    { "key": "key_found", "type": "bool", "source": "extractor", "rubric": "Has the party found the hidden key?" }
+  ],
+  "checkpoints": [
+    { "id": "cp-bare", "name": "The Empty House", "objective": "Find the brass key hidden under the loose floorboard in the study.", "type": "anchor", "start": true },
+    { "id": "cp-noted", "name": "The Cellar", "objective": "Leave the house before the watchman returns at dawn.", "type": "anchor", "effects": { "author_note": "Keep the scene quiet and tense; the house creaks." } },
+    { "id": "cp-overlay", "name": "The Attic", "objective": "Read the letter in the attic trunk.", "type": "anchor", "effects": { "author_note": "Dust and moonlight; speak softly.", "preset": { "name": "SO-V2406 Overlay", "settings": { "temperature": 0.37, "top_p": 0.83 } } } }
+  ],
+  "transitions": [
+    { "id": "to-cellar", "from": "cp-bare", "to": "cp-noted", "priority": 0, "gate": { "q": "key_found", "op": "==", "v": true } }
+  ],
+  "roster": []
+}

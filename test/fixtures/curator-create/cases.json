@@ -1,0 +1,162 @@
+{
+  "_about": "v2.4 plan 06 F5 Phase A. Labels frozen 2026-09-25 by the plan-06 build, BEFORE any model answer was read (v2.3 plan-10 audit rule). A 'propose' case has an entity established by >=2 live facts and no entry; the sample passes when >=1 create card survives the code guards AND names the case's entity. A 'none' case passes only when no create card survives. Floors declared in the plan before the run: propose >= 0.90 of samples, none = 1.00 of samples. Do not edit a label after a run; add a case instead.",
+  "frozenAt": "2026-09-25",
+  "floors": { "propose": 0.9, "none": 1.0 },
+  "samples": 3,
+  "cases": [
+    {
+      "id": "p01", "lang": "en", "label": "propose", "why": "established", "entity": "Oskar",
+      "story": "The Salt Road", "checkpoint": "Crossing the delta", "book": "Salt Road Lore", "roster": ["Mira", "Tolan"],
+      "entries": [{ "uid": 0, "comment": "The Delta", "keys": ["delta", "marsh"], "content": "A drowned plain of reeds and channels between the salt flats and the sea. Only a ferry crosses it safely." }],
+      "facts": ["Oskar the ferryman charges one silver coin per crossing of the delta.", "Oskar knows the smugglers' channel through the reeds and has used it before.", "Mira distrusts Oskar since he overcharged her brother."],
+      "canon": "Mira and Tolan reached the delta at dusk and hired Oskar, the old ferryman, who hinted at a faster, hidden channel."
+    },
+    {
+      "id": "p02", "lang": "en", "label": "propose", "why": "established", "entity": "Brass Lantern",
+      "story": "The Salt Road", "checkpoint": "The river town", "book": "Salt Road Lore", "roster": ["Mira", "Tolan"],
+      "entries": [{ "uid": 0, "comment": "The Delta", "keys": ["delta", "marsh"], "content": "A drowned plain of reeds and channels between the salt flats and the sea." }],
+      "facts": ["The Brass Lantern is the only inn in Vessa that takes strangers after dark.", "The Brass Lantern's cellar hides a smugglers' ledger.", "Tolan paid for two nights at the Brass Lantern."],
+      "canon": "In the river town of Vessa the pair took rooms at the Brass Lantern, where Tolan overheard talk of a ledger in the cellar."
+    },
+    {
+      "id": "p03", "lang": "en", "label": "propose", "why": "established", "entity": "Order of the Ash Hand",
+      "story": "Ember Keep", "checkpoint": "The council", "book": "Ember Keep Lore", "roster": ["Captain Reyes", "Iolo"],
+      "entries": [{ "uid": 3, "comment": "Ember Keep", "keys": ["keep", "fortress"], "content": "A basalt fortress over a dormant volcano, held by the Reyes family for four generations." }],
+      "facts": ["The Order of the Ash Hand are fire-priests who claim the volcano as holy ground.", "The Order of the Ash Hand demanded the keep's surrender within three days.", "Iolo was raised by the Order of the Ash Hand before he fled."],
+      "canon": "At the council Captain Reyes read the ultimatum from the Order of the Ash Hand aloud; Iolo went pale at their seal."
+    },
+    {
+      "id": "p04", "lang": "en", "label": "propose", "why": "established", "entity": "Sunken Bell",
+      "story": "Ember Keep", "checkpoint": "The cistern", "book": "Ember Keep Lore", "roster": ["Captain Reyes", "Iolo"],
+      "entries": [{ "uid": 3, "comment": "Ember Keep", "keys": ["keep", "fortress"], "content": "A basalt fortress over a dormant volcano." }, { "uid": 4, "comment": "The Cistern", "keys": ["cistern", "water"], "content": "A flooded chamber under the keep that stores rainwater for sieges." }],
+      "facts": ["The Sunken Bell lies at the bottom of the cistern and rings when the volcano stirs.", "The Sunken Bell rang twice last night.", "Captain Reyes believes the Sunken Bell is only a legend."],
+      "canon": "Iolo dove into the cistern and touched the Sunken Bell; it rang again as the ground shook."
+    },
+    {
+      "id": "p05", "lang": "en", "label": "propose", "why": "established", "entity": "Warden Hale",
+      "story": "Greyfen Prison", "checkpoint": "The yard", "book": "Greyfen Lore", "roster": ["Nell", "Bram"],
+      "entries": [{ "uid": 1, "comment": "Greyfen Prison", "keys": ["greyfen", "prison"], "content": "A marsh prison built on pilings; the tide floods the lower cells twice a day." }],
+      "facts": ["Warden Hale runs Greyfen and takes bribes in tobacco.", "Warden Hale keeps the master key on a chain at his neck.", "Bram owes Warden Hale a favour."],
+      "canon": "In the yard Nell watched Warden Hale pocket a tin of tobacco from a guard and glimpsed the master key on his chain."
+    },
+    {
+      "id": "p06", "lang": "en", "label": "propose", "why": "established", "entity": "tide gate",
+      "story": "Greyfen Prison", "checkpoint": "The lower cells", "book": "Greyfen Lore", "roster": ["Nell", "Bram"],
+      "entries": [{ "uid": 1, "comment": "Greyfen Prison", "keys": ["greyfen", "prison"], "content": "A marsh prison built on pilings." }, { "uid": 2, "comment": "Warden Hale", "keys": ["hale", "warden"], "content": "The warden of Greyfen. Takes bribes in tobacco. Keeps the master key on a chain." }],
+      "facts": ["The tide gate under the lower cells opens at low water for a quarter hour.", "The tide gate is the only way out that the guards do not watch.", "Nell counted the tide gate's bars and found one loose."],
+      "canon": "Nell and Bram waited in the flooded cells until the water fell and the tide gate creaked open."
+    },
+    {
+      "id": "p07", "lang": "en", "label": "propose", "why": "established", "entity": "Glass Choir",
+      "story": "Night Market", "checkpoint": "The auction", "book": "Night Market Lore", "roster": ["Vey", "Sorrel"],
+      "entries": [{ "uid": 0, "comment": "The Night Market", "keys": ["market", "stalls"], "content": "A market that exists only between midnight and the first bell." }],
+      "facts": ["The Glass Choir is a guild of singers whose voices can crack enchanted glass.", "The Glass Choir bid on the mirror at the auction and lost.", "Sorrel once sang for the Glass Choir."],
+      "canon": "At the auction the Glass Choir lost the mirror to Vey and left humming a note that made the lamps shiver."
+    },
+    {
+      "id": "p08", "lang": "es", "label": "propose", "why": "established", "entity": "Doña Remedios",
+      "story": "La Casa del Pozo", "checkpoint": "La cocina", "book": "Lore Casa del Pozo", "roster": ["Lucía", "Tomás"],
+      "entries": [{ "uid": 0, "comment": "La casa", "keys": ["casa", "caserón"], "content": "Un caserón de piedra junto a un pozo seco, abandonado desde la guerra." }],
+      "facts": ["Doña Remedios es la vieja cocinera que nunca abandonó la casa.", "Doña Remedios guarda la llave del sótano en el delantal.", "Tomás le tiene miedo a Doña Remedios desde niño."],
+      "canon": "En la cocina, Lucía encontró a Doña Remedios hirviendo agua como si nadie se hubiera ido nunca; la llave del sótano asomaba de su delantal."
+    },
+    {
+      "id": "p09", "lang": "es", "label": "propose", "why": "established", "entity": "Cofradía del Pozo",
+      "story": "La Casa del Pozo", "checkpoint": "El pueblo", "book": "Lore Casa del Pozo", "roster": ["Lucía", "Tomás"],
+      "entries": [{ "uid": 0, "comment": "La casa", "keys": ["casa", "caserón"], "content": "Un caserón de piedra junto a un pozo seco." }],
+      "facts": ["La Cofradía del Pozo es una hermandad del pueblo que se reúne cada luna nueva.", "La Cofradía del Pozo quiere que la casa siga cerrada.", "El alcalde pertenece a la Cofradía del Pozo."],
+      "canon": "En la plaza, el alcalde advirtió a Lucía que la Cofradía del Pozo no toleraría que abrieran la casa."
+    },
+    {
+      "id": "p10", "lang": "es", "label": "propose", "why": "established", "entity": "Faro de San Telmo",
+      "story": "Costa Muerta", "checkpoint": "La tormenta", "book": "Lore Costa Muerta", "roster": ["Inés", "Marco"],
+      "entries": [{ "uid": 2, "comment": "El puerto", "keys": ["puerto", "muelle"], "content": "Un puerto pesquero pequeño, protegido por un espigón de piedra." }],
+      "facts": ["El Faro de San Telmo lleva apagado desde el naufragio del Esperanza.", "Alguien volvió a encender el Faro de San Telmo durante la tormenta.", "Marco jura que vio una figura en lo alto del Faro de San Telmo."],
+      "canon": "En plena tormenta la luz del Faro de San Telmo barrió la bahía por primera vez en años, e Inés corrió hacia el acantilado."
+    },
+    {
+      "id": "p11", "lang": "es", "label": "propose", "why": "established", "entity": "el Tuerto",
+      "story": "Costa Muerta", "checkpoint": "La taberna", "book": "Lore Costa Muerta", "roster": ["Inés", "Marco"],
+      "entries": [{ "uid": 2, "comment": "El puerto", "keys": ["puerto", "muelle"], "content": "Un puerto pesquero pequeño." }, { "uid": 3, "comment": "Faro de San Telmo", "keys": ["faro", "San Telmo"], "content": "Un faro apagado desde el naufragio del Esperanza." }],
+      "facts": ["El Tuerto es el contrabandista que controla el muelle de noche.", "El Tuerto perdió el ojo en el naufragio del Esperanza.", "Inés le debe dinero al Tuerto."],
+      "canon": "En la taberna, el Tuerto recordó a Inés su deuda y le ofreció perdonarla si le contaba quién encendió el faro."
+    },
+    {
+      "id": "n01", "lang": "en", "label": "none", "why": "named-once", "entity": "Garrick",
+      "story": "The Salt Road", "checkpoint": "The river town", "book": "Salt Road Lore", "roster": ["Mira", "Tolan"],
+      "entries": [{ "uid": 0, "comment": "The Delta", "keys": ["delta", "marsh"], "content": "A drowned plain of reeds and channels." }, { "uid": 1, "comment": "Brass Lantern", "keys": ["brass lantern", "inn"], "content": "The only inn in Vessa that takes strangers after dark. Its cellar hides a smugglers' ledger." }],
+      "facts": ["Mira bought bread from a stall-keeper called Garrick.", "Tolan paid for two nights at the Brass Lantern."],
+      "canon": "Mira bought bread in the square before returning to the Brass Lantern."
+    },
+    {
+      "id": "n02", "lang": "en", "label": "none", "why": "covered", "entity": "the smugglers' ledger",
+      "story": "The Salt Road", "checkpoint": "The cellar", "book": "Salt Road Lore", "roster": ["Mira", "Tolan"],
+      "entries": [{ "uid": 1, "comment": "Brass Lantern", "keys": ["brass lantern", "inn", "ledger"], "content": "The only inn in Vessa that takes strangers after dark. Its cellar hides the smugglers' ledger, which lists every bribed official on the river." }],
+      "facts": ["The smugglers' ledger lists every bribed official on the river.", "Tolan found the smugglers' ledger in the Brass Lantern's cellar."],
+      "canon": "Tolan pried up a cellar board at the Brass Lantern and found the ledger wrapped in oilcloth."
+    },
+    {
+      "id": "n03", "lang": "en", "label": "none", "why": "roster", "entity": "Iolo",
+      "story": "Ember Keep", "checkpoint": "The council", "book": "Ember Keep Lore", "roster": ["Captain Reyes", "Iolo"],
+      "entries": [{ "uid": 3, "comment": "Ember Keep", "keys": ["keep", "fortress"], "content": "A basalt fortress over a dormant volcano." }, { "uid": 5, "comment": "Order of the Ash Hand", "keys": ["ash hand", "fire-priests"], "content": "Fire-priests who claim the volcano as holy ground." }],
+      "facts": ["Iolo was raised by the Order of the Ash Hand before he fled.", "Iolo can read the priests' fire-script.", "Iolo swore loyalty to Captain Reyes."],
+      "canon": "Iolo translated the fire-script on the ultimatum for Captain Reyes."
+    },
+    {
+      "id": "n04", "lang": "en", "label": "none", "why": "near-dup", "entity": "Hale",
+      "story": "Greyfen Prison", "checkpoint": "The yard", "book": "Greyfen Lore", "roster": ["Nell", "Bram"],
+      "entries": [{ "uid": 1, "comment": "Greyfen Prison", "keys": ["greyfen", "prison"], "content": "A marsh prison built on pilings." }, { "uid": 2, "comment": "The Warden", "keys": ["hale", "warden"], "content": "Warden Hale runs Greyfen, takes bribes in tobacco and keeps the master key on a chain at his neck." }],
+      "facts": ["Warden Hale runs Greyfen and takes bribes in tobacco.", "Warden Hale keeps the master key on a chain at his neck."],
+      "canon": "Nell watched Warden Hale pocket a tin of tobacco in the yard."
+    },
+    {
+      "id": "n05", "lang": "en", "label": "none", "why": "nothing-new", "entity": null,
+      "story": "Night Market", "checkpoint": "Closing time", "book": "Night Market Lore", "roster": ["Vey", "Sorrel"],
+      "entries": [{ "uid": 0, "comment": "The Night Market", "keys": ["market", "stalls"], "content": "A market that exists only between midnight and the first bell." }, { "uid": 1, "comment": "Glass Choir", "keys": ["glass choir", "singers"], "content": "A guild of singers whose voices can crack enchanted glass. They lost the mirror to Vey at auction." }],
+      "facts": ["Vey won the mirror at the auction.", "The Glass Choir lost the mirror to Vey."],
+      "canon": "The stalls folded up as the first bell rang, and Vey walked home with the mirror under her cloak."
+    },
+    {
+      "id": "n06", "lang": "en", "label": "none", "why": "roster", "entity": "Captain Reyes",
+      "story": "Ember Keep", "checkpoint": "The walls", "book": "Ember Keep Lore", "roster": ["Captain Reyes", "Iolo"],
+      "entries": [{ "uid": 3, "comment": "Ember Keep", "keys": ["keep", "fortress"], "content": "A basalt fortress over a dormant volcano, held by the Reyes family." }],
+      "facts": ["Captain Reyes refused the ultimatum.", "Captain Reyes ordered the gates barred."],
+      "canon": "Captain Reyes walked the walls and ordered the gates barred."
+    },
+    {
+      "id": "n07", "lang": "es", "label": "none", "why": "named-once", "entity": "Paquito",
+      "story": "La Casa del Pozo", "checkpoint": "El camino", "book": "Lore Casa del Pozo", "roster": ["Lucía", "Tomás"],
+      "entries": [{ "uid": 0, "comment": "La casa", "keys": ["casa", "caserón"], "content": "Un caserón de piedra junto a un pozo seco." }],
+      "facts": ["Tomás saludó a un pastor llamado Paquito en el camino.", "Lucía y Tomás llegaron a la casa al mediodía."],
+      "canon": "De camino a la casa, Tomás saludó a un pastor y siguieron andando."
+    },
+    {
+      "id": "n08", "lang": "es", "label": "none", "why": "covered", "entity": "la llave del sótano",
+      "story": "La Casa del Pozo", "checkpoint": "El sótano", "book": "Lore Casa del Pozo", "roster": ["Lucía", "Tomás"],
+      "entries": [{ "uid": 0, "comment": "La casa", "keys": ["casa", "caserón"], "content": "Un caserón de piedra junto a un pozo seco." }, { "uid": 1, "comment": "Doña Remedios", "keys": ["Remedios", "cocinera", "llave"], "content": "La vieja cocinera que nunca abandonó la casa. Guarda la llave del sótano en el delantal y no la entrega a nadie." }],
+      "facts": ["Doña Remedios guarda la llave del sótano en el delantal.", "Lucía pidió la llave del sótano y Doña Remedios se negó."],
+      "canon": "Lucía pidió la llave del sótano; Doña Remedios se la negó sin levantar la vista del fogón."
+    },
+    {
+      "id": "n09", "lang": "es", "label": "none", "why": "near-dup", "entity": "Faro",
+      "story": "Costa Muerta", "checkpoint": "El acantilado", "book": "Lore Costa Muerta", "roster": ["Inés", "Marco"],
+      "entries": [{ "uid": 3, "comment": "El faro", "keys": ["faro", "San Telmo"], "content": "El Faro de San Telmo lleva apagado desde el naufragio del Esperanza, pero alguien volvió a encenderlo durante la tormenta." }],
+      "facts": ["El Faro de San Telmo lleva apagado desde el naufragio del Esperanza.", "Alguien volvió a encender el Faro de San Telmo durante la tormenta."],
+      "canon": "Inés subió al acantilado y vio la luz del faro girar sobre la bahía."
+    },
+    {
+      "id": "n10", "lang": "es", "label": "none", "why": "nothing-new", "entity": null,
+      "story": "Costa Muerta", "checkpoint": "El amanecer", "book": "Lore Costa Muerta", "roster": ["Inés", "Marco"],
+      "entries": [{ "uid": 2, "comment": "El puerto", "keys": ["puerto", "muelle"], "content": "Un puerto pesquero pequeño, protegido por un espigón de piedra." }, { "uid": 4, "comment": "El Tuerto", "keys": ["Tuerto", "contrabandista"], "content": "El contrabandista que controla el muelle de noche. Perdió el ojo en el naufragio del Esperanza." }],
+      "facts": ["Inés y Marco volvieron al puerto al amanecer.", "El Tuerto controla el muelle de noche."],
+      "canon": "Al amanecer volvieron al puerto; el muelle estaba vacío y el mar en calma."
+    },
+    {
+      "id": "n11", "lang": "es", "label": "none", "why": "roster", "entity": "Marco",
+      "story": "Costa Muerta", "checkpoint": "La taberna", "book": "Lore Costa Muerta", "roster": ["Inés", "Marco"],
+      "entries": [{ "uid": 2, "comment": "El puerto", "keys": ["puerto", "muelle"], "content": "Un puerto pesquero pequeño." }],
+      "facts": ["Marco jura que vio una figura en lo alto del faro.", "Marco es el hermano menor de Inés."],
+      "canon": "Marco contó en la taberna lo que vio en el faro, y nadie le creyó."
+    }
+  ]
+}

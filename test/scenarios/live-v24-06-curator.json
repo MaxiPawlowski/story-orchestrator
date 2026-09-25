@@ -1,0 +1,53 @@
+{
+  "_note": "v2.4 plan 06 T17 curator hardening, LIVE, J8-style (real curator over the memory profile, review mode; so-scenario run <file> --sandbox --group <id>, twice consecutively). A real turn overtakes the SO-V2406 Lore entry 'The rope bridge'; the real curator proposes. Asserted: every proposed op carries the entry uid; a patch or rewrite card shows the word diff ([data-so=curator-diff]); the author declines the first op; the next pass tells the curator what was declined, and a re-proposal of that op never reaches a card (it is dropped as 'was declined earlier'). Whatever op kind the model chooses is accepted (never hard-code a kind). A long entry is shown in part and marked patch-only, so a rewrite of it would be refused. The curator settings are captured first and put back by the last eval; so-assets removes the marker book.",
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v2406-curator",
+        "version": 1,
+        "title": "SO-V2406 Curator",
+        "description": "v2.4 plan 06 T17 live: a curator keeps one book honest.",
+        "stagecraft": { "lorebooks": ["SO-V2406 Lore"] },
+        "qualities": [{ "key": "bridge_down", "type": "bool", "source": "extractor", "rubric": "Has the rope bridge over the gorge collapsed?" }],
+        "checkpoints": [
+          { "id": "gorge", "name": "The Gorge", "objective": "Cross the gorge.", "type": "anchor", "start": true },
+          { "id": "far-side", "name": "The Far Side", "objective": "Find another way home.", "type": "anchor" }
+        ],
+        "transitions": [{ "id": "to-far-side", "from": "gorge", "to": "far-side", "priority": 0, "gate": { "q": "bridge_down", "op": "==", "v": true } }],
+        "roster": []
+      }
+    },
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 50 }); const lorebook = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-V2406 Lore' }, { requirements: { lorebooks: [] } }); if (!lorebook.ok && !lorebook.message.includes('already exists')) throw new Error('could not create the story lorebook: ' + lorebook.message); const long = 'The valley road winds down from the pass. '.repeat(14).trim(); const entries = [{ comment: 'The rope bridge', keys: ['bridge', 'gorge'], content: 'A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.' }, { comment: 'The valley road', keys: ['valley', 'road'], content: long }, { comment: 'The ferryman', keys: ['ferry', 'ferryman'], content: 'A ferryman works the river below the gorge, but only at low water.' }]; for (const entry of entries) { const result = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook: 'SO-V2406 Lore', comment: entry.comment, keys: entry.keys, content: entry.content }, { requirements: { lorebooks: ['SO-V2406 Lore'] } }); if (!result.ok) throw new Error('entry ' + entry.comment + ': ' + result.message); } globalThis.__soV2406Curator = { settings: { ...rt.getStagecraftState().settings } }; rt.setStagecraftSettings({ curatorEnabled: true, acceptMode: 'review' }); return { entries: entries.length, restoreTo: globalThis.__soV2406Curator.settings };",
+      "log": true
+    },
+    { "ui": { "action": "select-profile" } },
+    { "send_generate": { "text": "Behind us the rope bridge snaps with a crack like a whip and falls into the gorge. There is no way back across now.", "timeoutMs": 300000, "expectReply": true } },
+    { "wait": { "schedulerIdle": true, "quietMs": 5000, "timeoutMs": 300000 } },
+    { "stagecraft": { "action": "curate", "reason": "v24-06 bridge", "expectProposal": true, "expectOps": 1, "attempts": 3 }, "log": true },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const state = rt.getStagecraftState(); const record = [...state.proposals].reverse().find((candidate) => candidate.curator !== 'warden' && candidate.ops.some((op) => op.status === 'pending')); if (!record) throw new Error('no pending curator proposal: ' + JSON.stringify(state.lastPass?.dropped ?? [])); const noUid = record.ops.filter((op) => typeof op.op.uid !== 'number'); if (noUid.length) throw new Error('an op names no entry uid: ' + JSON.stringify(noUid.map((op) => op.op))); if (!state.lastPass?.prompt?.includes('[shown in part')) throw new Error('the long entry was not marked shown in part'); const rewritesOfLong = record.ops.filter((op) => op.op.kind === 'rewrite' && op.op.comment === 'The valley road' && op.status === 'pending'); if (rewritesOfLong.length) throw new Error('a rewrite of an entry shown in part reached a card'); globalThis.__soV2406Curator.record = record.id; globalThis.__soV2406Curator.first = { kind: record.ops[0].op.kind, comment: record.ops[0].op.comment }; return { ops: record.ops.map((op) => ({ kind: op.op.kind, comment: op.op.comment, uid: op.op.uid, status: op.status, fuzzy: op.fuzzy ?? null })) };",
+      "log": true
+    },
+    { "ui": { "action": "stagecraft", "minOps": 1 } },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const record = rt.getStagecraftState().proposals.find((candidate) => candidate.id === globalThis.__soV2406Curator.record); const textual = record.ops.some((op) => op.op.kind === 'patch' || op.op.kind === 'rewrite'); const diffs = document.querySelectorAll('#so-stagecraft [data-so=\"curator-diff\"]').length; if (textual && !diffs) throw new Error('a text change is on a card but no word diff is shown'); return { textual, diffs };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; await rt.setCuratorOpDecision(globalThis.__soV2406Curator.record, 0, 'rejected'); const op = rt.getStagecraftState().proposals.find((candidate) => candidate.id === globalThis.__soV2406Curator.record).ops[0]; if (op.status !== 'rejected') throw new Error('the decline did not land: ' + op.status); return { declined: globalThis.__soV2406Curator.first };",
+      "log": true
+    },
+    { "stagecraft": { "action": "curate", "reason": "v24-06 after decline", "attempts": 1 }, "log": true },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const state = rt.getStagecraftState(); const first = globalThis.__soV2406Curator.first; const line = '- [' + first.kind + '] ' + first.comment; if (!state.lastPass?.prompt?.includes('THE AUTHOR DECLINED') || !state.lastPass.prompt.includes(line)) throw new Error('the second pass was not told what the author declined: ' + JSON.stringify(line)); const again = state.proposals.filter((candidate) => candidate.id !== globalThis.__soV2406Curator.record).flatMap((candidate) => candidate.ops).filter((op) => op.status === 'pending' && op.op.kind === first.kind && op.op.comment.trim().toLowerCase() === first.comment.trim().toLowerCase()); if (again.length) throw new Error('the declined op reached a card again'); const dropped = (state.lastPass?.dropped ?? []).filter((reason) => reason.includes('was declined earlier')); return { reproposedAndDropped: dropped.length, pendingElsewhere: state.proposals.flatMap((candidate) => candidate.ops).filter((op) => op.status === 'pending').length };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setStagecraftSettings(globalThis.__soV2406Curator.settings); return rt.getStagecraftState().settings;",
+      "log": true
+    },
+    { "assets": { "action": "remove", "marker": "SO-V2406" } }
+  ]
+}
