@@ -3,6 +3,7 @@ import { getChatWindow, getLastMessageText } from "./chatWindow";
 import { buildFixtureRun } from "./fixtureRun";
 import { renderSharedReadPrompt } from "./contract";
 import { runSharedRead } from "./sharedRead";
+import { createTokenMeter } from "./tokenMeter";
 import { CLEANED_FORM } from "./windowHygiene";
 
 const chatRef = { current: [] as unknown[] };
@@ -20,7 +21,7 @@ const TRACKER = "door_open: true";
 const hostChat = () => [
   { name: "Max", is_user: true, is_system: false, mes: "I ask Mara whether the vault door is open." },
   { name: "SillyTavern System", is_user: false, is_system: false, mes: "the vault door ajar, lamplight", extra: { media: [{ url: "/i.png", type: "image", title: "vault", generation_type: 6, negative: "", source: "generated" }], media_display: "gallery", media_index: 0, inline_image: false } },
-  { name: "Mara", is_user: false, is_system: false, mes: `Mara shakes her head. The door stays shut.<div style="display: none">${TRACKER}</div>` },
+  { name: "Mara", is_user: false, is_system: false, mes: `Mara shakes her head. The door stays shut. <div style="display: none"> ${TRACKER} </div>` },
   { name: "Mara", is_user: false, is_system: false, is_thoughts: true, owner_extension: "st-stepped-thinking", mes: "<details type=\"executing\"><summary>Thinking (Mara)</summary>\n```md\nShe lies.\n```\n</details>", extra: { api: "script", model: "stepped thinking" } },
   { name: "CYOA Suggestions", is_user: true, is_system: false, mes: "<div><button>1. I force the door</button></div>", extra: { api: "manual", model: "cyoa" } },
   { name: "Note", is_user: false, is_system: true, mes: "Checkpoint reached", extra: { type: "comment" } },
@@ -94,6 +95,17 @@ describe("v2.4 plan 04 T7: every window reader takes the cleaned text", () => {
     expect(raw.audit.windowForm).toBeUndefined();
     expect(raw.audit.prompt).toBe(result.audit.prompt);
     expect(raw.audit.contractHash).not.toBe(result.audit.contractHash);
+  });
+
+  it("a read tail-fit to its budget still states the form of the window it sent", async () => {
+    chatRef.current = Array.from({ length: 8 }, (_, index) => ({ name: index % 2 ? "Mara" : "Max", is_user: index % 2 === 0, mes: `Line ${index}: ${"the long road winds on beside the river ".repeat(50)}` }));
+    const s = story();
+    const engine = new StoryEngine();
+    engine.loadStory(s);
+    const state = { ...engine.serialize(), lastMessageId: 7 };
+    const result = await runSharedRead({ story: s, state, priority: 0, reason: "hygiene", client: { profileId: "p1", debugResponse: "NO_DELTA", budget: { contextLimit: { value: 3000, source: "preset" }, meter: createTokenMeter() } } });
+    expect(result.audit.trimmedFrom).toBe(0);
+    expect(result.audit.windowForm).toEqual(CLEANED_FORM);
   });
 
   it("the fixture path takes the same cleaner, so jest and the live suite read what play reads", () => {

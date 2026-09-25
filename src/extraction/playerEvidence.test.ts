@@ -215,6 +215,21 @@ describe("v2.4 plan 04 T15: the judge paths follow the same rule", () => {
   });
 });
 
+describe("v2.4 plan 04 live fixture stories", () => {
+  const load = (file: string) => parseStoryV2(JSON.parse(readFileSync(join(process.cwd(), "test/scenarios", file), "utf8")));
+
+  it("validate, and only the variant declares world evidence and the attempts clause", () => {
+    const variant = load("live-v24-04.story.json");
+    const control = load("live-v24-04-control.story.json");
+    if (Array.isArray(variant) || Array.isArray(control)) throw new Error(JSON.stringify({ variant, control }));
+    expect(variant.qualityByKey.idol_taken.evidence_from).toBe("world");
+    expect(variant.checkpointById.altar.agency?.player_attempts_only).toBe(true);
+    expect(control.qualityByKey.idol_taken.evidence_from).toBeUndefined();
+    expect(control.checkpointById.altar.agency).toBeUndefined();
+    expect(variant.outgoingByCheckpoint.altar.map((transition) => variant.checkpointById[transition.to].type)).toEqual(["anchor"]);
+  });
+});
+
 describe("v2.4 plan 04 T15: schema", () => {
   it("accepts any and world on an extractor quality, and keeps the explicit value", () => {
     expect(story("world").qualityByKey.idol_taken.evidence_from).toBe("world");

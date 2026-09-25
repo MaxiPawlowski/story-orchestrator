@@ -192,7 +192,7 @@ describe("v2.4 plan 04 T7: one cleaner for every window reader", () => {
     const message = block.repeat(Math.ceil(8192 / block.length)).slice(0, 8192);
     const window = Array.from({ length: 24 }, (_, index) => reply(`${message}${index}`));
     window.forEach((entry) => cleanWindowMessage(entry));
-    const runs = Array.from({ length: 5 }, () => {
+    const runs = Array.from({ length: 20 }, () => {
       const started = performance.now();
       window.forEach((entry) => cleanWindowMessage(entry));
       return performance.now() - started;

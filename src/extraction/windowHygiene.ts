@@ -32,8 +32,11 @@ const NAMED_ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quo
 
 const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 
+const closers = new Map<string, RegExp>();
+
 const closingEnd = (text: string, name: string, from: number): number => {
-  const tokens = new RegExp(`<(/?)${name}\\b[^<>]*?(/?)>`, "gi");
+  const tokens = closers.get(name) ?? new RegExp(`<(/?)${name}\\b[^<>]*?(/?)>`, "gi");
+  closers.set(name, tokens);
   tokens.lastIndex = from;
   let depth = 1;
   for (let match = tokens.exec(text); match; match = tokens.exec(text)) {
@@ -45,23 +48,20 @@ const closingEnd = (text: string, name: string, from: number): number => {
 };
 
 const dropElements = (text: string): string => {
-  let result = text;
-  let cursor = 0;
-  for (;;) {
-    OPEN_TAG.lastIndex = cursor;
-    const match = OPEN_TAG.exec(result);
-    if (!match) return result;
+  const kept: string[] = [];
+  let from = 0;
+  OPEN_TAG.lastIndex = 0;
+  for (let match = OPEN_TAG.exec(text); match; match = OPEN_TAG.exec(text)) {
     const name = match[1].toLowerCase();
-    const dropped = DROPPED_ELEMENTS.has(name) || HIDDEN_STYLE.test(match[2]);
-    if (!dropped) {
-      cursor = match.index + match[0].length;
-      continue;
-    }
+    if (!DROPPED_ELEMENTS.has(name) && !HIDDEN_STYLE.test(match[2])) continue;
     const tagEnd = match.index + match[0].length;
-    const end = match[3] || VOID_ELEMENTS.has(name) ? tagEnd : closingEnd(result, name, tagEnd);
-    result = `${result.slice(0, match.index)}\n${result.slice(end)}`;
-    cursor = match.index;
+    const end = match[3] || VOID_ELEMENTS.has(name) ? tagEnd : closingEnd(text, name, tagEnd);
+    kept.push(text.slice(from, match.index), "\n");
+    from = end;
+    OPEN_TAG.lastIndex = end;
   }
+  kept.push(text.slice(from));
+  return kept.join("");
 };
 
 const dropTaggedFences = (text: string): string => {
