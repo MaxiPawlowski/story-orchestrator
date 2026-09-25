@@ -4,7 +4,8 @@ import { isTensionLevel, levelToNumeric } from "@pacing/index";
 import type { ParsedSharedRead } from "./types";
 
 const deltaPattern = /^DELTA\s+(?:q=)?([^\s=]+)\s+value=(.+?)\s+evidence="([\s\S]*)"\s*$/;
-const bareDeltaPattern = /^([A-Za-z0-9_]+)=(.+?)\s+evidence="([\s\S]*)"\s*$/;
+const bareDeltaPattern = /^([A-Za-z0-9_]+)=(?:value=)?(.+?)\s+evidence="([\s\S]*)"\s*$/;
+const bareWordPattern = /^[A-Za-z][\w -]*$/;
 const factPattern = /^FACT\s+importance=([123])\s+text="([\s\S]+?)"\s+evidence="([\s\S]+)"\s*$/;
 const channelNoisePattern = /^(?:\[\d+\]|<[^<>\n]{0,32}>)+\s*/;
 const harmonyFinalPattern = /<\|channel\|>final<\|message\|>([\s\S]*?)(?:<\|(?:end|return|start)\|>|$)/i;
@@ -80,6 +81,11 @@ export const qualityAccepts = (quality: Pick<Quality, "type" | "values">, value:
   return typeof value === "number" && Number.isInteger(value);
 };
 
+const parseBareWord = (raw: string): string | undefined => {
+  const word = raw.match(/^'([^']*)'$/)?.[1] ?? raw;
+  return bareWordPattern.test(word) ? word : undefined;
+};
+
 const parseJsonLiteral = (raw: string): PrimitiveValue | undefined => {
   try {
     const parsed = JSON.parse(raw);
@@ -116,7 +122,7 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
         continue;
       }
       const rawValue = delta[2].trim();
-      const value = parseJsonLiteral(rawValue) ?? (/^[A-Za-z][\w -]*$/.test(rawValue) ? rawValue : undefined);
+      const value = parseJsonLiteral(rawValue) ?? parseBareWord(rawValue);
       if (q === TENSION_CURRENT_KEY) {
         if (!isTensionLevel(value)) {
           result.rejected.push({ line, reason: "invalid value" });

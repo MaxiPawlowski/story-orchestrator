@@ -1,0 +1,40 @@
+v2.4 acceptance matrix row J7, defects D1 (labelled evidence quote refused) and D3 (single-quoted / value= level refused), mutations 2026-09-25 (worktree on 70b8eed; script .debug/mut_d1d3.py, each mutant applied alone as an exact-text replacement, the file restored byte-for-byte after its run; a replacement that does not match exactly once fails the script's assert, and none did)
+Suites per mutant: labelledEvidence.test + evidence.test + playerEvidence.test + evidenceCorpus.test + extraction.test (113 tests). Baseline 113/113 green; restored after the sweep, full `npm test` 260 suites / 3817 tests green.
+Red first: on 70b8eed the new labelledEvidence.test ran 27 failed / 7 passed of 34 (every real labelled line, the elision/label forms, the screen's J7 read, all six real D3 lines); the controls added after (label inside the quote, verbatim label, bare-word rule, bare label on its own name) were written against the fixed code and each is shown red by the mutant it names below. "control: a label is not evidence on its own, even where the name is a word of its line" is also red on 70b8eed: the old whole-quote rule accepted `Luke:` from any line containing the word Luke.
+
+Replay (not committed; .debug/scan_audits.py + a throwaway jest replay): 299 audits from the v2.4-acceptance journal-follow.jsonl records, window rebuilt from each audit's own prompt transcript. Old code reproduces every recorded verdict (90 "evidence not in window", 24 "invalid value", 206 accepted deltas all found). New code: 13 of the 90 now found, every one a labelled quote at the line its label names; 0 of the 206 accepted lost; 23 of the 24 invalid values now parse, the one left is `reached_tower="false"` (a bool written as a string: refused, not coerced).
+Goldens: all 44 extractor goldens (test/goldens + test/goldens/live) replayed parse + evidence screen against their fixture windows before and after; accepted / rejected / in-window counts identical (76 deltas, 28 rejected lines, 76 in window). None carries a label or a D3 shape.
+
+src/extraction/evidence.ts (lineLabel / quoteFor / holdsQuote)
+- E1 fix reverted, the quote only ever matched whole: KILLED, 21 of 113 (all 15 real labelled lines, the J7 screen read, the label forms, the world-rule and mislabel controls that open with a positive case)
+- E2 a label's index not checked against the line (`\[\d+\]`): KILLED, 1 of 113
+    "control: a label naming another speaker, or another line, than the one quoted is refused"
+- E3 a label's speaker not checked against the line (`[^:]{1,40}:`): KILLED, 4 of 113
+    "control: a label inside the quote is not the line's label"
+    "control: a label naming another speaker, or another line, than the one quoted is refused"
+    "control: the player mark belongs to the player's own line only"
+    "control: the label is the window's own, verbatim"
+- E4 the player mark accepted on every line: KILLED, 1 of 113
+    "control: the player mark belongs to the player's own line only"
+- E5 a quote that is only a label not refused (empty-fragment guard dropped): KILLED, 3 of 113
+    "control: a label is not evidence on its own, even where the name is a word of its line"
+    playerEvidence "names every message that holds the whole span", evidence.test "rejects empty evidence"
+- E6 the label matched case-insensitively: KILLED, 1 of 113
+    "control: the label is the window's own, verbatim"
+- E7 the whole quote also tried beside the unlabelled one: KILLED, 1 of 113
+    "control: a label is not evidence on its own, even where the name is a word of its line"
+  In the first sweep the code tried both the whole quote and the remainder, and the opposite mutant (remainder only) SURVIVED: a stripped remainder of a whole-quote span is always a span too, so the two differ only on a quote that is exactly the line's label. The code now tries the remainder only, and the control pins it.
+- E8 the label not anchored to the start of the quote: KILLED, 1 of 113
+    "control: a label inside the quote is not the line's label"
+  SURVIVED in the first sweep; the control was added for it.
+
+src/extraction/parse.ts (bareDeltaPattern / parseBareWord)
+- P1 the `name=value=<v>` line shape not read: KILLED, 3 of 113 (the three real `=value=` lines)
+- P2 a single-quoted value not unquoted: KILLED, 4 of 113 (three real single-quoted lines + "control: a single-quoted value is held to the bare-word rule")
+- P3 a single-quoted value skips the bare-word rule: KILLED, 1 of 113
+    "control: a single-quoted value is held to the bare-word rule"
+- P4 unbalanced single quotes stripped (`^'?…'?$`): KILLED, 1 of 113
+    "control: quote stripping never fuzzes or coerces"
+- P5 the value case-folded (fuzzy): KILLED, 1 of 113
+    "control: a value outside the levels or the enum is still refused, however it is quoted"
+Controls green under every mutant: out-of-enum / out-of-level values in every quoting, `reached_tower="false"` and `'false'` / `'true'` for bools, the forms the parser already took (`q=… value="calm"`, bare `stirring`, `"declined"`).

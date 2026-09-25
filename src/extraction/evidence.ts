@@ -8,6 +8,8 @@
 // minimum span is one whole word. There is still no character-length rule: the review's own R6
 // evidence is the seven-character `"crossed"`, and a bool may legitimately cite `yes`.
 
+import { PLAYER_MARK } from "./contract";
+
 const QUOTES = /["'‘’“”`]/g;
 // The elision marker has to survive punctuation stripping to still be a marker at split time.
 const ELISION = "\u0000";
@@ -52,12 +54,33 @@ export interface EvidenceMessage {
   messageId: number;
   text: string;
   isUser: boolean;
+  index?: number;
+  speaker?: string;
 }
 
+const escapeRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const lineLabel = (message: EvidenceMessage): RegExp | null => {
+  const speaker = message.speaker?.trim();
+  const playerMark = message.isUser ? `(?:\\s*${escapeRegExp(PLAYER_MARK.trim())})?` : "";
+  const name = speaker ? `${escapeRegExp(speaker)}${playerMark}\\s*:` : null;
+  const index = message.index === undefined ? null : `\\[${message.index}\\]`;
+  const forms = [index && name ? `${index}\\s*${name}` : null, name, index].filter((form): form is string => Boolean(form));
+  return forms.length ? new RegExp(`^\\s*(?:${forms.join("|")})\\s*`) : null;
+};
+
+const quoteFor = (evidence: string, message: EvidenceMessage): string => {
+  const label = lineLabel(message);
+  return label ? evidence.replace(label, "") : evidence;
+};
+
+const holdsQuote = (message: string, quote: string): boolean => {
+  const fragments = evidenceFragments(quote);
+  return fragments.length > 0 && holdsSpan(message, fragments);
+};
+
 export function evidenceSources(evidence: string, messages: readonly EvidenceMessage[]): number[] {
-  const fragments = evidenceFragments(evidence);
-  if (!fragments.length) return [];
-  return messages.filter((message) => holdsSpan(message.text, fragments)).map((message) => message.messageId);
+  return messages.filter((message) => holdsQuote(message.text, quoteFor(evidence, message))).map((message) => message.messageId);
 }
 
 export function evidenceInWindow(evidence: string, messages: string[]): boolean {
