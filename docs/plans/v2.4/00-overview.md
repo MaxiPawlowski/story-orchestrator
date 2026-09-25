@@ -376,7 +376,7 @@ consecutive, and `--strict`. It adds:
 | 07 part 2 | built + integrated 2026-09-25; T22 `agencyCheck` and T23 `houseRules` BUILT on Phase A (floors met, both keys off by default), combined request kept; live J8 on `d7008c958844`; `07-judge.md` §Part 2 live |
 | 08 | built + integrated 2026-09-25; live gates green ×2 on `48816ebec4fc` (5 fixtures incl. solo preview, J3, J5); T18 calibration on `56f299a98ea5` against floors predeclared in `7b2230a`: director 22/26 meets (routing buys nothing over the shared profile), curator op shape 0.565 and authoring Spanish op shape 0.75 MISS (no recommendation for either role), synthesis validity 8/8 only; `08-author-observability.md` §Live gates |
 | 06 | built + integrated 2026-09-25; live gates green ×2 on `56f299a98ea5` (objective, objective-off, overlay on Text and Chat Completion, curator); 1 live-found defect fixed (two curator passes at one boundary shared a record id); F5 curator `create` NOT BUILT (must-not-propose 0.879 < 1.00, floor kept); `06-steering-stagecraft.md` §Gate record |
-| 09 | written 2026-09-23, not started |
+| 09 | run 2026-09-25 on FROZEN candidate `4ebe1db` (bundle `65733265d301`, v2.4.0): **PARTIAL, not accepted** — 24 green / 6 red (J3, J7, J11, J12, I7, P03) / 5 partial (I1, P05, P08, CL, CH) / 2 not run (R1: v2.3 L1 never recorded; human sessions) of 37 rows; clean host green ×2 on three ST revisions; judge on/off matrix green; defects A1–A11 in the findings register, fixes merged to master after the freeze and awaiting their own live checks; `09-acceptance.md` §Gate record, `docs/release/2.4.0/attestation.json` |
 
 ## Decisions (2026-09-23, made on evidence at the user's request)
 
