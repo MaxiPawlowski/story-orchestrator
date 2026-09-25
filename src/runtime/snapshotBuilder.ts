@@ -10,7 +10,7 @@ import { jumpIndex } from "./messageJump";
 import type { MessageFingerprints } from "./fingerprints";
 import { derivePipelineStatus, expansionInFlight } from "./pipeline";
 import { hasUnsavedChanges, SAVE_PLAYER_TEXT } from "./saveHealth";
-import { blobMismatch, loadPersistedRuntime, unreadableNotice } from "./persistence";
+import { blobMismatch, loadPersistedRuntime, UNREADABLE_NOTICE } from "./persistence";
 import { findStoryRecord, listStoryRecords } from "./storyLibrary";
 import { orphanedLorebooks } from "./mirrorReaper";
 import { loreEvidenceView } from "./worldInfoEvidence";
@@ -119,8 +119,8 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     ready: Boolean(loaded),
     storyId: loaded?.record.id ?? null,
     storyHash: loaded?.record.hash ?? null,
-    storyIdentity: buildStoryIdentity(loaded?.record ?? null, loaded ? findStoryRecord(loaded.record.id) : null, Boolean(loaded && loadPersistedRuntime(loaded.record.id)?.pinnedStory)),
-    blobUnreadable: unreadable ? { foundVersion: unreadable.foundVersion, notice: unreadableNotice(unreadable) } : null,
+    storyIdentity: buildStoryIdentity(loaded?.record ?? null, loaded ? findStoryRecord(loaded.record.id) : null, Boolean(loaded && loadPersistedRuntime(loaded.record.id))),
+    blobUnreadable: unreadable ? { foundVersion: unreadable.foundVersion, notice: UNREADABLE_NOTICE } : null,
     orphanedLorebooks: orphanedLorebooks(),
     chatIdentity: loaded ? null : readChatIdentity(),
     storyTitle: story?.title ?? null,

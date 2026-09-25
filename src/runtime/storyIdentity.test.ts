@@ -229,32 +229,4 @@ describe("settings homes", () => {
     expect(second.getSnapshot().ui.authorView).toBe(false);
     expect(second.getSnapshot().pacing.shapeOverride).toBeNull();
   });
-
-  it("lifts a pre-v2.1 chat's settings into the install once", async () => {
-    mockContext.chatMetadata = {
-      story_orchestrator: {
-        version: 2,
-        selectedStoryHash: "v2-old",
-        stories: {
-          "v2-old": {
-            storyHash: "v2-old",
-            storyTitle: "Quest for the Sun Ruins",
-            engineState: null,
-            extras: {
-              extraction: { settings: { enabled: true, profileId: "legacy-profile", cadence: 7, reconciliationMultiplier: 2, stabilityLag: 1 }, audits: [], reconciliationEvents: [], lastReadBoundary: 0, scheduler: { queueDepth: 0, inFlight: false, lastError: null } },
-              ui: { authorView: true, announceTransitions: false, hudEnabled: true },
-              updatedAt: "2026-08-01T00:00:00.000Z",
-            },
-          },
-        },
-      },
-    };
-    const manager = new RuntimeManager();
-    await manager.importStory(storyJson());
-    await manager.loadSelectedFromChat();
-
-    expect(getGlobalSettings().extraction).toMatchObject({ profileId: "legacy-profile", cadence: 7 });
-    expect(getGlobalSettings().display.announceTransitions).toBe(false);
-    expect(getGlobalSettings().migratedFromChat).toBeTruthy();
-  });
 });

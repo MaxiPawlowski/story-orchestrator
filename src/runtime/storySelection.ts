@@ -1,6 +1,6 @@
 import { isValidationErrorList, storyWarnings, type NormalizedStoryV2, type ValidationError } from "@engine/index";
 import { showConfirmPopup } from "@services/STAPI";
-import { adoptChatState, blobMismatch, describeMismatch, dropPersistedRuntime, getSelectedStoryId, loadPersistedRuntime, replaceUnreadableBlob, setSelectedStoryId, unreadableNotice, unreadableStored } from "./persistence";
+import { adoptChatState, blobMismatch, describeMismatch, dropPersistedRuntime, getSelectedStoryId, loadPersistedRuntime, replaceUnreadableBlob, UNREADABLE_NOTICE, unreadableStored } from "./persistence";
 import { findStoryRecord, listStoryRecords, loadPinnedStory, loadStoryRecord, removeStoryRecord, saveStoryRecord } from "./storyLibrary";
 import type { RunGuard } from "./runToken";
 import type { LoadedStory, PersistedStoryRuntime } from "./types";
@@ -45,7 +45,7 @@ export async function loadSelectedStory(deps: StorySelectionDeps): Promise<boole
     await deps.clearStory(
       !found ? "No story selected for this chat"
         : found.kind === "foreign" ? "No story selected: this chat's saved story state is stamped for another chat"
-          : `No story selected: this chat's saved story state was ${unreadableNotice(found)}`,
+          : `No story selected: this chat's saved story state was ${UNREADABLE_NOTICE}`,
       !found ? undefined
         : found.kind === "foreign" ? `blob-chat-mismatch: stamped for ${found.stampedFor}, open chat is ${String(found.openChat)}; the stored state was left untouched`
           : `blob-unreadable: ${describeMismatch(found)}, open chat is ${String(found.openChat)}; the stored state was left untouched`,
@@ -84,13 +84,13 @@ export async function selectStory(deps: StorySelectionDeps, idOrHash: string, ch
     const found = unreadableStored();
     if (found) {
       refusedSelection = { chat: found.openChat, storyId: idOrHash };
-      deps.setStatus(`Story not selected: this chat's saved story state was ${unreadableNotice(found)}`, `blob-unreadable: selecting '${idOrHash}' refused, ${describeMismatch(found)}; the stored state was left untouched`);
+      deps.setStatus(`Story not selected: this chat's saved story state was ${UNREADABLE_NOTICE}`, `blob-unreadable: selecting '${idOrHash}' refused, ${describeMismatch(found)}; the stored state was left untouched`);
     }
     return false;
   }
   const record = findStoryRecord(idOrHash);
   const persisted = loadPersistedRuntime(idOrHash) ?? (record ? loadPersistedRuntime(record.id) : null);
-  if (persisted?.pinnedStory) {
+  if (persisted) {
     const pinned = loadPinnedStory(persisted.storyId, persisted.pinnedStory, persisted.playedVersion, persisted.contentHashAtLoad, persisted.storyTitle);
     if (!isValidationErrorList(pinned)) {
       await deps.loadStory(pinned, "hydrate", persisted);
@@ -122,7 +122,7 @@ export async function restartStory(deps: StorySelectionDeps, currentId: string |
   // it in whatever chat is open by then.
   const run = deps.beginRun?.();
   const question = unreadable
-    ? `This chat's saved story state was ${unreadableNotice(unreadable)}. Restart replaces it with a fresh start; the chat keeps its messages.`
+    ? `This chat's saved story state was ${UNREADABLE_NOTICE}. Restart replaces it with a fresh start; the chat keeps its messages.`
     : "Restart this story? The chat keeps its messages, but checkpoint progress, blackboard and story memory are cleared.";
   const confirmed = alreadyConfirmed || await showConfirmPopup(question, { okButton: "Restart story", cancelButton: "Keep playing" });
   if (!confirmed || (run && !run.stillOwns())) return false;
@@ -149,11 +149,6 @@ export async function restartStory(deps: StorySelectionDeps, currentId: string |
 export async function removeStory(deps: StorySelectionDeps, idOrHash: string): Promise<boolean> {
   const record = findStoryRecord(idOrHash);
   if (!record || !removeStoryRecord(idOrHash)) return false;
-  // Chats keep playing their pinned copies; only a chat without one loses the story.
-  if (deps.isLoaded(record.id) && !loadPersistedRuntime(record.id)?.pinnedStory) {
-    setSelectedStoryId(null);
-    await loadSelectedStory(deps);
-  }
   deps.setStatus(`Removed "${record.title}" from the library`);
   return true;
 }

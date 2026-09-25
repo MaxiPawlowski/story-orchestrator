@@ -247,7 +247,7 @@ describe("v2.4 plan 02 T3: mutation events against the fingerprints (TurnBridge 
 });
 
 describe("v2.4 plan 02 §0: a stale integrity with a matching chat id", () => {
-  it("is restamped at the next own save and journaled, never read as foreign", async () => {
+  it("is restamped at the next own save, never read as foreign", async () => {
     const manager = await playedToNext();
     expect(blob().integrity).toBe("i-a");
     mockContext.chatMetadata.integrity = "i-b";
@@ -256,6 +256,5 @@ describe("v2.4 plan 02 §0: a stale integrity with a matching chat id", () => {
     expect(blob()).toMatchObject({ chatId: "chat-a", integrity: "i-b" });
     expect(blobMismatch()).toBeNull();
     expect(manager.getSnapshot().ready).toBe(true);
-    expect(journalSummaries(manager)).toContain("integrity-restamped");
   });
 });

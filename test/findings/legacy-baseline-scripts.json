@@ -8,11 +8,7 @@
     "scripts/debug/so-library.mts": 10,
     "scripts/debug/so-scenario.mts": 4,
     "scripts/debug/so-state.mts": 1,
-    "test/fixtures/legacy-v2-chat-blob.json": 1,
-    "test/fixtures/v3-chat-blob.json": 7,
-    "test/journeys/j10-identity-and-settings.journey.json": 8,
     "test/scenarios/live-v12-legacy-expansion.json": 2,
-    "test/scenarios/v24-02-unrecognized-blob.json": 2,
     "test/scenarios/v24-acc-I6.json": 2,
     "test/scenarios/v24-acc-I7.json": 7
   },

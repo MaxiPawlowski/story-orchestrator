@@ -12,8 +12,6 @@
     "src/runtime/extras.ts": 12,
     "src/runtime/librarySave.ts": 2,
     "src/runtime/memoryActions.ts": 4,
-    "src/runtime/persistence.ts": 7,
-    "src/runtime/persistenceMigration.ts": 17,
     "src/runtime/runtimeManager.ts": 4,
     "src/runtime/settingsStore.ts": 10,
     "src/runtime/storyLibrary.ts": 15,

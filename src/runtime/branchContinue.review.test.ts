@@ -270,7 +270,6 @@ describe("v2.4 plan 02 §5: Continue from here", () => {
     expect(manager.getEngineState()).toMatchObject({ activeCheckpointId: "start", lastMessageId: 1 });
     expect(manager.getSnapshot()).toMatchObject({ ready: true, chatIdentity: null });
     expect(note).toHaveBeenCalledWith("branch continued", expect.stringContaining("chat-a"));
-    expect(journalSummaries(manager)).not.toContain("integrity-restamped");
   });
 
   it("a swipe-branch steps back from the first message that differs", async () => {

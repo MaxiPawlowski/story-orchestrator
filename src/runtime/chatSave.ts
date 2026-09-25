@@ -71,7 +71,7 @@ export class ChatSave {
     // v2.4 plan 02 T3: the fingerprints land in the same write as the boundary they describe.
     const fingerprints = this.fingerprints.capture(chatNow(), engine.history.from.messageId, engine.state.lastMessageId);
     const record = { storyId: loaded.record.id, storyTitle: loaded.story.title, pinnedStory: loaded.record.raw, playedVersion: loaded.record.version, contentHashAtLoad: loaded.record.hash, engineState: engine.state, engineHistory: engine.history, extras: stripGlobalSettings(extras), ...(fingerprints ? { fingerprints } : {}) };
-    const evicted = savePersistedRuntime(record, (from, to) => this.deps.journal("integrity-restamped", `this chat's story state carried integrity ${from}, the chat's is ${to}: adopted by a build that restamps the chat id only, so it is this chat's and was restamped`, true));
+    const evicted = savePersistedRuntime(record);
     const notice = evictedStoryNotice(evicted, (id) => listStoryRecords().find((record) => record.id === id)?.title ?? null);
     if (notice) this.deps.recap(notice.summary, notice.detail);
     await this.saveAndObserve();

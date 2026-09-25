@@ -14,6 +14,8 @@ const getRoot = () => {
   return settings[ROOT_KEY] as Record<string, unknown>;
 };
 
+const storyObject = (raw: unknown): Record<string, unknown> | null => (raw && typeof raw === "object" && !Array.isArray(raw) ? raw as Record<string, unknown> : null);
+
 const isStoryRecord = (value: unknown): value is StoryLibraryRecord => {
   return Boolean(value) && typeof value === "object" && typeof (value as StoryLibraryRecord).hash === "string" && typeof (value as StoryLibraryRecord).title === "string";
 };
@@ -105,6 +107,8 @@ export function availableStoryId(base: string): string {
 export function saveStoryRecord(raw: unknown): LoadedStory | RuntimeSnapshot["validationErrors"] {
   const parsed = parseStoryV2(raw);
   if (isValidationErrorList(parsed)) return parsed;
+  const body = storyObject(raw);
+  if (!body) return [{ path: "$", message: "a story is a JSON object" }];
   const hash = hashStory(raw);
   const id = storyIdFor(parsed, hash);
   const records = listStoryRecords();
@@ -118,7 +122,7 @@ export function saveStoryRecord(raw: unknown): LoadedStory | RuntimeSnapshot["va
     hash,
     title: parsed.title,
     description: parsed.description,
-    raw,
+    raw: body,
     importedAt: existing?.importedAt ?? new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -150,7 +154,7 @@ export function loadStoryRecord(record: StoryLibraryRecord): LoadedStory | Runti
 }
 
 // A chat plays its pinned copy, so it must load without consulting the library at all.
-export function loadPinnedStory(id: string, pinned: unknown, version: number, hash: string, title: string): LoadedStory | RuntimeSnapshot["validationErrors"] {
+export function loadPinnedStory(id: string, pinned: Record<string, unknown>, version: number, hash: string, title: string): LoadedStory | RuntimeSnapshot["validationErrors"] {
   const parsed = parseStoryV2(pinned);
   if (isValidationErrorList(parsed)) return parsed;
   const record: StoryLibraryRecord = {
