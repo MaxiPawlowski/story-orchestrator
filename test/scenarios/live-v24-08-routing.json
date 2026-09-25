@@ -1,0 +1,69 @@
+{
+  "_note": "v2.4 plan 08 T18 live gate (one routed role on the real model). Run twice: node scripts/debug/so-scenario.mts run test/scenarios/live-v24-08-routing.json --sandbox --group 1759606632088; diff a run header around it (extraction.profiles must read back as before: the runner's extraction restore covers profiles). Routes speaker direction to the memory model's own profile id through the role map (source role, not fallback), runs the director self-test from the settings panel (3 labelled director.json cases must parse), plays a real turn and requires a talk decision with the route healthy, then points the curator at a profile id that does not exist and requires the Repair row for it (area model-role, the curator consequence), and finally clears the role map. A second live profile is not assumed.",
+  "steps": [
+    {
+      "import_story": {
+        "file": "./live-v24-08.story.json"
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error('needs the sandbox group chat'); const snapshot = globalThis.storyOrchestratorRuntime.getSnapshot(); if (!snapshot.requirements.ready) throw new Error(`requirements not ready: ${JSON.stringify(snapshot.requirements)}`); return { group: ctx.groupId, chat: ctx.chatId };"
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const extraction = rt.getGlobalSettings().extraction; if (!extraction.profileId) throw new Error('no memory model profile is selected'); globalThis.__p08r = { before: extraction.profiles ?? {} }; rt.setTalkDirectionEnabled?.(true); rt.setExtractionSettings({ profiles: { director: extraction.profileId } }); const route = (rt.getSnapshot().roleRoutes ?? []).find((entry) => entry.role === 'director'); if (!route || route.state === 'fallback' || route.profileId !== extraction.profileId) throw new Error(`director is not routed: ${JSON.stringify(route)}`); return route;",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-settings"
+      }
+    },
+    {
+      "eval": "const details = document.getElementById('so-role-profiles'); if (!details) throw new Error('#so-role-profiles is not in the settings panel'); details.open = true; return true;"
+    },
+    {
+      "ui": {
+        "action": "pointer-click",
+        "selector": "#so-role-profiles [data-role=\"director\"] [data-so=\"role-profile-test\"]"
+      }
+    },
+    {
+      "eval": "const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const deadline = Date.now() + 180000; let route = null; while (Date.now() < deadline) { route = (globalThis.storyOrchestratorRuntime.getSnapshot().roleRoutes ?? []).find((entry) => entry.role === 'director'); if (route && (route.state === 'ok' || route.state === 'failed')) break; await sleep(1000); } if (route?.state !== 'ok') throw new Error(`director self-test did not pass on the routed profile: ${JSON.stringify(route)}`); return route;",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I wave at both of them. So, who is going to tell me about the job?",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "talkDecisions": 1,
+        "timeoutMs": 120000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const decisions = rt.getTalkState().decisions ?? []; const route = (rt.getSnapshot().roleRoutes ?? []).find((entry) => entry.role === 'director'); if (!decisions.length) throw new Error('no talk decision recorded'); if (route.state === 'not-answering' || route.state === 'missing') throw new Error(`the routed director profile is unhealthy: ${JSON.stringify(route)}`); return { last: decisions[decisions.length - 1], route };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const profileId = rt.getGlobalSettings().extraction.profileId; rt.setExtractionSettings({ profiles: { director: profileId, curator: 'so-p08-dangling-profile' } }); const route = (rt.getSnapshot().roleRoutes ?? []).find((entry) => entry.role === 'curator'); if (route?.state !== 'missing') throw new Error(`a dangling curator profile should read missing: ${JSON.stringify(route)}`); return route;",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-settings"
+      }
+    },
+    {
+      "eval": "const row = document.querySelector('#so-entry-repair[data-area=\"model-role\"]'); if (!row) throw new Error(`no model-role Repair row: ${document.querySelector('#so-entry-repair')?.getAttribute('data-area') ?? 'none'}`); if (!row.textContent.includes('World Info curator stops proposing changes')) throw new Error(`the Repair row does not name the curator's consequence: ${row.textContent}`); return row.textContent.trim().slice(0, 200);",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ profiles: globalThis.__p08r?.before ?? {} }); delete globalThis.__p08r; return rt.getGlobalSettings().extraction.profiles ?? {};",
+      "log": true
+    }
+  ]
+}

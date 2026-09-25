@@ -28,6 +28,7 @@ jest.mock("@services/STAPI", () => ({
   setStoryExtensionPrompt: (key: string, value: string, depth: number) => { mockHost.prompts[key] = { value, depth, role: 0 }; },
   clearStoryExtensionPrompt: (key: string) => { delete mockHost.prompts[key]; },
   readInjectedPromptBlocks: () => Object.entries(mockHost.prompts).filter(([, entry]) => entry.value.trim()).map(([key, entry]) => ({ key, ...entry })),
+  readExtensionPromptBlocks: () => ({ own: Object.entries(mockHost.prompts).filter(([, entry]) => entry.value.trim()).map(([key, entry]) => ({ key, ...entry, position: 1, hasFilter: false })), foreign: [] }),
 }));
 
 const LUKE_SECRET = "the relic in the chapel is a forgery";

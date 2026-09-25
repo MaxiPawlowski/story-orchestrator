@@ -6,7 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { branchContinue, closeCharacterPanel, memoryQueueSelector, PLAYER_RECOVERY_CONTROLS, recoveryControlFindings } from './so-ui.mts';
+import { assignedRoleProfiles, branchContinue, closeCharacterPanel, jumpToCitation, memoryQueueSelector, PLAYER_FORBIDDEN_SELECTORS, PLAYER_RECOVERY_CONTROLS, recoveryControlFindings } from './so-ui.mts';
 
 test('keep and lock address the side row inside the named pair', () => {
   assert.equal(memoryQueueSelector({ action: 'keep', key: 'fact:abc' }), '[data-so="conflict-pair"][data-key="fact:abc"] [data-so="conflict-keep"] >> nth=0');
@@ -119,4 +119,27 @@ test('a recovery control whose label leaks internals is a finding', () => {
   assert.ok(findings.some((finding) => finding.needle.includes('"profile"')));
   assert.ok(findings.some((finding) => finding.needle.includes('"API"')));
   assert.ok(findings.every((finding) => finding.needle.startsWith('#so-pipeline-retry')));
+});
+
+// v2.4 plan 08: the author-grade surfaces this plan added stay out of player mode, and the role pinning
+// names a routed profile the panel no longer offers.
+test('the player-clean sweep forbids the plan 08 author surfaces', () => {
+  for (const selector of ['[data-so="next-turn-cost"]', '[data-so="next-turn-tokens"]', '[data-so="next-turn-trim"]', '[data-so="next-turn-foreign"]', '[data-so="next-turn-foreign-row"]', '[data-so="memory-fate"]', '[data-so="jump-to-message"]']) {
+    assert.ok(PLAYER_FORBIDDEN_SELECTORS.includes(selector), selector);
+  }
+});
+
+test('assigned role profiles resolve to the offered label, and a dangling id reads as null', async () => {
+  (globalThis as any).SillyTavern = { getContext: () => ({ extensionSettings: { 'story-orchestrator': { settings: { extraction: { profiles: { director: 'fast', curator: 'gone' } } } } } }) };
+  (globalThis as any).document = { querySelectorAll: () => [{ value: 'memory', textContent: ' Memory RunPod ' }, { value: 'fast', textContent: 'Fast local' }] };
+  assert.deepEqual(await assignedRoleProfiles(fakePage), { director: { id: 'fast', label: 'Fast local' }, curator: { id: 'gone', label: null } });
+  (globalThis as any).SillyTavern = { getContext: () => ({ extensionSettings: {} }) };
+  assert.deepEqual(await assignedRoleProfiles(fakePage), {});
+  delete (globalThis as any).SillyTavern;
+  delete (globalThis as any).document;
+});
+
+test('jump refuses when no citation matches instead of clicking nothing', async () => {
+  const page = { locator: () => ({ nth: () => ({ count: async () => 0 }) }) } as never;
+  await assert.rejects(jumpToCitation(page, {}), /no citation matched \[data-so="jump-to-message"\] \(index 0\)/);
 });

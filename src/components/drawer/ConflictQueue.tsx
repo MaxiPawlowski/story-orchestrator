@@ -2,6 +2,7 @@ import { useState } from "react";
 import { describeProvenance, isQuarantined, originLabel, type ConflictPair, type EpistemicEntry, type LedgerEntry, type MemoryEntry, type Provenance } from "@memory/index";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import type { RuntimeSnapshot } from "@runtime/types";
+import { MessageCitation } from "./MessageCitation";
 
 // v2.3 plan 05 (C3). Two stores can disagree about the same thing, and until the author decides, both
 // rows are held out of every prompt. This is where the decision is made: keep one side, lock a fact
@@ -14,11 +15,17 @@ const byNewest = (left: ConflictPair, right: ConflictPair) => right.detectedAt.l
 // Where a side came from, in the same words the Memory tab uses (`originLabel`): a legacy envelope
 // is a hydrate-time default, so it reads as an unknown rather than as a source — and a legacy
 // envelope carries `messageId -1`, which must not print as "message -1" (2026-09-22).
-const originText = (provenance: Provenance | undefined, messageId: number | undefined, confidence: number | undefined) => [
-  originLabel(provenance),
-  messageId === undefined || messageId < 0 ? "" : `message ${messageId}`,
-  confidence === undefined ? "" : `${Math.round(confidence * 100)}% sure`,
-].filter(Boolean).join(" · ");
+const originText = (provenance: Provenance | undefined, messageId: number | undefined, confidence: number | undefined) => {
+  const hasMessage = messageId !== undefined && messageId >= 0;
+  const sure = confidence === undefined ? "" : `${Math.round(confidence * 100)}% sure`;
+  return (
+    <>
+      {originLabel(provenance)}
+      {hasMessage && <> · <MessageCitation messageId={messageId} /></>}
+      {sure && ` · ${sure}`}
+    </>
+  );
+};
 
 const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: RuntimeManager }) => {
   // A decision is applied in memory and then written, and the write is the half that can fail: the

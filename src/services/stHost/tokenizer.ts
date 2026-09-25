@@ -3,8 +3,9 @@ import { getContext } from "./context";
 export async function countTokens(text: string): Promise<number> {
   const value = text?.trim();
   if (!value) return 0;
-  const context = getContext() as unknown as { getTokenCountAsync: (str: string, padding?: number) => Promise<number> };
-  return context.getTokenCountAsync(value);
+  const count = getContext().getTokenCountAsync;
+  if (typeof count !== "function") throw new Error("this build exposes no getTokenCountAsync");
+  return count(value);
 }
 
 export async function countTokensBatch(texts: string[]): Promise<number> {

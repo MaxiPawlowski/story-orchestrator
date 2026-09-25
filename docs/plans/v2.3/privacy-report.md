@@ -141,3 +141,10 @@ the name, as the director and scene read already send.
 **Per host:** one host, TypeSafe (D10: hosted routes and local Jev-likes are v2.5). TypeSafe's published
 terms were not read in this pass; the row stands on the code inventory above, and a capture of a live
 `agencyCheck` + `houseRules` request (J8.10/J8.12 on arm) is what turns it into a measurement.
+
+## v2.4 plan 08 addendum (2026-09-25)
+
+| What | Where it goes | Where |
+|---|---|---|
+| Other extensions' injected prompt blocks (`extensionPrompts` entries not prefixed `story_`) | Read for the author-view next-turn preview only: key, position, depth, role, a first line (≤ 120 chars) and a token count. **Never persisted, never captured, never sent anywhere**; rendered only in author view (the player sweep forbids `[data-so="next-turn-foreign"]`). A token count on this install is a local tokenize request to the main API backend, the same one ST makes for its own counter | `stHost/promptInspector.ts readExtensionPromptBlocks`, `runtime/nextTurn.ts buildForeignRows`, `runtime/promptCost.ts` |
+| Per-task model routing (`extraction.profiles`) | Each pass family's prompt goes to the Connection Manager profile the author chose for that family (T1 above, one transport per chosen profile). An unset family keeps the memory model; a chosen profile that no longer exists refuses rather than falling back | `runtime/passProfiles.ts`, `extraction/client.ts` router |

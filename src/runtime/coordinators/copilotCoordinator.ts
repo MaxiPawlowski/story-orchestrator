@@ -41,8 +41,8 @@ export class CopilotCoordinator {
 
   constructor(private readonly deps: CopilotCoordinatorDeps) {}
 
-  private client(debugResponse?: string): { profileId: string | null; debugResponse: string | null } {
-    return { profileId: this.deps.getProfileId(), debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugCopilotResponse ?? null };
+  private client(debugResponse?: string): { profileId: string | null; role: "authoring"; debugResponse: string | null } {
+    return { profileId: this.deps.getProfileId(), role: "authoring", debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugCopilotResponse ?? null };
   }
 
   async runStage(input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[]; environment?: ProvisioningEnvironment }, debugResponse?: string): Promise<ProposalResult> {

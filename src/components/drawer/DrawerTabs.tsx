@@ -9,8 +9,10 @@ import ConflictQueue from "./ConflictQueue";
 import PlayerOverview from "./PlayerOverview";
 import StagecraftPanel from "./StagecraftPanel";
 import ScenePanel from "./ScenePanel";
+import { NextTurnPanel, type NextTurnOwnerTab } from "./NextTurnPanel";
+import { FATE_LABELS } from "./memoryFate";
+import { MessageCitation, MessageJumpProvider } from "./MessageCitation";
 
-type NextTurnOwnerTab = RuntimeSnapshot["nextTurn"][number]["ownerTab"];
 
 export type DrawerTabId = "overview" | "blackboard" | "memory" | "scheduler" | "payload";
 
@@ -49,6 +51,8 @@ export interface DrawerTabsProps {
   onNewStory?: () => void;
   /** v2.4 plan 02 §5 (author view, E1): cut a branch at the oldest point this run can still restore. */
   onBranchFromOldest?: (messageId: number) => void;
+  /** v2.4 plan 08 T19d (D12, author view): a cited "message N" scrolls the chat there through /chat-jump. */
+  onJumpToMessage?: (messageId: number) => void;
 }
 
 const extractionReady = (snapshot: RuntimeSnapshot): boolean => snapshot.extraction.settings.enabled && Boolean(snapshot.extraction.settings.profileId);
@@ -341,6 +345,8 @@ const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapshot: Run
                       {/* v2.3 plan 05: a legacy envelope is a STATED unknown, not a read — showing "legacy"
                           would dress it as an extractor source the row never had. */}
                       {authorView && <span data-so="memory-origin" title={originTitle(entry)}>{originLabel(entry.provenance)}</span>}
+                      {authorView && <MessageCitation messageId={entry.provenance?.messageId} />}
+                      {authorView && snapshot.memoryInjection?.fates[entry.id] && <span data-so="memory-fate" data-fate={snapshot.memoryInjection.fates[entry.id]}>{FATE_LABELS[snapshot.memoryInjection.fates[entry.id]]}</span>}
                       <button className="menu_button" onClick={() => void manager.setMemoryPinned(entry.id, !entry.pinned)}>{entry.pinned ? "Unpin" : "Pin"}</button>
                       {authorView && <button className="menu_button" data-so="memory-lock" title="Lock: freeze this as the story's truth. No extraction or consolidation may retire it, and a contradicting claim goes to the queue you decide." onClick={() => void manager.memoryActions.setMemoryLocked(entry.id, !entry.locked)}>{entry.locked ? "Unlock" : "Lock"}</button>}
                       <button className="menu_button" onClick={() => startEdit(entry.id, entry.text)}>Edit</button>
@@ -396,7 +402,7 @@ const EffectLedgerPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
         <div key={row.id} data-so="effect-row" data-status={row.status} className="opacity-80 mt-1">
           <div>{describeEffectTarget(row.target)} <span className="opacity-60">· {row.effect} · {EFFECT_STATUS_COPY[row.status] ?? row.status}</span></div>
           {row.reason && <div className="text-amber-300">{row.reason}</div>}
-          <div className="opacity-50">boundary {row.boundary} · message {row.messageId}</div>
+          <div className="opacity-50">boundary {row.boundary} · <MessageCitation messageId={row.messageId} /></div>
         </div>
       ))}
     </details>
@@ -522,7 +528,7 @@ const TalkDecisionsPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
         decisions.map((decision) => (
           <div key={`${decision.checkpointId}-${decision.messageId}-${decision.at}`} className="border-t border-solid border-white/10 mt-1 pt-1">
             <div className="opacity-100">{decision.chosenName ?? "silence"} <span className="opacity-60">via {TALK_SOURCE_LABELS[decision.source] ?? decision.source}</span></div>
-            <div>msg {decision.messageId} · {decision.checkpointId} · {decision.latencyMs} ms</div>
+            <div><MessageCitation messageId={decision.messageId} prefix="msg" /> · {decision.checkpointId} · {decision.latencyMs} ms</div>
           </div>
         ))
       )}
@@ -620,7 +626,7 @@ const LoreForced = ({ record }: { record: RuntimeSnapshot["loreForced"] | undefi
   return (
     <div data-so="lore-forced">
       <div className="font-medium opacity-100">Lore forced this turn</div>
-      <div className="opacity-70">message {record.messageId} · {String(record.p?.trigger ?? "")} · {record.fallback ? `fell back (${record.fallback})` : `${record.latencyMs} ms`}</div>
+      <div className="opacity-70"><MessageCitation messageId={record.messageId} /> · {String(record.p?.trigger ?? "")} · {record.fallback ? `fell back (${record.fallback})` : `${record.latencyMs} ms`}</div>
       {picks.length === 0 ? <div className="opacity-60">Nothing over the floor; ST's keyword scan ran as usual.</div> : picks.map(([title, p]) => <div key={title}>{title} <span className="opacity-60">{typeof p === "number" ? `${Math.round(p * 100)}%` : p}</span></div>)}
     </div>
   );
@@ -679,51 +685,6 @@ const ScanGateTable = ({ view, evidence }: { view: RuntimeSnapshot["scanGate"]; 
   );
 };
 
-// v2.3 plan 09. What the NEXT reply will carry, in the order ST assembles it, with the one control
-// this surface owns per contributor. It is read from ST's own extension prompts rather than from the
-// last capture — a capture answers what the previous turn carried, which is a different question.
-// V19: "edited in: memory" named the owning editor without reaching it. Each contributor now opens it:
-// a drawer tab, or the settings panel for what the install configures.
-const OWNER_LABELS: Record<NextTurnOwnerTab, string> = { memory: "Open Memory", scheduler: "Open Scheduler", config: "Open settings", payload: "" };
-
-const NextTurnPanel = ({ snapshot, manager, onOpenOwner }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; onOpenOwner: (tab: NextTurnOwnerTab) => void }) => {
-  const rows = snapshot.nextTurn;
-  return (
-    <div id="so-next-turn" className="flex flex-col gap-1">
-      <div className="font-medium opacity-100">Next reply ({rows.length} contributor{rows.length === 1 ? "" : "s"})</div>
-      {rows.length === 0 ? (
-        <div className="opacity-70">Nothing is injected into the next reply.</div>
-      ) : rows.map((row) => (
-        <div key={row.key} data-so="next-turn-row" data-key={row.key} className="border-t border-solid border-white/10 pt-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="opacity-100">{row.label}</span>
-            <span className="opacity-60">depth {row.depth} · {row.characters} chars</span>
-            {row.target && <span className="st-pill px-1 text-[10px]" title="Injected only for the member ST drafts">private → {row.target}</span>}
-            {row.oneShot && <span className="st-pill px-1 text-[10px]">one turn</span>}
-            {row.freshness !== "live" && <span className="text-yellow-300">{row.freshness}</span>}
-            {row.fallback && <span className="text-yellow-300">fell back ({row.fallback})</span>}
-          </div>
-          <div className="opacity-60">{row.owner}</div>
-          <div className="whitespace-pre-wrap opacity-80">{row.preview}</div>
-          <div className="flex flex-wrap items-center gap-2 pt-1">
-            {row.oneShot && (
-              <button data-so="next-turn-clear" className="menu_button text-xs" onClick={() => manager.previewActions.clearNote()}>Clear the note</button>
-            )}
-            {row.key === "story_orchestrator_scene" && (
-              <button data-so="next-turn-reread-scene" className="menu_button text-xs" onClick={() => void manager.previewActions.rerunScene()}>Re-read the scene</button>
-            )}
-            {row.ownerTab === "payload" ? (
-              <span className="opacity-60">edited here, in the driver</span>
-            ) : (
-              <button data-so="next-turn-open-owner" data-owner-tab={row.ownerTab} className="menu_button text-xs" onClick={() => onOpenOwner(row.ownerTab)}>{OWNER_LABELS[row.ownerTab]}</button>
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
-
 const SamplerOverlayRow = ({ overlay }: { overlay: RuntimeSnapshot["samplerOverlay"] }) => {
   if (!overlay) return null;
   const values = Object.entries(overlay.values).map(([key, value]) => `${key} ${value}`).join(", ");
@@ -745,7 +706,7 @@ const PayloadTab = ({ snapshot, manager, onOpenOwner }: { snapshot: RuntimeSnaps
       <LoreFired evidence={snapshot.loreEvidence} />
       <ScanGateTable view={snapshot.scanGate} evidence={snapshot.loreEvidence} />
       <SamplerOverlayRow overlay={snapshot.samplerOverlay} />
-      <NextTurnPanel snapshot={snapshot} manager={manager} onOpenOwner={onOpenOwner} />
+      <NextTurnPanel snapshot={snapshot} actions={manager.previewActions} onOpenOwner={onOpenOwner} />
       <div className="font-medium opacity-100">Injected prompt payload</div>
       {captures.length === 0 ? (
         <div className="opacity-70">No captures yet. Blocks are recorded when a generation starts.</div>
@@ -825,7 +786,7 @@ const StoryControls = ({ snapshot, manager, onEditStory, onOpenRepair, onNewStor
   );
 };
 
-export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditStory, onFixWithWizard, onOpenRepair, onNewStory, onBranchFromOldest }: DrawerTabsProps) => {
+export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditStory, onFixWithWizard, onOpenRepair, onNewStory, onBranchFromOldest, onJumpToMessage }: DrawerTabsProps) => {
   const [active, setActive] = useState<DrawerTabId>("overview");
   // v2.3 plan 05: a warden card cites the message a fact was read from, so its button has to land on
   // that fact. A `bound:` id is the blackboard's, and the blackboard tab is where it lives; a memory
@@ -839,6 +800,7 @@ export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditSt
   const tabs = TABS.filter((tab) => authorView || !tab.authorOnly);
   const activeTab = tabs.some((tab) => tab.id === active) ? active : "overview";
   return (
+    <MessageJumpProvider value={{ enabled: authorView, index: snapshot.chatJump ?? null, onJump: onJumpToMessage ?? null }}>
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-1">
         <div className="flex flex-wrap gap-1" role="tablist" aria-label="Story Orchestrator tabs">
@@ -872,6 +834,7 @@ export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditSt
         </div>
       )}
     </div>
+    </MessageJumpProvider>
   );
 };
 

@@ -74,6 +74,9 @@ jest.mock("@services/STAPI", () => {
     readInjectedPromptBlocks: () => Object.entries(mockExtensionPrompts)
       .filter(([key, entry]) => key.startsWith("story_") && entry.value.trim())
       .map(([key, entry]) => ({ key, depth: entry.depth, role: 0, value: entry.value })),
+    readExtensionPromptBlocks: () => ({ own: Object.entries(mockExtensionPrompts)
+      .filter(([key, entry]) => key.startsWith("story_") && entry.value.trim())
+      .map(([key, entry]) => ({ key, depth: entry.depth, role: 0, value: entry.value, position: 1, hasFilter: false })), foreign: [] }),
     showTextPopup: jest.fn(() => ({ close: () => { mockPopupCloses.count += 1; } })),
   };
 });

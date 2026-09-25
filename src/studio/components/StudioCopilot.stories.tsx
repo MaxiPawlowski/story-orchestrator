@@ -15,7 +15,7 @@ const INVALID_RESPONSE = JSON.stringify({
   ops: [{ kind: "addTransition", transition: { from: "start", to: "cache", gate: { q: "ghost", op: "==", v: true }, priority: 0 } }],
 });
 
-const stageRunner = (debugResponse: string) => (input: AuthoringStageInput) => runAuthoringStage(input, { profileId: null, debugResponse });
+const stageRunner = (debugResponse: string) => (input: AuthoringStageInput) => runAuthoringStage(input, { profileId: null, role: "authoring", debugResponse });
 
 const meta: Meta<typeof StudioCopilot> = {
   title: "Studio/StudioCopilot",
@@ -88,6 +88,7 @@ const INTERVIEW_THEN_PROPOSAL = (() => {
     call += 1;
     return runAuthoringStage(input, {
       profileId: null,
+      role: "authoring",
       debugResponse: call === 1
         ? JSON.stringify({ summary: "Two calls would change the shape.", questions: [{ id: "tone", text: "Comic or grim?", why: "it sets the tension curve", options: ["comic", "grim"] }] })
         : VALID_RESPONSE,

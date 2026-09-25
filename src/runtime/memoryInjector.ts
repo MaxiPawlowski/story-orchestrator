@@ -1,7 +1,7 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import {
   applyEpistemicInjection, applyLedgerInjection, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildLedgerView,
-  buildMemoryInjectionBlocks, clearAllMemoryInjection, clearEpistemicInjection, memoryExtensionKey, openArcTexts,
+  buildMemoryInjectionBlocks, clearAllMemoryInjection, memoryInjectionView, pinnedOverflowOf, type MemoryInjectionView, clearEpistemicInjection, memoryExtensionKey, openArcTexts,
   renderLedgerBlock, renderPrivateEpistemicBlock, renderSoloEpistemicBlock, type LedgerBinding, type LedgerView, type MemoryTier,
   type ScoreContext,
 } from "@memory/index";
@@ -28,6 +28,8 @@ export interface MemoryInjectorDeps {
 // the only memory field it writes is `pinnedOverflow`, through the coordinator.
 export class MemoryInjector {
   private stagedPrivate = new Map<string, { facts: string; epistemic: string }>();
+  private lastInjection: MemoryInjectionView | null = null;
+  private readonly highWater: Partial<Record<MemoryTier, number>> = {};
 
   constructor(private readonly deps: MemoryInjectorDeps) {}
 
@@ -48,6 +50,11 @@ export class MemoryInjector {
     return { tokenBudgets: this.state.settings.tierTokenBudgets, scoreContext: this.scoreContext() };
   }
 
+  /** v2.4 plan 08: the read-models the snapshot takes from the injector, fates from the same update that wrote the blocks. */
+  readModels(): { ledger: LedgerView[]; memoryInjection: MemoryInjectionView | null } {
+    return { ledger: this.ledgerView(), memoryInjection: this.lastInjection };
+  }
+
   ledgerView(): LedgerView[] {
     const state = this.deps.getState();
     if (!state) return [];
@@ -59,12 +66,15 @@ export class MemoryInjector {
     if (!story || !this.deps.enabled()) {
       clearAllMemoryInjection();
       this.stagedPrivate.clear();
+      this.lastInjection = null;
       if (this.state.pinnedOverflow) this.deps.setPinnedOverflow(0);
       return;
     }
     const options = this.options();
     const speaker = activeSpeakerId(story);
-    const pinnedOverflow = applyMemoryInjection(this.state.entries, speaker, this.state.settings.injectionDepths, options);
+    const injection = applyMemoryInjection(this.state.entries, speaker, this.state.settings.injectionDepths, options);
+    this.lastInjection = memoryInjectionView(injection, this.highWater);
+    const pinnedOverflow = pinnedOverflowOf(injection.fates);
     if (pinnedOverflow !== this.state.pinnedOverflow) this.deps.setPinnedOverflow(pinnedOverflow);
 
     const state = this.deps.getState();

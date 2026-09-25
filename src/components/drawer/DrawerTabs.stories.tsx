@@ -125,13 +125,15 @@ const sampleSnapshot = (): RuntimeSnapshot => derive(({
         { key: "story_orchestrator_pacing", depth: 2, role: 0, value: "Raise the stakes toward the sanctum." },
       ] },
     ],
-    nextTurn: [
+    nextTurn: ([
       { key: "story_orchestrator_continuity", label: "Continuity note", owner: "runtime/coordinators/stagecraftCoordinator", ownerTab: "scheduler", depth: 0, role: 0, characters: 62, target: null, oneShot: true, freshness: "live", fallback: null, preview: "The wards are broken, and the sanctum is unsealed." },
       { key: "story_orchestrator_scene", label: "Scene so far", owner: "runtime/coordinators/sceneCoordinator", ownerTab: "scheduler", depth: 1, role: 0, characters: 44, target: null, oneShot: false, freshness: "stale", fallback: null, preview: "The inner sanctum, the wards failing at the threshold." },
       { key: "story_orchestrator_epistemic", label: "What the speaker knows", owner: "memory/inject.applyEpistemicInjection", ownerTab: "memory", depth: 4, role: 0, characters: 51, target: "Arin", oneShot: false, freshness: "live", fallback: "timeout", preview: "[hiding from Arin] the key is a forgery" },
       { key: "story_orchestrator_memory_facts", label: "Memory — established facts", owner: "memory/inject.applyMemoryInjection", ownerTab: "memory", depth: 4, role: 0, characters: 37, target: null, oneShot: false, freshness: "live", fallback: null, preview: "The sun-key opens the inner sanctum." },
       { key: "story_orchestrator_pacing", label: "Pacing", owner: "runtime/runtimeManager.applyPacingSteering", ownerTab: "config", depth: 4, role: 0, characters: 36, target: null, oneShot: false, freshness: "live", fallback: null, preview: "Raise the stakes toward the sanctum." },
-    ],
+    ] as Array<Record<string, unknown>>).map((row) => ({ tokens: null, tokenSource: null, share: null, position: 1, conditional: false, ...row })),
+    nextTurnForeign: [],
+    nextTurnCost: { ownTokens: null, foreignTokens: 0, counting: 5, estimated: false, budget: null, context: null, response: null, budgetUnknown: "the context size has not been read", share: null, lastGenerationBudget: null },
   }) as unknown as RuntimeSnapshot);
 
 const previewActions = { clearNote: fn(), rerunScene: fn() };
@@ -1133,5 +1135,92 @@ export const PlayerNeverSeesTheHistoryFloor: Story = {
     await expect(canvas.getByText(/further than this chat can rewind/)).toBeInTheDocument();
     await expect(canvas.queryByRole("button", { name: "Branch from the oldest restorable point" })).toBeNull();
     await expect(canvasElement.querySelector("#so-history-floor")).toBeNull();
+  },
+};
+
+const FATE_ROWS = [
+  ["f-injected", "injected", "The sun-key opens the inner sanctum."],
+  ["f-quarantined", "quarantined", "The gate is sealed by dawn wards."],
+  ["f-superseded", "superseded", "The key is lost."],
+  ["f-folded", "folded", "The key is golden."],
+  ["f-other", "other-speaker", "Kael owes Mara a crossing."],
+  ["f-over", "over-budget", "The dunes shift at night."],
+  ["f-pinned", "pinned-overflow", "The ferryman never lies."],
+] as const;
+
+const fateSnapshot = (authorView: boolean): RuntimeSnapshot => {
+  const snapshot = memorySnapshot() as unknown as { memory: Record<string, unknown>; ui: Record<string, unknown>; memoryInjection: unknown };
+  snapshot.memory = { ...snapshot.memory, entries: FATE_ROWS.map(([id, , text], index) => ({ id, tier: "facts", text, type: "fact", importance: 2, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: "e", createdAt: index, recallCount: 0 })) };
+  snapshot.memoryInjection = { fates: Object.fromEntries(FATE_ROWS.map(([id, fate]) => [id, fate])), trim: {} };
+  snapshot.ui = { ...snapshot.ui, authorView };
+  return derive(snapshot as unknown as RuntimeSnapshot);
+};
+
+export const MemoryFates: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={fateSnapshot(true)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    const badges = [...canvasElement.querySelectorAll('[data-so="memory-fate"]')].map((node) => node.getAttribute("data-fate"));
+    await expect(badges.sort()).toEqual(FATE_ROWS.map(([, fate]) => fate).sort());
+    await expect(canvas.getByText("trimmed: pinned, did not fit")).toBeInTheDocument();
+    await expect(canvas.getByText("held out: another speaker's")).toBeInTheDocument();
+  },
+};
+
+export const PlayerNeverSeesMemoryFates: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={fateSnapshot(false)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await expect(canvasElement.querySelectorAll('[data-so="memory-fate"]').length).toBe(0);
+  },
+};
+
+const citedSnapshot = (authorView: boolean): RuntimeSnapshot => {
+  const snapshot = memorySnapshot() as unknown as { memory: Record<string, unknown>; ui: Record<string, unknown>; chatJump: unknown };
+  snapshot.memory = { ...snapshot.memory, entries: [{ id: "cited", tier: "facts", text: "The ferryman owes the player a crossing.", type: "fact", importance: 2, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: "e", createdAt: 1, recallCount: 0, provenance: { source: "extractor", messageId: 5, boundary: 3, pass: "shared-read", validity: "live" } }] };
+  snapshot.chatJump = { chatLength: 9, known: { from: 0, to: 8 }, changed: [5] };
+  snapshot.ui = { ...snapshot.ui, authorView };
+  return derive(snapshot as unknown as RuntimeSnapshot);
+};
+
+const jumpFromDrawer = fn();
+
+export const AuthorJumpsFromACitation: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={citedSnapshot(true)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} onJumpToMessage={jumpFromDrawer} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    const jump = canvas.getByRole("button", { name: "message 5 (changed since)" });
+    await userEvent.click(jump);
+    await expect(jumpFromDrawer).toHaveBeenCalledWith(5);
+    await userEvent.click(canvas.getByRole("tab", { name: "Scheduler" }));
+    await expect(canvasElement.querySelector('[data-so="jump-to-message"][data-mesid="6"]')).not.toBeNull();
+  },
+};
+
+export const PlayerSeesNoJumpButtons: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={citedSnapshot(false)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} onJumpToMessage={jumpFromDrawer} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await expect(canvasElement.querySelectorAll('[data-so="jump-to-message"]').length).toBe(0);
   },
 };

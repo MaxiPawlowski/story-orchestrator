@@ -193,3 +193,25 @@ on 1.18.0 with the same shape; only line numbers move.
 | 06-H7 | `getContext().getPresetManager(apiId).getPresetList(api?)` returns `{presets, preset_names}`; `preset_names` is an ARRAY for textgen and an OBJECT `{name: index}` for openai; `getCompletionPresetByName(name)` is an exact match over that list and returns `undefined` when missing; `getSelectedPresetName()` is the UI selection | `preset-manager.js:531`, `:757-770`, `:403` |
 | 06-H8 | A saved CC preset is a parsed object with `*_openai` sampler keys (`temp_openai`, `top_p_openai`, …); the settings file keeps the selection in `oai_settings.preset_settings_openai` and the textgen one in `textgenerationwebui_settings.preset` | `openai.js:4320-4325`, `:307-310`, `:412-416`; `script.js:8081`, `:8090` |
 | 06-H9 | The WI editor's own save path is `saveWorldInfo(name, data, immediately)`; an entry is addressed by its uid key in `data.entries`, which survives a rename in the editor (the comment is just a field) | `world-info.js:4177`; exercised by `live-v10b-uid-revert.json` |
+
+## Plan 08 (author observability, 2026-09-25)
+
+Re-read by absolute path on the live 1.19.0 tree (`7c3994196`, `package.json:118`) and on 1.18.0 (`git show 51ad27fb:…`)
+where a 1.18.0 column is filled. The plan doc's §Host facts table is the source; line drifts found here are noted.
+
+| # | Fact | 1.19.0 | 1.18.0 |
+|---|---|---|---|
+| 08-H1 | `/chat-jump N` (aliases `chat-scrollto`, `floor-teleport`): 0-based; loads older messages via `showMoreMessages`, scrolls `#chat`, `flashHighlight` 2 s | `slash-commands.js:3448-3503` (`name` at `:3449`); `utils.js:2184` | `slash-commands.js:3447` |
+| 08-H2 | `/chat-jump` answers `''` on success AND on failure (out of range → `toastr.warning`; element not found → warning). Its result is **not evidence**; our adapter answers from the pre-check | `slash-commands.js:3454-3458`, `:3482-3486`, `:3488` | same shape |
+| 08-H3 | `getMaxContextTokens()` = `max_context` on textgen/kobold, `oai_settings.openai_max_context` on CC; `getMaxResponseTokens()` = `amount_gen` / `openai_max_tokens`; `getMaxPromptTokens()` = context − response. Module exports of `/script.js`, **not** on `getContext()` | `script.js:5929`, `:5966`, `:5981-5987` | `:5870`, `:5907`, `:5922` |
+| 08-H4 | `getContext().maxContext` = `Number(max_context)`, the textgen slider whatever the API (wrong on CC). Not used as the budget | `st-context.js:134` | `:133` |
+| 08-H5 | Generate passes `getMaxPromptTokens()` to every interceptor on non-dry runs (`runGenerationInterceptors(coreChat, this_max_context, type)`); ours receives it as `_contextSize` | `script.js:4560-4564`; `extensions.js:2024`, `:2037` | `script.js:4505` |
+| 08-H6 | `getTokenCountAsync(str, padding)` is on the context; with tokenizer BEST_MATCH (99) on a connected textgen backend it asks the backend's tokenizer (a network call); the count is cached per chat | `st-context.js:151`; `tokenizers.js:37`, `:443`, `:461` | `st-context.js:150` |
+| 08-H7 | Extension prompt shape `{value, position, depth, scan, role, filter}`; `extension_prompt_types` NONE -1 / IN_PROMPT 0 / IN_CHAT 1 / BEFORE_PROMPT 2; roles SYSTEM 0 / USER 1 / ASSISTANT 2 | `script.js:484-489`, `:494-498`, `:8926-8935`; exposed as `getContext().extensionPrompts` (`st-context.js:152`) | `script.js:483`, `:8866`; `st-context.js:151` |
+| 08-H8 | Assembly: `Object.keys(extension_prompts).sort()` per position/depth/role, a block whose `filter()` answers false is skipped, values joined with the separator | `script.js:3302-3320` (`getExtensionPrompt`) | not re-read |
+| 08-H9 | `/inject` stores its blocks under `script_inject_<id>` | `slash-commands.js:3773` | not re-read |
+| 08-H10 | Parametric macros through the `MacrosParser` seam: **no** on either engine. The bridge registers a zero-argument macro ("only `{{key}}` without arguments is valid"), and legacy substitution is an exact `{{key}}` regex | `macros.js:81-118`, `:183-207`, `:684` | bridge present, same contract |
+| 08-H11 | A new-engine macro name must match `/^[a-zA-Z][\w-_]*$/`; our quality keys are `[a-z0-9_]` and prefixed `story_quality_`, so every valid key is a valid name | `macros/engine/MacroLexer.js:17`, `MacroRegistry.js:693-697` | `MacroLexer.js:17` |
+| 08-H12 | `ConnectionManagerRequestService.sendRequest(profileId, …)` resolves the profile per request (`getProfile(profileId)`), so two passes can go to two profiles with no global switch | `extensions/shared.js:423-431`, `:546` | not re-read (plan 03 03-H1 covers the call) |
+
+Line drift vs the plan's table: none beyond `:3449` for the command name (the plan cites the block `:3448-3503`).

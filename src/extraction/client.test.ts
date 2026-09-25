@@ -1,5 +1,5 @@
 import { sendConnectionProfileRequest } from "@services/STAPI";
-import { callExtractionModel, callExtractionReply, isLapse, ModelCallError } from "./client";
+import { callExtractionModel, callExtractionReply, isLapse, ModelCallError, setProfileRouter } from "./client";
 import { parseSharedReadResponse } from "./parse";
 
 jest.mock("@services/STAPI", () => ({
@@ -107,5 +107,40 @@ describe("callExtractionReply keeps call sites on Promise<string> and throws a t
   it("control: without refuseIncomplete a truncated reply is returned as it came", async () => {
     answer("The party crossed the river and", "length");
     expect(await callExtractionModel("prompt", { profileId: "p1" })).toBe("The party crossed the river and");
+  });
+});
+
+describe("per-role routing at the client (v2.4 plan 08 T18)", () => {
+  afterEach(() => send.mockReset());
+
+  it("without a router every call keeps its own profile: today's behaviour", async () => {
+    answer("NO_DELTA");
+    await callExtractionReply("prompt", { profileId: "memory", role: "curator" });
+    expect(send.mock.calls[0][0]).toBe("memory");
+  });
+
+  it("a routed role goes to its own profile, and a failure names the profile it went to", async () => {
+    const release = setProfileRouter((role, fallback) => ({ ok: true, profileId: role === "director" ? "fast" : fallback }));
+    try {
+      send.mockResolvedValueOnce({ ok: false, kind: "transport", message: "API request failed: down" });
+      const failure = await callExtractionReply("prompt", { profileId: "memory", role: "director" }).catch((error: unknown) => error);
+      expect(send.mock.calls[0][0]).toBe("fast");
+      expect(failure).toMatchObject({ name: "ModelCallError", kind: "transport", profileId: "fast" });
+      answer("NO_DELTA");
+      await callExtractionReply("prompt", { profileId: "memory", role: "read" });
+      expect(send.mock.calls[1][0]).toBe("memory");
+    } finally {
+      release();
+    }
+  });
+
+  it("a refused route is a config failure that sends nothing", async () => {
+    const release = setProfileRouter(() => ({ ok: false, profileId: "gone", reason: "The profile chosen for World Info curator no longer exists (ID: gone)" }));
+    try {
+      await expect(callExtractionReply("prompt", { profileId: "memory", role: "curator" })).rejects.toMatchObject({ kind: "config", profileId: "gone" });
+      expect(send).not.toHaveBeenCalled();
+    } finally {
+      release();
+    }
   });
 });

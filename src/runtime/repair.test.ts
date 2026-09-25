@@ -120,3 +120,41 @@ describe("nextRepairStep", () => {
     });
   });
 });
+
+describe("v2.4 plan 08 T18: a routed role that cannot answer is a Repair row", () => {
+  const route = (role: string, state: string, detail = `${role} detail`) => ({ role, label: role, profileId: `${role}-profile`, state, detail });
+
+  it("names what stops, points at that role's own select, and comes after the memory model", () => {
+    const routes = [route("read", "fallback"), route("director", "missing", "The profile chosen for speaker direction no longer exists (ID: gone)")];
+    expect(nextRepairStep(snapshotWith({ roleRoutes: routes } as Partial<RuntimeSnapshot>))).toEqual({
+      area: "model-role",
+      consequence: "Speaker direction falls back to ST's own choice.",
+      detail: "The profile chosen for speaker direction no longer exists (ID: gone)",
+      targetId: "so-role-profile-director",
+      provisionable: false,
+    });
+    expect(nextRepairStep(snapshotWith({ extraction: { settings: { enabled: true, profileId: null } }, roleRoutes: routes } as Partial<RuntimeSnapshot>))?.area).toBe("memory-model");
+  });
+
+  it("comes before the cast: a dead routed model stops work the story has already reached", () => {
+    const step = nextRepairStep(snapshotWith({
+      roleRoutes: [route("curator", "failed")],
+      requirements: { ready: false, missingPersonas: [], missingMembers: ["Belle"], missingLorebooks: [] },
+    } as Partial<RuntimeSnapshot>));
+    expect(step?.area).toBe("model-role");
+  });
+
+  it.each(["missing", "not-configured", "not-answering", "failed"])("%s is a row", (state) => {
+    expect(nextRepairStep(snapshotWith({ roleRoutes: [route("curator", state)] } as Partial<RuntimeSnapshot>))?.area).toBe("model-role");
+  });
+
+  it.each(["fallback", "untested", "ok"])("%s is not a row", (state) => {
+    expect(nextRepairStep(snapshotWith({ roleRoutes: [route("curator", state)] } as Partial<RuntimeSnapshot>))).toBeNull();
+  });
+
+  it("every role states its own consequence", () => {
+    const consequences = ["read", "synthesis", "authoring", "director", "curator"].map((role) => nextRepairStep(snapshotWith({ roleRoutes: [route(role, "failed")] } as Partial<RuntimeSnapshot>))?.consequence);
+    expect(new Set(consequences).size).toBe(5);
+    expect(consequences.every((text) => typeof text === "string" && text.length > 0)).toBe(true);
+  });
+});

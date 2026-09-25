@@ -48,7 +48,7 @@ const readWith = async (response: string, scopeKey: "crossed") => {
     reason: "review",
     scope: [{ quality: s.qualityByKey[scopeKey], key: scopeKey, hints: [] }] as never,
     window: { from: 0, to: 0, messages: [{ speaker: "User", text: "crossed", id: 0 }] } as never,
-    client: { profileId: "review" },
+    client: { profileId: "review", role: "read" },
   });
 };
 

@@ -45,6 +45,8 @@ jest.mock("@services/STAPI", () => ({
   executeSlashCommands: async () => ({ pipe: "" }),
   willAddUserMessage: () => false,
   readInjectedPromptBlocks: () => [],
+  readExtensionPromptBlocks: () => ({ own: [], foreign: [] }),
+  readPromptBudget: () => ({ ok: false, reason: "no host in this test" }),
   showTextPopup: async () => undefined,
 }));
 

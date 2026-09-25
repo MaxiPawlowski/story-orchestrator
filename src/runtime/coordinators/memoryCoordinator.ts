@@ -72,7 +72,7 @@ export interface MemoryCoordinatorDeps {
 // consolidation, World Info mirroring and prompt injection. The manager keeps the persist
 // boundary — this class only mutates the slice and asks for a save.
 export class MemoryCoordinator {
-  private readonly injector = new MemoryInjector({
+  readonly injector = new MemoryInjector({
     getStory: () => this.deps.getStory(),
     getState: () => this.deps.getState(),
     memory: () => this.state,
@@ -278,7 +278,7 @@ export class MemoryCoordinator {
       if (!arc || arc.status !== "resolved" || arc.summary) continue;
       const prompt = buildArcSummaryPrompt(arc.text, sceneSummaries, memories);
       const summary = await callExtractionModel(prompt, {
-        profileId: settings.profileId,
+        profileId: settings.profileId, role: "synthesis",
         maxTokens: maxTokensForInput("arcSummary", prompt), signal: run.signal, refuseIncomplete: true,
         debugResponse: globalThis.storyOrchestratorDebugArcSummaryResponse ?? null,
       });
@@ -389,7 +389,7 @@ export class MemoryCoordinator {
       const settings = this.deps.getExtractionSettings();
       const prompt = buildCanonSummaryPrompt(story.title, arcSummaries, facts, checkpoint);
       const text = await callExtractionModel(prompt, {
-        profileId: settings.profileId,
+        profileId: settings.profileId, role: "synthesis",
         maxTokens: maxTokensForInput("canon", prompt), signal: run.signal, refuseIncomplete: true,
         debugResponse: globalThis.storyOrchestratorDebugCanonResponse ?? null,
       }).catch(lapseAsEmpty);
@@ -550,7 +550,7 @@ export class MemoryCoordinator {
       scope,
       firedTransitions: this.deps.getFiredTransitions(),
       facts: this.getFacts(),
-      client: { ...this.deps.getExtractionSettings(), debugResponse: globalThis.storyOrchestratorDebugSupersessionResponse ?? null },
+      client: { ...this.deps.getExtractionSettings(), role: "read", debugResponse: globalThis.storyOrchestratorDebugSupersessionResponse ?? null },
     });
     if (!result.audit.acceptedDeltas.length || !run.stillOwns()) return false;
     this.deps.enqueueExtractorDeltas(result.audit.acceptedDeltas, result.audit.window, result.audit.id);

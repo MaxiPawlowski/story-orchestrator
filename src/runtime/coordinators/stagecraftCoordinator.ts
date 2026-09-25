@@ -188,7 +188,7 @@ export class StagecraftCoordinator {
       const declined = declinedOps(this.state.proposals, state.activeCheckpointId, state.checkpointStartedBoundary ?? 0);
       const prompt = buildWiCuratorPrompt({ storyTitle: story.title, checkpointName, objective, canon, openArcs, entries: shown, declined });
       const response = await callExtractionModel(prompt, {
-        profileId: this.deps.getExtractionSettings().profileId,
+        profileId: this.deps.getExtractionSettings().profileId, role: "curator",
         maxTokens: maxTokensForInput("curator", prompt),
         ...(this.deps.ownership?.signal ? { signal: this.deps.ownership.signal() } : {}),
         debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugCuratorResponse ?? null,

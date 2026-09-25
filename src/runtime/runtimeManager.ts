@@ -16,7 +16,7 @@ import {
 } from "@memory/index";
 import type { CuratorOp, CuratorPassOutcome } from "@stagecraft/index";
 import {
-  getContext, readInjectedPromptBlocks, showTextPopup, type WIEntrySnapshot,
+  getContext, readExtensionPromptBlocks, readInjectedPromptBlocks, showTextPopup, type WIEntrySnapshot,
 } from "@services/STAPI";
 import { AwayRecapController, type AwayRecap } from "./awayRecap";
 import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./narrative";
@@ -55,7 +55,7 @@ import {
   type StorySelectionDeps,
 } from "./storySelection";
 import { clearWizardSession, loadWizardSession, saveWizardSession } from "./wizardSessions";
-import { confirmPreflight, requestBudget } from "./requestBudget";
+import { confirmPreflight, requestBudgetFor } from "./requestBudget";
 import type {
   CopilotRuntimeSettings, PersistedStoryRuntime, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory,
   MemoryRuntimeSettings, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, StagecraftRuntimeState,
@@ -146,7 +146,7 @@ export class RuntimeManager {
     emitArcsResolved: (arcs) => { if (this.loaded && arcs.length) this.arcResolvedListeners.forEach((listener) => listener(arcs.map((arc) => arc.id))); },
     setStatus: (status) => { this.status = status; },
     judge: () => this.judge,
-    requestBudget: () => requestBudget(this.getExtractionSettings().profileId),
+    requestBudget: (role) => requestBudgetFor(role),
     ...this.lifecycle,
   });
   private readonly pacing: PacingCoordinator = new PacingCoordinator({
@@ -483,7 +483,7 @@ export class RuntimeManager {
   private rejectQuality(reason: string): false { this.status = reason; this.notify(); return false; }
   async regenerateCanon(force = false): Promise<boolean> { return this.memory.regenerateCanon(force); }
   scheduleExpansionForActive(schedule: (reason: string, run: () => Promise<void>) => void) { return this.expansion.scheduleForActive(schedule); }
-  async runExpansionNow(debugResponse?: string, confirm = false) { return this.expansion.runNow(debugResponse, confirm ? confirmPreflight : undefined); }
+  async runExpansionNow(debugResponse?: string, confirm = false) { return this.expansion.runNow(debugResponse, confirm ? (preflight) => confirmPreflight(preflight, "authoring") : undefined); }
   /** v2.3 plan 07: the boundary promotion and the author's regenerate, in one surface. */
   readonly expansions = { commitValidated: () => this.expansion.commitValidated(), regenerate: (key: string) => this.expansion.regenerate(key) };
 
@@ -510,15 +510,15 @@ export class RuntimeManager {
       openThreads: this.memory.getOpenArcs(),
       canon: this.memory.getCanonProse(),
       ...this.notices,
-      ledger: this.memory.getLedger(),
+      ...this.memory.injector.readModels(),
       driver: this.copilot.getDriverContext(),
       activeNudge: this.copilot.getActiveNudge(),
       payloadCaptures: this.journal.getCaptures(),
       extractionHealth: this.scheduler?.health() ?? null,
     // A live in-memory read of ST's own extension prompts: cheap, and the only honest answer to
     // "what will the next reply carry" (a capture answers what the LAST one carried).
-    injectedBlocks: readInjectedPromptBlocks(),
-    playerTurns: playerTurnIds(getContext().chat ?? []),
+    promptBlocks: readExtensionPromptBlocks(),
+    chat: getContext().chat ?? [], fingerprints: this.chatSave.fingerprints.current,
     });
   }
 

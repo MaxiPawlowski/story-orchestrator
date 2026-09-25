@@ -63,7 +63,7 @@ export function registerLiveSuite(manager: RuntimeManager) {
       const answered = judged?.answered ?? [];
       const { story, prompt } = answered.length ? buildFixtureRun({ ...hinted, excludeKeys: answered }) : first;
       const profileId = manager.getExtractionSettings().profileId;
-      const rawResponse = await callExtractionModel(prompt, { profileId, maxTokens: 512 });
+      const rawResponse = await callExtractionModel(prompt, { profileId, role: "read", maxTokens: 512 });
       const parsed = parseSharedReadResponse(rawResponse, story);
       return {
         prompt,
@@ -83,12 +83,12 @@ export function registerLiveSuite(manager: RuntimeManager) {
 }
 
 // v2.4 plan 06 F5 Phase A: the create op is measured before it is built. The candidate prompt and
-// the code guards run over the curator's own model (the memory profile); nothing is written.
+// the code guards run over the curator's own model (the curator role's routed profile); nothing is written.
 export function curatorCreateRunner(manager: RuntimeManager): LiveSuiteHandle["runCuratorCreate"] {
   return async (entry) => {
     const context = caseContext(entry);
     const prompt = buildCreateCandidatePrompt(caseScope(entry), context);
-    const rawResponse = await callExtractionModel(prompt, { profileId: manager.getExtractionSettings().profileId, maxTokens: 512 });
+    const rawResponse = await callExtractionModel(prompt, { profileId: manager.getExtractionSettings().profileId, role: "curator", maxTokens: 512 });
     return { prompt, rawResponse, sample: scoreCreateSample(entry, rawResponse) };
   };
 }

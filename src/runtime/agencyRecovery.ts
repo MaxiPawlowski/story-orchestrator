@@ -57,7 +57,7 @@ const moves = ({ leaf, negated }: ExitLeaf, value: PrimitiveValue): boolean => {
 };
 
 /** The chat positions of the player's own messages: what a turn is, in a group as in a solo chat. */
-export const playerTurnIds = (chat: unknown[]): number[] =>
+export const playerTurnIds = (chat: readonly unknown[]): number[] =>
   chat.flatMap((message, index) => {
     const entry = message as { is_user?: boolean; is_system?: boolean } | null;
     return entry?.is_user && !entry.is_system ? [index] : [];

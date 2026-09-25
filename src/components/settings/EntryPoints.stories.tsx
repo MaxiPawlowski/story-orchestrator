@@ -57,6 +57,19 @@ export const RepairRevealsTheSetting: Story = {
   },
 };
 
+export const RepairNamesADeadTaskModel: Story = {
+  args: {
+    snapshot: base({ roleRoutes: [{ role: "director", label: "Speaker direction", profileId: "fast", state: "not-answering", detail: "Speaker direction: the profile is not answering (API request failed)" }] }),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("Speaker direction falls back to ST's own choice.")).toBeInTheDocument();
+    await expect(canvasElement.querySelector("[data-so='repair-step']")).toHaveAttribute("data-area", "model-role");
+    await userEvent.click(canvas.getByRole("button", { name: "Show me the setting" }));
+    await expect(args.onRevealSetting).toHaveBeenCalledWith("so-role-profile-director");
+  },
+};
+
 export const RepairOffersTheWizardForACast: Story = {
   args: {
     snapshot: base({ requirements: { ready: false, missingPersonas: [], missingMembers: ["Belle", "Dalan"], missingLorebooks: ["Wendhope"] } }),

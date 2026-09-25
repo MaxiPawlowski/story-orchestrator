@@ -5,6 +5,7 @@ import type { RuntimeSnapshot } from "@runtime/types";
 import type { ConflictPair, MemoryEntry } from "@memory/index";
 import { legacyProvenance, provenance } from "@memory/provenance";
 import ConflictQueue from "./ConflictQueue";
+import { MessageJumpProvider } from "./MessageCitation";
 
 const memoryEntry = (overrides: Partial<MemoryEntry>): MemoryEntry => ({
   id: "m1",
@@ -274,5 +275,22 @@ export const AHeldClaimLeavesTheEstablishedFactStanding: Story = {
     const standing = await canvas.findAllByText(/Established: still steers replies while you decide/);
     await expect(standing).toHaveLength(1);
     await expect(canvas.getByText(/still standing and intact/)).toBeInTheDocument();
+  },
+};
+
+// v2.4 plan 08 T19d: in the drawer (author view) a cited message is a /chat-jump button.
+const jumpToMessage = fn();
+
+export const ACitedMessageOpensInTheChat: Story = {
+  render: (args) => (
+    <MessageJumpProvider value={{ enabled: true, index: { chatLength: 10, known: { from: 0, to: 9 }, changed: [7] }, onJump: jumpToMessage }}>
+      <div style={{ maxWidth: 360 }}><ConflictQueue {...args} /></div>
+    </MessageJumpProvider>
+  ),
+  play: async ({ canvasElement }) => {
+    const buttons = [...canvasElement.querySelectorAll('[data-so="conflict-origin"] [data-so="jump-to-message"]')] as HTMLButtonElement[];
+    await expect(buttons.map((button) => button.textContent)).toEqual(["message 3", "message 7 (changed since)"]);
+    await userEvent.click(buttons[1]);
+    await expect(jumpToMessage).toHaveBeenCalledWith(7);
   },
 };
