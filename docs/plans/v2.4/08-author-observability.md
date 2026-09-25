@@ -402,4 +402,57 @@ None. The three questions this doc raised were answered by overview X24 (2026-09
 
 ## Gate record
 
-_Placeholder: date, commands and results, live checks with record paths, deviations._
+### Build (worktree, 2026-09-25)
+
+Branch `worktree-agent-af3e9900fe27ffdd6`, based on `e4d69db`. Commits: `f08fd1a` (T19a/b), `d278f26` (T19c),
+`57e353b` (T19d), `77a40ae` (R15), `13658bf` (T18), `91dba0b` (probes, fixtures, mutation records,
+privacy rows), plus this record. Host facts: `host-facts.md` §"Plan 08" rows 08-H1..H12 (1.19.0 and 1.18.0).
+
+**As built**
+
+| Item | State | Where |
+|---|---|---|
+| T19a tokens + share | built. Each block counted by the main API's tokenizer (`getTokenCountAsync`), debounced 400 ms, cached (500), never while a generation is open, chars/4 estimate on failure and said so. Share = Σ own tokens / M, M = max context − max response (`contextBudget` capability). The interceptor records its `contextSize`; a drift line shows when they differ | `runtime/promptCost.ts`, `stHost/contextBudget.ts`, `runtime/nextTurn.ts buildNextTurnCost/nextTurnCostText`, `NextTurnPanel.tsx` |
+| T19b foreign blocks | built. `readExtensionPromptBlocks()` splits own/foreign; foreign rows are read-only (no owner, no control), labelled by position (NONE = "not injected; macro only", share null), `/inject <id>` named, filter = conditional | `stHost/promptInspector.ts`, `nextTurn.ts buildForeignRows` |
+| T19c fates + trim | built. One fate per candidate (injected / quarantined / superseded / folded / other-speaker / over-budget / pinned-overflow) from the injection that wrote the blocks; per-tier trim telemetry + session high-water; memory coordinator unchanged (619) | `memory/inject.ts`, `runtime/memoryInjector.ts readModels()`, `DrawerTabs` memory badge, `memoryFate.ts` |
+| T19d `/chat-jump` provenance | built. Author-view citations on memory rows, effect ledger, talk decisions, lore forced, conflict queue, stagecraft, scene panel; fingerprint-checked against plan 02 T3's boundary fingerprints ("changed since" / "best-effort"); narrow viewport (≤ 1000 px) closes the drawer first. `/chat-jump` answers `''` either way, so the WriteResult is a precheck only (08-H2) | `runtime/messageJump.ts`, `messageJumpHost.ts`, `stHost/chatJump.ts`, `MessageCitation.tsx` |
+| E (open owner) | already shipped as V19; foreign rows get none | — |
+| R15 | built. `{{story_quality_<key>}}` per quality, synced on story change (unregisters the departed story's), `(unset)`, a non-`[a-z0-9_]` key skipped with a journal line. `::` form not built (v2.5) | `runtime/qualityMacros.ts`, `macros.ts` |
+| T18 routing | built. `extraction.profiles` install-wide (sanitized; unset role = memory model = default for every role); `role` required on every client call (census test lists every caller incl. pass-through functions); router at the client module; a dangling routed id refuses (`config`, names the id); the breaker stays per profile id and a job routed to a dead profile holds only itself (`heldOn`); non-read config problems are per profile, not the story's not-configured; preflight and budgets per role's profile | `runtime/passProfiles.ts`, `extraction/passRole.ts`, `extraction/client.ts`, `extraction/scheduler.ts`, `runtime/requestBudget.ts` |
+| T18 self-test / health / Repair / UI | built. `runRoleSelfTest(role)`: read = the memory model self-test (core tiers), director = 3 rows of `director.json` (D01/D06/D08, test pins them to the fixture), curator = 1 fixture (≥ 1 op), authoring = 1 qualities stage (valid JSON), synthesis = 1 scene summary (non-empty after noise strip). `roleHealth` → snapshot `roleRoutes` (fallback / untested / ok / missing / not-configured / not-answering / failed). Repair row `model-role` after memory-model, before cast, consequence per role, target `#so-role-profile-<role>`. Settings "Models per task" (`#so-role-profiles`, collapsed, "Affects every chat", "Same as memory model" default, dangling id shown as "Missing profile"); `revealSetting` now opens enclosing `<details>` | `runtime/roleSelfTest.ts`, `roleHealth.ts`, `repair.ts`, `components/settings/RoleProfilesGroup.tsx`, `index.tsx` |
+| Harness | `so-ui next-turn | memory-fates | jump [selector] [--index]` (+ scenario `ui` actions, schema), player sweep forbids the plan 08 author selectors, `select-profile` reports assigned roles and refuses a dangling one, extraction snapshot/restore + run header carry `profiles` | `scripts/debug/so-ui.mts`, `so-scenario.mts`, `lib/scenarioSchema.mts`, `lib/extractionSettings.mts`, `so-run-header.mts` |
+| Privacy | two rows appended (foreign blocks read-only, never persisted; per-task routing) | `docs/plans/v2.3/privacy-report.md` |
+
+**Gates (worktree, 2026-09-25)**
+
+- `npm run typecheck` / `typecheck:test` / `lint` / `debug:typecheck`: clean.
+- `npm test`: 244 suites, 3530 tests passed. One earlier full run had 1 failure in `extraction/windowHygiene.test.ts` ("24 messages of 8 KB well under 5 ms", plan 04's timing case); it passed alone (42/42) and in the next full run. Load flake, not this plan's code.
+- `npm run test:debug`: 261 tests, 260 pass, 1 skipped, 0 fail.
+- `npm run build`: compiled (2 size warnings, pre-existing). `npm run test:release`: 21/21 with `ST_PUBLIC=C:/dev/SillyTavern-MainBranch/public`. Without it, 20/21: the worktree sits 3 directories deeper than the extension, so `manifest.mjs` finds no ST (`ST unknown`). That is a worktree artifact, not a regression.
+- Storybook: `storybook:build`, served on 6408, `test-storybook --index-json`: 34 suites, 232 stories passed (interaction + a11y). New stories: `NextTurnPanel` ×6, `DrawerTabs` MemoryFates / PlayerNeverSeesMemoryFates / AuthorJumpsFromACitation / PlayerSeesNoJumpButtons, `ConflictQueue` and `StagecraftPanel` citation stories, `RoleProfilesGroup` ×3 (incl. dangling), `EntryPoints` RepairNamesADeadTaskModel.
+- `architecture.test.ts`, ownership census, fault matrix: green. Effective lines unchanged against `e4d69db`: `runtimeManager.ts` 737, `memoryCoordinator.ts` 619.
+- Red first: every new test file failed before its module existed, or failed against the old code. `nextTurnCost` failed 10/10, `injectFates` 5/5, `repair` T18 cases 7 failed of 24. The other suites could not load.
+
+**Mutations**: `test/findings/mutations/v24-08-{T19ab,T19c,T19d,R15,T18}.txt`. There are 23 mutants and each one fails its own case. One mutant survived at first: "a position NONE foreign block counted in the share". It gained a case and now fails 1/11.
+
+**Live**: NOT RUN (brief: no live gates). Written, schema-valid (`validateFixture`) and eval-syntax-checked:
+- `test/scenarios/live-v24-08-preview-capture.json` (group) and `live-v24-08-preview-capture-solo.json`. Preview ≡ capture, per block and in slot order. Host token count = `getTokenCountAsync`, and M = the interceptor's `contextSize`. Run ×2 consecutively.
+- `test/scenarios/live-v24-08-fates-jump.json`. Real extraction, then fate badges ≡ snapshot, injected ⊂ blocks, and no quarantined row reads over-budget. Then `ui jump` must land in view, and the player sweep stays clean.
+- `test/scenarios/live-v24-08-quality-macro.json`. An AN carrying the macros reaches a real request with the values at send time. The `/cp set` lands at the boundary, and the macro unregisters on a story swap.
+- `test/scenarios/live-v24-08-routing.json`. Director routed by role, the self-test passes from the settings panel, and a real talk decision is made on a healthy route. A dangling curator gives the `model-role` Repair row. The role map is restored.
+- Stories: `live-v24-08.story.json`, `live-v24-08-solo.story.json`.
+
+**Not built (remaining)**
+- The per-routed-role live suite. Curator and authoring each still need the ≥ 20-case fixture with an 8-case Spanish slice and predeclared floors. The director arm over all 26 `director.json` rows at ≥ 22/26 is not built. `synthesis` validity is not recorded yet. The role self-test is the smoke check, not that calibration.
+- Journeys J3 ×2 / J5 ×2 `--strict` with a run-header diff, and the preview ≡ capture live runs. None were run.
+- The recommended-config list (roles below their floor stay selectable but unrecommended) is waiting on the calibration.
+
+**Deviations / decisions**
+- The `excluded` fate was dropped because excluded rows are never in `entries`, so they are never candidates.
+- The high-water mark is in memory and covers "this session". It is not persisted.
+- An unfingerprinted citation is best-effort, never "changed".
+- The role router lives at the client module (`setProfileRouter`), so the coordinator signatures only gained a role literal and the coordinator budgets are unchanged.
+- Role Repair rows appear only with a story loaded, like the memory-model row. They sort before cast and lore, because a dead routed model stops work the story has already reached.
+- A self-test result counts only for the profile it ran on, so re-routing a role makes it "untested" again.
+- The director self-test requires every case to answer a parseable `SPEAKER:` line, not the labelled answer. The detail line carries the count.
+- Role selects are not in the player sweep. The settings panel is install configuration, like the memory-model select, not a steering control.
