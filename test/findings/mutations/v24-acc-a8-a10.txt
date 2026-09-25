@@ -1,0 +1,48 @@
+v2.4 acceptance A8 (scene judge burst) + A10 (early triggered reads), mutations 2026-09-25 (worktree on master 27d0bf8; script .debug/mut_a8_a10.py, each mutant applied alone as an exact-text replacement, the file restored byte-for-byte after its run; a replacement that does not match fails the script's assert, and none did)
+Suites per mutant:
+  sceneCoordinator.ts (M1-M6): sceneBurst.review, sceneCoordinator.test, sceneFreshness.review, c1Surfaces.review, sceneInjectWrite.review, boundaryWork.test (41 tests)
+  extractionCoordinator.ts (M7-M10): sceneDetectWorld.review, runtimeManager.test, boundaryWork.test, extractionOwnership.review (131 tests)
+  scheduler.ts (M11): scheduler.test (21 tests)
+Restored after the sweep: 185/185 green.
+
+Red first (ledger rows ACC-A8/ACC-A10 opened before the fix; finding() verified each body failed with its expectedFailure):
+  ACC-A8  "a burst of 4 boundaries sent 4 identical scene requests for one unchanged window"
+          (second half, reproduced by M2: "one timed-out scene call was counted as 3 failed reads, which stales the tracker and switches pre-generation off")
+  ACC-A10 "the first boundary of a new chat read a cast change against another chat's cast ({"hit":true,"reason":"cast","signals":["cast"]})"
+The scheduler case (a triggered read that starts after later boundaries reads up to the newest committed message) is a characterization test: it passed on the unfixed code, which is the finding that the A10 premise ("window fixed at trigger time") does not hold. M11 is its negative control.
+
+A8 — SceneCoordinator single flight
+- M1 no join, every run asks the judge (the pre-fix request path): KILLED, 1 of 41
+    ACC-A8 ("a burst of 4 boundaries sent 4 identical scene requests for one unchanged window")
+- M2 a joined run ages the record too: KILLED, 1 of 41
+    ACC-A8 ("one timed-out scene call was counted as 3 failed reads ...")
+- M3 join any call in flight, whatever its request: KILLED, 1 of 41
+    control "A8: two different windows are two requests"
+- M4 join a call from another world (ownership not checked): KILLED, 1 of 41
+    control "A8: a read in a new chat does not join the departed chat's call"
+- M5 the flight is never cleared once it settles: KILLED, 3 of 41
+    control "A8: the same read after the first one settled is asked again"
+    C2 "a failed scene read ages the stored scene instead of leaving it live"
+    control "staleSince marks the FIRST failure, not the latest"
+- M6 a joined run never writes (only the caller judges the answer, against its own older boundary): KILLED, 1 of 41
+    ACC-A8 ("the shared answer did not land on the current boundary: {}")
+
+A10 — scene-break cursor scoped to its world
+- M7 the cursor's world is not checked (the pre-fix comparison): KILLED, 1 of 131
+    ACC-A10 ("the first boundary of a new chat read a cast change against another chat's cast ...")
+- M8 the cursor is never compared: KILLED, 5 of 131
+    control "A10: a cast change inside one chat is still a scene break"
+    control "A10: a location change inside one chat is still a scene break"
+    control "A10: after a new chat's first boundary, its own cast changes are breaks again"
+    control "A10: an unowned coordinator keeps comparing across calls"
+    RuntimeManager scene detection "detects a location-quality change once a known baseline is established"
+- M9 the cursor records no world: KILLED, 1 of 131
+    ACC-A10
+- M10 an unowned cursor is discarded: KILLED, 1 of 131
+    control "A10: an unowned coordinator keeps comparing across calls"
+
+A10 — scheduler guard
+- M11 a window-less triggered read's window is fixed when it is scheduled (sharedReadWindow at schedule()): KILLED, 1 of 21
+    "a queued read reads the chat as it is when it runs > a triggered read that starts after later boundaries reads up to the newest committed message"
+
+All 11 killed, 0 survived.

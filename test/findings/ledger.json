@@ -456,6 +456,24 @@
       "status": "closed",
       "expectedFailure": "the nudge set in another chat is still reported active",
       "note": "Found 2026-09-25 by the v2.4 acceptance matrix (interop rows): after the sandbox chat was deleted and the page returned to another chat, getActiveNudge()/snapshot.activeNudge still reported the nudge, and re-setting the same text in the new chat was deduped by stHost/extensionPrompts.ts lastWritten (ACC-A1's memo), so a nudge left from an earlier chat blocked a new one. CopilotCoordinator held `activeNudge` with no chat, and the generation lifecycle deliberately skips clearCopilotNudge on a chat-changed close. FIXED 2026-09-25: the nudge records the chat it was set in (`openChat` dep); getActiveNudge answers only in that chat; a CHAT_CHANGED switch calls reapplyCopilotNudge(), which clears a nudge from another chat, and a same-chat reload re-injects it. Re-setting in a new chat writes because the seam now reads the host (ACC-A1). Mutations: test/findings/mutations/v24-acc-a1-a2.txt."
+    },
+    {
+      "id": "ACC-A8",
+      "title": "a burst of boundaries over one window asks the scene judge once and counts one failure once",
+      "owner": "v2.4 plan 09 acceptance",
+      "evidence": "jest",
+      "status": "closed",
+      "expectedFailure": "identical scene requests for one unchanged window",
+      "note": "Found 2026-09-25 by the v2.4 acceptance matrix (J11.25, register A8). In J11 run1 and seriesB-run1..3 all 18 scene timeouts fell in J11.25; 15 of them were bursts of 2-4 scene calls stamped with the same messageId and the same stateChars (boundaries committed within about 1 s of a group turn, each firing `scene-read`, each building its window from the live chat), and in every burst no call after the first answered inside SCENE_TIMEOUT_MS 2500. Successful scene calls across the matrix: n=30, p50 574 ms, max 2155 ms, no size correlation (8849 chars answered in 582 ms); the other 3 timeouts were singles in seriesB-run3 at 13.8-14.8k chars, unexplained by the ring. Every burst read but the newest is discarded by the chat-moved-past check anyway, and each timed-out one aged the stored scene, so one slow call made the tracker stale and scheduleLookahead refused to pre-generate. FIXED 2026-09-25: SceneCoordinator keeps the call in flight keyed by its request; a run whose request is identical and whose world still owns that call awaits it instead of asking again, only the run that made the call ages the record on a failure, and each run still judges the shared answer against its own boundary. The budget is unchanged: no recorded successful scene call came near it. Mutations: test/findings/mutations/v24-acc-a8-a10.txt."
+    },
+    {
+      "id": "ACC-A10",
+      "title": "the scene-break cursor belongs to the chat and story it was recorded in",
+      "owner": "v2.4 plan 09 acceptance",
+      "evidence": "jest",
+      "status": "closed",
+      "expectedFailure": "the first boundary of a new chat read a cast change against another chat's cast",
+      "note": "Found 2026-09-25 investigating register A10 (J12 early reads over window 0-1). The window of a window-less triggered read is resolved when the read STARTS (scheduler pump, sharedReadWindow over the engine's lastMessageId), and every 0-1 read in the J12 records started at boundary 1 (24-30 s reads that completed after boundary 2); a queued one covers the newest committed message (scheduler.test.ts). The cause of the spurious early `scene:cast` reads is ExtractionCoordinator.sceneDetectCursor, which lived for the page: a new chat's first boundary compared its cast with the previous chat's last one. J12 run1 (after J11's group), run2 and seriesB-run3 (after a run that ended at road-to-wendhope with Tobias disabled, while guild-hall re-enables him) opened with scene:cast 0-1; the runs whose previous chat ended at guild-hall did not. FIXED 2026-09-25: the cursor records the world it was taken in (an ownership token) and is ignored once that world is gone, so the first boundary of a chat is never a cast or location break. Mutations: test/findings/mutations/v24-acc-a8-a10.txt."
     }
   ]
 }
