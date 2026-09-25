@@ -3,6 +3,7 @@ import {
   buildSceneReadRequest, confirmedSceneFacts, readScene, SCENE_MAX_REACHABLE, SCENE_TIMEOUT_MS, isSceneStale,
   sceneTrackerText, toSceneRecord, type SceneFamilies, type SceneReadInput, type SceneReadRecord,
 } from "@judge/index";
+import type { WriteResult } from "@utils/writeResult";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunOwnership } from "../runToken";
 
@@ -15,7 +16,8 @@ export interface SceneCoordinatorDeps {
   getLastMessageId: () => number;
   getScene: () => SceneReadRecord | null;
   setScene: (record: SceneReadRecord | null) => void;
-  inject: (text: string | null) => void;
+  inject: (text: string | null) => WriteResult<{ changed: boolean }>;
+  journal?: (summary: string, note: string) => void;
   withheldFields?: () => ReadonlySet<string>;
   // v2.3 plan 03 (C1, the "scene" surface). Optional: an unwired caller never lapses.
   ownership?: RunOwnership;
@@ -35,6 +37,7 @@ export const SCENE_JUDGE_READ_REASON = "scene:judge";
 // shared read, which the LLM still has to confirm (union with the regex's text-pattern hits).
 export class SceneCoordinator {
   private injected: string | null = null;
+  private refused: string | null | undefined = undefined;
 
   constructor(private readonly deps: SceneCoordinatorDeps) {}
 
@@ -161,8 +164,15 @@ export class SceneCoordinator {
     const facts = stale ? null : confirmedSceneFacts(record, this.deps.withheldFields?.());
     const text = facts && story && this.families().tracker && story.scene_read?.inject !== false ? sceneTrackerText(facts) : null;
     if (text === this.injected) return;
-    this.injected = text;
-    this.deps.inject(text);
+    const result = this.deps.inject(text);
+    if (result.ok) {
+      this.injected = text;
+      this.refused = undefined;
+      return;
+    }
+    if (this.refused === text) return;
+    this.refused = text;
+    this.deps.journal?.(text === null ? "The scene tracker could not be removed from the prompt" : "The scene tracker was not added to the prompt", `${result.reason}. Retried on the next update.`);
   }
 }
 

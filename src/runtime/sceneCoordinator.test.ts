@@ -61,7 +61,7 @@ const setup = (uses: Partial<JudgeSettings["uses"]>, breakP = 0.82) => {
     getLastMessageId: () => lastMessageId,
     getScene: () => judgeState.scene,
     setScene: (record) => { judgeState = { ...judgeState, scene: record }; },
-    inject: (text) => injected.push(text),
+    inject: (text) => { injected.push(text); return { ok: true as const, changed: true }; },
     now: () => Date.parse("2026-09-19T00:00:00.000Z"),
   });
   const run = (heuristicFired = false) => scene.run({ boundary: 3, messageId: 9, heuristicFired, scheduleRead: (reason) => scheduled.push(reason) });

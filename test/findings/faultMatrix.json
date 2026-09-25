@@ -128,8 +128,10 @@
       "note": "No answer is what a timeout, an error and an unreachable plugin all look like, and the tracker survives one."
     },
     "scene|beforeHostWrite": {
-      "status": "todo",
-      "note": "AE-04 (2026-09-25): the designed behaviour is missing. A refused tracker write is recorded as injected and never retried: SceneCoordinator.sync sets `injected` before deps.inject, and the runtime's inject (runtime/index.ts) discards setStoryExtensionPrompt's WriteResult. Open finding AE04-S1 in test/findings/ledger.json, reproduced by src/runtime/sceneInjectWrite.review.test.ts (its controls: the stored read survives the refusal; a write that lands is made once). Previously partial, citing a story that switches the block off, which injects no failure at the write."
+      "status": "covered",
+      "evidence": "src/runtime/sceneInjectWrite.review.test.ts#AE04-S1",
+      "alsoEvidence": ["src/runtime/sceneInjectWrite.review.test.ts#AE04-S1: a refused tracker write is journaled with the host's reason, once, while every sync retries it", "src/runtime/sceneInjectWrite.review.test.ts#AE04-S1: a tracker write that lands after a refusal is not journaled again, and is not repeated", "src/runtime/sceneInjectWrite.review.test.ts#AE-04 scene|beforeHostWrite: a refused tracker write does not lose the read it came from"],
+      "note": "AE04-S1 closed 2026-09-25. The tracker's host write is refused ({ok:false}, the answer setStoryExtensionPrompt gives when the build has no setExtensionPrompt): sync() records `injected` only on ok, so the next sync writes the same block again and it lands; a permanent refusal is retried on every sync and journaled once with the host's reason; the stored read survives. Control: a write that lands is made once. Before the fix `injected` was set before the write and the WriteResult was discarded by the dep's `=> void` type, so a refusal stuck forever."
     },
     "scene|afterHostWrite": {
       "status": "na",
@@ -194,10 +196,10 @@
       "note": "The world moves during the host read and the selection forces nothing."
     },
     "lore|aborted": {
-      "status": "partial",
+      "status": "covered",
       "evidence": "src/runtime/loreAborted.review.test.ts#AE-04 lore|aborted: a lore call cancelled by a chat switch forces nothing into the next prompt",
-      "alsoEvidence": ["src/runtime/loreAborted.review.test.ts#AE-04 lore|aborted: the same selection that is not cancelled forces the picked entry", "src/judge/cancelled.review.test.ts#a call WE cancelled is recorded as cancelled, not as a timeout"],
-      "note": "AE-04 (2026-09-25). COVERED: a judge call cancelled because the chat moved (the epoch signal's case) forces nothing into the next prompt; control: the uncancelled selection forces its pick. NOT COVERED, open finding AE04-L1: the cancelled selection is cached as an empty pick list under the departed chat's key before the ownership check, so returning to that chat at the same message serves 'the judge picked nothing' without asking again. Previously covered, citing a chat that moved while the HOST was read (before the judge was asked, no cancelled call) and a pure judge-client test."
+      "alsoEvidence": ["src/runtime/loreAborted.review.test.ts#AE04-L1", "src/runtime/loreAborted.review.test.ts#AE-04 lore|aborted: the same selection that is not cancelled forces the picked entry", "src/runtime/loreAborted.review.test.ts#AE04-L1: a selection whose chat moved while the host was read is not cached, so the chat's return asks again", "src/runtime/loreAborted.review.test.ts#AE04-L1: a judge call that did not answer is not cached as an empty pick, so the same message asks again", "src/judge/cancelled.review.test.ts#a call WE cancelled is recorded as cancelled, not as a timeout"],
+      "note": "AE-04 (2026-09-25); AE04-L1 closed 2026-09-25. A judge call cancelled because the chat moved (the epoch signal's case) forces nothing into the next prompt, and is not cached: returning to that chat at the same message asks the judge again and forces its pick. The two conditions that keep it out of the cache are pinned separately: a world that moved during the host read (the token lapses, the judge answered), and a call that did not answer in its own chat (timeout). Control: the uncancelled selection forces its pick. Before the fix the cancellation was cached as an empty pick list under the departed chat's key before the ownership check."
     },
     "stagecraft|delayedSuccess": {
       "status": "covered",

@@ -170,6 +170,7 @@ export function startRuntime() {
     setScene: (record) => runtimeManager.recordSceneRead(record),
     inject: (text) => (text ? setStoryExtensionPrompt(tracker.key, text, tracker.depth) : clearStoryExtensionPrompt(tracker.key)),
     withheldFields: () => sceneFieldsInConflict(runtimeManager.getSnapshot().memory.conflicts),
+    journal: (summary, note) => runtimeManager.noteRecap(summary, note),
   });
   sceneCoordinator = scene;
   runtimeManager.attachScene(scene);

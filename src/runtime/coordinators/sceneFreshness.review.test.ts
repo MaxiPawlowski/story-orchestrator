@@ -65,7 +65,7 @@ function harness({ answers }: { answers: boolean }) {
     getLastMessageId: () => 10,
     getScene: () => scene,
     setScene: (next: SceneReadRecord | null) => { scene = next; },
-    inject: (text: string | null) => { injected = text; },
+    inject: (text: string | null) => { injected = text; return { ok: true as const, changed: true }; },
     now: () => { clock += 60_000; return clock; },
   } as never);
   return {
