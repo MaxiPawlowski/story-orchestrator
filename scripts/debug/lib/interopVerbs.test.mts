@@ -2,6 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { applyExtSetting, cutCommand, expectOverSteer, generationEvents, pendingExtSettingRestores, readOverSteer, restoreExtSettings, stateDifferences, type RecordedState } from './interopVerbs.mts';
+import { overSteerSpec } from './overSteer.mts';
 
 const page = {
   evaluate: async (fn: (arg: unknown) => unknown, arg: unknown) => (String(fn).includes("'/script.js'") ? true : fn(arg)),
@@ -99,4 +100,13 @@ test('overSteer reads the newest capture that carried the block and the last cha
 test('overSteer throws on a reply that restates the carried block', async () => {
   withChat([{ mes: 'The sphinx blocks the only way in, it says.', is_user: false }], [], GUIDANCE);
   await assert.rejects(() => expectOverSteer(page as never, { block: 'story_orchestrator_guidance', family: 'guidance' }), /restates "story_orchestrator_guidance"/);
+});
+
+test('overSteer with record reports the same columns and never fails (v2.4 plan 04: the guidance block is recorded, not gated, X8)', async () => {
+  withChat([{ mes: 'The sphinx blocks the only way in, it says.', is_user: false }], [], GUIDANCE);
+  const verdict = await expectOverSteer(page as never, { block: 'story_orchestrator_guidance', family: 'guidance', record: true });
+  assert.equal(verdict.ok, false);
+  assert.equal(verdict.recorded, true);
+  assert.match(verdict.failures.join(' '), /restates "story_orchestrator_guidance"/);
+  assert.throws(() => overSteerSpec({ block: 'story_orchestrator_guidance', family: 'guidance', record: 'yes' }), /record is true/);
 });

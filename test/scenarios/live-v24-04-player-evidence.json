@@ -1,0 +1,63 @@
+{
+  "_note": "v2.4 plan 04 T15 + attempts clause, LIVE (real model, extraction profile selected, no debugResponse). The story's idol_taken gates the way into the next anchor and is evidence_from world; its checkpoint sets agency.player_attempts_only. The player writes 'I grab the Sun Idol from the altar.' and the group replies for real. Every read covering that line must mark player lines and state the world rule; idol_taken must never be accepted on the player line. Which of three outcomes happened is RECORDED, since one sample is nondeterministic: refused (evidence only in the player's line), accepted on a non-player line (the reply narrated the take), or not proposed. Every normal request on the checkpoint must carry the attempts clause (captured at GENERATE_AFTER_DATA). The over-steer probe columns are recorded with record:true, never gated (X8). Then a narrator line confirms the take and idol_taken must land with a non-player messageId (onNarrator says whether it is that line). Run x2: so-scenario run <this> --sandbox --group 1759606632088.",
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; return { cleared: true };"
+    },
+    {
+      "import_story": {
+        "file": "./live-v24-04.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error(`needs a group chat: run with --sandbox --group 1759606632088 (groupId=${ctx.groupId}, chatId=${ctx.chatId})`); const snap = rt.getSnapshot(); if (!snap.requirements?.ready) throw new Error('the story requirements are not ready here: ' + JSON.stringify(snap.requirements)); rt.setExtractionSettings({ cadence: 1 }); const R = globalThis.__v2404 = { startedAt: Date.now(), requests: [], type: null, marks: {} }; ctx.eventSource.on(ctx.eventTypes.GENERATION_STARTED, (type, params, dryRun) => { if (!dryRun && typeof type === 'string') R.type = type; }); ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, (data, dryRun) => { if (dryRun) return; R.requests.push({ at: Date.now(), type: R.type, active: rt.getEngineState()?.activeCheckpointId ?? null, body: JSON.stringify(data ?? null) }); }); R.audits = () => rt.getSnapshot().extraction.audits.filter((a) => Date.parse(a.createdAt) >= R.startedAt); R.brief = (a) => ({ reason: a.reason, window: a.window, windowForm: a.windowForm ?? null, accepted: a.acceptedDeltas.map((d) => ({ q: d.delta.q, v: d.delta.v, messageId: d.messageId ?? null, evidence: String(d.evidence).slice(0, 120) })), rejected: a.rejected.map((r) => ({ reason: r.reason, line: String(r.line).slice(0, 160) })) }); return { groupId: ctx.groupId, chatId: ctx.chatId, cadence: rt.getGlobalSettings().extraction.cadence, story: rt.getSnapshot().storyId };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I grab the Sun Idol from the altar.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const R = globalThis.__v2404; const ctx = SillyTavern.getContext(); const id = ctx.chat.map((m, i) => (m.is_user && /grab the Sun Idol/.test(String(m.mes)) ? i : -1)).filter((i) => i >= 0).at(-1); if (id === undefined) throw new Error('the player line is not in the chat'); R.marks.player = id; const audits = R.audits().filter((a) => a.window.from <= id && a.window.to >= id); if (!audits.length) throw new Error('no read covered the player line ' + id + ': ' + JSON.stringify(R.audits().map(R.brief))); const accepted = audits.flatMap((a) => a.acceptedDeltas.filter((d) => d.delta.q === 'idol_taken').map((d) => ({ reason: a.reason, messageId: d.messageId ?? null, v: d.delta.v, evidence: d.evidence }))); const refused = audits.flatMap((a) => a.rejected.filter((r) => r.reason === \"evidence only in the player's line\").map((r) => ({ reason: a.reason, line: r.line }))); const marked = audits.filter((a) => a.prompt.includes('(player): ')).length; const ruled = audits.filter((a) => a.prompt.includes('Evidence must quote a line the player did not write.')).length; R.marks.afterGrab = { accepted, refused, marked, ruled, audits: audits.map(R.brief) }; if (!marked || !ruled) throw new Error('a world read must mark player lines and state the rule: ' + JSON.stringify({ marked, ruled })); const fromPlayer = accepted.filter((d) => d.messageId === null || ctx.chat[d.messageId]?.is_user); if (fromPlayer.length) throw new Error('DEFECT: idol_taken was accepted on the player line: ' + JSON.stringify(fromPlayer)); const outcome = refused.length ? 'refused: evidence only in the player line' : accepted.length ? 'accepted on a non-player line (the reply narrated it)' : 'not proposed'; R.marks.outcome = outcome; return { outcome, accepted, refused, marked, ruled };",
+      "log": true
+    },
+    {
+      "eval": "const R = globalThis.__v2404; const normal = R.requests.filter((r) => r.type !== 'impersonate' && r.type !== 'quiet' && r.active === 'altar'); if (!normal.length) throw new Error('no normal generation was recorded on the altar checkpoint'); const missing = normal.filter((r) => !r.body.includes(\"The player's message states an attempt; decide its outcome from the world — it may fail.\")); if (missing.length) throw new Error('a request on the altar checkpoint does not carry the attempts clause: ' + missing.length + ' of ' + normal.length); return { requests: normal.length, types: normal.map((r) => r.type) };",
+      "log": true
+    },
+    {
+      "expect": {
+        "overSteer": {
+          "block": "story_orchestrator_guidance",
+          "family": "guidance",
+          "record": true
+        }
+      },
+      "log": true
+    },
+    {
+      "slash": "/sendas name=DM Narrator The Sun Idol comes free of the altar and rests in your hands. You hold it now."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const R = globalThis.__v2404; const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const narrator = ctx.chat.map((m, i) => (!m.is_user && /You hold it now/.test(String(m.mes)) ? i : -1)).filter((i) => i >= 0).at(-1); if (narrator === undefined) throw new Error('the narrator confirmation is not in the chat'); let landed = R.audits().flatMap((a) => a.acceptedDeltas.filter((d) => d.delta.q === 'idol_taken' && d.delta.v === true).map((d) => ({ reason: a.reason, messageId: d.messageId ?? null, evidence: d.evidence }))); if (!landed.length) { await rt.runExtractionNow(undefined, 'v24-04-confirm'); landed = R.audits().flatMap((a) => a.acceptedDeltas.filter((d) => d.delta.q === 'idol_taken' && d.delta.v === true).map((d) => ({ reason: a.reason, messageId: d.messageId ?? null, evidence: d.evidence }))); } if (!landed.length) throw new Error('idol_taken never landed, even after the narrator confirmation and one manual read: ' + JSON.stringify(R.audits().map(R.brief))); const bad = landed.filter((d) => d.messageId === null || ctx.chat[d.messageId]?.is_user); if (bad.length) throw new Error('DEFECT: idol_taken landed without a non-player source: ' + JSON.stringify(bad)); const onNarrator = landed.some((d) => d.messageId === narrator); return { narrator, landed, onNarrator, earlier: R.marks.outcome, blackboard: rt.getSnapshot().blackboard };",
+      "log": true
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "name": "v24-04-window-hygiene",
+  "objective": "v2.4 plan 04 T7, the T20 rows for extraction input, no backend. Posts the four foreign shapes in the host's own message shape (host facts 04-H6 visible /sd post, 04-H8 Stepped Thinking 3.2.0 thought post, 04-H9 CYOA suggestion post, plus an HTML-tracker reply whose hidden div names a gate value) around one plain /sendas narration line, then runs one mocked manual read (NO_DELTA) and reads the prompt the audit recorded. Red on master 4151bc8: the prompt carries every foreign row and the tracker text, and the audit has no windowForm. Green: the prompt carries only the narration and the visible half of the tracker reply, and windowForm is {hygiene:1, promptRegex:false}. Rows are pushed with addOneMessage and saved without emitting events, so no boundary or real read runs. Run: so-scenario run <this> --sandbox --group 1759606632088.",
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "import_story": {
+        "file": "./live-v24-04.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error(`needs a group chat: run with --sandbox --group 1759606632088 (groupId=${ctx.groupId}, chatId=${ctx.chatId})`); return { groupId: ctx.groupId, chatId: ctx.chatId };",
+      "log": true
+    },
+    {
+      "slash": "/sendas name=Luke Luke points at the altar where the Sun Idol rests."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const { systemUserName } = await import('/script.js'); const now = () => new Date().toISOString(); const rows = [ { name: systemUserName, is_user: false, is_system: false, send_date: now(), mes: 'V2404SD a golden idol on a stone altar, torchlight', extra: { media: [{ url: '/img/ai4.png', type: 'image', title: 'V2404SD a golden idol', generation_type: 6, negative: '', source: 'generated' }], media_display: 'gallery', media_index: 0, inline_image: false } }, { name: 'Luke', is_user: false, is_system: false, is_thoughts: true, is_thoughts_empty: true, thoughts_for: 'Luke', send_date: now(), mes: 'V2404THOUGHT Luke wonders whether the idol is cursed.', extra: { bias: null, gen_id: Date.now(), isSmallSys: false, api: 'script', model: 'stepped thinking' }, owner_extension: 'st-stepped-thinking' }, { name: 'CYOA Suggestions', is_user: true, is_system: false, send_date: now(), mes: '<div class=\"cyoa\"><button class=\"menu_button\">1. V2404CYOA I grab the Sun Idol</button></div>', extra: { api: 'manual', model: 'cyoa' } }, { name: 'Luke', is_user: false, is_system: false, send_date: now(), mes: 'Luke keeps his hands at his sides.<div style=\"display: none\">V2404TRACKER idol_taken: true</div>', extra: { api: 'manual', model: 'fixture' } } ]; const ids = []; for (const row of rows) { ctx.chat.push(row); ids.push(ctx.chat.length - 1); ctx.addOneMessage(row); } await ctx.saveChat(); return { ids };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = rt.getSnapshot().extraction.audits.length; await rt.runExtractionNow('NO_DELTA', 'v24-04-t20'); const audits = rt.getSnapshot().extraction.audits; const audit = audits.find((a) => a.reason === 'v24-04-t20') ?? null; if (!audit) throw new Error(`the manual read wrote no audit (audits ${before} -> ${audits.length})`); globalThis.__v2404Audit = { prompt: audit.prompt, window: audit.window, windowForm: audit.windowForm ?? null }; return { window: audit.window, windowForm: audit.windowForm ?? null };",
+      "log": true
+    },
+    {
+      "eval": "const seen = globalThis.__v2404Audit; if (!seen) throw new Error('no audit captured'); if (!seen.prompt.includes('Luke points at the altar where the Sun Idol rests.')) throw new Error('control: the plain narration line is missing from the prompt, so the window does not cover the rows under test'); if (!seen.prompt.includes('Luke keeps his hands at his sides.')) throw new Error('control: the visible half of the tracker reply is missing from the prompt'); return { control: 'narration and the visible reply are in the prompt' };",
+      "log": true
+    },
+    {
+      "eval": "const seen = globalThis.__v2404Audit; const leaked = ['V2404SD', 'V2404THOUGHT', 'V2404CYOA', 'V2404TRACKER'].filter((needle) => seen.prompt.includes(needle)); const problems = []; if (leaked.length) problems.push(`the read prompt carries foreign content: ${leaked.join(', ')}`); if (!seen.windowForm || seen.windowForm.hygiene !== 1 || seen.windowForm.promptRegex !== false) problems.push(`the audit does not state the cleaned window form: ${JSON.stringify(seen.windowForm)}`); if (problems.length) throw new Error(problems.join('; ')); return { leaked, windowForm: seen.windowForm };",
+      "log": true
+    }
+  ]
+}
