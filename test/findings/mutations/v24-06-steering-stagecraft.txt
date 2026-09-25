@@ -104,3 +104,10 @@ F5 Phase A candidate guards:
 Storybook finding, fixed (DiffOnPatch / FuzzyAnchorShownSpan failed: the word diff fragmented a phrase change into interleaved single-word del/ins runs across the unchanged spaces):
 - M34 word diff not coalesced (word-by-word fragments): KILLED, 1 of 5
     "wordDiff (v2.4 plan 06 T17.4) reads a multi-word change as one deletion and one insertion, not word-by-word fragments"
+
+## Integration follow-up (2026-09-25): a single-pipe reason after the curator's target
+Answers like "[enable] Title | reason" are off the prompted format, but a real model may add them, and T17.2's exact matching would drop them. `readOp` now retries once with the text before " | " when the whole target matches nothing. Tests are in `src/stagecraft/hardening.test.ts` (T17.2); they were red first.
+- P1 no reason retry: KILLED by "reads a trailing single-pipe reason as a reason, not part of the title"
+- P2 reason split before the whole-title match: KILLED by "control: a title that itself holds a pipe still matches whole"
+- P3 prefix match after the split: KILLED by "control: a prefix before the pipe is still no match" and the reason case
+- A retry limited to enable/disable was an equivalent mutant, so the restriction was dropped and the retry applies to every kind.

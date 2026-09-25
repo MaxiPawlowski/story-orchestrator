@@ -13,6 +13,8 @@ const unquote = (value: string) => value.replace(/^["'“”]+|["'“”]+$/g, "
 
 const ENTRY_REF = /^#(\d+(?:\.\d+)?)(?![\d.])/;
 
+const REASON_SEPARATOR = /\s\|\s/;
+
 // Titles are a closed vocabulary: the entry the model named has to be one the prompt listed, and it
 // is that entry's lorebook that gets written — never a book the model asks for.
 const findEntry = (entries: CuratorEntryView[], named: string): { entry?: CuratorEntryView; reason: string } => {
@@ -30,7 +32,10 @@ const findEntry = (entries: CuratorEntryView[], named: string): { entry?: Curato
 
 const readOp = (kind: CuratorOpKind, rest: string, entries: CuratorEntryView[]): { op?: WiCuratorOp; dropped?: string } => {
   const parts = splitParts(rest);
-  const { entry, reason } = findEntry(entries, parts[0] ?? "");
+  const named = parts[0] ?? "";
+  const whole = findEntry(entries, named);
+  const beforeReason = named.split(REASON_SEPARATOR)[0];
+  const { entry, reason } = whole.entry || beforeReason === named ? whole : { ...findEntry(entries, beforeReason), reason: whole.reason };
   if (!entry) return { dropped: `${kind}: ${reason}` };
   const target = { lorebook: entry.lorebook, comment: entry.comment, ...(entry.uid !== undefined ? { uid: entry.uid } : {}) };
   if (kind === "enable" || kind === "disable") return { op: { kind, ...target } };

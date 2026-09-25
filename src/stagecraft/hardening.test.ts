@@ -52,6 +52,20 @@ describe("T17.2 uid addressing", () => {
     expect(parseCuratorResponse("[enable]  the FERRYMAN ", entries()).ops).toEqual([{ kind: "enable", lorebook: "Story Lore", comment: "The ferryman", uid: 7 }]);
   });
 
+  it("reads a trailing single-pipe reason as a reason, not part of the title", () => {
+    expect(parseCuratorResponse("[enable] The ferryman | he is back on the river", entries()).ops).toEqual([{ kind: "enable", lorebook: "Story Lore", comment: "The ferryman", uid: 7 }]);
+    expect(parseCuratorResponse("[disable] #4 | the bridge fell", entries()).ops).toEqual([{ kind: "disable", lorebook: "Story Lore", comment: "The bridge", uid: 4 }]);
+  });
+
+  it("control: a title that itself holds a pipe still matches whole", () => {
+    const list = [...entries(), { lorebook: "Story Lore", comment: "North | South road", keys: [], content: "x", disabled: true, uid: 11 }];
+    expect(parseCuratorResponse("[enable] North | South road", list).ops).toEqual([{ kind: "enable", lorebook: "Story Lore", comment: "North | South road", uid: 11 }]);
+  });
+
+  it("control: a prefix before the pipe is still no match", () => {
+    expect(parseCuratorResponse("[disable] The bri | fell", entries()).ops).toEqual([]);
+  });
+
   it("drops a prefix title instead of guessing the entry", () => {
     const proposal = parseCuratorResponse("[disable] The bri\n[enable] The ferryman is back", entries());
     expect(proposal.ops).toEqual([]);
