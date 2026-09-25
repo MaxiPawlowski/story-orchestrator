@@ -5,7 +5,9 @@ import { curatorLorebooks } from "@stagecraft/index";
 import { confirmedSceneFacts, isSceneStale, judgeMeterView } from "@judge/index";
 import { buildConvergenceReadout, buildLastTransition, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot } from "./snapshot";
 import { buildNarrativeStatus, type RollbackNotice, type RollbackUnavailable } from "./narrative";
-import { agencyRecovery as agencyRecoveryOf, REFUSAL_PLAYER_TEXT, type AgencyRecovery } from "./agencyRecovery";
+import { agencyRecovery as agencyRecoveryOf, playerTurnIds, REFUSAL_PLAYER_TEXT, type AgencyRecovery } from "./agencyRecovery";
+import { jumpIndex } from "./messageJump";
+import type { MessageFingerprints } from "./fingerprints";
 import { derivePipelineStatus, expansionInFlight } from "./pipeline";
 import { hasUnsavedChanges, SAVE_PLAYER_TEXT } from "./saveHealth";
 import { blobMismatch, loadPersistedRuntime, unreadableNotice } from "./persistence";
@@ -43,8 +45,10 @@ export interface SnapshotSources {
   payloadCaptures: PayloadCapture[];
   /** v2.3 plan 09 / v2.4 plan 08: every extension prompt ST holds right now, ours and other extensions'. */
   promptBlocks: ExtensionPromptBlocks;
-  /** V13: where the player's own lines sit in the chat, so a refusal counts turns, not replies. */
-  playerTurns: number[];
+  /** The open chat: V13 counts the player's own lines in it (a refusal counts turns, not replies), and
+   *  v2.4 plan 08 T19d reads its messages against the stored fingerprints for "changed since". */
+  chat: readonly unknown[];
+  fingerprints: MessageFingerprints | null;
   extractionHealth?: ExtractionHealth | null;
 }
 
@@ -69,7 +73,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
   const pendingDeltas = buildPendingDeltas(sources.pendingWrites, state);
   const tension = buildTensionSnapshot(extras.tension.smoothed, sources.expectedTension, agencyFor(active));
   const agency = agencyFor(active);
-  const agencyRecovery: AgencyRecovery | null = agencyRecoveryOf(story, state, sources.boundaryLog, extras.extraction.audits, sources.playerTurns);
+  const agencyRecovery: AgencyRecovery | null = agencyRecoveryOf(story, state, sources.boundaryLog, extras.extraction.audits, playerTurnIds(sources.chat));
   const extractionHealth = sources.extractionHealth ?? null;
   const pipeline = derivePipelineStatus(extras.extraction, { generating: expansionInFlight(extras.expansion) }, extractionHealth);
   // v2.3 plan 09: what the next reply will carry, in ST's own assembly order. The private block is
@@ -175,6 +179,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     activeNudge: sources.activeNudge,
     payloadCaptures: sources.payloadCaptures,
     nextTurn,
+    chatJump: jumpIndex(sources.chat, sources.fingerprints),
     nextTurnForeign,
     nextTurnCost: buildNextTurnCost(nextTurn, nextTurnForeign, cost.budget, cost.lastGenerationBudget),
   };

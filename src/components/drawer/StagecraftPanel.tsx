@@ -2,6 +2,7 @@ import { useState } from "react";
 import { isNoteOp, type CuratorOp, type CuratorOpRecord, type CuratorProposalRecord } from "@stagecraft/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
+import { MessageCitation } from "./MessageCitation";
 
 const STATUS_LABELS: Record<CuratorOpRecord["status"], string> = {
   pending: "waiting for you",
@@ -55,12 +56,19 @@ const describe = (op: CuratorOp): string => {
 // v2.3 plan 05. Which pass read this truth, from which message, how sure it was, and whether another
 // store disagrees. A fact with no origin is a row from before envelopes were recorded, and says so
 // rather than implying an extractor read it — and a legacy envelope is a STATED unknown, not a read.
-const originText = (provenance: { source: string; pass: string; messageId: number; confidence?: number } | undefined, conflictingValue?: string): string => [
-  provenance && provenance.source !== "legacy" ? `${provenance.source} · ${provenance.pass}` : "origin unknown",
-  provenance && provenance.messageId >= 0 ? `message ${provenance.messageId}` : "",
-  provenance?.confidence !== undefined ? `${Math.round(provenance.confidence * 100)}% sure` : "",
-  conflictingValue ? `another store says ${conflictingValue}` : "",
-].filter(Boolean).join(" · ");
+const originText = (provenance: { source: string; pass: string; messageId: number; confidence?: number } | undefined, conflictingValue?: string) => {
+  const rest = [
+    provenance?.confidence !== undefined ? `${Math.round(provenance.confidence * 100)}% sure` : "",
+    conflictingValue ? `another store says ${conflictingValue}` : "",
+  ].filter(Boolean);
+  return (
+    <>
+      {provenance && provenance.source !== "legacy" ? `${provenance.source} · ${provenance.pass}` : "origin unknown"}
+      {provenance && provenance.messageId >= 0 && <> · <MessageCitation messageId={provenance.messageId} /></>}
+      {rest.map((part) => ` · ${part}`).join("")}
+    </>
+  );
+};
 
 // The plan-06 review pattern applied to a curator: one card per change, editable before it runs,
 // accepted or declined on its own. It lives in the drawer rather than the Studio because the author

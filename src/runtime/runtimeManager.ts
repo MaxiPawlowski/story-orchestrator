@@ -519,7 +519,7 @@ export class RuntimeManager {
     // A live in-memory read of ST's own extension prompts: cheap, and the only honest answer to
     // "what will the next reply carry" (a capture answers what the LAST one carried).
     promptBlocks: readExtensionPromptBlocks(),
-    playerTurns: playerTurnIds(getContext().chat ?? []),
+    chat: getContext().chat ?? [], fingerprints: this.chatSave.fingerprints.current,
     });
   }
 

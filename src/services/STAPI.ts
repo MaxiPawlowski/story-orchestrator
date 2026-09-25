@@ -6,6 +6,7 @@ export type { TextPopupOptions, ConfirmPopupOptions, ChoicePopupOptions } from "
 export { readExtensionPromptBlocks, readInjectedPromptBlocks } from "@services/stHost/promptInspector";
 export type { ExtensionPromptBlock, ExtensionPromptBlocks, InjectedPromptBlock } from "@services/stHost/promptInspector";
 export { readPromptBudget } from "@services/stHost/contextBudget";
+export { sendChatJump } from "@services/stHost/chatJump";
 export type { PromptBudget, PromptBudgetRead } from "@services/stHost/contextBudget";
 export type { StoryOrchestratorHostContext } from "@services/stHost/context";
 export { subscribeToHostEvent, subscribeToHostEvents } from "@services/stHost/events";

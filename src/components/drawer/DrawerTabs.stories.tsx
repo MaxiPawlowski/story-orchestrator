@@ -1148,3 +1148,43 @@ export const PlayerNeverSeesMemoryFates: Story = {
     await expect(canvasElement.querySelectorAll('[data-so="memory-fate"]').length).toBe(0);
   },
 };
+
+const citedSnapshot = (authorView: boolean): RuntimeSnapshot => {
+  const snapshot = memorySnapshot() as unknown as { memory: Record<string, unknown>; ui: Record<string, unknown>; chatJump: unknown };
+  snapshot.memory = { ...snapshot.memory, entries: [{ id: "cited", tier: "facts", text: "The ferryman owes the player a crossing.", type: "fact", importance: 2, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: "e", createdAt: 1, recallCount: 0, provenance: { source: "extractor", messageId: 5, boundary: 3, pass: "shared-read", validity: "live" } }] };
+  snapshot.chatJump = { chatLength: 9, known: { from: 0, to: 8 }, changed: [5] };
+  snapshot.ui = { ...snapshot.ui, authorView };
+  return derive(snapshot as unknown as RuntimeSnapshot);
+};
+
+const jumpFromDrawer = fn();
+
+export const AuthorJumpsFromACitation: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={citedSnapshot(true)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} onJumpToMessage={jumpFromDrawer} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    const jump = canvas.getByRole("button", { name: "message 5 (changed since)" });
+    await userEvent.click(jump);
+    await expect(jumpFromDrawer).toHaveBeenCalledWith(5);
+    await userEvent.click(canvas.getByRole("tab", { name: "Scheduler" }));
+    await expect(canvasElement.querySelector('[data-so="jump-to-message"][data-mesid="6"]')).not.toBeNull();
+  },
+};
+
+export const PlayerSeesNoJumpButtons: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={citedSnapshot(false)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} onJumpToMessage={jumpFromDrawer} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await expect(canvasElement.querySelectorAll('[data-so="jump-to-message"]').length).toBe(0);
+  },
+};

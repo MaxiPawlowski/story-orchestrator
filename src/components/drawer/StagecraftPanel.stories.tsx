@@ -4,6 +4,7 @@ import type { RuntimeManager } from "@runtime/index";
 import type { CuratorOpRecord, CuratorProposalRecord, StagecraftAcceptMode } from "@stagecraft/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { StagecraftPanel } from "./StagecraftPanel";
+import { MessageJumpProvider } from "./MessageCitation";
 
 const patchOp = (status: CuratorOpRecord["status"] = "pending"): CuratorOpRecord => ({
   op: { kind: "patch", lorebook: "Xentar Checkpoints", comment: "The dawn wards", anchor: "The wards hold || until dawn", replace: "The wards are broken" },
@@ -183,3 +184,22 @@ export const WardenNoteLapsed: Story = {
   },
 };
 
+
+// v2.4 plan 08 T19d: the warden card's cited message opens in the chat, best-effort when no boundary fingerprinted it.
+const jumpFromCard = fn();
+
+export const WardenNoteMessageOpensInTheChat: Story = {
+  args: { snapshot: snapshot({ wardenEnabled: true, proposals: [wardenNote("pending")] }), manager: fakeManager() },
+  render: (args) => (
+    <MessageJumpProvider value={{ enabled: true, index: null, onJump: jumpFromCard }}>
+      <StagecraftPanel {...args} />
+    </MessageJumpProvider>
+  ),
+  play: async ({ canvasElement }) => {
+    const button = canvasElement.querySelector('[data-so="warden-fact-origin"] [data-so="jump-to-message"]') as HTMLButtonElement;
+    await expect(button).toHaveTextContent("message 4 (best-effort)");
+    await expect(canvasElement.querySelectorAll('[data-so="jump-to-message"]')).toHaveLength(1);
+    await userEvent.click(button);
+    await expect(jumpFromCard).toHaveBeenCalledWith(4);
+  },
+};

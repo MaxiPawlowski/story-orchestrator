@@ -15,6 +15,7 @@ import { startRuntime } from "@runtime/index";
 import { STORY_STATE_RETENTION } from "@runtime/persistence";
 import { branchFromOldest, continueFromBranch } from "@runtime/chatIdentity";
 import { exportState } from "@runtime/stateExport";
+import { jumpToMessage } from "@runtime/messageJumpHost";
 import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
 import StudioModal, { STUDIO_TAB_IDS, type StudioOpenIntent } from "./studio/StudioModal";
 import type { WizardHost } from "./studio/components/StudioCopilot";
@@ -534,10 +535,22 @@ const DrawerPanel = () => {
           onOpenRepair={openRepairStep}
           onNewStory={() => void openWizard()}
           onBranchFromOldest={(messageId) => void branchAtFloor(messageId)}
+          onJumpToMessage={(messageId) => void jumpFromDrawer(messageId)}
         />
       )}
     </div>
   );
+};
+
+// v2.4 plan 08 T19d: on a narrow viewport the drawer covers #chat, so it closes before ST scrolls.
+const NARROW_VIEWPORT = 1000;
+
+const jumpFromDrawer = async (messageId: number) => {
+  const toggle = document.querySelector<HTMLElement>("#so-drawer .drawer-toggle");
+  const content = document.getElementById("drawer-manager");
+  if (window.innerWidth <= NARROW_VIEWPORT && toggle && content?.classList.contains("openDrawer")) toggleNavbarDrawer(toggle);
+  const result = await jumpToMessage(messageId, manager.getSnapshot().chatJump);
+  if (!result.ok) window.toastr?.info?.(result.reason, "Story Orchestrator");
 };
 
 const openSoDrawer = () => {
