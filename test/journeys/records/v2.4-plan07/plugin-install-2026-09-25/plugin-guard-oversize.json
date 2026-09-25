@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "value": {
+    "status": 400,
+    "ms": 5,
+    "body": "{\"error\":\"invalid request\",\"issues\":[\"q1: missing instructions\",\"request is over 29491 estimated tokens (37855)\"]}"
+  }
+}

@@ -1436,3 +1436,13 @@ Mutations: `test/findings/mutations/v24-07-part2.txt` § Part 2 live, **12/12 ki
 - the in-flight-call meter gap above;
 - TypeSafe's published terms for the privacy row;
 - the plugin guard install (from part 1).
+
+### Plugin copy installed and live (2026-09-25)
+
+The plugin was installed with the user's permission (`npm run plugin:install`; `--check` reports `upToDate: true`). ST on :8000 and lanes 1 and 2 were then restarted from the same tree (`node server.js`, no `git pull`; ST stays at `7c3994196`).
+
+On restarted lane 1:
+- `GET /api/plugins/story-orchestrator-judge/status` answered 200 with `{configured: true, model: "jev-1.13.0"}`.
+- An oversized `/systemone` request (about 37,855 estimated tokens) was refused 400 in 5 ms: `request is over 29491 estimated tokens`. Nothing was sent to TypeSafe.
+
+Records: `test/journeys/records/v2.4-plan07/plugin-install-2026-09-25/`.

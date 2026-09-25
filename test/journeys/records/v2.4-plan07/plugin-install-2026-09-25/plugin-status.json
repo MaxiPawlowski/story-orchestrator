@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "value": {
+    "status": 200,
+    "body": "{\"configured\":true,\"keySource\":\"dotenv\",\"model\":\"jev-1.13.0\",\"pluginVersion\":\"1.0.0\"}"
+  }
+}
