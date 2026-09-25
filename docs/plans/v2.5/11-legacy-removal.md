@@ -410,3 +410,11 @@ A gate that cannot run (backend down, no profile) is reported **NOT green**, nev
    corpus measurement first.
 5. A7: an id-less import takes the title slug and **updates** a same-title record on re-import, instead of forking by
    content hash. Accept?
+
+### Decisions (main session, 2026-09-26, on evidence under the user's standing permission)
+
+1. Settings-panel notice only; Repair stays for missing setup (the user has no real playthroughs; no new player copy).
+2. Backup root accepted. Lane data is **moved**, not re-seeded fresh: it holds the debug-run logs the user asked to keep.
+3. The main session stops and starts main ST for D1 itself (user permission to restart ST), only while no lane run is in flight.
+4. Unknown-key errors on the four alias-bearing objects only; the wider form needs its corpus measurement first (not in this plan).
+5. Accepted (review finding #22): an id-less import keys by title slug and updates a same-title record.
