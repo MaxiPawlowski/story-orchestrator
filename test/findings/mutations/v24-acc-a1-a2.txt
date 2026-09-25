@@ -1,0 +1,79 @@
+v2.4 acceptance A1/A2 mutations, 2026-09-25T15:34:30
+command per mutation: npx jest --runInBand src/services/stHost/extensionPrompts src/runtime/reloadPromptBlocks src/runtime/sceneInjectWrite src/runtime/sceneCoordinator src/runtime/turnBridge src/runtime/chatIdentity src/runtime/coordinators/copilot
+
+baseline (no mutant)
+  Tests:       109 passed, 109 total
+
+M1 seam skip reads a module memo of its own writes, not the host (the pre-fix shape) (src/services/stHost/extensionPrompts.ts)
+  Tests:       15 failed, 94 passed, 109 total
+  FAIL A1: after a same-chat reload, a later unchanged rewrite reaches the host
+  FAIL A1: the write skip reads the host's extension prompts › control: without a chat load, an unchanged block is still written once
+  FAIL A1: the write skip reads the host's extension prompts › rewrites a block another writer replaced under our key
+  FAIL A1: the write skip reads the host's extension prompts › rewrites an unchanged block after ST dropped it on a chat load
+  FAIL A2: a same-chat reload keeps the nudge and puts it back in the prompt
+  FAIL A2: once ST has opened another chat, the nudge is not active there even before CHAT_CHANGED reaches the bridge
+  FAIL A2: returning to the chat the nudge was set in does not bring it back
+  FAIL ACC-A1: after a same-chat reload the story's prompt blocks are back in ST's extension prompts
+  FAIL ACC-A2: the one-turn copilot nudge belongs to the chat it was set in
+  FAIL V17: the extension-prompt seam answers what the host did › a build that exposes no setExtensionPrompt is a refusal, not a silent return
+  FAIL control: A1: a switch to a chat with no story leaves no story block behind
+  FAIL control: A1: without a reload, an unchanged block is not written again
+  FAIL control: A2: a nudge in its own chat applies once and is spent by clearing it
+  FAIL setStoryExtensionPrompt write-on-change › clear then set writes again; clearing an unset key is a no-op
+  FAIL setStoryExtensionPrompt write-on-change › writes again when text or depth changes
+  restored
+
+M2 clear no longer asks whether the host holds text (src/services/stHost/extensionPrompts.ts)
+  Tests:       2 failed, 107 passed, 109 total
+  FAIL A1: the write skip reads the host's extension prompts › a clear after ST dropped the block writes nothing and answers unchanged
+  FAIL setStoryExtensionPrompt write-on-change › clear then set writes again; clearing an unset key is a no-op
+  restored
+
+M3 the host comparison ignores the role (src/services/stHost/extensionPrompts.ts)
+  Tests:       1 failed, 108 passed, 109 total
+  FAIL A1: the write skip reads the host's extension prompts › rewrites a block another writer replaced under our key
+  restored
+
+M4 the same-chat reload re-applies nothing (src/runtime/turnBridge.ts)
+  Tests:       2 failed, 107 passed, 109 total
+  FAIL A2: a same-chat reload keeps the nudge and puts it back in the prompt
+  FAIL ACC-A1: after a same-chat reload the story's prompt blocks are back in ST's extension prompts
+  restored
+
+M5 a chat switch keeps the nudge (src/runtime/turnBridge.ts)
+  Tests:       1 failed, 108 passed, 109 total
+  FAIL A2: returning to the chat the nudge was set in does not bring it back
+  restored
+
+M6 getActiveNudge ignores the chat the nudge was set in (src/runtime/coordinators/copilotCoordinator.ts)
+  Tests:       1 failed, 108 passed, 109 total
+  FAIL A2: once ST has opened another chat, the nudge is not active there even before CHAT_CHANGED reaches the bridge
+  restored
+
+M7 reapplyNudge rewrites a nudge from another chat instead of clearing it (src/runtime/coordinators/copilotCoordinator.ts)
+  Tests:       1 failed, 108 passed, 109 total
+  FAIL A2: returning to the chat the nudge was set in does not bring it back
+  restored
+
+M8 reapplyPromptBlocks leaves the nudge out (src/runtime/runtimeManager.ts)
+  Tests:       1 failed, 108 passed, 109 total
+  FAIL A2: a same-chat reload keeps the nudge and puts it back in the prompt
+  restored
+
+M9 reapplyPromptBlocks leaves the steering and guidance out (src/runtime/runtimeManager.ts)
+  Tests:       1 failed, 108 passed, 109 total
+  FAIL ACC-A1: after a same-chat reload the story's prompt blocks are back in ST's extension prompts
+  restored
+
+M10 the scene tracker compares against its own memo, not the host (src/runtime/coordinators/sceneCoordinator.ts)
+  Tests:       1 failed, 108 passed, 109 total
+  FAIL A1: a tracker block ST dropped on a chat load is written again by the next sync
+  restored
+
+red before the fix (TDD, same session)
+  npx jest src/services/stHost/extensionPrompts.test.ts on the old lastWritten seam: 6 failed, 4 passed (the 4 A1 cases; 2 older cases failed only because the old memo leaked between tests once beforeEach reset the host instead of the memo)
+  npx jest src/runtime/reloadPromptBlocks.review.test.ts with ledger rows open: ACC-A1 failed "the story's blocks are missing after a same-chat reload", ACC-A2 failed "the nudge set in another chat is still reported active"
+  npx jest src/runtime/sceneInjectWrite.review.test.ts before the `applied` dep: "A1: a tracker block ST dropped on a chat load is written again by the next sync" failed
+
+not reachable from jest
+  runtime/index.ts wiring of SceneCoordinator `applied` (readInjectedPromptBlocks for the tracker key): proven only live, by test/scenarios/v24-acc-A-reload-blocks.json + -control.json

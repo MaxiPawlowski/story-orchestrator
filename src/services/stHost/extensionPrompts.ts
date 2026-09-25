@@ -1,4 +1,5 @@
 import { getContext } from "./context";
+import type { HostExtensionPrompt } from "./hostTypes";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 
 const EXTENSION_PROMPT_IN_CHAT = 1;
@@ -6,7 +7,27 @@ const EXTENSION_PROMPT_ROLE_SYSTEM = 0;
 
 type SetExtensionPromptFn = (key: string, value: string, position: number, depth: number, scan?: boolean, role?: number) => void;
 
-const lastWritten = new Map<string, { text: string; depth: number }>();
+// ST's clearChat reassigns `extension_prompts = {}` on every chat load, a same-chat reload included
+// (script.js:1590, 1712), so what this page once wrote is no evidence of what the host holds.
+const heldBlock = (key: string): HostExtensionPrompt | null => {
+  const prompts = getContext().extensionPrompts;
+  const entry = prompts && typeof prompts === "object" ? prompts[key] : undefined;
+  return entry && typeof entry === "object" ? entry : null;
+};
+
+const holds = (key: string, text: string, depth: number): boolean => {
+  const entry = heldBlock(key);
+  return entry !== null
+    && entry.value === text
+    && Number(entry.depth) === depth
+    && Number(entry.position) === EXTENSION_PROMPT_IN_CHAT
+    && Number(entry.role ?? EXTENSION_PROMPT_ROLE_SYSTEM) === EXTENSION_PROMPT_ROLE_SYSTEM;
+};
+
+const holdsText = (key: string): boolean => {
+  const entry = heldBlock(key);
+  return entry !== null && typeof entry.value === "string" && entry.value !== "";
+};
 
 const resolveSetExtensionPrompt = (): SetExtensionPromptFn | null => {
   const context = getContext() as unknown as { setExtensionPrompt?: SetExtensionPromptFn };
@@ -18,20 +39,17 @@ const resolveSetExtensionPrompt = (): SetExtensionPromptFn | null => {
 };
 
 export function setStoryExtensionPrompt(key: string, text: string, depth: number): WriteResult<{ changed: boolean }> {
-  const previous = lastWritten.get(key);
-  if (previous && previous.text === text && previous.depth === depth) return wrote({ changed: false });
+  if (holds(key, text, depth)) return wrote({ changed: false });
   const write = resolveSetExtensionPrompt();
   if (!write) return couldNot("this build exposes no setExtensionPrompt, so the block never reaches a prompt");
   write(key, text, EXTENSION_PROMPT_IN_CHAT, depth, false, EXTENSION_PROMPT_ROLE_SYSTEM);
-  lastWritten.set(key, { text, depth });
   return wrote({ changed: true });
 }
 
 export function clearStoryExtensionPrompt(key: string): WriteResult<{ changed: boolean }> {
-  if (!lastWritten.has(key)) return wrote({ changed: false });
+  if (!holdsText(key)) return wrote({ changed: false });
   const write = resolveSetExtensionPrompt();
   if (!write) return couldNot("this build exposes no setExtensionPrompt, so the block cannot be cleared");
   write(key, "", EXTENSION_PROMPT_IN_CHAT, 0, false, EXTENSION_PROMPT_ROLE_SYSTEM);
-  lastWritten.delete(key);
   return wrote({ changed: true });
 }

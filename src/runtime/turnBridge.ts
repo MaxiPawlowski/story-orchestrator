@@ -179,10 +179,12 @@ export class TurnBridge {
     const change = readChatChange(this.loadedChat, { runContext: () => this.manager.getRunContext(), engineBoundary: () => this.manager.getEngineState()?.boundary ?? null });
     if (change.kind === "same-chat") {
       this.refreshIdentity();
+      this.manager.reapplyPromptBlocks();
       await this.save?.reconcile(beginRun(this.manager.getOwnership()));
       this.manager.notify();
       return;
     }
+    this.manager.reapplyCopilotNudge();
     this.reset();
     this.refreshIdentity();
     this.loadedChat = null;

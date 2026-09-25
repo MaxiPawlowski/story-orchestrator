@@ -134,8 +134,10 @@
       "note": "AE04-S1 closed 2026-09-25. The tracker's host write is refused ({ok:false}, the answer setStoryExtensionPrompt gives when the build has no setExtensionPrompt): sync() records `injected` only on ok, so the next sync writes the same block again and it lands; a permanent refusal is retried on every sync and journaled once with the host's reason; the stored read survives. Control: a write that lands is made once. Before the fix `injected` was set before the write and the WriteResult was discarded by the dep's `=> void` type, so a refusal stuck forever."
     },
     "scene|afterHostWrite": {
-      "status": "na",
-      "note": "The tracker IS a host write (setStoryExtensionPrompt through the inject wired in runtime/index.ts), but it is the last step of both run() and sync(): nothing the coordinator does after it can fail, so there is no post-write step to inject a fault into. Its post-write STATE (SceneCoordinator.injected, and extensionPrompts' lastWritten) is what makes a refused write stick, which is the beforeHostWrite row (AE04-S1). Corrected 2026-09-25 (AE-04): this note used to say the block is not written anywhere."
+      "status": "covered",
+      "evidence": "src/runtime/sceneInjectWrite.review.test.ts#A1: a tracker block ST dropped on a chat load is written again by the next sync",
+      "alsoEvidence": ["src/runtime/sceneInjectWrite.review.test.ts#A1 control: while the host still holds the tracker block, a sync writes nothing"],
+      "note": "v2.4 acceptance A1 (2026-09-25). The fault after the write is the host losing it: ST's clearChat reassigns `extension_prompts = {}` on every chat load, a same-chat reloadCurrentChat included (script.js:1590, 1712). The tracker used to compare against its own `injected` memo (and the seam against its `lastWritten` memo), so a block ST had dropped was never written again. sync() now compares against the block the host holds (`applied`, wired to readInjectedPromptBlocks in runtime/index.ts) and the seam reads getContext().extensionPrompts. Control: while the host still holds the block, nothing is rewritten. Replaces the na row, which said no post-write fault could be injected."
     },
     "scene|persistFailure": {
       "status": "na",

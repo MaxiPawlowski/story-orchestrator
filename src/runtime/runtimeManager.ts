@@ -194,6 +194,7 @@ export class RuntimeManager {
     ...this.lifecycle,
     wizardSession: (key) => loadWizardSession(key),
     saveWizardSession: (session) => saveWizardSession(session),
+    openChat: () => String(getContext().chatId ?? "") || null,
   });
 
   constructor() {
@@ -430,6 +431,8 @@ export class RuntimeManager {
   async runCopilotReport(debugResponse?: string): Promise<string> { return this.copilot.runReport(debugResponse); }
   setCopilotNudge(text: string, depth = 1) { this.copilot.setNudge(text, depth); }
   clearCopilotNudge() { this.copilot.clearNudge(); }
+  reapplyCopilotNudge() { this.copilot.reapplyNudge(); }
+  reapplyPromptBlocks() { this.copilot.reapplyNudge(); if (!this.loaded) return; this.memory.updateInjection(); this.pacing.updateSteering(); }
   getActiveNudge(): string | null { return this.copilot.getActiveNudge(); }
   getExtractionFacts(): ParsedFact[] { return this.memory.getFacts(); }
   getFiredTransitions(): NormalizedTransition[] { return this.engine.stateLog.map((entry) => entry.fired).filter((transition): transition is NormalizedTransition => Boolean(transition)); }

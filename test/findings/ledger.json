@@ -438,6 +438,24 @@
       "status": "closed",
       "expectedFailure": "the scene tracker block the host refused was recorded as injected",
       "note": "Found 2026-09-25 writing the scene|beforeHostWrite fault-matrix test (src/runtime/sceneInjectWrite.review.test.ts). SceneCoordinator.sync sets `injected = text` BEFORE deps.inject, and the runtime's inject (runtime/index.ts) discards setStoryExtensionPrompt's WriteResult, so a refused or throwing write leaves the coordinator believing the block is in the prompt; every later sync with the same text returns early and never retries. The same class as the plan-11 LoreSelector force() finding. FIXED 2026-09-25 (commit 74867d5): the coordinator's `inject` dep is typed as the WriteResult the runtime's inject already returned (it was the `=> void` dep type that discarded it); sync() records `injected` only on ok, so a refused write is retried on every later sync, and a throwing write leaves `injected` untouched for the same reason. A refusal is journaled through the manager's noteRecap (the lore/sampler/scan-gating idiom) once per refused text, not once per retry. Mutations: test/findings/mutations/v24-ae04-defects.txt."
+    },
+    {
+      "id": "ACC-A1",
+      "title": "after a same-chat reload the story's prompt blocks are back in ST's extension prompts",
+      "owner": "v2.4 plan 09 acceptance",
+      "evidence": "jest",
+      "status": "closed",
+      "expectedFailure": "the story's blocks are missing after a same-chat reload",
+      "note": "Found 2026-09-25 by the v2.4 acceptance matrix (row I7, probes test/scenarios/v24-acc-A-reload-blocks.json + -control.json). reloadCurrentChat (script.js:1710) runs clearChat (script.js:1586), which reassigns `extension_prompts = {}` (script.js:1590), then emits CHAT_CHANGED with the same id (group-chats.js:318 / script.js:7700). The same-chat path (turnBridge.onChatChanged, plan 02 §3) re-applied nothing, and every later rewrite of an unchanged block was skipped by stHost/extensionPrompts.ts's module-level `lastWritten` memo, which still claimed blocks ST no longer held. FIXED 2026-09-25: the seam skips a write only when getContext().extensionPrompts (the live `extension_prompts` binding, st-context.js:152) already holds the same text, depth, position and role, and clears only a key the host holds text for; the memo is gone. The same-chat branch of turnBridge.onChatChanged calls manager.reapplyPromptBlocks() (memory injection, pacing steering + checkpoint guidance, the nudge) before its first await, and SceneCoordinator.sync compares against the tracker block the host holds (`applied` dep, wired to readInjectedPromptBlocks in runtime/index.ts) instead of its own `injected` memo. Mutations: test/findings/mutations/v24-acc-a1-a2.txt."
+    },
+    {
+      "id": "ACC-A2",
+      "title": "the one-turn copilot nudge belongs to the chat it was set in",
+      "owner": "v2.4 plan 09 acceptance",
+      "evidence": "jest",
+      "status": "closed",
+      "expectedFailure": "the nudge set in another chat is still reported active",
+      "note": "Found 2026-09-25 by the v2.4 acceptance matrix (interop rows): after the sandbox chat was deleted and the page returned to another chat, getActiveNudge()/snapshot.activeNudge still reported the nudge, and re-setting the same text in the new chat was deduped by stHost/extensionPrompts.ts lastWritten (ACC-A1's memo), so a nudge left from an earlier chat blocked a new one. CopilotCoordinator held `activeNudge` with no chat, and the generation lifecycle deliberately skips clearCopilotNudge on a chat-changed close. FIXED 2026-09-25: the nudge records the chat it was set in (`openChat` dep); getActiveNudge answers only in that chat; a CHAT_CHANGED switch calls reapplyCopilotNudge(), which clears a nudge from another chat, and a same-chat reload re-injects it. Re-setting in a new chat writes because the seam now reads the host (ACC-A1). Mutations: test/findings/mutations/v24-acc-a1-a2.txt."
     }
   ]
 }

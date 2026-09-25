@@ -33,6 +33,8 @@ const setup = () => {
     fireAfterSpeak: jest.fn(async () => {}),
     rollbackFromMessage: jest.fn(async () => {}),
     loadSelectedFromChat: jest.fn(async () => {}),
+    reapplyPromptBlocks: jest.fn(),
+    reapplyCopilotNudge: jest.fn(),
     getOwnership: () => undefined,
     notify: jest.fn(),
   };
