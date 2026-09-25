@@ -1,0 +1,57 @@
+v2.4 plan 05 T13 scan-time gating SPIKE (pure scanGatePlan + applyScanGate, the gate provider, the stHost handler + wiScanGating probe, the normaliser, the file-path skip) and the releasePlan book-case fix; mutations 2026-09-24 (worktree build on e35daa6; script .debug/mut.mjs over .debug/mut-t13.json, each mutant applied alone as an exact-text replacement to one file, the file restored byte-for-byte after its run; a replacement that does not match is reported DID NOT APPLY, and none did)
+Suites per mutant: scanGatePlan.test (8, incl. the 300-seed property test against a file-path oracle), worldInfoScan.test (7), worldInfoGates.test (11), worldInfoNormalize.test (6), effectsApplier.test (27), stHost/worldInfoScan.test (5). Each suite green before and after the sweep.
+Plan-table mutations: the handler's chatId guard = S1, compare-and-set = S2, the not-ready -> no-story branch = S3. The keyless-row skip belongs to the mirror key strip, which was NOT built (v24-05-t12.txt header).
+
+- S1 the handler's chatId guard: a scan for any chat gets the loaded story's gate (plan mutation): KILLED, 2 of 7
+    "a scan for any other chat is a no-story scan: every library gated entry stays off"
+    "ST's CHAT_CHANGED pre-cache scan, before our hydrate, is a no-story scan (05-H9)"
+- S2 compare-and-set: an ON entry is cleared whatever its resting value (plan mutation): KILLED, 2 of 17 (re-run on the S5 refactor, `gateEntry`)
+    "an entry the ledger does not say rests off is never switched on (compare-and-set)"
+    "compare-and-set: an entry that rests ON and was disabled by another listener stays disabled"
+- S3 the not-ready -> no-story branch: not-ready requirements still get the story's gate (plan mutation): KILLED, 1 of 7
+    "not-ready requirements are a no-story scan"
+- S4 off adds a disable key the copy lacked (05-H5): KILLED, 2 of 10 (re-run on the S5 refactor, `gateEntry`)
+    "never adds a disable key the copy lacks (the timed-effects hash, 05-H5)"
+    "reports, per gated entry, the state the scan loaded and the state it used (S5)"
+- S5 a gated comment switches its LAST entry, not the first the file path writes: KILLED, 1 of 8
+    "takes only the first entry that carries a comment, as the file path does"
+- S6 scanGatePlan drops the release half (only the loaded story's plan): KILLED, 1 of 15
+    "gives every gated entry the state the file path leaves behind, over seeded libraries and paths"
+- S7 scanGatePlan applies enables before disables within a book: SURVIVED (0 of 8). EQUIVALENT, not a gap: worldInfoPlan puts each comment of a book in exactly one of `enable`/`disable` (`:19-20` filter the same set by `on.has`), so the two loops never touch the same key and their order cannot change the gate.
+- S8 the gate is not memoised: every scan rebuilds it from the library: KILLED, 1 of 7
+    "memoises by chat, story, path and library revision, and rebuilds when any of them moves"
+- S9 releasePlan matches books by exact authored name again (case fix reverted): KILLED, 5 of 19
+    "gives every gated entry the state the file path leaves behind, over seeded libraries and paths"
+    "turns off what the leaving stories gate, except what the incoming story gates too"
+    "turns off everything when no story takes over, and skips books with nothing left to release"
+    "keeps what the incoming story gates when another story names the same book in another case (v2.4 plan 05)"
+    "keeps every entry of a story that spells its own book two ways"
+- S10 releasePlan's keep index overwrites a second spelling of the same book: KILLED, 2 of 19
+    "gives every gated entry the state the file path leaves behind, over seeded libraries and paths"
+    "keeps every entry of a story that spells its own book two ways"
+- N1 the normaliser writes without asking its run: KILLED, 1 of 6
+    "stops before a write once its run has lapsed"
+- N2 the normaliser re-writes entries its ledger already records (not incremental): KILLED, 2 of 6
+    "flips exactly the gated entries of marker books, once: the second run writes nothing"
+    "a gated set that grows normalises only what is new"
+- N3 an unconfirmed write is recorded as normalised: KILLED, 1 of 6
+    "a refused or unconfirmed write is not recorded as normalised, so the next run retries it"
+- N4 the normaliser touches books without the spike marker: KILLED, 2 of 6
+    "flips exactly the gated entries of marker books, once: the second run writes nothing"
+    "only books carrying the spike marker are admitted"
+- F1 scan gating active still writes the path replay (file path not skipped): KILLED, 1 of 27
+    "under scan-time gating (T13 spike) neither the path replay nor the release writes a lorebook; off again, both do"
+- F2 scan gating active still writes the release: KILLED, 1 of 27
+    "under scan-time gating (T13 spike) neither the path replay nor the release writes a lorebook; off again, both do"
+- C1 the wiScanGating probe reads present without seeing the handler run (S6): KILLED, 1 of 5
+    "the capability is present only when the handler was seen on a probe scan (S6)"
+- C2 the scan handler is not re-placed last at each generation: KILLED, 1 of 5
+    "runs synchronously as the last listener, over the four arrays of the scan's own copies"
+- V1 the S5 view is shown while scan gating is off: KILLED, 1 of 10
+    "shows the last gated scan only while scan gating is active, and forgets it when it goes off"
+- V2 the S5 file state is read after the gate wrote the copy: KILLED, 1 of 10
+    "reports, per gated entry, the state the scan loaded and the state it used (S5)"
+
+S2 and S4 were first run against the pre-S5 body of applyScanGate (KILLED 2 of 15 and 1 of 8); the S5 author table moved the per-entry gate into `gateEntry`, so both were re-pointed at the new text and re-run, with the results above.
+
+Tally: 19/20 killed, 1 equivalent (S7, argued above).

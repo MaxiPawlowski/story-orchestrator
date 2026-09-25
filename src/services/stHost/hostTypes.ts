@@ -28,6 +28,16 @@ export interface HostScannableEntry extends HostWorldInfoEntry {
   constant?: boolean;
 }
 
+// v2.4 05-H2/H3: the four per-call arrays `getSortedEntries` hands to WORLDINFO_ENTRIES_LOADED before
+// it sorts, hashes and clones them. Each element is already a copy (`{uid, world, ...rest}` over a
+// cloned book), so a listener's `disable` write is scan-local.
+export interface HostEntriesLoaded {
+  globalLore: HostScannableEntry[];
+  characterLore: HostScannableEntry[];
+  chatLore: HostScannableEntry[];
+  personaLore: HostScannableEntry[];
+}
+
 export interface HostSlashCommand {
   aliases?: string[];
   helpString?: string;
@@ -134,7 +144,7 @@ export interface WorldInfoHostModule {
   deleteWorldInfo: (name: string) => Promise<boolean>;
   // v2.2 plan 04: every entry of every active source (global, character, chat, persona), stamped
   // with `world`, decorators parsed and hashed, structured-cloned (world-info.js:4590). It emits
-  // WORLDINFO_ENTRIES_LOADED on the way (:4603).
+  // WORLDINFO_ENTRIES_LOADED on the way (:4604, v2.4 05-H2) and clones at :4638.
   getSortedEntries: () => Promise<HostScannableEntry[]>;
   [key: string]: unknown;
 }

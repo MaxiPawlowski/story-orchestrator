@@ -112,3 +112,30 @@ not a measurement (rule 1); the rows that need a measurement say so.
 | 07-H5 | A malformed request is `422 Unprocessable Entity` upstream; rate limit `429`, overload `529` | `api.md` §Errors | The plugin refuses first with its own `400` (`index.mjs:135-136`) and retries 429/529 once (`:12-13`, `:116`) |
 | 07-H6 | The plugin's `/status` reports its constant `DEFAULT_MODEL`, not the install's configured model | `index.mjs:132` (`:8`) | Code fact; the page-side mismatch uses the ring's last answered model instead (plan 07 §2) |
 | 07-H7 | The plugin passes the upstream body back verbatim, so `usage` reaches the page | `index.mjs:141` | Code fact; jest covers the page side (`accounting.review.test.ts`) |
+
+## Plan 05 (World Info, 2026-09-24)
+
+Re-read on the live 1.19.0 tree (`public/`, `package.json:118`, `7c3994196`) line by line with a file reader. The 1.18.0 column is
+the plan's static reading of `51ad27fb` (`git show`); it was **not** re-read here, because the build worktree cannot run git
+against the ST checkout. "Δ" marks a correction of the plan's citation.
+
+| # | Fact | 1.19.0 | 1.18.0 (plan) |
+|---|---|---|---|
+| 05-H1 | `WORLD_INFO_ACTIVATED(Array)` = `allActivatedEntries.values()`, emitted in `getWorldInfoPrompt` only when `!isDryRun && size > 0`. No event for "nothing fired" | `world-info.js:899-903` ✓ | `:902` |
+| 05-H2 | `WORLDINFO_ENTRIES_LOADED({globalLore, characterLore, chatLore, personaLore})`, awaited inside `getSortedEntries` before sort/hash/clone | fn `:4590`, emit `:4604` ✓ | `:4478`/`:4492` |
+| 05-H3 | The arrays are per-call copies: `worldInfoCache` is `StructuredCloneMap({cloneOnGet:true})`, `loadWorldInfo` returns a clone, and each entry is re-spread `{uid, world, ...rest}`. A listener's `disable` write is scan-local | `:882`, `:2041-2042`, spreads `:4515`, `:4535`, `:4557` (Δ plan `:4556` is the load), persona `:4582` | `:882` |
+| 05-H4 | Sorted AFTER the event (chat lore first, `:4624-4625`; `sortFn` sorts each array in place), hashed after it (`:4628-4633`), then `structuredClone`d (`:4638`). So the ENTRIES_LOADED array order is still the book's key order: the scan handler's "first entry carrying a comment" is the same entry the file path's `Object.values(entries).find` flips | ✓ | `:4527` |
+| 05-H5 | Timed effects (sticky/cooldown) are keyed by that hash (`:585`, `:624`); a scan-time change that alters an entry's JSON changes its hash | ✓ | re-check (not done) |
+| 05-H6 | `disable == true` is skipped (`:4801`) before the forced check (`:4886`, Δ plan `:4885` is the blank line above it); keyless non-constant entries skipped (`:4906`); forced entries still pass probability (`:5042-5053`) and budget (`:5061-5070`) | ✓ | `:4689`/`:4774` |
+| 05-H7 | Every `checkWorldInfo`, dry included, ends in `buffer.resetExternalEffects()` (method `:418`, call `:5275`), which clears pending forces | ✓ | `:5156` |
+| 05-H8 | `WORLDINFO_SCAN_DONE(args)` per scan loop, `args.activated.entries` the live Map. `args` carries no dry-run flag a listener can read (`:5150-5174`), so it cannot tell a real scan from a dry one | `:5175` ✓ | `:5056` |
+| 05-H9 | `getSortedEntries` callers: `checkWorldInfo` (`:4744`), ST's CHAT_CHANGED pre-cache (`:1013-1018`, result discarded), vectors (`vectors/index.js:1629`), ours (`worldInfoActivate.ts`) | ✓ | pre-cache `:1016` |
+| 05-H10 | Vectors WI: `rearrangeChat` interceptor (`vectors/index.js:776`, skips quiet `:778`) → `activateWorldInfo` `:1623`; skips `entry.disable` (`:1646-1649`); deletes vector items for entries absent from its view (`:1680-1690`); forces its matches with `WORLDINFO_FORCE_ACTIVATE` at `:1725` (Δ plan `:1723`) | ✓ | `:1629`/`:1646` |
+| 05-H11 | `emit` copies the listener list at emit time and awaits each, swallowing errors (`lib/eventemitter.js:130-153`, copy `:141`); `makeLast` (`:66-83`) / `makeFirst` (`:90-107`) reposition at call time only | ✓ | `:66`/`:90` |
+| 05-H12 | `deleteWorldInfo` requires the name in `world_names` (`:4347`), evicts `worldInfoCache` (`:4361-4363`), deselects (`:4365-4369`) and refreshes the list (`:4371`) | fn `:4346` ✓ | `:4234` |
+| 05-H13 | Keys `WORLD_INFO_ACTIVATED` `events.js:62`, `WORLDINFO_FORCE_ACTIVATE` `:77`, `WORLDINFO_ENTRIES_LOADED` `:97`, `WORLDINFO_SCAN_DONE` `:98` | ✓ | same |
+| 05-H14 | Generate interceptors run before the WI scan (`script.js:4561-4573` < `getWorldInfoPrompt` `:4635`), after `GENERATION_AFTER_COMMANDS` (`:4321`), and never on a dry run (`:4562`) | ✓ | re-check (T12c only; not built) |
+| 05-H15 | `getWorldInfoPrompt(chat, maxContext, isDryRun, globalScanData)` is on the context (`st-context.js:283`); `chat` is the message texts in reverse order (`world-info.js:884-892`). The T20 foreign dry-scan fixture (`test/fixtures/interop/wi-foreign.js`) calls it with `isDryRun = true` | ✓ | not read |
+| 05-H16 | `getWorldInfoNames()` is a copy of `world_names` on the context (`st-context.js:284`); `deleteWorldInfo`/`updateWorldInfoList`/`worldInfoCache` are module exports only (not on the context), so harness code imports `/scripts/world-info.js` | ✓ | not read |
+
+Still owed on 1.18.0 (live, plan 09 clean-host-older covers them only as jest seam tests): H5, H14, and H15/H16 (not read).

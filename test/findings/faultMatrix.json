@@ -1,5 +1,5 @@
 {
-  "$comment": "v2.3 plan 11 §Fault matrix. Ten stateful packages against ten fault shapes (v2.4 plan 03 added the `aborted` shape and the `hostDeletes` package, decision E8), one row per cell, each either citing the test that demonstrates it or saying what is not yet demonstrated. Generated set, hand-classified status. The guard in src/runtime/faultMatrix.guard.test.ts fails when this file and the code disagree: a missing pair, a row for a pair the matrix does not have, a citation whose test is not in the file it names, or an unproven cell that still cites something. Statuses: covered (a test asserts the designed behaviour for this package under this fault) | partial (a test covers part of it, and the note says which part) | todo (nothing covers it) | na (the shape cannot apply, and the note says why).",
+  "$comment": "v2.3 plan 11 §Fault matrix. Eleven stateful packages against ten fault shapes (v2.4 plan 03 added the `aborted` shape and the `hostDeletes` package, decision E8; v2.4 plan 05 added `wiEvidence`), one row per cell, each either citing the test that demonstrates it or saying what is not yet demonstrated. Generated set, hand-classified status. The guard in src/runtime/faultMatrix.guard.test.ts fails when this file and the code disagree: a missing pair, a row for a pair the matrix does not have, a citation whose test is not in the file it names, or an unproven cell that still cites something. Statuses: covered (a test asserts the designed behaviour for this package under this fault) | partial (a test covers part of it, and the note says which part) | todo (nothing covers it) | na (the shape cannot apply, and the note says why).",
   "cells": {
     "extraction|delayedSuccess": {
       "status": "covered",
@@ -487,6 +487,54 @@
       "note": "The reaper's world is the runtime's lifetime, not a chat (the chat is gone by construction); a runtime that stopped while the confirm was open deletes nothing and leaves a lapsed row."
     },
     "hostDeletes|aborted": {
+      "status": "na",
+      "note": "Performs no model call, so nothing can be cancelled mid-call."
+    },
+    "wiEvidence|delayedSuccess": {
+      "status": "covered",
+      "evidence": "src/runtime/worldInfoEvidence.test.ts#tags several scans of one generation instead of merging them, and a quiet scan never counts as the reply",
+      "note": "v2.4 plan 05 T12: a scan that arrives later in the same loud generation lands in that generation's slot, tagged by the run it fired in."
+    },
+    "wiEvidence|delayedError": {
+      "status": "na",
+      "note": "Read-only observers of host events: nothing is awaited, so nothing can fail late."
+    },
+    "wiEvidence|malformedResponse": {
+      "status": "covered",
+      "evidence": "src/runtime/worldInfoEvidence.test.ts#drops an activated entry that names no book or no uid instead of recording a guess",
+      "note": "An activated entry without a world or a finite uid is dropped, never recorded as a guess."
+    },
+    "wiEvidence|duplicateCompletion": {
+      "status": "covered",
+      "evidence": "src/runtime/worldInfoEvidence.test.ts#the same entry activated by two scans of one generation is one fired row",
+      "note": "Recursion or a second scan reporting the same entry does not double it."
+    },
+    "wiEvidence|backendUnavailable": {
+      "status": "covered",
+      "evidence": "src/runtime/worldInfoEvidence.test.ts#with no loud scan observed there is nothing to judge, so a slot raises no flag",
+      "note": "A generation that never reached a scan (an interceptor abort, a backend that failed first) raises no miss flag: ST emits nothing for 'no scan' and nothing for 'nothing fired' (05-H1)."
+    },
+    "wiEvidence|beforeHostWrite": {
+      "status": "na",
+      "note": "Never writes World Info (plan 05 inv 14/6)."
+    },
+    "wiEvidence|afterHostWrite": {
+      "status": "na",
+      "note": "Never writes World Info (plan 05 inv 14/6)."
+    },
+    "wiEvidence|persistFailure": {
+      "status": "na",
+      "note": "The ring is memory-only; its miss flags persist only as journal records through the ordinary chat save, which the persistence package covers."
+    },
+    "wiEvidence|worldSwitched": {
+      "status": "covered",
+      "evidence": "src/runtime/worldInfoEvidence.test.ts#a new world drops every slot, and another chat's slots are never shown",
+      "alsoEvidence": [
+            "src/runtime/worldInfoEvidence.test.ts#an edit at or before a slot's reply drops it; one after it keeps it (inv 11)"
+      ],
+      "note": "A story load, restart or chat change drops every slot; an edit at or before a slot's reply drops that slot."
+    },
+    "wiEvidence|aborted": {
       "status": "na",
       "note": "Performs no model call, so nothing can be cancelled mid-call."
     }

@@ -1,0 +1,54 @@
+{
+  "_note": "v2.4 plan 05 T12 / T20 WI shape (no backend; so-scenario run <file> --sandbox --group <id>, twice). RED before T12: there is no evidence ring (storyOrchestratorLoreEvidence is undefined). Drives ST-shaped generation events and WORLD_INFO_ACTIVATED payloads (05-H1) through the real listeners: (1) a loud generation whose reply runs a NESTED quiet generation (Stepped Thinking's shape, 01-H8) records ONE slot holding TWO scans, the quiet one tagged, never merged; the gated entry is marked gated; (2) a generation whose scans activate nothing records an EMPTY slot, never the previous turn's list (the case PTMT gets wrong); (3) a quiet OUTERMOST generation opens no slot at all. Closes each generation with an ST-shaped STOPPED so no boundary is committed.",
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "id": "v24-05-ring",
+        "version": 1,
+        "title": "SO-V2405 Ring",
+        "description": "v2.4 plan 05 T20 WI shapes: a story that gates one entry in a marker book that does not exist, so nothing is ever written.",
+        "qualities": [],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "Start",
+            "objective": "Talk.",
+            "type": "anchor",
+            "start": true,
+            "effects": {
+              "world_info": {
+                "enable": [
+                  {
+                    "lorebook": "SO-V2405 Ring",
+                    "comments": [
+                      "Gate constant"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "transitions": [],
+        "roster": []
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ev = globalThis.storyOrchestratorLoreEvidence; if (!ev) throw new Error('no storyOrchestratorLoreEvidence: the T12 ring is not on this build'); for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; if (!SillyTavern.getContext().chatId) throw new Error('needs an open sandbox chat'); if (rt.getStory()?.id !== 'v24-05-ring') throw new Error(`the ring story is not loaded: ${rt.getStory()?.id}`); return { slots: ev.slotsForChat().length };",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const emit = (key, ...args) => ctx.eventSource.emit(ctx.eventTypes[key], ...args); const view = () => globalThis.storyOrchestratorLoreEvidence.view(globalThis.storyOrchestratorRuntime.getStory(), globalThis.storyOrchestratorRuntime.getSnapshot().memory.wiBook?.name ?? null); await emit('GENERATION_STARTED', 'normal', {}, false); await emit('WORLD_INFO_ACTIVATED', [{ world: 'SO-V2405 Ring', uid: 1, comment: 'Gate constant', constant: true, content: 'x' }]); await emit('GENERATION_STARTED', 'quiet', { force_chid: 0 }, false); await emit('WORLD_INFO_ACTIVATED', [{ world: 'SO-V2405 Ring', uid: 2, comment: 'Quiet only', content: 'y' }]); await emit('GENERATION_ENDED', ctx.chat.length); await emit('GENERATION_STOPPED'); const last = view().last; if (!last) throw new Error('no slot was recorded for the loud generation'); if (last.scanCount !== 2 || last.nestedScans !== 1) throw new Error(`the scans were merged or mis-tagged: ${JSON.stringify({ scanCount: last.scanCount, nestedScans: last.nestedScans })}`); const origins = Object.fromEntries(last.fired.map((row) => [row.comment, row.origin])); if (origins['Gate constant'] !== 'gated') throw new Error(`the gated entry was not marked gated: ${JSON.stringify(origins)}`); if (last.rendered !== false) throw new Error('a STOPPED generation was recorded as rendered'); return { scanCount: last.scanCount, nestedScans: last.nestedScans, origins };",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const emit = (key, ...args) => ctx.eventSource.emit(ctx.eventTypes[key], ...args); const view = () => globalThis.storyOrchestratorLoreEvidence.view(globalThis.storyOrchestratorRuntime.getStory(), globalThis.storyOrchestratorRuntime.getSnapshot().memory.wiBook?.name ?? null); await emit('GENERATION_STARTED', 'normal', {}, false); await emit('GENERATION_STOPPED'); const last = view().last; if (!last) throw new Error('no slot was recorded'); if (last.scanCount !== 0 || last.fired.length !== 0) throw new Error(`a generation whose scans activated nothing shows lore: ${JSON.stringify(last.fired.map((row) => row.comment))}`); return { fired: 0, scanCount: 0 };",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const emit = (key, ...args) => ctx.eventSource.emit(ctx.eventTypes[key], ...args); const before = globalThis.storyOrchestratorLoreEvidence.slotsForChat().length; await emit('GENERATION_STARTED', 'quiet', {}, false); await emit('WORLD_INFO_ACTIVATED', [{ world: 'SO-V2405 Ring', uid: 2, comment: 'Quiet only', content: 'y' }]); await emit('GENERATION_ENDED', ctx.chat.length); const after = globalThis.storyOrchestratorLoreEvidence.slotsForChat().length; if (after !== before) throw new Error(`a quiet outermost generation opened an evidence slot (${before} -> ${after})`); return { slots: after };",
+      "log": true
+    }
+  ]
+}

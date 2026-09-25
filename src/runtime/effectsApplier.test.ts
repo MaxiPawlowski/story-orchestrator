@@ -2,6 +2,7 @@ import type { Checkpoint, NormalizedStoryV2 } from "@engine/index";
 import { parseStoryV2OrThrow } from "@engine/validate";
 import { applyBackground, applyCharacterAN, clearCharacterAN, disableWIEntry, enableWIEntry, executeSlashCommands, setGroupMembersDisabled } from "@services/STAPI";
 import { EffectsApplier, PENDING_NOT_SAVED } from "./effectsApplier";
+import { setScanGatingActive } from "./worldInfoMode";
 import type { RuntimeExtras, RuntimeSnapshot } from "./types";
 
 const mockContext = { chat: [{ mes: "one" }, { mes: "two" }] };
@@ -258,6 +259,37 @@ describe("world_info effect", () => {
     journalled.length = 0;
     await applier.applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
     expect(journalled).toEqual([]);
+  });
+
+  it("journals a refused enable as surely as a refused disable (v2.4 plan 05)", async () => {
+    const journalled: Array<[string, string | undefined]> = [];
+    (enableWIEntry as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "\"Checkpoints\" could not be saved" });
+    await new EffectsApplier(undefined, { journal: (summary, note) => { journalled.push([summary, note]); } }).applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
+    expect(journalled).toEqual([["world_info effect could not be applied", "\"Checkpoints\" could not be saved"]]);
+  });
+
+  it("retries a refused flip at the next apply, because every apply rebuilds the whole gated set (v2.4 plan 05)", async () => {
+    const applier = new EffectsApplier(undefined, { journal: () => undefined });
+    (disableWIEntry as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "the server still holds the old flag" });
+    await applier.applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
+    (disableWIEntry as jest.Mock).mockClear();
+    await applier.applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "activate", ["one", "two", "three"]);
+    expect(calls(disableWIEntry)).toEqual([["Checkpoints", ["One"]]]);
+  });
+
+  it("under scan-time gating (T13 spike) neither the path replay nor the release writes a lorebook; off again, both do", async () => {
+    setScanGatingActive(true);
+    try {
+      await new EffectsApplier().applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
+      await new EffectsApplier().releaseWorldInfo([other, story], story);
+      expect(disableWIEntry).not.toHaveBeenCalled();
+      expect(enableWIEntry).not.toHaveBeenCalled();
+    } finally {
+      setScanGatingActive(false);
+    }
+    await new EffectsApplier().applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
+    await new EffectsApplier().releaseWorldInfo([other, story], story);
+    expect(calls(disableWIEntry)).toEqual([["Checkpoints", ["One"]], ["Other", ["Theirs"]]]);
   });
 
   it("journals a release the host refused", async () => {

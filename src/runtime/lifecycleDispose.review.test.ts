@@ -20,6 +20,8 @@ import { control, must } from "../../test/findings/ledger";
 // point is to run the REAL function: a narrower mock only proves the mock works.
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
+  observeWorldInfoScans: () => ({ reassert: () => undefined, ordered: false, dispose: () => undefined }),
+  loadedEntries: () => [],
   readProfileContextLimit: () => ({ value: 8192, source: "default", reason: "no memory model profile is selected" }),
   countTokens: async (text: string) => Math.ceil(text.length / 4),
   settingsReady: async () => {},

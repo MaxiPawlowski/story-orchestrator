@@ -452,6 +452,10 @@
     "src/runtime/turnBridge.ts#TurnBridge.onChatChanged": {
       "status": "local",
       "note": "v2.4 plan 02 §3/§5 (2026-09-24). The same-chat path keeps the run (no reset, no bump) and awaits ChatSave.reconcile, which checks the run before it steps back; after it only notify() runs, a UI refresh that holds no state. The full path's writes after loadSelectedFromChat are the bridge's own record of the chat it loaded (read from the host at that instant, so always true of the open chat), the reload-diverged journal line, which is written only while the diverged chat is both the one open and the one the current epoch claims, so a newer CHAT_CHANGED that overtook this load never receives it, and the §5 unbind of an unadopted branch's inherited mirror binding: unbindBranchMirror re-reads the open chat's own metadata and checks the run it is handed immediately before the host write (mutation B3). `reset` precedes every await on its own path; the census sees it after the same-chat branch's await in source order."
+    },
+    "src/runtime/worldInfoNormalize.ts#normalizeGatedEntries": {
+      "status": "checked",
+      "note": "v2.4 plan 05 T13 spike (2026-09-24): the one-time normaliser that sets each gated entry of a MARKER book (`SO-T13` prefix, `spikeBook`) to rest off in its file. Install-wide, not per chat, but minted from the manager's ownership so a chat switch or story load mid-run stops it; `run.stillOwns()` is checked immediately before each book's `disableWIEntry` (worldInfoNormalize.test.ts \"stops before a write once its run has lapsed\"). The ledger/outcome writes after the awaits are the call's own result object, returned to the caller (worldInfoScanHost), which writes the install-wide ledger. A lapsed run leaves the rest for the next run: the ledger only ever records what landed and was confirmed. The T12 evidence ring is not a row: it never awaits, so it is not a write-after-await site."
     }
   }
 }

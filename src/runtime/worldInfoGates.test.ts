@@ -87,6 +87,16 @@ describe("releasePlan", () => {
     expect(releasePlan([a], a)).toEqual([]);
   });
 
+  it("keeps what the incoming story gates when another story names the same book in another case (v2.4 plan 05)", () => {
+    const lower = story([{ id: "l", world_info: { enable: [{ lorebook: "shared", comments: ["Both", "L"] }] } }]);
+    expect(releasePlan([a, lower], a)).toEqual([{ lorebook: "shared", enable: [], disable: ["L"] }]);
+  });
+
+  it("keeps every entry of a story that spells its own book two ways", () => {
+    const both = story([{ id: "k", world_info: { enable: [{ lorebook: "Shared", comments: ["X"] }, { lorebook: "shared", comments: ["Y"] }] } }]);
+    expect(releasePlan([both], both)).toEqual([]);
+  });
+
   it("reads raw library records as well as normalized stories", () => {
     expect(gatedWorldInfo([{ checkpoints: [{ effects: { world_info: { disable: book(["Raw"]) } } }] }, "junk", null])).toEqual(new Map([["Book", new Set(["Raw"])]]));
   });

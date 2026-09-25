@@ -1,0 +1,32 @@
+{
+  "_note": "v2.4 plan 05 T12 live (real LLM; so-scenario run <file> --sandbox --group <the sun-ruins group>, twice). Needs the Xentar Checkpoints book listed and globally selected (requirements; the eval fails naming what is missing rather than selecting it). The sun-ruins start checkpoint switches on the CONSTANT entries 'CP1 - Mission' and 'CP1 - Scenario' (examples/sun-ruins/Xentar Checkpoints.json uids 9, 5). After one real reply the evidence slot must show both fired with origin 'gated', and no lore-constant-missed flag may be journaled. If the world info budget or probability ever drops one, the flag, not this fixture, is the evidence: the fixture fails naming the flag.",
+  "steps": [
+    {
+      "import_story": {
+        "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const req = rt.getSnapshot().requirements; if (!req.ready) throw new Error(`requirements not ready (select the book / cast by hand, then re-run): ${JSON.stringify(req)}`); globalThis.__v2405const = { journal: rt.getSessionJournal().length }; return { checkpoint: rt.getSnapshot().activeCheckpointId };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "select-profile"
+      }
+    },
+    {
+      "send": "I step into the guild hall and look for the mission board."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const view = () => globalThis.storyOrchestratorLoreEvidence.view(globalThis.storyOrchestratorRuntime.getStory(), globalThis.storyOrchestratorRuntime.getSnapshot().memory.wiBook?.name ?? null); const rt = globalThis.storyOrchestratorRuntime; const last = view().last; if (!last) throw new Error('no evidence slot for the reply'); const gated = last.fired.filter((row) => row.origin === 'gated').map((row) => row.comment); const missed = rt.getSessionJournal().slice(globalThis.__v2405const.journal).filter((event) => event.kind === 'lore' && event.summary.startsWith('lore-constant-missed')); if (missed.length) throw new Error(`lore-constant-missed was raised: ${missed.map((event) => JSON.stringify(event.detail ?? event.summary)).join(' | ')}`); for (const comment of ['CP1 - Mission', 'CP1 - Scenario']) if (!gated.includes(comment)) throw new Error(`the gated constant ${comment} is not in the reply's activations: ${JSON.stringify(last.fired.map((row) => `${row.comment}:${row.origin}`))}`); return { gated, scans: last.scanCount, rendered: last.rendered };",
+      "log": true
+    }
+  ]
+}

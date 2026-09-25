@@ -25,6 +25,9 @@ import { currentChat, loadAtStartup } from "./chatIdentity";
 import { journalSettingsWrite, onSettingsWrite, scopeToOpenChat, type SettingsWrite } from "./librarySave";
 import { onChatWrite } from "./persistence";
 import { onWizardSessionSave } from "./wizardSessions";
+import { loreEvidence } from "./worldInfoEvidence";
+import { startLoreEvidence } from "./worldInfoEvidenceHost";
+import { startScanGating } from "./worldInfoScanHost";
 
 let started = false;
 let bridge: TurnBridge | null = null;
@@ -180,8 +183,44 @@ export function startRuntime() {
   // v2.2 plan 04 seam: force at the last awaited event before a scan whose chat already holds the
   // message that triggered it. A generation about to add the player's message waits for MESSAGE_SENT.
   globalThis.storyOrchestratorLore = { selector: lore, willAddUserMessage };
+  // v2.4 plan 05 T12: what the scans of each loud generation actually activated, and the two misses
+  // worth an author's attention. It follows plan 01's outermost-generation tracker, never raw events.
+  const loreWatch = startLoreEvidence({
+    chatId: () => getContext().chatId ?? null,
+    context: () => runtimeManager.getRunContext(),
+    story: () => runtimeManager.getStory(),
+    state: () => runtimeManager.getEngineState(),
+    mirrorBook: () => runtimeManager.getSnapshot().memory.wiBook?.name ?? null,
+    lastMessageId: chatLastId,
+    innermostType: () => {
+      const open = generation.snapshot();
+      return open.nested.length ? open.nested[open.nested.length - 1] : open.outermost?.type ?? null;
+    },
+    journal: (flag) => runtimeManager.noteRecap(flag.summary, flag.detail, "lore"),
+    notify: () => runtimeManager.notify(),
+  });
+  runtimeDisposers.push(() => loreWatch.dispose());
+  globalThis.storyOrchestratorLoreEvidence = loreEvidence;
+  // v2.4 plan 05 T13 spike: inert unless `worldInfo.gatingMode` is "scan" (default "file"). The flag
+  // is install-wide, so it is read once the extension settings have loaded, never before.
+  let scanGating: ReturnType<typeof startScanGating> | null = null;
+  let scanGatingDisposed = false;
+  void settingsReady().then(() => {
+    if (scanGatingDisposed || scanGating) return;
+    scanGating = startScanGating({
+      chatId: () => getContext().chatId ?? null,
+      ownedChat: () => runtimeManager.getRunContext().claimedChat ?? null,
+      story: () => runtimeManager.getStory(),
+      path: () => runtimeManager.getEngineState()?.visitedPath ?? [],
+      ownership: runtimeManager.getOwnership(),
+      journal: (summary, note) => runtimeManager.noteRecap(summary, note, "lore"),
+    });
+  });
+  runtimeDisposers.push(() => { scanGatingDisposed = true; scanGating?.dispose(); scanGating = null; });
   let loreAwaitsMessage = false;
-  const selectLore = (trigger: "MESSAGE_SENT" | "GENERATION_STARTED") => lore.select(trigger).catch((error) => console.warn("[Story Orchestrator] lore-select failed", error));
+  const selectLore = (trigger: "MESSAGE_SENT" | "GENERATION_STARTED") => lore.select(trigger)
+    .then((selection) => { if (selection) loreWatch.forced(selection.picks); })
+    .catch((error) => console.warn("[Story Orchestrator] lore-select failed", error));
   const onLoreGenerationStarted = async (type: string | undefined, params: Record<string, unknown> | undefined, dryRun: boolean | undefined) => {
     loreAwaitsMessage = false;
     if (!lore.active() || dryRun || type === "quiet" || params?.quiet_prompt) return;
@@ -221,6 +260,7 @@ export function startRuntime() {
   const applyGeneration = (intents: GenerationIntent[]) => {
     for (const intent of intents) {
       if (intent.kind === "opened") {
+        loreWatch.opened(intent.type);
         runtimeManager.onGenerationStarted(intent.type);
         runtimeManager.capturePayload();
         talkController?.onGenerationStarted(intent.params);
@@ -240,12 +280,13 @@ export function startRuntime() {
         talkController?.onGenerationEnded();
       } else {
         runtimeManager.commitContinuityNote(intent.rendered);
+        loreWatch.settled(intent.rendered);
       }
     }
   };
   const privateInjectionEntries: HostSubscriptionEntry[] = [
     { eventName: "GROUP_MEMBER_DRAFTED", handler: (characterId) => { generation.drafted(characterId); runtimeManager.onMemberDrafted(characterId as number | [number]); } },
-    { eventName: "GENERATION_STARTED", handler: async (...args: unknown[]) => { applyGeneration(generation.started(args, chatLastId() + 1)); await onLoreGenerationStarted(typeof args[0] === "string" ? args[0] : undefined, args[1] as Record<string, unknown> | undefined, args[2] === true); } },
+    { eventName: "GENERATION_STARTED", handler: async (...args: unknown[]) => { loreWatch.reassert(); scanGating?.reassert(); applyGeneration(generation.started(args, chatLastId() + 1)); await onLoreGenerationStarted(typeof args[0] === "string" ? args[0] : undefined, args[1] as Record<string, unknown> | undefined, args[2] === true); } },
     { eventName: "MESSAGE_SENT", handler: async () => { if (!loreAwaitsMessage) return; loreAwaitsMessage = false; await selectLore("MESSAGE_SENT"); } },
     { eventName: "GENERATION_ENDED", handler: (...args: unknown[]) => applyGeneration(generation.ended(args)) },
     { eventName: "GENERATION_STOPPED", handler: (...args: unknown[]) => applyGeneration(generation.stopped(args)) },
@@ -293,6 +334,7 @@ export function stopRuntime() {
   sceneCoordinator = null;
   globalThis.talkControlInterceptor = () => undefined;
   globalThis.storyOrchestratorScheduler = undefined;
+  globalThis.storyOrchestratorLoreEvidence = undefined;
   started = false;
 }
 

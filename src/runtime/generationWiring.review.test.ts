@@ -7,9 +7,15 @@
 // extension's `{source}` emit. They now follow the outermost loud generation.
 
 const mockWired = new Map<string, (...args: unknown[]) => unknown>();
+const mockScans: { activated?: (entries: unknown[]) => void } = {};
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
+  observeWorldInfoScans: (observers: { activated?: (entries: unknown[]) => void }) => {
+    mockScans.activated = observers.activated;
+    return { reassert: () => undefined, ordered: false, dispose: () => { mockScans.activated = undefined; } };
+  },
+  loadedEntries: () => [],
   readProfileContextLimit: () => ({ value: 8192, source: "default", reason: "no memory model profile is selected" }),
   countTokens: async (text: string) => Math.ceil(text.length / 4),
   settingsReady: async () => {},
@@ -98,6 +104,27 @@ describe("runtime/index.ts generation wiring (v2.4 plan 01 T6)", () => {
     expect(spies.started).toHaveBeenCalledTimes(1);
     expect(spies.clear).not.toHaveBeenCalled();
     expect(spies.commit).not.toHaveBeenCalled();
+  });
+
+  it("v2.4 plan 05 T12: a loud generation's scans fill one evidence slot, tagged by the innermost run, settled by the render", async () => {
+    await emit("GENERATION_STARTED", "normal", {}, false);
+    mockScans.activated?.([{ world: "Ruins", uid: 1, comment: "CP1 Road" }]);
+    await emit("GENERATION_STARTED", "quiet", { force_chid: 2 }, false);
+    mockScans.activated?.([{ world: "Lore", uid: 4, comment: "NPC - Ellie" }]);
+    await emit("GENERATION_ENDED", 4);
+    expect(globalThis.storyOrchestratorLoreEvidence?.slotsForChat()).toEqual([]);
+    await emit("MESSAGE_RECEIVED", 4, "normal");
+    const last = globalThis.storyOrchestratorLoreEvidence?.view(null, null).last;
+    expect(last?.rendered).toBe(true);
+    expect(last?.scanCount).toBe(2);
+    expect(last?.nestedScans).toBe(1);
+  });
+
+  it("control: a quiet outermost opens no slot, so its scans are not a reply's evidence", async () => {
+    await emit("GENERATION_STARTED", "quiet", {}, false);
+    mockScans.activated?.([{ world: "Lore", uid: 4, comment: "NPC - Ellie" }]);
+    await emit("GENERATION_ENDED", 4);
+    expect(globalThis.storyOrchestratorLoreEvidence?.slotsForChat()).toEqual([]);
   });
 
   it("STOPPED closes the outermost without spending the note", async () => {
