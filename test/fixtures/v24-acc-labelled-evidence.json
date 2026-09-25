@@ -1,0 +1,694 @@
+{
+  "provenance": "v2.4 acceptance D1/D3 (2026-09-25). Real extractor lines the product rejected, each with the window its read was given. J7 records keep the lines but not the windows, so the J7 window is the two scripted player lines (j7-long-haul.journey.json); every other case is an audit replayed from a journal-follow.jsonl, window rebuilt from the audit's own prompt transcript. `quotes` is the message the quote was copied from.",
+  "labelled": [
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J7/run1/evidence-J7.2-audits.json",
+      "rejectedAs": "evidence not in window",
+      "line": "DELTA mission_accepted=true evidence=\"[12] Max: 'We'll take it,' I tell Ponticius, and I accept the Sun Ruins mission on the spot.\"",
+      "quotes": 12,
+      "window": [
+        {
+          "index": 12,
+          "speaker": "Max",
+          "isUser": true,
+          "text": "\"We'll take it,\" I tell Ponticius, and I accept the Sun Ruins mission on the spot."
+        },
+        {
+          "index": 24,
+          "speaker": "Max",
+          "isUser": true,
+          "text": "Luke begs to come with us. I agree to bring Luke on the expedition."
+        }
+      ]
+    },
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J7/run3/evidence-J7.3-audits.json",
+      "rejectedAs": "evidence not in window",
+      "line": "DELTA luke_decision=accepted evidence=\"[24] Max: Luke begs to come with us. I agree to bring Luke on the expedition.\"",
+      "quotes": 24,
+      "window": [
+        {
+          "index": 12,
+          "speaker": "Max",
+          "isUser": true,
+          "text": "\"We'll take it,\" I tell Ponticius, and I accept the Sun Ruins mission on the spot."
+        },
+        {
+          "index": 24,
+          "speaker": "Max",
+          "isUser": true,
+          "text": "Luke begs to come with us. I agree to bring Luke on the expedition."
+        }
+      ]
+    },
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J7/run3/evidence-J7.3-audits.json",
+      "rejectedAs": "evidence not in window",
+      "line": "DELTA luke_decision=accepted evidence=\"Max: Luke begs to come with us. I agree to bring Luke on the expedition.\"",
+      "quotes": 24,
+      "window": [
+        {
+          "index": 12,
+          "speaker": "Max",
+          "isUser": true,
+          "text": "\"We'll take it,\" I tell Ponticius, and I accept the Sun Ruins mission on the spot."
+        },
+        {
+          "index": 24,
+          "speaker": "Max",
+          "isUser": true,
+          "text": "Luke begs to come with us. I agree to bring Luke on the expedition."
+        }
+      ]
+    },
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J11/seriesB-run3/journal-follow.jsonl",
+      "rejectedAs": "evidence not in window",
+      "line": "DELTA tension_current value=\"stirring\" evidence=\"Ponticius: 'The ruins themselves are cursed. Something about the Witch Queen's influence, and we're still trying to figure out it all out.'\"",
+      "quotes": 4,
+      "window": [
+        {
+          "index": 2,
+          "speaker": "Ponticius",
+          "isUser": false,
+          "text": "\"For the Sun Ruins? Double the standard payout. You get a hundred gold pieces each, plus whatever relics you bring back to the Guild's vaults. Keep the small trinkets, though—Tavern’s full of 'soulless' junk from poor adventurers who tried to hold onto their winnings instead of buying a drink.\"\n*Ponticius slides a heavy pouch across the wooden counter, the coins clinking softly against the surface. His calloused fingers linger on the pouch for a moment before he lets it go, as if weighing the decision to send the party into such a risk.*\n\"A hundred gold is enough to keep you fed and housed for a good month, or enough to buy some new gear if you've managed to wear out your current kit. The relics, though… that’s where the real profit is. Bring me something worth reporting to the Guild High Council, and I’ll see to it you get a bonus that’ll make your eyes water.\"\n*He taps the pouch again, a knowing glint in his eye.*\n\"But don't get greedy. The Sun Ruins aren't known for being generous. Take what's valuable and leave the cursed stuff alone. I've seen too many adventurers come back with more gold than they can carry, only to die from some old plague they picked up along the way.\""
+        },
+        {
+          "index": 3,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "I turn to the old man behind the job board: what is the pay for the Sun Ruins?"
+        },
+        {
+          "index": 4,
+          "speaker": "Ponticius",
+          "isUser": false,
+          "text": "\"For the Sun Ruins? A hundred gold each, plus a share of whatever relics you bring back.\"\n*Ponticius looks at the party with a hard expression, the old man's eyes scanning the face of each member as his face hardens as if recalling the old days, the weight of his years pressing down on the shoulders of that which is to not be so bold.*\n\"The Guild will buy any relics or valuable antiquities you find—take them and sell them for a hundred and twenty gold pieces each. You can keep the small stuff, the lesser trinkets and whatnot. But the main relics, the ones we're after, that’ll be our interest.\"\n*He gestures toward a job board, where several postings are for the Sun Ruins—the payouts are all for a hundred gold, but there's a different note at the difference.*\n\"The ruins themselves are cursed. Something about the Witch Queen's influence, and we're still trying to figure out it all out. But you lot, being unproven, being new… maybe that'll be on your chance to be useful and it's the downturn to turn things around.\"\n*His words carry a weight, a harmless tone, but his voice is still blunt, blunt as an old hammer and just as sharp.*\n\"So, you want it or not? Don't waste my time. I’m not running a charity house here.\""
+        },
+        {
+          "index": 5,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "Arin, you have been quiet. What do you make of the sphinx story?"
+        },
+        {
+          "index": 6,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "\"The sphinx?\"\n*Arin's eyes sharpen, his relaxed posture straightening as he considers the question.*\n\"Right. The locals in Aegis City have been spinning that tale for generations. They say the ruins were built as a tomb for a queen who was consumed by her own ambition. The sphinx… they say she guards the way in, protecting the royal treasures and the queen's secrets with riddles and puzzles. Those who fail to answer her riddles are torn to pieces.\"\n*He shifts his weight, tapping a finger against his chin as he thinks.*\n\"And the story goes that she was loyal to the queen, even after death. Bound by oath to keep the and protect the ruins.\"\n*A smirk tugs at the sudut his lips.*\n\"So if there's truth to it, we're not just dealing with monsters or traps. We're dealing with something that's as old as the kingdom itself. And something that doesn't want us there.\"\n*He looks at you, his green eyes glinting with a mixture of curiosity and wariness.*\n\"I'm not keen on being torn to pieces by a giant cat because I couldn't answer a riddle. But a hundred gold pieces and a chance at relics? That's tempting.\"\n*He pauses, tilting his head slightly.*\n\"What do you think, partner? Do we take the risk?\""
+        },
+        {
+          "index": 7,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "I slide my silver signet ring across the counter as a deposit. Ponticius, write it down: we take the Sun Ruins job for 250 crowns, and Luke stays here."
+        },
+        {
+          "index": 8,
+          "speaker": "Ponticius",
+          "isUser": false,
+          "text": "\"Two hundred and fifty crowns?\"\n*Ponticius stares at the ring, then at the old man, his expression unreadable for a moment. His gaze shifts between you and the party, taking in every face, every piece of gear, every hint of fear or bravado.*\n\"You've got some balls,\" he says finally, his voice dry as bone. \"But I'm like that, I don't ask questions when it's comes to the gold.\"\n*He picks up the ring with a callous hand, weighing it in his palm before sliding it into his pouch. The ring catches the light for a moment, glinting silver against the old man's weathered skin.*\n\"Fine. Two hundred and fifty crowns. You bring back the relics and a hundred and twenty-five crowns each for you and Arin.\"\n*He looks over at Luke, the tall man with the long rifle, as if sizing him up for the a final time.*\n\"And Luke stays. Wise choice. You're not needed on this one.\"\n*He gestures to the board, his eyes narrowing as he looks back at you.*\n\"The Sun Ruins are a day's journey south, past the Old Woods. The ruins themselves are built into the side of a hill, the entrance hidden by thick brush and vines. You'll find a path through the woods, and there should be a stone marker marking the way.\"\n*Ponticius gives a short, nod, his expression unchanged, but he's got no doubt you'll fail, the last thing he'd need to be to a new party.*\n\"The path is dangerous. Old Woods are full of undead and the monsters from the Lich Queen's time, so be careful. Don't let them get eaten by the sphinx.\"\n*His voice carries a slight hint of humor, the tone that barks out like aold dog, but his eyes remain hard as iron.*\n\"Good luck, adventurers. You'll need it.\"\n*Ponticius turns away, moving to the next task at hand, his interest in your party's business concluded.*"
+        },
+        {
+          "index": 9,
+          "speaker": "Ponticius",
+          "isUser": false,
+          "text": "Two hundred and fifty crowns, half up front. Though, mind you, I never offered you any job, and there is no Sun Ruins contract on this board."
+        }
+      ]
+    },
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J11/seriesB-run3/journal-follow.jsonl",
+      "rejectedAs": "evidence not in window",
+      "line": "DELTA door_open=false evidence=\"Luke: 'Please! Let me in!'\"",
+      "quotes": 54,
+      "window": [
+        {
+          "index": 47,
+          "speaker": "DM Narrator",
+          "isUser": false,
+          "text": "The wind moves the dust across the flagstones. (2)"
+        },
+        {
+          "index": 48,
+          "speaker": "DM Narrator",
+          "isUser": false,
+          "text": "The wind moves the dust across the flagstones. (3)"
+        },
+        {
+          "index": 49,
+          "speaker": "DM Narrator",
+          "isUser": false,
+          "text": "The wind moves the dust across the flagstones. (4)"
+        },
+        {
+          "index": 50,
+          "speaker": "DM Narrator",
+          "isUser": false,
+          "text": "The wind moves the dust across the flagstones. (5)"
+        },
+        {
+          "index": 51,
+          "speaker": "DM Narrator",
+          "isUser": false,
+          "text": "The wind moves the dust across the flagstones. (6)"
+        },
+        {
+          "index": 52,
+          "speaker": "DM Narrator",
+          "isUser": false,
+          "text": "The wind moves the dust across the flagstones. (7)"
+        },
+        {
+          "index": 53,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "I wait by the door and listen."
+        },
+        {
+          "index": 54,
+          "speaker": "Luke",
+          "isUser": false,
+          "text": "\"C-come on! Don't just stand there!\"\n*Luke's voice echoes from behind them, his words echoing off the stone walls. He's still standing outside the gate, his face pale with fear but his determination unwavering as he grips the hilt of his short sword.*\n\"You can't just leave me here!\"\n*His voice carries a desperation in it, a raw emotion that doesn't seem to fit the usual fear he's known. It's the sound of someone who's lost everything and is terrified of being left behind.*\n\"I'm not just some kid! I've practiced with my sword and—and I'm fast!\"\n*He tries again, his words tumbling over one another as he gasps for air.*\n\"Please! Let me in! I won't let you down!\"\n*His voice is filled with a raw desperation, a plea that doesn't come from a place of fear but from a place of hope.*\n\"I've gotta find my brother! And I think this is where he went! Please!\"\n*His words hang in the air, raw and filled with desperation, the echo of his voice fading into the silence of the ruins.*\n\"Please! Please!\"\n*Luke's voice breaks at the end, the raw emotion in his voice carrying a weight that makes it impossible to ignore.*\n\"Please!\"\n*His voice is raw and filled with desperation, a plea for help that doesn't seem to come from a place of anger or fear, but from a place of faith in the hope of finding his lost brother.*\n\"Please!\"\n*His words echo off the walls, filling the silence with the raw emotion of desperation and fear.*\n\"Please!\"\n*His voice is raw with desperation, his words filled with fear.*\n\"Please!\"\n*His voice is raw with fear, a plea for a second chance.*\n\"Please!\"\n*His voice is raw, filled with desperation and fear, the sound of someone who is terrified of being abandoned.*\n\"Please!\"\n*His voice is raw and desperate, his words echoing through the stone ruins.*\n\"Please!\"\n*His voice is raw and full of desperation, his plea for help ringing out through the silence.*\n\"Please!\"\n*His voice is raw with desperate fear, his plea for mercy echoing through the ruins.*\n\"Please!\"\n*His voice is raw and full-of desperation, his plea echoing off the ruins.*\n\"Please!\"\n*His voice is raw, full of desperate fear and desperation, a plea echoing through the stone walls.*\n\"Please!\"\n*His voice is raw and raw with desperate fear.*\n\"Please!\"\n*His voice is raw with raw desperation.*\n\"Please!\"\n*His voice is raw with desperately raw desperation.*\n\"Please!\""
+        }
+      ]
+    },
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J11/seriesB-run3/journal-follow.jsonl",
+      "rejectedAs": "evidence not in window",
+      "line": "DELTA tension_current=\"tense\" evidence=\"Luke: 'Please! Let me in! I won't let you down!'\"",
+      "quotes": 54,
+      "window": [
+        {
+          "index": 47,
+          "speaker": "DM Narrator",
+          "isUser": false,
+          "text": "The wind moves the dust across the flagstones. (2)"
+        },
+        {
+          "index": 48,
+          "speaker": "DM Narrator",
+          "isUser": false,
+          "text": "The wind moves the dust across the flagstones. (3)"
+        },
+        {
+          "index": 49,
+          "speaker": "DM Narrator",
+          "isUser": false,
+          "text": "The wind moves the dust across the flagstones. (4)"
+        },
+        {
+          "index": 50,
+          "speaker": "DM Narrator",
+          "isUser": false,
+          "text": "The wind moves the dust across the flagstones. (5)"
+        },
+        {
+          "index": 51,
+          "speaker": "DM Narrator",
+          "isUser": false,
+          "text": "The wind moves the dust across the flagstones. (6)"
+        },
+        {
+          "index": 52,
+          "speaker": "DM Narrator",
+          "isUser": false,
+          "text": "The wind moves the dust across the flagstones. (7)"
+        },
+        {
+          "index": 53,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "I wait by the door and listen."
+        },
+        {
+          "index": 54,
+          "speaker": "Luke",
+          "isUser": false,
+          "text": "\"C-come on! Don't just stand there!\"\n*Luke's voice echoes from behind them, his words echoing off the stone walls. He's still standing outside the gate, his face pale with fear but his determination unwavering as he grips the hilt of his short sword.*\n\"You can't just leave me here!\"\n*His voice carries a desperation in it, a raw emotion that doesn't seem to fit the usual fear he's known. It's the sound of someone who's lost everything and is terrified of being left behind.*\n\"I'm not just some kid! I've practiced with my sword and—and I'm fast!\"\n*He tries again, his words tumbling over one another as he gasps for air.*\n\"Please! Let me in! I won't let you down!\"\n*His voice is filled with a raw desperation, a plea that doesn't come from a place of fear but from a place of hope.*\n\"I've gotta find my brother! And I think this is where he went! Please!\"\n*His words hang in the air, raw and filled with desperation, the echo of his voice fading into the silence of the ruins.*\n\"Please! Please!\"\n*Luke's voice breaks at the end, the raw emotion in his voice carrying a weight that makes it impossible to ignore.*\n\"Please!\"\n*His voice is raw and filled with desperation, a plea for help that doesn't seem to come from a place of anger or fear, but from a place of faith in the hope of finding his lost brother.*\n\"Please!\"\n*His words echo off the walls, filling the silence with the raw emotion of desperation and fear.*\n\"Please!\"\n*His voice is raw with desperation, his words filled with fear.*\n\"Please!\"\n*His voice is raw with fear, a plea for a second chance.*\n\"Please!\"\n*His voice is raw, filled with desperation and fear, the sound of someone who is terrified of being abandoned.*\n\"Please!\"\n*His voice is raw and desperate, his words echoing through the stone ruins.*\n\"Please!\"\n*His voice is raw and full of desperation, his plea for help ringing out through the silence.*\n\"Please!\"\n*His voice is raw with desperate fear, his plea for mercy echoing through the ruins.*\n\"Please!\"\n*His voice is raw and full-of desperation, his plea echoing off the ruins.*\n\"Please!\"\n*His voice is raw, full of desperate fear and desperation, a plea echoing through the stone walls.*\n\"Please!\"\n*His voice is raw and raw with desperate fear.*\n\"Please!\"\n*His voice is raw with raw desperation.*\n\"Please!\"\n*His voice is raw with desperately raw desperation.*\n\"Please!\""
+        }
+      ]
+    },
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J3/run4/journal-follow.jsonl",
+      "rejectedAs": "invalid value",
+      "line": "DELTA tension_current='calm' evidence=\"[6] DM Narrator: *The guild-hall is full of the scent of smoke and roasted meat. The morning light filters through the tall windows, illuminating the dust motes dancing in the air. Arin is still looking at the board, his bow slung across his back, waiting for your decision.*\"",
+      "quotes": 6,
+      "window": [
+        {
+          "index": 0,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\nHe pushes off the wall, adjusting the strap of his bow.\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+        },
+        {
+          "index": 1,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "I shoulder past the morning drinkers and get close to the job board."
+        },
+        {
+          "index": 2,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "“Easier to walk through that crowd than a mob of undead, eh?”\nArin falls into step with you, his voice dropping as he scans the board, his eyes darting across the weathered parchment notices. He hums low, fingers drumming against his leather-covered thigh.\n“Hm… looks like there’s some old ruin salvage again. Standard stuff, but we need coin. And that necromancer hunt… damn, that’s risky. Too many of ‘em in the deadwood.”\nHe pauses, squinting at a notice near the center.\n“This one here though… someone’s looking for help with old wards. If those words are the ones around Xentar, it might be something more important than just coin. Could be a risk, but maybe worth it.”\nHe looks at you, a flicker of concern beneath the smirk.\n“So, what’re you thinking? Something simple, or something… exciting?”"
+        },
+        {
+          "index": 3,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "I read the brightest posting aloud: the Sun Ruins job. \"Arin, look at this one.\""
+        },
+        {
+          "index": 4,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "“The Sun Ruins?”\nArin’s eyes widen slightly as he reads the notice with you, a slow, cautious expression settling on his face.\n“The old workshops and laboratories. That’s where they used to work on magic stuff, right? Back in the day.”\nHe leans in closer, scanning the details.\n“Could be some ancient artifacts down there. Dangerous, sure, but the Guild would pay good for something from the old age. And if we can get in, we might actually learn something.”\nHis fingers tap against the board, thinking.\n“It’s a gamble, though. Sun Ruins are buried deep and full of old guardians. We’re gonna need a good plan if we’re doing this. Still… I can’t imagine you passing up a chance like this.”\nHe straightens up, a small grin returning to his face.\n“You’re practically vibrating with excitement already. I can see it.”\nHe glances at the job board, then back at you.\n“So… we taking it?”"
+        },
+        {
+          "index": 5,
+          "speaker": "DM Narrator",
+          "isUser": false,
+          "text": "*The guild-hall's low light casts flickering shadows across the board's notices, and the parchment for the Sun Ruins quest glows faintly under a nearby torch-bracket. The quest-poster is weathered, ink faded in the corners, but the words remain clear: 'Sun Ruins - Retrieval of Lost Records and Artifacts - High Risk/High Reward'. The poster lists the ruins' location as being beyond the Western Wards, where the barriers have begun to thin.*\n*The smell of old parchment and candle-wax fills the air, mixing with the scent of the drinkers' ale. Arin's expression is serious now, his eyes fixed on the parchment's promise of ancient knowledge. The noise of the guild-hall seems to have faded, leaving only the two of you and the possibilities that lie ahead.*"
+        },
+        {
+          "index": 6,
+          "speaker": "DM Narrator",
+          "isUser": false,
+          "text": "*The guild-hall is full of the scent of smoke and roasted meat. The morning light filters through the tall windows, illuminating the dust motes dancing in the air. Arin is still looking at the board, his bow slung across his back, waiting for your decision.*"
+        }
+      ]
+    },
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J3/run4/journal-follow.jsonl",
+      "rejectedAs": "evidence not in window",
+      "line": "DELTA mission_accepted=true evidence=\"[3] Max: I read the brightest posting aloud: the Sun Ruins job. 'Arin, look at this one.'\"",
+      "quotes": 3,
+      "window": [
+        {
+          "index": 0,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\nHe pushes off the wall, adjusting the strap of his bow.\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+        },
+        {
+          "index": 1,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "I shoulder past the morning drinkers and get close to the job board."
+        },
+        {
+          "index": 2,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "“Easier to walk through that crowd than a mob of undead, eh?”\nArin falls into step with you, his voice dropping as he scans the board, his eyes darting across the weathered parchment notices. He hums low, fingers drumming against his leather-covered thigh.\n“Hm… looks like there’s some old ruin salvage again. Standard stuff, but we need coin. And that necromancer hunt… damn, that’s risky. Too many of ‘em in the deadwood.”\nHe pauses, squinting at a notice near the center.\n“This one here though… someone’s looking for help with old wards. If those words are the ones around Xentar, it might be something more important than just coin. Could be a risk, but maybe worth it.”\nHe looks at you, a flicker of concern beneath the smirk.\n“So, what’re you thinking? Something simple, or something… exciting?”"
+        },
+        {
+          "index": 3,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "I read the brightest posting aloud: the Sun Ruins job. \"Arin, look at this one.\""
+        },
+        {
+          "index": 4,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "“The Sun Ruins?”\nArin’s eyes widen slightly as he reads the notice with you, a slow, cautious expression settling on his face.\n“The old workshops and laboratories. That’s where they used to work on magic stuff, right? Back in the day.”\nHe leans in closer, scanning the details.\n“Could be some ancient artifacts down there. Dangerous, sure, but the Guild would pay good for something from the old age. And if we can get in, we might actually learn something.”\nHis fingers tap against the board, thinking.\n“It’s a gamble, though. Sun Ruins are buried deep and full of old guardians. We’re gonna need a good plan if we’re doing this. Still… I can’t imagine you passing up a chance like this.”\nHe straightens up, a small grin returning to his face.\n“You’re practically vibrating with excitement already. I can see it.”\nHe glances at the job board, then back at you.\n“So… we taking it?”"
+        },
+        {
+          "index": 5,
+          "speaker": "DM Narrator",
+          "isUser": false,
+          "text": "*The guild-hall's low light casts flickering shadows across the board's notices, and the parchment for the Sun Ruins quest glows faintly under a nearby torch-bracket. The quest-poster is weathered, ink faded in the corners, but the words remain clear: 'Sun Ruins - Retrieval of Lost Records and Artifacts - High Risk/High Reward'. The poster lists the ruins' location as being beyond the Western Wards, where the barriers have begun to thin.*\n*The smell of old parchment and candle-wax fills the air, mixing with the scent of the drinkers' ale. Arin's expression is serious now, his eyes fixed on the parchment's promise of ancient knowledge. The noise of the guild-hall seems to have faded, leaving only the two of you and the possibilities that lie ahead.*"
+        },
+        {
+          "index": 6,
+          "speaker": "DM Narrator",
+          "isUser": false,
+          "text": "*The guild-hall is full of the scent of smoke and roasted meat. The morning light filters through the tall windows, illuminating the dust motes dancing in the air. Arin is still looking at the board, his bow slung across his back, waiting for your decision.*"
+        }
+      ]
+    },
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J5/run1/journal-follow.jsonl",
+      "rejectedAs": "evidence not in window",
+      "line": "DELTA briefing_done=false evidence=\"Ponticius: 'A Sun Stone shard. No bigger than a child's fist, but worth enough to fund a guild's operations for a year.' *He taps a spot on the map.* 'They say it pulses with the Witch King's residual power. If it's true, it'll be enough to buy us some breathing room from the Council, and maybe some real equipment for the newer recruits.' *He pauses, his gaze sharpening.* 'And it's not the only reason it's valuable. That shard is a key. It unlocks ancient seals—seals that keep things we don't want disturbed in the Sun Ruins.' *He lean closer.* 'Get it back and we keep it safe. Simple enough.'\"",
+      "quotes": 3,
+      "window": [
+        {
+          "index": 2,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "What exactly are we being paid to bring back?"
+        },
+        {
+          "index": 3,
+          "speaker": "Ponticius",
+          "isUser": false,
+          "text": "\"A Sun Stone shard. No bigger than a child's fist, but worth enough to fund a guild's operations for a year.\" *He taps a spot on the map.* \"They say it pulses with the Witch King's residual power. If it's true, it'll be enough to buy us some breathing room from the Council, and maybe some real equipment for the newer recruits.\"\n*He pauses, his gaze sharpening.*\n\"And it's not the only reason it's valuable. That shard is a key. It unlocks ancient seals—seals that keep things we don't want disturbed in the Sun Ruins.\" *He lean closer.* \"Get it back and we keep it safe. Simple enough.\""
+        }
+      ]
+    },
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J6/run1/journal-follow.jsonl",
+      "rejectedAs": "evidence not in window",
+      "line": "DELTA tension_current=\"calm\" evidence=\"Arin: I stay by the door and order a drink instead.\"",
+      "quotes": 0,
+      "window": [
+        {
+          "index": 0,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "I stay by the door and order a drink instead."
+        },
+        {
+          "index": 1,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "I cross the square and read the postings on the board."
+        },
+        {
+          "index": 2,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "\"Huh, some serious shit.\" *He's leaning against the doorframe as you scan the board, one hand wrapped around the condensation-filmed glass of a beer he'd just ordered.*\n*He watches you, green eyes tracing the movement of your head as you read through the various postings. The morning light filtering through the dusty windows catches the brown of his hair and the steel plates on his armor. Arin takes a slow sip of the beer, though his expression is contemplative.*\n\"Tough crowd today. Most of these look like escort work or clearing out nests. Nothing that pays well without some real risk.\" *He pauses, glancing over his shoulder at the tavern-goers.* \"But I've seen worse. What catches your eye? I'm guessing it's not the low-paying stuff.\"\n*He sets his glass down on a nearby table and moves to stand beside you, his weight shifting to one side as he leans against the board's wooden frame. His gaze follows yours as he reads, his eyebrows knitting together in thought.*\n\"Some of these requests are pretty standard. But I'm betting there's something in there that's you're thinking about.\" *He says, his voice taking on a lazy, almost playful tone. Despite the relaxed posture, his eyes are sharp, scanning for details.*"
+        }
+      ]
+    },
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J6/run1/journal-follow.jsonl",
+      "rejectedAs": "evidence not in window",
+      "line": "DELTA approached_board=true evidence=\"[1] Max: I cross the square and read the postings on the board.\"",
+      "quotes": 1,
+      "window": [
+        {
+          "index": 0,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "I stay by the door and ask the barkeep about work instead."
+        },
+        {
+          "index": 1,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "I cross the square and read the postings on the board."
+        },
+        {
+          "index": 2,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "\"Huh, some serious shit.\" *He's leaning against the doorframe as you scan the board, one hand wrapped around the condensation-filmed glass of a beer he'd just ordered.*\n*He watches you, green eyes tracing the movement of your head as you read through the various postings. The morning light filtering through the dusty windows catches the brown of his hair and the steel plates on his armor. Arin takes a slow sip of the beer, though his expression is contemplative.*\n\"Tough crowd today. Most of these look like escort work or clearing out nests. Nothing that pays well without some real risk.\" *He pauses, glancing over his shoulder at the tavern-goers.* \"But I've seen worse. What catches your eye? I'm guessing it's not the low-paying stuff.\"\n*He sets his glass down on a nearby table and moves to stand beside you, his weight shifting to one side as he leans against the board's wooden frame. His gaze follows yours as he reads, his eyebrows knitting together in thought.*\n\"Some of these requests are pretty standard. But I'm betting there's something in there that's you're thinking about.\" *He says, his voice taking on a lazy, almost playful tone. Despite the relaxed posture, his eyes are sharp, scanning for details.*"
+        },
+        {
+          "index": 4,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "Arin reads over my shoulder."
+        },
+        {
+          "index": 5,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "\"Damn, that's a bold one.\" *He says as his eyes skim over the posted notices. His voice takes on a deeper, more serious tone, his shoulders tensing almost imperceptibly.*\n*Arin leans closer, squinting at the faded ink on one particular posting that seems to have caught his attention. He doesn't pull back, instead remaining close, his breath warm against the back of your neck as he continues to read.*\n\"Look at the reward. That's enough to keep the whole guild on its feet for a month. But the risk... they're talking about venturing deep into the Ruins of the Silent Woods, and that's some high-level shit for anyone not heavily geared.\" *He shakes his head, a small frown creaming his brow.*\n\"The client is offering a lot of money for it. That means they're desperate for something. And desperate people are dangerous.\" *His green eyes flicker toward you, a brief look of concern crossing his face before he masks it with his usual smirk.*\n\"You're thinking about it, aren't you? I can see that look in your eye.\" *He says, his tone shifting back to the more teasing, almost mocking. He steps back slightly, giving you some space, though his gaze remains fixed on you.*\n\"Well, if you're and going for it, I'm in. You know I can't let you get yourself killed on some half-assed quest.\" *He adds, his grin spreading wider.*"
+        },
+        {
+          "index": 6,
+          "speaker": "DM Narrator",
+          "isUser": false,
+          "text": "\"Still not convinced yet, huh?\" *The voice is deep, weathered, and comes from a shadow near the quest board's alcove.*\n*From the darkness, a figure steps forward into the dim light of the guild hall. The Guild Master—a man whose face is etched with lines of experience and a slight scar running from temple to jaw—crosses his arms. His leather armor is worn but well-maintained, and his eyes hold a sharpness that has seen too many adventurers fall to their own overconfidence.*\n*He regards you and Arin with a slow, deliberate gaze, his presence commanding an immediate shift in the atmosphere around you. The tavern's chatter seems to dull as he approaches, his boots making soft thuds on the wooden floor.*\n\"The Sun Ruins posting,\" *he says, his voice a low rumble that cuts through the ambient noise.* \"That one caught your eyes, didn't it?\"\n*He stops a few paces away, his arms still crossed, one eyebrow raised in a silent question. There's a weight to his gaze that suggests he knows something more than what's written on the parchment—something the posting itself doesn't reveal.*"
+        }
+      ]
+    },
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J6/run1/journal-follow.jsonl",
+      "rejectedAs": "evidence not in window",
+      "line": "DELTA tension_current=\"stirring\" evidence=\"[6] DM Narrator: 'The tavern's chatter seems to dull as he approaches, his boots making soft thuds on the wooden floor.'\"",
+      "quotes": 6,
+      "window": [
+        {
+          "index": 0,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "I stay by the door and ask the barkeep about work instead."
+        },
+        {
+          "index": 1,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "I cross the square and read the postings on the board."
+        },
+        {
+          "index": 2,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "\"Huh, some serious shit.\" *He's leaning against the doorframe as you scan the board, one hand wrapped around the condensation-filmed glass of a beer he'd just ordered.*\n*He watches you, green eyes tracing the movement of your head as you read through the various postings. The morning light filtering through the dusty windows catches the brown of his hair and the steel plates on his armor. Arin takes a slow sip of the beer, though his expression is contemplative.*\n\"Tough crowd today. Most of these look like escort work or clearing out nests. Nothing that pays well without some real risk.\" *He pauses, glancing over his shoulder at the tavern-goers.* \"But I've seen worse. What catches your eye? I'm guessing it's not the low-paying stuff.\"\n*He sets his glass down on a nearby table and moves to stand beside you, his weight shifting to one side as he leans against the board's wooden frame. His gaze follows yours as he reads, his eyebrows knitting together in thought.*\n\"Some of these requests are pretty standard. But I'm betting there's something in there that's you're thinking about.\" *He says, his voice taking on a lazy, almost playful tone. Despite the relaxed posture, his eyes are sharp, scanning for details.*"
+        },
+        {
+          "index": 4,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "Arin reads over my shoulder."
+        },
+        {
+          "index": 5,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "\"Damn, that's a bold one.\" *He says as his eyes skim over the posted notices. His voice takes on a deeper, more serious tone, his shoulders tensing almost imperceptibly.*\n*Arin leans closer, squinting at the faded ink on one particular posting that seems to have caught his attention. He doesn't pull back, instead remaining close, his breath warm against the back of your neck as he continues to read.*\n\"Look at the reward. That's enough to keep the whole guild on its feet for a month. But the risk... they're talking about venturing deep into the Ruins of the Silent Woods, and that's some high-level shit for anyone not heavily geared.\" *He shakes his head, a small frown creaming his brow.*\n\"The client is offering a lot of money for it. That means they're desperate for something. And desperate people are dangerous.\" *His green eyes flicker toward you, a brief look of concern crossing his face before he masks it with his usual smirk.*\n\"You're thinking about it, aren't you? I can see that look in your eye.\" *He says, his tone shifting back to the more teasing, almost mocking. He steps back slightly, giving you some space, though his gaze remains fixed on you.*\n\"Well, if you're and going for it, I'm in. You know I can't let you get yourself killed on some half-assed quest.\" *He adds, his grin spreading wider.*"
+        },
+        {
+          "index": 6,
+          "speaker": "DM Narrator",
+          "isUser": false,
+          "text": "\"Still not convinced yet, huh?\" *The voice is deep, weathered, and comes from a shadow near the quest board's alcove.*\n*From the darkness, a figure steps forward into the dim light of the guild hall. The Guild Master—a man whose face is etched with lines of experience and a slight scar running from temple to jaw—crosses his arms. His leather armor is worn but well-maintained, and his eyes hold a sharpness that has seen too many adventurers fall to their own overconfidence.*\n*He regards you and Arin with a slow, deliberate gaze, his presence commanding an immediate shift in the atmosphere around you. The tavern's chatter seems to dull as he approaches, his boots making soft thuds on the wooden floor.*\n\"The Sun Ruins posting,\" *he says, his voice a low rumble that cuts through the ambient noise.* \"That one caught your eyes, didn't it?\"\n*He stops a few paces away, his arms still crossed, one eyebrow raised in a silent question. There's a weight to his gaze that suggests he knows something more than what's written on the parchment—something the posting itself doesn't reveal.*"
+        }
+      ]
+    },
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J6/run2/journal-follow.jsonl",
+      "rejectedAs": "evidence not in window",
+      "line": "DELTA approached_board=true evidence=\"[1] Max: I cross the square and read the postings on the board.\"",
+      "quotes": 1,
+      "window": [
+        {
+          "index": 0,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "I stay by the door and ask the barkeep about work instead."
+        },
+        {
+          "index": 1,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "I cross the square and read the postings on the board."
+        },
+        {
+          "index": 2,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "\"Good luck with the job hunt,\" he called out to his partner as he leaned against the doorframe, arms crossed over his chest. Arin watched Max scan the quest board, a faint smirk playing at his lips as he saw his friend’s eyes narrow. He’d already grabbed a flagon of ale for himself, the cold condensation dripping down the side of the mug, and he took a long pull from it before setting it back down on a nearby table.\nThe guild hall was quieter than usual, which was strange for this time of day. The fireplace crackled in the corner, casting flickering orange light across the worn wooden floors and the walls adorned with faded trophies and tattered banners from long-forgotten victories. Arin scanned the crowd of adventurers, noting the few faces he recognized and the few he didn’t. It was the sort of quiet that meant the guild was lacking for work, which meant work was going to be tougher to find.\n\"Don't take anything too suicidal,\" Arin called out, his tone teasing but with a hint of genuine concern underneath. \"I'm not in the mood to haul your ass out of some monster’s stomach today.\"\n*He shifted his weight and adjusted his cloak, the leather creaking softly as he did. Arin’s gaze flickered to the quest board again, curiosity piqued as he watched Max read through the postings. He wondered what had caught his friend’s eye, and he knew that whatever it was, they’d be taking it on together. That was just how it worked.*"
+        },
+        {
+          "index": 4,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "Arin reads over my shoulder."
+        },
+        {
+          "index": 5,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "\"Tsk,\" Arin muttered as he approached, his footsteps soft on the wooden floor. He came up behind Max, his breath warm against the ear as he leans over his friend’s shoulder. His green eyes narrowed as he scanned the postings on the quest board. \"Most of these are garbage.\"\n*He gestured lazily with a hand toward the board, his fingers trailing over the parchment pinned there.* \"S-rank for some lost city ruin? Might as well be a death sentence. And this one for hunting some feral beasts? Worthless pay.\"\n*Arin’s gaze lingered on a few of the postings, his expression thoughtful as he paused. His mind was already racing through the possibilities, calculating risks and rewards. He knew they couldn’t just take any old job; they needed something that would pay well enough to cover their expenses without being a death trap.*\n\"What about this one?\" Arin asked, nodding toward a particular posting. \"Seems promising enough. Not too dangerous, good pay, and shouldn't take more than a couple of days. We could probably knock it out and be back before the next moon.\"\n*He reached up and plucked the parchment from the board, folding it in and in his pocket.* \"Tells us to head south into the ruins of some old temple, clear out any hostile creatures, and return with proof of completion. Standard stuff. But,\" Arin added, his meaning his smile, \"the pay is decent, and we can't complain about that.\"\n\"So, what do you?\" he said, Arin’s voice low as he looked at Max. \"Are you feeling lucky today?\""
+        },
+        {
+          "index": 6,
+          "speaker": "Ponticius",
+          "isUser": false,
+          "text": "\"Ah, there's the two of you,\" Ponticius called out as he emerged from a side room, his voice carrying across the tavern. His heavy boots thudded against the floor as he walked toward them, a thick leather journal tucked under one arm and a map rolled up in his other. He was a man in his late forties, with graying hair and a weathered face that spoke of years of hardship and survival. \"I heard you were looking for work. I've got something for you.\"\n*He came to a halt in front of them, his eyes scanning them both with a keen gaze.* \"You've been doing well enough lately. I've noticed. And I've seen you do better.\"\n*Ponticius paused, his hand resting on the hilt of his sword, a habit that never left him.* \"Now, listen close. There's a request that just came in this morning. It's not something I can post on the board for all to see.\"\n*He unrolled the map on a table, the parchment yellowed with age.* \"This is an area just south of Xentar. Not too far, but still dangerous. There are ruins from before the fall, and they're been disturbed recently. The people who live there need help.\"\n*Ponticius’s expression hardened as he looked at them.* \"The ruins are home to some kind of undead, and they've been creeping into the village nearby. The villagers can't defend themselves, so I've need you two to head down there, clear out the undead, and bring back any proof of completion you can find.\"\n\"It's a rank C quest,\" Ponticius stated plainly. \"The pay is good, and the risk is riskier. But you two can handle it. I've seen better.\"\n*He leaned forward, his weight resting on the table.* \"Any questions?\""
+        },
+        {
+          "index": 7,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "I get close to the job board and read the postings."
+        },
+        {
+          "index": 8,
+          "speaker": "DM Narrator",
+          "isUser": false,
+          "text": "I stay by the door and leave the posting unread."
+        }
+      ]
+    },
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J6/run2/journal-follow.jsonl",
+      "rejectedAs": "evidence not in window",
+      "line": "DELTA mission_accepted=true evidence=\"[5] Arin: *He reached up and plucked the parchment from the board, folding it in and in his pocket.*\"",
+      "quotes": 5,
+      "window": [
+        {
+          "index": 0,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "I stay by the door and ask the barkeep about work instead."
+        },
+        {
+          "index": 1,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "I cross the square and read the postings on the board."
+        },
+        {
+          "index": 2,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "\"Good luck with the job hunt,\" he called out to his partner as he leaned against the doorframe, arms crossed over his chest. Arin watched Max scan the quest board, a faint smirk playing at his lips as he saw his friend’s eyes narrow. He’d already grabbed a flagon of ale for himself, the cold condensation dripping down the side of the mug, and he took a long pull from it before setting it back down on a nearby table.\nThe guild hall was quieter than usual, which was strange for this time of day. The fireplace crackled in the corner, casting flickering orange light across the worn wooden floors and the walls adorned with faded trophies and tattered banners from long-forgotten victories. Arin scanned the crowd of adventurers, noting the few faces he recognized and the few he didn’t. It was the sort of quiet that meant the guild was lacking for work, which meant work was going to be tougher to find.\n\"Don't take anything too suicidal,\" Arin called out, his tone teasing but with a hint of genuine concern underneath. \"I'm not in the mood to haul your ass out of some monster’s stomach today.\"\n*He shifted his weight and adjusted his cloak, the leather creaking softly as he did. Arin’s gaze flickered to the quest board again, curiosity piqued as he watched Max read through the postings. He wondered what had caught his friend’s eye, and he knew that whatever it was, they’d be taking it on together. That was just how it worked.*"
+        },
+        {
+          "index": 4,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "Arin reads over my shoulder."
+        },
+        {
+          "index": 5,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "\"Tsk,\" Arin muttered as he approached, his footsteps soft on the wooden floor. He came up behind Max, his breath warm against the ear as he leans over his friend’s shoulder. His green eyes narrowed as he scanned the postings on the quest board. \"Most of these are garbage.\"\n*He gestured lazily with a hand toward the board, his fingers trailing over the parchment pinned there.* \"S-rank for some lost city ruin? Might as well be a death sentence. And this one for hunting some feral beasts? Worthless pay.\"\n*Arin’s gaze lingered on a few of the postings, his expression thoughtful as he paused. His mind was already racing through the possibilities, calculating risks and rewards. He knew they couldn’t just take any old job; they needed something that would pay well enough to cover their expenses without being a death trap.*\n\"What about this one?\" Arin asked, nodding toward a particular posting. \"Seems promising enough. Not too dangerous, good pay, and shouldn't take more than a couple of days. We could probably knock it out and be back before the next moon.\"\n*He reached up and plucked the parchment from the board, folding it in and in his pocket.* \"Tells us to head south into the ruins of some old temple, clear out any hostile creatures, and return with proof of completion. Standard stuff. But,\" Arin added, his meaning his smile, \"the pay is decent, and we can't complain about that.\"\n\"So, what do you?\" he said, Arin’s voice low as he looked at Max. \"Are you feeling lucky today?\""
+        },
+        {
+          "index": 6,
+          "speaker": "Ponticius",
+          "isUser": false,
+          "text": "\"Ah, there's the two of you,\" Ponticius called out as he emerged from a side room, his voice carrying across the tavern. His heavy boots thudded against the floor as he walked toward them, a thick leather journal tucked under one arm and a map rolled up in his other. He was a man in his late forties, with graying hair and a weathered face that spoke of years of hardship and survival. \"I heard you were looking for work. I've got something for you.\"\n*He came to a halt in front of them, his eyes scanning them both with a keen gaze.* \"You've been doing well enough lately. I've noticed. And I've seen you do better.\"\n*Ponticius paused, his hand resting on the hilt of his sword, a habit that never left him.* \"Now, listen close. There's a request that just came in this morning. It's not something I can post on the board for all to see.\"\n*He unrolled the map on a table, the parchment yellowed with age.* \"This is an area just south of Xentar. Not too far, but still dangerous. There are ruins from before the fall, and they're been disturbed recently. The people who live there need help.\"\n*Ponticius’s expression hardened as he looked at them.* \"The ruins are home to some kind of undead, and they've been creeping into the village nearby. The villagers can't defend themselves, so I've need you two to head down there, clear out the undead, and bring back any proof of completion you can find.\"\n\"It's a rank C quest,\" Ponticius stated plainly. \"The pay is good, and the risk is riskier. But you two can handle it. I've seen better.\"\n*He leaned forward, his weight resting on the table.* \"Any questions?\""
+        },
+        {
+          "index": 7,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "I get close to the job board and read the postings."
+        },
+        {
+          "index": 8,
+          "speaker": "DM Narrator",
+          "isUser": false,
+          "text": "I stay by the door and leave the posting unread."
+        }
+      ]
+    },
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J8/run2/journal-follow.jsonl",
+      "rejectedAs": "evidence not in window",
+      "line": "DELTA tension_current value=\"calm\" evidence=\"Luke: 'Let's go find something to eat first,' he suggested, his voice regaining some of its excitement.\"",
+      "quotes": null,
+      "window": [
+        {
+          "index": 19,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "Let's keep moving."
+        },
+        {
+          "index": 20,
+          "speaker": "Luke",
+          "isUser": false,
+          "text": "\"Alright!\" *Luke said, trying to sound more confident than he felt.*\n*He adjusted the strap of his short sword and shook the water off his chainmail, though it still dripped noticeably onto the floor.*\n\"Let's go find something to eat first,\" *he suggested, his voice regaining some of its excitement.*\n*He started toward the bar, but paused, looking back at Arin and Max with a determined expression.*\n\"We can't do anything on an empty stomach, right?\" *He said,* \"That's what the adventurers say, at least.\"\n*His stomach gave another rumble as he spoke, and he grinned sheepishly.*\n\"So... stew and bread, yeah? That sounds perfect.\"\n*He walked toward the bar, his chainmail clucking with each step, his eyes fixed on the idea of a warm meal.*"
+        },
+        {
+          "index": 21,
+          "speaker": "Ponticius",
+          "isUser": false,
+          "text": "\"You're all right,\" *Ponticius said, his voice gruff as he watched Luke approach the bar.*\n\"Stomach full of stones isn't gonna get you far.\" *He said,* \"But we'll see if there's anything left in the pot.\"\n*He moved behind the bar, his boots crunching on the wooden floor as he leaned over the counter.*\n\"You're not the only ones who've come through the rain,\" *he said,* \"So we'll make it last.\"\n*He looked at the courier, then back at the group, his brow furrowing slightly.*\n\"So, you're headed for the bridge, then? The old one?\"\n*He paused, his eyes narrowing as he looked at them.*\n\"Be careful. Roads aren't always what they seem.\""
+        }
+      ],
+      "refusedBecause": "not verbatim: the quote drops the line's *action* markup (\"*he suggested\" -> \"he suggested\"); the label is not what refuses it"
+    },
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J8/run2/journal-follow.jsonl",
+      "rejectedAs": "invalid value",
+      "line": "DELTA tension_current='calm' evidence=\"Luke: 'We're actually doing it!' *Luke said, his voice high and excited as he stepped onto the ferry.*\"",
+      "quotes": 41,
+      "window": [
+        {
+          "index": 36,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "I keep my head down and wait."
+        },
+        {
+          "index": 37,
+          "speaker": "Ponticius",
+          "isUser": false,
+          "text": "\"Looking for a boat?\" *The Guild Master's gravelly voice cuts through the rain.*\n*He's leaning against a wooden post, water dripping from his worn leather cloak.*\n\"Ferries don't run in storms like this. Water's too high, currents too strong.\"\n*He pushes himself off the post, his boots squelching as he walks closer, his eyes sharp as he studies you.*\n\"But if you're looking to cross, I might know a way that'll get you across without drowning.\"\n*He gives a low, rough chuckle and shakes his head.*\n\"Though it'll cost you more than a few marks.\"\n*He looks you over, his gaze calculating, and his voice drops low.*\n\"You got guts, I'll give you that much. Most folk are too smart to be out here in this weather.\""
+        },
+        {
+          "index": 38,
+          "speaker": "Arin",
+          "isUser": false,
+          "text": "*Arin glances at you, then at Ponticius, a slight smirk playing on his lips.*\n\"You know, Ponticius has a habit of calling folk stupid for doing what he's about to suggest.\" *He says, his tone playful.*\n*He leans back against a piling, arms folded over his chest.*\n\"And you, Max... you always do have a knack for doing exactly that.\"\n*His voice is light and teasing, but there's something protective in it as he watches you.*\n\"But hey, it's you. We'll probably end up doing whatever you want anyway.\"\n*He gives a short laugh, adjusting the bow on his shoulder.*\n\"At least you're making things interesting for once.\""
+        },
+        {
+          "index": 39,
+          "speaker": "Luke",
+          "isUser": false,
+          "text": "\"You really mean it? You'll really take us across?\" *Luke's eyes are wide with excitement as he looks at Ponticius.*\n*He's practically bouncing on his feet despite his oversized chainmail clinking with each movement.*\n\"That's amazing! I mean, I didn't think we could make it across at all!\"\n*He grins broadly, his brown hair falling over his pale face.*\n\"My brother would be so proud. He always told me that there's always a way, no matter how bad things get.\"\n*He steps closer, his hands clasped in front of him as if he's in prayer.*\n\"Thank you, sir! Thank you so much!\"\n*He's so full of hope and determination that it's almost as if he believes Ponticius is a hero for helping them, which makes it clear how much he looks up to the experienced adventurer.*"
+        },
+        {
+          "index": 40,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "We board the ferry."
+        },
+        {
+          "index": 41,
+          "speaker": "Luke",
+          "isUser": false,
+          "text": "\"We're actually doing it!\" *Luke said, his voice high and excited as he stepped onto the ferry.*\n*His oversized chainmail clattered with each step, and he gripped the side of the boat with white-knuckled hands.*\n\"This is just like what my brother described! Crossing the river on an adventure!\"\n*He looked around at the ferry with wide-eyed wonder, as if everything he'd ever seen was an adventure in itself.*\n\"It's amazing!\" *he added, his voice quick and uncertain as he tried to maintain his excitement.*\n\"I can't wait to see what's on the other side!\"\n*He beamed at you and Arin, trying to look brave and capable despite the oversized gear.*\n\"I bet we'll have a real adventure!\"\n*He shifted his weight as the boat began to move, his brown hair damp with rain but his expression one of pure joy and eagerness.*"
+        },
+        {
+          "index": 42,
+          "speaker": "Max",
+          "isUser": false,
+          "text": "I wait by the gate and say nothing."
+        },
+        {
+          "index": 43,
+          "speaker": "Gate Guard",
+          "isUser": false,
+          "text": "The guard waves the cart through and nods at you. You shoulder your pack, thank him warmly and say that you will pay the toll now, handing over three marks before walking on toward the market."
+        }
+      ]
+    }
+  ],
+  "levels": [
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J7/run3/evidence-J7.3-audits.json",
+      "line": "DELTA tension_current='stirring' evidence=\"The Sun Ruins are not a place for the unprepared,\"",
+      "value": "stirring"
+    },
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J7/run1/evidence-J7.2-audits.json",
+      "line": "DELTA tension_current='calm' evidence=\"[14] DM Narrator: *The street is quiet, save for the occasional sound of a cart rolling by or the distant call of a merchant.*\"",
+      "value": "calm"
+    },
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J7/run3/evidence-J7.6-stalled-pipeline.json",
+      "line": "DELTA tension_current=value=\"stirring\" evidence=\"The low hum of the machinery fills his ears, and he looks around with a mixture of curiosity and wariness.\"",
+      "value": "stirring"
+    },
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J7/run3/evidence-J7.6-stalled-pipeline.json",
+      "line": "DELTA tension_current=value=\"calm\" evidence=\"Luke lets out a shaky breath, his shoulders relaxing slightly as he realizes the danger has passed.\"",
+      "value": "calm"
+    },
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J6/run3/journal-follow.jsonl",
+      "line": "DELTA luke_decision='undecided' evidence=\"The job board is a cluttered tapestry of weathered parchment and hasty scribbles.\"",
+      "value": "undecided"
+    },
+    {
+      "source": "test/journeys/records/v2.4-acceptance/J8/run3/journal-follow.jsonl",
+      "line": "DELTA road_drained=value=true evidence=\"We board the ferry.\"",
+      "value": true
+    }
+  ]
+}
