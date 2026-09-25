@@ -33,6 +33,7 @@ function harness(answer: (attempt: number) => Write) {
   const ownership: RunOwnership = { mint: (window = null) => mintToken(current, window), check: (token: RunToken) => tokenMatches(current, token) };
   let scene: { facts?: { location?: string | null } } | null = null;
   const writes: Array<string | null> = [];
+  const journal: Array<{ summary: string; note: string }> = [];
   const coordinator = new SceneCoordinator({
     judge: () => ({
       active: () => true,
@@ -46,11 +47,12 @@ function harness(answer: (attempt: number) => Write) {
     getScene: () => scene as never,
     setScene: (next: unknown) => { scene = next as typeof scene; },
     inject: ((text: string | null) => { writes.push(text); return answer(writes.length); }) as never,
+    journal: (summary: string, note: string) => { journal.push({ summary, note }); },
     ownership,
     now: () => 0,
   } as never);
   const run = () => coordinator.run({ boundary: 3, messageId: 9, heuristicFired: false, scheduleRead: () => {} } as never);
-  return { coordinator, run, writes, stored: () => scene };
+  return { coordinator, run, writes, journal, stored: () => scene };
 }
 
 const refusedOnce = (attempt: number): Write => (attempt === 1 ? { ok: false, reason: "this build exposes no setExtensionPrompt, so the block never reaches a prompt" } : { ok: true, changed: true });
@@ -79,4 +81,22 @@ finding("AE04-S1", async () => {
     h.writes.length === 2 && h.writes[1] === h.writes[0],
     `the scene tracker block the host refused was recorded as injected: ${h.writes.length} write attempt(s) after a refusal and a later sync, so the block never reaches the prompt and nothing retries it`,
   );
+});
+
+test("AE04-S1: a refused tracker write is journaled with the host's reason, once, while every sync retries it", async () => {
+  const h = harness(() => ({ ok: false, reason: "this build exposes no setExtensionPrompt, so the block never reaches a prompt" }));
+  await h.run();
+  h.coordinator.sync();
+  h.coordinator.sync();
+  expect(h.writes).toHaveLength(3);
+  expect(h.journal).toEqual([{ summary: "The scene tracker was not added to the prompt", note: expect.stringContaining("exposes no setExtensionPrompt") }]);
+});
+
+test("AE04-S1: a tracker write that lands after a refusal is not journaled again, and is not repeated", async () => {
+  const h = harness(refusedOnce);
+  await h.run();
+  h.coordinator.sync();
+  h.coordinator.sync();
+  expect(h.writes).toHaveLength(2);
+  expect(h.journal).toHaveLength(1);
 });

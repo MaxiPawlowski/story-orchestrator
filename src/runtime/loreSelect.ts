@@ -66,17 +66,17 @@ export class LoreSelector {
     if (!candidates.length) return null;
     const pickScope = { ...(scope.top_k !== undefined ? { topK: scope.top_k } : {}), ...(scope.min_p !== undefined ? { minP: scope.min_p } : {}) };
     const chunks = buildLoreRequests(candidates, { checkpointName: checkpoint.name, objective: checkpoint.objective, window: this.deps.getWindow() });
-    const scored = (await Promise.all(chunks.map(async (chunk) => {
+    const answered = await Promise.all(chunks.map(async (chunk) => {
       const result = await judge.ask("lore", chunk.request, {
         timeoutMs: LORE_TIMEOUT_MS,
         summarize: (answers): Record<string, number | string> => ({ trigger, ...Object.fromEntries((answers ? pickLore(readLore(answers, chunk.entries), pickScope) : []).map((pick) => [pick.entry.comment || `${pick.entry.world}.${pick.entry.uid}`, pick.p])) }),
       });
-      return result.answers ? readLore(result.answers, chunk.entries) : [];
-    }))).flat();
-    const picked: LorePick[] = pickLore(scored, pickScope);
+      return result.answers ? readLore(result.answers, chunk.entries) : null;
+    }));
+    const picked: LorePick[] = pickLore(answered.flatMap((scored) => scored ?? []), pickScope);
     const entries = picked.flatMap((pick) => byKey.get(`${pick.entry.world}.${pick.entry.uid}`) ?? []);
     const picks = picked.map((pick) => ({ world: pick.entry.world, uid: pick.entry.uid, comment: pick.entry.comment, p: pick.p }));
-    this.cache = { key, entries, picks };
+    if (run.stillOwns() && answered.every((scored) => scored !== null)) this.cache = { key, entries, picks };
     if (!(await this.forced(entries, run))) return null;
     return { trigger, cached: false, picks };
   }

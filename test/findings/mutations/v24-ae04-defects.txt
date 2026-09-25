@@ -1,0 +1,29 @@
+AE-04 defects AE04-L1 (lore selection cache) and AE04-S1 (scene tracker write result), mutations 2026-09-25 (worktree on f11ab3b; script .debug/mut_ae04.py, each mutant applied alone as an exact-text replacement, the file restored byte-for-byte after its run; a replacement that does not match exactly once fails the script's assert, and none did)
+Suites per mutant: lore = loreAborted.review + loreSelect.test + c1Surfaces.review (17 tests); scene = sceneInjectWrite.review + sceneCoordinator.test + sceneFreshness.review + c1Surfaces.review (26 tests). Baseline 17/17 and 26/26 green; restored after the sweep, full `npm test` 259 suites / 3779 tests green.
+Red first: on f11ab3b both finding() bodies failed for the ledger's recorded reason (the helper asserted it while the rows were open): AE04-L1 "was cached as \"the judge picked nothing\" and served on return" (asked 1 time), AE04-S1 "the scene tracker block the host refused was recorded as injected" (1 write attempt). L-M1 and S-M1 below restore the old behaviour and show the new tests red on it.
+
+src/runtime/loreSelect.ts (LoreSelector.select)
+- L-M1 whole fix reverted, every selection cached unconditionally: KILLED, 3 of 17
+    "AE04-L1: a lore selection cancelled by a chat switch is not served as the judge's answer when the chat comes back"
+    "AE04-L1: a selection whose chat moved while the host was read is not cached, so the chat's return asks again"
+    "AE04-L1: a judge call that did not answer is not cached as an empty pick, so the same message asks again"
+- L-M2 ownership condition dropped (a selection whose world moved during the host read is cached): KILLED, 1 of 17
+    "AE04-L1: a selection whose chat moved while the host was read is not cached, so the chat's return asks again"
+  The finding body does not kill it on its own: its cancelled call also has no answers, so the answered condition still keeps it out of the cache.
+- L-M3 answered condition dropped (a timed-out judge call is cached as an empty pick): KILLED, 1 of 17
+    "AE04-L1: a judge call that did not answer is not cached as an empty pick, so the same message asks again"
+  The finding body does not kill it on its own either: a call cancelled by a chat switch always lapses the token too.
+  Controls green under every lore mutant: "a lore call cancelled by a chat switch forces nothing into the next prompt", "the same selection that is not cancelled forces the picked entry", loreSelect.test's cache case "re-forces the same picks without asking again at the same message, and asks again at the next".
+
+src/runtime/coordinators/sceneCoordinator.ts (SceneCoordinator.sync)
+- S-M1 original order restored (`injected` set before the write, result not read): KILLED, 3 of 26
+    "AE04-S1: a scene tracker write the host refuses is not recorded as injected, and is retried"
+    "AE04-S1: a refused tracker write is journaled with the host's reason, once, while every sync retries it"
+    "AE04-S1: a tracker write that lands after a refusal is not journaled again, and is not repeated"
+- S-M2 a refusal treated as injected (`result.ok` not read): KILLED, 3 of 26 (same three)
+- S-M3 the per-text journal dedupe removed (a refusal journaled on every retry): KILLED, 1 of 26
+    "AE04-S1: a refused tracker write is journaled with the host's reason, once, while every sync retries it"
+- S-M4 the refusal not journaled: KILLED, 2 of 26
+    "AE04-S1: a refused tracker write is journaled with the host's reason, once, while every sync retries it"
+    "AE04-S1: a tracker write that lands after a refusal is not journaled again, and is not repeated"
+  Controls green under every scene mutant: "a refused tracker write does not lose the read it came from", "a tracker write that lands is made once, and a later sync does not repeat it", sceneCoordinator.test "tracker: stores over-floor facts, injects the block once, ...".

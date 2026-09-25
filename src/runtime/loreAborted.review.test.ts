@@ -33,7 +33,7 @@ const vault = { world: "Book", uid: 1, comment: "the vault", content: "A sealed 
 
 type Answer = { answers: Record<string, unknown> | null; model: string | null; fallback?: string };
 
-function harness(onAsk: (world: { switchChat(): void }) => Answer) {
+function harness(onAsk: (world: { switchChat(): void }) => Answer, onEntries: (world: { switchChat(): void }) => void = () => {}) {
   let current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(current, window), check: (token: RunToken) => tokenMatches(current, token) };
   const world = {
@@ -49,7 +49,7 @@ function harness(onAsk: (world: { switchChat(): void }) => Answer) {
     getWindow: () => [{ speaker: "Player", text: "We enter." }],
     getChatId: () => current.chatId,
     getLastMessageId: () => 9,
-    getEntries: async () => [vault] as never,
+    getEntries: async () => { onEntries(world); return [vault] as never; },
     force: async (entries: unknown[]) => { forced.push(entries); return { ok: true as const, entries: entries.length }; },
     ownership,
   } as never);
@@ -86,4 +86,23 @@ finding("AE04-L1", async () => {
     h.asked() === 2 && h.forced.length === 1,
     `a lore selection cancelled by a chat switch was cached as "the judge picked nothing" and served on return (asked ${h.asked()} time(s), returned ${JSON.stringify(back)}), so the next generation in that chat carried no judged lore`,
   );
+});
+
+test("AE04-L1: a selection whose chat moved while the host was read is not cached, so the chat's return asks again", async () => {
+  let reads = 0;
+  const h = harness(picksTheVault, (world) => { reads += 1; if (reads === 1) world.switchChat(); });
+  expect(await h.selector.select("MESSAGE_SENT" as never)).toBeNull();
+  h.world.returnToChatA();
+  expect(await h.selector.select("MESSAGE_SENT" as never)).toMatchObject({ cached: false, picks: [{ uid: 1 }] });
+  expect(h.asked()).toBe(2);
+  expect(h.forced).toEqual([[vault]]);
+});
+
+test("AE04-L1: a judge call that did not answer is not cached as an empty pick, so the same message asks again", async () => {
+  let calls = 0;
+  const h = harness(() => { calls += 1; return calls === 1 ? { answers: null, model: null, fallback: "timeout" } : picksTheVault(); });
+  expect(await h.selector.select("MESSAGE_SENT" as never)).toMatchObject({ cached: false, picks: [] });
+  expect(await h.selector.select("MESSAGE_SENT" as never)).toMatchObject({ cached: false, picks: [{ uid: 1 }] });
+  expect(h.asked()).toBe(2);
+  expect(h.forced).toEqual([[vault]]);
 });

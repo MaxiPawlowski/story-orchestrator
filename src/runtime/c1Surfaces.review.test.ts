@@ -117,7 +117,7 @@ function sceneHarness(onAsk?: () => void) {
     getLastMessageId: () => 9,
     getScene: () => scene as never,
     setScene: (next: unknown) => { scene = next; },
-    inject: () => {},
+    inject: () => ({ ok: true as const, changed: true }),
     ownership: w.ownership,
     now: () => 0,
   } as never);
@@ -158,7 +158,7 @@ control("C1/scene: a FAILED read that lapsed does not age another chat's tracker
     getLastMessageId: () => 9,
     getScene: () => scene as never,
     setScene: (next: unknown) => { scene = next; },
-    inject: () => {},
+    inject: () => ({ ok: true as const, changed: true }),
     ownership: w.ownership,
     now: () => 0,
   } as never);
@@ -183,7 +183,7 @@ control("C1/scene: a FAILED read in its own chat still ages the tracker", async 
     getLastMessageId: () => 9,
     getScene: () => scene as never,
     setScene: (next: unknown) => { scene = next; },
-    inject: () => {},
+    inject: () => ({ ok: true as const, changed: true }),
     ownership: w.ownership,
     now: () => 0,
   } as never);

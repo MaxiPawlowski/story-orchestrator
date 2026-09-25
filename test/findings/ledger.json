@@ -426,18 +426,18 @@
       "title": "a lore selection cancelled by a chat switch is not served as the judge's answer when the chat comes back",
       "owner": "AE-04",
       "evidence": "jest",
-      "status": "open",
+      "status": "closed",
       "expectedFailure": "was cached as \"the judge picked nothing\" and served on return",
-      "note": "Found 2026-09-25 writing the lore|aborted fault-matrix test (src/runtime/loreAborted.review.test.ts). LoreSelector.select caches its result under chat+story+message+scope BEFORE the ownership check in forced(), and a cancelled judge call reads as answers:null, so the cancellation is stored as an empty pick list. Returning to the chat at the same message is a cache hit: the judge is not asked again and nothing is forced. Not fixed here (AE-04 scope: report, do not change src/)."
+      "note": "Found 2026-09-25 writing the lore|aborted fault-matrix test (src/runtime/loreAborted.review.test.ts). LoreSelector.select caches its result under chat+story+message+scope BEFORE the ownership check in forced(), and a cancelled judge call reads as answers:null, so the cancellation is stored as an empty pick list. Returning to the chat at the same message is a cache hit: the judge is not asked again and nothing is forced. FIXED 2026-09-25 (commit 74867d5): select() caches only a selection whose run still owns its world AND whose every judge chunk answered. The key names chat, story, version, message and scope; a token lapse (the host was read or the judge was asked after the world moved) and a missing answer (cancelled, timeout, error) are what the key cannot name, so such a result is used for this call only and never cached. Two tests pin each condition separately (host-read switch; timeout in the same chat), because the cancelled case lapses the token too and cannot tell them apart. Mutations: test/findings/mutations/v24-ae04-defects.txt."
     },
     {
       "id": "AE04-S1",
       "title": "a scene tracker write the host refuses is not recorded as injected, and is retried",
       "owner": "AE-04",
       "evidence": "jest",
-      "status": "open",
+      "status": "closed",
       "expectedFailure": "the scene tracker block the host refused was recorded as injected",
-      "note": "Found 2026-09-25 writing the scene|beforeHostWrite fault-matrix test (src/runtime/sceneInjectWrite.review.test.ts). SceneCoordinator.sync sets `injected = text` BEFORE deps.inject, and the runtime's inject (runtime/index.ts) discards setStoryExtensionPrompt's WriteResult, so a refused or throwing write leaves the coordinator believing the block is in the prompt; every later sync with the same text returns early and never retries. The same class as the plan-11 LoreSelector force() finding. Not fixed here (AE-04 scope: report, do not change src/)."
+      "note": "Found 2026-09-25 writing the scene|beforeHostWrite fault-matrix test (src/runtime/sceneInjectWrite.review.test.ts). SceneCoordinator.sync sets `injected = text` BEFORE deps.inject, and the runtime's inject (runtime/index.ts) discards setStoryExtensionPrompt's WriteResult, so a refused or throwing write leaves the coordinator believing the block is in the prompt; every later sync with the same text returns early and never retries. The same class as the plan-11 LoreSelector force() finding. FIXED 2026-09-25 (commit 74867d5): the coordinator's `inject` dep is typed as the WriteResult the runtime's inject already returned (it was the `=> void` dep type that discarded it); sync() records `injected` only on ok, so a refused write is retried on every later sync, and a throwing write leaves `injected` untouched for the same reason. A refusal is journaled through the manager's noteRecap (the lore/sampler/scan-gating idiom) once per refused text, not once per retry. Mutations: test/findings/mutations/v24-ae04-defects.txt."
     }
   ]
 }

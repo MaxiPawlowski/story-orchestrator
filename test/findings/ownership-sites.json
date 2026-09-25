@@ -286,8 +286,8 @@
       "note": "v2.3 plan 11 §Fault matrix: split out of select() so a refused force is reported instead of discarded, and so the token check sits where the write is. Both callers (the fresh path and the cached re-force) minted the run and pass it in, so the cached path — which had NO token check at all before this — is covered too. The story swap that the cached path could not see is fixed in the CACHE KEY, not here: a token minted at the start of a call can never notice that a cache entry was built under a story the chat has since left."
     },
     "src/runtime/loreSelect.ts#LoreSelector.select": {
-      "status": "delegate",
-      "note": "v2.3 plan 03 (C1, the lore surface). force() pushes entries into the NEXT generation, so a selection outliving its chat seeds another chat prompt with this story lore. Invisible to the census until 2026-09-20 because its write verb is force, which WRITE_NAME did not list — the plan text named it and the regex did not. v2.3 plan 11 moved the check one hop: select() mints the run and awaits LoreSelector.forced, which owns the check and sits where the write is."
+      "status": "checked",
+      "note": "v2.3 plan 03 (C1, the lore surface). force() pushes entries into the NEXT generation, so a selection outliving its chat seeds another chat prompt with this story lore. Invisible to the census until 2026-09-20 because its write verb is force, which WRITE_NAME did not list — the plan text named it and the regex did not. v2.3 plan 11 moved the force check one hop: select() mints the run and awaits LoreSelector.forced, which owns the check and sits where the write is. AE04-L1 (2026-09-25): promoted from delegate. select() itself now writes after its awaits (the in-memory selection cache), and it asks run.stillOwns() before that write: a selection whose world moved during the host read or the judge call, or whose judge chunks did not all answer, is never cached, so a chat that returns at the same message asks the judge again instead of serving a cancellation as 'the judge picked nothing'."
     },
     "src/runtime/memoryMirror.ts#syncMemoryMirror": {
       "status": "checked",
