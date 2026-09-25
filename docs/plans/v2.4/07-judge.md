@@ -1099,3 +1099,26 @@ and `cleanup.rescore` established facts are the seed only. The live pair should 
   exists: O(n²) token-set comparisons, cheap at today's sizes, no host call.
 - Pinned and plain extractor rows keep today's single-source consolidation, so the live miss (cosine under the band)
   still applies to two ordinary rows that disagree.
+
+### Contradiction fix live, union bands (2026-09-25, bundle `9a28415066c3`, master `fd5e33e`)
+
+**Green.** J8.5 ran judge-on ×2 with a page reload before each run, then judge-off ×1, all on lane 2 with `--only J8.5`.
+
+| Run | Held for the author | Other facts that stayed live | Result |
+|---|---|---|---|
+| judge on, 1 | "…still standing and intact." and "…is intact.", plus an agreeing paraphrase ("…has collapsed, leaving only pieces…") | "Arin and Max are at the riverbank, facing the collapsed bridge." | pass |
+| judge on, 2 | "…still standing and intact." and "…intact and usable.", plus an agreeing paraphrase ("…destroyed by the flood.") | none | pass |
+| judge off | not applicable: no warden call, no note | not applicable | pass |
+
+In the two judge-on runs:
+- the continuity note was carried into exactly one generation;
+- no warden note enforced a claim;
+- the `{facts: 3, flagged: 2}` shape never appeared.
+
+**Records:** `test/journeys/records/v2.4-plan07/contradiction-live-9a28415066c3/`. The run-header diff around the batch shows 0 differences.
+
+**What the wider net costs.** It holds agreeing paraphrases as well as the contradiction, 1 per run here. The author dismisses them; the established fact already states them.
+
+**Limit, unchanged.** A contradiction with both low word overlap and low cosine is still missed. There is no polarity or negation check.
+
+**Harness note.** Plan 04's 5 ms wall-clock check (`windowHygiene.test.ts`, "cheap enough for the reply path") failed once in a full jest run while three agent builds loaded the machine. Run alone it passed 3/3. A wall-clock floor flakes under load. It is noted for plan 09 hardening and was not retuned.
