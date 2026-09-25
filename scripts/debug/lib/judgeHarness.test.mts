@@ -184,7 +184,7 @@ test('warden notes carry their family, and the over-steer columns read only the 
   const agency = overSteerColumns({ notes, rows }, { rows }, OVER_STEER_FAMILIES.agency, { m3: 1.2 });
   assert.equal(agency.length, 1);
   assert.equal(agency[0].note, 'Agency: Max...');
-  assert.equal(agency[0].replyScore, 1.2);
+  assert.equal('replyScore' in agency[0] ? agency[0].replyScore : null, 1.2);
   assert.equal(overSteerColumns({ notes, rows }, { rows }, OVER_STEER_FAMILIES.continuity).length, 1);
   assert.equal(overSteerColumns({ notes, rows }, { rows }, OVER_STEER_FAMILIES['house-rule']).length, 0);
 });

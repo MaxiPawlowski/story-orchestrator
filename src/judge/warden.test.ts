@@ -6,7 +6,7 @@ import { AGENCY_SCORE, HOUSE_RULE_P, WARDEN_MAX_RULES } from "./policy";
 import { validateJudgeRequest } from "./questions";
 import { judgeFamilyScores, type JudgeSelfTestReport } from "./selfTest";
 import type { JudgeAnswer, JudgeRequest, JudgeResult } from "./types";
-import { agencyNoteText, buildWardenRequests, readWarden, wardenAsks, wardenFamiliesAsked, wardenRecordP, type WardenInput } from "./warden";
+import { agencyNoteText, buildWardenRequests, readWarden, wardenFamiliesAsked, wardenRecordP, type WardenInput } from "./warden";
 import { runAgencyCalibration, runCombinedContinuityCalibration, runHouseRuleCalibration, runWardenRescore, type AgencyCase, type CombinedContinuityCase, type HouseRuleCase } from "./wardenCalibration";
 
 const reply = { speaker: "Arin", text: "Arin shrugs." };
@@ -25,7 +25,6 @@ describe("warden request (v2.4 plan 07 T22/T23)", () => {
 
   it("asks nothing when every family is off", () => {
     expect(buildWardenRequests(input())).toEqual([]);
-    expect(wardenAsks(input())).toBe(false);
     expect(wardenFamiliesAsked(input())).toEqual([]);
   });
 
@@ -44,7 +43,6 @@ describe("warden request (v2.4 plan 07 T22/T23)", () => {
   it("asks without facts when another family is on (no facts no longer skips the call)", () => {
     const [request] = buildWardenRequests(input({ houseRules: ["No guns."] }));
     expect(request.state).toEqual({ reply, house_rules: { rule_0: "No guns." } });
-    expect(wardenAsks(input({ houseRules: ["No guns."] }))).toBe(true);
     expect(wardenFamiliesAsked(input({ facts: ["F."], houseRules: ["R."] }))).toEqual(["continuity", "house-rule"]);
   });
 
@@ -79,6 +77,7 @@ describe("warden findings", () => {
     const findings = readWarden({ "rule:0": noul(0.8), "rule:1": noul(0.95), "rule:2": noul(HOUSE_RULE_P) }, all);
     expect(findings).toEqual([{ family: "house-rule", facts: [], rules: ["No swearing.", "No guns."], text: 'House rule: "No swearing." — keep the next reply within it.\nHouse rule: "No guns." — keep the next reply within it.' }]);
     expect(readWarden({ "rule:0": noul(0.69) }, all)).toEqual([]);
+    expect(readWarden({ "rule:1": noul(HOUSE_RULE_P) }, all).map((finding) => finding.rules)).toEqual([["No swearing."]]);
   });
 
   it("orders the families continuity, agency, house rules", () => {

@@ -161,3 +161,10 @@ check on 1.18.0; they are owed to the integration session. Third-party rows are 
 | 04-H8 | (not ST) Stepped Thinking 3.2.0 posts a separated thought as `{is_user:false, is_system: bias-only, is_thoughts:true, owner_extension:'st-stepped-thinking', extra:{type: asSystem ? 'narrator' : undefined, api:'script', model:'stepped thinking'}}`; the default `mes` is `<details type="executing" …><summary>Thinking ({{char}}) 💭</summary>` + a ```` ```md ```` fence + `</details>`; `is_thoughts_spoiler_open` (default false) only toggles the `open` attribute | `third-party/st-stepped-thinking/thinking/mode.js:596-614`, `settings/settings.js:134`, `:147-155`, `index.js:27`, `manifest.json:9` |
 | 04-H9 | (not ST) CYOA pushes `{name:'CYOA Suggestions', is_user:true, is_system:false, mes: <html buttons>, extra:{api:'manual', model:'cyoa'}}` with no event; not installed here | `C:/dev/st-extensions-research/cyoa-extension/source/index.js:154-169` |
 | 04-H10 | `/hide` flips `is_system` and saves with no event, so hidden rows are already out of every window (D5) | `chats.js:147-168` |
+
+## Plan 07 part 2 (T22/T23, 2026-09-25)
+
+| # | Fact | Source | Verified |
+|---|---|---|---|
+| 07-H9 | A Score answer is a continuous value on `[0, levels − 1]`, not a level index: T22 reads it raw and flags at `> 2.5` on its 5-level rubric (0..4) | Our own recorded answers: `test/goldens/judge/lore-relevance.json` holds 1600 Score answers on a 6-level scale, min 0, max 4.14, 1591 non-integer (recounted 2026-09-25); Jeved reads it raw too (`extension-research/jeved.md` F1) | Yes, from recorded real answers; the agency rubric itself is unmeasured until Phase A |
+| 07-H10 | `getPlayerName()` reads `context.name1` (the persona NAME, never its description) | `src/services/stHost/context.ts:58-61`, vendored `hostTypes.ts:68` | Code fact; T22 sends only this name |

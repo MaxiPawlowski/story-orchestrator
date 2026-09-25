@@ -1,4 +1,4 @@
-import { WARDEN_NOTE_FAMILIES, type WardenNoteFamily, type WardenNoteOp } from "./types";
+import { WARDEN_NOTE_FAMILIES, type CuratorOpRecord, type CuratorProposalRecord, type StagecraftAcceptMode, type WardenFactSource, type WardenNoteFamily, type WardenNoteOp } from "./types";
 
 export const WARDEN_NOTE_MAX_LINES = 4;
 
@@ -59,3 +59,34 @@ export const wardenReason = (findings: WardenFindingView[]): string => findings.
 export const wardenSummary = (speaker: string, findings: WardenFindingView[]): string => `${speaker}'s reply ${findings.map(findingPhrase).join("; ")}`;
 
 export const withdrawRemovedRules = (op: WardenNoteOp, rules: string[]): boolean => wardenFamilyOf(op) === "house-rule" && (op.rules ?? []).some((rule) => !rules.includes(rule));
+
+export const wardenNoteOps = (findings: WardenCheckFinding[], established: WardenFactSource[], replyMessageId: number, mode: StagecraftAcceptMode): CuratorOpRecord[] => findings.map((finding) => ({
+  op: {
+    kind: "note" as const,
+    text: finding.text,
+    facts: finding.facts,
+    replyMessageId,
+    ...(finding.family === "continuity" ? { sources: established.filter((fact) => finding.facts.includes(fact.text)) } : { family: finding.family }),
+    ...(finding.rules ? { rules: finding.rules } : {}),
+    ...(finding.score !== undefined ? { score: finding.score } : {}),
+  },
+  status: mode === "auto" ? "accepted" as const : "pending" as const,
+}));
+
+const continuityOnly = (families: WardenNoteFamily[]) => families.every((family) => family === "continuity");
+
+export const wardenFlagJournal = (speaker: string, findings: WardenCheckFinding[]): [string, string] => [
+  continuityOnly(findings.map((finding) => finding.family)) ? `Continuity warden flagged ${speaker}'s reply` : `Warden flagged ${speaker}'s reply (${wardenReason(findings)})`,
+  findings.flatMap((finding) => finding.rules ?? (finding.family === "agency" ? [`agency ${finding.score ?? ""}`.trim()] : finding.facts)).join(" | "),
+];
+
+export const wardenNoteJournal = (ops: WardenNoteOp[]): [string, string] => [
+  continuityOnly(ops.map(wardenFamilyOf)) ? "Continuity note added to this reply's prompt" : "Warden note added to this reply's prompt",
+  ops.flatMap((op) => op.rules ?? (op.facts.length ? op.facts : [wardenFamilyOf(op)])).join(" | "),
+];
+
+export const newestCarriedNote = (proposals: CuratorProposalRecord[], active: WardenFamiliesActive): { record: CuratorProposalRecord; indices: number[] } | undefined => proposals
+  .filter((record) => record.curator === "warden")
+  .map((record) => ({ record, indices: record.ops.flatMap((entry, index) => (entry.status === "accepted" && entry.op.kind === "note" && wardenFamilyActive(entry.op, active) ? [index] : [])) }))
+  .filter((candidate) => candidate.indices.length)
+  .sort((left, right) => right.record.messageId - left.record.messageId)[0];

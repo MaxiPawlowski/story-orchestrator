@@ -116,6 +116,9 @@ describe("T22/T23: the warden pass asks every family that is on", () => {
     const both = harness({ continuity: true, findings: null });
     await both.coordinator.runWardenPass(1);
     expect(both.inputs[0].facts).toEqual(["The bridge fell."]);
+    const nothing = harness({ agency: true });
+    expect(await nothing.coordinator.runWardenPass(1)).toBe(false);
+    expect(nothing.inputs).toEqual([]);
   });
 
   it("records one op per family on one record, and review leaves them all pending", async () => {

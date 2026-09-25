@@ -24,8 +24,10 @@ import {
   type WardenNoteOp,
   anyWardenFamily,
   composeWardenNote,
-  wardenFamilyActive,
-  wardenFamilyOf,
+  newestCarriedNote,
+  wardenFlagJournal,
+  wardenNoteJournal,
+  wardenNoteOps,
   wardenReason,
   wardenSummary,
   withdrawRemovedRules,
@@ -477,24 +479,12 @@ export class StagecraftCoordinator {
         reason: wardenReason(findings),
         summary: wardenSummary(reply.speaker, findings),
         mode: settings.wardenAcceptMode,
-        ops: findings.map((finding) => ({
-          op: {
-            kind: "note" as const,
-            text: finding.text,
-            facts: finding.facts,
-            replyMessageId,
-            ...(finding.family === "continuity" ? { sources: established.filter((fact) => finding.facts.includes(fact.text)) } : { family: finding.family }),
-            ...(finding.rules ? { rules: finding.rules } : {}),
-            ...(finding.score !== undefined ? { score: finding.score } : {}),
-          },
-          status: settings.wardenAcceptMode === "auto" ? "accepted" as const : "pending" as const,
-        })),
+        ops: wardenNoteOps(findings, established, replyMessageId, settings.wardenAcceptMode),
         dropped: [],
         provenance: { source: "curator", messageId: replyMessageId, boundary: state.boundary, pass: "continuity-warden", inputs: [{ store: "memory" as const, id: `reply:${replyMessageId}` }], validity: "live" },
       };
       this.patch({ proposals: capProposalRing([...this.state.proposals, record]) });
-      const continuityOnly = findings.every((finding) => finding.family === "continuity");
-      this.deps.journal(continuityOnly ? `Continuity warden flagged ${reply.speaker}'s reply` : `Warden flagged ${reply.speaker}'s reply (${record.reason})`, findings.flatMap((finding) => finding.rules ?? (finding.family === "agency" ? [`agency ${finding.score ?? ""}`.trim()] : finding.facts)).join(" | "));
+      this.deps.journal(...wardenFlagJournal(reply.speaker, findings));
       await this.save();
       return true;
     } finally {
@@ -526,18 +516,13 @@ export class StagecraftCoordinator {
     if (dryRun === true || type === "quiet" || type === "impersonate" || settings.wardenAcceptMode === "off" || this.deps.warden?.nudgeActive()) return;
     this.withdrawRemovedRules();
     const active = this.activeFamilies();
-    const carried = this.state.proposals
-      .filter((record) => record.curator === "warden")
-      .map((record) => ({ record, indices: record.ops.flatMap((entry, index) => (entry.status === "accepted" && isNoteOp(entry.op) && wardenFamilyActive(entry.op, active) ? [index] : [])) }))
-      .filter((candidate) => candidate.indices.length)
-      .sort((left, right) => right.record.messageId - left.record.messageId)[0];
+    const carried = newestCarriedNote(this.state.proposals, active);
     if (!carried) return;
     const ops = carried.indices.map((index) => carried.record.ops[index].op).filter(isNoteOp);
     setStoryExtensionPrompt(INJECTION_REGISTRY.continuityNote.key, composeWardenNote(ops), INJECTION_REGISTRY.continuityNote.depth);
     this.noteActive = true;
     this.carriedNote = { recordId: carried.record.id, indices: carried.indices };
-    const continuityOnly = ops.every((op) => wardenFamilyOf(op) === "continuity");
-    this.deps.journal(continuityOnly ? "Continuity note added to this reply's prompt" : "Warden note added to this reply's prompt", ops.flatMap((op) => op.rules ?? (op.facts.length ? op.facts : [wardenFamilyOf(op)])).join(" | "));
+    this.deps.journal(...wardenNoteJournal(ops));
   }
 
   // A stopped or reply-less generation leaves the note accepted, so it rides the next loud one.

@@ -61,8 +61,6 @@ const rulesPart = (input: WardenInput): Pick<JudgeRequest, "state" | "questions"
   };
 };
 
-export const wardenAsks = (input: WardenInput): boolean => input.facts.length > 0 || input.agency !== null || keptRules(input.houseRules).length > 0;
-
 export function buildWardenRequests(input: WardenInput, arm: WardenArm = WARDEN_ARM): JudgeRequest[] {
   const continuity = input.facts.length ? buildContinuityRequest(input.reply, input.facts) : null;
   const parts = [agencyPart(input), rulesPart(input)].filter((part): part is Pick<JudgeRequest, "state" | "questions"> => part !== null);
