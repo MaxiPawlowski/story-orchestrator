@@ -1,0 +1,99 @@
+{
+  "name": "live-v24-npc-switch",
+  "objective": "v2.4 follow-up U5 (644aa05): EffectsApplier.fireNpcReplies re-checks run ownership after the awaited /trigger before writing lastSelfInjectionMessageId. Control: in an unmoved chat A the llm onEnter reply lands and A records the reply id, in memory and on disk. Switch: in chat B the same reply is fired and ST is switched to chat C (another run-owned chat, 3 extra compact lines) while the /trigger generation is in flight; B's extras object (the one the runtime held when the reply started) must keep its value, never C's last message id, activateCheckpoint must answer false, and B's persisted blob must be unchanged on reopen. The in-memory read of B's orphaned extras is the discriminating half (the pre-fix code wrote C's id into it; the persisted half is a no-regression read, since activateCheckpoint persists only while it still owns the chat). Where the in-flight reply itself lands is recorded, not asserted (v2.5 plan 02 C1 step 0). Needs a group whose roster includes DM Narrator and a real model.",
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v24-npc-switch",
+        "version": 1,
+        "title": "SO-NPCSW NPC reply switch",
+        "description": "v2.4 follow-up U5 live gate: an llm npc_replies onEnter reply whose chat is switched away mid /trigger.",
+        "qualities": [
+          {
+            "key": "harness_gate",
+            "type": "bool",
+            "source": "code",
+            "latching": true,
+            "rubric": "Set only by the test harness."
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "Start",
+            "objective": "Wait.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "speak",
+            "name": "Speak",
+            "objective": "The narrator speaks once.",
+            "type": "anchor",
+            "effects": {
+              "npc_replies": [
+                {
+                  "trigger": "onEnter",
+                  "member": "DM Narrator",
+                  "kind": "llm",
+                  "maxTriggers": 1
+                }
+              ]
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "from": "start",
+            "to": "speak",
+            "priority": 1,
+            "gate": {
+              "q": "harness_gate",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "DM Narrator",
+            "name": "DM Narrator"
+          }
+        ]
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; if (!ctx.groupId || !ctx.chatId) throw new Error('needs a group chat'); for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const N = globalThis.__npcsw = { storyId: 'so-v24-npc-switch', group: ctx.groupId, chats: {} }; N.sleep = (ms) => new Promise((r) => setTimeout(r, ms)); N.saving = async () => (await import('/script.js')).isChatSaving; N.settleSave = async () => { const until = Date.now() + 30000; while (Date.now() < until && (await N.saving())) await N.sleep(100); await N.sleep(2000); return !(await N.saving()); }; N.schedulerIdle = async (ms) => { const until = Date.now() + ms; let quiet = 0; while (Date.now() < until) { const s = rt.getSnapshot().extraction.scheduler; const busy = s.inFlight || s.queueDepth > 0 || s.heavyInFlight || (s.heavyQueueDepth ?? 0) > 0; quiet = busy ? 0 : quiet || Date.now(); if (quiet && Date.now() - quiet >= 1500) return true; await N.sleep(100); } return false; }; N.idle = async (ms) => { const until = Date.now() + ms; let quiet = 0; while (Date.now() < until) { quiet = document.body.dataset.generating ? 0 : quiet || Date.now(); if (quiet && Date.now() - quiet >= 2000) return true; await N.sleep(100); } return false; }; N.disk = async (id) => { const response = await fetch('/api/chats/group/get', { method: 'POST', headers: SillyTavern.getContext().getRequestHeaders(), body: JSON.stringify({ id }) }); const data = await response.json().catch(() => null); const rows = Array.isArray(data) ? data : []; const header = rows[0] && Object.hasOwn(rows[0], 'chat_metadata') ? rows[0] : null; const messages = header ? rows.slice(1) : rows; const blob = header?.chat_metadata?.story_orchestrator ?? null; const entry = blob?.stories?.[N.storyId] ?? null; return { http: response.status, messages: messages.length, lastName: messages.at(-1)?.name ?? null, hasBlob: Boolean(blob), hasEntry: Boolean(entry), extrasKeys: entry?.extras ? Object.keys(entry.extras).length : 0, lsim: entry?.extras ? (entry.extras.lastSelfInjectionMessageId ?? null) : undefined, active: entry?.engineState?.activeCheckpointId ?? null, fired: entry?.extras?.firedNpcReplies ?? null }; }; N.open = async (chatId) => { if (!(await N.settleSave())) throw new Error('a chat save never finished before switching to ' + chatId); await SillyTavern.getContext().openGroupChat(N.group, chatId); const until = Date.now() + 30000; while (Date.now() < until && SillyTavern.getContext().chatId !== chatId) await N.sleep(100); if (SillyTavern.getContext().chatId !== chatId) throw new Error('could not open ' + chatId); await N.sleep(1500); }; N.dialog = () => { const open = document.querySelector('dialog[open] .popup-content'); return open ? open.innerText.slice(0, 300) : null; }; N.chats.a = ctx.chatId; if (rt.getSnapshot().storyId !== N.storyId) throw new Error('the imported story is not selected: ' + rt.getSnapshot().storyId); return { a: N.chats.a, group: N.group, storyId: rt.getSnapshot().storyId, active: rt.getEngineState().activeCheckpointId };",
+      "log": 1500
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const N = globalThis.__npcsw; if (ctx.chatId !== N.chats.a) throw new Error('control must run in chat A'); if (!(await N.idle(180000))) throw new Error('chat A never went idle'); if (!(await N.schedulerIdle(300000))) throw new Error('the scheduler never went idle before the control'); const ex = rt.extras; const before = { lsim: ex.lastSelfInjectionMessageId, messages: ctx.chat.length }; const activated = await rt.activateCheckpoint('speak'); if (!(await N.idle(300000))) throw new Error('the control reply never finished'); const last = SillyTavern.getContext().chat.length - 1; const reply = SillyTavern.getContext().chat[last]; const after = { activated, lsim: ex.lastSelfInjectionMessageId, sameObject: rt.extras === ex, last, lastName: reply?.name, lastIsUser: Boolean(reply?.is_user), fired: ex.firedNpcReplies }; if (!activated) throw new Error('control: activateCheckpoint answered false in an unmoved chat: ' + JSON.stringify(after)); if (last <= before.messages - 1 || reply?.name !== 'DM Narrator' || reply?.is_user) throw new Error('control: the DM Narrator reply did not land: ' + JSON.stringify({ before, after })); if (ex.lastSelfInjectionMessageId !== last) throw new Error('control: an unmoved chat did not record its own reply id: ' + JSON.stringify({ before, after })); await N.settleSave(); const disk = await N.disk(N.chats.a); if (disk.lsim !== last) throw new Error('control: the persisted blob of chat A does not hold the reply id: ' + JSON.stringify({ last, disk })); N.control = { before, after, disk }; return N.control;",
+      "log": 2500
+    },
+    {
+      "slash": "/newchat",
+      "adoptsNewChat": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const N = globalThis.__npcsw; N.chats.c = ctx.chatId; if (N.chats.c === N.chats.a) throw new Error('/newchat did not leave chat A'); for (const line of ['I wait by the door.', 'I count the lanterns on the wall.', 'I tap the table twice.']) { const result = await ctx.executeSlashCommandsWithOptions('/send compact=true ' + line); if (result?.isError) throw new Error('send failed: ' + result.errorMessage); } await N.settleSave(); return { c: N.chats.c, messages: SillyTavern.getContext().chat.length, storyId: rt.getSnapshot().storyId };",
+      "log": 800
+    },
+    {
+      "slash": "/newchat",
+      "adoptsNewChat": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const N = globalThis.__npcsw; N.chats.b = ctx.chatId; if ([N.chats.a, N.chats.c].includes(N.chats.b)) throw new Error('/newchat did not open a fresh chat B'); await rt.selectStory(N.storyId); const until = Date.now() + 30000; while (Date.now() < until && rt.getSnapshot().storyId !== N.storyId) await N.sleep(200); if (rt.getSnapshot().storyId !== N.storyId) throw new Error('chat B did not take the story'); if (!(await N.idle(180000))) throw new Error('chat B never went idle'); await N.settleSave(); return { b: N.chats.b, messages: SillyTavern.getContext().chat.length, active: rt.getEngineState().activeCheckpointId, lsim: rt.extras.lastSelfInjectionMessageId };",
+      "log": 800
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const N = globalThis.__npcsw; if (ctx.chatId !== N.chats.b) throw new Error('the switch phase must start in chat B'); if (!(await N.schedulerIdle(300000))) throw new Error('the scheduler never went idle before the switch'); if (!(await N.idle(180000))) throw new Error('chat B never went idle'); if (!(await N.settleSave())) throw new Error('a save was still running before the activation'); const cDiskBefore = await N.disk(N.chats.c); const exB = rt.extras; const before = { lsim: exB.lastSelfInjectionMessageId, bMessages: ctx.chat.length, cMessagesOnDisk: cDiskBefore.messages }; const outcome = {}; const pending = rt.activateCheckpoint('speak').then((value) => { outcome.value = value; outcome.at = Date.now(); }, (error) => { outcome.error = String(error?.message ?? error); }); const startUntil = Date.now() + 60000; while (Date.now() < startUntil && !document.body.dataset.generating) await N.sleep(25); if (!document.body.dataset.generating) throw new Error('the /trigger generation never started: ' + JSON.stringify({ outcome, fired: exB.firedNpcReplies })); const genStartedAt = Date.now(); await N.sleep(1200); const stillGenerating = Boolean(document.body.dataset.generating); if (!stillGenerating || outcome.at) throw new Error('the reply finished before the switch could happen, so this run cannot discriminate: ' + JSON.stringify({ outcome, stillGenerating })); const savingAtSwitch = await N.saving(); const switchAt = Date.now(); await SillyTavern.getContext().openGroupChat(N.group, N.chats.c); const openUntil = Date.now() + 30000; while (Date.now() < openUntil && SillyTavern.getContext().chatId !== N.chats.c) await N.sleep(50); const openedC = SillyTavern.getContext().chatId === N.chats.c; const generatingAfterSwitch = Boolean(document.body.dataset.generating); const doneUntil = Date.now() + 300000; while (Date.now() < doneUntil && !('value' in outcome) && !outcome.error) await N.sleep(100); await pending; if (!(await N.idle(120000))) throw new Error('the page never went idle after the switched reply'); await N.settleSave(); const cChat = SillyTavern.getContext().chat; const cLastId = cChat.length - 1; const after = { outcome, openedC, generatingAfterSwitch, savingAtSwitch, msGenToSwitch: switchAt - genStartedAt, openChat: SillyTavern.getContext().chatId, exBlsim: exB.lastSelfInjectionMessageId, exBfired: exB.firedNpcReplies, cLastId, cMessagesInPage: cChat.length, cLastName: cChat.at(-1)?.name ?? null, dialog: N.dialog() }; N.switched = { before, after }; if (!openedC) throw new Error('the switch to chat C did not land: ' + JSON.stringify(N.switched)); if (outcome.error) throw new Error('activateCheckpoint threw: ' + JSON.stringify(N.switched)); if (outcome.value !== false) throw new Error('activateCheckpoint did not report the lost ownership: ' + JSON.stringify(N.switched)); if (exB.lastSelfInjectionMessageId === cLastId) throw new Error('the departed chat B was stamped with the open chat C last message id: ' + JSON.stringify(N.switched)); if (exB.lastSelfInjectionMessageId !== before.lsim) throw new Error('the departed chat B extras changed after the switch: ' + JSON.stringify(N.switched)); return N.switched;",
+      "log": 3500
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const N = globalThis.__npcsw; if (N.dialog()) throw new Error('a popup is open before returning to chat B: ' + N.dialog()); const cDisk = await N.disk(N.chats.c); await N.open(N.chats.b); const until = Date.now() + 30000; while (Date.now() < until && rt.getSnapshot().storyId !== N.storyId) await N.sleep(200); const bDisk = await N.disk(N.chats.b); const cLastId = N.switched.after.cLastId; const result = { bDisk, cDisk, cLastId, hydratedLsim: rt.extras.lastSelfInjectionMessageId, hydratedFired: rt.extras.firedNpcReplies, bMessagesInPage: SillyTavern.getContext().chat.length, bLastName: SillyTavern.getContext().chat.at(-1)?.name ?? null }; N.reopened = result; if (!bDisk.hasEntry) throw new Error('chat B has no persisted story entry: ' + JSON.stringify(result)); if (bDisk.lsim === cLastId && cLastId !== null) throw new Error('the persisted blob of chat B holds chat C last message id: ' + JSON.stringify(result)); if (bDisk.lsim !== N.switched.before.lsim) throw new Error('the persisted lastSelfInjectionMessageId of chat B moved: ' + JSON.stringify(result)); if (rt.extras.lastSelfInjectionMessageId === cLastId && cLastId !== null) throw new Error('chat B rehydrated with chat C last message id: ' + JSON.stringify(result)); return result;",
+      "log": 3500
+    }
+  ]
+}

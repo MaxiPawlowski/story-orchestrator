@@ -1,0 +1,12 @@
+{
+  "baseline": "C:/dev/so-lanes/1/debug/run-header-fu-pre-lane1.json",
+  "label": "fu-post-lane1",
+  "allow": [],
+  "differences": 0,
+  "progress": 0,
+  "blocking": 0,
+  "blockingPaths": [],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\1\\debug\\run-header-fu-post-lane1.json",
+  "ok": true
+}

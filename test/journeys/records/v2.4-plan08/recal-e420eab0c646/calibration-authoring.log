@@ -1,0 +1,90 @@
+a01 en valid=true (ok) shape=true kinds=[addQuality]
+a02 en valid=true (ok) shape=true kinds=[addQuality]
+a03 en valid=true (ok) shape=true kinds=[addQuality]
+a04 en valid=true (questions) shape=true kinds=[]
+a05 en valid=false (failed, repaired) shape=false kinds=[addCheckpoint]
+a06 en valid=true (ok, repaired) shape=true kinds=[addCheckpoint]
+a07 en valid=false (failed, repaired) shape=false kinds=[addCheckpoint, addTransition, addTransition]
+a08 en valid=true (ok) shape=true kinds=[addTransition]
+a09 en valid=true (ok) shape=true kinds=[addTransition, addTransition]
+a10 en valid=true (ok) shape=true kinds=[setCheckpointEffects]
+a11 en valid=true (ok) shape=true kinds=[addRosterMember]
+a12 en valid=true (ok, repaired) shape=true kinds=[createCharacterCard, createStoryLorebook, upsertLorebookEntry, createGroup]
+a13 es valid=true (ok) shape=true kinds=[addQuality]
+a14 es valid=true (ok) shape=true kinds=[addQuality]
+a15 es valid=false (failed, repaired) shape=false kinds=[addCheckpoint]
+a16 es valid=true (ok, repaired) shape=true kinds=[addCheckpoint]
+a17 es valid=true (ok) shape=true kinds=[addTransition]
+a18 es valid=true (ok) shape=true kinds=[addTransition, addTransition]
+a19 es valid=true (ok) shape=true kinds=[setCheckpointEffects]
+a20 es valid=true (ok) shape=true kinds=[addRosterMember]
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T07-55-11-012Z_so-role-calibration-authoring-shared-e420eab0c646.json
+recorded test/goldens/live/role-calibration/authoring-shared-e420eab0c646.json
+{
+  "role": "authoring",
+  "arm": "shared-e420eab0c646",
+  "profile": {
+    "id": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+    "name": "Story Orchestrator Memory RunPod",
+    "fallback": true
+  },
+  "cases": 20,
+  "summary": {
+    "role": "authoring",
+    "overall": {
+      "cases": 20,
+      "metrics": {
+        "validity": {
+          "passed": 17,
+          "total": 20,
+          "rate": 0.85,
+          "floor": 0.9,
+          "ok": false
+        },
+        "opShape": {
+          "passed": 17,
+          "total": 20,
+          "rate": 0.85,
+          "floor": 0.8,
+          "ok": true
+        },
+        "firstTry": {
+          "passed": 14,
+          "total": 20,
+          "rate": 0.7,
+          "floor": null,
+          "ok": null
+        }
+      }
+    },
+    "es": {
+      "cases": 8,
+      "metrics": {
+        "validity": {
+          "passed": 7,
+          "total": 8,
+          "rate": 0.875,
+          "floor": 0.9,
+          "ok": false
+        },
+        "opShape": {
+          "passed": 7,
+          "total": 8,
+          "rate": 0.875,
+          "floor": 0.8,
+          "ok": true
+        },
+        "firstTry": {
+          "passed": 6,
+          "total": 8,
+          "rate": 0.75,
+          "floor": null,
+          "ok": null
+        }
+      }
+    },
+    "meetsFloors": false
+  },
+  "restored": {}
+}
+exit=0

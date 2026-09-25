@@ -1250,3 +1250,24 @@ reopen the first chat and read `lastSelfInjectionMessageId` from its persisted b
 hold the other chat's index, and an unswitched control run must record the reply's own id. ×2. Also re-run
 `live-v4-turn-identity.json` to confirm the scripted branch is unchanged. Where the in-flight reply itself lands
 stays unmeasured (C1 step 0).
+
+**Live gate (2026-09-25, bundle e420eab0c646): green x2.** Lane 1 (ST :8101), group `1759606632088`, profile
+`Artemis RunPod RP`, served bundle = manifest. New fixture `test/scenarios/live-v24-npc-switch.json` (sandbox, three
+run-owned chats; no existing fixture switched chats mid-`/trigger`):
+- Control, chat A: `activateCheckpoint('speak')` fires the `llm` `onEnter` reply (`/trigger` DM Narrator), answers
+  `true`, and A records the reply's own id in memory and on disk (`lastSelfInjectionMessageId` 1 = last message,
+  DM Narrator).
+- Switch, chat B: the same activation; ~1.2 s into the `/trigger` generation (still generating, no save running)
+  `openGroupChat` moves to chat C (4 messages, no story). `activateCheckpoint` answers `false`; B's extras object held
+  when the reply started keeps `null` (never C's last id 4); on reopen B's persisted blob and rehydrated extras hold
+  `null`. The in-memory read is the discriminating half (the pre-fix code wrote C's id there); the on-disk half is
+  no-regression only, because `activateCheckpoint` persists only while it still owns the chat.
+- Observed, not asserted (C1 step 0 measurement): **the in-flight reply lands in the chat that is open**: in both runs
+  chat C gained the DM Narrator reply (5 messages on disk) although C plays no story. B stays at `start` on disk with
+  `firedNpcReplies {}`, so the reply that never reached B is not counted there. This is the uncancelled generation
+  (C1 step 2, not built).
+- Regression x2 each, green: `live-v4-turn-identity.json` (boundaries 0/1/1/2/3, cp2 held at boundary 4 through the
+  null-id mutation events), `plan03a-llm-npc-reply.json`.
+- Run-header diff around the lane-1 batch: 0 differences. Records:
+  `test/journeys/records/v2.4-followups/live-e420eab0c646/` (`-prerun` is a first green run before a reporting-only
+  fixture change; not counted).

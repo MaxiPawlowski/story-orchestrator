@@ -592,3 +592,56 @@ What the misses are:
   shape) before a fix.
 - The curator prompt invites `[enable]` on entries that are already on (above).
 - The wizard stages do not enforce their own op list in code (above).
+
+### Gate record: recalibration after the curator prompt and stage-op fixes (2026-09-25, bundle e420eab0c646)
+
+Build `e420eab0c646` carries `5cfa5b6` (wizard stages refuse out-of-stage ops), `621c185` (curator rule lines:
+`[enable]` only an entry marked `[currently off]`, `[disable]` only one that is not) and `644aa05` (NPC reply
+ownership, unrelated to these roles). Lane 2, same route as above (roles unset = memory profile `Story Orchestrator
+Memory RunPod`), same fixtures, same labels, **same predeclared floors**, one sample per case. `st-session reload`,
+`open-group`, `/profile Artemis RunPod RP`, served `dist/index.js` sha = manifest `bundle.sha256` before the runs;
+run-header diff around the batch: 0 differences.
+
+Commands: `so-role-calibration.mts run --role curator|authoring --arm shared-e420eab0c646 --record --expect-count 20`.
+Records: `test/journeys/records/v2.4-plan08/recal-e420eab0c646/`. New goldens
+`test/goldens/live/role-calibration/{curator,authoring}-shared-e420eab0c646.json`; the `56f299a98ea5` goldens
+(`*-shared.json`) are kept, and all 7 replay in `roleCalibration.test.ts` (31/31).
+
+| Role | Metric | Overall old -> new | es old -> new | Floor | Verdict (new) |
+|---|---|---|---|---|---|
+| curator | validity | 20/20 -> 20/20 | 8/8 -> 8/8 | 0.90 | meets |
+| curator | opShape | 13/23 = 0.565 -> **13/14 = 0.929** | 5/10 = 0.50 -> **5/6 = 0.833** | 0.85 | overall meets, **es MISS** |
+| curator | decision | 20/20 -> 18/20 = 0.90 | 8/8 -> 6/8 = 0.75 | 0.70 | meets |
+| authoring | validity | 19/20 = 0.95 -> **17/20 = 0.85** | 8/8 -> **7/8 = 0.875** | 0.90 | **MISS (overall and es)** |
+| authoring | opShape | 16/20 = 0.80 -> 17/20 = 0.85 | 6/8 = 0.75 -> 7/8 = 0.875 | 0.80 | meets |
+| authoring | firstTry | 18/20 -> 14/20 = 0.70 | 8/8 -> 6/8 = 0.75 | none | reported |
+
+What moved:
+- **Curator.** The rule lines worked on their target: no `[enable]` of an already-on entry in any case (was 10 lost
+  lines in 5 `none` cases). The one es opShape loss is c13: the model named the entry the way the prompt lists it,
+  `[enable] "La Cripta" (Abadía Lore)`, and the parser drops a quoted title with the lorebook suffix as "not an
+  entry this story owns" (it read `La Cripta` bare in the 56f299a98ea5 run). Decision losses: c13 (same line) and
+  c20 (a `none` case, "all entries current", answered with a patch to `Los Mineros`). Candidate fix, not built:
+  resolve `"<title>" (<lorebook>)`, the prompt's own listing shape, in the op parser; re-measure against the same
+  labels.
+- **Authoring.** opShape rose because out-of-stage ops are now refused, but validity fell: **every intermediate-
+  checkpoint request fails** (a05, a07, a15, the three cases that ask for one). The checkpoints stage allows only
+  `addCheckpoint/updateCheckpoint/setStartCheckpoint/setCheckpointSnapshot`; the model's first answer wires the new
+  intermediate with `addTransition`/`updateTransition`/`removeTransition`, the stage refuses those, the repair drops
+  them, and `parseStoryV2` then rejects the draft: `checkpoints.N: intermediate checkpoint has no reachable anchor
+  beyond it` (`engine/validate.ts:732`). A new checkpoint has no transitions until the transitions stage runs, so
+  the checkpoints stage cannot produce a valid intermediate at all. **Defect (contract conflict), not fixed here**:
+  either the reachability error is deferred (non-blocking) in the checkpoints stage, or the stage may carry the
+  transitions that connect the checkpoint it adds. a05/a07/a15 are correct refusals under today's code and count
+  against validity under the predeclared metric.
+
+**Recommended config** (predeclared rule unchanged: every floor for the role, overall and es, on that profile)
+
+| Role | Recommended | Why |
+|---|---|---|
+| curator | **none recommended** (unchanged) | es opShape 0.833 < 0.85 (c13, one line). Overall now meets every floor |
+| authoring | **none recommended** (unchanged) | validity 0.85 overall / 0.875 es < 0.90, from the checkpoints-stage contract conflict above |
+| director, synthesis, read | unchanged | not re-run |
+
+Gates (commit with this record): `npm run typecheck` 0, `typecheck:test` 0, `lint` 0, `npm test` 256 suites / 3734
+tests, `debug:typecheck` 0, `test:debug` 273/273, `npm run build` -> e420eab0c646, `test:release` 21/21.
