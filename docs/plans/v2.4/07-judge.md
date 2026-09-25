@@ -1,6 +1,6 @@
 # Plan 07 — Judge
 
-**Status: NOT STARTED (written 2026-09-23 against the working tree on `fcc33cc` + uncommitted V15b/V25 edits).**
+**Status: PART 1 BUILT in a worktree on `4151bc8` (2026-09-24/25): T24, T25 narrowed (guard NOT built, see Gate record), dead toggles removed, judge-off control harness. Live gates NOT run. T22/T23 NOT STARTED (wait on plan 04's T15 decision).** Written 2026-09-23 against the working tree on `fcc33cc` + uncommitted V15b/V25 edits.
 T24 and T25 depend only on plan 01 (the T21 and T4 corrections), so they can start early.
 Dead toggles need nothing. T22 and T23 come last:
 - T22 needs plan 01's T6 generation tracker (the note path) and plan 04's T15 decision (D6: opt-in).
@@ -536,3 +536,138 @@ None open. Accept mode, house-rule scope and the cap, and the dead toggles were 
 
 _(placeholder: date, commands and outputs, calibration verdicts per use with floor vs measured,
 limit-probe result, control-column table, over-steer results, deviations, records path.)_
+
+### Build part 1: accounting (worktree, 2026-09-24/25)
+
+Scope: everything that depends only on plan 01 — T24, T25 narrowed (D10), the dead toggles, and the
+judge-off control column's harness (X12 items minus the T22/T23 fixtures). **T22 (agency check) and
+T23 (house rules) are not started**: both wait on plan 04's T15 decision (D6) and T22's note path, per
+§Order of work steps 5-6. Built on `4151bc8` in a worktree; no live gate was run (none of this half is
+signed off live — see "Live, written not run").
+
+**As built**
+- T24 usage: `JudgeUsage {input_tokens?, output_tokens?, cost?}` (`src/judge/types.ts`); `askJudge`
+  copies it through `readUsage` (finite, non-negative numbers only; kept on an `error` answer too, since
+  it was paid for); a cache hit carries none and says `cached: true`. `JudgeCallRecord` gains
+  `inputTokens`, `outputTokens`, `cost`, `cached` and `discarded` (a charge-only row).
+- T24 meter: `JudgeRuntimeState.meter {calls, cachedCalls, inputTokens, outputTokens, cost}`
+  (`src/judge/settings.ts`). `appendJudgeCall` updates ring and meter together; a cache hit counts
+  in `cachedCalls` only; a fallback that never left (`unavailable|invalid|disabled|no-roles|no-seam`)
+  charges nothing; a `discarded` row is metered and never ringed. `dropJudgeCallsAfter` keeps the
+  meter (the X23 inv-11 exemption); `sanitizeJudgeRuntime` reads an absent or damaged meter as zeros.
+  No blob bump. The manager did not grow (737/740 effective): `recordJudgeCall` is unchanged.
+- T24 discarded calls: `JudgeRuntime.ask` charges the chat that asked — through `deps.record` now when
+  that chat is still open (story/version/epoch discards), otherwise parked in an in-memory map keyed by
+  the asking chat and settled on that chat's next recorded call in the page session. Census row
+  `JudgeRuntime.ask` note updated; fault-matrix `judgeRing|worldSwitched` gained the case.
+- T24 readiness: `JudgeReadinessFact.measuredOn` (`jev-1.13.0` on every measured row); the table is
+  keyed `JudgeUseKey | "warden"` with the warden row (0.9765, 720 ms, J8.5/J8.6); `RING_USE_TO_READINESS`
+  maps the ring strings (incl. `memoryVerify`, `memoryPairs`, `curatorFilter`, `director`, and `scene` →
+  `lookahead` too, which the plan's list left out); `judgeReadiness(settings, deps, lastAnswered, {warden})`
+  returns `unproven` + `modelMismatch {configured, answered, measuredOn}` when a pinned configured id or
+  the last answered id is not `measuredOn`, or when neither names a version (an unanswered alias). The
+  `not-built` verdict is gone with the toggles it described.
+- T24 UI (author view only): the panel's concern line reads "on, but not measured on <model> (measured
+  on jev-1.13.0)"; the measured summary ends "— measured on jev-1.13.0"; `#so-judge-meter` shows this
+  chat's calls, cached calls and tokens (cost only when a host sent one) from `snapshot.judgeMeter`
+  (`judgeMeterView`: the meter plus the ring's last answered model). The warden row joins when its
+  stagecraft switch is on and its mode is not `off`.
+- T24 confirm: the memorize-backlog preflight names "about N judge calls to TypeSafe" when
+  `memoryVerify` is active (`withJudgeCalls`, one per read, since each read that stores lines asks at least
+  once). Two lines in `extractionCoordinator.ts` (plan 04's file, kept minimal).
+- T25: `JUDGE_MODEL_IDS {canonical: {jev-1.13.0}, floating: [jev-latest, jev-preview]}`, `canonicalModel`,
+  `modelVerdict` → `matched | resolved (+resolvedTo) | mismatch | unknown` (`src/judge/policy.ts`), exposed
+  as `storyOrchestratorJudge.modelVerdict`. `so-judge calibrate` (both shapes) reports `modelVerdict` /
+  `resolvedTo` instead of `modelMatched`; `mismatch` and `unknown` exit 1 (`calibrationOk`).
+- Dead toggles: `sceneOoc` and `memoryRerank` deleted from `JUDGE_USE_KEYS`, `JUDGE_USE_COPY`,
+  `JUDGE_READINESS`, the readiness test and the story. `recommended-config.md` has the "removed in v2.4"
+  rows with the v2.2 numbers, `backgrounds` gets "measured on `jev-1.13.0`", and `v2.4-seeds.md:29` reads
+  "measured and failed, not unexercised". The spike experiments stay.
+- Harness (X12): `scripts/debug/lib/judgeHarness.mts` + node tests.
+  - judge-on journey mode: `so-journey run <id> --judge-uses <a,b|off> [--warden-mode auto|review]` or
+    `setup.judge {uses, wardenMode}`. `warden` is the stagecraft switch; an unknown use is refused;
+    captured before setup, restored and read back at cleanup (`cleanup.judgeRestore`), refused with
+    `--no-config`. Replaces `resetJudge`'s one-way write for these runs (J11 keeps `resetJudge`).
+  - the record keeps, before the chat is deleted: `cleanup.judgeMode`, `cleanup.judgeMeter`,
+    `cleanup.warden {flagged, applied, lapsed, rejected, pending}` and `cleanup.rescore.rows` (every
+    character reply with the live facts-tier/pinned rows at cleanup; ledger-bound rows are not in the
+    snapshot and are said to be missing).
+  - `so-judge calls [--use] [--chat]` (refuses a `--chat` that is not the open chat), `so-judge cost`
+    (meter beside ring totals per use, `notInRing`, an estimate at the documented $0.042/Mtok input),
+    `so-judge rescore --use continuity --records <dir|files>` (in-page `runContinuityRescore`: the
+    calibrated continuity question over both arms' replies; an unanswered reply counts neither way),
+    `so-judge limit-probe [--send]` (see T25 guard).
+  - `so-lore-probe diff <off.json> <on.json> [--rescore <file>]`: offline table of meter, fallbacks,
+    warden flags/notes applied, replies and the rescore defect rate; refuses mismatched journeys or arms.
+  - `so-scenario --sandbox` now also captures and restores the judge settings (`cleanup.judge`), so a live
+    judge scenario cannot leak its opt-in (S11 shape).
+
+**T25 token guard: NOT BUILT (recorded, per §2).** Step 1 (docs) verified the limit —
+`docs.typesafe.ai/models.md`: 64k tokens per request, 32k for `state` + the longest question (host-facts
+07-H1) — but no doc states the overflow behaviour, and steps 2-3 (the probe, and the chars/token ratio
+from T24's meter) are live calls this half does not run. The 140,000-character caps stay on both sides
+(`questions.ts:29`, `index.mjs:96`). The probe is written: `so-judge limit-probe --send`, six calls through
+the plugin (EN 20k/30k, ES 30k, a token-dense 10k/40k/50k pair so the over-limit cases fit under the
+plugin cap; ~180k input tokens ≈ $0.0076), classified `refuses | truncates | answers | mixed |
+not-reached` with chars/token per language measured only on cases clearly under the limit. Worth
+knowing for the next half: 140k characters at the ~4 chars/token guess is ~35k tokens, already above the
+documented 32k state budget, so the guard is not academic once the ratio is measured.
+
+**Decisions made on evidence (small, stated)**
+- Removing the toggles is not a user-owned stop: X22 decided it, the live install stores both `false`
+  (`data/default-user/settings.json`, read-only check), and nothing read either key, so an install that
+  had `true` stored loses a flag that did nothing; `sanitizeJudgeSettings` drops it on the next read.
+  `so-run-header diff` around the first run on this build needs
+  `--allow judge.uses.sceneOoc,judge.uses.memoryRerank`.
+- `jev-preview` joins the floating list (docs name it; the plan named only `jev-latest`).
+- A discarded call whose chat is gone is parked in memory, not written into another chat's blob: a page
+  reload before the asking chat's next call loses the charge. Accepted as a deviation from "the chat
+  that asked gets the charge" rather than writing cross-chat metadata.
+- Cost stays `cost` only when a host sends one (TypeSafe does not, 07-H3); the dollar figure in
+  `so-judge cost` is an estimate labelled with its price source, never stored.
+- `unknown` (no answering model) fails a calibration, like `mismatch`: an unmeasured model is never a match.
+
+**Deviations from the plan text**
+- Red-first held for everything except `policy.ts`'s map, written minutes before its table test; the
+  table ran green on first run, and M16/M17 show it is not vacuous.
+- The rollback property is a pure property (`dropJudgeCallsAfter`, 4 seeds × 60 cuts) plus a
+  `runRollback` case with the real helper (`judgeMeterRollback.review.test.ts`); the existing
+  `rollback.review.test.ts` mocks `@judge/index` to identity and could not carry it.
+- `so-judge rescore` scores `continuity` only; `agency`/`house-rules` arrive with T22/T23.
+
+**Line corrections (Rule 1, re-verified on `4151bc8`)**: `dropJudgeCallsAfter` is called from
+`runtime/rollback.ts:69` (not :43); `so-judge.mts` strict equality was at `:99,:130` (now replaced);
+`so-journey.mts` forces uses off at `:341-350` (`setup.resetJudge`, J11 only — not every run); the ring
+`use` strings are at `sceneCoordinator.ts:96`, `extractionCoordinator.ts:172`, `expansionCoordinator.ts:187`
+(plus `memoryVerify` at `extractionCoordinator.ts:242`, `memoryPairs` at `consolidationMatches.ts:56`,
+`curatorFilter` at `curatorFilter.ts:20`, `director` at `runtime/judge.ts`); `JudgeCallRecord`/`JudgeResult`
+were `types.ts:81-92`/`:94-104`; the manager is 737/740 effective lines and the stagecraft coordinator
+562/620 (the plan's 677/700 and 475/620 are pre-V22b/V26 counts).
+
+**Gates (worktree, exact)**
+- `npm run typecheck` OK · `npm run typecheck:test` OK · `npm run lint` OK · `npm run debug:typecheck` OK
+- `npm test`: 217 suites, **3247 passed** (incl. `architecture.test.ts`, `ownership.guard.test.ts`,
+  `faultMatrix.guard.test.ts`)
+- `npm run test:debug`: 243 tests, 242 pass, 1 skipped, 0 fail (needs a built `dist/`)
+- `npm run test:plugin`: 8 tests, 7 pass, 1 skipped (`JUDGE_LIVE=1`), 0 fail — plugin unchanged
+- `npm run build` OK (2 pre-existing size warnings); `ST_PUBLIC=C:/dev/SillyTavern-MainBranch/public npm run
+  build && npm run test:release`: 21/21. Without `ST_PUBLIC` the worktree sits three levels deeper than the
+  extension, so the manifest reads "ST unknown" and the host-version test fails — a worktree artifact.
+- Storybook: `storybook:build`, served on 6419, `test-storybook --index-json`: 32 suites, **207 passed**.
+- Mutations: `test/findings/mutations/v24-07-accounting.txt`, **34/34 killed** (32 jest/node, 2 Storybook).
+
+**Live, written not run** (real LLM + real judge, `--strict`, ×2, run-header capture/diff around):
+- `test/scenarios/live-v24-07-meter.json` (T24 live: warden auto on a seeded fact, one real call, the ring
+  row's tokens equal the meter's step, a rollback cuts the ring row and the meter does not shrink, ring <
+  meter afterwards): `node scripts/debug/so-scenario.mts run test/scenarios/live-v24-07-meter.json --sandbox
+  --group 1759606632088`; then with `--keep`, `so-judge.mts calls --use warden --chat <id>` and
+  `so-judge.mts cost --chat <id>` against the logged meter.
+- Control-column baseline (step 4, X8): `so-journey.mts run J8 --only J8.5 --judge-uses warden --warden-mode
+  auto` ×2 and `--judge-uses off` ×1 on the same turns, then `so-judge.mts rescore --use continuity --records
+  <dir>` and `so-lore-probe.mts diff <off> <on> --rescore <file>`, with plan 01's over-steer probe on J8.5.
+  Note J8.5's own eval writes the judge settings directly; the mode's capture/restore brackets it.
+- `so-judge.mts limit-probe --send` (< $0.01), then the guard or its not-built record.
+- `so-judge.mts calibrate --use continuity --model jev-latest` once, to see `resolved → jev-1.13.0` live.
+
+**Remains for part 2**: T22 and T23 (Phase A each, fixtures, calibration, build or not-built record),
+J8.10-J8.13, the live runs above, the privacy-report rows, plan 09's cost report reading the meter.

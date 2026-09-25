@@ -1,0 +1,89 @@
+v2.4 plan 07 part 1: accounting (T24 usage/meter/measuredOn, T25 model-id map, dead toggles, judge-off control harness), mutations 2026-09-24 (worktree build on 4151bc8; script .debug/mut-v24-07.mjs, each mutant applied alone as an exact-text replacement to one file, the file restored byte-for-byte after its run; a replacement that does not match is reported DID NOT APPLY, and none did)
+Suites per mutant: judge = accounting.review + readiness + judge.test (60), runtime = judgeMeter.review + judgeMeterRollback.review + runtime/judge.test + judgeOwnership.review (21), preflight = extraction/preflight.test + coordinators/budgetWiring.review (19), harness = node:test judgeHarness + calibrationVerdict + limitProbe (20), UI = Storybook JudgeSettingsGroup play tests (13, .debug/mut-v24-07-ui.mjs: storybook:build + test-storybook --index-json on port 6419). Baseline all green; restored after the sweep, all green.
+Plan-table mutations: "the meter survives rollback" = M7/M8, "a cache hit adds no tokens" = M2/M4, "a discarded call is metered" = M13/M14/M15, readiness mismatch = M18-M20, modelVerdict table = M16/M17.
+
+- M1 askJudge drops the usage the response carried: KILLED, 2 of 60
+    "T24 usage copy (v2.4 plan 07) › copies the usage the response carried, and a cache hit carries none and says cached"
+    "T24 usage copy (v2.4 plan 07) › keeps a host-sent cost and drops fields that are not numbers"
+- M2 a cache hit carries the cached response's usage: KILLED, 1 of 60
+    "T24 usage copy (v2.4 plan 07) › copies the usage the response carried, and a cache hit carries none and says cached"
+- M3 readUsage keeps a non-number field: KILLED, 1 of 60
+    "T24 usage copy (v2.4 plan 07) › keeps a host-sent cost and drops fields that are not numbers"
+- M4 the meter counts a cache hit as a sent call: KILLED, 1 of 60
+    "T24 meter (v2.4 plan 07, X23) › adds a sent call's tokens, counts a cache hit apart, and charges nothing for a call that never left"
+- M5 the meter charges a call that never left (unavailable/invalid): KILLED, 1 of 60
+    "T24 meter (v2.4 plan 07, X23) › adds a sent call's tokens, counts a cache hit apart, and charges nothing for a call that never left"
+- M6 a discarded call is ringed as well as metered: KILLED, 1 of 60
+    "T24 meter (v2.4 plan 07, X23) › meters a discarded call without putting it in the ring"
+- M7 rollback resets the meter (plan mutation: inv-11 exemption dropped): KILLED, 1 of 60
+    "T24 meter (v2.4 plan 07, X23) › is untouched while a rollback cuts the ring, for every cut (property, 4 seeds x 60 cuts)"
+- M8 rollback.ts cuts the meter with the ring: KILLED, 1 of 21
+    "the judge meter is exempt from rollback (v2.4 plan 07, inv 11 / X23) › a rollback cuts the call ring and leaves the meter where it was: a rolled-back call was still paid for"
+- M9 sanitize forgets a stored meter: KILLED, 1 of 60
+    "T24 meter (v2.4 plan 07, X23) › reads an absent or damaged meter as zeros and keeps a sound one (no blob bump)"
+- M10 sanitize keeps a negative or non-number count: KILLED, 1 of 60
+    "T24 meter (v2.4 plan 07, X23) › reads an absent or damaged meter as zeros and keeps a sound one (no blob bump)"
+- M11 the ring row carries no tokens: KILLED, 2 of 21
+    "T24: a judge call records what it cost (v2.4 plan 07) › stamps the usage on the ring row and adds it to the chat's meter"
+    "T24: a judge call records what it cost (v2.4 plan 07) › a call discarded in its own chat (the story changed under it) is still charged to that chat, and kept out of its ring"
+- M12 a cache hit is not marked cached on the row: KILLED, 1 of 21
+    "T24: a judge call records what it cost (v2.4 plan 07) › a cache hit is recorded as cached and adds no tokens"
+- M13 a discarded call is not charged at all (plan mutation): KILLED, 2 of 21
+    "T24: a judge call records what it cost (v2.4 plan 07) › a call discarded in its own chat (the story changed under it) is still charged to that chat, and kept out of its ring"
+    "T24: a judge call records what it cost (v2.4 plan 07) › a call that outlived its chat is charged to the chat that asked, never to the chat that is open"
+- M14 a discarded call is charged to whichever chat is open: KILLED, 1 of 21
+    "T24: a judge call records what it cost (v2.4 plan 07) › a call that outlived its chat is charged to the chat that asked, never to the chat that is open"
+- M15 a parked charge is never settled: KILLED, 1 of 21
+    "T24: a judge call records what it cost (v2.4 plan 07) › a call that outlived its chat is charged to the chat that asked, never to the chat that is open"
+- M16 modelVerdict: a floating alias is compared as an id (no resolved): KILLED, 2 of 60
+    "T25 model-id map (v2.4 plan 07) › asked jev-latest, answered jev-1.13.0: resolved"
+    "T25 model-id map (v2.4 plan 07) › asked jev-preview, answered jev-1.13.0: resolved"
+- M17 modelVerdict: no answering model reads as a match: KILLED, 2 of 60
+    "T25 model-id map (v2.4 plan 07) › asked jev-latest, answered jev-latest: unknown"
+    "T25 model-id map (v2.4 plan 07) › asked jev-1.13.0, answered null: unknown"
+- M18 readiness ignores the model that answered: KILLED, 2 of 60
+    "T24 readiness by model (v2.4 plan 07) › reads unproven when the model that answered is not the one measured, whatever was asked"
+    "T24 readiness by model (v2.4 plan 07) › a floating alias counts as measured once it answered with the measured version, and unproven before"
+- M19 readiness: an unknown model (alias, no answer) reads measured: KILLED, 1 of 60
+    "T24 readiness by model (v2.4 plan 07) › a floating alias counts as measured once it answered with the measured version, and unproven before"
+- M20 readiness: a mismatch keeps the measured verdict (re-floored by omission): KILLED, 4 of 60
+    "T24 readiness by model (v2.4 plan 07) › reads unproven, never re-floored, when the configured model is not the one measured"
+    "T24 readiness by model (v2.4 plan 07) › reads unproven when the model that answered is not the one measured, whatever was asked"
+    "T24 readiness by model (v2.4 plan 07) › a floating alias counts as measured once it answered with the measured version, and unproven before"
+    "T24 readiness by model (v2.4 plan 07) › lists the warden only when its own switch is on, under the judge's master switch"
+- M21 readiness: the warden row ignores the judge master switch: KILLED, 2 of 60
+    "T24 readiness by model (v2.4 plan 07) › lists the warden only when its own switch is on, under the judge's master switch"
+    "judge readiness (v2.3 plan 09) › does not claim a use is working when the judge itself is off"
+- M22 a stored sceneOoc: true survives the read (toggle not removed): KILLED, 4 of 60
+    "dead toggles removed (v2.4 plan 07, X22) › no longer declares sceneOoc or memoryRerank, and a stored true is dropped on read"
+    "judge readiness (v2.3 plan 09) › has a fact for every use the settings declare, and no orphan rows"
+    "judge readiness (v2.3 plan 09) › never reports a rate without the latency it was measured with, or the reverse"
+    "judge readiness (v2.3 plan 09) › lists every use in the panel order and none is missing its evidence"
+- M23 the backlog confirm never names judge calls: KILLED, 2 of 19
+    "memorize backlog: token-bounded windows and a bounded full pass › the confirm names the judge calls a run adds when Check memory before storing is on (v2.4 plan 07)"
+    "v2.4 plan 03 D5: the preflight for a manual heavy pass › names the judge calls the run adds (v2.4 plan 07)"
+- M24 the coordinator asks about any judge use, not memoryVerify: KILLED, 1 of 19
+    "memorize backlog: token-bounded windows and a bounded full pass › control: with memory checking off, or another judge use on, the confirm names no judge calls"
+- M25 calibration passes with no answering model (unknown): KILLED, 1 of 20
+    "v2.4 plan 07 T25: an alias that resolved to a version passes; no answering model is never a match"
+- M26 the judge-on mode accepts an unknown use: KILLED, 1 of 20
+    "an unknown use is refused, so a typo cannot run the on arm with nothing on"
+- M27 the cost report reads the ring as the spend (X23): KILLED, 1 of 20
+    "the cost report reads the meter and says what the ring no longer shows (X23)"
+- M28 the arm diff accepts two different journeys: KILLED, 1 of 20
+    "the arm diff tabulates meter, warden and rescore columns, and refuses two different journeys"
+- M29 rescore counts an unanswered reply as clean: KILLED, 1 of 20
+    "rescore rates leave an unanswered reply out of the denominator"
+- M30 the limit probe misses silent truncation: KILLED, 1 of 20
+    "an answer counted far below its projection is silent truncation"
+- M31 the rescore asks a reply that has no facts: KILLED, 1 of 60
+    "judge-off control column rescore (v2.4 plan 07, X12) › scores each arm's replies with the calibrated continuity question; a silent judge counts neither way"
+- M32 the rescore reads a silent judge as a clean reply: KILLED, 1 of 60
+    "judge-off control column rescore (v2.4 plan 07, X12) › scores each arm's replies with the calibrated continuity question; a silent judge counts neither way"
+- U1 the spend line shows in player mode: KILLED, 1 of 13
+    "Settings/JudgeSettingsGroup › Player Sees No Spend Line › play-test"
+- U2 a model mismatch reads as "nothing has measured it": KILLED, 1 of 13
+    "Settings/JudgeSettingsGroup › Readiness Names The Model It Was Not Measured On › play-test"
+
+34/34 killed on the first sweep (the first pass of the script mis-parsed jest's failure names, 0 listed per mutant while every exit was non-zero; the parser was fixed and the whole sweep re-run, which is the record above).
+Not mutated, recorded: the journey wiring (applySetup/runCleanup calls into judgeHarness, captureControlColumn) and the so-judge verbs are page-driven and have no browser-free test; their pure halves (judgeModeSettings, restore no-op, armSummary/diffArms, rescoreRates, costReport, classifyProbe) are M25-M30. The live halves are the fixtures listed in the gate record, not run here.

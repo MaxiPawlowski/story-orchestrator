@@ -1,4 +1,6 @@
+import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { armSummary, diffArms } from './lib/judgeHarness.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
@@ -11,7 +13,14 @@ WORLD_INFO_ACTIVATED. Each record carries the event, chat.length at that moment 
 GENERATION_STARTED, the extension's willAddUserMessage answer and whether the box holds text. Drive one
 case with the ordinary scripts (st-actions send / send-empty / swipe / continue, a group pass, a
 vetoed member), then "dump --label <case>" writes .debug/so-lore-probe-<case>.json and clears the log.
-It never forces, never asks the judge, and never writes a lorebook.`;
+It never forces, never asks the judge, and never writes a lorebook.
+
+       node scripts/debug/so-lore-probe.mts diff <off-record.json> <on-record.json> [--rescore <so-judge-rescore.json>]
+
+v2.4 plan 07: the judge-off control column. Compares a journey record run with --judge-uses off against
+one run with the uses under test (same journey, same scripted turns): meter calls/tokens, fallbacks,
+warden flags and applied notes, replies captured, and the rescore defect rate when given. Offline: no
+browser, no judge call.`;
 
 async function arm(page: any) {
   const result = await evaluateInST(page, () => {
@@ -77,8 +86,34 @@ const argValue = (flag: string, fallback: string) => {
   return index >= 0 && process.argv[index + 1] ? process.argv[index + 1] : fallback;
 };
 
+// v2.4 plan 07 (R8, X12): the judge-off control column. Two journey records of the same journey — one
+// run with `--judge-uses off`, one with the uses under test — tabulated side by side: the meter (what
+// was spent, never cut by rollback), the warden's flags and applied notes, and, with --rescore, the
+// next-reply defect rate so-judge rescore measured over both arms' replies with one question.
+export async function diffRecords(offFile: string, onFile: string, rescoreFile: string | null) {
+  const read = async (file: string) => JSON.parse(await readFile(file, 'utf-8'));
+  const off = armSummary(await read(offFile), offFile);
+  const on = armSummary(await read(onFile), onFile);
+  if (off.label !== 'off' || on.label !== 'on') throw new Error(`expected a judge-off record then a judge-on record, got "${off.label}" then "${on.label}" (run each with --judge-uses)`);
+  const rates = rescoreFile ? (await read(rescoreFile)).summary?.rates ?? [] : [];
+  return { off, on, rows: diffArms(off, on, rates) };
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const [command] = process.argv.slice(2);
+  const [command, first, second] = process.argv.slice(2);
+  if (command === 'diff') {
+    if (!first || !second) {
+      console.log(USAGE);
+      process.exit(1);
+    }
+    const table = await diffRecords(first, second, process.argv.includes('--rescore') ? argValue('--rescore', '') || null : null).catch((error) => {
+      console.error(error.message);
+      process.exit(1);
+    });
+    for (const row of table.rows) console.log(`${row.metric.padEnd(36)} off ${String(row.off ?? '—').padStart(8)}  on ${String(row.on ?? '—').padStart(8)}  Δ ${String(row.delta ?? '—')}`);
+    await writeJSON(table, `so-lore-probe-diff-${table.on.journey ?? 'journey'}`);
+    process.exit(0);
+  }
   if (!command || hasHelpFlag() || !['arm', 'dump', 'disarm'].includes(command)) {
     console.log(USAGE);
     process.exit(hasHelpFlag() ? 0 : 1);

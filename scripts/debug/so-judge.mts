@@ -1,11 +1,13 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
-import { calibrationOk } from './lib/calibrationVerdict.mts';
+import { calibrationOk, type ModelVerdict } from './lib/calibrationVerdict.mts';
+import { costReport, filterJudgeCalls, rescoreRates } from './lib/judgeHarness.mts';
+import { classifyProbe, limitProbeCases, probeRequest, requestChars, JEV_USD_PER_MTOK_INPUT, type ProbeResult } from './lib/limitProbe.mts';
 
 const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
 
@@ -13,10 +15,21 @@ const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
   ask <request.json>                  POST one System One request through the plugin from the page
   calibrate [--use director|memory-verify|memory-pairs|scene|lore|lore-relevance|curator-filter|continuity|backgrounds|typed|stall|critic|variants] [--fixture <name>] [--model <id>] [--min 0.85] [--record]
                                       run test/fixtures/judge/<fixture|use>.json page -> plugin -> TypeSafe;
-                                      --model asks that model without changing install settings; the report records the model that answered;
+                                      --model asks that model without changing install settings; the report records the model that answered
+                                      and a modelVerdict (matched | resolved, with resolvedTo | mismatch | unknown; the last two exit 1);
                                       exit 1 below the fixture's family floors, or below --min when there are none;
                                       an explicit --min also binds the overall rate; --record writes test/goldens/judge/<use>.calibration.json
-  calls [--last 20]                   the current chat's judge call ring (extras.judge.calls)
+  calls [--last 20] [--use <use>] [--chat <chatId>]
+                                      the open chat's judge call ring (extras.judge.calls), one use only with --use; --chat refuses
+                                      unless that chat is the one open (a ring is read from the open chat, never guessed)
+  cost [--chat <chatId>]              v2.4 plan 07 (X23): the open chat's judge METER (monotonic, not cut by rollback) beside the ring
+                                      totals per use, what the ring no longer shows, and an estimate at the documented price
+  rescore --use continuity --records <dir|record.json,...> [--model <id>]
+                                      the judge-off control column: re-ask the calibrated question over the replies each journey
+                                      record captured (--judge-uses runs); prints the next-reply defect rate per arm
+  limit-probe [--send]                T25: the documented token limit, probed. Without --send prints the plan and its cost; with it,
+                                      six calls through the plugin (< $0.01), then refuses / truncates / answers past the limit and
+                                      chars per token by language; writes .debug/so-judge-limit-probe.json
 
 The plugin must be installed (npm run plugin:install) and ST started with enableServerPlugins: true.`;
 
@@ -76,7 +89,8 @@ async function calibrateRelevance(page: any, fixtureName: string, requestedModel
   const report = await evaluateInST(page, async ({ rows: cases, model }: { rows: unknown[]; model?: string }) => {
     const judge = (globalThis as any).storyOrchestratorJudge;
     if (!judge) throw new Error('storyOrchestratorJudge not registered (extension not loaded?)');
-    return judge.calibrateLoreRelevance(cases, model);
+    const out = await judge.calibrateLoreRelevance(cases, model);
+    return { ...out, verdict: judge.modelVerdict(model ?? null, out.model) };
   }, { rows, model: requestedModel });
   const floor = fixture.floor ?? {};
   const verdict = (arm: any) => ({
@@ -96,7 +110,8 @@ async function calibrateRelevance(page: any, fixtureName: string, requestedModel
     labelled: rows.filter((row: any) => row.labels && Object.keys(row.labels).length).length,
     requestedModel: requestedModel ?? null,
     model: report.model,
-    modelMatched: requestedModel ? report.model === requestedModel : null,
+    modelVerdict: report.verdict.verdict as ModelVerdict,
+    ...(report.verdict.resolvedTo ? { resolvedTo: report.verdict.resolvedTo } : {}),
     disagreements: report.disagreements,
     floor,
     arms: [report.noul, report.score].map((arm) => ({ arm: arm.arm, precisionAt4: arm.precisionAt4, ndcgAt4: arm.ndcgAt4, tieRate: arm.tieRate, boundaryTieRate: arm.boundaryTieRate, meanStateChars: arm.meanStateChars, floorChecks: verdict(arm), ok: verdict(arm).precisionAt4 && verdict(arm).tieRate })),
@@ -109,7 +124,7 @@ async function calibrateRelevance(page: any, fixtureName: string, requestedModel
     // later question-shape change is measured against these answers rather than against a new run.
     await writeFile(join(PROJECT_ROOT, 'test', 'goldens', 'judge', `${fixtureName}.json`), `${JSON.stringify({ recordedAt: new Date().toISOString(), model: report.model, summary, calls: report.exchanges, rows: report.noul.top.map((row: any) => row.id) }, null, 2)}\n`);
   }
-  return { ok: summary.arms.every((arm: any) => arm.ok) };
+  return { ok: summary.arms.every((arm: any) => arm.ok) && summary.modelVerdict !== 'mismatch' && summary.modelVerdict !== 'unknown' };
 }
 
 async function calibrate(page: any, use: string, fixtureName: string, min: number, record: boolean, requestedModel?: string) {
@@ -117,7 +132,8 @@ async function calibrate(page: any, use: string, fixtureName: string, min: numbe
   const report = await evaluateInST(page, async ({ use, rows, model }: { use: string; rows: unknown[]; model?: string }) => {
     const judge = (globalThis as any).storyOrchestratorJudge;
     if (!judge) throw new Error('storyOrchestratorJudge not registered (extension not loaded?)');
-    return judge.calibrate(use, rows, model);
+    const out = await judge.calibrate(use, rows, model);
+    return { ...out, verdict: judge.modelVerdict(model ?? null, out.model) };
   }, { use, model: requestedModel, rows: use === 'lore' ? fixture.rows.map((row: any) => ({ ...row, candidates: row.candidates ?? fixture.pools?.[row.pool] ?? [] })) : use === 'backgrounds' ? fixture.rows.map((row: any) => ({ ...row, installed: fixture.installed })) : fixture.rows });
   const labelOf: Record<string, string> = Object.fromEntries(fixture.rows.filter((row: any) => row.label).map((row: any) => [row.id, row.label]));
   const tagOf = Object.fromEntries(fixture.rows.map((row: any) => [row.id, row.tags ?? (row.lang === 'es' ? ['spanish'] : [])]));
@@ -127,7 +143,7 @@ async function calibrate(page: any, use: string, fixtureName: string, min: numbe
   const spanish = report.rows.filter((row: any) => tagsOf(row.id).includes('spanish'));
   const families = ['scene', 'lore', 'curator-filter', 'continuity', 'backgrounds', 'typed', 'stall', 'critic', 'variants'].includes(use) ? familyScores(report.rows, fixture.floors ?? {}) : [];
   families.forEach((row) => console.log(`${row.ok ? 'ok  ' : 'FAIL'} ${row.family.padEnd(9)} ${row.right}/${row.total} floor ${row.floor}`));
-  const summary = { use, fixture: fixtureName, right: report.right, total: report.total, rate: Number(rate.toFixed(4)), ...(families.length ? { families } : {}), spanish: `${spanish.filter((row: any) => row.right).length}/${spanish.length}`, p50LatencyMs: report.p50LatencyMs, requestedModel: requestedModel ?? null, model: report.model, modelMatched: requestedModel ? report.model === requestedModel : null, min, minGiven: process.argv.includes('--min'), ok: calibrationOk({ rate, min, minGiven: process.argv.includes('--min'), families, modelMatched: requestedModel ? report.model === requestedModel : null }) };
+  const summary = { use, fixture: fixtureName, right: report.right, total: report.total, rate: Number(rate.toFixed(4)), ...(families.length ? { families } : {}), spanish: `${spanish.filter((row: any) => row.right).length}/${spanish.length}`, p50LatencyMs: report.p50LatencyMs, requestedModel: requestedModel ?? null, model: report.model, modelVerdict: report.verdict.verdict as ModelVerdict, ...(report.verdict.resolvedTo ? { resolvedTo: report.verdict.resolvedTo } : {}), min, minGiven: process.argv.includes('--min'), ok: calibrationOk({ rate, min, minGiven: process.argv.includes('--min'), families, modelVerdict: report.verdict.verdict }) };
   console.log(JSON.stringify(summary, null, 2));
   await writeJSON({ summary, report }, `so-judge-calibrate-${fixtureName}`);
   if (record) {
@@ -137,26 +153,102 @@ async function calibrate(page: any, use: string, fixtureName: string, min: numbe
   return { ok: summary.ok };
 }
 
-async function calls(page: any, last: number) {
-  const result = await evaluateInST(page, (count: number) => {
+// The ring and the meter live in the OPEN chat's metadata. --chat names the chat the caller means, and
+// a mismatch refuses rather than reading another chat's ring as if it were the one asked for.
+async function readJudgeLedger(page: any, chat: string | null) {
+  const ledger = await evaluateInST(page, () => {
     const runtime = (globalThis as any).storyOrchestratorRuntime;
-    const events = runtime?.getSessionJournal?.() ?? [];
-    return events.filter((event: any) => event.kind === 'judge').slice(-count);
-  }, last);
-  console.log(JSON.stringify(result, null, 2));
+    return {
+      chatId: (globalThis as any).SillyTavern.getContext().chatId ?? null,
+      events: (runtime?.getSessionJournal?.() ?? []).filter((event: any) => event.kind === 'judge'),
+      meter: runtime?.getSnapshot?.()?.judgeMeter ?? null,
+    };
+  });
+  if (chat && ledger.chatId !== chat) throw new Error(`--chat ${chat} is not the open chat (${ledger.chatId}); open it first — a ring is only read from the chat it belongs to`);
+  return ledger;
+}
+
+async function calls(page: any, last: number, use: string | null, chat: string | null) {
+  const ledger = await readJudgeLedger(page, chat);
+  const rows = filterJudgeCalls(ledger.events, { use }).slice(-last);
+  console.log(JSON.stringify({ chatId: ledger.chatId, use, count: rows.length, calls: rows }, null, 2));
   return { ok: true };
+}
+
+async function cost(page: any, chat: string | null) {
+  const ledger = await readJudgeLedger(page, chat);
+  const report = { chatId: ledger.chatId, ...costReport(ledger.meter, ledger.events) };
+  console.log(JSON.stringify(report, null, 2));
+  await writeJSON(report, `so-judge-cost-${ledger.chatId ?? 'none'}`);
+  return { ok: ledger.meter !== null };
+}
+
+async function readRecords(spec: string): Promise<Array<{ file: string; record: any }>> {
+  const paths = spec.split(',').map((entry) => entry.trim()).filter(Boolean);
+  const files: string[] = [];
+  for (const path of paths) {
+    if (path.endsWith('.json')) files.push(path);
+    else files.push(...(await readdir(path)).filter((name) => /^journey-.*\.json$/.test(name)).map((name) => join(path, name)));
+  }
+  return Promise.all(files.map(async (file) => ({ file, record: JSON.parse(await readFile(file, 'utf-8')) })));
+}
+
+async function rescore(page: any, use: string, spec: string, requestedModel?: string) {
+  const records = await readRecords(spec);
+  const rows = records.flatMap(({ record }) => record?.cleanup?.rescore?.rows ?? []);
+  if (!rows.length) throw new Error(`no captured replies in ${spec}: run the journey with --judge-uses (on) and --judge-uses off (control) first`);
+  const results = await evaluateInST(page, async ({ use, rows, model }: { use: string; rows: unknown[]; model?: string }) => {
+    const judge = (globalThis as any).storyOrchestratorJudge;
+    if (!judge) throw new Error('storyOrchestratorJudge not registered (extension not loaded?)');
+    return judge.rescore(use, rows, model);
+  }, { use, rows, model: requestedModel });
+  const rates = rescoreRates(results);
+  const summary = { use, records: records.map(({ file }) => file), model: results.find((row: any) => row.model)?.model ?? null, rates };
+  console.log(JSON.stringify(summary, null, 2));
+  await writeJSON({ summary, results }, `so-judge-rescore-${use}`);
+  return { ok: rates.every((rate) => rate.answered > 0) };
+}
+
+async function limitProbe(page: any, send: boolean) {
+  const cases = limitProbeCases();
+  const plan = cases.map((probe) => ({ id: probe.id, lang: probe.lang, aimTokens: probe.aimTokens, chars: requestChars(probe) }));
+  const aim = plan.reduce((sum, row) => sum + row.aimTokens, 0);
+  console.log(JSON.stringify({ plan, estimatedUsd: Number(((aim / 1_000_000) * JEV_USD_PER_MTOK_INPUT).toFixed(4)) }, null, 2));
+  if (!send) {
+    console.log('Dry run: nothing was sent. Re-run with --send to spend it.');
+    return { ok: true };
+  }
+  const results: ProbeResult[] = [];
+  for (const probe of cases) {
+    const answer = await evaluateInST(page, async ({ base, request }: { base: string; request: unknown }) => {
+      const headers = (globalThis as any).SillyTavern.getContext().getRequestHeaders();
+      const response = await fetch(`${base}/systemone`, { method: 'POST', headers, body: JSON.stringify(request) });
+      return { http: response.status, body: await response.json().catch(() => null) };
+    }, { base: PLUGIN_BASE, request: probeRequest(probe) });
+    const inputTokens = typeof answer.body?.usage?.input_tokens === 'number' ? answer.body.usage.input_tokens : null;
+    results.push({ id: probe.id, lang: probe.lang, chars: requestChars(probe), http: answer.http, inputTokens, answered: answer.http === 200 && Boolean(answer.body?.answers), ...(answer.http === 200 ? {} : { error: JSON.stringify(answer.body).slice(0, 300) }) });
+    console.log(`${probe.id.padEnd(10)} http ${answer.http} input_tokens ${inputTokens ?? '—'}`);
+  }
+  const verdict = classifyProbe(results);
+  console.log(JSON.stringify(verdict, null, 2));
+  await writeJSON({ ranAt: new Date().toISOString(), results, verdict }, 'so-judge-limit-probe');
+  return { ok: verdict.conclusive };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [command, arg] = process.argv.slice(2);
-  if (!command || hasHelpFlag() || !['status', 'ask', 'calibrate', 'calls'].includes(command) || (command === 'ask' && !arg)) {
+  if (!command || hasHelpFlag() || !['status', 'ask', 'calibrate', 'calls', 'cost', 'rescore', 'limit-probe'].includes(command) || (command === 'ask' && !arg) || (command === 'rescore' && !process.argv.includes('--records'))) {
     console.log(USAGE);
     process.exit(hasHelpFlag() ? 0 : 1);
   }
   runCli((page) => {
     if (command === 'status') return status(page);
     if (command === 'ask') return ask(page, arg);
-    if (command === 'calls') return calls(page, Number(argValue('--last', '20')));
+    const chat = process.argv.includes('--chat') ? argValue('--chat', '') || null : null;
+    if (command === 'calls') return calls(page, Number(argValue('--last', '20')), process.argv.includes('--use') ? argValue('--use', '') || null : null, chat);
+    if (command === 'cost') return cost(page, chat);
+    if (command === 'limit-probe') return limitProbe(page, process.argv.includes('--send'));
+    if (command === 'rescore') return rescore(page, argValue('--use', 'continuity'), argValue('--records', ''), process.argv.includes('--model') ? argValue('--model', '') : undefined);
     const requestedModel = process.argv.includes('--model') ? argValue('--model', '') : undefined;
     if (argValue('--use', 'director') === 'lore-relevance') return calibrateRelevance(page, argValue('--fixture', 'lore-relevance'), requestedModel);
     return calibrate(page, argValue('--use', 'director'), argValue('--fixture', argValue('--use', 'director')), Number(argValue('--min', '0.85')), process.argv.includes('--record'), requestedModel);

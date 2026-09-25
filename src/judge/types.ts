@@ -56,10 +56,16 @@ export interface JudgeScoreAnswer {
 
 export type JudgeAnswer = JudgeNoulAnswer | JudgeChoiceAnswer | JudgeScoreAnswer;
 
+export interface JudgeUsage {
+  input_tokens?: number;
+  output_tokens?: number;
+  cost?: number;
+}
+
 export interface JudgeResponse {
   model: string;
   answers: Record<string, JudgeAnswer>;
-  usage?: { input_tokens?: number; output_tokens?: number };
+  usage?: JudgeUsage;
 }
 
 /**
@@ -89,11 +95,19 @@ export interface JudgeCallRecord {
   questionCount: number;
   fallback?: JudgeFallback;
   p?: Record<string, number | string>;
+  inputTokens?: number;
+  outputTokens?: number;
+  cost?: number;
+  cached?: boolean;
+  /** v2.4 plan 07: metered, never ringed — the call was paid for but belongs to a world that moved. */
+  discarded?: JudgeDiscard;
 }
+
+export type JudgeDiscard = "chat" | "story" | "version" | "epoch" | "window";
 
 export interface JudgeResult {
   /** v2.3 plan 03 (C1): the call outlived the chat or session it was asked in, so it was not recorded. */
-  discarded?: "chat" | "story" | "version" | "epoch" | "window";
+  discarded?: JudgeDiscard;
   answers: Record<string, JudgeAnswer> | null;
   model: string | null;
   latencyMs: number;
@@ -101,4 +115,5 @@ export interface JudgeResult {
   questionCount: number;
   fallback?: JudgeFallback;
   cached: boolean;
+  usage?: JudgeUsage;
 }

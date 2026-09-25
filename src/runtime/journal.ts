@@ -165,7 +165,12 @@ export function buildSessionJournal(sources: JournalSources): JournalEvent[] {
       messageId: call.messageId,
       kind: "judge" as const,
       summary: `judge ${call.use}${call.fallback ? ` fell back (${call.fallback})` : ""} in ${call.latencyMs} ms`,
-      detail: { model: call.model, questions: call.questionCount, stateChars: call.stateChars, ...(call.p ? { p: call.p } : {}) },
+      detail: {
+        use: call.use, model: call.model, questions: call.questionCount, stateChars: call.stateChars, latencyMs: call.latencyMs,
+        ...(call.fallback ? { fallback: call.fallback } : {}), ...(call.cached ? { cached: true } : {}),
+        ...(call.inputTokens !== undefined ? { inputTokens: call.inputTokens } : {}), ...(call.outputTokens !== undefined ? { outputTokens: call.outputTokens } : {}),
+        ...(call.cost !== undefined ? { cost: call.cost } : {}), ...(call.p ? { p: call.p } : {}),
+      },
     })),
   ];
   return events.sort((left, right) => timeOf(left.at) - timeOf(right.at) || rank(left.kind) - rank(right.kind));

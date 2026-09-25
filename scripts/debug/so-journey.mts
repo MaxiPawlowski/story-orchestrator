@@ -22,6 +22,7 @@ import { archiveJourneyRecord, unselectedDependencies } from './lib/journeyArchi
 import { applyExtSetting, restoreExtSettings } from './lib/interopVerbs.mts';
 import { cleanupBranchChats, settleReapPrompts, withoutBranchChats } from './lib/identityVerbs.mts';
 import { BLOCKING_DIALOGS, mergeRestore, removableStories, shouldRecoverConfig, validateJourneyExtraction, type DeclaredExtraction, type LibraryCapture } from './lib/configRestore.mts';
+import { applyJudgeMode, modeFromSetup, parseJudgeMode, restoreJudgeConfig, wardenTally, type JudgeMode } from './lib/judgeHarness.mts';
 
 const JOURNEY_DIR = resolve(PROJECT_ROOT, 'test/journeys');
 const CONFIG_SNAPSHOT = resolve(DEBUG_DIR, 'so-journey-config-snapshot.json');
@@ -43,6 +44,11 @@ run options:
   --no-config     never touch global extension settings, whatever the journey's setup says
   --group <id>    pin the group for this run, overriding the journey's setup.group
   --require-human-record <file>  fail when a human check has no scored row in that file
+  --judge-uses <a,b|off>  judge-on journey mode (v2.4 plan 07): the master switch plus exactly these uses
+                  ("warden" = the continuity warden's stagecraft switch); "off" is the judge-off control
+                  arm. Overrides setup.judge; captured before, restored at cleanup; the record keeps the
+                  meter, the warden's notes and every reply for so-judge rescore / so-lore-probe diff
+  --warden-mode auto|review  the warden's accept mode in the on arm (default: the install's)
 
 Check outcomes: pass | fail | blocked | not-runnable | skipped.
 
@@ -279,8 +285,8 @@ async function configureExtraction(page, setup) {
   return { ...selected, settings };
 }
 
-async function applySetup(page, setup, { allowConfig, group = null }) {
-  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; extractionBefore?: unknown; extractionDeclared?: unknown; judge?: unknown; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[] }; dialogs?: unknown; libraryBefore?: LibraryCapture; recoveredConfig?: unknown; extensionSettings?: unknown[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
+async function applySetup(page, setup, { allowConfig, group = null, judgeMode = null as JudgeMode | null }) {
+  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; extractionBefore?: unknown; extractionDeclared?: unknown; judge?: unknown; judgeMode?: Awaited<ReturnType<typeof applyJudgeMode>>; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[] }; dialogs?: unknown; libraryBefore?: LibraryCapture; recoveredConfig?: unknown; extensionSettings?: unknown[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
   // Unconditional, and before anything else can write them (S11).
   applied.extractionBefore = await readExtractionSettings(page);
   console.log(`extraction before this run: ${JSON.stringify(applied.extractionBefore)}`);
@@ -349,6 +355,10 @@ async function applySetup(page, setup, { allowConfig, group = null }) {
     }).catch(() => null);
     if (applied.judge) await saveSettingsNow(page);
   }
+  // v2.4 plan 07 (X12): the judge-on journey mode. Install-wide, so captured first and put back at
+  // cleanup; `--judge-uses off` is the judge-off control arm of the same scripted turns.
+  if (judgeMode && allowConfig) applied.judgeMode = await applyJudgeMode(page, judgeMode);
+  else if (judgeMode) throw new Error('--judge-uses writes install-wide settings, which --no-config forbids');
   if (setup.newChat !== false) {
     // A chat deleted by the previous run can leave ST mid-transition; one retry settles it.
     const session = await beginSandboxSession(page).catch(async (error) => {
@@ -375,7 +385,7 @@ async function applySetup(page, setup, { allowConfig, group = null }) {
   return applied;
 }
 
-async function runCleanup(page, journey, { importedHashes, libraryBefore, configSnapshot, guard, keep, allowConfig, assetBaseline, activatedLorebooks, extractionBefore = null }) {
+async function runCleanup(page, journey, { importedHashes, libraryBefore, configSnapshot, guard, keep, allowConfig, assetBaseline, activatedLorebooks, extractionBefore = null, judgeMode = null as Awaited<ReturnType<typeof applyJudgeMode>> | null }) {
   const cleanup = journey.cleanup ?? {};
   const report: Record<string, unknown> = {};
   // The judge call ring lives in the chat's own metadata, so it dies with the chat a few lines
@@ -387,12 +397,19 @@ async function runCleanup(page, journey, { importedHashes, libraryBefore, config
       return { count: events.length, events };
     })
     .catch((error) => ({ error: error.message }));
+  // v2.4 plan 07 (X12/X23): what the control column compares, read before the chat dies with it —
+  // the meter (monotonic), the warden's notes, and each reply with the facts to rescore it against.
+  if (judgeMode) {
+    report.judgeMode = { mode: judgeMode.mode };
+    Object.assign(report, await captureControlColumn(page, judgeMode.mode.label).catch((error) => ({ controlColumn: { unreadable: error.message } })));
+  }
   if (keep) return { kept: true, sandboxChatId: guard?.sandboxChatId ?? null, owned: guard?.owned ?? [], judgeCalls: report.judgeCalls };
   // Only what setup activated: a book the install already had selected is left exactly as found.
   if (activatedLorebooks?.length) report.lorebooks = await deactivateLorebooks(page, activatedLorebooks);
   // S11: put install-wide extraction settings back to the pre-run capture, always.
   report.extraction = await restoreExtractionSettings(page, extractionBefore).catch((error) => ({ error: error.message }));
   report.extensionSettings = await restoreExtSettings(page).catch((error) => ({ error: error.message }));
+  if (judgeMode) report.judgeRestore = await restoreJudgeConfig(page, judgeMode.before).catch((error) => ({ error: error.message }));
   // Assets go FIRST: the wizard's created-asset ledger lives in extension settings, and restoring
   // the config snapshot would wipe the very record cleanup uses to catch a renamed asset (plan 06).
   // The baseline scopes that ledger to this run: a real author's wizard sessions and the assets
@@ -440,6 +457,29 @@ async function runCleanup(page, journey, { importedHashes, libraryBefore, config
   return report;
 }
 
+// The facts are the live facts-tier and pinned memory rows at capture time; the warden also holds
+// replies to ledger-bound rows, which the snapshot does not carry. Said in the record, not assumed.
+async function captureControlColumn(page, arm: string) {
+  const captured = await evaluateInST(page, (label) => {
+    const runtime = globalThis.storyOrchestratorRuntime;
+    const snapshot = runtime?.getSnapshot?.();
+    const chat = SillyTavern.getContext().chat ?? [];
+    const facts = (snapshot?.memory?.entries ?? [])
+      .filter((entry) => (entry.tier === 'facts' || entry.pinned) && !entry.supersededBy && !entry.foldedInto && !entry.contradicted && (!entry.provenance || entry.provenance.validity === 'live'))
+      .map((entry) => entry.text);
+    const rows = chat
+      .map((message, index) => ({ message, index }))
+      .filter(({ message }) => !message.is_user && !message.is_system && typeof message.mes === 'string' && message.mes.trim())
+      .map(({ message, index }) => ({ id: `m${index}`, arm: label, established: facts, reply: { speaker: message.name ?? '', text: message.mes } }));
+    return { judgeMeter: snapshot?.judgeMeter ?? null, proposals: snapshot?.stagecraft?.proposals ?? [], rows };
+  }, arm);
+  return {
+    judgeMeter: captured.judgeMeter,
+    warden: wardenTally(captured.proposals),
+    rescore: { factsSource: 'live facts-tier and pinned memory rows at cleanup; ledger-bound rows not included', rows: captured.rows },
+  };
+}
+
 function renderMatrix(journey, results) {
   const rows = results.map((row) => `| ${row.id} | ${row.mode} | ${row.findings.join(', ') || '—'} | ${row.outcome} | ${(row.detail ?? '').replace(/\|/g, '/').slice(0, 160)} |`);
   return [
@@ -464,7 +504,7 @@ function renderChecklist(results) {
   ].join('\n');
 }
 
-export async function runJourney(page, idOrFile, { strict = false, keep = false, only = null, allowConfig = true, group = null, humanRecordFile = null } = {}) {
+export async function runJourney(page, idOrFile, { strict = false, keep = false, only = null, allowConfig = true, group = null, humanRecordFile = null, judgeMode = null as JudgeMode | null } = {}) {
   const { journey, path } = await resolveJourney(idOrFile);
   // A human check is scored in a file, not by the runner. Without --require-human-record the
   // count is still printed, so an acceptance run cannot read as complete with rubric rows open.
@@ -495,7 +535,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
       await mkdir(DEBUG_DIR, { recursive: true });
       await writeFile(ASSET_BASELINE, JSON.stringify(assetBaseline, null, 2), 'utf-8');
       if (!assetBaseline.trusted) console.log(`Asset baseline UNTRUSTED (${assetBaseline.untrusted.join('; ')}) — cleanup falls back to marker-only scope.`);
-      setupApplied = await applySetup(page, journey.setup ?? {}, { allowConfig, group });
+      setupApplied = await applySetup(page, journey.setup ?? {}, { allowConfig, group, judgeMode: judgeMode ?? modeFromSetup(journey.setup) });
       // `reconcileExpected` lives in lib/journeyTallies.mts so it is unit-tested without a browser.
       const record = (summary, outcome, detail, extra = {}) => results.push({ ...reconcileExpected(summary, outcome, detail ?? ''), ...extra });
 
@@ -543,6 +583,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
         assetBaseline,
         activatedLorebooks: (setupApplied as { lorebooks?: { activated?: string[] } }).lorebooks?.activated ?? [],
         extractionBefore: (setupApplied as { extractionBefore?: unknown }).extractionBefore ?? null,
+        judgeMode: (setupApplied as { judgeMode?: Awaited<ReturnType<typeof applyJudgeMode>> }).judgeMode ?? null,
       }).catch((error) => ({ error: error.message }));
     }
   }
@@ -633,6 +674,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         allowConfig: !args.includes('--no-config'),
         group: argValue(args, '--group') ?? null,
         humanRecordFile: argValue(args, '--require-human-record') ?? null,
+        judgeMode: parseJudgeMode(argValue(args, "--judge-uses"), argValue(args, "--warden-mode")),
       });
       return { ok };
     });

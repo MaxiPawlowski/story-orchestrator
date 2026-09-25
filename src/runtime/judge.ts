@@ -1,4 +1,4 @@
-import { askJudge, buildDirectorRequest, runJudgeDirectorSelfTest, runMemoryPairsCalibration, runMemoryVerifyCalibration, runSceneCalibration, type SceneCalibrationCase, runLoreCalibration, type LoreCalibrationCase, runLoreRelevanceCalibration, type LoreRelevanceReport, runCuratorFilterCalibration, type CuratorFilterCase, runContinuityCalibration, type ContinuityCase, runBackgroundCalibration, type BackgroundCase, runTypedCalibration, type TypedCase, runStallCalibration, type StallCase, runCriticCalibration, type CriticCase, runVariantCalibration, type VariantStub, type MemoryPairCase, type MemoryVerifyCase, type JudgeSelfTestCase, type JudgeSelfTestReport, decideDirector, directorJudgeEligible, directorRecordP, judgeUseActive, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord, type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeRequest, type JudgeResponse, type JudgeResult, type JudgeSettings, type JudgeTransport, type JudgeUseKey } from "@judge/index";
+import { askJudge, modelVerdict, runContinuityRescore, type RescoreResult, type RescoreRow, buildDirectorRequest, runJudgeDirectorSelfTest, runMemoryPairsCalibration, runMemoryVerifyCalibration, runSceneCalibration, type SceneCalibrationCase, runLoreCalibration, type LoreCalibrationCase, runLoreRelevanceCalibration, type LoreRelevanceReport, runCuratorFilterCalibration, type CuratorFilterCase, runContinuityCalibration, type ContinuityCase, runBackgroundCalibration, type BackgroundCase, runTypedCalibration, type TypedCase, runStallCalibration, type StallCase, runCriticCalibration, type CriticCase, runVariantCalibration, type VariantStub, type MemoryPairCase, type MemoryVerifyCase, type JudgeSelfTestCase, type JudgeSelfTestReport, decideDirector, directorJudgeEligible, directorRecordP, judgeUseActive, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord, type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeRequest, type JudgeResponse, type JudgeResult, type JudgeSettings, type JudgeTransport, type JudgeUseKey } from "@judge/index";
 import type { RunOwnership } from "./runToken";
 
 export interface JudgeStatusLike {
@@ -28,6 +28,7 @@ export const JUDGE_PROBE_TIMEOUT_MS = 5000;
 // Every call is recorded — a fallback included — so a threshold can be re-tuned from the ring.
 export class JudgeRuntime {
   private readonly cache = new Map<string, JudgeResponse>();
+  private readonly unbilled = new Map<string | null, JudgeCallRecord[]>();
   private availability: { key: string; at: number; ok: boolean } | null = null;
 
   constructor(private readonly deps: JudgeRuntimeDeps) {}
@@ -95,6 +96,17 @@ export class JudgeRuntime {
     return Promise.reject(new Error(`no calibration for judge use '${use}' yet`));
   }
 
+  // v2.4 plan 07 (X12): so-judge rescore — both arms of a judge-off control scored by one question.
+  rescore(use: string, rows: RescoreRow[], model?: string): Promise<RescoreResult[]> {
+    if (use === "continuity") return runContinuityRescore((request) => this.probe(request, model), rows);
+    return Promise.reject(new Error(`no rescore for judge use '${use}' yet`));
+  }
+
+  // v2.4 plan 07 T25: so-judge reads the verdict here, so the harness and the page share one map.
+  modelVerdict(requested: string | null | undefined, answered: string | null | undefined) {
+    return modelVerdict(requested ?? this.deps.getSettings().model, answered);
+  }
+
   recordFallback(use: string, fallback: JudgeFallback, request?: JudgeRequest, context = this.deps.context()) {
     this.deps.record({
       at: new Date((this.deps.now ?? Date.now)()).toISOString(),
@@ -131,12 +143,7 @@ export class JudgeRuntime {
       ...(this.deps.now ? { now: this.deps.now } : {}),
     });
     if (result.fallback === "error") this.invalidateStatus();
-    // A call whose chat, story or session moved while it ran is not this chat's to record. The
-    // answer is still returned — the caller has its own ownership check at ITS write edge, and
-    // silently returning null here would look like a judge failure rather than a switch.
-    const owned = token ? this.deps.ownership?.check(token) : undefined;
-    if (owned && owned.ok === false) return { ...result, discarded: owned.reason };
-    this.deps.record({
+    const record: JudgeCallRecord = {
       at: new Date((this.deps.now ?? Date.now)()).toISOString(),
       boundary: asked.boundary,
       messageId: asked.messageId,
@@ -146,9 +153,40 @@ export class JudgeRuntime {
       stateChars: result.stateChars,
       questionCount: result.questionCount,
       ...(result.fallback ? { fallback: result.fallback } : {}),
-      ...(options.summarize ? { p: options.summarize(result.answers) } : {}),
-    });
+      ...(result.cached ? { cached: true } : {}),
+      ...(result.usage?.input_tokens !== undefined ? { inputTokens: result.usage.input_tokens } : {}),
+      ...(result.usage?.output_tokens !== undefined ? { outputTokens: result.usage.output_tokens } : {}),
+      ...(result.usage?.cost !== undefined ? { cost: result.usage.cost } : {}),
+    };
+    // A call whose chat, story or session moved while it ran is not this chat's to record. The
+    // answer is still returned — the caller has its own ownership check at ITS write edge, and
+    // silently returning null here would look like a judge failure rather than a switch. It was
+    // still paid for (v2.4 plan 07): the chat that asked is charged, now if it is still open,
+    // otherwise on its next recorded call in this page session.
+    const owned = token ? this.deps.ownership?.check(token) : undefined;
+    if (token && owned && owned.ok === false) {
+      this.charge({ ...record, discarded: owned.reason }, token.chatId);
+      return { ...result, discarded: owned.reason };
+    }
+    this.settleUnbilled(token?.chatId);
+    this.deps.record({ ...record, ...(options.summarize ? { p: options.summarize(result.answers) } : {}) });
     return result;
+  }
+
+  private charge(record: JudgeCallRecord, askedIn: string | null) {
+    if (this.deps.ownership?.mint().chatId === askedIn) {
+      this.deps.record(record);
+      return;
+    }
+    this.unbilled.set(askedIn, [...(this.unbilled.get(askedIn) ?? []), record]);
+  }
+
+  private settleUnbilled(chatId: string | null | undefined) {
+    if (chatId === undefined) return;
+    const owed = this.unbilled.get(chatId);
+    if (!owed) return;
+    this.unbilled.delete(chatId);
+    owed.forEach((record) => this.deps.record(record));
   }
 
   // null means "take today's chain": the flag is off, the pool is not eligible, or the call failed.

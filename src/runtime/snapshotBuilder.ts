@@ -2,7 +2,7 @@ import { agencyFor, type ApplyQueueEntry, type BoundaryLogEntry, type EngineStat
 import type { DriverContext } from "@copilot/index";
 import { sceneFieldsInConflict, type LedgerView } from "@memory/index";
 import { curatorLorebooks } from "@stagecraft/index";
-import { confirmedSceneFacts, isSceneStale } from "@judge/index";
+import { confirmedSceneFacts, isSceneStale, judgeMeterView } from "@judge/index";
 import { buildConvergenceReadout, buildLastTransition, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot } from "./snapshot";
 import { buildNarrativeStatus, type RollbackNotice, type RollbackUnavailable } from "./narrative";
 import { agencyRecovery as agencyRecoveryOf, REFUSAL_PLAYER_TEXT, type AgencyRecovery } from "./agencyRecovery";
@@ -146,6 +146,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     saveHealth: extras.saveHealth,
     scene: extras.judge.scene,
     loreForced: [...extras.judge.calls].reverse().find((call) => call.use === "lore") ?? null,
+    judgeMeter: judgeMeterView(extras.judge),
     stagecraftScope: curatorLorebooks(story),
     pendingDeltas,
     convergence: buildConvergenceReadout(story, state),

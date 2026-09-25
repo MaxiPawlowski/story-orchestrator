@@ -55,6 +55,43 @@ export async function runContinuityCalibration(ask: (request: JudgeRequest) => P
   })));
 }
 
+export interface RescoreRow {
+  id: string;
+  arm: string;
+  established: string[];
+  reply: { speaker: string; text: string };
+}
+
+export interface RescoreResult {
+  id: string;
+  arm: string;
+  /** null: the judge did not answer, so the reply is not counted either way. */
+  flagged: boolean | null;
+  broken: string[];
+  latencyMs: number;
+  model: string | null;
+  fallback?: string;
+}
+
+// v2.4 plan 07 (X12): the judge-off control column. The calibrated continuity question re-asked over
+// each arm's captured replies, so both arms are scored by one instrument. A reply with no facts to
+// hold it to is not asked (the warden would not have asked either).
+export async function runContinuityRescore(ask: (request: JudgeRequest) => Promise<JudgeResult>, rows: RescoreRow[]): Promise<RescoreResult[]> {
+  return Promise.all(rows.filter((row) => row.established.length > 0).map(async (row) => {
+    const result = await ask(buildContinuityRequest(row.reply, row.established));
+    const note = result.answers ? continuityNote(result.answers, row.established) : null;
+    return {
+      id: row.id,
+      arm: row.arm,
+      flagged: result.answers ? Boolean(note) : null,
+      broken: note?.facts ?? [],
+      latencyMs: result.latencyMs,
+      model: result.model,
+      ...(result.fallback ? { fallback: result.fallback } : {}),
+    };
+  }));
+}
+
 // Rows: `<case>.pick` for a scene with a fitting file (the change lands on an acceptable one) and
 // `<case>.none` for a scene nothing fits (no change at all).
 export async function runBackgroundCalibration(ask: (request: JudgeRequest) => Promise<JudgeResult>, cases: BackgroundCase[], installed: string[]): Promise<JudgeSelfTestReport> {

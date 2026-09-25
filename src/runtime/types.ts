@@ -1,5 +1,5 @@
 import type { AgencyPolicy, ArcTemplate, EngineState, NormalizedStoryV2, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
-import type { JudgeCallRecord, JudgeRuntimeState, SceneReadRecord } from "@judge/index";
+import type { JudgeCallRecord, JudgeMeterView, JudgeRuntimeState, SceneReadRecord } from "@judge/index";
 import type { ExtractionHealth, ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
 import type { ConflictPair, ArcEntry, DerivedRecord, EpistemicEntry, LedgerEntry, LedgerView, MemoryEntry, MemoryStoreState, MemoryTier, Provenance, ScoreWeights } from "@memory/index";
@@ -384,6 +384,8 @@ export interface RuntimeSnapshot {
   saveHealth: SaveHealth;
   scene: SceneReadRecord | null;
   loreForced: JudgeCallRecord | null;
+  /** v2.4 plan 07 T24: this chat's judge spend, monotonic and exempt from rollback. */
+  judgeMeter: JudgeMeterView;
   // The story's authored curator allowlist, so the review panel can say what is in scope without
   // reading the story record itself.
   stagecraftScope: string[];

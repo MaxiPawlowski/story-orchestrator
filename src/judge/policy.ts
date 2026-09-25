@@ -2,6 +2,29 @@ export const JUDGE_DEFAULT_MODEL = "jev-1.13.0";
 export const JUDGE_DEFAULT_TIMEOUT_MS = 1500;
 export const JUDGE_CALL_RING_LIMIT = 300;
 
+// v2.4 plan 07 T25 (D10): docs.typesafe.ai/models, 2026-09-24 — both aliases resolve to jev-1.13.0.
+export const JUDGE_MODEL_IDS = {
+  canonical: { "jev-1.13.0": "jev-1.13.0" } as Record<string, string>,
+  floating: ["jev-latest", "jev-preview"] as readonly string[],
+};
+
+export type JudgeModelVerdict = "matched" | "resolved" | "mismatch" | "unknown";
+
+export const isFloatingModel = (id: string | null | undefined): boolean => typeof id === "string" && JUDGE_MODEL_IDS.floating.includes(id.trim());
+
+export function canonicalModel(id: string | null | undefined): string | null {
+  const trimmed = typeof id === "string" ? id.trim() : "";
+  if (!trimmed || isFloatingModel(trimmed)) return null;
+  return JUDGE_MODEL_IDS.canonical[trimmed] ?? trimmed;
+}
+
+export function modelVerdict(requested: string | null | undefined, answered: string | null | undefined): { verdict: JudgeModelVerdict; resolvedTo?: string } {
+  const answer = canonicalModel(answered);
+  if (!answer) return { verdict: "unknown" };
+  if (isFloatingModel(requested)) return { verdict: "resolved", resolvedTo: answer };
+  return { verdict: canonicalModel(requested) === answer ? "matched" : "mismatch" };
+}
+
 export const DIRECTOR_ROLE_CONFIDENCE = 0.6;
 export const DIRECTOR_LEAD_BONUS = 0.25;
 export const DIRECTOR_ADDRESSED_WEIGHT = 2;

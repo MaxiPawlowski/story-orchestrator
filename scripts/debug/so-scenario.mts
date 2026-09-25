@@ -9,6 +9,7 @@ import { saveSettingsNow } from './lib/settingsSave.mts';
 import { removableStories, type LibraryCapture } from './lib/configRestore.mts';
 import { STORY_BOUND_VERBS, storylessStepError } from './lib/journeyArchive.mts';
 import { readExtractionSettings, restoreExtractionSettings } from './lib/extractionSettings.mts';
+import { readJudgeConfig, restoreJudgeConfig } from './lib/judgeHarness.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { adoptNewSandboxChat, assertInSandbox, beginSandboxSession, deleteSandboxChats, openGroup, openMostRecentGroupChat, readActiveChat, readChatOnDisk, reopenSandboxChat } from './st-navigation.mts';
@@ -1196,6 +1197,7 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
 
   let libraryBefore: LibraryCapture | null = null;
   let extractionBefore = null;
+  let judgeBefore = null;
   if (sandbox) {
     if (group) await openGroup(page, group);
     else await openMostRecentGroupChat(page);
@@ -1208,6 +1210,8 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
     // then inherit in silence. Measured 2026-09-20 with `so-run-header diff`. The journey runner
     // already captured and restored these; a scenario did not.
     extractionBefore = await readExtractionSettings(page);
+    // v2.4 plan 07: the judge settings are install-wide too, and a live judge scenario turns them on.
+    judgeBefore = await readJudgeConfig(page);
   }
 
   try {
@@ -1221,6 +1225,7 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
     if (sandbox) {
       const cleanup: Record<string, unknown> = await cleanupScenario(page, importedHashes, guard, keep, libraryBefore);
       cleanup.extraction = await restoreExtractionSettings(page, extractionBefore).catch((error) => ({ error: error.message }));
+      cleanup.judge = await restoreJudgeConfig(page, judgeBefore).catch((error) => ({ error: error.message }));
       result.cleanup = cleanup;
       const leftChats = Array.isArray(cleanup.notDeleted) ? cleanup.notDeleted : [];
       if (leftChats.length) {
