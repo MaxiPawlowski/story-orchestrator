@@ -26,7 +26,7 @@ export const isCuratorWritable = (story: NormalizedStoryV2 | null, lorebook: str
   return Boolean(wanted) && curatorLorebooks(story).some((name) => name.toLowerCase() === wanted) && !isCheckpointGated(story, lorebook, comment);
 };
 
-export const entriesForScope = (lorebook: string, entries: Array<{ comment?: string; content?: unknown; key?: unknown; disable?: unknown }>): CuratorEntryView[] =>
+export const entriesForScope = (lorebook: string, entries: Array<{ uid?: unknown; comment?: string; content?: unknown; key?: unknown; disable?: unknown }>): CuratorEntryView[] =>
   entries
     .filter((entry) => typeof entry.comment === "string" && entry.comment.trim().length > 0)
     .map((entry) => ({
@@ -35,4 +35,19 @@ export const entriesForScope = (lorebook: string, entries: Array<{ comment?: str
       keys: Array.isArray(entry.key) ? entry.key.filter((key): key is string => typeof key === "string") : [],
       content: typeof entry.content === "string" ? entry.content : "",
       disabled: entry.disable === true,
+      ...(typeof entry.uid === "number" && Number.isInteger(entry.uid) ? { uid: entry.uid } : {}),
     }));
+
+export const entryRef = (entry: CuratorEntryView, entries: CuratorEntryView[]): string | null => {
+  if (entry.uid === undefined) return null;
+  const clash = entries.some((other) => other !== entry && other.uid === entry.uid && other.lorebook.toLowerCase() !== entry.lorebook.toLowerCase());
+  if (!clash) return `#${entry.uid}`;
+  const books = [...new Set(entries.map((other) => other.lorebook.toLowerCase()))];
+  return `#${books.indexOf(entry.lorebook.toLowerCase()) + 1}.${entry.uid}`;
+};
+
+export const viewForOp = (entries: CuratorEntryView[], op: { lorebook: string; comment: string; uid?: number }): CuratorEntryView | undefined => {
+  const book = op.lorebook.toLowerCase();
+  if (op.uid !== undefined) return entries.find((entry) => entry.lorebook.toLowerCase() === book && entry.uid === op.uid);
+  return entries.find((entry) => entry.lorebook.toLowerCase() === book && entry.comment.toLowerCase() === op.comment.toLowerCase());
+};

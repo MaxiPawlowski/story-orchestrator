@@ -6,7 +6,7 @@ import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
 import { callExtractionModel } from "@extraction/client";
 import { StagecraftCoordinator } from "@runtime/coordinators/stagecraftCoordinator";
 import { createStagecraft } from "@runtime/extras";
-import { loadLorebook, upsertWIEntry, readWIEntry, readWIEntryAt, restoreWIEntryAt, enableWIEntry, disableWIEntry } from "@services/STAPI";
+import { loadLorebook, upsertWIEntry, readWIEntry, readWIEntryAt, restoreWIEntryAt, updateWIEntryByUid, enableWIEntry, disableWIEntry } from "@services/STAPI";
 import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
 import { control, finding, must } from "../../../test/findings/ledger";
 
@@ -22,6 +22,7 @@ jest.mock("@services/STAPI", () => ({
   readWIEntry: jest.fn(),
   readWIEntryAt: jest.fn(),
   restoreWIEntryAt: jest.fn(),
+  updateWIEntryByUid: jest.fn(),
   enableWIEntry: jest.fn(),
   disableWIEntry: jest.fn(),
   getContext: () => ({ chat: chatRef.current, extensionSettings: {} }),
@@ -75,6 +76,12 @@ function harness(options: { uidKnown?: boolean } = {}) {
     if (target.uid !== 1) return { ok: false, reason: "no such entry" };
     content = image.content;
     disabled = image.disabled;
+    return { ok: true, confirmed: true };
+  });
+  (updateWIEntryByUid as jest.Mock).mockImplementation(async (target: { uid: number }, patch: { content?: string; disabled?: boolean }) => {
+    if (target.uid !== 1) return { ok: false, reason: "no such entry" };
+    if (patch.content !== undefined) content = patch.content;
+    if (patch.disabled !== undefined) disabled = patch.disabled;
     return { ok: true, confirmed: true };
   });
   (upsertWIEntry as jest.Mock).mockImplementation(async (_book, _entry, text) => { content = text; return "updated"; });
@@ -151,7 +158,7 @@ finding("R2", async () => {
 
 finding("R3", async () => {
   const h = harness();
-  (disableWIEntry as jest.Mock).mockResolvedValue({ ok: false, reason: "refused" });
+  (updateWIEntryByUid as jest.Mock).mockResolvedValue({ ok: false, reason: "refused" });
   (callExtractionModel as jest.Mock).mockResolvedValue("[disable] Bridge");
   await h.coordinator.runCuratorPass();
   const applied = await h.coordinator.applyAccepted();
@@ -161,15 +168,16 @@ finding("R3", async () => {
 
 control("R3, the OTHER host path: a failed upsert is not counted as applied either", async () => {
   // R3 says "a false host result must not be reported as applied". Its reproduction covers only
-  // the disable path. A mutation treating an upsert failure as success SURVIVED on 2026-09-20 —
-  // the code was right, nothing held it, and a refactor could have removed it silently.
+  // the disable path. v2.4 plan 06 T17.2: every curator write is now one uid-addressed update, so
+  // the other path is the text write through the same seam, refused.
   const h = harness();
-  (upsertWIEntry as jest.Mock).mockResolvedValue("failed");
+  (updateWIEntryByUid as jest.Mock).mockResolvedValue({ ok: false, reason: "entry 1 is no longer in \"Review Lore\"" });
   (callExtractionModel as jest.Mock).mockResolvedValue("[rewrite] Bridge || The bridge is out.");
   await h.coordinator.runCuratorPass();
   const applied = await h.coordinator.applyAccepted();
   expect(applied).toBe(0);
   expect(h.state.proposals[0].ops[0].status).toBe("failed");
+  expect(upsertWIEntry).not.toHaveBeenCalled();
 });
 
 // --- v2.3 plan 03: the discard has to be precise, or it becomes a new way to lose work. ---
@@ -253,15 +261,15 @@ control("a world lost during an accepted write stops the ops behind it", async (
   const h = harness();
   h.state.proposals = [acceptedRecord("p1", 10, "First"), acceptedRecord("p2", 11, "Second")] as never;
   let writes = 0;
-  (upsertWIEntry as jest.Mock).mockImplementation(async (_book, _entry, text) => {
+  (updateWIEntryByUid as jest.Mock).mockImplementation(async () => {
     writes += 1;
     h.switchChat();
-    (upsertWIEntry as jest.Mock).mockImplementation(async () => { writes += 1; return "updated"; });
-    return "updated";
+    (updateWIEntryByUid as jest.Mock).mockImplementation(async () => { writes += 1; return { ok: true, confirmed: true }; });
+    return { ok: true, confirmed: true };
   });
   const applied = await h.coordinator.applyAccepted();
 
-  expect((upsertWIEntry as jest.Mock).mock.calls.length).toBe(1);
+  expect((updateWIEntryByUid as jest.Mock).mock.calls.length).toBe(1);
   expect(applied).toBe(1);
 });
 
@@ -359,8 +367,10 @@ describe("V10: a revert addresses the entry by its recorded uid", () => {
 
   it("control: a write recorded without a uid is still reverted by its name", async () => {
     const h = harness({ uidKnown: false });
-    await writeOnce(h);
-    expect(h.state.proposals[0].ops[0].target?.uid).toBeUndefined();
+    await upsertWIEntry("Review Lore", "Bridge", "First");
+    const legacy = acceptedRecord("p1", 10, "First");
+    h.state.proposals = [{ ...legacy, appliedAt: new Date().toISOString(), ops: [{ ...legacy.ops[0], status: "applied", before: { content: "Original", disabled: false }, after: { content: "First", disabled: false } }] }] as never;
+    expect(h.content).toBe("First");
     expect(await h.coordinator.revertAppliedSince(10)).toBe(1);
     expect(h.content).toBe("Original");
     expect(restoreWIEntryAt).not.toHaveBeenCalled();
@@ -385,7 +395,7 @@ control("a world lost during the LAST accepted write does not file the result he
   // without a check after the loop, the old chat's proposal records are patched into the new chat.
   const h = harness();
   h.state.proposals = [acceptedRecord("p1", 10, "First")] as never;
-  (upsertWIEntry as jest.Mock).mockImplementation(async () => { h.switchChat(); return "updated"; });
+  (updateWIEntryByUid as jest.Mock).mockImplementation(async () => { h.switchChat(); return { ok: true, confirmed: true }; });
   await h.coordinator.applyAccepted();
 
   expect(h.state.proposals).toEqual([]);

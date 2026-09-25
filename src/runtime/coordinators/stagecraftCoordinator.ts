@@ -7,6 +7,8 @@ import {
   buildWiCuratorPrompt,
   curatorHasScope,
   curatorLorebooks,
+  decidedOp,
+  declinedOps,
   entriesForScope,
   isCheckpointGated,
   isCuratorWritable,
@@ -27,7 +29,7 @@ import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import type { RunOwnership, RunToken } from "../runToken";
 import {
   clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, getContext, loadLorebook, readWIEntry, readWIEntryAt,
-  restoreWIEntryAt, setStoryExtensionPrompt, upsertWIEntry, type WIEntryTarget,
+  restoreWIEntryAt, setStoryExtensionPrompt, updateWIEntryByUid, upsertWIEntry, type WIEntryTarget,
 } from "@services/STAPI";
 import { lorebookFileId } from "@utils/string";
 import type { ExtractionRuntimeSettings, StagecraftRuntimeState } from "../types";
@@ -156,7 +158,8 @@ export class StagecraftCoordinator {
       const canon = this.deps.getCanon();
       const openArcs = this.deps.getOpenArcs();
       const shown = this.deps.filterEntries ? await this.deps.filterEntries(entries, { checkpoint: { name: checkpointName, objective }, canon, openThreads: openArcs }).catch(() => entries) : entries;
-      const prompt = buildWiCuratorPrompt({ storyTitle: story.title, checkpointName, objective, canon, openArcs, entries: shown });
+      const declined = declinedOps(this.state.proposals, state.activeCheckpointId, state.checkpointStartedBoundary ?? 0);
+      const prompt = buildWiCuratorPrompt({ storyTitle: story.title, checkpointName, objective, canon, openArcs, entries: shown, declined });
       const response = await callExtractionModel(prompt, {
         profileId: this.deps.getExtractionSettings().profileId,
         maxTokens: maxTokensForInput("curator", prompt),
@@ -172,7 +175,7 @@ export class StagecraftCoordinator {
         return { ran: true, record: null, discarded: owned.reason };
       }
       const proposal = parseCuratorResponse(response, shown);
-      const plan = planCuratorProposal(proposal, shown);
+      const plan = planCuratorProposal(proposal, shown, { mode: this.state.settings.acceptMode, declined });
       this.patch({
         lastRunBoundary: state.boundary,
         lastError: null,
@@ -230,13 +233,13 @@ export class StagecraftCoordinator {
   async setOpDecision(id: string, index: number, status: "accepted" | "rejected", op?: CuratorOp) {
     this.updateOps(id, (record) => ({
       ...record,
-      ops: record.ops.map((entry, entryIndex) => (entryIndex === index ? { ...entry, status, ...(op ? { op } : {}) } : entry)),
+      ops: record.ops.map((entry, entryIndex) => (entryIndex === index ? { ...entry, status, op: decidedOp(entry, status, op) } : entry)),
     }));
     await this.save();
   }
 
   async decideProposal(id: string, status: "accepted" | "rejected") {
-    this.updateOps(id, (record) => ({ ...record, ops: record.ops.map((entry) => (entry.status === "pending" ? { ...entry, status } : entry)) }));
+    this.updateOps(id, (record) => ({ ...record, ops: record.ops.map((entry) => (entry.status === "pending" ? { ...entry, status, op: decidedOp(entry, status) } : entry)) }));
     await this.save();
   }
 
@@ -257,7 +260,6 @@ export class StagecraftCoordinator {
     // a file another story is reading. The token is checked inside the loop, before each write.
     const token = this.deps.ownership?.mint();
     const messageId = this.deps.getState()?.lastMessageId ?? -1;
-    const entries = await this.readScope();
     let applied = 0;
     const proposals: CuratorProposalRecord[] = [];
     for (const record of [...this.state.proposals]) {
@@ -274,7 +276,7 @@ export class StagecraftCoordinator {
         }
         const beforeWrite = token ? this.deps.ownership?.check(token) : undefined;
         if (beforeWrite && beforeWrite.ok === false) return applied;
-        const result = await this.writeOp(story, entry, entries, async (pending) => this.markWriteAhead(record.id, index, pending));
+        const result = await this.writeOp(story, entry, async (pending) => this.markWriteAhead(record.id, index, pending));
         if (result.ok) applied += 1;
         ops.push(result.record);
       }
@@ -288,7 +290,7 @@ export class StagecraftCoordinator {
     return applied;
   }
 
-  private async writeOp(story: NormalizedStoryV2, entry: CuratorOpRecord, entries: CuratorEntryView[], beforeHostWrite: (pending: CuratorOpRecord) => Promise<void>): Promise<{ ok: boolean; record: CuratorOpRecord }> {
+  private async writeOp(story: NormalizedStoryV2, entry: CuratorOpRecord, beforeHostWrite: (pending: CuratorOpRecord) => Promise<void>): Promise<{ ok: boolean; record: CuratorOpRecord }> {
     const op = entry.op;
     if (isNoteOp(op)) return { ok: false, record: entry };
     if (!isCuratorWritable(story, op.lorebook, op.comment)) {
@@ -297,33 +299,23 @@ export class StagecraftCoordinator {
         : `"${op.lorebook}" is not on this story's stagecraft allowlist`;
       return { ok: false, record: { ...entry, status: "failed", message } };
     }
-    // v2.3 plan 04 (R2). The before-image comes from the WRITE EDGE, not from a batch read taken
-    // before the loop: two ops in one batch can address the same entry, and the second one's
-    // before-image is the first one's after-image, not what the book held when the batch started.
-    const liveRead = await readWIEntry(op.lorebook, op.comment);
-    const live = liveRead
-      ? { ...(entries.find((candidate) => candidate.lorebook.toLowerCase() === op.lorebook.toLowerCase() && candidate.comment.toLowerCase() === op.comment.toLowerCase()) ?? { lorebook: op.lorebook, comment: op.comment, keys: [] }), content: liveRead.content, disabled: liveRead.disabled }
-      : entries.find((candidate) => candidate.lorebook.toLowerCase() === op.lorebook.toLowerCase() && candidate.comment.toLowerCase() === op.comment.toLowerCase());
-    const preview = previewCuratorOp(op, live);
+    // v2.3 plan 04 (R2): the before-image is read at the write edge. v2.4 plan 06 T17.2: by uid, and
+    // an entry that is gone is a failed op, never a created one.
+    const fileId = lorebookFileId(op.lorebook);
+    const live = op.uid !== undefined ? await readWIEntryAt({ lorebookFileId: fileId, uid: op.uid }) : await readWIEntry(op.lorebook, op.comment);
+    const uid = op.uid ?? live?.uid;
+    if (!live || uid === undefined) return { ok: false, record: { ...entry, status: "failed", message: `"${op.comment}" is no longer in ${op.lorebook}` } };
+    const comment = "comment" in live && typeof live.comment === "string" ? live.comment : op.comment;
+    if (!isCuratorWritable(story, op.lorebook, comment)) return { ok: false, record: { ...entry, status: "failed", message: `"${op.comment}" is now "${comment}", which the curator may not write` } };
+    const preview = previewCuratorOp(op, { lorebook: op.lorebook, comment: op.comment, keys: live.keys, content: live.content, disabled: live.disabled, uid });
     if (!preview.ok) return { ok: false, record: { ...entry, status: "failed", message: preview.message } };
-    const before = { content: liveRead?.content ?? live?.content ?? "", disabled: liveRead?.disabled ?? live?.disabled === true, ...(liveRead?.uid !== undefined ? { uid: liveRead.uid } : {}) };
-    const target = { lorebookFileId: lorebookFileId(op.lorebook), ...(liveRead?.uid !== undefined ? { uid: liveRead.uid } : {}) };
-    const after = op.kind === "enable" || op.kind === "disable"
-      ? { content: before.content, disabled: op.kind === "disable" }
-      : { content: preview.content ?? "", disabled: before.disabled };
-    const pending: CuratorOpRecord = { ...entry, before, after, target, writeAhead: { status: "pending", at: new Date().toISOString() } };
+    const before = { content: live.content, disabled: live.disabled, uid };
+    const after = op.kind === "enable" || op.kind === "disable" ? { content: before.content, disabled: op.kind === "disable" } : { content: preview.content ?? "", disabled: before.disabled };
+    const pending: CuratorOpRecord = { ...entry, before, after, target: { lorebookFileId: fileId, uid }, writeAhead: { status: "pending", at: new Date().toISOString() } };
     await beforeHostWrite(pending);
     try {
-      if (op.kind === "enable" || op.kind === "disable") {
-        const toggled = op.kind === "enable" ? await enableWIEntry(op.lorebook, op.comment) : await disableWIEntry(op.lorebook, op.comment);
-        if (!toggled.ok) return { ok: false, record: { ...pending, status: "failed", message: toggled.reason, writeAhead: undefined } };
-        return { ok: true, record: { ...pending, status: "applied", message: preview.message, writeAhead: undefined } };
-      }
-      const result = await upsertWIEntry(op.lorebook, op.comment, preview.content ?? "", live?.keys ?? []);
-      if (result === "failed") return { ok: false, record: { ...pending, status: "failed", message: `could not write "${op.comment}"`, writeAhead: undefined } };
-      // upsertWIEntry always re-enables what it writes: keep an entry the author had switched off.
-      const kept = before.disabled ? await disableWIEntry(op.lorebook, op.comment) : null;
-      if (kept && !kept.ok) return { ok: false, record: { ...pending, status: "failed", message: `wrote "${op.comment}" but could not keep it switched off: ${kept.reason}`, writeAhead: undefined } };
+      const written = await updateWIEntryByUid({ lorebookFileId: fileId, uid }, after);
+      if (!written.ok) return { ok: false, record: { ...pending, status: "failed", message: written.reason, writeAhead: undefined } };
       return { ok: true, record: { ...pending, status: "applied", message: preview.message, writeAhead: undefined } };
     } catch (error) {
       return { ok: false, record: { ...pending, status: "failed", message: error instanceof Error ? error.message : "write failed", writeAhead: undefined } };

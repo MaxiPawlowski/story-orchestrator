@@ -1,0 +1,33 @@
+{
+  "_about": "v2.4 plan 06 T17.5. Labels frozen 2026-09-25 before findSpanFuzzy existed. tau = 0.8 per side, declared in the plan. Floor: 0 false matches over the negatives (a positive matched to the wrong span also counts as false). Positives report the lift only.",
+  "_corrections": "2026-09-25, after the first run: p07 and p11 were mislabelled. Their anchors quote the leading 'the', which the content holds ('The inn's cellar', 'The twins'), and the frozen span left it out. The span now starts at that word. No negative, no threshold and no rule was changed. The same run found a real defect on p01/p08 (the match dropped the anchor's own first word); the fix is edge snapping in fuzzy.ts, not a label change.",
+  "threshold": 0.8,
+  "positives": [
+    { "id": "p01-dropped-word", "content": "The old stone bridge spans the river Vel, its ropes new and taut. Travellers cross freely at dawn.", "anchor": "old bridge spans the river || ropes new and taut", "span": "old stone bridge spans the river Vel, its ropes new and taut" },
+    { "id": "p02-added-word", "content": "Captain Mira keeps the harbour ledger locked in her cabin, and trusts no clerk with the key.", "anchor": "keeps the old harbour ledger locked || with the key", "span": "keeps the harbour ledger locked in her cabin, and trusts no clerk with the key" },
+    { "id": "p03-typo", "content": "The Ashen Order meets beneath the chapel every new moon to count its dead.", "anchor": "meets beneath the chapell every || to count its dead", "span": "meets beneath the chapel every new moon to count its dead" },
+    { "id": "p04-tense", "content": "Nobody has seen the ferryman since the spring flood carried his skiff away.", "anchor": "nobody had seen the ferryman || carried his skiff away", "span": "Nobody has seen the ferryman since the spring flood carried his skiff away" },
+    { "id": "p05-plural", "content": "The northern watchtower burns a green signal fire whenever riders approach the pass.", "anchor": "burns a green signal fires || riders approach the pass", "span": "burns a green signal fire whenever riders approach the pass" },
+    { "id": "p06-head-only", "content": "Lady Veyra rules the salt marshes from a tower of black glass.", "anchor": "Lady Veyra rule the salt marshes", "span": "Lady Veyra rules the salt marshes" },
+    { "id": "p07-punctuation", "content": "The inn's cellar, it is said, hides a door to the old smugglers' tunnels.", "anchor": "the inn cellar it is said hides || the old smugglers tunnels", "span": "The inn's cellar, it is said, hides a door to the old smugglers' tunnels" },
+    { "id": "p08-spanish-dropped", "content": "La vieja torre del reloj marca las horas aunque nadie la ha reparado en siglos.", "anchor": "la torre del reloj marca || reparado en siglos", "span": "La vieja torre del reloj marca las horas aunque nadie la ha reparado en siglos" },
+    { "id": "p09-spanish-accent", "content": "El mercado del puerto abre solo cuando el faro está encendido.", "anchor": "cuando el faro esta encendido", "span": "cuando el faro está encendido" },
+    { "id": "p10-synonym-article", "content": "A silver key opens the vault under the counting house, and the guild master wears it.", "anchor": "the silver key opens the vault || the guild master wears it", "span": "A silver key opens the vault under the counting house, and the guild master wears it" },
+    { "id": "p11-swapped-order-small", "content": "The twins, Oren and Dala, guard the western gate in alternating shifts.", "anchor": "the twins Oren and Dala guard || in alternating shift", "span": "The twins, Oren and Dala, guard the western gate in alternating shifts" },
+    { "id": "p12-missing-tail-word", "content": "Every traveller must pay the toll of three copper coins at the bridge house.", "anchor": "must pay the toll of three coins || at the bridge house", "span": "must pay the toll of three copper coins at the bridge house" }
+  ],
+  "negatives": [
+    { "id": "n01-absent", "content": "The old stone bridge spans the river Vel, its ropes new and taut. Travellers cross freely at dawn.", "anchor": "the tollhouse burned to the ground || nobody rebuilt it" },
+    { "id": "n02-other-entry", "content": "Captain Mira keeps the harbour ledger locked in her cabin, and trusts no clerk with the key.", "anchor": "The Ashen Order meets beneath the chapel || count its dead" },
+    { "id": "n03-shared-function-words", "content": "The northern watchtower burns a green signal fire whenever riders approach the pass.", "anchor": "the southern gate stays shut whenever || the moon is full" },
+    { "id": "n04-two-content-words", "content": "Lady Veyra rules the salt marshes from a tower of black glass.", "anchor": "Lord Aram rules the iron hills" },
+    { "id": "n05-negated-claim", "content": "The inn's cellar, it is said, hides a door to the old smugglers' tunnels.", "anchor": "the temple crypt hides no door || the new mines" },
+    { "id": "n06-spanish-absent", "content": "La vieja torre del reloj marca las horas aunque nadie la ha reparado en siglos.", "anchor": "el puente de piedra cruza || el río helado" },
+    { "id": "n07-spanish-near", "content": "El mercado del puerto abre solo cuando el faro está encendido.", "anchor": "la feria del castillo cierra cuando la luna está llena" },
+    { "id": "n08-short-anchor", "content": "A silver key opens the vault under the counting house, and the guild master wears it.", "anchor": "a gold ring || the thief" },
+    { "id": "n09-names-swapped", "content": "The twins, Oren and Dala, guard the western gate in alternating shifts.", "anchor": "the brothers Kael and Ivo patrol || the eastern wall" },
+    { "id": "n10-numbers", "content": "Every traveller must pay the toll of three copper coins at the bridge house.", "anchor": "no merchant may carry more than ten silver bars || past the fort" },
+    { "id": "n11-ambiguous-repeat", "content": "The bell rings at noon. The bell rings at dusk. The bell rings at midnight.", "anchor": "the bell ring at" },
+    { "id": "n12-long-unrelated", "content": "Nobody has seen the ferryman since the spring flood carried his skiff away.", "anchor": "the ferry company sold its last boat to a merchant from the coast || before the winter storms began" }
+  ]
+}

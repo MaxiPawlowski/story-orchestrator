@@ -299,13 +299,13 @@ export async function readWIEntryAt(target: WIEntryTarget): Promise<(WIEntrySnap
   return { comment: String(entry.comment ?? "").trim(), content: String(entry.content ?? ""), keys: Array.isArray(entry.key) ? entry.key : [], constant: Boolean(entry.constant), disabled: Boolean(entry.disable), uid: target.uid };
 }
 
-export async function restoreWIEntryAt(target: WIEntryTarget, image: { content: string; disabled: boolean }): Promise<WriteResult<{ confirmed: boolean }>> {
+export async function updateWIEntryByUid(target: WIEntryTarget, patch: { content?: string; disabled?: boolean }): Promise<WriteResult<{ confirmed: boolean }>> {
   const book = await loadExisting(target.lorebookFileId);
   if (!book) return couldNot(`there is no lorebook "${target.lorebookFileId}"`);
   const entry = book.data.entries[target.uid];
   if (!entry) return couldNot(`entry ${target.uid} is no longer in "${book.name}"`);
-  entry.content = image.content;
-  entry.disable = image.disabled;
+  if (patch.content !== undefined) entry.content = patch.content;
+  if (patch.disabled !== undefined) entry.disable = patch.disabled;
   try {
     await saveLorebook(book.name, book.data);
   } catch (error) {
@@ -314,9 +314,12 @@ export async function restoreWIEntryAt(target: WIEntryTarget, image: { content: 
   const onServer = await readServerLorebook(book.name);
   if (!onServer) return wrote({ confirmed: false });
   const kept = onServer.entries[target.uid];
-  if (!kept || String(kept.content ?? "") !== image.content || Boolean(kept.disable) !== image.disabled) {
+  const lost = !kept || (patch.content !== undefined && String(kept.content ?? "") !== patch.content) || (patch.disabled !== undefined && Boolean(kept.disable) !== patch.disabled);
+  if (lost) {
     worldInfoModule.worldInfoCache.delete(book.name);
-    return couldNot(`"${book.name}" was saved, but the server does not hold the restored entry ${target.uid}, so the write was lost`);
+    return couldNot(`"${book.name}" was saved, but the server does not hold the written entry ${target.uid}, so the write was lost`);
   }
   return wrote({ confirmed: true });
 }
+
+export const restoreWIEntryAt = (target: WIEntryTarget, image: { content: string; disabled: boolean }): Promise<WriteResult<{ confirmed: boolean }>> => updateWIEntryByUid(target, image);

@@ -1,4 +1,6 @@
-import { CURATOR_MAX_TEXT, type CuratorEntryView, type WiCuratorOp, type CuratorOpRecord, type CuratorProposal } from "./types";
+import { CURATOR_MAX_TEXT, contentShownInPart, isNoteOp, type CuratorEntryView, type CuratorOp, type CuratorOpRecord, type CuratorProposal, type CuratorProposalRecord, type StagecraftAcceptMode, type WiCuratorOp } from "./types";
+import { findSpanFuzzy } from "./fuzzy";
+import { viewForOp } from "./scope";
 
 const normalize = (value: string) => value.replace(/\s+/g, " ").trim().toLowerCase();
 
@@ -52,6 +54,7 @@ export function previewCuratorOp(op: WiCuratorOp, entry: CuratorEntryView | unde
   if (op.kind === "disable") return entry.disabled ? { ok: false, message: `"${entry.comment}" is already off` } : { ok: true, message: `Switch "${entry.comment}" off`, disabled: true };
   if (op.kind === "rewrite") {
     if (op.text.length > CURATOR_MAX_TEXT) return { ok: false, message: `the replacement text is longer than ${CURATOR_MAX_TEXT} characters` };
+    if (contentShownInPart(entry.content)) return { ok: false, message: "only part of this entry was shown; propose a [patch]" };
     if (normalize(op.text) === normalize(entry.content)) return { ok: false, message: `"${entry.comment}" already reads that way` };
     return { ok: true, message: `Rewrite "${entry.comment}"`, content: op.text };
   }
@@ -65,8 +68,36 @@ export function previewCuratorOp(op: WiCuratorOp, entry: CuratorEntryView | unde
 // writes, so a disable that follows a rewrite is the one order where both survive.
 const ORDER: Record<WiCuratorOp["kind"], number> = { rewrite: 0, patch: 0, enable: 1, disable: 1 };
 
-export function planCuratorProposal(proposal: CuratorProposal, entries: CuratorEntryView[]): { records: CuratorOpRecord[]; dropped: string[] } {
-  const byKey = new Map(entries.map((entry) => [`${entry.lorebook.toLowerCase()}::${entry.comment.toLowerCase()}`, entry]));
+const opText = (op: WiCuratorOp) => (op.kind === "rewrite" ? op.text : op.kind === "patch" ? `${op.anchor} => ${op.replace}` : "");
+
+export const declineKey = (op: WiCuratorOp): string => `${op.kind}:${opTargetKey(op)}:${normalize(opText(op))}`;
+
+export const declinedOps = (proposals: CuratorProposalRecord[], checkpointId: string, sinceBoundary: number): WiCuratorOp[] =>
+  proposals
+    .filter((record) => record.curator === "wi" && record.checkpointId === checkpointId && record.boundary >= sinceBoundary)
+    .flatMap((record) => record.ops.filter((entry) => entry.status === "rejected" && !isNoteOp(entry.op)).map((entry) => entry.op as WiCuratorOp));
+
+export const decidedOp = (entry: CuratorOpRecord, status: "accepted" | "rejected", op?: CuratorOp): CuratorOp => {
+  const chosen = op ?? entry.op;
+  if (status !== "accepted" || !entry.fuzzy || chosen.kind !== "patch" || entry.op.kind !== "patch" || chosen.anchor !== entry.op.anchor) return chosen;
+  return { ...chosen, anchor: entry.fuzzy.anchor };
+};
+
+const nearMatch = (op: WiCuratorOp, entry: CuratorEntryView | undefined): CuratorOpRecord | null => {
+  if (op.kind !== "patch" || !entry) return null;
+  const found = findSpanFuzzy(entry.content, op.anchor);
+  if (!found) return null;
+  const exact = previewCuratorOp({ ...op, anchor: found.anchor }, entry);
+  const marker = applyCuratorPatch(entry.content, found.anchor, "\u0000").content.indexOf("\u0000");
+  if (!exact.ok || marker !== found.start) return null;
+  const fuzzy = { anchor: found.anchor, span: entry.content.slice(found.start, found.end), score: Math.round(found.score * 100) / 100 };
+  return { op, status: "pending", message: `${exact.message} (near match, ${Math.round(found.score * 100)}%)`, before: beforeImage(entry), fuzzy };
+};
+
+const beforeImage = (entry: CuratorEntryView) => ({ content: entry.content, disabled: entry.disabled, ...(entry.uid !== undefined ? { uid: entry.uid } : {}) });
+
+export function planCuratorProposal(proposal: CuratorProposal, entries: CuratorEntryView[], options: { mode?: StagecraftAcceptMode; declined?: WiCuratorOp[] } = {}): { records: CuratorOpRecord[]; dropped: string[] } {
+  const declined = new Set((options.declined ?? []).map(declineKey));
   const seen = new Set<string>();
   const dropped = [...proposal.dropped];
   const records: CuratorOpRecord[] = [];
@@ -77,13 +108,22 @@ export function planCuratorProposal(proposal: CuratorProposal, entries: CuratorE
       continue;
     }
     seen.add(key);
-    const entry = byKey.get(opTargetKey(op));
+    if (declined.has(declineKey(op))) {
+      dropped.push(`${op.kind}: "${op.comment}" was declined earlier`);
+      continue;
+    }
+    const entry = viewForOp(entries, op);
     const preview = previewCuratorOp(op, entry);
+    const near = !preview.ok && options.mode === "review" ? nearMatch(op, entry) : null;
+    if (near) {
+      records.push(near);
+      continue;
+    }
     if (!preview.ok) {
       dropped.push(`${op.kind}: ${preview.message}`);
       continue;
     }
-    records.push({ op, status: "pending", message: preview.message, before: entry ? { content: entry.content, disabled: entry.disabled } : undefined });
+    records.push({ op, status: "pending", message: preview.message, before: entry ? beforeImage(entry) : undefined });
   }
   return { records, dropped };
 }
