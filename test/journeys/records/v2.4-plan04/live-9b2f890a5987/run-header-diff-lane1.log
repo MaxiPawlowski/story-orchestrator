@@ -1,0 +1,12 @@
+{
+  "baseline": "test/journeys/records/v2.4-plan04/live-9b2f890a5987/run-header-pre-lane1.json",
+  "label": "plan04-lane1-end",
+  "allow": [],
+  "differences": 0,
+  "progress": 0,
+  "blocking": 0,
+  "blockingPaths": [],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\1\\debug\\run-header-plan04-lane1-end.json",
+  "ok": true
+}

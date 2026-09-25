@@ -1,0 +1,76 @@
+1/11 eval ok 4ms
+2/11 import_story ok 274ms
+3/11 eval ok 8ms
+3/11 eval -> {"groupId":"1759606632088","chatId":"2026-09-24@23h58m16s045ms","cadence":1,"story":"live-v24-04"}
+4/11 send_generate ok 14426ms
+5/11 wait ok 20341ms
+6/11 eval ok 5ms
+6/11 eval -> {"outcome":"not proposed","accepted":[],"refused":[],"marked":1,"ruled":1}
+7/11 eval ok 4ms
+7/11 eval -> {"requests":1,"types":["normal"]}
+8/11 expect ok 6ms
+8/11 expect -> {"overSteer":{"ok":true,"failures":[],"block":{"key":"story_orchestrator_guidance","source":"capture","chars":190},"restate":{"ok":true,"span":3,"maxSpan":6,"metaHits":[]},"swing":null,"recorded":true}}
+9/11 slash ok 1766ms
+10/11 wait ok 11307ms
+11/11 eval ok 5ms
+11/11 eval -> {"narrator":3,"landed":[{"reason":"cadence","messageId":3,"evidence":"The Sun Idol comes free of the altar and rests in your hands. You hold it now."}],"onNarrator":true,"earlier":"not proposed","blackboard":{}}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T02-59-08-755Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 11,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de3748c5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-24@23h58m16s045ms",
+    "owned": [
+      "2026-09-24@23h58m16s045ms"
+    ],
+    "deleted": [
+      "2026-09-24@23h58m16s045ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@23h58m16s045ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

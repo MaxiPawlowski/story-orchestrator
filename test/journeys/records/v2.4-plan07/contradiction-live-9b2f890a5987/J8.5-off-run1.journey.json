@@ -1,0 +1,456 @@
+{
+  "id": "J8",
+  "title": "stagecraft",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j8-stagecraft.journey.json",
+  "ranAt": "2026-09-25T04:14:07.831Z",
+  "strict": true,
+  "partial": true,
+  "only": [
+    "J8.5"
+  ],
+  "tally": {
+    "skipped": 6,
+    "pass": 1
+  },
+  "tallies": {
+    "automated": {
+      "pass": 1,
+      "fail": 0,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 5
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 1
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 1,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [
+    "5 skipped (strict): an acceptance run runs every check"
+  ],
+  "humanRecord": null,
+  "runnerError": null,
+  "releasedRoutes": null,
+  "capabilities": {
+    "continuity-warden": true
+  },
+  "results": [
+    {
+      "id": "J8.1",
+      "mode": "auto",
+      "findings": [
+        "D1"
+      ],
+      "goal": "a checkpoint's background effect switches the ST background deterministically, and re-applies on hydrate",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J8.2",
+      "mode": "auto",
+      "findings": [
+        "D1"
+      ],
+      "goal": "the WI curator proposes a change off-path from real canon, the author reviews it on the drawer's cards (editing it when it is a text change), and the boundary write — whatever op kind the model chose — reaches the server file and the next generation's prompt",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J8.3",
+      "mode": "auto",
+      "findings": [
+        "D1"
+      ],
+      "goal": "every curator action is journaled, it can never write the blackboard or a memory tier, and a write outside the story's allowlist is refused",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J8.4",
+      "mode": "human",
+      "findings": [
+        "D1"
+      ],
+      "goal": "",
+      "prompt": "Did the presentation (scene, background, cast) feel handled for you, without you asking?",
+      "anchors": "1 = nothing happened · 3 = noticed it once · 5 = the stage kept up with the story",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J8.5",
+      "mode": "auto",
+      "findings": [],
+      "goal": "warden auto: a scripted reply that contradicts a seeded fact locked as canon produces one continuity note, and the claim the read takes from it is held in the reconciliation queue, never a live fact the warden enforces (v2.4 plan 07 contradiction fix); the next loud generation's prompt carries it, the one after does not. Under a journey judge mode (v2.4 plan 07) the check leaves the judge settings to the mode: --judge-uses warden --warden-mode auto is the on arm, and --judge-uses off is the control arm, where the same turns must make no warden call and no note may reach a prompt",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J8.6",
+      "mode": "auto",
+      "findings": [],
+      "goal": "warden review: the note waits for the author; a newer reply commits first, the note lapses, and no note reaches any prompt",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J8.9",
+      "mode": "auto",
+      "findings": [],
+      "goal": "both judge curators off (warden off, curator focus off): a contradicting reply and a generation make no warden or curator-filter call, add no proposal and put no note in the prompt",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    }
+  ],
+  "cleanup": {
+    "judgeCalls": {
+      "count": 0,
+      "events": []
+    },
+    "judgeMode": {
+      "mode": {
+        "label": "off",
+        "uses": []
+      }
+    },
+    "judgeMeter": {
+      "calls": 0,
+      "cachedCalls": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "cost": 0,
+      "lastAnsweredModel": null
+    },
+    "warden": {
+      "flagged": 0,
+      "applied": 0,
+      "lapsed": 0,
+      "rejected": 0,
+      "pending": 0
+    },
+    "wardenNotes": [],
+    "rescore": {
+      "factsSource": "live facts-tier and pinned memory rows at cleanup; ledger-bound rows not included",
+      "rows": [
+        {
+          "id": "m0",
+          "arm": "off",
+          "established": [
+            "The old stone bridge over the river collapsed in the flood and is gone.",
+            "The old stone bridge over the river is still standing and intact.",
+            "The old stone bridge over the river is intact and usable."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+          }
+        },
+        {
+          "id": "m1",
+          "arm": "off",
+          "established": [
+            "The old stone bridge over the river collapsed in the flood and is gone.",
+            "The old stone bridge over the river is still standing and intact.",
+            "The old stone bridge over the river is intact and usable."
+          ],
+          "reply": {
+            "speaker": "Courier",
+            "text": "I crossed the old stone bridge over the river this morning. It held firm under my boots, same as ever."
+          }
+        },
+        {
+          "id": "m3",
+          "arm": "off",
+          "established": [
+            "The old stone bridge over the river collapsed in the flood and is gone.",
+            "The old stone bridge over the river is still standing and intact.",
+            "The old stone bridge over the river is intact and usable."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "\"Back the same way, huh?\"\n*Arin gives a light shrug, already stepping forward with his hand resting casually on thedagger hilt.*\n\"At least we're not walking blindly into some monster's nest this time. Should be easy.\"\n*He glances back at you, his expression shifting slightly.*\n\"You sure you're alright? You're acting a little strange today.\"\n*The wind picks up, rustling through the trees. He walks with a steady, easy pace, but his eyes are flicked around, always scanning for movement in the shadows.*"
+          }
+        },
+        {
+          "id": "m5",
+          "arm": "off",
+          "established": [
+            "The old stone bridge over the river collapsed in the flood and is gone.",
+            "The old stone bridge over the river is still standing and intact.",
+            "The old stone bridge over the river is intact and usable."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "\"Hmm.\"\n*Arin glances at you, then walks a little closer, his shoulder nearly brushing yours.*\n\"Okay, you're definitely acting weird. What's on your mind?\"\n*The trees around you thicken, the path winding deeper into the forest.*\n\"Got something you need to tell me, or should I just keep guessing?\"\n*His voice is light, but there's a hint of concern in it, his hand still resting on his dagger.*"
+          }
+        },
+        {
+          "id": "m6",
+          "arm": "off",
+          "established": [
+            "The old stone bridge over the river collapsed in the flood and is gone.",
+            "The old stone bridge over the river is still standing and intact.",
+            "The old stone bridge over the river is intact and usable."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"Oh! Oh, wait, are you Max?!\"\n*Luke comes running toward you, his oversized chainmail clanking with each step. His brown hair is disheveled, and his sword rattles in its scabbard as he skids to a stop.*\n\"I-I've heard all about you! You've completed so many high-rank quests! You're a legend!\"\n*He beams with excitement, his voice fast and eager, his chest heaving as he catches his breath.*\n\"My brother was an adventurer too—he went to the Sun Ruins, and I need to find him. I was thinking... maybe you'd be willing to help me? Or-or let me join your party for just a while?\"\n*He looks at you with desperate hope, his pale face flushed from running.*"
+          }
+        },
+        {
+          "id": "m7",
+          "arm": "off",
+          "established": [
+            "The old stone bridge over the river collapsed in the flood and is gone.",
+            "The old stone bridge over the river is still standing and intact.",
+            "The old stone bridge over the river is intact and usable."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The afternoon sun hangs low in the sky, painting the trees in long shadows. The path ahead winds through a dense forest, the air thick with the scent of damp earth and pine. A cool breeze rustles through the leaves, carrying with it a hint of mystery.*\n*Arin leans back against a nearby tree, his arms crossed, watching Luke with an amused smirk.*\n\"Well, well, looks like we've got a fan. Quite the rumor mill we've got going on here.\"\n*He shakes his head, chuckling softly.*\n\"So, Max, what do you say? You got a new fan, or do you want to keep things quiet?\"\n*The forest around you grows quieter, as if listening to your decision.*"
+          }
+        }
+      ]
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "judgeRestore": {
+      "restored": true,
+      "ok": true
+    },
+    "assets": {
+      "marker": "SO-J8",
+      "found": {
+        "allLorebooks": [
+          "Adalion groupchat",
+          "Adolion - Aegis City Noble Life",
+          "Adolion - Eshalanore",
+          "Adolion - Mountains of Shadow",
+          "Adolion - The Third Kingdom",
+          "Adolion - Tiunhime Village",
+          "Adolion Academy Checkpoints",
+          "Adolion Adventurer Checkpoints",
+          "Adolion Chronicle",
+          "Adolion World",
+          "Celia Lorebook",
+          "Chat_Book_Assistant_2025_10_04_18h59m30s",
+          "Exported",
+          "Magianomicon",
+          "main_Magianomicon_world_info",
+          "main_The Fantasy World of Adolion_world_info",
+          "ProjectStory",
+          "Story Orchestrator - Adolion House Nightriver - 2026-09-19@03h33m35s200ms",
+          "Story Orchestrator - Adolion House Nightriver - 2026-09-19@03h57m17s921ms",
+          "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-19@03h21m18s814ms",
+          "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-19@03h31m08s292ms",
+          "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-19@03h43m00s631ms",
+          "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-19@03h48m18s080ms",
+          "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-20@09h17m25s990ms",
+          "Story Orchestrator - Authority Enforcement Gate Check - 2026-09-21@15h49m05s268ms",
+          "Story Orchestrator - Copilot Live Gate",
+          "Story Orchestrator - Journey J11 — Judgment Backend - 2026-09-20@04h40m32s180ms",
+          "Story Orchestrator - Live Extraction Gate Check",
+          "Story Orchestrator - Live Memory Gate Check",
+          "Story Orchestrator - Live Pacing Gate Check",
+          "Story Orchestrator - Memory Foundation Gate Check",
+          "Story Orchestrator - Quest for the Sun Ruins - 2026-09-20@07h06m38s396ms",
+          "Story Orchestrator - Quest for the Sun Ruins",
+          "Story Orchestrator - Talk Control Live Gate",
+          "Story Orchestrator - Untitled Story",
+          "The Fantasy World of Adolion",
+          "Xentar Checkpoints",
+          "Xentar"
+        ],
+        "allRegex": [],
+        "allQrSets": [
+          "Default"
+        ],
+        "qrError": null,
+        "marker": "SO-J8",
+        "baseline": "2026-09-25T04:12:50.956Z",
+        "ledger": [],
+        "sessions": [],
+        "characters": [],
+        "groups": [],
+        "lorebooks": [],
+        "protected": [],
+        "regexScripts": [],
+        "qrSets": []
+      },
+      "removed": {
+        "characters": [],
+        "groups": [],
+        "lorebooks": [],
+        "lorebooksViaHost": [],
+        "lorebooksUnlisted": [],
+        "regexScripts": [],
+        "qrSets": [],
+        "evicted": [],
+        "staleCache": [],
+        "errors": [],
+        "sessions": {
+          "kept": [
+            "untitled",
+            "untitled-story"
+          ],
+          "dropped": []
+        }
+      },
+      "saved": {
+        "status": 200
+      },
+      "leaked": {
+        "allLorebooks": [
+          "Adalion groupchat",
+          "Adolion - Aegis City Noble Life",
+          "Adolion - Eshalanore",
+          "Adolion - Mountains of Shadow",
+          "Adolion - The Third Kingdom",
+          "Adolion - Tiunhime Village",
+          "Adolion Academy Checkpoints",
+          "Adolion Adventurer Checkpoints",
+          "Adolion Chronicle",
+          "Adolion World",
+          "Celia Lorebook",
+          "Chat_Book_Assistant_2025_10_04_18h59m30s",
+          "Exported",
+          "Magianomicon",
+          "main_Magianomicon_world_info",
+          "main_The Fantasy World of Adolion_world_info",
+          "ProjectStory",
+          "Story Orchestrator - Adolion House Nightriver - 2026-09-19@03h33m35s200ms",
+          "Story Orchestrator - Adolion House Nightriver - 2026-09-19@03h57m17s921ms",
+          "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-19@03h21m18s814ms",
+          "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-19@03h31m08s292ms",
+          "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-19@03h43m00s631ms",
+          "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-19@03h48m18s080ms",
+          "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-20@09h17m25s990ms",
+          "Story Orchestrator - Authority Enforcement Gate Check - 2026-09-21@15h49m05s268ms",
+          "Story Orchestrator - Copilot Live Gate",
+          "Story Orchestrator - Journey J11 — Judgment Backend - 2026-09-20@04h40m32s180ms",
+          "Story Orchestrator - Live Extraction Gate Check",
+          "Story Orchestrator - Live Memory Gate Check",
+          "Story Orchestrator - Live Pacing Gate Check",
+          "Story Orchestrator - Memory Foundation Gate Check",
+          "Story Orchestrator - Quest for the Sun Ruins - 2026-09-20@07h06m38s396ms",
+          "Story Orchestrator - Quest for the Sun Ruins",
+          "Story Orchestrator - Talk Control Live Gate",
+          "Story Orchestrator - Untitled Story",
+          "The Fantasy World of Adolion",
+          "Xentar Checkpoints",
+          "Xentar"
+        ],
+        "allRegex": [],
+        "allQrSets": [
+          "Default"
+        ],
+        "qrError": null,
+        "marker": "SO-J8",
+        "baseline": "2026-09-25T04:12:50.956Z",
+        "ledger": [],
+        "sessions": [],
+        "characters": [],
+        "groups": [],
+        "lorebooks": [],
+        "protected": [],
+        "regexScripts": [],
+        "qrSets": []
+      },
+      "legacyMirrors": {
+        "targets": [],
+        "refused": [],
+        "left": []
+      },
+      "clean": true
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [
+        "so-j8-stagecraft"
+      ],
+      "preservedSessions": []
+    },
+    "stories": {
+      "removed": 1,
+      "saved": {
+        "status": 200
+      }
+    },
+    "chat": {
+      "sandboxChatId": "2026-09-25@01h12m51s110ms",
+      "owned": [
+        "2026-09-25@01h12m51s110ms"
+      ],
+      "deleted": [
+        "2026-09-25@01h12m51s110ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [
+        "2026-09-25@01h12m51s110ms"
+      ],
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-25@01h12m51s110ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-24@05h22m36s897ms"
+    },
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    }
+  }
+}

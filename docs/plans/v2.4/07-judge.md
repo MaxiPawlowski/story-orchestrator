@@ -972,3 +972,68 @@ it falls under 0.55, the claim is stored live again and the step-8 assertion fai
 **Unresolved questions.**
 - Should `isEstablished` also count a story-authored seed? No authored fact seed exists in the schema today.
 - Should the held pair's copy say "a character claimed" when the evidence quotes a non-player speaker?
+
+
+### Contradiction fix live (2026-09-25, bundle 9b2f890a5987)
+
+Main checkout on `e4d69db`, bundle `9b2f890a5987` (not rebuilt), lane 2 only, group `1759606632088`, profile
+`Artemis RunPod RP`, real judge through the plugin. Each run started on a reloaded page (`st-session reload`,
+`open-group`, `/profile`), with the served bundle sha checked. Recipe as in §Part 1 item 2:
+`so-journey run J8 --only J8.5 --strict --judge-uses warden --warden-mode auto`, and `--judge-uses off` for the control.
+Records: `test/journeys/records/v2.4-plan07/contradiction-live-9b2f890a5987/`.
+
+**Verdict: RED ×2, cause measured.** The claim is stored live again, because on this install the vectors band decides
+the pair and the pair's cosine is under 0.55. The threshold was not retuned.
+
+| | on run 1 | on run 2 | off run 1 |
+|---|---|---|---|
+| journey | PASS (`automated 1 pass`; exit 1 only for the 5 `--only` skips), cleanup clean, `judgeRestore ok` | same | PASS, no warden call, no note, cleanup clean |
+| warden calls (`p`) | `{1,1}`, `{2,0}` (fallback: timeout, 4,007 ms), `{2,0}` | `{1,1}`, `{1,0}` | none |
+| warden flagged / applied / lapsed | 1 / 1 / 0 | 1 / 1 / 0 | 0 / 0 / 0 |
+| meter (calls, in / out tokens) | 3, 1,553 / 62 | 2, 1,037 / 44 | 0 |
+| `held` | `[]` | `[]` | (not reported by the off arm) |
+| `liveClaims` (bridge rows) | "…is still standing and intact." | "…is still standing and intact.", "…is intact and usable." | the same two in `rescore.established` |
+
+Green criteria from §Contradicted seeded fact, applied exactly:
+
+| Criterion | run 1 | run 2 |
+|---|---|---|
+| no warden note enforces a bridge fact other than the seed (last step) | holds | holds |
+| `cleanup.judgeCalls` never `{facts: 3, flagged: 2}` | holds | holds |
+| `cleanup.rescore` established facts = the seed only | **fails**: seed + "still standing and intact" | **fails**: seed + both "intact" rows |
+| `held` names the Courier claim when the read extracted one | **fails**: extracted, `held: []` | **fails**: same |
+
+**Cause, measured.** `buildMatchSets` asks ST vectors (`transformers`) when the capability is present, and it is
+present on lane 2: insert and query both answered. The server drops the score (`src/endpoints/vectors.js:390`,
+`score >= threshold`), so the score was bracketed by bisecting the threshold: 14 steps, a two-row collection per pair,
+purged after. Probe: `pair-cosine-probe.js`, output `pair-cosine-probe.json`.
+
+| claim vs seed ("…collapsed in the flood and is gone.") | cosine | ≥ 0.82 dup | ≥ 0.55 same-topic |
+|---|---|---|---|
+| "The old stone bridge over the river is still standing and intact." | **0.410** | no | no |
+| "The old stone bridge over the river is intact and usable." | **0.359** | no | no |
+| the Courier's line itself | 0.302 | no | no |
+| "Luke is uncertain … the old stone bridge is missing." (agrees with the seed) | 0.306 | no | no |
+
+Both extracted claims fall below the same-topic band, so `heldContradictions` never sees the pair and the write path
+stores them live. This is the risk the build record named. Jest is green because it runs the Jaccard fallback, where
+the same pair scores 0.533 / 0.571 against a 0.4 band. With this embedding model, the vectors bands are too coarse to
+tell "the bridge is gone" from "the bridge is intact": the two texts share their subject and differ in polarity, and
+polarity barely moves a sentence embedding. The off arm stored the same two rows, as expected: the write path does not
+depend on the judge.
+
+**What held.** The seed stayed established and uncontradicted, and every applied note enforced the seed. Neither run
+reproduced the Part 1 shape `{facts: 3, flagged: 2}`. In run 1 the claim row reached the warden's fact set
+(`{facts: 2}`) and no reply was flagged against it. That is luck, not the guard. Run 1's second warden call fell back on
+a 4 s timeout. This was observed and not investigated here.
+
+**Not fixed: product, beyond "small and obvious".** Candidate directions, none built:
+- a polarity or negation check;
+- asking the judge's `memoryPairs` relation on a same-subject pair below the band;
+- for the established-row guard only, taking the union of the vectors and Jaccard bands.
+
+Each changes the detector's contract and needs its own measurement, so it is a decision for the main session.
+
+**Run header.** Lane 2 `diff` vs `run-header-pre-lane2.json`: 0 differences, covering these three runs and plan 04's
+live suite A/B (`run-header-diff-lane2.log`). No `--allow` was needed. Lane 2 was left with the judge off, no use on,
+curator on (`auto`) and warden off, as it started.

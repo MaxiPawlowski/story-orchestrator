@@ -1,0 +1,36 @@
+{
+  "ok": true,
+  "value": {
+    "vectorsCapability": null,
+    "out": [
+      {
+        "claim": "The old stone bridge over the river is still standing and intact.",
+        "claimToSeed": 0.4102,
+        "seedToClaim": 0.4102,
+        "dup082": false,
+        "same055": false
+      },
+      {
+        "claim": "The old stone bridge over the river is intact and usable.",
+        "claimToSeed": 0.3587,
+        "seedToClaim": 0.3587,
+        "dup082": false,
+        "same055": false
+      },
+      {
+        "claim": "Luke is uncertain about the river crossing, noting the current looks different and the old stone bridge is missing.",
+        "claimToSeed": 0.3058,
+        "seedToClaim": 0.3058,
+        "dup082": false,
+        "same055": false
+      },
+      {
+        "claim": "I crossed the old stone bridge over the river this morning. It held firm under my boots, same as ever.",
+        "claimToSeed": 0.302,
+        "seedToClaim": 0.302,
+        "dup082": false,
+        "same055": false
+      }
+    ]
+  }
+}

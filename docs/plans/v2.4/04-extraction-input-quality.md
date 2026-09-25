@@ -618,3 +618,71 @@ globals-read guard pass. Every run is `so-scenario run <file> --sandbox --group 
 - The run-header capture and diff.
 - The 1.18.0 host-fact check.
 - Records are owed under `test/journeys/records/v2.4-plan04/`.
+
+
+### Live gates (2026-09-25, bundle 9b2f890a5987)
+
+Main checkout on `e4d69db`, bundle `9b2f890a5987` (`dist/manifest.json`, not rebuilt). Lanes 1 and 2 only, group
+`1759606632088`, profile `Artemis RunPod RP` (Artemis 31B over the main session's tunnel), real extraction, no
+`debugResponse`. Before every batch: `st-session reload`, `open-group`, `/profile`, and the served `dist/index.js`
+sha256 checked against `bundle.sha256` (match every time). Records:
+`test/journeys/records/v2.4-plan04/live-9b2f890a5987/`.
+
+The session was cut off once (API spend limit) and the pod idle-stopped while it was down. Every run below completed
+before the cut or after the restart; none spans it, and no run was cut mid-way. No sandbox chat, story or mirror book of
+this session was left on either lane (group chat counts 60 / 55 before and after; library holds none of `live-v24-04*`).
+
+**Lane 1 judge config.** Lane 1 held residue from an earlier session: `judge.enabled: true` with `director`,
+`sceneTrigger`, `sceneTracker` on. It was switched to all-off (the real install's value) at about 02:52Z with
+`writeJudgeConfig` and read back, BEFORE the pre-run header and before any run here. Every archived run on lane 1 (the
+four scenarios ×2 and J3 ×2) therefore ran with the judge off and no use on; both J3 records show `judgeCalls.count: 0`.
+
+| Gate | Result | Record |
+|---|---|---|
+| `v24-04-window-hygiene.json` ×2 (T20 rows, no backend) | **green ×2**: ids 2-5 posted, window 0..5, `windowForm {hygiene:1, promptRegex:false}`, `leaked: []`, the narration and the visible reply kept | `v24-04-window-hygiene-run{1,2}.log` |
+| `live-v24-04-window-hygiene.json` ×2 | **green ×2** | `live-v24-04-window-hygiene-run{1,2}.log` |
+| `live-v24-04-player-evidence.json` ×2 | **green ×2** | `live-v24-04-player-evidence-run{1,2}.log` |
+| `live-v24-04-player-evidence-control.json` ×2 | **green ×2** | `live-v24-04-player-evidence-control-run{1,2}.log` |
+| J3 `--strict` ×2, consecutive | **green ×2**: 8/8 pass, cleanup clean, first try 8 of 8 both runs | `J3-run{1,2}.log`, `J3-run{1,2}.journey.json`, `batch-J3.json` |
+| Live suite run A | **ok**: deltas 22/22 = 1.0 (floor 0.9), facts 16/22 = 0.727 (floor 0.68), rejected 14/15 = 0.933 (floor 0.9), 22 of 22 ran, none incomplete | `so-live-suite-report-A.json`, `so-live-suite-A.log` |
+| Live suite run B | **ok**: deltas 22/22 = 1.0, facts 16/22 = 0.727, rejected 15/15 = 1.0, 22 of 22 ran | `so-live-suite-report-B.json`, `so-live-suite-B.log` |
+| Run header, lane 1 | `diff` vs `run-header-pre-lane1.json`: **0 differences** | `run-header-diff-lane1.log` |
+| Run header, lane 2 (live suite) | `diff` vs `run-header-pre-lane2.json`: **0 differences** | `run-header-diff-lane2.log` |
+
+Scenario summary: `batch-scenarios.json` (8 of 8 exit 0).
+
+**Live window hygiene.** In both runs the one read covering the tracker reply was the cadence read over window 2..3
+(`/sd` post id 2, tracker reply id 3). Neither `V2404SD` nor `V2404TRACKER` reached its prompt, the visible half
+("Luke keeps his hands at his sides…") did, and it states `windowForm {hygiene:1, promptRegex:false}`. It accepted
+nothing and rejected nothing, and `idol_taken` stayed `false`, although the hidden tracker claimed `true`.
+
+**Player evidence (variant, `evidence_from: world`, attempts clause on).**
+
+| | run 1 | run 2 |
+|---|---|---|
+| after "I grab the Sun Idol" | **not proposed** (player lines marked 1, rule stated 1) | **not proposed** (marked 1, ruled 1) |
+| normal requests on the checkpoint carrying the clause | 3 of 3 | 1 of 1 |
+| over-steer (recorded, not gated) | block 190 chars, restate span 1 of 6, no meta hit, swing n/a | block 190 chars, span 3 of 6, no meta hit |
+| `idol_taken` landed on | member reply id 4 ("the weight of the idol in Max's hands"), BEFORE the scripted narrator line (id 5): `onNarrator: false` | the scripted narrator line id 3: `onNarrator: true` |
+
+Both land on a non-player message, which is what the fixture asserts. In run 1 a group member's reply narrated the grab
+succeeding, and the read took the delta from that reply. That is the world confirming the outcome, which the clause
+allows. One sample per run, so it is recorded, not scored.
+
+**Control (`evidence_from` absent, clause off), both runs.** The delta was accepted on the player's own line
+(`messageId 1`, evidence "I grab the Sun Idol from the altar."). No mark, no rule, and no clause in any request (2 and 1
+requests). Today's behaviour is reproduced.
+
+**Live suite.** Both runs miss the same six facts fixtures, each reading "got 0" FACT lines (`extractor`, `2`, `3`, `4`,
+`5`, `15`). That is the v2.3 cause, at the same 16/22 as the v2.3 record. Run A's one `rejected` miss is `extractor20`
+("invalid scene break line"), the real rejection the Seed C note predicted; run B had none. The floors were predeclared
+and were not touched. Epistemic, ledger and arcs ran at their default floors, and no fixture scores them.
+
+**Regex parity (step 7): NOT BUILT, on evidence.** Its build rule needs a planted-tracker live run showing something
+the cleaner leaves behind. In both `live-v24-04-window-hygiene` runs, the covering prompt carried no tracker or `/sd`
+needle and kept the visible text, so there was nothing to build for.
+
+**Host facts.** 04-H1, H2, H5 and H6 checked on 1.18.0 (`51ad27fb`); all hold (`host-facts.md` §Plan 04, "1.18.0 check").
+
+**Not done here:** `test:release` (no rebuild), Storybook (no source change). D6's revisit after a player session stays
+with the user.

@@ -1,0 +1,111 @@
+{
+  "lanes": [
+    1
+  ],
+  "items": [
+    "test/scenarios/v24-04-window-hygiene.json",
+    "test/scenarios/live-v24-04-window-hygiene.json",
+    "test/scenarios/live-v24-04-player-evidence.json",
+    "test/scenarios/live-v24-04-player-evidence-control.json"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/scenarios/v24-04-window-hygiene.json",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T02-53-17-436Z-v24-04-window-hygiene-run1.log",
+      "ms": 10413,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v24-04-window-hygiene.json",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T02-53-17-436Z-v24-04-window-hygiene-run2.log",
+      "ms": 10967,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-04-window-hygiene.json",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T02-53-17-436Z-live-v24-04-window-hygiene-run1.log",
+      "ms": 90604,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-04-window-hygiene.json",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T02-53-17-436Z-live-v24-04-window-hygiene-run2.log",
+      "ms": 90110,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-04-player-evidence.json",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T02-53-17-436Z-live-v24-04-player-evidence-run1.log",
+      "ms": 95531,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-04-player-evidence.json",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T02-53-17-436Z-live-v24-04-player-evidence-run2.log",
+      "ms": 53714,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-04-player-evidence-control.json",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T02-53-17-436Z-live-v24-04-player-evidence-control-run1.log",
+      "ms": 62871,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v24-04-player-evidence-control.json",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-25T02-53-17-436Z-live-v24-04-player-evidence-control-run2.log",
+      "ms": 38526,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

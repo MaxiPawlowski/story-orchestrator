@@ -161,3 +161,14 @@ check on 1.18.0; they are owed to the integration session. Third-party rows are 
 | 04-H8 | (not ST) Stepped Thinking 3.2.0 posts a separated thought as `{is_user:false, is_system: bias-only, is_thoughts:true, owner_extension:'st-stepped-thinking', extra:{type: asSystem ? 'narrator' : undefined, api:'script', model:'stepped thinking'}}`; the default `mes` is `<details type="executing" …><summary>Thinking ({{char}}) 💭</summary>` + a ```` ```md ```` fence + `</details>`; `is_thoughts_spoiler_open` (default false) only toggles the `open` attribute | `third-party/st-stepped-thinking/thinking/mode.js:596-614`, `settings/settings.js:134`, `:147-155`, `index.js:27`, `manifest.json:9` |
 | 04-H9 | (not ST) CYOA pushes `{name:'CYOA Suggestions', is_user:true, is_system:false, mes: <html buttons>, extra:{api:'manual', model:'cyoa'}}` with no event; not installed here | `C:/dev/st-extensions-research/cyoa-extension/source/index.js:154-169` |
 | 04-H10 | `/hide` flips `is_system` and saves with no event, so hidden rows are already out of every window (D5) | `chats.js:147-168` |
+
+**1.18.0 check (integration session, 2026-09-25).** Rows 04-H1, 04-H2, 04-H5 and 04-H6 re-read on `51ad27fb`
+(`package.json` `"version": "1.18.0"`) with `git -C C:/dev/SillyTavern-MainBranch show 51ad27fb:<path>`. All four hold
+on 1.18.0 with the same shape; only line numbers move.
+
+| # | 1.18.0 | Result |
+|---|---|---|
+| 04-H1 | `script.js:4437` (filter, same `canUseTools && Array.isArray(x.extra?.tool_invocations)` clause), `:4443-4447` (`isPrompt:true`, same depth formula, then `appendFileContent`), `:4450-4463` (`extra.append_title` and media `append_title` titles) | holds |
+| 04-H2 | `extensions/regex/engine.js` is byte-identical to 1.19.0 (`diff --strip-trailing-cr`, no output): `:334` signature, `:342` disabled → raw, `:350-354` placement gate, `:363-371` depth, placements `:281-292` | holds, same lines |
+| 04-H5 | `slash-commands.js:6019` `sendNarratorMessage` (`is_system: bias && !removeMacros(text).length`, `extra.type: NARRATOR`); `:6112` `sendCommentMessage` (`is_system: true`, `extra.type: COMMENT`) | holds, lines −1 |
+| 04-H6 | `stable-diffusion/index.js:4966-5001` `sendMessage` (identical text to 1.19.0 over `:4960-5030`), visibility `:5009-5019`; `generationMode` `:113-128` (FREE 6); `constants.js:75-78` `MEDIA_SOURCE.GENERATED = 'generated'` | holds, same lines |

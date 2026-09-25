@@ -1,0 +1,70 @@
+1/7 eval ok 5ms
+2/7 import_story ok 265ms
+3/7 eval ok 9ms
+3/7 eval -> {"groupId":"1759606632088","chatId":"2026-09-24@23h59m09s796ms","cadence":1,"story":"live-v24-04-control"}
+4/7 send_generate ok 27156ms
+5/7 wait ok 29809ms
+6/7 eval ok 5ms
+6/7 eval -> {"outcome":"accepted (today: the player line may prove it)","accepted":[{"reason":"cadence","messageId":1,"v":true,"evidence":"I grab the Sun Idol from the altar."}],"refused":[],"marked":0,"ruled":0}
+7/7 eval ok 5ms
+7/7 eval -> {"requests":2,"types":["normal","normal"]}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T03-00-11-627Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 7,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-6b7cb9ed"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-24@23h59m09s796ms",
+    "owned": [
+      "2026-09-24@23h59m09s796ms"
+    ],
+    "deleted": [
+      "2026-09-24@23h59m09s796ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-24@23h59m09s796ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}
