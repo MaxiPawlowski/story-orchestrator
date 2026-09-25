@@ -370,8 +370,11 @@ consecutive, and `--strict`. It adds:
 | 01 | built + integrated 2026-09-24; every live item green ×2 on `14402df10a0e` incl. `so-turn-types-check` + lane-0 header diff (0 diffs); open: J6.4/J6.7/J5.8/J8.5 intermittents (not reproduced on final); `01-carry-in.md` §Gate record, Final build |
 | 02 | integrated on master 2026-09-24 (`34227e5`); 13 fixtures red→green ×2, J6/J10 ×2 on `14402df10a0e`; 4 live-found save/drain defects fixed; NOT accepted: downgrade leg (test, v2.3 blob, J10.12, clean-host) not built; `02-chat-identity-silent-mutation.md` §Integration and live gate |
 | 03 | built + integrated 2026-09-24; every live gate green ×2 (final bundle `100696d1d4a0`; gate 3 on `27d0f711bf9b`); 4 live-found defects fixed; `03-off-path-call-hygiene.md` §Final live gates |
-| 04, 05, 07 (part 1) | building in worktrees 2026-09-24 |
-| 06, 07 (part 2), 08, 09 | written 2026-09-23, not started |
+| 04 | built + integrated 2026-09-25 (`e4d69db`); every live gate green ×2 on `9b2f890a5987` (4 fixtures, J3, live suite A/B: plot deltas 22/22, facts 0.727 ≥ 0.68, rejected 0.933/1.0 ≥ 0.9); regex parity not built (rule not met); `04-extraction-input-quality.md` §Live gates |
+| 05 | built + integrated 2026-09-25; live gates green on `8b5f9dfe509b` (J3 ×2, J7, 5 fixtures ×2); T12c built live; T13 spike PASS (S1–S9) → v2.5 `05b` plan awaits the user; mirror key strip not built (nothing to measure); `05-world-info.md` §Live gates, `05-t13-spike-report.md` |
+| 07 part 1 | built + integrated 2026-09-25; live items green (meter ×2, J8.5 on ×2/off ×1, calibrate `resolved` 0.9765); token guard built from the limit probe (plugin copy not installed: needs an ST restart, user's call); contradiction fix RED live (vectors cosine 0.41 < 0.55), union-band fix building; `07-judge.md` §Part 1 live gates |
+| 06, 07 (part 2), 08 | building in worktrees 2026-09-25 |
+| 09 | written 2026-09-23, not started |
 
 ## Decisions (2026-09-23, made on evidence at the user's request)
 
