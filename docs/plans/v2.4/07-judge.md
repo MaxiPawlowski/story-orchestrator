@@ -829,3 +829,133 @@ Spanish 18/18, p50 1,015 ms. The one miss is CX06.
 - a warden baseline with a non-contradictory fact set (the rescore needs `--facts` until the extraction contradiction
   above is handled);
 - installing the plugin guard.
+
+### Contradicted seeded fact (worktree build, 2026-09-25)
+
+Worktree branch `worktree-agent-a6f2bab29efef9f15`, on master `4997718` plus the plan 04 merge (`0f3904d`, the one
+`host-facts.md` conflict resolved by keeping both sections). **No backend and no browser here: no live gate ran, none is
+claimed green.** Fixes the defect written up in §Part 1 live gates ("Defect found, not fixed").
+
+**Root cause (cited on `4997718`).** Nothing compares a NEW fact with an established one. Three layers, each blind:
+1. The write path stores a read's facts unconditionally. `extractionCoordinator.ts:200` builds each FACT line as a live
+   `facts` row, `:215` calls `memory.applyEntries`, and `memoryCoordinator.ts:145-152` hands it to `addMemoryEntries`
+   (`stores.ts:26-54`), which drops only excluded hashes and re-read windows.
+2. The reconciliation queue never looks at fact against fact. `detectConflicts` (`conflicts.ts:132`) has three loops:
+   ledger against blackboard (`:148`), fact against a LEDGER row (`:163-166`), scene against ledger/blackboard (`:180`).
+   `detectMemoryConflicts` (`memoryQueue.ts:73`) is its only caller.
+3. Consolidation is the only fact-vs-fact walk, and it could not have helped:
+   - It runs every 10th boundary (`boundaryWork.ts:6,139`), only for tier groups of 8 or more
+     (`consolidate.ts:22`, `memoryCoordinator.ts:484`). J8.5 held 3 facts and never reached boundary 10.
+   - Had it run, the Courier pair (Jaccard 0.533 and 0.571, same-topic band 0.4) carries no state-change marker, so
+     it is `uncertain` (`consolidate.ts:93`).
+   - `runConsolidation` then calls `markContradicted` (`memoryCoordinator.ts:507`), which flags the EXISTING row
+     (`supersede.ts:9`, `existingId`): the seed.
+   - `establishedFacts` drops a `contradicted` row (`continuity.ts:35`), so the warden would have held replies to the
+     Courier's claim ALONE.
+   - `MemoryEntry.locked` promises that "a later contradicting candidate goes to the reconciliation queue instead"
+     (`types.ts:159`). Nothing queued it: the `uncertain` pair only ever reached `markContradicted`.
+
+Neither of the other two leads catches it:
+- The prompt already carries the seed. Canon-lite includes the top facts (`canonLite.ts:9`), and the model still
+  wrote the Courier's speech as a FACT.
+- Plan 04's T15 `evidence_from` screens DELTA lines only (`sharedRead.ts:65`), and it separates the player from
+  everyone else. The Courier is not the player.
+
+**Where an NPC's claim belongs.** It is evidence of what the NPC SAID. The epistemic tier already names this case:
+`[believes] Character | something they hold as true that is actually false`, and the DECEPTION rule writes `[hiding]` for
+a liar (`memory/contract.ts`). That section rides the shared read only when `epistemicLedgerCapable` is on, and its lines
+never reach the facts tier or the warden. Tiers were not redesigned. The fix is the guard below: a claim that lands on
+a settled fact is held for the author, whatever the read called it.
+
+**As built.**
+- **Established** (`isEstablished`, `memory/conflicts.ts`) means pinned, locked, carrying an author override
+  (reconciled, reconfirm, store-anyway, lock), or `source: "author"`. `standsEstablished` adds live, not superseded,
+  not folded. An extractor row nobody pinned is NOT established, however "permanent" or important the read rated it.
+- **The detector is the consolidation bands, reused.** `findHeldContradictions` (`memoryQueue.ts`) builds `MatchSets`
+  over `[established…, candidates…]`. It uses the injected `matchSets`, which is the coordinator's `buildMatchSets`:
+  ST vectors, else Jaccard. `heldContradictions` then holds a candidate when all three hold:
+  - it is in an established row's dup or same-topic band;
+  - it is not the same text;
+  - it is not an M5 update. A candidate with a state-change marker still passes against a PIN, as v2.3 M5 requires. A
+    LOCK holds every candidate in its band.
+  - `heldGroup` gives every row one type first. The same-topic band pairs only same-typed rows, and whether a claim
+    contradicts a settled fact does not depend on the read calling it `fact` or `event`.
+- **Held, not live.** `MemoryCoordinator.applyEntries` reads the bands before its ownership check, which was already
+  there, and holds right after the tier write, synchronously. `holdMemoryContradictions` then:
+  - queues `held:<established>><candidate>` with the established side marked `standing: true`;
+  - marks only the candidate `conflicted`.
+  `detectMemoryConflicts` never re-marks a standing side. `conflictWindow` reads the claim's message, never the seed's.
+  Keep / Lock as canon / Dismiss / Re-read are the existing queue decisions, unchanged: Lock keeps the seed and
+  supersedes the claim; Dismiss puts the claim back in play.
+- **Consolidation.** `settleUncertain` replaces the bare `markContradicted`.
+  - An undecided pair whose older row is established holds the newer claim.
+  - The established row is never marked `contradicted`.
+  - Every other pair keeps today's soft mark.
+- **Warden.** No change was needed. `establishedFacts` already reads only live, non-contradicted rows. The defect was
+  that the claim rows WERE live.
+- **Player.** The player Memory tab no longer lists a `conflicted` row (`DrawerTabs.tsx` `visible`). This covers the
+  ledger-conflict rows too, which were visible before. The queue card says the standing side still steers
+  (`[data-so="conflict-standing"]`).
+- **J8.5 fixture.**
+  - The seed step now pins the seed. Without that it is an ordinary extractor row, and a test below proves it stays
+    unguarded.
+  - The last on-arm step fails if any warden note enforced a bridge fact other than the seed, and returns `held` and
+    `liveClaims`.
+- **Size.** The coordinator is 619/620 effective lines, and the manager is unchanged at 737/740. The census row for
+  `applyEntries` stays `checked`, with its note updated for the new await.
+
+**Red first.** `contradictedSeed.review.test.ts` drives the real `ExtractionCoordinator.applyAudit` into a real
+`MemoryCoordinator`:
+- J8.5's own seed line;
+- the Courier read parsed by `parseSharedReadResponse`, both stored texts from the record, as a FACT line and a MEMORY
+  `event` line (the record does not keep the line kinds).
+
+Before the fix: **4 failed, 3 passed** (the three controls). The warden read
+`[seed, "…still standing and intact.", "…intact and usable."]`, which is the live `{facts: 3, flagged: 2}` shape.
+The consolidation case and the 14 `memoryQueueHeld.test.ts` cases were written with the code. Their red is evidenced by
+the mutants.
+
+**Mutations.** `test/findings/mutations/v24-07-contradiction.txt`, **25/25 killed**:
+- C1-C4: coordinator wiring;
+- Q1-Q9: the queue;
+- P1-P10: the detector;
+- U1-U2: the player filter and the standing label (Storybook).
+
+**Gates (worktree, after the edits):**
+- OK: `npm run typecheck`, `npm run typecheck:test`, `npm run lint`, `npm run debug:typecheck`.
+- `npm test`: 231 suites, **3418 passed** (fault matrix 75 covered / 10 partial / 25 na / 0 todo).
+- `npm run build`: OK (the 2 known size warnings).
+- `npm run test:debug`: 257 pass, 1 skip, 0 fail. The first run, before `npm run build`, failed 1: the run-header
+  manifest test reads `dist/manifest.json`, which a fresh worktree does not have.
+- Storybook: built, and the test-runner ran over `index.json`, **216/216**.
+
+**Live check owed (main session).** J8.5 on-arm ×2 on a reloaded page, same recipe as §Part 1 item 2
+(`--only J8.5 --judge-uses warden --warden-mode auto`, lane 2). Green means:
+- the step-8 assertion holds: no warden note enforces a bridge fact other than the seed;
+- `cleanup.judgeCalls` never shows `{facts: 3, flagged: 2}`;
+- `cleanup.rescore` established facts hold the seed only, so the live-facts rescore no longer needs `--facts`;
+- `held` names the Courier claim, if the read extracted one.
+
+Also run one off-arm, to prove the control is unchanged. Record the `held` / `liveClaims` returns: the live install has
+ST vectors, so the cosine bands (0.82 / 0.55), not Jaccard, decide the pair. The pair's cosine is **not measured**. If
+it falls under 0.55, the claim is stored live again and the step-8 assertion fails. That is the live gate doing its job.
+
+**Limits (stated, not hidden).**
+- The detector is lexical/embedding overlap. It cannot tell a contradiction from an agreeing paraphrase, so both are
+  held. An agreeing paraphrase loses nothing: the established row already says it.
+- A contradiction worded far enough from the seed (below 0.4 Jaccard / 0.55 cosine, e.g. "the crossing is fine") is
+  **not seen**. No negation or polarity detector was added.
+- Only established rows are guarded. Two ordinary extractor rows that disagree still go through consolidation's
+  cadence, the ≥8 group and the soft mark, as before.
+- Consolidation's own walk stays type-bound. A consolidation-found claim of another type is not held there; the write
+  path covers it.
+- One vectors round-trip (insert, 3 queries per row, purge) per extraction write, and only while at least one
+  established row exists.
+- A rollback that removes the claim's message leaves its held pair in the queue with a missing row. This is the
+  existing behaviour for every memory-side pair (`reverseMemoryState` does not touch `conflicts`).
+- A pin now also HOLDS a bare contradicting claim, where M5 alone would have left it live. Marker updates still pass,
+  so M5 holds.
+
+**Unresolved questions.**
+- Should `isEstablished` also count a story-authored seed? No authored fact seed exists in the schema today.
+- Should the held pair's copy say "a character claimed" when the evidence quotes a non-player speaker?

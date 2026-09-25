@@ -52,6 +52,7 @@ const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
             <div key={side.id} className="flex items-start gap-2">
               <div className="flex-1">
                 <div>{side.store === "memory" ? "Fact" : side.store === "scene" ? "Scene" : "Ledger"}: {side.label}</div>
+                {side.standing && <div data-so="conflict-standing" className="opacity-60">Established: still steers replies while you decide.</div>}
                 <div data-so="conflict-origin" className="opacity-60" title={side.provenance ? describeProvenance(side) : "this row came from before envelopes were recorded"}>{originText(side.provenance, side.messageId, side.confidence)}</div>
               </div>
               <button className="menu_button" data-so="conflict-keep" title="Keep this side and retire the other" onClick={() => void act(pair.key, () => manager.memoryActions.resolveMemoryConflict(pair.key, side.id))}>Keep this</button>

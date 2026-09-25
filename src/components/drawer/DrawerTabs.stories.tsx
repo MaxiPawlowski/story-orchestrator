@@ -305,6 +305,45 @@ export const CrowdedMemory: Story = {
   },
 };
 
+// v2.4 plan 07 (J8.5): a claim held in the reconciliation queue is author machinery. The player's
+// Memory tab lists what the story holds true, so a conflicted row is not in it.
+const heldClaimSnapshot = (authorView: boolean): RuntimeSnapshot => {
+  const snapshot = memorySnapshot() as unknown as { memory: { entries: Array<Record<string, unknown>> }; ui: Record<string, unknown> };
+  snapshot.ui = { ...snapshot.ui, authorView };
+  snapshot.memory.entries = [
+    ...snapshot.memory.entries,
+    { id: "held", tier: "facts", text: "The sun-key is a forgery.", type: "fact", importance: 3, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: "e", createdAt: 9, recallCount: 0, provenance: { source: "extractor", messageId: 9, boundary: 6, pass: "shared-read", validity: "conflicted" } },
+  ];
+  return derive(snapshot as unknown as RuntimeSnapshot);
+};
+
+export const PlayerMemoryLeavesOutAHeldClaim: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={heldClaimSnapshot(false)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await expect(canvas.getByText(/The sun-key opens the inner sanctum/)).toBeInTheDocument();
+    await expect(canvas.queryByText(/The sun-key is a forgery/)).toBeNull();
+  },
+};
+
+export const AuthorMemoryShowsAHeldClaimAsConflicted: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={heldClaimSnapshot(true)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
+    await expect(canvas.getAllByText(/The sun-key is a forgery/).length).toBeGreaterThan(0);
+  },
+};
+
 export const Payload: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

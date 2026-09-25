@@ -256,3 +256,23 @@ export const AConflictedPrivateRowSaysSo: Story = {
     await expect(canvasElement.querySelector('[data-so="quarantined"]')?.textContent).toContain("Conflicted");
   },
 };
+
+const heldPair: ConflictPair = {
+  key: "held:seed>claim",
+  detectedAt: "2026-09-25T00:00:00.000Z",
+  window: { from: 1, to: 1 },
+  sides: [
+    { store: "memory", id: "seed", label: "The old stone bridge over the river collapsed in the flood and is gone.", standing: true, provenance: provenance({ source: "extractor", messageId: 0, boundary: 0, pass: "shared-read" }) },
+    { store: "memory", id: "claim", label: "The old stone bridge over the river is still standing and intact.", messageId: 1, provenance: provenance({ source: "extractor", messageId: 1, boundary: 1, pass: "shared-read" }) },
+  ],
+};
+
+export const AHeldClaimLeavesTheEstablishedFactStanding: Story = {
+  args: { snapshot: snapshot({ conflicts: [heldPair] }), manager: fakeManager() },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const standing = await canvas.findAllByText(/Established: still steers replies while you decide/);
+    await expect(standing).toHaveLength(1);
+    await expect(canvas.getByText(/still standing and intact/)).toBeInTheDocument();
+  },
+};

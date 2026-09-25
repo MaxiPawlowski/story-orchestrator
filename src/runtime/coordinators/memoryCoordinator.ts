@@ -10,7 +10,7 @@ import {
   buildArcSummaryPrompt, buildBoundKeySet, buildCanonSummaryPrompt, canonHistory, canonInputHash, capAllTiers, capEpistemic, capLedger, highImportanceFacts, isLive, ledgerBindings,
   ledgerEntityList, storyEntities, disappearingEntries, recordDerived, reverseMemoryState, dropCommonKnowledge,
   capOpenArcs, capResolvedArcs, CONSOLIDATION_MIN_GROUP,
-  consolidateTier, DEFAULT_DEDUP_THRESHOLDS, editEntryText, expireScoped, markContradicted, matchArcBridges,
+  consolidateTier, DEFAULT_DEDUP_THRESHOLDS, editEntryText, expireScoped, matchArcBridges,
   openArcTexts, removeArc, removeEpistemic, removeLedger, resolvedArcs, restoreEntry, setArcPinned, setLocked, setArcSummary, setEpistemicPinned,
   setLedgerPinned, setPinned, type ArcEntry, type ConflictPair, type DerivedRecord, type EpistemicEntry,
   type LedgerBinding, type LedgerView, type MemoryEntry, type MemoryTier, type ParsedArcSignal,
@@ -28,8 +28,8 @@ import { emptyMirrorSummary, syncMemoryMirror, type MemoryMirrorSummary } from "
 import { MemoryInjector } from "../memoryInjector";
 import { buildMatchSets, judgePairRelations } from "../consolidationMatches";
 import {
-  boundProvenance, boundValuesFor, detectMemoryConflicts, discardMemoryRow, dismissMemoryConflict, getConflicts,
-  reconfirmMemoryEntry, rereadConflictWindow, resolveMemoryConflict, storeDroppedEntry, type DecisionRefusal, type MemoryQueueDeps,
+  boundProvenance, boundValuesFor, detectMemoryConflicts, discardMemoryRow, dismissMemoryConflict, findHeldContradictions, getConflicts, holdMemoryContradictions,
+  reconfirmMemoryEntry, rereadConflictWindow, resolveMemoryConflict, settleUncertain, storeDroppedEntry, type DecisionRefusal, type MemoryQueueDeps,
 } from "../memoryQueue";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunOwnership } from "../runToken";
@@ -147,9 +147,11 @@ export class MemoryCoordinator {
     // The token count is a host call, so this write is an await past the caller's own check.
     const run = beginRun(this.deps.ownership, window);
     await computeEntryTokens(entries);
+    const held = await findHeldContradictions(this.queueDeps(), entries);
     if (!run.stillOwns()) return;
     const written = addMemoryEntries(this.state, entries, window);
     this.patch(capAllTiers(written.state, this.state.settings.tierBudgets));
+    holdMemoryContradictions(this.queueDeps(), held);
   }
 
   async addSceneSummary(entry: MemoryEntry, window: { from: number; to: number }): Promise<number | null> {
@@ -313,6 +315,7 @@ export class MemoryCoordinator {
       save: () => this.save(),
       run: () => beginRun(this.deps.ownership),
       refused: (refusal) => { this.decisionRefusal = refusal; },
+      matchSets: (group) => buildMatchSets(group),
     };
   }
 
@@ -504,7 +507,7 @@ export class MemoryCoordinator {
         summary.superseded += result.supersededPairs.length;
         summary.confirmed += result.confirmedIds.length;
       }
-      if (summary.uncertain.length) this.patch(markContradicted(this.state, summary.uncertain), false);
+      settleUncertain(this.queueDeps(), summary.uncertain);
       // A pair the walk could not decide is a candidate for the queue; the queue itself compares the
       // stores, which is what makes a conflict a conflict. Its RESULT decides whether there is
       // anything to save — a queued pair is a store change like any other.
