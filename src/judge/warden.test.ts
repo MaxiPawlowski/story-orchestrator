@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { HOUSE_RULES_MAX } from "@engine/index";
 import { buildContinuityRequest } from "./curators";
@@ -174,28 +174,28 @@ describe("Phase A runners (stub judge)", () => {
   });
 });
 
-describe("Phase A goldens (replayed with no judge once recorded)", () => {
-  const golden = (name: string) => join(process.cwd(), "test/goldens/judge", name);
+describe("Phase A goldens (recorded 2026-09-25 on jev-1.13.0, replayed with no judge)", () => {
+  const golden = (name: string) => JSON.parse(readFileSync(join(process.cwd(), "test/goldens/judge", name), "utf8")) as { model: string; right: number; total: number; calls: Array<{ state: unknown; questions: unknown; answers: Record<string, JudgeAnswer> }> };
   const replay = (name: string) => {
-    const data = JSON.parse(readFileSync(golden(name), "utf8")) as { model: string; calls: Array<{ state: unknown; questions: unknown; answers: Record<string, JudgeAnswer> }> };
-    const byRequest = new Map(data.calls.map((call) => [JSON.stringify([call.state, call.questions]), call.answers]));
+    const byRequest = new Map(golden(name).calls.map((call) => [JSON.stringify([call.state, call.questions]), call.answers]));
     return async (request: JudgeRequest) => result(byRequest.get(JSON.stringify([request.state, request.questions])) ?? null);
   };
-  const cases: Array<[string, (ask: ReturnType<typeof replay>, rows: never[]) => Promise<JudgeSelfTestReport>]> = [
-    ["agency.json", (ask, rows) => runAgencyCalibration(ask, rows)],
-    ["house-rules.json", (ask, rows) => runHouseRuleCalibration(ask, rows)],
-    ["continuity-combined.json", (ask, rows) => runCombinedContinuityCalibration(ask, rows)],
+  const cases: Array<[string, (ask: ReturnType<typeof replay>, rows: never[]) => Promise<JudgeSelfTestReport>, Record<string, [number, number]>]> = [
+    ["agency.json", (ask, rows) => runAgencyCalibration(ask, rows), { writes: [23, 23], clean: [28, 28] }],
+    ["house-rules.json", (ask, rows) => runHouseRuleCalibration(ask, rows), { broken: [16, 17], kept: [14, 14], untouched: [64, 65] }],
+    ["continuity-combined.json", (ask, rows) => runCombinedContinuityCalibration(ask, rows), { reply: [27, 28], broken: [14, 15], consistent: [42, 42] }],
   ];
-  for (const [name, run] of cases) {
-    if (!existsSync(golden(name))) {
-      it.todo(`${name}: record with calibrate-node --record, then this replays the verdict`);
-      continue;
-    }
-    it(`${name}: replays every row and reports the recorded family verdicts`, async () => {
+  for (const [name, run, measured] of cases) {
+    it(`${name}: replays every row to the recorded score and clears every predeclared floor`, async () => {
       const data = fixture<never>(name);
+      const record = golden(name);
       const report = await run(replay(name), data.rows);
+      expect(record.model).toBe("jev-1.13.0");
       expect(report.rows.filter((row) => row.picked === null)).toEqual([]);
-      expect(judgeFamilyScores(report, data.floors).length).toBe(Object.keys(data.floors).length);
+      expect([report.right, report.total]).toEqual([record.right, record.total]);
+      const families = judgeFamilyScores(report, data.floors);
+      expect(Object.fromEntries(families.map((row) => [row.family, [row.right, row.total]]))).toEqual(measured);
+      expect(families.filter((row) => !row.ok)).toEqual([]);
     });
   }
 });

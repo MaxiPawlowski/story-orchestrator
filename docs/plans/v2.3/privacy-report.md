@@ -125,8 +125,8 @@ this a claim rather than a code reading; it is plan 03 live gate 3 and has not r
 
 ## v2.4 addendum (plan 07 part 2, T22/T23, 2026-09-25)
 
-Code-verified, not captured: the two new warden families are built on a worktree branch behind their own
-default-off keys and have not run live. Both ride **T2** (the judge plugin → TypeSafe), in the warden's one
+Captured live 2026-09-25 (bundle `d7008c958844`, see below). The two new warden families are built behind their own
+default-off keys. Both ride **T2** (the judge plugin → TypeSafe), in the warden's one
 call per character reply (`src/judge/warden.ts buildWardenRequests`, `WARDEN_ARM = "combined"`).
 
 | New crossing | Key (default) | What leaves, beyond what the warden sent before | Code |
@@ -139,5 +139,20 @@ shape the Phase A regression family measures). The persona **description** still
 the name, as the director and scene read already send.
 
 **Per host:** one host, TypeSafe (D10: hosted routes and local Jev-likes are v2.5). TypeSafe's published
-terms were not read in this pass; the row stands on the code inventory above, and a capture of a live
-`agencyCheck` + `houseRules` request (J8.10/J8.12 on arm) is what turns it into a measurement.
+terms were not read in this pass.
+
+**Live capture (2026-09-25).** A page fetch recorder captured every plugin body during a J8.12 run with the
+continuity warden, `agencyCheck` and `houseRules` all on
+(`test/journeys/records/v2.4-plan07/part2-live-d7008c958844/privacy-capture-judge-requests.json`). What it shows:
+
+- Each body is exactly `{state, questions, model}`.
+- `state` holds:
+  - `established_facts`, present only once facts exist;
+  - `reply {speaker, text}`;
+  - `player`, the persona **name**;
+  - `player_message`, the player's latest line;
+  - `house_rules {rule_i}`.
+- The questions are `fact:<i>`, `agency` and `rule:<i>`, all in one request.
+- No persona description, card, preset, or other chat line was sent.
+
+The inventory above is therefore now a measurement.

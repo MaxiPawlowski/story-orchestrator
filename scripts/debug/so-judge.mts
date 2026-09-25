@@ -34,6 +34,8 @@ const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
                                       v2.4 plan 09 (CL), offline: totals and $ per 1000 boundaries from each journey record's
                                       judge METER (cleanup.judgeMeter, never the ring), per-use calls/latency p50/p90/max/fallback
                                       rate/answering model from the archived ring; director/lore against the 1500 ms budget.
+                                      Every figure is over the METERED records; a record with no meter (a check that set the judge
+                                      itself) is listed with its ring totals under unmeteredRing and enters nothing else.
                                       Reads every *.json with a cleanup block; writes .debug/so-judge-cost-report.json
   limit-probe [--send]                T25: the documented token limit, probed. Without --send prints the plan and its cost; with it,
                                       six calls through the plugin (< $0.01), then refuses / truncates / answers past the limit and

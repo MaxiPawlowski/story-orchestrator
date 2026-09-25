@@ -372,8 +372,10 @@ export function costReportAcross(inputs: CostRecordInput[]) {
     outputTokens: sum.outputTokens + input.meter!.outputTokens,
     cost: sum.cost + input.meter!.cost,
   }), { calls: 0, cachedCalls: 0, inputTokens: 0, outputTokens: 0, cost: 0 });
-  const boundaries = inputs.every((input) => input.boundaries !== null) ? inputs.reduce((sum, input) => sum + (input.boundaries ?? 0), 0) : null;
-  const events = inputs.flatMap((input) => filterJudgeCalls(input.events));
+  const boundaries = metered.every((input) => input.boundaries !== null) ? metered.reduce((sum, input) => sum + (input.boundaries ?? 0), 0) : null;
+  const events = metered.flatMap((input) => filterJudgeCalls(input.events));
+  const unmeteredInputs = inputs.filter((input) => !input.meter);
+  const unmeteredTotals = ringTotals(unmeteredInputs.flatMap((input) => filterJudgeCalls(input.events)));
   const ring = ringTotals(events);
   const uses = [...new Set(events.map(useOf))].sort();
   const perUse = uses.map((use) => {
@@ -398,7 +400,8 @@ export function costReportAcross(inputs: CostRecordInput[]) {
   return {
     records: inputs.length,
     metered: metered.length,
-    unmetered: inputs.filter((input) => !input.meter).map((input) => input.file ?? '(record)'),
+    unmetered: unmeteredInputs.map((input) => input.file ?? '(record)'),
+    unmeteredRing: { records: unmeteredInputs.map((input) => input.file ?? '(record)'), calls: unmeteredTotals.calls, inputTokens: unmeteredTotals.inputTokens },
     boundaries,
     meter,
     estimatedUsd: Number(usd.toFixed(6)),

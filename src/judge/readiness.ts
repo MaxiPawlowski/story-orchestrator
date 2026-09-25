@@ -43,8 +43,8 @@ export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
   sceneTrigger: { calibration: 0.9503, latencyP50Ms: 1512, live: "J11.11–J11.15", measuredOn: MEASURED_ON, recommendation: "The most expensive measured use, against a 2500 ms budget, and off the reply path so lateness costs nothing a player feels." },
   sceneTracker: { calibration: 0.9503, latencyP50Ms: 1512, live: "J11.11–J11.15", measuredOn: MEASURED_ON, recommendation: "As sceneTrigger: measured, and off the reply path." },
   director: { calibration: 0.9091, latencyP50Ms: 1129, live: "J11.3, J11.4", measuredOn: MEASURED_ON, recommendation: "Only with an authored role on every candidate — without roles it reports no-roles and does nothing. Fits its 1500 ms reply-path budget at p50." },
-  agencyCheck: { calibration: null, latencyP50Ms: null, live: null, measuredOn: null, recommendation: "Phase A pending (v2.4 plan 07 T22): floors predeclared, not measured on any model yet; below them it is not built." },
-  houseRules: { calibration: null, latencyP50Ms: null, live: null, measuredOn: null, recommendation: "Phase A pending (v2.4 plan 07 T23): floors predeclared, not measured on any model yet; below them it is not built." },
+  agencyCheck: { calibration: 1, latencyP50Ms: 1441, live: "J8.10, J8.11", measuredOn: MEASURED_ON, recommendation: "Review mode recommended, as for the warden. Rides the warden's call off the reply path; stands down where a checkpoint allows narrating the player." },
+  houseRules: { calibration: 0.9896, latencyP50Ms: 499, live: "J8.12, J8.13", measuredOn: MEASURED_ON, recommendation: "Does nothing until the story authors house rules. Measured on objective rules (content, format, world); keep one demand per rule." },
   loreSelect: { calibration: 0.8974, latencyP50Ms: 509, live: "J11.16–J11.19", measuredOn: MEASURED_ON, recommendation: "Known weakness: ranking by a compressed, heavily tied probability, so which entries win is weaker than the rate suggests. Fits its 1500 ms reply-path budget at p50." },
 };
 
@@ -61,9 +61,6 @@ export const RING_USE_TO_READINESS: Record<string, JudgeReadinessKey[]> = {
   critic: ["expansionCritic"],
   warden: ["warden"],
 };
-
-/** v2.4 plan 07: built behind their own default-off keys, with no calibration yet. Nothing else may be unmeasured. */
-export const PHASE_A_PENDING: readonly JudgeUseKey[] = ["agencyCheck", "houseRules"];
 
 export type JudgeReadinessVerdict = "off" | "unproven" | "measured" | "blocked";
 

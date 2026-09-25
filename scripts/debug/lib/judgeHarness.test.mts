@@ -201,8 +201,9 @@ test('plan 09 cost report: totals and $ from the meters, per-use detail from the
   const second = costInputOf({ cleanup: { boundaries: 30, judgeMeter: { calls: 1, cachedCalls: 0, inputTokens: 1000, outputTokens: 0, cost: 0 }, judgeCalls: { events: [] } } }, 'b.json');
   const report = costReportAcross([first, second, costInputOf({ cleanup: { judgeCalls: { events: [] } } }, 'c.json')]);
   assert.deepEqual(report.meter, { calls: 6, cachedCalls: 1, inputTokens: 2000, outputTokens: 50, cost: 0 });
-  assert.equal(report.boundaries, null);
+  assert.equal(report.boundaries, 40);
   assert.deepEqual(report.unmetered, ['c.json']);
+  assert.equal(costReportAcross([first, costInputOf({ cleanup: { judgeMeter: { calls: 1, cachedCalls: 0, inputTokens: 10, outputTokens: 0, cost: 0 }, judgeCalls: { events: [] } } }, 'd.json')]).boundaries, null);
   const counted = costReportAcross([first, second]);
   assert.equal(counted.boundaries, 40);
   assert.equal(counted.estimatedUsd, 0.000084);
@@ -217,4 +218,16 @@ test('plan 09 cost report: totals and $ from the meters, per-use detail from the
   assert.equal(director.overBudget, 1);
   assert.deepEqual(counted.perUse.find((use) => use.use === 'lore')!.fallbackRate, { timeout: 1 });
   assert.equal(counted.perUse.find((use) => use.use === 'warden')!.overBudget, undefined);
+});
+
+test('an unmetered record (a check that sets the judge itself) never enters the meter-relative figures (live 2026-09-25: notInRing read -8 calls)', () => {
+  const event = (detail: Record<string, unknown>) => ({ kind: 'judge', summary: 'judge warden', detail: { use: 'warden', model: 'jev-1.13.0', ...detail } });
+  const metered = costInputOf({ cleanup: { boundaries: 3, judgeMeter: { calls: 3, cachedCalls: 0, inputTokens: 900, outputTokens: 30, cost: 0 }, judgeCalls: { events: [event({ latencyMs: 500, inputTokens: 600, outputTokens: 20 })] } } }, 'on.json');
+  const unmetered = costInputOf({ cleanup: { judgeCalls: { events: [event({ latencyMs: 2000, inputTokens: 700, outputTokens: 20 }), event({ latencyMs: 2100, inputTokens: 700, outputTokens: 20 })] } } }, 'j811.json');
+  const report = costReportAcross([metered, unmetered]);
+  assert.deepEqual(report.notInRing, { calls: 2, inputTokens: 300 });
+  assert.equal(report.boundaries, 3);
+  const warden = report.perUse.find((use) => use.use === 'warden')!;
+  assert.deepEqual({ calls: warden.calls, callsPerBoundary: warden.callsPerBoundary, latencyMs: warden.latencyMs }, { calls: 1, callsPerBoundary: 0.3333, latencyMs: { p50: 500, p90: 500, max: 500 } });
+  assert.deepEqual(report.unmeteredRing, { records: ['j811.json'], calls: 2, inputTokens: 1400 });
 });

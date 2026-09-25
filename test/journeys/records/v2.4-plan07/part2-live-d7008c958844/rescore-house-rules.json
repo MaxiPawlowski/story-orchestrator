@@ -1,0 +1,169 @@
+{
+  "summary": {
+    "use": "house-rules",
+    "records": [
+      "test/journeys/records/v2.4-plan07/part2-live-d7008c958844/J8.12-off-run1.journey.json",
+      "test/journeys/records/v2.4-plan07/part2-live-d7008c958844/J8.12-on-run1.journey.json",
+      "test/journeys/records/v2.4-plan07/part2-live-d7008c958844/J8.12-on-run2.journey.json"
+    ],
+    "model": "jev-1.13.0",
+    "rates": [
+      {
+        "arm": "off",
+        "asked": 7,
+        "answered": 7,
+        "flagged": 6,
+        "defectRate": 0.8571
+      },
+      {
+        "arm": "on",
+        "asked": 8,
+        "answered": 8,
+        "flagged": 4,
+        "defectRate": 0.5
+      }
+    ]
+  },
+  "results": [
+    {
+      "id": "m0",
+      "arm": "off",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 571,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m2",
+      "arm": "off",
+      "flagged": true,
+      "broken": [
+        "No character uses a gun, rifle or any gunpowder weapon."
+      ],
+      "latencyMs": 572,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m4",
+      "arm": "off",
+      "flagged": true,
+      "broken": [
+        "No character uses a gun, rifle or any gunpowder weapon."
+      ],
+      "latencyMs": 561,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m5",
+      "arm": "off",
+      "flagged": true,
+      "broken": [
+        "No character uses a gun, rifle or any gunpowder weapon."
+      ],
+      "latencyMs": 588,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m6",
+      "arm": "off",
+      "flagged": true,
+      "broken": [
+        "No character uses a gun, rifle or any gunpowder weapon."
+      ],
+      "latencyMs": 546,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m7",
+      "arm": "off",
+      "flagged": true,
+      "broken": [
+        "No character uses a gun, rifle or any gunpowder weapon."
+      ],
+      "latencyMs": 625,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m9",
+      "arm": "off",
+      "flagged": true,
+      "broken": [
+        "No character uses a gun, rifle or any gunpowder weapon."
+      ],
+      "latencyMs": 757,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m0",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 791,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m2",
+      "arm": "on",
+      "flagged": true,
+      "broken": [
+        "No character uses a gun, rifle or any gunpowder weapon."
+      ],
+      "latencyMs": 814,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m4",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 804,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m6",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 793,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m0",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 885,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m2",
+      "arm": "on",
+      "flagged": true,
+      "broken": [
+        "No character uses a gun, rifle or any gunpowder weapon."
+      ],
+      "latencyMs": 1049,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m4",
+      "arm": "on",
+      "flagged": true,
+      "broken": [
+        "No character uses a gun, rifle or any gunpowder weapon."
+      ],
+      "latencyMs": 1003,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m6",
+      "arm": "on",
+      "flagged": true,
+      "broken": [
+        "No character uses a gun, rifle or any gunpowder weapon."
+      ],
+      "latencyMs": 1006,
+      "model": "jev-1.13.0"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { judgeReadiness, judgeReadinessConcerns, JUDGE_READINESS, PHASE_A_PENDING } from "./readiness";
+import { judgeReadiness, judgeReadinessConcerns, JUDGE_READINESS } from "./readiness";
 import { AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, defaultJudgeSettings, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES, JUDGE_USE_KEYS, type JudgeSettings } from "./settings";
 
 const settings = (uses: Partial<Record<string, boolean>> = {}, patch: Partial<JudgeSettings> = {}): JudgeSettings => ({
@@ -42,10 +42,18 @@ describe("judge readiness (v2.3 plan 09)", () => {
     const rows = judgeReadiness(settings({ stallCheck: true }));
     expect(rows.find((row) => row.key === "stallCheck")).toMatchObject({ enabled: true, verdict: "measured", calibration: 1, live: "J11.23" });
     expect([...BUILT_JUDGE_USES].sort()).toEqual([...JUDGE_USE_KEYS].sort());
-    expect(JUDGE_USE_KEYS.filter((key) => JUDGE_READINESS[key].calibration === null)).toEqual([...PHASE_A_PENDING]);
-    expect(JUDGE_USE_KEYS.every((key) => !JUDGE_USE_COPY[key].description.startsWith("Not built"))).toBe(true);
-    expect(PHASE_A_PENDING.every((key) => JUDGE_USE_COPY[key].description.startsWith("Not measured yet") && JUDGE_READINESS[key].measuredOn === null && AUTHOR_JUDGE_USES.includes(key))).toBe(true);
-    expect(judgeReadiness(settings({ agencyCheck: true, houseRules: true })).filter((row) => row.enabled).map((row) => row.verdict)).toEqual(["unproven", "unproven"]);
+    expect(JUDGE_USE_KEYS.filter((key) => JUDGE_READINESS[key].calibration === null || JUDGE_READINESS[key].measuredOn === null)).toEqual([]);
+    expect(JUDGE_USE_KEYS.every((key) => !JUDGE_USE_COPY[key].description.startsWith("Not built") && !JUDGE_USE_COPY[key].description.startsWith("Not measured"))).toBe(true);
+  });
+
+  // v2.4 plan 07 Phase A, 2026-09-25: both warden families cleared their predeclared floors on jev-1.13.0
+  // (test/goldens/judge/agency.calibration.json, house-rules.calibration.json); measured, still author-only and off.
+  it("reports the agency and house-rule families measured on the model Phase A ran on", () => {
+    expect(JUDGE_READINESS.agencyCheck).toMatchObject({ calibration: 1, latencyP50Ms: 1441, measuredOn: "jev-1.13.0" });
+    expect(JUDGE_READINESS.houseRules).toMatchObject({ calibration: 0.9896, latencyP50Ms: 499, measuredOn: "jev-1.13.0" });
+    expect((["agencyCheck", "houseRules"] as const).every((key) => AUTHOR_JUDGE_USES.includes(key) && defaultJudgeSettings().uses[key] === false)).toBe(true);
+    expect(judgeReadiness(settings({ agencyCheck: true, houseRules: true })).filter((row) => row.enabled).map((row) => row.verdict)).toEqual(["measured", "measured"]);
+    expect(judgeReadiness(settings({ agencyCheck: true }, { model: "jev-2.0.0" })).find((row) => row.key === "agencyCheck")?.verdict).toBe("unproven");
   });
 
   it("calls an enabled use with its dependency off blocked, not measured", () => {

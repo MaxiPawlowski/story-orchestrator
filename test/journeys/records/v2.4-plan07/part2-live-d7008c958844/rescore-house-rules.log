@@ -1,0 +1,26 @@
+{
+  "use": "house-rules",
+  "records": [
+    "test/journeys/records/v2.4-plan07/part2-live-d7008c958844/J8.12-off-run1.journey.json",
+    "test/journeys/records/v2.4-plan07/part2-live-d7008c958844/J8.12-on-run1.journey.json",
+    "test/journeys/records/v2.4-plan07/part2-live-d7008c958844/J8.12-on-run2.journey.json"
+  ],
+  "model": "jev-1.13.0",
+  "rates": [
+    {
+      "arm": "off",
+      "asked": 7,
+      "answered": 7,
+      "flagged": 6,
+      "defectRate": 0.8571
+    },
+    {
+      "arm": "on",
+      "asked": 8,
+      "answered": 8,
+      "flagged": 4,
+      "defectRate": 0.5
+    }
+  ]
+}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T05-26-40-501Z_so-judge-rescore-house-rules.json

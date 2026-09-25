@@ -1266,3 +1266,173 @@ hard-coded `reason`/`summary` and first-op-only injection in `stagecraftCoordina
 
 **Remains:** the Phase A runs and their verdicts (the only thing that decides whether T22/T23 ship), the live J8 rows and
 the control column, the over-steer human row, the TypeSafe terms citation for the privacy row, and the merge.
+
+### Part 2 live: calibration and verdicts (2026-09-25, bundle d7008c958844)
+
+Main checkout on master `3e62218` (+ this record's edits), lane 2 only (`st-lanes run 2`, group `1759606632088`, profile
+`Artemis RunPod RP`, real judge through the plugin). Phase A ran on bundle **`479c7f14ffd7`**. The verdict edits below
+rebuilt the bundle to **`d7008c958844`**, and every live J8 run took place on that one bundle. The served `dist/index.js`
+sha was checked against `dist/manifest.json` after the reload. No record spans two bundles.
+
+Records:
+- Phase A: `test/journeys/records/v2.4-plan07/part2-live-479c7f14ffd7/`. The in-page reports are the committed
+  `test/goldens/judge/{agency,house-rules,continuity-combined}.calibration.json`, because lane 2's `.debug` rotated
+  the JSON copies away.
+- Live: `…/part2-live-d7008c958844/`.
+
+**Verdicts: both uses BUILT; the combined request is kept (arm A).** No floor or flag threshold was touched. Both keys
+stay `false` by default and stay author-only.
+
+| use | run | families (floor) | overall | Spanish | p50 / p90 | verdict |
+|---|---|---|---|---|---|---|
+| T22 `agencyCheck` | off-page `calibrate-node` | writes **23/23** (≥ 0.85), clean **28/28** (≥ 0.95) | 51/51 | 10/10 | 719 ms | pass |
+| | in-page `so-judge calibrate` | writes **23/23**, clean **28/28** | 51/51 | 10/10 | **1441** / 2156 ms | **BUILT** |
+| T23 `houseRules` | off-page | broken **16/17** = 0.941 (≥ 0.85), kept **14/14** (≥ 0.95), untouched **64/65** = 0.985 (≥ 0.966) | 94/96 | 16/16 | 674 ms | pass |
+| | in-page | broken **17/17**, kept **14/14**, untouched **64/65** | 95/96 | 16/16 | **499** / 930 ms | **BUILT** |
+| continuity inside the combined request | off-page | reply **27/28** (≥ 0.9), broken **14/15** (≥ 0.85), consistent **42/42** (≥ 0.966) | 83/85 | 18/18 | 682 ms | holds |
+| | in-page | reply 27/28, broken 14/15, consistent 42/42 | 83/85 | 18/18 | 995 / 1450 ms | **arm A kept** |
+
+- `modelVerdict: matched` on `jev-1.13.0` for all three.
+- **Agency margins.** The raw scores separate cleanly. The lowest `writes` score is 2.68 and the highest `clean` score is
+  1.97, with the flag at `> 2.5`.
+- **House-rule misses.**
+  - Off-page: H09 `broken:0` p = 0.63 (under 0.7) and H15 `untouched:1` p = 0.74 ("It is always night in the city of
+    Vael.").
+  - In-page: only H15, p = 0.76. H09 cleared the threshold on the second ask.
+- **Combined request.** Continuity inside it reproduces the standalone part-1 calibration exactly: 83/85, with CX06 as
+  the one miss. So `WARDEN_ARM = "combined"` stays and arm B was not needed.
+- p50 is within the 1500 ms bar for every use. Agency in-page, at 1441 ms, is the closest; its p90 is 2156 ms, against
+  the warden's 4000 ms off-path budget.
+
+**Goldens → real tests.** calibrate-node `--record` wrote `test/goldens/judge/{agency,house-rules,continuity-combined}.json`,
+and the in-page `--record` wrote the `.calibration.json` reports.
+- The 3 jest `todo` replays in `src/judge/warden.test.ts` are now real tests. Each replays every row from its golden,
+  keyed on state + questions, and asserts the recorded right/total, the per-family counts above, and every floor.
+- The `existsSync` → `todo` escape is gone, so a deleted golden now fails.
+- Mutations G1–G4 (the thresholds moved past a recorded score, each question reworded): all KILLED by the replay alone.
+
+**Readiness edits (the rebuild).**
+- `JUDGE_READINESS`: `agencyCheck` {1, 1441 ms, `J8.10, J8.11`, `jev-1.13.0`}, `houseRules` {0.9896, 499 ms,
+  `J8.12, J8.13`, `jev-1.13.0`}.
+- `PHASE_A_PENDING` removed.
+- The "Not measured yet." prefix dropped from both descriptions.
+- Red first: `readiness.test.ts` failed 2 cases, then went green. Mutations R1–R4 KILLED.
+- Nothing is removed. No "not built" record is owed.
+
+**J8.10–J8.13 live.** 12 journey runs, each on a reloaded page, all `--strict`. Every run exits 1 only because `--only`
+leaves 9 checks skipped. Every run was `automated: 1 pass, 0 fail`, first try, with `cleanup: clean`. Every judge-mode
+run reported `judgeRestore {restored: true, ok: true}`.
+
+| check | arm | result | what the run showed |
+|---|---|---|---|
+| J8.10 agency auto | on ×2 (`--judge-uses agencyCheck --warden-mode auto`) | **PASS ×2** | scripted Gate Guard reply → agency note, score 3.83 / 3.82; carried into exactly the next loud prompt, gone after it |
+| | off ×1 (`--judge-uses off`) | **PASS** | 0 warden calls, 0 records, no `Agency:` in any prompt |
+| J8.11 agency review lapse | ×2 | **PASS ×2** | note pending in review, lapsed by a newer reply, 0 leaks in 2 prompts |
+| J8.12 house rules auto | on ×2 (`--judge-uses houseRules --warden-mode auto`) | **PASS ×2** | note names "No character uses a gun, rifle or any gunpowder weapon." verbatim; present in the captured `GENERATE_AFTER_DATA` prompt; run 2 re-flagged by a newer reply (warden-2-4) |
+| | off ×1 | **PASS** | no warden call, no note |
+| J8.13 every family off | ×2 | **PASS ×2** | 0 warden calls, 0 proposals |
+| J8.5 continuity (generalised pass) | on ×1 (`--judge-uses warden`) | **PASS** | unchanged behaviour |
+| J8.6 continuity review | ×1 | **PASS** | unchanged behaviour |
+
+**Control column.** Rescoring a pooled pair of on arms mixes their replies, so each on run was also rescored with the
+off arm alone (`rescore-<use>-on-run<n>.json`). `so-lore-probe diff` then compared each on run with the off arm.
+
+| | off | on run 1 | on run 2 |
+|---|---|---|---|
+| agency: judge calls / input tokens (meter) | 0 / 0 | 3 / 1,884 | 3 / 2,017 |
+| agency: flagged / applied | 0 / 0 | 1 / 1 | 1 / 1 |
+| agency: next-reply defect rate (rescore) | 1/4 = 0.25 | 0.333 | 0.167 |
+| house rules: judge calls / input tokens | 0 / 0 | 3 / 2,210 | 2 / 1,139 |
+| house rules: flagged / applied | 0 / 0 | 1 / 1 | 2 / 2 |
+| house rules: next-reply defect rate | 6/7 = 0.857 | 0.25 | 0.75 |
+
+Read with the scripted reply taken out. The scripted reply m2 is a defect by construction and identical in every arm.
+- **Agency.** Every flagged reply is m2. In no arm did the real model write the player. The check therefore shows the
+  plumbing works but cannot show an effect on replies.
+- **House rules.**
+  - The off arm kept the gun in 5 of 6 real replies.
+  - On run 1: 0 of 3.
+  - On run 2: 2 of 3. The note applied twice, and Luke's replies still narrate Rhee's flintlock.
+  - So the note helps in one run of two. That is not a claim the note works.
+
+**Over-steer** (the plan 01 probe; the house-rule family reads the rule text as its restate span):
+
+| family | run | N+1 | span | meta | control span | swing (words, ratio) | N+1 agency score |
+|---|---|---|---|---|---|---|---|
+| agency | 1 | m4 (Luke) | 1 | — | 1 (Ponticius) | 142 vs 151, 0.94 | 0.38 |
+| agency | 2 | m4 | 1 | — | 1 | 161 vs 151, 1.066 | 0.07 |
+| house-rule | 1 | m4 (Ponticius) | 1 | — | 1 | 260 vs 110, 2.364 | — |
+| house-rule | 2 | m4 | 1 | — | 1 | 113 vs 110, 1.027 | — |
+| house-rule | 2 | m6 | 1 | — | 1 (m5) | 115 vs 192, 0.599 | — |
+
+- No meta tokens appeared.
+- The restate check was ok everywhere.
+- Both agency N+1 scores are ≤ 2.5.
+- The swing is speaker-confounded, as in part 1. It is recorded, not gated.
+- The human rubric row is **not scored**: no human session ran.
+
+**Cost report** (`so-judge cost-report --records …/part2-live-d7008c958844`). The first run read `notInRing: -8 calls,
+-4,207 tokens` and `boundaries: null`.
+- **Cause.** J8.11 ×2 and J8.6 set the judge themselves, so their records carry no meter. The report still summed their
+  ring rows, while it summed the meter only over the metered records.
+- **Fix** (`scripts/debug/lib/judgeHarness.mts costReportAcross`):
+  - every figure is now computed over the metered records only;
+  - an unmetered record's ring is listed apart, under `unmeteredRing`.
+- Red first: 2 node tests failed, then went green. Mutations H12–H15 KILLED.
+
+Corrected totals:
+- 7 metered records, **14 calls, 8,883 input / 368 output tokens, $0.000373**.
+- 28 boundaries, so $0.0133 per 1000 boundaries.
+- `notInRing` 0.
+- warden 0.5 calls per boundary, latency p50 554 / p90 1219 / max 2126 ms, 0 fallbacks, answered by `jev-1.13.0` only.
+- `unmeteredRing`: 3 records, 8 calls, 4,207 tokens.
+
+**Privacy capture.** One extra J8.12 run with every family on (`--judge-uses agencyCheck,houseRules,warden
+--warden-mode auto`; PASS, clean). A page fetch recorder captured the plugin bodies, archived in
+`privacy-capture-judge-requests.json`.
+- Every body is `{state, questions, model: "jev-1.13.0"}`.
+- State keys are `established_facts` (only once facts exist), `reply {speaker, text}`, `player` ("Max"),
+  `player_message` ("I keep my head down and wait.") and `house_rules {rule_0, rule_1}`.
+- Questions are `fact:<i>`, `agency`, `rule:<i>`, in one request.
+- No persona description, card, preset or other chat line left the page. The code inventory in `privacy-report.md` is
+  now a measurement.
+- **Harness finding (not fixed).** 3 bodies were captured, but the record's meter and ring show 2 calls. The third warden
+  pass (Arin's reply, 05:30:48) completed after the runner took `cleanup.judgeMeter`. A journey record's meter can
+  therefore miss an off-path call that is still in flight at cleanup. The metered totals above are a floor by that much.
+
+**Run header.** `so-run-header diff` against `run-header-p07p2-pre.json`, taken after every run including the privacy
+capture: **7 differences, all `build.*`/`bundle.*`** (the declared rebuild). Lane 2's judge settings (`enabled: false`,
+every use `false` including `agencyCheck` and `houseRules`, model `jev-1.13.0`) are equal to the pre-run header. So are
+`stagecraft` (`curatorEnabled: true`, `acceptMode: auto`, `wardenEnabled: false`, `wardenAcceptMode: review`) and
+extraction.
+
+**Gates** (main checkout, after every edit):
+- OK: `npm run typecheck`, `npm run typecheck:test`, `npm run lint`, `npm run debug:typecheck`.
+- `npm test`: 235 suites, **3481 passed**, 0 todo.
+- `npm run test:debug`: 263/263.
+- `npm run test:plugin`: 8 pass, 1 skip (`JUDGE_LIVE`).
+- `npm run build`: OK (the 2 known size warnings) → `d7008c958844`, logged in `.debug/bundle-change.txt`, lane 2
+  reloaded.
+- Not run:
+  - Storybook: no component changed. The copy is data rendered by an unchanged panel, and no story asserts it.
+  - `test:release`: no release tooling changed.
+
+Mutations: `test/findings/mutations/v24-07-part2.txt` § Part 2 live, **12/12 killed**.
+
+**Spend on the TypeSafe key** (price $0.042 per million input tokens):
+
+| what | calls | input tokens | cost |
+|---|---|---|---|
+| journey meters (7 metered runs + privacy run) | 16 | 10,740 | $0.00045 |
+| unmetered journey calls (J8.11 ×2, J8.6) + the in-flight privacy call | 9 | about 5,300 (ring) | about $0.0002 |
+| Phase A, off-page + in-page (103 requests each) | 206 | about 99k (estimated at 3.488 chars/token) | about $0.004 |
+| rescores (pooled + per-run) | 67 | about 40k (estimated) | about $0.002 |
+| **total** | | **about 155k** | **about $0.007** |
+
+**Still open (part 2):**
+- the human over-steer rubric rows (agency, house rule);
+- an agency control arm in which the real model writes the player unprompted, since J8.10's only defect is scripted;
+- the house-rule note's effect: 1 run of 2;
+- the in-flight-call meter gap above;
+- TypeSafe's published terms for the privacy row;
+- the plugin guard install (from part 1).

@@ -53,3 +53,19 @@ Result: 42/42 killed (40 jest/node, 2 Storybook).
     Drawer/StagecraftPanel > Warden Families Awaiting Review
 - U2 house-rule list never disables its add button at 8: KILLED
     Studio/StoryEditor > House Rules
+
+Part 2 live (2026-09-25, main checkout on 3e62218, lane 2; script .debug/p07p2/mutants*.py, same exact-text replace/restore protocol):
+Suites: G: jest src/judge/warden.test.ts -t "Phase A goldens" (the recorded goldens replayed); R: jest src/judge/readiness.test.ts; H: node --test scripts/debug/lib/judgeHarness.test.mts
+Result: 12/12 killed.
+- G1 agency flag threshold raised past the lowest recorded writes score (2.68): KILLED
+- G2 house-rule flag moved past a recorded untouched false alarm (0.74): KILLED
+- G3 agency question reworded (the combined continuity request changes shape): KILLED
+- G4 house-rule question reworded: KILLED
+- R1 agency row loses the model it was measured on (reads unproven when on): KILLED
+- R2 house-rule row back to unmeasured: KILLED
+- R3 house-rule copy still says not measured: KILLED
+- R4 agency rate not the recorded one: KILLED
+- H12 cost report ring figures read unmetered records again (notInRing can go negative): KILLED
+- H13 boundaries null whenever an unmetered record lacks them: KILLED
+- H14 a metered record with no boundaries still yields a per-boundary rate: KILLED
+- H15 unmetered ring calls hidden: KILLED

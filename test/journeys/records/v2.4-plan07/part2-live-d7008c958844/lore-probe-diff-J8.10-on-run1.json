@@ -1,0 +1,282 @@
+{
+  "off": {
+    "label": "off",
+    "file": "test/journeys/records/v2.4-plan07/part2-live-d7008c958844/J8.10-off-run1.journey.json",
+    "journey": "J8",
+    "mode": {
+      "label": "off",
+      "uses": []
+    },
+    "meter": {
+      "calls": 0,
+      "cachedCalls": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "cost": 0,
+      "lastAnsweredModel": null
+    },
+    "ring": {
+      "calls": 0,
+      "cachedCalls": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "cost": 0,
+      "fallbacks": {},
+      "byUse": {}
+    },
+    "warden": {
+      "flagged": 0,
+      "applied": 0,
+      "lapsed": 0,
+      "rejected": 0,
+      "pending": 0
+    },
+    "replies": 5,
+    "notes": [],
+    "rows": [
+      {
+        "id": "m0",
+        "arm": "off",
+        "established": [],
+        "reply": {
+          "speaker": "Arin",
+          "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+        },
+        "player": "Max"
+      },
+      {
+        "id": "m2",
+        "arm": "off",
+        "established": [],
+        "reply": {
+          "speaker": "Gate Guard",
+          "text": "The guard waves the cart through and nods at you. You shoulder your pack, thank him warmly and say that you will pay the toll now, handing over three marks before walking on toward the market."
+        },
+        "player": "Max",
+        "playerMessage": "I wait by the gate and say nothing."
+      },
+      {
+        "id": "m4",
+        "arm": "off",
+        "established": [],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "The Guild Master's office is a small, cramped space that reeks of smoke and old leather, but he's in here. He's leaning over a map, marking off locations with small, black stones. He looks up as you enter.\n\"You're back from the market, I see. Did you get what you needed?\"\nHe asks, his voice raspy as he sound a little bit bored. He straightens up, the cracking of his joints audible. He gestures toward the window, his back to you, still looking at the map.\n\"I've got a few requests in here that might be suitable for you. Take your choice. Some coin, some experience. I've got something in there that I's probably kill you, but it's worth a lot.\"\nHe leans back against the edge of the desk, crossing his arms.\n\"You look like you can handle it, but let's see if you can come back in one piece.\""
+        },
+        "player": "Max",
+        "playerMessage": "I look around the square."
+      },
+      {
+        "id": "m6",
+        "arm": "off",
+        "established": [],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "He follows you out the door, his joints cracking as he straightens up. His eyes are up on the map, his and eyes flicker over to you as you leave. He looks at you with a slight, knowing smile on his face.\n\"You're going to take one of those, are you?\"\nHe asks, and then he leans against the doorframe, his eyes flicking over to you as he walks out.\n\"Still, I'll give you and your friend a little tip before you go. Don't trust anyone. There's a lot of out there, and you're both going to need to keep your eyes open.\"\nHe says, his voice raspy, and then his smile fades.\n\"The last time I'd seen you two, I'm got a few names on a headstone. That's what this job does to you.\"\nHe watches you walk away, and his smile fades as he looks at you and the airships floating high above. He looks at you and he doesn't say much more, and his voice trails off.\n\"Now go on and get out of here. And come back in one piece.\""
+        },
+        "player": "Max",
+        "playerMessage": "We walk on in silence for a while."
+      },
+      {
+        "id": "m7",
+        "arm": "off",
+        "established": [],
+        "reply": {
+          "speaker": "Luke",
+          "text": "He looks over his shoulder at you with an excited expression. His face is pale under his hair, but his eyes are light up with determination.\n\"Wow, so that's our first mission! I-I mean, we're not going to do it, right? We're just... we'-we're not actually going to do it.\"\nHe asks, his voice fast and uncertain as he speaks.\n\"I've never done this before, and my brother said he vanished during a mission and-and I'm not ready, I-I mean...\"\nHe's trailing off as he speaks, and his face is pale with a uncertainty as he speaks.\n\"But-But-but if we can do it, then maybe I can find my brother. I mean, you're an adventurer, and I-I know you can help me.\"\nHe looks at you with hopeful eyes, and his voice is uncertain.\n\"Can we really do it?\"\nHe's looking at you with hope in his eyes, and his voice uncertain."
+        },
+        "player": "Max",
+        "playerMessage": "We walk on in silence for a while."
+      }
+    ]
+  },
+  "on": {
+    "label": "on",
+    "file": "test/journeys/records/v2.4-plan07/part2-live-d7008c958844/J8.10-on-run1.journey.json",
+    "journey": "J8",
+    "mode": {
+      "label": "on",
+      "uses": [
+        "agencyCheck"
+      ],
+      "wardenMode": "auto"
+    },
+    "meter": {
+      "calls": 3,
+      "cachedCalls": 0,
+      "inputTokens": 1884,
+      "outputTokens": 51,
+      "cost": 0,
+      "lastAnsweredModel": "jev-1.13.0"
+    },
+    "ring": {
+      "calls": 3,
+      "cachedCalls": 0,
+      "inputTokens": 1884,
+      "outputTokens": 51,
+      "cost": 0,
+      "fallbacks": {},
+      "byUse": {
+        "warden": {
+          "calls": 3,
+          "cachedCalls": 0,
+          "inputTokens": 1884,
+          "outputTokens": 51,
+          "cost": 0,
+          "fallbacks": {}
+        }
+      }
+    },
+    "warden": {
+      "flagged": 1,
+      "applied": 1,
+      "lapsed": 0,
+      "rejected": 0,
+      "pending": 0
+    },
+    "replies": 4,
+    "notes": [
+      {
+        "text": "Agency: Max's own words and decisions are theirs to write: do not narrate Max acting, accepting, agreeing or refusing.",
+        "replyMessageId": 2,
+        "family": "agency"
+      }
+    ],
+    "rows": [
+      {
+        "id": "m0",
+        "arm": "on",
+        "established": [],
+        "reply": {
+          "speaker": "Arin",
+          "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+        },
+        "player": "Max"
+      },
+      {
+        "id": "m2",
+        "arm": "on",
+        "established": [],
+        "reply": {
+          "speaker": "Gate Guard",
+          "text": "The guard waves the cart through and nods at you. You shoulder your pack, thank him warmly and say that you will pay the toll now, handing over three marks before walking on toward the market."
+        },
+        "player": "Max",
+        "playerMessage": "I wait by the gate and say nothing."
+      },
+      {
+        "id": "m4",
+        "arm": "on",
+        "established": [],
+        "reply": {
+          "speaker": "Luke",
+          "text": "\"Whoa, this place is packed!\" *Luke says, his eyes widening as he takes in the bustling market square. Merchants call out their wares, the air thick with the smell of roasting meat and baked bread.* \"I-I've never seen anything like it, Max! Look at all those people!\" *He pulls his oversized chainmail closer around himself, feeling a bit exposed in the crowd.*\n*He walks over to a fruit stall, his gaze fixed on a bright red apple.* \"Do you think we could get some supplies? Maybe something to eat before we head out?\" *He asks, hopeful but clearly hungry.*\n*His eyes dart around nervously as a group of adventurers walk past, their gear clinking and looking impressive.* \"T-those guys must be done with their first quest, huh?\" *He mutters, feeling suddenly very small and his voice barely above a whisper.*"
+        },
+        "player": "Max",
+        "playerMessage": "I look around the square."
+      },
+      {
+        "id": "m6",
+        "arm": "on",
+        "established": [],
+        "reply": {
+          "speaker": "Arin",
+          "text": "\"It's getting quiet over there, huh?\" *Arin says, his voice laced with a humor that doesn't quite reach his eyes as he follows behind you.* \"Guess we're taking the 'silent treatment' approach today. Maybe that'll scare off some monsters.\" *He flicks a piece of debris from his sleeve, his sharp green eyes scanning the crowd.*\n*He nudges your shoulder as you walk.* \"So, what's the plan, Max? You just gonna keep walking or are you actually going to say something?\" *He lets out a soft chuckle, hisously-disguised worry hiding behind the teasing tone.*"
+        },
+        "player": "Max",
+        "playerMessage": "We walk on in silence for a while."
+      }
+    ]
+  },
+  "rows": [
+    {
+      "metric": "judge calls (meter)",
+      "off": 0,
+      "on": 3,
+      "delta": 3
+    },
+    {
+      "metric": "cached calls (meter)",
+      "off": 0,
+      "on": 0,
+      "delta": 0
+    },
+    {
+      "metric": "input tokens (meter)",
+      "off": 0,
+      "on": 1884,
+      "delta": 1884
+    },
+    {
+      "metric": "output tokens (meter)",
+      "off": 0,
+      "on": 51,
+      "delta": 51
+    },
+    {
+      "metric": "fallbacks (ring)",
+      "off": 0,
+      "on": 0,
+      "delta": 0
+    },
+    {
+      "metric": "flagged replies (warden)",
+      "off": 0,
+      "on": 1,
+      "delta": 1
+    },
+    {
+      "metric": "notes applied (warden)",
+      "off": 0,
+      "on": 1,
+      "delta": 1
+    },
+    {
+      "metric": "replies captured",
+      "off": 5,
+      "on": 4,
+      "delta": -1
+    },
+    {
+      "metric": "next-reply defect rate (rescore)",
+      "off": 0.25,
+      "on": 0.3333,
+      "delta": 0.0833
+    }
+  ],
+  "overSteer": [
+    {
+      "family": "agency",
+      "note": "Agency: Max's own words and decisions are theirs to write: do not narrate Max acting, accepting, agreeing or refusing.",
+      "replyMessageId": 2,
+      "control": {
+        "id": "m4",
+        "speaker": "Ponticius"
+      },
+      "reply": {
+        "id": "m4",
+        "speaker": "Luke"
+      },
+      "restate": {
+        "ok": true,
+        "span": 1,
+        "maxSpan": 6,
+        "metaHits": []
+      },
+      "controlRestate": {
+        "ok": true,
+        "span": 1,
+        "maxSpan": 6,
+        "metaHits": []
+      },
+      "swing": {
+        "words": 142,
+        "controlWords": 151,
+        "lengthRatio": 0.94,
+        "sharedWithControl": 2
+      },
+      "replyScore": 0.38,
+      "missing": null
+    }
+  ]
+}

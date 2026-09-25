@@ -1,0 +1,2822 @@
+{
+  "source": "calibrate-node continuity over test/fixtures/judge/continuity-combined.json: the production question shape, real answers, replayed by jest keyed on state + questions, so a wording change must re-record",
+  "recordedAt": "2026-09-25T04:57:13.545Z",
+  "model": "jev-1.13.0",
+  "right": 83,
+  "total": 85,
+  "calls": [
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "Luke died in the sphinx's chamber."
+        },
+        "reply": {
+          "speaker": "Luke",
+          "text": "Luke tugs at your sleeve. \"Can we go home now?\""
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.84
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.07,
+          "confidence": 0.94,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.99,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0.01
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.04
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "La puerta principal de las ruinas se derrumbó.",
+          "fact_1": "El grupo entró por un túnel lateral.",
+          "fact_2": "Es de noche fuera de las ruinas."
+        },
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "El sol del mediodía cae a plomo sobre la arena cuando el grupo sale del túnel."
+        },
+        "player": "Max",
+        "player_message": "Sigo observando.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:1": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:2": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_2`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "fact:1": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "fact:2": {
+          "type": "noul",
+          "noul": 0.94
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.05,
+          "confidence": 0.96,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.98,
+            "1": 0.01,
+            "2": 0,
+            "3": 0.01,
+            "4": 0
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "Brandt drives a black sedan."
+        },
+        "reply": {
+          "speaker": "Narrator",
+          "text": "Brandt's black sedan idles at the curb, wipers ticking."
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.01,
+          "confidence": 0.99,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 1,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.15
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "Luke died in the sphinx's chamber."
+        },
+        "reply": {
+          "speaker": "Arin",
+          "text": "\"Luke would have loved this view,\" Arin says quietly."
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.04,
+          "confidence": 0.97,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.99,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0.01
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.04
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "The hull breach on deck three is sealed.",
+          "fact_1": "Two crew members are injured."
+        },
+        "reply": {
+          "speaker": "HALO",
+          "text": "\"Warning: deck three is still venting atmosphere through the breach.\""
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:1": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.92
+        },
+        "fact:1": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.02,
+          "confidence": 0.98,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.99,
+            "1": 0.01,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.05
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "Pell's left arm is broken and in a sling.",
+          "fact_1": "The reactor is unstable."
+        },
+        "reply": {
+          "speaker": "Pell",
+          "text": "Pell winces, adjusts the sling, and types one-handed at the console. \"Containment's still jumping.\""
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:1": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "fact:1": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.03,
+          "confidence": 0.98,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 1,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.83
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "Max lleva el Corazón del Sol en su mochila.",
+          "fact_1": "Arin no sabe dónde está el Corazón del Sol.",
+          "fact_2": "La cámara interior está inundada."
+        },
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "La cámara interior está completamente seca; el polvo de siglos cubre el suelo de piedra."
+        },
+        "player": "Max",
+        "player_message": "Sigo observando.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:1": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:2": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_2`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "fact:1": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "fact:2": {
+          "type": "noul",
+          "noul": 0.97
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.09,
+          "confidence": 0.93,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.93,
+            "1": 0.07,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.04
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "Max answered the sphinx's riddle correctly."
+        },
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "La esfinge ruge: \"Tu respuesta fue incorrecta, mortal.\""
+        },
+        "player": "Max",
+        "player_message": "Sigo observando.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.82
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.05,
+          "confidence": 0.96,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.98,
+            "1": 0.01,
+            "2": 0,
+            "3": 0,
+            "4": 0.01
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.04
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "Mae Hollis is left-handed."
+        },
+        "reply": {
+          "speaker": "Narrator",
+          "text": "Mae draws her revolver with her left hand and steps into the doorway."
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.02,
+          "confidence": 0.98,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 1,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.98
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.04
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "It is night and raining heavily.",
+          "fact_1": "The party is in the guild hall."
+        },
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "Sunlight pours through the guild hall windows as Ponticius counts the coins."
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:1": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.97
+        },
+        "fact:1": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.18,
+          "confidence": 0.85,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.94,
+            "1": 0.01,
+            "2": 0,
+            "3": 0.03,
+            "4": 0.02
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "The front gate of the ruins collapsed.",
+          "fact_1": "The party entered the ruins through a side tunnel.",
+          "fact_2": "It is night outside the ruins."
+        },
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "The party walks back out through the great front gate, which stands as solid as the day it was built."
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:1": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:2": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_2`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.94
+        },
+        "fact:1": {
+          "type": "noul",
+          "noul": 0.22
+        },
+        "fact:2": {
+          "type": "noul",
+          "noul": 0.12
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.31,
+          "confidence": 0.74,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.92,
+            "1": 0,
+            "2": 0,
+            "3": 0.04,
+            "4": 0.04
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "The hull breach on deck three is sealed.",
+          "fact_1": "Two crew members are injured."
+        },
+        "reply": {
+          "speaker": "Captain Okafor",
+          "text": "\"Both of our injured are stable. Good.\""
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:1": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "fact:1": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.01,
+          "confidence": 0.99,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 1,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "Arin was badly cut in the gate collapse and is bleeding.",
+          "fact_1": "The reward is 500 crowns.",
+          "fact_2": "Luke joined the expedition.",
+          "fact_3": "The sphinx's riddle was answered wrong."
+        },
+        "reply": {
+          "speaker": "Arin",
+          "text": "Arin vaults the rubble without a scratch on her and grins. \"Not a mark on me. Let's move.\""
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:1": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:2": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_2`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:3": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_3`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.92
+        },
+        "fact:1": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "fact:2": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "fact:3": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.05,
+          "confidence": 0.96,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.99,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0.01
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "Arin distrusts Max since the lie about the map."
+        },
+        "reply": {
+          "speaker": "Arin",
+          "text": "\"Fine, we'll use your map,\" Arin mutters, \"but I'm checking every turn myself.\""
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.27,
+          "confidence": 0.78,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.93,
+            "1": 0.01,
+            "2": 0,
+            "3": 0,
+            "4": 0.06
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.04
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "Arin distrusts Max since the lie about the map."
+        },
+        "reply": {
+          "speaker": "Arin",
+          "text": "Arin claps you on the back. \"I'd trust you with my life, you know that.\""
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.83
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.43,
+          "confidence": 0.64,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.89,
+            "1": 0,
+            "2": 0,
+            "3": 0.02,
+            "4": 0.09
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.04
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "The reward is 500 crowns.",
+          "fact_1": "Ponticius signed the contract.",
+          "fact_2": "The party entered the ruins through a side tunnel."
+        },
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "\"Two hundred crowns, as agreed, and not a copper more,\" Ponticius grumbles, sliding the purse across the desk."
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:1": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:2": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_2`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.84
+        },
+        "fact:1": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "fact:2": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.09,
+          "confidence": 0.93,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.98,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0.02
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.04
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "Max has never met Lieutenant Brandt."
+        },
+        "reply": {
+          "speaker": "Lt. Brandt",
+          "text": "\"Detective. Good to see you again. How's the arm since our little talk at the Blue Anchor?\""
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.79
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.11,
+          "confidence": 0.91,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.97,
+            "1": 0,
+            "2": 0,
+            "3": 0.01,
+            "4": 0.02
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.05
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "The ledger is in Max's coat pocket.",
+          "fact_1": "Maeve does not know that Max has the ledger."
+        },
+        "reply": {
+          "speaker": "Maeve",
+          "text": "\"You look like a man with something heavy in his pocket.\""
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:1": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "fact:1": {
+          "type": "noul",
+          "noul": 0.12
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.11,
+          "confidence": 0.91,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.96,
+            "1": 0.01,
+            "2": 0,
+            "3": 0.02,
+            "4": 0.01
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.05
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "Pell's left arm is broken and in a sling.",
+          "fact_1": "The reactor is unstable."
+        },
+        "reply": {
+          "speaker": "Pell",
+          "text": "Pell grabs the ladder with both hands and hauls himself up to the catwalk two rungs at a time."
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:1": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.77
+        },
+        "fact:1": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.12,
+          "confidence": 0.9,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.97,
+            "1": 0,
+            "2": 0,
+            "3": 0.01,
+            "4": 0.02
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.04
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "Max carries the Sun's Heart in his pack.",
+          "fact_1": "Arin does not know where the Sun's Heart is.",
+          "fact_2": "The inner chamber is flooded."
+        },
+        "reply": {
+          "speaker": "Arin",
+          "text": "\"Keep that pack of yours shut, Max. The Sun's Heart glows through the canvas.\""
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:1": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:2": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_2`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.26
+        },
+        "fact:1": {
+          "type": "noul",
+          "noul": 0.61
+        },
+        "fact:2": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.19,
+          "confidence": 0.84,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.94,
+            "1": 0.01,
+            "2": 0,
+            "3": 0.02,
+            "4": 0.03
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.04
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "Arin was badly cut in the gate collapse and is bleeding.",
+          "fact_1": "The reward is 500 crowns.",
+          "fact_2": "Luke joined the expedition."
+        },
+        "reply": {
+          "speaker": "Arin",
+          "text": "Arin presses a strip of cloth to her side and hisses. \"It's fine. Five hundred crowns buys a lot of bandages.\""
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:1": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:2": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_2`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "fact:1": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "fact:2": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.03,
+          "confidence": 0.97,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.99,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0.01
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.04
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "Graves is loyal to Lady Ashworth.",
+          "fact_1": "In the portrait, Lord Ashworth's painted hand now points at the door."
+        },
+        "reply": {
+          "speaker": "Narrator",
+          "text": "The portrait of Lord Ashworth hangs exactly as it always has, his painted hand resting on his sword."
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:1": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "fact:1": {
+          "type": "noul",
+          "noul": 0.94
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.01,
+          "confidence": 0.99,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 1,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "Luke is twelve years old."
+        },
+        "reply": {
+          "speaker": "Luke",
+          "text": "\"When I'm thirteen next spring, I'm joining the guild.\""
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.19,
+          "confidence": 0.85,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.96,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0.04
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.04
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "Max has never met Lieutenant Brandt."
+        },
+        "reply": {
+          "speaker": "Lt. Brandt",
+          "text": "\"You must be the detective everyone keeps warning me about.\""
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.27
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.14,
+          "confidence": 0.88,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.96,
+            "1": 0.01,
+            "2": 0,
+            "3": 0.01,
+            "4": 0.02
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.05
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "Arin fue herida en el derrumbe y sangra.",
+          "fact_1": "La recompensa es de 500 coronas.",
+          "fact_2": "Luke se unió a la expedición."
+        },
+        "reply": {
+          "speaker": "Arin",
+          "text": "Arin se aprieta la herida del costado y hace una mueca. \"Sigo en pie. Vamos.\""
+        },
+        "player": "Max",
+        "player_message": "Sigo observando.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:1": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:2": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_2`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "fact:1": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "fact:2": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.07,
+          "confidence": 0.94,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.99,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0.01
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "Luke tiene doce años.",
+          "fact_1": "Luke se unió a la expedición.",
+          "fact_2": "Ponticius firmó el contrato."
+        },
+        "reply": {
+          "speaker": "Luke",
+          "text": "\"¡Cuando cumpla trece, Ponticius me dejará firmar mis propios contratos!\""
+        },
+        "player": "Max",
+        "player_message": "Sigo observando.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:1": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:2": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_2`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "fact:1": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "fact:2": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.35,
+          "confidence": 0.71,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.91,
+            "1": 0,
+            "2": 0,
+            "3": 0.01,
+            "4": 0.08
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.04
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "The ledger is in Max's coat pocket.",
+          "fact_1": "Maeve does not know that Max has the ledger."
+        },
+        "reply": {
+          "speaker": "Maeve",
+          "text": "\"Nice of you to bring the ledger along in your coat, detective. Hand it over.\""
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:1": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.57
+        },
+        "fact:1": {
+          "type": "noul",
+          "noul": 0.87
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.35,
+          "confidence": 0.71,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.9,
+            "1": 0.01,
+            "2": 0,
+            "3": 0.03,
+            "4": 0.06
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.04
+        }
+      }
+    },
+    {
+      "state": {
+        "established_facts": {
+          "fact_0": "Luke joined the expedition.",
+          "fact_1": "Luke is twelve years old.",
+          "fact_2": "Luke is afraid of the dark."
+        },
+        "reply": {
+          "speaker": "Luke",
+          "text": "Luke clutches the torch tighter as the tunnel narrows. \"Can we hurry? I really don't like it down here.\""
+        },
+        "player": "Max",
+        "player_message": "I keep watching.",
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "fact:0": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:1": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "fact:2": {
+          "type": "noul",
+          "instructions": "Does `reply` contradict `established_facts.fact_2`?",
+          "criteria": {
+            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+          }
+        },
+        "agency": {
+          "type": "score",
+          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+          "criteria": [
+            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          ]
+        },
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "fact:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "fact:1": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "fact:2": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "agency": {
+          "type": "score",
+          "score": 0.1,
+          "confidence": 0.92,
+          "legend": {
+            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+          },
+          "probabilities": {
+            "0": 0.97,
+            "1": 0,
+            "2": 0,
+            "3": 0.01,
+            "4": 0.02
+          }
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.04
+        }
+      }
+    }
+  ]
+}

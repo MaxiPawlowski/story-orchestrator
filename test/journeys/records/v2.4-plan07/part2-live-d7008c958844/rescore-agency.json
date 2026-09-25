@@ -1,0 +1,146 @@
+{
+  "summary": {
+    "use": "agency",
+    "records": [
+      "test/journeys/records/v2.4-plan07/part2-live-d7008c958844/J8.10-off-run1.journey.json",
+      "test/journeys/records/v2.4-plan07/part2-live-d7008c958844/J8.10-on-run1.journey.json",
+      "test/journeys/records/v2.4-plan07/part2-live-d7008c958844/J8.10-on-run2.journey.json"
+    ],
+    "model": "jev-1.13.0",
+    "rates": [
+      {
+        "arm": "off",
+        "asked": 4,
+        "answered": 4,
+        "flagged": 1,
+        "defectRate": 0.25
+      },
+      {
+        "arm": "on",
+        "asked": 9,
+        "answered": 9,
+        "flagged": 2,
+        "defectRate": 0.2222
+      }
+    ]
+  },
+  "results": [
+    {
+      "id": "m2",
+      "arm": "off",
+      "flagged": true,
+      "broken": [],
+      "latencyMs": 624,
+      "model": "jev-1.13.0",
+      "score": 3.81
+    },
+    {
+      "id": "m4",
+      "arm": "off",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 577,
+      "model": "jev-1.13.0",
+      "score": 0.13
+    },
+    {
+      "id": "m6",
+      "arm": "off",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 581,
+      "model": "jev-1.13.0",
+      "score": 0.62
+    },
+    {
+      "id": "m7",
+      "arm": "off",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 553,
+      "model": "jev-1.13.0",
+      "score": 0.04
+    },
+    {
+      "id": "m2",
+      "arm": "on",
+      "flagged": true,
+      "broken": [],
+      "latencyMs": 558,
+      "model": "jev-1.13.0",
+      "score": 3.83
+    },
+    {
+      "id": "m4",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 669,
+      "model": "jev-1.13.0",
+      "score": 0.38
+    },
+    {
+      "id": "m6",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 760,
+      "model": "jev-1.13.0",
+      "score": 0.42
+    },
+    {
+      "id": "m2",
+      "arm": "on",
+      "flagged": true,
+      "broken": [],
+      "latencyMs": 760,
+      "model": "jev-1.13.0",
+      "score": 3.84
+    },
+    {
+      "id": "m4",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 822,
+      "model": "jev-1.13.0",
+      "score": 0.07
+    },
+    {
+      "id": "m6",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 784,
+      "model": "jev-1.13.0",
+      "score": 0.7
+    },
+    {
+      "id": "m7",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 870,
+      "model": "jev-1.13.0",
+      "score": 0.09
+    },
+    {
+      "id": "m8",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 917,
+      "model": "jev-1.13.0",
+      "score": 0.15
+    },
+    {
+      "id": "m9",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 964,
+      "model": "jev-1.13.0",
+      "score": 0.21
+    }
+  ]
+}

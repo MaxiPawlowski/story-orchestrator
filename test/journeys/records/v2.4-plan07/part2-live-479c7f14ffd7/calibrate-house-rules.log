@@ -1,0 +1,138 @@
+ok   H01.untouched:0 p=0.03             217 ms    [] No character uses a gun, rifle or any gunpowder weapon.
+ok   H01.untouched:1 p=0.03             217 ms    [] Magic cannot heal wounds.
+ok   H01.broken:2 p=0.99             217 ms    [] Characters never swear or use profanity.
+ok   H01.untouched:3 p=0.03             217 ms    [] Dragons are extinct: none appears alive in the present day.
+ok   H02.untouched:0 p=0.03             224 ms    [] No character mentions phones, computers or any modern technology.
+ok   H02.untouched:1 p=0.03             224 ms    [] There are no horses in this world.
+ok   H02.untouched:2 p=0.03             224 ms    [] Characters never swear or use profanity.
+ok   H02.untouched:3 p=0.03             224 ms    [] No character is killed on screen.
+ok   H03.untouched:0 p=0.03             219 ms    [] No character uses a gun, rifle or any gunpowder weapon.
+ok   H03.untouched:1 p=0.04             219 ms    [] Coins are called marks, never gold pieces or dollars.
+ok   H03.untouched:2 p=0.03             219 ms    [] Dragons are extinct: none appears alive in the present day.
+ok   H03.untouched:3 p=0.33             219 ms    [] The narrator never addresses the reader directly.
+ok   H04.broken:0 p=0.99             243 ms    [] No character uses a gun, rifle or any gunpowder weapon.
+ok   H04.untouched:1 p=0.03             243 ms    [] Magic cannot heal wounds.
+ok   H04.untouched:2 p=0.03             243 ms    [] Characters never swear or use profanity.
+ok   H04.untouched:3 p=0.03             243 ms    [] Coins are called marks, never gold pieces or dollars.
+ok   H05.kept:0 p=0.11             271 ms    [] No character uses a gun, rifle or any gunpowder weapon.
+ok   H05.untouched:1 p=0.06             271 ms    [] Characters never swear or use profanity.
+ok   H05.untouched:2 p=0.03             271 ms    [] No character mentions phones, computers or any modern technology.
+ok   H05.untouched:3 p=0.02             271 ms    [] There are no horses in this world.
+ok   H06.broken:0 p=0.98             238 ms    [] Magic cannot heal wounds.
+ok   H06.untouched:1 p=0.03             238 ms    [] No character is killed on screen.
+ok   H06.untouched:2 p=0.32             238 ms    [] The reply never describes graphic gore.
+ok   H06.untouched:3 p=0.02             238 ms    [] Coins are called marks, never gold pieces or dollars.
+ok   H07.kept:0 p=0.03             440 ms    [] Magic cannot heal wounds.
+ok   H07.untouched:1 p=0.04             440 ms    [] The reply never describes graphic gore.
+ok   H07.untouched:2 p=0.02             440 ms    [] Characters never swear or use profanity.
+ok   H07.untouched:3 p=0.02             440 ms    [] No character drinks alcohol.
+ok   H08.broken:0 p=0.99             445 ms    [] No character mentions phones, computers or any modern technology.
+ok   H08.untouched:1 p=0.06             445 ms    [] It is always night in the city of Vael.
+ok   H08.untouched:2 p=0.03             445 ms    [] Dragons are extinct: none appears alive in the present day.
+ok   H08.untouched:3 p=0.03             445 ms    [] Coins are called marks, never gold pieces or dollars.
+ok   H09.broken:0 p=0.77             451 ms    [] No character is killed on screen.
+ok   H09.broken:1 p=0.96             451 ms    [] The reply never describes graphic gore.
+ok   H09.untouched:2 p=0.03             451 ms    [] Magic cannot heal wounds.
+ok   H09.untouched:3 p=0.07             451 ms    [] There are no horses in this world.
+ok   H10.kept:0 p=0.02             499 ms    [] No character is killed on screen.
+ok   H10.kept:1 p=0.04             499 ms    [] The reply never describes graphic gore.
+ok   H10.untouched:2 p=0.03             499 ms    [] Characters never swear or use profanity.
+ok   H10.kept:3 p=0.04             499 ms    [] The reply is written in the past tense.
+ok   H11.broken:0 p=0.99             482 ms    [] Coins are called marks, never gold pieces or dollars.
+ok   H11.broken:1 p=0.98             482 ms    [] No character drinks alcohol.
+ok   H11.untouched:2 p=0.03             482 ms    [] No character mentions phones, computers or any modern technology.
+ok   H11.untouched:3 p=0.02             482 ms    [] No character uses a gun, rifle or any gunpowder weapon.
+ok   H12.kept:0 p=0.03             499 ms    [] Coins are called marks, never gold pieces or dollars.
+ok   H12.kept:1 p=0.04             499 ms    [] No character drinks alcohol.
+ok   H12.untouched:2 p=0.02             499 ms    [] There are no horses in this world.
+ok   H12.untouched:3 p=0.04             499 ms    [] It is always night in the city of Vael.
+ok   H13.broken:0 p=0.99             657 ms    [] There are no horses in this world.
+ok   H13.untouched:1 p=0.03             657 ms    [] Dragons are extinct: none appears alive in the present day.
+ok   H13.untouched:2 p=0.04             657 ms    [] The narrator never addresses the reader directly.
+ok   H13.untouched:3 p=0.02             657 ms    [] No character uses a gun, rifle or any gunpowder weapon.
+ok   H14.kept:0 p=0.05             708 ms    [] There are no horses in this world.
+ok   H14.untouched:1 p=0.03             708 ms    [] Coins are called marks, never gold pieces or dollars.
+ok   H14.untouched:2 p=0.02             708 ms    [] Characters never swear or use profanity.
+ok   H14.untouched:3 p=0.02             708 ms    [] Magic cannot heal wounds.
+ok   H15.broken:0 p=0.98             671 ms    [] Dragons are extinct: none appears alive in the present day.
+MISS H15.untouched:1 p=0.76             671 ms    [] It is always night in the city of Vael.
+ok   H15.untouched:2 p=0.04             671 ms    [] No character is killed on screen.
+ok   H15.untouched:3 p=0.03             671 ms    [] No character mentions phones, computers or any modern technology.
+ok   H16.broken:0 p=0.99             686 ms    [] It is always night in the city of Vael.
+ok   H16.untouched:1 p=0.03             686 ms    [] Dragons are extinct: none appears alive in the present day.
+ok   H16.untouched:2 p=0.03             686 ms    [] No character drinks alcohol.
+ok   H16.kept:3 p=0.14             686 ms    [] The reply is written in the past tense.
+ok   H17.broken:0 p=0.99             724 ms    [] The narrator never addresses the reader directly.
+ok   H17.broken:1 p=0.85             724 ms    [] The reply is written in the past tense.
+ok   H17.untouched:2 p=0.03             724 ms    [] No character mentions phones, computers or any modern technology.
+ok   H17.untouched:3 p=0.02             724 ms    [] The reply never describes graphic gore.
+ok   H18.broken:0 p=0.74             715 ms    [] The reply is written in the past tense.
+ok   H18.untouched:1 p=0.03             715 ms    [] The narrator never addresses the reader directly.
+ok   H18.untouched:2 p=0.02             715 ms    [] No character is killed on screen.
+ok   H18.kept:3 p=0.03             715 ms    [] No character drinks alcohol.
+ok   H19.broken:0 p=0.99             866 ms    [] No character drinks alcohol.
+ok   H19.untouched:1 p=0.05             866 ms    [] Characters never swear or use profanity.
+ok   H19.untouched:2 p=0.02             866 ms    [] No character uses a gun, rifle or any gunpowder weapon.
+ok   H19.untouched:3 p=0.03             866 ms    [] Magic cannot heal wounds.
+ok   H20.kept:0 p=0.15             930 ms    [] Characters never swear or use profanity.
+ok   H20.untouched:1 p=0.04             930 ms    [] No character mentions phones, computers or any modern technology.
+ok   H20.untouched:2 p=0.03             930 ms    [] No character is killed on screen.
+ok   H20.untouched:3 p=0.03             930 ms    [] Dragons are extinct: none appears alive in the present day.
+ok   H21.broken:0 p=0.95             917 ms  spanish  [] Ningún personaje usa armas de fuego.
+ok   H21.untouched:1 p=0.03             917 ms  spanish  [] La magia no puede curar heridas.
+ok   H21.untouched:2 p=0.03             917 ms  spanish  [] Los personajes nunca dicen palabrotas.
+ok   H21.untouched:3 p=0.03             917 ms  spanish  [] En este mundo no existen los caballos.
+ok   H22.kept:0 p=0.06             942 ms  spanish  [] La magia no puede curar heridas.
+ok   H22.untouched:1 p=0.03             942 ms  spanish  [] Ningún personaje bebe alcohol.
+ok   H22.untouched:2 p=0.04             942 ms  spanish  [] Los personajes nunca dicen palabrotas.
+ok   H22.untouched:3 p=0.02             942 ms  spanish  [] Ningún personaje usa armas de fuego.
+ok   H23.broken:0 p=0.98             937 ms  spanish  [] Los personajes nunca dicen palabrotas.
+ok   H23.untouched:1 p=0.03             937 ms  spanish  [] En este mundo no existen los caballos.
+ok   H23.untouched:2 p=0.03             937 ms  spanish  [] Ningún personaje bebe alcohol.
+ok   H23.untouched:3 p=0.03             937 ms  spanish  [] La magia no puede curar heridas.
+ok   H24.kept:0 p=0.04             930 ms  spanish  [] En este mundo no existen los caballos.
+ok   H24.kept:1 p=0.05             930 ms  spanish  [] Ningún personaje bebe alcohol.
+ok   H24.untouched:2 p=0.03             930 ms  spanish  [] Ningún personaje usa armas de fuego.
+ok   H24.untouched:3 p=0.03             930 ms  spanish  [] Los personajes nunca dicen palabrotas.
+ok   broken    17/17 floor 0.85
+ok   kept      14/14 floor 0.95
+ok   untouched 64/65 floor 0.966
+{
+  "use": "house-rules",
+  "fixture": "house-rules",
+  "right": 95,
+  "total": 96,
+  "rate": 0.9896,
+  "families": [
+    {
+      "family": "broken",
+      "right": 17,
+      "total": 17,
+      "floor": 0.85,
+      "ok": true
+    },
+    {
+      "family": "kept",
+      "right": 14,
+      "total": 14,
+      "floor": 0.95,
+      "ok": true
+    },
+    {
+      "family": "untouched",
+      "right": 64,
+      "total": 65,
+      "floor": 0.966,
+      "ok": true
+    }
+  ],
+  "spanish": "16/16",
+  "p50LatencyMs": 499,
+  "requestedModel": null,
+  "model": "jev-1.13.0",
+  "modelVerdict": "matched",
+  "min": 0.85,
+  "minGiven": false,
+  "ok": true
+}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T04-57-28-180Z_so-judge-calibrate-house-rules.json

@@ -1,0 +1,406 @@
+{
+  "off": {
+    "label": "off",
+    "file": "test/journeys/records/v2.4-plan07/part2-live-d7008c958844/J8.12-off-run1.journey.json",
+    "journey": "J8",
+    "mode": {
+      "label": "off",
+      "uses": []
+    },
+    "meter": {
+      "calls": 0,
+      "cachedCalls": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "cost": 0,
+      "lastAnsweredModel": null
+    },
+    "ring": {
+      "calls": 0,
+      "cachedCalls": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "cost": 0,
+      "fallbacks": {},
+      "byUse": {}
+    },
+    "warden": {
+      "flagged": 0,
+      "applied": 0,
+      "lapsed": 0,
+      "rejected": 0,
+      "pending": 0
+    },
+    "replies": 7,
+    "notes": [],
+    "rows": [
+      {
+        "id": "m0",
+        "arm": "off",
+        "established": [
+          "The dock is currently flooded."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+        },
+        "player": "Max",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m2",
+        "arm": "off",
+        "established": [
+          "The dock is currently flooded."
+        ],
+        "reply": {
+          "speaker": "Captain Rhee",
+          "text": "Captain Rhee levels her flintlock pistol at the smugglers and fires; the shot cracks across the flooded dock and the men scatter."
+        },
+        "player": "Max",
+        "playerMessage": "We wait on the dock for the ferry.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m4",
+        "arm": "off",
+        "established": [
+          "The dock is currently flooded."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "\"Easy now, don't let the chaos distract you,\" Ponticius says, stepping closer to you as the sound of the shot echoes across the dock. He glances at the Captain firing off another round and shakes his head with a laugh. \"The ferry isn't coming in the middle of a brawl. We'll have to find another way across or wait this out. What do you think? Wait it out or take a chance on the current?\" *He leans back against a post, his eyes tracking the smugglers as they retreat, seemingly unbothered by the gunshots. His tone is calm, but there's a clear challenge in his voice—he's weighing your resolve.*"
+        },
+        "player": "Max",
+        "playerMessage": "I keep my head down and wait.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m5",
+        "arm": "off",
+        "established": [
+          "The dock is currently flooded."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "\"Whoa, whoa! Don't get in the line of fire!\" *Luke's voice cracks as he ducks low, his oversized chainmail clanking loudly as he stumbles slightly in the shallow water. His eyes are wide, darting between Captain Rhee and the fleeing smugglers. He grips the hilt of his short sword with white-knuckled fingers, though he hasn't drawn it. He looks over at you and Ponticius, his expression a mixture of nervous energy and awe.*\n\"This is... this is like the stories! Real pirates and shootouts!\" *He says, his words tumbling out in a rushed, uncertain stream as he tries to sound brave, but the tremor in his voice betrays him. He shifts his weight, the water sloshing around his boots, and he keeps his head tucked low as he glances toward where Captain Rhee is firing.*\n\"Should we... should we do something? I mean, I know we're just waiting for the ferry, but—\" *He trails off, watching as a smuggler glances back nervously before disappearing behind some crates. Luke's chest heaves slightly, his brown hair damp with sea spray and clinging to his pale forehead as he looks to you for direction.*"
+        },
+        "player": "Max",
+        "playerMessage": "I keep my head down and wait.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m6",
+        "arm": "off",
+        "established": [
+          "The dock is currently flooded."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "\"Smart choice. Let the idiots fight it out.\" *Arin says, crouching low by the dock's edge and keeping his head down as Captain Rhee's flintlock cracks again. He reaches back and adjusts the strap of his shortbow, checking the tension of the string as his eyes remain sharp and focused.*\n\"Just keep your head down and stay out of the way.\" *His voice is low and calm, though there's a shadow of worry in his eyes as he glances at you.* \"We'll be sure we're in one piece and the ferry is still coming.\" *He glances around, scanning the dock and the water for any threats that might come their way as he waits patiently.*"
+        },
+        "player": "Max",
+        "playerMessage": "I keep my head down and wait.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m7",
+        "arm": "off",
+        "established": [
+          "The dock is currently flooded."
+        ],
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "*The crack of gunfire echoes across the dock as Captain Rhee continues to fire her flintlock pistol, the smell of gunpowder mixing with the salty air. The water sloshes around Max's boots as he keeps his head down, the wood groaning beneath him. The smugglers scatter across the flooded dock, their boots splashing through the shallow water as they shout to one another in a mixture of alarm and confusion.*\n*A few yards away, the ferry's approach is finally visible—a battered, weathered vessel cutting through the water with labored effort. The Captain's shouts and theshots of her gun create a chaos that makes it difficult to concentrate, but the ferry's gangplank is lowered slowly and deliberately, as if the ferryman is wary of the situation.*\n*The sounds of the brawl intensify as Captain Rhee reloads her flintlock, her expression set in stone as she continues her relentless pursuit of the smugglers.*"
+        },
+        "player": "Max",
+        "playerMessage": "I keep my head down and wait.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m9",
+        "arm": "off",
+        "established": [
+          "The dock is currently flooded."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "\"About time. I thought we'd be stuck waiting on that dock forever.\" *Ponticius says as he steps onto the ferry, his boots clunking against the wooden planks. He pauses, glance over his shoulder at the dock where Captain Rhee's gunshots still echo in the distance. A small smile plays at his lips as he watches the smugglers scatter.*\n\"Still, it's a reminder of the chaos that comes with our line of work.\" *He says,H his voice low as he raises his eyes to look at you.* \"And it's one thing to face a danger and wait it out, but another thing entirely to face it and walk through it.\" *He steps forward, leaning against the railing and looking out at the water as the ferry begins to move.*\n*The ferry's wooden hull groans as it sets off, the dock falling away slowly. The water is dark and choppy, the air growing colder as theH the distance from the shore grows. Ponticius stands there, as he does, his posture relaxed but his eyes ever watchful as he makes his way to the front of the boat, looking at the horizon.*"
+        },
+        "player": "Max",
+        "playerMessage": "We board the ferry.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      }
+    ]
+  },
+  "on": {
+    "label": "on",
+    "file": "test/journeys/records/v2.4-plan07/part2-live-d7008c958844/J8.12-on-run2.journey.json",
+    "journey": "J8",
+    "mode": {
+      "label": "on",
+      "uses": [
+        "houseRules"
+      ],
+      "wardenMode": "auto"
+    },
+    "meter": {
+      "calls": 2,
+      "cachedCalls": 0,
+      "inputTokens": 1139,
+      "outputTokens": 80,
+      "cost": 0,
+      "lastAnsweredModel": "jev-1.13.0"
+    },
+    "ring": {
+      "calls": 2,
+      "cachedCalls": 0,
+      "inputTokens": 1139,
+      "outputTokens": 80,
+      "cost": 0,
+      "fallbacks": {},
+      "byUse": {
+        "warden": {
+          "calls": 2,
+          "cachedCalls": 0,
+          "inputTokens": 1139,
+          "outputTokens": 80,
+          "cost": 0,
+          "fallbacks": {}
+        }
+      }
+    },
+    "warden": {
+      "flagged": 2,
+      "applied": 2,
+      "lapsed": 0,
+      "rejected": 0,
+      "pending": 0
+    },
+    "replies": 4,
+    "notes": [
+      {
+        "text": "House rule: \"No character uses a gun, rifle or any gunpowder weapon.\" — keep the next reply within it.",
+        "replyMessageId": 2,
+        "family": "house-rule"
+      },
+      {
+        "text": "House rule: \"No character uses a gun, rifle or any gunpowder weapon.\" — keep the next reply within it.",
+        "replyMessageId": 4,
+        "family": "house-rule"
+      }
+    ],
+    "rows": [
+      {
+        "id": "m0",
+        "arm": "on",
+        "established": [
+          "The dock is currently flooded."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+        },
+        "player": "Max",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m2",
+        "arm": "on",
+        "established": [
+          "The dock is currently flooded."
+        ],
+        "reply": {
+          "speaker": "Captain Rhee",
+          "text": "Captain Rhee levels her flintlock pistol at the smugglers and fires; the shot cracks across the flooded dock and the men scatter."
+        },
+        "player": "Max",
+        "playerMessage": "We wait on the dock for the ferry.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m4",
+        "arm": "on",
+        "established": [
+          "The dock is currently flooded."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "\"I'll—I'll keep my eyes open, Captain Rhee! Just let me know what to do!\" *Luke's voice wavers slightly but he tries to sound confident as he crouches low, his chainmail clanking awkwardly. His hand rests on the hilt of his sword, knuckles white as he grips it. He stays close to Max, watching the smugglers' movements with wide, nervous eyes.*\n*The captain continues to fire her flintlock, each shot echoing across the water as she forces the smugglers to retreat. The dock creaks underfoot as the fight grows more chaotic.*\n\"Is there something we should—can we—\" *Luke starts to ask but hesensitates, glancing at the Captain and then at the smugglers.*"
+        },
+        "player": "Max",
+        "playerMessage": "I keep my head down and wait.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m6",
+        "arm": "on",
+        "established": [
+          "The dock is currently flooded."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "\"That was—that was pretty intense, wasn't it?\" *Luke lets out a shaky breath as the ferry begins to pull away from the dock. He grips the railing tightly, looking back at the flooded dock where the fight had unfolded.*\n*The ferry slowly glides through the water, the current carrying it toward the Sun Ruins.*\n\"I'm just—I'm glad Captain Rhee's so skilled with that flintlock. Must be... must be really scary to have to fight smugglers on your own, huh?\" *Luke's voice is soft, almost thoughtful as he gazes out at the landscape.*\n*The ferry bobs gently in the water as it moves through the ferry's path, the Sun Ruins looming in the distance.*"
+        },
+        "player": "Max",
+        "playerMessage": "We board the ferry.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      }
+    ]
+  },
+  "rows": [
+    {
+      "metric": "judge calls (meter)",
+      "off": 0,
+      "on": 2,
+      "delta": 2
+    },
+    {
+      "metric": "cached calls (meter)",
+      "off": 0,
+      "on": 0,
+      "delta": 0
+    },
+    {
+      "metric": "input tokens (meter)",
+      "off": 0,
+      "on": 1139,
+      "delta": 1139
+    },
+    {
+      "metric": "output tokens (meter)",
+      "off": 0,
+      "on": 80,
+      "delta": 80
+    },
+    {
+      "metric": "fallbacks (ring)",
+      "off": 0,
+      "on": 0,
+      "delta": 0
+    },
+    {
+      "metric": "flagged replies (warden)",
+      "off": 0,
+      "on": 2,
+      "delta": 2
+    },
+    {
+      "metric": "notes applied (warden)",
+      "off": 0,
+      "on": 2,
+      "delta": 2
+    },
+    {
+      "metric": "replies captured",
+      "off": 7,
+      "on": 4,
+      "delta": -3
+    },
+    {
+      "metric": "next-reply defect rate (rescore)",
+      "off": 0.8571,
+      "on": 0.75,
+      "delta": -0.1071
+    }
+  ],
+  "overSteer": [
+    {
+      "family": "house-rule",
+      "note": "House rule: \"No character uses a gun, rifle or any gunpowder weapon.\" — keep the next reply within it.",
+      "replyMessageId": 2,
+      "control": {
+        "id": "m4",
+        "speaker": "Ponticius"
+      },
+      "reply": {
+        "id": "m4",
+        "speaker": "Luke"
+      },
+      "restate": {
+        "ok": true,
+        "span": 1,
+        "maxSpan": 6,
+        "metaHits": []
+      },
+      "controlRestate": {
+        "ok": true,
+        "span": 1,
+        "maxSpan": 6,
+        "metaHits": []
+      },
+      "swing": {
+        "words": 113,
+        "controlWords": 110,
+        "lengthRatio": 1.027,
+        "sharedWithControl": 3
+      },
+      "missing": null
+    },
+    {
+      "family": "house-rule",
+      "note": "House rule: \"No character uses a gun, rifle or any gunpowder weapon.\" — keep the next reply within it.",
+      "replyMessageId": 4,
+      "control": {
+        "id": "m5",
+        "speaker": "Luke"
+      },
+      "reply": {
+        "id": "m6",
+        "speaker": "Luke"
+      },
+      "restate": {
+        "ok": true,
+        "span": 1,
+        "maxSpan": 6,
+        "metaHits": []
+      },
+      "controlRestate": {
+        "ok": true,
+        "span": 1,
+        "maxSpan": 6,
+        "metaHits": []
+      },
+      "swing": {
+        "words": 115,
+        "controlWords": 192,
+        "lengthRatio": 0.599,
+        "sharedWithControl": 3
+      },
+      "missing": null
+    }
+  ]
+}

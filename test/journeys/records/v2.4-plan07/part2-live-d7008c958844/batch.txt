@@ -1,0 +1,14 @@
+2026-09-25T05:04:36Z J8.10-on-run1 exit=1 automated: 1 pass, 0 fail, 0 blocked, 0 not-runnable, 9 skipped cleanup:   clean 
+BATCH-END
+2026-09-25T05:09:08Z J8.10-on-run2 exit=1 automated: 1 pass, 0 fail, 0 blocked, 0 not-runnable, 9 skipped cleanup:   clean 
+2026-09-25T05:11:24Z J8.10-off-run1 exit=1 automated: 1 pass, 0 fail, 0 blocked, 0 not-runnable, 9 skipped cleanup:   clean 
+2026-09-25T05:13:06Z J8.12-on-run1 exit=1 automated: 1 pass, 0 fail, 0 blocked, 0 not-runnable, 9 skipped cleanup:   clean 
+2026-09-25T05:14:37Z J8.12-on-run2 exit=1 automated: 1 pass, 0 fail, 0 blocked, 0 not-runnable, 9 skipped cleanup:   clean 
+2026-09-25T05:15:49Z J8.12-off-run1 exit=1 automated: 1 pass, 0 fail, 0 blocked, 0 not-runnable, 9 skipped cleanup:   clean 
+2026-09-25T05:18:02Z J8.11-run1 exit=1 automated: 1 pass, 0 fail, 0 blocked, 0 not-runnable, 9 skipped cleanup:   clean 
+2026-09-25T05:18:46Z J8.11-run2 exit=1 automated: 1 pass, 0 fail, 0 blocked, 0 not-runnable, 9 skipped cleanup:   clean 
+2026-09-25T05:19:22Z J8.13-run1 exit=1 automated: 1 pass, 0 fail, 0 blocked, 0 not-runnable, 9 skipped cleanup:   clean 
+2026-09-25T05:20:28Z J8.13-run2 exit=1 automated: 1 pass, 0 fail, 0 blocked, 0 not-runnable, 9 skipped cleanup:   clean 
+2026-09-25T05:21:34Z J8.5-on-run1 exit=1 automated: 1 pass, 0 fail, 0 blocked, 0 not-runnable, 9 skipped cleanup:   clean 
+2026-09-25T05:22:41Z J8.6-run1 exit=1 automated: 1 pass, 0 fail, 0 blocked, 0 not-runnable, 9 skipped cleanup:   clean 
+BATCH-END

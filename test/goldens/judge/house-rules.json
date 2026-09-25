@@ -1,0 +1,1593 @@
+{
+  "source": "calibrate-node house-rules over test/fixtures/judge/house-rules.json: the production question shape, real answers, replayed by jest keyed on state + questions, so a wording change must re-record",
+  "recordedAt": "2026-09-25T04:57:08.210Z",
+  "model": "jev-1.13.0",
+  "right": 94,
+  "total": 96,
+  "calls": [
+    {
+      "state": {
+        "reply": {
+          "speaker": "Narrator",
+          "text": "The messenger reined in his horse at the gate, the stallion snorting and stamping in the cold."
+        },
+        "house_rules": {
+          "rule_0": "There are no horses in this world.",
+          "rule_1": "Dragons are extinct: none appears alive in the present day.",
+          "rule_2": "The narrator never addresses the reader directly.",
+          "rule_3": "No character uses a gun, rifle or any gunpowder weapon."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.99
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Arin",
+          "text": "“You got it,” *Arin says with a nod, turning on his point heel and setting off back the way they came. His cloak flutters slightly as he strides confidently through the forest, the sounds of the forest alive around them.*\n*He pauses for a moment, glancing over his shoulder with a playful smirk.* “Let’s make this quick. I don’t trust this place. Feels like it’s waiting for something.” *His hand instinctively rests on the hilt of one of his daggers, fingers tapping against the leather grip as they walk.*\n*They reach the riverbank soon enough, the sound of rushing water growing louder. But as Arin steps forward, he stops short, eyes narrowing as he gaze lands on the river.*\n“Fuck,” *he mutters, his voice losing its playful edge. He looks back at you, his brow furrowed in frustration.* “The bridge is gone.” *He points toward the gaping hole where the old stone structure once stood, the current swift and violent.*\n*Arin runs his hand through his tousled brown hair, clearly annoyed.* “Well, that’s just fantastic. Anyone else get a mess like this when they’re on a quick trip back to town?” *He looks around the riverbank, trying to find a few logs or rocks that could help them cross.* “Looks like we’re going to have to find another way across, or we’ll be taking a long detour.”\n*He shifts his weight, and his shortbow is still slung over his shoulder. His eyes scan the river, calculating.* “Any thoughts, Max? Or should we start swimming and hope we don’t get swept downstream?”"
+        },
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "Magic cannot heal wounds.",
+          "rule_2": "Characters never swear or use profanity.",
+          "rule_3": "Dragons are extinct: none appears alive in the present day."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.99
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Curandera",
+          "text": "\"La magia no cerrará esto\", dice la curandera mientras enhebra la aguja. \"Quédate quieto, lo coseré a la antigua.\""
+        },
+        "house_rules": {
+          "rule_0": "La magia no puede curar heridas.",
+          "rule_1": "Ningún personaje bebe alcohol.",
+          "rule_2": "Los personajes nunca dicen palabrotas.",
+          "rule_3": "Ningún personaje usa armas de fuego."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Narrator",
+          "text": "Selene presses her glowing palm to the gash in his side. Light seeps into the wound, the torn flesh knits closed and the bleeding stops."
+        },
+        "house_rules": {
+          "rule_0": "Magic cannot heal wounds.",
+          "rule_1": "No character is killed on screen.",
+          "rule_2": "The reply never describes graphic gore.",
+          "rule_3": "Coins are called marks, never gold pieces or dollars."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.98
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.29
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Barkeep",
+          "text": "\"That's ten gold pieces for the room, friend, and the ale's extra.\" He slides a foaming tankard down the bar and you watch the stranger drain it in one go."
+        },
+        "house_rules": {
+          "rule_0": "Coins are called marks, never gold pieces or dollars.",
+          "rule_1": "No character drinks alcohol.",
+          "rule_2": "No character mentions phones, computers or any modern technology.",
+          "rule_3": "No character uses a gun, rifle or any gunpowder weapon."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.99
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.97
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Narrator",
+          "text": "The duel ended at first blood. Kael lowered his sword, the thin cut on his rival's arm already bandaged, and both men walked away alive."
+        },
+        "house_rules": {
+          "rule_0": "No character is killed on screen.",
+          "rule_1": "The reply never describes graphic gore.",
+          "rule_2": "Characters never swear or use profanity.",
+          "rule_3": "The reply is written in the past tense."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.04
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Arin",
+          "text": "\"¡Joder!\", masculla Arin al ver el puente derrumbado. Da una patada a una piedra y se pasa la mano por el pelo."
+        },
+        "house_rules": {
+          "rule_0": "Los personajes nunca dicen palabrotas.",
+          "rule_1": "En este mundo no existen los caballos.",
+          "rule_2": "Ningún personaje bebe alcohol.",
+          "rule_3": "La magia no puede curar heridas."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.99
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Pip",
+          "text": "\"Hang on, let me check my phone,\" Pip mutters, thumbing the cracked screen. \"The map says the tavern is two streets over.\""
+        },
+        "house_rules": {
+          "rule_0": "No character mentions phones, computers or any modern technology.",
+          "rule_1": "It is always night in the city of Vael.",
+          "rule_2": "Dragons are extinct: none appears alive in the present day.",
+          "rule_3": "Coins are called marks, never gold pieces or dollars."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.99
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Narrador",
+          "text": "El carro de bueyes subía la colina despacio; el carretero bebía agua de su odre y tarareaba una canción."
+        },
+        "house_rules": {
+          "rule_0": "En este mundo no existen los caballos.",
+          "rule_1": "Ningún personaje bebe alcohol.",
+          "rule_2": "Ningún personaje usa armas de fuego.",
+          "rule_3": "Los personajes nunca dicen palabrotas."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "*The river's roar gradually softens as you walk upstream, the sound of rushing water becoming a low rumble in the distance. The forest path is damp and quiet, with only the occasional rustle of leaves and the distant call of birds overhead. The scent of wet earth and crushed ferns fills the air, cool and refreshing after the dust and noise of the city.*\n*After a while, the path opens into a small clearing. There, stretched across the turbulent river, is the cable ferry crossing Ponticius spoke of—a sturdy-looking rope and wooden platform, though the rope itself appears worn and frayed in places, hanging loosely over the churning water.*\n*The platform itself, a simple wooden slab with iron rings bolted to its surface, sits at the river's edge, ready to be used. A smaller wooden pulley system on the near bank is bolted into a large stone pillar, the rope stretching from it to the far shore.*\n*The water below is treacherous, white foam and debris whipping past at high speed, but the cable and platform seem stable enough—provided they don't slip or hold.*\n*Arin glances at the frayed rope with a frown, his eyes scanning the river's width. He shifts his weight, testing the platform with a tentative step.*\n\"Well, this looks... promising,\" *he says, his voice tinged with a mix of sarcasm and caution. He glances over at you and Luke, his expression unreadable.* \"So... who's going to be the first to try it?\""
+        },
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "Coins are called marks, never gold pieces or dollars.",
+          "rule_2": "Dragons are extinct: none appears alive in the present day.",
+          "rule_3": "The narrator never addresses the reader directly."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.28
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Healer Maren",
+          "text": "\"Magic won't close this,\" the healer says, threading a needle by the lamp. \"Hold still. I'll stitch it the old way.\""
+        },
+        "house_rules": {
+          "rule_0": "Magic cannot heal wounds.",
+          "rule_1": "The reply never describes graphic gore.",
+          "rule_2": "Characters never swear or use profanity.",
+          "rule_3": "No character drinks alcohol."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Sergeant Brok",
+          "text": "\"Watch your tongue around the recruits,\" the sergeant says, kicking the broken wheel. \"We keep it clean in this company.\""
+        },
+        "house_rules": {
+          "rule_0": "Characters never swear or use profanity.",
+          "rule_1": "No character mentions phones, computers or any modern technology.",
+          "rule_2": "No character is killed on screen.",
+          "rule_3": "Dragons are extinct: none appears alive in the present day."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.15
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Narrator",
+          "text": "Mira walks to the well. She draws a bucket of water and drinks deeply, watching the children chase a goat across the yard."
+        },
+        "house_rules": {
+          "rule_0": "The reply is written in the past tense.",
+          "rule_1": "The narrator never addresses the reader directly.",
+          "rule_2": "No character is killed on screen.",
+          "rule_3": "No character drinks alcohol."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.72
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Narrator",
+          "text": "The bandit lunges; Arin's blade takes him through the throat and he drops dead in the mud, blood spraying across the cart wheel and pooling around his open eyes."
+        },
+        "house_rules": {
+          "rule_0": "No character is killed on screen.",
+          "rule_1": "The reply never describes graphic gore.",
+          "rule_2": "Magic cannot heal wounds.",
+          "rule_3": "There are no horses in this world."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.63
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.95
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.07
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Wall Guard",
+          "text": "\"Crossbows only up here, lad. The Guild burned every powder keg in the city last spring.\" He hefts his crossbow and squints along the wall."
+        },
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "Characters never swear or use profanity.",
+          "rule_2": "No character mentions phones, computers or any modern technology.",
+          "rule_3": "There are no horses in this world."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.18
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Narrator",
+          "text": "Noon sun blazed over Vael, bleaching the white walls of the city and driving the beggars into the shade of the arches."
+        },
+        "house_rules": {
+          "rule_0": "It is always night in the city of Vael.",
+          "rule_1": "Dragons are extinct: none appears alive in the present day.",
+          "rule_2": "No character drinks alcohol.",
+          "rule_3": "The reply is written in the past tense."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.99
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.4
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Captain Rhee",
+          "text": "Captain Rhee levels her flintlock pistol at the boarding party and fires; the shot cracks across the deck and the smoke hangs in the rigging."
+        },
+        "house_rules": {
+          "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_1": "Magic cannot heal wounds.",
+          "rule_2": "Characters never swear or use profanity.",
+          "rule_3": "Coins are called marks, never gold pieces or dollars."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.99
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Merchant Oda",
+          "text": "\"Twelve marks for the lot,\" Oda says, counting the coins twice. \"And the tea is on the house.\""
+        },
+        "house_rules": {
+          "rule_0": "Coins are called marks, never gold pieces or dollars.",
+          "rule_1": "No character drinks alcohol.",
+          "rule_2": "There are no horses in this world.",
+          "rule_3": "It is always night in the city of Vael."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Narrator",
+          "text": "The ox cart creaked up the hill at walking pace, the drover singing to the two tired beasts in the traces."
+        },
+        "house_rules": {
+          "rule_0": "There are no horses in this world.",
+          "rule_1": "Coins are called marks, never gold pieces or dollars.",
+          "rule_2": "Characters never swear or use profanity.",
+          "rule_3": "Magic cannot heal wounds."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Luke",
+          "text": "“Wait, the bridge is gone?!” *Luke's voice pitches higher, his eyes widening as he stares at the river.* “I—I mean, that's not what we're supposed to find!” *He looks back and forth between Arin and the collapsed bridge, his voice rapid and uncertain.* “But if it's gone, then… then we can still cross, right? There must be some other way.” *He looks over to Arin, his eager-to-please expression shifting into a bit of worry.*\n*Luke's hand goes to the hilt of his short sword, his fingers clutching it with a bit too much excitement.* “Maybe we can… maybe we can jump over? No, that's too wide.” *He looks back at the river, his pale face creasing in concern.* “But we can't just swim! What if there are monsters in the river? What if we're—what if we're being swept downstream into some monster's nest?” *His words tumble out of his mouth quickly, his chainmail clattering as he shifts his weight.*\n*He turns to look at Arin, his eagerness shining through.* \"But we can find a way, right? We've got—we've got you and Max!\" *He looks at Max with a bit of awe, as if he's just sure that they'll find a solution.* \"You guys are legends! You'll know exactly what to do!\"\n*Luke's oversized chainmail clatters as he stands there, his short sword clattering against his hip as he looks between Arin and and the river.* \"So... so what should we do? Maybe we can build a raft? Or... or look for another crossing?\" *He looks back at Arin with hopeful eyes.*"
+        },
+        "house_rules": {
+          "rule_0": "No character mentions phones, computers or any modern technology.",
+          "rule_1": "There are no horses in this world.",
+          "rule_2": "Characters never swear or use profanity.",
+          "rule_3": "No character is killed on screen."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Old Tom",
+          "text": "\"Another round of whiskey!\" Old Tom bellows, and the whole table raises their cups and drinks."
+        },
+        "house_rules": {
+          "rule_0": "No character drinks alcohol.",
+          "rule_1": "Characters never swear or use profanity.",
+          "rule_2": "No character uses a gun, rifle or any gunpowder weapon.",
+          "rule_3": "Magic cannot heal wounds."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.99
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.05
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.02
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Narrator",
+          "text": "A shadow falls over the square. Above the rooftops a living dragon wheels, green scales flashing, and roars at the crowd below."
+        },
+        "house_rules": {
+          "rule_0": "Dragons are extinct: none appears alive in the present day.",
+          "rule_1": "It is always night in the city of Vael.",
+          "rule_2": "No character is killed on screen.",
+          "rule_3": "No character mentions phones, computers or any modern technology."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.98
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.74
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.04
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Narrator",
+          "text": "Now, dear reader, you might wonder why Tomas did not simply run. Be patient: you will find out soon enough."
+        },
+        "house_rules": {
+          "rule_0": "The narrator never addresses the reader directly.",
+          "rule_1": "The reply is written in the past tense.",
+          "rule_2": "No character mentions phones, computers or any modern technology.",
+          "rule_3": "The reply never describes graphic gore."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.99
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.82
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.02
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Capitana Rhee",
+          "text": "La capitana apunta con su pistola de chispa y dispara; el estampido retumba en la cubierta y el humo se queda enredado en las jarcias."
+        },
+        "house_rules": {
+          "rule_0": "Ningún personaje usa armas de fuego.",
+          "rule_1": "La magia no puede curar heridas.",
+          "rule_2": "Los personajes nunca dicen palabrotas.",
+          "rule_3": "En este mundo no existen los caballos."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.97
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.03
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.03
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,189 @@
+{
+  "ok": true,
+  "value": [
+    {
+      "at": "2026-09-25T05:29:29.332Z",
+      "url": "/api/plugins/story-orchestrator-judge/systemone",
+      "body": {
+        "state": {
+          "reply": {
+            "speaker": "Captain Rhee",
+            "text": "Captain Rhee levels her flintlock pistol at the smugglers and fires; the shot cracks across the flooded dock and the men scatter."
+          },
+          "player": "Max",
+          "player_message": "We wait on the dock for the ferry.",
+          "house_rules": {
+            "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+            "rule_1": "Coins are called marks, never gold pieces or dollars."
+          }
+        },
+        "questions": {
+          "agency": {
+            "type": "score",
+            "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+            "criteria": [
+              "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+              "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+              "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+              "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+              "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+            ]
+          },
+          "rule:0": {
+            "type": "noul",
+            "instructions": "Does `reply` break `house_rules.rule_0`?",
+            "criteria": {
+              "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+              "false": "The reply follows the rule or does not touch it"
+            }
+          },
+          "rule:1": {
+            "type": "noul",
+            "instructions": "Does `reply` break `house_rules.rule_1`?",
+            "criteria": {
+              "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+              "false": "The reply follows the rule or does not touch it"
+            }
+          }
+        },
+        "model": "jev-1.13.0"
+      }
+    },
+    {
+      "at": "2026-09-25T05:29:57.519Z",
+      "url": "/api/plugins/story-orchestrator-judge/systemone",
+      "body": {
+        "state": {
+          "established_facts": {
+            "fact_0": "The dock is currently flooded.",
+            "fact_1": "Captain Rhee is armed with a flintlock pistol."
+          },
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The pistol crack echoes across the harbor, sending ripples through the murky water. Smugglers scramble backward, boots slapping against rotting wood, while Captain Rhee holds her aim steady, eyes narrowed. The ferry groans against its moorings, caught between the fighting and the harbor's sluggish current.*\n*Arin stays close, his hand hovering near his bowstring but his weight shifted, ready to move if needed. The smell of sulfur mingles with salt air and fish.*\n\"Easy now,\" *Arin murmurs, his voice low and cautious.* \"Let them settle it. Unless they don't...\"\n*Captain Rhee's expression remains hard as stone, her pistol still raised, but she doesn't fire again. The smugglers retreat into the shadows of the dockside warehouses, their forms barely visible in the fading light.*"
+          },
+          "player": "Max",
+          "player_message": "I keep my head down and wait.",
+          "house_rules": {
+            "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+            "rule_1": "Coins are called marks, never gold pieces or dollars."
+          }
+        },
+        "questions": {
+          "fact:0": {
+            "type": "noul",
+            "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+            "criteria": {
+              "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+              "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+            }
+          },
+          "fact:1": {
+            "type": "noul",
+            "instructions": "Does `reply` contradict `established_facts.fact_1`?",
+            "criteria": {
+              "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+              "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+            }
+          },
+          "agency": {
+            "type": "score",
+            "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+            "criteria": [
+              "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+              "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+              "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+              "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+              "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+            ]
+          },
+          "rule:0": {
+            "type": "noul",
+            "instructions": "Does `reply` break `house_rules.rule_0`?",
+            "criteria": {
+              "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+              "false": "The reply follows the rule or does not touch it"
+            }
+          },
+          "rule:1": {
+            "type": "noul",
+            "instructions": "Does `reply` break `house_rules.rule_1`?",
+            "criteria": {
+              "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+              "false": "The reply follows the rule or does not touch it"
+            }
+          }
+        },
+        "model": "jev-1.13.0"
+      }
+    },
+    {
+      "at": "2026-09-25T05:30:48.822Z",
+      "url": "/api/plugins/story-orchestrator-judge/systemone",
+      "body": {
+        "state": {
+          "established_facts": {
+            "fact_0": "The dock is currently flooded.",
+            "fact_1": "Captain Rhee is armed with a flintlock pistol."
+          },
+          "reply": {
+            "speaker": "Arin",
+            "text": "\"Right,\" *Arin mutters, stepping carefully across the flooded planks, his eyes still tracking where the smugglers disappeared.* \"You're not wrong, Luke. Captain Rhee's been around the block. Or the docks. Or whatever you call it in this city.\"\n*He nudges you with his elbow, a small gesture that keeps you grounded as they approach the ferry.*\n\"And you're right about one thing — we're getting on this boat.\"\n*The ferry's hull creaks against the dock, the wood groaning as it shifts in the water. Arin leads the way, his hand on the gunwale as he steps onto the deck, glancing back to make sure you and Luke follow.*\n\"Everyone aboard,\" *he calls out, though it's directed more at you and your party than anyone else.*\n\"Let's just hope the ferry ride is the easy part.\""
+          },
+          "player": "Max",
+          "player_message": "We board the ferry.",
+          "house_rules": {
+            "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+            "rule_1": "Coins are called marks, never gold pieces or dollars."
+          }
+        },
+        "questions": {
+          "fact:0": {
+            "type": "noul",
+            "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+            "criteria": {
+              "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+              "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+            }
+          },
+          "fact:1": {
+            "type": "noul",
+            "instructions": "Does `reply` contradict `established_facts.fact_1`?",
+            "criteria": {
+              "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+              "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+            }
+          },
+          "agency": {
+            "type": "score",
+            "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+            "criteria": [
+              "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+              "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+              "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+              "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+              "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+            ]
+          },
+          "rule:0": {
+            "type": "noul",
+            "instructions": "Does `reply` break `house_rules.rule_0`?",
+            "criteria": {
+              "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+              "false": "The reply follows the rule or does not touch it"
+            }
+          },
+          "rule:1": {
+            "type": "noul",
+            "instructions": "Does `reply` break `house_rules.rule_1`?",
+            "criteria": {
+              "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+              "false": "The reply follows the rule or does not touch it"
+            }
+          }
+        },
+        "model": "jev-1.13.0"
+      }
+    }
+  ]
+}
