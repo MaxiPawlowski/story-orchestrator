@@ -1,0 +1,94 @@
+{
+  "ok": true,
+  "value": {
+    "installed": true,
+    "count": 3,
+    "rows": [
+      {
+        "at": "2026-09-25T15:43:27.193Z",
+        "url": "/api/plugins/story-orchestrator-judge/systemone",
+        "body": {
+          "state": {
+            "reply": {
+              "speaker": "Gate Guard",
+              "text": "The guard waves the cart through and nods at you. You shoulder your pack, thank him warmly and say that you will pay the toll now, handing over three marks before walking on toward the market."
+            },
+            "player": "Max",
+            "player_message": "I wait by the gate and say nothing."
+          },
+          "questions": {
+            "agency": {
+              "type": "score",
+              "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+              "criteria": [
+                "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+                "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+                "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+                "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+                "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+              ]
+            }
+          },
+          "model": "jev-1.13.0"
+        }
+      },
+      {
+        "at": "2026-09-25T15:44:09.243Z",
+        "url": "/api/plugins/story-orchestrator-judge/systemone",
+        "body": {
+          "state": {
+            "reply": {
+              "speaker": "Luke",
+              "text": "\"Right, so...\" Luke trails off, his gaze darting across the market square before settling on you with an uncertain smile. He adjusts the strap of his oversized chainmail, the metal links clinking softly as he shifts his weight. \"The guildmaster said we should meet up here and then head out together. Something about the Sun Ruins being further east than I thought.\"\n*He gestures vaguely toward a line of stalls where vendors hawk their wares, though his eyes keep flickering nervously to the crowd.*\n\"I've been checking the map a hundred times, and I think there's an old outpost on the way. Maybe we could resupply there first? Or we could just push through. Either way...\" *He pauses, rubbing the back of his neck, his voice dropping slightly.* \"Whatever you decide is fine by me. I mean, you've done a dozen jobs like this, right? Probably know a hundred better ways to do it.\""
+            },
+            "player": "Max",
+            "player_message": "I look around the square."
+          },
+          "questions": {
+            "agency": {
+              "type": "score",
+              "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+              "criteria": [
+                "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+                "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+                "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+                "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+                "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+              ]
+            }
+          },
+          "model": "jev-1.13.0"
+        }
+      },
+      {
+        "at": "2026-09-25T15:45:25.320Z",
+        "url": "/api/plugins/story-orchestrator-judge/systemone",
+        "body": {
+          "state": {
+            "reply": {
+              "speaker": "Ponticius",
+              "text": "\"You know, I had a job once, years ago, when the undead raised a town near the borders of the Third Kingdom.\" *Ponticius begins to walk alongside you, his hand resting on the hilt of his blade, his expression distant.* \"We were supposed to clear out a nest of ghouls, but the whole town had already been consumed. We found a handful of survivors hiding in a cellar.\"\n*He chuckles softly, the sound carrying a weight of memory.*\n\"It was just like this—the same silence, the same feeling of something waiting for you just around the corner.\"\n*He pauses, then looks at you with a sharp, clear gaze.*\n\"The key isn't to be brave, you know. It's to be smart. The key is to be the one who comes back from the job, not the one who dies a brave hero.\"\n*His voice softens slightly, as he dips his head to look at you.*\n\"The key is to come back to Xentar, not die a brave hero.\""
+            },
+            "player": "Max",
+            "player_message": "We walk on in silence for a while."
+          },
+          "questions": {
+            "agency": {
+              "type": "score",
+              "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
+              "criteria": [
+                "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
+                "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
+                "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
+                "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
+                "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
+              ]
+            }
+          },
+          "model": "jev-1.13.0"
+        }
+      }
+    ]
+  }
+}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T15-45-33-989Z_st-eval.json

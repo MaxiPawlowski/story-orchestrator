@@ -1,0 +1,93 @@
+1/24 eval ok 14ms
+1/24 eval -> {"greetingsCleared":1}
+2/24 eval ok 6ms
+3/24 import_story ok 257ms
+4/24 eval ok 16ms
+5/24 send ok 1688ms
+6/24 extract ok 852ms
+7/24 send ok 1678ms
+8/24 extract ok 844ms
+9/24 send ok 1658ms
+10/24 extract ok 857ms
+11/24 eval ok 8ms
+11/24 eval -> {"values":{"took_key":true,"lit_lamp":true,"found_map":true},"lampFact":"6945dd0f-0431-446a-baae-71a881118dfc","boundary":3}
+12/24 expect ok 6ms
+13/24 record_state ok 8ms
+13/24 record_state -> {"as":"before-hide","boundary":3,"active":"start","rows":{"memory":3,"epistemic":0,"ledger":0}}
+14/24 slash ok 1656ms
+15/24 eval ok 5ms
+15/24 eval -> {"hidden":1,"mes":"I light the oil lamp by the door."}
+16/24 wait ok 1540ms
+17/24 expect ok 6ms
+18/24 expect ok 18ms
+19/24 expect ok 6ms
+19/24 expect -> {"nextReadWindow":{"nextReadWindow":{"includes":[0,2],"excludes":[1]},"source":"cadence","from":0,"to":2,"reads":[0,2]}}
+20/24 slash ok 1665ms
+21/24 eval ok 6ms
+22/24 expect ok 5ms
+23/24 expect ok 7ms
+24/24 expect ok 6ms
+24/24 expect -> {"nextReadWindow":{"nextReadWindow":{"includes":[0,1,2]},"source":"cadence","from":0,"to":2,"reads":[0,1,2]}}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T10-37-10-797Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 24,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@07h36m53s226ms",
+    "owned": [
+      "2026-09-25@07h36m53s226ms"
+    ],
+    "deleted": [
+      "2026-09-25@07h36m53s226ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@07h36m53s226ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

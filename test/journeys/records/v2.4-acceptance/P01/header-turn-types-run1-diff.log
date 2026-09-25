@@ -1,0 +1,32 @@
+DIFF chat.chatId  "2026-09-20@07h06m38s396ms" -> "2025-10-04@06h55m37s"
+ok   chat.chatLength  0 -> 15  (allowed by progress)
+DIFF chat.groupId  "1759606632088" -> "1757172011689"
+DIFF group.members  +Adolion Storyteller.png +Ellie.png -Arin.png -DM Narrator.png -Luke.png -Ponticius.png
+DIFF group.name  "Group: Arin, DM Narrator" -> "AdolionGroup"
+ok   story.activeCheckpointId  null -> "end"  (allowed by progress)
+ok   story.boundary  null -> 5  (allowed by progress)
+DIFF story.contentHash  null -> "v2-8373d2be"
+DIFF story.id  null -> "legacy-v2-8373d2be"
+DIFF story.playedVersion  null -> 1
+DIFF story.title  null -> "Runtime Gate Check"
+{
+  "baseline": "test/journeys/records/v2.4-acceptance/P01/header-turn-types-run1-start.json",
+  "label": "v24-P01-turn-types-run1-end",
+  "allow": [],
+  "differences": 11,
+  "progress": 3,
+  "blocking": 8,
+  "blockingPaths": [
+    "chat.chatId",
+    "chat.groupId",
+    "group.members",
+    "group.name",
+    "story.contentHash",
+    "story.id",
+    "story.playedVersion",
+    "story.title"
+  ],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\3\\debug\\run-header-v24-P01-turn-types-run1-end.json",
+  "ok": false
+}

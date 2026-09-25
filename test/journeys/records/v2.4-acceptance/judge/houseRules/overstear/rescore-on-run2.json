@@ -1,0 +1,124 @@
+{
+  "summary": {
+    "use": "house-rules",
+    "records": [
+      "test/journeys/records/v2.4-acceptance/judge/houseRules/on/run2/record.json",
+      "test/journeys/records/v2.4-acceptance/judge/houseRules/off/run2/record.json"
+    ],
+    "model": "jev-1.13.0",
+    "rates": [
+      {
+        "arm": "on",
+        "asked": 6,
+        "answered": 6,
+        "flagged": 2,
+        "defectRate": 0.3333
+      },
+      {
+        "arm": "off",
+        "asked": 5,
+        "answered": 5,
+        "flagged": 2,
+        "defectRate": 0.4
+      }
+    ]
+  },
+  "results": [
+    {
+      "id": "m0",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 227,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m2",
+      "arm": "on",
+      "flagged": true,
+      "broken": [
+        "No character uses a gun, rifle or any gunpowder weapon."
+      ],
+      "latencyMs": 213,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m4",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 567,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m6",
+      "arm": "on",
+      "flagged": true,
+      "broken": [
+        "No character uses a gun, rifle or any gunpowder weapon."
+      ],
+      "latencyMs": 558,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m7",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 653,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m8",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 245,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m0",
+      "arm": "off",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 457,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m2",
+      "arm": "off",
+      "flagged": true,
+      "broken": [
+        "No character uses a gun, rifle or any gunpowder weapon."
+      ],
+      "latencyMs": 437,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m4",
+      "arm": "off",
+      "flagged": true,
+      "broken": [
+        "Coins are called marks, never gold pieces or dollars."
+      ],
+      "latencyMs": 465,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m5",
+      "arm": "off",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 680,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m7",
+      "arm": "off",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 670,
+      "model": "jev-1.13.0"
+    }
+  ]
+}

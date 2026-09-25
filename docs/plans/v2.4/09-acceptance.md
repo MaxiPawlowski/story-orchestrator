@@ -1,6 +1,6 @@
 # Plan 09 — Acceptance
 
-**Status: DRAFT 2026-09-23. Not run. Depends on plans 01–08.** Kind: gate. No product code except
+**Status: RUN 2026-09-25 on `4ebe1db` (bundle `65733265d301`): PARTIAL, not accepted — see §Gate record.** Drafted 2026-09-23; depends on plans 01–08. Kind: gate. No product code except
 fixes the acceptance run finds. A fix bigger than trivial either gets a mini gate record here or goes
 to v2.5. Shape: v2.3 `11-acceptance.md`, with v2.3 process corrections 11–17 applied
 (`../v2.3/00-overview.md` §Replan) and v2.4 rules 1–8 (`00-overview.md`).
@@ -234,12 +234,168 @@ None open. The draft's four were answered in `00-overview.md` §Reconciliation X
 
 ## Findings register
 
+Filled 2026-09-25 from the matrix. Ids are this register's; the lane agents' own labels are in brackets. Record
+paths are relative to `test/journeys/records/v2.4-acceptance/`. "v2.5" = routed to v2.5, see `v2.5-seeds.md`.
+
+**Product**
+
 | Id | Row | Symptom (measured) | Cause | Status |
 |---|---|---|---|---|
-| — | — | — | — | — |
+| A1 [lane1 A1] | I7, I3 | After `reloadCurrentChat` the checkpoint guidance reached **0 of 1** real `/trigger` requests; the control without the reload **1 of 1**. `story_*` blocks before `{story_orchestrator_guidance:166}`, after `{}`, same chat, epoch 71→71. Re-setting an identical nudge gives `injected:null` | `stHost/extensionPrompts.ts` skips a rewrite whose text+depth match its module-level `lastWritten` cache; ST's `clearChat` (`script.js:1590`, `extension_prompts = {}`) wipes the blocks and nothing clears the cache (H9: `/persona-sync`, persona change on an untainted group). Guidance, memory, private and nudge blocks stay out until their text changes | v2.5 (NEW, high). `interop/reload/v24-acc-A-reload-blocks-run1.log`, `-control-run1.log`, `interop/foreign-emitter/v24-acc-A-extprompt-cache-run1.log`; fixtures `test/scenarios/v24-acc-A-*.json` stay red until fixed |
+| A2 [lane1 A2] | I3 | `getActiveNudge()` still reports the nudge after the sandbox chat was deleted and the page moved to another chat, while `extensionPrompts.story_copilot_nudge = null` | the one-turn nudge is not cleared on chat switch; A1 then dedupes a re-set | v2.5 (NEW, medium). `interop/foreign-emitter/v24-acc-I3-run3.log`, `-run4.log`; the in-page read is a lane `.debug` file, not archived |
+| A3 | J1 run2 | Lane chat `2026-09-24@04h05m33s739ms` grew 6→7: Arin's reply to the sandbox story (send_date 09:42:49.935Z) landed 8 s after cleanup switched chats (09:42:41). Journey cleanup `clean`, header diff classed it `progress` | an in-flight group generation started in the sandbox chat outlives the chat switch and is saved into the next chat; cleanup neither stops nor awaits it; `so-run-header` treats `chatLength` growth as allowed | v2.5: evidence for 02 C1's open question ("what ST does with an in-flight `Generate` when the chat changes"), plus NEW harness scope (cleanup stops/awaits generation; header flags chatLength growth on a chat the run did not own). Message left in the lane copy. `J1/run2/journal-follow.jsonl`, `J1/run2/header-diff.log`, `lane1/header-lane1-diff.log` |
+| A4 | J1 | "◈ Accept the Mission" note posts ~20 s after the transition (cp1→cp2 09:45:02.751, status 09:45:23.460), after the entry narration | `commitBoundary`: `applyActive('activate')` awaits `fireNpcReplies(onEnter)` (`effectsApplier.ts:261`) before `announceTransition` | v2.5 (NEW, low, UX order). `J1/run3/journal-follow.jsonl` |
+| A5 [lane2 D1] | J7 | `DELTA mission_accepted=true evidence="[12] Max: 'We'll take it,' …"` rejected in 4 reads ("evidence not in window"); story stuck at cp2 for 900 s. Probe: same quote `withLabel:[]`, `withoutLabel:[12]` | `extraction/evidence.ts` `evidenceSources` matches the quote against `message.text`, but the window prints each line with its `[n] Name:` label, so an exact copy of the transcript fails | v2.5 (NEW, high). `J7/run1/evidence-label-probe.out.json`, `J7/run1/evidence-J7.2-audits.json`, `J7/run3/evidence-J7.3-audits.json` |
+| A6 [lane2 D2] | J7 | Reads held ~32 min (11:23–11:58) while turns kept rendering; "did not answer within 64214 ms", pipeline `stalled-rechecking` | breaker recovery probes use a fixed 10 s `PROBE_TIMEOUT_MS` (`breaker.ts`) that a queued llama-server cannot meet, so the backoff never closes | v2.5 (NEW, medium; the fixed-timeout-as-hardware class). `J7/run3/evidence-J7.6-breaker-health.json`, `evidence-J7.6-stalled-pipeline.json` |
+| A7 [lane2 D3] | J7 | `tension_current='calm'` / `value="stirring"` rejected "invalid value" in almost every read; tension stayed 0 all of run 1 | prompt says "one quoted level"; the parser accepts one quote form only | v2.5 (NEW, low). `J7/run1/evidence-J7.2-audits.json`, `J7/run3/evidence-J7.5-late-accept.json` |
+| A8 | J11 | J11.25 prepare-ahead 1/4 (2/2 on 2026-09-22). Scene judge timeouts inside J11.25: 3/5, 7/8, 3/9, 6/6; in J11.11–16 (same judge, no lookahead) 0 timeouts at 237–1723 ms | `SCENE_TIMEOUT_MS` 2500 (`src/judge/policy.ts:49`) lapses on most boundaries of this check. Hypothesis (unverified): the in-page judge fetch queues behind J11.25's concurrent long same-origin requests | v2.5 (NEW, major). `J11/*/journal-follow.jsonl` (kind judge), `J11/seriesB-run1/record.json` |
+| A9 | J11 | J11.23: judge answered `lever_pulled` p 0.93 < `STALL_DIRECT_P` 0.95 → re-read queued, not a direct write (3/4 pass) | model-dependent; the product followed its policy; floor not retuned | by-design. `J11/seriesB-run1/record.json` |
+| A10 | J12 | Early reads are triggered (`scene:cast`, `cue`) over window 0-1 even when they run after boundary 2-3; with nothing extractable there no read sets `path`. The cadence read (window 0-5) accepted `path=wendhope` 2/2 | window fixed at trigger time (whether by design was not determined) | v2.5 (NEW, open question). `J12/run2/journal-follow.jsonl`, `J12/seriesB-run1/journal-follow.jsonl` |
+| A11 | P03 | Memorize run 4: "did not answer within 256462 ms", backfill 2/3; pod prefill 481 tok/s, decode 3.7–12 tok/s under three lanes | full-pass timeout scaled to a 500 tok/s prefill floor (plan 03 D1); no retry for the whole-chat pass | v2.5 (NEW, medium; a slow backend loses the whole-chat pass). `P03/live-v24-03-memorize-run4.log`, `-run4-failure.json` |
+| A12 | P03 | `memorize:full` reply hits the 1200-token cap in 2 of 5 samples, then an identical ~88k-token re-ask (promptMs 364 only thanks to the prefix cache) | designed truncation retry; costs a second full prefill on a backend without a prompt cache | by-design (observation). `P03/live-v24-03-memorize-run5.log` step 16 |
+| A13 | P03 | Estimate below true tokens by 358–374 on budget-sized windows (87707 est vs 88319 true) | known 03-H11 tokenizer gap, inside the 10 % margin | in v2.5 00-overview §05 (token estimate). `P03/live-v24-03-memorize-run5.log` |
+| A14 | P08 | Authoring role: a16 (es) after repair sets a snapshot on unknown quality `reliquia_recuperada`; es validity 7/8 = 0.875 < 0.90 | the checkpoints stage can still emit a draft `parseStoryV2` refuses | not recommended (floor kept); in v2.5 residue (T18 calibration → 06). `test/goldens/live/role-calibration/authoring-shared-65733265d301.json` |
+| A15 | JM | House-rule note: pooled defect rate on 0.4 vs off 0.3; on-run1 real replies m4, m6 broke the rule after the note applied | the note does not reliably prevent the next break (measurement) | in v2.5 residue (agency/house-rule effect on replies → 06). `judge/houseRules/overstear/rescore-pooled.json` |
+| A16 | JM | Agency check: every flagged reply in every arm is the scripted m2; the real model never wrote the player | the transcript cannot show an effect | in v2.5 residue (needs a control arm → 06). `judge/agencyCheck/overstear/rescore-pooled.json` |
+| A17 | LS | Tiers scored: deltas/facts/rejected only; `facts.vacuous ['mustContain: ""']` | no fixture scores epistemic/ledger/arcs; vacuous needle | v2.5 (NEW, info). `live-suite/run1/so-live-suite-report.json` |
+
+**Harness and fixtures** (a harness finding is still a finding; fixed by property)
+
+| Id | Row | Symptom (measured) | Cause | Status |
+|---|---|---|---|---|
+| A18 [lane1-A2] | J6 | Run 1 header diff: +4 `storyOrchestratorDebug*Response` globals, undeclared | `so-journey.mts` cleared debug mocks at setup only (`so-scenario` clears both ends) | fixed in the working tree (`scripts/debug/so-journey.mts` runCleanup), uncommitted; J6 runs 2–3 `cleanup.debugResponses.cleared` 4 keys, diff 0 |
+| A19 | J1 | J1.7 failed runs 1 and 3 in ~1 s | fixed 5 s UI settle around a real generation (A4) | fixed: `test/journeys/j1-first-contact.journey.json` J1.7 `timeoutMs 180000`, uncommitted; series restarted, runs 4–5 green (the longer wait was never exercised: 8 ms, 6 ms) |
+| A20 | J7 | J7.5 run 3: `chamber_entered` accepted after the neutral turn's last boundary, then 900 s with nobody talking | a delta applies at the next boundary | fixed: `j7-long-haul.journey.json` (schedulerIdle + `attempts: 2, retryBack: 2` on the neutral turn), uncommitted; seriesB-run2 took exactly that retry |
+| A21 | J11 | Run 1: the heading read landed after boundary 5, the check's last | same shape as A20 | fixed: `j11-judgment-backend.journey.json` (wait for the scene read, then one more real turn), 53ba8d8a→932a47dd, uncommitted |
+| A22 | J12 | Runs 3–4: `path=wendhope` accepted ~2 s before the check read the checkpoint | same shape as A20 | fixed: `j12-unaided-schedule.journey.json` (one more real turn + schedulerIdle, reports accepted-but-unapplied), 47a18344→f3761d4d, uncommitted |
+| A23 | J11 | Run 1 cleanup `notDeleted`: the file was gone but a stale ST group save re-listed it | `deleteSandboxChats` required absence from the listing AND the file | fixed: `scripts/debug/st-navigation.mts` decides `gone` by the file, a listing goes through the existing resurrection repair; `test:debug` 278/278, uncommitted |
+| A24 | P01 | `so-turn-types-check` a-reply failed runs 2–3: one send drafted two members, two boundaries | the check demanded one commit per send | fixed: `scripts/debug/so-turn-types-check.mts` one commit per rendered reply; `test:debug` 273/273, uncommitted; runs 4–5 green |
+| A25 | P02 | `inventory.v2Stories +v24-01-delete-decode@1` and `+sun-ruins@2` leaks | Studio save gives a legacy story a title id; an `expectFail` `import_story` keeps the record and `so-scenario` removes only successful imports | fixtures fixed (`v24-02-settings-save-swallowed.json`, `v24-02-unrecognized-blob.json`), uncommitted; the runner-level gap stays open → v2.5 (NEW). `P02/header-v24-02-*-run1-diff.log` |
+| A26 | P03 | Memorize step 16 counted 4 requests for 2 windows + 1 pass | `runSharedRead` re-asks once on a refused truncated reply (`sharedRead.ts:170-173`) | fixed: `live-v24-03-memorize.json` drops one identical re-ask per pass, uncommitted |
+| A27 | P05 | `inventory.lorebookCount 38→39`, `lorebooksSelected +SO-V2405 Lore` after forced-pick run 1 | `live-v24-05-forced-pick.json` creates and selects its marker book and never removes it; the plan-05 record hid it (book pre-existing) | worked around in the lane wrapper (`so-assets remove --marker SO-V2405`); fixture unchanged → v2.5 (NEW). `P05/header-forced-pick-run1-diff.log` |
+| A28 | J11 | J11 run 1 leak diffed as 0 differences | `so-run-header` captures no group chat lists | v2.5 (NEW). `J11/run1/header-diff.log` vs `J11/run1/record.json` |
+| A29 | J11 | `st-lanes run` log stamps every line with the end time | `st-lanes.mts:180-182` buffers child stdout until exit | v2.5 (NEW, minor). `J11/run1/journey.log` |
+| A30 | I3 | v24-acc-I3 runs 1–2 red | the new fixture filtered `story_orchestrator_*`, the nudge key is `story_copilot_nudge` | fixed during the series (filter widened, then clear-first); both restarts reported |
+| A31 | J8, J7, P05 | `build.head` moved mid-series (f97c302→f11ab3b, 4ebe1db→e9fd5f8) as a blocking header difference | peers committed to master during the matrix; entry criterion 4 (freeze) breached for the tree, not for the served bundle | process: J8 run 1 and J7 seriesB-run2 counted failed; later runs declared `--allow build.head`. v2.5 (NEW): freeze the checkout (worktree) for a matrix |
+| A32 | — | `j1-first-contact.journey.json`, `j12-unaided-schedule.journey.json`, `v24-02-unrecognized-blob.json` are LF in the working tree (repo is CRLF) | the agents' edits flipped endings; `core.autocrlf=true` normalises on commit | note for the committing session; the fixture hashes above are over the LF bytes as run |
+
+**Environment**
+
+| Id | Row | Symptom (measured) | Cause | Status |
+|---|---|---|---|---|
+| E1 | I1, J3, J7, P03 | 8-token curl 38.9 s; replies 150–500+ s at <1 tok/s; J7 seriesB ~2 tok/s against ~300k prompt tokens in 8 min; memory reads timed out and opened the breaker | one llama-server (`LLM_PARALLEL` 2) shared by lanes 1–3 | recorded; every red run of I1 live, J3 run 1, J7 series B and P03 memorize run 4. `interop/middle-delete/monitor-v24-acc-I1-live-run4.log`, `J7/seriesB-run2/backend-throughput-samples.txt` |
+| E2 | all lanes | `Story Orchestrator Memory Local` (:1235) fails PONG in 5 ms | dead local endpoint | recorded; not first in the list, no row used it |
+| E3 | JM | Sandbox group chat resurrected in 10 of 12 runs; repaired every time (`notDeleted []`) | ST group save debounce (V18) | recorded; harness repair works. `judge/*/*/run*/record.json` `cleanup.chat.resurrected` |
 
 ## Gate record
 
-_Placeholder. On completion: date, candidate sha/fingerprint, every run of every series with its
-tally and record path, header diffs, clean-host records, calibration and live-suite numbers, the
-cost report, human scores and triage, attestation status (ACCEPTED | PARTIAL + notGreen)._
+**2026-09-25. Verdict: PARTIAL, not accepted.** `docs/release/2.4.0/attestation.json` status `PARTIAL`, 16 `notGreen`
+lines; `npm run test:release` 37/37 pass against it.
+
+**Candidate.** Commit `4ebe1db` ("v2.4.0: version bump for the plan 09 acceptance candidate"), extension 2.4.0, bundle
+`65733265d3015e620e5f26221d4cbfdbce59541b49e356c69c13642f386f0cab` (1 827 372 bytes), source `3b2655c2305f…` (326 files),
+built 2026-09-25T09:22:29Z. Reproducible from git: six clean-host builds of `4ebe1db` produced the same bundle and source
+hash. All 263 run-header captures under the records root read `bundle.served` = the candidate.
+
+**Deviations.**
+- Live rows ran on **lane copies 1–3** (`st-lanes`, ST :8101–8103), not lane 0. A lane result is evidence about the lane's copy.
+- One llama-server (`LLM_PARALLEL` 2) served all three lanes at once (E1). Every red run whose cause is a timeout sits on it.
+- **Human sessions not held**: no run passed `--require-human-record`; `human/scores.json` does not exist; every journey human
+  row is unscored. D6/T22 and every rule-7 item stay **waiting**, not decided.
+- **R1 not runnable**: P0′ needs v2.3 L1, which was never recorded (entry criterion 2 not met).
+- **Downgrade leg dropped** by user decision E9 (J10.12, `persistenceDowngrade.test.ts`, the clean-host downgrade leg): not owed.
+- **Not frozen**: peers committed to master during the matrix, including src (`2368cba`, `74867d5`), never rebuilt or served
+  (A31). The host checkout was not pulled.
+- Lane 1 browser headless (the plan asks headed). `so-journal export` not possible (cleanup deletes the sandbox chat); a
+  live `so-journal follow` tail is archived per run instead from J1 run 2 on.
+- Rows I4, I5, I7 and the no-backend P01/P02 fixtures seed reads through `debugResponse` by design (host-mutation paths);
+  I2/I3 seed the private row the same way. The real model drives I1 live, the `/trigger` turns, all journeys, JM, LS.
+- JM columns are plan 07's check-scoped `--only` runs: records `partial: true` by construction, cited as JM rows, never as
+  journey runs.
+- Entry criterion 3 (the full machine-gate line, census todo counts) is not evidenced in the records; the clean hosts ran
+  typecheck, lint, test, build and release only (no storybook, `typecheck:test`, `test:debug`, `test:plugin`).
+- Verdict convention: the lanes called a row red when any run of its final series failed, even with two consecutive greens
+  after it (J3 runs 3–4, J12 seriesB 2–3, P03 memorize 5–6, I1 fork 5–6). `attestationRules.mjs` reads those as ×2 but still
+  requires `notGreen` to name them, so the attestation is consistent either way.
+
+**Matrix.** Pass rate = green runs / runs. firstTry is from each record's `tallies.firstAttempt`.
+
+| Row | Runs (outcome, firstTry) | Verdict | Records |
+|---|---|---|---|
+| J0 | 1 pass 5/5 (5/5); 2 pass 5/5 (5/5). J0.3 blocked, J0.5 fail, both as expected | green 2/2 | `J0/run{1,2}/` |
+| J1 | 1 fail 7/8 (J1.7); 2 pass 8/8 (8/8, A3 leak); 3 fail 7/8 (J1.7); fix A19; 4 pass 8/8 (8/8); 5 pass 8/8 (8/8) | green on 4–5; 3/5 overall | `J1/run{1..5}/` |
+| J2 | 1 pass 10/10; 2 pass 10/10 (10/10 each) | green 2/2 | `J2/run{1,2}/` |
+| J3 | 1 fail 7/8 (J3.6 model timeout 60918 ms, E1); 2 fail 7/8 (J3.7 no FACT line in 6 audits); 3 pass 8/8; 4 pass 8/8 (all passing checks first try) | **red** 2/4 | `J3/run{1..4}/` |
+| J4 | 1 pass 5/5; 2 pass 5/5 | green 2/2 | `J4/run{1,2}/` |
+| J5 | 1 pass 7/7; 2 pass 7/7 | green 2/2 | `J5/run{1,2}/` |
+| J6 | 1 11/11 but **fail** by header rule (A18); fix; 2 pass 11/11; 3 pass 11/11 | green on 2–3; 2/3 by protocol | `J6/run{1,2,3}/` |
+| J7 | A: 1 fail 7/8 (J7.2, A5); 2 pass 8/8; 3 fail 6/8 (J7.3 A5, J7.5 A20). Fix A20. B: 1 fail 5/8 (E1: 694 s/723 s turns); 2 fail 7/8 (J7.1 schedulerIdle, J7.5 retried, undeclared build.head) | **red** A 1/3, B 0/2 | `J7/run{1,2,3}/`, `J7/seriesB-run{1,2}/`, `J7/series.json` |
+| J8 | 1 10/10 but **fail** by header rule (A31); 2 pass 10/10; 3 pass 10/10; assert-clean SO-J8 exit 0 each | green on 2–3 | `J8/run{1,2,3}/` |
+| J9 | 1 pass 8/8; 2 pass 8/8; removeCreatedAssets + assert-clean SO-J9 clean | green 2/2 | `J9/run{1,2}/` |
+| J10 | 1 pass 11/11; 2 pass 11/11; J10.12 dropped (E9), J10.13 passed both | green 2/2 | `J10/run{1,2}/` |
+| J11 | 1 fail 25/26 (J11.25 A21, cleanup leak A23); fix; B1 fail 24/26 (J11.23 A9, J11.25 A8); B2 pass 26/26; B3 fail 25/26 (J11.25 A8). Judge config per check in `judge-config-per-check.json` | **red** 1/4 (B 1/3) | `J11/run1/`, `J11/seriesB-run{1,2,3}/` |
+| J12 | 1 pass 5/5; 2 fail 2/5 (A10); 3, 4 fail 4/5 (J12.5, A22); fix; B1 fail 3/5 (A10); B2 pass 5/5; B3 pass 5/5. Group 1789797226071 (its own setup.group) | **red** 3/7 (B 2/3) | `J12/run{1..4}/`, `J12/seriesB-run{1,2,3}/` |
+| I1 | ambiguous half 2/2; live base `live-v24-01-t1` F F P F (1/4); fork `v24-acc-I1-live` (600 s) F P F F P P (3/6); every red a throughput timeout (E1) | **partial** | `interop/middle-delete/` |
+| I2 | 2/2; arm A quiet 1 / loud 1 / carrying 1 / applied; control quiet 0; flip restored (thirdParty diff 0). Payload check body-level, not scoped to the epistemic block | green | `interop/stepped-thinking/` |
+| I3 | 1–2 fail (A30), 3–4 fail (A1 dedupe of residue), 5–6 pass on the final fixture; test-only emitter, GG not installed | green on 5–6 | `interop/foreign-emitter/` |
+| I4 | 2/2 (control: real edit rolls back from 2) | green | `interop/noop-edit/` |
+| I5 | 2/2; window excludes 1, keeps 0 and 2; `/unhide` re-includes | green | `interop/hide/` |
+| I6 | base 2/2; `v24-acc-I6` (no popup, no auto-adopt, chip present) 2/2; branch chat + book owned by cleanup | green | `interop/branch/` |
+| I7 | `v24-acc-I7` 2/2 (plain / silent rewrite / legacy arms), `v24-02-same-chat-reload` 2/2; defect probe fail vs control pass (A1) | **red** (A1) | `interop/reload/` |
+| P01 | 14 no-backend fixtures ×2 (28/28), 6 live ×2 (12/12), plan03a + turn-identity ×2 (8/8); turn-types 1 fail (header, open-chat location only), 2–3 fail (A24), 4–5 pass | green | `P01/` |
+| P02 | 11 fixtures ×2 (22/22); settings-save-swallowed 1–2 fail (A25) → 3–4 pass; unrecognized-blob 1 fail, 2 pass (vacuous), fix → 3–4 pass; live E2–E5 ×2 (8/8) | green | `P02/` |
+| P03 | breaker, abort, wedges ×2 (6/6); npc-switch, turn-identity, llm-npc-reply ×2 (6/6); memorize A: 1 fail (A26), 2 pass; B: 3 pass, 4 fail (A11), 5 pass, 6 pass | **red** (memorize B 3/4) | `P03/` |
+| P04 | window-hygiene, live window-hygiene, player-evidence, player-evidence-control, each 2/2 | green | `P04/` |
+| P05 | gated-constant 2/2, foreign-filter 2/2, forced-pick 1 fail (A27) 2 pass → B 3–4 pass, t13-spike 2/2 (S8 p95 3.6/3.2 ms), t13-manual + S1c 1/1; mirror-rate **not run** | **partial** | `P05/` |
+| P06 | objective, objective-off, overlay TC, overlay CC, curator: 10/10 first try | green | `P06/` |
+| P07 | meter 2/2 + `--keep` cross-check (meter {1, 447, 22} = scenario log); token guard 2/2 (106 411-char state → 0 plugin requests; direct POST over cap → 400 in 5 ms) | green | `P07/` |
+| P08 | curator recal: validity 20/20, opShape 14/14, decision 19/20, **meets every floor overall and es** (first time); authoring: validity 19/20, es 7/8 = 0.875 < 0.90 (A14), firstTry 16/20; replay jest 33/33. The five `live-v24-08` fixtures ×2 were **not run** on any lane | **partial** | `P08/`, goldens `*-shared-65733265d301.json` |
+| JM agencyCheck | on 2/2 (3 calls each), off 2/2 (0 calls); calibration writes 23/23, clean 28/28, es 10/10, p50 1438 ms → recommended at floor | green | `judge/agencyCheck/` |
+| JM houseRules | on 2/2, off 2/2; calibration 95/96 = 0.9896, es 16/16, p50 465 ms → recommended at floor; A15 | green | `judge/houseRules/` |
+| JM warden | on 2/2, off 2/2; continuity 83/85 = 0.9765 (combined request identical); pooled defect on 0.154 vs off 0.3 | green | `judge/warden/` |
+| JM privacy | every on run 3 bodies = meter 3 = ring 3; off 0; bodies only `{state, questions, model}`. TypeSafe terms citation still owed | green | `judge/crosscheck.json` |
+| LS | 1: deltas 22/22, facts 16/22 = 0.727 (≥0.68), rejected 14/15 = 0.933 (≥0.9); 2: 22/22, 0.727, 15/15; 22 of 22 ran | green 2/2 | `live-suite/run{1,2}/` |
+| CL | 12 JM records: 18 calls, 11 225 in / 474 out, $0.000471, $0.0089 per 1000 boundaries, 0.34 calls/boundary, p50 579 / p90 1225 / max 1329 ms, 0 fallbacks, jev-1.13.0. J11 and a judge-on J7 not included; director/lore on-path latency unmeasured | **partial** | `cost/` |
+| CH | pinned, 1.19.0, 1.18.0 each 2/2 on typecheck, lint, test, build, release; bundle + source = candidate; storybook **not run** | **partial** | `clean-host/*/` |
+| R1 | — | **not runnable** | — |
+| H | — | **not run** | — |
+
+Counts over 37 rows: **24 green, 6 red** (J3, J7, J11, J12, I7, P03), **5 partial** (I1, P05, P08, CL, CH),
+**2 not run/runnable** (R1, H).
+
+**Header diffs.** Every per-run diff is 0 blocking except those named above (J6 run 1, J8 run 1, J7 seriesB-run2, P01
+turn-types run 1, P02 settings-save-swallowed 1–2 and unrecognized-blob 1, P05 forced-pick 1). Batch pairs:
+`lane1/header-lane1-*` (0 blocking, 1 progress = A3), `lane1-A2/header-batch-diff.log` (0), `interop/lane1-A3/` (0 with
+`--allow build.head`), `J7/header-lane2-acc-end-diff.json` (build.head only), `lane2-B2/` (0 with allow), `lane2-B3/` (0),
+`P04/header-lane3-end-diff.log` (0), `lane3/header-lane3-diff-end.log` (0 blocking), `lane3-C3/` (0).
+
+**Install end state (per lane).** REF-2.4 (cadence 3, `acceptMode` review, judge off with every use off, Stepped Thinking
+`is_enabled` false). Lanes 1–3 were moved from cadence 1 / `acceptMode` auto to REF-2.4 during prep and left there. No
+sandbox, branch or mirror residue; `disabled_members []`; `so-assets assert-clean` clean for every marker used. Residue kept
+on purpose: the A3 message in lane 1's chat `2026-09-24@04h05m33s739ms` (message 6, Arin) awaits a decision.
+
+**Harness and fixture changes the agents made** (all uncommitted in the working tree; reasons in A18–A30):
+`scripts/debug/so-journey.mts` (A18), `scripts/debug/st-navigation.mts` (A23), `scripts/debug/so-turn-types-check.mts`
+(A24); journeys `j1` (A19), `j7` (A20), `j11` (A21), `j12` (A22); scenarios `v24-02-settings-save-swallowed.json`,
+`v24-02-unrecognized-blob.json` (A25), `live-v24-03-memorize.json` (A26); new scenarios `v24-acc-I1-ambiguous.json`,
+`v24-acc-I1-live.json`, `v24-acc-I3.json`, `v24-acc-I6.json`, `v24-acc-I7.json`, `v24-acc-A-reload-blocks.json`,
+`-control.json`, `v24-acc-A-extprompt-cache.json` (the A1 probes stay red until A1 is fixed); new goldens
+`test/goldens/live/role-calibration/{curator,authoring}-shared-65733265d301.json`. Lane wrappers kept in gitignored or out-of-repo dirs are
+not cited; the archived ones are `lane3/row.sh`, `P07/token-guard-probe.js`, `P05/t13-manual-S1c-check.js` and
+`P06/cc-setup-body.js`. `calibrate --record` and `live-suite --record` overwrote tracked goldens; the lane restored the originals from
+backups, and the outputs are in the records.
+
+**Attestation.** `docs/release/2.4.0/attestation.json`: PARTIAL; evidence root `test/journeys/records/v2.4-acceptance/`;
+every journey run cites its record, header and fixture hash; 191 cited paths checked on disk. `npm run test:release`: 37
+pass, 0 fail. The record-level predicate reads J6 and J8 as ×2 on runs 1–2; under the header rule their pair is runs 2–3
+(recorded in the attestation). `test:release` rewrote `dist/manifest.json` `builtAt` (expected).
+
+**Human scores and triage.** None: sessions not held.
+
+**v2.5 seeds.** `docs/plans/v2.4/v2.5-seeds.md`.
+
+**Unresolved questions.**
+- Does "×2" allow earlier failures in the same series (J3, J12, P03, I1 fork), or does any failure in a series make the row red?
+- The A3 message in lane 1's chat: delete it (`st-lanes run 1 -- scripts/debug/st-actions.mts delete 6`) or keep it as evidence?
+- Commit the working-tree harness and fixture fixes (A18–A30) with the records, or re-run the affected series first?
+- Close the gap rows (P08 fixtures, P05 mirror-rate, CL with J11/J7, CH storybook) in v2.4, or defer them with a sign-off?

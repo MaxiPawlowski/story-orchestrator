@@ -1,0 +1,4 @@
+DELTA torch_lit=true evidence="Bram strikes flint and the torch flares to life."
+MEMORY type=detail importance=1 expiration=scene text="Bram lit a torch in the corridor." evidence="Bram strikes flint and the torch flares to life."
+SCENE_NONE
+[arc] The party is exploring a corridor with a newly lit torch.

@@ -1,0 +1,105 @@
+1/16 import_story ok 293ms
+2/16 eval ok 18ms
+2/16 eval -> {"healed":null,"profile":"Story Orchestrator Memory RunPod","apiUrl":"http://127.0.0.1:18080","cadence":99,"authorView":false}
+3/16 eval ok 2142ms
+3/16 eval -> {"seeded":330,"before":1,"length":331,"chars":455438,"estTokens":113860,"storyId":"live-v24-03"}
+4/16 ui ok 40ms
+5/16 ui ok 112ms
+6/16 eval ok 1809ms
+6/16 eval -> {"preflight":"3 requests, about 206,128 tokens to Story Orchestrator Memory RunPod. Send them?","confirmMs":125,"planningMs":263,"backfill":{"running":true,"processed":0,"total":3,"lastError":null,"preparing":true}}
+7/16 eval ok 777519ms
+7/16 eval -> {"backfill":{"running":true,"processed":1,"total":3,"lastError":null},"inFlight":{"n":5,"kind":"read","t0":1790344371699,"ms":null,"outcome":"pending","status":null,"promptChars":67117,"estTokens":16780,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":null},"entries":1}
+8/16 expect_ui ok 5ms
+9/16 ui ok 600ms
+9/16 ui -> {"ok":true,"tabs":["Overview","Memory"],"surfaces":["#drawer-manager","#so-hud","#story-orchestrator-settings"],"selectorsChecked":45,"findings":[],"sweep":[],"recoveryControls":[{"tab":"Memory","surface":"#drawer-manager","selector":"#so-memorize-stop","visible":true,"text":"Stop"}]}
+10/16 ui ok 88ms
+11/16 ui ok 6ms
+11/16 ui -> {"selector":"#so-memorize-stop","found":true,"clickable":true,"at":{"x":589,"y":214},"topmost":"button#so-memorize-stop.menu_button.interactable","target":"button#so-memorize-stop.menu_button.interactable"}
+12/16 eval ok 586ms
+12/16 eval -> {"stoppedInMs":63,"abortLatencyMs":7,"aborted":{"n":5,"kind":"read","t0":1790344371699,"ms":900,"outcome":"aborted","status":null,"promptChars":67117,"estTokens":16780,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":"signal is aborted without reason"},"backfill":{"running":false,"processed":1,"total":3,"lastError":null,"stoppedNote":"Stopped after 1 of 2 parts. What was read is kept; the whole-chat pass did not run."},"note":"Stopped after 1 of 2 parts. What was read is kept; the whole-chat pass did not run.","entriesBefore":1,"entriesAfter":1}
+13/16 eval ok 1602ms
+13/16 eval -> {"backfill":{"running":true,"processed":0,"total":1,"lastError":null,"preparing":true},"ended":false}
+14/16 eval ok 990493ms
+14/16 eval -> {"ms":990216,"result":true,"error":null,"backfill":{"running":false,"processed":3,"total":3,"lastError":null},"requests":[{"n":6,"kind":"read","t0":1790344375152,"ms":137954,"outcome":"ok","status":200,"promptChars":401869,"estTokens":100468,"tokensEvaluated":88319,"predictedN":112,"decodeTokS":11.813580423769094,"prefillTokS":695.0544755900195,"promptMs":127067.738,"predictedMs":9395.966,"stopType":"eos","error":null},{"n":7,"kind":"other","t0":1790344513308,"ms":9746,"outcome":"ok","status":200,"promptChars":1710,"estTokens":428,"tokensEvaluated":384,"predictedN":58,"decodeTokS":13.05591573849413,"prefillTokS":403.33931339884793,"promptMs":952.052,"predictedMs":4365.837,"stopType":"eos","error":null,"head":"<|turn>user\nuser: Write a 2-3 sentence summary of the following scene for use as
+15/16 eval ok 8ms
+15/16 eval -> {"profileUrl":"http://127.0.0.1:18080","wasDead":false,"requests":15,"e1":[{"kind":"read","predictedN":112,"decodeTokS":6.174104747858741,"prefillTokS":720.3831380731629,"promptN":88280},{"kind":"other","predictedN":58,"decodeTokS":11.956373082470446,"prefillTokS":742.4163249497791,"promptN":86022},{"kind":"other","predictedN":6,"decodeTokS":13.854214867789228,"prefillTokS":506.19456040222383,"promptN":86361},{"kind":"other","predictedN":69,"decodeTokS":7.546982183794764,"prefillTokS":523.7187043044554,"promptN":86191},{"kind":"read","predictedN":112,"decodeTokS":11.813580423769094,"prefillTokS":695.0544755900195,"promptN":88319},{"kind":"other","predictedN":58,"decodeTokS":13.05591573849413,"prefillTokS":403.33931339884793,"promptN":384},{"kind":"other","predictedN":6,"decodeTokS":13.761821404586538,"prefillTokS":502.45019303411374,"promptN":86361},{"kind":"other","predictedN":69,"decodeTokS":15.159713151474739,"prefillTokS":522.4980763303788,"promptN":86191},{"kind":"read","predictedN":13,"decodeTokS":7.241479192816453,"prefillTokS":1067.7710947372782,"promptN":14844},{"kind":"read","predictedN":266,"decodeTokS":10.003938909380397,"prefillTokS":744.8945567118031,"promptN":88335},{"kind":"other","predictedN":103,"decodeTokS":26.055303659237502,"prefillTokS":1293.6106425410146,"promptN":13642},{"kind":"other","predictedN":6,"decodeTokS":14.10067316613695,"prefillTokS":781.51089892583,"promptN":86578},{"kind":"other","predictedN":67,"decodeTokS":14.639830231205064,"prefillTokS":536.2146709446017,"promptN":86408}]}
+16/16 eval ok 10ms
+16/16 eval -> {"ms":990216,"chat":331,"budget":{"contextLimit":{"value":98304,"source":"preset"},"inputBudget":87961,"maxTokens":512,"tokens":87668},"estimateVsTrue":[{"reason":"memorize:window","window":{"from":0,"to":285},"estimate":87707,"inputBudget":87961,"trueTokens":88319,"trueOverInputBudget":358},{"reason":"memorize:window","window":{"from":286,"to":330},"estimate":14724,"inputBudget":87961,"trueTokens":14844,"trueOverInputBudget":-73117},{"reason":"memorize:full","window":{"from":45,"to":330},"estimate":87668,"inputBudget":87961,"trueTokens":88335,"trueOverInputBudget":374}],"windows":[{"window":{"from":0,"to":285},"tokens":87707},{"window":{"from":286,"to":330},"tokens":14724}],"full":{"window":{"from":45,"to":330},"trimmedFrom":0,"tokens":87668,"truncated":null},"requests":[{"n":6,"kind":"read","t0":1790344375152,"ms":137954,"outcome":"ok","status":200,"promptChars":401869,"estTokens":100468,"tokensEvaluated":88319,"predictedN":112,"decodeTokS":11.813580423769094,"prefillTokS":695.0544755900195,"promptMs":127067.738,"predictedMs":9395.966,"stopType":"eos","error":null},{"n":10,"kind":"read","t0":1790344878398,"ms":21332,"outcome":"ok","status":200,"promptChars":67117,"estTokens":16780,"tokensEvaluated":14844,"predictedN":13,"decodeTokS":7.241479192816453,"prefillTokS":1067.7710947372782,"promptMs":13901.856,"predictedMs":1657.12,"stopType":"eos","error":null},{"n":11,"kind":"read","t0":1790344900463,"ms":147587,"outcome":"ok","status":200,"promptChars":401761,"estTokens":100441,"tokensEvaluated":88335,"predictedN":266,"decodeTokS":10.003938909380397,"prefillTokS":744.8945567118031,"promptMs":118587.254,"predictedMs":26489.566,"stopType":"eos","error":null}],"reasked":[],"backfill":{"running":false,"processed":3,"total":3,"lastError":null}}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T14-09-29-820Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 16,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-313db404"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@10h39m49s676ms",
+    "owned": [
+      "2026-09-25@10h39m49s676ms"
+    ],
+    "deleted": [
+      "2026-09-25@10h39m49s676ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@10h39m49s676ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 99,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

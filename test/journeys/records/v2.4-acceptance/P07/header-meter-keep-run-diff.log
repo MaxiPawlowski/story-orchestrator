@@ -1,0 +1,30 @@
+DIFF chat.chatId  "2026-09-20@07h06m38s396ms" -> "2026-09-25@12h21m55s260ms"
+ok   chat.chatLength  0 -> 1  (allowed by progress)
+DIFF inventory.v2Stories  +so-j8-stagecraft@1
+ok   story.activeCheckpointId  null -> "washed-road"  (allowed by progress)
+ok   story.boundary  null -> 1  (allowed by progress)
+DIFF story.contentHash  null -> "v2-fff69068"
+DIFF story.id  null -> "so-j8-stagecraft"
+DIFF story.playedVersion  null -> 1
+DIFF story.title  null -> "SO-J8 Stagecraft"
+{
+  "baseline": "test/journeys/records/v2.4-acceptance/P07/header-meter-keep-run-start.json",
+  "label": "diff-end",
+  "allow": [
+    "build.head"
+  ],
+  "differences": 9,
+  "progress": 3,
+  "blocking": 6,
+  "blockingPaths": [
+    "chat.chatId",
+    "inventory.v2Stories",
+    "story.contentHash",
+    "story.id",
+    "story.playedVersion",
+    "story.title"
+  ],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\3\\debug\\run-header-diff-end.json",
+  "ok": false
+}

@@ -1,0 +1,83 @@
+{
+  "ok": true,
+  "value": {
+    "sched": {
+      "queueDepth": 0,
+      "inFlight": false,
+      "lastError": null,
+      "heavyQueueDepth": 0,
+      "heavyInFlight": false,
+      "lastHeavyError": null
+    },
+    "last": [
+      {
+        "r": "cadence",
+        "w": {
+          "from": 17,
+          "to": 22
+        },
+        "acc": [],
+        "rej": [
+          "invalid value | DELTA tension_current='stirring' evidence=\"[21] Arin: 'His tone is light, though there's something beneath it that suggests he's still chewing on Ponticius's words.'\"",
+          "evidence not in window | DELTA luke_decision=undecided evidence=\"[22] Luke: 'Please! I've been asking everyone in the Guild, but no one wants to take me with them! I'm not an adventurer yet, but I'm willing to learn! I'm willing to do whatever i"
+        ]
+      },
+      {
+        "r": "cue:cp3->cp-4a",
+        "w": {
+          "from": 20,
+          "to": 27
+        },
+        "acc": [],
+        "rej": [
+          "evidence not in window | DELTA luke_decision=accepted evidence=\"Max: Luke begs to come with us. I agree to bring Luke on the expedition.\""
+        ]
+      },
+      {
+        "r": "cadence",
+        "w": {
+          "from": 23,
+          "to": 27
+        },
+        "acc": [],
+        "rej": [
+          "invalid value | DELTA tension_current='calm' evidence=\"[27] Luke: *Luke's face brightens, a mixture of relief and joy flooding his features as he sees you sling his pack over your shoulder. He quickly follows you as you exit the tavern,",
+          "evidence not in window | DELTA luke_decision=accepted evidence=\"[24] Max: Luke begs to come with us. I agree to bring Luke on the expedition.\""
+        ]
+      },
+      {
+        "r": "reconcile:luke_decision",
+        "w": {
+          "from": 21,
+          "to": 30
+        },
+        "acc": [],
+        "rej": [
+          "invalid value | DELTA tension_current='stirring' evidence=\"[21] Arin exhales, the sound cutting through the tense silence that follows Ponticius’s departure.\"",
+          "evidence not in window | DELTA luke_decision=accepted evidence=\"[24] Max: Luke begs to come with us. I agree to bring Luke on the expedition.\""
+        ]
+      },
+      {
+        "r": "cadence",
+        "w": {
+          "from": 28,
+          "to": 30
+        },
+        "acc": [
+          "{\"delta\":{\"q\":\"luke_decision\",\"v\":\"accepted\",\"source\":\"extractor\"},\"evidence\":\"I'm ready. I'm ready to do whatever it comes to.\",\"line\":\"DELTA luke_decision=acc"
+        ],
+        "rej": [
+          "invalid value | DELTA tension_current='stirring' evidence=\"The Sun Ruins are not a place for the unprepared,\""
+        ]
+      }
+    ],
+    "tail": [
+      "Max: \"Fine — Luke comes with us.\" I sling his pack over my shoulder and we set out.",
+      "Luke: *Luke's face brightens, a mixture of relief and joy flooding his features as he sees you sling his pack over your shoulder. He quickly follows you as you exit t",
+      "Max: We take a breath, look around, and carry on.",
+      "Luke: *Luke remains by your side as you and Arin traverse the cobblestone streets, his movements slightly hesitant but full of purpose. He keeps his gaze forward, tho",
+      "Arin: *Arin walks beside you, his eyes constantly scanning the streets as you move toward the West Gate. He looks over at Luke, his expression unreadable for a moment",
+      "DM Narrator: *The streets of Xentar slowly empty as you move farther from the heart of the city, the shadows deepening along the edges of the narrow alleyways. The scent of "
+    ]
+  }
+}

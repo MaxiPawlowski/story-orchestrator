@@ -1,0 +1,438 @@
+[
+  {
+    "tag": "v24-02-branch-continue-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:33:18Z",
+    "end": "2026-09-25T10:33:43Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-branch-continue-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:33:44Z",
+    "end": "2026-09-25T10:34:10Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-chat-delete-reap-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:34:10Z",
+    "end": "2026-09-25T10:34:33Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-chat-delete-reap-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:34:33Z",
+    "end": "2026-09-25T10:34:56Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-checkpoint-continue-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:34:57Z",
+    "end": "2026-09-25T10:35:22Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-checkpoint-continue-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:35:23Z",
+    "end": "2026-09-25T10:35:48Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-fetch-restored-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:35:49Z",
+    "end": "2026-09-25T10:36:05Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-fetch-restored-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:36:06Z",
+    "end": "2026-09-25T10:36:23Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-hide-consumed-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:36:23Z",
+    "end": "2026-09-25T10:36:48Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-hide-consumed-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:36:48Z",
+    "end": "2026-09-25T10:37:13Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-message-move-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:37:13Z",
+    "end": "2026-09-25T10:37:38Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-message-move-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:37:38Z",
+    "end": "2026-09-25T10:38:03Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-noop-edit-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:38:03Z",
+    "end": "2026-09-25T10:38:27Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-noop-edit-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:38:27Z",
+    "end": "2026-09-25T10:38:51Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-persona-change-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:38:51Z",
+    "end": "2026-09-25T10:39:08Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-persona-change-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:39:08Z",
+    "end": "2026-09-25T10:39:25Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-persona-sync-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:39:25Z",
+    "end": "2026-09-25T10:39:43Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-persona-sync-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:39:43Z",
+    "end": "2026-09-25T10:40:01Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-same-chat-reload-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:40:02Z",
+    "end": "2026-09-25T10:40:20Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-same-chat-reload-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:40:21Z",
+    "end": "2026-09-25T10:40:39Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-settings-save-swallowed-run1",
+    "code": 0,
+    "headerDiffCode": 1,
+    "blocking": 1,
+    "start": "2026-09-25T10:40:40Z",
+    "end": "2026-09-25T10:41:14Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-settings-save-swallowed-run2",
+    "code": 0,
+    "headerDiffCode": 1,
+    "blocking": 1,
+    "start": "2026-09-25T10:41:15Z",
+    "end": "2026-09-25T10:41:49Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-swipe-delete-below-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:41:50Z",
+    "end": "2026-09-25T10:42:10Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-swipe-delete-below-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:42:10Z",
+    "end": "2026-09-25T10:42:31Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-unrecognized-blob-run1",
+    "code": 0,
+    "headerDiffCode": 1,
+    "blocking": 1,
+    "start": "2026-09-25T10:42:32Z",
+    "end": "2026-09-25T10:42:47Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "v24-02-unrecognized-blob-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:42:48Z",
+    "end": "2026-09-25T10:43:03Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "live-v24-02-e2-solo-epistemic-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:43:03Z",
+    "end": "2026-09-25T10:43:55Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "live-v24-02-e2-solo-epistemic-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:43:55Z",
+    "end": "2026-09-25T10:44:56Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "live-v24-02-e3-save-evidence-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:44:56Z",
+    "end": "2026-09-25T10:46:05Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": []
+  },
+  {
+    "tag": "live-v24-02-e3-save-evidence-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:46:05Z",
+    "end": "2026-09-25T10:47:14Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "live-v24-02-e3-save-evidence-run2-result.json"
+    ]
+  },
+  {
+    "tag": "live-v24-02-e4-mirror-marker-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:47:14Z",
+    "end": "2026-09-25T10:47:34Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "live-v24-02-e4-mirror-marker-run1-result.json"
+    ]
+  },
+  {
+    "tag": "live-v24-02-e4-mirror-marker-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:47:35Z",
+    "end": "2026-09-25T10:47:55Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "live-v24-02-e4-mirror-marker-run2-result.json"
+    ]
+  },
+  {
+    "tag": "live-v24-02-e5-startup-unbind-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:47:56Z",
+    "end": "2026-09-25T10:48:57Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "live-v24-02-e5-startup-unbind-run1-result.json"
+    ]
+  },
+  {
+    "tag": "live-v24-02-e5-startup-unbind-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:48:57Z",
+    "end": "2026-09-25T10:49:57Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "live-v24-02-e5-startup-unbind-run2-result.json"
+    ]
+  },
+  {
+    "tag": "v24-02-settings-save-swallowed-run3",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:51:51Z",
+    "end": "2026-09-25T10:52:25Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "v24-02-settings-save-swallowed-run3-result.json"
+    ]
+  },
+  {
+    "tag": "v24-02-settings-save-swallowed-run4",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:52:26Z",
+    "end": "2026-09-25T10:53:00Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "v24-02-settings-save-swallowed-run4-result.json"
+    ]
+  },
+  {
+    "tag": "v24-02-unrecognized-blob-run3",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:53:00Z",
+    "end": "2026-09-25T10:53:18Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "v24-02-unrecognized-blob-run3-result.json"
+    ]
+  },
+  {
+    "tag": "v24-02-unrecognized-blob-run4",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:53:19Z",
+    "end": "2026-09-25T10:53:37Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "v24-02-unrecognized-blob-run4-result.json"
+    ]
+  }
+]

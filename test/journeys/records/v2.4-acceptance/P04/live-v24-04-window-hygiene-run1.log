@@ -1,0 +1,93 @@
+1/11 eval ok 7ms
+2/11 import_story ok 264ms
+3/11 eval ok 25ms
+3/11 eval -> {"groupId":"1759606632088","chatId":"2026-09-25@09h01m50s416ms","cadence":1,"story":"live-v24-04"}
+4/11 slash ok 1765ms
+5/11 wait ok 28608ms
+6/11 eval ok 134ms
+6/11 eval -> {"sd":2}
+7/11 eval ok 233ms
+7/11 eval -> {"tracker":3,"stored":"Luke keeps his hands at his sides and watches the altar.<div style='display: none'>V2404TRACKER idol_taken: true; door_open: true</div>"}
+8/11 wait ok 8105ms
+9/11 send_generate ok 51600ms
+10/11 wait ok 68192ms
+11/11 eval ok 7ms
+11/11 eval -> {"covering":[{"reason":"cadence","window":{"from":2,"to":3},"windowForm":{"hygiene":1,"promptRegex":false},"accepted":[],"rejected":[]},{"reason":"reconcile:idol_taken","window":{"from":0,"to":8},"windowForm":{"hygiene":1,"promptRegex":false},"accepted":[],"rejected":[{"reason":"evidence not in window","line":"DELTA idol_taken=true evidence=\"His gaze narrows as he examines the idol in your hands\""},{"reason":"evidence not in window","line":"DELTA tension_current=\"calm\" evidence=\"Ponticius' voice booms across the Guildhall as he looks up from a weathered map, his weathered eyes twinkling with approv"}]}],"blackboard":{"idol_taken":false,"tension_current":0}}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T12-04-34-051Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 11,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de3748c5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@09h01m50s416ms",
+    "owned": [
+      "2026-09-25@09h01m50s416ms"
+    ],
+    "deleted": [
+      "2026-09-25@09h01m50s416ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@09h01m50s416ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

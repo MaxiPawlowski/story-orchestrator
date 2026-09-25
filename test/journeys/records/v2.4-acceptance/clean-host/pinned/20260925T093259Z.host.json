@@ -1,0 +1,77 @@
+{
+  "kind": "clean-host-record",
+  "at": "2026-09-25T09:39:23.857Z",
+  "status": "green",
+  "host": {
+    "dir": "C:/Users/ROLAPO~1/AppData/Local/Temp/tmp.5vwEvaF2OV/SillyTavern",
+    "sha": "06bde939fb1e9c4c8d8641d810f0a916b5bce127",
+    "branch": "HEAD",
+    "version": "1.19.0"
+  },
+  "extension": {
+    "version": "2.4.0"
+  },
+  "hostFiles": {
+    "/script.js": "d1e248efbae8a1df0a248410225cea76901f33533919fc32a28a172c1514600f",
+    "/scripts/RossAscends-mods.js": "1d72fa8967848c590e2a784b7017ee412dc2e5d4509417bfca85af51a1e56679",
+    "/scripts/backgrounds.js": "89f48d78409502c1d84ea1afcdd1d527da0528d230d6155b0b4dc71e1514f0c9",
+    "/scripts/extensions/shared.js": "183ce2f27b12d09b777f89523c044fa09ed874bd0747cc5d034a96aec6343b7a",
+    "/scripts/group-chats.js": "e7f8b4d2d1e1c8a47c8354150dc06e7585180201246f4905a900b340897c2f23",
+    "/scripts/logit-bias.js": "383cec346491eedda474bde917928b48dab7757b851180ed8a81b0195914db78",
+    "/scripts/macros.js": "73b23d8db8b9ec68a49802b46ea02fda5755e4e0ce2928b75d4bf8b9a2331d08",
+    "/scripts/secrets.js": "2aa1e11096de5c1f0fe47971a7c12359668bd942051ac9d37066e2df51f206e8",
+    "/scripts/textgen-settings.js": "ca4f52e6afc6e7cd5a5f7155b38119bb96e63febef1a6b589e64ae15331081a7",
+    "/scripts/world-info.js": "c42d11f113b53b93bf03786ac5c1190be3cad5152f23805906fce5ebd12fb416"
+  },
+  "manifest": {
+    "kind": "build-manifest",
+    "extension": {
+      "name": "story-orchestrator",
+      "version": "2.4.0",
+      "revision": {
+        "commit": "06bde939fb1e9c4c8d8641d810f0a916b5bce127",
+        "dirty": false
+      }
+    },
+    "builtAt": "2026-09-25T09:39:23.469Z",
+    "bundle": {
+      "path": "dist/index.js",
+      "sha256": "65733265d3015e620e5f26221d4cbfdbce59541b49e356c69c13642f386f0cab",
+      "bytes": 1827372
+    },
+    "source": {
+      "algorithm": "sha256",
+      "files": 326,
+      "sha256": "3b2655c2305fcc400016ed9f288a788fcdd6846ec893d65470470b7b549bb00b"
+    },
+    "host": {
+      "root": "C:\\Users\\RolaPorElNapo\\AppData\\Local\\Temp\\tmp.5vwEvaF2OV\\SillyTavern",
+      "version": "1.19.0",
+      "commit": "06bde939fb1e9c4c8d8641d810f0a916b5bce127",
+      "files": {
+        "/script.js": "d1e248efbae8a1df0a248410225cea76901f33533919fc32a28a172c1514600f",
+        "/scripts/RossAscends-mods.js": "1d72fa8967848c590e2a784b7017ee412dc2e5d4509417bfca85af51a1e56679",
+        "/scripts/backgrounds.js": "89f48d78409502c1d84ea1afcdd1d527da0528d230d6155b0b4dc71e1514f0c9",
+        "/scripts/extensions/shared.js": "183ce2f27b12d09b777f89523c044fa09ed874bd0747cc5d034a96aec6343b7a",
+        "/scripts/group-chats.js": "e7f8b4d2d1e1c8a47c8354150dc06e7585180201246f4905a900b340897c2f23",
+        "/scripts/logit-bias.js": "383cec346491eedda474bde917928b48dab7757b851180ed8a81b0195914db78",
+        "/scripts/macros.js": "73b23d8db8b9ec68a49802b46ea02fda5755e4e0ce2928b75d4bf8b9a2331d08",
+        "/scripts/secrets.js": "2aa1e11096de5c1f0fe47971a7c12359668bd942051ac9d37066e2df51f206e8",
+        "/scripts/textgen-settings.js": "ca4f52e6afc6e7cd5a5f7155b38119bb96e63febef1a6b589e64ae15331081a7",
+        "/scripts/world-info.js": "c42d11f113b53b93bf03786ac5c1190be3cad5152f23805906fce5ebd12fb416"
+      }
+    },
+    "capabilities": [
+      "macros",
+      "slashCommands",
+      "backgrounds",
+      "vectors",
+      "judge",
+      "contextBudget"
+    ],
+    "environment": {
+      "node": "v22.22.0",
+      "typescript": "^5.4.0"
+    }
+  }
+}

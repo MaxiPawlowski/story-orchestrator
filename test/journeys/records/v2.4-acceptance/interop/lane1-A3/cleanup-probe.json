@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "value": {
+    "stepped": false,
+    "soBooks": [],
+    "activeNudge": null,
+    "ss": [],
+    "debugGlobals": [],
+    "generating": "none"
+  }
+}

@@ -1,0 +1,200 @@
+{
+  "file": "test/scenarios/v24-02-branch-continue.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "eval",
+      "ok": true,
+      "ms": 13
+    },
+    {
+      "index": 1,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    },
+    {
+      "index": 2,
+      "key": "import_story",
+      "ok": true,
+      "ms": 283
+    },
+    {
+      "index": 3,
+      "key": "eval",
+      "ok": true,
+      "ms": 17
+    },
+    {
+      "index": 4,
+      "key": "send",
+      "ok": true,
+      "ms": 1668
+    },
+    {
+      "index": 5,
+      "key": "extract",
+      "ok": true,
+      "ms": 1028
+    },
+    {
+      "index": 6,
+      "key": "send",
+      "ok": true,
+      "ms": 1680
+    },
+    {
+      "index": 7,
+      "key": "extract",
+      "ok": true,
+      "ms": 848
+    },
+    {
+      "index": 8,
+      "key": "record_state",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 9,
+      "key": "send",
+      "ok": true,
+      "ms": 1687
+    },
+    {
+      "index": 10,
+      "key": "extract",
+      "ok": true,
+      "ms": 849
+    },
+    {
+      "index": 11,
+      "key": "eval",
+      "ok": true,
+      "ms": 318
+    },
+    {
+      "index": 12,
+      "key": "branch_create",
+      "ok": true,
+      "ms": 275
+    },
+    {
+      "index": 13,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    },
+    {
+      "index": 14,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    },
+    {
+      "index": 15,
+      "key": "ui",
+      "ok": true,
+      "ms": 67
+    },
+    {
+      "index": 16,
+      "key": "wait",
+      "ok": true,
+      "ms": 1549
+    },
+    {
+      "index": 17,
+      "key": "expect",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 18,
+      "key": "expect",
+      "ok": true,
+      "ms": 18
+    },
+    {
+      "index": 19,
+      "key": "eval",
+      "ok": true,
+      "ms": 340
+    }
+  ],
+  "ok": true,
+  "error": null,
+  "retries": [],
+  "firstAttempt": "pass",
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@08h31m22s167ms",
+    "owned": [
+      "2026-09-25@08h31m22s167ms"
+    ],
+    "deleted": [
+      "2026-09-25@08h31m22s167ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@08h31m22s167ms - Branch #1",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-25@08h31m22s167ms - Branch #1",
+    "branchChats": {
+      "recorded": [
+        "2026-09-25@08h31m22s167ms - Branch #1"
+      ],
+      "deleted": [
+        "2026-09-25@08h31m22s167ms - Branch #1"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [
+        "Story Orchestrator - v24-01 Delete Decode - 2026-09-25@08h31m22s167ms - Branch #1",
+        "Story Orchestrator - v24-01 Delete Decode - 2026-09-25@08h31m22s167ms"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [
+        "The chat \"2026-09-25@08h31m22s167ms\" was deleted, but its story-memory lorebook \"Story Orchestrator - v24-01 Delete Decode - 2026-09-25@08h31m22s167ms\" is still there. Delete the lorebook too? This ca"
+      ],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

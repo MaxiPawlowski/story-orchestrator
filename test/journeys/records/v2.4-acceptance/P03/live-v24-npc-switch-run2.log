@@ -1,0 +1,80 @@
+1/9 import_story ok 262ms
+2/9 eval ok 14ms
+2/9 eval -> {"a":"2026-09-25@08h14m20s403ms","group":"1759606632088","storyId":"so-v24-npc-switch","active":"start"}
+3/9 eval ok 43223ms
+3/9 eval -> {"before":{"lsim":null,"messages":1},"after":{"activated":true,"lsim":1,"sameObject":true,"last":1,"lastName":"DM Narrator","lastIsUser":false,"fired":{"speak:onEnter:DM Narrator:0":1}},"disk":{"http":200,"messages":2,"lastName":"DM Narrator","hasBlob":true,"hasEntry":true,"extrasKeys":19,"lsim":1,"active":"speak","fired":{"speak:onEnter:DM Narrator:0":1}}}
+4/9 slash ok 1975ms
+5/9 eval ok 2389ms
+5/9 eval -> {"c":"2026-09-25@08h15m04s397ms","messages":4,"storyId":null}
+6/9 slash ok 1806ms
+7/9 eval ok 4311ms
+7/9 eval -> {"b":"2026-09-25@08h15m08s760ms","messages":1,"active":"start","lsim":null}
+8/9 eval ok 37851ms
+8/9 eval -> {"before":{"lsim":null,"bMessages":1,"cMessagesOnDisk":4},"after":{"outcome":{"value":false,"at":1790334948489},"openedC":true,"generatingAfterSwitch":true,"savingAtSwitch":false,"msGenToSwitch":1211,"openChat":"2026-09-25@08h15m04s397ms","exBlsim":null,"exBfired":{"speak:onEnter:DM Narrator:0":1},"cLastId":4,"cMessagesInPage":5,"cLastName":"DM Narrator","dialog":null}}
+9/9 eval ok 3650ms
+9/9 eval -> {"bDisk":{"http":200,"messages":1,"lastName":"Arin","hasBlob":true,"hasEntry":true,"extrasKeys":19,"lsim":null,"active":"start","fired":{}},"cDisk":{"http":200,"messages":5,"lastName":"DM Narrator","hasBlob":true,"hasEntry":false,"extrasKeys":0,"active":null,"fired":null},"cLastId":4,"hydratedLsim":null,"hydratedFired":{},"bMessagesInPage":1,"bLastName":"Arin"}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T11-16-00-790Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 9,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-a3429589"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@08h14m20s403ms",
+    "owned": [
+      "2026-09-25@08h14m20s403ms",
+      "2026-09-25@08h15m04s397ms",
+      "2026-09-25@08h15m08s760ms"
+    ],
+    "deleted": [
+      "2026-09-25@08h14m20s403ms",
+      "2026-09-25@08h15m04s397ms",
+      "2026-09-25@08h15m08s760ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@08h15m08s760ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

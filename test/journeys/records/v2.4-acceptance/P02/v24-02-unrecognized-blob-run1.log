@@ -1,0 +1,74 @@
+1/9 seed_metadata ok 142ms
+1/9 seed_metadata -> {"version":5,"selectedStoryId":"so-v24-02-future","keys":["so-v24-02-future"]}
+2/9 eval ok 6ms
+2/9 eval -> {"version":5,"marker":"written-by-v5","futureField":{"kept":true},"storyId":null,"flagged":{"foundVersion":5,"notice":"saved by a newer Story Orchestrator (v5): update, or Restart to replace it"},"journaled":true}
+3/9 eval ok 1641ms
+3/9 eval -> {"serverVersion":5,"identical":true,"inMemoryIdentical":true}
+4/9 import_story ok 53ms
+4/9 import_story -> {"ok":false,"snapshot":{"ready":false,"storyId":null,"storyHash":null,"storyIdentity":{"id":null,"playedVersion":null,"libraryVersion":null,"pinned":false,"drifted":false},"blobUnreadable":{"foundVersion":5,"notice":"saved by a newer Story Orchestrator (v5): update, or Restart to replace it"},"orphanedLorebooks":[],"chatIdentity":null,"storyTitle":null,"storyDescription":null,"activeCheckpointId":null,"activeCheckpointName":null,"activeObjective":null,"boundary":0,"blackboard":{},"blackboardMeta":{},"checkpoints":[],"requirements":{"ready":true,"missingPersonas":[],"missingMembers":[],"missingLorebooks":[]},"validationErrors":[],"library":[{"id":"adolion-academy","version":11,"hash":"v2-0edc606a","title":"Adolion: House Nightriver","description":"Play an heir of House Nightriver in Aegis C
+5/9 eval ok 5ms
+5/9 eval -> {"storyId":null,"status":"Story not selected: this chat's saved story state was saved by a newer Story Orchestrator (v5): update, or Restart to replace it","inLibrary":true,"identical":true,"journaled":true}
+6/9 restart_story ok 178ms
+6/9 restart_story -> {"ok":false,"activeCheckpointId":null}
+7/9 eval ok 5ms
+7/9 eval -> {"identical":true,"storyId":null}
+8/9 restart_story ok 558ms
+8/9 restart_story -> {"ok":true,"activeCheckpointId":"cp1"}
+9/9 eval ok 1528ms
+9/9 eval -> {"version":4,"stampedFor":"2026-09-25@07h42m36s422ms","openChat":"2026-09-25@07h42m36s422ms","futureStory":false,"storyId":"sun-ruins","flagged":null,"serverVersion":4,"journaled":true}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T10-42-45-180Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 9,
+  "cleanup": {
+    "removedStoryHashes": [],
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@07h42m36s422ms",
+    "owned": [
+      "2026-09-25@07h42m36s422ms"
+    ],
+    "deleted": [
+      "2026-09-25@07h42m36s422ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@07h42m36s422ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

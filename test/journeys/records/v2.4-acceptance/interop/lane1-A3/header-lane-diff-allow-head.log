@@ -1,0 +1,15 @@
+ok   build.head  "4ebe1db56ec1532b82a2a7b063c87f297c863ac3" -> "e9fd5f82f594b0331879a010e14feee01079fffc"  (allowed by build.head)
+{
+  "baseline": "test/journeys/records/v2.4-acceptance/interop/lane1-A3/header-lane-start.json",
+  "label": "diff-end",
+  "allow": [
+    "build.head"
+  ],
+  "differences": 1,
+  "progress": 0,
+  "blocking": 0,
+  "blockingPaths": [],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\1\\debug\\run-header-diff-end.json",
+  "ok": true
+}

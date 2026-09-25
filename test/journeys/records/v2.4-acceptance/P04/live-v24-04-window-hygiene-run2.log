@@ -1,0 +1,93 @@
+1/11 eval ok 6ms
+2/11 import_story ok 264ms
+3/11 eval ok 15ms
+3/11 eval -> {"groupId":"1759606632088","chatId":"2026-09-25@09h04m41s865ms","cadence":1,"story":"live-v24-04"}
+4/11 slash ok 1758ms
+5/11 wait ok 48731ms
+6/11 eval ok 132ms
+6/11 eval -> {"sd":2}
+7/11 eval ok 223ms
+7/11 eval -> {"tracker":3,"stored":"Luke keeps his hands at his sides and watches the altar.<div style='display: none'>V2404TRACKER idol_taken: true; door_open: true</div>"}
+8/11 wait ok 9157ms
+9/11 send_generate ok 17154ms
+10/11 wait ok 14929ms
+11/11 eval ok 6ms
+11/11 eval -> {"covering":[{"reason":"cadence","window":{"from":2,"to":3},"windowForm":{"hygiene":1,"promptRegex":false},"accepted":[],"rejected":[]}],"blackboard":{"idol_taken":false,"tension_current":0.25}}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T12-06-19-153Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 11,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de3748c5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@09h04m41s865ms",
+    "owned": [
+      "2026-09-25@09h04m41s865ms"
+    ],
+    "deleted": [
+      "2026-09-25@09h04m41s865ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@09h04m41s865ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

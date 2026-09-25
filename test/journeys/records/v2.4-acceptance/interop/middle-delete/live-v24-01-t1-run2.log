@@ -1,0 +1,83 @@
+1/48 import_story ok 286ms
+2/48 eval ok 14ms
+2/48 eval -> {"cadence":1,"greeting":1}
+3/48 send_generate FAIL Generation still active after 300000ms timeout.
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T11-51-03-988Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T11-51-08-475Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 3,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ed9ddba5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@08h46m01s674ms",
+    "owned": [
+      "2026-09-25@08h46m01s674ms"
+    ],
+    "deleted": [
+      "2026-09-25@08h46m01s674ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@08h46m01s674ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

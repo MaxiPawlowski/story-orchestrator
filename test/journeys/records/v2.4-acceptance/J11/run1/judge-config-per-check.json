@@ -1,0 +1,251 @@
+[
+ {
+  "id": "J11.1",
+  "start": "2026-09-25T16:01:12.000Z",
+  "end": "2026-09-25T16:01:12.012Z",
+  "approx": true,
+  "configs": [
+   "judge off timeout 1500 uses [] variants 1 warden false curator true cadence 1"
+  ]
+ },
+ {
+  "id": "J11.2",
+  "start": "2026-09-25T16:01:12.012Z",
+  "end": "2026-09-25T16:01:29.194Z",
+  "approx": true,
+  "configs": [
+   "judge off timeout 1500 uses [] variants 1 warden false curator true cadence 1"
+  ]
+ },
+ {
+  "id": "J11.3",
+  "start": "2026-09-25T16:01:29.194Z",
+  "end": "2026-09-25T16:01:52.735Z",
+  "approx": true,
+  "configs": [
+   "judge off timeout 1500 uses [] variants 1 warden false curator true cadence 1",
+   "judge ON timeout 1500 uses [director] variants 1 warden false curator true cadence 1"
+  ]
+ },
+ {
+  "id": "J11.4",
+  "start": "2026-09-25T16:01:52.735Z",
+  "end": "2026-09-25T16:02:17.657Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1500 uses [director] variants 1 warden false curator true cadence 1",
+   "judge ON timeout 1 uses [director] variants 1 warden false curator true cadence 1"
+  ]
+ },
+ {
+  "id": "J11.5",
+  "start": "2026-09-25T16:02:17.657Z",
+  "end": "2026-09-25T16:02:18.607Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1 uses [director] variants 1 warden false curator true cadence 1"
+  ]
+ },
+ {
+  "id": "J11.6",
+  "start": "2026-09-25T16:02:18.607Z",
+  "end": "2026-09-25T16:02:28.590Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1 uses [director] variants 1 warden false curator true cadence 1"
+  ]
+ },
+ {
+  "id": "J11.7",
+  "start": "2026-09-25T16:02:28.590Z",
+  "end": "2026-09-25T16:04:52.749Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1 uses [director] variants 1 warden false curator true cadence 1",
+   "judge ON timeout 1500 uses [director,memoryVerify] variants 1 warden false curator true cadence 1"
+  ]
+ },
+ {
+  "id": "J11.8",
+  "start": "2026-09-25T16:04:52.749Z",
+  "end": "2026-09-25T16:06:38.220Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1500 uses [director,memoryVerify] variants 1 warden false curator true cadence 1"
+  ]
+ },
+ {
+  "id": "J11.9",
+  "start": "2026-09-25T16:06:38.220Z",
+  "end": "2026-09-25T16:06:55.085Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1500 uses [director,memoryVerify] variants 1 warden false curator true cadence 1",
+   "judge ON timeout 1500 uses [director,memoryPairs] variants 1 warden false curator true cadence 1"
+  ]
+ },
+ {
+  "id": "J11.10",
+  "start": "2026-09-25T16:06:55.085Z",
+  "end": "2026-09-25T16:07:01.263Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1500 uses [director,memoryPairs] variants 1 warden false curator true cadence 1",
+   "judge ON timeout 1500 uses [director] variants 1 warden false curator true cadence 1"
+  ]
+ },
+ {
+  "id": "J11.11",
+  "start": "2026-09-25T16:07:01.263Z",
+  "end": "2026-09-25T16:07:25.893Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1500 uses [director] variants 1 warden false curator true cadence 1",
+   "judge ON timeout 1500 uses [director,sceneTrigger,sceneTracker] variants 1 warden false curator true cadence 1"
+  ]
+ },
+ {
+  "id": "J11.12",
+  "start": "2026-09-25T16:07:25.893Z",
+  "end": "2026-09-25T16:08:56.119Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1500 uses [director,sceneTrigger,sceneTracker] variants 1 warden false curator true cadence 1"
+  ]
+ },
+ {
+  "id": "J11.13",
+  "start": "2026-09-25T16:08:56.119Z",
+  "end": "2026-09-25T16:09:22.001Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1500 uses [director,sceneTrigger,sceneTracker] variants 1 warden false curator true cadence 1"
+  ]
+ },
+ {
+  "id": "J11.14",
+  "start": "2026-09-25T16:09:22.001Z",
+  "end": "2026-09-25T16:10:22.318Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1500 uses [director,sceneTrigger,sceneTracker] variants 1 warden false curator true cadence 1"
+  ]
+ },
+ {
+  "id": "J11.15",
+  "start": "2026-09-25T16:10:22.318Z",
+  "end": "2026-09-25T16:12:53.024Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1500 uses [director,sceneTrigger,sceneTracker] variants 1 warden false curator true cadence 1",
+   "judge ON timeout 1500 uses [director] variants 1 warden false curator true cadence 50",
+   "judge ON timeout 1500 uses [director,sceneTrigger] variants 1 warden false curator true cadence 50"
+  ]
+ },
+ {
+  "id": "J11.16",
+  "start": "2026-09-25T16:12:53.024Z",
+  "end": "2026-09-25T16:13:32.594Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1500 uses [director,sceneTrigger] variants 1 warden false curator true cadence 50",
+   "judge ON timeout 1500 uses [director,loreSelect] variants 1 warden false curator true cadence 50"
+  ]
+ },
+ {
+  "id": "J11.17",
+  "start": "2026-09-25T16:13:32.594Z",
+  "end": "2026-09-25T16:14:16.337Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1500 uses [director,loreSelect] variants 1 warden false curator true cadence 50"
+  ]
+ },
+ {
+  "id": "J11.18",
+  "start": "2026-09-25T16:14:16.337Z",
+  "end": "2026-09-25T16:14:24.759Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1500 uses [director,loreSelect] variants 1 warden false curator true cadence 50"
+  ]
+ },
+ {
+  "id": "J11.19",
+  "start": "2026-09-25T16:14:24.759Z",
+  "end": "2026-09-25T16:15:00.740Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1500 uses [director,loreSelect] variants 1 warden false curator true cadence 50",
+   "judge ON timeout 1500 uses [director] variants 1 warden false curator true cadence 50"
+  ]
+ },
+ {
+  "id": "J11.20",
+  "start": "2026-09-25T16:15:00.740Z",
+  "end": "2026-09-25T16:18:04.509Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1500 uses [director] variants 1 warden false curator true cadence 50",
+   "judge ON timeout 1500 uses [typedExtraction] variants 1 warden false curator true cadence 50"
+  ]
+ },
+ {
+  "id": "J11.21",
+  "start": "2026-09-25T16:18:04.509Z",
+  "end": "2026-09-25T16:19:31.177Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1500 uses [typedExtraction] variants 1 warden false curator true cadence 50",
+   "judge ON timeout 1500 uses [typedExtraction] variants 1 warden false curator true cadence 1"
+  ]
+ },
+ {
+  "id": "J11.22",
+  "start": "2026-09-25T16:19:31.177Z",
+  "end": "2026-09-25T16:19:31.619Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1500 uses [typedExtraction] variants 1 warden false curator true cadence 1"
+  ]
+ },
+ {
+  "id": "J11.23",
+  "start": "2026-09-25T16:19:31.619Z",
+  "end": "2026-09-25T16:20:42.670Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1500 uses [typedExtraction] variants 1 warden false curator true cadence 1",
+   "judge ON timeout 1500 uses [stallCheck] variants 1 warden false curator true cadence 50"
+  ]
+ },
+ {
+  "id": "J11.24",
+  "start": "2026-09-25T16:20:42.670Z",
+  "end": "2026-09-25T16:23:07.343Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1500 uses [stallCheck] variants 1 warden false curator true cadence 50",
+   "judge ON timeout 1500 uses [] variants 1 warden false curator true cadence 1"
+  ]
+ },
+ {
+  "id": "J11.25",
+  "start": "2026-09-25T16:23:07.343Z",
+  "end": "2026-09-25T16:25:27.466Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1500 uses [] variants 1 warden false curator true cadence 1",
+   "judge ON timeout 1500 uses [sceneTrigger,sceneTracker,lookahead,expansionCritic,expansionLookahead] variants 2 warden false curator true cadence 50"
+  ]
+ },
+ {
+  "id": "J11.26",
+  "start": "2026-09-25T16:25:27.466Z",
+  "end": "2026-09-25T16:25:36.872Z",
+  "approx": true,
+  "configs": [
+   "judge ON timeout 1500 uses [sceneTrigger,sceneTracker,lookahead,expansionCritic,expansionLookahead] variants 2 warden false curator true cadence 50"
+  ]
+ }
+]

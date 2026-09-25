@@ -1,0 +1,76 @@
+Following the session journal → C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\test\journeys\records\v2.4-acceptance\J9\run1\journal-follow.jsonl every 1000 ms. Ctrl-C to stop.
+2026-09-25T15:41:15.191Z session      chat 2026-09-24@05h22m36s897ms · story none · at — (boundary 0, 0 messages)
+2026-09-25T15:32:20.919Z status       Following The tavern
+2026-09-25T15:32:28.887Z story        save not confirmed
+2026-09-25T15:32:28.918Z story        save not confirmed
+2026-09-25T15:32:28.934Z story        save not confirmed
+2026-09-25T15:32:28.934Z story        background effect was not applied
+2026-09-25T15:32:28.936Z story        away recap not due
+2026-09-25T15:32:28.936Z story        save not confirmed
+2026-09-25T15:32:29.183Z status       Started SO-J8 House Rules
+2026-09-25T15:32:31.379Z status       Following The washed road
+2026-09-25T15:32:31.419Z stagecraft   Warden flagged Captain Rhee's reply (house-rule)
+2026-09-25T15:32:34.528Z stagecraft   Warden note added to this reply's prompt
+2026-09-25T15:34:59.068Z status       Following The washed road
+2026-09-25T15:35:00.406Z story        away recap not due
+2026-09-25T15:35:00.673Z status       Continuing SO-J8 House Rules
+2026-09-25T15:35:03.021Z status       Following The washed road
+2026-09-25T15:35:08.055Z payload      6 story blocks injected (generation)
+2026-09-25T15:35:41.826Z payload      7 story blocks injected (generation)
+2026-09-25T15:37:27.192Z story        restored 1 host change(s)
+2026-09-25T15:37:27.195Z status       No story selected for this chat
+2026-09-25T15:41:17.243Z session      chat 2026-09-25@12h41m16s524ms · story none · at — (boundary 0, 1 messages)
+2026-09-25T15:32:20.919Z status       Following The tavern
+2026-09-25T15:32:28.887Z story        save not confirmed
+2026-09-25T15:32:28.918Z story        save not confirmed
+2026-09-25T15:32:28.934Z story        save not confirmed
+2026-09-25T15:32:28.934Z story        background effect was not applied
+2026-09-25T15:32:28.936Z story        away recap not due
+2026-09-25T15:32:28.936Z story        save not confirmed
+2026-09-25T15:32:29.183Z status       Started SO-J8 House Rules
+2026-09-25T15:32:31.379Z status       Following The washed road
+2026-09-25T15:32:31.419Z stagecraft   Warden flagged Captain Rhee's reply (house-rule)
+2026-09-25T15:32:34.528Z stagecraft   Warden note added to this reply's prompt
+2026-09-25T15:34:59.068Z status       Following The washed road
+2026-09-25T15:35:00.406Z story        away recap not due
+2026-09-25T15:35:00.673Z status       Continuing SO-J8 House Rules
+2026-09-25T15:35:03.021Z status       Following The washed road
+2026-09-25T15:35:08.055Z payload      6 story blocks injected (generation)
+2026-09-25T15:35:41.826Z payload      7 story blocks injected (generation)
+2026-09-25T15:37:27.192Z story        restored 1 host change(s)
+2026-09-25T15:37:27.195Z status       No story selected for this chat
+2026-09-25T15:42:23.146Z session      chat 2026-09-25@12h41m16s524ms · story so-j9-wizard · at The Drowned Wharf (boundary 0, 1 messages)
+2026-09-25T15:42:23.021Z story        away recap not due
+2026-09-25T15:42:23.243Z status       Started SO-J9 Courier Run
+2026-09-25T15:42:41.420Z session      chat 2026-09-25@12h41m16s524ms · story so-j9-fixme · at Outside the Gate (boundary 0, 1 messages)
+2026-09-25T15:42:40.440Z story        away recap not due
+2026-09-25T15:42:40.756Z status       Started SO-J9 Unrunnable Story
+2026-09-25T15:42:43.448Z session      chat 2026-09-25@12h41m16s524ms · story so-j9-wizard · at The Drowned Wharf (boundary 0, 1 messages)
+2026-09-25T15:42:42.678Z story        away recap not due
+2026-09-25T15:42:43.107Z story        away recap not due
+2026-09-25T15:42:43.435Z status       Continuing SO-J9 Courier Run
+2026-09-25T15:42:45.122Z payload      1 story blocks injected (generation)
+2026-09-25T15:43:10.205Z boundary     boundary 1: nothing applied (gate)
+2026-09-25T15:43:10.328Z status       Following The Drowned Wharf
+2026-09-25T15:43:10.343Z boundary     boundary 2: nothing applied (gate)
+2026-09-25T15:43:31.039Z delta        queued reached_bridge=true, tension_current=0.5 for the next boundary
+2026-09-25T15:43:30.598Z extraction   read cadence msgs 0-2 → 2 accepted, 0 rejected
+2026-09-25T15:43:30.598Z delta        reached_bridge = true
+2026-09-25T15:43:30.598Z delta        tension_current = 0.5
+2026-09-25T15:43:31.093Z extraction   read journey msgs 0-3 → 1 accepted, 1 rejected
+2026-09-25T15:43:31.093Z delta        reached_bridge = true
+2026-09-25T15:43:31.711Z boundary     applied reached_bridge=true; discarded reached_bridge=true, tension_current=0.5 (superseded)
+2026-09-25T15:43:31.711Z transition   wharf → bridge
+2026-09-25T15:43:31.973Z status       Moved into The Broken Bridge
+2026-09-25T15:43:30.598Z audit        audit cadence msgs 0-2 scope [reached_bridge, tension_current] → 2 accepted, 0 rejected
+2026-09-25T15:43:31.093Z audit        audit journey msgs 0-3 scope [reached_bridge, tension_current] → 1 accepted, 1 rejected
+2026-09-25T15:43:34.124Z session      chat 2026-09-24@05h22m36s897ms · story none · at — (boundary 0, 0 messages)
+2026-09-25T15:42:23.021Z story        away recap not due
+2026-09-25T15:42:23.243Z status       Started SO-J9 Courier Run
+2026-09-25T15:42:42.678Z story        away recap not due
+2026-09-25T15:42:43.107Z story        away recap not due
+2026-09-25T15:42:43.435Z status       Continuing SO-J9 Courier Run
+2026-09-25T15:42:45.122Z payload      1 story blocks injected (generation)
+2026-09-25T15:43:10.328Z status       Following The Drowned Wharf
+2026-09-25T15:43:31.973Z status       Moved into The Broken Bridge
+2026-09-25T15:43:33.210Z status       No story selected for this chat

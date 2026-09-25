@@ -1,0 +1,116 @@
+== P06 objective-run1 test/scenarios/live-v24-06-objective.json start 2026-09-25T15:00:37Z
+{
+  "opened": {
+    "found": true,
+    "alreadyOpen": true,
+    "id": "1759606632088",
+    "name": "Group: Arin, DM Narrator"
+  },
+  "state": {
+    "groupId": "1759606632088",
+    "chatId": "2026-09-20@07h06m38s396ms",
+    "chatLength": 0
+  }
+}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T15-00-42-669Z_st-navigation-open-group.json
+open-group exit=0
+1/16 import_story ok 290ms
+2/16 ui ok 253ms
+3/16 eval ok 11ms
+4/16 slash ok 2515ms
+5/16 wait ok 43ms
+6/16 eval ok 5ms
+6/16 eval -> {"block":""}
+7/16 send_generate ok 21604ms
+8/16 wait ok 5050ms
+9/16 eval ok 10ms
+9/16 eval -> {"control":"Arin stands close by, his body tense and still, eyes scanning the dark hallway ahead. The only sound is the barely audible rustle of leather as he shifts his we"}
+10/16 slash ok 1730ms
+11/16 wait ok 48ms
+12/16 eval ok 5ms
+12/16 eval -> {"block":"Objective: Find the brass key hidden under the loose floorboard in the study. This objective is world pressure: the world presses, answers and escalates on its own, without requiring the player to com"}
+13/16 send_generate ok 36334ms
+14/16 wait ok 5237ms
+15/16 expect ok 10ms
+15/16 expect -> {"overSteer":{"ok":true,"failures":[],"block":{"key":"story_orchestrator_guidance","source":"capture","chars":204},"restate":{"ok":true,"span":1,"maxSpan":6,"metaHits":[]},"swing":{"words":163,"controlWords":137,"lengthRatio":1.19,"sharedWithControl":2}}}
+16/16 eval ok 6ms
+16/16 eval -> {"bare":3,"noted":2}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T15-02-07-457Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 16,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-cbeb5df2"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@12h00m49s429ms",
+    "owned": [
+      "2026-09-25@12h00m49s429ms"
+    ],
+    "deleted": [
+      "2026-09-25@12h00m49s429ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@12h00m49s429ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}
+scenario exit=0 2026-09-25T15:02:07Z

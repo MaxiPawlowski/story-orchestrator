@@ -11,7 +11,7 @@ const USAGE = `Usage: node scripts/debug/so-turn-types-check.mts [--group <name>
 Live gate for which rendered messages commit a story boundary (TurnBridge message types).
 In a sandbox chat of --group (default "AdolionGroup", whose members all greet) with a throwaway story:
   b-image     an image posted the way /sd posts it (type 'extension') commits no boundary
-  a-reply     a real player turn (real generation) commits exactly one boundary
+  a-reply     a real player turn (real generation) commits one boundary per rendered reply
   c-greetings a new group chat, whose greetings arrive before CHAT_CHANGED, commits nothing and
               inherits no story state from the chat that was open
   c-origin    the chat that was open keeps its boundary
@@ -315,7 +315,9 @@ export async function runTurnTypesCheck(page, { group = 'AdolionGroup', characte
       state = await readState(page);
       const { events, commits, afterSpeak } = await since(page, from);
       const replies = events.filter((event) => event.event === 'message_received');
-      record('a-reply', replies.length > 0 && commits.length === 1 && afterSpeak.length > 0 && state.boundary === (before.boundary ?? 0) + 1, { sent, replies, commits, afterSpeak, boundaryBefore: before.boundary, boundaryAfter: state.boundary });
+      const replyIds = [...new Set(replies.map((event) => event.messageId))];
+      const onePerReply = commits.length === replyIds.length && commits.every((commit, index) => commit.lastMessageId === replyIds[index]);
+      record('a-reply', replyIds.length > 0 && onePerReply && afterSpeak.length > 0 && state.boundary === (before.boundary ?? 0) + replyIds.length, { sent, replies, replyIds, commits, afterSpeak, boundaryBefore: before.boundary, boundaryAfter: state.boundary });
     }
 
     const origin = await assertInSandbox(page, guard, 'before the new group chat');

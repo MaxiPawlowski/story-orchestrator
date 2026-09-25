@@ -1,0 +1,7 @@
+{"row":"foreign-emitter","fixture":"test/scenarios/v24-acc-I3.json","run":1,"code":1,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T11:54:45Z","ended":"2026-09-25T11:54:57Z"}
+{"row":"foreign-emitter","fixture":"test/scenarios/v24-acc-I3.json","run":2,"code":1,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T11:55:02Z","ended":"2026-09-25T11:55:14Z"}
+{"row":"foreign-emitter","fixture":"test/scenarios/v24-acc-I3.json","run":3,"code":1,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T11:55:49Z","ended":"2026-09-25T11:56:00Z"}
+{"row":"foreign-emitter","fixture":"test/scenarios/v24-acc-I3.json","run":4,"code":1,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T11:56:06Z","ended":"2026-09-25T11:56:17Z"}
+{"row":"foreign-emitter","fixture":"test/scenarios/v24-acc-A-extprompt-cache.json","run":1,"code":1,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T11:57:52Z","ended":"2026-09-25T11:58:01Z"}
+{"row":"foreign-emitter","fixture":"test/scenarios/v24-acc-I3.json","run":5,"code":0,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T12:01:15Z","ended":"2026-09-25T12:01:28Z"}
+{"row":"foreign-emitter","fixture":"test/scenarios/v24-acc-I3.json","run":6,"code":0,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T12:01:34Z","ended":"2026-09-25T12:01:56Z"}

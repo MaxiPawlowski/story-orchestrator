@@ -308,11 +308,10 @@ export async function deleteSandboxChats(page, guard) {
     }
     if (deleted.length && !jumped) await editGroup(groupId, true, false);
     const post = async (url: string, body: unknown = {}) => (await fetch(url, { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify(body) })).json();
-    const stillListed = (await post('/api/groups/all')).find((entry) => entry.id === groupId)?.chats ?? [];
     const gone = [];
     for (const id of deleted) {
       const data = await post('/api/chats/group/get', { id });
-      if (!stillListed.includes(id) && !(Array.isArray(data) && data.length)) gone.push(id);
+      if (!(Array.isArray(data) && data.length)) gone.push(id);
     }
     // ST saves a group through a 1 s debounce that captures the group OBJECT (group-chats.js:140). A run
     // that reloaded the groups (a card created mid-run calls getCharacters -> getGroups) leaves a pending

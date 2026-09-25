@@ -1,0 +1,80 @@
+1/12 eval ok 13ms
+1/12 eval -> {"greetingsCleared":1}
+2/12 eval ok 5ms
+3/12 import_story ok 268ms
+4/12 eval ok 26ms
+5/12 send ok 1677ms
+6/12 extract ok 646ms
+7/12 eval ok 14ms
+7/12 eval -> {"control":"applied","boundary":1}
+8/12 eval ok 20ms
+8/12 eval -> {"peerRestored":true}
+9/12 send ok 1671ms
+10/12 extract ok 651ms
+11/12 eval ok 133ms
+11/12 eval -> {"peerSave":{"boundary":2,"health":{"lastAppliedBoundary":2,"pendingBoundary":null,"lastOutcome":"applied","consecutiveFailures":0,"lastReason":null,"lastFailureAt":null}},"restoredHealth":{"lastAppliedBoundary":2,"pendingBoundary":null,"lastOutcome":"applied","consecutiveFailures":0,"lastReason":null,"lastFailureAt":null}}
+12/12 eval ok 6ms
+12/12 eval -> {"observed":true,"boundary":2}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T10-36-03-198Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 12,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@07h35m53s260ms",
+    "owned": [
+      "2026-09-25@07h35m53s260ms"
+    ],
+    "deleted": [
+      "2026-09-25@07h35m53s260ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@07h35m53s260ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

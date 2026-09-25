@@ -1,0 +1,10 @@
+DELTA district="docks" evidence="Rin leads the group past the market stalls toward the docks."
+DELTA tension_current="tense" evidence="The air grows tense"
+DELTA threat_level=2 evidence="a dockhand mutters the threat here is two out of five tonight."
+
+MEMORY type="scene" importance=2 expiration="scene" entity="Rin" character="Rin" text="Rin is leading the group from the market to the docks." evidence="Rin leads the group past the market stalls toward the docks."
+MEMORY type="detail" importance=1 expiration="session" text="The threat level at the docks is currently two out of five." evidence="a dockhand mutters the threat here is two out of five tonight."
+
+SCENE_BREAK at=2 reason=location
+
+[arc] The party is moving to the docks under tense conditions.

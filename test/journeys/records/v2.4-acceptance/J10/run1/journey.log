@@ -1,0 +1,130 @@
+start 2026-09-25T15:54:21Z
+
+=== J10 identity-and-settings ===
+Story identity and settings homes: a pre-v2.1 chat migrates intact, a chat plays its pinned copy through library edits and deletion, a new chat inherits the install profile, and Restart is the only reset.
+
+extraction before this run: {"enabled":true,"cadence":3,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","profiles":{}}
+Global config snapshot: C:\dev\so-lanes\2\debug\so-journey-config-snapshot.json
+extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+--- J10.1 the example story carries an authored id, and the chat keys its state by it
+J10.1 1/3 import_story ok 312ms
+J10.1 2/3 expect ok 53ms
+J10.1 3/3 eval ok 7ms
+--- J10.2 the memory profile is stored install-wide, never in the chat
+J10.2 1/2 ui ok 282ms
+J10.2 2/2 eval ok 5ms
+--- J10.3 re-selecting the same story hydrates progress instead of wiping it
+J10.3 1/5 slash ok 2234ms
+J10.3 2/5 send ok 1699ms
+J10.3 3/5 wait ok 48ms
+J10.3 4/5 select_story ok 356ms
+J10.3 5/5 expect ok 53ms
+--- J10.4 a library edit does not reach a chat that already pinned the story
+J10.4 1/3 eval ok 354ms
+J10.4 2/3 expect ok 58ms
+J10.4 3/3 eval ok 6ms
+--- J10.5 deleting the library record leaves the running chat playable from its pinned copy
+J10.5 1/2 eval ok 358ms
+J10.5 2/2 expect ok 53ms
+--- J10.6 a brand-new chat on a configured install plays immediately, with no per-chat setup
+J10.6 1/5 eval ok 354ms
+J10.6 2/5 eval ok 2821ms
+J10.6 3/5 select_story ok 250ms
+J10.6 4/5 eval ok 19ms
+J10.6 5/5 expect ok 39ms
+--- J10.7 Restart is the only reset, and it re-pins the latest library version
+J10.7 1/5 slash ok 1805ms
+J10.7 2/5 send ok 1692ms
+J10.7 3/5 wait ok 36ms
+J10.7 4/5 restart_story ok 662ms
+J10.7 5/5 expect ok 41ms
+--- J10.8 a pre-v2.1 chat blob migrates to id-keyed state with the story pinned
+J10.8 1/2 eval ok 457ms
+J10.8 2/2 expect ok 41ms
+--- J10.11 a chat blob captured from a real pre-v2.1 chat migrates without losing a single value
+J10.11 1/2 seed_metadata ok 145ms
+J10.11 2/2 eval ok 13ms
+--- J10.13 a chat blob written by a newer build is read detached and never overwritten: import and a cancelled restart leave it byte-identical, and only a confirmed restart replaces it (v2.4 plan 02 §1)
+J10.13 1/10 eval ok 2776ms
+J10.13 2/10 seed_metadata ok 143ms
+J10.13 2/10 seed_metadata -> {"version":5,"selectedStoryId":"so-v24-02-future","keys":["so-v24-02-future"]}
+J10.13 3/10 eval ok 7ms
+J10.13 3/10 eval -> {"version":5,"marker":"written-by-v5","futureField":{"kept":true},"storyId":null,"flagged":{"foundVersion":5,"notice":"saved by a newer Story Orchestrator (v5): update, or Restart to replace it"},"journaled":true}
+J10.13 4/10 eval ok 1640ms
+J10.13 4/10 eval -> {"serverVersion":5,"identical":true,"inMemoryIdentical":true}
+J10.13 5/10 import_story ok 38ms
+J10.13 5/10 import_story -> {"ok":false,"snapshot":{"ready":false,"storyId":null,"storyHash":null,"storyIdentity":{"id":null,"playedVersion":null,"libraryVersion":null,"pinned":false,"drifted":false},"blobUnreadable":{"foundVersion":5,"notice":"saved by a newer Story Orchestrator (v5): update, or Restart to replace it"},"orphanedLorebooks":[],"chatIdentity":null,"storyTitle":null,"storyDescription":null,"activeCheckpointId":null,"activeCheckpointName":null,"activeObjective":null,"boundary":0,"blackboard":{},"blackboardMeta":{},"checkpoints":[],"requirements":{"ready":true,"missingPersonas":[],"missingMembers":[],"missingLorebooks":[]},"validationErrors":[{"path":"story","message":"Unknown story 'legacy-v2-8373d2be'"}],"library":[{"id":"adolion-academy","version":11,"hash":"v2-0edc606a","title":"Adolion: House Nightri
+J10.13 6/10 eval ok 5ms
+J10.13 6/10 eval -> {"storyId":null,"status":"Story not selected: this chat's saved story state was saved by a newer Story Orchestrator (v5): update, or Restart to replace it","inLibrary":true,"identical":true,"journaled":true}
+J10.13 7/10 restart_story ok 132ms
+J10.13 7/10 restart_story -> {"ok":false,"activeCheckpointId":null}
+J10.13 8/10 eval ok 4ms
+J10.13 8/10 eval -> {"identical":true,"storyId":null}
+J10.13 9/10 restart_story ok 541ms
+J10.13 9/10 restart_story -> {"ok":true,"activeCheckpointId":"cp1"}
+J10.13 10/10 eval ok 1525ms
+J10.13 10/10 eval -> {"version":4,"stampedFor":"2026-09-25@12h54m38s616ms","openChat":"2026-09-25@12h54m38s616ms","futureStory":false,"storyId":"sun-ruins","flagged":null,"serverVersion":4,"journaled":true}
+--- J10.14 a branch opened mid-story is noticed, never auto-adopted, and Continue from here rolls it back to the branch tail with the parent's lorebook unbound (v2.4 plan 02 §5)
+J10.14 1/21 eval ok 2866ms
+J10.14 2/21 eval ok 20ms
+J10.14 2/21 eval -> {"greetingsCleared":1}
+J10.14 3/21 eval ok 6ms
+J10.14 4/21 import_story ok 274ms
+J10.14 5/21 eval ok 15ms
+J10.14 6/21 send ok 1667ms
+J10.14 7/21 extract ok 1507ms
+J10.14 8/21 send ok 1681ms
+J10.14 9/21 extract ok 1095ms
+J10.14 10/21 record_state ok 10ms
+J10.14 10/21 record_state -> {"as":"after-line-1","boundary":2,"active":"start","rows":{"memory":3,"epistemic":0,"ledger":0}}
+J10.14 11/21 send ok 1683ms
+J10.14 12/21 extract ok 1216ms
+J10.14 13/21 eval ok 360ms
+J10.14 13/21 eval -> {"chatId":"2026-09-25@12h54m45s433ms","integrity":"ed101603-0f4b-4c8f-b0ab-ca0854d23df3","book":"Story Orchestrator - v24-01 Delete Decode - 2026-09-25@12h54m45s433ms","boundary":3}
+J10.14 14/21 branch_create ok 530ms
+J10.14 14/21 branch_create -> {"command":"/branch-create 1","name":"2026-09-25@12h54m45s433ms - Branch #1","kind":"branch","opened":true,"branchChats":["2026-09-25@12h54m45s433ms - Branch #1"]}
+J10.14 15/21 eval ok 6ms
+J10.14 15/21 eval -> {"branch":"2026-09-25@12h54m45s433ms - Branch #1","main_chat":"2026-09-25@12h54m45s433ms","integrity":"80b62a4e-a4bd-444b-81f3-dea327bc7975","blobStampedFor":"2026-09-25@12h54m45s433ms","slot":null,"storyLoaded":null}
+J10.14 16/21 eval ok 6ms
+J10.14 16/21 eval -> {"slot":null,"chatIdentity":{"kind":"branch","parentChat":"2026-09-25@12h54m45s433ms","checkpointName":"Start"}}
+J10.14 17/21 ui ok 93ms
+J10.14 17/21 ui -> {"selector":"#so-branch-continue","found":true,"clickable":true,"at":{"x":517,"y":136},"topmost":"button#so-branch-continue.menu_button.self-start.interactable","target":"button#so-branch-continue.menu_button.self-start.interactable","clicked":true,"noticeGone":true}
+J10.14 18/21 wait ok 1540ms
+J10.14 19/21 expect ok 5ms
+J10.14 19/21 expect -> {"rollbackOutcome":{"rollbackOutcome":{"result":"applied","fromMessage":2,"since":"after-line-1"},"last":{"seq":1,"result":"applied","fromMessage":2,"at":"2026-09-25T15:54:58.904Z"},"sinceSeq":0}}
+J10.14 20/21 expect ok 22ms
+J10.14 21/21 eval ok 369ms
+J10.14 21/21 eval -> {"branchBook":"Story Orchestrator - v24-01 Delete Decode - 2026-09-25@12h54m45s433ms - Branch #1","parentBlob":"2026-09-25@12h54m45s433ms"}
+Restored global config from C:\dev\so-lanes\2\debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"],"saved":{"status":200},"preservedStories":["legacy-v2-de4f955d"],"preservedSessions":[]}
+
+PASS         J10.1    the example story carries an authored id, and the chat keys its state by it
+PASS         J10.2    the memory profile is stored install-wide, never in the chat
+PASS         J10.3    re-selecting the same story hydrates progress instead of wiping it
+PASS         J10.4    a library edit does not reach a chat that already pinned the story
+PASS         J10.5    deleting the library record leaves the running chat playable from its pinned copy
+PASS         J10.6    a brand-new chat on a configured install plays immediately, with no per-chat setup
+PASS         J10.7    Restart is the only reset, and it re-pins the latest library version
+PASS         J10.8    a pre-v2.1 chat blob migrates to id-keyed state with the story pinned
+PASS         J10.11   a chat blob captured from a real pre-v2.1 chat migrates without losing a single value
+PASS         J10.13   a chat blob written by a newer build is read detached and never overwritten: import and a cancelled restart leave it byte-identical, and only a confirmed restart replaces it (v2.4 plan 02 §1)
+PASS         J10.14   a branch opened mid-story is noticed, never auto-adopted, and Continue from here rolls it back to the branch tail with the parent's lorebook unbound (v2.4 plan 02 §5)
+SKIP         J10.9     — human check — operator scores it
+SKIP         J10.10    — human check — operator scores it
+
+J10
+automated: 11 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped
+human:     0 scored, 2 unscored
+cleanup:   clean
+first try: 11 of 11 passing check(s) needed no retry
+
+--- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+[J10.9] (U6) Reading the settings panel, was it clear which settings apply to every chat and which only to this one?
+      anchors: 1 = no idea · 3 = worked it out · 5 = obvious at a glance
+[J10.10] (U6) The memory-model self-test: did its result tell you something you could act on?
+      anchors: 1 = meaningless · 3 = confirmed it works · 5 = told me exactly what this model can and cannot do
+[free] What would make you stop using this?
+
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T15-55-13-918Z_journey-J10.json
+Matrix: C:\dev\so-lanes\2\debug\journey-J10.md
+journey exit=0 2026-09-25T15:55:14Z
+header diff exit=0

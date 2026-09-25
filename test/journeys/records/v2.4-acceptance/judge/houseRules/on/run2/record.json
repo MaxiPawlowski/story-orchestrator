@@ -1,0 +1,618 @@
+{
+  "id": "J8",
+  "title": "stagecraft",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j8-stagecraft.journey.json",
+  "ranAt": "2026-09-25T15:53:57.057Z",
+  "strict": true,
+  "partial": true,
+  "only": [
+    "J8.12"
+  ],
+  "tally": {
+    "skipped": 10,
+    "pass": 1
+  },
+  "tallies": {
+    "automated": {
+      "pass": 1,
+      "fail": 0,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 9
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 1
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 1,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [
+    "9 skipped (strict): an acceptance run runs every check"
+  ],
+  "humanRecord": null,
+  "runnerError": null,
+  "releasedRoutes": null,
+  "capabilities": {
+    "continuity-warden": true,
+    "warden-families": true
+  },
+  "results": [
+    {
+      "id": "J8.1",
+      "mode": "auto",
+      "findings": [
+        "D1"
+      ],
+      "goal": "a checkpoint's background effect switches the ST background deterministically, and re-applies on hydrate",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J8.2",
+      "mode": "auto",
+      "findings": [
+        "D1"
+      ],
+      "goal": "the WI curator proposes a change off-path from real canon, the author reviews it on the drawer's cards (editing it when it is a text change), and the boundary write — whatever op kind the model chose — reaches the server file and the next generation's prompt",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J8.3",
+      "mode": "auto",
+      "findings": [
+        "D1"
+      ],
+      "goal": "every curator action is journaled, it can never write the blackboard or a memory tier, and a write outside the story's allowlist is refused",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J8.4",
+      "mode": "human",
+      "findings": [
+        "D1"
+      ],
+      "goal": "",
+      "prompt": "Did the presentation (scene, background, cast) feel handled for you, without you asking?",
+      "anchors": "1 = nothing happened · 3 = noticed it once · 5 = the stage kept up with the story",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J8.5",
+      "mode": "auto",
+      "findings": [],
+      "goal": "warden auto: a scripted reply that contradicts a seeded fact locked as canon produces one continuity note, and the claim the read takes from it is held in the reconciliation queue, never a live fact the warden enforces (v2.4 plan 07 contradiction fix); the next loud generation's prompt carries it, the one after does not. Under a journey judge mode (v2.4 plan 07) the check leaves the judge settings to the mode: --judge-uses warden --warden-mode auto is the on arm, and --judge-uses off is the control arm, where the same turns must make no warden call and no note may reach a prompt",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J8.6",
+      "mode": "auto",
+      "findings": [],
+      "goal": "warden review: the note waits for the author; a newer reply commits first, the note lapses, and no note reaches any prompt",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J8.9",
+      "mode": "auto",
+      "findings": [],
+      "goal": "both judge curators off (warden off, curator focus off): a contradicting reply and a generation make no warden or curator-filter call, add no proposal and put no note in the prompt",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J8.10",
+      "mode": "auto",
+      "findings": [],
+      "goal": "agency check auto (v2.4 plan 07 T22): a scripted reply that writes the player's act and words produces one agency note on the warden path; the next loud generation's prompt carries it, the one after does not, and the over-steer probe records reply N+1 (family agency). Under a journey judge mode: --judge-uses agencyCheck --warden-mode auto is the on arm; --judge-uses off is the control arm, where the same turns make no warden call and no Agency: line reaches a prompt",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J8.11",
+      "mode": "auto",
+      "findings": [],
+      "goal": "agency check review (v2.4 plan 07 T22): the agency note waits for the author; a newer reply commits first, the note lapses, and no Agency: line reaches any prompt",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    },
+    {
+      "id": "J8.12",
+      "mode": "auto",
+      "findings": [],
+      "goal": "house rules auto (v2.4 plan 07 T23): a story with authored house_rules and a reply that breaks one produces a house-rule note naming the rule verbatim, and the captured GENERATE_AFTER_DATA prompt of the next loud generation carries it; the one after does not. Under a journey judge mode: --judge-uses houseRules --warden-mode auto is the on arm; off is the control",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J8.13",
+      "mode": "auto",
+      "findings": [],
+      "goal": "every warden family off (continuity warden off, agencyCheck off, houseRules off, judge on): a reply that writes the player and breaks a house rule makes no warden call, adds no proposal and puts no note in any prompt",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "skipped",
+      "detail": "not selected by --only"
+    }
+  ],
+  "cleanup": {
+    "judgeCalls": {
+      "count": 3,
+      "events": [
+        {
+          "at": "2026-09-25T15:51:25.456Z",
+          "boundary": 1,
+          "messageId": 2,
+          "kind": "judge",
+          "summary": "judge warden in 555 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "questions": 2,
+            "stateChars": 323,
+            "latencyMs": 555,
+            "inputTokens": 501,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 1
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T15:51:44.092Z",
+          "boundary": 2,
+          "messageId": 4,
+          "kind": "judge",
+          "summary": "judge warden in 555 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "questions": 2,
+            "stateChars": 869,
+            "latencyMs": 555,
+            "inputTokens": 627,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-25T15:53:44.856Z",
+          "boundary": 3,
+          "messageId": 8,
+          "kind": "judge",
+          "summary": "judge warden in 572 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "questions": 2,
+            "stateChars": 2193,
+            "latencyMs": 572,
+            "inputTokens": 949,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 1
+            }
+          }
+        }
+      ]
+    },
+    "judgeMode": {
+      "mode": {
+        "label": "on",
+        "uses": [
+          "houseRules"
+        ],
+        "wardenMode": "auto"
+      }
+    },
+    "judgeMeter": {
+      "calls": 3,
+      "cachedCalls": 0,
+      "inputTokens": 2077,
+      "outputTokens": 120,
+      "cost": 0,
+      "lastAnsweredModel": "jev-1.13.0"
+    },
+    "boundaries": 5,
+    "warden": {
+      "flagged": 2,
+      "applied": 1,
+      "lapsed": 0,
+      "rejected": 0,
+      "pending": 1
+    },
+    "wardenNotes": [
+      {
+        "text": "House rule: \"No character uses a gun, rifle or any gunpowder weapon.\" — keep the next reply within it.",
+        "replyMessageId": 2,
+        "family": "house-rule"
+      }
+    ],
+    "rescore": {
+      "factsSource": "live facts-tier and pinned memory rows at cleanup; ledger-bound rows not included; player line = the newest player message before each reply; house rules = the played story at cleanup",
+      "rows": [
+        {
+          "id": "m0",
+          "arm": "on",
+          "established": [
+            "The dock is currently flooded."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+          },
+          "player": "Max",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m2",
+          "arm": "on",
+          "established": [
+            "The dock is currently flooded."
+          ],
+          "reply": {
+            "speaker": "Captain Rhee",
+            "text": "Captain Rhee levels her flintlock pistol at the smugglers and fires; the shot cracks across the flooded dock and the men scatter."
+          },
+          "player": "Max",
+          "playerMessage": "We wait on the dock for the ferry.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m4",
+          "arm": "on",
+          "established": [
+            "The dock is currently flooded."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "Arin crouches low, one hand on the hilt of his dagger as he eyes the chaotic scene.\n\"Tch, look at them run,\" he mutters, glancing toward you.\nHe doesn't move to intervene, keeping himself and you positioned behind a crate.\n\"Captain's handling it. We just need to stay low and wait for the ferry to arrive. The current's too strong to cross any other way.\"\nThe river churns violently, its dark waters swirling around the partially submerged dock. The shouting of the smugglers fades into the distance as they retreat into the woods on the far bank.\n\"Let's not be heroes today,\" he adds, his tone lighter but his eyes still sharp.\n\"I've had enough close calls this week.\""
+          },
+          "player": "Max",
+          "playerMessage": "I keep my head down and wait.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m6",
+          "arm": "on",
+          "established": [
+            "The dock is currently flooded."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "\"Get on, you two,\" Captain Rhee gestures with her pistol still held low, her eyes scanning the choppy waters.\nThe ferry is a weathered but sturdy vessel, its wooden hull creaking as it groans against the churning river. A small engine hums beneath the deck, itsing up against the current.\nThe Captain stands at the tiller, her hand gripping the handle firmly.\n\"Not a long ride,\" she says, her voice barely raised over the roar of the river.\n\"But don't get any ideas about trying to cross on your own. These waters don't care who's coming or going, and they'll pull you under in a heartbeat.\"\nArin slips onto the deck first, his bow slung over his shoulder, eyes already scanning the far bank.\nThe ferry groans as it begins to move, cutting through the river'Hs foam-capped waves.\nThe air is cold and damp, mist clinging to the river's surface.\n\"Easy on the feet,\" the Captain warns as the ferry lurches.\n\"The current's a hell of of a thing.\"\nArin grabs the hold of the railing as the boat lurches.\n\"Damn, this river's a lot worse than I've run into before.\"\n\"Yeah, well, this one's got a lot to deal with,\" Captain Rhee says, her flintlock resting against the tiller.\n\"The flood's been hell on the dock. Nearly lost the ferry herself.\"\nShe glances back at you, her expression hard.\n\"Glad you'd have been patient. A lot of fools-folk's been tryin' to get across, and the river's been swallowing them whole.\"\nThe ferry cuts through the river, foam-capped waves churning up around the hull.\nThe far bank looms closer, its dark silhouette rising from the misty waters.\n\"Almost there,\" Captain Rhee says.\n\"And remember, this is a dead-end job. The Guild's just getting you across. We're not your nannies.\"\nArin shifts his weight, his eyes narrowing as he looks at the far bank.\n\"Don't forget what the task is. We need to find the smuggler's hideout, and we're just getting closer to it.\"\nThe ferry continues its approach, the far bank growing closer and closer."
+          },
+          "player": "Max",
+          "playerMessage": "We board the ferry.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m7",
+          "arm": "on",
+          "established": [
+            "The dock is currently flooded."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"Oh, oh! The ferry's here!\" *Luke practically bounces on the deck, his oversized chainmail clanking loudly with every enthusiastic movement. He grips the railing with white-knuckled intensity, leaning over to get a better look at the churning river as the vessel cuts through the water. His face is flushed with excitement, nearly masking his pale complexion.* \"I-I knew it! I knew Captain Rhee would come through!\"\n*He tries to stand straighter, puffing out his chest in an attempt to look more seasoned and adventurer-like, but the motion only makes his gear clatter more. His brown hair is damp from the river mist, sticking in uneven clumps to his forehead.*\n\"This is it! We're almost there, and I-I'm going to help! I mean, I mean—\" *His voice pitches up slightly as his enthusiasm gets ahead of him, but he quickly catches himself, glancing nervously at Max and Arin.* \"I'm not going to get in the way, of course. Just... you know, helping! Like a real adventurer!\"\n*He nearly loses his balance as the ferry lurches, his boots scraping against the deck as he catches himself on a railing. His expression is a mixture of awe and and determination, his eyes wide as he takes in the sights around him.* \"I've heard stories about smugglers... they're really bad people, right? The Guild says they've been stealing supplies, and-and that's not fair!\"\n*He fidgets with the short sword at his hip, the weapon clattering against his oversized armor as he shifts his weight. Despite his nervous energy, his voice carries a note of genuine eagerness to help.*"
+          },
+          "player": "Max",
+          "playerMessage": "We board the ferry.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m8",
+          "arm": "on",
+          "established": [
+            "The dock is currently flooded."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "\"Whoa, kid, settle down before you tumble into the river,\" *Arin says with a wry smirk, reaching out to steady Luke by the shoulder as the ferry lurches again. He looks at the and-eager young adventurer with a mix of amusement and concern, his sharp eyes noting the way the oversized armor clanks with every movement.*\n\"And yeah, they're bad people. That's what makes it a real job, not a fairy tale.\"\n*He adjusts the strap of his shortbow, his gaze shifting back to the far bank as it draws closer, the silhouette of the woods emerging from the mist.* \"Let's just keep our heads on straight. This is no't our first time facing trouble, but we'll want to be ready for it.\"\n*The ferry groans and begins to slow, the current still churning around the hull as Captain Rhee brings the vessel closer to the muddy bank. The sound of the water fills the air, though it's muffled by the damp mist.*\n\"Watch your step,\" *the Captain warns as the vessel begins to bump against the dock. The wooden boards creak under the weight as the ferry finally makes contact, the current still pulling at the hull.* \"And good luck.\"\n*The ferry sways as it makes contact with the dock, and Arin is not hesitating, stepping off the boat and onto the wooden boards of the dock.*\n\"We're off and running,\" *he says, his hand instinctively moving to the hilt of his dagger, eyes scanning the surrounding woods.*\n*The air is heavy with the mist, the smell of damp earth and river water clinging to everything. The silence is heavy, broken only by the sound of the distant river.*\n*Luke follows behind, his armor clanking as he steps onto the dock, his sword drawn in a trembling hand.*\n*The forest looms ahead, its dark silhouettes stretching into the shadows.*\n\"We've got to find the hideout,\" *Arin murmurs, his green eyes scanning the area for signs of the breach.* \"And we've got a reason to be here.\"\n*Luke looks at Max, his eyes wide, but his expression is resolute despite his trembling hand.*\n\"We're ready, right Max?\"\n*The forest ahead is dark and silent, the smell of damp earth clinging to the air.*\n\"We need to move,\" *Arin says, his voice low and determined.*\n*He steps forward, leading the way into the forest, his steps careful and silent.*"
+          },
+          "player": "Max",
+          "playerMessage": "We board the ferry.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        }
+      ]
+    },
+    "debugResponses": {
+      "cleared": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "judgeRestore": {
+      "restored": true,
+      "ok": true
+    },
+    "assets": {
+      "marker": "SO-J8",
+      "found": {
+        "allLorebooks": [
+          "Adalion groupchat",
+          "Adolion - Aegis City Noble Life",
+          "Adolion - Eshalanore",
+          "Adolion - Mountains of Shadow",
+          "Adolion - The Third Kingdom",
+          "Adolion - Tiunhime Village",
+          "Adolion Academy Checkpoints",
+          "Adolion Adventurer Checkpoints",
+          "Adolion Chronicle",
+          "Adolion World",
+          "Celia Lorebook",
+          "Chat_Book_Assistant_2025_10_04_18h59m30s",
+          "Exported",
+          "Magianomicon",
+          "main_Magianomicon_world_info",
+          "main_The Fantasy World of Adolion_world_info",
+          "ProjectStory",
+          "Story Orchestrator - Adolion House Nightriver - 2026-09-19@03h33m35s200ms",
+          "Story Orchestrator - Adolion House Nightriver - 2026-09-19@03h57m17s921ms",
+          "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-19@03h21m18s814ms",
+          "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-19@03h31m08s292ms",
+          "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-19@03h43m00s631ms",
+          "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-19@03h48m18s080ms",
+          "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-20@09h17m25s990ms",
+          "Story Orchestrator - Authority Enforcement Gate Check - 2026-09-21@15h49m05s268ms",
+          "Story Orchestrator - Copilot Live Gate",
+          "Story Orchestrator - Journey J11 — Judgment Backend - 2026-09-20@04h40m32s180ms",
+          "Story Orchestrator - Live Extraction Gate Check",
+          "Story Orchestrator - Live Memory Gate Check",
+          "Story Orchestrator - Live Pacing Gate Check",
+          "Story Orchestrator - Memory Foundation Gate Check",
+          "Story Orchestrator - Quest for the Sun Ruins - 2026-09-20@07h06m38s396ms",
+          "Story Orchestrator - Quest for the Sun Ruins",
+          "Story Orchestrator - Talk Control Live Gate",
+          "Story Orchestrator - Untitled Story",
+          "The Fantasy World of Adolion",
+          "Xentar Checkpoints",
+          "Xentar"
+        ],
+        "allRegex": [],
+        "allQrSets": [
+          "Default"
+        ],
+        "qrError": null,
+        "marker": "SO-J8",
+        "baseline": "2026-09-25T15:51:21.803Z",
+        "ledger": [],
+        "sessions": [],
+        "characters": [],
+        "groups": [],
+        "lorebooks": [],
+        "protected": [],
+        "regexScripts": [],
+        "qrSets": []
+      },
+      "removed": {
+        "characters": [],
+        "groups": [],
+        "lorebooks": [],
+        "lorebooksViaHost": [],
+        "lorebooksUnlisted": [],
+        "regexScripts": [],
+        "qrSets": [],
+        "evicted": [],
+        "staleCache": [],
+        "errors": [],
+        "sessions": {
+          "kept": [
+            "untitled",
+            "untitled-story"
+          ],
+          "dropped": []
+        }
+      },
+      "saved": {
+        "status": 200
+      },
+      "leaked": {
+        "allLorebooks": [
+          "Adalion groupchat",
+          "Adolion - Aegis City Noble Life",
+          "Adolion - Eshalanore",
+          "Adolion - Mountains of Shadow",
+          "Adolion - The Third Kingdom",
+          "Adolion - Tiunhime Village",
+          "Adolion Academy Checkpoints",
+          "Adolion Adventurer Checkpoints",
+          "Adolion Chronicle",
+          "Adolion World",
+          "Celia Lorebook",
+          "Chat_Book_Assistant_2025_10_04_18h59m30s",
+          "Exported",
+          "Magianomicon",
+          "main_Magianomicon_world_info",
+          "main_The Fantasy World of Adolion_world_info",
+          "ProjectStory",
+          "Story Orchestrator - Adolion House Nightriver - 2026-09-19@03h33m35s200ms",
+          "Story Orchestrator - Adolion House Nightriver - 2026-09-19@03h57m17s921ms",
+          "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-19@03h21m18s814ms",
+          "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-19@03h31m08s292ms",
+          "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-19@03h43m00s631ms",
+          "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-19@03h48m18s080ms",
+          "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-20@09h17m25s990ms",
+          "Story Orchestrator - Authority Enforcement Gate Check - 2026-09-21@15h49m05s268ms",
+          "Story Orchestrator - Copilot Live Gate",
+          "Story Orchestrator - Journey J11 — Judgment Backend - 2026-09-20@04h40m32s180ms",
+          "Story Orchestrator - Live Extraction Gate Check",
+          "Story Orchestrator - Live Memory Gate Check",
+          "Story Orchestrator - Live Pacing Gate Check",
+          "Story Orchestrator - Memory Foundation Gate Check",
+          "Story Orchestrator - Quest for the Sun Ruins - 2026-09-20@07h06m38s396ms",
+          "Story Orchestrator - Quest for the Sun Ruins",
+          "Story Orchestrator - Talk Control Live Gate",
+          "Story Orchestrator - Untitled Story",
+          "The Fantasy World of Adolion",
+          "Xentar Checkpoints",
+          "Xentar"
+        ],
+        "allRegex": [],
+        "allQrSets": [
+          "Default"
+        ],
+        "qrError": null,
+        "marker": "SO-J8",
+        "baseline": "2026-09-25T15:51:21.803Z",
+        "ledger": [],
+        "sessions": [],
+        "characters": [],
+        "groups": [],
+        "lorebooks": [],
+        "protected": [],
+        "regexScripts": [],
+        "qrSets": []
+      },
+      "legacyMirrors": {
+        "targets": [],
+        "refused": [],
+        "left": []
+      },
+      "clean": true
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [
+        "so-j8-house-rules"
+      ],
+      "preservedSessions": []
+    },
+    "stories": {
+      "removed": 1,
+      "saved": {
+        "status": 200
+      }
+    },
+    "chat": {
+      "sandboxChatId": "2026-09-25@12h51m21s969ms",
+      "owned": [
+        "2026-09-25@12h51m21s969ms"
+      ],
+      "deleted": [
+        "2026-09-25@12h51m21s969ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [
+        "2026-09-25@12h51m21s969ms"
+      ],
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-25@12h51m21s969ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-20@07h06m38s396ms"
+    },
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    }
+  }
+}

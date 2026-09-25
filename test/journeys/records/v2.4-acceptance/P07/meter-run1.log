@@ -1,0 +1,92 @@
+== P07 meter-run1 test/scenarios/live-v24-07-meter.json start 2026-09-25T15:20:46Z
+{
+  "opened": {
+    "found": true,
+    "alreadyOpen": true,
+    "id": "1759606632088",
+    "name": "Group: Arin, DM Narrator"
+  },
+  "state": {
+    "groupId": "1759606632088",
+    "chatId": "2026-09-20@07h06m38s396ms",
+    "chatLength": 0
+  }
+}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T15-20-51-671Z_st-navigation-open-group.json
+open-group exit=0
+1/9 import_story ok 270ms
+2/9 eval ok 381ms
+2/9 eval -> {"meter":{"calls":0,"cachedCalls":0,"inputTokens":0,"outputTokens":0,"cost":0,"lastAnsweredModel":null}}
+3/9 eval ok 234ms
+3/9 eval -> {"text":"I crossed the old stone bridge over the river this morning on errand 57692. It held firm under my boots, same as ever."}
+4/9 eval ok 1023ms
+4/9 eval -> {"courier":1,"row":{"use":"warden","model":"jev-1.13.0","questions":1,"stateChars":264,"latencyMs":612,"inputTokens":447,"outputTokens":22,"p":{"facts":1,"flagged":1}},"meter":{"calls":1,"cachedCalls":0,"inputTokens":447,"outputTokens":22,"cost":0,"lastAnsweredModel":"jev-1.13.0"}}
+5/9 wait ok 3168ms
+6/9 eval ok 12ms
+6/9 eval -> {"deleted":1,"length":1}
+7/9 wait ok 3168ms
+8/9 eval ok 6ms
+8/9 eval -> {"meter":{"calls":1,"cachedCalls":0,"inputTokens":447,"outputTokens":22,"cost":0,"lastAnsweredModel":null},"ringSent":0,"notInRing":1}
+9/9 eval ok 9ms
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T15-21-09-758Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 9,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-fff69068"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@12h20m56s723ms",
+    "owned": [
+      "2026-09-25@12h20m56s723ms"
+    ],
+    "deleted": [
+      "2026-09-25@12h20m56s723ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@12h20m56s723ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": true,
+      "ok": true
+    }
+  }
+}
+scenario exit=0 2026-09-25T15:21:09Z

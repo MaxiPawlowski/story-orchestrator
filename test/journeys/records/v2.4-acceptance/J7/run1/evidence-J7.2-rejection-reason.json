@@ -1,0 +1,32 @@
+{
+  "ok": true,
+  "value": {
+    "keys": [
+      "id",
+      "createdAt",
+      "priority",
+      "reason",
+      "contractHash",
+      "scope",
+      "window",
+      "prompt",
+      "rawResponse",
+      "acceptedDeltas",
+      "rejected",
+      "sceneBreak",
+      "budget",
+      "windowForm"
+    ],
+    "rej": [
+      {
+        "line": "DELTA tension_current='calm' evidence=\"[14] DM Narrator: *The street is quiet, save for the occasional sound of a cart rolling by or the distant call of a merchant.*\"",
+        "reason": "invalid value"
+      },
+      {
+        "line": "DELTA mission_accepted=true evidence=\"[12] Max: 'We'll take it,' I tell Ponticius, and I accept the Sun Ruins mission on the spot.\"",
+        "reason": "evidence not in window"
+      }
+    ],
+    "msg12": "\"We'll take it,\" I tell Ponticius, and I accept the Sun Ruins mission on the spot."
+  }
+}

@@ -1,0 +1,4 @@
+DELTA ally_wounded=true evidence="A crossbow bolt catches Toma in the shoulder and she staggers, blood soaking her sleeve."
+DELTA tension_current="tense" evidence="A crossbow bolt catches Toma in the shoulder and she staggers, blood soaking her sleeve."
+MEMORY type=event importance=3 expiration=session character="Toma" text="Toma was wounded by a crossbow bolt in the shoulder." evidence="A crossbow bolt catches Toma in the shoulder and she staggers, blood soaking her sleeve."
+SCENE_NONE

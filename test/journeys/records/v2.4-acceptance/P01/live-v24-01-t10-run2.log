@@ -1,0 +1,76 @@
+1/12 import_story ok 274ms
+2/12 eval ok 5ms
+2/12 eval -> {"talk":true}
+3/12 send_generate ok 33122ms
+4/12 wait ok 5207ms
+5/12 slash ok 1807ms
+6/12 wait ok 42ms
+7/12 wait ok 5237ms
+8/12 eval ok 5ms
+8/12 eval -> {"note":3,"lastReply":{"i":2,"name":"Ponticius","user":false,"system":false,"type":null},"speaker":"guild_master","macro":""}
+9/12 send_generate ok 20639ms
+10/12 wait ok 48ms
+11/12 wait ok 52073ms
+12/12 eval ok 4ms
+12/12 eval -> {"previous":"guild_master","decision":{"at":"2026-09-25T09:50:24.559Z","messageId":4,"checkpointId":"yard","chosenRosterId":"companion","chosenName":"Arin","source":"rules","latencyMs":1},"count":2}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T09-51-40-111Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 12,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ed9ddba5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@06h49m36s653ms",
+    "owned": [
+      "2026-09-25@06h49m36s653ms"
+    ],
+    "deleted": [
+      "2026-09-25@06h49m36s653ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@06h49m36s653ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

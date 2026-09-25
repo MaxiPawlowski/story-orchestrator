@@ -1,0 +1,19 @@
+{
+  "row": "J11", "lane": 2, "batch": "B3",
+  "candidate": { "commit": "4ebe1db", "bundleSha256": "65733265d3015e620e5f26221d4cbfdbce59541b49e356c69c13642f386f0cab" },
+  "plugin": { "status": 200, "configured": true, "keySource": "dotenv", "model": "jev-1.13.0", "pluginVersion": "1.0.0" },
+  "deviation": "no --require-human-record (human gate open). Journey output streamed through `st-lanes env 2` variables instead of `st-lanes run` (run buffers stdout to the end, so per-check timestamps were lost in run1). Judge configuration per check: judge-config-samples.jsonl (0.5 s in-page sampler) mapped to checks in judge-config-per-check.json (run1 mapping approximate: step durations, not timestamps).",
+  "fixtureChanges": [
+    { "file": "test/journeys/j11-judgment-backend.journey.json", "sha256": "932a47ddd31360f8238cd24cc8cc4229a7a5e6890b255421d5b5dab91192740d", "was": "53ba8d8a9095881056bd06883a0addfb3e223b54e7611af2ff8562ce038d4a56", "check": "J11.25", "reason": "run1: the only scene read naming the heading (tower p0.95) landed after boundary 5, the last boundary of the check, so the claim's 'next boundary' never existed. Now waits for a scene read naming the tower (or the stub already queued), then plays one more neutral turn. Series restarted as seriesB." },
+    { "file": "scripts/debug/st-navigation.mts", "reason": "deleteSandboxChats: a chat whose FILE is gone but which a stale ST group save re-listed before the first server read was reported notDeleted and never repaired (run1 leak). `gone` is now decided by the file; the listing goes through the existing resurrection repair. npm run debug:typecheck + test:debug 278/278 green." }
+  ],
+  "runs": [
+    { "dir": "run1", "fixture": "53ba8d8a9095", "auto": "25/26", "firstAttempt": "25/26", "failed": ["J11.25"], "cleanup": "LEAK chat.notDeleted 2026-09-25@13h01m11s688ms (file deleted, server group still listed it + chat_id; repaired by hand via editGroup on the live object)", "headerDiff": "0 blocking (--allow build.head)", "outcome": "fail" },
+    { "dir": "seriesB-run1", "fixture": "932a47ddd313", "auto": "24/26", "firstAttempt": "24/26", "failed": ["J11.23", "J11.25"], "cleanup": "clean", "headerDiff": "0 blocking", "outcome": "fail" },
+    { "dir": "seriesB-run2", "fixture": "932a47ddd313", "auto": "26/26", "firstAttempt": "26/26", "failed": [], "cleanup": "clean", "headerDiff": "0 blocking", "outcome": "pass" },
+    { "dir": "seriesB-run3", "fixture": "932a47ddd313", "auto": "25/26", "firstAttempt": "25/26", "failed": ["J11.25"], "cleanup": "clean", "headerDiff": "0 blocking", "outcome": "fail" }
+  ],
+  "passRate": "seriesB 1/3 (all runs 1/4)",
+  "perCheck": { "J11.23": "3/4 (seriesB-run1: stall judge max p 0.93 < STALL_DIRECT_P 0.95 -> re-read, per policy)", "J11.25": "1/4 (scene judge fell back (timeout) at SCENE_TIMEOUT_MS 2500 on 3/5, 7/8, 3/9, 6/6 scene calls inside J11.25; scene calls in J11.11-16 answered 237-1723 ms with 0 timeouts in every run)" },
+  "verdict": "red"
+}

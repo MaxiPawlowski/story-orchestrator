@@ -1,0 +1,12 @@
+{
+  "baseline": "test/journeys/records/v2.4-acceptance/P01/header-live-v24-01-t6-run2-start.json",
+  "label": "v24-P01-live-v24-01-t6-run2-end",
+  "allow": [],
+  "differences": 0,
+  "progress": 0,
+  "blocking": 0,
+  "blockingPaths": [],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\3\\debug\\run-header-v24-P01-live-v24-01-t6-run2-end.json",
+  "ok": true
+}

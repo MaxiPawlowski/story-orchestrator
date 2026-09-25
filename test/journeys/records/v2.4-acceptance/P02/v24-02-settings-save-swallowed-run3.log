@@ -1,0 +1,80 @@
+1/12 eval ok 5ms
+2/12 import_story ok 278ms
+3/12 eval ok 10ms
+3/12 eval -> {"storyId":"legacy-v2-de4f955d","removed":false,"toolbar":null,"libraryBefore":["adolion-academy","adolion-adventurer","so-j9-wizard","so-j9-fixme","legacy-v2-de4f955d"]}
+4/12 ui ok 338ms
+5/12 eval ok 16ms
+5/12 eval -> {"draftId":null,"title":"v24-01 Delete Decode"}
+6/12 block_route ok 23ms
+7/12 studio_save ok 15432ms
+8/12 eval ok 4035ms
+8/12 eval -> {"sentence":"Saving “v24-01 Delete Decode” v1… not confirmed: the settings save answered 500."}
+9/12 unblock_route ok 67ms
+10/12 eval ok 2559ms
+10/12 eval -> {"removed":true,"studioSaved":["v24-01-delete-decode"]}
+11/12 ui ok 80ms
+12/12 eval ok 9ms
+12/12 eval -> {"sentence":"Saving “v24-01 Delete Decode” v1… not confirmed: the settings save answered 500."}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T10-52-23-284Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 12,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@07h51m55s725ms",
+    "owned": [
+      "2026-09-25@07h51m55s725ms"
+    ],
+    "deleted": [
+      "2026-09-25@07h51m55s725ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@07h51m55s725ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

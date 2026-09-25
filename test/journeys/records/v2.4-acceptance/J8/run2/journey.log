@@ -1,0 +1,179 @@
+start 2026-09-25T15:04:05Z
+
+=== J8 stagecraft ===
+Deterministic background effect plus one agentic curator (World Info) proposing off-path from real canon, reviewed by the author, applied at a boundary, journaled — and never writing the blackboard or memory tiers. Every asset it creates is marked SO-J8 and deleted in cleanup.
+
+extraction before this run: {"enabled":true,"cadence":3,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","profiles":{}}
+Global config snapshot: C:\dev\so-lanes\2\debug\so-journey-config-snapshot.json
+extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+extraction configured via the settings panel: profile="Story Orchestrator Memory RunPod" {"enabled":true,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","cadence":1,"reconciliationMultiplier":1.5,"stabilityLag":0}
+--- J8.1 a checkpoint's background effect switches the ST background deterministically, and re-applies on hydrate
+J8.1 1/10 eval ok 178ms
+J8.1 2/10 eval ok 6ms
+J8.1 3/10 import_story ok 952ms
+J8.1 4/10 expect ok 70ms
+J8.1 5/10 copilot ok 387ms
+J8.1 6/10 expect ok 46ms
+J8.1 7/10 copilot ok 403ms
+J8.1 8/10 expect ok 86ms
+J8.1 9/10 eval ok 974ms
+J8.1 10/10 expect ok 44ms
+--- J8.2 the WI curator proposes a change off-path from real canon, the author reviews it on the drawer's cards (editing it when it is a text change), and the boundary write — whatever op kind the model chose — reaches the server file and the next generation's prompt
+J8.2 1/18 eval ok 17ms
+J8.2 2/18 expect ok 50ms
+J8.2 3/18 eval ok 6ms
+J8.2 4/18 send_generate ok 14348ms
+J8.2 5/18 eval ok 179ms
+J8.2 5/18 eval -> {"prompts":1,"content":"The road to the tavern is flooded and impassable; nobody has crossed it in a week."}
+J8.2 6/18 extract ok 19590ms
+J8.2 7/18 stagecraft ok 7664ms
+J8.2 8/18 expect ok 89ms
+J8.2 9/18 ui ok 198ms
+J8.2 10/18 eval ok 5ms
+J8.2 11/18 ui ok 420ms
+J8.2 11/18 ui -> {"decided":{"index":0,"decision":"accept","label":"switch off \"The washed road\" · waiting for you","edited":false},"visible":true,"header":"Watching SO-J8 Lore · changes wait for you","proposals":[{"summary":"The party has crossed the road and reached the tavern, so the flood is no longer an obstacle.","ops":["switch off \"The washed road\" · applies at the next turn"],"pending":0}],"snapshot":{"settings":{"curatorEnabled":true,"acceptMode":"review","wardenEnabled":false,"wardenAcceptMode":"review"},"proposals":[{"id":"wi-5-2","curator":"wi","at":"2026-09-25T15:04:53.582Z","boundary":5,"messageId":2,"checkpointId":"tavern","reason":"journey","summary":"The party has crossed the road and reached the tavern, so the flood is no longer an obstacle.","mode":"review","ops":[{"op":{"kind":"disa
+J8.2 12/18 expect ok 66ms
+J8.2 13/18 eval ok 8ms
+J8.2 13/18 eval -> {"id":"wi-5-2","index":0,"kind":"disable","comment":"The washed road","text":null,"ops":["disable:accepted"],"raw":"[disable] #0 \"The washed road\" (SO-J8 Lore)\n[why] The party has crossed the road and reached the tavern, so the flood is no longer an obstacle."}
+J8.2 14/18 extract ok 33151ms
+J8.2 15/18 expect ok 70ms
+J8.2 16/18 eval ok 12ms
+J8.2 16/18 eval -> {"kind":"disable","disable":true,"content":"The road to the tavern is flooded and impassable; nobody has crossed it in a week."}
+J8.2 17/18 send_generate ok 16461ms
+J8.2 18/18 eval ok 7ms
+J8.2 18/18 eval -> {"kind":"disable","prompts":1,"inPrompt":0}
+--- J8.3 every curator action is journaled, it can never write the blackboard or a memory tier, and a write outside the story's allowlist is refused
+J8.3 1/9 wait ok 19302ms
+J8.3 1/9 wait -> {"scheduler":{"queueDepth":0,"inFlight":false,"lastError":null,"heavyQueueDepth":0,"heavyInFlight":false,"lastHeavyError":null},"quietMs":5000}
+J8.3 2/9 eval ok 6ms
+J8.3 3/9 stagecraft ok 157ms
+J8.3 4/9 stagecraft ok 148ms
+J8.3 5/9 stagecraft ok 318ms
+J8.3 6/9 eval ok 12ms
+J8.3 7/9 eval ok 5ms
+J8.3 8/9 eval ok 263ms
+J8.3 9/9 assets ok 15ms
+--- J8.5 warden auto: a scripted reply that contradicts a seeded fact locked as canon produces one continuity note, and the claim the read takes from it is held in the reconciliation queue, never a live fact the warden enforces (v2.4 plan 07 contradiction fix); the next loud generation's prompt carries it, the one after does not. Under a journey judge mode (v2.4 plan 07) the check leaves the judge settings to the mode: --judge-uses warden --warden-mode auto is the on arm, and --judge-uses off is the control arm, where the same turns must make no warden call and no note may reach a prompt
+J8.5 1/9 import_story ok 631ms
+J8.5 2/9 eval ok 410ms
+J8.5 2/9 eval -> {"settings":{"curatorEnabled":false,"acceptMode":"review","wardenEnabled":true,"wardenAcceptMode":"auto"},"records":0,"calls":0,"proposals":2}
+J8.5 3/9 slash ok 1798ms
+J8.5 4/9 eval ok 6ms
+J8.5 4/9 eval -> {"record":"warden-8-5","facts":["The old stone bridge over the river collapsed in the flood and is gone."]}
+J8.5 5/9 send_generate ok 60320ms
+J8.5 6/9 eval ok 5ms
+J8.5 6/9 eval -> {"carried":true,"promptsSeen":4}
+J8.5 7/9 wait ok 29226ms
+J8.5 8/9 send_generate ok 48782ms
+J8.5 9/9 eval ok 12ms
+J8.5 9/9 eval -> {"branch":"gone after one generation","carrying":0,"held":[],"liveClaims":["A mud-spattered courier entered the tavern in Xentar on a miserable day, where he was greeted by the gruff Guild Master in the innkeeper's absence. The Guild Master questioned the courier's business with a sharp, observant gaze, while the courier noted that the old stone bridge had held firm during his journey."]}
+--- J8.6 warden review: the note waits for the author; a newer reply commits first, the note lapses, and no note reaches any prompt
+J8.6 1/8 import_story ok 8311ms
+J8.6 2/8 eval ok 25ms
+J8.6 2/8 eval -> {"settings":{"curatorEnabled":false,"acceptMode":"review","wardenEnabled":true,"wardenAcceptMode":"review"},"records":1,"calls":3,"proposals":3}
+J8.6 3/8 slash ok 1879ms
+J8.6 4/8 eval ok 4ms
+J8.6 4/8 eval -> {"record":"warden-15-14"}
+J8.6 5/8 slash ok 1751ms
+J8.6 6/8 eval ok 5ms
+J8.6 6/8 eval -> {"lapsed":true}
+J8.6 7/8 send_generate ok 18458ms
+J8.6 8/8 eval ok 18ms
+J8.6 8/8 eval -> {"prompts":1,"leaked":0}
+--- J8.9 both judge curators off (warden off, curator focus off): a contradicting reply and a generation make no warden or curator-filter call, add no proposal and put no note in the prompt
+J8.9 1/6 import_story ok 1073ms
+J8.9 2/6 eval ok 74ms
+J8.9 2/6 eval -> {"settings":{"curatorEnabled":false,"acceptMode":"review","wardenEnabled":false,"wardenAcceptMode":"review"},"records":2,"calls":5,"proposals":4}
+J8.9 3/6 slash ok 25475ms
+J8.9 4/6 send_generate ok 53322ms
+J8.9 5/6 wait ok 19658ms
+J8.9 6/6 eval ok 6ms
+J8.9 6/6 eval -> {"wardenCalls":0,"filterCalls":0,"proposals":4,"prompts":3}
+--- J8.10 agency check auto (v2.4 plan 07 T22): a scripted reply that writes the player's act and words produces one agency note on the warden path; the next loud generation's prompt carries it, the one after does not, and the over-steer probe records reply N+1 (family agency). Under a journey judge mode: --judge-uses agencyCheck --warden-mode auto is the on arm; --judge-uses off is the control arm, where the same turns make no warden call and no Agency: line reaches a prompt
+J8.10 1/11 import_story ok 738ms
+J8.10 2/11 eval ok 34ms
+J8.10 2/11 eval -> {"arm":"on","settings":{"curatorEnabled":false,"acceptMode":"review","wardenEnabled":false,"wardenAcceptMode":"auto"},"uses":["agencyCheck"],"player":"Max","records":2,"calls":5}
+J8.10 3/11 send ok 1694ms
+J8.10 4/11 slash ok 1771ms
+J8.10 5/11 eval ok 4ms
+J8.10 5/11 eval -> {"record":"warden-21-23","family":"agency","score":3.82,"rules":null,"summary":"Gate Guard's reply writes the player's own part"}
+J8.10 6/11 send_generate ok 25774ms
+J8.10 7/11 expect ok 13ms
+J8.10 7/11 expect -> {"overSteer":{"ok":true,"failures":[],"block":{"key":"story_orchestrator_continuity","source":"capture","chars":118},"restate":{"ok":true,"span":1,"maxSpan":6,"metaHits":[]},"swing":null,"recorded":true}}
+J8.10 8/11 eval ok 7ms
+J8.10 8/11 eval -> {"carried":true,"promptsSeen":1}
+J8.10 9/11 wait ok 25543ms
+J8.10 10/11 send_generate ok 28281ms
+J8.10 11/11 eval ok 5ms
+J8.10 11/11 eval -> {"branch":"gone after one generation","carrying":0}
+--- J8.11 agency check review (v2.4 plan 07 T22): the agency note waits for the author; a newer reply commits first, the note lapses, and no Agency: line reaches any prompt
+J8.11 1/9 import_story ok 757ms
+J8.11 2/9 eval ok 30ms
+J8.11 2/9 eval -> {"settings":{"curatorEnabled":false,"acceptMode":"review","wardenEnabled":false,"wardenAcceptMode":"review"},"records":3,"calls":7}
+J8.11 3/9 send ok 1721ms
+J8.11 4/9 slash ok 1811ms
+J8.11 5/9 eval ok 7ms
+J8.11 5/9 eval -> {"record":"warden-24-29","family":"agency","score":3.82,"rules":null,"summary":"Gate Guard's reply writes the player's own part"}
+J8.11 6/9 slash ok 1863ms
+J8.11 7/9 eval ok 6ms
+J8.11 7/9 eval -> {"lapsed":true}
+J8.11 8/9 send_generate ok 41102ms
+J8.11 9/9 eval ok 25ms
+J8.11 9/9 eval -> {"prompts":2,"leaked":0}
+--- J8.12 house rules auto (v2.4 plan 07 T23): a story with authored house_rules and a reply that breaks one produces a house-rule note naming the rule verbatim, and the captured GENERATE_AFTER_DATA prompt of the next loud generation carries it; the one after does not. Under a journey judge mode: --judge-uses houseRules --warden-mode auto is the on arm; off is the control
+J8.12 1/11 import_story ok 1551ms
+J8.12 2/11 eval ok 28ms
+J8.12 2/11 eval -> {"arm":"on","settings":{"curatorEnabled":false,"acceptMode":"review","wardenEnabled":false,"wardenAcceptMode":"auto"},"uses":["houseRules"],"player":"Max","records":0,"calls":0}
+J8.12 3/11 send ok 1821ms
+J8.12 4/11 slash ok 1803ms
+J8.12 5/11 eval ok 6ms
+J8.12 5/11 eval -> {"record":"warden-1-35","family":"house-rule","score":null,"rules":["No character uses a gun, rifle or any gunpowder weapon."],"summary":"Captain Rhee's reply breaks a house rule"}
+J8.12 6/11 send_generate ok 89943ms
+J8.12 7/11 expect ok 8ms
+J8.12 7/11 expect -> {"overSteer":{"ok":true,"failures":[],"block":{"key":"story_orchestrator_continuity","source":"capture","chars":102},"restate":{"ok":true,"span":1,"maxSpan":6,"metaHits":[]},"swing":null,"recorded":true}}
+J8.12 8/11 eval ok 6ms
+J8.12 8/11 eval -> {"carried":true,"promptsSeen":4,"rule":"House rule: \"No character uses a gun, rifle or any gunpowder weapon.\" — keep the next reply within it."}
+J8.12 9/11 wait ok 14289ms
+J8.12 10/11 send_generate ok 22261ms
+J8.12 11/11 eval ok 9ms
+J8.12 11/11 eval -> {"branch":"gone after one generation","carrying":0}
+--- J8.13 every warden family off (continuity warden off, agencyCheck off, houseRules off, judge on): a reply that writes the player and breaks a house rule makes no warden call, adds no proposal and puts no note in any prompt
+J8.13 1/8 import_story ok 1252ms
+J8.13 2/8 eval ok 24ms
+J8.13 2/8 eval -> {"settings":{"curatorEnabled":false,"acceptMode":"review","wardenEnabled":false,"wardenAcceptMode":"auto"},"records":1,"calls":3,"proposals":1}
+J8.13 3/8 send ok 1825ms
+J8.13 4/8 slash ok 1851ms
+J8.13 5/8 slash ok 1852ms
+J8.13 6/8 send_generate ok 50384ms
+J8.13 7/8 wait ok 68677ms
+J8.13 8/8 eval ok 6ms
+J8.13 8/8 eval -> {"wardenCalls":0,"proposals":1,"prompts":2}
+Restored global config from C:\dev\so-lanes\2\debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"],"saved":{"status":200},"preservedStories":["so-j8-stagecraft","so-j8-house-rules"],"preservedSessions":[]}
+
+PASS         J8.1     a checkpoint's background effect switches the ST background deterministically, and re-applies on hydrate
+PASS         J8.2     the WI curator proposes a change off-path from real canon, the author reviews it on the drawer's cards (editing it when it is a text change), and the boundary write — whatever op kind the model chose — reaches the server file and the next generation's prompt
+PASS         J8.3     every curator action is journaled, it can never write the blackboard or a memory tier, and a write outside the story's allowlist is refused
+SKIP         J8.4      — human check — operator scores it
+PASS         J8.5     warden auto: a scripted reply that contradicts a seeded fact locked as canon produces one continuity note, and the claim the read takes from it is held in the reconciliation queue, never a live fact the warden enforces (v2.4 plan 07 contradiction fix); the next loud generation's prompt carries it, the one after does not. Under a journey judge mode (v2.4 plan 07) the check leaves the judge settings to the mode: --judge-uses warden --warden-mode auto is the on arm, and --judge-uses off is the control arm, where the same turns must make no warden call and no note may reach a prompt
+PASS         J8.6     warden review: the note waits for the author; a newer reply commits first, the note lapses, and no note reaches any prompt
+PASS         J8.9     both judge curators off (warden off, curator focus off): a contradicting reply and a generation make no warden or curator-filter call, add no proposal and put no note in the prompt
+PASS         J8.10    agency check auto (v2.4 plan 07 T22): a scripted reply that writes the player's act and words produces one agency note on the warden path; the next loud generation's prompt carries it, the one after does not, and the over-steer probe records reply N+1 (family agency). Under a journey judge mode: --judge-uses agencyCheck --warden-mode auto is the on arm; --judge-uses off is the control arm, where the same turns make no warden call and no Agency: line reaches a prompt
+PASS         J8.11    agency check review (v2.4 plan 07 T22): the agency note waits for the author; a newer reply commits first, the note lapses, and no Agency: line reaches any prompt
+PASS         J8.12    house rules auto (v2.4 plan 07 T23): a story with authored house_rules and a reply that breaks one produces a house-rule note naming the rule verbatim, and the captured GENERATE_AFTER_DATA prompt of the next loud generation carries it; the one after does not. Under a journey judge mode: --judge-uses houseRules --warden-mode auto is the on arm; off is the control
+PASS         J8.13    every warden family off (continuity warden off, agencyCheck off, houseRules off, judge on): a reply that writes the player and breaks a house rule makes no warden call, adds no proposal and puts no note in any prompt
+
+J8
+automated: 10 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped
+human:     0 scored, 1 unscored
+cleanup:   clean
+first try: 10 of 10 passing check(s) needed no retry
+
+--- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+[J8.4] (D1) Did the presentation (scene, background, cast) feel handled for you, without you asking?
+      anchors: 1 = nothing happened · 3 = noticed it once · 5 = the stage kept up with the story
+[free] What would make you stop using this?
+
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T15-17-09-808Z_journey-J8.json
+Matrix: C:\dev\so-lanes\2\debug\journey-J8.md
+journey exit=0 2026-09-25T15:17:09Z
+header diff exit=0

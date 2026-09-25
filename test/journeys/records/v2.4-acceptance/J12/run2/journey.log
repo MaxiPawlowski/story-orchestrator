@@ -1,0 +1,89 @@
+start 2026-09-25T18:11:59Z
+open-group code=0
+header capture code=0
+18:12:19 
+18:12:19 === J12 unaided-schedule ===
+18:12:19 The configuration every real install runs and no journey covered: the shipped default cadence, three real player turns, no runExtractionNow and no /cp — an extraction read must fire on its own, its deltas must carry evidence quoting what the player wrote, and the checkpoint it opens must apply its effects.
+18:12:19 
+18:12:19 extraction before this run: {"enabled":true,"cadence":3,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","profiles":{}}
+18:12:19 Global config snapshot: C:\dev\so-lanes\2\debug\so-journey-config-snapshot.json
+18:12:19 extraction declared by the journey: cadence 3, stabilityLag 0, profile inherit
+18:12:20 --- J12.1 the SHIPPED default cadence is in effect (3), extraction is on, a profile is set, and nothing has read yet — so the read J12.3 observes cannot be a leftover from an earlier check or an earlier run
+18:12:20 J12.1 1/1 eval ok 13ms
+18:12:20 J12.1 1/1 eval -> {"cadence":3,"enabled":true,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","audits":0}
+18:12:20 --- J12.2 the story is selected and its requirements are GREEN — the guard v2.3 plan 04 added, because a journey that never established its lorebooks gets silent no-op latches instead of a failure, and the symptom then surfaces 300 s later as a checkpoint that never arrives
+18:12:20 J12.2 1/5 eval ok 8ms
+18:12:21 J12.2 2/5 select_story ok 814ms
+18:12:22 J12.2 3/5 wait ok 1566ms
+18:12:22 J12.2 4/5 eval ok 7ms
+18:12:22 J12.2 4/5 eval -> {"ready":true,"checkpoint":"guild-hall"}
+18:12:22 J12.2 5/5 expect ok 71ms
+18:12:22 --- J12.3 three real turns at the shipped cadence produce an extraction read with NO help (any reason but manual/trigger/runNow), it accepts deltas, and every such read's window holds the player's own lines. Rewritten 2026-09-23 (L2) from the audit tail: the check demanded the reason `cadence`, but a scene or cue read that fires first is just as unaided and resets the cadence counter, so in 3 of 3 real runs the schedule fired as `scene:cast` / `cue:*` and the read labelled `cadence` never came due. Whether a read reached the latest player message is reported, not asserted, for the same reason.
+18:12:35 J12.3 1/10 send_generate ok 12974ms
+18:12:37 J12.3 2/10 wait ok 1544ms
+18:12:53 J12.3 3/10 send_generate ok 16260ms
+18:12:55 J12.3 4/10 wait ok 1549ms
+18:13:14 J12.3 5/10 send_generate ok 19656ms
+18:13:16 J12.3 6/10 wait ok 1538ms
+18:13:16 J12.3 7/10 wait ok 68ms
+18:13:16 J12.3 8/10 eval ok 9ms
+18:13:16 J12.3 8/10 eval -> {"reason":"scene:cast","window":{"from":0,"to":1},"boundary":null,"lastPlayerIndex":4,"accepted":0,"rejected":0}
+18:13:16 J12.3 9/10 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the unaided reads accepted no deltas: [{"reason":"scene:cast","window":{"from":0,"to":1},"rejected":0}]
+18:13:16     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:864)
+18:13:16     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1530)
+18:13:16     at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+18:13:16     at UtilityScript.evaluate (<anonymous>:292:16)
+18:13:16     at UtilityScript.<anonymous> (<anonymous>:1:44)
+18:13:16 --- J12.4 an accepted delta's EVIDENCE is a verbatim quote (at least 12 characters, quotes and whitespace normalized) of one of the player's own lines inside the read's window. Rewritten 2026-09-23 (L2): the token-overlap form excluded `cross`/`guild`/`counter` as generic, and a real run whose evidence was exactly the player's line "I cross the guild hall to the quest counter" failed on it. A verbatim quote is the stronger claim, and the one the extraction contract states.
+18:13:16 J12.4 1/1 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: no unaided read accepted anything, so there is no evidence to measure (J12.3 says why)
+18:13:16     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1010)
+18:13:17     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1384)
+18:13:17     at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+18:13:17     at UtilityScript.evaluate (<anonymous>:292:16)
+18:13:17     at UtilityScript.<anonymous> (<anonymous>:1:44)
+18:13:17 --- J12.5 the checkpoint the read opened applied its effects — an owned ledger row per effect, `applied` — and the boundary log names the transition that fired. This is the leg the MODEL decides, so it is its own check: a model that will not commit costs this check, not the journey's point (J12.3/J12.4)
+18:13:17 J12.5 1/4 eval ok 7ms
+18:13:17 J12.5 1/4 eval -> {"rows":1,"applied":1,"byCheckpoint":{"guild-hall":["author_note"]},"statuses":["author_note:applied"]}
+18:13:17 J12.5 2/4 eval ok 7ms
+18:13:17 J12.5 3/4 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the story is still at guild-hall after three turns: the model did not set `path` (its own gate), so there is no transition to attribute effects to. This check is the one the model decides; J12.3/J12.4 remain the schedule's evidence. lastPlayerTurn=3
+18:13:17     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:432)
+18:13:17     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:883)
+18:13:17     at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+18:13:17     at UtilityScript.evaluate (<anonymous>:292:16)
+18:13:17     at UtilityScript.<anonymous> (<anonymous>:1:44)
+18:13:17 Restored global config from C:\dev\so-lanes\2\debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"],"saved":{"status":200},"preservedStories":[],"preservedSessions":[]}
+18:13:27 
+18:13:27 PASS         J12.1    the SHIPPED default cadence is in effect (3), extraction is on, a profile is set, and nothing has read yet — so the read J12.3 observes cannot be a leftover from an earlier check or an earlier run
+18:13:27 PASS         J12.2    the story is selected and its requirements are GREEN — the guard v2.3 plan 04 added, because a journey that never established its lorebooks gets silent no-op latches instead of a failure, and the symptom then surfaces 300 s later as a checkpoint that never arrives
+18:13:27 FAIL         J12.3    three real turns at the shipped cadence produce an extraction read with NO help (any reason but manual/trigger/runNow), it accepts deltas, and every such read's window holds the player's own lines. Rewritten 2026-09-23 (L2) from the audit tail: the check demanded the reason `cadence`, but a scene or cue read that fires first is just as unaided and resets the cadence counter, so in 3 of 3 real runs the schedule fired as `scene:cast` / `cue:*` and the read labelled `cadence` never came due. Whether a read reached the latest player message is reported, not asserted, for the same reason. — Evaluation failed in SillyTavern page: page.evaluate: Error: the unaided reads accepted no deltas: [{"reason":"scene:cast","window":{"from":0,"to":1},"rejected":0}]
+18:13:27     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:864)
+18:13:27     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1530)
+18:13:27     at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+18:13:27     at UtilityScript.evaluate (<anonymous>:292:16)
+18:13:27     at UtilityScript.<anonymous> (<anonymous>:1:44)
+18:13:27 FAIL         J12.4    an accepted delta's EVIDENCE is a verbatim quote (at least 12 characters, quotes and whitespace normalized) of one of the player's own lines inside the read's window. Rewritten 2026-09-23 (L2): the token-overlap form excluded `cross`/`guild`/`counter` as generic, and a real run whose evidence was exactly the player's line "I cross the guild hall to the quest counter" failed on it. A verbatim quote is the stronger claim, and the one the extraction contract states. — Evaluation failed in SillyTavern page: page.evaluate: Error: no unaided read accepted anything, so there is no evidence to measure (J12.3 says why)
+18:13:27     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1010)
+18:13:28     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1384)
+18:13:28     at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+18:13:28     at UtilityScript.evaluate (<anonymous>:292:16)
+18:13:28     at UtilityScript.<anonymous> (<anonymous>:1:44)
+18:13:28 FAIL         J12.5    the checkpoint the read opened applied its effects — an owned ledger row per effect, `applied` — and the boundary log names the transition that fired. This is the leg the MODEL decides, so it is its own check: a model that will not commit costs this check, not the journey's point (J12.3/J12.4) — Evaluation failed in SillyTavern page: page.evaluate: Error: the story is still at guild-hall after three turns: the model did not set `path` (its own gate), so there is no transition to attribute effects to. This check is the one the model decides; J12.3/J12.4 remain the schedule's evidence. lastPlayerTurn=3
+18:13:28     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:432)
+18:13:28     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:883)
+18:13:28     at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+18:13:28     at UtilityScript.evaluate (<anonymous>:292:16)
+18:13:28     at UtilityScript.<anonymous> (<anonymous>:1:44)
+18:13:28 
+18:13:28 J12
+18:13:28 automated: 2 pass, 3 fail, 0 blocked, 0 not-runnable, 0 skipped
+18:13:28 human:     0 scored, 0 unscored
+18:13:28 cleanup:   clean
+18:13:28 first try: 2 of 2 passing check(s) needed no retry
+18:13:28 NOT GREEN: 3 automated check(s) failed
+18:13:28 
+18:13:28 Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T18-13-27-435Z_journey-J12.json
+18:13:29 Matrix: C:\dev\so-lanes\2\debug\journey-J12.md
+journey exit code=1 end 2026-09-25T18:13:29Z
+header diff code=0
+record C:/dev/so-lanes/2/debug/2026-09-25T18-13-27-435Z_journey-J12.json
+47a1834494224de69e71ad72ed694d773c52093d8a0c0800be280264c456f0de *test/journeys/j12-unaided-schedule.journey.json

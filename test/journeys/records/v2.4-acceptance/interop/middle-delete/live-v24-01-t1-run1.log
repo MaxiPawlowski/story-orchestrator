@@ -1,0 +1,115 @@
+1/48 import_story ok 278ms
+2/48 eval ok 16ms
+2/48 eval -> {"cadence":1,"greeting":1}
+3/48 send_generate ok 24287ms
+4/48 wait ok 37974ms
+5/48 record_state ok 8ms
+5/48 record_state -> {"as":"before-middle","boundary":1,"active":"hall","rows":{"memory":2,"epistemic":0,"ledger":3}}
+6/48 eval ok 7ms
+6/48 eval -> {"kept":{"memory":2,"epistemic":0,"ledger":3}}
+7/48 eval ok 5ms
+8/48 send_generate ok 17398ms
+9/48 wait ok 16083ms
+10/48 send_generate ok 20149ms
+11/48 wait ok 31456ms
+12/48 eval ok 6ms
+12/48 eval -> {"memory":10,"epistemic":0,"ledger":3}
+13/48 eval ok 18ms
+13/48 eval -> {"deleted":3,"after":6}
+14/48 wait ok 1520ms
+15/48 wait ok 174882ms
+16/48 eval ok 5ms
+16/48 eval -> {"boundary":1,"lastMessageId":2,"chat":6,"journal":["payload: 3 story blocks injected (generation)","talk: Arin speaks (rules)","payload: 3 story blocks injected (generation)","talk: Ponticius speaks (rules)","status: Stepped back to The Hall","extraction: read rollback:3 msgs 0-5 → 0 accepted, 1 rejected"],"calls":[{"call":"rollback","from":3,"journal":null,"chat":6,"last":6},{"event":"deleted","n":6,"chat":6}]}
+17/48 expect ok 7ms
+17/48 expect -> {"as":"before-middle","equal":true,"scope":["active","path"]}
+18/48 eval ok 5ms
+18/48 eval -> {"target":3,"rollbacks":[3],"applied":0,"pending":[]}
+19/48 eval ok 6ms
+19/48 eval -> {"journal":["read rollback:3 msgs 0-5 → 0 accepted, 1 rejected"],"reread":{"memory":4,"epistemic":0,"ledger":2}}
+20/48 record_state ok 8ms
+20/48 record_state -> {"as":"before-cut","boundary":1,"active":"hall","rows":{"memory":6,"epistemic":0,"ledger":3}}
+21/48 eval ok 5ms
+21/48 eval -> {"kept":{"memory":6,"epistemic":0,"ledger":3}}
+22/48 eval ok 5ms
+23/48 send_generate ok 27785ms
+24/48 wait ok 17915ms
+25/48 send_generate FAIL Generation still active after 300000ms timeout.
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T11-45-49-923Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T11-45-54-398Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 25,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ed9ddba5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@08h34m37s981ms",
+    "owned": [
+      "2026-09-25@08h34m37s981ms"
+    ],
+    "deleted": [
+      "2026-09-25@08h34m37s981ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@08h34m37s981ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

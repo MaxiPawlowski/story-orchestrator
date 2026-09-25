@@ -1,0 +1,215 @@
+Following the session journal → C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\test\journeys\records\v2.4-acceptance\J8\run1\journal-follow.jsonl every 1000 ms. Ctrl-C to stop.
+2026-09-25T14:44:47.619Z session      chat 2026-09-24@05h22m36s897ms · story none · at — (boundary 0, 0 messages)
+2026-09-25T14:42:54.828Z status       No story loaded
+2026-09-25T14:42:54.829Z status       No story selected for this chat
+2026-09-25T14:44:49.649Z session      chat 2026-09-25@11h44m48s781ms · story none · at — (boundary 0, 1 messages)
+2026-09-25T14:42:54.828Z status       No story loaded
+2026-09-25T14:42:54.829Z status       No story selected for this chat
+2026-09-25T14:44:50.671Z session      chat 2026-09-25@11h44m48s781ms · story so-j8-stagecraft · at The washed road (boundary 0, 1 messages)
+2026-09-25T14:44:50.471Z story        away recap not due
+2026-09-25T14:44:50.772Z status       Started SO-J8 Stagecraft
+2026-09-25T14:44:50.774Z story        quality macro skipped
+2026-09-25T14:44:50.940Z boundary     boundary 1: nothing applied (manual)
+2026-09-25T14:44:51.319Z status       Now at The tavern
+2026-09-25T14:44:51.399Z boundary     boundary 2: nothing applied (manual)
+2026-09-25T14:44:51.773Z status       Now at The washed road
+2026-09-25T14:44:51.843Z boundary     boundary 3: nothing applied (manual)
+2026-09-25T14:44:52.218Z story        host change "background" was reverted when this chat reloaded
+2026-09-25T14:44:52.574Z story        away recap not due
+2026-09-25T14:44:52.791Z status       Continuing SO-J8 Stagecraft
+2026-09-25T14:44:54.642Z payload      1 story blocks injected (generation)
+2026-09-25T14:45:07.015Z boundary     boundary 4: nothing applied (gate)
+2026-09-25T14:45:07.137Z status       Following The tavern
+2026-09-25T14:45:19.983Z extraction   read journey msgs 0-2 → 1 accepted, 1 rejected
+2026-09-25T14:45:19.983Z delta        tension_current = 0
+2026-09-25T14:45:19.983Z delta        queued tension_current=0 for the next boundary
+2026-09-25T14:45:19.983Z audit        audit journey msgs 0-2 scope [tension_current] → 1 accepted, 1 rejected
+2026-09-25T14:45:20.311Z boundary     applied tension_current=0
+2026-09-25T14:45:24.726Z extraction   read cadence msgs 0-2 → 1 accepted, 1 rejected
+2026-09-25T14:45:24.726Z delta        tension_current = 0
+2026-09-25T14:45:24.726Z delta        queued tension_current=0 for the next boundary
+2026-09-25T14:45:24.726Z audit        audit cadence msgs 0-2 scope [tension_current] → 1 accepted, 1 rejected
+2026-09-25T14:45:31.398Z stagecraft   World Info curator proposed 1 change(s) at The tavern
+2026-09-25T14:45:45.448Z extraction   read cadence msgs 0-2 → 0 accepted, 1 rejected
+2026-09-25T14:45:45.448Z audit        audit cadence msgs 0-2 scope [tension_current] → 0 accepted, 1 rejected
+2026-09-25T14:45:49.841Z extraction   read journey-boundary msgs 0-2 → 0 accepted, 1 rejected
+2026-09-25T14:45:50.273Z boundary     applied tension_current=0
+2026-09-25T14:45:50.631Z stagecraft   World Info curator applied 1 change(s)
+2026-09-25T14:45:49.841Z audit        audit journey-boundary msgs 0-2 scope [tension_current] → 0 accepted, 1 rejected
+2026-09-25T14:45:52.698Z payload      6 story blocks injected (generation)
+2026-09-25T14:46:15.328Z payload      6 story blocks injected (generation)
+2026-09-25T14:46:42.368Z boundary     boundary 7: nothing applied (gate)
+2026-09-25T14:46:42.511Z boundary     boundary 8: nothing applied (gate)
+2026-09-25T14:46:55.216Z extraction   read cadence msgs 3-4 → 0 accepted, 1 rejected
+2026-09-25T14:46:55.216Z audit        audit cadence msgs 3-4 scope [tension_current] → 0 accepted, 1 rejected
+2026-09-25T14:47:17.414Z extraction   read cadence msgs 5-5 → 0 accepted, 2 rejected
+2026-09-25T14:47:17.414Z audit        audit cadence msgs 5-5 scope [tension_current] → 0 accepted, 2 rejected
+2026-09-25T14:47:23.293Z stagecraft   World Info curator proposed 1 change(s) at The tavern
+2026-09-25T14:47:23.815Z stagecraft   World Info curator applied 1 change(s)
+2026-09-25T14:47:24.642Z story        away recap not due
+2026-09-25T14:47:24.874Z status       Continuing SO-J8 Stagecraft
+2026-09-25T14:47:24.937Z extraction   read manual msgs 100000-100000 → 0 accepted, 0 rejected
+2026-09-25T14:47:24.937Z audit        audit manual msgs 100000-100000 scope [] → 0 accepted, 0 rejected
+2026-09-25T14:47:25.474Z boundary     boundary 9: nothing applied (gate)
+2026-09-25T14:47:25.592Z status       Following The tavern
+2026-09-25T14:47:26.404Z judge        judge warden in 789 ms
+2026-09-25T14:47:26.405Z stagecraft   Continuity warden flagged Courier's reply
+2026-09-25T14:47:28.724Z stagecraft   Continuity note added to this reply's prompt
+2026-09-25T14:47:28.724Z payload      7 story blocks injected (generation)
+2026-09-25T14:47:50.411Z boundary     boundary 10: nothing applied (gate)
+2026-09-25T14:47:52.469Z judge        judge warden in 1919 ms
+2026-09-25T14:47:52.498Z extraction   read cadence msgs 0-6 → 0 accepted, 1 rejected
+2026-09-25T14:47:52.498Z audit        audit cadence msgs 0-6 scope [tension_current] → 0 accepted, 1 rejected
+2026-09-25T14:48:16.333Z delta        queued tension_current=0 for the next boundary
+2026-09-25T14:48:17.365Z delta        queued tension_current=0 for the next boundary
+2026-09-25T14:48:18.384Z delta        queued tension_current=0 for the next boundary
+2026-09-25T14:48:16.099Z extraction   read cadence msgs 7-8 → 1 accepted, 0 rejected
+2026-09-25T14:48:16.099Z delta        tension_current = 0
+2026-09-25T14:48:16.099Z delta        queued tension_current=0 for the next boundary
+2026-09-25T14:48:16.099Z audit        audit cadence msgs 7-8 scope [tension_current] → 1 accepted, 0 rejected
+2026-09-25T14:48:40.302Z payload      6 story blocks injected (generation)
+2026-09-25T14:49:23.498Z payload      5 story blocks injected (generation)
+2026-09-25T14:49:23.511Z boundary     applied tension_current=0
+2026-09-25T14:49:23.655Z boundary     boundary 12: nothing applied (gate)
+2026-09-25T14:49:26.348Z judge        judge warden in 2674 ms
+2026-09-25T14:49:37.715Z delta        queued tension_current=0.075 for the next boundary
+2026-09-25T14:49:37.358Z extraction   read cadence msgs 9-10 → 1 accepted, 0 rejected
+2026-09-25T14:49:37.358Z delta        tension_current = 0.075
+2026-09-25T14:49:37.358Z delta        queued tension_current=0.075 for the next boundary
+2026-09-25T14:49:37.358Z audit        audit cadence msgs 9-10 scope [tension_current] → 1 accepted, 0 rejected
+2026-09-25T14:49:41.866Z status       Following The tavern
+2026-09-25T14:49:42.431Z story        away recap not due
+2026-09-25T14:49:42.658Z status       Continuing SO-J8 Stagecraft
+2026-09-25T14:49:42.898Z boundary     boundary 13: nothing applied (gate)
+2026-09-25T14:49:43.035Z status       Following The tavern
+2026-09-25T14:49:43.090Z judge        judge warden in 0 ms
+2026-09-25T14:49:43.090Z stagecraft   Continuity warden flagged Courier's reply
+2026-09-25T14:49:44.731Z boundary     boundary 14: nothing applied (gate)
+2026-09-25T14:49:45.525Z judge        judge warden in 555 ms
+2026-09-25T14:49:48.034Z payload      6 story blocks injected (generation)
+2026-09-25T14:50:57.551Z boundary     boundary 15: nothing applied (gate)
+2026-09-25T14:50:57.704Z boundary     boundary 16: nothing applied (gate)
+2026-09-25T14:50:57.945Z boundary     boundary 17: nothing applied (gate)
+2026-09-25T14:50:58.303Z judge        judge warden in 584 ms
+2026-09-25T14:50:58.895Z status       Following The tavern
+2026-09-25T14:51:01.546Z story        away recap not due
+2026-09-25T14:51:01.776Z status       Continuing SO-J8 Stagecraft
+2026-09-25T14:51:02.015Z boundary     boundary 18: nothing applied (gate)
+2026-09-25T14:51:02.248Z status       Following The tavern
+2026-09-25T14:51:05.281Z payload      6 story blocks injected (generation)
+2026-09-25T14:51:27.775Z payload      5 story blocks injected (generation)
+2026-09-25T14:51:40.417Z boundary     boundary 19: nothing applied (gate)
+2026-09-25T14:51:41.378Z extraction   read cadence msgs 11-18 → 0 accepted, 1 rejected
+2026-09-25T14:51:41.378Z audit        audit cadence msgs 11-18 scope [tension_current] → 0 accepted, 1 rejected
+2026-09-25T14:51:56.199Z extraction   read cadence msgs 19-20 → 0 accepted, 1 rejected
+2026-09-25T14:51:56.199Z audit        audit cadence msgs 19-20 scope [tension_current] → 0 accepted, 1 rejected
+2026-09-25T14:52:19.605Z story        away recap not due
+2026-09-25T14:52:19.834Z status       Continuing SO-J8 Stagecraft
+2026-09-25T14:52:21.884Z boundary     boundary 20: nothing applied (gate)
+2026-09-25T14:52:22.018Z status       Following The tavern
+2026-09-25T14:52:22.629Z judge        judge warden in 570 ms
+2026-09-25T14:52:22.629Z stagecraft   Warden flagged Gate Guard's reply (agency)
+2026-09-25T14:52:25.136Z stagecraft   Warden note added to this reply's prompt
+2026-09-25T14:52:25.136Z payload      7 story blocks injected (generation)
+2026-09-25T14:52:40.304Z payload      6 story blocks injected (generation)
+2026-09-25T14:52:50.994Z extraction   read cadence msgs 15-22 → 0 accepted, 1 rejected
+2026-09-25T14:52:50.994Z audit        audit cadence msgs 15-22 scope [tension_current] → 0 accepted, 1 rejected
+2026-09-25T14:53:02.424Z boundary     boundary 21: nothing applied (gate)
+2026-09-25T14:53:02.565Z boundary     boundary 22: nothing applied (gate)
+2026-09-25T14:53:03.110Z judge        judge warden in 546 ms
+2026-09-25T14:53:20.235Z extraction   read cadence msgs 23-25 → 0 accepted, 1 rejected
+2026-09-25T14:53:20.235Z audit        audit cadence msgs 23-25 scope [tension_current] → 0 accepted, 1 rejected
+2026-09-25T14:53:28.080Z payload      7 story blocks injected (generation)
+2026-09-25T14:53:53.865Z boundary     boundary 23: nothing applied (gate)
+2026-09-25T14:53:54.031Z boundary     boundary 24: nothing applied (gate)
+2026-09-25T14:53:55.007Z status       Following The tavern
+2026-09-25T14:53:56.776Z story        away recap not due
+2026-09-25T14:53:57.023Z status       Continuing SO-J8 Stagecraft
+2026-09-25T14:53:58.964Z payload      6 story blocks injected (generation)
+2026-09-25T14:53:58.980Z boundary     boundary 25: nothing applied (gate)
+2026-09-25T14:53:59.318Z status       Following The tavern
+2026-09-25T14:53:59.373Z judge        judge warden in 0 ms
+2026-09-25T14:53:59.373Z stagecraft   Warden flagged Gate Guard's reply (agency)
+2026-09-25T14:54:15.245Z boundary     boundary 26: nothing applied (gate)
+2026-09-25T14:54:16.088Z judge        judge warden in 559 ms
+2026-09-25T14:54:16.472Z extraction   read cadence msgs 23-30 → 0 accepted, 1 rejected
+2026-09-25T14:54:18.633Z payload      7 story blocks injected (generation)
+2026-09-25T14:54:16.472Z audit        audit cadence msgs 23-30 scope [tension_current] → 0 accepted, 1 rejected
+2026-09-25T14:54:33.438Z delta        queued tension_current=0 for the next boundary
+2026-09-25T14:54:32.691Z extraction   read cadence msgs 31-31 → 1 accepted, 0 rejected
+2026-09-25T14:54:32.691Z delta        tension_current = 0
+2026-09-25T14:54:32.691Z delta        queued tension_current=0 for the next boundary
+2026-09-25T14:54:32.691Z audit        audit cadence msgs 31-31 scope [tension_current] → 1 accepted, 0 rejected
+2026-09-25T14:54:45.905Z boundary     applied tension_current=0
+2026-09-25T14:54:47.952Z session      chat 2026-09-25@11h44m48s781ms · story so-j8-house-rules · at The washed road (boundary 0, 34 messages)
+2026-09-25T14:54:47.190Z status       Following The tavern
+2026-09-25T14:54:48.098Z story        away recap not due
+2026-09-25T14:54:48.338Z status       Started SO-J8 House Rules
+2026-09-25T14:54:50.362Z boundary     boundary 1: nothing applied (gate)
+2026-09-25T14:54:50.495Z status       Following The washed road
+2026-09-25T14:54:50.750Z judge        judge warden in 223 ms
+2026-09-25T14:54:50.750Z stagecraft   Warden flagged Captain Rhee's reply (house-rule)
+2026-09-25T14:54:53.602Z stagecraft   Warden note added to this reply's prompt
+2026-09-25T14:54:53.602Z payload      2 story blocks injected (generation)
+2026-09-25T14:55:03.350Z extraction   read cadence msgs 28-35 → 0 accepted, 0 rejected
+2026-09-25T14:55:03.350Z audit        audit cadence msgs 28-35 scope [road_drained, tension_current] → 0 accepted, 0 rejected
+2026-09-25T14:55:13.185Z payload      1 story blocks injected (generation)
+2026-09-25T14:55:35.144Z boundary     boundary 2: nothing applied (gate)
+2026-09-25T14:55:35.313Z boundary     boundary 3: nothing applied (gate)
+2026-09-25T14:55:35.872Z judge        judge warden in 559 ms
+2026-09-25T14:55:51.948Z delta        queued road_drained=false for the next boundary
+2026-09-25T14:55:51.721Z extraction   read cadence msgs 36-38 → 1 accepted, 1 rejected
+2026-09-25T14:55:51.721Z delta        road_drained = false
+2026-09-25T14:55:51.721Z delta        queued road_drained=false for the next boundary
+2026-09-25T14:55:51.721Z audit        audit cadence msgs 36-38 scope [road_drained, tension_current] → 1 accepted, 1 rejected
+2026-09-25T14:55:58.349Z payload      5 story blocks injected (generation)
+2026-09-25T14:56:14.460Z payload      4 story blocks injected (generation)
+2026-09-25T14:56:27.418Z boundary     applied road_drained=false
+2026-09-25T14:56:28.268Z judge        judge warden in 640 ms
+2026-09-25T14:56:29.206Z status       Following The washed road
+2026-09-25T14:56:29.599Z story        away recap not due
+2026-09-25T14:56:29.844Z status       Continuing SO-J8 House Rules
+2026-09-25T14:56:31.793Z boundary     boundary 5: nothing applied (gate)
+2026-09-25T14:56:31.931Z status       Following The washed road
+2026-09-25T14:56:33.609Z boundary     boundary 6: nothing applied (gate)
+2026-09-25T14:56:33.748Z reconciliation stall re-check queued for road_drained
+2026-09-25T14:56:36.859Z payload      5 story blocks injected (generation)
+2026-09-25T14:56:48.829Z delta        queued tension_current=0 for the next boundary
+2026-09-25T14:56:48.364Z extraction   read cadence msgs 35-42 → 1 accepted, 0 rejected
+2026-09-25T14:56:48.364Z delta        tension_current = 0
+2026-09-25T14:56:48.364Z delta        queued tension_current=0 for the next boundary
+2026-09-25T14:56:48.364Z audit        audit cadence msgs 35-42 scope [road_drained, tension_current] → 1 accepted, 0 rejected
+2026-09-25T14:57:00.372Z payload      5 story blocks injected (generation)
+2026-09-25T14:57:21.221Z extraction   read reconcile:road_drained msgs 0-43 → 0 accepted, 0 rejected
+2026-09-25T14:57:24.333Z reconciliation stall re-check resolved (0 evidence)
+2026-09-25T14:57:21.221Z audit        audit reconcile:road_drained msgs 0-43 scope [road_drained, tension_current] → 0 accepted, 0 rejected
+2026-09-25T14:57:42.314Z extraction   read cadence msgs 43-43 → 1 accepted, 0 rejected
+2026-09-25T14:57:42.314Z delta        tension_current = 0.22499999999999998
+2026-09-25T14:57:42.314Z delta        queued tension_current=0.22499999999999998 for the next boundary
+2026-09-25T14:57:42.314Z audit        audit cadence msgs 43-43 scope [road_drained, tension_current] → 1 accepted, 0 rejected
+2026-09-25T14:57:54.945Z boundary     applied tension_current=0, tension_current=0.22499999999999998
+2026-09-25T14:57:55.120Z boundary     boundary 8: nothing applied (gate)
+2026-09-25T14:57:55.390Z boundary     boundary 9: nothing applied (gate)
+2026-09-25T14:57:55.546Z reconciliation stall re-check queued for road_drained
+2026-09-25T14:59:25.512Z extraction   read reconcile:road_drained msgs 0-47 → 0 accepted, 0 rejected
+2026-09-25T14:59:26.476Z reconciliation stall re-check resolved (0 evidence)
+2026-09-25T14:59:25.512Z audit        audit reconcile:road_drained msgs 0-47 scope [road_drained, tension_current] → 0 accepted, 0 rejected
+2026-09-25T14:59:37.550Z extraction   read cadence msgs 44-47 → 1 accepted, 1 rejected
+2026-09-25T14:59:37.550Z delta        road_drained = false
+2026-09-25T14:59:37.550Z delta        queued road_drained=false for the next boundary
+2026-09-25T14:59:37.550Z audit        audit cadence msgs 44-47 scope [road_drained, tension_current] → 1 accepted, 1 rejected
+2026-09-25T14:59:54.738Z session      chat 2026-09-24@05h22m36s897ms · story none · at — (boundary 0, 0 messages)
+2026-09-25T14:54:47.190Z status       Following The tavern
+2026-09-25T14:54:48.098Z story        away recap not due
+2026-09-25T14:54:48.338Z status       Started SO-J8 House Rules
+2026-09-25T14:54:50.495Z status       Following The washed road
+2026-09-25T14:54:50.750Z stagecraft   Warden flagged Captain Rhee's reply (house-rule)
+2026-09-25T14:54:53.602Z stagecraft   Warden note added to this reply's prompt
+2026-09-25T14:56:29.206Z status       Following The washed road
+2026-09-25T14:56:29.599Z story        away recap not due
+2026-09-25T14:56:29.844Z status       Continuing SO-J8 House Rules
+2026-09-25T14:56:31.931Z status       Following The washed road
+2026-09-25T14:56:36.859Z payload      5 story blocks injected (generation)
+2026-09-25T14:57:00.372Z payload      5 story blocks injected (generation)
+2026-09-25T14:59:54.132Z story        restored 1 host change(s)
+2026-09-25T14:59:54.136Z status       No story selected for this chat

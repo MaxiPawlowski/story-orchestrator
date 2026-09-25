@@ -1,0 +1,89 @@
+{
+  "file": "test/scenarios/live-v24-07-meter.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "import_story",
+      "ok": true,
+      "ms": 264
+    },
+    {
+      "index": 1,
+      "key": "eval",
+      "ok": true,
+      "ms": 255
+    },
+    {
+      "index": 2,
+      "key": "eval",
+      "ok": true,
+      "ms": 227
+    },
+    {
+      "index": 3,
+      "key": "eval",
+      "ok": true,
+      "ms": 1023
+    },
+    {
+      "index": 4,
+      "key": "wait",
+      "ok": true,
+      "ms": 3185
+    },
+    {
+      "index": 5,
+      "key": "eval",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 6,
+      "key": "wait",
+      "ok": true,
+      "ms": 3180
+    },
+    {
+      "index": 7,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 8,
+      "key": "eval",
+      "ok": true,
+      "ms": 11
+    }
+  ],
+  "ok": true,
+  "error": null,
+  "retries": [],
+  "firstAttempt": "pass",
+  "cleanup": {
+    "kept": true,
+    "sandboxChatId": "2026-09-25@12h21m55s260ms",
+    "owned": [
+      "2026-09-25@12h21m55s260ms"
+    ],
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": true,
+      "ok": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

@@ -1,0 +1,229 @@
+{
+  "id": "J4",
+  "title": "return-and-adopt",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j4-return-and-adopt.journey.json",
+  "ranAt": "2026-09-25T10:34:03.992Z",
+  "strict": true,
+  "partial": false,
+  "only": null,
+  "tally": {
+    "pass": 5,
+    "skipped": 2
+  },
+  "tallies": {
+    "automated": {
+      "pass": 5,
+      "fail": 0,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 2
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 5,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [],
+  "humanRecord": null,
+  "runnerError": null,
+  "releasedRoutes": null,
+  "capabilities": {
+    "away-recap": true,
+    "memorize-backlog": true
+  },
+  "results": [
+    {
+      "id": "J4.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "a chat played before the gap exists to return to",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J4.2",
+      "mode": "auto",
+      "findings": [],
+      "goal": "reopening the chat after a simulated multi-day gap shows the away recap",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J4.3",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the recap names the checkpoint the player left off at, then dismisses cleanly",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J4.4",
+      "mode": "auto",
+      "findings": [],
+      "goal": "mid-chat adoption: memorizing the backlog fills memory from history already in the chat (real model)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J4.5",
+      "mode": "human",
+      "findings": [
+        "U4"
+      ],
+      "goal": "",
+      "prompt": "After the gap, did the recap actually put you back in the story — enough to take your next turn without scrolling up?",
+      "anchors": "1 = useless · 3 = reminded me of the checkpoint only · 5 = I knew exactly where I was and what was open",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    },
+    {
+      "id": "J4.6",
+      "mode": "human",
+      "findings": [],
+      "goal": "",
+      "prompt": "Adopting an already-running chat: was it clear that the extension had caught up on what happened before?",
+      "anchors": "1 = no idea whether it worked · 3 = saw it finish · 5 = obvious, and the story used what it learned",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    },
+    {
+      "id": "J4.7",
+      "mode": "auto",
+      "findings": [
+        "S3"
+      ],
+      "goal": "the recap never outlives the chat it describes: a brand-new chat is not blocked by it",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    }
+  ],
+  "cleanup": {
+    "judgeCalls": {
+      "count": 0,
+      "events": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 2,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [],
+      "preservedSessions": []
+    },
+    "keptPreExistingStories": [
+      "v2-ea8a94f1"
+    ],
+    "chat": {
+      "sandboxChatId": "2026-09-25@07h32m58s511ms",
+      "owned": [
+        "2026-09-25@07h32m58s511ms",
+        "2026-09-25@07h33m51s487ms"
+      ],
+      "deleted": [
+        "2026-09-25@07h32m58s511ms",
+        "2026-09-25@07h33m51s487ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-25@07h33m51s487ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-24@04h05m33s739ms"
+    },
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "member:DM Narrator": {
+      "enabled": true
+    },
+    "member:Arin": {
+      "enabled": true
+    },
+    "member:Ponticius": {
+      "enabled": true
+    },
+    "member:Luke": {
+      "enabled": true
+    },
+    "disabledMembers": []
+  }
+}

@@ -1,0 +1,87 @@
+1/19 eval ok 7ms
+1/19 eval -> {"greetingsCleared":1}
+2/19 eval ok 6ms
+3/19 import_story ok 290ms
+4/19 eval ok 9ms
+5/19 send ok 1746ms
+6/19 extract ok 829ms
+7/19 send ok 1672ms
+8/19 extract ok 850ms
+9/19 send ok 1677ms
+10/19 extract ok 850ms
+11/19 eval ok 4ms
+11/19 eval -> {"values":{"took_key":true,"lit_lamp":true,"found_map":true},"boundary":3}
+12/19 record_state ok 6ms
+12/19 record_state -> {"as":"before-edit","boundary":3,"active":"start","rows":{"memory":3,"epistemic":0,"ledger":0}}
+13/19 eval ok 638ms
+13/19 eval -> {"unchanged":true,"events":[["MESSAGE_EDITED",1],["MESSAGE_UPDATED",1]]}
+14/19 wait ok 1535ms
+15/19 expect ok 7ms
+16/19 expect ok 18ms
+17/19 edit ok 129ms
+18/19 wait ok 1530ms
+19/19 expect ok 5ms
+19/19 expect -> {"rollbackOutcome":{"rollbackOutcome":{"result":"applied","fromMessage":2,"since":"before-edit"},"last":{"seq":2,"result":"applied","fromMessage":2,"at":"2026-09-25T11:29:42.882Z"},"sinceSeq":1}}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T11-29-48-556Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 19,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@08h29m32s138ms",
+    "owned": [
+      "2026-09-25@08h29m32s138ms"
+    ],
+    "deleted": [
+      "2026-09-25@08h29m32s138ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@08h29m32s138ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

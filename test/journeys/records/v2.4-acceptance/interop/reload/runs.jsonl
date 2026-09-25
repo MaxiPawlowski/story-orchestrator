@@ -1,0 +1,6 @@
+{"row":"reload","fixture":"test/scenarios/v24-acc-I7.json","run":1,"code":0,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T11:26:46Z","ended":"2026-09-25T11:27:23Z"}
+{"row":"reload","fixture":"test/scenarios/v24-acc-I7.json","run":2,"code":0,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T11:27:48Z","ended":"2026-09-25T11:28:25Z"}
+{"row":"reload","fixture":"test/scenarios/v24-02-same-chat-reload.json","run":1,"code":0,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T11:28:30Z","ended":"2026-09-25T11:28:43Z"}
+{"row":"reload","fixture":"test/scenarios/v24-02-same-chat-reload.json","run":2,"code":0,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T11:28:48Z","ended":"2026-09-25T11:29:02Z"}
+{"row":"reload","fixture":"test/scenarios/v24-acc-A-reload-blocks.json","run":1,"code":1,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T11:59:25Z","ended":"2026-09-25T11:59:50Z"}
+{"row":"reload","fixture":"test/scenarios/v24-acc-A-reload-blocks-control.json","run":1,"code":0,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T12:00:11Z","ended":"2026-09-25T12:00:44Z"}

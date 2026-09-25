@@ -1,0 +1,532 @@
+Following the session journal → C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\test\journeys\records\v2.4-acceptance\J6\run3\journal-follow.jsonl every 1000 ms. Ctrl-C to stop.
+2026-09-25T11:06:09.909Z session      chat 2026-09-24@04h05m33s739ms · story none · at — (boundary 0, 7 messages)
+2026-09-25T11:03:45.155Z story        away recap not due
+2026-09-25T11:03:45.368Z status       Started v24-01 Delete Decode
+2026-09-25T11:03:47.971Z status       Following Start
+2026-09-25T11:03:53.247Z story        eventless change at message 1
+2026-09-25T11:03:53.680Z status       Stepped back to Start
+2026-09-25T11:03:55.540Z status       Following Start
+2026-09-25T11:03:58.983Z status       No story selected for this chat
+2026-09-25T11:06:25.075Z session      chat 2026-09-25@08h06m24s697ms · story none · at — (boundary 0, 1 messages)
+2026-09-25T11:03:45.155Z story        away recap not due
+2026-09-25T11:03:45.368Z status       Started v24-01 Delete Decode
+2026-09-25T11:03:47.971Z status       Following Start
+2026-09-25T11:03:53.247Z story        eventless change at message 1
+2026-09-25T11:03:53.680Z status       Stepped back to Start
+2026-09-25T11:03:55.540Z status       Following Start
+2026-09-25T11:03:58.983Z status       No story selected for this chat
+2026-09-25T11:06:27.094Z session      chat 2026-09-25@08h06m24s697ms · story sun-ruins · at Investigate the Job Board (boundary 0, 1 messages)
+2026-09-25T11:06:27.576Z story        away recap not due
+2026-09-25T11:06:27.790Z status       Started Quest for the Sun Ruins
+2026-09-25T11:06:27.796Z story        quality macro skipped
+2026-09-25T11:06:27.796Z story        quality macro skipped
+2026-09-25T11:06:29.774Z payload      1 story blocks injected (generation)
+2026-09-25T11:06:57.624Z boundary     boundary 1: nothing applied (gate)
+2026-09-25T11:06:57.746Z status       Following Investigate the Job Board
+2026-09-25T11:07:00.285Z extraction   read scenario msgs 0-2 → 1 accepted, 0 rejected
+2026-09-25T11:07:00.285Z delta        approached_board = true
+2026-09-25T11:07:00.404Z boundary     applied approached_board=true
+2026-09-25T11:07:00.404Z transition   cp1 → cp2
+2026-09-25T11:07:00.285Z audit        audit scenario msgs 0-2 scope [approached_board, artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 1 accepted, 0 rejected
+2026-09-25T11:07:01.210Z payload      1 story blocks injected (generation)
+2026-09-25T11:07:20.820Z delta        queued approached_board=true, tension_current=0 for the next boundary
+2026-09-25T11:07:20.609Z extraction   read cue:cp1->cp2 msgs 0-2 → 2 accepted, 0 rejected
+2026-09-25T11:07:20.609Z delta        approached_board = true
+2026-09-25T11:07:20.609Z delta        tension_current = 0
+2026-09-25T11:07:20.609Z delta        queued approached_board=true, tension_current=0 for the next boundary
+2026-09-25T11:07:20.609Z audit        audit cue:cp1->cp2 msgs 0-2 scope [approached_board, artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 2 accepted, 0 rejected
+2026-09-25T11:07:33.112Z payload      1 story blocks injected (generation)
+2026-09-25T11:07:33.112Z status       Moved into Accept the Mission
+2026-09-25T11:08:01.342Z extraction   read scene:cast msgs 0-2 → 0 accepted, 8 rejected
+2026-09-25T11:08:01.342Z audit        audit scene:cast msgs 0-2 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 0 accepted, 8 rejected
+2026-09-25T11:08:08.183Z boundary     applied approached_board=true, tension_current=0
+2026-09-25T11:08:08.305Z status       Following Accept the Mission
+2026-09-25T11:08:08.311Z boundary     boundary 4: nothing applied (gate)
+2026-09-25T11:08:09.703Z payload      2 story blocks injected (generation)
+2026-09-25T11:08:15.327Z extraction   read scene:cast msgs 0-2 → 3 accepted, 1 rejected
+2026-09-25T11:08:15.327Z delta        chamber_entered = false
+2026-09-25T11:08:15.327Z delta        mission_accepted = false
+2026-09-25T11:08:15.327Z delta        tension_current = 0
+2026-09-25T11:08:15.327Z delta        queued chamber_entered=false, mission_accepted=false, tension_current=0 for the next boundary
+2026-09-25T11:08:15.327Z audit        audit scene:cast msgs 0-2 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 3 accepted, 1 rejected
+2026-09-25T11:08:39.450Z extraction   read cadence msgs 0-5 → 0 accepted, 1 rejected
+2026-09-25T11:08:39.450Z audit        audit cadence msgs 0-5 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 0 accepted, 1 rejected
+2026-09-25T11:08:57.656Z boundary     applied chamber_entered=false, mission_accepted=false, tension_current=0
+2026-09-25T11:08:57.785Z boundary     boundary 6: nothing applied (gate)
+2026-09-25T11:09:13.605Z extraction   read cadence msgs 6-8 → 0 accepted, 1 rejected
+2026-09-25T11:09:13.605Z audit        audit cadence msgs 6-8 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 0 accepted, 1 rejected
+2026-09-25T11:09:19.596Z story        restored 5 host change(s)
+2026-09-25T11:09:20.687Z status       Stepped back to Investigate the Job Board
+2026-09-25T11:09:21.222Z story        extraction read lapsed: rollback:0
+2026-09-25T11:09:24.560Z payload      1 story blocks injected (generation)
+2026-09-25T11:09:27.550Z extraction   read reread:lapsed msgs 0-0 → 2 accepted, 0 rejected
+2026-09-25T11:09:27.550Z delta        approached_board = false
+2026-09-25T11:09:27.550Z delta        tension_current = 0
+2026-09-25T11:09:27.550Z delta        queued approached_board=false, tension_current=0 for the next boundary
+2026-09-25T11:09:27.550Z audit        audit reread:lapsed msgs 0-0 scope [approached_board, artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 2 accepted, 0 rejected
+2026-09-25T11:09:41.011Z boundary     applied approached_board=false, tension_current=0
+2026-09-25T11:09:41.136Z status       Following Investigate the Job Board
+2026-09-25T11:09:42.488Z extraction   read scenario msgs 0-2 → 1 accepted, 0 rejected
+2026-09-25T11:09:42.488Z delta        approached_board = true
+2026-09-25T11:09:42.972Z boundary     applied approached_board=true
+2026-09-25T11:09:42.972Z transition   cp1 → cp2
+2026-09-25T11:09:42.488Z audit        audit scenario msgs 0-2 scope [approached_board, artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 1 accepted, 0 rejected
+2026-09-25T11:09:43.821Z status       Moved into Accept the Mission
+2026-09-25T11:09:45.463Z payload      2 story blocks injected (generation)
+2026-09-25T11:09:49.350Z extraction   read cue:cp1->cp2 msgs 0-2 → 2 accepted, 0 rejected
+2026-09-25T11:09:49.350Z delta        approached_board = true
+2026-09-25T11:09:49.350Z delta        tension_current = 0
+2026-09-25T11:09:49.350Z delta        queued approached_board=true, tension_current=0 for the next boundary
+2026-09-25T11:09:49.350Z audit        audit cue:cp1->cp2 msgs 0-2 scope [approached_board, artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 2 accepted, 0 rejected
+2026-09-25T11:10:18.663Z delta        queued tension_current=0 for the next boundary
+2026-09-25T11:10:18.359Z extraction   read scene:cast msgs 0-2 → 1 accepted, 0 rejected
+2026-09-25T11:10:18.359Z delta        tension_current = 0
+2026-09-25T11:10:18.359Z delta        queued tension_current=0 for the next boundary
+2026-09-25T11:10:18.359Z audit        audit scene:cast msgs 0-2 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 1 accepted, 0 rejected
+2026-09-25T11:10:27.357Z extraction   read scene:cast msgs 0-2 → 1 accepted, 0 rejected
+2026-09-25T11:10:27.357Z delta        tension_current = 0
+2026-09-25T11:10:27.357Z delta        queued tension_current=0 for the next boundary
+2026-09-25T11:10:27.357Z audit        audit scene:cast msgs 0-2 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 1 accepted, 0 rejected
+2026-09-25T11:10:28.543Z payload      2 story blocks injected (generation)
+2026-09-25T11:10:48.817Z boundary     applied tension_current=0; discarded approached_board=true, tension_current=0, tension_current=0 (superseded)
+2026-09-25T11:10:48.941Z status       Following Accept the Mission
+2026-09-25T11:10:48.947Z boundary     boundary 4: nothing applied (gate)
+2026-09-25T11:10:53.812Z session      chat null · story none · at — (boundary 0, 0 messages)
+2026-09-25T11:10:53.573Z status       No story loaded
+2026-09-25T11:10:53.575Z status       No story selected for this chat
+2026-09-25T11:10:55.849Z session      chat 2026-09-25@08h06m24s697ms · story sun-ruins · at Accept the Mission (boundary 4, 7 messages)
+2026-09-25T11:10:55.220Z story        host change "cast" was reverted when this chat reloaded
+2026-09-25T11:10:55.562Z story        away recap not due
+2026-09-25T11:10:55.794Z status       Continuing Quest for the Sun Ruins
+2026-09-25T11:10:55.798Z story        quality macro skipped
+2026-09-25T11:10:55.798Z story        quality macro skipped
+2026-09-25T11:10:58.087Z story        restored 4 host change(s)
+2026-09-25T11:10:58.901Z status       Stepped back to Investigate the Job Board
+2026-09-25T11:11:01.188Z payload      1 story blocks injected (generation)
+2026-09-25T11:11:21.146Z delta        queued approached_board=true for the next boundary
+2026-09-25T11:11:22.153Z delta        queued approached_board=true for the next boundary
+2026-09-25T11:11:21.108Z extraction   read rollback:0 msgs 0-6 → 1 accepted, 1 rejected
+2026-09-25T11:11:21.108Z delta        approached_board = true
+2026-09-25T11:11:21.108Z delta        queued approached_board=true for the next boundary
+2026-09-25T11:11:21.108Z audit        audit rollback:0 msgs 0-6 scope [approached_board, artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 1 accepted, 1 rejected
+2026-09-25T11:11:34.511Z boundary     applied approached_board=true
+2026-09-25T11:11:34.511Z transition   cp1 → cp2
+2026-09-25T11:11:36.772Z status       Moved into Accept the Mission
+2026-09-25T11:11:37.182Z extraction   read scenario msgs 2-9 → 0 accepted, 1 rejected
+2026-09-25T11:11:37.313Z boundary     boundary 2: nothing applied (gate)
+2026-09-25T11:11:37.182Z audit        audit scenario msgs 2-9 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 0 accepted, 1 rejected
+2026-09-25T11:11:37.439Z status       Following Accept the Mission
+2026-09-25T11:11:41.135Z payload      2 story blocks injected (generation)
+2026-09-25T11:11:41.159Z payload      3 story blocks injected (generation)
+2026-09-25T11:12:01.381Z extraction   read scene:divider msgs 1-8 → 0 accepted, 1 rejected
+2026-09-25T11:12:01.381Z audit        audit scene:divider msgs 1-8 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 0 accepted, 1 rejected
+2026-09-25T11:12:13.810Z payload      2 story blocks injected (generation)
+2026-09-25T11:12:46.260Z extraction   read scene:divider msgs 2-9 → 0 accepted, 1 rejected
+2026-09-25T11:12:46.260Z audit        audit scene:divider msgs 2-9 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 0 accepted, 1 rejected
+2026-09-25T11:12:58.962Z boundary     boundary 3: nothing applied (gate)
+2026-09-25T11:12:58.994Z payload      2 story blocks injected (generation)
+2026-09-25T11:12:59.124Z boundary     boundary 4: nothing applied (gate)
+2026-09-25T11:13:24.418Z extraction   read scenario msgs 5-12 → 0 accepted, 1 rejected
+2026-09-25T11:13:24.552Z boundary     boundary 5: nothing applied (gate)
+2026-09-25T11:13:24.418Z audit        audit scenario msgs 5-12 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 0 accepted, 1 rejected
+2026-09-25T11:13:26.833Z status       Following Accept the Mission
+2026-09-25T11:13:27.226Z story        away recap not due
+2026-09-25T11:13:27.450Z status       Continuing Quest for the Sun Ruins
+2026-09-25T11:13:29.163Z boundary     boundary 6: nothing applied (gate)
+2026-09-25T11:13:29.282Z status       Following Accept the Mission
+2026-09-25T11:13:29.298Z boundary     boundary 7: nothing applied (gate)
+2026-09-25T11:13:29.723Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:29.735Z boundary     boundary 8: nothing applied (gate)
+2026-09-25T11:13:30.171Z boundary     boundary 9: nothing applied (gate)
+2026-09-25T11:13:30.406Z boundary     boundary 10: nothing applied (gate)
+2026-09-25T11:13:30.727Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:30.747Z boundary     boundary 11: nothing applied (gate)
+2026-09-25T11:13:30.979Z boundary     boundary 12: nothing applied (gate)
+2026-09-25T11:13:31.209Z boundary     boundary 13: nothing applied (gate)
+2026-09-25T11:13:31.427Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:31.439Z boundary     boundary 14: nothing applied (gate)
+2026-09-25T11:13:31.864Z boundary     boundary 15: nothing applied (gate)
+2026-09-25T11:13:32.099Z boundary     boundary 16: nothing applied (gate)
+2026-09-25T11:13:32.328Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:32.340Z boundary     boundary 17: nothing applied (gate)
+2026-09-25T11:13:32.774Z boundary     boundary 18: nothing applied (gate)
+2026-09-25T11:13:33.017Z boundary     boundary 19: nothing applied (gate)
+2026-09-25T11:13:33.238Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:33.249Z boundary     boundary 20: nothing applied (gate)
+2026-09-25T11:13:33.690Z boundary     boundary 21: nothing applied (gate)
+2026-09-25T11:13:34.025Z boundary     boundary 22: nothing applied (gate)
+2026-09-25T11:13:34.244Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:34.258Z boundary     boundary 23: nothing applied (gate)
+2026-09-25T11:13:34.691Z boundary     boundary 24: nothing applied (gate)
+2026-09-25T11:13:34.930Z boundary     boundary 25: nothing applied (gate)
+2026-09-25T11:13:35.155Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:35.165Z boundary     boundary 26: nothing applied (gate)
+2026-09-25T11:13:35.606Z boundary     boundary 27: nothing applied (gate)
+2026-09-25T11:13:35.844Z boundary     boundary 28: nothing applied (gate)
+2026-09-25T11:13:36.069Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:36.080Z boundary     boundary 29: nothing applied (gate)
+2026-09-25T11:13:36.515Z boundary     boundary 30: nothing applied (gate)
+2026-09-25T11:13:36.754Z boundary     boundary 31: nothing applied (gate)
+2026-09-25T11:13:37.073Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:37.084Z boundary     boundary 32: nothing applied (gate)
+2026-09-25T11:13:37.517Z boundary     boundary 33: nothing applied (gate)
+2026-09-25T11:13:37.754Z boundary     boundary 34: nothing applied (gate)
+2026-09-25T11:13:37.980Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:37.991Z boundary     boundary 35: nothing applied (gate)
+2026-09-25T11:13:38.427Z boundary     boundary 36: nothing applied (gate)
+2026-09-25T11:13:38.661Z boundary     boundary 37: nothing applied (gate)
+2026-09-25T11:13:38.887Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:38.897Z boundary     boundary 38: nothing applied (gate)
+2026-09-25T11:13:39.333Z boundary     boundary 39: nothing applied (gate)
+2026-09-25T11:13:39.569Z boundary     boundary 40: nothing applied (gate)
+2026-09-25T11:13:39.799Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:39.812Z boundary     boundary 41: nothing applied (gate)
+2026-09-25T11:13:40.341Z boundary     boundary 42: nothing applied (gate)
+2026-09-25T11:13:40.576Z boundary     boundary 43: nothing applied (gate)
+2026-09-25T11:13:40.806Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:40.818Z boundary     boundary 44: nothing applied (gate)
+2026-09-25T11:13:41.252Z boundary     boundary 45: nothing applied (gate)
+2026-09-25T11:13:41.490Z boundary     boundary 46: nothing applied (gate)
+2026-09-25T11:13:41.717Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:41.732Z boundary     boundary 47: nothing applied (gate)
+2026-09-25T11:13:42.162Z boundary     boundary 48: nothing applied (gate)
+2026-09-25T11:13:42.392Z boundary     boundary 49: nothing applied (gate)
+2026-09-25T11:13:42.620Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:42.630Z boundary     boundary 50: nothing applied (gate)
+2026-09-25T11:13:43.076Z boundary     boundary 51: nothing applied (gate)
+2026-09-25T11:13:43.414Z boundary     boundary 52: nothing applied (gate)
+2026-09-25T11:13:43.638Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:43.648Z boundary     boundary 53: nothing applied (gate)
+2026-09-25T11:13:44.083Z boundary     boundary 54: nothing applied (gate)
+2026-09-25T11:13:44.321Z boundary     boundary 55: nothing applied (gate)
+2026-09-25T11:13:44.552Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:44.565Z boundary     boundary 56: nothing applied (gate)
+2026-09-25T11:13:44.998Z boundary     boundary 57: nothing applied (gate)
+2026-09-25T11:13:45.235Z boundary     boundary 58: nothing applied (gate)
+2026-09-25T11:13:45.463Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:45.473Z boundary     boundary 59: nothing applied (gate)
+2026-09-25T11:13:45.910Z boundary     boundary 60: nothing applied (gate)
+2026-09-25T11:13:46.149Z boundary     boundary 61: nothing applied (gate)
+2026-09-25T11:13:46.484Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:46.494Z boundary     boundary 62: nothing applied (gate)
+2026-09-25T11:13:46.934Z boundary     boundary 63: nothing applied (gate)
+2026-09-25T11:13:47.166Z boundary     boundary 64: nothing applied (gate)
+2026-09-25T11:13:47.392Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:47.403Z boundary     boundary 65: nothing applied (gate)
+2026-09-25T11:13:47.840Z boundary     boundary 66: nothing applied (gate)
+2026-09-25T11:13:48.075Z boundary     boundary 67: nothing applied (gate)
+2026-09-25T11:13:48.300Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:48.311Z boundary     boundary 68: nothing applied (gate)
+2026-09-25T11:13:48.744Z boundary     boundary 69: nothing applied (gate)
+2026-09-25T11:13:48.978Z boundary     boundary 70: nothing applied (gate)
+2026-09-25T11:13:49.204Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:49.217Z boundary     boundary 71: nothing applied (gate)
+2026-09-25T11:13:49.757Z boundary     boundary 72: nothing applied (gate)
+2026-09-25T11:13:49.993Z boundary     boundary 73: nothing applied (gate)
+2026-09-25T11:13:50.219Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:50.231Z boundary     boundary 74: nothing applied (gate)
+2026-09-25T11:13:50.672Z boundary     boundary 75: nothing applied (gate)
+2026-09-25T11:13:50.921Z boundary     boundary 76: nothing applied (gate)
+2026-09-25T11:13:51.160Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:51.170Z boundary     boundary 77: nothing applied (gate)
+2026-09-25T11:13:51.603Z boundary     boundary 78: nothing applied (gate)
+2026-09-25T11:13:51.838Z boundary     boundary 79: nothing applied (gate)
+2026-09-25T11:13:52.066Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:52.077Z boundary     applied tension_current=0
+2026-09-25T11:13:52.515Z boundary     boundary 81: nothing applied (gate)
+2026-09-25T11:13:51.960Z extraction   read cadence msgs 6-13 → 1 accepted, 0 rejected
+2026-09-25T11:13:51.960Z delta        tension_current = 0
+2026-09-25T11:13:52.856Z boundary     boundary 82: nothing applied (gate)
+2026-09-25T11:13:53.081Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:53.093Z boundary     boundary 83: nothing applied (gate)
+2026-09-25T11:13:53.531Z boundary     boundary 84: nothing applied (gate)
+2026-09-25T11:13:53.683Z boundary     boundary 85: nothing applied (gate)
+2026-09-25T11:13:51.960Z audit        audit cadence msgs 6-13 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 1 accepted, 0 rejected
+2026-09-25T11:13:53.913Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:53.926Z boundary     boundary 86: nothing applied (gate)
+2026-09-25T11:13:54.368Z boundary     boundary 87: nothing applied (gate)
+2026-09-25T11:13:54.599Z boundary     boundary 88: nothing applied (gate)
+2026-09-25T11:13:54.825Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:54.836Z boundary     boundary 89: nothing applied (gate)
+2026-09-25T11:13:55.272Z boundary     boundary 90: nothing applied (gate)
+2026-09-25T11:13:55.508Z boundary     boundary 91: nothing applied (gate)
+2026-09-25T11:13:55.847Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:55.862Z boundary     boundary 92: nothing applied (gate)
+2026-09-25T11:13:56.307Z boundary     boundary 93: nothing applied (gate)
+2026-09-25T11:13:56.540Z boundary     boundary 94: nothing applied (gate)
+2026-09-25T11:13:56.769Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:56.780Z boundary     boundary 95: nothing applied (gate)
+2026-09-25T11:13:57.221Z boundary     boundary 96: nothing applied (gate)
+2026-09-25T11:13:57.467Z boundary     boundary 97: nothing applied (gate)
+2026-09-25T11:13:57.700Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:57.712Z boundary     boundary 98: nothing applied (gate)
+2026-09-25T11:13:58.145Z boundary     boundary 99: nothing applied (gate)
+2026-09-25T11:13:58.386Z boundary     boundary 100: nothing applied (gate)
+2026-09-25T11:13:58.615Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:58.628Z boundary     boundary 101: nothing applied (gate)
+2026-09-25T11:13:59.173Z boundary     boundary 102: nothing applied (gate)
+2026-09-25T11:13:59.409Z boundary     boundary 103: nothing applied (gate)
+2026-09-25T11:13:59.638Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:13:59.648Z boundary     boundary 104: nothing applied (gate)
+2026-09-25T11:14:00.085Z boundary     boundary 105: nothing applied (gate)
+2026-09-25T11:14:00.322Z boundary     boundary 106: nothing applied (gate)
+2026-09-25T11:14:00.546Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:00.557Z boundary     boundary 107: nothing applied (gate)
+2026-09-25T11:14:00.996Z boundary     boundary 108: nothing applied (gate)
+2026-09-25T11:14:01.230Z boundary     boundary 109: nothing applied (gate)
+2026-09-25T11:14:01.459Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:01.470Z boundary     boundary 110: nothing applied (gate)
+2026-09-25T11:14:01.914Z boundary     boundary 111: nothing applied (gate)
+2026-09-25T11:14:02.268Z boundary     boundary 112: nothing applied (gate)
+2026-09-25T11:14:02.504Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:02.515Z boundary     boundary 113: nothing applied (gate)
+2026-09-25T11:14:02.956Z boundary     boundary 114: nothing applied (gate)
+2026-09-25T11:14:03.207Z boundary     boundary 115: nothing applied (gate)
+2026-09-25T11:14:03.447Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:03.458Z boundary     boundary 116: nothing applied (gate)
+2026-09-25T11:14:03.893Z boundary     boundary 117: nothing applied (gate)
+2026-09-25T11:14:04.130Z boundary     boundary 118: nothing applied (gate)
+2026-09-25T11:14:04.359Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:04.371Z boundary     boundary 119: nothing applied (gate)
+2026-09-25T11:14:04.807Z boundary     boundary 120: nothing applied (gate)
+2026-09-25T11:14:05.068Z boundary     boundary 121: nothing applied (gate)
+2026-09-25T11:14:05.411Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:05.427Z boundary     boundary 122: nothing applied (gate)
+2026-09-25T11:14:05.869Z boundary     boundary 123: nothing applied (gate)
+2026-09-25T11:14:06.117Z boundary     boundary 124: nothing applied (gate)
+2026-09-25T11:14:06.357Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:06.369Z boundary     boundary 125: nothing applied (gate)
+2026-09-25T11:14:06.805Z boundary     boundary 126: nothing applied (gate)
+2026-09-25T11:14:07.042Z boundary     boundary 127: nothing applied (gate)
+2026-09-25T11:14:07.274Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:07.285Z boundary     boundary 128: nothing applied (gate)
+2026-09-25T11:14:07.731Z boundary     boundary 129: nothing applied (gate)
+2026-09-25T11:14:07.972Z boundary     boundary 130: nothing applied (gate)
+2026-09-25T11:14:08.212Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:08.229Z boundary     boundary 131: nothing applied (gate)
+2026-09-25T11:14:08.768Z boundary     boundary 132: nothing applied (gate)
+2026-09-25T11:14:09.021Z boundary     boundary 133: nothing applied (gate)
+2026-09-25T11:14:09.257Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:09.269Z boundary     boundary 134: nothing applied (gate)
+2026-09-25T11:14:09.718Z boundary     boundary 135: nothing applied (gate)
+2026-09-25T11:14:09.957Z boundary     boundary 136: nothing applied (gate)
+2026-09-25T11:14:10.185Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:10.198Z boundary     boundary 137: nothing applied (gate)
+2026-09-25T11:14:10.635Z boundary     boundary 138: nothing applied (gate)
+2026-09-25T11:14:10.877Z boundary     boundary 139: nothing applied (gate)
+2026-09-25T11:14:11.116Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:11.129Z boundary     boundary 140: nothing applied (gate)
+2026-09-25T11:14:11.568Z boundary     boundary 141: nothing applied (gate)
+2026-09-25T11:14:11.914Z boundary     boundary 142: nothing applied (gate)
+2026-09-25T11:14:12.151Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:12.163Z boundary     boundary 143: nothing applied (gate)
+2026-09-25T11:14:12.606Z boundary     boundary 144: nothing applied (gate)
+2026-09-25T11:14:12.855Z boundary     boundary 145: nothing applied (gate)
+2026-09-25T11:14:13.098Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:13.110Z boundary     boundary 146: nothing applied (gate)
+2026-09-25T11:14:13.560Z boundary     boundary 147: nothing applied (gate)
+2026-09-25T11:14:13.796Z boundary     boundary 148: nothing applied (gate)
+2026-09-25T11:14:14.024Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:14.036Z boundary     boundary 149: nothing applied (gate)
+2026-09-25T11:14:14.487Z boundary     boundary 150: nothing applied (gate)
+2026-09-25T11:14:14.730Z boundary     boundary 151: nothing applied (gate)
+2026-09-25T11:14:15.063Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:15.078Z boundary     applied tension_current=0.075
+2026-09-25T11:14:14.963Z extraction   read reconcile:mission_accepted msgs 9-13 → 1 accepted, 0 rejected
+2026-09-25T11:14:14.963Z delta        tension_current = 0.075
+2026-09-25T11:14:15.523Z boundary     boundary 153: nothing applied (gate)
+2026-09-25T11:14:15.585Z reconciliation stall re-check resolved (1 evidence)
+2026-09-25T11:14:15.781Z boundary     boundary 154: nothing applied (gate)
+2026-09-25T11:14:16.013Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:16.029Z boundary     boundary 155: nothing applied (gate)
+2026-09-25T11:14:14.963Z audit        audit reconcile:mission_accepted msgs 9-13 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 1 accepted, 0 rejected
+2026-09-25T11:14:16.479Z boundary     boundary 156: nothing applied (gate)
+2026-09-25T11:14:16.621Z boundary     boundary 157: nothing applied (gate)
+2026-09-25T11:14:16.860Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:16.873Z boundary     boundary 158: nothing applied (gate)
+2026-09-25T11:14:17.325Z boundary     boundary 159: nothing applied (gate)
+2026-09-25T11:14:17.584Z boundary     boundary 160: nothing applied (gate)
+2026-09-25T11:14:17.829Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:17.851Z boundary     boundary 161: nothing applied (gate)
+2026-09-25T11:14:18.395Z boundary     boundary 162: nothing applied (gate)
+2026-09-25T11:14:18.637Z boundary     boundary 163: nothing applied (gate)
+2026-09-25T11:14:18.875Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:18.889Z boundary     boundary 164: nothing applied (gate)
+2026-09-25T11:14:19.335Z boundary     boundary 165: nothing applied (gate)
+2026-09-25T11:14:19.581Z boundary     boundary 166: nothing applied (gate)
+2026-09-25T11:14:19.832Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:19.844Z boundary     boundary 167: nothing applied (gate)
+2026-09-25T11:14:20.216Z boundary     boundary 168: nothing applied (gate)
+2026-09-25T11:14:20.478Z boundary     boundary 169: nothing applied (gate)
+2026-09-25T11:14:20.729Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:20.741Z boundary     boundary 170: nothing applied (gate)
+2026-09-25T11:14:21.193Z boundary     boundary 171: nothing applied (gate)
+2026-09-25T11:14:21.538Z boundary     boundary 172: nothing applied (gate)
+2026-09-25T11:14:21.779Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:21.793Z boundary     boundary 173: nothing applied (gate)
+2026-09-25T11:14:22.245Z boundary     boundary 174: nothing applied (gate)
+2026-09-25T11:14:22.499Z boundary     boundary 175: nothing applied (gate)
+2026-09-25T11:14:22.742Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:22.754Z boundary     boundary 176: nothing applied (gate)
+2026-09-25T11:14:23.201Z boundary     boundary 177: nothing applied (gate)
+2026-09-25T11:14:23.454Z boundary     boundary 178: nothing applied (gate)
+2026-09-25T11:14:23.692Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:23.704Z boundary     boundary 179: nothing applied (gate)
+2026-09-25T11:14:24.158Z boundary     boundary 180: nothing applied (gate)
+2026-09-25T11:14:24.411Z boundary     boundary 181: nothing applied (gate)
+2026-09-25T11:14:24.743Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:24.756Z boundary     boundary 182: nothing applied (gate)
+2026-09-25T11:14:25.197Z boundary     boundary 183: nothing applied (gate)
+2026-09-25T11:14:25.457Z boundary     boundary 184: nothing applied (gate)
+2026-09-25T11:14:25.695Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:25.713Z boundary     boundary 185: nothing applied (gate)
+2026-09-25T11:14:26.162Z boundary     boundary 186: nothing applied (gate)
+2026-09-25T11:14:26.409Z boundary     boundary 187: nothing applied (gate)
+2026-09-25T11:14:26.652Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:26.673Z boundary     boundary 188: nothing applied (gate)
+2026-09-25T11:14:27.020Z boundary     boundary 189: nothing applied (gate)
+2026-09-25T11:14:27.273Z boundary     boundary 190: nothing applied (gate)
+2026-09-25T11:14:27.516Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:27.532Z boundary     boundary 191: nothing applied (gate)
+2026-09-25T11:14:28.078Z boundary     boundary 192: nothing applied (gate)
+2026-09-25T11:14:28.332Z boundary     boundary 193: nothing applied (gate)
+2026-09-25T11:14:28.579Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:28.592Z boundary     boundary 194: nothing applied (gate)
+2026-09-25T11:14:29.052Z boundary     boundary 195: nothing applied (gate)
+2026-09-25T11:14:29.297Z boundary     boundary 196: nothing applied (gate)
+2026-09-25T11:14:29.534Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:29.546Z boundary     boundary 197: nothing applied (gate)
+2026-09-25T11:14:29.987Z boundary     boundary 198: nothing applied (gate)
+2026-09-25T11:14:30.242Z boundary     boundary 199: nothing applied (gate)
+2026-09-25T11:14:30.485Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:30.501Z boundary     boundary 200: nothing applied (gate)
+2026-09-25T11:14:30.949Z boundary     boundary 201: nothing applied (gate)
+2026-09-25T11:14:31.294Z boundary     boundary 202: nothing applied (gate)
+2026-09-25T11:14:31.536Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:31.549Z boundary     boundary 203: nothing applied (gate)
+2026-09-25T11:14:32.001Z boundary     boundary 204: nothing applied (gate)
+2026-09-25T11:14:32.254Z boundary     boundary 205: nothing applied (gate)
+2026-09-25T11:14:32.499Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:32.515Z boundary     boundary 206: nothing applied (gate)
+2026-09-25T11:14:32.959Z boundary     boundary 207: nothing applied (gate)
+2026-09-25T11:14:33.210Z boundary     boundary 208: nothing applied (gate)
+2026-09-25T11:14:33.445Z reconciliation stall re-check queued for mission_accepted
+2026-09-25T11:14:33.457Z boundary     boundary 209: nothing applied (gate)
+2026-09-25T11:14:33.631Z boundary     boundary 210: nothing applied (gate)
+2026-09-25T11:14:34.024Z story        edit past the retained history
+2026-09-25T11:14:34.029Z story        extraction read lapsed: reconcile:mission_accepted
+2026-09-25T11:14:36.339Z session      chat 2026-09-25@08h14m35s744ms · story none · at — (boundary 0, 1 messages)
+2026-09-25T11:06:27.576Z story        away recap not due
+2026-09-25T11:06:27.790Z status       Started Quest for the Sun Ruins
+2026-09-25T11:06:27.796Z story        quality macro skipped
+2026-09-25T11:06:27.796Z story        quality macro skipped
+2026-09-25T11:06:57.746Z status       Following Investigate the Job Board
+2026-09-25T11:07:33.112Z status       Moved into Accept the Mission
+2026-09-25T11:08:08.305Z status       Following Accept the Mission
+2026-09-25T11:09:19.596Z story        restored 5 host change(s)
+2026-09-25T11:09:20.687Z status       Stepped back to Investigate the Job Board
+2026-09-25T11:09:21.222Z story        extraction read lapsed: rollback:0
+2026-09-25T11:09:41.136Z status       Following Investigate the Job Board
+2026-09-25T11:09:43.821Z status       Moved into Accept the Mission
+2026-09-25T11:10:48.941Z status       Following Accept the Mission
+2026-09-25T11:10:55.220Z story        host change "cast" was reverted when this chat reloaded
+2026-09-25T11:10:55.562Z story        away recap not due
+2026-09-25T11:10:55.794Z status       Continuing Quest for the Sun Ruins
+2026-09-25T11:10:55.798Z story        quality macro skipped
+2026-09-25T11:10:55.798Z story        quality macro skipped
+2026-09-25T11:10:58.087Z story        restored 4 host change(s)
+2026-09-25T11:10:58.901Z status       Stepped back to Investigate the Job Board
+2026-09-25T11:11:36.772Z status       Moved into Accept the Mission
+2026-09-25T11:11:37.439Z status       Following Accept the Mission
+2026-09-25T11:13:26.833Z status       Following Accept the Mission
+2026-09-25T11:13:27.226Z story        away recap not due
+2026-09-25T11:13:27.450Z status       Continuing Quest for the Sun Ruins
+2026-09-25T11:13:29.282Z status       Following Accept the Mission
+2026-09-25T11:14:34.024Z story        edit past the retained history
+2026-09-25T11:14:34.029Z story        extraction read lapsed: reconcile:mission_accepted
+2026-09-25T11:14:35.872Z story        restored 2 host change(s)
+2026-09-25T11:14:35.877Z story        2 host change(s) were edited outside this story and left alone
+2026-09-25T11:14:35.877Z status       No story selected for this chat
+2026-09-25T11:14:39.404Z session      chat 2026-09-25@08h14m35s744ms · story legacy-v2-de4f955d · at Start (boundary 0, 1 messages)
+2026-09-25T11:14:38.575Z story        away recap not due
+2026-09-25T11:14:38.786Z status       Started v24-01 Delete Decode
+2026-09-25T11:14:41.078Z extraction   read v24-02:line-0 msgs 0-0 → 1 accepted, 0 rejected
+2026-09-25T11:14:41.078Z delta        took_key = true
+2026-09-25T11:14:41.392Z boundary     applied took_key=true
+2026-09-25T11:14:41.078Z audit        audit v24-02:line-0 msgs 0-0 scope [found_map, lit_lamp, opened_chest, tension_current, took_key, vault_unsealed] → 1 accepted, 0 rejected
+2026-09-25T11:14:41.513Z status       Following Start
+2026-09-25T11:14:41.700Z extraction   read scene:cast msgs 0-0 → 0 accepted, 0 rejected
+2026-09-25T11:14:41.700Z audit        audit scene:cast msgs 0-0 scope [found_map, lit_lamp, opened_chest, tension_current, vault_unsealed] → 0 accepted, 0 rejected
+2026-09-25T11:14:43.452Z delta        queued lit_lamp=true for the next boundary
+2026-09-25T11:14:43.367Z extraction   read v24-02:line-1 msgs 0-1 → 1 accepted, 0 rejected
+2026-09-25T11:14:43.367Z delta        lit_lamp = true
+2026-09-25T11:14:43.670Z boundary     applied lit_lamp=true
+2026-09-25T11:14:43.367Z audit        audit v24-02:line-1 msgs 0-1 scope [found_map, lit_lamp, opened_chest, tension_current, vault_unsealed] → 1 accepted, 0 rejected
+2026-09-25T11:14:45.920Z extraction   read v24-02:line-2 msgs 0-2 → 1 accepted, 0 rejected
+2026-09-25T11:14:45.920Z delta        found_map = true
+2026-09-25T11:14:46.231Z boundary     applied found_map=true
+2026-09-25T11:14:45.920Z audit        audit v24-02:line-2 msgs 0-2 scope [found_map, opened_chest, tension_current, vault_unsealed] → 1 accepted, 0 rejected
+2026-09-25T11:14:46.529Z extraction   read cadence msgs 0-2 → 0 accepted, 0 rejected
+2026-09-25T11:14:46.529Z audit        audit cadence msgs 0-2 scope [opened_chest, tension_current, vault_unsealed] → 0 accepted, 0 rejected
+2026-09-25T11:14:49.032Z status       Stepped back to Start
+2026-09-25T11:14:49.172Z extraction   read rollback:2 msgs 0-2 → 0 accepted, 0 rejected
+2026-09-25T11:14:49.172Z audit        audit rollback:2 msgs 0-2 scope [found_map, opened_chest, tension_current, vault_unsealed] → 0 accepted, 0 rejected
+2026-09-25T11:14:50.557Z session      chat 2026-09-25@08h14m50s357ms · story none · at — (boundary 0, 1 messages)
+2026-09-25T11:14:38.575Z story        away recap not due
+2026-09-25T11:14:38.786Z status       Started v24-01 Delete Decode
+2026-09-25T11:14:41.513Z status       Following Start
+2026-09-25T11:14:49.032Z status       Stepped back to Start
+2026-09-25T11:14:50.435Z status       No story selected for this chat
+2026-09-25T11:14:53.591Z session      chat 2026-09-25@08h14m50s357ms · story legacy-v2-de4f955d · at Start (boundary 0, 1 messages)
+2026-09-25T11:14:53.236Z story        away recap not due
+2026-09-25T11:14:53.456Z status       Started v24-01 Delete Decode
+2026-09-25T11:14:55.730Z extraction   read v24-02:line-0 msgs 0-0 → 1 accepted, 0 rejected
+2026-09-25T11:14:55.730Z delta        took_key = true
+2026-09-25T11:14:56.148Z boundary     applied took_key=true
+2026-09-25T11:14:56.271Z status       Following Start
+2026-09-25T11:14:55.730Z audit        audit v24-02:line-0 msgs 0-0 scope [found_map, lit_lamp, opened_chest, tension_current, took_key, vault_unsealed] → 1 accepted, 0 rejected
+2026-09-25T11:14:58.654Z delta        queued lit_lamp=true for the next boundary
+2026-09-25T11:14:58.651Z extraction   read v24-02:line-1 msgs 0-1 → 1 accepted, 0 rejected
+2026-09-25T11:14:58.651Z delta        lit_lamp = true
+2026-09-25T11:14:59.116Z boundary     applied lit_lamp=true
+2026-09-25T11:14:58.651Z audit        audit v24-02:line-1 msgs 0-1 scope [found_map, lit_lamp, opened_chest, tension_current, vault_unsealed] → 1 accepted, 0 rejected
+2026-09-25T11:15:01.689Z delta        queued found_map=true for the next boundary
+2026-09-25T11:15:01.549Z extraction   read v24-02:line-2 msgs 0-2 → 1 accepted, 0 rejected
+2026-09-25T11:15:01.549Z delta        found_map = true
+2026-09-25T11:15:01.977Z boundary     applied found_map=true
+2026-09-25T11:15:02.370Z extraction   read cadence msgs 0-2 → 0 accepted, 0 rejected
+2026-09-25T11:15:01.549Z audit        audit v24-02:line-2 msgs 0-2 scope [found_map, opened_chest, tension_current, vault_unsealed] → 1 accepted, 0 rejected
+2026-09-25T11:15:02.370Z audit        audit cadence msgs 0-2 scope [opened_chest, tension_current, vault_unsealed] → 0 accepted, 0 rejected
+2026-09-25T11:15:07.784Z session      chat 2026-09-25@08h15m07s089ms · story none · at — (boundary 0, 1 messages)
+2026-09-25T11:14:53.236Z story        away recap not due
+2026-09-25T11:14:53.456Z status       Started v24-01 Delete Decode
+2026-09-25T11:14:56.271Z status       Following Start
+2026-09-25T11:15:07.165Z status       No story selected for this chat
+2026-09-25T11:15:10.828Z session      chat 2026-09-25@08h15m07s089ms · story legacy-v2-de4f955d · at Start (boundary 0, 1 messages)
+2026-09-25T11:15:09.938Z story        away recap not due
+2026-09-25T11:15:10.148Z status       Started v24-01 Delete Decode
+2026-09-25T11:15:12.324Z extraction   read v24-02:line-0 msgs 0-0 → 1 accepted, 0 rejected
+2026-09-25T11:15:12.324Z delta        took_key = true
+2026-09-25T11:15:12.747Z boundary     applied took_key=true
+2026-09-25T11:15:12.324Z audit        audit v24-02:line-0 msgs 0-0 scope [found_map, lit_lamp, opened_chest, tension_current, took_key, vault_unsealed] → 1 accepted, 0 rejected
+2026-09-25T11:15:12.858Z status       Following Start
+2026-09-25T11:15:15.214Z extraction   read v24-02:line-1 msgs 0-1 → 1 accepted, 0 rejected
+2026-09-25T11:15:15.214Z delta        lit_lamp = true
+2026-09-25T11:15:15.609Z boundary     applied lit_lamp=true
+2026-09-25T11:15:15.214Z audit        audit v24-02:line-1 msgs 0-1 scope [found_map, lit_lamp, opened_chest, tension_current, vault_unsealed] → 1 accepted, 0 rejected
+2026-09-25T11:15:18.476Z story        eventless change at message 1
+2026-09-25T11:15:18.916Z status       Stepped back to Start
+2026-09-25T11:15:18.928Z extraction   read rollback:1 msgs 0-2 → 0 accepted, 0 rejected
+2026-09-25T11:15:18.928Z audit        audit rollback:1 msgs 0-2 scope [found_map, lit_lamp, opened_chest, tension_current, vault_unsealed] → 0 accepted, 0 rejected
+2026-09-25T11:15:20.531Z extraction   read v24-02:after-move msgs 0-2 → 0 accepted, 0 rejected
+2026-09-25T11:15:20.651Z boundary     boundary 2: nothing applied (gate)
+2026-09-25T11:15:20.769Z status       Following Start
+2026-09-25T11:15:20.531Z audit        audit v24-02:after-move msgs 0-2 scope [found_map, lit_lamp, opened_chest, tension_current, vault_unsealed] → 0 accepted, 0 rejected
+2026-09-25T11:15:25.030Z session      chat 2026-09-24@04h05m33s739ms · story none · at — (boundary 0, 7 messages)
+2026-09-25T11:15:09.938Z story        away recap not due
+2026-09-25T11:15:10.148Z status       Started v24-01 Delete Decode
+2026-09-25T11:15:12.858Z status       Following Start
+2026-09-25T11:15:18.476Z story        eventless change at message 1
+2026-09-25T11:15:18.916Z status       Stepped back to Start
+2026-09-25T11:15:20.769Z status       Following Start
+2026-09-25T11:15:24.218Z status       No story selected for this chat

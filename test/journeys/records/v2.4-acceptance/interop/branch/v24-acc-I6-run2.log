@@ -1,0 +1,103 @@
+1/21 eval ok 15ms
+1/21 eval -> {"greetingsCleared":1}
+2/21 eval ok 5ms
+3/21 import_story ok 286ms
+4/21 eval ok 24ms
+5/21 send ok 1679ms
+6/21 extract ok 1063ms
+7/21 send ok 1682ms
+8/21 extract ok 879ms
+9/21 record_state ok 8ms
+9/21 record_state -> {"as":"after-line-1","boundary":2,"active":"start","rows":{"memory":3,"epistemic":0,"ledger":0}}
+10/21 send ok 1662ms
+11/21 extract ok 882ms
+12/21 eval ok 340ms
+12/21 eval -> {"chatId":"2026-09-25@08h54m13s482ms","integrity":"529a84fc-97fe-43d9-adf9-80c50f14c2d4","book":"Story Orchestrator - v24-01 Delete Decode - 2026-09-25@08h54m13s482ms","boundary":3}
+13/21 branch_create ok 277ms
+13/21 branch_create -> {"command":"/branch-create 1","name":"2026-09-25@08h54m13s482ms - Branch #1","kind":"branch","opened":true,"branchChats":["2026-09-25@08h54m13s482ms - Branch #1"]}
+14/21 eval ok 4ms
+14/21 eval -> {"branch":"2026-09-25@08h54m13s482ms - Branch #1","main_chat":"2026-09-25@08h54m13s482ms","integrity":"a8862d02-c9a8-4f15-b2dd-cbedb5a7b1bc","blobStampedFor":"2026-09-25@08h54m13s482ms","slot":null,"storyLoaded":null}
+15/21 eval ok 5ms
+15/21 eval -> {"slot":null,"chatIdentity":{"kind":"branch","parentChat":"2026-09-25@08h54m13s482ms","checkpointName":"Start"}}
+16/21 eval ok 1515ms
+16/21 eval -> {"popups":0,"chatIdentity":{"kind":"branch","parentChat":"2026-09-25@08h54m13s482ms","checkpointName":"Start"},"hudBranchChip":true}
+17/21 ui ok 73ms
+17/21 ui -> {"selector":"#so-branch-continue","found":true,"clickable":true,"at":{"x":517,"y":136},"topmost":"button#so-branch-continue.menu_button.self-start.interactable","target":"button#so-branch-continue.menu_button.self-start.interactable","clicked":true,"noticeGone":true}
+18/21 wait ok 1535ms
+19/21 expect ok 5ms
+19/21 expect -> {"rollbackOutcome":{"rollbackOutcome":{"result":"applied","fromMessage":2,"since":"after-line-1"},"last":{"seq":9,"result":"applied","fromMessage":2,"at":"2026-09-25T11:54:24.695Z"},"sinceSeq":8}}
+20/21 expect ok 18ms
+21/21 eval ok 347ms
+21/21 eval -> {"branchBook":"Story Orchestrator - v24-01 Delete Decode - 2026-09-25@08h54m13s482ms - Branch #1","parentBlob":"2026-09-25@08h54m13s482ms"}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T11-54-33-342Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 21,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@08h54m13s482ms",
+    "owned": [
+      "2026-09-25@08h54m13s482ms"
+    ],
+    "deleted": [
+      "2026-09-25@08h54m13s482ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@08h54m13s482ms - Branch #1",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-25@08h54m13s482ms - Branch #1",
+    "branchChats": {
+      "recorded": [
+        "2026-09-25@08h54m13s482ms - Branch #1"
+      ],
+      "deleted": [
+        "2026-09-25@08h54m13s482ms - Branch #1"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [
+        "Story Orchestrator - v24-01 Delete Decode - 2026-09-25@08h54m13s482ms - Branch #1",
+        "Story Orchestrator - v24-01 Delete Decode - 2026-09-25@08h54m13s482ms"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [
+        "The chat \"2026-09-25@08h54m13s482ms\" was deleted, but its story-memory lorebook \"Story Orchestrator - v24-01 Delete Decode - 2026-09-25@08h54m13s482ms\" is still there. Delete the lorebook too? This ca"
+      ],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

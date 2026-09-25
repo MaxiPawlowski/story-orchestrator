@@ -281,14 +281,15 @@
       "findings": [
         "U6"
       ],
-      "goal": "the transition is announced to the player in chat",
+      "goal": "the transition is announced to the player in chat (the note posts after cp2's awaited onEnter LLM reply, a real generation, so the assertion waits for it instead of a 5 s UI settle)",
       "steps": [
         {
           "expect_ui": {
             "selector": "#chat",
             "contains": [
               "Accept the Mission"
-            ]
+            ],
+            "timeoutMs": 180000
           }
         }
       ]

@@ -1,0 +1,70 @@
+1/7 eval ok 6ms
+2/7 send ok 1672ms
+3/7 eval ok 244ms
+3/7 eval -> {"originalAvatar":"user-default.png","originalName":"Max","targetAvatar":"1730029080534-Pedropicapiedra.png","targetName":"Pedro picapiedra","storyId":"v24-02-persona-change","readyAfter":null,"restored":false,"removed":false}
+4/7 eval ok 32ms
+4/7 eval -> {"requirements":{"ready":false,"missingPersonas":["Pedro picapiedra"],"missingMembers":[],"missingLorebooks":[]}}
+5/7 eval ok 383ms
+5/7 eval -> {"personaChanged":["1730029080534-Pedropicapiedra.png"],"name1":"Pedro picapiedra","requirements":{"ready":true,"missingPersonas":[],"missingMembers":[],"missingLorebooks":[]},"boundaryBefore":0,"boundaryAfter":0}
+6/7 eval ok 2527ms
+6/7 eval -> {"restored":true,"removed":true}
+7/7 eval ok 6ms
+7/7 eval -> {"ready":true}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T10-39-05-611Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 7,
+  "cleanup": {
+    "removedStoryHashes": [],
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@07h38m56s075ms",
+    "owned": [
+      "2026-09-25@07h38m56s075ms"
+    ],
+    "deleted": [
+      "2026-09-25@07h38m56s075ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@07h38m56s075ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

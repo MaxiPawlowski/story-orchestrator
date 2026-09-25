@@ -1,0 +1,122 @@
+== P06 curator-run2 test/scenarios/live-v24-06-curator.json start 2026-09-25T15:14:10Z
+{
+  "opened": {
+    "found": true,
+    "alreadyOpen": true,
+    "id": "1759606632088",
+    "name": "Group: Arin, DM Narrator"
+  },
+  "state": {
+    "groupId": "1759606632088",
+    "chatId": "2026-09-20@07h06m38s396ms",
+    "chatLength": 0
+  }
+}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T15-14-16-189Z_st-navigation-open-group.json
+open-group exit=0
+1/16 import_story ok 276ms
+2/16 eval ok 223ms
+2/16 eval -> {"entries":3,"restoreTo":{"curatorEnabled":true,"acceptMode":"review","wardenEnabled":false,"wardenAcceptMode":"review"}}
+3/16 ui ok 314ms
+4/16 send_generate ok 15593ms
+5/16 wait ok 5036ms
+6/16 copilot ok 132ms
+7/16 expect ok 62ms
+8/16 stagecraft ok 6570ms
+8/16 stagecraft -> {"ran":true,"record":{"id":"wi-2-2","curator":"wi","at":"2026-09-25T15:14:49.542Z","boundary":2,"messageId":2,"checkpointId":"far-side","reason":"v24-06 bridge","summary":"The bridge has been destroyed, so its description must be updated to reflect its current state.","mode":"review","ops":[{"op":{"kind":"rewrite","lorebook":"SO-V2406 Lore","comment":"The rope bridge","uid":0,"text":"The rope bridge has snapped and fallen into the gorge; there is no way back across."},"status":"pending","message":"Rewrite \"The rope bridge\"","before":{"content":"A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.","disabled":false,"uid":0}}],"dropped":[],"provenance":{"source":"curator","messageId":2,"boundary":2,"pass":"wi-curator:v24-06 bridge","i
+9/16 eval ok 11ms
+9/16 eval -> {"ops":[{"kind":"rewrite","comment":"The rope bridge","uid":0,"status":"pending","fuzzy":null}]}
+10/16 ui ok 441ms
+11/16 eval ok 6ms
+11/16 eval -> {"textual":true,"diffs":1}
+12/16 eval ok 181ms
+12/16 eval -> {"declined":{"kind":"rewrite","comment":"The rope bridge"}}
+13/16 stagecraft ok 8327ms
+13/16 stagecraft -> {"ran":true,"record":{"id":"wi-2-2-2","curator":"wi","at":"2026-09-25T15:14:58.489Z","boundary":2,"messageId":2,"checkpointId":"far-side","reason":"v24-06 after decline","summary":"The rope bridge has snapped and fallen, so it is no longer a way across the gorge.","mode":"review","ops":[{"op":{"kind":"patch","lorebook":"SO-V2406 Lore","comment":"The valley road","uid":1,"anchor":"The valley road winds down from the pass. The valley road winds down from the pass. The valley road winds down from the pass. The valley road winds down from the pass. The valley road winds down from the pass. The valley road winds down from the pass. The valley road winds down from the pass. The valley road winds down from the pass. The valley road winds down from the pass. The valley road winds … || The valley r
+14/16 eval ok 21ms
+14/16 eval -> {"reproposedAndDropped":0,"pendingElsewhere":2}
+15/16 eval ok 35ms
+15/16 eval -> {"curatorEnabled":true,"acceptMode":"review","wardenEnabled":false,"wardenAcceptMode":"review"}
+16/16 assets ok 630ms
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T15-15-04-020Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 16,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-c3e6e9d3"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@12h14m21s133ms",
+    "owned": [
+      "2026-09-25@12h14m21s133ms"
+    ],
+    "deleted": [
+      "2026-09-25@12h14m21s133ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [
+      "2026-09-25@12h14m21s133ms"
+    ],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@12h14m21s133ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}
+scenario exit=0 2026-09-25T15:15:04Z
+so-assets remove --marker SO-V2406 exit=0

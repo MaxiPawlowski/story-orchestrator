@@ -1,0 +1,110 @@
+1/16 import_story ok 273ms
+2/16 eval ok 25ms
+2/16 eval -> {"healed":null,"profile":"Story Orchestrator Memory RunPod","apiUrl":"http://127.0.0.1:18080","cadence":99,"authorView":false}
+3/16 eval ok 2101ms
+3/16 eval -> {"seeded":330,"before":1,"length":331,"chars":455438,"estTokens":113860,"storyId":"live-v24-03"}
+4/16 ui ok 39ms
+5/16 ui ok 101ms
+6/16 eval ok 1803ms
+6/16 eval -> {"preflight":"3 requests, about 206,128 tokens to Story Orchestrator Memory RunPod. Send them?","confirmMs":117,"planningMs":254,"backfill":{"running":true,"processed":0,"total":3,"lastError":null,"preparing":true}}
+7/16 eval ok 784279ms
+7/16 eval -> {"backfill":{"running":true,"processed":1,"total":3,"lastError":null},"inFlight":{"n":5,"kind":"read","t0":1790340496760,"ms":null,"outcome":"pending","status":null,"promptChars":67117,"estTokens":16780,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":null},"entries":2}
+8/16 expect_ui ok 6ms
+9/16 ui ok 585ms
+9/16 ui -> {"ok":true,"tabs":["Overview","Memory"],"surfaces":["#drawer-manager","#so-hud","#story-orchestrator-settings"],"selectorsChecked":45,"findings":[],"sweep":[],"recoveryControls":[{"tab":"Memory","surface":"#drawer-manager","selector":"#so-memorize-stop","visible":true,"text":"Stop"}]}
+10/16 ui ok 89ms
+11/16 ui ok 6ms
+11/16 ui -> {"selector":"#so-memorize-stop","found":true,"clickable":true,"at":{"x":589,"y":214},"topmost":"button#so-memorize-stop.menu_button.interactable","target":"button#so-memorize-stop.menu_button.interactable"}
+12/16 eval ok 573ms
+12/16 eval -> {"stoppedInMs":63,"abortLatencyMs":7,"aborted":{"n":5,"kind":"read","t0":1790340496760,"ms":852,"outcome":"aborted","status":null,"promptChars":67117,"estTokens":16780,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":"signal is aborted without reason"},"backfill":{"running":false,"processed":1,"total":3,"lastError":null,"stoppedNote":"Stopped after 1 of 2 parts. What was read is kept; the whole-chat pass did not run."},"note":"Stopped after 1 of 2 parts. What was read is kept; the whole-chat pass did not run.","entriesBefore":2,"entriesAfter":2}
+13/16 eval ok 1579ms
+13/16 eval -> {"backfill":{"running":true,"processed":0,"total":1,"lastError":null,"preparing":true},"ended":false}
+14/16 eval ok 865549ms
+14/16 eval -> {"ms":865169,"result":false,"error":null,"backfill":{"running":false,"processed":2,"total":3,"lastError":"the memory model did not answer within 256462 ms"},"requests":[{"n":6,"kind":"read","t0":1790340500123,"ms":207018,"outcome":"ok","status":200,"promptChars":401869,"estTokens":100468,"tokensEvaluated":88319,"predictedN":181,"decodeTokS":8.40825752549559,"prefillTokS":481.1442463193996,"promptMs":183560.337,"predictedMs":21407.527,"stopType":"eos","error":null},{"n":7,"kind":"other","t0":1790340707561,"ms":21093,"outcome":"ok","status":200,"promptChars":1710,"estTokens":428,"tokensEvaluated":384,"predictedN":60,"decodeTokS":5.396556832100403,"prefillTokS":116.07011965197101,"promptMs":3308.345,"predictedMs":10932.897,"stopType":"eos","error":null,"head":"<|turn>user\nuser: Write a 2-3 s
+15/16 eval ok 7ms
+15/16 eval -> {"profileUrl":"http://127.0.0.1:18080","wasDead":false,"requests":11,"e1":[{"kind":"read","predictedN":228,"decodeTokS":9.281096867012431,"prefillTokS":716.4530322429996,"promptN":88280},{"kind":"other","predictedN":62,"decodeTokS":11.431726263753914,"prefillTokS":743.8341263906325,"promptN":86022},{"kind":"other","predictedN":6,"decodeTokS":12.109352294964445,"prefillTokS":525.7540014067349,"promptN":86361},{"kind":"other","predictedN":69,"decodeTokS":3.7212387237574003,"prefillTokS":483.06353444783394,"promptN":86191},{"kind":"read","predictedN":181,"decodeTokS":8.40825752549559,"prefillTokS":481.1442463193996,"promptN":88319},{"kind":"other","predictedN":60,"decodeTokS":5.396556832100403,"prefillTokS":116.07011965197101,"promptN":384},{"kind":"other","predictedN":6,"decodeTokS":10.628212377191007,"prefillTokS":617.2917999688084,"promptN":86361},{"kind":"other","predictedN":69,"decodeTokS":10.235123361082058,"prefillTokS":475.9382304613168,"promptN":86191},{"kind":"read","predictedN":13,"decodeTokS":11.22898425415683,"prefillTokS":458.89806406784567,"promptN":14844}]}
+16/16 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the backlog did not complete: {"result":false,"backfill":{"running":false,"processed":2,"total":3,"lastError":"the memory model did not answer within 256462 ms"}}; backfill after the run: {"running":false,"processed":2,"total":3,"lastError":"the memory model did not answer within 256462 ms"}; no memorize:full audit; a captured request does not fit the context (98304 - 512 = 97792 tokens): [{"n":11,"kind":"read","t0":1790341108156,"ms":256466,"outcome":"fetch-error","status":null,"promptChars":401761,"estTokens":100441,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":"signal timed out"}]; a memorize request did not answer ok: [{"n":11,"kind":"read","t0":1790341108156,"ms":256466,"outcome":"fetch-error","status":null,"promptChars":401761,"estTokens":100441,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":"signal timed out"}]
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:3162)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:3863)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T13-02-45-434Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T13-02-49-966Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 16,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-313db404"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@09h35m07s842ms",
+    "owned": [
+      "2026-09-25@09h35m07s842ms"
+    ],
+    "deleted": [
+      "2026-09-25@09h35m07s842ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@09h35m07s842ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 99,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

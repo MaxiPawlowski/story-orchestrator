@@ -1,0 +1,116 @@
+Following the session journal → C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\test\journeys\records\v2.4-acceptance\J10\run1\journal-follow.jsonl every 1000 ms. Ctrl-C to stop.
+2026-09-25T15:54:22.853Z session      chat 2026-09-24@05h22m36s897ms · story none · at — (boundary 0, 0 messages)
+2026-09-25T15:52:36.797Z story        away recap not due
+2026-09-25T15:52:37.014Z status       Started SO-J9 Courier Run
+2026-09-25T15:53:01.669Z story        away recap not due
+2026-09-25T15:53:02.128Z story        away recap not due
+2026-09-25T15:53:02.449Z status       Continuing SO-J9 Courier Run
+2026-09-25T15:53:04.156Z payload      1 story blocks injected (generation)
+2026-09-25T15:53:23.746Z status       Following The Drowned Wharf
+2026-09-25T15:53:48.118Z status       Moved into The Broken Bridge
+2026-09-25T15:53:49.669Z status       No story selected for this chat
+2026-09-25T15:54:24.886Z session      chat 2026-09-25@12h54m23s923ms · story sun-ruins · at Investigate the Job Board (boundary 0, 1 messages)
+2026-09-25T15:54:24.338Z story        away recap not due
+2026-09-25T15:54:24.561Z status       Started Quest for the Sun Ruins
+2026-09-25T15:54:24.569Z story        quality macro skipped
+2026-09-25T15:54:24.569Z story        quality macro skipped
+2026-09-25T15:54:24.985Z boundary     applied approached_board=true
+2026-09-25T15:54:24.985Z transition   cp1 → cp2
+2026-09-25T15:54:25.644Z status       Moved into Accept the Mission
+2026-09-25T15:54:28.973Z story        away recap not due
+2026-09-25T15:54:29.389Z story        away recap not due
+2026-09-25T15:54:29.804Z story        away recap not due
+2026-09-25T15:54:30.955Z session      chat 2026-09-25@12h54m30s597ms · story none · at — (boundary 0, 1 messages)
+2026-09-25T15:54:24.338Z story        away recap not due
+2026-09-25T15:54:24.561Z status       Started Quest for the Sun Ruins
+2026-09-25T15:54:24.569Z story        quality macro skipped
+2026-09-25T15:54:24.569Z story        quality macro skipped
+2026-09-25T15:54:28.973Z story        away recap not due
+2026-09-25T15:54:29.389Z story        away recap not due
+2026-09-25T15:54:29.804Z story        away recap not due
+2026-09-25T15:54:30.220Z story        away recap not due
+2026-09-25T15:54:30.543Z status       Continuing Quest for the Sun Ruins
+2026-09-25T15:54:30.709Z status       No story selected for this chat
+2026-09-25T15:54:34.005Z session      chat 2026-09-25@12h54m30s597ms · story sun-ruins · at Accept the Mission (boundary 1, 2 messages)
+2026-09-25T15:54:33.387Z story        away recap not due
+2026-09-25T15:54:33.606Z status       Started Quest for the Sun Ruins
+2026-09-25T15:54:33.612Z story        quality macro skipped
+2026-09-25T15:54:33.612Z story        quality macro skipped
+2026-09-25T15:54:33.697Z boundary     applied approached_board=true
+2026-09-25T15:54:33.697Z transition   cp1 → cp2
+2026-09-25T15:54:33.937Z status       Moved into Accept the Mission
+2026-09-25T15:54:38.051Z story        away recap not due
+2026-09-25T15:54:39.071Z session      chat 2026-09-25@12h54m38s616ms · story none · at — (boundary 0, 1 messages)
+2026-09-25T15:54:38.051Z story        away recap not due
+2026-09-25T15:54:38.374Z status       Continuing Quest for the Sun Ruins
+2026-09-25T15:54:38.560Z status       Story not found
+2026-09-25T15:54:38.697Z status       No story selected for this chat
+2026-09-25T15:54:42.108Z session      chat 2026-09-25@12h54m38s616ms · story so-v24-02-future · at — (boundary 0, 1 messages)
+2026-09-25T15:54:38.051Z story        away recap not due
+2026-09-25T15:54:38.374Z status       Continuing Quest for the Sun Ruins
+2026-09-25T15:54:38.560Z status       Story not found
+2026-09-25T15:54:38.697Z status       No story selected for this chat
+2026-09-25T15:54:41.493Z story        No story selected: this chat's saved story state was saved by a newer Story Orchestrator (v5): update, or Restart to replace it
+2026-09-25T15:54:41.497Z status       No story selected: this chat's saved story state was saved by a newer Story Orchestrator (v5): update, or Restart to replace it
+2026-09-25T15:54:44.134Z session      chat 2026-09-25@12h54m38s616ms · story sun-ruins · at Investigate the Job Board (boundary 0, 1 messages)
+2026-09-25T15:54:43.441Z story        away recap not due
+2026-09-25T15:54:43.858Z status       Started Quest for the Sun Ruins
+2026-09-25T15:54:43.862Z story        quality macro skipped
+2026-09-25T15:54:43.862Z story        quality macro skipped
+2026-09-25T15:54:43.867Z story        Story restarted
+2026-09-25T15:54:43.867Z status       Story restarted
+2026-09-25T15:54:46.167Z session      chat 2026-09-25@12h54m45s433ms · story none · at — (boundary 0, 1 messages)
+2026-09-25T15:54:43.441Z story        away recap not due
+2026-09-25T15:54:43.858Z status       Started Quest for the Sun Ruins
+2026-09-25T15:54:43.862Z story        quality macro skipped
+2026-09-25T15:54:43.862Z story        quality macro skipped
+2026-09-25T15:54:43.867Z story        Story restarted
+2026-09-25T15:54:43.867Z status       Story restarted
+2026-09-25T15:54:45.503Z status       No story selected for this chat
+2026-09-25T15:54:49.205Z session      chat 2026-09-25@12h54m45s433ms · story legacy-v2-de4f955d · at Start (boundary 0, 1 messages)
+2026-09-25T15:54:48.314Z story        away recap not due
+2026-09-25T15:54:48.525Z status       Started v24-01 Delete Decode
+2026-09-25T15:54:51.239Z delta        queued took_key=true for the next boundary
+2026-09-25T15:54:50.878Z extraction   read v24-02:line-0 msgs 0-0 → 1 accepted, 0 rejected
+2026-09-25T15:54:50.878Z delta        took_key = true
+2026-09-25T15:54:51.600Z boundary     applied took_key=true
+2026-09-25T15:54:51.723Z status       Following Start
+2026-09-25T15:54:50.878Z audit        audit v24-02:line-0 msgs 0-0 scope [found_map, lit_lamp, opened_chest, tension_current, took_key, vault_unsealed] → 1 accepted, 0 rejected
+2026-09-25T15:54:53.972Z extraction   read v24-02:line-1 msgs 0-1 → 1 accepted, 0 rejected
+2026-09-25T15:54:53.972Z delta        lit_lamp = true
+2026-09-25T15:54:53.972Z delta        queued lit_lamp=true for the next boundary
+2026-09-25T15:54:53.972Z audit        audit v24-02:line-1 msgs 0-1 scope [found_map, lit_lamp, opened_chest, tension_current, vault_unsealed] → 1 accepted, 0 rejected
+2026-09-25T15:54:54.365Z boundary     applied lit_lamp=true
+2026-09-25T15:54:56.855Z extraction   read v24-02:line-2 msgs 0-2 → 1 accepted, 0 rejected
+2026-09-25T15:54:56.855Z delta        found_map = true
+2026-09-25T15:54:57.278Z boundary     applied found_map=true
+2026-09-25T15:54:56.855Z audit        audit v24-02:line-2 msgs 0-2 scope [found_map, opened_chest, tension_current, vault_unsealed] → 1 accepted, 0 rejected
+2026-09-25T15:54:58.369Z session      chat 2026-09-25@12h54m45s433ms - Branch #1 · story legacy-v2-de4f955d · at — (boundary 0, 2 messages)
+2026-09-25T15:54:48.314Z story        away recap not due
+2026-09-25T15:54:48.525Z status       Started v24-01 Delete Decode
+2026-09-25T15:54:51.723Z status       Following Start
+2026-09-25T15:54:57.953Z story        No story selected: this chat's saved story state is stamped for another chat
+2026-09-25T15:54:57.962Z status       No story selected: this chat's saved story state is stamped for another chat
+2026-09-25T15:54:50.878Z extraction   read v24-02:line-0 msgs 0-0 → 1 accepted, 0 rejected
+2026-09-25T15:54:50.878Z delta        took_key = true
+2026-09-25T15:54:51.600Z boundary     applied took_key=true
+2026-09-25T15:54:53.972Z extraction   read v24-02:line-1 msgs 0-1 → 1 accepted, 0 rejected
+2026-09-25T15:54:53.972Z delta        lit_lamp = true
+2026-09-25T15:54:54.365Z boundary     applied lit_lamp=true
+2026-09-25T15:54:58.429Z story        away recap not due
+2026-09-25T15:54:58.488Z status       Continuing v24-01 Delete Decode
+2026-09-25T15:54:58.644Z story        eventless change at message 2
+2026-09-25T15:54:58.892Z status       Stepped back to Start
+2026-09-25T15:54:58.906Z story        branch continued
+2026-09-25T15:54:59.506Z extraction   read rollback:2 msgs 0-1 → 0 accepted, 0 rejected
+2026-09-25T15:54:59.506Z audit        audit rollback:2 msgs 0-1 scope [found_map, opened_chest, tension_current, vault_unsealed] → 0 accepted, 0 rejected
+2026-09-25T15:55:03.447Z session      chat 2026-09-24@05h22m36s897ms · story none · at — (boundary 0, 0 messages)
+2026-09-25T15:54:48.314Z story        away recap not due
+2026-09-25T15:54:48.525Z status       Started v24-01 Delete Decode
+2026-09-25T15:54:51.723Z status       Following Start
+2026-09-25T15:54:58.429Z story        away recap not due
+2026-09-25T15:54:58.488Z status       Continuing v24-01 Delete Decode
+2026-09-25T15:54:58.644Z story        eventless change at message 2
+2026-09-25T15:54:58.892Z status       Stepped back to Start
+2026-09-25T15:54:58.906Z story        branch continued
+2026-09-25T15:55:03.263Z status       No story selected for this chat

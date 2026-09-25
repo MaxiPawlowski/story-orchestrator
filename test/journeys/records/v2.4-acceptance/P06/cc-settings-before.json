@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "value": {
+    "mem": {
+      "source": "custom",
+      "custom_url": "http://localhost:1234/v1",
+      "custom_model": "E:\\models\\huggingface\\PygmalionAI\\Mythalion-Kimiko-v2_Q5_1_8K\\Mythalion-Kimiko-v2_Q5_1_8K.gguf",
+      "custom_include_body": "",
+      "preset": "Default"
+    },
+    "file": {
+      "source": "custom",
+      "custom_url": "http://localhost:1234/v1",
+      "custom_model": "E:\\models\\huggingface\\PygmalionAI\\Mythalion-Kimiko-v2_Q5_1_8K\\Mythalion-Kimiko-v2_Q5_1_8K.gguf",
+      "custom_include_body": "",
+      "preset": "Default",
+      "main_api": "textgenerationwebui"
+    },
+    "mainApi": "textgenerationwebui",
+    "profiles": 5,
+    "selectedProfile": "4581c7d9-c5fc-40f2-a994-fb4ba435c542"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "baseline": "test/journeys/records/v2.4-acceptance/J12/seriesB-run1/header-start.json",
+  "label": "diff-end",
+  "allow": [
+    "build.head"
+  ],
+  "differences": 0,
+  "progress": 0,
+  "blocking": 0,
+  "blockingPaths": [],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\2\\debug\\run-header-diff-end.json",
+  "ok": true
+}

@@ -1,0 +1,4 @@
+DELTA player_has_key=true evidence="I lift the brass key from the hook"
+DELTA mara_trust=3 evidence="Mara nods, her trust in Max rising to three out of five"
+MEMORY type=event importance=2 expiration=permanent character="Max" text="Max obtained the brass key from the hook" evidence="I lift the brass key from the hook"
+SCENE_NONE

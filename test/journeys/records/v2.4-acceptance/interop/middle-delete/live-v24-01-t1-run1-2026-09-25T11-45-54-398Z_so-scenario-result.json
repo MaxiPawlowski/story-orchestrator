@@ -1,0 +1,237 @@
+{
+  "file": "test/scenarios/live-v24-01-t1.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "import_story",
+      "ok": true,
+      "ms": 278
+    },
+    {
+      "index": 1,
+      "key": "eval",
+      "ok": true,
+      "ms": 16
+    },
+    {
+      "index": 2,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 24287
+    },
+    {
+      "index": 3,
+      "key": "wait",
+      "ok": true,
+      "ms": 37974
+    },
+    {
+      "index": 4,
+      "key": "record_state",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 5,
+      "key": "eval",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 6,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    },
+    {
+      "index": 7,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 17398
+    },
+    {
+      "index": 8,
+      "key": "wait",
+      "ok": true,
+      "ms": 16083
+    },
+    {
+      "index": 9,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 20149
+    },
+    {
+      "index": 10,
+      "key": "wait",
+      "ok": true,
+      "ms": 31456
+    },
+    {
+      "index": 11,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 12,
+      "key": "eval",
+      "ok": true,
+      "ms": 18
+    },
+    {
+      "index": 13,
+      "key": "wait",
+      "ok": true,
+      "ms": 1520
+    },
+    {
+      "index": 14,
+      "key": "wait",
+      "ok": true,
+      "ms": 174882
+    },
+    {
+      "index": 15,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    },
+    {
+      "index": 16,
+      "key": "expect",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 17,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    },
+    {
+      "index": 18,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 19,
+      "key": "record_state",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 20,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    },
+    {
+      "index": 21,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    },
+    {
+      "index": 22,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 27785
+    },
+    {
+      "index": 23,
+      "key": "wait",
+      "ok": true,
+      "ms": 17915
+    },
+    {
+      "index": 24,
+      "key": "send_generate",
+      "ok": false,
+      "ms": 301796,
+      "error": "Generation still active after 300000ms timeout."
+    }
+  ],
+  "ok": false,
+  "error": "Generation still active after 300000ms timeout.",
+  "retries": [],
+  "firstAttempt": "fail",
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ed9ddba5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@08h34m37s981ms",
+    "owned": [
+      "2026-09-25@08h34m37s981ms"
+    ],
+    "deleted": [
+      "2026-09-25@08h34m37s981ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@08h34m37s981ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

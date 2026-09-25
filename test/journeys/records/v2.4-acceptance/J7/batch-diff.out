@@ -1,0 +1,15 @@
+DIFF build.head  "4ebe1db56ec1532b82a2a7b063c87f297c863ac3" -> "e9fd5f82f594b0331879a010e14feee01079fffc"
+{
+  "baseline": "test/journeys/records/v2.4-acceptance/J7/header-lane2-acc-start.json",
+  "label": "diff-end",
+  "allow": [],
+  "differences": 1,
+  "progress": 0,
+  "blocking": 1,
+  "blockingPaths": [
+    "build.head"
+  ],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\2\\debug\\run-header-diff-end.json",
+  "ok": false
+}

@@ -1,0 +1,12 @@
+{"row":"middle-delete","fixture":"test/scenarios/v24-acc-I1-ambiguous.json","run":1,"code":0,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T11:33:35Z","ended":"2026-09-25T11:33:53Z"}
+{"row":"middle-delete","fixture":"test/scenarios/v24-acc-I1-ambiguous.json","run":2,"code":0,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T11:34:06Z","ended":"2026-09-25T11:34:24Z"}
+{"row":"middle-delete","fixture":"test/scenarios/live-v24-01-t1.json","run":1,"code":1,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T11:34:36Z","ended":"2026-09-25T11:45:54Z"}
+{"row":"middle-delete","fixture":"test/scenarios/live-v24-01-t1.json","run":2,"code":1,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T11:45:59Z","ended":"2026-09-25T11:51:08Z"}
+{"row":"middle-delete","fixture":"test/scenarios/live-v24-01-t1.json","run":3,"code":0,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T12:07:14Z","ended":"2026-09-25T12:14:07Z"}
+{"row":"middle-delete","fixture":"test/scenarios/live-v24-01-t1.json","run":4,"code":1,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T12:14:12Z","ended":"2026-09-25T12:21:09Z"}
+{"row":"middle-delete","fixture":"test/scenarios/v24-acc-I1-live.json","run":1,"code":1,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T12:23:21Z","ended":"2026-09-25T13:02:00Z"}
+{"row":"middle-delete","fixture":"test/scenarios/v24-acc-I1-live.json","run":2,"code":0,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T13:02:06Z","ended":"2026-09-25T13:09:57Z"}
+{"row":"middle-delete","fixture":"test/scenarios/v24-acc-I1-live.json","run":3,"code":1,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T13:10:22Z","ended":"2026-09-25T13:26:40Z"}
+{"row":"middle-delete","fixture":"test/scenarios/v24-acc-I1-live.json","run":4,"code":1,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T13:29:35Z","ended":"2026-09-25T14:02:49Z"}
+{"row":"middle-delete","fixture":"test/scenarios/v24-acc-I1-live.json","run":5,"code":0,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T14:06:17Z","ended":"2026-09-25T14:18:18Z"}
+{"row":"middle-delete","fixture":"test/scenarios/v24-acc-I1-live.json","run":6,"code":0,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T14:18:25Z","ended":"2026-09-25T14:27:21Z"}

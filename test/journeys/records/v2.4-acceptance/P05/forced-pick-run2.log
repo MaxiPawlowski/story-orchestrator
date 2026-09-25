@@ -1,0 +1,100 @@
+== P05 forced-pick-run2 test/scenarios/live-v24-05-forced-pick.json start 2026-09-25T14:25:48Z
+{
+  "opened": {
+    "found": true,
+    "alreadyOpen": true,
+    "id": "1759606632088",
+    "name": "Group: Arin, DM Narrator"
+  },
+  "state": {
+    "groupId": "1759606632088",
+    "chatId": "2026-09-20@07h06m38s396ms",
+    "chatLength": 0
+  }
+}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T14-25-53-636Z_st-navigation-open-group.json
+open-group exit=0
+1/15 import_story ok 288ms
+2/15 eval ok 12ms
+2/15 eval -> {"book":"ready","entries":4}
+3/15 ui ok 296ms
+4/15 eval ok 20ms
+4/15 eval -> {"loreSelect":true,"plugin":"1.0.0"}
+5/15 send ok 1680ms
+6/15 wait ok 1521ms
+7/15 eval ok 20687ms
+7/15 eval -> {"triggered":"Ponticius"}
+8/15 wait ok 1537ms
+9/15 eval ok 11ms
+9/15 eval -> {"forced":["Vault combination"],"landed":["Vault combination"],"fired":["General - Barriers (city wards):other","General - Artifacts:other","General - Sun’s Heart Artifact:other","Vault combination:pick","Places - Continent (macro backdrop):other","Places - Guild of Adventurers:other","Adventurer:other","Adventurer's Guild:other","World - Primer:other","Places - Xentar:other","General - Magic:other","Races - Humans:other"]}
+10/15 inject_script ok 12ms
+11/15 eval ok 36110ms
+11/15 eval -> {"triggered":"Ponticius","foreignDryScan":"armed"}
+12/15 wait ok 1532ms
+13/15 eval ok 7ms
+13/15 eval -> {"T12c":"pick survived the foreign dry scan: T12c not built","forced":["Vault combination"],"lost":[],"dryScans":2}
+14/15 wait ok 5046ms
+15/15 eval ok 5ms
+15/15 eval -> {"judge":"restored"}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T14-27-12-340Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 15,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-22f8addb"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@11h25m58s740ms",
+    "owned": [
+      "2026-09-25@11h25m58s740ms"
+    ],
+    "deleted": [
+      "2026-09-25@11h25m58s740ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@11h25m58s740ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}
+scenario exit=0 2026-09-25T14:27:12Z

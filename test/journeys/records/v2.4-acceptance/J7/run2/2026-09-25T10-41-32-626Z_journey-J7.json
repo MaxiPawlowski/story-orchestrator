@@ -1,0 +1,261 @@
+{
+  "id": "J7",
+  "title": "long-haul",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j7-long-haul.journey.json",
+  "ranAt": "2026-09-25T10:41:32.611Z",
+  "strict": true,
+  "partial": false,
+  "only": null,
+  "tally": {
+    "pass": 8,
+    "skipped": 2
+  },
+  "tallies": {
+    "automated": {
+      "pass": 8,
+      "fail": 0,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 2
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 8,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [],
+  "humanRecord": null,
+  "runnerError": null,
+  "releasedRoutes": null,
+  "capabilities": {},
+  "results": [
+    {
+      "id": "J7.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp1 → cp2: the player approaches the job board Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.2",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp2 → cp3: the party accepts the Sun Ruins mission Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.3",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp3 → cp-4a: the player agrees to bring Luke along Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.4",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp-4a → cp-4a1: the sphinx riddle is answered correctly Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.5",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp-4a1 → cp-5: the party enters the inner chamber, and convergence progress is recorded Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.6",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp-5 → cp-6: the artifact is secured and the party returns to the guild Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.7",
+      "mode": "auto",
+      "findings": [],
+      "goal": "every anchor was visited and none was skipped",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.8",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the long session left a coherent journal and memory behind",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J7.9",
+      "mode": "human",
+      "findings": [],
+      "goal": "",
+      "prompt": "Over the whole play-through, did the story feel authored — arriving where it was meant to — or did it feel like it was dragging you along rails?",
+      "anchors": "1 = pure rails · 3 = authored but visible machinery · 5 = felt like a GM running my choices",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    },
+    {
+      "id": "J7.10",
+      "mode": "human",
+      "findings": [],
+      "goal": "",
+      "prompt": "Did the finale land, given what actually happened in your run?",
+      "anchors": "1 = disconnected from my choices · 3 = generic ending · 5 = paid off my run specifically",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    }
+  ],
+  "cleanup": {
+    "judgeCalls": {
+      "count": 0,
+      "events": []
+    },
+    "lorebooks": {
+      "Xentar Checkpoints": {
+        "deactivated": true
+      }
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 2,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [],
+      "preservedSessions": []
+    },
+    "keptPreExistingStories": [
+      "v2-ea8a94f1"
+    ],
+    "chat": {
+      "sandboxChatId": "2026-09-25@07h16m15s966ms",
+      "owned": [
+        "2026-09-25@07h16m15s966ms"
+      ],
+      "deleted": [
+        "2026-09-25@07h16m15s966ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-25@07h16m15s966ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-24@05h22m36s897ms"
+    },
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "member:DM Narrator": {
+      "enabled": true
+    },
+    "member:Arin": {
+      "enabled": true
+    },
+    "member:Ponticius": {
+      "enabled": true
+    },
+    "member:Luke": {
+      "enabled": true
+    },
+    "disabledMembers": []
+  }
+}

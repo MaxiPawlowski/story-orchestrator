@@ -1,0 +1,88 @@
+{
+  "ok": true,
+  "value": {
+    "installed": true,
+    "count": 3,
+    "rows": [
+      {
+        "at": "2026-09-25T16:00:36.057Z",
+        "url": "/api/plugins/story-orchestrator-judge/systemone",
+        "body": {
+          "state": {
+            "established_facts": {
+              "fact_0": "The old stone bridge over the river collapsed in the flood and is gone."
+            },
+            "reply": {
+              "speaker": "Courier",
+              "text": "I crossed the old stone bridge over the river this morning. It held firm under my boots, same as ever."
+            }
+          },
+          "questions": {
+            "fact:0": {
+              "type": "noul",
+              "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+              "criteria": {
+                "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+                "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+              }
+            }
+          },
+          "model": "jev-1.13.0"
+        }
+      },
+      {
+        "at": "2026-09-25T16:01:12.425Z",
+        "url": "/api/plugins/story-orchestrator-judge/systemone",
+        "body": {
+          "state": {
+            "established_facts": {
+              "fact_0": "The old stone bridge over the river collapsed in the flood and is gone."
+            },
+            "reply": {
+              "speaker": "Ponticius",
+              "text": "*The Guild Master lets out a short, gruff laugh, though there's no real mirth in it. He crosses his arms, the scarred leather of his vambraces creaking as he shifts his weight.*\n\"Right enough. Back the way you came. Arin's got the eye for the trail, and he's and he knows these parts well enough.\"\n*He gestures toward the door with a chin-flick, not bothering withs a formal dismissal. His expression has hardened, the kind of look he gives when sending folk off on a dangerous mission.*\n\"Make it quick, make it smart. The weather's turning and those rivers are running high with runoff. Don't go gettin' caught in the current.\"\n*His eyes linger on you for a moment longer than necessary, as if measuring whether you've got the sense to avoid a drowning pool.* \"Head on.\""
+            }
+          },
+          "questions": {
+            "fact:0": {
+              "type": "noul",
+              "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+              "criteria": {
+                "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+                "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+              }
+            }
+          },
+          "model": "jev-1.13.0"
+        }
+      },
+      {
+        "at": "2026-09-25T16:01:50.181Z",
+        "url": "/api/plugins/story-orchestrator-judge/systemone",
+        "body": {
+          "state": {
+            "established_facts": {
+              "fact_0": "The old stone bridge over the river collapsed in the flood and is gone."
+            },
+            "reply": {
+              "speaker": "Luke",
+              "text": "*Luke follows along, trying to match the pace, but his chainmail is making a lot of noise. He keeps glancing at Max and Arin, his excitement still palpable.*\n*He clears his throat, the sound a bit loud in the quiet.*\n\"So, um, you-you're really going on a lot of quests, right?\"\n*He looks at Max with a wide-eyed stare, as if expecting an answer.*\n\"I mean, you must've seen some pretty incredible things, right?\"\n*His voice is fast and quiet, but his eagerness is clear. He's practically buzzing with energy.*"
+            }
+          },
+          "questions": {
+            "fact:0": {
+              "type": "noul",
+              "instructions": "Does `reply` contradict `established_facts.fact_0`?",
+              "criteria": {
+                "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
+                "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
+              }
+            }
+          },
+          "model": "jev-1.13.0"
+        }
+      }
+    ]
+  }
+}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T16-01-58-875Z_st-eval.json

@@ -1,0 +1,115 @@
+== P06 overlay-tc-run1 test/scenarios/live-v24-06-overlay.json start 2026-09-25T15:06:03Z
+{
+  "opened": {
+    "found": true,
+    "alreadyOpen": true,
+    "id": "1759606632088",
+    "name": "Group: Arin, DM Narrator"
+  },
+  "state": {
+    "groupId": "1759606632088",
+    "chatId": "2026-09-20@07h06m38s396ms",
+    "chatLength": 0
+  }
+}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T15-06-08-999Z_st-navigation-open-group.json
+open-group exit=0
+1/15 import_story ok 287ms
+2/15 ui ok 276ms
+3/15 eval ok 73ms
+3/15 eval -> {"api":"textgen","preset":"Artemis v1.1 RP","file":"{\"preset\":\"Artemis v1.1 RP\",\"temp\":1,\"top_p\":1}"}
+4/15 slash ok 2596ms
+5/15 wait ok 36ms
+6/15 eval ok 6ms
+6/15 eval -> {"armed":"SO-V2406 Overlay","values":{"temperature":0.37,"top_p":0.83}}
+7/15 send_generate ok 26063ms
+8/15 wait ok 5243ms
+9/15 eval ok 63ms
+9/15 eval -> {"loud":1,"sample":{"active":"cp-overlay","type":null,"temperature":0.37,"top_p":0.83},"preset":"Artemis v1.1 RP","file":"{\"preset\":\"Artemis v1.1 RP\",\"temp\":1,\"top_p\":1}"}
+10/15 eval ok 26740ms
+10/15 eval -> {"memoryRequests":1,"api":"textgenerationwebui"}
+11/15 slash ok 1707ms
+12/15 wait ok 43ms
+13/15 send_generate ok 66529ms
+14/15 wait ok 5229ms
+15/15 eval ok 8ms
+15/15 eval -> {"after":2,"temperature":1}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T15-08-34-514Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 15,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-cbeb5df2"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@12h06m14s611ms",
+    "owned": [
+      "2026-09-25@12h06m14s611ms"
+    ],
+    "deleted": [
+      "2026-09-25@12h06m14s611ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@12h06m14s611ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}
+scenario exit=0 2026-09-25T15:08:34Z

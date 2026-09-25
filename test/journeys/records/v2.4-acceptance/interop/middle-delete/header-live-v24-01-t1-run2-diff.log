@@ -1,0 +1,12 @@
+{
+  "baseline": "test/journeys/records/v2.4-acceptance/interop/middle-delete/header-live-v24-01-t1-run2-start.json",
+  "label": "diff-end",
+  "allow": [],
+  "differences": 0,
+  "progress": 0,
+  "blocking": 0,
+  "blockingPaths": [],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\1\\debug\\run-header-diff-end.json",
+  "ok": true
+}

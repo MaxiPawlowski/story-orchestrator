@@ -1,0 +1,206 @@
+{
+  "file": "test/scenarios/v24-acc-I6.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "eval",
+      "ok": true,
+      "ms": 15
+    },
+    {
+      "index": 1,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    },
+    {
+      "index": 2,
+      "key": "import_story",
+      "ok": true,
+      "ms": 286
+    },
+    {
+      "index": 3,
+      "key": "eval",
+      "ok": true,
+      "ms": 24
+    },
+    {
+      "index": 4,
+      "key": "send",
+      "ok": true,
+      "ms": 1679
+    },
+    {
+      "index": 5,
+      "key": "extract",
+      "ok": true,
+      "ms": 1063
+    },
+    {
+      "index": 6,
+      "key": "send",
+      "ok": true,
+      "ms": 1682
+    },
+    {
+      "index": 7,
+      "key": "extract",
+      "ok": true,
+      "ms": 879
+    },
+    {
+      "index": 8,
+      "key": "record_state",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 9,
+      "key": "send",
+      "ok": true,
+      "ms": 1662
+    },
+    {
+      "index": 10,
+      "key": "extract",
+      "ok": true,
+      "ms": 882
+    },
+    {
+      "index": 11,
+      "key": "eval",
+      "ok": true,
+      "ms": 340
+    },
+    {
+      "index": 12,
+      "key": "branch_create",
+      "ok": true,
+      "ms": 277
+    },
+    {
+      "index": 13,
+      "key": "eval",
+      "ok": true,
+      "ms": 4
+    },
+    {
+      "index": 14,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    },
+    {
+      "index": 15,
+      "key": "eval",
+      "ok": true,
+      "ms": 1515
+    },
+    {
+      "index": 16,
+      "key": "ui",
+      "ok": true,
+      "ms": 73
+    },
+    {
+      "index": 17,
+      "key": "wait",
+      "ok": true,
+      "ms": 1535
+    },
+    {
+      "index": 18,
+      "key": "expect",
+      "ok": true,
+      "ms": 5
+    },
+    {
+      "index": 19,
+      "key": "expect",
+      "ok": true,
+      "ms": 18
+    },
+    {
+      "index": 20,
+      "key": "eval",
+      "ok": true,
+      "ms": 347
+    }
+  ],
+  "ok": true,
+  "error": null,
+  "retries": [],
+  "firstAttempt": "pass",
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@08h54m13s482ms",
+    "owned": [
+      "2026-09-25@08h54m13s482ms"
+    ],
+    "deleted": [
+      "2026-09-25@08h54m13s482ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@08h54m13s482ms - Branch #1",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-25@08h54m13s482ms - Branch #1",
+    "branchChats": {
+      "recorded": [
+        "2026-09-25@08h54m13s482ms - Branch #1"
+      ],
+      "deleted": [
+        "2026-09-25@08h54m13s482ms - Branch #1"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [
+        "Story Orchestrator - v24-01 Delete Decode - 2026-09-25@08h54m13s482ms - Branch #1",
+        "Story Orchestrator - v24-01 Delete Decode - 2026-09-25@08h54m13s482ms"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [
+        "The chat \"2026-09-25@08h54m13s482ms\" was deleted, but its story-memory lorebook \"Story Orchestrator - v24-01 Delete Decode - 2026-09-25@08h54m13s482ms\" is still there. Delete the lorebook too? This ca"
+      ],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

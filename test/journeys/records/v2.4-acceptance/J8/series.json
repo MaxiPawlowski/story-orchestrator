@@ -1,0 +1,13 @@
+{
+  "row": "J8", "lane": 2, "batch": "B2",
+  "candidate": { "commit": "4ebe1db", "bundleSha256": "65733265d3015e620e5f26221d4cbfdbce59541b49e356c69c13642f386f0cab" },
+  "deviation": "no --require-human-record (human sessions not held; J8.4 unscored, human gate open)",
+  "fixture": "j8-stagecraft.journey.json unchanged (as-run copy in each run dir)",
+  "runs": [
+    { "dir": "run1", "auto": "10/10", "firstAttempt": "10/10", "cleanup": "clean", "assertClean": "SO-J8 clean", "headerDiff": "1 blocking, undeclared: build.head f97c302 -> f11ab3b (commits by another session mid-run; bundle.served unchanged 65733265d301). Counted as FAIL under the header rule" },
+    { "dir": "run2", "auto": "10/10", "firstAttempt": "10/10", "cleanup": "clean", "assertClean": "SO-J8 clean", "headerDiff": "0 blocking (build.head f11ab3b -> 70b8eed declared via --allow build.head)" },
+    { "dir": "run3", "auto": "10/10", "firstAttempt": "10/10", "cleanup": "clean", "assertClean": "SO-J8 clean", "headerDiff": "0 differences (--allow build.head)" }
+  ],
+  "passRate": "2/3 (run1 fails only on the undeclared build.head header difference; automated 10/10 in all three)",
+  "consecutiveX2": "run2+run3"
+}

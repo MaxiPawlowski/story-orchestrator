@@ -1,0 +1,64 @@
+Following the session journal → C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\test\journeys\records\v2.4-acceptance\J5\run2\journal-follow.jsonl every 1000 ms. Ctrl-C to stop.
+2026-09-25T10:40:46.854Z session      chat 2026-09-24@04h05m33s739ms · story none · at — (boundary 0, 7 messages)
+2026-09-25T10:39:06.545Z status       No story selected for this chat
+2026-09-25T10:39:06.644Z story        away recap not due
+2026-09-25T10:39:06.668Z status       Following The Briefing
+2026-09-25T10:39:25.199Z payload      2 story blocks injected (generation)
+2026-09-25T10:39:48.082Z payload      4 story blocks injected (generation)
+2026-09-25T10:39:48.096Z payload      5 story blocks injected (generation)
+2026-09-25T10:40:05.912Z payload      4 story blocks injected (generation)
+2026-09-25T10:40:05.927Z payload      5 story blocks injected (generation)
+2026-09-25T10:40:22.483Z story        restored 1 host change(s)
+2026-09-25T10:40:22.488Z status       No story selected for this chat
+2026-09-25T10:41:02.014Z session      chat 2026-09-25@07h41m01s263ms · story legacy-v2-3a7f8d89 · at The Briefing (boundary 0, 1 messages)
+2026-09-25T10:41:02.257Z status       No story selected for this chat
+2026-09-25T10:41:02.264Z boundary     boundary 1: nothing applied (gate)
+2026-09-25T10:41:02.359Z story        away recap not due
+2026-09-25T10:41:02.383Z status       Following The Briefing
+2026-09-25T10:41:04.640Z payload      1 story blocks injected (generation)
+2026-09-25T10:41:06.581Z talk         Ponticius speaks (director)
+2026-09-25T10:41:14.403Z extraction   read cadence msgs 0-1 → 2 accepted, 0 rejected
+2026-09-25T10:41:14.403Z delta        briefing_done = false
+2026-09-25T10:41:14.403Z delta        tension_current = 0
+2026-09-25T10:41:14.403Z delta        queued briefing_done=false, tension_current=0 for the next boundary
+2026-09-25T10:41:14.403Z audit        audit cadence msgs 0-1 scope [briefing_done, tension_current] → 2 accepted, 0 rejected
+2026-09-25T10:41:25.918Z boundary     applied briefing_done=false, tension_current=0
+2026-09-25T10:41:42.365Z payload      4 story blocks injected (generation)
+2026-09-25T10:41:42.380Z payload      5 story blocks injected (generation)
+2026-09-25T10:41:52.622Z delta        queued briefing_done=true for the next boundary
+2026-09-25T10:41:53.635Z delta        queued briefing_done=true for the next boundary
+2026-09-25T10:41:52.016Z extraction   read cadence msgs 2-3 → 1 accepted, 1 rejected
+2026-09-25T10:41:52.016Z delta        briefing_done = true
+2026-09-25T10:41:52.016Z delta        queued briefing_done=true for the next boundary
+2026-09-25T10:41:52.016Z audit        audit cadence msgs 2-3 scope [briefing_done, tension_current] → 1 accepted, 1 rejected
+2026-09-25T10:41:59.935Z boundary     applied briefing_done=true
+2026-09-25T10:41:59.935Z transition   brief → muster
+2026-09-25T10:42:00.461Z status       Moved into Muster Out
+2026-09-25T10:42:01.491Z payload      5 story blocks injected (generation)
+2026-09-25T10:42:02.626Z payload      6 story blocks injected (generation)
+2026-09-25T10:42:22.967Z boundary     boundary 4: nothing applied (gate)
+2026-09-25T10:42:23.083Z status       Following Muster Out
+2026-09-25T10:42:25.103Z session      chat 2026-09-24@04h05m33s739ms · story none · at Muster Out (boundary 4, 7 messages)
+2026-09-25T10:41:02.257Z status       No story selected for this chat
+2026-09-25T10:41:02.264Z boundary     boundary 1: nothing applied (gate)
+2026-09-25T10:41:02.359Z story        away recap not due
+2026-09-25T10:41:02.383Z status       Following The Briefing
+2026-09-25T10:41:04.640Z payload      1 story blocks injected (generation)
+2026-09-25T10:41:06.581Z talk         Ponticius speaks (director)
+2026-09-25T10:41:14.403Z extraction   read cadence msgs 0-1 → 2 accepted, 0 rejected
+2026-09-25T10:41:14.403Z delta        briefing_done = false
+2026-09-25T10:41:14.403Z delta        tension_current = 0
+2026-09-25T10:41:25.918Z boundary     applied briefing_done=false, tension_current=0
+2026-09-25T10:41:42.365Z payload      4 story blocks injected (generation)
+2026-09-25T10:41:42.380Z payload      5 story blocks injected (generation)
+2026-09-25T10:41:52.016Z extraction   read cadence msgs 2-3 → 1 accepted, 1 rejected
+2026-09-25T10:41:52.016Z delta        briefing_done = true
+2026-09-25T10:41:59.935Z boundary     applied briefing_done=true
+2026-09-25T10:41:59.935Z transition   brief → muster
+2026-09-25T10:42:00.461Z status       Moved into Muster Out
+2026-09-25T10:42:01.491Z payload      5 story blocks injected (generation)
+2026-09-25T10:42:02.626Z payload      6 story blocks injected (generation)
+2026-09-25T10:42:22.967Z boundary     boundary 4: nothing applied (gate)
+2026-09-25T10:42:23.083Z status       Following Muster Out
+2026-09-25T10:42:25.115Z story        restored 2 host change(s)
+2026-09-25T10:42:25.119Z status       No story selected for this chat

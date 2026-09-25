@@ -1,0 +1,198 @@
+{
+  "file": "test/scenarios/live-v24-02-e2-solo-epistemic.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 1,
+      "key": "solo_chat",
+      "ok": true,
+      "ms": 669
+    },
+    {
+      "index": 2,
+      "key": "eval",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 3,
+      "key": "import_story",
+      "ok": true,
+      "ms": 264
+    },
+    {
+      "index": 4,
+      "key": "eval",
+      "ok": true,
+      "ms": 230
+    },
+    {
+      "index": 5,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 21579
+    },
+    {
+      "index": 6,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 7,
+      "key": "solo_chat",
+      "ok": true,
+      "ms": 749
+    },
+    {
+      "index": 8,
+      "key": "solo_chat",
+      "ok": true,
+      "ms": 551
+    },
+    {
+      "index": 9,
+      "key": "eval",
+      "ok": true,
+      "ms": 4
+    },
+    {
+      "index": 10,
+      "key": "import_story",
+      "ok": true,
+      "ms": 264
+    },
+    {
+      "index": 11,
+      "key": "eval",
+      "ok": true,
+      "ms": 232
+    },
+    {
+      "index": 12,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 23669
+    },
+    {
+      "index": 13,
+      "key": "eval",
+      "ok": true,
+      "ms": 4
+    },
+    {
+      "index": 14,
+      "key": "solo_chat",
+      "ok": true,
+      "ms": 388
+    },
+    {
+      "index": 15,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    }
+  ],
+  "ok": true,
+  "error": null,
+  "retries": [],
+  "firstAttempt": "pass",
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-23b5cfd9",
+      "v2-cfa7a1fc"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [
+        "DM Narrator - 2026-09-25@07h44m00s875ms",
+        "DM Narrator - 2026-09-25@07h44m24s267ms"
+      ],
+      "leaked": [],
+      "results": [
+        {
+          "chatId": "DM Narrator - 2026-09-25@07h44m00s875ms",
+          "gone": true
+        },
+        {
+          "chatId": "DM Narrator - 2026-09-25@07h44m24s267ms",
+          "gone": true
+        }
+      ]
+    },
+    "activeEntity": {
+      "captured": true,
+      "before": {
+        "character": null,
+        "group": "1759606632088"
+      },
+      "found": {
+        "character": "DM Narrator.png",
+        "group": null
+      },
+      "after": {
+        "character": null,
+        "group": "1759606632088"
+      },
+      "restored": true,
+      "saved": {
+        "status": 200
+      }
+    },
+    "sandboxChatId": "2026-09-25@07h44m00s342ms",
+    "owned": [
+      "2026-09-25@07h44m00s342ms"
+    ],
+    "deleted": [
+      "2026-09-25@07h44m00s342ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@07h44m00s342ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

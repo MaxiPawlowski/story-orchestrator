@@ -1,0 +1,323 @@
+{
+  "off": {
+    "label": "off",
+    "file": "test/journeys/records/v2.4-acceptance/judge/warden/off/run2/record.json",
+    "journey": "J8",
+    "mode": {
+      "label": "off",
+      "uses": []
+    },
+    "meter": {
+      "calls": 0,
+      "cachedCalls": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "cost": 0,
+      "lastAnsweredModel": null
+    },
+    "ring": {
+      "calls": 0,
+      "cachedCalls": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "cost": 0,
+      "fallbacks": {},
+      "byUse": {}
+    },
+    "warden": {
+      "flagged": 0,
+      "applied": 0,
+      "lapsed": 0,
+      "rejected": 0,
+      "pending": 0
+    },
+    "replies": 5,
+    "notes": [],
+    "rows": [
+      {
+        "id": "m0",
+        "arm": "off",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+        },
+        "player": "Max"
+      },
+      {
+        "id": "m1",
+        "arm": "off",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone."
+        ],
+        "reply": {
+          "speaker": "Courier",
+          "text": "I crossed the old stone bridge over the river this morning. It held firm under my boots, same as ever."
+        },
+        "player": "Max"
+      },
+      {
+        "id": "m3",
+        "arm": "off",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "“Right. Back the way we came, through the old bridge!” *Luke’s face lights up with relief as he turns to lead the way, his chainmail clinking with every step.* \"The weather has been crazy lately, but that should be get us across just fine. Come on, Max- Let’s get back to the guild and get our next adventure!\" *He starts walking quickly, his brown hair bouncing as he moves. He looks back at you with determination in his eyes.*"
+        },
+        "player": "Max",
+        "playerMessage": "Then we head back the same way. Lead on to the river crossing."
+      },
+      {
+        "id": "m5",
+        "arm": "off",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "*Arin walks beside you in silence, his steps quiet on the dusty path. He occasionally glances at you, his green eyes unitelling but his brow slightly furrowed.*\n“Still thinking about the fight? Or just in your head again?” *He asks after a while, his voice low and low.* \"You've been too quiet even for you, Max.\" *His tone is light, but there's an undercurrent of concern in his voice.*\n*He adjusts the strap of his daggers, his fingers drumming absently on the hilt.* \"Whatever it is, we'll figure it out. We're a good team, and we've got plenty of time to get back to the guild.\" *He looks at you with a confidence that borders on reckless, though there is a thoughtful expression on the road ahead.*"
+        },
+        "player": "Max",
+        "playerMessage": "We walk on in silence for a while."
+      },
+      {
+        "id": "m6",
+        "arm": "off",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke walks beside you, his chainmail rattling with every stride. He's quiet, but his eyes keep scanning the path ahead, occasionally flicking to the and side of the path. His face is pale, and he's chewing on his lip nervously.*\n\"Umm... Max?\" *He asks softly, his voice tentative.* \"Do you think my brother might have left any notes or signs behind?\" *He looks at you, hoping for an answer, but his expression is anxious. He's unsure of what tos say or more.*\n*He trips on a tree root, stumbling forward and momentarily losing his balance.* \"Whoah- sorry, I- I'm not as surefooted as you guys are,\" *he says sheepishly, recovering his himself and his short sword clatters against his gear.*\n*He looks back at you, and his brown hair falls over his eyes, which he're filled with a and desperate hope.* \"I just... I just need to find him. I know I'm going to. Even if it doesn't lead to anything. I've tried so much and I've found nothing.\" *His voice cracks slightly, and he's trying to hold onto a smile, but it's failing.*"
+        },
+        "player": "Max",
+        "playerMessage": "We walk on in silence for a while."
+      }
+    ]
+  },
+  "on": {
+    "label": "on",
+    "file": "test/journeys/records/v2.4-acceptance/judge/warden/on/run2/record.json",
+    "journey": "J8",
+    "mode": {
+      "label": "on",
+      "uses": [
+        "warden"
+      ],
+      "wardenMode": "auto"
+    },
+    "meter": {
+      "calls": 3,
+      "cachedCalls": 0,
+      "inputTokens": 1580,
+      "outputTokens": 66,
+      "cost": 0,
+      "lastAnsweredModel": "jev-1.13.0"
+    },
+    "ring": {
+      "calls": 3,
+      "cachedCalls": 0,
+      "inputTokens": 1580,
+      "outputTokens": 66,
+      "cost": 0,
+      "fallbacks": {},
+      "byUse": {
+        "warden": {
+          "calls": 3,
+          "cachedCalls": 0,
+          "inputTokens": 1580,
+          "outputTokens": 66,
+          "cost": 0,
+          "fallbacks": {}
+        }
+      }
+    },
+    "warden": {
+      "flagged": 1,
+      "applied": 1,
+      "lapsed": 0,
+      "rejected": 0,
+      "pending": 0
+    },
+    "replies": 6,
+    "notes": [
+      {
+        "text": "Continuity: established — The old stone bridge over the river collapsed in the flood and is gone. Keep the next reply consistent with it.",
+        "replyMessageId": 1,
+        "family": "continuity"
+      }
+    ],
+    "rows": [
+      {
+        "id": "m0",
+        "arm": "on",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+        },
+        "player": "Max"
+      },
+      {
+        "id": "m1",
+        "arm": "on",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone."
+        ],
+        "reply": {
+          "speaker": "Courier",
+          "text": "I crossed the old stone bridge over the river this morning. It held firm under my boots, same as ever."
+        },
+        "player": "Max"
+      },
+      {
+        "id": "m3",
+        "arm": "on",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*The Guild Master lets out a short, gruff laugh, though there's no real mirth in it. He crosses his arms, the scarred leather of his vambraces creaking as he shifts his weight.*\n\"Right enough. Back the way you came. Arin's got the eye for the trail, and he's and he knows these parts well enough.\"\n*He gestures toward the door with a chin-flick, not bothering withs a formal dismissal. His expression has hardened, the kind of look he gives when sending folk off on a dangerous mission.*\n\"Make it quick, make it smart. The weather's turning and those rivers are running high with runoff. Don't go gettin' caught in the current.\"\n*His eyes linger on you for a moment longer than necessary, as if measuring whether you've got the sense to avoid a drowning pool.* \"Head on.\""
+        },
+        "player": "Max",
+        "playerMessage": "Then we head back the same way. Lead on to the river crossing."
+      },
+      {
+        "id": "m4",
+        "arm": "on",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke's face lights up, a mixture of surprise and excitement flickering across his features as he makes the eye contact with Ponticius. He shifts his weight, his oversized chainmail clinking softly, the sword at his hip rattling.*\n\"R-right! Yeah! I'll be helpful! I mean, I'll be useful! I'm coming!\"\n*He takes a quick step toward the door, nearly tripping over his own feet in his enthusiasm before steadying himself with a sheepish grin.*\n\"I-I'll make sure everything goes smoothly! Trust me!\"\n*His voice cracks slightly on the other side of the last word, but his determination is evident.*\n*He's already halfway out the door and is already looking back over his shoulder at Max and Arin with an eagerness that's too much to whomsoever would see.*"
+        },
+        "player": "Max",
+        "playerMessage": "Then we head back the same way. Lead on to the river crossing."
+      },
+      {
+        "id": "m5",
+        "arm": "on",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "*Arin's eyes narrow as he watches Luke's enthusiasm, his jaw tightening slightly. He shifts his weight to one side, his hand instinctively moving toward the hilt of his dagger.*\n\"Luke, calm down. You're a bit much.\"\n*His tone is light but firm, though his concern is evident in his gaze. He turns his his face toward Max, a small smirk playing at his lips.*\n\"Let's get moving. The river's not going to get them there any faster.\"\n*He pushes off the wall and heads toward the door, his leather armor creaking softly as he moves. He's already checking his gear, his eyes scanning the road ahead.*\n\"So, what do you think? A simple enough task?\"\n*The question is light, but his eyes search your face, gauging your reaction to the response.*"
+        },
+        "player": "Max",
+        "playerMessage": "Then we head back the same way. Lead on to the river crossing."
+      },
+      {
+        "id": "m7",
+        "arm": "on",
+        "established": [
+          "The old stone bridge over the river collapsed in the flood and is gone."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke follows along, trying to match the pace, but his chainmail is making a lot of noise. He keeps glancing at Max and Arin, his excitement still palpable.*\n*He clears his throat, the sound a bit loud in the quiet.*\n\"So, um, you-you're really going on a lot of quests, right?\"\n*He looks at Max with a wide-eyed stare, as if expecting an answer.*\n\"I mean, you must've seen some pretty incredible things, right?\"\n*His voice is fast and quiet, but his eagerness is clear. He's practically buzzing with energy.*"
+        },
+        "player": "Max",
+        "playerMessage": "We walk on in silence for a while."
+      }
+    ]
+  },
+  "rows": [
+    {
+      "metric": "judge calls (meter)",
+      "off": 0,
+      "on": 3,
+      "delta": 3
+    },
+    {
+      "metric": "cached calls (meter)",
+      "off": 0,
+      "on": 0,
+      "delta": 0
+    },
+    {
+      "metric": "input tokens (meter)",
+      "off": 0,
+      "on": 1580,
+      "delta": 1580
+    },
+    {
+      "metric": "output tokens (meter)",
+      "off": 0,
+      "on": 66,
+      "delta": 66
+    },
+    {
+      "metric": "fallbacks (ring)",
+      "off": 0,
+      "on": 0,
+      "delta": 0
+    },
+    {
+      "metric": "flagged replies (warden)",
+      "off": 0,
+      "on": 1,
+      "delta": 1
+    },
+    {
+      "metric": "notes applied (warden)",
+      "off": 0,
+      "on": 1,
+      "delta": 1
+    },
+    {
+      "metric": "replies captured",
+      "off": 5,
+      "on": 6,
+      "delta": 1
+    },
+    {
+      "metric": "next-reply defect rate (rescore)",
+      "off": 0.4,
+      "on": 0.1667,
+      "delta": -0.2333
+    }
+  ],
+  "overSteer": [
+    {
+      "family": "continuity",
+      "note": "Continuity: established — The old stone bridge over the river collapsed in the flood and is gone. Keep the next reply consistent with it.",
+      "replyMessageId": 1,
+      "control": {
+        "id": "m3",
+        "speaker": "Luke"
+      },
+      "reply": {
+        "id": "m3",
+        "speaker": "Ponticius"
+      },
+      "restate": {
+        "ok": true,
+        "span": 2,
+        "maxSpan": 6,
+        "metaHits": []
+      },
+      "controlRestate": {
+        "ok": true,
+        "span": 2,
+        "maxSpan": 6,
+        "metaHits": []
+      },
+      "swing": {
+        "words": 138,
+        "controlWords": 81,
+        "lengthRatio": 1.704,
+        "sharedWithControl": 3
+      },
+      "missing": null
+    }
+  ]
+}

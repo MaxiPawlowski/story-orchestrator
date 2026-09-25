@@ -1,0 +1,38 @@
+{
+  "_note": "Control arm for v24-acc-A-reload-blocks.json (2026-09-25): identical, except the same-chat reload is replaced by a no-op. The real /trigger request must carry the checkpoint guidance; if it does, the probe attributes the missing guidance to the reload. Run: node scripts/debug/so-scenario.mts run test/scenarios/v24-acc-A-reload-blocks-control.json --sandbox --group 1759606632088.",
+  "steps": [
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "import_story": {
+        "file": "v24-01-delete.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); rt.setExtractionSettings({ cadence: 0 }); const before = Object.fromEntries(Object.entries(SillyTavern.getContext().extensionPrompts ?? {}).filter(([key]) => key.startsWith('story_')).map(([key, value]) => [key, String(value?.value ?? '')])); const guidance = before.story_orchestrator_guidance ?? ''; if (!guidance.trim()) throw new Error(`precondition: the story injects no checkpoint guidance, so this probe measures nothing: ${JSON.stringify(Object.fromEntries(Object.entries(before).map(([key, value]) => [key, value.length])))}`); const probe = globalThis.__soReloadProbe = { chatId: ctx.chatId, guidance, before, requests: [] }; probe.listener = (data, dryRun) => { if (!dryRun) probe.requests.push(JSON.stringify(data ?? null)); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, probe.listener); return { chatId: ctx.chatId, blocksBefore: Object.fromEntries(Object.entries(before).map(([key, value]) => [key, value.length])), guidanceHead: guidance.slice(0, 80) };",
+      "log": true
+    },
+    {
+      "eval": "const probe = globalThis.__soReloadProbe; probe.afterReload = Object.fromEntries(Object.entries(SillyTavern.getContext().extensionPrompts ?? {}).filter(([key]) => key.startsWith('story_')).map(([key, value]) => [key, String(value?.value ?? '')])); return { control: 'no reload', blocks: Object.keys(probe.afterReload) };",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); await ctx.eventSource.emit(ctx.eventTypes.GENERATION_STARTED, 'normal', {}, false); await ctx.eventSource.emit(ctx.eventTypes.GENERATION_ENDED, ctx.chat.length); await new Promise((r) => setTimeout(r, 500)); const after = Object.fromEntries(Object.entries(SillyTavern.getContext().extensionPrompts ?? {}).filter(([key]) => key.startsWith('story_')).map(([key, value]) => [key, String(value?.value ?? '')])); globalThis.__soReloadProbe.afterClose = after; return { blocksAfterAGenerationClose: Object.fromEntries(Object.entries(after).map(([key, value]) => [key, value.length])) };",
+      "log": true
+    },
+    {
+      "slash": "/trigger await=true Arin"
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 420000
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const probe = globalThis.__soReloadProbe; ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, probe.listener); const head = probe.guidance.slice(0, 60); const carried = probe.requests.filter((body) => body.includes(head)).length; const result = { guidanceHead: head, blocksBefore: Object.keys(probe.before), blocksAfterReload: Object.keys(probe.afterReload), blocksAfterClose: Object.keys(probe.afterClose), realRequests: probe.requests.length, requestsCarryingGuidance: carried }; if (!probe.requests.length) throw new Error(`no real request was captured, so the end-to-end half measured nothing: ${JSON.stringify(result)}`); if (!carried) throw new Error(`CONTROL FAILED (without any reload the guidance is absent too, so the probe cannot attribute its absence to the reload): after a same-chat reload (reloadCurrentChat -> ST clearChat wipes extension_prompts) the story's checkpoint guidance is absent from the next real request and is not re-applied by the generation close (stHost/extensionPrompts.ts lastWritten dedupes the unchanged text): ${JSON.stringify(result)}`); return result;",
+      "log": true
+    }
+  ]
+}

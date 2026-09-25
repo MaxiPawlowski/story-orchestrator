@@ -1,0 +1,215 @@
+{
+  "_note": "v2.4 plan 09 acceptance row I7 (same-chat reload), written 2026-09-25 for the acceptance matrix because no existing fixture covered the silent-rewrite and legacy halves (v24-02-same-chat-reload.json covers the in-page reloadCurrentChat path and is run beside this one). No model call: every read is a debugResponse, because the row tests hydrate reconcile, not extraction. Run: node scripts/debug/so-scenario.mts run test/scenarios/v24-acc-I7.json --sandbox --group 1759606632088. Three player lines are consumed (key, lamp, map), each with a latching delta and a fact. Arm A, plain reload: the page reloads (reload verb) and reopens the same chat; no rollback, state equal to the recording. Arm B, silent rewrite: message 2 is rewritten in the chat file with ctx.saveChat (no MESSAGE_EDITED/UPDATED), then the page reloads; plan 02 T3's reconcile at hydrate must roll back from 2 (expect.rollbackOutcome applied fromMessage 2) and the story must equal the recording taken after line 1. Arm C, legacy boundary: the blob's fingerprints are removed (the shape of a boundary saved before T3) and message 1 is rewritten silently, then the page reloads; an unknown fingerprint is never a mismatch, so no rollback runs, the state equals the recording, and the hydrate re-baselines the fingerprints from the chat as it is. record_state recordings do not survive a page reload, so the fixture stashes them in sessionStorage and restores them with rollbackSeq 0 (the rollback counter restarts with the page).",
+  "steps": [
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const greetings = ctx.chat.length; for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error(`the sandbox chat still holds ${ctx.chat.length} message(s) after clearing its greetings, so every message id below would name the wrong line`); sessionStorage.removeItem('so-acc-i7'); sessionStorage.removeItem('so-acc-i7-rec'); return { greetingsCleared: greetings };",
+      "log": true
+    },
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "import_story": {
+        "file": "v24-01-delete.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const state = rt.getEngineState(); if (!state || state.activeCheckpointId !== 'start') throw new Error(`the story did not load at start: ${JSON.stringify(state && state.activeCheckpointId)}`); return { cadence: 0, stabilityLag: 0, boundary: state.boundary };"
+    },
+    {
+      "send": "I take the brass key from the hook."
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=took_key value=true evidence=\"I take the brass key\"\nFACT importance=2 text=\"The player carries the brass key.\" evidence=\"I take the brass key from the hook.\"",
+        "reason": "v24-acc-i7:line-0"
+      }
+    },
+    {
+      "send": "I light the oil lamp by the door."
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=lit_lamp value=true evidence=\"I light the oil lamp\"\nFACT importance=2 text=\"The oil lamp by the door is lit.\" evidence=\"I light the oil lamp by the door.\"",
+        "reason": "v24-acc-i7:line-1"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; for (let i = 0; i < 150 && rt.getSnapshot().saveHealth?.pendingBoundary != null; i += 1) await new Promise((r) => setTimeout(r, 100)); const health = rt.getSnapshot().saveHealth; if (health?.pendingBoundary != null) throw new Error(`the last boundary is not saved yet, so a reload would legitimately diverge: ${JSON.stringify(health)}`); const state = rt.getEngineState(); if (state.lastMessageId !== 1 || state.blackboard.values.lit_lamp !== true) throw new Error(`lines 0-1 were not consumed: last=${state.lastMessageId} values=${JSON.stringify(state.blackboard.values)}`); return { boundary: state.boundary, lastMessageId: state.lastMessageId };",
+      "log": true
+    },
+    {
+      "record_state": {
+        "as": "after-line-1"
+      },
+      "log": true
+    },
+    {
+      "send": "I unroll the map on the table."
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=found_map value=true evidence=\"I unroll the map\"\nFACT importance=2 text=\"The map lies unrolled on the table.\" evidence=\"I unroll the map on the table.\"",
+        "reason": "v24-acc-i7:line-2"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; for (let i = 0; i < 150 && rt.getSnapshot().saveHealth?.pendingBoundary != null; i += 1) await new Promise((r) => setTimeout(r, 100)); const health = rt.getSnapshot().saveHealth; if (health?.pendingBoundary != null) throw new Error(`the last boundary is not saved yet, so a reload would legitimately diverge: ${JSON.stringify(health)}`); const state = rt.getEngineState(); if (state.lastMessageId !== 2 || state.blackboard.values.found_map !== true) throw new Error(`line 2 was not consumed: last=${state.lastMessageId} values=${JSON.stringify(state.blackboard.values)}`); const ctx = SillyTavern.getContext(); const response = await fetch('/api/chats/group/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ id: ctx.chatId }) }); if (!response.ok) throw new Error(`the server copy of ${ctx.chatId} could not be read: HTTP ${response.status}`); const rows = await response.json(); const header = rows.find((row) => row && row.chat_metadata) ?? null; const messages = rows.filter((row) => row && !row.chat_metadata); const storyId = globalThis.storyOrchestratorRuntime.getSnapshot().storyId; const record = header?.chat_metadata?.story_orchestrator?.stories?.[storyId] ?? null; const fp = record?.fingerprints ?? null; if (!fp || fp.v !== 1 || !Array.isArray(fp.hashes) || fp.from > 2 || !fp.hashes[2 - fp.from]) throw new Error(`the server copy carries no fingerprint for consumed message 2, so the silent-rewrite arm would test nothing: ${JSON.stringify(fp)}`); sessionStorage.setItem('so-acc-i7', JSON.stringify({ chatId: ctx.chatId, storyId })); return { boundary: state.boundary, lastMessageId: state.lastMessageId, fingerprints: fp };",
+      "log": true
+    },
+    {
+      "record_state": {
+        "as": "before-plain-reload"
+      },
+      "log": true
+    },
+    {
+      "eval": "sessionStorage.setItem('so-acc-i7-rec', JSON.stringify(globalThis.__soRecordedStates ?? {})); return { stashed: Object.keys(globalThis.__soRecordedStates ?? {}) };"
+    },
+    {
+      "reload": {
+        "timeoutMs": 90000
+      },
+      "log": true
+    },
+    {
+      "eval": "const saved = JSON.parse(sessionStorage.getItem('so-acc-i7') ?? 'null'); if (!saved) throw new Error('the I7 run state did not survive the reload (sessionStorage so-acc-i7)'); const rt = globalThis.storyOrchestratorRuntime; for (let i = 0; i < 300; i += 1) { const now = SillyTavern.getContext(); if (now.chatId === saved.chatId && rt.getSnapshot().storyId) break; await new Promise((r) => setTimeout(r, 100)); } const now = SillyTavern.getContext(); if (now.chatId !== saved.chatId) throw new Error(`the reload did not come back to the sandbox chat: ${now.chatId} (expected ${saved.chatId})`); if (!rt.getSnapshot().storyId) throw new Error('the story did not hydrate after the reload'); const recordings = JSON.parse(sessionStorage.getItem('so-acc-i7-rec') ?? '{}'); for (const value of Object.values(recordings)) value.rollbackSeq = 0; globalThis.__soRecordedStates = recordings; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const state = rt.getEngineState(); return { arm: 'plain reload', chatId: now.chatId, boundary: state.boundary, lastMessageId: state.lastMessageId, lastOutcome: rt.notices?.lastOutcome ?? null };",
+      "log": true
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "expect": {
+        "rollbackOutcome": {
+          "result": "none",
+          "since": "before-plain-reload"
+        }
+      }
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "before-plain-reload",
+          "scope": [
+            "values",
+            "versions",
+            "active",
+            "path",
+            "boundary",
+            "memory",
+            "epistemic",
+            "ledger"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); if (rt.notices?.lastOutcome) throw new Error(`a rollback already ran on this page before the rewrite: ${JSON.stringify(rt.notices.lastOutcome)}`); const before = ctx.chat[2]?.mes; if (before !== 'I unroll the map on the table.') throw new Error(`message 2 is not the map line: ${JSON.stringify(before)}`); ctx.chat[2].mes = 'I leave the map rolled up and study the iron chest instead.'; await ctx.saveChat(); const response = await fetch('/api/chats/group/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ id: ctx.chatId }) }); if (!response.ok) throw new Error(`the server copy of ${ctx.chatId} could not be read: HTTP ${response.status}`); const rows = await response.json(); const header = rows.find((row) => row && row.chat_metadata) ?? null; const messages = rows.filter((row) => row && !row.chat_metadata); const storyId = globalThis.storyOrchestratorRuntime.getSnapshot().storyId; const record = header?.chat_metadata?.story_orchestrator?.stories?.[storyId] ?? null; if (messages[2]?.mes !== 'I leave the map rolled up and study the iron chest instead.') throw new Error(`the silent rewrite did not reach the server copy: ${JSON.stringify(messages[2]?.mes)}`); if (!record?.fingerprints) throw new Error('the server copy lost its fingerprints before the reload'); if (rt.notices?.lastOutcome) throw new Error(`the silent rewrite itself rolled back (it emits no event, so nothing should have run yet): ${JSON.stringify(rt.notices.lastOutcome)}`); sessionStorage.setItem('so-acc-i7-rec', JSON.stringify(globalThis.__soRecordedStates ?? {})); return { rewritten: 2, before, after: messages[2].mes };",
+      "log": true
+    },
+    {
+      "reload": {
+        "timeoutMs": 90000
+      },
+      "log": true
+    },
+    {
+      "eval": "const saved = JSON.parse(sessionStorage.getItem('so-acc-i7') ?? 'null'); if (!saved) throw new Error('the I7 run state did not survive the reload (sessionStorage so-acc-i7)'); const rt = globalThis.storyOrchestratorRuntime; for (let i = 0; i < 300; i += 1) { const now = SillyTavern.getContext(); if (now.chatId === saved.chatId && rt.getSnapshot().storyId) break; await new Promise((r) => setTimeout(r, 100)); } const now = SillyTavern.getContext(); if (now.chatId !== saved.chatId) throw new Error(`the reload did not come back to the sandbox chat: ${now.chatId} (expected ${saved.chatId})`); if (!rt.getSnapshot().storyId) throw new Error('the story did not hydrate after the reload'); const recordings = JSON.parse(sessionStorage.getItem('so-acc-i7-rec') ?? '{}'); for (const value of Object.values(recordings)) value.rollbackSeq = 0; globalThis.__soRecordedStates = recordings; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const state = rt.getEngineState(); return { arm: 'silent rewrite', chatId: now.chatId, boundary: state.boundary, lastMessageId: state.lastMessageId, lastOutcome: rt.notices?.lastOutcome ?? null, journal: (rt.getSessionJournal?.() ?? []).slice(-6).map((event) => [event.kind, event.summary ?? ''].join(': ')) };",
+      "log": true
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "expect": {
+        "rollbackOutcome": {
+          "result": "applied",
+          "fromMessage": 2
+        }
+      }
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "after-line-1",
+          "scope": [
+            "values",
+            "versions",
+            "active",
+            "path",
+            "boundary",
+            "memory",
+            "epistemic",
+            "ledger"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; for (let i = 0; i < 150 && rt.getSnapshot().saveHealth?.pendingBoundary != null; i += 1) await new Promise((r) => setTimeout(r, 100)); const health = rt.getSnapshot().saveHealth; if (health?.pendingBoundary != null) throw new Error(`the last boundary is not saved yet, so a reload would legitimately diverge: ${JSON.stringify(health)}`); const state = rt.getEngineState(); if (state.lastMessageId !== 1) throw new Error(`after the rollback the engine should hold lines 0-1 only: last=${state.lastMessageId}`); return { boundary: state.boundary, lastMessageId: state.lastMessageId, fingerprints: rt.chatSave?.fingerprints?.current ?? null };",
+      "log": true
+    },
+    {
+      "record_state": {
+        "as": "before-legacy"
+      },
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const storyId = rt.getSnapshot().storyId; const blob = ctx.chatMetadata?.story_orchestrator; if (!blob?.stories?.[storyId]?.fingerprints) throw new Error('the chat blob holds no fingerprints to strip, so this arm would not test a legacy boundary'); if (!rt.chatSave?.fingerprints) throw new Error('this build exposes no chatSave.fingerprints keeper'); const before = ctx.chat[1]?.mes; if (before !== 'I light the oil lamp by the door.') throw new Error(`message 1 is not the lamp line: ${JSON.stringify(before)}`); ctx.chat[1].mes = 'I leave the lamp dark and feel along the wall.'; delete blob.stories[storyId].fingerprints; rt.chatSave.fingerprints.load(null); await ctx.saveChat(); const response = await fetch('/api/chats/group/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ id: ctx.chatId }) }); if (!response.ok) throw new Error(`the server copy of ${ctx.chatId} could not be read: HTTP ${response.status}`); const rows = await response.json(); const header = rows.find((row) => row && row.chat_metadata) ?? null; const messages = rows.filter((row) => row && !row.chat_metadata); const record = header?.chat_metadata?.story_orchestrator?.stories?.[storyId] ?? null; if (messages[1]?.mes !== 'I leave the lamp dark and feel along the wall.') throw new Error(`the silent rewrite did not reach the server copy: ${JSON.stringify(messages[1]?.mes)}`); if (!record) throw new Error('the server copy lost the story record'); if (record.fingerprints) throw new Error(`the server copy still carries fingerprints, so this is not a legacy boundary: ${JSON.stringify(record.fingerprints)}`); if (record.engineState?.lastMessageId !== 1) throw new Error(`the server copy's boundary is not the one recorded: ${record.engineState?.lastMessageId}`); sessionStorage.setItem('so-acc-i7-rec', JSON.stringify(globalThis.__soRecordedStates ?? {})); return { rewritten: 1, before, after: messages[1].mes, fingerprintsOnDisk: null };",
+      "log": true
+    },
+    {
+      "reload": {
+        "timeoutMs": 90000
+      },
+      "log": true
+    },
+    {
+      "eval": "const saved = JSON.parse(sessionStorage.getItem('so-acc-i7') ?? 'null'); if (!saved) throw new Error('the I7 run state did not survive the reload (sessionStorage so-acc-i7)'); const rt = globalThis.storyOrchestratorRuntime; for (let i = 0; i < 300; i += 1) { const now = SillyTavern.getContext(); if (now.chatId === saved.chatId && rt.getSnapshot().storyId) break; await new Promise((r) => setTimeout(r, 100)); } const now = SillyTavern.getContext(); if (now.chatId !== saved.chatId) throw new Error(`the reload did not come back to the sandbox chat: ${now.chatId} (expected ${saved.chatId})`); if (!rt.getSnapshot().storyId) throw new Error('the story did not hydrate after the reload'); const recordings = JSON.parse(sessionStorage.getItem('so-acc-i7-rec') ?? '{}'); for (const value of Object.values(recordings)) value.rollbackSeq = 0; globalThis.__soRecordedStates = recordings; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const state = rt.getEngineState(); return { arm: 'legacy boundary', chatId: now.chatId, boundary: state.boundary, lastMessageId: state.lastMessageId, lastOutcome: rt.notices?.lastOutcome ?? null };",
+      "log": true
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "expect": {
+        "rollbackOutcome": {
+          "result": "none",
+          "since": "before-legacy"
+        }
+      }
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "before-legacy",
+          "scope": [
+            "values",
+            "versions",
+            "active",
+            "path",
+            "boundary",
+            "memory",
+            "epistemic",
+            "ledger"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const fp = rt.chatSave?.fingerprints?.current ?? null; const drift = rt.chatSave?.firstDrift?.() ?? null; if (drift !== null) throw new Error(`the legacy boundary still reads a drift at ${drift} after the hydrate`); const journal = (rt.getSessionJournal?.() ?? []).map((event) => [event.kind, event.summary ?? ''].join(': ')).filter((line) => /eventless change at message [01]\\b/.test(line)); if (journal.length) throw new Error(`the legacy boundary was read as a mismatch: ${JSON.stringify(journal)}`); sessionStorage.removeItem('so-acc-i7'); sessionStorage.removeItem('so-acc-i7-rec'); return { rebaselined: fp, drift };",
+      "log": true
+    }
+  ]
+}

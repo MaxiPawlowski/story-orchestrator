@@ -1,0 +1,11 @@
+{
+  "row": "J10", "lane": 2, "batch": "B2",
+  "candidate": { "commit": "4ebe1db", "bundleSha256": "65733265d3015e620e5f26221d4cbfdbce59541b49e356c69c13642f386f0cab" },
+  "deviation": "no --require-human-record (J10.9/J10.10 unscored, human gate open). J10.12 (downgrade leg) is not in the journey file: dropped by user decision E9 (00-overview.md), reported not-runnable/dropped",
+  "fixture": "j10-identity-and-settings.journey.json unchanged",
+  "runs": [
+    { "dir": "run1", "auto": "11/11", "firstAttempt": "11/11", "cleanup": "clean", "headerDiff": "0 differences (--allow build.head declared)" },
+    { "dir": "run2", "auto": "11/11", "firstAttempt": "11/11", "cleanup": "clean", "headerDiff": "0 differences (--allow build.head declared)" }
+  ],
+  "passRate": "2/2"
+}

@@ -1,0 +1,157 @@
+{
+  "file": "test/scenarios/live-v24-02-e4-mirror-marker.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "eval",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 1,
+      "key": "slash",
+      "ok": true,
+      "ms": 1923
+    },
+    {
+      "index": 2,
+      "key": "eval",
+      "ok": true,
+      "ms": 16
+    },
+    {
+      "index": 3,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 4,
+      "key": "import_story",
+      "ok": true,
+      "ms": 282
+    },
+    {
+      "index": 5,
+      "key": "eval",
+      "ok": true,
+      "ms": 20
+    },
+    {
+      "index": 6,
+      "key": "send",
+      "ok": true,
+      "ms": 1665
+    },
+    {
+      "index": 7,
+      "key": "extract",
+      "ok": true,
+      "ms": 947
+    },
+    {
+      "index": 8,
+      "key": "eval",
+      "ok": true,
+      "ms": 632
+    },
+    {
+      "index": 9,
+      "key": "eval",
+      "ok": true,
+      "ms": 38
+    },
+    {
+      "index": 10,
+      "key": "eval",
+      "ok": true,
+      "ms": 1198
+    },
+    {
+      "index": 11,
+      "key": "eval",
+      "ok": true,
+      "ms": 988
+    },
+    {
+      "index": 12,
+      "key": "eval",
+      "ok": true,
+      "ms": 332
+    }
+  ],
+  "ok": true,
+  "error": null,
+  "retries": [],
+  "firstAttempt": "pass",
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@07h47m40s310ms",
+    "owned": [
+      "2026-09-25@07h47m40s310ms",
+      "2026-09-25@07h47m40s671ms"
+    ],
+    "deleted": [
+      "2026-09-25@07h47m40s310ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [
+      {
+        "id": "2026-09-25@07h47m40s671ms",
+        "reason": "not listed in the group"
+      }
+    ],
+    "currentChatAtCleanup": "2026-09-25@07h47m40s310ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [
+        "Story Orchestrator - v24-01 Delete Decode - 2026-09-25@07h47m40s671ms"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

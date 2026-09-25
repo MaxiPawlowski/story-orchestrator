@@ -1,0 +1,49 @@
+{
+  "records": 12,
+  "metered": 12,
+  "unmetered": [],
+  "unmeteredRing": {
+    "records": [],
+    "calls": 0,
+    "inputTokens": 0
+  },
+  "boundaries": 53,
+  "meter": {
+    "calls": 18,
+    "cachedCalls": 0,
+    "inputTokens": 11225,
+    "outputTokens": 474,
+    "cost": 0
+  },
+  "estimatedUsd": 0.000471,
+  "usdPer1000Boundaries": 0.008895,
+  "hostCost": null,
+  "notInRing": {
+    "calls": 0,
+    "inputTokens": 0
+  },
+  "perUse": [
+    {
+      "use": "warden",
+      "calls": 18,
+      "cachedCalls": 0,
+      "callsPerBoundary": 0.3396,
+      "latencyMs": {
+        "p50": 579,
+        "p90": 1225,
+        "max": 1329
+      },
+      "ringTokens": {
+        "input": 11225,
+        "output": 474
+      },
+      "fallbackRate": {},
+      "fallbacks": 0,
+      "models": [
+        "jev-1.13.0"
+      ]
+    }
+  ],
+  "priceSource": "docs.typesafe.ai/models 2026-09-24: $0.042 per million input tokens, output free",
+  "note": "totals and $ from the meters (X23); per-use tokens are ring readings, a floor by notInRing"
+}

@@ -1,0 +1,91 @@
+1/13 eval ok 6ms
+1/13 eval -> {"chatA":"2026-09-25@07h34m14s810ms"}
+2/13 slash ok 1797ms
+3/13 eval ok 15ms
+3/13 eval -> {"chatB":"2026-09-25@07h34m15s108ms","greetingsCleared":1}
+4/13 eval ok 6ms
+5/13 import_story ok 271ms
+6/13 eval ok 8ms
+7/13 send ok 1673ms
+8/13 extract ok 863ms
+9/13 eval ok 321ms
+9/13 eval -> {"chatA":"2026-09-25@07h34m14s810ms","chatB":"2026-09-25@07h34m15s108ms","book":"Story Orchestrator - v24-01 Delete Decode - 2026-09-25@07h34m15s108ms"}
+10/13 eval ok 1160ms
+10/13 eval -> {"on":"2026-09-25@07h34m14s810ms"}
+11/13 eval ok 4473ms
+11/13 eval -> {"h11":"no offer, book kept"}
+12/13 eval ok 48ms
+12/13 eval -> {"deleted":"2026-09-25@07h34m15s108ms","events":["2026-09-25@07h34m15s108ms"]}
+13/13 eval ok 595ms
+13/13 eval -> {"offered":"The chat \"2026-09-25@07h34m15s108ms\" was deleted, but its story-memory lorebook \"Story Orchestrator - v24-01 Delete Decode - 2026-09-25@07h34m15s108ms\" is still there. Delete the lorebook too? This ca","declined":true,"kept":true}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T10-34-30-766Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 13,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@07h34m14s810ms",
+    "owned": [
+      "2026-09-25@07h34m14s810ms",
+      "2026-09-25@07h34m15s108ms"
+    ],
+    "deleted": [
+      "2026-09-25@07h34m14s810ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [
+      {
+        "id": "2026-09-25@07h34m15s108ms",
+        "reason": "not listed in the group"
+      }
+    ],
+    "currentChatAtCleanup": "2026-09-25@07h34m14s810ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [
+        "Story Orchestrator - v24-01 Delete Decode - 2026-09-25@07h34m15s108ms"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

@@ -1,0 +1,25 @@
+  scoreSynthesis
+    √ a plain summary is valid (1 ms)
+    √ empty, cut off, or carrying a channel marker is not (1 ms)
+  summarizeRoleCalibration
+    √ director: the floor is 22 of D01-D26; Spanish rows are reported, never floored (1 ms)
+    √ curator: every floor binds overall and on the Spanish slice
+    √ curator opShape is surviving records over op lines read (1 ms)
+    √ synthesis has no floor
+  recorded live goldens replay through the same run path
+    √ found 9 recorded golden(s) (1 ms)
+    √ authoring-shared-65733265d301.json: every case re-scores to the recorded score, and the summary to the recorded summary (23 ms)
+    √ authoring-shared-e420eab0c646.json: every case re-scores to the recorded score, and the summary to the recorded summary (17 ms)
+    √ authoring-shared.json: every case re-scores to the recorded score, and the summary to the recorded summary (16 ms)
+    √ curator-shared-65733265d301.json: every case re-scores to the recorded score, and the summary to the recorded summary (13 ms)
+    √ curator-shared-e420eab0c646.json: every case re-scores to the recorded score, and the summary to the recorded summary (12 ms)
+    √ curator-shared.json: every case re-scores to the recorded score, and the summary to the recorded summary (8 ms)
+    √ director-routed.json: every case re-scores to the recorded score, and the summary to the recorded summary (11 ms)
+    √ director-shared.json: every case re-scores to the recorded score, and the summary to the recorded summary (12 ms)
+    √ synthesis-shared.json: every case re-scores to the recorded score, and the summary to the recorded summary (3 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       33 passed, 33 total
+Snapshots:   0 total
+Time:        3.188 s
+Ran all test suites matching src/runtime/roleCalibration.test.ts.

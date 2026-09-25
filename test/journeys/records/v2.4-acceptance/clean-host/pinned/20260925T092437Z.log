@@ -1,0 +1,1952 @@
+[clean-host] extension: /c/dev/SillyTavern-MainBranch/public/scripts/extensions/third-party/story-orchestrator
+[clean-host] log: /c/dev/SillyTavern-MainBranch/public/scripts/extensions/third-party/story-orchestrator/test/journeys/records/v2.4-acceptance/clean-host/pinned/20260925T092437Z.log
+== clone ==
+[clean-host] SillyTavern 06bde939fb1e9c4c8d8641d810f0a916b5bce127 (HEAD)
+[clean-host] SillyTavern 06bde939fb1e9c4c8d8641d810f0a916b5bce127 (HEAD)
+[clean-host] == copy extension ==
+[clean-host] == npm ci ==
+npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+npm warn deprecated jest-process-manager@0.4.0: ⚠️ The 'jest-process-manager' package is deprecated. Please migrate to Playwright's built-in test runner (@playwright/test) which now includes full Jest-style features and parallel testing. See https://playwright.dev/docs/intro for details.
+npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+npm warn deprecated @babel/plugin-proposal-private-property-in-object@7.21.11: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-private-property-in-object instead.
+npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+npm warn deprecated expect-playwright@0.8.0: ⚠️ The 'expect-playwright' package is deprecated. The Playwright core assertions (via @playwright/test) now cover the same functionality. Please migrate to built-in expect. See https://playwright.dev/docs/test-assertions for migration.
+npm warn deprecated jest-playwright-preset@4.0.0: ⚠️ The 'jest-playwright-preset' package is deprecated. Please migrate to Playwright's built-in test runner (@playwright/test) which now includes full Jest-style features and parallel testing. See https://playwright.dev/docs/intro for details.
+npm warn deprecated uuid@8.3.2: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+npm warn deprecated uuid@8.3.2: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+npm warn deprecated uuid@8.3.2: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
+npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+
+added 1400 packages in 32s
+npm notice
+npm notice New major version of npm available! 10.9.4 -> 12.1.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.1.0
+npm notice To update run: npm install -g npm@12.1.0
+npm notice
+[clean-host] npm ci OK
+[clean-host] == typecheck ==
+
+> story-orchestrator@2.4.0 typecheck
+> tsc --noEmit
+
+[clean-host] typecheck OK
+[clean-host] == lint ==
+
+> story-orchestrator@2.4.0 lint
+> eslint src/index.tsx src/engine src/extraction src/runtime src/pacing src/generation src/services src/utils src/constants src/memory src/studio src/copilot src/talk src/wizard src/stagecraft src/judge src/components --ext .ts,.tsx --ignore-pattern "src/**/*.test.ts"
+
+[clean-host] lint OK
+[clean-host] == test ==
+
+> story-orchestrator@2.4.0 test
+> jest --runInBand
+
+PASS src/runtime/runtimeManager.test.ts (12.52 s)
+  ● Console
+
+    console.warn
+      [Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults ReferenceError: Cannot access 'mockContext' before initialization
+          at getContext (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.test.ts:38:23)
+          at getRoot (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\settingsStore.ts:124:30)
+          at getGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\settingsStore.ts:165:16)
+          at applyGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:295:35)
+          at withGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:213:31)
+          at createExtras (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:220:50)
+          at new RuntimeManager (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.ts:68:47)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.ts:660:31)
+          at Runtime._execModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:1268:24)
+          at Runtime._loadModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:944:12)
+          at Runtime.requireModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:832:12)
+          at Runtime.requireModuleOrMock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:964:21)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.test.ts:6:1)
+          at Runtime._execModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:1268:24)
+          at Runtime._loadModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:944:12)
+          at Runtime.requireModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:832:12)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:95:13)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 213 |[39m     [36mreturn[39m applyGlobalSettings(extras[33m,[39m [33mNO_CHAT_OVERRIDES[39m)[33m;[39m
+     [90m 214 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 215 |[39m     console[33m.[39mwarn([32m"[Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults"[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 216 |[39m     [36mreturn[39m extras[33m;[39m
+     [90m 217 |[39m   }
+     [90m 218 |[39m }[33m;[39m[0m
+
+      at withGlobalSettings (src/runtime/extras.ts:215:13)
+      at createExtras (src/runtime/extras.ts:220:50)
+      at new RuntimeManager (src/runtime/runtimeManager.ts:68:47)
+      at Object.<anonymous> (src/runtime/runtimeManager.ts:660:31)
+      at Object.<anonymous> (src/runtime/runtimeManager.test.ts:6:1)
+
+    console.warn
+      [Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat chat-a while chat-b is open; left untouched, read as no story selected
+
+    [0m [90m 104 |[39m   [36mif[39m ([33mJSON[39m[33m.[39mstringify(mismatch) [33m!==[39m [33mJSON[39m[33m.[39mstringify(next)) {
+     [90m 105 |[39m     [36mconst[39m tag [33m=[39m next[33m.[39mkind [33m===[39m [32m"foreign"[39m [33m?[39m [32m"blob-chat-mismatch"[39m [33m:[39m [32m"blob-unreadable"[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39mwarn([32m`[Story Orchestrator] ${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`[39m)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m   }
+     [90m 108 |[39m   mismatch [33m=[39m next[33m;[39m
+     [90m 109 |[39m }[33m;[39m[0m
+
+      at noteMismatch (src/runtime/persistence.ts:106:13)
+      at getMetadataBlob (src/runtime/persistence.ts:118:5)
+      at getSelectedStoryId (src/runtime/persistence.ts:193:10)
+      at loadSelectedStory (src/runtime/storySelection.ts:42:32)
+      at RuntimeManager.loadSelectedFromChat (src/runtime/runtimeManager.ts:257:38)
+      at Object.<anonymous> (src/runtime/runtimeManager.test.ts:1310:5)
+
+    console.warn
+      [Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat chat-elsewhere while chat-a is open; left untouched, read as no story selected
+
+    [0m [90m 104 |[39m   [36mif[39m ([33mJSON[39m[33m.[39mstringify(mismatch) [33m!==[39m [33mJSON[39m[33m.[39mstringify(next)) {
+     [90m 105 |[39m     [36mconst[39m tag [33m=[39m next[33m.[39mkind [33m===[39m [32m"foreign"[39m [33m?[39m [32m"blob-chat-mismatch"[39m [33m:[39m [32m"blob-unreadable"[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39mwarn([32m`[Story Orchestrator] ${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`[39m)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m   }
+     [90m 108 |[39m   mismatch [33m=[39m next[33m;[39m
+     [90m 109 |[39m }[33m;[39m[0m
+
+      at noteMismatch (src/runtime/persistence.ts:106:13)
+      at getMetadataBlob (src/runtime/persistence.ts:118:5)
+      at getSelectedStoryId (src/runtime/persistence.ts:193:10)
+      at loadSelectedStory (src/runtime/storySelection.ts:42:32)
+      at RuntimeManager.loadSelectedFromChat (src/runtime/runtimeManager.ts:257:38)
+      at Object.<anonymous> (src/runtime/runtimeManager.test.ts:1750:5)
+
+PASS src/runtime/coordinators/stagecraftCoordinator.test.ts
+PASS src/runtime/memoryQueue.test.ts
+PASS src/runtime/coordinators/stagecraftCoordinator.review.test.ts
+PASS src/runtime/coordinators/memoryOwnership.review.test.ts
+PASS src/judge/judge.test.ts
+PASS src/runtime/effectsApplier.test.ts
+PASS src/runtime/memoryMirror.test.ts
+PASS src/engine/engine.test.ts
+PASS src/services/stHost/worldInfo.test.ts
+PASS src/runtime/roleCalibration.test.ts
+PASS src/engine/storyDiff.test.ts
+PASS src/runtime/coordinators/contradictedSeed.review.test.ts
+PASS src/runtime/talkControl.test.ts
+PASS src/runtime/branchContinue.review.test.ts (6.613 s)
+  ● Console
+
+    console.warn
+      [Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults ReferenceError: Cannot access 'mockContext' before initialization
+          at getContext (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\branchContinue.review.test.ts:27:21)
+          at getRoot (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\settingsStore.ts:124:30)
+          at getGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\settingsStore.ts:165:16)
+          at applyGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:295:35)
+          at withGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:213:31)
+          at createExtras (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:220:50)
+          at new RuntimeManager (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.ts:68:47)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.ts:660:31)
+          at Runtime._execModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:1268:24)
+          at Runtime._loadModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:944:12)
+          at Runtime.requireModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:832:12)
+          at Runtime.requireModuleOrMock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:964:21)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\branchContinue.review.test.ts:1:1)
+          at Runtime._execModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:1268:24)
+          at Runtime._loadModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:944:12)
+          at Runtime.requireModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:832:12)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:95:13)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 213 |[39m     [36mreturn[39m applyGlobalSettings(extras[33m,[39m [33mNO_CHAT_OVERRIDES[39m)[33m;[39m
+     [90m 214 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 215 |[39m     console[33m.[39mwarn([32m"[Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults"[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 216 |[39m     [36mreturn[39m extras[33m;[39m
+     [90m 217 |[39m   }
+     [90m 218 |[39m }[33m;[39m[0m
+
+      at withGlobalSettings (src/runtime/extras.ts:215:13)
+      at createExtras (src/runtime/extras.ts:220:50)
+      at new RuntimeManager (src/runtime/runtimeManager.ts:68:47)
+      at Object.<anonymous> (src/runtime/runtimeManager.ts:660:31)
+      at Object.<anonymous> (src/runtime/branchContinue.review.test.ts:1:1)
+
+    console.warn
+      [Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat chat-a while branch-1 is open; left untouched, read as no story selected
+
+    [0m [90m 104 |[39m   [36mif[39m ([33mJSON[39m[33m.[39mstringify(mismatch) [33m!==[39m [33mJSON[39m[33m.[39mstringify(next)) {
+     [90m 105 |[39m     [36mconst[39m tag [33m=[39m next[33m.[39mkind [33m===[39m [32m"foreign"[39m [33m?[39m [32m"blob-chat-mismatch"[39m [33m:[39m [32m"blob-unreadable"[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39mwarn([32m`[Story Orchestrator] ${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`[39m)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m   }
+     [90m 108 |[39m   mismatch [33m=[39m next[33m;[39m
+     [90m 109 |[39m }[33m;[39m[0m
+
+      at noteMismatch (src/runtime/persistence.ts:106:13)
+      at getMetadataBlob (src/runtime/persistence.ts:118:5)
+      at getSelectedStoryId (src/runtime/persistence.ts:193:10)
+      at loadSelectedStory (src/runtime/storySelection.ts:42:32)
+      at RuntimeManager.loadSelectedFromChat (src/runtime/runtimeManager.ts:257:38)
+      at TurnBridge.onChatChanged (src/runtime/turnBridge.ts:189:5)
+
+    console.warn
+      [Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat chat-a while branch-1 is open; left untouched, read as no story selected
+
+    [0m [90m 104 |[39m   [36mif[39m ([33mJSON[39m[33m.[39mstringify(mismatch) [33m!==[39m [33mJSON[39m[33m.[39mstringify(next)) {
+     [90m 105 |[39m     [36mconst[39m tag [33m=[39m next[33m.[39mkind [33m===[39m [32m"foreign"[39m [33m?[39m [32m"blob-chat-mismatch"[39m [33m:[39m [32m"blob-unreadable"[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39mwarn([32m`[Story Orchestrator] ${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`[39m)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m   }
+     [90m 108 |[39m   mismatch [33m=[39m next[33m;[39m
+     [90m 109 |[39m }[33m;[39m[0m
+
+      at noteMismatch (src/runtime/persistence.ts:106:13)
+      at getMetadataBlob (src/runtime/persistence.ts:118:5)
+      at getSelectedStoryId (src/runtime/persistence.ts:193:10)
+      at loadSelectedStory (src/runtime/storySelection.ts:42:32)
+      at RuntimeManager.loadSelectedFromChat (src/runtime/runtimeManager.ts:257:38)
+      at TurnBridge.onChatChanged (src/runtime/turnBridge.ts:189:5)
+
+    console.warn
+      [Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat chat-a while branch-1 is open; left untouched, read as no story selected
+
+    [0m [90m 104 |[39m   [36mif[39m ([33mJSON[39m[33m.[39mstringify(mismatch) [33m!==[39m [33mJSON[39m[33m.[39mstringify(next)) {
+     [90m 105 |[39m     [36mconst[39m tag [33m=[39m next[33m.[39mkind [33m===[39m [32m"foreign"[39m [33m?[39m [32m"blob-chat-mismatch"[39m [33m:[39m [32m"blob-unreadable"[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39mwarn([32m`[Story Orchestrator] ${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`[39m)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m   }
+     [90m 108 |[39m   mismatch [33m=[39m next[33m;[39m
+     [90m 109 |[39m }[33m;[39m[0m
+
+      at noteMismatch (src/runtime/persistence.ts:106:13)
+      at getMetadataBlob (src/runtime/persistence.ts:118:5)
+      at getSelectedStoryId (src/runtime/persistence.ts:193:10)
+      at loadSelectedStory (src/runtime/storySelection.ts:42:32)
+      at RuntimeManager.loadSelectedFromChat (src/runtime/runtimeManager.ts:257:38)
+      at TurnBridge.onChatChanged (src/runtime/turnBridge.ts:189:5)
+
+    console.warn
+      [Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat chat-a while imported-chat is open; left untouched, read as no story selected
+
+    [0m [90m 104 |[39m   [36mif[39m ([33mJSON[39m[33m.[39mstringify(mismatch) [33m!==[39m [33mJSON[39m[33m.[39mstringify(next)) {
+     [90m 105 |[39m     [36mconst[39m tag [33m=[39m next[33m.[39mkind [33m===[39m [32m"foreign"[39m [33m?[39m [32m"blob-chat-mismatch"[39m [33m:[39m [32m"blob-unreadable"[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39mwarn([32m`[Story Orchestrator] ${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`[39m)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m   }
+     [90m 108 |[39m   mismatch [33m=[39m next[33m;[39m
+     [90m 109 |[39m }[33m;[39m[0m
+
+      at noteMismatch (src/runtime/persistence.ts:106:13)
+      at getMetadataBlob (src/runtime/persistence.ts:118:5)
+      at getSelectedStoryId (src/runtime/persistence.ts:193:10)
+      at loadSelectedStory (src/runtime/storySelection.ts:42:32)
+      at RuntimeManager.loadSelectedFromChat (src/runtime/runtimeManager.ts:257:38)
+      at TurnBridge.onChatChanged (src/runtime/turnBridge.ts:189:5)
+
+    console.warn
+      [Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat chat-a while branch-1 is open; left untouched, read as no story selected
+
+    [0m [90m 104 |[39m   [36mif[39m ([33mJSON[39m[33m.[39mstringify(mismatch) [33m!==[39m [33mJSON[39m[33m.[39mstringify(next)) {
+     [90m 105 |[39m     [36mconst[39m tag [33m=[39m next[33m.[39mkind [33m===[39m [32m"foreign"[39m [33m?[39m [32m"blob-chat-mismatch"[39m [33m:[39m [32m"blob-unreadable"[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39mwarn([32m`[Story Orchestrator] ${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`[39m)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m   }
+     [90m 108 |[39m   mismatch [33m=[39m next[33m;[39m
+     [90m 109 |[39m }[33m;[39m[0m
+
+      at noteMismatch (src/runtime/persistence.ts:106:13)
+      at getMetadataBlob (src/runtime/persistence.ts:118:5)
+      at getSelectedStoryId (src/runtime/persistence.ts:193:10)
+      at loadSelectedStory (src/runtime/storySelection.ts:42:32)
+      at RuntimeManager.loadSelectedFromChat (src/runtime/runtimeManager.ts:257:38)
+      at loadAtStartup (src/runtime/chatIdentity.ts:138:3)
+      at Object.<anonymous> (src/runtime/branchContinue.review.test.ts:232:5)
+
+    console.warn
+      [Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat chat-a while branch-1 is open; left untouched, read as no story selected
+
+    [0m [90m 104 |[39m   [36mif[39m ([33mJSON[39m[33m.[39mstringify(mismatch) [33m!==[39m [33mJSON[39m[33m.[39mstringify(next)) {
+     [90m 105 |[39m     [36mconst[39m tag [33m=[39m next[33m.[39mkind [33m===[39m [32m"foreign"[39m [33m?[39m [32m"blob-chat-mismatch"[39m [33m:[39m [32m"blob-unreadable"[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39mwarn([32m`[Story Orchestrator] ${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`[39m)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m   }
+     [90m 108 |[39m   mismatch [33m=[39m next[33m;[39m
+     [90m 109 |[39m }[33m;[39m[0m
+
+      at noteMismatch (src/runtime/persistence.ts:106:13)
+      at getMetadataBlob (src/runtime/persistence.ts:118:5)
+      at getSelectedStoryId (src/runtime/persistence.ts:193:10)
+      at loadSelectedStory (src/runtime/storySelection.ts:42:32)
+      at RuntimeManager.loadSelectedFromChat (src/runtime/runtimeManager.ts:257:38)
+      at TurnBridge.onChatChanged (src/runtime/turnBridge.ts:189:5)
+
+    console.warn
+      [Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat chat-a while branch-1 is open; left untouched, read as no story selected
+
+    [0m [90m 104 |[39m   [36mif[39m ([33mJSON[39m[33m.[39mstringify(mismatch) [33m!==[39m [33mJSON[39m[33m.[39mstringify(next)) {
+     [90m 105 |[39m     [36mconst[39m tag [33m=[39m next[33m.[39mkind [33m===[39m [32m"foreign"[39m [33m?[39m [32m"blob-chat-mismatch"[39m [33m:[39m [32m"blob-unreadable"[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39mwarn([32m`[Story Orchestrator] ${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`[39m)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m   }
+     [90m 108 |[39m   mismatch [33m=[39m next[33m;[39m
+     [90m 109 |[39m }[33m;[39m[0m
+
+      at noteMismatch (src/runtime/persistence.ts:106:13)
+      at getMetadataBlob (src/runtime/persistence.ts:118:5)
+      at getSelectedStoryId (src/runtime/persistence.ts:193:10)
+      at loadSelectedStory (src/runtime/storySelection.ts:42:32)
+      at RuntimeManager.loadSelectedFromChat (src/runtime/runtimeManager.ts:257:38)
+      at TurnBridge.onChatChanged (src/runtime/turnBridge.ts:189:5)
+
+    console.warn
+      [Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat chat-a while branch-s is open; left untouched, read as no story selected
+
+    [0m [90m 104 |[39m   [36mif[39m ([33mJSON[39m[33m.[39mstringify(mismatch) [33m!==[39m [33mJSON[39m[33m.[39mstringify(next)) {
+     [90m 105 |[39m     [36mconst[39m tag [33m=[39m next[33m.[39mkind [33m===[39m [32m"foreign"[39m [33m?[39m [32m"blob-chat-mismatch"[39m [33m:[39m [32m"blob-unreadable"[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39mwarn([32m`[Story Orchestrator] ${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`[39m)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m   }
+     [90m 108 |[39m   mismatch [33m=[39m next[33m;[39m
+     [90m 109 |[39m }[33m;[39m[0m
+
+      at noteMismatch (src/runtime/persistence.ts:106:13)
+      at getMetadataBlob (src/runtime/persistence.ts:118:5)
+      at getSelectedStoryId (src/runtime/persistence.ts:193:10)
+      at loadSelectedStory (src/runtime/storySelection.ts:42:32)
+      at RuntimeManager.loadSelectedFromChat (src/runtime/runtimeManager.ts:257:38)
+      at TurnBridge.onChatChanged (src/runtime/turnBridge.ts:189:5)
+
+    console.warn
+      [Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat chat-a while floor-branch is open; left untouched, read as no story selected
+
+    [0m [90m 104 |[39m   [36mif[39m ([33mJSON[39m[33m.[39mstringify(mismatch) [33m!==[39m [33mJSON[39m[33m.[39mstringify(next)) {
+     [90m 105 |[39m     [36mconst[39m tag [33m=[39m next[33m.[39mkind [33m===[39m [32m"foreign"[39m [33m?[39m [32m"blob-chat-mismatch"[39m [33m:[39m [32m"blob-unreadable"[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39mwarn([32m`[Story Orchestrator] ${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`[39m)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m   }
+     [90m 108 |[39m   mismatch [33m=[39m next[33m;[39m
+     [90m 109 |[39m }[33m;[39m[0m
+
+      at noteMismatch (src/runtime/persistence.ts:106:13)
+      at getMetadataBlob (src/runtime/persistence.ts:118:5)
+      at getSelectedStoryId (src/runtime/persistence.ts:193:10)
+      at loadSelectedStory (src/runtime/storySelection.ts:42:32)
+      at RuntimeManager.loadSelectedFromChat (src/runtime/runtimeManager.ts:257:38)
+      at TurnBridge.onChatChanged (src/runtime/turnBridge.ts:189:5)
+
+PASS src/stagecraft/hardening.test.ts
+  ● Console
+
+    console.log
+      fuzzy anchor lift: 12/12 shortened anchors recovered [{"id":"p01-dropped-word","found":true,"right":true,"score":0.8571428571428572},{"id":"p02-added-word","found":true,"right":true,"score":0.8857142857142857},{"id":"p03-typo","found":true,"right":true,"score":0.967741935483871},{"id":"p04-tense","found":true,"right":true,"score":0.9642857142857143},{"id":"p05-plural","found":true,"right":true,"score":0.9615384615384616},{"id":"p06-head-only","found":true,"right":true,"score":0.9696969696969697},{"id":"p07-punctuation","found":true,"right":true,"score":0.96875},{"id":"p08-spanish-dropped","found":true,"right":true,"score":0.875},{"id":"p09-spanish-accent","found":true,"right":true,"score":0.9655172413793104},{"id":"p10-synonym-article","found":true,"right":true,"score":0.9},{"id":"p11-swapped-order-small","found":true,"right":true,"score":0.9523809523809523},{"id":"p12-missing-tail-word","found":true,"right":true,"score":0.8787878787878788}]
+
+      at Object.<anonymous> (src/stagecraft/hardening.test.ts:218:13)
+
+PASS src/runtime/coordinators/budgetWiring.review.test.ts
+PASS src/extraction/extraction.test.ts
+PASS src/extraction/scheduler.test.ts
+PASS src/studio/diagnostics.test.ts
+PASS src/memory/provenance.test.ts
+PASS src/runtime/coordinators/wardenFamilies.review.test.ts
+PASS src/runtime/coordinators/extractionOwnership.review.test.ts
+PASS src/judge/warden.test.ts
+PASS src/runtime/effectsOwnership.review.test.ts
+PASS src/generation/fork.review.test.ts
+PASS src/runtime/mirrorReaper.review.test.ts
+PASS src/extraction/playerEvidence.test.ts
+PASS src/runtime/worldInfoEvidence.test.ts
+PASS src/extraction/scheduler.breaker.test.ts
+PASS src/runtime/fingerprintReconcile.review.test.ts
+  ● Console
+
+    console.warn
+      [Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults ReferenceError: Cannot access 'mockContext' before initialization
+          at getContext (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\fingerprintReconcile.review.test.ts:25:21)
+          at getRoot (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\settingsStore.ts:124:30)
+          at getGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\settingsStore.ts:165:16)
+          at applyGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:295:35)
+          at withGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:213:31)
+          at createExtras (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:220:50)
+          at new RuntimeManager (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.ts:68:47)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.ts:660:31)
+          at Runtime._execModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:1268:24)
+          at Runtime._loadModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:944:12)
+          at Runtime.requireModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:832:12)
+          at Runtime.requireModuleOrMock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:964:21)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\fingerprintReconcile.review.test.ts:1:1)
+          at Runtime._execModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:1268:24)
+          at Runtime._loadModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:944:12)
+          at Runtime.requireModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:832:12)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:95:13)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 213 |[39m     [36mreturn[39m applyGlobalSettings(extras[33m,[39m [33mNO_CHAT_OVERRIDES[39m)[33m;[39m
+     [90m 214 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 215 |[39m     console[33m.[39mwarn([32m"[Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults"[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 216 |[39m     [36mreturn[39m extras[33m;[39m
+     [90m 217 |[39m   }
+     [90m 218 |[39m }[33m;[39m[0m
+
+      at withGlobalSettings (src/runtime/extras.ts:215:13)
+      at createExtras (src/runtime/extras.ts:220:50)
+      at new RuntimeManager (src/runtime/runtimeManager.ts:68:47)
+      at Object.<anonymous> (src/runtime/runtimeManager.ts:660:31)
+      at Object.<anonymous> (src/runtime/fingerprintReconcile.review.test.ts:1:1)
+
+PASS src/judge/accounting.review.test.ts
+PASS src/copilot/validate.test.ts
+PASS src/memory/rollbackReplay.property.test.ts
+PASS src/runtime/storyUpdate.test.ts
+PASS src/runtime/startupWiring.review.test.ts (8.512 s)
+  ● Console
+
+    console.warn
+      [Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat chat-a while branch-1 is open; left untouched, read as no story selected
+
+    [0m [90m 104 |[39m   [36mif[39m ([33mJSON[39m[33m.[39mstringify(mismatch) [33m!==[39m [33mJSON[39m[33m.[39mstringify(next)) {
+     [90m 105 |[39m     [36mconst[39m tag [33m=[39m next[33m.[39mkind [33m===[39m [32m"foreign"[39m [33m?[39m [32m"blob-chat-mismatch"[39m [33m:[39m [32m"blob-unreadable"[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39mwarn([32m`[Story Orchestrator] ${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`[39m)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m   }
+     [90m 108 |[39m   mismatch [33m=[39m next[33m;[39m
+     [90m 109 |[39m }[33m;[39m[0m
+
+      at noteMismatch (src/runtime/persistence.ts:106:13)
+      at getMetadataBlob (src/runtime/persistence.ts:118:5)
+      at getSelectedStoryId (src/runtime/persistence.ts:193:10)
+      at loadSelectedStory (src/runtime/storySelection.ts:42:32)
+      at RuntimeManager.loadSelectedFromChat (src/runtime/runtimeManager.ts:257:38)
+      at loadAtStartup (src/runtime/chatIdentity.ts:138:3)
+
+    console.warn
+      [Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat chat-a while branch-1 is open; left untouched, read as no story selected
+
+    [0m [90m 104 |[39m   [36mif[39m ([33mJSON[39m[33m.[39mstringify(mismatch) [33m!==[39m [33mJSON[39m[33m.[39mstringify(next)) {
+     [90m 105 |[39m     [36mconst[39m tag [33m=[39m next[33m.[39mkind [33m===[39m [32m"foreign"[39m [33m?[39m [32m"blob-chat-mismatch"[39m [33m:[39m [32m"blob-unreadable"[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39mwarn([32m`[Story Orchestrator] ${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`[39m)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m   }
+     [90m 108 |[39m   mismatch [33m=[39m next[33m;[39m
+     [90m 109 |[39m }[33m;[39m[0m
+
+      at noteMismatch (src/runtime/persistence.ts:106:13)
+      at getMetadataBlob (src/runtime/persistence.ts:118:5)
+      at getSelectedStoryId (src/runtime/persistence.ts:193:10)
+      at loadSelectedStory (src/runtime/storySelection.ts:42:32)
+      at RuntimeManager.loadSelectedFromChat (src/runtime/runtimeManager.ts:257:38)
+      at loadAtStartup (src/runtime/chatIdentity.ts:138:3)
+
+    console.warn
+      [Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat chat-a while branch-1 is open; left untouched, read as no story selected
+
+    [0m [90m 104 |[39m   [36mif[39m ([33mJSON[39m[33m.[39mstringify(mismatch) [33m!==[39m [33mJSON[39m[33m.[39mstringify(next)) {
+     [90m 105 |[39m     [36mconst[39m tag [33m=[39m next[33m.[39mkind [33m===[39m [32m"foreign"[39m [33m?[39m [32m"blob-chat-mismatch"[39m [33m:[39m [32m"blob-unreadable"[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39mwarn([32m`[Story Orchestrator] ${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`[39m)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m   }
+     [90m 108 |[39m   mismatch [33m=[39m next[33m;[39m
+     [90m 109 |[39m }[33m;[39m[0m
+
+      at noteMismatch (src/runtime/persistence.ts:106:13)
+      at getMetadataBlob (src/runtime/persistence.ts:118:5)
+      at loadPersistedRuntime (src/runtime/persistence.ts:204:10)
+      at buildRuntimeSnapshot (src/runtime/snapshotBuilder.ts:122:152)
+      at RuntimeManager.getSnapshot (src/runtime/runtimeManager.ts:501:32)
+      at src/runtime/index.ts:334:24
+
+    console.warn
+      [Story Orchestrator] saving story state refused: this chat's metadata holds state stamped for chat chat-a
+
+    [0m [90m 148 |[39m   [36mconst[39m blob [33m=[39m getMetadataBlob()[33m;[39m
+     [90m 149 |[39m   [36mif[39m ([33m![39mmismatch) [36mreturn[39m blob[33m;[39m
+    [31m[1m>[22m[39m[90m 150 |[39m   console[33m.[39mwarn([32m`[Story Orchestrator] ${write} refused: this chat's metadata holds state ${describeMismatch(mismatch)}`[39m)[33m;[39m
+     [90m     |[39m           [31m[1m^[22m[39m
+     [90m 151 |[39m   [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 152 |[39m }[33m;[39m
+     [90m 153 |[39m[0m
+
+      at ownBlob (src/runtime/persistence.ts:150:11)
+      at savePersistedRuntime (src/runtime/persistence.ts:238:16)
+      at ChatSave.persist (src/runtime/chatSave.ts:74:41)
+      at RuntimeManager.persist (src/runtime/runtimeManager.ts:570:44)
+      at RuntimeManager.setSchedulerSnapshot (src/runtime/runtimeManager.ts:440:178)
+      at Object.onSchedulerChange (src/runtime/index.ts:83:37)
+      at ExtractionScheduler.clearForNewWorld (src/extraction/scheduler.ts:136:15)
+      at src/runtime/index.ts:118:72
+      at RunOwner.bump (src/runtime/runOwner.ts:114:9)
+      at RuntimeManager.invalidateRuns (src/runtime/runtimeManager.ts:80:98)
+      at stopRuntime (src/runtime/index.ts:346:18)
+      at restore (src/runtime/startupWiring.review.test.ts:236:23)
+      at Object.<anonymous> (src/runtime/startupWiring.review.test.ts:227:21)
+
+    console.warn
+      [Story Orchestrator] saving story state refused: this chat's metadata holds state stamped for chat chat-a
+
+    [0m [90m 148 |[39m   [36mconst[39m blob [33m=[39m getMetadataBlob()[33m;[39m
+     [90m 149 |[39m   [36mif[39m ([33m![39mmismatch) [36mreturn[39m blob[33m;[39m
+    [31m[1m>[22m[39m[90m 150 |[39m   console[33m.[39mwarn([32m`[Story Orchestrator] ${write} refused: this chat's metadata holds state ${describeMismatch(mismatch)}`[39m)[33m;[39m
+     [90m     |[39m           [31m[1m^[22m[39m
+     [90m 151 |[39m   [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 152 |[39m }[33m;[39m
+     [90m 153 |[39m[0m
+
+      at ownBlob (src/runtime/persistence.ts:150:11)
+      at savePersistedRuntime (src/runtime/persistence.ts:238:16)
+      at ChatSave.persist (src/runtime/chatSave.ts:74:41)
+      at RuntimeManager.persist (src/runtime/runtimeManager.ts:570:44)
+      at RuntimeManager.setSchedulerSnapshot (src/runtime/runtimeManager.ts:440:178)
+      at Object.onSchedulerChange (src/runtime/index.ts:83:37)
+      at ExtractionScheduler.clearForNewWorld (src/extraction/scheduler.ts:136:15)
+      at src/runtime/index.ts:118:72
+      at RunOwner.bump (src/runtime/runOwner.ts:114:9)
+      at RuntimeManager.invalidateRuns (src/runtime/runtimeManager.ts:80:98)
+      at stopRuntime (src/runtime/index.ts:346:18)
+      at restore (src/runtime/startupWiring.review.test.ts:236:23)
+      at Object.<anonymous> (src/runtime/startupWiring.review.test.ts:227:21)
+
+    console.warn
+      [Story Orchestrator] saving story state refused: this chat's metadata holds state stamped for chat chat-a
+
+    [0m [90m 148 |[39m   [36mconst[39m blob [33m=[39m getMetadataBlob()[33m;[39m
+     [90m 149 |[39m   [36mif[39m ([33m![39mmismatch) [36mreturn[39m blob[33m;[39m
+    [31m[1m>[22m[39m[90m 150 |[39m   console[33m.[39mwarn([32m`[Story Orchestrator] ${write} refused: this chat's metadata holds state ${describeMismatch(mismatch)}`[39m)[33m;[39m
+     [90m     |[39m           [31m[1m^[22m[39m
+     [90m 151 |[39m   [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 152 |[39m }[33m;[39m
+     [90m 153 |[39m[0m
+
+      at ownBlob (src/runtime/persistence.ts:150:11)
+      at savePersistedRuntime (src/runtime/persistence.ts:238:16)
+      at ChatSave.persist (src/runtime/chatSave.ts:74:41)
+      at RuntimeManager.persist (src/runtime/runtimeManager.ts:570:44)
+      at RuntimeManager.setSchedulerSnapshot (src/runtime/runtimeManager.ts:440:178)
+      at Object.onSchedulerChange (src/runtime/index.ts:83:37)
+      at ExtractionScheduler.clearForNewWorld (src/extraction/scheduler.ts:136:15)
+      at src/runtime/index.ts:118:72
+      at RunOwner.bump (src/runtime/runOwner.ts:114:9)
+      at RuntimeManager.invalidateRuns (src/runtime/runtimeManager.ts:80:98)
+      at stopRuntime (src/runtime/index.ts:346:18)
+      at restore (src/runtime/startupWiring.review.test.ts:236:23)
+      at Object.<anonymous> (src/runtime/startupWiring.review.test.ts:227:21)
+
+PASS src/runtime/coordinators/backlogOwnership.review.test.ts
+PASS src/wizard/provisioning.test.ts
+PASS src/runtime/storyIdentity.test.ts
+  ● Console
+
+    console.warn
+      [Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults ReferenceError: Cannot access 'mockContext' before initialization
+          at getContext (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\storyIdentity.test.ts:23:21)
+          at getRoot (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\settingsStore.ts:124:30)
+          at getGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\settingsStore.ts:165:16)
+          at applyGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:295:35)
+          at withGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:213:31)
+          at createExtras (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:220:50)
+          at new RuntimeManager (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.ts:68:47)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.ts:660:31)
+          at Runtime._execModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:1268:24)
+          at Runtime._loadModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:944:12)
+          at Runtime.requireModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:832:12)
+          at Runtime.requireModuleOrMock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:964:21)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\storyIdentity.test.ts:1:1)
+          at Runtime._execModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:1268:24)
+          at Runtime._loadModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:944:12)
+          at Runtime.requireModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:832:12)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:95:13)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 213 |[39m     [36mreturn[39m applyGlobalSettings(extras[33m,[39m [33mNO_CHAT_OVERRIDES[39m)[33m;[39m
+     [90m 214 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 215 |[39m     console[33m.[39mwarn([32m"[Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults"[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 216 |[39m     [36mreturn[39m extras[33m;[39m
+     [90m 217 |[39m   }
+     [90m 218 |[39m }[33m;[39m[0m
+
+      at withGlobalSettings (src/runtime/extras.ts:215:13)
+      at createExtras (src/runtime/extras.ts:220:50)
+      at new RuntimeManager (src/runtime/runtimeManager.ts:68:47)
+      at Object.<anonymous> (src/runtime/runtimeManager.ts:660:31)
+      at Object.<anonymous> (src/runtime/storyIdentity.test.ts:1:1)
+
+PASS src/runtime/chatIdentity.review.test.ts
+  ● Console
+
+    console.warn
+      [Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults ReferenceError: Cannot access 'mockContext' before initialization
+          at getContext (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\chatIdentity.review.test.ts:24:21)
+          at getRoot (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\settingsStore.ts:124:30)
+          at getGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\settingsStore.ts:165:16)
+          at applyGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:295:35)
+          at withGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:213:31)
+          at createExtras (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:220:50)
+          at new RuntimeManager (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.ts:68:47)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.ts:660:31)
+          at Runtime._execModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:1268:24)
+          at Runtime._loadModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:944:12)
+          at Runtime.requireModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:832:12)
+          at Runtime.requireModuleOrMock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:964:21)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\chatIdentity.review.test.ts:1:1)
+          at Runtime._execModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:1268:24)
+          at Runtime._loadModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:944:12)
+          at Runtime.requireModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:832:12)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:95:13)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 213 |[39m     [36mreturn[39m applyGlobalSettings(extras[33m,[39m [33mNO_CHAT_OVERRIDES[39m)[33m;[39m
+     [90m 214 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 215 |[39m     console[33m.[39mwarn([32m"[Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults"[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 216 |[39m     [36mreturn[39m extras[33m;[39m
+     [90m 217 |[39m   }
+     [90m 218 |[39m }[33m;[39m[0m
+
+      at withGlobalSettings (src/runtime/extras.ts:215:13)
+      at createExtras (src/runtime/extras.ts:220:50)
+      at new RuntimeManager (src/runtime/runtimeManager.ts:68:47)
+      at Object.<anonymous> (src/runtime/runtimeManager.ts:660:31)
+      at Object.<anonymous> (src/runtime/chatIdentity.review.test.ts:1:1)
+
+PASS src/copilot/parse.test.ts
+PASS src/stagecraft/stagecraft.test.ts
+PASS src/services/stHost/saveWatcher.test.ts
+PASS src/extraction/windowHygiene.test.ts
+PASS src/memory/epistemic.test.ts
+PASS src/runtime/coordinators/abortedCall.review.test.ts
+PASS src/judge/extraction.test.ts
+PASS src/runtime/rollback.review.test.ts
+PASS src/runtime/effectRestore.review.test.ts
+PASS src/runtime/chatSave.test.ts
+PASS src/runtime/memoryQueueHeld.test.ts
+PASS src/memory/reversal.review.test.ts
+PASS src/runtime/coordinators/expansionOwnership.review.test.ts
+PASS src/copilot/authoring.test.ts
+PASS src/runtime/judgeExtraction.test.ts
+  ● Console
+
+    console.warn
+      [Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults ReferenceError: Cannot access 'mockContext' before initialization
+          at getContext (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\judgeExtraction.test.ts:21:21)
+          at getRoot (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\settingsStore.ts:124:30)
+          at getGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\settingsStore.ts:165:16)
+          at applyGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:295:35)
+          at withGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:213:31)
+          at createExtras (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:220:50)
+          at new RuntimeManager (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.ts:68:47)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.ts:660:31)
+          at Runtime._execModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:1268:24)
+          at Runtime._loadModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:944:12)
+          at Runtime.requireModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:832:12)
+          at Runtime.requireModuleOrMock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:964:21)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\judgeExtraction.test.ts:4:1)
+          at Runtime._execModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:1268:24)
+          at Runtime._loadModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:944:12)
+          at Runtime.requireModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:832:12)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:95:13)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 213 |[39m     [36mreturn[39m applyGlobalSettings(extras[33m,[39m [33mNO_CHAT_OVERRIDES[39m)[33m;[39m
+     [90m 214 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 215 |[39m     console[33m.[39mwarn([32m"[Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults"[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 216 |[39m     [36mreturn[39m extras[33m;[39m
+     [90m 217 |[39m   }
+     [90m 218 |[39m }[33m;[39m[0m
+
+      at withGlobalSettings (src/runtime/extras.ts:215:13)
+      at createExtras (src/runtime/extras.ts:220:50)
+      at new RuntimeManager (src/runtime/runtimeManager.ts:68:47)
+      at Object.<anonymous> (src/runtime/runtimeManager.ts:660:31)
+      at Object.<anonymous> (src/runtime/judgeExtraction.test.ts:4:1)
+
+PASS src/extraction/schedulerReread.review.test.ts
+PASS src/runtime/saveEvidence.test.ts
+PASS src/runtime/judgeMemory.test.ts
+  ● Console
+
+    console.warn
+      [Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults ReferenceError: Cannot access 'mockContext' before initialization
+          at getContext (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\judgeMemory.test.ts:21:21)
+          at getRoot (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\settingsStore.ts:124:30)
+          at getGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\settingsStore.ts:165:16)
+          at applyGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:295:35)
+          at withGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:213:31)
+          at createExtras (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:220:50)
+          at new RuntimeManager (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.ts:68:47)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.ts:660:31)
+          at Runtime._execModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:1268:24)
+          at Runtime._loadModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:944:12)
+          at Runtime.requireModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:832:12)
+          at Runtime.requireModuleOrMock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:964:21)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\judgeMemory.test.ts:4:1)
+          at Runtime._execModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:1268:24)
+          at Runtime._loadModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:944:12)
+          at Runtime.requireModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:832:12)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:95:13)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 213 |[39m     [36mreturn[39m applyGlobalSettings(extras[33m,[39m [33mNO_CHAT_OVERRIDES[39m)[33m;[39m
+     [90m 214 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 215 |[39m     console[33m.[39mwarn([32m"[Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults"[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 216 |[39m     [36mreturn[39m extras[33m;[39m
+     [90m 217 |[39m   }
+     [90m 218 |[39m }[33m;[39m[0m
+
+      at withGlobalSettings (src/runtime/extras.ts:215:13)
+      at createExtras (src/runtime/extras.ts:220:50)
+      at new RuntimeManager (src/runtime/runtimeManager.ts:68:47)
+      at Object.<anonymous> (src/runtime/runtimeManager.ts:660:31)
+      at Object.<anonymous> (src/runtime/judgeMemory.test.ts:4:1)
+
+    console.warn
+      [Story memory] vector consolidation unavailable, using keyword overlap Error: no vectors in jest
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\judgeMemory.test.ts:37:45
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-mock\build\index.js:305:39
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-mock\build\index.js:312:13
+          at mockConstructor (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-mock\build\index.js:102:19)
+          at buildMatchSets (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\consolidationMatches.ts:15:23)
+          at MemoryCoordinator.runConsolidation (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\coordinators\memoryCoordinator.ts:488:25)
+
+    [0m [90m 36 |[39m     [36mreturn[39m { dup[33m,[39m sameTopic }[33m;[39m
+     [90m 37 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 38 |[39m     console[33m.[39mwarn([32m"[Story memory] vector consolidation unavailable, using keyword overlap"[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 39 |[39m     [36mreturn[39m buildJaccardMatchSets(group[33m,[39m thresholds)[33m;[39m
+     [90m 40 |[39m   } [36mfinally[39m {
+     [90m 41 |[39m     [36mtry[39m {[0m
+
+      at buildMatchSets (src/runtime/consolidationMatches.ts:38:13)
+      at MemoryCoordinator.runConsolidation (src/runtime/coordinators/memoryCoordinator.ts:488:25)
+      at Object.<anonymous> (src/runtime/judgeMemory.test.ts:177:5)
+
+    console.warn
+      [Story memory] vector consolidation unavailable, using keyword overlap Error: no vectors in jest
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\judgeMemory.test.ts:37:45
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-mock\build\index.js:305:39
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-mock\build\index.js:312:13
+          at mockConstructor (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-mock\build\index.js:102:19)
+          at buildMatchSets (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\consolidationMatches.ts:15:23)
+          at MemoryCoordinator.runConsolidation (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\coordinators\memoryCoordinator.ts:488:25)
+
+    [0m [90m 36 |[39m     [36mreturn[39m { dup[33m,[39m sameTopic }[33m;[39m
+     [90m 37 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 38 |[39m     console[33m.[39mwarn([32m"[Story memory] vector consolidation unavailable, using keyword overlap"[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 39 |[39m     [36mreturn[39m buildJaccardMatchSets(group[33m,[39m thresholds)[33m;[39m
+     [90m 40 |[39m   } [36mfinally[39m {
+     [90m 41 |[39m     [36mtry[39m {[0m
+
+      at buildMatchSets (src/runtime/consolidationMatches.ts:38:13)
+      at MemoryCoordinator.runConsolidation (src/runtime/coordinators/memoryCoordinator.ts:488:25)
+      at Object.<anonymous> (src/runtime/judgeMemory.test.ts:184:21)
+
+    console.warn
+      [Story memory] vector consolidation unavailable, using keyword overlap Error: no vectors in jest
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\judgeMemory.test.ts:37:45
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-mock\build\index.js:305:39
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-mock\build\index.js:312:13
+          at mockConstructor (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-mock\build\index.js:102:19)
+          at buildMatchSets (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\consolidationMatches.ts:15:23)
+          at MemoryCoordinator.runConsolidation (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\coordinators\memoryCoordinator.ts:489:32)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\judgeMemory.test.ts:184:21)
+
+    [0m [90m 36 |[39m     [36mreturn[39m { dup[33m,[39m sameTopic }[33m;[39m
+     [90m 37 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 38 |[39m     console[33m.[39mwarn([32m"[Story memory] vector consolidation unavailable, using keyword overlap"[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 39 |[39m     [36mreturn[39m buildJaccardMatchSets(group[33m,[39m thresholds)[33m;[39m
+     [90m 40 |[39m   } [36mfinally[39m {
+     [90m 41 |[39m     [36mtry[39m {[0m
+
+      at buildMatchSets (src/runtime/consolidationMatches.ts:38:13)
+      at MemoryCoordinator.runConsolidation (src/runtime/coordinators/memoryCoordinator.ts:489:32)
+      at Object.<anonymous> (src/runtime/judgeMemory.test.ts:184:21)
+
+PASS src/generation/generation.test.ts
+PASS src/runtime/lifecycleDispose.review.test.ts
+PASS src/runtime/agencyRecovery.test.ts
+PASS src/runtime/pipeline.test.ts
+PASS src/runtime/ownership.guard.test.ts
+PASS src/runtime/repair.test.ts
+PASS src/runtime/journal.test.ts
+PASS src/memory/ledger.test.ts
+PASS src/talk/talk.test.ts
+PASS src/copilot/proposal.test.ts
+PASS src/runtime/librarySave.test.ts
+PASS src/services/stHost/modelReply.test.ts
+PASS src/runtime/expansionLookahead.test.ts
+PASS src/generation/fork.property.test.ts
+PASS src/runtime/c1Surfaces.review.test.ts
+PASS src/extraction/sharedReadBudget.test.ts
+PASS src/memory/consolidate.test.ts
+PASS src/runtime/judgeOwnership.review.test.ts
+PASS src/runtime/loreSelect.test.ts
+PASS src/runtime/scanGatePlan.test.ts
+PASS src/services/stHost/typedResults.test.ts
+PASS src/runtime/selfTest.test.ts
+PASS src/extraction/schedulerClear.review.test.ts (7.471 s)
+PASS src/runtime/turnBridge.test.ts
+PASS src/runtime/architecture.test.ts
+PASS src/runtime/fingerprints.test.ts
+PASS src/stagecraft/createCandidate.test.ts
+PASS src/runtime/effectLedger.test.ts
+PASS src/memory/arcs.test.ts
+PASS src/runtime/samplerOverlayEffect.test.ts
+PASS src/runtime/talkOwnership.review.test.ts
+PASS src/runtime/sceneCoordinator.test.ts
+PASS src/runtime/coordinators/epistemicMacro.review.test.ts
+PASS src/services/stHost/capabilities.test.ts
+PASS src/runtime/coordinators/sceneFreshness.review.test.ts
+PASS src/extraction/client.test.ts
+PASS src/runtime/settingsWrites.test.ts
+PASS src/memory/derived.test.ts
+PASS src/runtime/turnBridgeOwnership.review.test.ts
+PASS src/generation/convergence.test.ts
+PASS src/extraction/chunker.test.ts
+PASS src/pacing/pacing.test.ts
+PASS src/extraction/windowHygieneWiring.review.test.ts
+PASS src/runtime/extrasLegacy.test.ts
+PASS src/runtime/findingsLedger.test.ts
+  ● Console
+
+    console.info
+      {
+        "findingsLedger": {
+          "open": 2,
+          "closed": 46,
+          "byDesign": 2,
+          "byOwningPlan": {
+            "07": [
+              "C4"
+            ],
+            "01": [
+              "S13"
+            ]
+          },
+          "reproductionsStillToWrite": []
+        }
+      }
+
+      at Object.<anonymous> (src/runtime/findingsLedger.test.ts:112:13)
+
+PASS src/runtime/runToken.test.ts
+PASS src/judge/lore.test.ts
+PASS src/runtime/mirrorOwnership.review.test.ts
+PASS src/runtime/generationWiring.review.test.ts
+PASS src/runtime/wizardSessions.test.ts
+PASS src/runtime/blobUnreadable.review.test.ts
+PASS src/judge/scene.test.ts
+PASS src/memory/sceneSummary.test.ts
+PASS src/engine/engine.review.test.ts
+PASS src/runtime/turnBridge.review.test.ts
+PASS src/runtime/loreForceWiring.review.test.ts
+PASS src/runtime/storyStart.review.test.ts
+  ● Console
+
+    console.warn
+      [Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults ReferenceError: Cannot access 'mockContext' before initialization
+          at getContext (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\storyStart.review.test.ts:24:21)
+          at getRoot (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\settingsStore.ts:124:30)
+          at getGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\settingsStore.ts:165:16)
+          at applyGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:295:35)
+          at withGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:213:31)
+          at createExtras (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:220:50)
+          at new RuntimeManager (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.ts:68:47)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.ts:660:31)
+          at Runtime._execModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:1268:24)
+          at Runtime._loadModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:944:12)
+          at Runtime.requireModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:832:12)
+          at Runtime.requireModuleOrMock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:964:21)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\storyStart.review.test.ts:5:1)
+          at Runtime._execModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:1268:24)
+          at Runtime._loadModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:944:12)
+          at Runtime.requireModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:832:12)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:95:13)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 213 |[39m     [36mreturn[39m applyGlobalSettings(extras[33m,[39m [33mNO_CHAT_OVERRIDES[39m)[33m;[39m
+     [90m 214 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 215 |[39m     console[33m.[39mwarn([32m"[Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults"[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 216 |[39m     [36mreturn[39m extras[33m;[39m
+     [90m 217 |[39m   }
+     [90m 218 |[39m }[33m;[39m[0m
+
+      at withGlobalSettings (src/runtime/extras.ts:215:13)
+      at createExtras (src/runtime/extras.ts:220:50)
+      at new RuntimeManager (src/runtime/runtimeManager.ts:68:47)
+      at Object.<anonymous> (src/runtime/runtimeManager.ts:660:31)
+      at Object.<anonymous> (src/runtime/storyStart.review.test.ts:5:1)
+
+PASS src/runtime/persistOwnership.review.test.ts
+  ● Console
+
+    console.warn
+      [Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults TypeError: Cannot read properties of undefined (reading 'extensionSettings')
+          at getRoot (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\settingsStore.ts:124:32)
+          at getGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\settingsStore.ts:165:16)
+          at applyGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:295:35)
+          at withGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:213:31)
+          at createExtras (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:220:50)
+          at new RuntimeManager (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.ts:68:47)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.ts:660:31)
+          at Runtime._execModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:1268:24)
+          at Runtime._loadModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:944:12)
+          at Runtime.requireModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:832:12)
+          at Runtime.requireModuleOrMock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:964:21)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\persistOwnership.review.test.ts:27:1)
+          at Runtime._execModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:1268:24)
+          at Runtime._loadModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:944:12)
+          at Runtime.requireModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:832:12)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:95:13)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 213 |[39m     [36mreturn[39m applyGlobalSettings(extras[33m,[39m [33mNO_CHAT_OVERRIDES[39m)[33m;[39m
+     [90m 214 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 215 |[39m     console[33m.[39mwarn([32m"[Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults"[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 216 |[39m     [36mreturn[39m extras[33m;[39m
+     [90m 217 |[39m   }
+     [90m 218 |[39m }[33m;[39m[0m
+
+      at withGlobalSettings (src/runtime/extras.ts:215:13)
+      at createExtras (src/runtime/extras.ts:220:50)
+      at new RuntimeManager (src/runtime/runtimeManager.ts:68:47)
+      at Object.<anonymous> (src/runtime/runtimeManager.ts:660:31)
+      at Object.<anonymous> (src/runtime/persistOwnership.review.test.ts:27:1)
+
+PASS src/extraction/authority.review.test.ts
+PASS src/studio/mutations.test.ts
+PASS src/runtime/generationLifecycle.test.ts
+PASS src/runtime/judge.test.ts
+PASS src/runtime/journalContract.review.test.ts
+PASS src/runtime/turnBridgeIdentity.review.test.ts
+PASS src/judge/loreRanking.test.ts
+PASS src/runtime/npcRepliesOwnership.review.test.ts
+PASS src/judge/curators.test.ts
+PASS src/runtime/worldInfoEvidenceHost.test.ts
+PASS src/runtime/nextTurnCost.test.ts
+PASS src/generation/judgedExpansion.test.ts
+PASS src/runtime/awayRecap.test.ts
+PASS src/runtime/slashCommands.test.ts
+PASS src/runtime/boundaryWork.test.ts
+  ● Console
+
+    console.warn
+      [Story Orchestrator] boundary work 'expansion-commit' failed TypeError: Cannot read properties of undefined (reading 'commitValidated')
+          at Object.run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:80:31)
+          at runBoundaryWork (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:152:12)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.test.ts:55:20)
+          at Promise.finally.completed (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 152 |[39m       item[33m.[39mrun(context)[33m;[39m
+     [90m 153 |[39m     } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 154 |[39m       console[33m.[39mwarn([32m`[Story Orchestrator] boundary work '${item.id}' failed`[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 155 |[39m     }
+     [90m 156 |[39m   }
+     [90m 157 |[39m }[0m
+
+      at runBoundaryWork (src/runtime/boundaryWork.ts:154:15)
+      at Object.<anonymous> (src/runtime/boundaryWork.test.ts:55:20)
+
+    console.warn
+      [Story Orchestrator] boundary work 'continuity-warden' failed TypeError: manager.runWardenPass is not a function
+          at Object.run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:115:20)
+          at runBoundaryWork (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:152:12)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.test.ts:55:20)
+          at Promise.finally.completed (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 152 |[39m       item[33m.[39mrun(context)[33m;[39m
+     [90m 153 |[39m     } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 154 |[39m       console[33m.[39mwarn([32m`[Story Orchestrator] boundary work '${item.id}' failed`[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 155 |[39m     }
+     [90m 156 |[39m   }
+     [90m 157 |[39m }[0m
+
+      at runBoundaryWork (src/runtime/boundaryWork.ts:154:15)
+      at Object.<anonymous> (src/runtime/boundaryWork.test.ts:55:20)
+
+    console.warn
+      [Story Orchestrator] boundary work 'expansion-commit' failed TypeError: Cannot read properties of undefined (reading 'commitValidated')
+          at Object.run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:80:31)
+          at runBoundaryWork (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:152:12)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.test.ts:74:20)
+          at Promise.finally.completed (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 152 |[39m       item[33m.[39mrun(context)[33m;[39m
+     [90m 153 |[39m     } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 154 |[39m       console[33m.[39mwarn([32m`[Story Orchestrator] boundary work '${item.id}' failed`[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 155 |[39m     }
+     [90m 156 |[39m   }
+     [90m 157 |[39m }[0m
+
+      at runBoundaryWork (src/runtime/boundaryWork.ts:154:15)
+      at Object.<anonymous> (src/runtime/boundaryWork.test.ts:74:20)
+
+    console.warn
+      [Story Orchestrator] boundary work 'continuity-warden' failed TypeError: manager.runWardenPass is not a function
+          at Object.run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:115:20)
+          at runBoundaryWork (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:152:12)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.test.ts:74:20)
+          at Promise.finally.completed (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 152 |[39m       item[33m.[39mrun(context)[33m;[39m
+     [90m 153 |[39m     } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 154 |[39m       console[33m.[39mwarn([32m`[Story Orchestrator] boundary work '${item.id}' failed`[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 155 |[39m     }
+     [90m 156 |[39m   }
+     [90m 157 |[39m }[0m
+
+      at runBoundaryWork (src/runtime/boundaryWork.ts:154:15)
+      at Object.<anonymous> (src/runtime/boundaryWork.test.ts:74:20)
+
+    console.warn
+      [Story Orchestrator] boundary work 'expansion-commit' failed TypeError: Cannot read properties of undefined (reading 'commitValidated')
+          at Object.run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:80:31)
+          at runBoundaryWork (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:152:12)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.test.ts:77:20)
+          at Promise.finally.completed (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 152 |[39m       item[33m.[39mrun(context)[33m;[39m
+     [90m 153 |[39m     } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 154 |[39m       console[33m.[39mwarn([32m`[Story Orchestrator] boundary work '${item.id}' failed`[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 155 |[39m     }
+     [90m 156 |[39m   }
+     [90m 157 |[39m }[0m
+
+      at runBoundaryWork (src/runtime/boundaryWork.ts:154:15)
+      at Object.<anonymous> (src/runtime/boundaryWork.test.ts:77:20)
+
+    console.warn
+      [Story Orchestrator] boundary work 'continuity-warden' failed TypeError: manager.runWardenPass is not a function
+          at Object.run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:115:20)
+          at runBoundaryWork (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:152:12)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.test.ts:77:20)
+          at Promise.finally.completed (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 152 |[39m       item[33m.[39mrun(context)[33m;[39m
+     [90m 153 |[39m     } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 154 |[39m       console[33m.[39mwarn([32m`[Story Orchestrator] boundary work '${item.id}' failed`[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 155 |[39m     }
+     [90m 156 |[39m   }
+     [90m 157 |[39m }[0m
+
+      at runBoundaryWork (src/runtime/boundaryWork.ts:154:15)
+      at Object.<anonymous> (src/runtime/boundaryWork.test.ts:77:20)
+
+    console.warn
+      [Story Orchestrator] boundary work 'expansion-commit' failed TypeError: Cannot read properties of undefined (reading 'commitValidated')
+          at Object.run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:80:31)
+          at runBoundaryWork (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:152:12)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.test.ts:80:20)
+          at Promise.finally.completed (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 152 |[39m       item[33m.[39mrun(context)[33m;[39m
+     [90m 153 |[39m     } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 154 |[39m       console[33m.[39mwarn([32m`[Story Orchestrator] boundary work '${item.id}' failed`[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 155 |[39m     }
+     [90m 156 |[39m   }
+     [90m 157 |[39m }[0m
+
+      at runBoundaryWork (src/runtime/boundaryWork.ts:154:15)
+      at Object.<anonymous> (src/runtime/boundaryWork.test.ts:80:20)
+
+    console.warn
+      [Story Orchestrator] boundary work 'continuity-warden' failed TypeError: manager.runWardenPass is not a function
+          at Object.run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:115:20)
+          at runBoundaryWork (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:152:12)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.test.ts:80:20)
+          at Promise.finally.completed (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 152 |[39m       item[33m.[39mrun(context)[33m;[39m
+     [90m 153 |[39m     } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 154 |[39m       console[33m.[39mwarn([32m`[Story Orchestrator] boundary work '${item.id}' failed`[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 155 |[39m     }
+     [90m 156 |[39m   }
+     [90m 157 |[39m }[0m
+
+      at runBoundaryWork (src/runtime/boundaryWork.ts:154:15)
+      at Object.<anonymous> (src/runtime/boundaryWork.test.ts:80:20)
+
+    console.warn
+      [Story Orchestrator] boundary work 'expansion-commit' failed TypeError: Cannot read properties of undefined (reading 'commitValidated')
+          at Object.run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:80:31)
+          at runBoundaryWork (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:152:12)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.test.ts:92:20)
+          at Promise.finally.completed (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 152 |[39m       item[33m.[39mrun(context)[33m;[39m
+     [90m 153 |[39m     } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 154 |[39m       console[33m.[39mwarn([32m`[Story Orchestrator] boundary work '${item.id}' failed`[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 155 |[39m     }
+     [90m 156 |[39m   }
+     [90m 157 |[39m }[0m
+
+      at runBoundaryWork (src/runtime/boundaryWork.ts:154:15)
+      at Object.<anonymous> (src/runtime/boundaryWork.test.ts:92:20)
+
+    console.warn
+      [Story Orchestrator] boundary work 'continuity-warden' failed TypeError: manager.runWardenPass is not a function
+          at Object.run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:115:20)
+          at runBoundaryWork (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:152:12)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.test.ts:92:20)
+          at Promise.finally.completed (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 152 |[39m       item[33m.[39mrun(context)[33m;[39m
+     [90m 153 |[39m     } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 154 |[39m       console[33m.[39mwarn([32m`[Story Orchestrator] boundary work '${item.id}' failed`[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 155 |[39m     }
+     [90m 156 |[39m   }
+     [90m 157 |[39m }[0m
+
+      at runBoundaryWork (src/runtime/boundaryWork.ts:154:15)
+      at Object.<anonymous> (src/runtime/boundaryWork.test.ts:92:20)
+
+    console.warn
+      [Story Orchestrator] boundary work 'expansion-commit' failed TypeError: Cannot read properties of undefined (reading 'commitValidated')
+          at Object.run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:80:31)
+          at runBoundaryWork (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:152:12)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.test.ts:96:20)
+          at Promise.finally.completed (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 152 |[39m       item[33m.[39mrun(context)[33m;[39m
+     [90m 153 |[39m     } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 154 |[39m       console[33m.[39mwarn([32m`[Story Orchestrator] boundary work '${item.id}' failed`[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 155 |[39m     }
+     [90m 156 |[39m   }
+     [90m 157 |[39m }[0m
+
+      at runBoundaryWork (src/runtime/boundaryWork.ts:154:15)
+      at Object.<anonymous> (src/runtime/boundaryWork.test.ts:96:20)
+
+    console.warn
+      [Story Orchestrator] boundary work 'continuity-warden' failed TypeError: manager.runWardenPass is not a function
+          at Object.run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:115:20)
+          at runBoundaryWork (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:152:12)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.test.ts:96:20)
+          at Promise.finally.completed (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 152 |[39m       item[33m.[39mrun(context)[33m;[39m
+     [90m 153 |[39m     } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 154 |[39m       console[33m.[39mwarn([32m`[Story Orchestrator] boundary work '${item.id}' failed`[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 155 |[39m     }
+     [90m 156 |[39m   }
+     [90m 157 |[39m }[0m
+
+      at runBoundaryWork (src/runtime/boundaryWork.ts:154:15)
+      at Object.<anonymous> (src/runtime/boundaryWork.test.ts:96:20)
+
+    console.warn
+      [Story Orchestrator] boundary work 'expansion-commit' failed TypeError: Cannot read properties of undefined (reading 'commitValidated')
+          at Object.run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:80:31)
+          at runBoundaryWork (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:152:12)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.test.ts:103:20)
+          at Promise.finally.completed (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 152 |[39m       item[33m.[39mrun(context)[33m;[39m
+     [90m 153 |[39m     } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 154 |[39m       console[33m.[39mwarn([32m`[Story Orchestrator] boundary work '${item.id}' failed`[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 155 |[39m     }
+     [90m 156 |[39m   }
+     [90m 157 |[39m }[0m
+
+      at runBoundaryWork (src/runtime/boundaryWork.ts:154:15)
+      at Object.<anonymous> (src/runtime/boundaryWork.test.ts:103:20)
+
+    console.warn
+      [Story Orchestrator] boundary work 'continuity-warden' failed TypeError: manager.runWardenPass is not a function
+          at Object.run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:115:20)
+          at runBoundaryWork (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:152:12)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.test.ts:103:20)
+          at Promise.finally.completed (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 152 |[39m       item[33m.[39mrun(context)[33m;[39m
+     [90m 153 |[39m     } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 154 |[39m       console[33m.[39mwarn([32m`[Story Orchestrator] boundary work '${item.id}' failed`[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 155 |[39m     }
+     [90m 156 |[39m   }
+     [90m 157 |[39m }[0m
+
+      at runBoundaryWork (src/runtime/boundaryWork.ts:154:15)
+      at Object.<anonymous> (src/runtime/boundaryWork.test.ts:103:20)
+
+    console.warn
+      [Story Orchestrator] boundary work 'expansion-commit' failed TypeError: Cannot read properties of undefined (reading 'commitValidated')
+          at Object.run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:80:31)
+          at runBoundaryWork (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:152:12)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.test.ts:108:20)
+          at Promise.finally.completed (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 152 |[39m       item[33m.[39mrun(context)[33m;[39m
+     [90m 153 |[39m     } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 154 |[39m       console[33m.[39mwarn([32m`[Story Orchestrator] boundary work '${item.id}' failed`[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 155 |[39m     }
+     [90m 156 |[39m   }
+     [90m 157 |[39m }[0m
+
+      at runBoundaryWork (src/runtime/boundaryWork.ts:154:15)
+      at Object.<anonymous> (src/runtime/boundaryWork.test.ts:108:20)
+
+    console.warn
+      [Story Orchestrator] boundary work 'continuity-warden' failed TypeError: manager.runWardenPass is not a function
+          at Object.run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:115:20)
+          at runBoundaryWork (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.ts:152:12)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\boundaryWork.test.ts:108:20)
+          at Promise.finally.completed (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 152 |[39m       item[33m.[39mrun(context)[33m;[39m
+     [90m 153 |[39m     } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 154 |[39m       console[33m.[39mwarn([32m`[Story Orchestrator] boundary work '${item.id}' failed`[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 155 |[39m     }
+     [90m 156 |[39m   }
+     [90m 157 |[39m }[0m
+
+      at runBoundaryWork (src/runtime/boundaryWork.ts:154:15)
+      at Object.<anonymous> (src/runtime/boundaryWork.test.ts:108:20)
+
+PASS src/memory/stores.test.ts
+PASS src/runtime/worldInfoGates.test.ts
+PASS src/extraction/scheduler.routes.test.ts
+PASS src/engine/exampleStory.test.ts
+PASS src/runtime/requirementsWatch.test.ts
+PASS src/judge/expansion.test.ts
+PASS src/runtime/coordinators/refuseIncomplete.review.test.ts
+PASS src/extraction/parse.test.ts
+PASS src/runtime/promptCost.test.ts
+PASS src/runtime/turnBridgeDelete.review.test.ts
+PASS src/memory/inject.test.ts
+PASS src/runtime/judgeMeter.review.test.ts
+PASS src/runtime/continuity.test.ts
+PASS src/runtime/blobChatStamp.review.test.ts
+  ● Console
+
+    console.warn
+      [Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat chat-a while chat-b is open; left untouched, read as no story selected
+
+    [0m [90m 104 |[39m   [36mif[39m ([33mJSON[39m[33m.[39mstringify(mismatch) [33m!==[39m [33mJSON[39m[33m.[39mstringify(next)) {
+     [90m 105 |[39m     [36mconst[39m tag [33m=[39m next[33m.[39mkind [33m===[39m [32m"foreign"[39m [33m?[39m [32m"blob-chat-mismatch"[39m [33m:[39m [32m"blob-unreadable"[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39mwarn([32m`[Story Orchestrator] ${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`[39m)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m   }
+     [90m 108 |[39m   mismatch [33m=[39m next[33m;[39m
+     [90m 109 |[39m }[33m;[39m[0m
+
+      at noteMismatch (src/runtime/persistence.ts:106:13)
+      at getMetadataBlob (src/runtime/persistence.ts:118:5)
+      at src/runtime/blobChatStamp.review.test.ts:48:31
+      at Object.<anonymous> (test/findings/ledger.ts:102:49)
+
+PASS src/extraction/judgedRead.test.ts
+PASS src/judge/readiness.test.ts
+PASS src/services/stHost/chatFiles.test.ts
+PASS src/runtime/blobForeign.review.test.ts
+  ● Console
+
+    console.warn
+      [Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat chat-a while chat-b is open; left untouched, read as no story selected
+
+    [0m [90m 104 |[39m   [36mif[39m ([33mJSON[39m[33m.[39mstringify(mismatch) [33m!==[39m [33mJSON[39m[33m.[39mstringify(next)) {
+     [90m 105 |[39m     [36mconst[39m tag [33m=[39m next[33m.[39mkind [33m===[39m [32m"foreign"[39m [33m?[39m [32m"blob-chat-mismatch"[39m [33m:[39m [32m"blob-unreadable"[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39mwarn([32m`[Story Orchestrator] ${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`[39m)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m   }
+     [90m 108 |[39m   mismatch [33m=[39m next[33m;[39m
+     [90m 109 |[39m }[33m;[39m[0m
+
+      at noteMismatch (src/runtime/persistence.ts:106:13)
+      at getMetadataBlob (src/runtime/persistence.ts:118:5)
+      at src/runtime/blobForeign.review.test.ts:33:27
+      at settle (test/findings/ledger.ts:53:11)
+      at Object.<anonymous> (test/findings/ledger.ts:76:25)
+
+    console.warn
+      [Story Orchestrator] saving story state refused: this chat's metadata holds state stamped for chat chat-a
+
+    [0m [90m 148 |[39m   [36mconst[39m blob [33m=[39m getMetadataBlob()[33m;[39m
+     [90m 149 |[39m   [36mif[39m ([33m![39mmismatch) [36mreturn[39m blob[33m;[39m
+    [31m[1m>[22m[39m[90m 150 |[39m   console[33m.[39mwarn([32m`[Story Orchestrator] ${write} refused: this chat's metadata holds state ${describeMismatch(mismatch)}`[39m)[33m;[39m
+     [90m     |[39m           [31m[1m^[22m[39m
+     [90m 151 |[39m   [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 152 |[39m }[33m;[39m
+     [90m 153 |[39m[0m
+
+      at ownBlob (src/runtime/persistence.ts:150:11)
+      at savePersistedRuntime (src/runtime/persistence.ts:238:16)
+      at Object.<anonymous> (src/runtime/blobForeign.review.test.ts:40:32)
+
+    console.warn
+      [Story Orchestrator] selecting a story refused: this chat's metadata holds state stamped for chat chat-a
+
+    [0m [90m 148 |[39m   [36mconst[39m blob [33m=[39m getMetadataBlob()[33m;[39m
+     [90m 149 |[39m   [36mif[39m ([33m![39mmismatch) [36mreturn[39m blob[33m;[39m
+    [31m[1m>[22m[39m[90m 150 |[39m   console[33m.[39mwarn([32m`[Story Orchestrator] ${write} refused: this chat's metadata holds state ${describeMismatch(mismatch)}`[39m)[33m;[39m
+     [90m     |[39m           [31m[1m^[22m[39m
+     [90m 151 |[39m   [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 152 |[39m }[33m;[39m
+     [90m 153 |[39m[0m
+
+      at ownBlob (src/runtime/persistence.ts:150:11)
+      at setSelectedStoryId (src/runtime/persistence.ts:197:16)
+      at Object.<anonymous> (src/runtime/blobForeign.review.test.ts:41:23)
+
+    console.warn
+      [Story Orchestrator] dropping story state refused: this chat's metadata holds state stamped for chat chat-a
+
+    [0m [90m 148 |[39m   [36mconst[39m blob [33m=[39m getMetadataBlob()[33m;[39m
+     [90m 149 |[39m   [36mif[39m ([33m![39mmismatch) [36mreturn[39m blob[33m;[39m
+    [31m[1m>[22m[39m[90m 150 |[39m   console[33m.[39mwarn([32m`[Story Orchestrator] ${write} refused: this chat's metadata holds state ${describeMismatch(mismatch)}`[39m)[33m;[39m
+     [90m     |[39m           [31m[1m^[22m[39m
+     [90m 151 |[39m   [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 152 |[39m }[33m;[39m
+     [90m 153 |[39m[0m
+
+      at ownBlob (src/runtime/persistence.ts:150:11)
+      at dropPersistedRuntime (src/runtime/persistence.ts:256:16)
+      at Object.<anonymous> (src/runtime/blobForeign.review.test.ts:42:25)
+
+    console.warn
+      [Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat chat-a while chat-b is open; left untouched, read as no story selected
+
+    [0m [90m 104 |[39m   [36mif[39m ([33mJSON[39m[33m.[39mstringify(mismatch) [33m!==[39m [33mJSON[39m[33m.[39mstringify(next)) {
+     [90m 105 |[39m     [36mconst[39m tag [33m=[39m next[33m.[39mkind [33m===[39m [32m"foreign"[39m [33m?[39m [32m"blob-chat-mismatch"[39m [33m:[39m [32m"blob-unreadable"[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39mwarn([32m`[Story Orchestrator] ${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`[39m)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m   }
+     [90m 108 |[39m   mismatch [33m=[39m next[33m;[39m
+     [90m 109 |[39m }[33m;[39m[0m
+
+      at noteMismatch (src/runtime/persistence.ts:106:13)
+      at getMetadataBlob (src/runtime/persistence.ts:118:5)
+      at getSelectedStoryId (src/runtime/persistence.ts:193:10)
+      at loadSelectedStory (src/runtime/storySelection.ts:42:32)
+      at Object.<anonymous> (src/runtime/blobForeign.review.test.ts:89:20)
+
+PASS src/runtime/messageIdentity.test.ts
+PASS src/engine/stagecraftFormat.test.ts
+PASS src/memory/longFixture.test.ts
+PASS src/engine/agency.test.ts
+PASS src/runtime/quarantineExclusion.review.test.ts
+PASS src/runtime/coordinators/memoryInjectionRefresh.review.test.ts
+PASS src/runtime/passProfiles.test.ts
+PASS src/runtime/worldInfoScan.test.ts
+PASS src/runtime/worldInfoNormalize.test.ts
+PASS src/runtime/coordinators/copilotOwnedLorebooks.test.ts
+PASS src/runtime/roleHealth.test.ts
+PASS src/runtime/nextTurn.test.ts
+PASS src/memory/injectFates.test.ts
+PASS src/extraction/sharedReadFinish.test.ts
+PASS src/runtime/macros.test.ts
+PASS src/runtime/roleSelfTest.test.ts
+PASS src/services/stHost/contextLimit.test.ts
+PASS src/services/stHost/authorNotes.test.ts
+PASS src/judge/loreRelevance.test.ts
+PASS src/runtime/coordinators/copilotOwnership.review.test.ts
+PASS src/runtime/saveHealth.test.ts
+PASS src/runtime/requirementsRefresh.review.test.ts
+  ● Console
+
+    console.warn
+      [Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults TypeError: Cannot read properties of undefined (reading 'extensionSettings')
+          at getRoot (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\settingsStore.ts:124:32)
+          at getGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\settingsStore.ts:165:16)
+          at applyGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:295:35)
+          at withGlobalSettings (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:213:31)
+          at createExtras (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\extras.ts:220:50)
+          at new RuntimeManager (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.ts:68:47)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\runtimeManager.ts:660:31)
+          at Runtime._execModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:1268:24)
+          at Runtime._loadModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:944:12)
+          at Runtime.requireModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:832:12)
+          at Runtime.requireModuleOrMock (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:964:21)
+          at Object.<anonymous> (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\src\runtime\requirementsRefresh.review.test.ts:16:1)
+          at Runtime._execModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:1268:24)
+          at Runtime._loadModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:944:12)
+          at Runtime.requireModule (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runtime\build\index.js:832:12)
+          at jestAdapter (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-circus\build\runner.js:95:13)
+          at runTestInternal (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\RolaPorElNapo\AppData\Local\Temp\tmp.m5MrFs4eys\SillyTavern\public\scripts\extensions\third-party\story-orchestrator\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 213 |[39m     [36mreturn[39m applyGlobalSettings(extras[33m,[39m [33mNO_CHAT_OVERRIDES[39m)[33m;[39m
+     [90m 214 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 215 |[39m     console[33m.[39mwarn([32m"[Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults"[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 216 |[39m     [36mreturn[39m extras[33m;[39m
+     [90m 217 |[39m   }
+     [90m 218 |[39m }[33m;[39m[0m
+
+      at withGlobalSettings (src/runtime/extras.ts:215:13)
+      at createExtras (src/runtime/extras.ts:220:50)
+      at new RuntimeManager (src/runtime/runtimeManager.ts:68:47)
+      at Object.<anonymous> (src/runtime/runtimeManager.ts:660:31)
+      at Object.<anonymous> (src/runtime/requirementsRefresh.review.test.ts:16:1)
+
+PASS src/runtime/narrative.test.ts
+PASS src/runtime/persistenceRetention.test.ts
+PASS src/runtime/persistenceMigration.test.ts
+  ● Console
+
+    console.warn
+      [Story Orchestrator] chat state for unknown story hash v2-oldhash kept as 'legacy-v2-oldhash' (no library record to pin from)
+
+    [0m [90m 44 |[39m       extras[33m:[39m entry[33m.[39mextras [36mas[39m [33mPersistedStoryRuntime[39m[[32m"extras"[39m][33m,[39m
+     [90m 45 |[39m     }[33m;[39m
+    [31m[1m>[22m[39m[90m 46 |[39m     [36mif[39m ([33m![39mrecord) console[33m.[39mwarn([32m`[Story Orchestrator] chat state for unknown story hash ${hash} kept as '${id}' (no library record to pin from)`[39m)[33m;[39m
+     [90m    |[39m                          [31m[1m^[22m[39m
+     [90m 47 |[39m   }
+     [90m 48 |[39m
+     [90m 49 |[39m   [36mconst[39m selectedHash [33m=[39m legacy[33m.[39mselectedStoryHash [33m?[39m[33m?[39m [36mnull[39m[33m;[39m[0m
+
+      at migrateMetadataBlob (src/runtime/persistenceMigration.ts:46:26)
+      at Object.<anonymous> (src/runtime/persistenceMigration.test.ts:59:37)
+
+PASS src/runtime/sceneStale.review.test.ts
+PASS src/memory/parse.test.ts
+PASS src/engine/objectiveLine.test.ts
+PASS src/runtime/coordinators/expansionPreflight.review.test.ts
+PASS src/extraction/inputBudget.test.ts
+PASS src/runtime/memoryInjectorFates.test.ts
+PASS src/extraction/evidence.test.ts
+PASS src/services/stHost/worldInfoScan.test.ts
+PASS src/runtime/faultMatrix.guard.test.ts
+  ● Console
+
+    console.log
+      fault matrix: 75 covered, 11 partial, 24 not applicable, 0 todo (of 110)
+
+      at Object.<anonymous> (src/runtime/faultMatrix.guard.test.ts:61:13)
+
+PASS src/extraction/reconcile.test.ts
+PASS src/runtime/roster.test.ts
+PASS src/extraction/schedulerReadOwnership.review.test.ts
+PASS src/services/stHost/groups.test.ts
+PASS src/runtime/runGuard.test.ts
+PASS src/judge/cancelled.review.test.ts
+PASS src/runtime/selfTest.review.test.ts
+PASS src/engine/convergence.property.test.ts
+PASS src/runtime/chatWrites.test.ts
+  ● Console
+
+    console.warn
+      [Story Orchestrator] blob-chat-mismatch: chat_metadata holds state stamped for chat chat-z while chat-a is open; left untouched, read as no story selected
+
+    [0m [90m 104 |[39m   [36mif[39m ([33mJSON[39m[33m.[39mstringify(mismatch) [33m!==[39m [33mJSON[39m[33m.[39mstringify(next)) {
+     [90m 105 |[39m     [36mconst[39m tag [33m=[39m next[33m.[39mkind [33m===[39m [32m"foreign"[39m [33m?[39m [32m"blob-chat-mismatch"[39m [33m:[39m [32m"blob-unreadable"[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 106 |[39m     console[33m.[39mwarn([32m`[Story Orchestrator] ${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`[39m)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 107 |[39m   }
+     [90m 108 |[39m   mismatch [33m=[39m next[33m;[39m
+     [90m 109 |[39m }[33m;[39m[0m
+
+      at noteMismatch (src/runtime/persistence.ts:106:13)
+      at getMetadataBlob (src/runtime/persistence.ts:118:5)
+      at ownBlob (src/runtime/persistence.ts:148:16)
+      at setSelectedStoryId (src/runtime/persistence.ts:197:16)
+      at Object.<anonymous> (src/runtime/chatWrites.test.ts:51:23)
+
+    console.warn
+      [Story Orchestrator] selecting a story refused: this chat's metadata holds state stamped for chat chat-z
+
+    [0m [90m 148 |[39m   [36mconst[39m blob [33m=[39m getMetadataBlob()[33m;[39m
+     [90m 149 |[39m   [36mif[39m ([33m![39mmismatch) [36mreturn[39m blob[33m;[39m
+    [31m[1m>[22m[39m[90m 150 |[39m   console[33m.[39mwarn([32m`[Story Orchestrator] ${write} refused: this chat's metadata holds state ${describeMismatch(mismatch)}`[39m)[33m;[39m
+     [90m     |[39m           [31m[1m^[22m[39m
+     [90m 151 |[39m   [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 152 |[39m }[33m;[39m
+     [90m 153 |[39m[0m
+
+      at ownBlob (src/runtime/persistence.ts:150:11)
+      at setSelectedStoryId (src/runtime/persistence.ts:197:16)
+      at Object.<anonymous> (src/runtime/chatWrites.test.ts:51:23)
+
+    console.warn
+      [Story Orchestrator] dropping story state refused: this chat's metadata holds state stamped for chat chat-z
+
+    [0m [90m 148 |[39m   [36mconst[39m blob [33m=[39m getMetadataBlob()[33m;[39m
+     [90m 149 |[39m   [36mif[39m ([33m![39mmismatch) [36mreturn[39m blob[33m;[39m
+    [31m[1m>[22m[39m[90m 150 |[39m   console[33m.[39mwarn([32m`[Story Orchestrator] ${write} refused: this chat's metadata holds state ${describeMismatch(mismatch)}`[39m)[33m;[39m
+     [90m     |[39m           [31m[1m^[22m[39m
+     [90m 151 |[39m   [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 152 |[39m }[33m;[39m
+     [90m 153 |[39m[0m
+
+      at ownBlob (src/runtime/persistence.ts:150:11)
+      at dropPersistedRuntime (src/runtime/persistence.ts:256:16)
+      at Object.<anonymous> (src/runtime/chatWrites.test.ts:52:25)
+
+PASS src/studio/draft.test.ts
+PASS src/runtime/runOwner.abort.test.ts
+PASS src/memory/budget.test.ts
+PASS src/runtime/curatorFilter.test.ts
+PASS src/runtime/samplerOverlayHost.test.ts
+PASS src/runtime/messageJump.test.ts
+PASS src/runtime/qualityMacros.test.ts
+PASS src/extraction/degenerate.test.ts
+PASS src/wizard/ownership.review.test.ts
+PASS src/runtime/coordinators/extractionReadOwnership.review.test.ts
+PASS src/memory/canon.test.ts
+PASS src/runtime/storyImportWarnings.review.test.ts
+PASS src/extraction/evidenceCorpus.test.ts
+PASS src/runtime/settingsView.review.test.ts
+PASS src/utils/string.test.ts
+PASS src/engine/replaceGraph.test.ts
+PASS src/services/stHost/popup.test.ts
+PASS src/runtime/storySelectionOwnership.review.test.ts
+PASS src/generation/merge.review.test.ts
+PASS src/utils/samplerKeys.test.ts
+PASS src/runtime/breakerWatch.test.ts
+PASS src/runtime/epochAbort.review.test.ts
+PASS src/runtime/samplerOverlay.test.ts
+PASS src/memory/score.test.ts
+PASS src/services/stHost/extensionPrompts.test.ts
+PASS src/runtime/stateExport.test.ts
+PASS src/extraction/callBudget.test.ts
+PASS src/runtime/judgeMeterRollback.review.test.ts
+PASS src/generation/latchGuard.test.ts
+PASS src/engine/houseRules.test.ts
+PASS src/pacing/guidance.test.ts
+PASS src/runtime/typedRead.test.ts
+PASS src/extraction/scopeExplain.test.ts
+PASS src/runtime/extractionEnabled.guard.test.ts
+PASS src/services/stHost/persistence.test.ts
+PASS src/utils/wordDiff.test.ts
+PASS src/engine/historySize.test.ts
+[V11] engine history at 200 boundaries: 201165 bytes
+PASS src/runtime/requestBudget.test.ts
+PASS src/services/stHost/backgrounds.test.ts
+PASS src/runtime/settingsLoad.test.ts
+PASS src/services/stHost/slashCommands.test.ts
+PASS src/engine/discardPendingFrom.test.ts
+PASS src/judge/numbers.test.ts
+PASS src/runtime/messageJumpHost.test.ts
+PASS src/studio/gateOptions.test.ts
+PASS src/memory/sceneDetect.test.ts
+PASS src/studio/qualityUsage.test.ts
+PASS src/extraction/cues.test.ts
+PASS src/runtime/storyUpdate.review.test.ts
+PASS src/services/stHost/contextBudget.test.ts
+PASS src/memory/supersede.test.ts
+PASS src/extraction/hintSidecars.test.ts
+PASS src/engine/clampToChat.test.ts
+PASS src/extraction/preflight.test.ts
+PASS src/engine/independentStory.test.ts
+PASS src/engine/rosterRole.test.ts
+PASS src/studio/io.test.ts
+PASS src/studio/graphAdapter.test.ts
+PASS src/services/stHost/judge.review.test.ts
+PASS src/runtime/worldInfoSettings.test.ts
+PASS src/runtime/exampleStory.review.test.ts
+PASS src/runtime/scoreContext.test.ts
+PASS src/engine/journeyStories.test.ts
+PASS src/constants/injectionRegistry.test.ts
+
+findings ledger: 2 open, 48 settled
+
+Test Suites: 256 passed, 256 total
+Tests:       3749 passed, 3749 total
+Snapshots:   0 total
+Time:        144.352 s
+Ran all test suites.
+[clean-host] test OK
+[clean-host] == build ==
+
+> story-orchestrator@2.4.0 build
+> webpack --mode production && node scripts/release/manifest.mjs
+
+Browserslist: browsers data (caniuse-lite) is 12 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+asset [1m[33mindex.js[39m[22m [1m[33m1.74 MiB[39m[22m [1m[32m[emitted][39m[22m [1m[32m[minimized][39m[22m [1m[33m[big][39m[22m (name: main)
+asset [1m[32m111.index.js[39m[22m 84.1 KiB [1m[32m[emitted][39m[22m [1m[32m[minimized][39m[22m (id hint: vendors)
+orphan modules 1.51 MiB [1m[33m[orphan][39m[22m 74 modules
+runtime modules 10.4 KiB 14 modules
+javascript modules 4.03 MiB
+  modules by path [1m./node_modules/[39m[22m 853 KiB
+    modules by path [1m./node_modules/lodash/*.js[39m[22m 187 KiB 240 modules
+    modules by path [1m./node_modules/dagre/[39m[22m 77.1 KiB 30 modules
+    modules by path [1m./node_modules/graphlib/[39m[22m 28 KiB 20 modules
+    modules by path [1m./node_modules/style-loader/dist/runtime/*.js[39m[22m 5.84 KiB 6 modules
+    modules by path [1m./node_modules/react/[39m[22m 18 KiB 4 modules
+    modules by path [1m./node_modules/react-dom/[39m[22m 512 KiB 4 modules
+    modules by path [1m./node_modules/scheduler/[39m[22m 10.1 KiB 2 modules
+    modules by path [1m./node_modules/css-loader/dist/runtime/*.js[39m[22m 2.31 KiB 2 modules
+    + 1 module
+  modules by path [1m./src/[39m[22m 3.19 MiB 248 modules
+[1m./package.json[39m[22m 3.57 KiB [1m[33m[built][39m[22m [1m[33m[code generated][39m[22m
+
+[1m[33mWARNING[39m[22m in [1masset size limit: The following asset(s) exceed the recommended size limit (244 KiB).
+This can impact web performance.
+Assets: 
+  index.js (1.74 MiB)[39m[22m
+
+[1m[33mWARNING[39m[22m in [1mentrypoint size limit: The following entrypoint(s) combined asset size exceeds the recommended limit (244 KiB). This can impact web performance.
+Entrypoints:
+  main (1.74 MiB)
+      index.js
+[39m[22m
+
+webpack 5.90.3 compiled with [1m[33m2 warnings[39m[22m in 34840 ms
+build manifest → dist\manifest.json (bundle 65733265d301, source 3b2655c2305f, ST 1.19.0)
+[clean-host] build OK
+[clean-host] == test:release ==
+
+> story-orchestrator@2.4.0 test:release
+> node --test "scripts/release/*.test.mjs"
+
+TAP version 13
+# Subtest: the attestation records only the attested build; the current one is computed, never hand-kept
+ok 1 - the attestation records only the attested build; the current one is computed, never hand-kept # SKIP no docs/release/2.4.0/attestation.json — plan 11 writes it
+  ---
+  duration_ms: 1.006
+  type: 'test'
+  ...
+# Subtest: drift from the attested build is declared by policy, never silent
+ok 2 - drift from the attested build is declared by policy, never silent # SKIP no docs/release/2.4.0/attestation.json — plan 11 writes it
+  ---
+  duration_ms: 0.1027
+  type: 'test'
+  ...
+# Subtest: the served hash is the attested hash, not a copy of it
+ok 3 - the served hash is the attested hash, not a copy of it # SKIP no docs/release/2.4.0/attestation.json — plan 11 writes it
+  ---
+  duration_ms: 0.0923
+  type: 'test'
+  ...
+# Subtest: every journey in test/journeys is accounted for, and one that never ran says so
+ok 4 - every journey in test/journeys is accounted for, and one that never ran says so # SKIP no docs/release/2.4.0/attestation.json — plan 11 writes it
+  ---
+  duration_ms: 0.0927
+  type: 'test'
+  ...
+# Subtest: every run of every journey is reported, not only the first two
+ok 5 - every run of every journey is reported, not only the first two # SKIP no docs/release/2.4.0/attestation.json — plan 11 writes it
+  ---
+  duration_ms: 0.1564
+  type: 'test'
+  ...
+# Subtest: the journey set is derived: a catalog journey the attestation omits is named, and so is one with no file
+ok 6 - the journey set is derived: a catalog journey the attestation omits is named, and so is one with no file
+  ---
+  duration_ms: 23.2617
+  type: 'test'
+  ...
+# Subtest: the records root is the attestation's own evidence.journeys, and one that escapes the repo is refused
+ok 7 - the records root is the attestation's own evidence.journeys, and one that escapes the repo is refused
+  ---
+  duration_ms: 0.7432
+  type: 'test'
+  ...
+# Subtest: every record it cites exists on disk
+ok 8 - every record it cites exists on disk # SKIP no docs/release/2.4.0/attestation.json — plan 11 writes it
+  ---
+  duration_ms: 0.0932
+  type: 'test'
+  ...
+# Subtest: a PARTIAL attestation says what is not green, and a full one has nothing to say
+ok 9 - a PARTIAL attestation says what is not green, and a full one has nothing to say # SKIP no docs/release/2.4.0/attestation.json — plan 11 writes it
+  ---
+  duration_ms: 0.386
+  type: 'test'
+  ...
+# Subtest: a journey that never ran all-green is named in notGreen
+ok 10 - a journey that never ran all-green is named in notGreen # SKIP no docs/release/2.4.0/attestation.json — plan 11 writes it
+  ---
+  duration_ms: 0.3738
+  type: 'test'
+  ...
+# Subtest: the status note claims 'twice' only when every journey has two recorded all-pass runs
+ok 11 - the status note claims 'twice' only when every journey has two recorded all-pass runs # SKIP no docs/release/2.4.0/attestation.json — plan 11 writes it
+  ---
+  duration_ms: 0.1519
+  type: 'test'
+  ...
+# Subtest: no cited journey record is a partial (--only) run
+ok 12 - no cited journey record is a partial (--only) run # SKIP no docs/release/2.4.0/attestation.json — plan 11 writes it
+  ---
+  duration_ms: 0.0686
+  type: 'test'
+  ...
+# Subtest: every cited repo path exists, or is a listed absence with a reason (rule 11)
+ok 13 - every cited repo path exists, or is a listed absence with a reason (rule 11)
+  ---
+  duration_ms: 306.4821
+  type: 'test'
+  ...
+# Subtest: a listed absence that now exists, or that no document cites, fails, so the list cannot rot
+ok 14 - a listed absence that now exists, or that no document cites, fails, so the list cannot rot
+  ---
+  duration_ms: 14.0899
+  type: 'test'
+  ...
+# Subtest: no gate record written since the replan cites .debug/, which rotates
+ok 15 - no gate record written since the replan cites .debug/, which rotates
+  ---
+  duration_ms: 11.7605
+  type: 'test'
+  ...
+# Subtest: the citation reader: records/ shorthand, line suffixes, braces, anchors, and non-paths
+ok 16 - the citation reader: records/ shorthand, line suffixes, braces, anchors, and non-paths
+  ---
+  duration_ms: 0.352
+  type: 'test'
+  ...
+# Subtest: the build manifest describes the bytes actually built
+ok 17 - the build manifest describes the bytes actually built
+  ---
+  duration_ms: 432.399
+  type: 'test'
+  ...
+# Subtest: the source hash is over the tree and is stable
+ok 18 - the source hash is over the tree and is stable
+  ---
+  duration_ms: 881.186
+  type: 'test'
+  ...
+# Subtest: the capability list is the one the code declares
+ok 19 - the capability list is the one the code declares
+  ---
+  duration_ms: 395.7507
+  type: 'test'
+  ...
+# Subtest: the host section names the SillyTavern it was built against
+ok 20 - the host section names the SillyTavern it was built against
+  ---
+  duration_ms: 387.8927
+  type: 'test'
+  ...
+# Subtest: ST's loader manifest refuses a host older than the README's declared older host
+ok 21 - ST's loader manifest refuses a host older than the README's declared older host
+  ---
+  duration_ms: 8.2872
+  type: 'test'
+  ...
+1..21
+# tests 21
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 10
+# todo 0
+# duration_ms 2239.0711
+[clean-host] test:release OK
+[clean-host] == host record ==
+[clean-host] host record: /c/dev/SillyTavern-MainBranch/public/scripts/extensions/third-party/story-orchestrator/test/journeys/records/v2.4-acceptance/clean-host/pinned/20260925T092437Z.host.json
+[clean-host] result: green

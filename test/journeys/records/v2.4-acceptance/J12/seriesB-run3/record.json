@@ -1,0 +1,192 @@
+{
+  "id": "J12",
+  "title": "unaided-schedule",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j12-unaided-schedule.journey.json",
+  "ranAt": "2026-09-25T18:30:55.201Z",
+  "strict": true,
+  "partial": false,
+  "only": null,
+  "tally": {
+    "pass": 5
+  },
+  "tallies": {
+    "automated": {
+      "pass": 5,
+      "fail": 0,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 0
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 5,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [],
+  "humanRecord": null,
+  "runnerError": null,
+  "releasedRoutes": null,
+  "capabilities": {},
+  "results": [
+    {
+      "id": "J12.1",
+      "mode": "auto",
+      "findings": [
+        "S13"
+      ],
+      "goal": "the SHIPPED default cadence is in effect (3), extraction is on, a profile is set, and nothing has read yet — so the read J12.3 observes cannot be a leftover from an earlier check or an earlier run",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J12.2",
+      "mode": "auto",
+      "findings": [
+        "S13"
+      ],
+      "goal": "the story is selected and its requirements are GREEN — the guard v2.3 plan 04 added, because a journey that never established its lorebooks gets silent no-op latches instead of a failure, and the symptom then surfaces 300 s later as a checkpoint that never arrives",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J12.3",
+      "mode": "auto",
+      "findings": [
+        "S13"
+      ],
+      "goal": "three real turns at the shipped cadence produce an extraction read with NO help (any reason but manual/trigger/runNow), it accepts deltas, and every such read's window holds the player's own lines. Rewritten 2026-09-23 (L2) from the audit tail: the check demanded the reason `cadence`, but a scene or cue read that fires first is just as unaided and resets the cadence counter, so in 3 of 3 real runs the schedule fired as `scene:cast` / `cue:*` and the read labelled `cadence` never came due. Whether a read reached the latest player message is reported, not asserted, for the same reason.",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J12.4",
+      "mode": "auto",
+      "findings": [
+        "S13"
+      ],
+      "goal": "an accepted delta's EVIDENCE is a verbatim quote (at least 12 characters, quotes and whitespace normalized) of one of the player's own lines inside the read's window. Rewritten 2026-09-23 (L2): the token-overlap form excluded `cross`/`guild`/`counter` as generic, and a real run whose evidence was exactly the player's line \"I cross the guild hall to the quest counter\" failed on it. A verbatim quote is the stronger claim, and the one the extraction contract states.",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J12.5",
+      "mode": "auto",
+      "findings": [
+        "S13"
+      ],
+      "goal": "the checkpoint the read opened applied its effects — an owned ledger row per effect, `applied` — and the boundary log names the transition that fired. This is the leg the MODEL decides, so it is its own check: a model that will not commit costs this check, not the journey's point (J12.3/J12.4). Revised 2026-09-25 (v2.4 plan 09 acceptance, lane 2): an accepted delta applies at the NEXT boundary, and at cadence 3 the cadence read fires on the third turn's boundary, so in two runs the model had accepted path=wendhope and the check reported that it had not; the check now lets the scheduler settle and plays one more real turn before it reads the checkpoint, and it names an accepted-but-unapplied path separately",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    }
+  ],
+  "cleanup": {
+    "judgeCalls": {
+      "count": 0,
+      "events": []
+    },
+    "debugResponses": {
+      "cleared": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [],
+      "preservedSessions": []
+    },
+    "chat": {
+      "sandboxChatId": "2026-09-25@15h26m33s075ms",
+      "owned": [
+        "2026-09-25@15h26m33s075ms"
+      ],
+      "deleted": [
+        "2026-09-25@15h26m33s075ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-25@15h26m33s075ms",
+      "currentGroupAtCleanup": "1789797226071",
+      "chatAfterCleanup": "2026-09-20@09h17m25s990ms"
+    },
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "member:Adolion Narrator": {
+      "enabled": true
+    },
+    "member:Tobias": {
+      "enabled": true
+    },
+    "member:Belle": {
+      "enabled": true
+    },
+    "member:Dalan": {
+      "enabled": true
+    },
+    "disabledMembers": []
+  }
+}

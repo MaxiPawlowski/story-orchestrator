@@ -1,0 +1,103 @@
+== P06 objective-off-run1 test/scenarios/live-v24-06-objective-off.json start 2026-09-25T15:03:10Z
+{
+  "opened": {
+    "found": true,
+    "alreadyOpen": true,
+    "id": "1759606632088",
+    "name": "Group: Arin, DM Narrator"
+  },
+  "state": {
+    "groupId": "1759606632088",
+    "chatId": "2026-09-20@07h06m38s396ms",
+    "chatLength": 0
+  }
+}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T15-03-16-465Z_st-navigation-open-group.json
+open-group exit=0
+1/6 import_story ok 307ms
+2/6 ui ok 223ms
+3/6 eval ok 17ms
+3/6 eval -> {"block":""}
+4/6 send_generate ok 37536ms
+5/6 wait ok 5233ms
+6/6 eval ok 6ms
+6/6 eval -> {"requests":4}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T15-04-11-204Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 6,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-47b2eb84"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@12h03m23s005ms",
+    "owned": [
+      "2026-09-25@12h03m23s005ms"
+    ],
+    "deleted": [
+      "2026-09-25@12h03m23s005ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@12h03m23s005ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}
+scenario exit=0 2026-09-25T15:04:11Z

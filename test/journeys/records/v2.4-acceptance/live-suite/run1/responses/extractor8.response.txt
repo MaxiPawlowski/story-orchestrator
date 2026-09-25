@@ -1,0 +1,3 @@
+DELTA weather="fog" evidence="A wall of fog rolls in and swallows the mast."
+MEMORY type=scene importance=2 expiration=scene text="A wall of fog has rolled in, obscuring visibility." evidence="A wall of fog rolls in and swallows the mast."
+SCENE_NONE

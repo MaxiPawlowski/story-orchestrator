@@ -1,0 +1,135 @@
+Following the session journal → C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\test\journeys\records\v2.4-acceptance\J3\run1\journal-follow.jsonl every 1000 ms. Ctrl-C to stop.
+2026-09-25T10:05:23.529Z session      chat 2026-09-24@04h05m33s739ms · story none · at — (boundary 0, 7 messages)
+2026-09-25T10:01:12.163Z story        away recap not due
+2026-09-25T10:01:12.565Z story        away recap not due
+2026-09-25T10:01:12.878Z status       Continuing Quest for the Sun Ruins
+2026-09-25T10:01:37.513Z status       Moved into Accept the Mission
+2026-09-25T10:01:38.374Z status       Following Accept the Mission
+2026-09-25T10:01:38.378Z story        story updated v2 → v4 (compatible, keep)
+2026-09-25T10:02:18.898Z story        quality macro skipped
+2026-09-25T10:02:18.898Z story        quality macro skipped
+2026-09-25T10:02:18.903Z story        story updated v4 → v5 (compatible, keep)
+2026-09-25T10:03:01.482Z story        quality macro skipped
+2026-09-25T10:03:01.482Z story        quality macro skipped
+2026-09-25T10:03:01.487Z story        story updated v5 → v6 (invalidating, keep)
+2026-09-25T10:03:02.429Z story        story updated v6 → v7 (invalidating, cancel)
+2026-09-25T10:04:07.469Z status       Now at Investigate the Job Board
+2026-09-25T10:04:07.474Z story        quality macro skipped
+2026-09-25T10:04:07.474Z story        quality macro skipped
+2026-09-25T10:04:07.478Z story        story updated v6 → v8 (invalidating, keep)
+2026-09-25T10:04:07.913Z status       Following Investigate the Job Board
+2026-09-25T10:04:25.433Z story        quality macro skipped
+2026-09-25T10:04:25.433Z story        quality macro skipped
+2026-09-25T10:04:25.438Z story        story updated v8 → v9 (invalidating, keep)
+2026-09-25T10:04:25.812Z story        story updated v9 → v10 (compatible, keep)
+2026-09-25T10:05:06.321Z status       No story selected for this chat
+2026-09-25T10:05:38.702Z session      chat 2026-09-25@07h05m37s760ms · story none · at — (boundary 0, 1 messages)
+2026-09-25T10:01:12.163Z story        away recap not due
+2026-09-25T10:01:12.565Z story        away recap not due
+2026-09-25T10:01:12.878Z status       Continuing Quest for the Sun Ruins
+2026-09-25T10:01:37.513Z status       Moved into Accept the Mission
+2026-09-25T10:01:38.374Z status       Following Accept the Mission
+2026-09-25T10:01:38.378Z story        story updated v2 → v4 (compatible, keep)
+2026-09-25T10:02:18.898Z story        quality macro skipped
+2026-09-25T10:02:18.898Z story        quality macro skipped
+2026-09-25T10:02:18.903Z story        story updated v4 → v5 (compatible, keep)
+2026-09-25T10:03:01.482Z story        quality macro skipped
+2026-09-25T10:03:01.482Z story        quality macro skipped
+2026-09-25T10:03:01.487Z story        story updated v5 → v6 (invalidating, keep)
+2026-09-25T10:03:02.429Z story        story updated v6 → v7 (invalidating, cancel)
+2026-09-25T10:04:07.469Z status       Now at Investigate the Job Board
+2026-09-25T10:04:07.474Z story        quality macro skipped
+2026-09-25T10:04:07.474Z story        quality macro skipped
+2026-09-25T10:04:07.478Z story        story updated v6 → v8 (invalidating, keep)
+2026-09-25T10:04:07.913Z status       Following Investigate the Job Board
+2026-09-25T10:04:25.433Z story        quality macro skipped
+2026-09-25T10:04:25.433Z story        quality macro skipped
+2026-09-25T10:04:25.438Z story        story updated v8 → v9 (invalidating, keep)
+2026-09-25T10:04:25.812Z story        story updated v9 → v10 (compatible, keep)
+2026-09-25T10:05:06.321Z status       No story selected for this chat
+2026-09-25T10:05:40.743Z session      chat 2026-09-25@07h05m37s760ms · story sun-ruins · at Investigate the Job Board (boundary 0, 1 messages)
+2026-09-25T10:05:40.628Z story        away recap not due
+2026-09-25T10:05:40.845Z status       Started Quest for the Sun Ruins
+2026-09-25T10:05:40.851Z story        quality macro skipped
+2026-09-25T10:05:40.851Z story        quality macro skipped
+2026-09-25T10:05:42.902Z payload      1 story blocks injected (generation)
+2026-09-25T10:05:58.254Z boundary     boundary 1: nothing applied (gate)
+2026-09-25T10:05:58.850Z status       Following Investigate the Job Board
+2026-09-25T10:06:02.869Z payload      1 story blocks injected (generation)
+2026-09-25T10:06:32.626Z extraction   read cue:cp1->cp2 msgs 0-2 → 2 accepted, 0 rejected
+2026-09-25T10:06:32.626Z delta        approached_board = true
+2026-09-25T10:06:32.626Z delta        tension_current = 0
+2026-09-25T10:06:32.626Z delta        queued approached_board=true, tension_current=0 for the next boundary
+2026-09-25T10:06:40.073Z payload      2 story blocks injected (generation)
+2026-09-25T10:07:19.235Z extraction   read scene:cast msgs 0-2 → 2 accepted, 0 rejected
+2026-09-25T10:07:19.235Z delta        approached_board = true
+2026-09-25T10:07:19.235Z delta        tension_current = 0
+2026-09-25T10:07:19.235Z delta        queued approached_board=true, tension_current=0 for the next boundary
+2026-09-25T10:07:35.772Z boundary     applied approached_board=true, tension_current=0; discarded approached_board=true, tension_current=0 (superseded)
+2026-09-25T10:07:35.772Z transition   cp1 → cp2
+2026-09-25T10:07:36.566Z payload      2 story blocks injected (generation)
+2026-09-25T10:08:22.543Z payload      2 story blocks injected (generation)
+2026-09-25T10:08:22.543Z status       Moved into Accept the Mission
+2026-09-25T10:08:22.672Z boundary     boundary 3: nothing applied (gate)
+2026-09-25T10:08:25.266Z status       Following Accept the Mission
+2026-09-25T10:09:22.529Z delta        queued artifact_secured=false, chamber_entered=false, guardian_respect=0, luke_alive=true, luke_decision=undecided, mission_accepted=false, reward_claimed=false for the next boundary
+2026-09-25T10:09:22.278Z extraction   read scene:cast msgs 0-4 → 7 accepted, 1 rejected
+2026-09-25T10:09:22.278Z delta        artifact_secured = false
+2026-09-25T10:09:22.278Z delta        chamber_entered = false
+2026-09-25T10:09:22.278Z delta        guardian_respect = 0
+2026-09-25T10:09:22.278Z delta        luke_alive = true
+2026-09-25T10:09:22.278Z delta        luke_decision = undecided
+2026-09-25T10:09:22.278Z delta        mission_accepted = false
+2026-09-25T10:09:22.278Z delta        reward_claimed = false
+2026-09-25T10:09:22.278Z delta        queued artifact_secured=false, chamber_entered=false, guardian_respect=0, luke_alive=true, luke_decision=undecided, mission_accepted=false, reward_claimed=false for the next boundary
+2026-09-25T10:09:32.479Z boundary     applied artifact_secured=false, chamber_entered=false, guardian_respect=0, luke_alive=true, luke_decision=undecided, mission_accepted=false, reward_claimed=false
+2026-09-25T10:09:32.618Z boundary     boundary 5: nothing applied (gate)
+2026-09-25T10:09:34.050Z payload      4 story blocks injected (generation)
+2026-09-25T10:09:36.847Z reconciliation stall re-check queued for stall-probe
+2026-09-25T10:10:08.275Z extraction   read cadence msgs 0-6 → 1 accepted, 0 rejected
+2026-09-25T10:10:08.275Z delta        tension_current = 0.075
+2026-09-25T10:10:08.275Z delta        queued tension_current=0.075 for the next boundary
+2026-09-25T10:10:25.248Z payload      4 story blocks injected (generation)
+2026-09-25T10:10:41.163Z flag         journey J3 checkpoint
+2026-09-25T10:10:52.779Z boundary     applied tension_current=0.075
+2026-09-25T10:10:54.843Z session      chat 2026-09-24@04h05m33s739ms · story none · at Accept the Mission (boundary 6, 7 messages)
+2026-09-25T10:05:40.628Z story        away recap not due
+2026-09-25T10:05:40.845Z status       Started Quest for the Sun Ruins
+2026-09-25T10:05:40.851Z story        quality macro skipped
+2026-09-25T10:05:40.851Z story        quality macro skipped
+2026-09-25T10:05:58.254Z boundary     boundary 1: nothing applied (gate)
+2026-09-25T10:05:58.850Z status       Following Investigate the Job Board
+2026-09-25T10:06:32.626Z extraction   read cue:cp1->cp2 msgs 0-2 → 2 accepted, 0 rejected
+2026-09-25T10:06:32.626Z delta        approached_board = true
+2026-09-25T10:06:32.626Z delta        tension_current = 0
+2026-09-25T10:06:40.073Z payload      2 story blocks injected (generation)
+2026-09-25T10:07:19.235Z extraction   read scene:cast msgs 0-2 → 2 accepted, 0 rejected
+2026-09-25T10:07:19.235Z delta        approached_board = true
+2026-09-25T10:07:19.235Z delta        tension_current = 0
+2026-09-25T10:07:35.772Z boundary     applied approached_board=true, tension_current=0; discarded approached_board=true, tension_current=0 (superseded)
+2026-09-25T10:07:35.772Z transition   cp1 → cp2
+2026-09-25T10:07:36.566Z payload      2 story blocks injected (generation)
+2026-09-25T10:08:22.543Z payload      2 story blocks injected (generation)
+2026-09-25T10:08:22.543Z status       Moved into Accept the Mission
+2026-09-25T10:08:22.672Z boundary     boundary 3: nothing applied (gate)
+2026-09-25T10:08:25.266Z status       Following Accept the Mission
+2026-09-25T10:09:22.278Z extraction   read scene:cast msgs 0-4 → 7 accepted, 1 rejected
+2026-09-25T10:09:22.278Z delta        artifact_secured = false
+2026-09-25T10:09:22.278Z delta        chamber_entered = false
+2026-09-25T10:09:22.278Z delta        guardian_respect = 0
+2026-09-25T10:09:22.278Z delta        luke_alive = true
+2026-09-25T10:09:22.278Z delta        luke_decision = undecided
+2026-09-25T10:09:22.278Z delta        mission_accepted = false
+2026-09-25T10:09:22.278Z delta        reward_claimed = false
+2026-09-25T10:09:32.479Z boundary     applied artifact_secured=false, chamber_entered=false, guardian_respect=0, luke_alive=true, luke_decision=undecided, mission_accepted=false, reward_claimed=false
+2026-09-25T10:09:32.618Z boundary     boundary 5: nothing applied (gate)
+2026-09-25T10:09:34.050Z payload      4 story blocks injected (generation)
+2026-09-25T10:09:36.847Z reconciliation stall re-check queued for stall-probe
+2026-09-25T10:10:08.275Z extraction   read cadence msgs 0-6 → 1 accepted, 0 rejected
+2026-09-25T10:10:08.275Z delta        tension_current = 0.075
+2026-09-25T10:10:25.248Z payload      4 story blocks injected (generation)
+2026-09-25T10:10:41.163Z flag         journey J3 checkpoint
+2026-09-25T10:10:52.779Z boundary     applied tension_current=0.075
+2026-09-25T10:10:54.940Z story        restored 3 host change(s)
+2026-09-25T10:10:54.945Z story        2 host change(s) were edited outside this story and left alone
+2026-09-25T10:10:54.945Z status       No story selected for this chat

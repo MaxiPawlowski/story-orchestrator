@@ -1,0 +1,26 @@
+{
+  "ok": true,
+  "value": {
+    "health": {
+      "kind": "transport",
+      "detail": "signal timed out",
+      "since": 1790335574366,
+      "nextProbeAt": 1790337534530,
+      "probing": false
+    },
+    "h": [
+      "{\"at\":\"2026-09-25T10:45:12.779Z\",\"boundary\":0,\"messageId\":-1,\"kind\":\"status\",\"summary\":\"Started Quest for the Sun Ruins\"}",
+      "{\"at\":\"2026-09-25T10:45:28.366Z\",\"boundary\":1,\"messageId\":2,\"kind\":\"status\",\"summary\":\"Following Investigate the Job Board\"}",
+      "{\"at\":\"2026-09-25T10:46:25.159Z\",\"boundary\":2,\"messageId\":4,\"kind\":\"status\",\"summary\":\"Moved into Accept the Mission\"}",
+      "{\"at\":\"2026-09-25T10:46:43.589Z\",\"boundary\":3,\"messageId\":5,\"kind\":\"status\",\"summary\":\"Following Accept the Mission\"}",
+      "{\"at\":\"2026-09-25T10:53:03.386Z\",\"boundary\":12,\"messageId\":20,\"kind\":\"status\",\"summary\":\"Moved into Departure Preparations\"}",
+      "{\"at\":\"2026-09-25T10:53:03.738Z\",\"boundary\":13,\"messageId\":21,\"kind\":\"status\",\"summary\":\"Following Departure Preparations\"}",
+      "{\"at\":\"2026-09-25T11:14:25.615Z\",\"boundary\":20,\"messageId\":33,\"kind\":\"status\",\"summary\":\"Moved into Travel with Luke\"}",
+      "{\"at\":\"2026-09-25T11:15:51.344Z\",\"boundary\":21,\"messageId\":36,\"kind\":\"status\",\"summary\":\"Moved into Riddle Solved\"}",
+      "{\"at\":\"2026-09-25T11:15:51.487Z\",\"boundary\":22,\"messageId\":37,\"kind\":\"status\",\"summary\":\"Following Riddle Solved\"}",
+      "{\"at\":\"2026-09-25T11:26:14.366Z\",\"boundary\":27,\"messageId\":47,\"kind\":\"story\",\"summary\":\"memory model not answering; reads held\",\"detail\":{\"note\":\"the memory model did not answer within 64214 ms\"}}",
+      "{\"at\":\"2026-09-25T11:40:28.867Z\",\"boundary\":28,\"messageId\":49,\"kind\":\"status\",\"summary\":\"Moved into Find the Artifact\"}",
+      "{\"at\":\"2026-09-25T11:52:10.856Z\",\"boundary\":29,\"messageId\":52,\"kind\":\"status\",\"summary\":\"Following Find the Artifact\"}"
+    ]
+  }
+}

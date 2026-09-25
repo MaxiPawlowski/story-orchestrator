@@ -1,0 +1,159 @@
+{
+  "file": "test/scenarios/live-v24-05-forced-pick.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "import_story",
+      "ok": true,
+      "ms": 288
+    },
+    {
+      "index": 1,
+      "key": "eval",
+      "ok": true,
+      "ms": 12
+    },
+    {
+      "index": 2,
+      "key": "ui",
+      "ok": true,
+      "ms": 296
+    },
+    {
+      "index": 3,
+      "key": "eval",
+      "ok": true,
+      "ms": 20
+    },
+    {
+      "index": 4,
+      "key": "send",
+      "ok": true,
+      "ms": 1680
+    },
+    {
+      "index": 5,
+      "key": "wait",
+      "ok": true,
+      "ms": 1521
+    },
+    {
+      "index": 6,
+      "key": "eval",
+      "ok": true,
+      "ms": 20687
+    },
+    {
+      "index": 7,
+      "key": "wait",
+      "ok": true,
+      "ms": 1537
+    },
+    {
+      "index": 8,
+      "key": "eval",
+      "ok": true,
+      "ms": 11
+    },
+    {
+      "index": 9,
+      "key": "inject_script",
+      "ok": true,
+      "ms": 12
+    },
+    {
+      "index": 10,
+      "key": "eval",
+      "ok": true,
+      "ms": 36110
+    },
+    {
+      "index": 11,
+      "key": "wait",
+      "ok": true,
+      "ms": 1532
+    },
+    {
+      "index": 12,
+      "key": "eval",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 13,
+      "key": "wait",
+      "ok": true,
+      "ms": 5046
+    },
+    {
+      "index": 14,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    }
+  ],
+  "ok": true,
+  "error": null,
+  "retries": [],
+  "firstAttempt": "pass",
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-22f8addb"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@11h25m58s740ms",
+    "owned": [
+      "2026-09-25@11h25m58s740ms"
+    ],
+    "deleted": [
+      "2026-09-25@11h25m58s740ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@11h25m58s740ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

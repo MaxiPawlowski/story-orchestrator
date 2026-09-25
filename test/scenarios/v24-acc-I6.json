@@ -1,0 +1,114 @@
+{
+  "_note": "v2.4 plan 09 acceptance row I6 (branch mid-story), written 2026-09-25 from v24-02-branch-continue.json (plan 02's fixture, otherwise unchanged) because the row requires the branch notice to arrive with NO popup and the base fixture did not assert that. Added before Continue from here is pressed: after 1.5 s on the unadopted branch, no ST dialog (dialog[open], other than our Studio) and no legacy popup (#shadow_popup, #dialogue_popup) is visible, the snapshot reads the chat as a branch and no story is loaded (no auto-adopt). Everything else is the base fixture: host facts (main_chat, fresh integrity, our blob stamped for the parent), the parent's mirror book unbound from the branch's slot while unadopted, Continue from here pressed by a pointer (hit-tested), an applied rollback from 2 (the branch tail), a fresh mirror book for the branch and the parent's blob untouched. The runner's cleanup owns and deletes the branch chat and its book (cleanup.branchChats). No model call. Run: node scripts/debug/so-scenario.mts run test/scenarios/v24-acc-I6.json --sandbox --group 1759606632088.",
+  "steps": [
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const greetings = ctx.chat.length; for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error(`the sandbox chat still holds ${ctx.chat.length} message(s) after clearing its greetings, so every message id below would name the wrong line`); return { greetingsCleared: greetings };",
+      "log": true
+    },
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "import_story": {
+        "file": "v24-01-delete.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const state = rt.getEngineState(); if (!state || state.activeCheckpointId !== 'start') throw new Error(`the story did not load at start: ${JSON.stringify(state && state.activeCheckpointId)}`); return { cadence: 0, stabilityLag: 0, boundary: state.boundary };"
+    },
+    {
+      "send": "I take the brass key from the hook."
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=took_key value=true evidence=\"I take the brass key\"\nFACT importance=2 text=\"The player carries the brass key.\" evidence=\"I take the brass key from the hook.\"\nMEMORY type=relationship importance=3 expiration=permanent text=\"The keeper of the hook trusts the player with the brass key.\" evidence=\"I take the brass key from the hook.\"",
+        "reason": "v24-02:line-0"
+      }
+    },
+    {
+      "send": "I light the oil lamp by the door."
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=lit_lamp value=true evidence=\"I light the oil lamp\"\nFACT importance=2 text=\"The oil lamp by the door is lit.\" evidence=\"I light the oil lamp by the door.\"",
+        "reason": "v24-02:line-1"
+      }
+    },
+    {
+      "record_state": {
+        "as": "after-line-1"
+      },
+      "log": true
+    },
+    {
+      "send": "I unroll the map on the table."
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=found_map value=true evidence=\"I unroll the map\"\nFACT importance=2 text=\"The map lies unrolled on the table.\" evidence=\"I unroll the map on the table.\"",
+        "reason": "v24-02:line-2"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const state = rt.getEngineState(); if (state.lastMessageId !== 2 || state.blackboard.values.found_map !== true) throw new Error(`the three lines were not consumed: last=${state.lastMessageId} values=${JSON.stringify(state.blackboard.values)}`); const summary = await rt.syncWorldInfo(); const book = rt.getSnapshot().memory.wiBook; if (!book?.name) throw new Error(`the memory mirror made no book for this chat (memory disabled install-wide?), so the unbind half cannot be checked: ${JSON.stringify(summary)}`); if (ctx.chatMetadata.world_info !== book.name) throw new Error(`the mirror book ${book.name} is not bound to the parent's slot (${ctx.chatMetadata.world_info})`); for (let i = 0; i < 120 && rt.getSnapshot().saveHealth?.pendingBoundary != null; i += 1) await new Promise((r) => setTimeout(r, 100)); globalThis.__v24Parent = { chatId: ctx.chatId, integrity: ctx.chatMetadata.integrity ?? null, book: book.name, boundary: state.boundary }; return globalThis.__v24Parent;",
+      "log": true
+    },
+    {
+      "branch_create": {
+        "mesId": 1
+      },
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const parent = globalThis.__v24Parent; const meta = ctx.chatMetadata; if (ctx.chatId === parent.chatId) throw new Error('the page is still on the parent; /branch-create opens the branch (bookmarks.js:465-466)'); if (ctx.chat.length !== 2) { const onDisk = async (id) => { const response = await fetch('/api/chats/group/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ id }) }); const rows = response.ok ? await response.json() : null; return Array.isArray(rows) ? rows.filter((row) => !Object.hasOwn(row ?? {}, 'chat_metadata')).length : `unreadable ${response.status}`; }; throw new Error(`the branch at message 1 should hold 2 messages, it holds ${ctx.chat.length}: ${JSON.stringify({ branch: ctx.chatId, branchOnDisk: await onDisk(ctx.chatId), parentOnDisk: await onDisk(parent.chatId), mainChat: meta.main_chat ?? null })}`); } if (meta.main_chat !== parent.chatId) throw new Error(`H1/H3: main_chat is ${JSON.stringify(meta.main_chat)}, expected the parent ${parent.chatId}`); if (!meta.integrity || meta.integrity === parent.integrity) throw new Error(`H1: the branch integrity is not fresh (${meta.integrity} vs parent ${parent.integrity})`); if (meta.story_orchestrator?.chatId !== parent.chatId) throw new Error(`H1: our blob should arrive stamped for the parent, it says ${JSON.stringify(meta.story_orchestrator?.chatId)}`); globalThis.__v24Branch = { chatId: ctx.chatId }; return { branch: ctx.chatId, main_chat: meta.main_chat, integrity: meta.integrity, blobStampedFor: meta.story_orchestrator.chatId, slot: meta.world_info ?? null, storyLoaded: globalThis.storyOrchestratorRuntime.getSnapshot().storyId ?? null };",
+      "log": true
+    },
+    {
+      "eval": "const parent = globalThis.__v24Parent; const rt = globalThis.storyOrchestratorRuntime; for (let i = 0; i < 50; i += 1) { if (SillyTavern.getContext().chatMetadata.world_info !== parent.book) break; await new Promise((r) => setTimeout(r, 100)); } const slot = SillyTavern.getContext().chatMetadata.world_info ?? null; if (slot === parent.book) throw new Error(`the unadopted branch still binds the parent's mirror book ${parent.book} in its chat lorebook slot, so the parent's memory fires in the branch (plan 02 section 5: unbindChatLorebook while unadopted)`); if (rt.getSnapshot().storyId && rt.getSnapshot().chatIdentity?.kind !== 'branch') throw new Error(`the branch was adopted on its own (storyId ${rt.getSnapshot().storyId}); D3 says it must wait for Continue from here`); return { slot, chatIdentity: rt.getSnapshot().chatIdentity ?? null };",
+      "log": true
+    },
+    {
+      "eval": "await new Promise((r) => setTimeout(r, 1500)); const visible = (el) => Boolean(el) && el.getClientRects().length > 0 && getComputedStyle(el).display !== 'none' && getComputedStyle(el).visibility !== 'hidden'; const dialogs = [...document.querySelectorAll('dialog[open]')].filter((el) => el.id !== 'so-studio-modal').map((el) => ({ id: el.id || null, cls: el.className, text: (el.textContent ?? '').trim().slice(0, 160) })); const legacy = ['#shadow_popup', '#dialogue_popup'].filter((sel) => visible(document.querySelector(sel))); if (dialogs.length || legacy.length) throw new Error(`opening the unadopted branch raised a popup; the branch notice must be non-blocking (plan 02 section 5, D3): ${JSON.stringify({ dialogs, legacy })}`); const snapshot = globalThis.storyOrchestratorRuntime.getSnapshot(); if (snapshot.chatIdentity?.kind !== 'branch') throw new Error(`the page does not read the branch as a branch: ${JSON.stringify(snapshot.chatIdentity ?? null)}`); if (snapshot.storyId) throw new Error(`the branch was adopted on its own (storyId ${snapshot.storyId})`); const hud = document.querySelector('#so-hud-branch'); return { popups: 0, chatIdentity: snapshot.chatIdentity, hudBranchChip: Boolean(hud) };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "branch-continue"
+      },
+      "log": true
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "expect": {
+        "rollbackOutcome": {
+          "result": "applied",
+          "fromMessage": 2,
+          "since": "after-line-1"
+        }
+      },
+      "log": true
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "after-line-1",
+          "scope": [
+            "values",
+            "active",
+            "path",
+            "memory"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const branch = globalThis.__v24Branch.chatId; const blob = ctx.chatMetadata.story_orchestrator; if (blob?.chatId !== branch) throw new Error(`after Continue the blob is still stamped for ${JSON.stringify(blob?.chatId)}, not the branch`); if (blob.integrity !== ctx.chatMetadata.integrity) throw new Error(`after Continue the blob integrity ${JSON.stringify(blob.integrity)} is not the branch's ${ctx.chatMetadata.integrity}`); await rt.syncWorldInfo(); const book = rt.getSnapshot().memory.wiBook; if (!book?.name || book.chatId !== branch || !book.name.endsWith(` - ${branch}`)) throw new Error(`the branch did not get its own mirror book: ${JSON.stringify(book)}`); if (ctx.chatMetadata.world_info !== book.name) throw new Error(`the branch's slot names ${ctx.chatMetadata.world_info}, not its own book ${book.name}`); const parent = globalThis.__v24Parent; const data = await fetch('/api/chats/group/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ id: parent.chatId }) }).then((r) => r.json()); const parentBlob = Array.isArray(data) ? data[0]?.chat_metadata?.story_orchestrator : null; if (parentBlob?.chatId !== parent.chatId) throw new Error(`Continue touched the parent's blob: ${JSON.stringify(parentBlob?.chatId)}`); return { branchBook: book.name, parentBlob: parentBlob.chatId };",
+      "log": true
+    }
+  ]
+}

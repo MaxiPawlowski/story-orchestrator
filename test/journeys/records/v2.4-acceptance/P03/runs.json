@@ -1,0 +1,238 @@
+[
+  {
+    "tag": "live-v24-03-breaker-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:53:50Z",
+    "end": "2026-09-25T10:56:47Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "live-v24-03-breaker-run1-result.json"
+    ]
+  },
+  {
+    "tag": "live-v24-03-breaker-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T10:56:47Z",
+    "end": "2026-09-25T11:01:09Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "live-v24-03-breaker-run2-result.json"
+    ]
+  },
+  {
+    "tag": "live-v24-03-abort-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T11:01:09Z",
+    "end": "2026-09-25T11:05:05Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "live-v24-03-abort-run1-result.json"
+    ]
+  },
+  {
+    "tag": "live-v24-03-abort-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T11:05:06Z",
+    "end": "2026-09-25T11:08:13Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "live-v24-03-abort-run2-result.json"
+    ]
+  },
+  {
+    "tag": "live-v24-03-wedges-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T11:08:13Z",
+    "end": "2026-09-25T11:09:43Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "live-v24-03-wedges-run1-result.json"
+    ]
+  },
+  {
+    "tag": "live-v24-03-wedges-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T11:09:44Z",
+    "end": "2026-09-25T11:12:26Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "live-v24-03-wedges-run2-result.json"
+    ]
+  },
+  {
+    "tag": "live-v24-npc-switch-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T11:12:27Z",
+    "end": "2026-09-25T11:14:15Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "live-v24-npc-switch-run1-result.json"
+    ]
+  },
+  {
+    "tag": "live-v24-npc-switch-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T11:14:15Z",
+    "end": "2026-09-25T11:16:03Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "live-v24-npc-switch-run2-result.json"
+    ]
+  },
+  {
+    "tag": "live-v4-turn-identity-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T11:16:03Z",
+    "end": "2026-09-25T11:16:43Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "live-v4-turn-identity-run1-result.json"
+    ]
+  },
+  {
+    "tag": "live-v4-turn-identity-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T11:16:44Z",
+    "end": "2026-09-25T11:17:19Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "live-v4-turn-identity-run2-result.json"
+    ]
+  },
+  {
+    "tag": "plan03a-llm-npc-reply-run1",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T11:17:20Z",
+    "end": "2026-09-25T11:17:44Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "plan03a-llm-npc-reply-run1-result.json"
+    ]
+  },
+  {
+    "tag": "plan03a-llm-npc-reply-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T11:17:45Z",
+    "end": "2026-09-25T11:18:12Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "plan03a-llm-npc-reply-run2-result.json"
+    ]
+  },
+  {
+    "tag": "live-v24-03-memorize-run1",
+    "code": 1,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T11:18:12Z",
+    "end": "2026-09-25T11:35:43Z",
+    "firstAttempt": "fail",
+    "retries": 0,
+    "copied": [
+      "live-v24-03-memorize-run1-failure.json",
+      "live-v24-03-memorize-run1-result.json"
+    ]
+  },
+  {
+    "tag": "live-v24-03-memorize-run2",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T11:35:44Z",
+    "end": "2026-09-25T11:55:36Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "live-v24-03-memorize-run2-result.json"
+    ]
+  },
+  {
+    "tag": "live-v24-03-memorize-run3",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T12:14:37Z",
+    "end": "2026-09-25T12:35:03Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "live-v24-03-memorize-run3-result.json"
+    ]
+  },
+  {
+    "tag": "live-v24-03-memorize-run4",
+    "code": 1,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T12:35:03Z",
+    "end": "2026-09-25T13:02:52Z",
+    "firstAttempt": "fail",
+    "retries": 0,
+    "copied": [
+      "live-v24-03-memorize-run4-failure.json",
+      "live-v24-03-memorize-run4-result.json"
+    ]
+  },
+  {
+    "tag": "live-v24-03-memorize-run5",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T13:11:50Z",
+    "end": "2026-09-25T13:39:44Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "live-v24-03-memorize-run5-result.json"
+    ]
+  },
+  {
+    "tag": "live-v24-03-memorize-run6",
+    "code": 0,
+    "headerDiffCode": 0,
+    "blocking": 0,
+    "start": "2026-09-25T13:39:45Z",
+    "end": "2026-09-25T14:09:32Z",
+    "firstAttempt": "pass",
+    "retries": 0,
+    "copied": [
+      "live-v24-03-memorize-run6-result.json"
+    ]
+  }
+]

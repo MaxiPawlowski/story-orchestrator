@@ -1,0 +1,115 @@
+{
+  "ok": true,
+  "value": {
+    "installed": true,
+    "count": 3,
+    "rows": [
+      {
+        "at": "2026-09-25T15:49:49.625Z",
+        "url": "/api/plugins/story-orchestrator-judge/systemone",
+        "body": {
+          "state": {
+            "reply": {
+              "speaker": "Captain Rhee",
+              "text": "Captain Rhee levels her flintlock pistol at the smugglers and fires; the shot cracks across the flooded dock and the men scatter."
+            },
+            "house_rules": {
+              "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+              "rule_1": "Coins are called marks, never gold pieces or dollars."
+            }
+          },
+          "questions": {
+            "rule:0": {
+              "type": "noul",
+              "instructions": "Does `reply` break `house_rules.rule_0`?",
+              "criteria": {
+                "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+                "false": "The reply follows the rule or does not touch it"
+              }
+            },
+            "rule:1": {
+              "type": "noul",
+              "instructions": "Does `reply` break `house_rules.rule_1`?",
+              "criteria": {
+                "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+                "false": "The reply follows the rule or does not touch it"
+              }
+            }
+          },
+          "model": "jev-1.13.0"
+        }
+      },
+      {
+        "at": "2026-09-25T15:50:05.813Z",
+        "url": "/api/plugins/story-orchestrator-judge/systemone",
+        "body": {
+          "state": {
+            "reply": {
+              "speaker": "Arin",
+              "text": "Arin pulls you low, his hand gripping your shoulder with surprisingly firm strength, forcing you down behind the crates.\n\"Damn it, stay down!\"\nHe keeps his head level, green eyes scanning the chaos on the dock. The captain's pistol barks again, the sound echoing across the water, but Arin doesn't flinch. His focus is sharp, tracking the smugglers' movements with a predatory precision.\n\"Rhee's got this,\" he says through gritted teeth, though his voice carries that familiar edge of worry he tries to hide. \"Just… just stay put. Don't be a hero.\"\nHe shifts slightly, one dagger sliding from its sheath with a soft scrape, though he doesn't draw it fully. His weight is balanced, ready to move if the fight gets any closer.\n\"The moment this clears, we get out of here. Understand?\"\nHis eyes don't leave the smugglers, but he's watching you too, checking that you're still holding position, still staying down as he'd asked."
+            },
+            "house_rules": {
+              "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+              "rule_1": "Coins are called marks, never gold pieces or dollars."
+            }
+          },
+          "questions": {
+            "rule:0": {
+              "type": "noul",
+              "instructions": "Does `reply` break `house_rules.rule_0`?",
+              "criteria": {
+                "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+                "false": "The reply follows the rule or does not touch it"
+              }
+            },
+            "rule:1": {
+              "type": "noul",
+              "instructions": "Does `reply` break `house_rules.rule_1`?",
+              "criteria": {
+                "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+                "false": "The reply follows the rule or does not touch it"
+              }
+            }
+          },
+          "model": "jev-1.13.0"
+        }
+      },
+      {
+        "at": "2026-09-25T15:50:44.969Z",
+        "url": "/api/plugins/story-orchestrator-judge/systemone",
+        "body": {
+          "state": {
+            "reply": {
+              "speaker": "Luke",
+              "text": "\"We can get out of this mess if we just work together.\"\nLuke nervously adjusts the strap of his short sword as the ferry rocks gently beneath his boots, the oversized chainmail clinking with each movement. He grips the railing with both hands, knuckles pale, trying to keep his balance while the boat sways over the choppy waters.\n\"This is... this is a lot more exciting than I thought it'd be,\" he admits with a weak attempt at a smile, his voice carrying a mix of nervousness and excitement. His brown hair is plastered to his forehead from the spray of the sea, and his eyes are wide with a mixture of fear and anticipation.\nHe looks over at Max and Arin, his admiration clear in his expression.\n\"Do you think the Sun Ruins are really as dangerous as they say? I-I mean, I've heard stories about undead that can tear through armor like it's paper, but... well, you know. I'm not scared.\"\nThe last part comes out a bit more uncertain than he meant, and he tries to straighten his shoulders, though the chainmail is still too big for him. He clears his throat and tries to sound more confident.\n\"My brother wouldn't have been scared either. And neither will I. I just need to... to prove myself to you guys, and to make sure I can really help out.\"\nHe glances back toward the shore, the hesitation in his eyes betraying his fear even if his words sound determined."
+            },
+            "house_rules": {
+              "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+              "rule_1": "Coins are called marks, never gold pieces or dollars."
+            }
+          },
+          "questions": {
+            "rule:0": {
+              "type": "noul",
+              "instructions": "Does `reply` break `house_rules.rule_0`?",
+              "criteria": {
+                "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+                "false": "The reply follows the rule or does not touch it"
+              }
+            },
+            "rule:1": {
+              "type": "noul",
+              "instructions": "Does `reply` break `house_rules.rule_1`?",
+              "criteria": {
+                "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+                "false": "The reply follows the rule or does not touch it"
+              }
+            }
+          },
+          "model": "jev-1.13.0"
+        }
+      }
+    ]
+  }
+}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T15-50-53-571Z_st-eval.json

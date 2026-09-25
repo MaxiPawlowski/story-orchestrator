@@ -1,0 +1,20 @@
+DIFF inventory.debugGlobals  +storyOrchestratorDebugEpistemicResponse +storyOrchestratorDebugExtractionResponse +storyOrchestratorDebugLedgerResponse +storyOrchestratorDebugSceneSummaryResponse
+WARNING: debug response mocks are set: storyOrchestratorDebugEpistemicResponse, storyOrchestratorDebugLedgerResponse, storyOrchestratorDebugSceneSummaryResponse, storyOrchestratorDebugExtractionResponse
+DIFF warnings  +debug response mocks are set: storyOrchestratorDebugEpistemicResponse, storyOrchestratorDebugLedgerResponse, storyOrchestratorDebugSceneSummaryResponse, storyOrchestratorDebugExtractionResponse
+{
+  "baseline": "test/journeys/records/v2.4-acceptance/J6/run1/header-start.json",
+  "label": "diff-end",
+  "allow": [],
+  "differences": 2,
+  "progress": 0,
+  "blocking": 2,
+  "blockingPaths": [
+    "inventory.debugGlobals",
+    "warnings"
+  ],
+  "warnings": [
+    "debug response mocks are set: storyOrchestratorDebugEpistemicResponse, storyOrchestratorDebugLedgerResponse, storyOrchestratorDebugSceneSummaryResponse, storyOrchestratorDebugExtractionResponse"
+  ],
+  "wrote": "C:\\dev\\so-lanes\\1\\debug\\run-header-diff-end.json",
+  "ok": false
+}

@@ -1,0 +1,4 @@
+DELTA bribe_taken=true evidence="The official palms the pouch of coins and looks away."
+DELTA tension_current='tense' evidence="The official palms the pouch of coins and looks away."
+MEMORY type=event importance=3 expiration=permanent entity="Official" text="The official accepted a bribe from the merchant." evidence="The official palms the pouch of coins and looks away."
+SCENE_NONE

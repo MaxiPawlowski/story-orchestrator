@@ -1,0 +1,11 @@
+{
+  "row": "J9", "lane": 2, "batch": "B2",
+  "candidate": { "commit": "4ebe1db", "bundleSha256": "65733265d3015e620e5f26221d4cbfdbce59541b49e356c69c13642f386f0cab" },
+  "deviation": "no --require-human-record (J9.6/J9.7 unscored, human gate open)",
+  "fixture": "j9-wizard.journey.json unchanged",
+  "runs": [
+    { "dir": "run1", "auto": "8/8", "firstAttempt": "8/8", "cleanup": "clean (removeCreatedAssets SO-J9)", "assertClean": "SO-J9 clean", "headerDiff": "0 differences (--allow build.head declared)" },
+    { "dir": "run2", "auto": "8/8", "firstAttempt": "8/8", "cleanup": "clean (removeCreatedAssets SO-J9)", "assertClean": "SO-J9 clean", "headerDiff": "0 differences (--allow build.head declared)" }
+  ],
+  "passRate": "2/2"
+}

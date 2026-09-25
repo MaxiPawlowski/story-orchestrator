@@ -1,0 +1,60 @@
+{
+  "ok": true,
+  "value": {
+    "n": 11,
+    "cadence": 2,
+    "last": [
+      {
+        "reason": "reconcile:mission_accepted",
+        "win": {
+          "from": 5,
+          "to": 14
+        },
+        "acc": [],
+        "rej": [
+          "DELTA mission_accepted=true evidence=\"[12] Max: 'We'll take it,' I tell Ponticius, and I accept the Sun Ruins mission on the spot.\"",
+          "DELTA tension_current=\"calm\" evidence=\"The street is quiet, save for the occasional sound of a cart rolling by or the distant call of a merchant.\""
+        ],
+        "raw": "DELTA mission_accepted=true evidence=\"[12] Max: 'We'll take it,' I tell Ponticius, and I accept the Sun Ruins mission on the spot.\"\nDELTA tension_current=\"calm\" evidence=\"The street is quiet, save for the occasional sound of a cart rolling by or the distant call of a merchant.\"\n\nMEMORY type=detail importance=2 expiration=session entity=\"Ponticius\" text=\"Ponticius provided silver coins for supplies and warned about touching unusual magical items in the Sun Ruins.\" evidence=\"[9] DM Narrator: 'He r"
+      },
+      {
+        "reason": "reconcile:mission_accepted",
+        "win": {
+          "from": 5,
+          "to": 18
+        },
+        "acc": [],
+        "rej": [
+          "DELTA tension_current='calm' evidence=\"[14] DM Narrator: *The street is quiet, save for the occasional sound of a cart rolling by or the distant call of a merchant.*\"",
+          "DELTA mission_accepted=true evidence=\"[12] Max: 'We'll take it,' I tell Ponticius, and I accept the Sun Ruins mission on the spot.\""
+        ],
+        "raw": "DELTA mission_accepted=true evidence=\"[12] Max: 'We'll take it,' I tell Ponticius, and I accept the Sun Ruins mission on the spot.\"\nDELTA tension_current='calm' evidence=\"[14] DM Narrator: *The street is quiet, save for the occasional sound of a cart rolling by or the distant call of a merchant.*\"\n\nMEMORY type=event importance=3 expiration=permanent entity=\"Max,Arin,Ponticius,Morvin\" text=\"Max and Arin accepted the Sun Ruins mission from Ponticius and Councilor Morvin, signing the official contr"
+      },
+      {
+        "reason": "cadence",
+        "win": {
+          "from": 12,
+          "to": 17
+        },
+        "acc": [],
+        "rej": [
+          "DELTA tension_current='calm' evidence=\"[14] DM Narrator: *The tavern's warmth recedes as you and Arin step through the doorway, the cool breeze from the street catching in your hair.*\"",
+          "DELTA mission_accepted=true evidence=\"[12] Max: 'We'll take it,' I tell Ponticius, and I accept the Sun Ruins mission on the spot.\""
+        ],
+        "raw": "DELTA mission_accepted=true evidence=\"[12] Max: 'We'll take it,' I tell Ponticius, and I accept the Sun Ruins mission on the spot.\"\nDELTA tension_current='calm' evidence=\"[14] DM Narrator: *The tavern's warmth recedes as you and Arin step through the doorway, the cool breeze from the street catching in your hair.*\"\n\nMEMORY type=event importance=3 expiration=permanent entity=\"Max,Arin,Ponticius\" text=\"Max and Arin accepted the Sun Ruins mission from Ponticius and signed the official contract.\" ev"
+      },
+      {
+        "reason": "cadence",
+        "win": {
+          "from": 18,
+          "to": 20
+        },
+        "acc": [],
+        "rej": [
+          "DELTA tension_current=\"calm\" evidence=\"The tavern's heat and noise fade behind you as you step out into the crisp morning air. The cobblestones of the street are damp with dew, and the distant sound of the market is just beginning to stir.\""
+        ],
+        "raw": "DELTA tension_current=\"calm\" evidence=\"The tavern's heat and noise fade behind you as you step out into the crisp morning air. The cobblestones of the street are damp with dew, and the distant sound of the market is just beginning to stir.\"\n\nMEMORY type=scene importance=2 expiration=scene entity=\"Arin\" character=\"Arin\" text=\"Arin and Max have left the tavern and are on the street heading toward the Eastern Gate, with the market nearby.\" evidence=\"The tavern's heat and noise fade behind you as yo"
+      }
+    ]
+  }
+}

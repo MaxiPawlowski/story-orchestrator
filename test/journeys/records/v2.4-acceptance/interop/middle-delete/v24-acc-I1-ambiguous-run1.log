@@ -1,0 +1,92 @@
+1/21 eval ok 15ms
+1/21 eval -> {"greetingsCleared":1}
+2/21 eval ok 6ms
+3/21 import_story ok 275ms
+4/21 eval ok 17ms
+5/21 send ok 1660ms
+6/21 extract ok 848ms
+7/21 record_state ok 7ms
+7/21 record_state -> {"as":"after-line-0","boundary":1,"active":"start","rows":{"memory":1,"epistemic":0,"ledger":0}}
+8/21 send ok 1677ms
+9/21 extract ok 852ms
+10/21 record_state ok 7ms
+10/21 record_state -> {"as":"after-line-1","boundary":2,"active":"start","rows":{"memory":2,"epistemic":0,"ledger":0}}
+11/21 send ok 1683ms
+12/21 eval ok 5ms
+12/21 eval -> {"duplicated":2,"sendDate":"2026-09-25T11:33:40.840Z","was":"2026-09-25T11:33:43.377Z"}
+13/21 send ok 1673ms
+14/21 extract ok 850ms
+15/21 eval ok 5ms
+15/21 eval -> {"lastMessageId":3,"boundary":3,"identical":true}
+16/21 record_state ok 7ms
+16/21 record_state -> {"as":"before-delete","boundary":3,"active":"start","rows":{"memory":3,"epistemic":0,"ledger":0}}
+17/21 host_delete ok 6ms
+17/21 host_delete -> {"messageId":2,"beforeLength":4,"afterLength":3,"removed":{"name":"Max","mes":"I light the oil lamp by the door."}}
+18/21 wait ok 1548ms
+19/21 expect ok 5ms
+20/21 expect ok 6ms
+21/21 eval ok 5ms
+21/21 eval -> {"lines":["I take the brass key from the hook.","I light the oil lamp by the door.","I unroll the map on the table."],"journaled":[{"summary":"message delete decoded ambiguously","detail":{"note":"1 message(s) removed; repeated messages allow more than one start, so the story steps back from the earliest (1); chat length now 3"}}],"lastMessageId":0}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T11-33-53-640Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 21,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@08h33m37s771ms",
+    "owned": [
+      "2026-09-25@08h33m37s771ms"
+    ],
+    "deleted": [
+      "2026-09-25@08h33m37s771ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@08h33m37s771ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

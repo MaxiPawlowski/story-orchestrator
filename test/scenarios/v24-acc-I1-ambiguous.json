@@ -1,0 +1,116 @@
+{
+  "_note": "v2.4 plan 09 acceptance row I1 (middle delete), the 'an ambiguous diff is journaled rather than guessed' half, written 2026-09-25 because live-v24-01-t1.json (the row's live fixture) only produces exactly decodable deletes. No model call: every read is a debugResponse, because the row tests T1's delete decoder, not extraction. Run: node scripts/debug/so-scenario.mts run test/scenarios/v24-acc-I1-ambiguous.json --sandbox --group 1759606632088. T1's identity key is send_date|name|is_user|mes (messageIdentity.ts), and ST stamps send_date to the millisecond, so two indistinguishable adjacent rows do not arise from two live sends; the fixture makes the lamp line twice and then gives the second the first one's send_date in memory (no event, and send_date is not part of the T3 fingerprint, so nothing rolls back), and the next MESSAGE_SENT refreshes the bridge's snapshot with it. Chat: key, lamp, lamp', map, all consumed (boundaries after lines 0, 1 and 3). Deleting message 2 (ST's own deleteMessage) leaves key, lamp, map, which is equally explained by removing 1 or 2. The decoder must not guess 2: it steps back from the earliest candidate (1), so the rollback starts at 1, the story equals the recording after line 0 (lit_lamp dropped although a lamp line survives), and exactly one 'message delete decoded ambiguously' row is journaled.",
+  "steps": [
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const greetings = ctx.chat.length; for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error(`the sandbox chat still holds ${ctx.chat.length} message(s) after clearing its greetings, so every message id below would name the wrong line`); return { greetingsCleared: greetings };",
+      "log": true
+    },
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "import_story": {
+        "file": "v24-01-delete.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const state = rt.getEngineState(); if (!state || state.activeCheckpointId !== 'start') throw new Error(`the story did not load at start: ${JSON.stringify(state && state.activeCheckpointId)}`); return { cadence: 0, boundary: state.boundary };"
+    },
+    {
+      "send": "I take the brass key from the hook."
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=took_key value=true evidence=\"I take the brass key\"\nFACT importance=2 text=\"The player carries the brass key.\" evidence=\"I take the brass key from the hook.\"",
+        "reason": "v24-acc-i1a:line-0"
+      }
+    },
+    {
+      "record_state": {
+        "as": "after-line-0"
+      },
+      "log": true
+    },
+    {
+      "send": "I light the oil lamp by the door."
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=lit_lamp value=true evidence=\"I light the oil lamp\"\nFACT importance=2 text=\"The oil lamp by the door is lit.\" evidence=\"I light the oil lamp by the door.\"",
+        "reason": "v24-acc-i1a:line-1"
+      }
+    },
+    {
+      "record_state": {
+        "as": "after-line-1"
+      },
+      "log": true
+    },
+    {
+      "send": "I light the oil lamp by the door."
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const chat = ctx.chat; if (chat.length !== 3 || chat[1].mes !== \"I light the oil lamp by the door.\" || chat[2].mes !== \"I light the oil lamp by the door.\") throw new Error(`the chat is not key, lamp, lamp: ${JSON.stringify(chat.map((m) => m.mes))}`); const before = chat[2].send_date; chat[2].send_date = chat[1].send_date; if (chat[1].name !== chat[2].name || chat[1].is_user !== chat[2].is_user) throw new Error('the two lamp lines differ by speaker, so no host shape makes them indistinguishable'); return { duplicated: 2, sendDate: chat[1].send_date, was: before };",
+      "log": true
+    },
+    {
+      "send": "I unroll the map on the table."
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=found_map value=true evidence=\"I unroll the map\"\nFACT importance=2 text=\"The map lies unrolled on the table.\" evidence=\"I unroll the map on the table.\"",
+        "reason": "v24-acc-i1a:line-3"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const state = rt.getEngineState(); const values = state.blackboard.values; if (state.lastMessageId !== 3 || values.found_map !== true || values.lit_lamp !== true) throw new Error(`lines 0-3 were not consumed: last=${state.lastMessageId} values=${JSON.stringify(values)}`); const ctx = SillyTavern.getContext(); return { lastMessageId: state.lastMessageId, boundary: state.boundary, identical: ctx.chat[1].send_date === ctx.chat[2].send_date && ctx.chat[1].mes === ctx.chat[2].mes };",
+      "log": true
+    },
+    {
+      "record_state": {
+        "as": "before-delete"
+      },
+      "log": true
+    },
+    {
+      "host_delete": 2,
+      "log": true
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "expect": {
+        "rollbackOutcome": {
+          "result": "applied",
+          "fromMessage": 1,
+          "since": "before-delete"
+        }
+      }
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "after-line-0",
+          "scope": [
+            "values",
+            "versions",
+            "active",
+            "path",
+            "boundary",
+            "memory",
+            "epistemic",
+            "ledger"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const lines = ctx.chat.map((m) => m.mes); if (lines.length !== 3 || !String(lines[1]).includes('oil lamp') || !String(lines[2]).includes('map')) throw new Error(`the delete did not leave key, lamp, map: ${JSON.stringify(lines)}`); const events = rt.getSessionJournal().filter((e) => /message delete/.test(e.summary ?? '')); const ambiguous = events.filter((e) => e.summary === 'message delete decoded ambiguously'); if (ambiguous.length !== 1) throw new Error(`the ambiguous delete was not journaled exactly once: ${JSON.stringify(events.map((e) => [e.summary, e.detail ?? e.note ?? null]))}`); const guessed = events.filter((e) => e.summary !== 'message delete decoded ambiguously'); if (guessed.length) throw new Error(`the delete also journaled another decode: ${JSON.stringify(guessed.map((e) => e.summary))}`); return { lines, journaled: ambiguous.map((e) => ({ summary: e.summary, detail: e.detail ?? e.note ?? null })), lastMessageId: rt.getEngineState().lastMessageId };",
+      "log": true
+    }
+  ]
+}

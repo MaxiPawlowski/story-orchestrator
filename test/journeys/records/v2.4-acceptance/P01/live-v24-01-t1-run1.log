@@ -1,0 +1,151 @@
+1/48 import_story ok 267ms
+2/48 eval ok 14ms
+2/48 eval -> {"cadence":1,"greeting":1}
+3/48 send_generate ok 15476ms
+4/48 wait ok 19117ms
+5/48 record_state ok 7ms
+5/48 record_state -> {"as":"before-middle","boundary":1,"active":"hall","rows":{"memory":2,"epistemic":0,"ledger":2}}
+6/48 eval ok 6ms
+6/48 eval -> {"kept":{"memory":2,"epistemic":0,"ledger":2}}
+7/48 eval ok 4ms
+8/48 send_generate ok 13997ms
+9/48 wait ok 14834ms
+10/48 send_generate ok 21008ms
+11/48 wait ok 19276ms
+12/48 eval ok 5ms
+12/48 eval -> {"memory":5,"epistemic":0,"ledger":2}
+13/48 eval ok 18ms
+13/48 eval -> {"deleted":3,"after":6}
+14/48 wait ok 1521ms
+15/48 wait ok 15364ms
+16/48 eval ok 6ms
+16/48 eval -> {"boundary":1,"lastMessageId":2,"chat":6,"journal":["payload: 3 story blocks injected (generation)","talk: Ponticius speaks (rules)","status: Stepped back to The Hall","extraction: read rollback:3 msgs 0-5 → 1 accepted, 0 rejected","delta: tension_current = 0.25","delta: queued tension_current=0.25 for the next boundary"],"calls":[{"call":"rollback","from":3,"journal":null,"chat":6,"last":6},{"event":"deleted","n":6,"chat":6}]}
+17/48 expect ok 8ms
+17/48 expect -> {"as":"before-middle","equal":true,"scope":["active","path"]}
+18/48 eval ok 6ms
+18/48 eval -> {"target":3,"rollbacks":[3],"applied":0,"pending":[{"to":5,"from":0,"reason":"rollback:3","after":true,"deltas":["tension_current=0.25"]}]}
+19/48 eval ok 6ms
+19/48 eval -> {"journal":["read rollback:3 msgs 0-5 → 1 accepted, 0 rejected"],"reread":{"memory":3,"epistemic":0,"ledger":1}}
+20/48 record_state ok 9ms
+20/48 record_state -> {"as":"before-cut","boundary":1,"active":"hall","rows":{"memory":5,"epistemic":0,"ledger":2}}
+21/48 eval ok 6ms
+21/48 eval -> {"kept":{"memory":5,"epistemic":0,"ledger":2}}
+22/48 eval ok 6ms
+23/48 send_generate ok 19929ms
+24/48 wait ok 18280ms
+25/48 send_generate ok 21509ms
+26/48 wait ok 18441ms
+27/48 eval ok 5ms
+27/48 eval -> {"memory":9,"epistemic":0,"ledger":2}
+28/48 eval ok 336ms
+28/48 eval -> {"cut":"6-7","after":8,"isError":false}
+29/48 wait ok 1527ms
+30/48 wait ok 5231ms
+31/48 eval ok 5ms
+31/48 eval -> {"boundary":3,"lastMessageId":7,"chat":8,"journal":["talk: Arin speaks (rules)","boundary: applied tension_current=0.25","status: Following The Hall","payload: 3 story blocks injected (generation)","talk: Ponticius speaks (rules)","boundary: boundary 3: nothing applied (gate)"],"calls":[{"call":"rollback","from":6,"journal":null,"chat":9,"last":9},{"event":"deleted","n":9,"chat":9},{"call":"rollback","from":6,"journal":null,"chat":8,"last":8},{"event":"deleted","n":8,"chat":8}]}
+32/48 expect ok 7ms
+32/48 expect -> {"as":"before-cut","equal":true,"scope":["active","path"]}
+33/48 eval ok 5ms
+33/48 eval -> {"target":6,"rollbacks":[6,6],"applied":1,"pending":[]}
+34/48 eval ok 6ms
+34/48 eval -> {"journal":["read rollback:3 msgs 0-5 → 1 accepted, 0 rejected"],"reread":{"memory":0,"epistemic":0,"ledger":0}}
+35/48 record_state ok 6ms
+35/48 record_state -> {"as":"before-tail","boundary":3,"active":"hall","rows":{"memory":5,"epistemic":0,"ledger":2}}
+36/48 eval ok 6ms
+36/48 eval -> {"kept":{"memory":5,"epistemic":0,"ledger":2}}
+37/48 eval ok 4ms
+38/48 send_generate ok 34590ms
+39/48 wait ok 55297ms
+40/48 eval ok 5ms
+40/48 eval -> {"memory":9,"epistemic":2,"ledger":2}
+41/48 eval ok 21ms
+41/48 eval -> {"deletedFrom":8,"after":8}
+42/48 wait ok 1530ms
+43/48 wait ok 5192ms
+44/48 eval ok 4ms
+44/48 eval -> {"boundary":4,"lastMessageId":7,"chat":8,"journal":["talk: Ponticius speaks (rules)","boundary: boundary 3: nothing applied (gate)","payload: 3 story blocks injected (generation)","talk: Arin speaks (rules)","payload: 2 story blocks injected (generation)","boundary: boundary 4: nothing applied (gate)"],"calls":[{"call":"rollback","from":9,"journal":null,"chat":9,"last":9},{"event":"deleted","n":9,"chat":9},{"call":"rollback","from":8,"journal":null,"chat":8,"last":8},{"event":"deleted","n":8,"chat":8}]}
+45/48 expect ok 7ms
+45/48 expect -> {"as":"before-tail","equal":true,"scope":["active","path"]}
+46/48 eval ok 5ms
+46/48 eval -> {"target":8,"rollbacks":[9,8],"applied":1,"pending":[]}
+47/48 eval ok 5ms
+47/48 eval -> {"journal":["read rollback:3 msgs 0-5 → 1 accepted, 0 rejected"],"reread":{"memory":0,"epistemic":0,"ledger":1}}
+48/48 eval ok 5ms
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T09-41-47-997Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 48,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ed9ddba5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@06h36m40s384ms",
+    "owned": [
+      "2026-09-25@06h36m40s384ms"
+    ],
+    "deleted": [
+      "2026-09-25@06h36m40s384ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@06h36m40s384ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

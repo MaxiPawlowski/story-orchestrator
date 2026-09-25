@@ -1,0 +1,68 @@
+1/4 import_story ok 276ms
+2/4 eval ok 6073ms
+2/4 eval -> {"id":0,"b0":0,"bNormal":1,"bAgain":1,"bCont":2,"bFinal":3}
+3/4 eval ok 1475ms
+3/4 eval -> {"activeBefore":"cp2","activeAfter":"cp2","boundaryBefore":4,"boundaryAfter":4}
+4/4 eval ok 16387ms
+4/4 eval -> {"idle":true,"messages":3}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T11-17-17-454Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 4,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@08h16m48s588ms",
+    "owned": [
+      "2026-09-25@08h16m48s588ms"
+    ],
+    "deleted": [
+      "2026-09-25@08h16m48s588ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@08h16m48s588ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

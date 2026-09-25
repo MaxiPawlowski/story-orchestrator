@@ -1,0 +1,103 @@
+1/30 eval ok 6ms
+1/30 eval -> {"curatorBefore":true,"mark":"2026-09-25T10:46:10.483Z"}
+2/30 block_route ok 6ms
+3/30 import_story ok 266ms
+4/30 eval ok 17ms
+5/30 eval ok 5019ms
+5/30 eval -> {"green":true,"problem":null,"rows":[{"at":"2026-09-25T10:46:11.550Z","summary":"library save not confirmed","note":"“SO-E3 Save Evidence” v1: the settings save answered 500"}],"diagnosis":{"ownershipAcrossImport":{"ok":false,"reason":"epoch","detail":"the runtime restarted (epoch 331 → 332)"},"journaledSinceMark":["story: away recap not due","status: Started SO-E3 Save Evidence","story: library save not confirmed"]}}
+6/30 eval ok 22ms
+7/30 eval ok 5059ms
+7/30 eval -> {"green":true,"problem":null,"rows":[{"at":"2026-09-25T10:46:16.846Z","summary":"library removal not confirmed","note":"“SO-E3 Save Evidence”: the settings save answered 500"}],"diagnosis":null}
+8/30 ui ok 125ms
+9/30 eval ok 70ms
+9/30 eval -> {"curator":false}
+10/30 eval ok 5058ms
+10/30 eval -> {"green":true,"problem":null,"rows":[{"at":"2026-09-25T10:46:22.096Z","summary":"settings save not confirmed","note":"stagecraft: the settings save answered 500"}],"diagnosis":null}
+11/30 unblock_route ok 6ms
+12/30 eval ok 5ms
+13/30 import_story ok 374ms
+14/30 eval ok 3013ms
+15/30 ui ok 302ms
+16/30 eval ok 5ms
+17/30 studio_save ok 15380ms
+18/30 eval ok 5006ms
+18/30 eval -> {"green":true,"problem":null,"sentence":"Saved “SO-E3 Save Evidence” v1 to the library."}
+19/30 ui ok 41ms
+20/30 eval ok 45ms
+20/30 eval -> {"removed":[["legacy-v2-a81a1750",true],["so-e3-save-evidence",true]]}
+21/30 ui ok 168ms
+22/30 eval ok 10308ms
+22/30 eval -> {"control":{"green":true,"problem":null,"rows":[]},"curator":true,"serverCurator":true}
+23/30 slash ok 1962ms
+24/30 eval ok 14ms
+25/30 eval ok 5ms
+26/30 block_route ok 5ms
+27/30 import_story ok 278ms
+28/30 eval ok 4024ms
+28/30 eval -> {"green":true,"problem":null,"rows":[{"at":"2026-09-25T10:47:02.897Z","summary":"save not confirmed","note":"story selection: the server answered 500"}],"health":{"lastAppliedBoundary":null,"pendingBoundary":0,"lastOutcome":"unsaved","consecutiveFailures":1,"lastReason":"the server answered 500","lastFailureAt":"2026-09-25T10:47:02.897Z"}}
+29/30 unblock_route ok 4ms
+30/30 eval ok 5ms
+30/30 eval -> {"import":true,"remove":true,"toggle":true,"studio":true,"control":true,"dedupe":true}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T10-47-11-514Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 30,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-a81a1750"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@07h46m10s231ms",
+    "owned": [
+      "2026-09-25@07h46m10s231ms",
+      "2026-09-25@07h47m00s813ms"
+    ],
+    "deleted": [
+      "2026-09-25@07h46m10s231ms",
+      "2026-09-25@07h47m00s813ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@07h47m00s813ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

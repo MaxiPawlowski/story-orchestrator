@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "value": {
+    "audits": 13,
+    "accepted": 18,
+    "evidenceRejected": 15,
+    "withLabel": 2,
+    "samplesNoLabel": [
+      "DELTA artifact_secured=false evidence=\"No mention of securing the artifact\"",
+      "DELTA chamber_entered=false evidence=\"No mention of entering the chamber\"",
+      "DELTA guardian_respect=0 evidence=\"No mention of the sphinx guardian\"",
+      "DELTA luke_alive=true evidence=\"No mention of Luke's status\"",
+      "DELTA luke_decision=\"undecided\" evidence=\"No mention of a decision about Luke\"",
+      "DELTA mission_accepted=false evidence=\"No mention of accepting the mission\""
+    ]
+  }
+}

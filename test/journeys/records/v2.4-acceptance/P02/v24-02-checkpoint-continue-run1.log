@@ -1,0 +1,101 @@
+1/20 eval ok 13ms
+1/20 eval -> {"greetingsCleared":1}
+2/20 eval ok 5ms
+3/20 import_story ok 269ms
+4/20 eval ok 25ms
+5/20 send ok 1657ms
+6/20 extract ok 1025ms
+7/20 send ok 1662ms
+8/20 extract ok 836ms
+9/20 record_state ok 16ms
+9/20 record_state -> {"as":"after-line-1","boundary":2,"active":"start","rows":{"memory":3,"epistemic":0,"ledger":0}}
+10/20 send ok 1686ms
+11/20 extract ok 1287ms
+12/20 eval ok 328ms
+12/20 eval -> {"chatId":"2026-09-25@07h35m01s379ms","integrity":"01641591-cbe9-4fa6-ab69-61da750d5f9f","book":"Story Orchestrator - v24-01 Delete Decode - 2026-09-25@07h35m01s379ms","boundary":3}
+13/20 branch_create ok 591ms
+13/20 branch_create -> {"command":"/checkpoint-create mesId=1","name":"2026-09-25@07h35m01s379ms - Checkpoint #1","kind":"checkpoint","opened":true,"branchChats":["2026-09-25@07h35m01s379ms - Checkpoint #1"]}
+14/20 eval ok 7ms
+14/20 eval -> {"checkpoint":"2026-09-25@07h35m01s379ms - Checkpoint #1","main_chat":"2026-09-25@07h35m01s379ms","integrity":"d697d248-8c7b-490d-9bd7-e5c28246599c","blobStampedFor":"2026-09-25@07h35m01s379ms","slot":null,"storyLoaded":null}
+15/20 eval ok 5ms
+15/20 eval -> {"slot":null,"chatIdentity":{"kind":"branch","parentChat":"2026-09-25@07h35m01s379ms","checkpointName":"Start"}}
+16/20 ui ok 97ms
+16/20 ui -> {"selector":"#so-branch-continue","found":true,"clickable":true,"at":{"x":517,"y":136},"topmost":"button#so-branch-continue.menu_button.self-start.interactable","target":"button#so-branch-continue.menu_button.self-start.interactable","clicked":true,"noticeGone":true}
+17/20 wait ok 1540ms
+18/20 expect ok 6ms
+18/20 expect -> {"rollbackOutcome":{"rollbackOutcome":{"result":"applied","fromMessage":2,"since":"after-line-1"},"last":{"seq":39,"result":"applied","fromMessage":2,"at":"2026-09-25T10:35:11.571Z"},"sinceSeq":38}}
+19/20 expect ok 19ms
+20/20 eval ok 319ms
+20/20 eval -> {"checkpointBook":"Story Orchestrator - v24-01 Delete Decode - 2026-09-25@07h35m01s379ms - Checkpoint #1","parentBlob":"2026-09-25@07h35m01s379ms"}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T10-35-20-189Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 20,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@07h35m01s379ms",
+    "owned": [
+      "2026-09-25@07h35m01s379ms"
+    ],
+    "deleted": [
+      "2026-09-25@07h35m01s379ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@07h35m01s379ms - Checkpoint #1",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-25@07h35m01s379ms - Checkpoint #1",
+    "branchChats": {
+      "recorded": [
+        "2026-09-25@07h35m01s379ms - Checkpoint #1"
+      ],
+      "deleted": [
+        "2026-09-25@07h35m01s379ms - Checkpoint #1"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [
+        "Story Orchestrator - v24-01 Delete Decode - 2026-09-25@07h35m01s379ms - Checkpoint #1",
+        "Story Orchestrator - v24-01 Delete Decode - 2026-09-25@07h35m01s379ms"
+      ],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [
+        "The chat \"2026-09-25@07h35m01s379ms\" was deleted, but its story-memory lorebook \"Story Orchestrator - v24-01 Delete Decode - 2026-09-25@07h35m01s379ms\" is still there. Delete the lorebook too? This ca"
+      ],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

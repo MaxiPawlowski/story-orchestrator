@@ -1,0 +1,24 @@
+{
+  "row": "J7",
+  "lane": 2,
+  "candidate": { "commit": "4ebe1db", "bundleSha256": "65733265d3015e620e5f26221d4cbfdbce59541b49e356c69c13642f386f0cab" },
+  "deviation": "no --require-human-record (human sessions not held; J7.9/J7.10 unscored, human gate open)",
+  "seriesA": {
+    "fixture": "j7-long-haul.journey.json as of 4ebe1db (unchanged)",
+    "runs": [
+      { "dir": "run1", "auto": "7/8", "failed": ["J7.2"], "headerDiff": "0 blocking", "cleanup": "clean" },
+      { "dir": "run2", "auto": "8/8", "failed": [], "headerDiff": "0 blocking", "cleanup": "clean" },
+      { "dir": "run3", "auto": "6/8", "failed": ["J7.3", "J7.5"], "headerDiff": "0 blocking", "cleanup": "clean" }
+    ],
+    "passRate": "1/3"
+  },
+  "seriesB": {
+    "fixture": "j7-long-haul.journey.json with the settle + retried neutral turn fix (seriesB-run*/j7-long-haul.journey.as-run.json)",
+    "runs": [
+      { "dir": "seriesB-run1", "auto": "5/8", "failed": ["J7.3", "J7.4", "J7.6"], "headerDiff": "0 blocking", "cleanup": "clean" },
+      { "dir": "seriesB-run2", "auto": "7/8", "failed": ["J7.1"], "retried": ["J7.5"], "headerDiff": "1 blocking: build.head (docs-only commit e9fd5f8 by another session, bundle unchanged)", "cleanup": "clean" }
+    ],
+    "passRate": "0/2"
+  },
+  "batchHeader": { "start": "header-lane2-acc-start.json", "endDiff": "header-lane2-acc-end-diff.json", "blocking": ["build.head"] }
+}

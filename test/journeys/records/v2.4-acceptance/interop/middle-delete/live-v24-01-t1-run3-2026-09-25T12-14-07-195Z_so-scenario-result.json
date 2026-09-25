@@ -1,0 +1,374 @@
+{
+  "file": "test/scenarios/live-v24-01-t1.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "import_story",
+      "ok": true,
+      "ms": 278
+    },
+    {
+      "index": 1,
+      "key": "eval",
+      "ok": true,
+      "ms": 15
+    },
+    {
+      "index": 2,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 30707
+    },
+    {
+      "index": 3,
+      "key": "wait",
+      "ok": true,
+      "ms": 50064
+    },
+    {
+      "index": 4,
+      "key": "record_state",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 5,
+      "key": "eval",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 6,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    },
+    {
+      "index": 7,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 28226
+    },
+    {
+      "index": 8,
+      "key": "wait",
+      "ok": true,
+      "ms": 20882
+    },
+    {
+      "index": 9,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 23061
+    },
+    {
+      "index": 10,
+      "key": "wait",
+      "ok": true,
+      "ms": 22482
+    },
+    {
+      "index": 11,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 12,
+      "key": "eval",
+      "ok": true,
+      "ms": 19
+    },
+    {
+      "index": 13,
+      "key": "wait",
+      "ok": true,
+      "ms": 1545
+    },
+    {
+      "index": 14,
+      "key": "wait",
+      "ok": true,
+      "ms": 5014
+    },
+    {
+      "index": 15,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    },
+    {
+      "index": 16,
+      "key": "expect",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 17,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 18,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 19,
+      "key": "record_state",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 20,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 21,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    },
+    {
+      "index": 22,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 19698
+    },
+    {
+      "index": 23,
+      "key": "wait",
+      "ok": true,
+      "ms": 39695
+    },
+    {
+      "index": 24,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 33346
+    },
+    {
+      "index": 25,
+      "key": "wait",
+      "ok": true,
+      "ms": 23649
+    },
+    {
+      "index": 26,
+      "key": "eval",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 27,
+      "key": "eval",
+      "ok": true,
+      "ms": 330
+    },
+    {
+      "index": 28,
+      "key": "wait",
+      "ok": true,
+      "ms": 1535
+    },
+    {
+      "index": 29,
+      "key": "wait",
+      "ok": true,
+      "ms": 25763
+    },
+    {
+      "index": 30,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 31,
+      "key": "expect",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 32,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 33,
+      "key": "eval",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 34,
+      "key": "record_state",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 35,
+      "key": "eval",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 36,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    },
+    {
+      "index": 37,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 17615
+    },
+    {
+      "index": 38,
+      "key": "wait",
+      "ok": true,
+      "ms": 55165
+    },
+    {
+      "index": 39,
+      "key": "eval",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 40,
+      "key": "eval",
+      "ok": true,
+      "ms": 23
+    },
+    {
+      "index": 41,
+      "key": "wait",
+      "ok": true,
+      "ms": 1540
+    },
+    {
+      "index": 42,
+      "key": "wait",
+      "ok": true,
+      "ms": 5265
+    },
+    {
+      "index": 43,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 44,
+      "key": "expect",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 45,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    },
+    {
+      "index": 46,
+      "key": "eval",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 47,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    }
+  ],
+  "ok": true,
+  "error": null,
+  "retries": [],
+  "firstAttempt": "pass",
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ed9ddba5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@09h07m16s381ms",
+    "owned": [
+      "2026-09-25@09h07m16s381ms"
+    ],
+    "deleted": [
+      "2026-09-25@09h07m16s381ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@09h07m16s381ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

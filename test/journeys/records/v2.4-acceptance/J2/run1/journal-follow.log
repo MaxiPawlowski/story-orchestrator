@@ -1,0 +1,91 @@
+Following the session journal → C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\test\journeys\records\v2.4-acceptance\J2\run1\journal-follow.jsonl every 1000 ms. Ctrl-C to stop.
+2026-09-25T09:56:22.954Z session      chat 2026-09-24@04h05m33s739ms · story none · at — (boundary 0, 7 messages)
+2026-09-25T09:52:03.392Z story        away recap not due
+2026-09-25T09:52:03.607Z status       Started Quest for the Sun Ruins
+2026-09-25T09:52:03.611Z story        quality macro skipped
+2026-09-25T09:52:03.611Z story        quality macro skipped
+2026-09-25T09:52:29.181Z status       Following Investigate the Job Board
+2026-09-25T09:52:32.049Z payload      1 story blocks injected (generation)
+2026-09-25T09:53:03.573Z payload      2 story blocks injected (generation)
+2026-09-25T09:53:23.220Z payload      1 story blocks injected (generation)
+2026-09-25T09:53:23.220Z status       Moved into Accept the Mission
+2026-09-25T09:54:21.264Z status       Following Accept the Mission
+2026-09-25T09:54:22.502Z payload      2 story blocks injected (generation)
+2026-09-25T09:55:13.650Z payload      2 story blocks injected (generation)
+2026-09-25T09:55:57.594Z story        restored 3 host change(s)
+2026-09-25T09:55:57.600Z story        2 host change(s) were edited outside this story and left alone
+2026-09-25T09:55:57.600Z status       No story selected for this chat
+2026-09-25T09:56:39.179Z session      chat 2026-09-25@06h56m38s377ms · story none · at — (boundary 0, 1 messages)
+2026-09-25T09:52:03.392Z story        away recap not due
+2026-09-25T09:52:03.607Z status       Started Quest for the Sun Ruins
+2026-09-25T09:52:03.611Z story        quality macro skipped
+2026-09-25T09:52:03.611Z story        quality macro skipped
+2026-09-25T09:52:29.181Z status       Following Investigate the Job Board
+2026-09-25T09:52:32.049Z payload      1 story blocks injected (generation)
+2026-09-25T09:53:03.573Z payload      2 story blocks injected (generation)
+2026-09-25T09:53:23.220Z payload      1 story blocks injected (generation)
+2026-09-25T09:53:23.220Z status       Moved into Accept the Mission
+2026-09-25T09:54:21.264Z status       Following Accept the Mission
+2026-09-25T09:54:22.502Z payload      2 story blocks injected (generation)
+2026-09-25T09:55:13.650Z payload      2 story blocks injected (generation)
+2026-09-25T09:55:57.594Z story        restored 3 host change(s)
+2026-09-25T09:55:57.600Z story        2 host change(s) were edited outside this story and left alone
+2026-09-25T09:55:57.600Z status       No story selected for this chat
+2026-09-25T09:56:40.196Z session      chat 2026-09-25@06h56m38s377ms · story sun-ruins · at Investigate the Job Board (boundary 0, 1 messages)
+2026-09-25T09:56:39.919Z story        away recap not due
+2026-09-25T09:56:40.148Z status       Started Quest for the Sun Ruins
+2026-09-25T09:56:40.153Z story        quality macro skipped
+2026-09-25T09:56:40.153Z story        quality macro skipped
+2026-09-25T09:56:40.228Z story        away recap not due
+2026-09-25T09:56:40.562Z status       Continuing Quest for the Sun Ruins
+2026-09-25T09:56:58.811Z extraction   read journey msgs 0-1 → 1 accepted, 1 rejected
+2026-09-25T09:56:58.811Z delta        approached_board = true
+2026-09-25T09:56:59.368Z boundary     applied approached_board=true
+2026-09-25T09:56:59.368Z transition   cp1 → cp2
+2026-09-25T09:56:59.644Z status       Moved into Accept the Mission
+2026-09-25T09:57:00.464Z status       Following Accept the Mission
+2026-09-25T09:57:00.469Z story        story updated v2 → v4 (compatible, keep)
+2026-09-25T09:57:40.957Z story        quality macro skipped
+2026-09-25T09:57:40.957Z story        quality macro skipped
+2026-09-25T09:57:40.962Z story        story updated v4 → v5 (compatible, keep)
+2026-09-25T09:58:21.109Z boundary     applied j2_probe=carried
+2026-09-25T09:58:23.581Z story        quality macro skipped
+2026-09-25T09:58:23.581Z story        quality macro skipped
+2026-09-25T09:58:23.591Z story        story updated v5 → v6 (invalidating, keep)
+2026-09-25T09:58:24.585Z story        story updated v6 → v7 (invalidating, cancel)
+2026-09-25T09:59:38.626Z extraction   read probe msgs 0-2 → 0 accepted, 1 rejected
+2026-09-25T09:59:38.747Z boundary     boundary 3: nothing applied (gate)
+2026-09-25T09:59:39.905Z status       Now at Investigate the Job Board
+2026-09-25T09:59:39.912Z story        quality macro skipped
+2026-09-25T09:59:39.912Z story        quality macro skipped
+2026-09-25T09:59:39.916Z story        story updated v6 → v8 (invalidating, keep)
+2026-09-25T09:59:40.219Z boundary     applied j2_hostile=carried
+2026-09-25T09:59:40.347Z status       Following Investigate the Job Board
+2026-09-25T09:59:57.957Z story        quality macro skipped
+2026-09-25T09:59:57.957Z story        quality macro skipped
+2026-09-25T09:59:57.961Z story        story updated v8 → v9 (invalidating, keep)
+2026-09-25T09:59:58.319Z story        story updated v9 → v10 (compatible, keep)
+2026-09-25T10:00:39.929Z session      chat 2026-09-24@04h05m33s739ms · story none · at — (boundary 0, 7 messages)
+2026-09-25T09:56:39.919Z story        away recap not due
+2026-09-25T09:56:40.228Z story        away recap not due
+2026-09-25T09:56:40.562Z status       Continuing Quest for the Sun Ruins
+2026-09-25T09:56:59.644Z status       Moved into Accept the Mission
+2026-09-25T09:57:00.464Z status       Following Accept the Mission
+2026-09-25T09:57:00.469Z story        story updated v2 → v4 (compatible, keep)
+2026-09-25T09:57:40.957Z story        quality macro skipped
+2026-09-25T09:57:40.957Z story        quality macro skipped
+2026-09-25T09:57:40.962Z story        story updated v4 → v5 (compatible, keep)
+2026-09-25T09:58:23.581Z story        quality macro skipped
+2026-09-25T09:58:23.581Z story        quality macro skipped
+2026-09-25T09:58:23.591Z story        story updated v5 → v6 (invalidating, keep)
+2026-09-25T09:58:24.585Z story        story updated v6 → v7 (invalidating, cancel)
+2026-09-25T09:59:39.905Z status       Now at Investigate the Job Board
+2026-09-25T09:59:39.912Z story        quality macro skipped
+2026-09-25T09:59:39.912Z story        quality macro skipped
+2026-09-25T09:59:39.916Z story        story updated v6 → v8 (invalidating, keep)
+2026-09-25T09:59:40.347Z status       Following Investigate the Job Board
+2026-09-25T09:59:57.957Z story        quality macro skipped
+2026-09-25T09:59:57.957Z story        quality macro skipped
+2026-09-25T09:59:57.961Z story        story updated v8 → v9 (invalidating, keep)
+2026-09-25T09:59:58.319Z story        story updated v9 → v10 (compatible, keep)
+2026-09-25T10:00:39.258Z status       No story selected for this chat

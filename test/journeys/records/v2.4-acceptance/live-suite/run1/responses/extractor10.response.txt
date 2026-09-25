@@ -1,0 +1,10 @@
+DELTA alarm=true evidence="the alarm begins to wail"
+DELTA door_open=true evidence="Vex wrenches the vault door open"
+DELTA guards=2 evidence="two guards round the corner"
+DELTA tension_current="critical" evidence="Vex wrenches the vault door open just as the alarm begins to wail and two guards round the corner"
+
+MEMORY type=event importance=3 expiration=session entity="Vex" character="Vex" text="Vex opened the vault door as the alarm sounded and guards arrived." evidence="Vex wrenches the vault door open just as the alarm begins to wail and two guards round the corner"
+
+SCENE_NONE
+
+[arc] Vex's escape from the vault with guards closing in

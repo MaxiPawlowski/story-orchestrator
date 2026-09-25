@@ -1,0 +1,127 @@
+{
+  "file": "test/scenarios/live-v24-npc-switch.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "import_story",
+      "ok": true,
+      "ms": 262
+    },
+    {
+      "index": 1,
+      "key": "eval",
+      "ok": true,
+      "ms": 14
+    },
+    {
+      "index": 2,
+      "key": "eval",
+      "ok": true,
+      "ms": 43223
+    },
+    {
+      "index": 3,
+      "key": "slash",
+      "ok": true,
+      "ms": 1975
+    },
+    {
+      "index": 4,
+      "key": "eval",
+      "ok": true,
+      "ms": 2389
+    },
+    {
+      "index": 5,
+      "key": "slash",
+      "ok": true,
+      "ms": 1806
+    },
+    {
+      "index": 6,
+      "key": "eval",
+      "ok": true,
+      "ms": 4311
+    },
+    {
+      "index": 7,
+      "key": "eval",
+      "ok": true,
+      "ms": 37851
+    },
+    {
+      "index": 8,
+      "key": "eval",
+      "ok": true,
+      "ms": 3650
+    }
+  ],
+  "ok": true,
+  "error": null,
+  "retries": [],
+  "firstAttempt": "pass",
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-a3429589"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@08h14m20s403ms",
+    "owned": [
+      "2026-09-25@08h14m20s403ms",
+      "2026-09-25@08h15m04s397ms",
+      "2026-09-25@08h15m08s760ms"
+    ],
+    "deleted": [
+      "2026-09-25@08h14m20s403ms",
+      "2026-09-25@08h15m04s397ms",
+      "2026-09-25@08h15m08s760ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@08h15m08s760ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

@@ -1,0 +1,96 @@
+start 2026-09-25T15:51:28Z
+
+=== J9 wizard ===
+Premise → interview → staged proposals → provisioned ST assets → playable story, create-only and reviewed per operation. Every asset this journey creates is marked SO-J9 and deleted in cleanup; a leak is a gate failure.
+
+extraction before this run: {"enabled":true,"cadence":3,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","profiles":{}}
+Global config snapshot: C:\dev\so-lanes\2\debug\so-journey-config-snapshot.json
+extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+extraction configured via the settings panel: profile="Story Orchestrator Memory RunPod" {"enabled":true,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","cadence":1,"reconciliationMultiplier":1.5,"stabilityLag":0}
+--- J9.1 the wizard interviews before proposing, and 'You decide' always proceeds to a proposal
+J9.1 1/8 eval ok 18ms
+J9.1 2/8 ui ok 299ms
+J9.1 3/8 expect_ui ok 5ms
+J9.1 4/8 ui ok 25719ms
+J9.1 5/8 eval ok 7ms
+J9.1 6/8 ui ok 38254ms
+J9.1 7/8 eval ok 520ms
+J9.1 8/8 ui ok 163ms
+--- J9.2 create-only is enforced in op validation, not trusted to the prompt: an existing character is refused (T6: each collision subcase is its own check, J9.2b-d)
+J9.2 1/3 eval ok 13ms
+J9.2 2/3 eval ok 5ms
+J9.2 3/3 assets ok 9ms
+--- J9.2b create-only: a lorebook the story does not own is never written into (blocked, not skipped, on an install with no lorebook)
+J9.2b 1/3 eval ok 5ms
+J9.2b 2/3 eval ok 5ms
+J9.2b 3/3 assets ok 8ms
+--- J9.2c create-only: a second group with an existing group's name is refused (blocked, not skipped, on an install with no group)
+J9.2c 1/3 eval ok 5ms
+J9.2c 2/3 eval ok 5ms
+J9.2c 3/3 assets ok 8ms
+--- J9.2d create-only: a group whose cast does not exist yet is refused and nothing is created
+J9.2d 1/3 eval ok 4ms
+J9.2d 2/3 eval ok 5ms
+J9.2d 3/3 assets ok 8ms
+--- J9.3 each provisioning step is reviewed and applied on its own, and is excluded from bulk accept
+J9.3 1/10 eval ok 5ms
+J9.3 2/10 import_story ok 277ms
+J9.3 3/10 ui ok 613ms
+J9.3 4/10 ui ok 20527ms
+J9.3 5/10 eval ok 5ms
+J9.3 6/10 ui ok 292ms
+J9.3 7/10 eval ok 12ms
+J9.3 8/10 eval ok 8ms
+J9.3 9/10 ui ok 782ms
+J9.3 10/10 assets ok 9ms
+--- J9.4 'Fix with wizard' from the requirements panel opens the provisioning step pre-filled with what is missing
+J9.4 1/8 ui ok 143ms
+J9.4 2/8 eval ok 6ms
+J9.4 3/8 import_story ok 375ms
+J9.4 4/8 eval ok 16ms
+J9.4 5/8 ui ok 69ms
+J9.4 6/8 expect_ui ok 5ms
+J9.4 7/8 eval ok 65ms
+J9.4 8/8 eval ok 1621ms
+--- J9.5 the provisioned story is playable: requirements go green and a real transition fires (the transition half is model-dependent — a real read sometimes omits the delta — so the step retries once and the retry is REPORTED in the record, never hidden)
+J9.5 1/11 ui ok 43ms
+J9.5 2/11 import_story ok 380ms
+J9.5 3/11 expect ok 67ms
+J9.5 4/11 eval ok 15ms
+J9.5 5/11 select_story ok 344ms
+J9.5 6/11 expect ok 51ms
+J9.5 7/11 assets ok 8ms
+J9.5 8/11 send_generate ok 22640ms
+J9.5 9/11 extract ok 23010ms
+J9.5 10/11 wait ok 57ms
+J9.5 11/11 expect ok 104ms
+Restored global config from C:\dev\so-lanes\2\debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"],"saved":{"status":200},"preservedStories":[],"preservedSessions":[]}
+
+PASS         J9.1     the wizard interviews before proposing, and 'You decide' always proceeds to a proposal
+PASS         J9.2     create-only is enforced in op validation, not trusted to the prompt: an existing character is refused (T6: each collision subcase is its own check, J9.2b-d)
+PASS         J9.2b    create-only: a lorebook the story does not own is never written into (blocked, not skipped, on an install with no lorebook)
+PASS         J9.2c    create-only: a second group with an existing group's name is refused (blocked, not skipped, on an install with no group)
+PASS         J9.2d    create-only: a group whose cast does not exist yet is refused and nothing is created
+PASS         J9.3     each provisioning step is reviewed and applied on its own, and is excluded from bulk accept
+PASS         J9.4     'Fix with wizard' from the requirements panel opens the provisioning step pre-filled with what is missing
+PASS         J9.5     the provisioned story is playable: requirements go green and a real transition fires (the transition half is model-dependent — a real read sometimes omits the delta — so the step retries once and the retry is REPORTED in the record, never hidden)
+SKIP         J9.6      — human check — operator scores it
+SKIP         J9.7      — human check — operator scores it
+
+J9
+automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped
+human:     0 scored, 2 unscored
+cleanup:   clean
+first try: 8 of 8 passing check(s) needed no retry
+
+--- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+[J9.6] (D3) Starting from a one-line premise, did the wizard get you to a story you actually wanted to play?
+      anchors: 1 = fought it · 3 = usable after edits · 5 = better than what I would have written
+[J9.7] (D3, U6) When it offered to create characters, lore and a group in your SillyTavern, did you trust what it was about to do?
+      anchors: 1 = no idea what it would touch · 3 = clear but I had to read carefully · 5 = obvious what was created and what was left alone
+[free] What would make you stop using this?
+
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-25T15-54-00-271Z_journey-J9.json
+Matrix: C:\dev\so-lanes\2\debug\journey-J9.md
+journey exit=0 2026-09-25T15:54:00Z
+header diff exit=0

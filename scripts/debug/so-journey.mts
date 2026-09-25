@@ -404,6 +404,14 @@ async function runCleanup(page, journey, { importedHashes, libraryBefore, config
     Object.assign(report, await captureControlColumn(page, judgeMode.mode.label).catch((error) => ({ controlColumn: { unreadable: error.message } })));
   }
   if (keep) return { kept: true, sandboxChatId: guard?.sandboxChatId ?? null, owned: guard?.owned ?? [], judgeCalls: report.judgeCalls };
+  // A check's `storyOrchestratorDebug*` mock answers the next real pass in this page until a reload
+  // (J6 sets four; the run header flagged them as blocking residue, v2.4 plan 09 A2). Setup clears
+  // them at start; cleanup clears them at the end too, as so-scenario does.
+  report.debugResponses = await evaluateInST(page, () => {
+    const keys = Object.keys(globalThis).filter((name) => name.startsWith('storyOrchestratorDebug'));
+    for (const key of keys) delete globalThis[key];
+    return { cleared: keys };
+  }).catch((error) => ({ error: error.message }));
   // Only what setup activated: a book the install already had selected is left exactly as found.
   if (activatedLorebooks?.length) report.lorebooks = await deactivateLorebooks(page, activatedLorebooks);
   // S11: put install-wide extraction settings back to the pre-run capture, always.

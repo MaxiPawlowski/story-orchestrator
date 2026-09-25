@@ -1,0 +1,18 @@
+P03 live-v24-03-breaker-run1 code=0 diff=0 "blocking":0 2026-09-25T10:53:50Z 2026-09-25T10:56:47Z "ok":true :: 
+P03 live-v24-03-breaker-run2 code=0 diff=0 "blocking":0 2026-09-25T10:56:47Z 2026-09-25T11:01:09Z "ok":true :: 
+P03 live-v24-03-abort-run1 code=0 diff=0 "blocking":0 2026-09-25T11:01:09Z 2026-09-25T11:05:05Z "ok":true :: 
+P03 live-v24-03-abort-run2 code=0 diff=0 "blocking":0 2026-09-25T11:05:06Z 2026-09-25T11:08:13Z "ok":true :: 
+P03 live-v24-03-wedges-run1 code=0 diff=0 "blocking":0 2026-09-25T11:08:13Z 2026-09-25T11:09:43Z "ok":true :: 
+P03 live-v24-03-wedges-run2 code=0 diff=0 "blocking":0 2026-09-25T11:09:44Z 2026-09-25T11:12:26Z "ok":true :: 
+P03 live-v24-npc-switch-run1 code=0 diff=0 "blocking":0 2026-09-25T11:12:27Z 2026-09-25T11:14:15Z "ok":true :: 
+P03 live-v24-npc-switch-run2 code=0 diff=0 "blocking":0 2026-09-25T11:14:15Z 2026-09-25T11:16:03Z "ok":true :: 
+P03 live-v4-turn-identity-run1 code=0 diff=0 "blocking":0 2026-09-25T11:16:03Z 2026-09-25T11:16:43Z "ok":true :: 
+P03 live-v4-turn-identity-run2 code=0 diff=0 "blocking":0 2026-09-25T11:16:44Z 2026-09-25T11:17:19Z "ok":true :: 
+P03 plan03a-llm-npc-reply-run1 code=0 diff=0 "blocking":0 2026-09-25T11:17:20Z 2026-09-25T11:17:44Z "ok":true :: 
+P03 plan03a-llm-npc-reply-run2 code=0 diff=0 "blocking":0 2026-09-25T11:17:45Z 2026-09-25T11:18:12Z "ok":true :: 
+P03 live-v24-03-memorize-run1 code=1 diff=0 "blocking":0 2026-09-25T11:18:12Z 2026-09-25T11:35:43Z "ok":false :: 16/16 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: captured 4 read requests for 2 windows + 1 full pass 
+P03 live-v24-03-memorize-run2 code=0 diff=0 "blocking":0 2026-09-25T11:35:44Z 2026-09-25T11:55:36Z "ok":true :: 
+P03 live-v24-03-memorize-run3 code=0 diff=0 "blocking":0 2026-09-25T12:14:37Z 2026-09-25T12:35:03Z "ok":true :: 
+P03 live-v24-03-memorize-run4 code=1 diff=0 "blocking":0 2026-09-25T12:35:03Z 2026-09-25T13:02:52Z "ok":false :: 16/16 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the backlog did not complete: {"result":false,"backfill":{"running":false,"processed":2,"total":3,"lastError":"the memory model did not answer within 256462 ms"}}; backfill after the run: {"running":false,"processed":2,"tot
+P03 live-v24-03-memorize-run5 code=0 diff=0 "blocking":0 2026-09-25T13:11:50Z 2026-09-25T13:39:44Z "ok":true :: 
+P03 live-v24-03-memorize-run6 code=0 diff=0 "blocking":0 2026-09-25T13:39:45Z 2026-09-25T14:09:32Z "ok":true :: 

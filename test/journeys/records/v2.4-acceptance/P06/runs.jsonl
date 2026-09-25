@@ -1,0 +1,10 @@
+{"row":"P06","fixture":"test/scenarios/live-v24-06-objective.json","label":"objective-run1","code":0,"headerCapture":0,"headerDiffCode":0,"blocking":"0","began":"2026-09-25T15:00:37Z","ended":"2026-09-25T15:02:07Z"}
+{"row":"P06","fixture":"test/scenarios/live-v24-06-objective.json","label":"objective-run2","code":0,"headerCapture":0,"headerDiffCode":0,"blocking":"0","began":"2026-09-25T15:02:10Z","ended":"2026-09-25T15:03:07Z"}
+{"row":"P06","fixture":"test/scenarios/live-v24-06-objective-off.json","label":"objective-off-run1","code":0,"headerCapture":0,"headerDiffCode":0,"blocking":"0","began":"2026-09-25T15:03:10Z","ended":"2026-09-25T15:04:11Z"}
+{"row":"P06","fixture":"test/scenarios/live-v24-06-objective-off.json","label":"objective-off-run2","code":0,"headerCapture":0,"headerDiffCode":0,"blocking":"0","began":"2026-09-25T15:04:14Z","ended":"2026-09-25T15:05:47Z"}
+{"row":"P06","fixture":"test/scenarios/live-v24-06-overlay.json","label":"overlay-tc-run1","code":0,"headerCapture":0,"headerDiffCode":0,"blocking":"0","began":"2026-09-25T15:06:03Z","ended":"2026-09-25T15:08:34Z"}
+{"row":"P06","fixture":"test/scenarios/live-v24-06-overlay.json","label":"overlay-tc-run2","code":0,"headerCapture":0,"headerDiffCode":0,"blocking":"0","began":"2026-09-25T15:08:37Z","ended":"2026-09-25T15:11:59Z"}
+{"row":"P06","fixture":"test/scenarios/live-v24-06-curator.json","label":"curator-run1","code":0,"headerCapture":0,"headerDiffCode":0,"blocking":"0","began":"2026-09-25T15:12:03Z","ended":"2026-09-25T15:14:04Z"}
+{"row":"P06","fixture":"test/scenarios/live-v24-06-curator.json","label":"curator-run2","code":0,"headerCapture":0,"headerDiffCode":0,"blocking":"0","began":"2026-09-25T15:14:10Z","ended":"2026-09-25T15:15:04Z"}
+{"row":"P06","fixture":"test/scenarios/live-v24-06-overlay.json","label":"overlay-cc-run1","code":0,"headerCapture":0,"headerDiffCode":0,"blocking":"0","began":"2026-09-25T15:16:24Z","ended":"2026-09-25T15:17:46Z"}
+{"row":"P06","fixture":"test/scenarios/live-v24-06-overlay.json","label":"overlay-cc-run2","code":0,"headerCapture":0,"headerDiffCode":0,"blocking":"0","began":"2026-09-25T15:17:49Z","ended":"2026-09-25T15:19:08Z"}

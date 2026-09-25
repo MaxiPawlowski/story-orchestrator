@@ -1,0 +1,128 @@
+{
+  "summary": {
+    "use": "continuity",
+    "records": [
+      "test/journeys/records/v2.4-acceptance/judge/warden/on/run2/record.json",
+      "test/journeys/records/v2.4-acceptance/judge/warden/off/run2/record.json"
+    ],
+    "factsOverride": {
+      "file": "test/journeys/records/v2.4-acceptance/judge/warden/overstear/rescore-facts-seed.json",
+      "facts": [
+        "The old stone bridge over the river collapsed in the flood and is gone."
+      ]
+    },
+    "model": "jev-1.13.0",
+    "rates": [
+      {
+        "arm": "on",
+        "asked": 6,
+        "answered": 6,
+        "flagged": 1,
+        "defectRate": 0.1667
+      },
+      {
+        "arm": "off",
+        "asked": 5,
+        "answered": 5,
+        "flagged": 2,
+        "defectRate": 0.4
+      }
+    ]
+  },
+  "results": [
+    {
+      "id": "m0",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 217,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m1",
+      "arm": "on",
+      "flagged": true,
+      "broken": [
+        "The old stone bridge over the river collapsed in the flood and is gone."
+      ],
+      "latencyMs": 242,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m3",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 223,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m4",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 321,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m5",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 265,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m7",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 219,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m0",
+      "arm": "off",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 425,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m1",
+      "arm": "off",
+      "flagged": true,
+      "broken": [
+        "The old stone bridge over the river collapsed in the flood and is gone."
+      ],
+      "latencyMs": 465,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m3",
+      "arm": "off",
+      "flagged": true,
+      "broken": [
+        "The old stone bridge over the river collapsed in the flood and is gone."
+      ],
+      "latencyMs": 432,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m5",
+      "arm": "off",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 456,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m6",
+      "arm": "off",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 468,
+      "model": "jev-1.13.0"
+    }
+  ]
+}

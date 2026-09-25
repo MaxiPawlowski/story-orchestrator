@@ -1,0 +1,14 @@
+{
+  "baseline": "test/journeys/records/v2.4-acceptance/judge/houseRules/on/run1/header-start.json",
+  "label": "v24-acc-jm-houseRules-on-run1-end",
+  "allow": [
+    "build.head"
+  ],
+  "differences": 0,
+  "progress": 0,
+  "blocking": 0,
+  "blockingPaths": [],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\3\\debug\\run-header-v24-acc-jm-houseRules-on-run1-end.json",
+  "ok": true
+}

@@ -1,0 +1,111 @@
+{
+  "file": "test/scenarios/live-v24-05-gated-constant.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "import_story",
+      "ok": true,
+      "ms": 1675
+    },
+    {
+      "index": 1,
+      "key": "eval",
+      "ok": true,
+      "ms": 9
+    },
+    {
+      "index": 2,
+      "key": "ui",
+      "ok": true,
+      "ms": 272
+    },
+    {
+      "index": 3,
+      "key": "send",
+      "ok": true,
+      "ms": 1672
+    },
+    {
+      "index": 4,
+      "key": "eval",
+      "ok": true,
+      "ms": 22357
+    },
+    {
+      "index": 5,
+      "key": "eval",
+      "ok": true,
+      "ms": 25502
+    },
+    {
+      "index": 6,
+      "key": "wait",
+      "ok": true,
+      "ms": 5011
+    }
+  ],
+  "ok": true,
+  "error": null,
+  "retries": [],
+  "firstAttempt": "pass",
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ea8a94f1"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@11h18m54s304ms",
+    "owned": [
+      "2026-09-25@11h18m54s304ms"
+    ],
+    "deleted": [
+      "2026-09-25@11h18m54s304ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@11h18m54s304ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

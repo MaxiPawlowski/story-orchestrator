@@ -1,0 +1,82 @@
+{
+  "ok": true,
+  "value": {
+    "n": 20,
+    "sched": {
+      "queueDepth": 1,
+      "inFlight": false,
+      "lastError": null,
+      "heavyQueueDepth": 0,
+      "heavyInFlight": false,
+      "lastHeavyError": null
+    },
+    "last": [
+      {
+        "r": "cadence",
+        "w": {
+          "from": 38,
+          "to": 42
+        },
+        "acc": [
+          "DELTA tension_current=\"stirring\" evidence=\"The low hum of the machinery fills his ears, and he looks around with a mixture of curiosity and wariness.\""
+        ],
+        "rej": []
+      },
+      {
+        "r": "cue:cp-4a1->cp-5",
+        "w": {
+          "from": 35,
+          "to": 42
+        },
+        "acc": [],
+        "rej": [
+          "invalid value | DELTA tension_current=value=\"calm\" evidence=\"Luke lets out a shaky breath, his shoulders relaxing slightly as he realizes the danger has passed.\""
+        ]
+      },
+      {
+        "r": "cadence",
+        "w": {
+          "from": 43,
+          "to": 46
+        },
+        "acc": [
+          "DELTA chamber_entered=true evidence=\"We walk into the chamber and start examining the machinery inside.\""
+        ],
+        "rej": [
+          "evidence not in window | DELTA tension_current=\"stirring\" evidence=\"Luke's breath catches as he steps into the chamber, his wide eyes taking in the ancient machinery that hums with a faint, otherworldly power.\""
+        ]
+      },
+      {
+        "r": "cue:cp-4a1->cp-5",
+        "w": {
+          "from": 40,
+          "to": 47
+        },
+        "acc": [],
+        "rej": [
+          "invalid value | DELTA tension_current=value=\"stirring\" evidence=\"The low hum of the machinery fills his ears, and he looks around with a mixture of curiosity and wariness.\""
+        ]
+      },
+      {
+        "r": "reconcile:chamber_entered",
+        "w": {
+          "from": 37,
+          "to": 47
+        },
+        "acc": [],
+        "rej": [
+          "invalid value | DELTA tension_current=value=\"stirring\" evidence=\"Arin's steps are measured and cautious, his eyes scanning the chamber as he walks beside you. The low hum of the machinery fills his ears, and he looks around with a mixture of curiosity and "
+        ]
+      }
+    ],
+    "tail": [
+      "Max: We step past the archway and enter the chamber of ancient machinery.",
+      "Arin: *Arin's steps are measured and cautious, his eyes scanning the chamber as he walks beside you. The low hum of the machinery fills his ears, ",
+      "Max: We walk into the chamber and start examining the machinery inside.",
+      "Luke: *Luke's breath catches as he steps into the chamber, his wide eyes taking in the ancient machinery that hums with a faint, otherworldly powe",
+      "Max: We take a breath, look around, and carry on.",
+      "Luke: *Luke stands in the chamber, his gaze moving from machine to machine as he listens to the low hum filling the air. He looks back toward you ",
+      "Arin: *Arin stands at the edge of the chamber, his arms crossed as he watches you examine the machinery. His green eyes are narrow, his jaw tight "
+    ]
+  }
+}

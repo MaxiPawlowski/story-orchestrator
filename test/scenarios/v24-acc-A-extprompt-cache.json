@@ -1,0 +1,25 @@
+{
+  "_note": "v2.4 plan 09 acceptance, defect probe found while running row I3 (2026-09-25), NOT a matrix row. No model call. Run: node scripts/debug/so-scenario.mts run test/scenarios/v24-acc-A-extprompt-cache.json --sandbox --group 1759606632088. ST's clearChat (script.js:1590) reassigns extension_prompts = {} on every chat load, including a same-chat reloadCurrentChat. stHost/extensionPrompts.ts dedupes writes through a module-level lastWritten map that nothing resets on a chat load, so setStoryExtensionPrompt(key, sameText, sameDepth) after the wipe returns changed:false and writes nothing. The probe sets a nudge (injected), reloads the same chat (the block is gone), sets the SAME nudge again (expected injected; the defect leaves it absent while getActiveNudge() still reports it), and a control sets a DIFFERENT text (injected). It asserts the correct behaviour, so it is RED while the defect stands. Finally the nudge is cleared (which also clears the cache entry).",
+  "steps": [
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "import_story": {
+        "file": "v24-01-delete.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); rt.clearCopilotNudge(); const text = 'Nudge: acceptance cache probe ' + Date.now(); rt.setCopilotNudge(text, 1); const injected = SillyTavern.getContext().extensionPrompts?.story_copilot_nudge?.value ?? null; if (injected !== text) throw new Error(`precondition: a fresh nudge was not injected at all: ${JSON.stringify(injected)}`); const blocks = Object.fromEntries(Object.entries(SillyTavern.getContext().extensionPrompts ?? {}).filter(([key]) => key.startsWith('story_')).map(([key, value]) => [key, String(value?.value ?? '').length])); globalThis.__soCacheProbe = { text, chatId: ctx.chatId, blocksBefore: blocks }; return { set: text, injected, blocksBefore: blocks };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); await ctx.reloadCurrentChat(); await new Promise((r) => setTimeout(r, 1500)); for (let i = 0; i < 100 && !rt.getSnapshot().storyId; i += 1) await new Promise((r) => setTimeout(r, 100)); const now = SillyTavern.getContext(); if (now.chatId !== globalThis.__soCacheProbe.chatId) throw new Error(`the reload moved the page to ${now.chatId}`); globalThis.__soCacheProbe.afterReload = { activeNudge: rt.getActiveNudge(), injected: now.extensionPrompts?.story_copilot_nudge?.value ?? null, blocksAfter: Object.fromEntries(Object.entries(now.extensionPrompts ?? {}).filter(([key]) => key.startsWith('story_')).map(([key, value]) => [key, String(value?.value ?? '').length])) }; return globalThis.__soCacheProbe.afterReload;",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const probe = globalThis.__soCacheProbe; rt.setCopilotNudge(probe.text, 1); const same = SillyTavern.getContext().extensionPrompts?.story_copilot_nudge?.value ?? null; const other = probe.text + ' (changed)'; rt.setCopilotNudge(other, 1); const changed = SillyTavern.getContext().extensionPrompts?.story_copilot_nudge?.value ?? null; rt.clearCopilotNudge(); const result = { afterReload: probe.afterReload, resetSameText: { activeNudge: probe.text, injected: same }, control: { setDifferentText: other, injected: changed } }; if (changed !== other) throw new Error(`control failed: a different nudge was not injected either, so this probe cannot tell the cache from a missing host: ${JSON.stringify(result)}`); if (same !== probe.text) throw new Error(`DEFECT: after ST's clearChat (reloadCurrentChat) wiped extension_prompts, setting the SAME nudge text again injected nothing (stHost/extensionPrompts.ts lastWritten still holds it), while getActiveNudge() reports it active: ${JSON.stringify(result)}`); return result;",
+      "log": true
+    }
+  ]
+}

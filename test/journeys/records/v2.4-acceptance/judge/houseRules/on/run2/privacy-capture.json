@@ -1,0 +1,115 @@
+{
+  "ok": true,
+  "value": {
+    "installed": true,
+    "count": 3,
+    "rows": [
+      {
+        "at": "2026-09-25T15:51:24.901Z",
+        "url": "/api/plugins/story-orchestrator-judge/systemone",
+        "body": {
+          "state": {
+            "reply": {
+              "speaker": "Captain Rhee",
+              "text": "Captain Rhee levels her flintlock pistol at the smugglers and fires; the shot cracks across the flooded dock and the men scatter."
+            },
+            "house_rules": {
+              "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+              "rule_1": "Coins are called marks, never gold pieces or dollars."
+            }
+          },
+          "questions": {
+            "rule:0": {
+              "type": "noul",
+              "instructions": "Does `reply` break `house_rules.rule_0`?",
+              "criteria": {
+                "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+                "false": "The reply follows the rule or does not touch it"
+              }
+            },
+            "rule:1": {
+              "type": "noul",
+              "instructions": "Does `reply` break `house_rules.rule_1`?",
+              "criteria": {
+                "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+                "false": "The reply follows the rule or does not touch it"
+              }
+            }
+          },
+          "model": "jev-1.13.0"
+        }
+      },
+      {
+        "at": "2026-09-25T15:51:43.537Z",
+        "url": "/api/plugins/story-orchestrator-judge/systemone",
+        "body": {
+          "state": {
+            "reply": {
+              "speaker": "Arin",
+              "text": "Arin crouches low, one hand on the hilt of his dagger as he eyes the chaotic scene.\n\"Tch, look at them run,\" he mutters, glancing toward you.\nHe doesn't move to intervene, keeping himself and you positioned behind a crate.\n\"Captain's handling it. We just need to stay low and wait for the ferry to arrive. The current's too strong to cross any other way.\"\nThe river churns violently, its dark waters swirling around the partially submerged dock. The shouting of the smugglers fades into the distance as they retreat into the woods on the far bank.\n\"Let's not be heroes today,\" he adds, his tone lighter but his eyes still sharp.\n\"I've had enough close calls this week.\""
+            },
+            "house_rules": {
+              "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+              "rule_1": "Coins are called marks, never gold pieces or dollars."
+            }
+          },
+          "questions": {
+            "rule:0": {
+              "type": "noul",
+              "instructions": "Does `reply` break `house_rules.rule_0`?",
+              "criteria": {
+                "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+                "false": "The reply follows the rule or does not touch it"
+              }
+            },
+            "rule:1": {
+              "type": "noul",
+              "instructions": "Does `reply` break `house_rules.rule_1`?",
+              "criteria": {
+                "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+                "false": "The reply follows the rule or does not touch it"
+              }
+            }
+          },
+          "model": "jev-1.13.0"
+        }
+      },
+      {
+        "at": "2026-09-25T15:53:44.284Z",
+        "url": "/api/plugins/story-orchestrator-judge/systemone",
+        "body": {
+          "state": {
+            "reply": {
+              "speaker": "Ponticius",
+              "text": "\"Get on, you two,\" Captain Rhee gestures with her pistol still held low, her eyes scanning the choppy waters.\nThe ferry is a weathered but sturdy vessel, its wooden hull creaking as it groans against the churning river. A small engine hums beneath the deck, itsing up against the current.\nThe Captain stands at the tiller, her hand gripping the handle firmly.\n\"Not a long ride,\" she says, her voice barely raised over the roar of the river.\n\"But don't get any ideas about trying to cross on your own. These waters don't care who's coming or going, and they'll pull you under in a heartbeat.\"\nArin slips onto the deck first, his bow slung over his shoulder, eyes already scanning the far bank.\nThe ferry groans as it begins to move, cutting through the river'Hs foam-capped waves.\nThe air is cold and damp, mist clinging to the river's surface.\n\"Easy on the feet,\" the Captain warns as the ferry lurches.\n\"The current's a hell of of a thing.\"\nArin grabs the hold of the railing as the boat lurches.\n\"Damn, this river's a lot worse than I've run into before.\"\n\"Yeah, well, this one's got a lot to deal with,\" Captain Rhee says, her flintlock resting against the tiller.\n\"The flood's been hell on the dock. Nearly lost the ferry herself.\"\nShe glances back at you, her expression hard.\n\"Glad you'd have been patient. A lot of fools-folk's been tryin' to get across, and the river's been swallowing them whole.\"\nThe ferry cuts through the river, foam-capped waves churning up around the hull.\nThe far bank looms closer, its dark silhouette rising from the misty waters.\n\"Almost there,\" Captain Rhee says.\n\"And remember, this is a dead-end job. The Guild's just getting you across. We're not your nannies.\"\nArin shifts his weight, his eyes narrowing as he looks at the far bank.\n\"Don't forget what the task is. We need to find the smuggler's hideout, and we're just getting closer to it.\"\nThe ferry continues its approach, the far bank growing closer and closer."
+            },
+            "house_rules": {
+              "rule_0": "No character uses a gun, rifle or any gunpowder weapon.",
+              "rule_1": "Coins are called marks, never gold pieces or dollars."
+            }
+          },
+          "questions": {
+            "rule:0": {
+              "type": "noul",
+              "instructions": "Does `reply` break `house_rules.rule_0`?",
+              "criteria": {
+                "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+                "false": "The reply follows the rule or does not touch it"
+              }
+            },
+            "rule:1": {
+              "type": "noul",
+              "instructions": "Does `reply` break `house_rules.rule_1`?",
+              "criteria": {
+                "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+                "false": "The reply follows the rule or does not touch it"
+              }
+            }
+          },
+          "model": "jev-1.13.0"
+        }
+      }
+    ]
+  }
+}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T15-53-58-934Z_st-eval.json

@@ -1,0 +1,3 @@
+{"row":"P07","fixture":"test/scenarios/live-v24-07-meter.json","label":"meter-run1","code":0,"headerCapture":0,"headerDiffCode":0,"blocking":"0","began":"2026-09-25T15:20:46Z","ended":"2026-09-25T15:21:09Z"}
+{"row":"P07","fixture":"test/scenarios/live-v24-07-meter.json","label":"meter-run2","code":0,"headerCapture":0,"headerDiffCode":0,"blocking":"0","began":"2026-09-25T15:21:12Z","ended":"2026-09-25T15:21:35Z"}
+{"row":"P07","fixture":"test/scenarios/live-v24-07-meter.json","label":"meter-keep-run","code":0,"headerCapture":0,"headerDiffCode":1,"blocking":"6","began":"2026-09-25T15:21:46Z","ended":"2026-09-25T15:22:03Z"}

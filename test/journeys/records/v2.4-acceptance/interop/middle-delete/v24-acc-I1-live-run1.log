@@ -1,0 +1,115 @@
+1/48 import_story ok 279ms
+2/48 eval ok 15ms
+2/48 eval -> {"cadence":1,"greeting":1}
+3/48 send_generate ok 498359ms
+4/48 wait ok 221009ms
+5/48 record_state ok 10ms
+5/48 record_state -> {"as":"before-middle","boundary":1,"active":"hall","rows":{"memory":3,"epistemic":0,"ledger":2}}
+6/48 eval ok 6ms
+6/48 eval -> {"kept":{"memory":3,"epistemic":0,"ledger":2}}
+7/48 eval ok 5ms
+8/48 send_generate ok 29826ms
+9/48 wait ok 17459ms
+10/48 send_generate ok 25718ms
+11/48 wait ok 159710ms
+12/48 eval ok 5ms
+12/48 eval -> {"memory":7,"epistemic":0,"ledger":2}
+13/48 eval ok 26ms
+13/48 eval -> {"deleted":3,"after":6}
+14/48 wait ok 1533ms
+15/48 wait ok 44721ms
+16/48 eval ok 6ms
+16/48 eval -> {"boundary":1,"lastMessageId":2,"chat":6,"journal":["payload: 3 story blocks injected (generation)","talk: Ponticius speaks (rules)","status: Stepped back to The Hall","extraction: read rollback:3 msgs 0-5 → 1 accepted, 0 rejected","delta: tension_current = 0.25","delta: queued tension_current=0.25 for the next boundary"],"calls":[{"call":"rollback","from":3,"journal":null,"chat":6,"last":6},{"event":"deleted","n":6,"chat":6}]}
+17/48 expect ok 8ms
+17/48 expect -> {"as":"before-middle","equal":true,"scope":["active","path"]}
+18/48 eval ok 5ms
+18/48 eval -> {"target":3,"rollbacks":[3],"applied":0,"pending":[{"to":5,"from":0,"reason":"rollback:3","after":true,"deltas":["tension_current=0.25"]}]}
+19/48 eval ok 7ms
+19/48 eval -> {"journal":["read rollback:3 msgs 0-5 → 1 accepted, 0 rejected"],"reread":{"memory":3,"epistemic":0,"ledger":0}}
+20/48 record_state ok 7ms
+20/48 record_state -> {"as":"before-cut","boundary":1,"active":"hall","rows":{"memory":6,"epistemic":0,"ledger":2}}
+21/48 eval ok 6ms
+21/48 eval -> {"kept":{"memory":6,"epistemic":0,"ledger":2}}
+22/48 eval ok 5ms
+23/48 send_generate ok 504693ms
+24/48 wait ok 205135ms
+25/48 send_generate FAIL Generation still active after 600000ms timeout.
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T13-01-54-341Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T13-02-00-467Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 25,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-ed9ddba5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@09h23m23s351ms",
+    "owned": [
+      "2026-09-25@09h23m23s351ms"
+    ],
+    "deleted": [
+      "2026-09-25@09h23m23s351ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@09h23m23s351ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

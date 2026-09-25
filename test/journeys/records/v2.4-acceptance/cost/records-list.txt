@@ -1,0 +1,12 @@
+test/journeys/records/v2.4-acceptance/judge/agencyCheck/off/run1/record.json
+test/journeys/records/v2.4-acceptance/judge/agencyCheck/off/run2/record.json
+test/journeys/records/v2.4-acceptance/judge/agencyCheck/on/run1/record.json
+test/journeys/records/v2.4-acceptance/judge/agencyCheck/on/run2/record.json
+test/journeys/records/v2.4-acceptance/judge/houseRules/off/run1/record.json
+test/journeys/records/v2.4-acceptance/judge/houseRules/off/run2/record.json
+test/journeys/records/v2.4-acceptance/judge/houseRules/on/run1/record.json
+test/journeys/records/v2.4-acceptance/judge/houseRules/on/run2/record.json
+test/journeys/records/v2.4-acceptance/judge/warden/off/run1/record.json
+test/journeys/records/v2.4-acceptance/judge/warden/off/run2/record.json
+test/journeys/records/v2.4-acceptance/judge/warden/on/run1/record.json
+test/journeys/records/v2.4-acceptance/judge/warden/on/run2/record.json

@@ -1,0 +1,325 @@
+{
+  "off": {
+    "label": "off",
+    "file": "test/journeys/records/v2.4-acceptance/judge/agencyCheck/off/run2/record.json",
+    "journey": "J8",
+    "mode": {
+      "label": "off",
+      "uses": []
+    },
+    "meter": {
+      "calls": 0,
+      "cachedCalls": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "cost": 0,
+      "lastAnsweredModel": null
+    },
+    "ring": {
+      "calls": 0,
+      "cachedCalls": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "cost": 0,
+      "fallbacks": {},
+      "byUse": {}
+    },
+    "warden": {
+      "flagged": 0,
+      "applied": 0,
+      "lapsed": 0,
+      "rejected": 0,
+      "pending": 0
+    },
+    "replies": 5,
+    "notes": [],
+    "rows": [
+      {
+        "id": "m0",
+        "arm": "off",
+        "established": [
+          "The Sun Ruins are older than Xentar and the kingdom itself."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+        },
+        "player": "Max"
+      },
+      {
+        "id": "m2",
+        "arm": "off",
+        "established": [
+          "The Sun Ruins are older than Xentar and the kingdom itself."
+        ],
+        "reply": {
+          "speaker": "Gate Guard",
+          "text": "The guard waves the cart through and nods at you. You shoulder your pack, thank him warmly and say that you will pay the toll now, handing over three marks before walking on toward the market."
+        },
+        "player": "Max",
+        "playerMessage": "I wait by the gate and say nothing."
+      },
+      {
+        "id": "m4",
+        "arm": "off",
+        "established": [
+          "The Sun Ruins are older than Xentar and the kingdom itself."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "\"Wow, the market square's packed today!\"\n*Luke's eyes widen as he scans the bustling square. The oversized chainmail shifts against his gear with each movement, creating a faint clatter.*\n\"Arin says we need to find the Sun Ruins quest, but I'm not sure if anyone knows where they are. Maybe someone here can help us.\"\n*He glances nervously at the and turns his head, searching for a familiar face.*"
+        },
+        "player": "Max",
+        "playerMessage": "I look around the square."
+      },
+      {
+        "id": "m5",
+        "arm": "off",
+        "established": [
+          "The Sun Ruins are older than Xentar and the kingdom itself."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "\"Save that energy for the march, lad. The market's a different beast entirely.\"\n*Ponticius watches from the window of the Guild Hall, his gaze following Max through the crowded square. His expression is thoughtful, though his voice remains firm.*\n\"If you're looking for the Sun Ruins, you won't find them by asking around aimlessly. Best to head back and get a real lead. The ruins are older than this city, older than the kingdom itself.\"\n*He leans back in his chair, his hands folding across his chest.*\n\"Don't go chasing ghosts without a map or a plan. Xentar doesn't need any more brave fools who think they can wing it.\""
+        },
+        "player": "Max",
+        "playerMessage": "I look around the square."
+      },
+      {
+        "id": "m7",
+        "arm": "off",
+        "established": [
+          "The Sun Ruins are older than Xentar and the kingdom itself."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "\"Look at them, boy. Every one of them thinks they're a hero in their own story.\"\n*Ponticius's voice carries a certain weariness as he observes the market-goers. His tone is plain, but there's an understanding there, an edge of experience.*\n\"The ones who survive are the ones who know when to keep their head down. The ones who think they're invincible are the ones who end up on a cart heading back to the Guild Hall as a corpse.\"\n*He says it with a weight, not lingering long after the word.*\n\"Go on. Find your way. Just don't make it a fool's errand.\"\n*He turns away from the window, leaving Max to the market square.*"
+        },
+        "player": "Max",
+        "playerMessage": "We walk on in silence for a while."
+      }
+    ]
+  },
+  "on": {
+    "label": "on",
+    "file": "test/journeys/records/v2.4-acceptance/judge/agencyCheck/on/run2/record.json",
+    "journey": "J8",
+    "mode": {
+      "label": "on",
+      "uses": [
+        "agencyCheck"
+      ],
+      "wardenMode": "auto"
+    },
+    "meter": {
+      "calls": 3,
+      "cachedCalls": 0,
+      "inputTokens": 1979,
+      "outputTokens": 51,
+      "cost": 0,
+      "lastAnsweredModel": "jev-1.13.0"
+    },
+    "ring": {
+      "calls": 3,
+      "cachedCalls": 0,
+      "inputTokens": 1979,
+      "outputTokens": 51,
+      "cost": 0,
+      "fallbacks": {},
+      "byUse": {
+        "warden": {
+          "calls": 3,
+          "cachedCalls": 0,
+          "inputTokens": 1979,
+          "outputTokens": 51,
+          "cost": 0,
+          "fallbacks": {}
+        }
+      }
+    },
+    "warden": {
+      "flagged": 1,
+      "applied": 1,
+      "lapsed": 0,
+      "rejected": 0,
+      "pending": 0
+    },
+    "replies": 7,
+    "notes": [
+      {
+        "text": "Agency: Max's own words and decisions are theirs to write: do not narrate Max acting, accepting, agreeing or refusing.",
+        "replyMessageId": 2,
+        "family": "agency"
+      }
+    ],
+    "rows": [
+      {
+        "id": "m0",
+        "arm": "on",
+        "established": [],
+        "reply": {
+          "speaker": "Arin",
+          "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+        },
+        "player": "Max"
+      },
+      {
+        "id": "m2",
+        "arm": "on",
+        "established": [],
+        "reply": {
+          "speaker": "Gate Guard",
+          "text": "The guard waves the cart through and nods at you. You shoulder your pack, thank him warmly and say that you will pay the toll now, handing over three marks before walking on toward the market."
+        },
+        "player": "Max",
+        "playerMessage": "I wait by the gate and say nothing."
+      },
+      {
+        "id": "m4",
+        "arm": "on",
+        "established": [],
+        "reply": {
+          "speaker": "Luke",
+          "text": "\"Right, so...\" Luke trails off, his gaze darting across the market square before settling on you with an uncertain smile. He adjusts the strap of his oversized chainmail, the metal links clinking softly as he shifts his weight. \"The guildmaster said we should meet up here and then head out together. Something about the Sun Ruins being further east than I thought.\"\n*He gestures vaguely toward a line of stalls where vendors hawk their wares, though his eyes keep flickering nervously to the crowd.*\n\"I've been checking the map a hundred times, and I think there's an old outpost on the way. Maybe we could resupply there first? Or we could just push through. Either way...\" *He pauses, rubbing the back of his neck, his voice dropping slightly.* \"Whatever you decide is fine by me. I mean, you've done a dozen jobs like this, right? Probably know a hundred better ways to do it.\""
+        },
+        "player": "Max",
+        "playerMessage": "I look around the square."
+      },
+      {
+        "id": "m5",
+        "arm": "on",
+        "established": [],
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "*The market square is alive with the sounds of early morning activity. Vendors call out their goods, the scent of fresh bread and roasted nuts drifting from the nearby bakeries. A small group of adventurers, clad in leather and chainmail, gathers near the fountain in the center, their weapons glinting in the morning light.*\n*Beyond them, the path leads deeper into the city, where the buildings grow taller and the streets narrower. The sun-dappled light filters through the gaps between the rooftops, casting long shadows across the cobblestones. In the distance, the faint sound of bells rings out from the cathedral, a reminder of the divine presence that watches over the city.*\n*A few paces away, a young girl in tattered clothes sits against a wall, her eyes following you as you pass. She's not selling anything, and she simply watches with a quiet, knowing gaze.*"
+        },
+        "player": "Max",
+        "playerMessage": "I look around the square."
+      },
+      {
+        "id": "m6",
+        "arm": "on",
+        "established": [],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "\"A few marks, eh?\" *Ponticius glances at the young girl, then back to you. He gestures toward the girl with a thumb, his voice low and steady.* \"Told you, the city's getting thinner on patience and coin.\" *He pauses, watching as you two approach the market square, then shakes his head with a slight smile.* \"Still, at least you're not the only one who has a chance at keeping a coin purse heavy. Good luck, you'll need it.\"\n*Ponticius steps aside, allowing you to clear the gate, but his eyes remain on you for both reasons—one for the job ahead and one for the and other for the sake of his city.*"
+        },
+        "player": "Max",
+        "playerMessage": "I look around the square."
+      },
+      {
+        "id": "m8",
+        "arm": "on",
+        "established": [],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "\"You know, I had a job once, years ago, when the undead raised a town near the borders of the Third Kingdom.\" *Ponticius begins to walk alongside you, his hand resting on the hilt of his blade, his expression distant.* \"We were supposed to clear out a nest of ghouls, but the whole town had already been consumed. We found a handful of survivors hiding in a cellar.\"\n*He chuckles softly, the sound carrying a weight of memory.*\n\"It was just like this—the same silence, the same feeling of something waiting for you just around the corner.\"\n*He pauses, then looks at you with a sharp, clear gaze.*\n\"The key isn't to be brave, you know. It's to be smart. The key is to be the one who comes back from the job, not the one who dies a brave hero.\"\n*His voice softens slightly, as he dips his head to look at you.*\n\"The key is to come back to Xentar, not die a brave hero.\""
+        },
+        "player": "Max",
+        "playerMessage": "We walk on in silence for a while."
+      },
+      {
+        "id": "m9",
+        "arm": "on",
+        "established": [],
+        "reply": {
+          "speaker": "Arin",
+          "text": "*Arin walks beside you, hands in his pockets as he navigates the cobblestone streets with a familiar ease.* \"You know, Max, I was thinking about that last job. The one in the Whispering Woods where we barely escaped with our lives.\"\n*He kicks a small stone out of his path, his green eyes scanning the market stalls as you walk.*\n\"You ever wonder if we're just repeating the same mistakes?\"\n*His voice carries aH touch of genuine curiosity, though it's masked by his usual lighthearted tone. He falls into the other side of you, keeping pace easily.*\n\"I mean, don't get me wrong—I'm not suggesting we quit the guild. Just… wondering if there's a better way to handle things.\"\n*He glances over at you, a slight smirk playing on his lips.*\n\"Probably not, huh?\"\n*He pushes his cloak back over his shoulders and continues walking, the street-level noise of the market filling the silence.*"
+        },
+        "player": "Max",
+        "playerMessage": "We walk on in silence for a while."
+      }
+    ]
+  },
+  "rows": [
+    {
+      "metric": "judge calls (meter)",
+      "off": 0,
+      "on": 3,
+      "delta": 3
+    },
+    {
+      "metric": "cached calls (meter)",
+      "off": 0,
+      "on": 0,
+      "delta": 0
+    },
+    {
+      "metric": "input tokens (meter)",
+      "off": 0,
+      "on": 1979,
+      "delta": 1979
+    },
+    {
+      "metric": "output tokens (meter)",
+      "off": 0,
+      "on": 51,
+      "delta": 51
+    },
+    {
+      "metric": "fallbacks (ring)",
+      "off": 0,
+      "on": 0,
+      "delta": 0
+    },
+    {
+      "metric": "flagged replies (warden)",
+      "off": 0,
+      "on": 1,
+      "delta": 1
+    },
+    {
+      "metric": "notes applied (warden)",
+      "off": 0,
+      "on": 1,
+      "delta": 1
+    },
+    {
+      "metric": "replies captured",
+      "off": 5,
+      "on": 7,
+      "delta": 2
+    },
+    {
+      "metric": "next-reply defect rate (rescore)",
+      "off": 0.25,
+      "on": 0.1667,
+      "delta": -0.0833
+    }
+  ],
+  "overSteer": [
+    {
+      "family": "agency",
+      "note": "Agency: Max's own words and decisions are theirs to write: do not narrate Max acting, accepting, agreeing or refusing.",
+      "replyMessageId": 2,
+      "control": {
+        "id": "m4",
+        "speaker": "Luke"
+      },
+      "reply": {
+        "id": "m4",
+        "speaker": "Luke"
+      },
+      "restate": {
+        "ok": true,
+        "span": 1,
+        "maxSpan": 6,
+        "metaHits": []
+      },
+      "controlRestate": {
+        "ok": true,
+        "span": 1,
+        "maxSpan": 6,
+        "metaHits": []
+      },
+      "swing": {
+        "words": 154,
+        "controlWords": 69,
+        "lengthRatio": 2.232,
+        "sharedWithControl": 3
+      },
+      "replyScore": 0.05,
+      "missing": null
+    }
+  ]
+}

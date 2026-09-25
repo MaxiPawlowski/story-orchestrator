@@ -1,0 +1,57 @@
+{
+  "ok": true,
+  "value": {
+    "send": "fa-solid fa-paper-plane interactable",
+    "stop": "mes_stop",
+    "sched": {
+      "queueDepth": 3,
+      "inFlight": false,
+      "lastError": null,
+      "heavyQueueDepth": 1,
+      "heavyInFlight": false,
+      "lastHeavyError": null
+    },
+    "pipeline": {
+      "state": "stalled-rechecking",
+      "text": "The memory model is not answering — the story will catch up when it does.",
+      "detail": "signal timed out",
+      "needsSetup": false,
+      "nextAction": "retry",
+      "retryable": true
+    },
+    "last": [
+      {
+        "r": "cadence",
+        "at": "2026-09-25T11:22:32.614Z",
+        "acc": [
+          "DELTA chamber_entered=true evidence=\"We walk into the chamber and start examining the machinery inside.\""
+        ],
+        "rej": [
+          "evidence not in window | DELTA tension_current=\"stirring\" evidence=\"Luke's breath catches as he steps into the chamber, his wide eyes taking in the ancient machinery that hums with a faint, otherworldly power.\""
+        ]
+      },
+      {
+        "r": "cue:cp-4a1->cp-5",
+        "at": "2026-09-25T11:22:44.811Z",
+        "acc": [],
+        "rej": [
+          "invalid value | DELTA tension_current=value=\"stirring\" evidence=\"The low hum of the machinery fills his ears, and he looks around with a mixture of curiosity and wariness.\""
+        ]
+      },
+      {
+        "r": "reconcile:chamber_entered",
+        "at": "2026-09-25T11:23:00.008Z",
+        "acc": [],
+        "rej": [
+          "invalid value | DELTA tension_current=value=\"stirring\" evidence=\"Arin's steps are measured and cautious, his eyes scanning the chamber as he walks beside you. The low hum of the machinery fills his ears, and he looks"
+        ]
+      }
+    ],
+    "tail": [
+      "Max: \"Back to Xentar.\" We head back to the guild with the artifact.",
+      "Luke: *Luke's face is a mixture of relief and fear as he follows you out of the chamber, the oversized chainmail clinking with every step. He look",
+      "Max: We carry the artifact back through the ruins and into the guild hall at Xentar.",
+      "DM Narrator: *The journey back through the ruins is fraught with an unsettling silence, broken only by the rhythmic clink of Luke's oversized armor and A"
+    ]
+  }
+}

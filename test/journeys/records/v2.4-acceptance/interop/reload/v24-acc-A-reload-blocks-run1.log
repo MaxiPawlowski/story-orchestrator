@@ -1,0 +1,80 @@
+1/8 eval ok 6ms
+2/8 import_story ok 281ms
+3/8 eval ok 14ms
+3/8 eval -> {"chatId":"2026-09-25@08h59m27s836ms","blocksBefore":{"story_orchestrator_guidance":166},"guidanceHead":"Objective: Get ready to open the vault. This objective is world pressure: the wo"}
+4/8 eval ok 1631ms
+4/8 eval -> {"sameChat":true,"epochBefore":71,"epochAfter":71,"storyId":"legacy-v2-de4f955d","blocksAfterReload":{}}
+5/8 eval ok 519ms
+5/8 eval -> {"blocksAfterAGenerationClose":{}}
+6/8 slash ok 13758ms
+7/8 wait ok 1527ms
+8/8 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: DEFECT: after a same-chat reload (reloadCurrentChat -> ST clearChat wipes extension_prompts) the story's checkpoint guidance is absent from the next real request and is not re-applied by the generation close (stHost/extensionPrompts.ts lastWritten dedupes the unchanged text): {"guidanceHead":"Objective: Get ready to open the vault. This objective is wo","blocksBefore":["story_orchestrator_guidance"],"blocksAfterReload":[],"blocksAfterClose":[],"realRequests":1,"requestsCarryingGuidance":0}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:723)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1057)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T11-59-45-889Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T11-59-50-322Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 8,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@08h59m27s836ms",
+    "owned": [
+      "2026-09-25@08h59m27s836ms"
+    ],
+    "deleted": [
+      "2026-09-25@08h59m27s836ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@08h59m27s836ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

@@ -1,0 +1,5 @@
+DELTA seal_broken=true evidence="Kessa drives the iron pry-bar under the tomb seal and it cracks apart with a sound like thunder."
+DELTA tension_current="stirring" evidence="Stale air rushes out. The way to the crypt heart stands open."
+MEMORY type=event importance=2 expiration=session text="Kessa broke the tomb seal, opening the way to the crypt heart." evidence="Kessa drives the iron pry-bar under the tomb seal and it cracks apart with a sound like thunder."
+SCENE_NONE
+[arc] Exploration of the crypt heart

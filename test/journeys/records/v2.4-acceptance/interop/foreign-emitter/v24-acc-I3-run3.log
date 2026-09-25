@@ -1,0 +1,79 @@
+1/17 import_story ok 297ms
+2/17 ui ok 188ms
+3/17 eval ok 12ms
+3/17 eval -> {"cadence":0,"capable":true}
+4/17 send ok 1677ms
+5/17 wait ok 1541ms
+6/17 extract ok 867ms
+7/17 eval ok 4ms
+7/17 eval -> {"chid":5,"planted":"t6-probe-note","scope":"warden switched on in the in-memory settings view only; nothing install-wide is written"}
+8/17 inject_script ok 6ms
+9/17 emit_generation ok 16ms
+10/17 eval ok 12ms
+10/17 eval -> {"drafted":5,"staged":true}
+11/17 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: setting the nudge injected no story_* block, so the byte-identical comparison below would not cover it
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:701)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:872)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T11-55-56-282Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T11-56-00-687Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 11,
+  "cleanup": {
+    "removedStoryHashes": [],
+    "keptPreExistingStories": [
+      "v2-ea8a94f1"
+    ],
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@08h55m51s341ms",
+    "owned": [
+      "2026-09-25@08h55m51s341ms"
+    ],
+    "deleted": [
+      "2026-09-25@08h55m51s341ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@08h55m51s341ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

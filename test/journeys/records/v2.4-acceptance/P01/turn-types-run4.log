@@ -1,0 +1,80 @@
+{
+  "ok": true,
+  "error": null,
+  "checks": [
+    {
+      "id": "setup",
+      "ok": true
+    },
+    {
+      "id": "b-image",
+      "ok": true
+    },
+    {
+      "id": "a-reply",
+      "ok": true
+    },
+    {
+      "id": "c-greetings",
+      "ok": true
+    },
+    {
+      "id": "c-origin",
+      "ok": true
+    },
+    {
+      "id": "e-duplicate",
+      "ok": true
+    },
+    {
+      "id": "e-slow-listener",
+      "ok": true
+    },
+    {
+      "id": "e-swipe-same-id",
+      "ok": true
+    },
+    {
+      "id": "e-distinct-rapid",
+      "ok": true
+    },
+    {
+      "id": "d-reopen",
+      "ok": true
+    },
+    {
+      "id": "d-swipe",
+      "ok": true
+    }
+  ],
+  "cleanup": {
+    "solo": {
+      "deleted": true,
+      "chatId": "Xianxia fantasy - 2026-09-25@07h31m04s698ms"
+    },
+    "sandbox": {
+      "sandboxChatId": "2026-09-25@07h30m18s260ms",
+      "owned": [
+        "2026-09-25@07h30m18s260ms",
+        "2026-09-25@07h30m47s307ms"
+      ],
+      "deleted": [
+        "2026-09-25@07h30m18s260ms",
+        "2026-09-25@07h30m47s307ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-25@07h30m47s307ms",
+      "currentGroupAtCleanup": "1757172011689",
+      "chatAfterCleanup": "2025-10-04@06h55m37s"
+    },
+    "mirrorBooks": [],
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "story": true
+  }
+}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T10-31-19-967Z_so-turn-types-check.json

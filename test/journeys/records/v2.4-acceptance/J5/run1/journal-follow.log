@@ -1,0 +1,53 @@
+Following the session journal → C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\test\journeys\records\v2.4-acceptance\J5\run1\journal-follow.jsonl every 1000 ms. Ctrl-C to stop.
+2026-09-25T10:38:51.539Z session      chat 2026-09-24@04h05m33s739ms · story none · at — (boundary 0, 7 messages)
+2026-09-25T10:37:09.301Z story        away recap not due
+2026-09-25T10:37:09.523Z status       Started Quest for the Sun Ruins
+2026-09-25T10:37:09.527Z story        quality macro skipped
+2026-09-25T10:37:09.527Z story        quality macro skipped
+2026-09-25T10:37:18.887Z story        away recap queued
+2026-09-25T10:37:19.104Z status       Continuing Quest for the Sun Ruins
+2026-09-25T10:37:19.109Z story        quality macro skipped
+2026-09-25T10:37:19.109Z story        quality macro skipped
+2026-09-25T10:37:19.130Z story        away recap shown
+2026-09-25T10:38:19.196Z status       Moved into Accept the Mission
+2026-09-25T10:38:22.976Z story        away recap queued
+2026-09-25T10:38:23.193Z status       Continuing Quest for the Sun Ruins
+2026-09-25T10:38:23.198Z story        quality macro skipped
+2026-09-25T10:38:23.198Z story        quality macro skipped
+2026-09-25T10:38:23.219Z story        away recap shown
+2026-09-25T10:38:25.664Z story        away recap taken down
+2026-09-25T10:38:25.672Z status       No story selected for this chat
+2026-09-25T10:39:06.738Z session      chat 2026-09-25@07h39m05s789ms · story legacy-v2-3a7f8d89 · at The Briefing (boundary 1, 2 messages)
+2026-09-25T10:39:06.545Z status       No story selected for this chat
+2026-09-25T10:39:06.552Z boundary     boundary 1: nothing applied (gate)
+2026-09-25T10:39:06.644Z story        away recap not due
+2026-09-25T10:39:06.668Z status       Following The Briefing
+2026-09-25T10:39:08.940Z payload      1 story blocks injected (generation)
+2026-09-25T10:39:11.046Z talk         Ponticius speaks (director)
+2026-09-25T10:39:21.944Z delta        queued briefing_done=false, tension_current=0 for the next boundary
+2026-09-25T10:39:21.812Z extraction   read cadence msgs 0-1 → 2 accepted, 0 rejected
+2026-09-25T10:39:21.812Z delta        briefing_done = false
+2026-09-25T10:39:21.812Z delta        tension_current = 0
+2026-09-25T10:39:21.812Z delta        queued briefing_done=false, tension_current=0 for the next boundary
+2026-09-25T10:39:21.812Z audit        audit cadence msgs 0-1 scope [briefing_done, tension_current] → 2 accepted, 0 rejected
+2026-09-25T10:39:25.199Z payload      2 story blocks injected (generation)
+2026-09-25T10:39:25.401Z boundary     applied briefing_done=false, tension_current=0
+2026-09-25T10:39:48.082Z payload      4 story blocks injected (generation)
+2026-09-25T10:39:48.096Z payload      5 story blocks injected (generation)
+2026-09-25T10:40:04.374Z boundary     boundary 3: nothing applied (gate)
+2026-09-25T10:40:05.912Z payload      4 story blocks injected (generation)
+2026-09-25T10:40:05.927Z payload      5 story blocks injected (generation)
+2026-09-25T10:40:13.211Z extraction   read cadence msgs 2-3 → 0 accepted, 2 rejected
+2026-09-25T10:40:13.211Z audit        audit cadence msgs 2-3 scope [briefing_done, tension_current] → 0 accepted, 2 rejected
+2026-09-25T10:40:20.763Z boundary     boundary 4: nothing applied (gate)
+2026-09-25T10:40:22.644Z session      chat 2026-09-24@04h05m33s739ms · story none · at — (boundary 0, 7 messages)
+2026-09-25T10:39:06.545Z status       No story selected for this chat
+2026-09-25T10:39:06.644Z story        away recap not due
+2026-09-25T10:39:06.668Z status       Following The Briefing
+2026-09-25T10:39:25.199Z payload      2 story blocks injected (generation)
+2026-09-25T10:39:48.082Z payload      4 story blocks injected (generation)
+2026-09-25T10:39:48.096Z payload      5 story blocks injected (generation)
+2026-09-25T10:40:05.912Z payload      4 story blocks injected (generation)
+2026-09-25T10:40:05.927Z payload      5 story blocks injected (generation)
+2026-09-25T10:40:22.483Z story        restored 1 host change(s)
+2026-09-25T10:40:22.488Z status       No story selected for this chat
