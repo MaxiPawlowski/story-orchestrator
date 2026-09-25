@@ -22,7 +22,7 @@ import {
 } from "../types";
 import { createTypedJudge } from "../typedRead";
 import type { JudgeRuntime } from "../judge";
-import { beginRun, type RunGuard, type RunOwnership } from "../runToken";
+import { beginRun, type RunGuard, type RunOwnership, type RunToken } from "../runToken";
 import {
   buildStallRequest, buildVerifyRequest, readVerify, stallVerdict, STALL_TIMEOUT_MS, verifyVerdict,
   VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS,
@@ -67,7 +67,7 @@ export interface ExtractionCoordinatorDeps {
 // scene-break / short-term / epistemic-ledger passes and the memorize backlog. Per-tier writes
 // are delegated to the memory coordinator — this class never touches extras.memory directly.
 export class ExtractionCoordinator {
-  private sceneDetectCursor: { location: string | null; cast: string | null } | null = null;
+  private sceneDetectCursor: { location: string | null; cast: string | null; world: RunToken | null } | null = null;
   private backlogStop: AbortController | null = null;
 
   constructor(private readonly deps: ExtractionCoordinatorDeps) {}
@@ -300,10 +300,12 @@ export class ExtractionCoordinator {
     const group = getActiveGroup();
     const cast = group ? group.members.filter((member) => !(group.disabled_members ?? []).includes(member)).sort().join(",") : null;
 
-    const cursor = this.sceneDetectCursor;
+    const ownership = this.deps.ownership;
+    const recorded = this.sceneDetectCursor;
+    const cursor = recorded && (!recorded.world || !ownership || ownership.check(recorded.world).ok) ? recorded : null;
     const locationChanged = Boolean(cursor && cursor.location !== null && locationValue !== null && cursor.location !== locationValue);
     const castChanged = Boolean(cursor && cursor.cast !== null && cast !== null && cursor.cast !== cast);
-    this.sceneDetectCursor = { location: locationValue, cast };
+    this.sceneDetectCursor = { location: locationValue, cast, world: ownership?.mint() ?? null };
 
     return detectSceneBreakHeuristic(text, locationChanged, castChanged);
   }

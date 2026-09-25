@@ -1,11 +1,11 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import {
   buildSceneReadRequest, confirmedSceneFacts, readScene, SCENE_MAX_REACHABLE, SCENE_TIMEOUT_MS, isSceneStale,
-  sceneTrackerText, toSceneRecord, type SceneFamilies, type SceneReadInput, type SceneReadRecord,
+  sceneTrackerText, toSceneRecord, type JudgeRequest, type JudgeResult, type SceneFamilies, type SceneReadInput, type SceneReadRecord,
 } from "@judge/index";
 import type { WriteResult } from "@utils/writeResult";
 import type { JudgeRuntime } from "../judge";
-import { beginRun, type RunOwnership } from "../runToken";
+import { beginRun, type RunGuard, type RunOwnership } from "../runToken";
 
 export interface SceneCoordinatorDeps {
   judge: () => JudgeRuntime | null;
@@ -34,11 +34,18 @@ export interface SceneReadRun {
 
 export const SCENE_JUDGE_READ_REASON = "scene:judge";
 
+interface SceneFlight {
+  key: string;
+  run: RunGuard;
+  result: Promise<JudgeResult>;
+}
+
 // v2.2 plan 03. Reads and injects; it never writes the spine: the one thing it causes is a P0
 // shared read, which the LLM still has to confirm (union with the regex's text-pattern hits).
 export class SceneCoordinator {
   private injected: string | null = null;
   private refused: string | null | undefined = undefined;
+  private flight: SceneFlight | null = null;
 
   constructor(private readonly deps: SceneCoordinatorDeps) {}
 
@@ -97,13 +104,9 @@ export class SceneCoordinator {
     // swap that happens to land on the same message index — which is the v2.1 plan 08 shape, and
     // it was reachable here.
     const run = beginRun(this.deps.ownership, { from: input.window.length ? context.messageId - input.window.length + 1 : context.messageId, to: context.messageId });
-    const result = await judge.ask("scene", request, {
-      timeoutMs: SCENE_TIMEOUT_MS,
-      summarize: (answers): Record<string, number> => {
-        const p = answers ? readScene(answers, input).sceneBreak?.p : undefined;
-        return p === undefined ? {} : { break: p };
-      },
-    });
+    const key = JSON.stringify(request);
+    const joined = this.flight?.key === key && this.flight.run.stillOwns() ? this.flight : null;
+    const result = await (joined ?? this.ask(judge, request, input, key, run)).result;
     // C2: a read that does not answer used to return here silently, leaving the previous record
     // live and injected. A miss is recorded on the record itself, so the tracker can say it is no
     // longer confirmed instead of presenting a stale place as current.
@@ -113,7 +116,7 @@ export class SceneCoordinator {
       // whichever scene record is current now — so a dead backend in one chat marked another
       // chat's tracker unconfirmed, and two such misses withheld a scene that was never asked
       // about. Cleanup belongs to the epoch that owns it.
-      if (run.stillOwns()) this.ageStoredScene();
+      if (!joined && run.stillOwns()) this.ageStoredScene();
       return null;
     }
     if (!run.stillOwns()) return null;
@@ -126,6 +129,24 @@ export class SceneCoordinator {
     this.deps.setScene(record);
     this.sync();
     return record;
+  }
+
+  private ask(judge: JudgeRuntime, request: JudgeRequest, input: SceneReadInput, key: string, run: RunGuard): SceneFlight {
+    const flight: SceneFlight = {
+      key,
+      run,
+      result: judge.ask("scene", request, {
+        timeoutMs: SCENE_TIMEOUT_MS,
+        summarize: (answers): Record<string, number> => {
+          const p = answers ? readScene(answers, input).sceneBreak?.p : undefined;
+          return p === undefined ? {} : { break: p };
+        },
+      }),
+    };
+    this.flight = flight;
+    const land = () => { if (this.flight === flight) this.flight = null; };
+    flight.result.then(land, land);
+    return flight;
   }
 
   /** Record one failed read against the stored scene. Keeps the facts; marks them unconfirmed. */

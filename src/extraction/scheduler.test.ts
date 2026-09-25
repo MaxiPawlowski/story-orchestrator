@@ -110,6 +110,24 @@ describe("a queued read reads the chat as it is when it runs", () => {
     expect(window.messages).toHaveLength(8);
     mockChat.length = 0;
   });
+
+  it("a triggered read that starts after later boundaries reads up to the newest committed message", async () => {
+    mockChat.length = 0;
+    for (let index = 0; index < 6; index += 1) mockChat.push({ name: index % 2 ? "Tobias" : "Max", mes: `m${index}` });
+    let lastMessageId = 1;
+    let release = () => {};
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    const read = runSharedRead as jest.Mock;
+    read.mockClear();
+    const scheduler = new ExtractionScheduler({ ...makeHost(), getEngineState: () => ({ lastMessageId }) as unknown as EngineState });
+    scheduler.schedule({ priority: 0, reason: "scene:cast", run: async () => { await gate; } });
+    scheduler.schedule({ priority: 0, reason: "cue:guild-hall->road" });
+    lastMessageId = 5;
+    release();
+    await flush();
+    expect(read.mock.calls[0][0].window).toMatchObject({ from: 0, to: 5 });
+    mockChat.length = 0;
+  });
 });
 
 describe("ExtractionScheduler pressure rules", () => {
