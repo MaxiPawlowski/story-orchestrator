@@ -724,6 +724,19 @@ const NextTurnPanel = ({ snapshot, manager, onOpenOwner }: { snapshot: RuntimeSn
   );
 };
 
+const SamplerOverlayRow = ({ overlay }: { overlay: RuntimeSnapshot["samplerOverlay"] }) => {
+  if (!overlay) return null;
+  const values = Object.entries(overlay.values).map(([key, value]) => `${key} ${value}`).join(", ");
+  return (
+    <div data-so="next-turn-overlay" className="flex flex-col gap-0.5">
+      <div className="opacity-100">Sampler overlay “{overlay.name}”: {values}</div>
+      <div className="opacity-60">This checkpoint's replies only; the selected preset is untouched. {overlay.applied ? `Applied to ${overlay.applied} request(s).` : "Not applied yet."}</div>
+      {overlay.lastSkipped.length > 0 && <div className="text-yellow-300">Not in the last request: {overlay.lastSkipped.join(", ")}</div>}
+      {overlay.unknown.length > 0 && <div className="opacity-60">Not sent (not a per-request sampler): {overlay.unknown.join(", ")}</div>}
+    </div>
+  );
+};
+
 const PayloadTab = ({ snapshot, manager, onOpenOwner }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; onOpenOwner: (tab: NextTurnOwnerTab) => void }) => {
   const captures = snapshot.payloadCaptures;
   return (
@@ -731,6 +744,7 @@ const PayloadTab = ({ snapshot, manager, onOpenOwner }: { snapshot: RuntimeSnaps
       <LoreForced record={snapshot.loreForced} />
       <LoreFired evidence={snapshot.loreEvidence} />
       <ScanGateTable view={snapshot.scanGate} evidence={snapshot.loreEvidence} />
+      <SamplerOverlayRow overlay={snapshot.samplerOverlay} />
       <NextTurnPanel snapshot={snapshot} manager={manager} onOpenOwner={onOpenOwner} />
       <div className="font-medium opacity-100">Injected prompt payload</div>
       {captures.length === 0 ? (

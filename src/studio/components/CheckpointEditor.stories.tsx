@@ -72,6 +72,17 @@ export const ToggleBackground: Story = {
   },
 };
 
+// v2.4 plan 06 (X20): the preset is an overlay on this checkpoint's replies, and the editor says so.
+export const PresetSaysOverlay: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByLabelText("Preset"));
+    await userEvent.type(canvas.getByLabelText("Preset name"), "Artemis Cool");
+    await expect(useDraftStore.getState().draft.checkpoints[0].effects?.preset).toBe("Artemis Cool");
+    await expect(canvas.getByText(/this checkpoint's replies only; your selected preset is untouched/)).toBeInTheDocument();
+  },
+};
+
 export const AuthorNoteKeepsRole: Story = {
   beforeEach: () => {
     const story = sampleStory();

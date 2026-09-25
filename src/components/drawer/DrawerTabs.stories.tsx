@@ -625,6 +625,42 @@ export const PayloadScanGate: Story = {
   },
 };
 
+export const PayloadSamplerOverlay: Story = {
+  render: () => {
+    const snapshot = sceneSnapshot(true) as unknown as Record<string, unknown>;
+    snapshot.samplerOverlay = { chatId: "chat-1", checkpointId: "cp1", name: "Artemis Cool", api: "chat", values: { temperature: 0.55, top_p: 0.9 }, unknown: ["openai_max_tokens"], applied: 2, lastApplied: ["temperature"], lastSkipped: ["top_p"] };
+    return (
+      <div style={{ maxWidth: 360 }}>
+        <DrawerTabs snapshot={snapshot as unknown as RuntimeSnapshot} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
+    const row = within(await canvas.findByText(/Sampler overlay/).then((node) => node.closest("[data-so=\"next-turn-overlay\"]") as HTMLElement));
+    await expect(row.getByText(/temperature 0.55, top_p 0.9/)).toBeInTheDocument();
+    await expect(row.getByText(/the selected preset is untouched\. Applied to 2 request\(s\)\./)).toBeInTheDocument();
+    await expect(row.getByText("Not in the last request: top_p")).toBeInTheDocument();
+    await expect(row.getByText(/openai_max_tokens/)).toBeInTheDocument();
+  },
+};
+
+export const PlayerNeverSeesSamplerOverlay: Story = {
+  render: () => {
+    const snapshot = sceneSnapshot(false) as unknown as Record<string, unknown>;
+    snapshot.samplerOverlay = { chatId: "chat-1", checkpointId: "cp1", name: "Artemis Cool", api: "chat", values: { temperature: 0.55 }, unknown: [], applied: 0, lastApplied: [], lastSkipped: [] };
+    return (
+      <div style={{ maxWidth: 360 }}>
+        <DrawerTabs snapshot={snapshot as unknown as RuntimeSnapshot} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).queryByText(/Sampler overlay/)).toBeNull();
+  },
+};
+
 export const ScanGateHiddenWhenFileMode: Story = {
   render: () => {
     const snapshot = sceneSnapshot(true) as unknown as Record<string, unknown>;
