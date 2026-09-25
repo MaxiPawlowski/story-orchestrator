@@ -375,7 +375,7 @@ consecutive, and `--strict`. It adds:
 | 07 part 1 | built + integrated 2026-09-25; live items green (meter ×2, J8.5 on ×2/off ×1, calibrate `resolved` 0.9765); token guard built from the limit probe (plugin copy not installed: needs an ST restart, user's call); contradiction fix red on `9b2f890a5987`, then union bands GREEN live on `9a28415066c3` (J8.5 on ×2, off ×1); plugin copy installed with the user's permission and its token guard verified live; `07-judge.md` §Part 1 live gates, §Contradiction fix live, union bands, §Plugin copy installed |
 | 07 part 2 | built + integrated 2026-09-25; T22 `agencyCheck` and T23 `houseRules` BUILT on Phase A (floors met, both keys off by default), combined request kept; live J8 on `d7008c958844`; `07-judge.md` §Part 2 live |
 | 08 | built + integrated 2026-09-25; live gates green ×2 on `48816ebec4fc` (5 fixtures incl. solo preview, J3, J5); T18 calibration on `56f299a98ea5` against floors predeclared in `7b2230a`: director 22/26 meets (routing buys nothing over the shared profile), curator op shape 0.565 and authoring Spanish op shape 0.75 MISS (no recommendation for either role), synthesis validity 8/8 only; `08-author-observability.md` §Live gates |
-| 06 | built + integrated 2026-09-25; live gates running on lane 1 |
+| 06 | built + integrated 2026-09-25; live gates green ×2 on `56f299a98ea5` (objective, objective-off, overlay on Text and Chat Completion, curator); 1 live-found defect fixed (two curator passes at one boundary shared a record id); F5 curator `create` NOT BUILT (must-not-propose 0.879 < 1.00, floor kept); `06-steering-stagecraft.md` §Gate record |
 | 09 | written 2026-09-23, not started |
 
 ## Decisions (2026-09-23, made on evidence at the user's request)
