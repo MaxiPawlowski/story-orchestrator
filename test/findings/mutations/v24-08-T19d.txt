@@ -1,0 +1,7 @@
+v24-08-T19d mutations 2026-09-25 (each mutant applied alone, then reverted; npx jest <file> --runInBand)
+- a changed message reads as same [src/runtime/messageJump.ts] -> src/runtime/messageJump.test.ts: Tests:       1 failed, 5 passed, 6 total
+    x message jump target (v2.4 plan 08 T19d, D12) › warns when the cited message was rewritten since the boundary that recorded it, and still jumps
+- an unfingerprinted message is not best-effort [src/runtime/messageJump.ts] -> src/runtime/messageJump.test.ts: Tests:       1 failed, 5 passed, 6 total
+    x message jump target (v2.4 plan 08 T19d, D12) › labels a message no boundary fingerprinted as best-effort, never as changed
+- out of range jumps anyway [src/runtime/messageJump.ts] -> src/runtime/messageJump.test.ts: Tests:       1 failed, 5 passed, 6 total
+    x message jump target (v2.4 plan 08 T19d, D12) › refuses an id the chat no longer holds

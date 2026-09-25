@@ -1,0 +1,67 @@
+{
+  "_note": "v2.4 plan 08 live gate 'Preview = capture' (group half). Real generation. Run twice, consecutively: node scripts/debug/so-scenario.mts run test/scenarios/live-v24-08-preview-capture.json --sandbox --group 1759606632088 (or st-lanes batch --repeat 2 --strict). The preview is read straight before each send (after the off-path passes settle, and after the token counts finish): every own and foreign block the preview lists at a real position is present in the request ST posted (GENERATE_AFTER_DATA, the FIRST generation after the preview, i.e. the drafted member's), within one position/depth/role slot in ST's key order; a host-counted block's tokens equal getTokenCountAsync of the same string; M (the preview's budget) equals the interceptor's contextSize for that generation. A block that changed between the preview and the send is reported as that, not as missing. A conditional (filter) block may be absent. Private per-member blocks are J5's (target rows are skipped here).",
+  "steps": [
+    {
+      "eval": "const ctx = SillyTavern.getContext(); for (const key of Object.keys(globalThis).filter((name) => name.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; if (globalThis.__p08?.handler) ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__p08.handler); const NL = String.fromCharCode(10); const textOf = (data) => typeof data?.prompt === 'string' ? data.prompt : Array.isArray(data?.messages) ? data.messages.map((message) => typeof message?.content === 'string' ? message.content : JSON.stringify(message?.content ?? '')).join(NL) : JSON.stringify(data ?? null); const state = { captures: [], previews: [], results: [], mark: 0 }; state.handler = (data, dryRun) => { if (dryRun) return; const prompts = SillyTavern.getContext().extensionPrompts ?? {}; state.captures.push({ at: Date.now(), text: textOf(data), values: Object.fromEntries(Object.entries(prompts).map(([key, entry]) => [key, typeof entry?.value === 'string' ? entry.value : null])) }); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, state.handler); const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); state.preview = async (label) => { const rt = globalThis.storyOrchestratorRuntime; const deadline = Date.now() + 20000; while (rt.getSnapshot().nextTurnCost.counting > 0 && Date.now() < deadline) await sleep(250); const snapshot = rt.getSnapshot(); const prompts = SillyTavern.getContext().extensionPrompts ?? {}; const pick = (row, own) => ({ key: row.key, own, value: prompts[row.key]?.value ?? null, position: row.position ?? prompts[row.key]?.position ?? null, depth: row.depth, role: row.role, conditional: Boolean(row.conditional), target: row.target ?? null, tokens: row.tokens, tokenSource: row.tokenSource }); const rows = [...snapshot.nextTurn.map((row) => pick(row, true)), ...snapshot.nextTurnForeign.map((row) => pick(row, false))].filter((row) => typeof row.value === 'string' && row.value.trim() && row.position !== -1 && !row.target); const preview = { label, rows, budget: snapshot.nextTurnCost.budget, counting: snapshot.nextTurnCost.counting, chatId: SillyTavern.getContext().chatId }; state.previews.push(preview); state.mark = state.captures.length; return { label, own: rows.filter((row) => row.own).map((row) => row.key), foreign: rows.filter((row) => !row.own).map((row) => row.key), budget: preview.budget, counting: preview.counting }; }; state.check = async (label) => { const ctx = SillyTavern.getContext(); const preview = state.previews[state.previews.length - 1]; const deadline = Date.now() + 300000; while ((state.captures.length <= state.mark || document.body.dataset.generating) && Date.now() < deadline) await sleep(500); const capture = state.captures[state.mark]; if (!capture) throw new Error(`${label}: no generation was captured after the preview`); const fail = []; const lines = (value) => String(value).split(NL).map((line) => line.trim()).filter(Boolean); const locate = (value) => { const substituted = ctx.substituteParams(value); for (const candidate of [substituted, value]) { const wanted = lines(candidate); if (wanted.length && wanted.every((line) => capture.text.includes(line))) return capture.text.indexOf(wanted[0]); } return -1; }; const found = []; for (const row of preview.rows) { const at = locate(row.value); const now = capture.values[row.key]; if (at < 0 && row.conditional) { found.push({ key: row.key, at, skipped: 'conditional (filter)' }); continue; } if (at < 0) fail.push(now !== row.value ? `${row.key}: changed between the preview and the send` : `${row.key}: in the preview, not in the request ST posted`); found.push({ key: row.key, own: row.own, at }); } const groups = new Map(); for (const row of preview.rows) { const slot = `${row.position}|${row.depth}|${row.role}`; groups.set(slot, [...(groups.get(slot) ?? []), row]); } for (const [slot, rows] of groups) { const placed = rows.map((row) => found.find((entry) => entry.key === row.key)).filter((entry) => entry && entry.at >= 0); const sorted = [...placed].sort((a, b) => a.key.localeCompare(b.key)); for (let index = 1; index < sorted.length; index += 1) if (sorted[index].at < sorted[index - 1].at) fail.push(`${slot}: ${sorted[index].key} sits before ${sorted[index - 1].key}, not in ST's key order`); } const counts = []; for (const row of preview.rows.filter((entry) => entry.tokenSource === 'host')) { const host = await ctx.getTokenCountAsync(row.value); counts.push({ key: row.key, preview: row.tokens, host }); if (host !== row.tokens) fail.push(`${row.key}: preview says ${row.tokens} tokens, getTokenCountAsync says ${host}`); } const cost = globalThis.storyOrchestratorRuntime.getSnapshot().nextTurnCost; if (preview.budget === null) fail.push('the preview had no budget M'); else if (cost.lastGenerationBudget !== preview.budget) fail.push(`M: the preview's budget ${preview.budget} is not the interceptor's contextSize ${cost.lastGenerationBudget}`); const result = { label, blocks: found.length, counted: counts.length, estimated: preview.rows.filter((row) => row.tokenSource === 'estimate').map((row) => row.key), budget: preview.budget, lastGenerationBudget: cost.lastGenerationBudget, generationsAfterPreview: state.captures.length - state.mark, fail }; state.results.push(result); if (fail.length) throw new Error(`${label}: ${fail.join('; ')}`); return result; }; globalThis.__p08 = state; return 'recorder armed';"
+    },
+    {
+      "import_story": {
+        "file": "./live-v24-08.story.json"
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error('needs the sandbox group chat'); const snapshot = globalThis.storyOrchestratorRuntime.getSnapshot(); if (!snapshot.requirements.ready) throw new Error(`requirements not ready: ${JSON.stringify(snapshot.requirements)}`); return { group: ctx.groupId, chat: ctx.chatId };",
+      "log": true
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 3000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "return await globalThis.__p08.preview('group turn 1');",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I step up to the counter and ask what the posted job pays.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      },
+      "log": true
+    },
+    {
+      "eval": "return await globalThis.__p08.check('group turn 1');",
+      "log": true
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 3000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "return await globalThis.__p08.preview('group turn 2');",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I tell them we are ready to head out to the yard.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      },
+      "log": true
+    },
+    {
+      "eval": "return await globalThis.__p08.check('group turn 2');",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const state = globalThis.__p08; if (state?.handler) ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, state.handler); const results = state?.results ?? []; delete globalThis.__p08; return results;",
+      "log": true
+    }
+  ]
+}

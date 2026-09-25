@@ -1,0 +1,48 @@
+{
+  "_note": "v2.4 plan 08 R15 live gate. Run: node scripts/debug/so-scenario.mts run test/scenarios/live-v24-08-quality-macro.json --sandbox --group 1759606632088. {{story_quality_<key>}} resolves to the blackboard value or (unset) on this install's macro engine, reaches a REAL prompt (an Author's Note carrying the macros, read back from GENERATE_AFTER_DATA), follows a /cp set at the next boundary, and is unregistered when the chat's story changes (the macro then stays literal text).",
+  "steps": [
+    {
+      "eval": "const ctx = SillyTavern.getContext(); for (const key of Object.keys(globalThis).filter((name) => name.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; if (globalThis.__p08m?.handler) ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__p08m.handler); const NL = String.fromCharCode(10); const state = { sent: [] }; state.handler = (data, dryRun) => { if (dryRun) return; state.sent.push({ board: { ...(globalThis.storyOrchestratorRuntime.getSnapshot().blackboard ?? {}) }, text: typeof data?.prompt === 'string' ? data.prompt : (data?.messages ?? []).map((message) => String(message?.content ?? '')).join(NL) }); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, state.handler); globalThis.__p08m = state; return { macroEngine: ctx.powerUserSettings?.experimental_macro_engine ?? null };",
+      "log": true
+    },
+    {
+      "import_story": {
+        "file": "./live-v24-08.story.json"
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const board = globalThis.storyOrchestratorRuntime.getSnapshot().blackboard ?? {}; const expected = (key) => board[key] === undefined || board[key] === null ? '(unset)' : String(board[key]); const got = Object.fromEntries(['go', 'location', 'coins'].map((key) => [key, ctx.substituteParams(`{{story_quality_${key}}}`)])); const fail = Object.entries(got).filter(([key, value]) => value !== expected(key)).map(([key, value]) => `${key}: macro ${value}, blackboard ${expected(key)}`); if (fail.length) throw new Error(fail.join('; ')); return got;",
+      "log": true
+    },
+    {
+      "eval": "const field = document.getElementById('extension_floating_prompt'); if (!field) throw new Error('the Author note field #extension_floating_prompt is not on the page'); field.value = '[Story state: location={{story_quality_location}} coins={{story_quality_coins}}]'; field.dispatchEvent(new Event('input', { bubbles: true })); return SillyTavern.getContext().chatMetadata.note_prompt;",
+      "log": true
+    },
+    {
+      "slash": "/cp set location yard"
+    },
+    {
+      "send_generate": {
+        "text": "I look around. Where are we standing right now?",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const sent = globalThis.__p08m.sent[globalThis.__p08m.sent.length - 1]; if (!sent) throw new Error('no request captured'); const show = (value) => value === undefined || value === null ? '(unset)' : String(value); const want = `[Story state: location=${show(sent.board.location)} coins=${show(sent.board.coins)}]`; const at = Math.max(0, sent.text.indexOf('[Story state')); if (sent.text.includes('{{story_quality_')) throw new Error('the request carries an unresolved {{story_quality_*}} macro'); if (!sent.text.includes(want)) throw new Error(`the request ST posted does not carry ${want}: ${sent.text.slice(at, at + 80)}`); return want;",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const board = globalThis.storyOrchestratorRuntime.getSnapshot().blackboard ?? {}; if (board.location !== 'yard') throw new Error(`/cp set location yard did not land by the boundary: ${board.location}`); const value = ctx.substituteParams('{{story_quality_location}}'); if (value !== 'yard') throw new Error(`macro reads ${value} after the boundary applied yard`); return value;"
+    },
+    {
+      "import_story": {
+        "file": "./live-v24-01-t10.story.json"
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const kept = ctx.substituteParams('{{story_quality_go}}'); const gone = ctx.substituteParams('{{story_quality_coins}}'); const fail = []; if (gone !== '{{story_quality_coins}}') fail.push(`coins is not a quality of the new story, yet the macro resolved to ${gone}`); if (kept === '{{story_quality_go}}') fail.push('go is a quality of the new story, yet its macro did not register'); const state = globalThis.__p08m; ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, state.handler); delete globalThis.__p08m; if (fail.length) throw new Error(fail.join('; ')); return { kept, gone };",
+      "log": true
+    }
+  ]
+}

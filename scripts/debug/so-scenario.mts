@@ -15,7 +15,7 @@ import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { adoptNewSandboxChat, assertInSandbox, beginSandboxSession, deleteSandboxChats, openGroup, openMostRecentGroupChat, readActiveChat, readChatOnDisk, reopenSandboxChat } from './st-navigation.mts';
 import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, sendUserMessage, swipeMessage, waitForIdle } from './st-actions.mts';
 import { dumpCurrentChatState } from './so-state.mts';
-import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, branchContinue, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, getMemoryQueueState, memoryQueueAction, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest, pointerClick } from './so-ui.mts';
+import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, branchContinue, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, getMemoryQueueState, getMemoryFates, getNextTurnState, jumpToCitation, memoryQueueAction, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest, pointerClick } from './so-ui.mts';
 import { leakCount, listMarkedAssets, removeMarkedAssets } from './so-assets.mts';
 import { cleanupSoloChats, restoreActiveEntity, soloChat, withoutSoloChats } from './lib/soloSandbox.mts';
 import { applyExtSetting, cutCommand, emitGeneration, expectOverSteer, expectStateEquals, hostDelete, injectScript, recordState, restoreExtSettings } from './lib/interopVerbs.mts';
@@ -48,6 +48,8 @@ ui actions ({ui: {action, label?, note?}}):
   open-drawer, drawer-tab, open-settings, select-profile, open-studio, close-studio, studio-tab, studio-save, flag, screenshot,
   open-wizard, new-story-wizard, wizard-run ({stage?, message?}), wizard-answer ({answers?}), wizard-apply ({index?}), wizard-state,
   branch-continue ({timeoutMs?} — hit-tests and pointer-clicks #so-branch-continue in the drawer Overview, then waits for #so-branch-notice to go),
+  next-turn (the Payload tab's preview: tokens, cost, trim, foreign rows + the snapshot), memory-fates (fate badges vs snapshot),
+  jump ({selector?, index?} — clicks a message citation, reports whether that message rendered in view),
   stagecraft ({minOps?, timeoutMs?} — waits for that many review cards), curator-accept ({index?, text?, pick?: 'text-first'}), curator-reject ({index?, pick?})
 
 copilot actions ({copilot: {action, ...}}):
@@ -777,6 +779,9 @@ async function uiStep(page, spec) {
   if (action === 'memory-queue') return spec?.op ? memoryQueueAction(page, { action: spec.op, key: spec.key ?? null, side: spec.side ?? 0, index: spec.index ?? 0 }) : getMemoryQueueState(page);
   if (action === 'screenshot') return takeAnnotatedScreenshot(page, label ?? 'so-scenario');
   if (action === 'pipeline') return getPipelineState(page);
+  if (action === 'next-turn') return getNextTurnState(page);
+  if (action === 'memory-fates') return getMemoryFates(page);
+  if (action === 'jump') return jumpToCitation(page, { selector: spec?.selector ?? '[data-so="jump-to-message"]', index: spec?.index ?? 0 });
   // §H: a scripted `.click()` fires whether or not the element is on top, so a control can be
   // unreachable to a real pointer while every journey that drives it passes.
   if (action === 'hit-test') {

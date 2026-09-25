@@ -1,0 +1,8 @@
+v24-08-R15 mutations 2026-09-25 (each mutant applied alone, then reverted; npx jest <file> --runInBand)
+- no unregister on story swap [src/runtime/qualityMacros.ts] -> src/runtime/qualityMacros.test.ts: Tests:       1 failed, 4 passed, 5 total
+    x per-quality macros {{story_quality_<key>}} (v2.4 plan 08 R15) › unregisters the departed story's keys on a story swap, and does nothing when the keys did not change
+- unset renders empty [src/runtime/qualityMacros.ts] -> src/runtime/qualityMacros.test.ts: Tests:       2 failed, 3 passed, 5 total
+    x per-quality macros {{story_quality_<key>}} (v2.4 plan 08 R15) › registers a macro per key that reads the live blackboard at evaluation, never a copy
+    x per-quality macros {{story_quality_<key>}} (v2.4 plan 08 R15) › renders the blackboard value, and (unset) when the quality holds none
+- macros read something other than the blackboard values [src/runtime/qualityMacros.ts] -> src/runtime/qualityMacros.test.ts: Tests:       1 failed, 4 passed, 5 total
+    x per-quality macros {{story_quality_<key>}} (v2.4 plan 08 R15) › registers a macro per key that reads the live blackboard at evaluation, never a copy

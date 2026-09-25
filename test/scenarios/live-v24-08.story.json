@@ -1,0 +1,108 @@
+{
+  "format": 2,
+  "id": "live-v24-08",
+  "version": 1,
+  "title": "Live v2.4 08 - Author observability",
+  "description": "Plan 08 live fixture story: two checkpoints, a speaker-directed hall, three qualities of three types so the per-quality macro renders a bool, an int and an enum.",
+  "qualities": [
+    {
+      "key": "go",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the party agreed to set out?"
+    },
+    {
+      "key": "location",
+      "type": "enum",
+      "values": [
+        "hall",
+        "yard"
+      ],
+      "source": "extractor",
+      "rubric": "Where is the party right now?"
+    },
+    {
+      "key": "coins",
+      "type": "int",
+      "source": "extractor",
+      "rubric": "How many coins has Ponticius offered for the job?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "hall",
+      "name": "The Hall",
+      "objective": "Ponticius sizes up the party and names a price.",
+      "type": "anchor",
+      "start": true,
+      "talk_control": {
+        "speakers": [
+          {
+            "member": "Ponticius",
+            "weight": 3
+          },
+          {
+            "member": "Arin",
+            "weight": 1
+          }
+        ],
+        "lead": "Ponticius",
+        "no_repeat": true,
+        "allow_silence": false
+      }
+    },
+    {
+      "id": "yard",
+      "name": "The Yard",
+      "objective": "The party gathers in the yard to set out.",
+      "type": "anchor",
+      "talk_control": {
+        "speakers": [
+          {
+            "member": "Ponticius",
+            "weight": 3
+          },
+          {
+            "member": "Arin",
+            "weight": 1
+          }
+        ],
+        "lead": "Ponticius",
+        "no_repeat": true,
+        "allow_silence": false
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "from": "hall",
+      "to": "yard",
+      "priority": 1,
+      "gate": {
+        "q": "go",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": [
+    {
+      "id": "dm",
+      "name": "DM Narrator"
+    },
+    {
+      "id": "companion",
+      "name": "Arin"
+    },
+    {
+      "id": "guild_master",
+      "name": "Ponticius"
+    }
+  ],
+  "requirements": {
+    "members": [
+      "Arin",
+      "Ponticius"
+    ]
+  }
+}

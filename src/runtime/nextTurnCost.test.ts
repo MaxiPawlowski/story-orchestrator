@@ -88,4 +88,10 @@ describe("foreign blocks, read-only (v2.4 plan 08 T19b)", () => {
     const foreign = buildForeignRows([block("x", 1, "p"), block("y", 1, "q", { position: -1 })], counted({ p: { tokens: 7, source: "host" }, q: { tokens: 3, source: "host" } }), budget);
     expect(buildNextTurnCost([], foreign, budget, null).foreignTokens).toBe(7);
   });
+
+  it("gives a position NONE block no share of the prompt: it never reaches one", () => {
+    const [placed, none] = buildForeignRows([block("x", 1, "p"), block("y", 1, "q", { position: -1 })], counted({ p: { tokens: 7, source: "host" }, q: { tokens: 3, source: "host" } }), budget);
+    expect(placed.share).not.toBeNull();
+    expect(none).toMatchObject({ tokens: 3, share: null });
+  });
 });

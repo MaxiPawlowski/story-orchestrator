@@ -1,0 +1,74 @@
+{
+  "_note": "v2.4 plan 08 live gate: memory fates + message jump, in the author view, on a real played group chat. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/live-v24-08-fates-jump.json --sandbox --group 1759606632088. Real extraction at cadence 1 makes memory rows; after the passes settle, the Memory tab's fate badges must match the snapshot's fates one for one, every row fated injected must be in the injected memory text, and no quarantined row may read over-budget. Then the first message citation is clicked (ui jump) and the cited message must be rendered and in view in #chat. Author view is switched back off at the end and the player sweep must stay clean.",
+  "steps": [
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; for (const key of Object.keys(globalThis).filter((name) => name.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; rt.setExtractionSettings({ cadence: 1 }); return rt.getGlobalSettings().extraction.cadence;"
+    },
+    {
+      "import_story": {
+        "file": "./live-v24-08.story.json"
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error('needs the sandbox group chat'); const snapshot = globalThis.storyOrchestratorRuntime.getSnapshot(); if (!snapshot.requirements.ready) throw new Error(`requirements not ready: ${JSON.stringify(snapshot.requirements)}`); return { group: ctx.groupId, chat: ctx.chatId };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I slap three silver coins on the counter. Ponticius, the job on the board: who posted it?",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "Arin, you told me last night you once crossed the eastern pass alone. Is that true?",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "Fine. We take the job. Let's gather in the yard.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; if (!(rt.getSnapshot().memory?.entries ?? []).length) throw new Error('real extraction stored no memory rows; nothing to fate'); rt.setUiSettings({ authorView: true }); return rt.getSnapshot().ui.authorView;"
+    },
+    {
+      "ui": {
+        "action": "memory-fates"
+      },
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const snapshot = rt.getSnapshot(); const injection = snapshot.memoryInjection; if (!injection) throw new Error('no memory injection recorded yet'); const live = snapshot.memory?.entries ?? []; const fates = injection.fates ?? {}; const count = (values) => values.reduce((totals, value) => ({ ...totals, [value]: (totals[value] ?? 0) + 1 }), {}); const rendered = count(Array.from(document.querySelectorAll('#drawer-manager [data-so=\"memory-fate\"]')).map((badge) => badge.getAttribute('data-fate'))); const stored = count(Object.values(fates)); const fail = []; if (JSON.stringify(Object.entries(rendered).sort()) !== JSON.stringify(Object.entries(stored).sort())) fail.push(`badges ${JSON.stringify(rendered)} differ from the snapshot's fates ${JSON.stringify(stored)}`); const blocks = rt.getMemoryInjectionBlocks(); const text = Object.values(blocks ?? {}).join(String.fromCharCode(10)); for (const entry of live.filter((row) => fates[row.id] === 'injected')) if (!text.includes(entry.text.slice(0, 40))) fail.push(`${entry.id} is fated injected but its text is not in the memory blocks`); for (const entry of live.filter((row) => row.provenance && row.provenance.validity && row.provenance.validity !== 'live')) if (fates[entry.id] === 'over-budget') fail.push(`${entry.id} is quarantined yet fated over-budget`); const pinnedOverflow = Object.values(fates).filter((fate) => fate === 'pinned-overflow').length; if (fail.length) throw new Error(fail.join('; ')); return { fated: Object.keys(fates).length, rendered, trim: injection.trim, pinnedOverflow };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "jump",
+        "selector": "[data-so=\"jump-to-message\"]",
+        "index": 0
+      },
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: false }); return rt.getSnapshot().ui.authorView;"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    }
+  ]
+}

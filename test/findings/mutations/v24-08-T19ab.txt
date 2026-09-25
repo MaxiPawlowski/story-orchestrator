@@ -1,0 +1,21 @@
+v24-08-T19ab mutations 2026-09-25 (each mutant applied alone, then reverted; npx jest <file> --runInBand)
+- foreign rows dropped [src/runtime/nextTurn.ts] -> src/runtime/nextTurnCost.test.ts: Tests:       5 failed, 6 passed, 11 total
+    x foreign blocks, read-only (v2.4 plan 08 T19b) › gives a position NONE block no share of the prompt: it never reaches one
+    x foreign blocks, read-only (v2.4 plan 08 T19b) › labels position NONE as not injected, macro only
+    x foreign blocks, read-only (v2.4 plan 08 T19b) › lists another extension's block the story rows leave out, in ST's assembly order
+    x foreign blocks, read-only (v2.4 plan 08 T19b) › names a /inject block by its id, and flags a block ST may skip as conditional
+    x foreign blocks, read-only (v2.4 plan 08 T19b) › totals the foreign blocks apart from the story's own
+- share ignores the budget (tokens / context) [src/runtime/nextTurn.ts] -> src/runtime/nextTurnCost.test.ts: Tests:       1 failed, 10 passed, 11 total
+    x next-turn cost (v2.4 plan 08 T19a) › totals the story blocks as a share of the budget: share = sum of tokens / budget
+- unknown budget reads as 0 [src/runtime/nextTurn.ts] -> src/runtime/nextTurnCost.test.ts: Tests:       1 failed, 10 passed, 11 total
+    x next-turn cost (v2.4 plan 08 T19a) › renders an unknown budget as unknown, not as zero, and says why
+- position NONE unlabelled [src/runtime/nextTurn.ts] -> src/runtime/nextTurnCost.test.ts: Tests:       1 failed, 10 passed, 11 total
+    x foreign blocks, read-only (v2.4 plan 08 T19b) › labels position NONE as not injected, macro only
+- NONE block counted in the share [src/runtime/nextTurn.ts] -> src/runtime/nextTurnCost.test.ts: Tests:       1 failed, 10 passed, 11 total
+    x foreign blocks, read-only (v2.4 plan 08 T19b) › gives a position NONE block no share of the prompt: it never reaches one
+- counts while a generation is open [src/runtime/promptCost.ts] -> src/runtime/promptCost.test.ts: Tests:       1 failed, 8 passed, 9 total
+    x prompt cost cache (v2.4 plan 08 T19a) › waits out a generation instead of counting beside it
+- the interceptor requests counts on the reply path [src/runtime/index.ts] -> src/runtime/promptCost.test.ts: Tests:       1 failed, 8 passed, 9 total
+    x prompt cost stays off the reply path (architecture) › the interceptor only records the budget it is handed
+- a failed count reads as host [src/runtime/promptCost.ts] -> src/runtime/promptCost.test.ts: Tests:       1 failed, 8 passed, 9 total
+    x prompt cost cache (v2.4 plan 08 T19a) › falls back to the chars/4 estimate when the tokenizer fails, and says it is an estimate
