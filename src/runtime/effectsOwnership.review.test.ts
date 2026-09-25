@@ -6,7 +6,7 @@
 //   - World Info entry flags live in shared lorebook FILES, which is why checkpoint world info had
 //     to be rebuilt from the chat's path in the first place (2026-09-19) — toggling in place leaked
 //     across chats and stories.
-//   - The Author's Note and the preset are install state.
+//   - The Author's Note is install state; the preset (v2.4 plan 06) is an overlay keyed by the chat it was armed in.
 //   - `cast_changes` mutates the GROUP's `disabled_members`, which outlives the chat completely: a
 //     roster member disabled by one story's checkpoint stays disabled in the real group afterwards.
 //
@@ -15,6 +15,7 @@
 // applied to a different story's chat, with the cast change persisting on the shared group after
 // the chat is gone.
 
+import { samplerOverlay } from "./samplerOverlay";
 import { EffectsApplier } from "./effectsApplier";
 import { beginRun, mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "./runToken";
 import { control } from "../../test/findings/ledger";
@@ -37,11 +38,8 @@ jest.mock("@services/STAPI", () => ({
   applyBackground: async () => hostWrite("background"),
   applyCharacterAN: async () => hostWrite("authorNote"),
   clearCharacterAN: async () => hostWrite("authorNote"),
-  applyTextGenPresetRuntime: () => hostWrite("preset"),
-  applyPreset: () => { hostWrite("preset"); return { ok: true, name: "P" }; },
-  presetBackend: () => "textgenerationwebui",
-  readAppliedPreset: () => null,
-  findTextGenPreset: () => null,
+  samplerApi: () => "textgen",
+  readSamplerPreset: () => null,
   disableWIEntry: async () => hostWrite("worldInfo"),
   enableWIEntry: async () => hostWrite("worldInfo"),
   lorebookExists: async () => true,
@@ -87,8 +85,7 @@ const checkpoint = {
   name: "The Gate",
   effects: {
     author_note: { text: "at the gate" },
-    // An object preset resolves without `findTextGenPreset` (a string names an installed preset),
-    // so this effect actually reaches the host here.
+    // An object preset carries its own samplers, so the overlay is armed without a preset lookup.
     preset: { name: "P", settings: { temp: 0.8 } },
     // TWO members: one member is one await, and the per-member check can only be pinned by a
     // change that has a second write left to skip (2026-09-22).
@@ -100,9 +97,13 @@ const checkpoint = {
 const snapshot = {} as never;
 const casts = () => hostWrites.filter((name) => name === "castChanges").length;
 
+const armOverlay = samplerOverlay.set.bind(samplerOverlay);
+
 beforeEach(() => {
   hostWrites.length = 0;
   hostGate.onWrite = null;
+  samplerOverlay.clear();
+  jest.spyOn(samplerOverlay, "set").mockImplementation((spec) => { armOverlay(spec); hostWrite("preset"); });
 });
 
 control("a checkpoint applied in its own chat stages everything and marks itself applied", async () => {

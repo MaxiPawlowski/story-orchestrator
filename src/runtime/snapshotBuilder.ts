@@ -12,6 +12,7 @@ import { blobMismatch, loadPersistedRuntime, unreadableNotice } from "./persiste
 import { findStoryRecord, listStoryRecords } from "./storyLibrary";
 import { orphanedLorebooks } from "./mirrorReaper";
 import { loreEvidenceView } from "./worldInfoEvidence";
+import { samplerOverlay } from "./samplerOverlay";
 import { scanGateView } from "./worldInfoMode";
 import { buildNextTurnPreview } from "./nextTurn";
 import { readChatIdentity } from "./chatIdentity";
@@ -151,6 +152,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     judgeMeter: judgeMeterView(extras.judge),
     loreEvidence: loreEvidenceView(story, extras.memory.wiBook?.name ?? null),
     scanGate: scanGateView(),
+    samplerOverlay: samplerOverlay.view(),
     stagecraftScope: curatorLorebooks(story),
     pendingDeltas,
     convergence: buildConvergenceReadout(story, state),

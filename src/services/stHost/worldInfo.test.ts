@@ -94,7 +94,7 @@ jest.mock("./slashCommands", () => ({
   executeSlashCommands: (command: string) => executeSlashCommands(command),
 }));
 
-import { bindChatLorebook, createLorebook, deleteLorebook, disableWIEntry, ensureLorebook, listSelectedLorebooks, loadLorebook, lorebookExists, unbindChatLorebook, upsertWIEntry } from "./worldInfo";
+import { bindChatLorebook, createLorebook, deleteLorebook, disableWIEntry, ensureLorebook, listSelectedLorebooks, loadLorebook, lorebookExists, unbindChatLorebook, updateWIEntryByUid, upsertWIEntry } from "./worldInfo";
 
 const putOnDisk = (name: string, entries: Entry[] = []) => st.disk.set(name, { entries: Object.fromEntries(entries.map((entry) => [entry.uid, entry])) });
 const entry = (uid: number, comment: string, content = "text"): Entry => ({ uid, comment, content, key: [], disable: false });
@@ -375,5 +375,37 @@ describe("unbindChatLorebook (v2.4 plan 02 §5)", () => {
     st.chatMetadata.world_info = "Mirror";
     await expect(unbindChatLorebook("Mirror")).resolves.toMatchObject({ ok: false });
     expect(st.chatMetadata.world_info).toBe("Mirror");
+  });
+});
+
+describe("updateWIEntryByUid (v2.4 plan 06 T17.2)", () => {
+  beforeEach(() => {
+    putOnDisk("Story Lore", [entry(3, "The bridge", "The bridge stands."), { ...entry(5, "The ferry", "Gone."), disable: true }]);
+    st.worldNames = ["Story Lore"];
+  });
+
+  it("writes content by uid, keeps the entry's own flag, and confirms from the server", async () => {
+    await expect(updateWIEntryByUid({ lorebookFileId: "Story Lore", uid: 5 }, { content: "Back." })).resolves.toEqual({ ok: true, confirmed: true });
+    expect(st.disk.get("Story Lore")?.entries[5]).toMatchObject({ comment: "The ferry", content: "Back.", disable: true });
+  });
+
+  it("flips a flag by uid without touching the text", async () => {
+    await expect(updateWIEntryByUid({ lorebookFileId: "Story Lore", uid: 3 }, { disabled: true })).resolves.toMatchObject({ ok: true });
+    expect(st.disk.get("Story Lore")?.entries[3]).toMatchObject({ content: "The bridge stands.", disable: true });
+  });
+
+  it("never creates: a missing uid is a refusal and the book is not saved", async () => {
+    await expect(updateWIEntryByUid({ lorebookFileId: "Story Lore", uid: 9 }, { content: "New." })).resolves.toMatchObject({ ok: false });
+    expect(Object.keys(st.disk.get("Story Lore")?.entries ?? {})).toEqual(["3", "5"]);
+    expect(saveWorldInfo).not.toHaveBeenCalled();
+  });
+
+  it("refuses a book that is not listed", async () => {
+    await expect(updateWIEntryByUid({ lorebookFileId: "Missing", uid: 3 }, { content: "x" })).resolves.toMatchObject({ ok: false });
+  });
+
+  it("reports a save the server lost", async () => {
+    server.lose = true;
+    await expect(updateWIEntryByUid({ lorebookFileId: "Story Lore", uid: 3 }, { content: "Lost." })).resolves.toMatchObject({ ok: false });
   });
 });

@@ -187,7 +187,7 @@
     },
     "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.applyAccepted": {
       "status": "checked",
-      "note": "v2.3 plan 03: these ops reach a real lorebook FILE shared by every chat using the book, so a boundary commit outliving its chat edits a file another story reads. The token is minted before readScope and checked inside the loop before each writeOp and again before the proposal patch."
+      "note": "v2.3 plan 03: these ops reach a real lorebook FILE shared by every chat using the book, so a boundary commit outliving its chat edits a file another story reads. The token is minted first (the batch readScope before the loop was removed in v2.4 plan 06: each op reads its own entry by uid) and checked inside the loop before each writeOp and again before the proposal patch."
     },
     "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.decideProposal": {
       "status": "delegate",
@@ -227,7 +227,7 @@
     },
     "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.writeOp": {
       "status": "partial",
-      "note": "PARTIAL, and deliberately so: its second host write (disableWIEntry) restores the author own switched-off flag after upsertWIEntry re-enabled the entry, so completing the pair is correct whichever world is current — abandoning it would leave the author entry enabled. Its caller checks before every call, so a lapse prevents the pair from starting. Any new caller must check the same way."
+      "note": "PARTIAL: v2.4 plan 06 T17.2 made it ONE host write, a uid-addressed updateWIEntryByUid that carries the entry's own flag (the old upsert + re-disable pair is gone, and so is the create-on-miss path). Its awaits before that write are the write-edge read and the write-ahead save; its caller checks the token before every call, so a lapse prevents the write from starting. Any new caller must check the same way."
     },
     "src/runtime/effectHost.ts#restoreEffectTarget": {
       "status": "partial",

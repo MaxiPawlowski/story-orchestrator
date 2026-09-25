@@ -5,17 +5,29 @@ export const CURATOR_MAX_OPS = 4;
 export const CURATOR_MAX_TEXT = 600;
 export const CURATOR_PROPOSAL_LIMIT = 5;
 export const PATCH_ANCHOR_SEPARATOR = "||";
+export const CURATOR_SHOWN_CONTENT = 400;
+export const FUZZY_ANCHOR_THRESHOLD = 0.8;
+
+export const collapseContent = (content: string) => content.replace(/\s+/g, " ").trim();
+
+export const contentShownInPart = (content: string) => collapseContent(content).length > CURATOR_SHOWN_CONTENT;
 
 export const STAGECRAFT_ACCEPT_MODES = ["off", "review", "auto"] as const;
 export type StagecraftAcceptMode = (typeof STAGECRAFT_ACCEPT_MODES)[number];
 
+export interface WiCuratorTarget {
+  lorebook: string;
+  comment: string;
+  uid?: number;
+}
+
 export type WiCuratorOp =
-  | { kind: "enable"; lorebook: string; comment: string }
-  | { kind: "disable"; lorebook: string; comment: string }
-  | { kind: "rewrite"; lorebook: string; comment: string; text: string }
+  | (WiCuratorTarget & { kind: "enable" })
+  | (WiCuratorTarget & { kind: "disable" })
+  | (WiCuratorTarget & { kind: "rewrite"; text: string })
   // ST-Copilot's small-model-safe partial edit: the anchor names the first and last words of the
   // span to replace ("first words || last words"), so the model never restates a whole entry.
-  | { kind: "patch"; lorebook: string; comment: string; anchor: string; replace: string };
+  | (WiCuratorTarget & { kind: "patch"; anchor: string; replace: string });
 
 /**
  * v2.3 plan 05. One broken fact, with the record it came from — so the author's review card can say
@@ -51,6 +63,7 @@ export interface CuratorEntryView {
   keys: string[];
   content: string;
   disabled: boolean;
+  uid?: number;
 }
 
 export interface CuratorScope {
@@ -60,6 +73,7 @@ export interface CuratorScope {
   canon: string;
   openArcs: string[];
   entries: CuratorEntryView[];
+  declined?: WiCuratorOp[];
 }
 
 export interface CuratorProposal {
@@ -84,6 +98,7 @@ export interface CuratorOpRecord {
   /** Write-ahead marker (v2.3 plan 04/06). Persisted before the host call; hydrate can reconcile a
    *  crash after the file changed but before the applied record was saved. */
   writeAhead?: { status: "pending"; at: string };
+  fuzzy?: { anchor: string; span: string; score: number };
 }
 
 // A pass that never ran and a pass that found nothing are different answers, and a caller (or an

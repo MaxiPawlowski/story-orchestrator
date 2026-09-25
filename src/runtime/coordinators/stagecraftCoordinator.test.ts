@@ -1,6 +1,6 @@
 import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { callExtractionModel } from "@extraction/client";
-import { clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, loadLorebook, readWIEntry, readWIEntryAt, restoreWIEntryAt, setStoryExtensionPrompt, upsertWIEntry } from "@services/STAPI";
+import { clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, loadLorebook, readWIEntry, readWIEntryAt, restoreWIEntryAt, setStoryExtensionPrompt, updateWIEntryByUid, upsertWIEntry } from "@services/STAPI";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
 import { createStagecraft, sanitizeStagecraft } from "../extras";
 import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
@@ -20,6 +20,7 @@ jest.mock("@services/STAPI", () => ({
   readWIEntry: jest.fn(),
   readWIEntryAt: jest.fn(),
   restoreWIEntryAt: jest.fn(),
+  updateWIEntryByUid: jest.fn(),
   upsertWIEntry: jest.fn(async () => "updated"),
   enableWIEntry: jest.fn(async () => ({ ok: true, changed: true })),
   disableWIEntry: jest.fn(async () => ({ ok: true, changed: true })),
@@ -122,6 +123,14 @@ describe("StagecraftCoordinator", () => {
       entry.disable = image.disabled;
       return { ok: true, confirmed: true };
     });
+    (updateWIEntryByUid as jest.Mock).mockImplementation(async ({ uid }: { uid: number }, patch: { content?: string; disabled?: boolean }) => {
+      const entry = byUid(uid);
+      if (!entry) return { ok: false, reason: `entry ${uid} is no longer in "Story Lore"` };
+      if (patch.content !== undefined) entry.content = patch.content;
+      if (patch.disabled !== undefined) entry.disable = patch.disabled;
+      return { ok: true, confirmed: true };
+    });
+    (updateWIEntryByUid as jest.Mock).mockClear();
     (disableWIEntry as jest.Mock).mockClear();
     (callExtractionModel as jest.Mock).mockClear();
   });
@@ -174,7 +183,8 @@ describe("StagecraftCoordinator", () => {
     expect(await coordinator.applyAccepted()).toBe(0);
     await coordinator.setOpDecision(record!.id, 0, "accepted");
     expect(await coordinator.applyAccepted()).toBe(1);
-    expect(upsertWIEntry).toHaveBeenCalledWith("Story Lore", "The bridge", "The bridge stands, its ropes cut.", ["bridge"]);
+    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, { content: "The bridge stands, its ropes cut.", disabled: false });
+    expect(upsertWIEntry).not.toHaveBeenCalled();
     expect(read().proposals[0].ops[0].status).toBe("applied");
     expect(journal.some((entry) => entry.includes("applied 1 change(s)"))).toBe(true);
   });
@@ -185,25 +195,100 @@ describe("StagecraftCoordinator", () => {
     const { record } = await coordinator.runCuratorPass();
     expect(record?.ops[0].status).toBe("accepted");
     expect(await coordinator.applyAccepted()).toBe(1);
-    expect(disableWIEntry).toHaveBeenCalledWith("Story Lore", "The bridge");
+    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, { content: "The bridge stands, its ropes new and taut.", disabled: true });
   });
 
   it("fails a switch whose entry or book is gone by the time the boundary writes it", async () => {
     const { coordinator, read } = harness({ settings: { acceptMode: "auto" } });
     respond("[disable] The bridge");
     await coordinator.runCuratorPass();
-    (disableWIEntry as jest.Mock).mockResolvedValueOnce({ ok: false, reason: '"The bridge" is not in "Story Lore"' });
+    (updateWIEntryByUid as jest.Mock).mockResolvedValueOnce({ ok: false, reason: 'entry 1 is no longer in "Story Lore"' });
     expect(await coordinator.applyAccepted()).toBe(0);
-    expect(read().proposals[0].ops[0]).toMatchObject({ status: "failed", message: "\"The bridge\" is not in \"Story Lore\"" });
+    expect(read().proposals[0].ops[0]).toMatchObject({ status: "failed", message: 'entry 1 is no longer in "Story Lore"' });
+  });
+
+  it("T17.2: an entry deleted before the boundary fails its op and is never re-created", async () => {
+    const { coordinator, read } = harness({ settings: { acceptMode: "auto" } });
+    respond("[rewrite] #1 || The bridge is gone.");
+    await coordinator.runCuratorPass();
+    delete (book.current.entries as Record<number, unknown>)[1];
+    expect(await coordinator.applyAccepted()).toBe(0);
+    expect(read().proposals[0].ops[0]).toMatchObject({ status: "failed", message: '"The bridge" is no longer in Story Lore' });
+    expect(upsertWIEntry).not.toHaveBeenCalled();
+    expect(updateWIEntryByUid).not.toHaveBeenCalled();
+  });
+
+  it("T17.2: an entry renamed into a checkpoint-gated title is refused at the write edge", async () => {
+    const { coordinator, read } = harness({ story: gatedStory(), settings: { acceptMode: "auto" } });
+    respond("[rewrite] The bridge || The bridge is gone.");
+    await coordinator.runCuratorPass();
+    book.current.entries[1].comment = "The ferryman";
+    expect(await coordinator.applyAccepted()).toBe(0);
+    expect(read().proposals[0].ops[0].message).toBe('"The bridge" is now "The ferryman", which the curator may not write');
+    expect(updateWIEntryByUid).not.toHaveBeenCalled();
+  });
+
+  it("T17.2: a renamed entry is still written by its uid when the new title is writable", async () => {
+    const { coordinator } = harness({ settings: { acceptMode: "auto" } });
+    respond("[rewrite] The bridge || The bridge is gone.");
+    await coordinator.runCuratorPass();
+    book.current.entries[1].comment = "The old bridge";
+    expect(await coordinator.applyAccepted()).toBe(1);
+    expect(book.current.entries[1].content).toBe("The bridge is gone.");
   });
 
   it("applies the author's edited text, not the model's", async () => {
     const { coordinator } = harness();
     respond("[rewrite] The bridge || The bridge is gone.");
     const { record } = await coordinator.runCuratorPass();
-    await coordinator.setOpDecision(record!.id, 0, "accepted", { kind: "rewrite", lorebook: "Story Lore", comment: "The bridge", text: "The bridge is rubble." });
+    await coordinator.setOpDecision(record!.id, 0, "accepted", { kind: "rewrite", lorebook: "Story Lore", comment: "The bridge", text: "The bridge is rubble.", uid: 1 });
     await coordinator.applyAccepted();
-    expect(upsertWIEntry).toHaveBeenCalledWith("Story Lore", "The bridge", "The bridge is rubble.", ["bridge"]);
+    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, { content: "The bridge is rubble.", disabled: false });
+  });
+
+  it("T17.3: an op the author declined at this checkpoint is not proposed again, and the prompt says so", async () => {
+    const state = engineState(10, 20);
+    const { coordinator, read } = harness({ state });
+    respond("[rewrite] The bridge || The bridge is gone.");
+    const first = await coordinator.runCuratorPass();
+    await coordinator.setOpDecision(first.record!.id, 0, "rejected");
+    Object.assign(state, { boundary: 14, lastMessageId: 28 });
+    respond("[rewrite] #1 || The bridge is gone.");
+    const second = await coordinator.runCuratorPass();
+    expect(read().lastPass?.prompt).toContain("- [rewrite] The bridge");
+    expect(second.record?.ops ?? []).toEqual([]);
+    expect(read().lastPass?.dropped).toEqual(['rewrite: "The bridge" was declined earlier']);
+  });
+
+  it("T17.3: a decline from an earlier visit to this checkpoint does not bind the next visit", async () => {
+    const state = engineState(10, 20);
+    const { coordinator, read } = harness({ state });
+    respond("[rewrite] The bridge || The bridge is gone.");
+    const first = await coordinator.runCuratorPass();
+    await coordinator.setOpDecision(first.record!.id, 0, "rejected");
+    Object.assign(state, { boundary: 30, lastMessageId: 60, checkpointStartedBoundary: 25 });
+    respond("[rewrite] #1 || The bridge is gone.");
+    const second = await coordinator.runCuratorPass();
+    expect(read().lastPass?.prompt).not.toContain("THE AUTHOR DECLINED");
+    expect(second.record?.ops.map((entry) => entry.op.kind)).toEqual(["rewrite"]);
+  });
+
+  it("T17.5: accepting a near-match patch writes the exact span it showed", async () => {
+    const { coordinator } = harness();
+    respond("[patch] The bridge || bridge stand its ropes || new and taut || bridge is ash.");
+    const { record } = await coordinator.runCuratorPass();
+    expect(record?.ops[0].fuzzy?.span).toBe("bridge stands, its ropes new and taut");
+    await coordinator.setOpDecision(record!.id, 0, "accepted");
+    expect(await coordinator.applyAccepted()).toBe(1);
+    expect(book.current.entries[1].content).toBe("The bridge is ash.");
+  });
+
+  it("T17.5: auto mode never takes a near match", async () => {
+    const { coordinator, read } = harness({ settings: { acceptMode: "auto" } });
+    respond("[patch] The bridge || bridge stand its ropes || new and taut || bridge is ash.");
+    expect((await coordinator.runCuratorPass()).record?.ops ?? []).toEqual([]);
+    expect(read().lastPass?.dropped[0]).toContain("is not in this entry");
+    expect(await coordinator.applyAccepted()).toBe(0);
   });
 
   it("a rejected change is never written", async () => {
@@ -236,22 +321,20 @@ describe("StagecraftCoordinator", () => {
     respond("[rewrite] The ferryman || The ferryman is back.");
     await coordinator.runCuratorPass();
     await coordinator.applyAccepted();
-    expect(upsertWIEntry).toHaveBeenCalledWith("Story Lore", "The ferryman", "The ferryman is back.", ["ferryman"]);
-    // The re-disable targets the entry this op wrote. The recovered revision asserted the other
-    // entry name here, which its own fixture cannot satisfy (see plan 04's Gate record).
-    expect(disableWIEntry).toHaveBeenCalledWith("Story Lore", "The ferryman");
+    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 2 }, { content: "The ferryman is back.", disabled: true });
+    expect(book.current.entries[2]).toMatchObject({ content: "The ferryman is back.", disable: true });
+    expect(disableWIEntry).not.toHaveBeenCalled();
   });
 
-  // V17: the re-disable's answer was discarded, so an entry the author had switched off could come
-  // back on while the op said it applied.
-  it("fails a rewrite whose entry could not be kept switched off, and says so", async () => {
+  // V17: a refused write must never read as applied. The rewrite is now one uid-addressed update that
+  // carries the author's own flag, so there is no second (re-disable) write that could be lost.
+  it("fails a rewrite the host refused, and says so", async () => {
     const { coordinator, read } = harness({ settings: { acceptMode: "auto" } });
     respond("[rewrite] The ferryman || The ferryman is back.");
     await coordinator.runCuratorPass();
-    (disableWIEntry as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "the host refused" });
+    (updateWIEntryByUid as jest.Mock).mockResolvedValueOnce({ ok: false, reason: "the host refused" });
     await coordinator.applyAccepted();
-    expect(read().proposals[0].ops[0]).toMatchObject({ status: "failed" });
-    expect(read().proposals[0].ops[0].message).toContain("could not keep it switched off");
+    expect(read().proposals[0].ops[0]).toMatchObject({ status: "failed", message: "the host refused" });
   });
 
   it("refuses a write outside the allowlist even if the record says otherwise", async () => {
@@ -337,26 +420,24 @@ describe("ownership: a curator batch belongs to one chat", () => {
       respond("[disable] The bridge");
       await coordinator.runCuratorPass();
       await coordinator.applyAccepted();
-      expect(disableWIEntry).toHaveBeenCalledWith("Story Lore", "The bridge");
+      expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, expect.objectContaining({ disabled: true }));
     });
 
     it("stops the ops behind it when the world changes mid-batch", async () => {
       const { coordinator, read, switchChat } = harness({ settings: { acceptMode: "auto" } });
-      respond("[rewrite] The bridge || First\n[disable] The ferryman");
+      respond("[rewrite] The bridge || First\n[enable] The ferryman");
       await coordinator.runCuratorPass();
       // The chat moves AFTER the first write lands: the second op belongs to a world that is gone.
-      let writes = 0;
-      (upsertWIEntry as jest.Mock).mockImplementation(async (_lorebook: string, comment: string, text: string) => {
-        const entry = entryOf(comment);
-        if (!entry) return "failed";
-        entry.content = text;
-        writes += 1;
-        if (writes === 1) switchChat();
-        return "updated";
+      (updateWIEntryByUid as jest.Mock).mockImplementation(async ({ uid }: { uid: number }, patch: { content?: string }) => {
+        const entry = (book.current.entries as Record<number, FakeBook["entries"][1]>)[uid];
+        if (!entry) return { ok: false, reason: "gone" };
+        if (patch.content !== undefined) entry.content = patch.content;
+        switchChat();
+        return { ok: true, confirmed: true };
       });
       const applied = await coordinator.applyAccepted();
       expect(applied).toBe(1);
-      expect(disableWIEntry).not.toHaveBeenCalled();
+      expect(updateWIEntryByUid).toHaveBeenCalledTimes(1);
       expect(read().proposals[0].ops.some((entry) => entry.status === "pending" || entry.status === "accepted")).toBe(true);
     });
 

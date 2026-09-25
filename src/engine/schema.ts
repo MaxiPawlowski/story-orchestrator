@@ -277,6 +277,7 @@ export interface StoryV2 {
   lore_select?: StoryLoreSelect;
   house_rules?: string[];
   scaffolding?: Record<string, Scaffolding>;
+  objective_block?: "auto" | "off";
 }
 
 export interface NormalizedTransition extends Transition {

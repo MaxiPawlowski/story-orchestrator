@@ -28,6 +28,7 @@ export interface TransitionRef {
 
 export type ProposalOp =
   | { kind: "setStoryField"; field: "title" | "description"; value: string }
+  | { kind: "setStoryField"; field: "objective_block"; value: "auto" | "off" }
   | { kind: "addQuality"; quality: Quality }
   | { kind: "updateQuality"; key: string; patch: Partial<Quality> }
   | { kind: "removeQuality"; key: string }
@@ -99,6 +100,8 @@ export interface DriverContext {
   title: string;
   activeCheckpointId: string | null;
   activeObjective: string;
+  ownNote?: boolean;
+  objectiveLine?: boolean;
   unmetGates: string[];
   upcomingAnchors: DriverAnchorStatus[];
   blackboard: Record<string, PrimitiveValue>;

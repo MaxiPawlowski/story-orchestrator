@@ -13,6 +13,13 @@ describe("parseProposal", () => {
     expect(proposal.summary).toContain("qualities");
   });
 
+  it("reads the objective_block switch through setStoryField, and refuses any other value (v2.4 plan 06 T16a)", () => {
+    const ok = parseProposal(JSON.stringify({ summary: "s", ops: [{ kind: "setStoryField", field: "objective_block", value: "off" }] }));
+    expect(ok.issues).toEqual([]);
+    expect(ok.proposal.ops).toEqual([{ kind: "setStoryField", field: "objective_block", value: "off" }]);
+    expect(parseProposal(JSON.stringify({ summary: "s", ops: [{ kind: "setStoryField", field: "objective_block", value: "sometimes" }] })).issues[0]).toContain('objective_block must be "auto" or "off"');
+  });
+
   it("strips a ```json fence before parsing", () => {
     const { proposal, issues } = parseProposal(readGolden("copilot-checkpoints.response.txt"));
     expect(issues).toEqual([]);

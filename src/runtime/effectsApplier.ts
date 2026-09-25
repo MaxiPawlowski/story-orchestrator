@@ -2,22 +2,22 @@ import type { Checkpoint, CheckpointEffects, NormalizedStoryV2, NpcReplyEffect, 
 import {
   applyBackground,
   applyCharacterAN,
-  applyPreset,
   clearCharacterAN,
   disableWIEntry,
   enableWIEntry,
   executeSlashCommands,
-  findTextGenPreset,
   lorebookExists,
-  presetBackend,
-  readAppliedPreset,
+  readSamplerPreset,
   resolveGroupMemberId,
+  samplerApi,
   setGroupMembersDisabled,
   getActiveGroup,
   getContext,
-  type TextGenPreset,
 } from "@services/STAPI";
 import { quoteSlashArg } from "@utils/string";
+import { resolveSamplerOverlay, type SamplerApi } from "@utils/samplerKeys";
+import { couldNot, wrote } from "@utils/writeResult";
+import { samplerOverlay } from "./samplerOverlay";
 import type { WriteResult } from "@utils/writeResult";
 import { renderBlackboardMemo } from "./blackboardMemo";
 import { appendRow, pendingRow, restorePlan, rowsAfter, setStatus, type EffectWrite } from "./effectLedger";
@@ -45,10 +45,12 @@ export const rollbackCastMirror = (mirror: Array<{ member: string; disabled: boo
   return next;
 };
 
-// V15b: the targets a restore can put back. A preset's sampler stack belongs to the text-completion
-// module and restoring it is a v2.4 seed, so a preset row is left in place and said so, rather than
-// attempted and marked revert-failed on every leave.
+// V15b: the targets a restore can put back. v2.4 plan 06: a preset is a per-request sampler overlay
+// that writes nothing to the host, so it has nothing to restore and is not "left in place" either.
 const RESTORABLE = new Set<EffectTarget["kind"]>(["cast", "an", "background"]);
+const NOTHING_TO_RESTORE = new Set<EffectTarget["kind"]>(["preset"]);
+
+export const OVERLAY_UNSUPPORTED_REASON = "a checkpoint preset applies on Text Completion and Chat Completion connections only; this connection uses another API";
 
 const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 const readStrings = (value: unknown): string[] => Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0) : typeof value === "string" && value.trim() ? [value] : [];
@@ -79,17 +81,15 @@ const applyAuthorNote = async (value: unknown, rendered: string): Promise<WriteR
   });
 };
 
-// The authored preset effect, resolved to the name and sampler stack it would apply. A string names
-// an installed preset; an object may carry the stack inline.
-export function resolvePreset(value: unknown, story: NormalizedStoryV2): { name: string; obj: TextGenPreset } | null {
-  if (typeof value === "string") {
-    const obj = findTextGenPreset(value);
-    return obj ? { name: value, obj } : null;
-  }
-  if (!isRecord(value)) return null;
+// The authored preset effect, resolved at activation to the sampler stack it overlays. A string names
+// an installed preset of the connection's own API, matched exactly (never `/preset`'s fuzzy match); an
+// object may carry the stack inline.
+export function resolvePreset(value: unknown, story: NormalizedStoryV2, api: SamplerApi | null): { name: string; settings: Record<string, unknown> | null } {
+  if (typeof value === "string") return { name: value, settings: api ? readSamplerPreset(value, api) : null };
+  if (!isRecord(value)) return { name: "", settings: null };
   const name = typeof value.name === "string" ? value.name : `Story:${story.title}`;
-  const obj = isRecord(value.settings) ? value.settings : isRecord(value.preset) ? value.preset : null;
-  return obj ? { name, obj } : null;
+  const inline = isRecord(value.settings) ? value.settings : isRecord(value.preset) ? value.preset : null;
+  return { name, settings: inline ?? (api && typeof value.name === "string" ? readSamplerPreset(value.name, api) : null) };
 }
 
 // V3: each book is two host writes and the plan spans several books, so the world is asked before
@@ -238,14 +238,11 @@ export class EffectsApplier {
     // The check goes before EVERY host write, not once per group of them: the Author Note above is
     // itself a host write, so the preset below it is the second one since the last check.
     if (!run.stillOwns()) return;
+    samplerOverlay.clear();
     if (effects.preset !== undefined) {
-      // v2.3 plan 06: a preset cannot reach a chat-completion backend at all, and saying it did was
-      // the defect. The refusal is recorded and shown; the checkpoint carries on with its other
-      // effects, because one unsupported effect is not a reason to abandon the rest.
-      const preset = resolvePreset(effects.preset, story);
-      if (preset) {
-        await this.withLedger(extras, { effect: "preset", target: { kind: "preset", name: preset.name, api: presetBackend() }, before: readAppliedPreset(), after: { name: preset.name }, ...scope }, async () => applyPreset(preset.name, preset.obj, preset.name));
-      }
+      const api = samplerApi();
+      const preset = resolvePreset(effects.preset, story, api);
+      await this.withLedger(extras, { effect: "preset", target: { kind: "preset", name: preset.name, api: api ?? "none" }, before: null, after: { name: preset.name }, ...scope }, async () => this.armOverlay(preset, api, checkpoint.id));
     }
     if (!run.stillOwns()) return;
     if (mode === "hydrate") await this.applyCastMirror(extras, scope, run);
@@ -266,6 +263,18 @@ export class EffectsApplier {
     this.appliedChat = openChatId();
     extras.lastAppliedCheckpointId = checkpoint.id;
     extras.updatedAt = new Date().toISOString();
+  }
+
+  // v2.4 plan 06 (X20): a checkpoint preset is a sampler overlay on this checkpoint's loud requests. It
+  // never changes the selected preset and writes no install-wide setting; unknown keys are reported.
+  private armOverlay(preset: { name: string; settings: Record<string, unknown> | null }, api: SamplerApi | null, checkpointId: string) {
+    if (!api) return couldNot(OVERLAY_UNSUPPORTED_REASON);
+    if (!preset.settings) return couldNot(`there is no ${api === "textgen" ? "Text Completion" : "Chat Completion"} preset named "${preset.name}"`);
+    const { values, unknown } = resolveSamplerOverlay(preset.settings, api);
+    if (!Object.keys(values).length) return couldNot(`"${preset.name}" sets no sampler this connection sends`);
+    samplerOverlay.set({ chatId: openChatId(), checkpointId, name: preset.name, api, values, unknown });
+    if (unknown.length) this.deps.journal?.(`${unknown.length} setting(s) of "${preset.name}" are not per-request samplers and are not sent`, unknown.slice(0, 12).join(", "));
+    return wrote({ name: preset.name });
   }
 
   // v2.4 plan 05 T13 spike: under scan-time gating a chat's world info is a per-scan view, so neither
@@ -317,7 +326,10 @@ export class EffectsApplier {
     const rows = extras.effects.ledger.filter((row) => (since ? since.has(row.id) : true) && !(left && chatScoped(row)));
     const outcome = await this.restoreEffects(extras, rows, !left);
     if (since) extras.effects.cast = rollbackCastMirror(extras.effects.cast, extras.effects.ledger.filter((row) => since.has(row.id) && row.status === "reverted"));
-    if (left || scope === "exit" || scope === "restart") this.appliedChat = null;
+    if (left || scope === "exit" || scope === "restart") {
+      this.appliedChat = null;
+      samplerOverlay.clear();
+    }
     return outcome;
   }
 
@@ -328,7 +340,7 @@ export class EffectsApplier {
    */
   async restoreEffects(extras: RuntimeExtras, rows: EffectLedgerRow[] = extras.effects.ledger, persist = true): Promise<{ reverted: number; refused: number }> {
     if (!this.deps.restore) return { reverted: 0, refused: 0 };
-    const kept = rows.filter((row) => row.status === "applied" && !RESTORABLE.has(row.target.kind));
+    const kept = rows.filter((row) => row.status === "applied" && !RESTORABLE.has(row.target.kind) && !NOTHING_TO_RESTORE.has(row.target.kind));
     if (kept.length) this.deps.journal?.(`${kept.length} host change(s) this story cannot put back were left in place`, [...new Set(kept.map((row) => row.effect))].join(", "));
     const { steps, refused } = restorePlan(rows.filter((row) => RESTORABLE.has(row.target.kind)), this.reads());
     for (const row of refused) extras.effects.ledger = setStatus(extras.effects.ledger, row.id, "externally-changed", { found: row.found });

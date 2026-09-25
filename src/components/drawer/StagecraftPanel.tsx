@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { isNoteOp, wardenFamilyOf, type CuratorOp, type CuratorOpRecord, type CuratorProposalRecord } from "@stagecraft/index";
+import { decidedOp, isNoteOp, previewCuratorOp, wardenFamilyOf, type CuratorOp, type CuratorOpRecord, type CuratorProposalRecord } from "@stagecraft/index";
+import { wordDiff } from "@utils/wordDiff";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
 
@@ -56,6 +57,21 @@ const describe = (op: CuratorOp): string => {
   return `patch "${op.comment}" at “${op.anchor}”`;
 };
 
+const proposedContent = (entry: CuratorOpRecord, op: CuratorOp): string | null => {
+  if (isNoteOp(op) || !entry.before || (op.kind !== "rewrite" && op.kind !== "patch")) return null;
+  if (entry.status === "applied" && entry.after) return entry.after.content;
+  const preview = previewCuratorOp(op, { lorebook: op.lorebook, comment: op.comment, keys: [], content: entry.before.content, disabled: entry.before.disabled });
+  return preview.ok ? preview.content ?? null : null;
+};
+
+const DiffView = ({ before, after }: { before: string; after: string }) => (
+  <div data-so="curator-diff" className="whitespace-pre-wrap opacity-90">
+    {wordDiff(before, after).map((part, index) => (part.kind === "del"
+      ? <del key={index} className="text-red-300">{part.text}</del>
+      : part.kind === "ins" ? <ins key={index} className="text-green-300">{part.text}</ins> : <span key={index}>{part.text}</span>))}
+  </div>
+);
+
 // v2.3 plan 05. Which pass read this truth, from which message, how sure it was, and whether another
 // store disagrees. A fact with no origin is a row from before envelopes were recorded, and says so
 // rather than implying an extractor read it — and a legacy envelope is a STATED unknown, not a read.
@@ -73,9 +89,13 @@ const OpCard = ({ record, index, entry, manager, onOpenFact }: { record: Curator
   const text = editableText(entry.op);
   const [draft, setDraft] = useState(text ?? "");
   const decidable = entry.status === "pending";
+  const exact = decidedOp(entry, "accepted");
+  const shown = proposedContent(entry, decidable && text !== null ? withText(exact, draft) : exact);
   return (
     <div data-so="curator-op" className="border-t border-solid border-white/10 mt-1 pt-1">
       <div className="opacity-100">{describe(entry.op)} <span className="opacity-60">· {statusLabel(entry)}</span></div>
+      {entry.fuzzy && <div data-so="curator-fuzzy" className="opacity-80">near match, {Math.round(entry.fuzzy.score * 100)}%: “{entry.fuzzy.span}”</div>}
+      {shown !== null && entry.before && <DiffView before={entry.before.content} after={shown} />}
       {isNoteOp(entry.op) && (entry.op.sources?.length
         ? entry.op.sources.map((source) => (
           <div key={source.id} data-so="warden-fact" data-fact={source.id} className="opacity-80">

@@ -27,6 +27,7 @@ import { onChatWrite } from "./persistence";
 import { onWizardSessionSave } from "./wizardSessions";
 import { loreEvidence } from "./worldInfoEvidence";
 import { startLoreEvidence } from "./worldInfoEvidenceHost";
+import { startSamplerOverlay } from "./samplerOverlayHost";
 import { startScanGating } from "./worldInfoScanHost";
 
 let started = false;
@@ -200,6 +201,7 @@ export function startRuntime() {
     notify: () => runtimeManager.notify(),
   });
   runtimeDisposers.push(() => loreWatch.dispose());
+  runtimeDisposers.push(startSamplerOverlay({ chatId: () => getContext().chatId ?? null, generation: () => generation.snapshot(), journal: (summary, note) => runtimeManager.noteRecap(summary, note) }));
   globalThis.storyOrchestratorLoreEvidence = loreEvidence;
   // v2.4 plan 05 T13 spike: inert unless `worldInfo.gatingMode` is "scan" (default "file"). The flag
   // is install-wide, so it is read once the extension settings have loaded, never before.

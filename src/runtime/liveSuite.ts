@@ -1,5 +1,6 @@
 import { buildFixtureRun, callExtractionModel, parseSharedReadResponse, type ExtractionFixtureSpec } from "@extraction/index";
 import { buildTypedPlan, readTypedDeltas } from "@judge/index";
+import { buildCreateCandidatePrompt, caseContext, caseScope, scoreCreateSample, type CreateCase, type CreateCaseSample } from "@stagecraft/createCandidate";
 import type { RuntimeManager } from "./runtimeManager";
 
 export interface LiveFixtureResult {
@@ -29,6 +30,7 @@ export interface LiveFixtureOptions {
 
 export interface LiveSuiteHandle {
   runFixture: (spec: ExtractionFixtureSpec, options?: LiveFixtureOptions) => Promise<LiveFixtureResult>;
+  runCuratorCreate: (entry: CreateCase) => Promise<{ prompt: string; rawResponse: string; sample: CreateCaseSample }>;
 }
 
 const withHints = (story: unknown, hints: LiveFixtureOptions["hints"]) => {
@@ -39,6 +41,7 @@ const withHints = (story: unknown, hints: LiveFixtureOptions["hints"]) => {
 
 export function registerLiveSuite(manager: RuntimeManager) {
   const handle: LiveSuiteHandle = {
+    runCuratorCreate: curatorCreateRunner(manager),
     runFixture: async (spec, options = {}) => {
       const hinted = { ...spec, story: withHints(spec.story, options.hints) };
       const first = buildFixtureRun(hinted);
@@ -77,4 +80,15 @@ export function registerLiveSuite(manager: RuntimeManager) {
     },
   };
   globalThis.storyOrchestratorLiveSuite = handle;
+}
+
+// v2.4 plan 06 F5 Phase A: the create op is measured before it is built. The candidate prompt and
+// the code guards run over the curator's own model (the memory profile); nothing is written.
+export function curatorCreateRunner(manager: RuntimeManager): LiveSuiteHandle["runCuratorCreate"] {
+  return async (entry) => {
+    const context = caseContext(entry);
+    const prompt = buildCreateCandidatePrompt(caseScope(entry), context);
+    const rawResponse = await callExtractionModel(prompt, { profileId: manager.getExtractionSettings().profileId, maxTokens: 512 });
+    return { prompt, rawResponse, sample: scoreCreateSample(entry, rawResponse) };
+  };
 }

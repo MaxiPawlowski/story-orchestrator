@@ -159,7 +159,7 @@ How to use: for each community extension, ask (a) does SO already do this (secti
 18. Coordinators never import each other nor call `saveMetadata`; UI reads one snapshot, never manager getters in render. Manager ≤700 lines, coordinator ≤620.
 19. CSS scoped to SO mount roots; modals are native `<dialog>` + `showModal()`.
 20. Live gates are real-LLM; `debugResponse` mocks never sign off an LLM path; journeys run twice, archived.
-21. Preset effects are textgen-only today (refused w/ reason elsewhere).
+21. A preset effect is a per-request sampler overlay (v2.4 plan 06, X20): armed per chat at activation, written only into this checkpoint's loud Text Completion (`GENERATE_AFTER_DATA`) or Chat Completion (`CHAT_COMPLETION_SETTINGS_READY`) requests, never into the selected preset; refused with a reason on a connection with neither hook. (Was: textgen-only, a global write never restored.)
 22. Boundary work = registry entry `{id, order, when, run}`, not ad-hoc callbacks.
 
 ---

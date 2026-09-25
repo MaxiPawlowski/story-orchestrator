@@ -14,6 +14,7 @@ import type { NextTurnContributor } from "./nextTurn";
 import type { PipelineStatus } from "./pipeline";
 import type { OrphanedLorebook } from "./mirrorReaper";
 import type { LoreEvidenceView } from "./worldInfoEvidence";
+import type { SamplerOverlayView } from "./samplerOverlay";
 import type { ScanGateView } from "./worldInfoMode";
 import type { MessageFingerprints } from "./fingerprints";
 import type { ChatIdentitySnapshot } from "./chatIdentity";
@@ -392,6 +393,8 @@ export interface RuntimeSnapshot {
   loreEvidence?: LoreEvidenceView;
   /** v2.4 plan 05 T13 spike (S5, author only): the last gated scan, per gated entry; null unless scan gating is active. */
   scanGate?: ScanGateView | null;
+  /** v2.4 plan 06 (X20, author only): the sampler overlay this checkpoint put on its replies, or null. */
+  samplerOverlay?: SamplerOverlayView | null;
   // The story's authored curator allowlist, so the review panel can say what is in scope without
   // reading the story record itself.
   stagecraftScope: string[];

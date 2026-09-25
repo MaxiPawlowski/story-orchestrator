@@ -16,7 +16,7 @@ const SCHEMA_SUMMARY = [
 const OP_GRAMMAR = [
   'Return exact JSON only: { "summary": string, "ops": Op[] }. No prose outside the JSON.',
   "Op kinds:",
-  '  { "kind": "setStoryField", "field": "title"|"description", "value": string }',
+  '  { "kind": "setStoryField", "field": "title"|"description", "value": string } (or "field": "objective_block", "value": "auto"|"off")',
   '  { "kind": "addQuality", "quality": Quality }',
   '  { "kind": "updateQuality", "key": string, "patch": Partial<Quality> }',
   '  { "kind": "removeQuality", "key": string }',

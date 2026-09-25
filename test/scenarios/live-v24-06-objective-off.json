@@ -1,0 +1,11 @@
+{
+  "_note": "v2.4 plan 06 T16a control arm, LIVE (so-scenario run <file> --sandbox --group <id>, twice): the same cp-bare with objective_block off. No request and no guidance block may carry an 'Objective:' line; the objective itself still reaches the model the way it did before plan 06 (the story_* macros), which this fixture does not measure.",
+  "steps": [
+    { "import_story": { "file": "live-v24-06-off.story.json" } },
+    { "ui": { "action": "select-profile" } },
+    { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 50 }); const ctx = SillyTavern.getContext(); if (globalThis.__soObjectiveOff?.off) globalThis.__soObjectiveOff.off(); const probe = globalThis.__soObjectiveOff = { requests: [] }; const listener = (data, dryRun) => { if (!dryRun) probe.requests.push(JSON.stringify(data ?? null)); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, listener); probe.off = () => ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, listener); const value = ctx.extensionPrompts?.story_orchestrator_guidance?.value ?? ''; if (value.includes('Objective:')) throw new Error('objective_block is off, yet the guidance block carries the objective line: ' + JSON.stringify(value)); return { block: value.slice(0, 160) };", "log": true },
+    { "send_generate": { "text": "I stand still in the dark hallway and listen for footsteps.", "timeoutMs": 300000, "expectReply": true } },
+    { "wait": { "schedulerIdle": true, "quietMs": 5000, "timeoutMs": 300000 } },
+    { "eval": "const probe = globalThis.__soObjectiveOff; probe.off(); if (!probe.requests.length) throw new Error('no request was recorded, so this control measured nothing'); const leaked = probe.requests.filter((body) => body.includes('Objective:')); if (leaked.length) throw new Error('objective_block is off, yet a request carries an objective line'); return { requests: probe.requests.length };", "log": true }
+  ]
+}

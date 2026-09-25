@@ -179,3 +179,17 @@ on 1.18.0 with the same shape; only line numbers move.
 |---|---|---|---|
 | 07-H9 | A Score answer is a continuous value on `[0, levels − 1]`, not a level index: T22 reads it raw and flags at `> 2.5` on its 5-level rubric (0..4) | Our own recorded answers: `test/goldens/judge/lore-relevance.json` holds 1600 Score answers on a 6-level scale, min 0, max 4.14, 1591 non-integer (recounted 2026-09-25); Jeved reads it raw too (`extension-research/jeved.md` F1) | Yes, from recorded real answers; the agency rubric itself is unmeasured until Phase A |
 | 07-H10 | `getPlayerName()` reads `context.name1` (the persona NAME, never its description) | `src/services/stHost/context.ts:58-61`, vendored `hostTypes.ts:68` | Code fact; T22 sends only this name |
+
+## Plan 06 (sampler overlay, curator writes, 2026-09-25)
+
+| # | Fact | 1.19.0 |
+|---|---|---|
+| 06-H1 | `GENERATE_AFTER_DATA(generate_data, dryRun)` is emitted, awaited, in main `Generate()` only, for every main API and on dry runs too; for Text Completion `generate_data` is the `getTextGenGenerationData` payload that is then sent, so a listener's writes reach the request | `script.js:5318` |
+| 06-H2 | `CHAT_COMPLETION_SETTINGS_READY(generate_data)` is emitted, awaited, in `sendOpenAIRequest` after the per-model sampler deletions and before the fetch; `generate_data` starts `{type, messages, model, temperature: Number(temp_openai), …, top_p: Number(top_p_openai)}` | `openai.js:3146` (emit), `:2803-2810` (shape, `type` first), deletions up to `:3118` |
+| 06-H3 | `generateRawData` builds quiet requests on both paths: textgen via `getTextGenGenerationData(…, 'quiet')`, CC via `sendOpenAIRequest('quiet', …)`, so a CC quiet request carries `type: 'quiet'` into 06-H2 while a textgen one never reaches 06-H1 | `script.js:4063` (textgen), `:4077` (CC) |
+| 06-H4 | `TEXT_COMPLETION_SETTINGS_READY(params)` fires inside `getTextGenGenerationData` for every caller (foreign quiet calls included) with no type, so it is NOT the textgen hook | `textgen-settings.js:1844-1848` |
+| 06-H5 | Connection Manager requests (`custom-request.js`) call neither `sendOpenAIRequest` nor `getTextGenGenerationData` and emit nothing, so memory/curator calls take no overlay | grep `custom-request.js`, 2026-09-25 |
+| 06-H6 | `TempResponseLength.setupEventHook` also uses `GENERATE_AFTER_DATA` (a `once` hook, removed after), so listener order on that event is shared with ST itself | `script.js:4219`, `:4237` |
+| 06-H7 | `getContext().getPresetManager(apiId).getPresetList(api?)` returns `{presets, preset_names}`; `preset_names` is an ARRAY for textgen and an OBJECT `{name: index}` for openai; `getCompletionPresetByName(name)` is an exact match over that list and returns `undefined` when missing; `getSelectedPresetName()` is the UI selection | `preset-manager.js:531`, `:757-770`, `:403` |
+| 06-H8 | A saved CC preset is a parsed object with `*_openai` sampler keys (`temp_openai`, `top_p_openai`, …); the settings file keeps the selection in `oai_settings.preset_settings_openai` and the textgen one in `textgenerationwebui_settings.preset` | `openai.js:4320-4325`, `:307-310`, `:412-416`; `script.js:8081`, `:8090` |
+| 06-H9 | The WI editor's own save path is `saveWorldInfo(name, data, immediately)`; an entry is addressed by its uid key in `data.entries`, which survives a rename in the editor (the comment is just a field) | `world-info.js:4177`; exercised by `live-v10b-uid-revert.json` |
