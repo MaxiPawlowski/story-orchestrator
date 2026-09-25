@@ -47,6 +47,52 @@ describe("runAuthoringStage", () => {
     expect(result.audit.repairResponse).toBeDefined();
   });
 
+  it("fails a checkpoints proposal carrying transition and quality ops, and tells the repair pass which stage allows them", async () => {
+    const response = JSON.stringify({
+      summary: "Checkpoints, plus wiring.",
+      ops: [
+        { kind: "addCheckpoint", checkpoint: { id: "vault2", name: "Vault 2", objective: "Crack the second vault.", type: "anchor" } },
+        { kind: "addTransition", transition: { from: "start", to: "vault", gate: { q: "has_key", op: "==", v: true }, priority: 0 } },
+        { kind: "addQuality", quality: { key: "alarm", type: "bool", source: "extractor", rubric: "Is the alarm tripped?" } },
+      ],
+    });
+    const result = await runAuthoringStage({ draft: baseDraft(), stage: "checkpoints", message: "", history: [] }, { profileId: null, debugResponse: response });
+    expect(result.status).toBe("failed");
+    expect(result.issues).toEqual(expect.arrayContaining([
+      "ops.1: addTransition is not allowed in the checkpoints stage; the transitions stage allows it",
+      "ops.2: addQuality is not allowed in the checkpoints stage; the qualities stage allows it",
+    ]));
+    expect(result.audit.repairPrompt).toContain("ops.1: addTransition is not allowed in the checkpoints stage; the transitions stage allows it");
+  });
+
+  it("fails a provisioning proposal carrying a draft op, even though draft validation is skipped there", async () => {
+    const result = await runAuthoringStage(
+      { draft: baseDraft(), stage: "provisioning", message: "", history: [], environment: { characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [] } },
+      {
+        profileId: null,
+        debugResponse: JSON.stringify({
+          summary: "",
+          ops: [
+            { kind: "createCharacterCard", name: "Arin", description: "A guide." },
+            { kind: "addQuality", quality: { key: "alarm", type: "bool", source: "extractor", rubric: "Is the alarm tripped?" } },
+          ],
+        }),
+      },
+    );
+    expect(result.status).toBe("failed");
+    expect(result.issues).toEqual(["ops.1: addQuality is not allowed in the provisioning stage; the qualities stage allows it"]);
+  });
+
+  it("control: a checkpoints proposal of checkpoint ops only stays ok without a repair pass", async () => {
+    const result = await runAuthoringStage(
+      { draft: baseDraft(), stage: "checkpoints", message: "", history: [] },
+      { profileId: null, debugResponse: readGolden("copilot-checkpoints.response.txt") },
+    );
+    expect(result.status).toBe("ok");
+    expect(result.issues).toEqual([]);
+    expect(result.audit.repairResponse).toBeUndefined();
+  });
+
   it("returns the interview instead of a proposal, without spending a repair pass", async () => {
     const result = await runAuthoringStage(
       { draft: baseDraft(), stage: "qualities", message: "a heist, but make it strange", history: [] },

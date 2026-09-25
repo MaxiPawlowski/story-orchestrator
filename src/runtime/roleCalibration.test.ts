@@ -1,12 +1,17 @@
 const queued: Array<{ text: string; finish: string }> = [];
+const unrecorded: { allow: boolean; prompts: string[] } = { allow: false, prompts: [] };
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
-  sendConnectionProfileRequest: jest.fn(async () => {
+  sendConnectionProfileRequest: jest.fn(async (_profileId: string, prompt: string) => {
     const next = queued.shift();
+    if (!next && unrecorded.allow) {
+      unrecorded.prompts.push(prompt);
+      return { ok: true, text: "", finish: "unknown" };
+    }
     if (!next) throw new Error("no queued response");
     return { ok: true, text: next.text, finish: next.finish };
   }),
@@ -25,12 +30,13 @@ import {
   scoreSynthesis,
   summarizeRoleCalibration,
   type AuthoringCalibrationCase,
+  type AuthoringScore,
   type CalibrationRole,
   type CuratorCalibrationCase,
   type DirectorCalibrationCase,
   type RoleCaseRecord,
 } from "./roleCalibration";
-import { renderStagePrompt } from "@copilot/index";
+import { renderStagePrompt, STAGE_OPS } from "@copilot/index";
 
 const ROOT = process.cwd();
 const read = (path: string) => JSON.parse(readFileSync(join(ROOT, path), "utf8"));
@@ -213,6 +219,8 @@ describe("recorded live goldens replay through the same run path", () => {
     it(`${file}: every case re-scores to the recorded score, and the summary to the recorded summary`, async () => {
       const golden = JSON.parse(readFileSync(join(dir, file), "utf8"));
       const replayed: RoleCaseRecord[] = [];
+      const unanswered: RoleCaseRecord[] = [];
+      const refusedByStage: string[] = [];
       for (const entry of golden.records) {
         const byId = (list: Array<{ id: string }>) => list.find((item) => item.id === entry.id);
         if (golden.role === "curator") expect(entry.case).toEqual(byId(curatorFixture.cases));
@@ -226,14 +234,35 @@ describe("recorded live goldens replay through the same run path", () => {
         }
         queued.length = 0;
         entry.responses.forEach((text: string, index: number) => queued.push({ text, finish: entry.finishes[index] ?? "unknown" }));
+        unrecorded.allow = golden.role === "authoring";
+        unrecorded.prompts = [];
         let tick = 0;
         const result = await runRoleCase(golden.role, entry.case, { profileId: "replay", now: () => (tick++ === 0 ? 0 : entry.latencyMs) });
+        unrecorded.allow = false;
         expect(queued).toHaveLength(0);
+        if (unrecorded.prompts.length) {
+          expect(unrecorded.prompts).toHaveLength(1);
+          expect(unrecorded.prompts[0]).toContain(`is not allowed in the ${entry.case.stage} stage`);
+          expect(result.score).toMatchObject({ valid: false, status: "failed", shape: false, repaired: true });
+          refusedByStage.push(entry.id);
+          replayed.push({ ...result, score: entry.score });
+          unanswered.push(result);
+          continue;
+        }
         expect(result.score).toEqual(entry.score);
         replayed.push(result);
+        unanswered.push(result);
       }
       const floorIds = golden.role === "director" ? directorFixture.rows.slice(0, 26).map((row: { id: string }) => row.id) : undefined;
       expect(summarizeRoleCalibration(golden.role, replayed, floorIds ? { floorIds } : {})).toEqual(golden.summary);
+      if (golden.role !== "authoring") return;
+      const outOfStage = (golden.records as Array<{ id: string; case: AuthoringCalibrationCase; score: AuthoringScore }>)
+        .filter((entry) => !entry.score.repaired && entry.score.kinds.some((kind) => !(STAGE_OPS[entry.case.stage] as readonly string[]).includes(kind)))
+        .map((entry) => entry.id);
+      expect(refusedByStage).toEqual(outOfStage);
+      const enforced = summarizeRoleCalibration("authoring", unanswered);
+      expect(enforced.overall.metrics.opShape).toEqual(golden.summary.overall.metrics.opShape);
+      expect(enforced.overall.metrics.validity.passed).toBe(golden.summary.overall.metrics.validity.passed - refusedByStage.length);
     });
   }
 });

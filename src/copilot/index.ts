@@ -4,3 +4,4 @@ export * from "./proposal";
 export * from "./validate";
 export * from "./prompts";
 export * from "./authoring";
+export * from "./stages";

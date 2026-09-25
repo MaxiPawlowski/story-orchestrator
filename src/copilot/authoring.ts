@@ -34,9 +34,9 @@ export async function runAuthoringStage(input: AuthoringStageInput, client: Extr
   const audit: CopilotAudit = { prompt, rawResponse };
 
   let parsed = parseProposal(rawResponse);
-  let validation = validateProposal(input.draft, parsed.proposal.ops);
+  let validation = validateProposal(input.draft, parsed.proposal.ops, input.stage);
   let provisioning = provisioningIssues(input, parsed.proposal.ops);
-  const firstProblems = parsed.questions.length ? [] : [...parsed.issues, ...(input.stage === "provisioning" ? [] : validation.blocking), ...provisioning];
+  const firstProblems = parsed.questions.length ? [] : [...parsed.issues, ...(input.stage === "provisioning" ? validation.stageIssues : validation.blocking), ...provisioning];
 
   if (firstProblems.length) {
     const repairPrompt = `${prompt}\n\nPrevious response was invalid:\n${firstProblems.join("\n")}\nReturn corrected exact JSON only.`;
@@ -44,11 +44,11 @@ export async function runAuthoringStage(input: AuthoringStageInput, client: Extr
     audit.repairPrompt = repairPrompt;
     audit.repairResponse = repairResponse;
     parsed = parseProposal(repairResponse);
-    validation = validateProposal(input.draft, parsed.proposal.ops);
+    validation = validateProposal(input.draft, parsed.proposal.ops, input.stage);
     provisioning = provisioningIssues(input, parsed.proposal.ops);
   }
 
-  const issues = parsed.questions.length ? [] : [...parsed.issues, ...(input.stage === "provisioning" ? [] : validation.blocking), ...provisioning];
+  const issues = parsed.questions.length ? [] : [...parsed.issues, ...(input.stage === "provisioning" ? validation.stageIssues : validation.blocking), ...provisioning];
   return {
     stage: input.stage,
     proposal: parsed.proposal,
