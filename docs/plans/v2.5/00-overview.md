@@ -279,6 +279,10 @@ These are v2.4's to finish. A row moves here only by a deferral the user signs o
 | Plan 03: `storyStart` live check | `v2.4/03-off-path-call-hygiene.md:943-947` | 02 |
 | Intermittents J6.4 / J6.7 / J5.8 / J8.5 | `v2.4/01-carry-in.md:819-822` | 02 C5 |
 | Wall-clock flake | `v2.4/07-judge.md:1124` | 03 |
+| Curator write-ahead marker is never reconciled on hydrate: a crash after the host write re-applies a `rewrite` and fails a retried `patch` (found by the AE-01 fix, pre-existing; the `CuratorOpRecord.writeAhead` comment claims a reconcile that does not exist) | `test/findings/mutations/v24-ae01-curator-ownership.txt`; `src/runtime/coordinators/stagecraftCoordinator.ts` | 02 |
+| Journey records carry no fixture hash, so the attestation must name each run's fixture; `so-journey` should write `fileSha256` per record (the predicate already reads it) | `scripts/release/attestationRules.mjs`; `v24-09-attestation-rules.txt` | 03 |
+| `memoryQueue.test.ts` `neverWritten` returns an async function (always truthy) and the file is outside `typecheck:test` | `src/runtime/memoryQueue.test.ts` | 03 |
+| Post-freeze fixes merged after the acceptance candidate `4ebe1db` (AE-01 curator ownership, AE-03 fates fixture, AE04-L1 lore cache, AE04-S1 scene write) need their own live checks on the next build | `docs/plans/v2.5/research/review-codex-2026-09-25.md` | 02 |
 
 ## Human sessions (not a plan item; where they sit)
 
