@@ -295,4 +295,71 @@ None open. The 0.8 median-activation threshold for stripping mirror keys is **ac
 (decided 2026-09-23 at reconciliation). It is fixed before the measurement runs and is never retuned after it (inv 7 spirit).
 
 ## Gate record
-_(placeholder — date, commands and results, live checks, spike verdict, deviations)_
+
+### Build (worktree, 2026-09-24/25)
+
+Branch `worktree-agent-afd20cf3b9e97ab17` off master `4151bc8`. Commits `e35daa6` (T12 + WriteResult read + seed D),
+`9877d6a` (T13 spike code + releasePlan fix), `55fb95f` (S5 author table + live fixtures), plus this docs commit.
+**No live gate was run** (task scope: build + fixtures only). Every live item below is NOT green.
+
+**As built**
+
+| Item | State | Where |
+|---|---|---|
+| Step 0, host facts | H1–H14 re-read on 1.19.0; corrections: H6 forced check `:4886` (not `:4885`), H10 vectors force `:1725` (not `:1723`), H3 spread `:4557`. New rows H15/H16. 1.18.0 not re-read (see host-facts §Plan 05) | `host-facts.md` §Plan 05 |
+| Step 1, T20 WI fixtures | forced pick lost to a foreign dry scan (`live-v24-05-forced-pick.json` case 2, via `test/fixtures/interop/wi-foreign.js`); ring across a nested quiet (`v24-05-ring-nested-quiet.json`, no backend); ENTRIES_LOADED splicer (`live-v24-05-foreign-filter.json`). Schema-valid, evals syntax-checked. Jest reds written first for each shape | `test/scenarios/`, `test/fixtures/interop/` |
+| Step 2, seed D | `so-assets` deletes via ST `deleteWorldInfo` after `updateWorldInfoList` (evicts + deselects, H12); an unlisted book falls back to raw POST + `worldInfoCache.delete`; reports `staleCache`. Manual deselect/evict removed | `scripts/debug/lib/lorebookDelete.mts` (+ 4 node cases), `so-assets.mts` |
+| Step 3, WI WriteResults | **The plan's claim is stale**: `effectsApplier.ts:100,102` already read both results since V17. What was missing was proof: added cases for a refused ENABLE (journaled) and retry at the next apply | `effectsApplier.test.ts` |
+| Step 4, T12 | `stHost/worldInfoEvidence.ts` (WORLD_INFO_ACTIVATED + makeFirst/makeLast ENTRIES_LOADED observers, re-asserted at GENERATION_STARTED); pure ring `runtime/worldInfoEvidence.ts` (cap 20, chat-keyed, per-loud-generation slot opened/settled by the T6 lifecycle intents, scans tagged, empty slot = `fired: []`, rollback trim via `RunContext.lowestMutatedSince`); host wiring `worldInfoEvidenceHost.ts`; journal kind `lore`; flags `lore-force-lost` + `lore-constant-missed`; author list `#so-lore-fired` (Payload tab, gated/pick/mirror/other); Repair step "Another extension is hiding this story's lorebook from the model." after 2 consecutive loud generations | see files |
+| T12c | NOT built: conditional on a live measurement (forced-pick case 2) that has not run | — |
+| Step 5, T12 live (J3 ×2, J7 ×1) | NOT run | — |
+| Step 6, mirror key hygiene | NOT built: the predeclared median ≥ 0.8 is unmeasured. `live-v24-05-mirror-rate.json` measures it and applies the rule; nothing retuned | fixture |
+| Step 7, T13 spike | code built behind `worldInfo.gatingMode` (default `file`, not flipped): `scanGatePlan`/`applyScanGate` (pure), `ScanGateProvider` (memoised, owner/ready guard), `stHost/worldInfoScan.ts` (sync last listener + `wiScanGating` probe), normaliser on `SO-T13` marker books only (`RunToken` before each write, records only confirmed writes), file-path skip in `effectsApplier` while active, S5 author table `#so-scan-gate`. **Verdict PENDING**: S1–S9 not measured | `05-t13-spike-report.md` |
+
+**Decisions (made on evidence, not user-owned)**
+- `landed`/`lost` live on the evidence slot, not on `LoreSelection`: a selection resolves before its scan.
+- The flag-(a) judge-ring note was skipped, to stay out of plan 07's `JudgeCallRecord`. The `lore` journal record is the flag.
+- Flags need at least one loud scan observed in the slot, because ST emits nothing for an empty scan (H1). Otherwise every quiet turn would raise one.
+- Hidden-book counting is per loud generation, 2 consecutive, with no foreign-extension names.
+- The ring writer has no census row: it never awaits, and the guard refuses rows for non-sites. The normaliser has a `checked` row.
+- `wiScanGating` is a spike-local probe, kept out of `CAPABILITY_IDS`, so the shipped capability read-out does not change.
+- Scan gating starts only after `settingsReady()`, because the mode is an install-wide setting.
+- S5 author table added so S5 is measurable at all.
+- The `.claude/CLAUDE.md` status row is left to the merge, to avoid conflicting with the parallel 04/07a builds.
+
+**Deviations**
+- A release-plan defect found by the T13 property test (a 300-seed oracle against the file path): `releasePlan` keyed its keep index by the authored book spelling. A story naming the same book in another case released entries the incoming story gates. A second spelling in one story also overwrote the first. Now keyed by file id and merged. Red tests came first (`worldInfoGates.test.ts`, 2 cases). This changes today's file path, which is a correct fix, not a spike artefact.
+- `runtimeManager.noteRecap` gained a `kind` parameter (default `"story"`), with zero net lines (manager 737 effective).
+
+**Gates** (worktree, after the last code commit)
+
+| Gate | Result |
+|---|---|
+| `npm run typecheck && npm run typecheck:test && npm run lint && npm run debug:typecheck` | exit 0 |
+| `npm test` | 221 suites, 3278 tests pass (baseline 214 / 3214) |
+| `npm run build` | ok (2 size warnings, as before); manifest bundle `697b71e4a097`, ST version unknown (worktree) |
+| `npm run test:debug` (after build) | 231: 230 pass, 1 skip, 0 fail |
+| Storybook (`storybook:build`, `.sb-static` on :6347, `test-storybook --index-json`, server stopped) | 32 suites, 208/208 |
+| Fault matrix | `wiEvidence` package added: 110 cells, 75 covered / 10 partial / 25 na / 0 todo (was 70/10/20/0 of 100) |
+| Ownership census, architecture guards | green |
+| `test:release`, `st-session reload`, live | not run |
+
+**Mutants**
+- `test/findings/mutations/v24-05-t12.txt`: 16/16 killed. W2, the enable half of the WriteResult read, first survived and was killed after the refused-enable case was added.
+- `test/findings/mutations/v24-05-t13.txt`: 19/20 killed. 1 equivalent (S7, argued in the record). S2/S4 were re-run after the `gateEntry` refactor.
+- The keyless-row skip has no mutant, because the strip was not built.
+
+**Live fixtures written (not run)**
+- `test/scenarios/v24-05-ring-nested-quiet.json` (no backend)
+- `test/scenarios/live-v24-05-forced-pick.json`
+- `test/scenarios/live-v24-05-gated-constant.json`
+- `test/scenarios/live-v24-05-foreign-filter.json`
+- `test/scenarios/live-v24-05-mirror-rate.json`
+- `test/scenarios/live-v24-05-t13-spike.json` (46 steps plus a `_design` block for the manual S1c/S4/S7/S9 legs)
+
+**Remaining**
+1. Every live fixture above ×2, plus J3 ×2 and J7 ×1 with T12 on. Records go under `test/journeys/records/v2.4-plan05/`.
+2. The T12c decision, from forced-pick case 2.
+3. The mirror-rate measurement, then the strip (plus its keyless-row mutant) only if the median is ≥ 0.8.
+4. T13 S1–S9 on a lane, with the manual legs; then the spike report verdict. On PASS, write `05b` for v2.5. On FAIL, remove the spike code before plan 09.
+5. `test:release`; the CLAUDE.md status row.
