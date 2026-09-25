@@ -6,6 +6,11 @@ the v2.4 entry condition (overview V1). It runs in parallel with plan 02, becaus
 subsystems. Verified against master `1ad1a5f` (v2.4 plans 06/08 merged as `3dd039b`) on
 2026-09-25. **Re-verify every path:line below before building** (v2.4 rule 1).
 
+**Reconciled 2026-09-25 with v2.4 E9** (never released, no downgrade work): the downgrade leg (G6) is dropped, and W1/W3 no
+longer rest on downgrade safety. Their shapes stand for their other reason (W1 extends a key rather than replacing it, W3
+keeps the value S1–S8 measured), and plan 11's `schema: 1` stamp is the baseline for any later reshape. It now runs after
+plan 11 (overview sequence).
+
 ## Goal
 
 Checkpoint `world_info` stops being written into shared lorebook files per chat. Each scan gets a view derived
@@ -39,7 +44,6 @@ In scope:
 - The ordering fix (normalise, then activate), `missingKey` surfaced.
 - The mode control, capability row, Repair rows, author diagnostics.
 - The invariant 14 rewording (`.claude/rules/architecture.md:109`), applied when this ships.
-- The downgrade leg for the settings this writes.
 
 Out of scope, with where each goes:
 - The unbound mirror, requirements satisfied by bound books, member-scoped lore, per-tier `scan:true`, and
@@ -193,8 +197,8 @@ normalising the lane's real-named books damages nothing real. **No gate normalis
 | G3 | J7 (sun-ruins, the gated-WI journey) in scan mode | green ×2 strict |
 | G4 | J3 in scan mode, J7 in file mode (regression of the fallback) | J3 ×2, J7 ×1, strict |
 | G5 | Drift: hand-enable a normalised entry through ST's API, reload | the Repair row appears on start-up; with SO disabled the entry is the only leak, and re-normalise clears it; ×2 |
-| G6 | Downgrade leg: the v2.4 bundle reads settings written by this plan | S1/S2 hold for normalised entries; the growth gap is measured and stated; ×1 |
-| G7 | 1.18.0 clean host: `05-H5` sticky across the switch, live | stays active, or the one-time loss is stated; a recurrence fails |
+| ~~G6~~ | ~~Downgrade leg~~ — dropped by v2.4 E9 | — |
+| G7 | Clean host at each ST version the README claims (overview V10): `05-H5` sticky across the switch, live | stays active, or the one-time loss is stated; a recurrence fails |
 | G8 | S8 cost over the lane's real library plus the 500-entry bulk book | ≤ 5 ms p95 over 50 scans incl. dry |
 
 **Machine gates:** typecheck, typecheck:test, lint, test, debug:typecheck, build, test:release, test:debug,

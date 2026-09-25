@@ -3,7 +3,9 @@
 **Status: DRAFT 2026-09-25 — awaits user approval.** Plan docs 01 and 02 are written. Plans 03–10 are outlines here.
 Each gets its own doc only once its evidence exists (a spike verdict, a measurement, or a user decision). Nothing in
 this file is built. Verified against master `1ad1a5f` (v2.4 plans 06/08 merged as `3dd039b`; their docs are unchanged
-from `39aa6b5`).
+from `39aa6b5`). **Reconciled 2026-09-25** with v2.4 E9 (no downgrade or compat work before a public release) and the three
+research docs under `research/`: plans 11 (legacy removal) and 12 (release and packaging) were added, rule 3/9 and V7 were retired,
+and the production-readiness checklist became plan 10's gate table.
 
 v2.4 made the extension correct under the host as it really is. Its one spike, T13 scan-time World Info gating,
 passed all nine predeclared conditions (`v2.4/05-t13-spike-report.md:3`). v2.5 ships that path, which is the only
@@ -20,24 +22,30 @@ else the research proposed stays a spike or a question until measured.
 4. **`v2.3/v2.4-seeds.md:26`**: the plan-10 spikes "recorded as not built rather than shipped unmeasured".
 5. **Not yet available:** `docs/plans/v2.4/v2.5-seeds.md`. v2.4 plan 09 owes it (`v2.4/09-acceptance.md:191-198`), and it
    does not exist on any branch. See V6.
+6. **`research/legacy-inventory.md`** (H/A/C/I/T/D rows, the v5 reset target, removal order), **`research/code-health-audit.md`**
+   (H1–H3, M1–M6, L1–L5 on master `1b4e642`) and **`research/prod-readiness-criteria.md`** (the predeclared checklist).
+7. **User decisions 2026-09-25**: "this plugin has never been released to the public … no downgrade leg is needed … I want it
+   to be prod ready at the end of 2.5"; and chat story state may be reset, only the debug-run logs matter (v2.4 E9).
 
 ## Entry condition (V1)
 
 v2.5 building starts after v2.4 plan 09 closes: accepted, or each remaining row a deferral the user signed off (the
 v2.3 rule 14 shape v2.4 used). Evidence that v2.4 is still open, as of 2026-09-25:
 - plan 06's live gates are not run (`v2.4/06-steering-stagecraft.md:309,359`), nor are plan 08's (`v2.4/08-author-observability.md:447`);
-- plan 02 is "Not accepted", because its downgrade leg is not built (`v2.4/02-chat-identity-silent-mutation.md:930-931`);
+- plan 02's last open item, the downgrade leg, was dropped by the user (v2.4 E9), so plan 02 no longer holds the entry condition;
 - plan 09 is "DRAFT … Not run" (`v2.4/09-acceptance.md:3`).
 X19 sent 05b to v2.5 precisely so v2.4's acceptance would stay stable (`v2.4/00-overview.md:447`).
 
 ## Rules for every v2.5 build agent
 
-Inherit v2.4 rules 1–8 (`v2.4/00-overview.md:43-87`) and its reconciliation X1–X26, unchanged. **Rule 3 (no chat-blob
-version bump) still binds**: the downgrade leg that would make a bump safe is not built (V7). The deltas:
+Inherit v2.4 rules 1–8 (`v2.4/00-overview.md:43-87`) and its reconciliation X1–X26, **except rule 3 and X1** (no chat-blob
+version bump), which existed for downgrade safety and are retired by E9. The deltas:
 
-9. **Install-wide settings stay downgrade-readable.** Add a key; never reshape one a released sanitizer reads. A
-   reshaped value is dropped by the older sanitizer (`src/runtime/settingsStore.ts:38-45` keeps only string arrays in
-   `worldInfo.normalized`). Plan 01 W1 is the first case.
+9. **Until the first public release, a persisted-shape change is a version bump plus a reset, never a migration.** The chat
+   blob takes a new `KNOWN_VERSIONS` value and anything else goes through the unreadable path (read detached, never written,
+   a confirmed Restart replaces it: `persistence.ts:121-125,169-175`, `storySelection.ts:115-131`). Install-wide settings get a
+   `schema` stamp (plan 11); their sanitizers stay defensive (a malformed field falls back to its default), but carry no
+   history branches. Nothing is built to be read by an older build.
 10. **A write to a user's lorebook file outside a chat's own path needs an author confirm and a lane-copy live gate.**
     No gate normalises or rewrites books on the user's live install. A lane is a copy
     (`.claude/rules/debug-scripts.md`, Parallel lanes).
@@ -56,23 +64,65 @@ version bump) still binds**: the downgrade leg that would make a bump safe is no
 
 | # | Plan | Items | Depends on | Bucket | Doc |
 |---|---|---|---|---|---|
-| 01 | **WI scan-time gating** (the spike's `05b`) | real-book normalisation behind a confirm, ledger verify/provenance/restore, normalise-then-activate, mode control + capability + Repair, inv 14 rewording, downgrade leg | V1 | W | `01-wi-scan-gating.md` |
-| 02 | **Carry-in** | C1 NPC-reply ownership + in-flight generation, C2 save race (diagnose, then guard), C3 `hiddenRuns` chat keying, C4 stale host facts, C5 intermittents (conditional) | V1 | H, T | `02-carry-in.md` |
-| 03 | **Budget headroom and harness hardening** | extract from `memoryCoordinator` / manager (V4); wall-clock tests (rule 11) | V1 | T | outline |
+| 11 | **Legacy removal** (runs first) | blob v5 + reset-on-unknown, delete `persistenceMigration` and the v2/v3 branches, required `provenance`/`engineHistory`/`visitedPath`, library id-only, settings history lifts, authoring aliases → validation error with a hint, `schema: 1` stamp, one-time cleanup on this install and the lanes | V1 | L | outline |
+| 01 | **WI scan-time gating** (the spike's `05b`) | real-book normalisation behind a confirm, ledger verify/provenance/restore, normalise-then-activate, mode control + capability + Repair, inv 14 rewording | 11 | W | `01-wi-scan-gating.md` |
+| 02 | **Carry-in** | C1 in-flight generation (the ownership check itself lands in v2.4, U5), C2 save race (diagnose, then guard), C3 `hiddenRuns` chat keying, C4 stale host facts, C5 intermittents (conditional) | 11 | H, T | `02-carry-in.md` |
+| 03 | **Code health and budget headroom** | prod-readiness S2–S8, T1–T4, E1, E2, E4, F2, F3, Q1t, Q3t: extraction to budgets (V4), every prod file budgeted, host deps injected, no cycles/dead/duplicate helpers, one logger, snapshot memoised, no wall-clock tests | 11 | T | outline |
 | 04 | **Memory contradictions, second pass** | polarity/negation, low-overlap-low-cosine miss, ordinary rows under the band, `memoryPairs` on the write path (Phase A) | 03 | X, J | outline |
 | 05 | **Extraction and off-path follow-ups** | FACT/MEMORY window check (X26 seed), whole-scene epistemic/ledger, reasoning-template strip, rpm/mutex, constrained decoding, token estimate | 02 | X | outline |
 | 06 | **Judge: hosts and next uses** | D10 hosted routes (user's call), boundary bundle, tension read, pre-reply Choice, R16 disagreement record, v2.3 plan-10 spikes | 03 | J | outline |
 | 07 | **Author tools** | per-message inspector (D12), `{{story_quality::<key>}}` (X24), Studio gate replay, CC `promptManager` breakdown | V1 | U | outline |
 | 08 | **Lore on the scan seam** | unbound mirror, bound-book requirements, member-scoped lore, per-tier `scan:true`, lore-select "exclusive", mirror-key measurement, R14 lore contradiction | 01 | W | outline |
 | 09 | **Research spikes** (the user picks) | swipe-back cache, re-commit after rewrite, roster aliases, append-only short_term, story-owned scenario, complication pool (+R13), seeded chance gates, write tiers, witness filter, tool-call policy | per item | S, X | outline |
-| 10 | **Acceptance** | v2.4 plan 09's shape, plus scan-mode journeys and the downgrade legs | all | — | outline |
+| 12 | **Release and packaging** | prod-readiness R1–R6, D1–D4, F1, P1–P3, U1–U2, A1, A2, Q2t, E3: release artifact + allowlist, one version, clean `dist/`, debug surface out of the prod bundle, Studio lazy chunk, `.debug/` out of `public/`, user docs, privacy section, CI | V1 | R | outline |
+| 10 | **Acceptance** | v2.4 plan 09's shape, scan-mode journeys, and the production-readiness checklist as a gate table | all | — | outline |
 
-01 and 02 run in parallel (different subsystems). 03 comes before 04 and 06, because both need coordinator lines.
-07 is independent. 08 waits for 01. Each item in 09 is its own spike with predeclared conditions, the T13 pattern.
+11 runs first: it deletes read branches and narrows the types every later plan touches, and it frees `memoryCoordinator`
+and manager lines (legacy inventory §5 ranks 2–3). Then 01 and 02 run in parallel (different subsystems). 03 comes before
+04 and 06, because both need coordinator lines. 07 is independent. 08 waits for 01. 12 is independent of all of them and
+can start at once, except that its bundle budget (F1) is measured after 03's extractions. Each item in 09 is its own spike
+with predeclared conditions, the T13 pattern.
 
 ## Plan outlines (03–10)
 
-### 03 Budget headroom and harness hardening
+### 11 Legacy removal (runs first)
+- **Source:** `research/legacy-inventory.md` §2–§5, measured read-only on this install (59 old blobs, 8 fixed-name mirror
+  books). Every H row is our own history; none protects a user (E9).
+- **Target (§3):** blob **v5**, `KNOWN_VERSIONS = [5]`; the fields that are optional only for old blobs become required
+  (`engineHistory`, `engineState.visitedPath`, row `provenance`, expansion `contract`/`origin`, `pinnedStory`). Every other
+  version takes the existing unreadable path, and `unreadableNotice` loses its "newer build" branch.
+- **Order (§4):** the policy bump → H1/H2/H3/H5 (the migration module and v2/v3 branches) → H10/H11 (required provenance, the
+  pin prompt and its census row) → H6/H7/H9 (library and settings history) → the small rows → A1–A3/A7 → debug and docs rows →
+  the one-time data actions.
+- **Decisions (V10):** the library is kept; old chats get a notice and a confirmed Restart; the old books move to a backup
+  folder outside the ST tree, never deleted; aliases become a validation error with a did-you-mean hint.
+- **Done:** 0 H rows open (prod-readiness S1), `npm run typecheck:test` green (jest does not type-check), J10 ×2 on a re-seeded
+  lane (select, hydrate, restart, unreadable → Restart).
+
+### 12 Release and packaging
+- **Source:** `research/code-health-audit.md` H1–H3, M5, L5, §6–§7; `research/prod-readiness-criteria.md` R, D, F1, P, U, A, Q2t.
+- **Install:** today ST's installer clones a repo whose `dist/` is gitignored while `manifest.json` sets `auto_update: true`,
+  so an install has no bundle and an update never rebuilds. The artifact is an allowlist (manifest, `dist/**` current build
+  only, LICENSE, README, CHANGELOG, `examples/**`, `server-plugin/**`), one version everywhere, `output.clean`. Distribution
+  form is U6.
+- **Debug surface:** the 12 `storyOrchestratorDebug*Response` globals silently replace real model output. They, the runtime
+  handle and the ~82 KB of measurement code leave the prod bundle behind a build flag (V11). The harness runs on a dev build.
+- **Served tree (P3):** done for the browser profile on 2026-09-25 (`0e1bbbe`: `browserProfileFor` puts it under
+  `<so-lanes>/0/chromium-profile`; the old `Login Data` URL now answers 404). Still served: the rest of `.debug/` (run logs,
+  journals and payload captures, which hold chat text) and `docs/`/`test/`. This plan moves the default `SO_DEBUG_DIR` out
+  of `public/`, the way the lanes already are; a release artifact without them closes it for users.
+- **Bundle (F1):** ≤ 1.25 MB main entry with Studio + cytoscape as a lazy chunk (V11), webpack `performance` set to it.
+- **Docs:** install without npm, first run, uninstall/cleanup (mirror lorebooks, wizard assets), troubleshooting, supported
+  ST versions, a privacy section (what each role sends where; the judge sends `state` to TypeSafe), changelog 2.4/2.5.
+- **CI:** every gate on push to master.
+
+### 03 Code health and budget headroom
+- **Targets (prod-readiness S2–S8, predeclared, never retuned):** manager ≤ 700 and every coordinator ≤ 560 effective lines
+  with the constants unchanged or lowered; every prod file ≤ 600; 0 functions > 150 lines or > 40 branches; 0 lines > 200
+  chars; 0 `@services/STAPI` imports under `coordinators/`; 0 import cycles; 0 dead exports; one definition of each shared
+  helper. Each new guard lands with a negative control.
+- **Comments (T3, V11):** plan/ticket/date narration goes; host-fact `file:line` citations and JSDoc on host seams stay, allowlisted
+  by a scanner guard.
 - **Budgets:** `MANAGER_LINE_BUDGET = 740` and `COORDINATOR_LINE_BUDGET = 620` (`src/runtime/architecture.test.ts:17-18`).
   Measured with the test's own formula: manager **736/740**, `memoryCoordinator` **619/620** on master HEAD, and the same on
   the 06/08 integration branch. Every v2.4 plan cites 736–737 and 619 (`v2.4/06-steering-stagecraft.md:344`,
@@ -82,8 +132,8 @@ version bump) still binds**: the downgrade leg that would make a bump safe is no
   after reading the file, not here.
 - **Harness:** replace the wall-clock `windowHygiene` bound (rule 11), unless v2.4 plan 09 already did, which
   `v2.4/07-judge.md:1124` routes to it.
-- **Done (proposed, to be predeclared in its doc):** ≥ 60 effective lines of coordinator headroom and ≥ 30 in the manager, with no guard retuned; `npm test` ×3 under a
-  parallel load with no timing failure.
+- **Done:** the S2–S8 targets above, T1–T4, E1/E2/E4, F2/F3 and Q1t/Q3t from the checklist; `npm test` ×3 under a parallel load
+  with no timing failure.
 
 ### 04 Memory contradictions, second pass
 - Limits as recorded (`v2.4/07-judge.md:1094-1101`):
@@ -162,8 +212,9 @@ Each needs its own measurement before a build. None has one yet.
 
 ### 10 Acceptance
 - v2.4 plan 09's shape, with rules 11–13 of v2.3 applied: archived records, "twice" meaning consecutive, `--strict`.
-- Added: every journey in scan mode (plan 01 G3/G4), the plan 01 downgrade leg, a 1.18.0 clean host for `05-H5` / `01-H10` /
-  `01-H13`, the plan 02 C1 live proof of the generating branch, and the human sessions (below).
+- Added: every journey in scan mode (plan 01 G3/G4), a clean host for each ST version the README claims (V10: the latest
+  stable ST at release), the plan 02 C1 live proof of the generating branch, the human sessions (below), and
+  **`research/prod-readiness-criteria.md` as a gate table**: every row met or a deferral the user signs off, never loosened.
 
 ## v2.4 residue: enters v2.5 only if v2.4 plan 09 defers it
 
@@ -174,7 +225,7 @@ These are v2.4's to finish. A row moves here only by a deferral the user signs o
 | Plan 06 live gates (T16, T17, seed A overlay) | `v2.4/06-steering-stagecraft.md:309,352-356` | 10 |
 | F5 curator `create`: Phase A not run live | `v2.4/06-steering-stagecraft.md:323` | below its floor → recorded not built (not a v2.5 item); not run → 06 |
 | Plan 08 live gates; T18 per-role calibration | `v2.4/08-author-observability.md:446-447` | 10; calibration → 06 |
-| Plan 02 downgrade leg | `v2.4/02-chat-identity-silent-mutation.md:930-931` | 10 (and it gates rule 3) |
+| ~~Plan 02 downgrade leg~~ | dropped by v2.4 E9 (user, 2026-09-25) | none |
 | Plan 07: agency and house-rule effect on replies (needs a control arm) | `v2.4/07-judge.md:1350-1356` | 06 |
 | Plan 07: in-flight call missed by the journey meter; TypeSafe terms row; warden 4 s timeout | `v2.4/07-judge.md:1399-1401,1437,1027-1028` | 03 / 06 |
 | Plan 01: phantom outermost mitigation not built; T1 hashing cost unmeasured | `v2.4/01-carry-in.md:637-643,571` | 02 |
@@ -204,9 +255,11 @@ These are v2.4's to finish. A row moves here only by a deferral the user signs o
 | V4 | Budgets at 736/740 and 619/620 | **Extract, do not raise** | `architecture.test.ts:17-18` came in with v2.1 plan 03's coordinator split (`.claude/rules/gotchas.md`, "v2.1 plan 03 runtime layout"); raising it removes the pressure that showed `memoryPairs` blocked |
 | V5 | Wall-clock tests | **Structural bounds in jest; p95 in live probes** (rule 11) | three recorded flakes (rule 11) |
 | V6 | The v2.5 seeds file v2.4 plan 09 owes | **This overview is the plan set.** When plan 09 writes `v2.4/v2.5-seeds.md`, any row missing here is added by a reconciliation section, not the reverse | `v2.4/09-acceptance.md:191-198`; the file does not exist |
-| V7 | Chat-blob version bump in v2.5 | **None**, unless the v2.4 downgrade leg is green first | v2.4 rule 3 (`v2.4/00-overview.md:55-64`); `v2.4/02-*.md:930-931` |
+| V7 | Chat-blob version bump in v2.5 | **Yes, to v5, in plan 11**, with reset-on-unknown (rule 9). Superseded the earlier "none" | v2.4 E9; `research/legacy-inventory.md` §3 |
 | V8 | Research candidates | **Spikes with predeclared conditions, never direct builds** | the T13 path (X19 → spike → PASS → plan 01) is the one research item that reached a build plan on evidence |
 | V9 | Judge-shaped items | **v2.4 rule 4 unchanged**: own Phase A, own key, off by default, judge-off column | `.claude/rules/architecture.md` "The judge never blocks and never writes"; `v2.4/00-overview.md:65-69` (rule 4) |
+| V10 | Legacy inventory Q1–Q6 | Q1 the library is **kept** (only chat state resets). Q2 old chats: the unreadable path's **notice + confirmed Restart**, never silent replacement. Q3 the 8 fixed-name and unmarked per-chat mirror books are **moved to a backup folder outside the ST tree**, not deleted. Q4 the declared minimum is **the latest stable ST at release**, verified by a clean host; 1.18.0 is kept only if a full acceptance runs there. Q5 after the first public release, **real migrations** (the `schema: 1` stamp is the baseline). Q6 aliases are **removed**, and an unknown key is a validation error with a did-you-mean hint | E9 (user); the unreadable path already exists and is tested (`blobUnreadable`, J10.13); a moved file can be restored, a deleted one cannot |
+| V11 | Code-health questions that are engineering calls | Comments: narration goes, host-fact citations and host-seam JSDoc stay (allowlisted). i18n: **English-only for 2.5**, stated in the README. `fetch` wrapper: **kept**, because it refuses the measured empty-chat-under-another-id write (v2.4 plan 02, `.claude/rules/gotchas.md` "ST binds a chat save…"); E3's live check with two other fetch-wrapping extensions is its evidence. Debug handles and response globals: **dev builds only**; prod keeps `talkControlInterceptor` and at most one read-only handle. Bundle: **≤ 1.25 MB** main entry with Studio lazy | `research/code-health-audit.md` M1, M5, M6, H2; `research/prod-readiness-criteria.md` open questions 1, 3, 4, 6, 7 |
 
 ## Questions that are the user's
 
@@ -215,8 +268,12 @@ These are v2.4's to finish. A row moves here only by a deferral the user signs o
 - **U2** Hosted judge routes (D10): wanted at all? If not, plan 06 covers only the judge-shaped uses.
 - **U3** Which plan-09 spikes, and in what order (the table above)?
 - **U4** Human sessions: when? They gate rule-7 surface, the D6/T22 revisit and the over-steer rubric in both v2.4 and v2.5.
-- **U5** C1's one-line ownership check (`effectsApplier.ts:384`) could land as a v2.4 fix before plan 09, instead of waiting for
-  v2.5. v2.4's plans are closed to new scope, so this draft places it in v2.5. Your call.
+- **U5** ~~C1's one-line ownership check~~ — built as a v2.4 fix (branch `644aa05`), merged after v2.4's plan 06/08 live gates,
+  with its own live check ×2. v2.5 plan 02 keeps only the in-flight generation half.
+- **U6** Distribution (prod-readiness R1/R2): a `release` branch with `dist/` committed (works with ST's installer and
+  `auto_update`), GitHub release zips only, or both? It decides where the artifact lives on your GitHub.
+- **U7** Judge key scope (P2): in multi-user ST, the env and `~/.typesafe` fallbacks are shared by every user. Drop them in
+  multi-user installs, or document them as install-wide?
 
 ## Out of scope for v2.5
 
@@ -233,7 +290,7 @@ These are v2.4's to finish. A row moves here only by a deferral the user signs o
 
 | Plan | Status |
 |---|---|
-| 00 overview | DRAFT 2026-09-25, awaits user approval |
+| 00 overview | DRAFT 2026-09-25, reconciled the same day (E9 + research); awaits user approval |
 | 01 | DRAFT written (`01-wi-scan-gating.md`); open: U1 |
 | 02 | DRAFT written (`02-carry-in.md`) |
-| 03–10 | outline only; a doc is written when its evidence or decision exists |
+| 03–12 | outline only; a doc is written when its evidence or decision exists. 11 and 12 have their research docs as evidence |
