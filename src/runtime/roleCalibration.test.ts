@@ -215,8 +215,41 @@ describe("recorded live goldens replay through the same run path", () => {
   it(`found ${files.length} recorded golden(s)`, () => {
     expect(Array.isArray(files)).toBe(true);
   });
+  const REACHABILITY_REFUSED = { valid: false, status: "failed", shape: false, repaired: true };
+  const INTERMEDIATE_OK = { valid: true, status: "ok", shape: true, kinds: ["addCheckpoint"], issues: [] };
+  const REACHABILITY = "no reachable anchor";
+  const CHANGED_BY_CODE: Record<string, { cases: Record<string, { before: Record<string, unknown>; why: string; after: Record<string, unknown>; unused: number }>; overall: Record<string, number>; es: Record<string, number> }> = {
+    "authoring-shared.json": {
+      cases: { a07: { before: REACHABILITY_REFUSED, why: REACHABILITY, after: { ...INTERMEDIATE_OK, repaired: false }, unused: 1 } },
+      overall: { validity: 17, opShape: 17, firstTry: 16 },
+      es: { validity: 6, opShape: 6, firstTry: 6 },
+    },
+    "authoring-shared-e420eab0c646.json": {
+      cases: {
+        a05: { before: REACHABILITY_REFUSED, why: REACHABILITY, after: { ...INTERMEDIATE_OK, repaired: true }, unused: 0 },
+        a07: { before: REACHABILITY_REFUSED, why: REACHABILITY, after: { ...INTERMEDIATE_OK, repaired: false }, unused: 1 },
+        a15: { before: REACHABILITY_REFUSED, why: REACHABILITY, after: { ...INTERMEDIATE_OK, repaired: true }, unused: 0 },
+      },
+      overall: { validity: 20, opShape: 20, firstTry: 15 },
+      es: { validity: 8, opShape: 8, firstTry: 6 },
+    },
+    "curator-shared-e420eab0c646.json": {
+      cases: {
+        c13: {
+          before: { survived: 0, decision: false, kept: [] },
+          why: '"La Cripta\\" (Abadía Lore)\\" is not an entry this story owns',
+          after: { survived: 1, decision: true, kept: ["enable:La Cripta"], dropped: [] },
+          unused: 0,
+        },
+      },
+      overall: { validity: 20, opShape: 14, decision: 19 },
+      es: { validity: 8, opShape: 6, decision: 7 },
+    },
+  };
+  const passedBy = (slice: { metrics: Record<string, { passed: number }> }) => Object.fromEntries(Object.entries(slice.metrics).map(([name, metric]) => [name, metric.passed]));
   for (const file of files) {
     it(`${file}: every case re-scores to the recorded score, and the summary to the recorded summary`, async () => {
+      const changed = CHANGED_BY_CODE[file];
       const golden = JSON.parse(readFileSync(join(dir, file), "utf8"));
       const replayed: RoleCaseRecord[] = [];
       const unanswered: RoleCaseRecord[] = [];
@@ -239,7 +272,17 @@ describe("recorded live goldens replay through the same run path", () => {
         let tick = 0;
         const result = await runRoleCase(golden.role, entry.case, { profileId: "replay", now: () => (tick++ === 0 ? 0 : entry.latencyMs) });
         unrecorded.allow = false;
-        expect(queued).toHaveLength(0);
+        const change = changed?.cases[entry.id];
+        expect(queued).toHaveLength(change?.unused ?? 0);
+        if (change) {
+          expect(unrecorded.prompts).toEqual([]);
+          expect(entry.score).toMatchObject(change.before);
+          expect(JSON.stringify(entry.score)).toContain(change.why);
+          expect(result.score).toEqual({ ...entry.score, ...change.after });
+          replayed.push({ ...result, score: entry.score });
+          unanswered.push(result);
+          continue;
+        }
         if (unrecorded.prompts.length) {
           expect(unrecorded.prompts).toHaveLength(1);
           expect(unrecorded.prompts[0]).toContain(`is not allowed in the ${entry.case.stage} stage`);
@@ -255,14 +298,18 @@ describe("recorded live goldens replay through the same run path", () => {
       }
       const floorIds = golden.role === "director" ? directorFixture.rows.slice(0, 26).map((row: { id: string }) => row.id) : undefined;
       expect(summarizeRoleCalibration(golden.role, replayed, floorIds ? { floorIds } : {})).toEqual(golden.summary);
+      expect(Object.keys(changed?.cases ?? {}).every((id) => golden.records.some((entry: { id: string }) => entry.id === id))).toBe(true);
+      if (changed && golden.role !== "authoring") {
+        const current = summarizeRoleCalibration(golden.role, unanswered);
+        expect({ overall: passedBy(current.overall), es: passedBy(current.es) }).toEqual({ overall: changed.overall, es: changed.es });
+      }
       if (golden.role !== "authoring") return;
       const outOfStage = (golden.records as Array<{ id: string; case: AuthoringCalibrationCase; score: AuthoringScore }>)
         .filter((entry) => !entry.score.repaired && entry.score.kinds.some((kind) => !(STAGE_OPS[entry.case.stage] as readonly string[]).includes(kind)))
         .map((entry) => entry.id);
       expect(refusedByStage).toEqual(outOfStage);
       const enforced = summarizeRoleCalibration("authoring", unanswered);
-      expect(enforced.overall.metrics.opShape).toEqual(golden.summary.overall.metrics.opShape);
-      expect(enforced.overall.metrics.validity.passed).toBe(golden.summary.overall.metrics.validity.passed - refusedByStage.length);
+      expect({ overall: passedBy(enforced.overall), es: passedBy(enforced.es) }).toEqual(changed ? { overall: changed.overall, es: changed.es } : { overall: passedBy(golden.summary.overall), es: passedBy(golden.summary.es) });
     });
   }
 });

@@ -80,6 +80,7 @@ export interface ProposalResult {
   preview: { errors: ValidationError[]; diagnostics: Diagnostic[] };
   status: "ok" | "failed" | "questions";
   issues: string[];
+  deferred?: string[];
   questions: WizardQuestion[];
   audit: CopilotAudit;
 }

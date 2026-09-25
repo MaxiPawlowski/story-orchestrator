@@ -82,6 +82,53 @@ describe("T17.2 uid addressing", () => {
     expect(proposal.dropped).toEqual(['disable: ambiguous: 2 entries titled "The bridge"']);
   });
 
+  describe("an entry named the way the prompt lists it", () => {
+    const cripta = (): CuratorEntryView[] => [
+      { lorebook: "Abadía Lore", comment: "La Cripta", keys: ["cripta"], content: "Bajo el altar.", disabled: true },
+      { lorebook: "Abadía Lore", comment: "El Abad", keys: ["abad"], content: "El abad vigila.", disabled: false },
+    ];
+    const twins = (): CuratorEntryView[] => [...entries(), { lorebook: "Other Lore", comment: "The bridge", keys: [], content: "Another bridge.", disabled: false, uid: 5 }];
+
+    it("resolves a quoted title with its trailing (Lorebook), the listed shape (live c13)", () => {
+      const proposal = parseCuratorResponse('[enable] "La Cripta" (Abadía Lore)\n[why] El grupo ha descendido a la cripta.', cripta());
+      expect(proposal.ops).toEqual([{ kind: "enable", lorebook: "Abadía Lore", comment: "La Cripta" }]);
+      expect(proposal.dropped).toEqual([]);
+    });
+
+    it("the trailing lorebook is case-insensitive, may follow an unquoted title, and keeps the reason and patch parts", () => {
+      expect(parseCuratorResponse("[enable] the ferryman (story lore) | he is back", entries()).ops).toEqual([{ kind: "enable", lorebook: "Story Lore", comment: "The ferryman", uid: 7 }]);
+      expect(parseCuratorResponse('[patch] "The bridge" (Story Lore) || ropes new || taut. || ropes cut.', entries()).ops).toEqual([
+        { kind: "patch", lorebook: "Story Lore", comment: "The bridge", uid: 4, anchor: "ropes new || taut.", replace: "ropes cut." },
+      ]);
+    });
+
+    it("the trailing lorebook disambiguates two books sharing a title", () => {
+      expect(parseCuratorResponse('[disable] "The bridge" (Other Lore)', twins()).ops).toEqual([{ kind: "disable", lorebook: "Other Lore", comment: "The bridge", uid: 5 }]);
+      expect(parseCuratorResponse('[disable] "The bridge" (Story Lore)', twins()).ops).toEqual([{ kind: "disable", lorebook: "Story Lore", comment: "The bridge", uid: 4 }]);
+    });
+
+    it("control: a lorebook that does not hold the title never resolves to another book's entry", () => {
+      const proposal = parseCuratorResponse('[enable] "La Cripta" (Story Lore)\n[disable] "The bridge" (Third Lore)', [...cripta(), ...twins()]);
+      expect(proposal.ops).toEqual([]);
+      expect(proposal.dropped).toEqual([
+        'enable: "La Cripta" is not in Story Lore',
+        'disable: "The bridge" is not in Third Lore',
+      ]);
+    });
+
+    it("control: a bare title shared by two books stays ambiguous, and a title holding parentheses still matches whole", () => {
+      expect(parseCuratorResponse('[disable] "The bridge"', twins()).dropped).toEqual(['disable: ambiguous: 2 entries titled "The bridge"']);
+      const list = [...entries(), { lorebook: "Story Lore", comment: "Gate (north)", keys: [], content: "x", disabled: true, uid: 12 }];
+      expect(parseCuratorResponse('[enable] "Gate (north)"', list).ops).toEqual([{ kind: "enable", lorebook: "Story Lore", comment: "Gate (north)", uid: 12 }]);
+      expect(parseCuratorResponse("[enable] Gate (north)", list).ops).toEqual([{ kind: "enable", lorebook: "Story Lore", comment: "Gate (north)", uid: 12 }]);
+      expect(parseCuratorResponse('[enable] "Gate (north)" (Story Lore)', list).ops).toEqual([{ kind: "enable", lorebook: "Story Lore", comment: "Gate (north)", uid: 12 }]);
+    });
+
+    it("control: an unknown title with a real lorebook is still unknown", () => {
+      expect(parseCuratorResponse('[enable] "La Torre" (Abadía Lore)', cripta()).dropped).toEqual(['enable: "La Torre" (Abadía Lore) is not an entry this story owns']);
+    });
+  });
+
   it("drops an unknown #uid", () => {
     expect(parseCuratorResponse("[disable] #99", entries()).dropped).toEqual(["disable: #99 is not an entry this story owns"]);
   });
