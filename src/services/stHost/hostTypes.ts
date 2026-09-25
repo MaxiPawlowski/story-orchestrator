@@ -92,7 +92,22 @@ export interface SillyTavernContext {
   getPresetManager?: (apiId?: string) => HostPresetManager | null;
   // v2.4 03-H6: the reply text ST's extracted path reads (script.js:6276, st-context.js:287).
   extractMessageFromData?: (data: unknown, activeApi?: string | null) => string;
+  // v2.4 08-H7: every extension prompt ST holds, ours and every other extension's (st-context.js:152).
+  extensionPrompts?: Record<string, HostExtensionPrompt | undefined>;
+  // v2.4 08-H6: the main API's tokenizer; on BEST_MATCH + textgen it is a backend call (tokenizers.js:443).
+  getTokenCountAsync?: (text: string, padding?: number) => Promise<number>;
   [key: string]: unknown;
+}
+
+// v2.4 08-H7: script.js:8926-8935. `position` NONE -1 / IN_PROMPT 0 / IN_CHAT 1 / BEFORE_PROMPT 2; `filter`
+// is a function ST awaits at assembly (a false answer skips the block) or null.
+export interface HostExtensionPrompt {
+  value?: unknown;
+  position?: unknown;
+  depth?: unknown;
+  scan?: unknown;
+  role?: unknown;
+  filter?: unknown;
 }
 
 export interface HostConnectApiMap {
@@ -114,6 +129,10 @@ export interface ScriptHostModule {
   doNavbarIconClick: (this: Element) => Promise<void>;
   // script.js:405 — the name ST gives its own group `/sd` posts and tool-call rows (v2.4 01-H11).
   systemUserName: string;
+  // v2.4 08-H3: script.js:5929/5966/5981 — the main API's context, reply length and their difference.
+  getMaxContextTokens?: () => number;
+  getMaxResponseTokens?: () => number;
+  getMaxPromptTokens?: (overrideResponseLength?: number | null) => number;
   [key: string]: unknown;
 }
 

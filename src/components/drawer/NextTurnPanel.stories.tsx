@@ -1,0 +1,89 @@
+import type { Meta, StoryObj } from "@storybook/react";
+import { fn, within, userEvent, expect } from "@storybook/test";
+import { buildForeignRows, buildNextTurnCost, buildNextTurnPreview, type NextTurnBudget, type NextTurnSourceBlock, type TokenCount } from "@runtime/nextTurn";
+import type { RuntimeSnapshot } from "@runtime/types";
+import { NextTurnPanel } from "./NextTurnPanel";
+
+const OWN: NextTurnSourceBlock[] = [
+  { key: "story_orchestrator_pacing", depth: 2, role: 0, value: "Raise the stakes toward the sanctum.", position: 1, hasFilter: false },
+  { key: "story_orchestrator_memory_facts", depth: 4, role: 0, value: "The sun-key opens the inner sanctum.", position: 1, hasFilter: false },
+];
+
+const FOREIGN: NextTurnSourceBlock[] = [
+  { key: "3_vectors", depth: 2, role: 0, value: "Past events:\nThe lighthouse keeper lied about the storm.", position: 1, hasFilter: false },
+  { key: "script_inject_mood", depth: 1, role: 1, value: "Keep the tone grim.", position: 1, hasFilter: true },
+  { key: "tracker_state", depth: 0, role: 0, value: "hp=12", position: -1, hasFilter: false },
+];
+
+const BUDGET: NextTurnBudget = { ok: true, context: 98304, response: 600, prompt: 97704, api: "textgenerationwebui" };
+
+const snapshotWith = (countOf: (value: string) => TokenCount | null, budget: NextTurnBudget | null, foreign: NextTurnSourceBlock[] = []): RuntimeSnapshot => {
+  const nextTurn = buildNextTurnPreview(OWN, { draftedMember: null, scene: null, sceneFallback: null, countOf, budget });
+  const nextTurnForeign = buildForeignRows(foreign, countOf, budget);
+  return { nextTurn, nextTurnForeign, nextTurnCost: buildNextTurnCost(nextTurn, nextTurnForeign, budget, budget?.ok ? budget.prompt : null) } as unknown as RuntimeSnapshot;
+};
+
+const host = (value: string): TokenCount => ({ tokens: Math.ceil(value.length / 3), source: "host" });
+const estimate = (value: string): TokenCount => ({ tokens: Math.ceil(value.length / 4), source: "estimate" });
+
+const meta: Meta<typeof NextTurnPanel> = {
+  title: "Drawer/NextTurnPanel",
+  component: NextTurnPanel,
+  args: { actions: { clearNote: fn(), rerunScene: fn(async () => {}) }, onOpenOwner: fn() },
+};
+
+export default meta;
+
+type Story = StoryObj<typeof NextTurnPanel>;
+
+export const Counting: Story = {
+  args: { snapshot: snapshotWith(() => null, BUDGET) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvasElement.querySelector('[data-so="next-turn-cost"]')).toHaveTextContent("counting…");
+    await expect(canvas.getAllByText(/counting…/).length).toBeGreaterThanOrEqual(2);
+  },
+};
+
+export const HostCounts: Story = {
+  args: { snapshot: snapshotWith(host, BUDGET) },
+  play: async ({ canvasElement }) => {
+    const cost = canvasElement.querySelector('[data-so="next-turn-cost"]');
+    await expect(cost).toHaveTextContent("of 97,704 available (max context − response)");
+    await expect(cost).not.toHaveTextContent("estimated");
+    const tokens = [...canvasElement.querySelectorAll('[data-so="next-turn-tokens"]')].map((node) => node.textContent);
+    await expect(tokens.every((text) => /\d+ tokens · \d/.test(text ?? ""))).toBe(true);
+  },
+};
+
+export const EstimatedCounts: Story = {
+  args: { snapshot: snapshotWith(estimate, BUDGET) },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('[data-so="next-turn-cost"]')).toHaveTextContent("some counts estimated");
+    await expect(canvasElement.querySelector('[data-so="next-turn-tokens"]')).toHaveTextContent("(estimate)");
+  },
+};
+
+export const BudgetUnknown: Story = {
+  args: { snapshot: snapshotWith(host, { ok: false, reason: "this build exports no getMaxPromptTokens from script.js" }) },
+  play: async ({ canvasElement }) => {
+    const cost = canvasElement.querySelector('[data-so="next-turn-cost"]');
+    await expect(cost).toHaveTextContent("budget unknown");
+    await expect(cost).toHaveAttribute("data-budget", "unknown");
+    await expect(cost).not.toHaveTextContent(" of 0 ");
+  },
+};
+
+export const ForeignBlocks: Story = {
+  args: { snapshot: snapshotWith(host, BUDGET, FOREIGN) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const group = canvasElement.querySelector('[data-so="next-turn-foreign"]') as HTMLElement;
+    await expect(group).not.toBeNull();
+    await userEvent.click(canvas.getByText(/Other extensions/));
+    await expect(group).toHaveTextContent("/inject mood");
+    await expect(group).toHaveTextContent("not injected; macro only");
+    await expect(group).toHaveTextContent("conditional");
+    await expect(group.querySelectorAll("button").length).toBe(0);
+  },
+};

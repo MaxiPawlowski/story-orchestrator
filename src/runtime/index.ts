@@ -1,7 +1,7 @@
 import { callExtractionModel, getChatWindow, ExtractionScheduler, probeModel, type SchedulerHost, type SchedulerJob, type SchedulerSettings } from "@extraction/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { sceneFieldsInConflict } from "@memory/index";
-import { clearStoryExtensionPrompt, executeSlashCommands, forceActivateEntries, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, getScannableEntries, judgeStatus, judgeTransport, noteHostSettingsLoaded, profileExists, setStoryExtensionPrompt, settingsReady, subscribeToHostEvents, willAddUserMessage, EXTENSION_SETTINGS_LOADED_EVENT, type HostSubscriptionEntry } from "@services/STAPI";
+import { clearStoryExtensionPrompt, countTokens, executeSlashCommands, forceActivateEntries, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, getScannableEntries, judgeStatus, judgeTransport, noteHostSettingsLoaded, profileExists, readExtensionPromptBlocks, readPromptBudget, setStoryExtensionPrompt, settingsReady, subscribeToHostEvents, willAddUserMessage, EXTENSION_SETTINGS_LOADED_EVENT, type HostSubscriptionEntry } from "@services/STAPI";
 import { breakerWatchEntries } from "./breakerWatch";
 import { quoteSlashArg } from "@utils/string";
 import { runBoundaryWork } from "./boundaryWork";
@@ -28,6 +28,7 @@ import { onWizardSessionSave } from "./wizardSessions";
 import { loreEvidence } from "./worldInfoEvidence";
 import { startLoreEvidence } from "./worldInfoEvidenceHost";
 import { startScanGating } from "./worldInfoScanHost";
+import { promptCost } from "./promptCost";
 
 let started = false;
 let bridge: TurnBridge | null = null;
@@ -263,12 +264,18 @@ export function startRuntime() {
     ownership: runtimeManager.getOwnership(),
   };
   talkController = new TalkController(talkHost);
-  globalThis.talkControlInterceptor = async (_chat, _contextSize, abort, type) => {
+  globalThis.talkControlInterceptor = async (_chat, contextSize, abort, type) => {
+    promptCost.noteGenerationBudget(contextSize);
     let aborted = false;
     await talkController?.intercept((immediate) => { aborted = true; abort(immediate); }, type);
     await onLoreIntercept(type, aborted);
   };
   const generation = new GenerationLifecycle(isTurnMessageType);
+  runtimeDisposers.push(promptCost.attach({ count: countTokens, budget: readPromptBudget, notify: () => runtimeManager.notify(), busy: () => generation.snapshot().outermost !== null }));
+  runtimeDisposers.push(runtimeManager.subscribe(() => {
+    const blocks = readExtensionPromptBlocks();
+    promptCost.request([...blocks.own, ...blocks.foreign].map((block) => block.value));
+  }));
   const applyGeneration = (intents: GenerationIntent[]) => {
     for (const intent of intents) {
       if (intent.kind === "opened") {

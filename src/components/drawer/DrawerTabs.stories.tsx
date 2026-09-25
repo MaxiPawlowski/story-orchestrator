@@ -125,13 +125,15 @@ const sampleSnapshot = (): RuntimeSnapshot => derive(({
         { key: "story_orchestrator_pacing", depth: 2, role: 0, value: "Raise the stakes toward the sanctum." },
       ] },
     ],
-    nextTurn: [
+    nextTurn: ([
       { key: "story_orchestrator_continuity", label: "Continuity note", owner: "runtime/coordinators/stagecraftCoordinator", ownerTab: "scheduler", depth: 0, role: 0, characters: 62, target: null, oneShot: true, freshness: "live", fallback: null, preview: "The wards are broken, and the sanctum is unsealed." },
       { key: "story_orchestrator_scene", label: "Scene so far", owner: "runtime/coordinators/sceneCoordinator", ownerTab: "scheduler", depth: 1, role: 0, characters: 44, target: null, oneShot: false, freshness: "stale", fallback: null, preview: "The inner sanctum, the wards failing at the threshold." },
       { key: "story_orchestrator_epistemic", label: "What the speaker knows", owner: "memory/inject.applyEpistemicInjection", ownerTab: "memory", depth: 4, role: 0, characters: 51, target: "Arin", oneShot: false, freshness: "live", fallback: "timeout", preview: "[hiding from Arin] the key is a forgery" },
       { key: "story_orchestrator_memory_facts", label: "Memory — established facts", owner: "memory/inject.applyMemoryInjection", ownerTab: "memory", depth: 4, role: 0, characters: 37, target: null, oneShot: false, freshness: "live", fallback: null, preview: "The sun-key opens the inner sanctum." },
       { key: "story_orchestrator_pacing", label: "Pacing", owner: "runtime/runtimeManager.applyPacingSteering", ownerTab: "config", depth: 4, role: 0, characters: 36, target: null, oneShot: false, freshness: "live", fallback: null, preview: "Raise the stakes toward the sanctum." },
-    ],
+    ] as Array<Record<string, unknown>>).map((row) => ({ tokens: null, tokenSource: null, share: null, position: 1, conditional: false, ...row })),
+    nextTurnForeign: [],
+    nextTurnCost: { ownTokens: null, foreignTokens: 0, counting: 5, estimated: false, budget: null, context: null, response: null, budgetUnknown: "the context size has not been read", share: null, lastGenerationBudget: null },
   }) as unknown as RuntimeSnapshot);
 
 const previewActions = { clearNote: fn(), rerunScene: fn() };

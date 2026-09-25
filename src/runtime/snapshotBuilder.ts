@@ -13,9 +13,10 @@ import { findStoryRecord, listStoryRecords } from "./storyLibrary";
 import { orphanedLorebooks } from "./mirrorReaper";
 import { loreEvidenceView } from "./worldInfoEvidence";
 import { scanGateView } from "./worldInfoMode";
-import { buildNextTurnPreview } from "./nextTurn";
+import { buildForeignRows, buildNextTurnCost, buildNextTurnPreview } from "./nextTurn";
+import { promptCost } from "./promptCost";
 import { readChatIdentity } from "./chatIdentity";
-import type { InjectedPromptBlock } from "@services/STAPI";
+import type { ExtensionPromptBlocks } from "@services/STAPI";
 import type { ExtractionHealth } from "@extraction/index";
 import type { LoadedStory, PayloadCapture, RuntimeExtras, RuntimeSnapshot } from "./types";
 
@@ -39,8 +40,8 @@ export interface SnapshotSources {
   driver: DriverContext | null;
   activeNudge: string | null;
   payloadCaptures: PayloadCapture[];
-  /** v2.3 plan 09: the blocks ST holds right now, read by the manager (this builder stays pure). */
-  injectedBlocks: InjectedPromptBlock[];
+  /** v2.3 plan 09 / v2.4 plan 08: every extension prompt ST holds right now, ours and other extensions'. */
+  promptBlocks: ExtensionPromptBlocks;
   /** V13: where the player's own lines sit in the chat, so a refusal counts turns, not replies. */
   playerTurns: number[];
   extractionHealth?: ExtractionHealth | null;
@@ -75,11 +76,16 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
   // for — and the scene block reports the tracker's own staleness and last fallback.
   const lastDecision = extras.talk.decisions[extras.talk.decisions.length - 1] ?? null;
   const lastSceneCall = [...extras.judge.calls].reverse().find((call) => call.use.startsWith("scene")) ?? null;
-  const nextTurn = buildNextTurnPreview(sources.injectedBlocks, {
+  const cost = promptCost.view();
+  const countOf = (value: string) => promptCost.countOf(value);
+  const nextTurn = buildNextTurnPreview(sources.promptBlocks.own, {
     draftedMember: lastDecision?.chosenName ?? null,
     scene: extras.judge.scene,
     sceneFallback: lastSceneCall?.fallback ?? null,
+    countOf,
+    budget: cost.budget,
   });
+  const nextTurnForeign = buildForeignRows(sources.promptBlocks.foreign, countOf, cost.budget);
   const narrative = buildNarrativeStatus({
     storyTitle: story?.title ?? null,
     checkpointName: active?.name ?? null,
@@ -167,5 +173,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     activeNudge: sources.activeNudge,
     payloadCaptures: sources.payloadCaptures,
     nextTurn,
+    nextTurnForeign,
+    nextTurnCost: buildNextTurnCost(nextTurn, nextTurnForeign, cost.budget, cost.lastGenerationBudget),
   };
 }

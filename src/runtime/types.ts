@@ -10,7 +10,7 @@ import type { JournalRecord } from "./journal";
 import type { EngineHistory } from "@engine/index";
 import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./narrative";
 import type { AgencyRecovery } from "./agencyRecovery";
-import type { NextTurnContributor } from "./nextTurn";
+import type { NextTurnContributor, NextTurnCost, NextTurnForeignRow } from "./nextTurn";
 import type { PipelineStatus } from "./pipeline";
 import type { OrphanedLorebook } from "./mirrorReaper";
 import type { LoreEvidenceView } from "./worldInfoEvidence";
@@ -420,6 +420,10 @@ export interface RuntimeSnapshot {
   payloadCaptures: PayloadCapture[];
   /** v2.3 plan 09 (author view): what the next reply will receive, one row per injected block. */
   nextTurn: NextTurnContributor[];
+  /** v2.4 plan 08 T19b: other extensions' blocks beside ours, read-only and never persisted. */
+  nextTurnForeign: NextTurnForeignRow[];
+  /** v2.4 plan 08 T19a: the story blocks' tokens as a share of the main API's prompt budget. */
+  nextTurnCost: NextTurnCost;
 }
 
 export interface LoadedStory {

@@ -3,8 +3,10 @@ export { showTextPopup, showConfirmPopup, showChoicePopup } from "@services/stHo
 export { bindNavbarDrawerToggle, toggleNavbarDrawer } from "@services/stHost/drawers";
 export { sendSystemChatMessage } from "@services/stHost/chatMessages";
 export type { TextPopupOptions, ConfirmPopupOptions, ChoicePopupOptions } from "@services/stHost/popup";
-export { readInjectedPromptBlocks } from "@services/stHost/promptInspector";
-export type { InjectedPromptBlock } from "@services/stHost/promptInspector";
+export { readExtensionPromptBlocks, readInjectedPromptBlocks } from "@services/stHost/promptInspector";
+export type { ExtensionPromptBlock, ExtensionPromptBlocks, InjectedPromptBlock } from "@services/stHost/promptInspector";
+export { readPromptBudget } from "@services/stHost/contextBudget";
+export type { PromptBudget, PromptBudgetRead } from "@services/stHost/contextBudget";
 export type { StoryOrchestratorHostContext } from "@services/stHost/context";
 export { subscribeToHostEvent, subscribeToHostEvents } from "@services/stHost/events";
 export type { HostEventPayloads, HostEventName, TypedHostEventHandler, HostSubscriptionEntry } from "@services/stHost/events";

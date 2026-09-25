@@ -16,7 +16,7 @@ import {
 } from "@memory/index";
 import type { CuratorOp, CuratorPassOutcome } from "@stagecraft/index";
 import {
-  getContext, readInjectedPromptBlocks, showTextPopup, type WIEntrySnapshot,
+  getContext, readExtensionPromptBlocks, readInjectedPromptBlocks, showTextPopup, type WIEntrySnapshot,
 } from "@services/STAPI";
 import { AwayRecapController, type AwayRecap } from "./awayRecap";
 import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./narrative";
@@ -518,7 +518,7 @@ export class RuntimeManager {
       extractionHealth: this.scheduler?.health() ?? null,
     // A live in-memory read of ST's own extension prompts: cheap, and the only honest answer to
     // "what will the next reply carry" (a capture answers what the LAST one carried).
-    injectedBlocks: readInjectedPromptBlocks(),
+    promptBlocks: readExtensionPromptBlocks(),
     playerTurns: playerTurnIds(getContext().chat ?? []),
     });
   }

@@ -9,8 +9,8 @@ import ConflictQueue from "./ConflictQueue";
 import PlayerOverview from "./PlayerOverview";
 import StagecraftPanel from "./StagecraftPanel";
 import ScenePanel from "./ScenePanel";
+import { NextTurnPanel, type NextTurnOwnerTab } from "./NextTurnPanel";
 
-type NextTurnOwnerTab = RuntimeSnapshot["nextTurn"][number]["ownerTab"];
 
 export type DrawerTabId = "overview" | "blackboard" | "memory" | "scheduler" | "payload";
 
@@ -679,51 +679,6 @@ const ScanGateTable = ({ view, evidence }: { view: RuntimeSnapshot["scanGate"]; 
   );
 };
 
-// v2.3 plan 09. What the NEXT reply will carry, in the order ST assembles it, with the one control
-// this surface owns per contributor. It is read from ST's own extension prompts rather than from the
-// last capture — a capture answers what the previous turn carried, which is a different question.
-// V19: "edited in: memory" named the owning editor without reaching it. Each contributor now opens it:
-// a drawer tab, or the settings panel for what the install configures.
-const OWNER_LABELS: Record<NextTurnOwnerTab, string> = { memory: "Open Memory", scheduler: "Open Scheduler", config: "Open settings", payload: "" };
-
-const NextTurnPanel = ({ snapshot, manager, onOpenOwner }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; onOpenOwner: (tab: NextTurnOwnerTab) => void }) => {
-  const rows = snapshot.nextTurn;
-  return (
-    <div id="so-next-turn" className="flex flex-col gap-1">
-      <div className="font-medium opacity-100">Next reply ({rows.length} contributor{rows.length === 1 ? "" : "s"})</div>
-      {rows.length === 0 ? (
-        <div className="opacity-70">Nothing is injected into the next reply.</div>
-      ) : rows.map((row) => (
-        <div key={row.key} data-so="next-turn-row" data-key={row.key} className="border-t border-solid border-white/10 pt-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="opacity-100">{row.label}</span>
-            <span className="opacity-60">depth {row.depth} · {row.characters} chars</span>
-            {row.target && <span className="st-pill px-1 text-[10px]" title="Injected only for the member ST drafts">private → {row.target}</span>}
-            {row.oneShot && <span className="st-pill px-1 text-[10px]">one turn</span>}
-            {row.freshness !== "live" && <span className="text-yellow-300">{row.freshness}</span>}
-            {row.fallback && <span className="text-yellow-300">fell back ({row.fallback})</span>}
-          </div>
-          <div className="opacity-60">{row.owner}</div>
-          <div className="whitespace-pre-wrap opacity-80">{row.preview}</div>
-          <div className="flex flex-wrap items-center gap-2 pt-1">
-            {row.oneShot && (
-              <button data-so="next-turn-clear" className="menu_button text-xs" onClick={() => manager.previewActions.clearNote()}>Clear the note</button>
-            )}
-            {row.key === "story_orchestrator_scene" && (
-              <button data-so="next-turn-reread-scene" className="menu_button text-xs" onClick={() => void manager.previewActions.rerunScene()}>Re-read the scene</button>
-            )}
-            {row.ownerTab === "payload" ? (
-              <span className="opacity-60">edited here, in the driver</span>
-            ) : (
-              <button data-so="next-turn-open-owner" data-owner-tab={row.ownerTab} className="menu_button text-xs" onClick={() => onOpenOwner(row.ownerTab)}>{OWNER_LABELS[row.ownerTab]}</button>
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
-
 const PayloadTab = ({ snapshot, manager, onOpenOwner }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; onOpenOwner: (tab: NextTurnOwnerTab) => void }) => {
   const captures = snapshot.payloadCaptures;
   return (
@@ -731,7 +686,7 @@ const PayloadTab = ({ snapshot, manager, onOpenOwner }: { snapshot: RuntimeSnaps
       <LoreForced record={snapshot.loreForced} />
       <LoreFired evidence={snapshot.loreEvidence} />
       <ScanGateTable view={snapshot.scanGate} evidence={snapshot.loreEvidence} />
-      <NextTurnPanel snapshot={snapshot} manager={manager} onOpenOwner={onOpenOwner} />
+      <NextTurnPanel snapshot={snapshot} actions={manager.previewActions} onOpenOwner={onOpenOwner} />
       <div className="font-medium opacity-100">Injected prompt payload</div>
       {captures.length === 0 ? (
         <div className="opacity-70">No captures yet. Blocks are recorded when a generation starts.</div>
