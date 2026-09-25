@@ -1037,3 +1037,65 @@ Each changes the detector's contract and needs its own measurement, so it is a d
 **Run header.** Lane 2 `diff` vs `run-header-pre-lane2.json`: 0 differences, covering these three runs and plan 04's
 live suite A/B (`run-header-diff-lane2.log`). No `--allow` was needed. Lane 2 was left with the judge off, no use on,
 curator on (`auto`) and warden off, as it started.
+
+### Contradiction detector: vectors or Jaccard for established facts (worktree build, 2026-09-25)
+
+Worktree branch `worktree-agent-a237f2c1f02e4f585`, on master `9afa763`. **No backend and no browser here: no live gate
+ran, none is claimed green.** Built bundle `adf3b0a7f9da` (worktree `dist/`, not served anywhere).
+
+**Decision (main session, made).** For an ESTABLISHED row only (locked as canon, author-decided, author-written, as
+built above), a new extracted row is held when EITHER the vectors bands OR the Jaccard bands pair it with the row.
+Ordinary fact-vs-fact consolidation keeps its single source (vectors when present, else Jaccard).
+
+**As built.**
+- `memory/conflicts.ts`: `unionMatchSets(left, right)` (per row, per band) and `establishedBands(group, vectors)`, which
+  is Jaccard's bands over the same group, unioned with the vectors bands when there are any.
+- `runtime/memoryQueue.ts` `findHeldContradictions`: `establishedBands(group, deps.matchSets ? await deps.matchSets(group) : null)`
+  replaces the vectors-else-Jaccard pick. `heldContradictions` and everything downstream are unchanged: same-text,
+  update-below-a-lock and the one-type `heldGroup` rules still apply to the union.
+- `buildMatchSets` (`consolidationMatches.ts`) and `runConsolidation` are untouched, so `settleUncertain`'s established
+  guard in consolidation still sees one source. The write path is where J8.5's claims arrive.
+- `memoryCoordinator.ts` is untouched (619/620 effective lines). Census row `applyEntries` unchanged (no new await).
+- **`judge.uses.memoryPairs` release: NOT built.** It exists (default off) and is today wired only into consolidation
+  (`judgePairRelations`). Wiring it into the write-path hold needs a `judge` dep on `MemoryQueueDeps`, which is a
+  coordinator line (`queueDeps()`), and the coordinator has none to spare. With the use off (the default) the decision
+  says nothing changes, so the as-built behaviour equals the decided default.
+
+**Red first.** `contradictedSeed.review.test.ts` gained a vectors stub in its `@services/STAPI` mock: `capabilityState`
+answers `present`, and `vectorQuery` keeps a stored row only when its cosine reaches the threshold, from the cosines
+measured in `test/journeys/records/v2.4-plan07/contradiction-live-9b2f890a5987/pair-cosine-probe.json` (seed<->STANDING
+0.4102, seed<->USABLE 0.3587; unmeasured pairs 0). The live texts, the locked seed and the Courier read as before.
+Before the fix: **1 failed, 13 passed**. The failure is the live shape: the STANDING row stored live.
+New cases, vectors present unless noted:
+- "holds both Courier rows against the locked seed when the vectors query misses the pair" (the red one);
+- controls: the same claims next to a pinned and next to a plain extractor seed are stored live (`it.each`); an
+  unrelated claim next to the locked seed is stored live;
+- "consolidation between two ordinary rows still reads the vectors band alone": 8 rows, `runConsolidation`, no soft
+  mark, no queued pair;
+- `memoryQueueHeld.test.ts`: `unionMatchSets`; held through Jaccard when the injected bands miss; held through the
+  injected bands when Jaccard misses ("The crossing is fine."); nothing held when neither band pairs.
+
+**Mutations.** `test/findings/mutations/v24-07-contradiction.txt` §Union revision, script
+`.debug/v24-07-union-mutants.py`: **6/6 killed** (B1 vectors alone = the pre-fix code, B2 Jaccard alone, B3 union drops
+a band, B4 union leaks into consolidation, B5 hold without a band, B6 a pin counts). Each new test kills at least one.
+
+**Gates (worktree):**
+- `npm run typecheck && npm run typecheck:test && npm run lint && npm run debug:typecheck`: exit 0.
+- `npm test`: 232 suites, **3439 passed**, 0 failed (fault matrix 75 covered / 10 partial / 25 na / 0 todo).
+- `npm run build`: exit 0 (the 2 known size warnings).
+- `npm run test:debug`: 258 tests, 257 pass, 1 skip, 0 fail.
+
+**Live check owed (main session).** J8.5 on-arm ×2 on lane 2, same recipe as §Contradiction fix live, on a rebuilt and
+reloaded bundle (check the served sha). Green = the four criteria there, in particular `held` names the Courier claim
+and `cleanup.rescore` established facts are the seed only. The live pair should now be caught by Jaccard (0.533 /
+0.571 ≥ 0.4) whatever the cosine.
+
+**Limits (stated, not hidden).**
+- A contradiction with low word overlap AND low cosine is still missed: below Jaccard 0.4 and below cosine 0.55
+  ("the crossing is fine" against "the bridge collapsed"). No polarity or negation check exists.
+- The union widens the hold, so more agreeing paraphrases of an established row are held too (harmless: the
+  established row already says it; the author dismisses the pair). No judge release is built to cut that down.
+- Jaccard runs over every established row plus the candidates on every extraction write while an established row
+  exists: O(n²) token-set comparisons, cheap at today's sizes, no host call.
+- Pinned and plain extractor rows keep today's single-source consolidation, so the live miss (cosine under the band)
+  still applies to two ordinary rows that disagree.

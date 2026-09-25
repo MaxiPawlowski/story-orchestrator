@@ -8,7 +8,7 @@ jest.mock("@services/STAPI", () => ({
   MEMORY_INJECTION_KEY_PREFIX: "so-memory-",
 }));
 
-import { buildJaccardMatchSets, conflictWindow, heldContradictions, heldGroup, isEstablished, isLive, provenance, withOverride, type MatchSets, type MemoryEntry } from "@memory/index";
+import { buildJaccardMatchSets, conflictWindow, heldContradictions, heldGroup, isEstablished, isLive, provenance, unionMatchSets, withOverride, type MatchSets, type MemoryEntry } from "@memory/index";
 import { detectMemoryConflicts, dismissMemoryConflict, findHeldContradictions, holdMemoryContradictions, settleUncertain, type MemoryQueueDeps } from "./memoryQueue";
 import type { MemoryRuntimeState } from "./types";
 
@@ -88,6 +88,14 @@ describe("what counts as established", () => {
   });
 });
 
+describe("unionMatchSets", () => {
+  it("keeps every pairing either side found, per row and per band", () => {
+    const left: MatchSets = { dup: [new Set([1]), new Set()], sameTopic: [new Set(), new Set()] };
+    const right: MatchSets = { dup: [new Set(), new Set()], sameTopic: [new Set([1]), new Set([0])] };
+    expect(unionMatchSets(left, right)).toEqual({ dup: [new Set([1]), new Set()], sameTopic: [new Set([1]), new Set([0])] });
+  });
+});
+
 describe("heldContradictions over the consolidation bands", () => {
   it("holds a same-topic claim against an author-decided row", () => {
     expect(heldContradictions([seed()], [claim()], pairedBand())).toHaveLength(1);
@@ -121,6 +129,23 @@ describe("the queue holds the claim and leaves the established row standing", ()
     const h = harness([seed()], async (group) => { seen.push(group.map((row) => row.id)); return pairedBand(); });
     expect(await findHeldContradictions(h.deps, [claim()])).toHaveLength(1);
     expect(seen).toEqual([["seed", "claim"]]);
+  });
+
+  const noBand = (): MatchSets => ({ dup: [new Set(), new Set()], sameTopic: [new Set(), new Set()] });
+
+  it("holds through the Jaccard band when the injected (vectors) bands miss the pair (live, cosine 0.410)", async () => {
+    const h = harness([seed()], async () => noBand());
+    expect(await findHeldContradictions(h.deps, [claim()])).toHaveLength(1);
+  });
+
+  it("holds through the injected bands when Jaccard misses the pair", async () => {
+    const h = harness([seed()], async () => pairedBand());
+    expect(await findHeldContradictions(h.deps, [claim({ text: "The crossing is fine." })])).toHaveLength(1);
+  });
+
+  it("holds nothing when neither band pairs the claim with the established row", async () => {
+    const h = harness([seed()], async () => noBand());
+    expect(await findHeldContradictions(h.deps, [claim({ text: "The crossing is fine." })])).toEqual([]);
   });
 
   it("asks nothing when no established row is live", async () => {

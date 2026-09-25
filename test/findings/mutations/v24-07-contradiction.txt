@@ -67,3 +67,24 @@ Revision 2026-09-25 (main-session decision: a PIN is retention, not truth, v2.3 
     "is a lock, an author decision or an authored row; never a pin, never a plain read (v2.3 M5)"
 - Not run as a mutant: "a lock alone is not established". setLocked always writes the "lock" override too (stores.ts setLocked), so on the product path it is equivalent.
 Result (revision): 24/24 killed.
+
+Union revision 2026-09-25 (main-session decision after the live RED on bundle 9b2f890a5987: vectors cosine seed<->claim 0.410 / 0.359, under the 0.55 same-topic band, while Jaccard scores the pair 0.533 / 0.571 over its 0.4 band). The guard for an ESTABLISHED row reads the vectors bands OR the Jaccard bands (memory/conflicts.ts establishedBands + unionMatchSets, called from findHeldContradictions); ordinary consolidation keeps its single source. Script .debug/v24-07-union-mutants.py (exact-text replacement in one file, restored byte-for-byte after each run, a jest exit other than 0 = KILLED), same two suites, now 14 + 19 = 33 cases; the coordinator suite's vectors stub answers the measured cosines from pair-cosine-probe.json. Baseline green (33/33) before and after the sweep.
+Red first: before establishedBands, "holds both Courier rows against the locked seed when the vectors query misses the pair" failed with the live shape (the STANDING row stored live, 1 failed / 13 passed); its controls passed.
+
+- B1 the established guard reads the vectors bands alone when vectors answer (pre-fix): KILLED, 2 failing
+    "holds through the Jaccard band when the injected (vectors) bands miss the pair (live, cosine 0.410)"
+    "holds both Courier rows against the locked seed when the vectors query misses the pair"
+- B2 the established guard reads Jaccard alone, ignoring the vectors bands: KILLED
+    "holds through the injected bands when Jaccard misses the pair"
+- B3 unionMatchSets drops the right-hand same-topic band: KILLED, 3 failing
+    "unionMatchSets keeps every pairing either side found, per row and per band"
+    "holds through the Jaccard band when the injected (vectors) bands miss the pair (live, cosine 0.410)"
+    "holds both Courier rows against the locked seed when the vectors query misses the pair"
+- B4 ordinary consolidation also takes the Jaccard band when vectors answer (union everywhere, consolidationMatches.ts): KILLED
+    "consolidation between two ordinary rows still reads the vectors band alone"
+- B5 a held claim no longer needs to be in a band (every candidate held): KILLED, 5 failing, incl.
+    "stores an unrelated claim live next to the locked seed" (both the Jaccard-only and the vectors-present describe)
+    "holds nothing when neither band pairs the claim with the established row"
+- B6 a pin counts as established again: KILLED, 4 failing, incl.
+    "stores the same claims live next to a pin (not established) seed" (vectors present)
+Result (union revision): 6/6 killed.

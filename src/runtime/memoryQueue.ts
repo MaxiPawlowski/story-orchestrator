@@ -1,5 +1,5 @@
 import {
-  addMemoryEntries, buildJaccardMatchSets, CONFLICT_LIMIT, conflictWindowOf, detectConflicts, excludeEntry, hashMemoryText, heldConflictPair, heldContradictions, heldGroup,
+  addMemoryEntries, CONFLICT_LIMIT, conflictWindowOf, detectConflicts, establishedBands, excludeEntry, hashMemoryText, heldConflictPair, heldContradictions, heldGroup,
   isEstablished, markConflicted, markContradicted, provenance, recordDerived, removeEpistemic, removeLedger, resolveConflict, standsEstablished, withOverride,
   type ConflictPair, type ConflictWindow, type HeldContradiction, type LedgerBinding, type MatchSets, type MemoryEntry, type SceneConflictValue, type UncertainPair,
 } from "@memory/index";
@@ -34,7 +34,7 @@ export interface MemoryQueueDeps {
   save: () => Promise<void>;
   run?: () => RunGuard;
   refused?: (refusal: DecisionRefusal | null) => void;
-  /** v2.4 plan 07: the consolidation bands (ST vectors, else Jaccard). Absent means Jaccard. */
+  /** v2.4 plan 07: the consolidation bands (ST vectors, else Jaccard). The established-row guard unions Jaccard's with them. Absent means Jaccard. */
   matchSets?: (group: MemoryEntry[]) => Promise<MatchSets>;
 }
 
@@ -95,7 +95,7 @@ export async function findHeldContradictions(deps: MemoryQueueDeps, candidates: 
   const established = deps.getMemory().entries.filter(standsEstablished);
   if (!deps.getMemory().settings.enabled || !established.length || !candidates.length) return [];
   const group = heldGroup(established, candidates);
-  const matches = deps.matchSets ? await deps.matchSets(group) : buildJaccardMatchSets(group);
+  const matches = establishedBands(group, deps.matchSets ? await deps.matchSets(group) : null);
   return heldContradictions(established, candidates, matches);
 }
 
