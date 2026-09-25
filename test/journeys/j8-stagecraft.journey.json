@@ -23,7 +23,8 @@
     "background-effect": "typeof globalThis.storyOrchestratorRuntime?.getSnapshot === 'function' && Boolean(document.querySelector('.bg_example'))",
     "wi-curator": "typeof globalThis.storyOrchestratorRuntime?.runWiCuratorPass === 'function' && typeof globalThis.storyOrchestratorRuntime?.applyCuratorProposals === 'function'",
     "curator-review-ring": "Boolean(document.querySelector('#so-curator-enabled'))",
-    "continuity-warden": "typeof globalThis.storyOrchestratorRuntime?.runWardenPass === 'function' && typeof globalThis.storyOrchestratorJudge?.invalidateStatus === 'function'"
+    "continuity-warden": "typeof globalThis.storyOrchestratorRuntime?.runWardenPass === 'function' && typeof globalThis.storyOrchestratorJudge?.invalidateStatus === 'function'",
+    "warden-families": "typeof globalThis.storyOrchestratorRuntime?.runWardenPass === 'function' && 'agencyCheck' in (globalThis.storyOrchestratorRuntime?.getGlobalSettings?.()?.judge?.uses ?? {}) && 'houseRules' in (globalThis.storyOrchestratorRuntime?.getGlobalSettings?.()?.judge?.uses ?? {})"
   },
   "checks": [
     {
@@ -417,6 +418,243 @@
         },
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const before = globalThis.__soJ8Warden; const filterCalls = rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge curatorFilter')).length; const prompts = globalThis.__soJ8WardenPrompts; ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8WardenHandler); delete globalThis.__soJ8WardenHandler; if (wardenCalls().length !== before.calls) throw new Error(`the warden asked the judge while off (${wardenCalls().length - before.calls})`); if (filterCalls) throw new Error(`curator focus asked the judge while off (${filterCalls})`); if (rt.getStagecraftState().proposals.length !== before.proposals) throw new Error('a proposal appeared with both curators off'); if (prompts.some((body) => body.includes('Continuity: established'))) throw new Error('a continuity note reached the prompt with the warden off'); return { wardenCalls: 0, filterCalls, proposals: before.proposals, prompts: prompts.length };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J8.10",
+      "mode": "auto",
+      "findings": [],
+      "requires": [
+        "continuity-warden",
+        "warden-families"
+      ],
+      "goal": "agency check auto (v2.4 plan 07 T22): a scripted reply that writes the player's act and words produces one agency note on the warden path; the next loud generation's prompt carries it, the one after does not, and the over-steer probe records reply N+1 (family agency). Under a journey judge mode: --judge-uses agencyCheck --warden-mode auto is the on arm; --judge-uses off is the control arm, where the same turns make no warden call and no Agency: line reaches a prompt",
+      "steps": [
+        {
+          "import_story": {
+            "file": "j8-stagecraft.story.json"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const familyOps = (family, from) => wardenRecords().slice(from).flatMap((record) => record.ops.map((entry, index) => ({ record, index, entry }))).filter(({ entry }) => entry.op.kind === 'note' && (entry.op.family ?? 'continuity') === family); const escape = (text) => JSON.stringify(String(text)).slice(1, -1); const status = await fetch('/api/plugins/story-orchestrator-judge/status', { headers: ctx.getRequestHeaders() }).then((response) => (response.ok ? response.json() : null)).catch(() => null); if (!status?.configured) throw new Error(`judge plugin not reachable or not configured: ${JSON.stringify(status)}`); if (!('agencyCheck' in root.settings.judge.uses)) throw new Error('this build has no judge.uses.agencyCheck'); const mode = globalThis.__soJudgeMode ?? null; if (mode?.label === 'on' && !mode.uses.includes('agencyCheck')) throw new Error('J8.10 measures agencyCheck: run its judge-on arm with --judge-uses agencyCheck'); if (mode) { root.settings.judge = { ...root.settings.judge, timeoutMs: 20000 }; rt.setStagecraftSettings({ curatorEnabled: false }); if (mode.label === 'on' && rt.getStagecraftState().settings.wardenAcceptMode !== 'auto') throw new Error('J8.10 is the auto path: run its judge-on arm with --warden-mode auto'); } else { root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 20000, uses: Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, key === 'agencyCheck'])) }; rt.setStagecraftSettings({ curatorEnabled: false, wardenEnabled: false, wardenAcceptMode: 'auto' }); } globalThis.storyOrchestratorJudge.invalidateStatus(); globalThis.__soJ8AgencyArm = mode?.label === 'off' ? 'off' : 'on'; if (globalThis.__soJ8AgencyHandler) ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8AgencyHandler); globalThis.__soJ8AgencyPrompts = []; globalThis.__soJ8AgencyHandler = (data, dryRun) => { if (!dryRun) globalThis.__soJ8AgencyPrompts.push(JSON.stringify(data ?? null)); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8AgencyHandler); globalThis.__soJ8Agency = { records: wardenRecords().length, calls: wardenCalls().length }; return { arm: globalThis.__soJ8AgencyArm, settings: rt.getStagecraftState().settings, uses: Object.entries(root.settings.judge.uses).filter(([, on]) => on).map(([key]) => key), player: ctx.name1, ...globalThis.__soJ8Agency };",
+          "log": true
+        },
+        {
+          "send": "I wait by the gate and say nothing."
+        },
+        {
+          "slash": "/sendas name=\"Gate Guard\" raw=false \"The guard waves the cart through and nods at you. You shoulder your pack, thank him warmly and say that you will pay the toll now, handing over three marks before walking on toward the market.\""
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const familyOps = (family, from) => wardenRecords().slice(from).flatMap((record) => record.ops.map((entry, index) => ({ record, index, entry }))).filter(({ entry }) => entry.op.kind === 'note' && (entry.op.family ?? 'continuity') === family); const escape = (text) => JSON.stringify(String(text)).slice(1, -1); const before = globalThis.__soJ8Agency; if (globalThis.__soJ8AgencyArm === 'off') { await new Promise((resolve) => setTimeout(resolve, 10000)); const calls = wardenCalls().length - before.calls; const records = wardenRecords().length - before.records; if (calls || records) throw new Error(`the judge-off arm asked the warden: calls ${calls}, records ${records}`); globalThis.__soJ8Agency.note = null; globalThis.__soJ8AgencyPrompts.length = 0; return { arm: 'off', wardenCalls: 0, records: 0 }; } const found = await until(() => familyOps('agency', before.records).find(({ entry }) => entry.status === 'accepted'), 60000); if (!found) throw new Error(`no accepted agency note; calls ${wardenCalls().length - before.calls}, last: ${JSON.stringify(wardenCalls().at(-1) ?? null)}, ops: ${JSON.stringify(wardenRecords().slice(before.records).map((record) => record.ops.map((entry) => [entry.op.family ?? 'continuity', entry.status])))}`); globalThis.__soJ8Agency.note = { id: found.record.id, index: found.index, text: found.entry.op.text }; globalThis.__soJ8AgencyPrompts.length = 0; return { record: found.record.id, family: 'agency', score: found.entry.op.score ?? null, rules: found.entry.op.rules ?? null, summary: found.record.summary };",
+          "log": true,
+          "attempts": 3,
+          "retryBack": 1
+        },
+        {
+          "send_generate": {
+            "text": "I look around the square.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "expect": {
+            "overSteer": {
+              "block": "story_orchestrator_continuity",
+              "family": "agency",
+              "record": true
+            }
+          },
+          "log": true
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const familyOps = (family, from) => wardenRecords().slice(from).flatMap((record) => record.ops.map((entry, index) => ({ record, index, entry }))).filter(({ entry }) => entry.op.kind === 'note' && (entry.op.family ?? 'continuity') === family); const escape = (text) => JSON.stringify(String(text)).slice(1, -1); const note = globalThis.__soJ8Agency.note; const prompts = globalThis.__soJ8AgencyPrompts; if (!prompts.length) throw new Error('no main-generation prompt was captured'); if (globalThis.__soJ8AgencyArm === 'off') { if (prompts.some((body) => body.includes('Agency:'))) throw new Error('a Agency: note reached the prompt in the judge-off arm'); const seen = prompts.length; globalThis.__soJ8AgencyPrompts.length = 0; globalThis.__soJ8Agency.after = wardenRecords().length; return { arm: 'off', carried: false, promptsSeen: seen }; } if (!prompts[0].includes(escape(note.text))) throw new Error('the next loud generation did not carry the note: ' + JSON.stringify({ prompts: prompts.length, note: note.text.slice(0, 80) })); const op = rt.getStagecraftState().proposals.find((record) => record.id === note.id)?.ops[note.index]; if (op?.status !== 'applied') throw new Error(`the note was not marked applied: ${op?.status}`); const seen = prompts.length; globalThis.__soJ8AgencyPrompts.length = 0; globalThis.__soJ8Agency.after = wardenRecords().length; return { carried: true, promptsSeen: seen };",
+          "log": true
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 4000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We walk on in silence for a while.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const familyOps = (family, from) => wardenRecords().slice(from).flatMap((record) => record.ops.map((entry, index) => ({ record, index, entry }))).filter(({ entry }) => entry.op.kind === 'note' && (entry.op.family ?? 'continuity') === family); const escape = (text) => JSON.stringify(String(text)).slice(1, -1); const note = globalThis.__soJ8Agency.note; const prompts = globalThis.__soJ8AgencyPrompts; if (!prompts.length) throw new Error('no main-generation prompt was captured'); if (globalThis.__soJ8AgencyArm === 'off') { ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8AgencyHandler); delete globalThis.__soJ8AgencyHandler; delete globalThis.__soJ8AgencyArm; if (prompts.some((body) => body.includes('Agency:'))) throw new Error('a Agency: note reached the prompt in the judge-off arm'); if (wardenCalls().length !== globalThis.__soJ8Agency.calls) throw new Error(`the judge-off arm asked the warden (${wardenCalls().length - globalThis.__soJ8Agency.calls})`); return { arm: 'off', branch: 'no warden call, no note' }; } delete globalThis.__soJ8AgencyArm; const reflagged = familyOps('agency', globalThis.__soJ8Agency.after - 1).filter(({ record, entry }) => record.id !== note.id && entry.status === 'applied'); const carrying = prompts.filter((body) => body.includes(escape(note.text))).length; ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8AgencyHandler); delete globalThis.__soJ8AgencyHandler; if (carrying && !reflagged.length) throw new Error('the note rode a second generation without a newer reply flagging it'); return { branch: carrying ? `re-flagged by a newer reply (${reflagged.map(({ record }) => record.id)})` : 'gone after one generation', carrying };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J8.11",
+      "mode": "auto",
+      "findings": [],
+      "requires": [
+        "continuity-warden",
+        "warden-families"
+      ],
+      "goal": "agency check review (v2.4 plan 07 T22): the agency note waits for the author; a newer reply commits first, the note lapses, and no Agency: line reaches any prompt",
+      "steps": [
+        {
+          "import_story": {
+            "file": "j8-stagecraft.story.json"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const familyOps = (family, from) => wardenRecords().slice(from).flatMap((record) => record.ops.map((entry, index) => ({ record, index, entry }))).filter(({ entry }) => entry.op.kind === 'note' && (entry.op.family ?? 'continuity') === family); const escape = (text) => JSON.stringify(String(text)).slice(1, -1); const status = await fetch('/api/plugins/story-orchestrator-judge/status', { headers: ctx.getRequestHeaders() }).then((response) => (response.ok ? response.json() : null)).catch(() => null); if (!status?.configured) throw new Error(`judge plugin not reachable or not configured: ${JSON.stringify(status)}`); if (!('agencyCheck' in root.settings.judge.uses)) throw new Error('this build has no judge.uses.agencyCheck'); root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 20000, uses: Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, key === 'agencyCheck'])) }; globalThis.storyOrchestratorJudge.invalidateStatus(); rt.setStagecraftSettings({ curatorEnabled: false, wardenEnabled: false, wardenAcceptMode: 'review' }); globalThis.__soJ8AgencyReviewArm = 'on'; if (globalThis.__soJ8AgencyReviewHandler) ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8AgencyReviewHandler); globalThis.__soJ8AgencyReviewPrompts = []; globalThis.__soJ8AgencyReviewHandler = (data, dryRun) => { if (!dryRun) globalThis.__soJ8AgencyReviewPrompts.push(JSON.stringify(data ?? null)); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8AgencyReviewHandler); globalThis.__soJ8AgencyReview = { records: wardenRecords().length, calls: wardenCalls().length }; return { settings: rt.getStagecraftState().settings, ...globalThis.__soJ8AgencyReview };",
+          "log": true
+        },
+        {
+          "send": "I wait by the gate and say nothing."
+        },
+        {
+          "slash": "/sendas name=\"Gate Guard\" raw=false \"The guard waves the cart through and nods at you. You shoulder your pack, thank him warmly and say that you will pay the toll now, handing over three marks before walking on toward the market.\""
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const familyOps = (family, from) => wardenRecords().slice(from).flatMap((record) => record.ops.map((entry, index) => ({ record, index, entry }))).filter(({ entry }) => entry.op.kind === 'note' && (entry.op.family ?? 'continuity') === family); const escape = (text) => JSON.stringify(String(text)).slice(1, -1); const before = globalThis.__soJ8AgencyReview; if (globalThis.__soJ8AgencyReviewArm === 'off') { await new Promise((resolve) => setTimeout(resolve, 10000)); const calls = wardenCalls().length - before.calls; const records = wardenRecords().length - before.records; if (calls || records) throw new Error(`the judge-off arm asked the warden: calls ${calls}, records ${records}`); globalThis.__soJ8AgencyReview.note = null; globalThis.__soJ8AgencyReviewPrompts.length = 0; return { arm: 'off', wardenCalls: 0, records: 0 }; } const found = await until(() => familyOps('agency', before.records).find(({ entry }) => entry.status === 'pending'), 60000); if (!found) throw new Error(`no pending agency note; calls ${wardenCalls().length - before.calls}, last: ${JSON.stringify(wardenCalls().at(-1) ?? null)}, ops: ${JSON.stringify(wardenRecords().slice(before.records).map((record) => record.ops.map((entry) => [entry.op.family ?? 'continuity', entry.status])))}`); globalThis.__soJ8AgencyReview.note = { id: found.record.id, index: found.index, text: found.entry.op.text }; globalThis.__soJ8AgencyReviewPrompts.length = 0; return { record: found.record.id, family: 'agency', score: found.entry.op.score ?? null, rules: found.entry.op.rules ?? null, summary: found.record.summary };",
+          "log": true,
+          "attempts": 3,
+          "retryBack": 1
+        },
+        {
+          "slash": "/sendas name=\"Gate Guard\" raw=false \"The rain eases. Somewhere behind the wall a dog barks twice and falls quiet.\""
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const familyOps = (family, from) => wardenRecords().slice(from).flatMap((record) => record.ops.map((entry, index) => ({ record, index, entry }))).filter(({ entry }) => entry.op.kind === 'note' && (entry.op.family ?? 'continuity') === family); const escape = (text) => JSON.stringify(String(text)).slice(1, -1); const note = globalThis.__soJ8AgencyReview.note; const lapsed = await until(() => { const op = rt.getStagecraftState().proposals.find((record) => record.id === note.id)?.ops[note.index]; return op?.status === 'rejected' ? op : null; }, 60000); if (!lapsed) throw new Error('the pending agency note did not lapse when a newer reply committed'); if (lapsed.message !== 'lapsed') throw new Error(`rejected for the wrong reason: ${lapsed.message}`); globalThis.__soJ8AgencyReviewPrompts.length = 0; return { lapsed: true };",
+          "log": true
+        },
+        {
+          "send_generate": {
+            "text": "I step through the gate.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const familyOps = (family, from) => wardenRecords().slice(from).flatMap((record) => record.ops.map((entry, index) => ({ record, index, entry }))).filter(({ entry }) => entry.op.kind === 'note' && (entry.op.family ?? 'continuity') === family); const escape = (text) => JSON.stringify(String(text)).slice(1, -1); const prompts = globalThis.__soJ8AgencyReviewPrompts; if (!prompts.length) throw new Error('no main-generation prompt was captured'); const leaked = prompts.filter((body) => body.includes('Agency:')).length; ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8AgencyReviewHandler); delete globalThis.__soJ8AgencyReviewHandler; delete globalThis.__soJ8AgencyReviewArm; rt.setStagecraftSettings({ wardenEnabled: false, wardenAcceptMode: 'review' }); if (leaked) throw new Error(`a review-mode agency note reached ${leaked} prompt(s) without the author accepting it`); return { prompts: prompts.length, leaked };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J8.12",
+      "mode": "auto",
+      "findings": [],
+      "requires": [
+        "continuity-warden",
+        "warden-families"
+      ],
+      "goal": "house rules auto (v2.4 plan 07 T23): a story with authored house_rules and a reply that breaks one produces a house-rule note naming the rule verbatim, and the captured GENERATE_AFTER_DATA prompt of the next loud generation carries it; the one after does not. Under a journey judge mode: --judge-uses houseRules --warden-mode auto is the on arm; off is the control",
+      "steps": [
+        {
+          "import_story": {
+            "file": "j8-house-rules.story.json"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const familyOps = (family, from) => wardenRecords().slice(from).flatMap((record) => record.ops.map((entry, index) => ({ record, index, entry }))).filter(({ entry }) => entry.op.kind === 'note' && (entry.op.family ?? 'continuity') === family); const escape = (text) => JSON.stringify(String(text)).slice(1, -1); if (!(rt.getPlayedStoryRaw?.()?.house_rules ?? []).length) throw new Error('the imported story carries no house_rules'); const status = await fetch('/api/plugins/story-orchestrator-judge/status', { headers: ctx.getRequestHeaders() }).then((response) => (response.ok ? response.json() : null)).catch(() => null); if (!status?.configured) throw new Error(`judge plugin not reachable or not configured: ${JSON.stringify(status)}`); if (!('houseRules' in root.settings.judge.uses)) throw new Error('this build has no judge.uses.houseRules'); const mode = globalThis.__soJudgeMode ?? null; if (mode?.label === 'on' && !mode.uses.includes('houseRules')) throw new Error('J8.12 measures houseRules: run its judge-on arm with --judge-uses houseRules'); if (mode) { root.settings.judge = { ...root.settings.judge, timeoutMs: 20000 }; rt.setStagecraftSettings({ curatorEnabled: false }); if (mode.label === 'on' && rt.getStagecraftState().settings.wardenAcceptMode !== 'auto') throw new Error('J8.12 is the auto path: run its judge-on arm with --warden-mode auto'); } else { root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 20000, uses: Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, key === 'houseRules'])) }; rt.setStagecraftSettings({ curatorEnabled: false, wardenEnabled: false, wardenAcceptMode: 'auto' }); } globalThis.storyOrchestratorJudge.invalidateStatus(); globalThis.__soJ8RulesArm = mode?.label === 'off' ? 'off' : 'on'; if (globalThis.__soJ8RulesHandler) ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8RulesHandler); globalThis.__soJ8RulesPrompts = []; globalThis.__soJ8RulesHandler = (data, dryRun) => { if (!dryRun) globalThis.__soJ8RulesPrompts.push(JSON.stringify(data ?? null)); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8RulesHandler); globalThis.__soJ8Rules = { records: wardenRecords().length, calls: wardenCalls().length }; return { arm: globalThis.__soJ8RulesArm, settings: rt.getStagecraftState().settings, uses: Object.entries(root.settings.judge.uses).filter(([, on]) => on).map(([key]) => key), player: ctx.name1, ...globalThis.__soJ8Rules };",
+          "log": true
+        },
+        {
+          "send": "We wait on the dock for the ferry."
+        },
+        {
+          "slash": "/sendas name=\"Captain Rhee\" raw=false \"Captain Rhee levels her flintlock pistol at the smugglers and fires; the shot cracks across the flooded dock and the men scatter.\""
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const familyOps = (family, from) => wardenRecords().slice(from).flatMap((record) => record.ops.map((entry, index) => ({ record, index, entry }))).filter(({ entry }) => entry.op.kind === 'note' && (entry.op.family ?? 'continuity') === family); const escape = (text) => JSON.stringify(String(text)).slice(1, -1); const before = globalThis.__soJ8Rules; if (globalThis.__soJ8RulesArm === 'off') { await new Promise((resolve) => setTimeout(resolve, 10000)); const calls = wardenCalls().length - before.calls; const records = wardenRecords().length - before.records; if (calls || records) throw new Error(`the judge-off arm asked the warden: calls ${calls}, records ${records}`); globalThis.__soJ8Rules.note = null; globalThis.__soJ8RulesPrompts.length = 0; return { arm: 'off', wardenCalls: 0, records: 0 }; } const found = await until(() => familyOps('house-rule', before.records).find(({ entry }) => entry.status === 'accepted'), 60000); if (!found) throw new Error(`no accepted house-rule note; calls ${wardenCalls().length - before.calls}, last: ${JSON.stringify(wardenCalls().at(-1) ?? null)}, ops: ${JSON.stringify(wardenRecords().slice(before.records).map((record) => record.ops.map((entry) => [entry.op.family ?? 'continuity', entry.status])))}`); globalThis.__soJ8Rules.note = { id: found.record.id, index: found.index, text: found.entry.op.text }; globalThis.__soJ8RulesPrompts.length = 0; if (globalThis.__soJ8RulesArm !== 'off' && !(found.entry.op.rules ?? []).includes('No character uses a gun, rifle or any gunpowder weapon.')) throw new Error(`the note names the wrong rule: ${JSON.stringify(found.entry.op.rules)}`); return { record: found.record.id, family: 'house-rule', score: found.entry.op.score ?? null, rules: found.entry.op.rules ?? null, summary: found.record.summary };",
+          "log": true,
+          "attempts": 3,
+          "retryBack": 1
+        },
+        {
+          "send_generate": {
+            "text": "I keep my head down and wait.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "expect": {
+            "overSteer": {
+              "block": "story_orchestrator_continuity",
+              "family": "house-rule",
+              "record": true
+            }
+          },
+          "log": true
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const familyOps = (family, from) => wardenRecords().slice(from).flatMap((record) => record.ops.map((entry, index) => ({ record, index, entry }))).filter(({ entry }) => entry.op.kind === 'note' && (entry.op.family ?? 'continuity') === family); const escape = (text) => JSON.stringify(String(text)).slice(1, -1); const note = globalThis.__soJ8Rules.note; const prompts = globalThis.__soJ8RulesPrompts; if (!prompts.length) throw new Error('no main-generation prompt was captured'); if (globalThis.__soJ8RulesArm === 'off') { if (prompts.some((body) => body.includes('House rule:'))) throw new Error('a House rule: note reached the prompt in the judge-off arm'); const seen = prompts.length; globalThis.__soJ8RulesPrompts.length = 0; globalThis.__soJ8Rules.after = wardenRecords().length; return { arm: 'off', carried: false, promptsSeen: seen }; } if (!prompts[0].includes(escape(note.text))) throw new Error('the next loud generation did not carry the note: ' + JSON.stringify({ prompts: prompts.length, note: note.text.slice(0, 80) })); const op = rt.getStagecraftState().proposals.find((record) => record.id === note.id)?.ops[note.index]; if (op?.status !== 'applied') throw new Error(`the note was not marked applied: ${op?.status}`); const seen = prompts.length; globalThis.__soJ8RulesPrompts.length = 0; globalThis.__soJ8Rules.after = wardenRecords().length; if (!rt.getSnapshot().stagecraft) throw new Error('no stagecraft slice'); return { carried: true, promptsSeen: seen, rule: note.text };",
+          "log": true
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 4000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We board the ferry.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const familyOps = (family, from) => wardenRecords().slice(from).flatMap((record) => record.ops.map((entry, index) => ({ record, index, entry }))).filter(({ entry }) => entry.op.kind === 'note' && (entry.op.family ?? 'continuity') === family); const escape = (text) => JSON.stringify(String(text)).slice(1, -1); const note = globalThis.__soJ8Rules.note; const prompts = globalThis.__soJ8RulesPrompts; if (!prompts.length) throw new Error('no main-generation prompt was captured'); if (globalThis.__soJ8RulesArm === 'off') { ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8RulesHandler); delete globalThis.__soJ8RulesHandler; delete globalThis.__soJ8RulesArm; if (prompts.some((body) => body.includes('House rule:'))) throw new Error('a House rule: note reached the prompt in the judge-off arm'); if (wardenCalls().length !== globalThis.__soJ8Rules.calls) throw new Error(`the judge-off arm asked the warden (${wardenCalls().length - globalThis.__soJ8Rules.calls})`); return { arm: 'off', branch: 'no warden call, no note' }; } delete globalThis.__soJ8RulesArm; const reflagged = familyOps('house-rule', globalThis.__soJ8Rules.after - 1).filter(({ record, entry }) => record.id !== note.id && entry.status === 'applied'); const carrying = prompts.filter((body) => body.includes(escape(note.text))).length; ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8RulesHandler); delete globalThis.__soJ8RulesHandler; if (carrying && !reflagged.length) throw new Error('the note rode a second generation without a newer reply flagging it'); return { branch: carrying ? `re-flagged by a newer reply (${reflagged.map(({ record }) => record.id)})` : 'gone after one generation', carrying };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J8.13",
+      "mode": "auto",
+      "findings": [],
+      "requires": [
+        "continuity-warden",
+        "warden-families"
+      ],
+      "goal": "every warden family off (continuity warden off, agencyCheck off, houseRules off, judge on): a reply that writes the player and breaks a house rule makes no warden call, adds no proposal and puts no note in any prompt",
+      "steps": [
+        {
+          "import_story": {
+            "file": "j8-house-rules.story.json"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const familyOps = (family, from) => wardenRecords().slice(from).flatMap((record) => record.ops.map((entry, index) => ({ record, index, entry }))).filter(({ entry }) => entry.op.kind === 'note' && (entry.op.family ?? 'continuity') === family); const escape = (text) => JSON.stringify(String(text)).slice(1, -1); const status = await fetch('/api/plugins/story-orchestrator-judge/status', { headers: ctx.getRequestHeaders() }).then((response) => (response.ok ? response.json() : null)).catch(() => null); if (!status?.configured) throw new Error(`judge plugin not reachable or not configured: ${JSON.stringify(status)}`); root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 20000, uses: Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, false])) }; globalThis.storyOrchestratorJudge.invalidateStatus(); rt.setStagecraftSettings({ curatorEnabled: false, wardenEnabled: false, wardenAcceptMode: 'auto' }); if (globalThis.__soJ8OffHandler) ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8OffHandler); globalThis.__soJ8OffPrompts = []; globalThis.__soJ8OffHandler = (data, dryRun) => { if (!dryRun) globalThis.__soJ8OffPrompts.push(JSON.stringify(data ?? null)); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8OffHandler); globalThis.__soJ8Off = { records: wardenRecords().length, calls: wardenCalls().length, proposals: rt.getStagecraftState().proposals.length }; return { settings: rt.getStagecraftState().settings, ...globalThis.__soJ8Off };",
+          "log": true
+        },
+        {
+          "send": "I wait by the gate and say nothing."
+        },
+        {
+          "slash": "/sendas name=\"Gate Guard\" raw=false \"The guard waves the cart through and nods at you. You shoulder your pack, thank him warmly and say that you will pay the toll now, handing over three marks before walking on toward the market.\""
+        },
+        {
+          "slash": "/sendas name=\"Captain Rhee\" raw=false \"Captain Rhee levels her flintlock pistol at the smugglers and fires; the shot cracks across the flooded dock and the men scatter.\""
+        },
+        {
+          "send_generate": {
+            "text": "Let's keep moving.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 4000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const wardenRecords = () => rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden'); const wardenCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge warden')); const familyOps = (family, from) => wardenRecords().slice(from).flatMap((record) => record.ops.map((entry, index) => ({ record, index, entry }))).filter(({ entry }) => entry.op.kind === 'note' && (entry.op.family ?? 'continuity') === family); const escape = (text) => JSON.stringify(String(text)).slice(1, -1); const before = globalThis.__soJ8Off; const prompts = globalThis.__soJ8OffPrompts; ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ8OffHandler); delete globalThis.__soJ8OffHandler; if (wardenCalls().length !== before.calls) throw new Error(`the warden asked the judge with every family off (${wardenCalls().length - before.calls})`); if (rt.getStagecraftState().proposals.length !== before.proposals) throw new Error('a proposal appeared with every family off'); const leaked = prompts.filter((body) => ['Agency:', 'House rule:', 'Continuity:'].some((token) => body.includes(token))).length; if (leaked) throw new Error(`a warden note reached ${leaked} prompt(s) with every family off`); return { wardenCalls: 0, proposals: before.proposals, prompts: prompts.length };",
           "log": true
         }
       ]

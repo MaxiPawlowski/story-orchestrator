@@ -1,0 +1,82 @@
+{
+  "format": 2,
+  "id": "so-j8-house-rules",
+  "version": 1,
+  "title": "SO-J8 House Rules",
+  "description": "A courier waits out a flood, then crosses into the tavern once the road drains. The house rules forbid firearms and name the coin.",
+  "requirements": {
+    "lorebooks": [
+      "SO-J8 Lore"
+    ]
+  },
+  "stagecraft": {
+    "lorebooks": [
+      "SO-J8 Lore"
+    ]
+  },
+  "qualities": [
+    {
+      "key": "road_drained",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the flooded road drained enough to walk across?"
+    },
+    {
+      "key": "reached_tavern",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the courier reached the tavern on the far side?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "washed-road",
+      "name": "The washed road",
+      "objective": "Wait out the flood on the near bank.",
+      "type": "anchor",
+      "start": true,
+      "tension_target": "stirring",
+      "effects": {
+        "background": "landscape postapoc.jpg"
+      }
+    },
+    {
+      "id": "tavern",
+      "name": "The tavern",
+      "objective": "Cross the drained road and reach the tavern.",
+      "type": "anchor",
+      "tension_target": "calm",
+      "convergence_threshold": 1,
+      "effects": {
+        "background": {
+          "name": "tavern day.jpg"
+        }
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "from": "washed-road",
+      "to": "tavern",
+      "gate": {
+        "q": "road_drained",
+        "op": "==",
+        "v": true
+      },
+      "priority": 0,
+      "effects": {
+        "progress": {
+          "anchor": "tavern",
+          "amount": 1
+        }
+      }
+    }
+  ],
+  "roster": [],
+  "house_rules": [
+    "No character uses a gun, rifle or any gunpowder weapon.",
+    "Coins are called marks, never gold pieces or dollars."
+  ]
+}

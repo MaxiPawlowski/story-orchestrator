@@ -40,7 +40,7 @@ test('overSteerSpec names the block key and a known family, and refuses anything
   assert.deepEqual(overSteerSpec({ block: 'story_orchestrator_guidance', family: 'guidance' }), { block: 'story_orchestrator_guidance', family: 'guidance' });
   assert.deepEqual(overSteerSpec({ block: 'k', family: 'guidance', controlRun: { global: '__c' } }).controlRun, { global: '__c' });
   assert.throws(() => overSteerSpec({ family: 'guidance' }), /expected \{block/);
-  assert.throws(() => overSteerSpec({ block: 'k', family: 'agency' }), /unknown family "agency"/);
+  assert.throws(() => overSteerSpec({ block: 'k', family: 'puppet' }), /unknown family "puppet"/);
   assert.throws(() => overSteerSpec({ block: 'k', family: 'guidance', controlRun: '' }), /controlRun/);
 });
 
@@ -77,4 +77,14 @@ test('the continuity family (v2.4 plan 07 warden baseline) names the note framin
   const note = 'Continuity: established — The old stone bridge collapsed in the flood and is gone. Keep the next reply consistent with it.';
   assert.deepEqual(restateCheck(note, 'Continuity: the bridge is gone, so they wade.', CONTINUITY_FAMILY).metaHits, ['Continuity:']);
   assert.equal(restateCheck(note, 'Seren frowns at the empty pilings where a bridge once stood.', CONTINUITY_FAMILY).ok, true);
+});
+
+test('the T22/T23 families: agency and house-rule notes, their framing and OOC words are meta tokens', () => {
+  assert.equal(OVER_STEER_FAMILIES.agency.name, 'agency');
+  assert.deepEqual(restateCheck('Agency: Max\'s own words are theirs to write.', 'OOC: I will not write for Max. The guard waits.', OVER_STEER_FAMILIES.agency).metaHits, ['OOC']);
+  assert.equal(restateCheck('Agency: Max\'s own words are theirs to write.', 'The guard waits for an answer.', OVER_STEER_FAMILIES.agency).ok, true);
+  const rule = 'House rule: "No character uses a gun, rifle or any gunpowder weapon." — keep the next reply within it.';
+  assert.equal(restateCheck(rule, 'No character uses a gun, rifle or any gunpowder weapon, so Rhee draws her cutlass.', OVER_STEER_FAMILIES['house-rule']).ok, false);
+  assert.equal(restateCheck(rule, 'Rhee draws her cutlass.', OVER_STEER_FAMILIES['house-rule']).ok, true);
+  assert.deepEqual(overSteerSpec({ block: 'story_orchestrator_continuity', family: 'house-rule' }), { block: 'story_orchestrator_continuity', family: 'house-rule' });
 });

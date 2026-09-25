@@ -50,7 +50,16 @@ export function swing(reply: string, controlReply: string) {
 // reply may name it, which the restate span measures against the control arm's reply to the same turn.
 export const CONTINUITY_FAMILY: OverSteerFamily = { name: 'continuity', metaTokens: ['Continuity:', 'Keep the next reply consistent'] };
 
-export const OVER_STEER_FAMILIES: Record<string, OverSteerFamily> = { guidance: GUIDANCE_FAMILY, continuity: CONTINUITY_FAMILY };
+// v2.4 plan 07 T22/T23: the agency and house-rule notes. Their meta tokens are the note framing and the
+// out-of-character words a reply uses when it answers the note instead of the scene; a house rule's own
+// text rides the restate span, since the note quotes it verbatim.
+export const AGENCY_FAMILY: OverSteerFamily = { name: 'agency', metaTokens: ['Agency:', 'House rule', 'OOC', 'the rules'] };
+
+export const HOUSE_RULE_FAMILY: OverSteerFamily = { name: 'house-rule', metaTokens: ['House rule', 'keep the next reply within', 'OOC', 'the rules'] };
+
+export const WARDEN_OVER_STEER_FAMILIES = ['continuity', 'agency', 'house-rule'];
+
+export const OVER_STEER_FAMILIES: Record<string, OverSteerFamily> = { guidance: GUIDANCE_FAMILY, continuity: CONTINUITY_FAMILY, agency: AGENCY_FAMILY, 'house-rule': HOUSE_RULE_FAMILY };
 
 /** `block` is the injected prompt key; `controlRun` is the control arm's reply N+1, literal or a page global holding it. */
 export type OverSteerSpec = { block: string; family: string; controlRun?: string | { global: string }; record?: boolean };

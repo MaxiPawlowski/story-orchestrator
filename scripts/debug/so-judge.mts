@@ -6,7 +6,7 @@ import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { calibrationOk, type ModelVerdict } from './lib/calibrationVerdict.mts';
-import { costReport, filterJudgeCalls, rescoreRates, withEstablished } from './lib/judgeHarness.mts';
+import { costInputOf, costReport, costReportAcross, filterJudgeCalls, rescoreRates, withEstablished } from './lib/judgeHarness.mts';
 import { classifyProbe, limitProbeCases, probeRequest, requestChars, JEV_USD_PER_MTOK_INPUT, type ProbeResult } from './lib/limitProbe.mts';
 
 const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
@@ -30,6 +30,11 @@ const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
                                       record captured (--judge-uses runs); prints the next-reply defect rate per arm; --facts (a JSON array)
                                       holds every arm to one declared fact set instead of each record's live facts at cleanup; agency reads each reply's
                                       captured player line and persona, house-rules the story's rules, and each result carries the raw agency score
+  cost-report --records <dir|record.json,...>
+                                      v2.4 plan 09 (CL), offline: totals and $ per 1000 boundaries from each journey record's
+                                      judge METER (cleanup.judgeMeter, never the ring), per-use calls/latency p50/p90/max/fallback
+                                      rate/answering model from the archived ring; director/lore against the 1500 ms budget.
+                                      Reads every *.json with a cleanup block; writes .debug/so-judge-cost-report.json
   limit-probe [--send]                T25: the documented token limit, probed. Without --send prints the plan and its cost; with it,
                                       six calls through the plugin (< $0.01), then refuses / truncates / answers past the limit and
                                       chars per token by language; writes .debug/so-judge-limit-probe.json
@@ -240,7 +245,27 @@ async function limitProbe(page: any, send: boolean) {
   return { ok: verdict.conclusive };
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+export async function readCostRecords(spec: string) {
+  const files: string[] = [];
+  for (const path of spec.split(',').map((entry) => entry.trim()).filter(Boolean)) {
+    if (path.endsWith('.json')) files.push(path);
+    else files.push(...(await readdir(path)).filter((name) => name.endsWith('.json')).map((name) => join(path, name)));
+  }
+  const records = await Promise.all(files.map(async (file) => ({ file, record: JSON.parse(await readFile(file, 'utf-8')) })));
+  return records.filter(({ record }) => record && typeof record === 'object' && record.cleanup).map(({ file, record }) => costInputOf(record, file));
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url) && process.argv[2] === 'cost-report') {
+  if (!process.argv.includes('--records')) {
+    console.log(USAGE);
+    process.exit(1);
+  }
+  const inputs = await readCostRecords(argValue('--records', ''));
+  const report = costReportAcross(inputs);
+  console.log(JSON.stringify(report, null, 2));
+  await writeJSON(report, 'so-judge-cost-report');
+  process.exit(report.metered > 0 ? 0 : 1);
+} else if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [command, arg] = process.argv.slice(2);
   if (!command || hasHelpFlag() || !['status', 'ask', 'calibrate', 'calls', 'cost', 'rescore', 'limit-probe'].includes(command) || (command === 'ask' && !arg) || (command === 'rescore' && !process.argv.includes('--records'))) {
     console.log(USAGE);
