@@ -1,0 +1,42 @@
+v24-09-attestation-rules mutations 2026-09-25 (each mutant applied alone to scripts/release/attestationRules.mjs, then reverted; node --test scripts/release/attestationRules.test.mjs)
+- M1 any two green runs count as twice (the old greenTwice) -> KILLED (4 failed)
+    x ×2 is two CONSECUTIVE green runs: pass-fail-pass is not twice, fail-pass-pass is
+    x ×2 needs an unchanged, known build and fixture, on the attested build when one is given
+    x a list whose order is not the order the runs ran cannot show two consecutive runs
+    x a run that cites no record, escapes the root, is missing, is another journey's or served another bundle is not evidence
+- M2 not-runnable ignored under --strict -> KILLED (2 failed)
+    x --strict: a failed, blocked, not-runnable or skipped check makes the run not green
+    x a runner error, a hand-edited tally, a count the record never carried and an empty run are each not green
+- M3 skipped ignored under --strict -> KILLED (2 failed)
+    x --strict: a failed, blocked, not-runnable or skipped check makes the run not green
+    x a runner error, a hand-edited tally, a count the record never carried and an empty run are each not green
+- M4 a failed cleanup does not fail the run -> KILLED (1 failed)
+    x a failed cleanup fails the run, with or without --strict
+- M5 a partial (--only) run counts -> KILLED (1 failed)
+    x a partial (--only) run never counts, whichever field says so
+- M6 --strict not required -> KILLED (3 failed)
+    x a run without --strict is not green even when every check passed
+    x a failed cleanup fails the run, with or without --strict
+    x a failing run is allowed only in a PARTIAL attestation whose notGreen names the journey
+- M7 ACCEPTED ignores unscored human rows -> KILLED (2 failed)
+    x ACCEPTED needs every human row scored, against the one human-score file
+    x ACCEPTED is refused when a human row is unscored, and PARTIAL must name it instead
+- M8 a cited path may escape the records root -> KILLED (2 failed)
+    x a cited path that escapes the records root is refused, and one inside it resolves under it
+    x a run that cites no record, escapes the root, is missing, is another journey's or served another bundle is not evidence
+- M9 the pair need not share a build -> KILLED (2 failed)
+    x ×2 needs an unchanged, known build and fixture, on the attested build when one is given
+    x a run that cites no record, escapes the root, is missing, is another journey's or served another bundle is not evidence
+- M10 the pair need not be on the attested build -> KILLED (1 failed)
+    x ×2 needs an unchanged, known build and fixture, on the attested build when one is given
+- M11 ACCEPTED lets a failing run through when notGreen names it -> KILLED (1 failed)
+    x a failing run is allowed only in a PARTIAL attestation whose notGreen names the journey
+- M12 list order is not checked -> KILLED (1 failed)
+    x a list whose order is not the order the runs ran cannot show two consecutive runs
+- M13 a hand-edited tally is trusted -> KILLED (1 failed)
+    x a runner error, a hand-edited tally, a count the record never carried and an empty run are each not green
+- M14 a run summary with no record counts -> KILLED (1 failed)
+    x a run that cites no record, escapes the root, is missing, is another journey's or served another bundle is not evidence
+- unmutated -> # pass 16, # fail 0
+M1 is the reported defect itself (the old greenTwice: any two runs with fail === blocked === 0). M11 SURVIVED on the first pass; the ACCEPTED-with-notGreen-naming assertion was added to the failing-run test, and it is KILLED above.
+The file-reading tests in attestation.test.mjs still skip until docs/release/<version>/attestation.json exists (the acceptance plan writes it); they now call these predicates (journeyVerdicts, statusProblems, greenTwiceEverywhere), so the rules above are the ones they apply. The predicate tests never skip.

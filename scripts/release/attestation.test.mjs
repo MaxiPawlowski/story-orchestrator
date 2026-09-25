@@ -7,10 +7,11 @@ import { strict as assert } from "node:assert";
 import { createHash } from "node:crypto";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, posix, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { attestedJourneyIds, catalogProblems, citedRecords, journeyCatalog, recordsRootOf, runReport } from "./attestationChecks.mjs";
+import { attestedJourneyIds, catalogProblems, citedRecords, journeyCatalog, recordsRootOf } from "./attestationChecks.mjs";
+import { citedPathProblem, greenTwiceEverywhere, journeyVerdicts, resolveCited, runLines, statusProblems } from "./attestationRules.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const version = JSON.parse(readFileSync(join(root, "package.json"), "utf8")).version;
@@ -19,8 +20,18 @@ const journeysDir = join(root, "test", "journeys");
 const sha256 = (buffer) => createHash("sha256").update(buffer).digest("hex");
 
 const read = () => JSON.parse(readFileSync(attestationPath, "utf8"));
-const skip = () => (existsSync(attestationPath) ? false : `no docs/release/${version}/attestation.json — plan 11 writes it`);
+const skip = () => (existsSync(attestationPath) ? false : `no docs/release/${version}/attestation.json — the acceptance plan writes it`);
 const recordsDir = () => recordsRootOf(read(), root);
+const attestedBuildOf = (attestation) => attestation.build?.attested?.bundle?.sha256 ?? null;
+const loadCited = (dir) => (cited) => {
+  const path = resolveCited(dir, cited);
+  return existsSync(path) ? JSON.parse(readFileSync(path, "utf8")) : null;
+};
+const verdictsOf = (attestation) =>
+  journeyVerdicts(attestation, loadCited(recordsDir()), {
+    attestedBuild: attestedBuildOf(attestation),
+    humanScores: posix.join(attestation.evidence.journeys, "human", "scores.json"),
+  });
 
 const currentBuild = () => {
   const built = join(root, "dist", "index.js");
@@ -75,17 +86,14 @@ test("every journey in test/journeys is accounted for, and one that never ran sa
       continue;
     }
     assert.ok(Array.isArray(runs) && runs.length, `${id} claims no runs`);
-    for (const run of runs) {
-      assert.equal(typeof run.automated?.pass, "number", `${id} has a run with no automated tally`);
-      assert.equal(run.firstAttemptRetried, 0, `${id} needed a retry — say which check and why, or the green means less than it says`);
-    }
+    for (const run of runs) assert.equal(typeof run.record, "string", `${id} has a run that cites no record: a tally typed into the attestation is not evidence`);
   }
 });
 
 test("every run of every journey is reported, not only the first two", { skip: skip() }, () => {
   const attestation = read();
-  const lines = runReport(attestation);
-  const expected = attestedJourneyIds(attestation).reduce((sum, id) => sum + (typeof attestation.journeys[id].notRun === "string" ? 1 : (attestation.journeys[id].runs ?? []).length), 0);
+  const lines = runLines(attestation, verdictsOf(attestation));
+  const expected = attestedJourneyIds(attestation).reduce((sum, id) => sum + (typeof attestation.journeys[id].notRun === "string" ? 1 : (attestation.journeys[id].runs ?? []).length + 1), 0);
   assert.equal(lines.length, expected);
   for (const line of lines) console.log(line);
 });
@@ -108,19 +116,16 @@ test("the records root is the attestation's own evidence.journeys, and one that 
   assert.equal(recordsRootOf({ evidence: { journeys: "test/journeys/records/v2.4-plan09/" } }, root), join(root, "test", "journeys", "records", "v2.4-plan09"));
   assert.throws(() => recordsRootOf({ evidence: {} }, root), /names no evidence\.journeys/);
   assert.throws(() => recordsRootOf({ evidence: { journeys: "../../elsewhere" } }, root), /outside the repo/);
-  assert.deepEqual(citedRecords({ journeys: { J1: { records: ["a.json"] }, rule: { records: ["x"] }, J2: {} } }), ["a.json"]);
-  assert.deepEqual(runReport({ journeys: { J2: { runs: [{ automated: { pass: 3, fail: 0, blocked: 0 }, cleanup: "clean", firstAttemptRetried: 0 }, { automated: { pass: 2, fail: 1, blocked: 0 }, cleanup: "clean", firstAttemptRetried: 1, recorded: false }] }, J12: { notRun: "no backend for the unaided schedule" } } }), [
-    "J2 run 1: 3 pass, 0 fail, 0 blocked, cleanup clean, retried 0",
-    "J2 run 2: 2 pass, 1 fail, 0 blocked, cleanup clean, retried 1, not recorded",
-    "J12: not run — no backend for the unaided schedule",
-  ]);
+  assert.deepEqual(citedRecords({ journeys: { J1: { records: ["a.json"], runs: [{ record: "J1/run1/record.json", header: "J1/run1/header-start.json" }, { automated: {} }] }, rule: { records: ["x"] }, J2: {} } }), ["a.json", "J1/run1/record.json", "J1/run1/header-start.json"]);
 });
 
-test("every record it cites exists on disk", { skip: skip() }, () => {
+test("every path it cites stays under the records root and exists on disk", { skip: skip() }, () => {
   const cited = citedRecords(read());
   assert.ok(cited.length, "the attestation cites no records at all");
+  const escaping = cited.map(citedPathProblem).filter(Boolean);
+  assert.deepEqual(escaping, [], "cited paths outside the records root");
   const dir = recordsDir();
-  const missing = cited.filter((name) => !existsSync(join(dir, name)));
+  const missing = cited.filter((name) => !existsSync(resolveCited(dir, name)));
   assert.deepEqual(missing, [], `cited records that are not there (rotated out of .debug before being archived?): ${missing.join(", ")}`);
 });
 
@@ -135,24 +140,21 @@ test("a PARTIAL attestation says what is not green, and a full one has nothing t
   }
 });
 
-// V22b (process rule 12): "twice" means two recorded, consecutive, all-pass runs. The note said the
-// matrix "ran green twice" while J0 ran once, J7 never went green and three journeys had one record.
-const allPass = (run) => run.automated.fail === 0 && run.automated.blocked === 0;
-const greenTwice = (journey) => (journey.runs ?? []).filter((run) => allPass(run) && run.recorded !== false).length >= 2;
-
-test("a journey that never ran all-green is named in notGreen", { skip: skip() }, () => {
+// V22b (process rule 12) + v2.4 plan 09 §Matrix: "twice" is two CONSECUTIVE green runs on an unchanged
+// build and fixture, green is --strict with a clean cleanup, and a partial run never counts. The rules
+// are attestationRules.mjs, unit-tested (never skipped) in attestationRules.test.mjs.
+test("every journey is green twice on the attested build, or the attestation is PARTIAL and notGreen names it", { skip: skip() }, () => {
   const attestation = read();
-  const neverGreen = Object.entries(attestation.journeys).filter(([key, journey]) => /^J\d+$/.test(key) && (journey.runs ?? []).length && !journey.runs.some(allPass)).map(([key]) => key);
-  const unnamed = neverGreen.filter((id) => !(attestation.notGreen ?? []).some((line) => new RegExp(`\\b${id}\\b`).test(line)));
-  assert.deepEqual(unnamed, [], "a journey that never went green is missing from notGreen");
+  assert.deepEqual(statusProblems(attestation, verdictsOf(attestation), { attestedBuild: attestedBuildOf(attestation) }), []);
 });
 
-test("the status note claims 'twice' only when every journey has two recorded all-pass runs", { skip: skip() }, () => {
+test("the status note claims 'twice' only when every journey is green twice", { skip: skip() }, () => {
   const attestation = read();
   const claimsTwice = /\b(green|ran) twice\b/i.test((attestation.statusNote ?? "").replace(/did NOT run green twice/gi, ""));
   if (!claimsTwice) return;
-  const short = Object.entries(attestation.journeys).filter(([key, journey]) => /^J\d+$/.test(key) && !greenTwice(journey)).map(([key]) => key);
-  assert.deepEqual(short, [], "the note says the matrix ran green twice, and these journeys did not");
+  const verdicts = verdictsOf(attestation);
+  const short = Object.entries(verdicts).filter(([, verdict]) => !verdict.twice).map(([id]) => id);
+  assert.ok(greenTwiceEverywhere(verdicts), `the note says the matrix ran green twice, and these journeys did not: ${short.join(", ")}`);
 });
 
 // V20c (T4): an `--only` run writes `partial: true` into its record, and nothing used to read it — a
@@ -160,8 +162,8 @@ test("the status note claims 'twice' only when every journey has two recorded al
 test("no cited journey record is a partial (--only) run", { skip: skip() }, () => {
   const cited = citedRecords(read());
   const dir = recordsDir();
-  const partial = cited.filter((name) => name.endsWith(".json") && existsSync(join(dir, name))).filter((name) => {
-    const record = JSON.parse(readFileSync(join(dir, name), "utf8"));
+  const partial = cited.filter((name) => name.endsWith(".json") && !citedPathProblem(name) && existsSync(resolveCited(dir, name))).filter((name) => {
+    const record = JSON.parse(readFileSync(resolveCited(dir, name), "utf8"));
     return Array.isArray(record.results) && record.partial === true;
   });
   assert.deepEqual(partial, [], `cited records from --only runs, which cannot stand for a gate: ${partial.join(", ")}`);
