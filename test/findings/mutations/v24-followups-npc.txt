@@ -1,0 +1,11 @@
+v2.4 follow-up: NPC reply writes into the previous chat (fireNpcReplies post-await check; v2.5 plan 02 C1 step 1), mutations 2026-09-25 (worktree build on 96b4fe6; script .debug/mut_npc.py, each mutant applied alone as an exact-text replacement to src/runtime/effectsApplier.ts, the file restored byte-for-byte after its run; a replacement that does not match fails the script's assert, and none did)
+Suites per mutant: npcRepliesOwnership.review (6), effectsOwnership.review + effectsApplier.test (41). Baseline 3 suites / 47 tests green; restored after the sweep 47/47 green.
+Red first: before the fix the generating-reply case failed with `Expected: -1, Received: 7` (chat B's last message id written into chat A's extras); the control passed.
+
+- M1 post-await ownership check deleted (plan mutation): KILLED, 1 of 47
+    "a chat switch during a generating reply writes nothing into the departed chat's state"
+  control "a generating reply in a chat that did not move records its own last message" stays green, as do the four existing npcReplies controls.
+- M2 id written before the reply is awaited (check kept, so the write reads the chat before the reply landed): KILLED, 2 of 47
+    "a chat switch during a generating reply writes nothing into the departed chat's state"
+    "control: a generating reply in a chat that did not move records its own last message"
+  The control kills it on its own, so the order "write after the reply landed" is pinned independently of the switch case.
