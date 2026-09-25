@@ -1,8 +1,9 @@
 # Implementation Overview — Story Orchestrator v2.5: gate lore by view, close what v2.4 measured open
 
-**Status: DRAFT 2026-09-25 — awaits user approval.** Plan docs 01 and 02 are written. Plans 03–10 are outlines here.
-Each gets its own doc only once its evidence exists (a spike verdict, a measurement, or a user decision). Nothing in
-this file is built. Verified against master `1ad1a5f` (v2.4 plans 06/08 merged as `3dd039b`; their docs are unchanged
+**Status: DRAFT 2026-09-25 — awaits user approval.** Every plan doc (01–13) is written, at the user's request
+(2026-09-25: "write down all the 2.5 plans"). A doc written before its evidence exists states its measurement and
+predeclared floor first, and builds nothing until they are met (V8). Nothing in this file is built. Plan 13 (harness
+routing) was added the same day, and `v2.4/v2.5-seeds.md` is reconciled in §Seeds reconciliation. The plan docs are verified against master `e7626d7`; the citations in this overview were verified against master `1ad1a5f` (v2.4 plans 06/08 merged as `3dd039b`; their docs are unchanged
 from `39aa6b5`). **Reconciled 2026-09-25** with v2.4 E9 (no downgrade or compat work before a public release) and the three
 research docs under `research/`: plans 11 (legacy removal) and 12 (release and packaging) were added, rule 3/9 and V7 were retired,
 and the production-readiness checklist became plan 10's gate table.
@@ -20,12 +21,14 @@ else the research proposed stays a spike or a question until measured.
 3. **`v2.4/extension-research/SUMMARY.md`** "Next tier" (`:609-619`) and §7/§8/§11 (`:206-273`). This is research, not
    evidence (v2.4 rule 1).
 4. **`v2.3/v2.4-seeds.md:26`**: the plan-10 spikes "recorded as not built rather than shipped unmeasured".
-5. **Not yet available:** `docs/plans/v2.4/v2.5-seeds.md`. v2.4 plan 09 owes it (`v2.4/09-acceptance.md:191-198`), and it
-   does not exist on any branch. See V6.
+5. **`docs/plans/v2.4/v2.5-seeds.md`** (written by v2.4 plan 09 on candidate `4ebe1db`). Its NEW rows are placed in
+   §Seeds reconciliation (V6).
 6. **`research/legacy-inventory.md`** (H/A/C/I/T/D rows, the v5 reset target, removal order), **`research/code-health-audit.md`**
    (H1–H3, M1–M6, L1–L5 on master `1b4e642`) and **`research/prod-readiness-criteria.md`** (the predeclared checklist).
 7. **User decisions 2026-09-25**: "this plugin has never been released to the public … no downgrade leg is needed … I want it
    to be prod ready at the end of 2.5"; and chat story state may be reset, only the debug-run logs matter (v2.4 E9).
+8. **User request 2026-09-25 (plan 13):** "a way to pick different harnesses' CLI (like claude code, and opencode) for each
+   non narrative llm call", using the user's Claude Code and Codex subscriptions; follow-up: "use gpt-6 family on opencode".
 
 ## Entry condition (V1)
 
@@ -56,35 +59,53 @@ version bump), which existed for downgrade safety and are retired by E9. The del
 12. **A fix blocked by a line budget is recorded as budget-blocked and routed to plan 03, never squeezed in.** Evidence:
     `judge.uses.memoryPairs` was left unwired because `memoryCoordinator` had no line to spare (`v2.4/07-judge.md:1059-1062`),
     and a rule withdrawal went lazy for the manager's 4 lines (`:1226-1227`).
-13. **Touching a function with a `checked` census row re-reads every write after each of its awaits.** C1 in plan 02 is a
-    `checked` row with an unchecked write after its await (`src/runtime/effectsApplier.ts:383-384`,
-    `test/findings/ownership-sites.json:252-254`). This is the census gotcha (`.claude/rules/gotchas.md`, "A `checked` row …").
+13. **Touching a function with a `checked` census row re-reads every write after each of its awaits.** Historical example,
+    found in C1 and fixed in `644aa05`: a `checked` row with an unchecked write after its await (`src/runtime/effectsApplier.ts`
+    `fireNpcReplies`, `test/findings/ownership-sites.json` note). This is the census gotcha (`.claude/rules/gotchas.md`, "A `checked` row …").
 
 ## Plan sequence
 
 | # | Plan | Items | Depends on | Bucket | Doc |
 |---|---|---|---|---|---|
-| 11 | **Legacy removal** (runs first) | blob v5 + reset-on-unknown, delete `persistenceMigration` and the v2/v3 branches, required `provenance`/`engineHistory`/`visitedPath`, library id-only, settings history lifts, authoring aliases → validation error with a hint, `schema: 1` stamp, one-time cleanup on this install and the lanes | V1 | L | outline |
+| 11 | **Legacy removal** (runs first) | blob v5 + reset-on-unknown, delete `persistenceMigration` and the v2/v3 branches, required `provenance`/`engineHistory`/`visitedPath`, library id-only, settings history lifts, authoring aliases → validation error with a hint, `schema: 1` stamp, one-time cleanup on this install and the lanes | V1 | L | `11-legacy-removal.md` |
 | 01 | **WI scan-time gating** (the spike's `05b`) | real-book normalisation behind a confirm, ledger verify/provenance/restore, normalise-then-activate, mode control + capability + Repair, inv 14 rewording | 11 | W | `01-wi-scan-gating.md` |
-| 02 | **Carry-in** | C1 in-flight generation (the ownership check itself lands in v2.4, U5), C2 save race (diagnose, then guard), C3 `hiddenRuns` chat keying, C4 stale host facts, C5 intermittents (conditional) | 11 | H, T | `02-carry-in.md` |
-| 03 | **Code health and budget headroom** | prod-readiness S2–S8, T1–T4, E1, E2, E4, F2, F3, Q1t, Q3t: extraction to budgets (V4), every prod file budgeted, host deps injected, no cycles/dead/duplicate helpers, one logger, snapshot memoised, no wall-clock tests | 11 | T | outline |
-| 04 | **Memory contradictions, second pass** | polarity/negation, low-overlap-low-cosine miss, ordinary rows under the band, `memoryPairs` on the write path (Phase A) | 03 | X, J | outline |
-| 05 | **Extraction and off-path follow-ups** | FACT/MEMORY window check (X26 seed), whole-scene epistemic/ledger, reasoning-template strip, rpm/mutex, constrained decoding, token estimate | 02 | X | outline |
-| 06 | **Judge: hosts and next uses** | D10 hosted routes (user's call), boundary bundle, tension read, pre-reply Choice, R16 disagreement record, v2.3 plan-10 spikes | 03 | J | outline |
-| 07 | **Author tools** | per-message inspector (D12), `{{story_quality::<key>}}` (X24), Studio gate replay, CC `promptManager` breakdown | V1 | U | outline |
-| 08 | **Lore on the scan seam** | unbound mirror, bound-book requirements, member-scoped lore, per-tier `scan:true`, lore-select "exclusive", mirror-key measurement, R14 lore contradiction | 01 | W | outline |
-| 09 | **Research spikes** (the user picks) | swipe-back cache, re-commit after rewrite, roster aliases, append-only short_term, story-owned scenario, complication pool (+R13), seeded chance gates, write tiers, witness filter, tool-call policy | per item | S, X | outline |
-| 12 | **Release and packaging** | prod-readiness R1–R6, D1–D4, F1, P1–P3, U1–U2, A1, A2, Q2t, E3: release artifact + allowlist, one version, clean `dist/`, debug surface out of the prod bundle, Studio lazy chunk, `.debug/` out of `public/`, user docs, privacy section, CI | V1 | R | outline |
-| 10 | **Acceptance** | v2.4 plan 09's shape, scan-mode journeys, and the production-readiness checklist as a gate table | all | — | outline |
+| 02 | **Carry-in** | C1 in-flight generation (the ownership check itself lands in v2.4, U5), C2 save race (diagnose, then guard), C3 `hiddenRuns` chat keying, C4 stale host facts, C5 intermittents (conditional), seeds A3/A4 | 11 | H, T | `02-carry-in.md` |
+| 03 | **Code health and budget headroom** | prod-readiness S2–S8, T1–T4, E1, E2, E4, F2, F3, Q1t, Q3t: extraction to budgets (V4), every prod file budgeted, host deps injected, no cycles/dead/duplicate helpers, one logger, snapshot memoised, no wall-clock tests; the model-call seam kept as one injected surface for 13 | 11 | T | `03-code-health.md` |
+| 04 | **Memory contradictions, second pass** | polarity/negation, low-overlap-low-cosine miss, ordinary rows under the band, `memoryPairs` on the write path (Phase A) | 03 | X, J | `04-memory-contradictions.md` |
+| 05 | **Extraction and off-path follow-ups** | FACT/MEMORY window check (X26 seed), whole-scene epistemic/ledger, reasoning-template strip, rpm/mutex, constrained decoding, token estimate (A13), live-suite tiers (A17), regex parity; each stated per route kind (13) | 02 | X | `05-extraction-followups.md` |
+| 06 | **Judge: hosts and next uses** | D10 hosted routes (user's call), boundary bundle, tension read, pre-reply Choice, R16 disagreement record, v2.3 plan-10 spikes, "LLM-as-judge via a harness" as a candidate | 03 | J | `06-judge-next.md` |
+| 07 | **Author tools** | per-message inspector (D12), `{{story_quality::<key>}}` (X24), Studio gate replay, CC `promptManager` breakdown, "which route answered" (13's call record) | V1 | U | `07-author-tools.md` |
+| 08 | **Lore on the scan seam** | unbound mirror, bound-book requirements, member-scoped lore, per-tier `scan:true`, lore-select "exclusive", mirror-key measurement, R14 lore contradiction | 01 | W | `08-lore-scan-seam.md` |
+| 09 | **Research spikes** (the user picks) | swipe-back cache, re-commit after rewrite, roster aliases, append-only short_term, story-owned scenario, complication pool (+R13), seeded chance gates, write tiers, witness filter, tool-call policy | per item | S, X | `09-research-spikes.md` |
+| 13 | **Harness routing** (new) | each `PassRole` routable to a CLI harness (Claude Code, Codex, opencode/gpt-6) through a second server plugin; typed route, `auth`/`quota` failure kinds, breaker per route, call ring + usage meter, UI + egress copy, Phase 0 isolation spike, Phase A per role × route at the v2.4 plan 08 floors | 0: none; build: 11, 03 | M | `13-harness-routing.md` |
+| 12 | **Release and packaging** | prod-readiness R1–R6, D1–D4, F1, P1–P3, U1–U2, A1, A2, Q2t, E3: release artifact + allowlist, one version, clean `dist/`, debug surface out of the prod bundle, Studio lazy chunk, `.debug/` out of `public/`, user docs, privacy section, CI; both server plugins in the artifact and the security gate | V1 | R | `12-release-packaging.md` |
+| 10 | **Acceptance** | v2.4 plan 09's shape, scan-mode journeys, the production-readiness checklist as a gate table, harness rows H1–H5 | all | — | `10-acceptance.md` |
 
-11 runs first: it deletes read branches and narrows the types every later plan touches, and it frees `memoryCoordinator`
-and manager lines (legacy inventory §5 ranks 2–3). Then 01 and 02 run in parallel (different subsystems), but **01's live sign-off (G1–G8) waits for 02 C2's attribution of the
+11 runs first: it deletes read branches and narrows the types every later plan touches, but it frees almost no budget:
+measured on `e7626d7`, the manager goes 740 → 739 and `memoryCoordinator` 619 → 617 (`11-legacy-removal.md`), so plan 03
+cannot count on it (legacy inventory §5 overstated this). Then 01 and 02 run in parallel (different subsystems), but **01's live sign-off (G1–G8) waits for 02 C2's attribution of the
 save race or a recorded non-reproduction** (Sol PR-09); a wedged lane is neither a pass nor a waived attempt. 03 comes before
 04 and 06, because both need coordinator lines. 07 is independent. 08 waits for 01. 12 is independent of all of them and
 can start at once, except that its bundle budget (F1) is measured after 03's extractions. Each item in 09 is its own spike
-with predeclared conditions, the T13 pattern.
+with predeclared conditions, the T13 pattern. 13's Phase 0 (CLI host facts and the tool-isolation spike) needs no
+product code and can run at once. Its build waits for 11 (the `schema: 1` settings baseline its `extraction.routes`
+lands on) and 03 (the model-call seam stays one injected surface, so no coordinator line is spent). Its plugin joins
+12's allowlist and security gate, and its live rows join 10.
 
-## Plan outlines (03–10)
+## Plan outlines (summaries; the plan docs are the source)
+
+### 13 Harness routing (new, `13-harness-routing.md`)
+- **What:** each of the five `PassRole`s (`src/extraction/passRole.ts:1`) can route to a CLI harness the user is logged
+  into: `claude -p`, `codex exec`, `opencode run` (gpt-6 family on the ChatGPT login, the user's pick). The narrative
+  reply never does. A second server plugin spawns an allowlisted binary with fixed argv, no shell, the prompt on stdin,
+  tools off, an empty temp cwd, an env allowlist, a deadline that kills the tree, and admin-only access by default.
+- **Measured 2026-09-25:** Claude Code with the isolation flags answers in 2.1–3.4 s on 402 input tokens (`--bare`
+  refuses a subscription login); opencode gpt-6-astra-fast 6.0–6.7 s, 5 029 input tokens with its default agent vs 133
+  with an inline tool-less agent; opencode retried a quota 429 for 79 s on its own; Codex's plan is out of quota until
+  2026-09-27 20:58.
+- **Rules:** off by default; no silent fallback (the T18 refusal stands, a fallback profile is the author's choice per
+  role); a harness is offered only after its tool negative control passes; recommended only at the v2.4 plan 08 floors
+  ×2, never retuned.
 
 ### 11 Legacy removal (runs first)
 - **Source:** `research/legacy-inventory.md` §2–§5, measured read-only on this install (59 old blobs, 8 fixed-name mirror
@@ -157,10 +178,10 @@ with predeclared conditions, the T13 pattern.
   pass/fail fields for E2, and the exact parallel-load command and environment for "`npm test` ×3 under load" are committed
   in the plan doc before the plan runs, each guard with a negative control.
 - **Fault-matrix honesty (Astra AE-04):** a `covered` cell must cite a test that injects its fault. Three did not
-  (`extraction|delayedError`, `stagecraft|duplicateCompletion`, `scene|beforeHostWrite`); being corrected on 2026-09-25 with a
-  sweep of every other cell. If a structural check is feasible without false positives, it lands here.
+  (`extraction|delayedError`, `stagecraft|duplicateCompletion`, `scene|beforeHostWrite`); **corrected on master** (`9178162`, `74867d5`;
+  matrix 77/10/23/0 on `e7626d7`, re-measured by plan 03). If a structural check is feasible without false positives, it lands here.
 - **Budgets:** `MANAGER_LINE_BUDGET = 740` and `COORDINATOR_LINE_BUDGET = 620` (`src/runtime/architecture.test.ts:17-18`).
-  Measured with the test's own formula: manager **736/740**, `memoryCoordinator` **619/620** on master HEAD, and the same on
+  Measured with the test's own formula: manager **736/740** (**740/740 on `e7626d7`**, re-measured by plan 03), `memoryCoordinator` **619/620** on master HEAD, and the same on
   the 06/08 integration branch. Every v2.4 plan cites 736–737 and 619 (`v2.4/06-steering-stagecraft.md:344`,
   `v2.4/07-judge.md:913`, `v2.4/08-author-observability.md:433`).
 - **Direction (V4): extract, do not raise.** The first candidate is the memory-queue wiring (`queueDeps()`, which
@@ -250,9 +271,10 @@ Each needs its own measurement before a build. None has one yet.
 - v2.4 plan 09's shape, with rules 11–13 of v2.3 applied: archived records, "twice" meaning consecutive, `--strict`.
 - Added: every journey in scan mode (plan 01 G3/G4), a clean host for each ST version the README claims (V10: the latest
   stable ST at release), the plan 02 C1 live proof of the generating branch, the human sessions (below), and
-  **`research/prod-readiness-criteria.md` as a gate table**: every row met or a deferral the user signs off, never loosened.
-- **The label "production ready" cannot be reached by deferral (Sol PR-01).** R1–R4, D1–D3, P1–P3, the artifact smoke journey
-  and the uninstall test are required for it. A deferred critical row makes the verdict PARTIAL, as v2.4 plan 09 does.
+  **`research/prod-readiness-criteria.md` as a gate table**: every row met; a signed-off deferral is recorded, and it makes
+  the verdict PARTIAL; never loosened.
+- **The label "production ready" cannot be reached by deferral (Sol PR-01).** Every gate-table row is required for the label;
+  R1–R4, D1–D3, P1–P3, SM, UN and S1 are the critical set used to rank a PARTIAL. Any deferred row makes the verdict PARTIAL.
 - **Added by the Codex review:** a **long-session soak** (a 1 000-message chat and a sustained 100-turn session on the
   artifact, reference hardware and latency/heap budgets predeclared, compared against a 100-message baseline; PR-11); a
   **backend-outage chaos row** (cut the memory model during an extraction and during a boundary with pending work: no stale
@@ -284,6 +306,27 @@ These are v2.4's to finish. A row moves here only by a deferral the user signs o
 | `memoryQueue.test.ts` `neverWritten` returns an async function (always truthy) and the file is outside `typecheck:test` | `src/runtime/memoryQueue.test.ts` | 03 |
 | Post-freeze fixes merged after the acceptance candidate `4ebe1db` (AE-01 curator ownership, AE-03 fates fixture, AE04-L1 lore cache, AE04-S1 scene write) need their own live checks on the next build | `docs/plans/v2.5/research/review-codex-2026-09-25.md` | 02 |
 
+## Seeds reconciliation (V6, 2026-09-25)
+
+`v2.4/v2.5-seeds.md` rows marked **NEW** there, placed here. Rows already "in v2.5" keep the home that file names. Post-freeze
+fixes on master are listed with their merge; each still owes its live check on the next build (plan 02 residue row).
+
+| Seed | State on `e7626d7` | Plan |
+|---|---|---|
+| "×2" when a series has earlier failures (§A) | open | 10 states the definition before its matrix |
+| A1 reload drops `story_*` blocks; A2 nudge outlives a chat switch | **fixed** `69b378f` | 02 (live check) |
+| A3 in-flight group generation lands in the next chat | open | 02 C1 step 0 is its measurement; harness half → 10 Phase 0 harness (H-a) |
+| A4 transition note after the awaited onEnter reply | open (player-visible order, rule 7) | 02 |
+| A5 evidence with the `[n] Name:` label; A7 quoted/`value=` enum values | **fixed** `c64c540` (D1/D3) | 05 (live check) |
+| A6 breaker under a queued backend; A11 memorize timeout retry | **fixed** `582d56a` | 05 (live check) |
+| A8 scene-judge timeouts; A10 early reads fixed to window 0-1 | **fixed** `ed6c367` (A8 shared in-flight call; A10 cursor per chat+story) | 06 J2 (A8 live check), 05 F0 (A10) |
+| A13 token estimate low | open | 05 |
+| A17 live suite scores three tiers; `facts` needle vacuous | open | 05 (fixtures), 10 (suite run) |
+| §C harness rows: commit matrix fixes, sandbox cleanup vs in-flight generation, `expectFail` import cleanup, forced-pick book left selected, run header without group chat lists, `st-lanes` stdout buffering, frozen worktree per matrix, a backend per lane | open (fixture hash: `f11ab3b` routed it; not built) | 10 (environment and harness), 03 (fixture hash) |
+| §D J3/J7/J11/J12/I1 re-runs, P08 ×2, CL over J11, clean-host storybook, headed lanes | open | 10 |
+| §E curator role recommendation (meets every floor on `65733265d301`) | open (doc change) | 12 (recommended config) |
+| §F plan 04 regex parity | open, unmeasured | 05 |
+
 ## Human sessions (not a plan item; where they sit)
 
 - **v2.1:** "automated matrix GREEN; human-eval sessions OPEN" (`v2.1/08-acceptance.md:58`), "the user's to play and score" (`:63-64`).
@@ -310,6 +353,8 @@ These are v2.4's to finish. A row moves here only by a deferral the user signs o
 | V9 | Judge-shaped items | **v2.4 rule 4 unchanged**: own Phase A, own key, off by default, judge-off column | `.claude/rules/architecture.md` "The judge never blocks and never writes"; `v2.4/00-overview.md:65-69` (rule 4) |
 | V10 | Legacy inventory Q1–Q6 | Q1 the library is **kept** (only chat state resets). Q2 old chats: the unreadable path's **notice + confirmed Restart**, never silent replacement. Q3 the 8 fixed-name and unmarked per-chat mirror books are **moved to a backup folder outside the ST tree**, not deleted. Q4 the declared minimum is **the latest stable ST at release**, verified by a clean host; 1.18.0 is kept only if a full acceptance runs there. Q5 after the first public release, **real migrations** (the `schema: 1` stamp is the baseline). Q6 aliases are **removed**, and an unknown key is a validation error with a did-you-mean hint | E9 (user); the unreadable path already exists and is tested (`blobUnreadable`, J10.13); a moved file can be restored, a deleted one cannot |
 | V11 | Code-health questions that are engineering calls | Comments: narration goes, host-fact citations and host-seam JSDoc stay (allowlisted). i18n: **English-only for 2.5**, stated in the README. `fetch` wrapper: **kept**, because it refuses the measured empty-chat-under-another-id write (v2.4 plan 02, `.claude/rules/gotchas.md` "ST binds a chat save…"); E3's live check with two other fetch-wrapping extensions is its evidence. Debug handles and response globals: **dev builds only**; prod keeps `talkControlInterceptor` and at most one read-only handle. Bundle: **≤ 1.25 MB** main entry with Studio lazy | `research/code-health-audit.md` M1, M5, M6, H2; `research/prod-readiness-criteria.md` open questions 1, 3, 4, 6, 7 |
+| V12 | Cloud models (user request 2026-09-25) | **Plan 13: per-role routing to CLI harnesses through a second server plugin**, every role off by default, no silent fallback, recommended only at the v2.4 plan 08 floors ×2. The TypeSafe judge is untouched | `13-harness-routing.md` §Host facts (CLI probes 2026-09-25); `src/extraction/client.ts:76-92` is the one seam |
+| V13 | Plan docs before evidence | **Written now at the user's request**; each doc names its measurement and floor first and builds nothing before them (V8 unchanged) | user, 2026-09-25 |
 
 ## Questions that are the user's
 
@@ -324,6 +369,13 @@ These are v2.4's to finish. A row moves here only by a deferral the user signs o
   `auto_update`), GitHub release zips only, or both? It decides where the artifact lives on your GitHub.
 - **U7** Judge key scope (P2): in multi-user ST, the env and `~/.typesafe` fallbacks are shared by every user. Drop them in
   multi-user installs, or document them as install-wide?
+- **U8** Plan 13: vendor terms for subscription use (Q1), admin-only harness routes (Q2), API-key billing (Q3), splitting
+  `authoring` (Q4), the input cap (Q5), which roles first (Q6) — `13-harness-routing.md` §Unresolved questions.
+
+- **U9** Plan 12 Q1: move the repo out of `public/` and serve a staged copy. P3 cannot pass while `docs/`, `test/` and `.debug/`
+  are served from the working repo (curl 200 on each, 2026-09-25). Reversible.
+- **U10** Plan 10 Q1: the "×2" rule (the first two runs of an unchanged series pass; a pass after a failure is `flaky k/n`,
+  red). Accept it, and J7 (plus J3.7's FACT leg) as the model-dependent rows judged 3 of 4? Default if unanswered: ×2.
 
 ## Out of scope for v2.5
 
@@ -343,4 +395,5 @@ These are v2.4's to finish. A row moves here only by a deferral the user signs o
 | 00 overview | DRAFT 2026-09-25, reconciled the same day (E9 + research); awaits user approval |
 | 01 | DRAFT written (`01-wi-scan-gating.md`); open: U1 |
 | 02 | DRAFT written (`02-carry-in.md`) |
-| 03–12 | outline only; a doc is written when its evidence or decision exists. 11 and 12 have their research docs as evidence |
+| 03–12 | DRAFT written 2026-09-25 (`03-code-health.md` … `12-release-packaging.md`); measurement-first where evidence is missing (V13) |
+| 13 | DRAFT written (`13-harness-routing.md`); Phase 0 runnable now; open: U8 |

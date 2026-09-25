@@ -29,7 +29,7 @@ user's real books, behind an author confirm.
 | S1 no leak to a no-story chat, another story's chat, or with SO disabled (spike report `:17`) | Normalisation of **real** books. The spike's normaliser only touches `SO-T13` books (`worldInfoNormalize.ts:12-14`, `worldInfoScanHost.ts:63`) |
 | S2 per-chat sets == `worldInfoPlan`, 0 `/api/worldinfo/edit` during switches (`:18`) | A normalisation ledger that drifts from the files. `known` entries are never re-read (`worldInfoNormalize.ts:54-56`), so an entry re-enabled by hand in the ST editor leaks with SO disabled (S1c no longer holds for it) |
 | S3 one-time normalisation, byte-identical non-gated entries (`:19`) | Activation before normalisation. Today the probe turns scan gating on and **then** normalises (`worldInfoScanHost.ts:86-89`); in between, a gated entry whose copy lacks a `disable` key cannot be turned off (`scanGatePlan.ts:72-77`, counted as `missingKey`, never surfaced) |
-| S4 vectors still works, calls ≤ file path (`:20`) | Downgrade to v2.4 with `gatingMode: "scan"` and a real-book ledger (below) |
+| S4 vectors still works, calls ≤ file path (`:20`) | A real-book ledger (below) |
 | S5 author table matches the scan view (`:21`) | A settings control, a Repair row, a capability row. `wiScanGating` is spike-local, kept out of `CAPABILITY_IDS` (`05-world-info.md:325`) |
 | S6 file-path fallback enables from rest-off (`:22`) | An author who toggles a gated entry in ST's editor and sees nothing change |
 | S7 lore-select and forces respect the view (`:23`) | Story removal: its entries stay off at rest, and nothing can restore them |
@@ -56,10 +56,10 @@ Out of scope, with where each goes:
 
 | Claim | Seen | Note |
 |---|---|---|
-| Mode flag | `settingsStore.ts:29-45`: `gatingMode: "file" \| "scan"`, default `file`; `normalized: Record<book, string[]>` | A v2.4 sanitizer keeps only string arrays (`:40-43`). A reshaped `normalized` is wiped by a v2.4 read |
+| Mode flag | `settingsStore.ts:29-45`: `gatingMode: "file" \| "scan"`, default `file`; `normalized: Record<book, string[]>` | `sanitizeWorldInfoSettings` rebuilds `{gatingMode, normalized}` only (`:40-43`), so any new key such as `normalizedFrom` is dropped unless the sanitizer is extended |
 | Start-up | `runtime/index.ts:211-226` starts `startScanGating` after `settingsReady()`; the flag is read once (`worldInfoScanHost.ts:37`) | a mode change needs a reload today |
 | Activation order | `worldInfoScanHost.ts:86-89`: probe → `setScanGatingActive(present)` → `normalize()` | the ordering gap above |
-| Provider scope | `worldInfoScanHost.ts:42-51` gates **every** library story; only the normaliser is marker-filtered (`:62-63`) | so a v2.4 install reading `scan` gates real books with whatever ledger it finds |
+| Provider scope | `worldInfoScanHost.ts:42-51` gates **every** library story; only the normaliser is marker-filtered (`:62-63`) | so turning `scan` on gates real books with whatever ledger exists |
 | Owner guard | `worldInfoScan.ts:32-41`: story ∧ `chatId === ownedChat` ∧ requirements ready, else no-story | matches the spike design |
 | Compare-and-set | `scanGatePlan.ts:72-89`: on → `disable=false` only when the ledger says the entry rests off; otherwise `keptForeign` | a gated-on entry that rests off but is missing from the ledger stays off |
 | Never adds keys | `scanGatePlan.ts:73-74` (`missingKey`) | `05-H5`: adding a key changes the timed-effects hash |
@@ -105,9 +105,9 @@ point of resting off), and whatever event a mode switch without reload needs.
   the spike normaliser already does (`worldInfoNormalize.ts:60-76`). Only confirmed writes enter the ledger.
 
 ### B. The ledger
-- **Keep the shape** `normalized: Record<book, string[]>`, because the v2.4 sanitizer drops anything else
-  (`settingsStore.ts:40-43`). Provenance goes in a **new key**, `normalizedFrom: Record<book, {comment, wasOn}[]>`,
-  which v2.4 ignores.
+- **Keep the shape** `normalized: Record<book, string[]>` (one ledger shape, no reshape). Add provenance as a new key,
+  `normalizedFrom: Record<book, {comment, wasOn}[]>`, and extend `sanitizeWorldInfoSettings` (`settingsStore.ts`) to keep
+  it. Any later reshape bumps plan 11's `schema: 1`.
 - **Verify, never trust:** at start-up and on each library change, read each ledger book and compare. An entry the
   ledger holds that the file shows enabled means **drift** (hand edit, re-import, or a book re-created). Drift is
   a Repair row, *"A story lorebook entry was switched on outside the story; it will show in chats without the
@@ -161,7 +161,7 @@ gated entries), 9 (the author table and diagnostics stay author-only), 20 (real-
 ## Order of work
 0. Re-read the `05-H*` rows used above on the current tree (1.19.0 and, statically, 1.18.0). Correct any drifted row
    in `docs/plans/v2.4/host-facts.md` with the date, or start a `v2.5/host-facts.md` if the overview decides so.
-1. Red first (jest): the ledger drift read, the `normalizedFrom` round trip through a v2.4-shaped sanitizer, the
+1. Red first (jest): the ledger drift read, the `normalizedFrom` round trip through the current (extended) `sanitizeWorldInfoSettings`, the
    activation order (a scan between probe and normalisation), `missingKey` surfaced, restore-on-removal,
    the mode switch without reload.
 2. Ledger verify and Repair row (read-only; no writes).
