@@ -1,7 +1,7 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
 import {
   callExtractionModel, createTokenMeter, defaultContextLimit, deriveFullScope, deriveScope, getChatWindow, getLastMessageText, isLapse,
-  maxTokensFor, maxTokensForInput, planBacklog, preflightNeeded, reconciliationKeySet, reconciliationTargets, runSharedRead, withJudgeCalls,
+  maxTokensFor, maxTokensForInput, planBacklog, preflightNeeded, reconciliationKeySet, reconciliationTargets, retryOnTimeout, runSharedRead, withJudgeCalls,
   sharedReadOverhead, sharedReadWindow, stripChannelNoise, type ExtraGateSource, type ExtractionClientOptions, type ParsedDelta,
   type ParsedFact, type PreflightConfirm, type ReadOwnership, type ReconciliationPlan, type RequestBudget, type RunSharedReadOptions,
   type PassRole, type SchedulerJob, type SharedReadAudit, type SharedReadWindow,
@@ -481,7 +481,7 @@ export class ExtractionCoordinator {
     const sceneWork: SchedulerJob[] = [];
     for (const window of windows) {
       if (!read.stillOwns()) return false;
-      const result = await runSharedRead(this.backlogRead(story, "memorize:window", window, client));
+      const result = await retryOnTimeout((timeoutScale) => runSharedRead(this.backlogRead(story, "memorize:window", window, { ...client, timeoutScale })));
       await this.applyAudit({ ...result.audit, acceptedDeltas: [] }, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, read, sceneWork);
       await this.runSceneWork(sceneWork, read);
       if (!read.stillOwns()) return false;
@@ -491,7 +491,7 @@ export class ExtractionCoordinator {
     }
 
     if (!read.stillOwns()) return false;
-    const fullResult = await runSharedRead(this.backlogRead(story, "memorize:full", getChatWindow(0, Math.max(0, length - 1)), client));
+    const fullResult = await retryOnTimeout((timeoutScale) => runSharedRead(this.backlogRead(story, "memorize:full", getChatWindow(0, Math.max(0, length - 1)), { ...client, timeoutScale })));
     await this.applyAudit(fullResult.audit, [], [], [], [], [], read, sceneWork);
     await this.runSceneWork(sceneWork, read);
     if (!read.stillOwns()) return false;

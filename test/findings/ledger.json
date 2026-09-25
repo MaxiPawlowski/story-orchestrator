@@ -474,6 +474,24 @@
       "status": "closed",
       "expectedFailure": "the first boundary of a new chat read a cast change against another chat's cast",
       "note": "Found 2026-09-25 investigating register A10 (J12 early reads over window 0-1). The window of a window-less triggered read is resolved when the read STARTS (scheduler pump, sharedReadWindow over the engine's lastMessageId), and every 0-1 read in the J12 records started at boundary 1 (24-30 s reads that completed after boundary 2); a queued one covers the newest committed message (scheduler.test.ts). The cause of the spurious early `scene:cast` reads is ExtractionCoordinator.sceneDetectCursor, which lived for the page: a new chat's first boundary compared its cast with the previous chat's last one. J12 run1 (after J11's group), run2 and seriesB-run3 (after a run that ended at road-to-wendhope with Tobias disabled, while guild-hall re-enables him) opened with scene:cast 0-1; the runs whose previous chat ended at guild-hall did not. FIXED 2026-09-25: the cursor records the world it was taken in (an ownership token) and is ignored once that world is gone, so the first boundary of a chat is never a cast or location break. Mutations: test/findings/mutations/v24-acc-a8-a10.txt."
+    },
+    {
+      "id": "ACC-A6",
+      "title": "a slow but answering memory model closes the extraction breaker",
+      "owner": "v2.4 plan 09 acceptance",
+      "evidence": "jest",
+      "status": "closed",
+      "expectedFailure": "a queued host that answers a probe within 45 s left the breaker open",
+      "note": "Found 2026-09-25 by the v2.4 acceptance matrix (J7 run 3, lane 2; test/journeys/records/v2.4-acceptance/J7/run3/evidence-J7.6-breaker-health.json, evidence-J7.6-stalled-pipeline.json): reads were held ~32 min (11:26 trip, next probe 11:58) while the main model kept rendering turns. The trip was honest (three reads missed their 64214 ms budget on a queued pod), but every recovery probe had the fixed 10 s PROBE_TIMEOUT_MS (breaker.ts) and died on it: the breaker's detail had been overwritten by the probe's \"signal timed out\", not by a refusal, so the host was reachable and only queued. FIXED 2026-09-25: the probe budget is probeTimeoutMs(step, slowest answered) = the backoff step's pause (10 s floor, 15 s, 60 s, 300 s cap), floored by the slowest call the profile answered in its last 8 answers; probeModel names the budget it ran out of; and every call the client sees answered is reported through setAnsweredObserver to ExtractionScheduler.noteAnswered, which closes that profile's breaker. A refusing host keeps the 5/15/60/300 s probe schedule and a silent one gets one bounded probe at a time. Mutations: test/findings/mutations/v24-acc-a6-a11.txt."
+    },
+    {
+      "id": "ACC-A11",
+      "title": "the memorize backlog's whole-chat pass survives one timeout on a slow backend",
+      "owner": "v2.4 plan 09 acceptance",
+      "evidence": "jest",
+      "status": "closed",
+      "expectedFailure": "the whole-chat pass that timed out once was not asked again",
+      "note": "Found 2026-09-25 by the v2.4 acceptance matrix (P03 memorize run 4; test/journeys/records/v2.4-acceptance/P03/live-v24-03-memorize-run4.log, -run4-failure.json): the whole-chat pass (~88k tokens) was cut at 256462 ms, the budget callTimeoutMs gives a 100k-token estimate at 2 ms/token (a 500 tok/s prefill floor), while the pod measured 481 tok/s prefill and 3.7-12 tok/s decode under three lanes; the same pass had answered in 207 s earlier in the run. Nothing retried it, so backfill ended 2/3. The product records no prefill rate (only llama.cpp exposes timings, and a timed-out call has none), so the budget is not derived from one. FIXED 2026-09-25: every backlog read (each window and the whole-chat pass) goes through retryOnTimeout (client.ts): a TIMEOUT is asked once more at TIMEOUT_RETRY_SCALE (2) times its budget; a second timeout gives up and backfill.lastError names both budgets (\"the memory model did not answer within X ms, nor within 2X ms on one retry\"). A refusal, a config failure and a Stop/lapse are never retried, so a dead backend still fails at once and a hung one after at most three budgets. Mutations: test/findings/mutations/v24-acc-a6-a11.txt."
     }
   ]
 }

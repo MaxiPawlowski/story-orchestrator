@@ -2,7 +2,7 @@ import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engi
 import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine } from "@memory/index";
 import type { ExtraGateSource, TypedJudge } from "./types";
 import { getChatWindow } from "./chatWindow";
-import { Breaker, DANGLING_PROFILE_DETAIL, failedProfile, failureClass, type ExtractionHealth, type ProbeResult, type ProbeTrigger } from "./breaker";
+import { Breaker, DANGLING_PROFILE_DETAIL, failedProfile, failureClass, probeTimeoutMs, type ExtractionHealth, type ProbeResult, type ProbeTrigger } from "./breaker";
 import { isLapse } from "./client";
 import { runSharedRead, sharedReadWindow } from "./sharedRead";
 import type { RequestBudget } from "./tokenMeter";
@@ -64,7 +64,7 @@ export interface SchedulerHost {
   onSchedulerChange(): void;
   noteLapse?(reason: string, detail: string): void;
   noteHealth?(summary: string, detail: string): void;
-  probeModel?(profileId: string): Promise<ProbeResult>;
+  probeModel?(profileId: string, timeoutMs?: number): Promise<ProbeResult>;
   mutationSettled?(): Promise<unknown>;
   profileExists?(profileId: string): boolean;
   epoch?: () => number;
@@ -86,6 +86,8 @@ export const cadenceWindowFrom = (cursor: number | null, stableTo: number): numb
   return Math.max(0, from, stableTo - CADENCE_WINDOW_MAX + 1);
 };
 
+export const ANSWERED_SAMPLES = 8;
+
 export const REREAD_LAPSED_REASON = "reread:lapsed";
 export const REREAD_SETTLE_MAX_MS = 10_000;
 
@@ -98,6 +100,7 @@ export class ExtractionScheduler {
   private readonly breaker = new Breaker();
   private readonly probeTimers = new Map<string, ReturnType<typeof setTimeout>>();
   private readonly probing = new Map<string, Promise<boolean>>();
+  private readonly answered = new Map<string, number[]>();
   private configProblem: string | null = null;
   private readonly profileProblems = new Map<string, string>();
   private readonly heavyQueue: SchedulerJob[] = [];
@@ -267,10 +270,25 @@ export class ExtractionScheduler {
     return probing;
   }
 
+  noteAnswered(profileId: string, ms: number) {
+    this.answered.set(profileId, [...(this.answered.get(profileId) ?? []), Math.max(0, ms)].slice(-ANSWERED_SAMPLES));
+    if (!this.breaker.close(profileId)) return;
+    this.clearProbeTimer(profileId);
+    this.host.noteHealth?.("memory model answering again", `a model call answered in ${Math.round(ms)} ms`);
+    this.host.onSchedulerChange();
+    this.pumpAll();
+  }
+
+  private slowestAnswered(profileId: string): number | null {
+    const samples = this.answered.get(profileId);
+    return samples?.length ? Math.max(...samples) : null;
+  }
+
   private async runProbe(profileId: string, trigger: ProbeTrigger): Promise<boolean> {
     let result: ProbeResult;
+    const timeoutMs = probeTimeoutMs(this.breaker.entry(profileId)?.step ?? 0, this.slowestAnswered(profileId));
     try {
-      result = this.host.probeModel ? await this.host.probeModel(profileId) : { ok: false, kind: "transport", message: "no probe is available" };
+      result = this.host.probeModel ? await this.host.probeModel(profileId, timeoutMs) : { ok: false, kind: "transport", message: "no probe is available" };
     } catch (error) {
       result = { ok: false, kind: "transport", message: errorText(error, "the probe failed") };
     }

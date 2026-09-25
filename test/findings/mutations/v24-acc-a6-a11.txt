@@ -1,0 +1,103 @@
+v2.4 acceptance A6 (breaker recovery on a slow backend) + A11 (memorize backlog timeout retry), mutations 2026-09-25
+(worktree on master df90f8b; script .debug/mut-a6-a11.mjs: each mutant applied alone as an exact-text replacement to one file,
+the file restored byte-for-byte after its run; a replacement that does not match is reported DID NOT APPLY, and none did).
+Suites per mutant: breakerSlowBackend.review, clientSlowBackend, budgetWiring.review, startupWiring.review, scheduler.breaker,
+scheduler.routes, scheduler, client, backlogOwnership.review (npx jest --runInBand --json).
+Result: 23 of 24 mutants killed; 1 survived, and it is the equivalent M12e reasoned below.
+Red before the fix: the three new files ran 23 failed / 19 passed (every A6/A11 case red; the refusing-host, refusal and Stop
+controls green on the old code, as controls should be). M2 and M14 put back the two defects as found (the scheduler probing on
+the fixed 10 s budget; no retry of a timed-out backlog read); each is killed by its ledger finding (ACC-A6 / ACC-A11) among others.
+
+baseline: 131 tests, 0 failing, 0 suite errors
+- M1 probeModel ignores the budget it is handed (fixed 10 s probe, today's defect): KILLED, 1 of 131
+    "bounds the probe by the budget it is given and names that budget when it runs out"
+- M2 the scheduler does not pass the budget to the probe: KILLED, 5 of 131
+    "ACC-A6: a slow but answering memory model closes the extraction breaker"
+    "a queued host that answers a probe after 45 s recovers the held reads (J7: 10 s probes never did)"
+    "the first probe waits as long as the slowest call this profile answered"
+    "control: another profile's slow answer does not stretch this profile's probe"
+    "a host that never answers gets one probe at a time, each bounded by the cap, and stays open"
+- M3 the probe budget ignores the backoff step: KILLED, 4 of 131
+    "a probe may wait as long as the pause before it, from the 10 s floor up to the 300 s cap"
+    "the slowest answer the profile gave recently is the least a probe will wait"
+    "ACC-A6: a slow but answering memory model closes the extraction breaker"
+    "a queued host that answers a probe after 45 s recovers the held reads (J7: 10 s probes never did)"
+- M4 the probe budget has no cap: KILLED, 1 of 131
+    "control: a slow answer never lifts a probe past the cap"
+- M5 the probe budget ignores the slowest answered call: KILLED, 3 of 131
+    "the slowest answer the profile gave recently is the least a probe will wait"
+    "control: a slow answer never lifts a probe past the cap"
+    "the first probe waits as long as the slowest call this profile answered"
+- M6 answered latencies are pooled across profiles: KILLED, 1 of 131
+    "control: another profile's slow answer does not stretch this profile's probe"
+- M7 an answered call does not close the breaker: KILLED, 1 of 131
+    "a real call that answers on the profile closes its breaker and pumps the held reads"
+- M8 an answer on any profile closes the read profile's breaker: KILLED, 1 of 131
+    "control: an answer on another profile leaves this profile's breaker open"
+- M9 the probe runs with the step it will fail into, not the one it is at: KILLED, 2 of 131
+    "a queued host that answers a probe after 45 s recovers the held reads (J7: 10 s probes never did)"
+    "control: another profile's slow answer does not stretch this profile's probe"
+- M10 the client never reports an answered call: KILLED, 2 of 131
+    "an answered model call reaches the running scheduler, so a live host can close its breaker (A6)"
+    "an answered call reports its profile and how long it took"
+- M11 the client reports failed calls as answered: KILLED, 2 of 131
+    "an answered call reports its profile and how long it took"
+    "control: a failed call, and a debug response, report nothing"
+- M12 startRuntime never installs the answered observer: KILLED, 1 of 131
+    "an answered model call reaches the running scheduler, so a live host can close its breaker (A6)"
+- M12e stopRuntime leaves the answered observer installed (EQUIVALENT: stopRuntime nulls the scheduler it reaches, and the next start replaces the observer): SURVIVED
+    EQUIVALENT: stopRuntime sets the module's scheduler to null, which is all the leaked observer reaches, and the next
+    startRuntime replaces the observer. "control: after stopRuntime an answered call reaches no scheduler" pins that
+    behaviour; the disposer is kept for the pattern (setProfileRouter's twin), not because a leak is observable.
+- M13 a probe timeout keeps the host's raw message: KILLED, 1 of 131
+    "bounds the probe by the budget it is given and names that budget when it runs out"
+- M14 a timed-out call is never retried (today's defect): KILLED, 7 of 131
+    "a call that timed out is asked again with the doubled budget, and its answer is used"
+    "two timeouts give up after exactly two calls, naming both budgets"
+    "control: a retry that fails another way reports that failure, not a timeout"
+    "ACC-A11: the memorize backlog's whole-chat pass survives one timeout on a slow backend"
+    "a whole-chat pass that times out is asked again with twice the budget, and the backlog completes (P03 run 4)"
+    "a window that times out is retried the same way, and the run carries on"
+    "a whole-chat pass that times out twice gives up after exactly two asks and names both budgets"
+- M15 every failure is retried, a refusal included: KILLED, 8 of 131
+    "control: a transport failure is not retried"
+    "control: a lapsed failure is not retried"
+    "control: a config failure is not retried"
+    "Stop cancels the request in flight, and a player's Stop is a note, not an error"
+    "control: a refusing backend is asked once and gives up at once"
+    "control: Stop while the first ask waits is not retried"
+    "records the error, leaves running, keeps the earlier window's facts and saves that state"
+    "a failure that lands after the chat switched writes no error and stores nothing"
+- M16 the retry keeps the same budget: KILLED, 5 of 131
+    "a whole-chat pass that times out is asked again with twice the budget, and the backlog completes (P03 run 4)"
+    "a window that times out is retried the same way, and the run carries on"
+    "a whole-chat pass that times out twice gives up after exactly two asks and names both budgets"
+    "a call that timed out is asked again with the doubled budget, and its answer is used"
+    "two timeouts give up after exactly two calls, naming both budgets"
+- M17 the client ignores timeoutScale: KILLED, 6 of 131
+    "a whole-chat pass that times out is asked again with twice the budget, and the backlog completes (P03 run 4)"
+    "a window that times out is retried the same way, and the run carries on"
+    "a whole-chat pass that times out twice gives up after exactly two asks and names both budgets"
+    "timeoutScale multiplies the call's own budget"
+    "a call that timed out is asked again with the doubled budget, and its answer is used"
+    "two timeouts give up after exactly two calls, naming both budgets"
+- M18 the retry is itself retried (unbounded give-up): KILLED, 3 of 131
+    "a whole-chat pass that times out twice gives up after exactly two asks and names both budgets"
+    "two timeouts give up after exactly two calls, naming both budgets"
+    "control: a retry that fails another way reports that failure, not a timeout"
+- M19 the give-up names only the last budget: KILLED, 2 of 131
+    "a whole-chat pass that times out twice gives up after exactly two asks and names both budgets"
+    "two timeouts give up after exactly two calls, naming both budgets"
+- M20 the give-up rethrows the raw timeout: KILLED, 2 of 131
+    "a whole-chat pass that times out twice gives up after exactly two asks and names both budgets"
+    "two timeouts give up after exactly two calls, naming both budgets"
+- M21 a timeout error carries no budget: KILLED, 2 of 131
+    "a whole-chat pass that times out twice gives up after exactly two asks and names both budgets"
+    "two timeouts give up after exactly two calls, naming both budgets"
+- M22 the whole-chat pass is not retried: KILLED, 3 of 131
+    "ACC-A11: the memorize backlog's whole-chat pass survives one timeout on a slow backend"
+    "a whole-chat pass that times out is asked again with twice the budget, and the backlog completes (P03 run 4)"
+    "a whole-chat pass that times out twice gives up after exactly two asks and names both budgets"
+- M23 the backlog windows are not retried: KILLED, 1 of 131
+    "a window that times out is retried the same way, and the run carries on"
+restored: 131 tests, 0 failing
