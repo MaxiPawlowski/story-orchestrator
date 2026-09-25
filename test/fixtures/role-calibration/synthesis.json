@@ -1,0 +1,45 @@
+{
+  "_about": "v2.4 plan 08 T18 per-role calibration, synthesis role: VALIDITY ONLY, recorded as not quality-calibrated (plan 08 §Tests and gates). Each case runs the scene-summary prompt (buildSceneSummaryPrompt) through the synthesis route exactly as the scene pass calls it (refuseIncomplete, then stripChannelNoise). A reply is valid when it is non-empty after the strip, was not cut off (finish != length, not degenerate), and carries no reasoning or channel markers. No floor: the rate is recorded, never gated. Frozen 2026-09-25 before any model answer was read.",
+  "frozenAt": "2026-09-25",
+  "samples": 1,
+  "cases": [
+    { "id": "s01", "lang": "en", "messages": [
+      { "speaker": "Max", "text": "I pick up the brass lantern from the crate and light it." },
+      { "speaker": "Bel", "text": "Bel nods. \"Then we go down.\" She leads the way into the tunnel." },
+      { "speaker": "Max", "text": "I follow Bel into the tunnel, lantern raised." } ] },
+    { "id": "s02", "lang": "en", "messages": [
+      { "speaker": "Ponticius", "text": "\"Two hundred gold for the Sun Ruins. Half now, half when you bring back the artifact.\" He slides a pouch across the counter." },
+      { "speaker": "Max", "text": "\"Make it three hundred and we leave tonight.\"" },
+      { "speaker": "Ponticius", "text": "He scowls, then laughs. \"Two fifty. Final offer.\"" },
+      { "speaker": "Arin", "text": "\"Take it, Max. We need the coin.\"" },
+      { "speaker": "Max", "text": "\"Deal.\" I take the pouch." } ] },
+    { "id": "s03", "lang": "en", "messages": [
+      { "speaker": "Narrator", "text": "Rain hammers the roof of the abandoned mill. Somewhere below, the wheel groans in the flood." },
+      { "speaker": "Lady Ashworth", "text": "\"You were followed. I told you to come alone.\"" },
+      { "speaker": "Max", "text": "\"Nobody followed me. What do you have for me?\"" },
+      { "speaker": "Lady Ashworth", "text": "She hands over a sealed letter. \"Proof that the governor ordered the fire. Guard it with your life.\"" } ] },
+    { "id": "s04", "lang": "en", "messages": [
+      { "speaker": "Max", "text": "I kneel by the fallen guard and check his pockets." },
+      { "speaker": "Narrator", "text": "You find a ring of iron keys and a folded duty roster." },
+      { "speaker": "Vex", "text": "\"The roster says the next patrol is in ten minutes. Move.\"" },
+      { "speaker": "Max", "text": "I unlock the cell door and pull the prisoner out." },
+      { "speaker": "Narrator", "text": "The prisoner, a thin old man, clutches your arm and whispers a name: Corvin." } ] },
+    { "id": "s05", "lang": "en", "messages": [
+      { "speaker": "Arin", "text": "\"I don't trust him. He lied about the map.\"" },
+      { "speaker": "Max", "text": "\"Then we watch him. We still need his boat.\"" },
+      { "speaker": "Oskar", "text": "The ferryman pushes off from the bank without a word. The reeds close behind the boat." } ] },
+    { "id": "s06", "lang": "es", "messages": [
+      { "speaker": "Max", "text": "Empujo la losa detrás del altar y bajo por la escalera de piedra." },
+      { "speaker": "Narrador", "text": "La cripta huele a humedad. Las antorchas apenas iluminan los nichos de los antiguos abades." },
+      { "speaker": "Mara", "text": "\"La reliquia debería estar en el nicho del fondo. No toques nada más.\"" },
+      { "speaker": "Max", "text": "Me acerco al nicho del fondo y levanto la tapa." } ] },
+    { "id": "s07", "lang": "es", "messages": [
+      { "speaker": "Doña Elena", "text": "\"Los soldados se fueron al amanecer. Ahora puedo hablar.\" Sirve dos vasos de vino." },
+      { "speaker": "Max", "text": "\"¿Qué sabe del alcalde Ruiz?\"" },
+      { "speaker": "Doña Elena", "text": "\"Que huyó con el dinero de los impuestos hacia el puerto. Y que no iba solo.\"" } ] },
+    { "id": "s08", "lang": "es", "messages": [
+      { "speaker": "Narrador", "text": "La niebla se abre y aparece el casco negro de un barco a la deriva, sin luces ni tripulación." },
+      { "speaker": "Max", "text": "Lanzo un garfio a la borda y subo a la cubierta." },
+      { "speaker": "Narrador", "text": "La cubierta está desierta. En la puerta del camarote del capitán hay marcas de uñas." } ] }
+  ]
+}

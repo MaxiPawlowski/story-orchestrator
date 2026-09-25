@@ -456,3 +456,33 @@ privacy rows), plus this record. Host facts: `host-facts.md` §"Plan 08" rows 08
 - A self-test result counts only for the profile it ran on, so re-routing a role makes it "untested" again.
 - The director self-test requires every case to answer a parseable `SPEAKER:` line, not the labelled answer. The detail line carries the count.
 - Role selects are not in the player sweep. The settings panel is install configuration, like the memory-model select, not a steering control.
+
+### Per-role calibration floors (predeclared 2026-09-25, before any model answer was read)
+
+Fixtures: `test/fixtures/role-calibration/{curator,authoring,synthesis}.json` (new, labels frozen in the
+same commit as this section) and `test/fixtures/judge/director.json` rows D01-D26 (unchanged). One sample per
+case: the client pins `temperature 0.1, top_p 0.9` on every request (`extraction/client.ts`). Scores are
+computed by the product's own prompt/parse/plan code (`runtime/roleCalibration.ts`) and the raw answers are
+kept as goldens under `test/goldens/live/role-calibration/`, replayed in jest through the same function.
+A floor is never retuned; a miss is recorded with its numbers.
+
+| Role | Cases | Metric (definition) | Floor |
+|---|---|---|---|
+| director | D01-D26 | correct = the production director prompt over the full candidate pool (no mention narrowing: the same arm as the 22/26 LLM baseline, `v2.2/01-judgment-backend.md:156`), parsed by `parseDirectorResponse`, pick in `acceptable`, reply within `DIRECTOR_TIMEOUT_MS` (20000, production discards a later one) | **routed arm >= 22/26** |
+| director | D27-D33 (es) | same | reported, no floor |
+| curator | 20 (8 es) | validity = the reply is an explicit NONE or has >= 1 op line the parser reads (kept or dropped) | >= 0.90 overall **and** on the es slice |
+| curator | same | opShape = surviving review records (`planCuratorProposal`, mode review) / op lines read (a line naming an unknown entry counts against it); a reply with no op line adds nothing | >= 0.85 overall and es |
+| curator | same | decision = every `required` item has a surviving record of an allowed kind, no surviving record touches a `forbidden` entry, and a `none` case keeps zero records | >= 0.70 overall and es |
+| authoring | 20 (8 es) | validity = `runAuthoringStage` (with its one repair) answers `ok` or `questions` | >= 0.90 overall and es |
+| authoring | same | opShape = `ok`, every op kind is one the stage prompt allows (its "Only emit ... ops" line), >= `require.min` ops of `require.kind` matching `require.match`; `questions` passes only on an `ask: allowed` case | >= 0.80 overall and es |
+| synthesis | 8 (3 es) | validity = non-empty after `stripChannelNoise`, finish not `length`, not degenerate, no reasoning/channel marker | none: recorded, **not quality-calibrated** |
+
+Arms. Director: routed = `extraction.profiles.director` -> `Artemis RunPod RP` (preset `Artemis v1.1 RP`);
+control = role unset (the memory profile `Story Orchestrator Memory RunPod`, preset `Artemis Extraction`). Both
+answer from the same Artemis 31B endpoint, so the arms differ by profile (preset, instruct), not by model. Curator,
+authoring and synthesis run on the default route (role unset -> memory profile), which is what every install
+runs today. `read` is not re-run here: its route is the memory model, calibrated by plan 04's live suite.
+
+Recommendation rule (decided now): a role is recommended on a profile only when every floor for that role
+passes on that profile, overall and on the es slice. A role below a floor stays selectable (unset = memory model
+remains the default) and is left out of the recommended config.
