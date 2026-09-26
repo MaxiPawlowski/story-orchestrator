@@ -1,0 +1,36 @@
+{
+  "format": 2,
+  "id": "sp6-complications",
+  "version": 1,
+  "title": "SP6 complication pool (jest)",
+  "description": "v2.5 plan 09 SP6 K1 fixture: a camp that wants critical tension, with a three-item pool released after 3 consecutive escalate boundaries, and a road with a one-item pool after 2; the two loop, so spent-ness must survive a revisit.",
+  "qualities": [
+    { "key": "arrived", "type": "bool", "source": "extractor", "rubric": "Has the party set out on the road?" }
+  ],
+  "checkpoints": [
+    {
+      "id": "camp",
+      "name": "The Camp",
+      "objective": "The party waits at camp for the caravan.",
+      "type": "anchor",
+      "start": true,
+      "tension_target": "critical",
+      "complication_after": 3,
+      "complications": ["A tent pole snaps in the wind.", { "id": "horses", "text": "The horses bolt from the picket line." }, "Smoke rises from the ridge to the north."]
+    },
+    {
+      "id": "road",
+      "name": "The Road",
+      "objective": "The party is on the road.",
+      "type": "anchor",
+      "tension_target": "tense",
+      "complication_after": 2,
+      "complications": ["A wheel cracks on a rut."]
+    }
+  ],
+  "transitions": [
+    { "from": "camp", "to": "road", "priority": 1, "gate": { "q": "arrived", "op": "==", "v": true } },
+    { "from": "road", "to": "camp", "priority": 1, "gate": { "q": "arrived", "op": "==", "v": false } }
+  ],
+  "roster": []
+}

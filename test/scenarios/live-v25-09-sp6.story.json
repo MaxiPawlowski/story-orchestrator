@@ -1,0 +1,58 @@
+{
+  "format": 2,
+  "id": "live-v25-09-sp6",
+  "version": 1,
+  "title": "Live v2.5 09 SP6 - Complication pool",
+  "description": "SP6 live fixture: a waystation that wants critical tension while the scene is a quiet wait, so it sits below target (escalate) turn after turn. Its pool releases one complication after 2 consecutive escalate boundaries. The narrator speaks every turn, so one player send is one loud generation.",
+  "qualities": [
+    { "key": "moved_on", "type": "bool", "source": "extractor", "rubric": "Has the party left the waystation and taken the road east?" }
+  ],
+  "roster": [
+    { "id": "dm", "name": "DM Narrator" },
+    { "id": "companion", "name": "Arin" },
+    { "id": "guild_master", "name": "Ponticius" }
+  ],
+  "requirements": { "members": ["DM Narrator"] },
+  "checkpoints": [
+    {
+      "id": "waystation",
+      "name": "The Waystation",
+      "objective": "The party waits at the waystation for the eastern caravan, which is late.",
+      "type": "anchor",
+      "start": true,
+      "tension_target": "critical",
+      "talk_control": { "speakers": [{ "member": "DM Narrator", "weight": 1 }], "lead": "DM Narrator", "no_repeat": false, "allow_silence": false },
+      "complication_after": 2,
+      "complications": [
+        "A rider arrives at a gallop, wounded, and collapses by the well.",
+        "The waystation keeper is found counting coins that are not his.",
+        "Smoke rises from the road east, where the caravan should be.",
+        "A stranger at the next table has been watching the party's packs.",
+        "The well rope snaps and the bucket falls into the dark.",
+        "Soldiers ride in and demand to see everyone's papers.",
+        "A child runs in shouting that wolves are at the stables.",
+        "The keeper bars the door and refuses to say why.",
+        "A letter addressed to the party is left on their table, unsigned.",
+        "The lamps gutter out all at once, as if something passed.",
+        "A merchant accuses the party of stealing his purse.",
+        "Thunder breaks and the roof begins to leak over the hearth.",
+        "The caravan's lead mule wanders in alone, its load cut away.",
+        "A bell starts ringing from the chapel on the hill, with no one there.",
+        "The stable catches fire.",
+        "A bounty notice on the wall shows a face very like Arin's.",
+        "The keeper's daughter begs the party to hide her.",
+        "Two drunks draw knives over a game of dice.",
+        "The road east is reported washed out by a flood.",
+        "A hooded figure asks for the party by name.",
+        "The well water comes up red.",
+        "A carrier pigeon lands on the sill with a torn message.",
+        "The soldiers from the road return, looking for someone.",
+        "Every horse in the stable goes silent at once."
+      ]
+    },
+    { "id": "road", "name": "The East Road", "objective": "The party takes the road east.", "type": "anchor" }
+  ],
+  "transitions": [
+    { "from": "waystation", "to": "road", "priority": 1, "gate": { "q": "moved_on", "op": "==", "v": true } }
+  ]
+}
