@@ -564,3 +564,14 @@ Record: `test/findings/mutations/v25-11-legacy.txt`. Every mutant applied throug
 | M10 | destination-root collision check skipped | same | first run SURVIVED (12/12 pass: the test matched `/already exists/`, and the later `mkdir(dest)` EEXIST satisfied it); test now asserts `/refused: destination root .* already exists/`; rerun 1 fail, CAUGHT |
 
 Gates after the two test fixes: typecheck, typecheck:test, lint, debug:typecheck exit 0; `npm test` 267 / 3891 pass; `npm run test:debug` 295 tests, 294 pass, 1 skipped, 0 fail.
+
+### 3. `test-storybook:ci`
+
+GREEN: 34 suites / 241 tests pass (interaction + a11y, "No accessibility violations detected" on every suite), on the storybook build of `83ffea0`. No plan-11 defect: the stories plan 11 deleted (`MemoryLegacyRowsAreAStatedUnknown`, `ALegacySideReadsAsUnknown`) are gone from the index and nothing else referenced them.
+
+- `npm run test-storybook:ci` itself exits 1 in this worktree with "No tests found", before any story runs. Cause is the worktree location, not the code: the runner's glob is `join(workingDir, "src/**/*.stories.@(ts|tsx)")`, the project root resolves to the MAIN checkout (git root lookup; the worktree's `.git` is a file), and with `STORYBOOK_PROJECT_ROOT` pointed at the worktree the joined pattern reads `story-orchestrator\.claude/worktrees/…`, where micromatch takes `\.` as an escaped dot, so 0 files match. Same result with the root given in forward or back slashes.
+- Run that passed: `npm run storybook:build` (inside the ci script, build OK), then `concurrently -k -s first "npm run serve-sb" "wait-on -t 60000 http://127.0.0.1:6006 && node node_modules/@storybook/test-runner/dist/test-storybook.js --url http://127.0.0.1:6006 --maxWorkers 1 --index-json"` (`.debug/sb.sh`). `--index-json` builds the test list from the served `index.json`, i.e. every story in the build, instead of globbing source files. The plain `npm run test-storybook:ci` should still be run from the main checkout at merge time.
+
+### 4. Verified ST host facts: `SlashCommandEnumValue` (`83ffea0`)
+
+Row added to `docs/plans/v2/00-implementation-overview.md` §Verified ST host facts, after `executeSlashCommandsWithOptions`. Verified on `C:\dev\SillyTavern-MainBranch` (package.json `1.19.0`): `public/scripts/st-context.js:98` imports it from `./slash-commands/SlashCommandEnumValue.js`, `:169` exposes it on the context; class at `public/scripts/slash-commands/SlashCommandEnumValue.js:42`, constructor `:62` `(value, description = null, type = 'enum', typeIcon = '◊', …)`. Consumer: `runtime/slashCommands.ts` `buildEnumList` (the `/story` argument enum list). The `hostTypes.ts:82` comment still says ST 1.18.0, where C3 verified it; both versions export it.
