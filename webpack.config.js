@@ -56,7 +56,7 @@ module.exports = (env = {}, argv = {}) => {
           options: {
             cacheDirectory: true,
             presets: [
-              "@babel/preset-env",
+              ["@babel/preset-env", { exclude: ["@babel/plugin-transform-unicode-regex", "@babel/plugin-transform-unicode-property-regex"] }],
               ["@babel/preset-react", { runtime: "automatic" }],
               "@babel/preset-typescript",
             ],
