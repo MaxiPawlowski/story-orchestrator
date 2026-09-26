@@ -254,6 +254,7 @@ describe("v2.4 plan 02 §10: the window the scheduler would read next", () => {
 });
 
 describe("v2.4 plan 03 D2: a lapsed read is discarded, never retried, never an error", () => {
+  afterEach(() => jest.useRealTimers());
   const lapsedHost = (overrides: Partial<SchedulerHost> = {}) => {
     const calls = { failures: [] as string[], lapses: [] as Array<[string, string]>, released: 0, signal: new AbortController().signal };
     const host: SchedulerHost = {
@@ -271,9 +272,10 @@ describe("v2.4 plan 03 D2: a lapsed read is discarded, never retried, never an e
     read.mockClear();
     read.mockRejectedValueOnce(new ModelCallError("lapsed", "the request was cancelled"));
     const { host, calls } = lapsedHost();
+    jest.useFakeTimers();
     const scheduler = new ExtractionScheduler(host);
     scheduler.schedule({ priority: 0, reason: "rollback:3", window: { from: 0, to: 4, messages: [] } });
-    await new Promise((resolve) => setTimeout(resolve, 900));
+    await jest.advanceTimersByTimeAsync(900);
     expect(read).toHaveBeenCalledTimes(1);
     expect(scheduler.getSnapshot().lastError).toBeNull();
     expect(calls.failures).toEqual([]);
@@ -296,9 +298,10 @@ describe("v2.4 plan 03 D2: a lapsed read is discarded, never retried, never an e
     read.mockReset();
     read.mockRejectedValue(new ModelCallError("transport", "API request failed: Response not OK"));
     const { host, calls } = lapsedHost({ getExtractionSettings: () => ({ enabled: true, profileId: "p1", cadence: 1, reconciliationMultiplier: 2, stabilityLag: 1 }) });
+    jest.useFakeTimers();
     const scheduler = new ExtractionScheduler(host);
     scheduler.schedule({ priority: 0, reason: "manual", window: { from: 0, to: 0, messages: [] } });
-    await new Promise((resolve) => setTimeout(resolve, 900));
+    await jest.advanceTimersByTimeAsync(900);
     expect(read).toHaveBeenCalledTimes(3);
     expect(scheduler.getSnapshot().lastError).toBeNull();
     expect(scheduler.health()).toMatchObject({ kind: "transport", detail: "API request failed: Response not OK" });

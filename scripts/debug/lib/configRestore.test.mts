@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { blockingDialogFor, mergeRestore, removableStories, shouldRecoverConfig, validateJourneyExtraction } from './configRestore.mts';
+import { addedStoryHashes, blockingDialogFor, mergeRestore, removableStories, shouldRecoverConfig, validateJourneyExtraction } from './configRestore.mts';
 
 test('a restore keeps a story and a wizard session another session created after the snapshot (S12)', () => {
   const snapshot = { settings: { cadence: 3 }, v2Stories: [{ id: 'mine' }], wizardSessions: [{ key: 'mine' }] };
@@ -55,4 +55,22 @@ test('every journey declares the extraction it runs at, and nothing else (§E)',
     'setup.extraction.stabilityLag must be an integer >= 0',
     'setup.extraction.profile must be "inherit"',
   ]);
+});
+
+test('A25: a refused import that still wrote a record is cleaned up, because the library diff names it', () => {
+  const before = { trusted: true, hashes: ['user-story'] };
+  const after = { trusted: true, hashes: ['user-story', 'refused-import'] };
+  const tracked = addedStoryHashes(before, after);
+  assert.deepEqual(tracked, ['refused-import']);
+  assert.deepEqual(removableStories(tracked, before), { remove: ['refused-import'], kept: [], untrusted: false });
+});
+
+test('A25 control: tracking only the reported hash (none, for a refused import) leaves the record behind', () => {
+  const before = { trusted: true, hashes: ['user-story'] };
+  assert.deepEqual(removableStories([], before).remove, []);
+});
+
+test('A25: an unreadable library on either side adds nothing, so no user story is at risk', () => {
+  assert.deepEqual(addedStoryHashes({ trusted: false, hashes: [] }, { trusted: true, hashes: ['a'] }), []);
+  assert.deepEqual(addedStoryHashes({ trusted: true, hashes: [] }, { trusted: false, hashes: [] }), []);
 });

@@ -112,5 +112,10 @@
       "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; if (globalThis.__v2405judge?.before) root.settings.judge = globalThis.__v2405judge.before; globalThis.storyOrchestratorJudge.invalidateStatus(); if (globalThis.__soWiForeign) globalThis.__soWiForeign.off(); return { judge: root.settings.judge.uses.loreSelect === false ? 'restored' : root.settings.judge.uses.loreSelect };",
       "log": true
     }
-  ]
+  ],
+  "cleanup": {
+    "steps": [
+      {"assets": {"action": "remove", "marker": "SO-V2405"}}
+    ]
+  }
 }

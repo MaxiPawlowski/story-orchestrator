@@ -60,6 +60,16 @@ export function removableStories(imported: string[], before: LibraryCapture | st
 }
 
 /**
+ * A25. What an import step added to the library, whether or not the import reported success: a
+ * refused import (`expectFail`) can still leave its record behind, and reports no hash for it.
+ */
+export function addedStoryHashes(before: LibraryCapture, after: LibraryCapture): string[] {
+  if (!before.trusted || !after.trusted) return [];
+  const existed = new Set(before.hashes);
+  return [...new Set(after.hashes.filter((hash) => !existed.has(hash)))];
+}
+
+/**
  * S7. A crashed run that cleared the config leaves the root empty (or holding only the defaults the
  * runtime writes back on its next read), and the next run's snapshot would capture that. The snapshot
  * file is marked `restoredAt` once a run puts it back, so an UNRESTORED snapshot is exactly a run that

@@ -109,9 +109,12 @@ function failingHarness() {
     judgeTyped: () => null,
     epoch: () => epoch,
   } as unknown as SchedulerHost;
+  jest.useFakeTimers();
   const scheduler = new ExtractionScheduler(host);
   return { scheduler, journaled, endTheWorld: () => { epoch += 1; } };
 }
+
+afterEach(() => jest.useRealTimers());
 
 control("a job that fails in its own world is journaled as this chat's failure", async () => {
   // Pinned first: without it the case below cannot tell "correctly silent" from "never journals".
@@ -119,7 +122,7 @@ control("a job that fails in its own world is journaled as this chat's failure",
   h.scheduler.schedule({ priority: 0, reason: "cadence:1", run: async () => { throw new Error("backend down"); } });
   // runWithRetries makes 3 attempts with 250ms then 500ms backoff, so the catch is ~750ms away. A
   // 0ms tick returned before it ran and the assertion measured nothing.
-  await new Promise((resolve) => setTimeout(resolve, 1200));
+  await jest.advanceTimersByTimeAsync(1200);
   expect(h.journaled).toEqual(["extraction failed: cadence:1"]);
 });
 
@@ -132,7 +135,7 @@ control("a job that fails AFTER its world ended writes nothing into the world th
   });
   // runWithRetries makes 3 attempts with 250ms then 500ms backoff, so the catch is ~750ms away. A
   // 0ms tick returned before it ran and the assertion measured nothing.
-  await new Promise((resolve) => setTimeout(resolve, 1200));
+  await jest.advanceTimersByTimeAsync(1200);
   expect(h.journaled).toEqual([]);
 });
 
@@ -142,7 +145,7 @@ describe("V3: a job's error belongs to the world it ran in", () => {
     reason: "cadence:1",
     run: async () => { if (endWorld) h.endTheWorld(); throw new Error("backend down"); },
   } as never);
-  const settle = () => new Promise((resolve) => setTimeout(resolve, 1200));
+  const settle = () => jest.advanceTimersByTimeAsync(1200);
 
   it("a light job that fails after its world ended leaves the new world's panel clean", async () => {
     const h = failingHarness();

@@ -1,6 +1,34 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { batchExitCode, itemArgs } from './st-lanes.mts';
+import { batchExitCode, createLineStamper, itemArgs } from './st-lanes.mts';
+
+test('A29: each child line is stamped when it arrives, a split line once it completes', () => {
+  const lines: string[] = [];
+  let tick = 0;
+  const stamper = createLineStamper((line) => lines.push(line), () => new Date(Date.UTC(2026, 8, 26, 0, 0, tick)));
+  stamper.push('automated: 3 pass\nFAIL J3.');
+  tick = 5;
+  stamper.push('2\r\ncleanup: ok\n');
+  tick = 9;
+  stamper.push('tail without newline');
+  stamper.end();
+  assert.deepEqual(lines, [
+    '2026-09-26T00:00:00.000Z automated: 3 pass',
+    '2026-09-26T00:00:05.000Z FAIL J3.2',
+    '2026-09-26T00:00:05.000Z cleanup: ok',
+    '2026-09-26T00:00:09.000Z tail without newline',
+  ]);
+});
+
+test('A29 control: lines that arrived at different times do not share one stamp', () => {
+  const stamps: string[] = [];
+  let tick = 0;
+  const stamper = createLineStamper((line) => stamps.push(line.slice(0, 24)), () => new Date(Date.UTC(2026, 8, 26, 0, 0, tick)));
+  stamper.push('first\n');
+  tick = 30;
+  stamper.push('second\n');
+  assert.notEqual(stamps[0], stamps[1]);
+});
 
 test('a batch with any red run exits non-zero, so `$?` after it is evidence', () => {
   assert.equal(batchExitCode({ green: 8, runs: 10 }), 1);

@@ -40,9 +40,5 @@
   "t3": {},
   "e1": {},
   "d1": [],
-  "q1t": {
-    "src/extraction/scheduler.test.ts#setTimeout": 2,
-    "src/extraction/schedulerClear.review.test.ts#setTimeout": 3,
-    "src/extraction/windowHygiene.test.ts#performance.now": 2
-  }
+  "q1t": {}
 }
