@@ -142,8 +142,10 @@ export class TurnBridge {
     const drain: { run: RunGuard | null } = { run: null };
     this.draining = drain;
     try {
-      while (this.draining === drain && this.pending[0]?.ready) {
-        const next = this.pending.shift()!;
+      while (this.draining === drain) {
+        const next = this.pending[0];
+        if (!next?.ready) break;
+        this.pending.shift();
         if (!next.run.stillOwns()) continue;
         drain.run = next.run;
         await this.manager.commitBoundary(next.messageId ?? undefined);

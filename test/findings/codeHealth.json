@@ -33,38 +33,8 @@
     "duplicateBodyAllowlist": []
   },
   "t1": {
-    "unknownCasts": {
-      "src/components/studio/graphPanelUtils.ts": 1,
-      "src/judge/settings.ts": 1,
-      "src/runtime/extras.ts": 1,
-      "src/runtime/persistence.ts": 1,
-      "src/runtime/roleSelfTest.ts": 1,
-      "src/studio/components/ProvisioningCard.tsx": 1
-    },
-    "nonNull": {
-      "src/components/drawer/NextTurnPanel.tsx": 2,
-      "src/components/drawer/tabs/SchedulerTab.tsx": 8,
-      "src/components/settings/JudgeSettingsGroup.tsx": 1,
-      "src/generation/generate.ts": 3,
-      "src/judge/expansion.ts": 1,
-      "src/judge/expansionCalibration.ts": 1,
-      "src/judge/extractionCalibration.ts": 1,
-      "src/judge/scene.ts": 4,
-      "src/memory/entities.ts": 2,
-      "src/memory/ledger.ts": 2,
-      "src/memory/sceneSummary.ts": 1,
-      "src/runtime/coordinators/expansionCoordinator.ts": 2,
-      "src/runtime/coordinators/memoryCoordinator.ts": 1,
-      "src/runtime/curatorWriter.ts": 1,
-      "src/runtime/effectLedger.ts": 1,
-      "src/runtime/memorizeBacklog.ts": 2,
-      "src/runtime/roleCalibration.ts": 1,
-      "src/runtime/runtimeManager.ts": 1,
-      "src/runtime/snapshotBuilder.ts": 3,
-      "src/runtime/turnBridge.ts": 1,
-      "src/services/stHost/worldInfoEvidence.ts": 2,
-      "src/utils/event-source.ts": 2
-    },
+    "unknownCasts": {},
+    "nonNull": {},
     "nonNullAllowlist": []
   },
   "t3": {

@@ -79,7 +79,7 @@ const isEngineHistory = (value: unknown): boolean => isRecord(value) && isRecord
 export const isCurrentRecord = (value: unknown): boolean => isRecord(value) && isEngineState(value.engineState) && isEngineHistory(value.engineHistory)
   && isRecord(value.pinnedStory) && isRecord(value.extras);
 
-const recognized = (value: unknown): value is Record<string, unknown> => isRecord(value) && KNOWN_VERSIONS.includes(value.version) && typeof value.chatId === "string" && Boolean(value.chatId)
+const recognized = (value: unknown): value is StoryOrchestratorMetadataBlob => isRecord(value) && KNOWN_VERSIONS.includes(value.version) && typeof value.chatId === "string" && Boolean(value.chatId)
   && isRecord(value.stories) && Object.values(value.stories).every(isCurrentRecord);
 
 const unrecognized = (value: unknown): boolean => value !== undefined && value !== null && !recognized(value);
@@ -99,7 +99,7 @@ export const UNREADABLE_NOTICE = "saved by another version of Story Orchestrator
 
 const storedBlob = (): StoryOrchestratorMetadataBlob | null => {
   const existing = storedValue();
-  return recognized(existing) ? existing as unknown as StoryOrchestratorMetadataBlob : null;
+  return recognized(existing) ? existing : null;
 };
 
 const noteMismatch = (next: BlobMismatch) => {

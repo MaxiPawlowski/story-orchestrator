@@ -31,6 +31,7 @@ import { playerTurnIds } from "../agencyRecovery";
 import { computeEntryTokens, tokensFor } from "../entryTokens";
 import { enabledCharacterNames, rosterMemberName } from "../roster";
 import { VERIFY_DROP_LIMIT, type MemoryBackfillState, type MemoryRuntimeState, type VerifyDrop } from "../types";
+import { required } from "@utils/guards";
 
 export interface MemoryCoordinatorDeps {
   getStory: () => NormalizedStoryV2 | null;
@@ -90,7 +91,7 @@ export class MemoryCoordinator {
       // A decided disagreement changes what a canon synthesis would have been built from, so the text
       // derived from the losing claim stops being read until the next pass replaces it.
       invalidateCanon: () => { if (this.state.canon && !this.state.canon.stale) this.patch({ canon: { ...this.state.canon, stale: true } }, false); },
-      ...(deps.rereadWindow ? { reread: (window: { from: number; to: number }, reason: string) => deps.rereadWindow!(window, reason) } : {}),
+      ...(deps.rereadWindow ? { reread: (window: { from: number; to: number }, reason: string) => required(deps.rereadWindow, "rereadWindow")(window, reason) } : {}),
       run: () => beginRun(this.deps.ownership), matchSets: (group) => buildMatchSets(this.deps.hosts.vectors, group),
     });
   }

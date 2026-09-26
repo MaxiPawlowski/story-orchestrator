@@ -15,6 +15,7 @@ import type { MemoryCoordinator } from "./coordinators/memoryCoordinator";
 import type { ChatHost } from "./hostPorts";
 import type { JudgeRuntime } from "./judge";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
+import { required } from "@utils/guards";
 
 export const BACKLOG_STOPPED_BY_EDIT = "Stopped: the chat changed while memorizing";
 export const BACKLOG_STOPPED_BY_UPDATE = "Stopped: the story was updated while memorizing";
@@ -104,7 +105,7 @@ export class MemorizeBacklog {
 
   private backlogRead(story: NormalizedStoryV2, reason: "memorize:window" | "memorize:full", window: SharedReadWindow, ask: ModelAsk): RunSharedReadOptions {
     const memory = this.deps.memory();
-    const state = this.deps.getState()!;
+    const state = required(this.deps.getState(), "engine state");
     const windowed = reason === "memorize:window" ? { openArcs: memory.getOpenArcs(), epistemicLedgerCapable: memory.capable, entities: memory.getEntities() } : {};
     const scope = deriveFullScope(story, state.blackboard);
     return { story, state, priority: 0, reason, window, scope, firedTransitions: this.deps.firedTransitions(), facts: memory.getFacts(), ...windowed, model: this.deps.model(), ask };
@@ -120,7 +121,7 @@ export class MemorizeBacklog {
       await this.deps.applyAudit({ ...result.audit, acceptedDeltas: [] }, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, read, sceneWork);
       await this.runSceneWork(sceneWork, read);
       if (!read.stillOwns()) return false;
-      const progress = memory.backfill!;
+      const progress = required(memory.backfill, "memorize backfill");
       memory.setBackfill({ ...progress, processed: progress.processed + 1 });
       await this.deps.save();
     }

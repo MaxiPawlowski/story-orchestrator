@@ -56,6 +56,12 @@ const PromptBucketsLine = ({ state }: { state: PromptBucketState | undefined }) 
   );
 };
 
+const TrimNote = ({ injection, rowKey }: { injection: RuntimeSnapshot["memoryInjection"]; rowKey: string }) => {
+  const tier = tierOfKey(rowKey);
+  const text = tier ? trimText(injection, tier) : null;
+  return text ? <div data-so="next-turn-trim" className="opacity-60">{text}</div> : null;
+};
+
 export const NextTurnPanel = ({ snapshot, actions, onOpenOwner }: { snapshot: RuntimeSnapshot; actions: NextTurnActions; onOpenOwner: (tab: NextTurnOwnerTab) => void }) => {
   const rows = snapshot.nextTurn;
   const cost = snapshot.nextTurnCost;
@@ -81,9 +87,7 @@ export const NextTurnPanel = ({ snapshot, actions, onOpenOwner }: { snapshot: Ru
           </div>
           <div className="opacity-60">{row.owner}</div>
           <div className="whitespace-pre-wrap opacity-80">{row.preview}</div>
-          {tierOfKey(row.key) && trimText(snapshot.memoryInjection, tierOfKey(row.key)!) && (
-            <div data-so="next-turn-trim" className="opacity-60">{trimText(snapshot.memoryInjection, tierOfKey(row.key)!)}</div>
-          )}
+          <TrimNote injection={snapshot.memoryInjection} rowKey={row.key} />
           <div className="flex flex-wrap items-center gap-2 pt-1">
             {row.oneShot && (
               <button data-so="next-turn-clear" className="menu_button text-xs" onClick={() => actions.clearNote()}>Clear the note</button>

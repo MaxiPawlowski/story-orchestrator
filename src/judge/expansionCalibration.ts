@@ -30,6 +30,8 @@ const toReport = (perCase: Array<{ rows: JudgeSelfTestRow[]; model: string | nul
   };
 };
 
+const rejectedByJudge = (read: ChainRead | null) => read !== null && !judgeVerdict(read).pass;
+
 const describe = (read: ChainRead | null) => (read ? `c=${read.contradicts} a=${read.advances} n=${read.newCharacter}${read.shape === null ? "" : ` s=${read.shape}`}` : null);
 
 // Rows `<case>.verdict` (pass/fail agrees with the labels) and one per check at the policy cuts.
@@ -69,7 +71,7 @@ export async function runVariantCalibration(ask: (request: JudgeRequest) => Prom
       },
       ...(contradicting >= 0 ? [{
         id: `${stub.id}.rejected`,
-        right: reads[contradicting] !== null && !judgeVerdict(reads[contradicting]!).pass,
+        right: rejectedByJudge(reads[contradicting]),
         picked: describe(reads[contradicting]),
         latencyMs,
       }] : []),

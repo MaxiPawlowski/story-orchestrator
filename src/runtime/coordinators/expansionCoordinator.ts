@@ -16,6 +16,7 @@ import { beginRun, type RunGuard, type RunOwnership } from "../runToken";
 import { failureClass } from "@extraction/breaker";
 import { estimateTokens } from "@extraction/callBudget";
 import type { ExtraGateSource, ModelCall, Preflight, PreflightConfirm } from "@extraction/index";
+import { required } from "@utils/guards";
 
 export const expansionKey = (
   candidate: Pick<StubExpansionCandidate, "sourceCheckpointId" | "stubId" | "targetAnchorId">,
@@ -110,7 +111,7 @@ export class ExpansionCoordinator {
   }
 
   private emptyEntry(candidate: StubExpansionCandidate, status: ExpansionCacheEntry["status"]): ExpansionCacheEntry {
-    const state = this.deps.getState()!;
+    const state = required(this.deps.getState(), "engine state");
     return {
       key: expansionKey(candidate),
       status,
@@ -273,7 +274,7 @@ export class ExpansionCoordinator {
     this.liveJobs.set(key, run);
     let transport: unknown = null;
     try {
-      const state = this.deps.getState()!;
+      const state = required(this.deps.getState(), "engine state");
       const input = planExpansion(story, state.blackboard, candidate, this.deps.getCanon(), this.deps.getFactTexts());
       const generated = await generateReviewedBeats(story, input, this.deps.model, { role: "authoring",
           pass: "generation", signal: run.signal, debugResponse: debugResponse ?? null }, this.expansionJudge(story,

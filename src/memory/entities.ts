@@ -11,8 +11,9 @@ import { isLive } from "./provenance";
 export function ledgerBindings(story: NormalizedStoryV2 | null): LedgerBinding[] {
   if (!story) return [];
   return Object.values(story.qualityByKey)
-    .filter((quality) => quality.ledger_binding)
-    .map((quality) => ({ entity: quality.ledger_binding!.entity, field: quality.ledger_binding!.field, qualityKey: quality.key }));
+    .flatMap((quality) => (quality.ledger_binding
+      ? [{ entity: quality.ledger_binding.entity, field: quality.ledger_binding.field, qualityKey: quality.key }]
+      : []));
 }
 
 /** The roster, then the bound entities, then whatever the ledger has actually seen. */

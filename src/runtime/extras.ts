@@ -263,6 +263,11 @@ export const applyGlobalSettings = (extras: RuntimeExtras, global: GlobalSetting
 
 // Persisted chat state keeps engine state, rings and the overrides only (spec addendum
 // §Configuration homes) - install-wide settings are stripped on the way out.
+const withoutSettings = (memory: RuntimeExtras["memory"]): RuntimeExtras["memory"] => {
+  const { settings: _settings, ...rest } = memory;
+  return rest as RuntimeExtras["memory"];
+};
+
 export const stripGlobalSettings = (extras: RuntimeExtras): RuntimeExtras => ({
   ...extras,
   extraction: {
@@ -275,7 +280,7 @@ export const stripGlobalSettings = (extras: RuntimeExtras): RuntimeExtras => ({
   pacing: { shapeOverride: extras.pacing.shapeOverride } as RuntimeExtras["pacing"],
   copilot: {} as RuntimeExtras["copilot"],
   ui: { authorView: extras.ui.authorView } as RuntimeExtras["ui"],
-  memory: { ...extras.memory, settings: undefined } as unknown as RuntimeExtras["memory"],
+  memory: withoutSettings(extras.memory),
   talk: { enabled: extras.talk.enabled, decisions: extras.talk.decisions },
   stagecraft: {
     proposals: extras.stagecraft.proposals,

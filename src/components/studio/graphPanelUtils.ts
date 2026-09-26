@@ -1,4 +1,4 @@
-import type { Core, ElementDefinition, LayoutOptions } from "cytoscape";
+import type { Core, ElementDefinition, ShapedLayoutOptions } from "cytoscape";
 
 export type LayoutName = "breadthfirst" | "grid" | "cose" | "dagre";
 
@@ -127,7 +127,7 @@ export const createGraphStyles = (themeColors: GraphThemeColors) => ([
 export const runGraphLayout = (cy: Core, name: LayoutName, dagreReady: boolean): void => {
   if (cy.elements().length === 0) return;
   const layoutName = name === "dagre" && !dagreReady ? "breadthfirst" : name;
-  const options = { name: layoutName, nodeDimensionsIncludeLabels: true, spacingFactor: 1.2, padding: 24 } as unknown as LayoutOptions;
+  const options: ShapedLayoutOptions = { name: layoutName, nodeDimensionsIncludeLabels: true, spacingFactor: 1.2, padding: 24 };
   try {
     const layout = cy.layout(options);
     if (layout && typeof layout.run === "function") layout.run();

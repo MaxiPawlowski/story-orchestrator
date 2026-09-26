@@ -55,8 +55,8 @@ export function observeWorldInfoScans(observers: WorldInfoScanObservers): WorldI
   }
   const reassert = () => {
     if (!loadedEvent || !ordered) return;
-    if (observers.loadedFirst) source.makeFirst!(loadedEvent, onFirst);
-    if (observers.loadedLast) source.makeLast!(loadedEvent, onLast);
+    if (observers.loadedFirst) source.makeFirst?.(loadedEvent, onFirst);
+    if (observers.loadedLast) source.makeLast?.(loadedEvent, onLast);
   };
   if (loadedEvent && ordered) {
     if (observers.loadedFirst) placed.push([loadedEvent, onFirst]);

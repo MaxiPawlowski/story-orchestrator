@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import { defaultJudgeSettings, JUDGE_USE_KEYS, type JudgeSettings } from "@judge/index";
 import { JudgeSettingsGroup } from "./JudgeSettingsGroup";
+import { required } from "@utils/guards";
 
 const settings = (patch: Partial<JudgeSettings> = {}, uses: Partial<JudgeSettings["uses"]> = {}): JudgeSettings => {
   const base = defaultJudgeSettings();
@@ -118,7 +119,7 @@ export const AuthorExpansionControls: Story = {
     await expect(ids).toEqual(expect.arrayContaining(["so-judge-use-expansion-critic", "so-judge-use-expansion-lookahead"]));
     const pick = canvasElement.querySelector<HTMLSelectElement>("#so-judge-expansion-pick");
     await expect(pick?.disabled).toBe(true);
-    await userEvent.selectOptions(canvasElement.querySelector<HTMLSelectElement>("#so-judge-expansion-variants")!, "2");
+    await userEvent.selectOptions(required(canvasElement.querySelector<HTMLSelectElement>("#so-judge-expansion-variants"), "variants select"), "2");
     await expect(args.onChange).toHaveBeenCalledWith({ expansion: { variants: 2 } });
   },
 };

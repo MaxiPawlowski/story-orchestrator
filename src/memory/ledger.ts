@@ -153,14 +153,11 @@ export function buildLedgerView(
 export function renderLedgerBlock(view: LedgerView[]): string {
   if (!view.length) return "";
   const byEntity = new Map<string, string[]>();
-  const order: string[] = [];
   for (const row of view) {
-    if (!byEntity.has(row.entity)) {
-      byEntity.set(row.entity, []);
-      order.push(row.entity);
-    }
-    byEntity.get(row.entity)!.push(`${row.field}=${row.value}`);
+    const fields = byEntity.get(row.entity) ?? [];
+    fields.push(`${row.field}=${row.value}`);
+    byEntity.set(row.entity, fields);
   }
-  const lines = order.map((entity) => `${entity}: ${byEntity.get(entity)!.join(" | ")}`);
+  const lines = [...byEntity].map(([entity, fields]) => `${entity}: ${fields.join(" | ")}`);
   return ["Current state:", ...lines].join("\n");
 }

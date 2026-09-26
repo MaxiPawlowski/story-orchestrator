@@ -70,7 +70,7 @@ const applyLabel = (draft: ProvisioningOp, applied: boolean, busy: boolean) => {
 const ProvisioningCard: React.FC<ProvisioningCardProps> = ({ op, environment, applied = false, result = null, failed = false, busy = false, existing, onApply }) => {
   const [draft, setDraft] = useState<ProvisioningOp>(op);
   const fields = FIELDS[draft.kind];
-  const record = draft as unknown as Record<string, unknown>;
+  const record: Record<string, unknown> = { ...draft };
   const validation = validateProvisioningOp(draft, environment);
 
   const patch = (key: string, value: unknown) => setDraft((previous) => ({ ...previous, [key]: value }) as ProvisioningOp);

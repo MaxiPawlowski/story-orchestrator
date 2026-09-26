@@ -47,6 +47,7 @@ import type {
 } from "./types";
 import { withholds } from "./generationLifecycle";
 import { CoordinatorDelegates } from "./managerDelegates";
+import { required } from "@utils/guards";
 
 export class RuntimeManager extends CoordinatorDelegates {
   private engine = new StoryEngine();
@@ -472,7 +473,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   private getBoundaryContext(at?: number): BoundaryContext { const chat = Array.isArray(getContext().chat) ? getContext().chat : []; const last = at === undefined ? chat.length - 1 : Math.min(at,
       chat.length - 1); return { lastMessageId: last, chatLength: last + 1 }; }
 
-  private applyActive(mode: "activate" | "hydrate") { return this.effects.applyCheckpoint(this.loaded!.story,
+  private applyActive(mode: "activate" | "hydrate") { return this.effects.applyCheckpoint(required(this.loaded, "loaded story").story,
       this.engine.activeCheckpoint, this.extras, this.getSnapshot(), mode, this.engine.checkpointPath); }
   private refreshRequirements() {
     this.extras.requirements = evaluateRequirements(this.loaded?.story ?? null);

@@ -53,6 +53,14 @@ const ReconciliationPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
   );
 };
 
+const takeAlternate = (manager: RuntimeManager, alternate: string | null | undefined) => (alternate ? manager.activateCheckpoint(alternate) : undefined);
+
+const percent = (value: number) => Math.round(value * 100);
+
+const judgeText = (judge: { contradicts: number; advances: number; newCharacter: number } | undefined) => (judge
+  ? `judge: contradicts ${percent(judge.contradicts)}% · advances ${percent(judge.advances)}% · new character ${percent(judge.newCharacter)}%`
+  : "");
+
 export const SchedulerTab = ({ snapshot, manager, onOpenFact }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; onOpenFact?: (id: string) => void }) => (
   <div className="flex flex-col gap-3">
     <StagecraftPanel snapshot={snapshot} manager={manager} onOpenFact={onOpenFact} />
@@ -89,7 +97,7 @@ export const SchedulerTab = ({ snapshot, manager, onOpenFact }: { snapshot: Runt
             <button
               className="menu_button text-xs"
               data-so="agency-take-alternate"
-              onClick={() => void manager.activateCheckpoint(snapshot.agencyRecovery!.alternate!)}
+              onClick={() => void takeAlternate(manager, snapshot.agencyRecovery?.alternate)}
             >Take {snapshot.agencyRecovery.alternateName}</button>
           )}
           {snapshot.agencyRecovery.canGenerate && (
@@ -109,8 +117,7 @@ export const SchedulerTab = ({ snapshot, manager, onOpenFact }: { snapshot: Runt
           )}%)` : ""}</div>
           {(entry.verdicts.at(-1)?.judge || entry.variants) && (
             <div data-so="expansion-judge" className="opacity-80">
-              {entry.verdicts.at(-1)?.judge ? `judge: contradicts ${Math.round(entry.verdicts.at(-1)!.judge!.contradicts * 100)}% · advances ` +
-                `${Math.round(entry.verdicts.at(-1)!.judge!.advances * 100)}% · new character ${Math.round(entry.verdicts.at(-1)!.judge!.newCharacter * 100)}%` : ""}
+              {judgeText(entry.verdicts.at(-1)?.judge)}
               {entry.variants ? ` · ${entry.variants.generated} written, ${entry.variants.survivors} passed code checks, picked #${(entry.variants.picked ?? -1) + 1} by ` +
                 `${entry.variants.picker}${entry.variants.pickFallback ? ` (${entry.variants.pickFallback} fell back)` : ""}` : ""}
             </div>

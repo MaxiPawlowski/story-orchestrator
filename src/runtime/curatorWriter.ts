@@ -138,7 +138,10 @@ export class CuratorWriter {
     }
     if (run.lapsed()) return reverted;
     const byId = new Map(updates.map((update) => [update.id, update.ops]));
-    this.deps.patch({ proposals: this.deps.state().proposals.filter((record) => !settled.has(record.id)).map((record) => (byId.has(record.id) ? { ...record, ops: byId.get(record.id)! } : record)) });
+    this.deps.patch({ proposals: this.deps.state().proposals.filter((record) => !settled.has(record.id)).map((record) => {
+      const ops = byId.get(record.id);
+      return ops ? { ...record, ops } : record;
+    }) });
     if (reverted) this.deps.journal(`World Info curator changes rolled back (${reverted})`);
     await this.deps.save();
     return reverted;

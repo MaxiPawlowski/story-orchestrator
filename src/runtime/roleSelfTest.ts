@@ -114,7 +114,7 @@ const AUTHORING_DRAFT: StoryV2 = {
   checkpoints: [{ id: "camp", name: "Camp", objective: "Get moving.", type: "anchor", start: true }],
   transitions: [],
   roster: [{ id: "guide", name: "Bel" }],
-} as unknown as StoryV2;
+};
 
 const errorText = (error: unknown) => (error instanceof Error ? error.message : String(error));
 

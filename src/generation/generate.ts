@@ -6,6 +6,7 @@ import { runCodeChecks, runCritic } from "./critic";
 import { parseGeneratedBeats } from "./parse";
 import { renderGenerationPrompt } from "./prompts";
 import type { CodeCheckResult, CriticVerdict, GeneratedBeat, PlannedExpansionInput, VariantRecord } from "./types";
+import { required } from "@utils/guards";
 
 export interface ExpansionJudge {
   critic?: (beats: GeneratedBeat[]) => Promise<CriticVerdict | null>;
@@ -105,7 +106,8 @@ async function generateVariants(story: NormalizedStoryV2, input: PlannedExpansio
   const passing = reads.map((read, index) => ({
     read,
     index,
-  })).filter((entry) => entry.read && judgeVerdict(entry.read).pass).sort((left, right) => chainScore(right.read!) - chainScore(left.read!) || left.index - right.index);
+  })).filter((entry): entry is { read: ChainRead; index: number } => entry.read !== null && judgeVerdict(entry.read).pass)
+    .sort((left, right) => chainScore(right.read) - chainScore(left.read) || left.index - right.index);
   if (variants.pick === "llm" && passing.length >= 2) {
     const target = story.checkpointById[input.candidate.targetAnchorId];
     const pair: [number, number] = [passing[0].index, passing[1].index];
@@ -121,7 +123,7 @@ async function generateVariants(story: NormalizedStoryV2, input: PlannedExpansio
       picker = "llm";
     }
   }
-  const read = reads[chosen]!;
+  const read = required(reads[chosen], "chosen chain read");
   const verdict: CriticVerdict = { ...judgeVerdict(read), raw: "JUDGE", judge: read };
   return { ...survivors[chosen].checked, verdict, needsReview: !verdict.pass, variants: record({ scores, picked: survivors[chosen].index, picker, ...(pickFallback ? { pickFallback } : {}) }) };
 }

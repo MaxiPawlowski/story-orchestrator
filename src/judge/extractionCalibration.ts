@@ -5,6 +5,7 @@ import { noulAnswer } from "./questions";
 import type { JudgeSelfTestReport, JudgeSelfTestRow } from "./selfTest";
 import type { JudgeRequest, JudgeResult } from "./types";
 import { median } from "./stats";
+import { required } from "@utils/guards";
 
 export interface TypedCase {
   id: string;
@@ -58,7 +59,7 @@ export async function runTypedCalibration(ask: (request: JudgeRequest) => Promis
     const read = result.answers ? readTypedDeltas(result.answers, plan, entry.qualities, entry.window) : { deltas: [], answered: [] };
     const base = { latencyMs: result.latencyMs, ...(result.fallback ? { fallback: result.fallback } : {}) };
     const rows: JudgeSelfTestRow[] = plan.decoders.flatMap(({ key }) => {
-      const quality = entry.qualities.find((item) => item.key === key)!;
+      const quality = required(entry.qualities.find((item) => item.key === key), `quality ${key}`);
       const delta = read.deltas.find((item) => item.q === key);
       const answered = read.answered.includes(key);
       const value = delta ? delta.v : entry.prior[key];

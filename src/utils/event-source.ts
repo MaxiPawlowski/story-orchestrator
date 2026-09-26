@@ -33,10 +33,10 @@ const resolveUnsubscribe = (
     return wrapCleanup(eventName, () => onResult.call(source));
   }
   if (typeof source.off === "function") {
-    return wrapCleanup(eventName, () => source.off!(eventName, handler));
+    return wrapCleanup(eventName, () => source.off?.(eventName, handler));
   }
   if (typeof source.removeListener === "function") {
-    return wrapCleanup(eventName, () => source.removeListener!(eventName, handler));
+    return wrapCleanup(eventName, () => source.removeListener?.(eventName, handler));
   }
   return NOOP;
 };

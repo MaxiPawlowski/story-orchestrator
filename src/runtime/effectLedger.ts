@@ -118,7 +118,7 @@ export function restorePlan(rows: EffectLedgerRow[], reads: ReconcileReads): { s
     // A row whose effect is a no-op (`before === after`) needs no restore and cannot be compared.
     if (same(row.before, row.after)) continue;
     const key = targetKey(row.target);
-    const current = running.has(key) ? running.get(key)! : reads.read(row.target);
+    const current = running.has(key) ? running.get(key) ?? null : reads.read(row.target);
     if (current !== null && same(current, row.after)) {
       steps.push({ row, restoreTo: row.before });
       running.set(key, row.before);

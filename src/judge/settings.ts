@@ -103,10 +103,12 @@ const sanitizeJudgeMeter = (value: unknown): JudgeMeter => {
   return { calls: count(meter.calls), cachedCalls: count(meter.cachedCalls), inputTokens: count(meter.inputTokens), outputTokens: count(meter.outputTokens), cost: count(meter.cost) };
 };
 
+const isSceneReadRecord = (value: unknown): value is SceneReadRecord => isRecord(value) && typeof value.messageId === "number" && isRecord(value.facts);
+
 export function sanitizeJudgeRuntime(value: unknown): JudgeRuntimeState {
   if (!isRecord(value) || !Array.isArray(value.calls)) return createJudgeRuntime();
   const calls = value.calls.filter((entry): entry is JudgeCallRecord => isRecord(entry) && typeof entry.use === "string" && typeof entry.at === "string" && typeof entry.messageId === "number");
-  const scene = isRecord(value.scene) && typeof value.scene.messageId === "number" && isRecord(value.scene.facts) ? (value.scene as unknown as SceneReadRecord) : null;
+  const scene = isSceneReadRecord(value.scene) ? value.scene : null;
   return { calls: calls.slice(-JUDGE_CALL_RING_LIMIT), scene, meter: sanitizeJudgeMeter(value.meter) };
 }
 

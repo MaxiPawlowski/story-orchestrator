@@ -34,7 +34,7 @@ const kebab = (key: string) => key.replace(/[A-Z]/g, (letter) => `-${letter.toLo
 const labelOf = (key: JudgeReadinessKey): string => (key === "warden" ? "Continuity warden" : JUDGE_USE_COPY[key].label);
 
 const concernText = (row: JudgeReadinessRow): string => {
-  if (row.verdict === "blocked") return `on, but "${JUDGE_USE_COPY[row.blockedBy!].label}" is off, so it does nothing`;
+  if (row.verdict === "blocked" && row.blockedBy) return `on, but "${JUDGE_USE_COPY[row.blockedBy].label}" is off, so it does nothing`;
   if (row.modelMismatch) return `on, but not measured on ${row.modelMismatch.answered ?? row.modelMismatch.configured} (measured on ${row.modelMismatch.measuredOn})`;
   return "on, but nothing has measured it";
 };

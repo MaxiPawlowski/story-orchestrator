@@ -259,7 +259,8 @@ function sliceOf(role: CalibrationRole, records: RoleCaseRecord[]): SliceSummary
 }
 
 export function summarizeRoleCalibration(role: CalibrationRole, records: RoleCaseRecord[], options: { floorIds?: string[] } = {}): RoleSummary {
-  const floored = options.floorIds ? records.filter((record) => options.floorIds!.includes(record.id)) : records;
+  const { floorIds } = options;
+  const floored = floorIds ? records.filter((record) => floorIds.includes(record.id)) : records;
   const overall = sliceOf(role, floored);
   const es = sliceOf(role, records.filter((record) => record.lang === "es"));
   if (role === "director") {

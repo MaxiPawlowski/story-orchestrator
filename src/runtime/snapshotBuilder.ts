@@ -32,6 +32,10 @@ import type { LoadedStory, PayloadCapture, RuntimeExtras, RuntimeSnapshot } from
 // The single composed model the UI subscribes to. Everything a rendering component needs lives
 // here — read-models the coordinators own (ledger, driver, nudge) are handed in rather than
 // pulled by the component, so one subscription is the whole contract (finding I2).
+const readerFields = (reader: { reader: "judge" | "llm"; confidence?: number } | undefined) => (reader
+  ? { reader: reader.reader, ...(reader.confidence !== undefined ? { confidence: reader.confidence } : {}) }
+  : {});
+
 export interface SnapshotSources {
   loaded: LoadedStory | null;
   state: EngineState | null;
@@ -180,7 +184,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
       latched: state?.blackboard.latched[key] ?? false,
       source: story?.qualityByKey[key]?.source ?? "unknown",
       evidence: evidenceByKey.get(key),
-      ...(readerByKey.get(key) ? { reader: readerByKey.get(key)!.reader, ...(readerByKey.get(key)!.confidence !== undefined ? { confidence: readerByKey.get(key)!.confidence } : {}) } : {}),
+      ...readerFields(readerByKey.get(key)),
     }])),
     checkpoints: story?.checkpoints.map((checkpoint) => ({
       id: checkpoint.id,
