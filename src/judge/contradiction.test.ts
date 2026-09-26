@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
-  buildContradictionRequest, CONTRADICTION_RELEASE_FLOORS, releaseDecision, releaseRequest, runContradictionReleaseCalibration, scoreReleaseArm,
+  buildContradictionRequest, CONTRADICTION_RELEASE_FLOORS, releaseDecision, releaseRequest, runContradictionReleaseCalibration, scoreReleaseArm, scoreReleasePhaseA,
   type ContradictionReleaseCase,
 } from "./contradiction";
 import { buildPairRequest } from "./memory";
@@ -100,5 +100,42 @@ describe("Phase A scoring (the live run is pending; this pins the instrument)", 
     const report = await runContradictionReleaseCalibration(plant(() => true), holdout.rows);
     const score = scoreReleaseArm(report, holdout.rows, "b", new Set(["R06", "R07"]));
     expect([score.releaseErr.total, score.paraphraseRelease.total, score.ok]).toEqual([0, 2, false]);
+  });
+});
+
+describe("the Phase A verdict over every band mode", () => {
+  const cases: ContradictionReleaseCase[] = [
+    { id: "C1", lang: "en", label: "contradicts", established: "e", claim: "c1" },
+    { id: "C2", lang: "es", label: "contradicts", established: "e", claim: "c2" },
+    { id: "A1", lang: "en", label: "agrees", established: "e", claim: "a1" },
+    { id: "A2", lang: "en", label: "agrees", established: "e", claim: "a2" },
+  ];
+  const report = (releasedA: string[], releasedB: string[]) => ({
+    rows: cases.flatMap((row) => [
+      { id: `${row.id}.a`, right: true, picked: releasedA.includes(row.id) ? "release" : "hold", latencyMs: 0 },
+      { id: `${row.id}.b`, right: true, picked: releasedB.includes(row.id) ? "release" : "hold", latencyMs: 0 },
+    ]),
+  });
+
+  it("passes a wording only when its arm clears the floors in every mode", () => {
+    const verdict = scoreReleasePhaseA(report(["A1", "A2"], ["A1", "A2", "C1"]), cases, { jaccard: ["C1", "A1", "A2"], vectors: ["C1", "C2", "A1", "A2"] });
+    expect(verdict.modes.map((mode) => [mode.mode, mode.measured, mode.arms.map((arm) => arm.ok)])).toEqual([["jaccard", true, [true, false]], ["vectors", true, [true, false]]]);
+    expect([verdict.passing, verdict.ok]).toEqual([["a"], true]);
+  });
+
+  it("a wording that fails one mode is not passing, whatever the other mode says", () => {
+    const verdict = scoreReleasePhaseA(report(["A1", "A2", "C2"], []), cases, { jaccard: ["C1", "A1", "A2"], vectors: ["C1", "C2", "A1", "A2"] });
+    expect(verdict.modes.map((mode) => mode.arms[0].ok)).toEqual([true, false]);
+    expect([verdict.passing, verdict.ok]).toEqual([[], false]);
+  });
+
+  it("an unmeasured mode (no cosine bracket file) keeps the verdict open, never passes it", () => {
+    const verdict = scoreReleasePhaseA(report(["A1", "A2"], ["A1", "A2"]), cases, { jaccard: ["C1", "A1", "A2"], vectors: null });
+    expect(verdict.modes.find((mode) => mode.mode === "vectors")).toEqual({ mode: "vectors", measured: false, arms: [] });
+    expect([verdict.passing, verdict.ok]).toEqual([[], false]);
+  });
+
+  it("no mode at all is not a pass", () => {
+    expect(scoreReleasePhaseA(report(["A1", "A2"], []), cases, {}).ok).toBe(false);
   });
 });

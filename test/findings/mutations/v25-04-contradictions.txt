@@ -43,3 +43,12 @@ Baseline: exit 0, 0 failed, 13 passed, 13 total
 - J1A-M5 floor check ignores the Spanish slice: KILLED, 1 failed, 12 passed, 13 total
     "a released Spanish contradiction fails the arm even when the overall rate is within 0.05"
 Restored: exit 0, 0 failed, 13 passed, 13 total
+
+J1 Phase A verdict (scoreReleasePhaseA: a wording passes only when its arm clears the floors in every band mode; so-judge calibrate --use contradiction-release builds the modes from K0 and each recorded cosine bracket file, scripts/debug/lib/contradictionRelease.mts). Same method, .debug/mutate04c.py; suites src/judge/contradiction.test.ts (jest) and scripts/debug/lib/contradictionRelease.test.mts (node:test). Result: 4/4 killed.
+
+- J1A-M6 no mode at all passes: KILLED (exit 1)
+- J1A-M7 one mode enough for a pass: KILLED (exit 1)
+- J1A-M8 vectors mode ignores the cosine: KILLED (exit 1)
+    not ok 4 - each bracket file adds a vectors mode: the Jaccard band united with a cosine at or above the same-topic threshold
+- J1A-M9 missing bracket row read as below: KILLED (exit 1)
+    not ok 5 - a bracket file missing a row refuses rather than reading the row as below the band

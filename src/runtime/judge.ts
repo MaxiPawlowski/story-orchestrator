@@ -3,6 +3,7 @@ import {
   runAgencyCalibration, type AgencyCase, runHouseRuleCalibration, type HouseRuleCase, runCombinedContinuityCalibration,
   isCombinedCase, type CombinedContinuityCase, type RescoreResult, buildDirectorRequest, runJudgeDirectorSelfTest,
   runMemoryPairsCalibration, runMemoryVerifyCalibration, runSceneCalibration, type SceneCalibrationCase, runContradictionReleaseCalibration, type ContradictionReleaseCase,
+  scoreReleasePhaseA, type ReleasePhaseAVerdict,
   runLoreCalibration, type LoreCalibrationCase, runLoreRelevanceCalibration, type LoreRelevanceReport,
   runCuratorFilterCalibration, type CuratorFilterCase, runContinuityCalibration, type ContinuityCase,
   runBackgroundCalibration, type BackgroundCase, runTypedCalibration, type TypedCase, runStallCalibration,
@@ -119,6 +120,10 @@ export class JudgeRuntime {
   rescore(use: string, rows: WardenRescoreRow[], model?: string): Promise<RescoreResult[]> {
     if ((WARDEN_RESCORE_USES as readonly string[]).includes(use)) return runWardenRescore((request) => this.probe(request, model), use as WardenRescoreUse, rows);
     return Promise.reject(new Error(`no rescore for judge use '${use}' yet`));
+  }
+
+  scoreContradictionRelease(report: Pick<JudgeSelfTestReport, "rows">, cases: ContradictionReleaseCase[], modes: Record<string, readonly string[] | null>): ReleasePhaseAVerdict {
+    return scoreReleasePhaseA(report, cases, modes);
   }
 
   // So-judge reads the verdict here, so the harness and the page share one map.
