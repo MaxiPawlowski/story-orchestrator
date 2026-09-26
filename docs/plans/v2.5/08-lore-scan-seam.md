@@ -268,3 +268,90 @@ Machine gates: typecheck, typecheck:test, lint, test, debug:typecheck, build, te
 - **Q3** L3: is there a member rule ST's `characterFilter` cannot express? Without one it stays not built.
 - **Q4** L4: install-wide switch (drafted) or per story?
 - **Q5** L7: send authored lore text to TypeSafe under a new opt-in? It is a new privacy-report row.
+
+## Gate record (code items)
+
+**2026-09-26, branch `worktree-wf_aaec966e-c75-4` (from master `492a4c72`; master `13db430c` merged in as `501ed606`, one conflict in `docs/plans/v2.4/host-facts.md`, both appended sections kept). Code items only. Nothing ran live: no lane, no main ST, nothing under `C:\dev\so-lanes`, no pod, no judge call.** Plan 01's scan mode is on master (its code-items record), so L1 and L5 were built for scan mode; their live gates are pending. The build was cut off by a quota once, after L4; the resumed run finished the uncommitted L1 red tests before anything else.
+
+### Commits
+
+| Commit | Item | Red first -> green | Controls / notes |
+|---|---|---|---|
+| `31c45117` | Step 0: host facts `v25-08-H1..H12` on 1.19.0 (`v2.4/host-facts.md`) | docs | 1.18.0 column left to V10 Q4, as plans 01/02/07 |
+| `ca926dee` | L2 requirements read the books ST scans (`requirementsRead.ts`, `stHost/selectors.ts`): global, chat slot, persona, a card bound on EVERY enabled member (D2); `satisfiedBy` / `characterGaps` / `slotConflict` in the author view; file-mode slot conflict as a Repair step; watcher adds `CHARACTER_EDITED` + `GENERATION_STARTED` (no chat-slot event, v25-08-H7) | `requirements.test.ts`, `loreBindings.test.ts`, `repair.test.ts`, `requirementsWatch.test.ts` | Storybook `DrawerTabs` requirements view |
+| `99524269` | L4 per-tier `scan:true` for facts, scene history, checkpoint guidance behind install-wide `worldInfo.scanMemory` (default off, author-view switch); registry guard; the seam grants scan only to registry-scannable keys | `injectionRegistry.test.ts`, `extensionPrompts.test.ts`, `scanMemory.test.ts`, `worldInfoSettings.test.ts` | negative controls: epistemic scannable fails the guard; ledger and an unlisted key fail too |
+| `ee69dddf` | L1 unbound mirror in scan mode (`mirrorScan.ts`, `memoryMirror.ts`, `worldInfoScanHost.ts`, `coordinatorHosts.ts`) | `mirrorScan.test.ts` 13 red -> green, `memoryMirror.test.ts` 5 red -> green, `scanGatePlan.test.ts` +1 seeded property (100 seeds: the gate never touches appended `so_` entries) | negative control: appending without the owner guard leaks the parent's memory into its branch. Census: `MirrorScanCache.refresh` `local`; `syncMemoryMirror` re-read (rule 13). Fault matrix: `memory|worldSwitched` +2 citations |
+| `7f14897a` | L5 exclusive lore-select (`loreExclusive.ts`, `loreSelect.ts` complete selection, `judge.uses.loreExclusive`, `lore_select.exclusive`, Studio toggle, `lore-select-exclusive-empty`, storyDiff message, `vectorsScanWorldInfo` host read) | `loreExclusive.test.ts` 15, `loreSelect.test.ts` +4, `judge.test.ts`, `readiness.test.ts`, `storyDiff.test.ts`, `diagnostics.test.ts`, `mutations.test.ts`, `worldInfoScan.test.ts` (stHost) red -> green | control: use off + story flag on changes nothing (G-L5 extra column). Census: `LoreSelector.select` re-read (rule 13). Fault matrix: `lore|delayedError`, `lore|beforeHostWrite` +1 citation each. Storybook `LoreSelectExclusive` |
+| `943d823e` | L6 step 0: every mirror sync reports `ran` / `skipped` (`no-chat`, `nothing-live`, `no-book`) / `live`, logged at debug; fixture `live-v25-08-mirror-rate.json` | `memoryMirror.test.ts` 1 red -> green | rule unchanged: strip only at median >= 0.8, and only past the sample floor |
+| `38f397fd` | L7 **Phase A only**: warden lore request shape (`warden.ts` `lorePart`, `readWardenLore`, `keptLore`; `policy.ts` `WARDEN_LORE_P` 0.7, `WARDEN_MAX_LORE` 8, `WARDEN_LORE_MAX_NOTE` 2; cap reuses `LORE_CONTENT_CHARS` 600), fixture `test/fixtures/judge/warden-lore.json`, `runWardenLoreCalibration` (arms `lore`, `facts` = R3, `none` = negative control), `so-judge calibrate --use warden-lore|warden-lore-facts` | `wardenLore.test.ts` 6 red -> green | negative control: the fixture scored with the lore removed falls below R1. `WARDEN_FAMILIES` unchanged: no runtime path asks the lore family |
+| `2934e9ed` | Prose code comments added by L2/L4 removed (no-comments rule); stHost host `file:line` citations kept | — | code-health T3 ratchet green |
+| `06edd146` | Live fixtures + helper `test/fixtures/interop/v25-08-lore.js` | vocabulary-validated (`scenarioSchema.validateFixture`) and every eval syntax-checked (`new Function`) via `.debug/checkfx.mts` | helper creates and deletes only `SO-V25-08*` books; host bindings changed in memory only and put back |
+| `802f97d6` | Mutations `test/findings/mutations/v25-08.txt`: 14 mutants, **14 killed** | baseline 118/118, restored 118/118 | the plan's M-list: owner check M1, no-double M2, D2 M5, L4 guard M6, every-chunk M8, gated exemption M9; L7 content filter has no code (not built) |
+| `244eb032` | Step 8: `.claude/rules/architecture.md` (mirrorScan, loreExclusive, requirementsRead, two invariants) | docs | — |
+| `501ed606` | merge master `13db430c` | full gates re-run below | — |
+
+### Gates (after the merge, `501ed606`)
+
+| Gate | Command | Result |
+|---|---|---|
+| typecheck | `npm run typecheck` | exit 0 |
+| typecheck:test | `npm run typecheck:test` | exit 0 |
+| lint | `npm run lint` | exit 0 |
+| jest | `npm test` | 303 suites, **4201 passed** |
+| build | `ST_PUBLIC=C:/dev/SillyTavern-MainBranch/public npm run build` | OK, bundle `6680c62e6c84`, source `592baf42f320`, ST 1.19.0 |
+| test:debug | `npm run test:debug` (after the build) | 379 tests, 378 pass, 0 fail, 1 skipped |
+| test:release | `ST_PUBLIC=... npm run test:release` | 37/37 |
+| Storybook | `npm run storybook:build`, then `http-server .sb-static` + `test-storybook --index-json` (`.debug/sbt.sh`, nested-worktree form as plans 01/07/11) | **37 suites / 267 tests passed** |
+| Ownership census, fault matrix, code-health ratchets, architecture | inside `npm test` | green; fault matrix 85 covered, 11 partial, 24 na, 0 todo (of 120) |
+
+Budgets (effective lines, `architecture.test.ts` formula): manager **553 / 700**; coordinators memory 500, extraction 480, stagecraft 450, expansion 332, copilot 262, scene 223, pacing 126, all **<= 560**. No coordinator was touched by this plan; the manager only by L2/L4 (+6 -3).
+
+### Decisions this build took (the user's questions stay open)
+
+| Q | Taken | Why |
+|---|---|---|
+| Q1 | Scan mode **keeps writing the mirror book** (author visibility, reaper marker, file-mode fallback); only the slot binding goes. | the plan's recommendation; the book is also what `WORLDINFO_UPDATED` refreshes the scan copy from (D1) |
+| Q2 | D2 as drafted: a card-bound book satisfies a requirement only when bound on every enabled member; a partial binding reads missing with the gap named. | turn-dependent otherwise (08-H3) |
+| Q3 | L3 not built. | 05-H17 + sun-ruins `characterFilter` |
+| Q4 | L4 install-wide (`worldInfo.scanMemory`, default off). | the drafted choice |
+| Q5 | L7 runtime **not built**, so no lore text is sent anywhere by the product. Phase A itself sends authored fixture lore to TypeSafe when someone runs `so-judge calibrate`; the privacy row is owed only if the build happens. | plan order step 7: build only above the floors |
+
+### Deviations
+
+- **X5 by construction.** ENTRIES_LOADED names no caller (v25-08-H12), so the handler cannot tell the main scan from vectors' own `getSortedEntries`. Exclusive mode therefore **refuses** (`vectors-wi`) whenever `extension_settings.vectors.enabled_world_info` is on (vectors/index.js:117, :791-793, kept in sync :2003-2006). It also requires a loud generation open (not quiet/impersonate), so a quiet `/gen` scan is never narrowed; the CHAT_CHANGED pre-cache result is discarded by ST.
+- **"Timed" is authored, not active.** Entries with `sticky`, `cooldown` or `delay` > 0 are never suppressed; an active timed effect can only exist on such an entry, so this covers X6 without reading `chat_metadata.timedWorldInfo`.
+- **`loreExclusive` is author-view only** and its readiness row is `unproven` (no calibration) until X1/X2 pass on an archived record; the readiness guard now lists it as the one unmeasured use.
+- **Fault-matrix cells.** The matrix has no `mirror` package and no `content` shape. The plan's `mirror|chatSwitch` evidence is cited under `memory|worldSwitched`; `wiEvidence|content` is not added because L7's content capture is not built.
+- **L7 R5** (combined-request regression with the lore family present) needs lore-appended variants of `continuity-combined`, `agency` and `house-rules`; not built, live-pending with Phase A.
+- **U7** uses an unmet lorebook requirement (the story's required book deselected) instead of a missing persona or member; the owner guard reads the same `ready` either way.
+- **X1 turns** are the 35 Adolion windows of `lore.json` + `lore-relevance.json` (11 ES), split over two stories by checkpoint name; the marked copy of the pool gets keys authored here (each entry's title after " - "), because the pool carries no keys.
+- **Copilot `setLoreSelect`** (`copilot/parseOps.ts`) does not carry `exclusive`, so a wizard scope edit drops the flag; the Studio toggle is the only way to set it.
+- The worktree's `node_modules` was a link to the main checkout's; one `npm install` during the merge replaced it with a local install (the main checkout's `node_modules` is untouched, 776 entries, last written 11:38). `package-lock.json` was restored.
+
+### Live-pending (none run; per rule 14 each is `x1` here, `x2` in plan 10)
+
+Lane prep: a lane (`node scripts/debug/st-lanes.mts start <n>`, then prefix commands with its env), scan mode switched on through the product confirm for the scan legs (plan 01 G-series prep), `st-session.mts reload` after the build, a run-header capture/diff around the batch.
+
+| # | What | Command |
+|---|---|---|
+| G-L1 | U1-U5, U7 (scan mode) | `node scripts/debug/so-scenario.mts run test/scenarios/live-v25-08-l1-mirror.json --sandbox --group <Arin + DM Narrator group>` |
+| G-L1 U6 | file-mode fallback | `node scripts/debug/so-scenario.mts run test/scenarios/live-memory-mirror.json --sandbox --group <group>` in FILE mode |
+| G-L2 | bindings, both modes | `... run test/scenarios/live-v25-08-l2-bindings.json --sandbox --group <group>` once in file mode, once in scan mode; the two file-mode displacement legs (a)/(b) by hand with `so-ui.mts` |
+| G-L4 P1 | privacy, scanMemory on | `... run test/scenarios/live-v25-08-l4-privacy.json --sandbox --group <J5 group>` |
+| G-L4 P2 | effect, on/off | `node scripts/debug/so-journey.mts run J3 --strict` with `worldInfo.scanMemory` off, then on, same turns |
+| G-L4 P3 | rollback | `... run test/scenarios/live-v25-08-l4-rollback.json --sandbox --group <group>` |
+| G-L5 X1/X2 | recall and noise, two arms | `... run test/scenarios/live-v25-08-l5-x1-keyword.json --sandbox --group <group>` (loreSelect on, loreExclusive off), then `live-v25-08-l5-x1-exclusive.json` (both on), same bundle |
+| G-L5 X3/X4/X6 | fallback, gated intent, sticky | `... run test/scenarios/live-v25-08-l5-fallback.json --sandbox --group <group>` |
+| G-L5 X5 | vectors WI | the same fallback file with Vectors > World Info on and a `/api/vector/` fetch recorder: refusal `vectors-wi`, 0 insert/delete calls |
+| G-L5 column | use off, story flag on | the keyword arm with a story whose `lore_select.exclusive` is true: activated set == keyword+force, 3/3 |
+| G-L6 | mirror rate (step 0 answer + rule) | `... run test/scenarios/live-v25-08-mirror-rate.json --sandbox --group <group>` in scan mode; once in file mode as the U6 comparison |
+| L6 step 0 | archived J7 replay with the sync log | replay J7 with debug logging on (`localStorage` opt-in) and read the `memory mirror sync` lines |
+| G-L7 Phase A | R1/R2/R3 | `node scripts/debug/so-judge.mts calibrate --use warden-lore --record` and `--use warden-lore-facts --fixture warden-lore`; build the runtime only if every floor holds |
+| G-L7 R4-R6 | latency, combined regression, over-steer | after plan 06 J2 closes (or as J2's `wardenLore`-on arm) and only if Phase A passes |
+| G-J | J3 x2, J7 x2 in scan mode with L1 on | `so-journey.mts run J3 --strict`, `run J7 --strict` (plan 10) |
+
+### Unresolved (the user's)
+
+- Plan 08 Q1-Q5 above (each taken as drafted, reversible).
+- Overview U1 (plan 01 Q1-Q4): scan mode's default and normalisation stay the user's; every L1/L5 path acts only when scan mode is active.
+- Whether `loreExclusive` should stay author-view only, and whether the copilot scope op should carry `exclusive`.
