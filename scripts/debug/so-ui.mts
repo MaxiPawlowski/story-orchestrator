@@ -766,6 +766,8 @@ export async function closeCharacterPanel(page) {
   });
 }
 
+const LAZY_DRAWER_TABS = ['blackboard', 'scheduler', 'payload'];
+
 export async function switchDrawerTab(page, label) {
   const drawer = page.locator('#drawer-manager');
   if (!(await drawer.count())) throw new Error('Drawer (#drawer-manager) is not mounted.');
@@ -786,6 +788,8 @@ export async function switchDrawerTab(page, label) {
     const shot = await writeScreenshot(page, 'so-ui-drawer-tab-blocked').catch(() => null);
     throw new Error(`${error instanceof Error ? error.message.split(/\r?\n/)[0] : String(error)} | layout ${JSON.stringify(layout)}${shot ? ` | screenshot ${shot}` : ''}`);
   }
+  const lazyTab = label.trim().toLowerCase();
+  if (LAZY_DRAWER_TABS.includes(lazyTab)) await drawer.locator(`[data-so-tab="${lazyTab}"]`).waitFor({ timeout: 15000 });
   const selected = await tab.first().getAttribute('aria-selected');
   return { tab: label, selected: selected === 'true' };
 }

@@ -73,7 +73,7 @@ export interface SaveRefusal { seq: number; at: number; url: string; file: strin
 const REFUSAL_RING_CAP = 50;
 const refusals: SaveRefusal[] = [];
 let refusalSeq = 0;
-(globalThis as { storyOrchestratorSaveRefusals?: SaveRefusal[] }).storyOrchestratorSaveRefusals = refusals;
+if (__SO_DEV__) (globalThis as { storyOrchestratorSaveRefusals?: SaveRefusal[] }).storyOrchestratorSaveRefusals = refusals;
 
 export const saveWatcherRefusals = (): SaveRefusal[] => refusals.slice();
 export const saveWatcherRefusalRing = (): readonly SaveRefusal[] => refusals;

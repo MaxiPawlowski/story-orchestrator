@@ -1,6 +1,7 @@
 import type { StorybookConfig } from "@storybook/react-webpack5";
 import path from "path";
 import { existsSync } from "fs";
+import { DefinePlugin } from "webpack";
 
 const stWebfonts = process.env.ST_PUBLIC ? path.resolve(process.env.ST_PUBLIC, "webfonts") : path.resolve(__dirname, "../../../../../webfonts");
 
@@ -96,6 +97,8 @@ const config: StorybookConfig = {
       ],
       use: ["style-loader", "css-loader", "postcss-loader"],
     });
+
+    cfg.plugins = [...(cfg.plugins || []), new DefinePlugin({ __SO_DEV__: JSON.stringify(false) })];
 
     return cfg;
   },

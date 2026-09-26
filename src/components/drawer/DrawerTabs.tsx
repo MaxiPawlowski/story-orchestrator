@@ -1,14 +1,22 @@
-import { useState } from "react";
+import { lazy, Suspense, useState, type ReactNode } from "react";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
 import { nextRepairStep } from "@runtime/repair";
-import DriverPanel, { type DriverController } from "./DriverPanel";
+import type { DriverController } from "./DriverPanel";
 import { MessageJumpProvider } from "./MessageCitation";
 import { OverviewTab } from "./tabs/OverviewTab";
-import { BlackboardTab } from "./tabs/BlackboardTab";
 import { MemoryTab } from "./tabs/MemoryTab";
-import { SchedulerTab } from "./tabs/SchedulerTab";
-import { PayloadTab } from "./tabs/PayloadTab";
+
+const DriverPanel = lazy(() => import("./DriverPanel"));
+const BlackboardTab = lazy(() => import("./tabs/BlackboardTab").then((module) => ({ default: module.BlackboardTab })));
+const SchedulerTab = lazy(() => import("./tabs/SchedulerTab").then((module) => ({ default: module.SchedulerTab })));
+const PayloadTab = lazy(() => import("./tabs/PayloadTab").then((module) => ({ default: module.PayloadTab })));
+
+const AuthorTab = ({ id, children }: { id: DrawerTabId; children: ReactNode }) => (
+  <Suspense key={id} fallback={null}>
+    <div data-so-tab={id}>{children}</div>
+  </Suspense>
+);
 
 export type DrawerTabId = "overview" | "blackboard" | "memory" | "scheduler" | "payload";
 
@@ -162,17 +170,23 @@ export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditSt
           onRetry={() => void manager.retryExtraction()}
           onBranchFromOldest={onBranchFromOldest}
         />}
-        {activeTab === "blackboard" && <BlackboardTab snapshot={snapshot} />}
+        {activeTab === "blackboard" && <AuthorTab id="blackboard"><BlackboardTab snapshot={snapshot} /></AuthorTab>}
         {activeTab === "memory" && <MemoryTab snapshot={snapshot} manager={manager} authorView={authorView} focusFact={focusFact} />}
-        {activeTab === "scheduler" && <SchedulerTab snapshot={snapshot} manager={manager} onOpenFact={openFact} />}
-        {activeTab === "payload" && <PayloadTab snapshot={snapshot} manager={manager} onOpenOwner={(tab) => (tab === "config" ? onOpenSettings?.() : setActive(tab))} />}
+        {activeTab === "scheduler" && <AuthorTab id="scheduler"><SchedulerTab snapshot={snapshot} manager={manager} onOpenFact={openFact} /></AuthorTab>}
+        {activeTab === "payload" && (
+          <AuthorTab id="payload">
+            <PayloadTab snapshot={snapshot} manager={manager} onOpenOwner={(tab) => (tab === "config" ? onOpenSettings?.() : setActive(tab))} />
+          </AuthorTab>
+        )}
       </div>
       {activeTab === "overview" && <StoryControls snapshot={snapshot} manager={manager} onEditStory={onEditStory} onOpenRepair={onOpenRepair} onNewStory={onNewStory} />}
       {/* The driver steers the story — Suggest/Probe/Advance/Nudge are author tools by D1, never
           part of the player surface, whatever the copilot setting says. */}
       {snapshot.copilot.enabled && authorView && (
         <div className="border-t border-solid border-white/10 pt-2">
-          <DriverPanel context={driver.context} checkpoints={snapshot.checkpoints} activeNudge={driver.activeNudge} controller={driver.controller} authorView={authorView} agency={snapshot.agency} />
+          <Suspense fallback={null}>
+            <DriverPanel context={driver.context} checkpoints={snapshot.checkpoints} activeNudge={driver.activeNudge} controller={driver.controller} authorView={authorView} agency={snapshot.agency} />
+          </Suspense>
         </div>
       )}
     </div>

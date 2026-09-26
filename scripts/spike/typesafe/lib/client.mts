@@ -4,10 +4,11 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { debugDirFor } from '../../../debug/lib/connection.mts';
 
 export const SPIKE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const PROJECT_ROOT = resolve(SPIKE_ROOT, '..', '..', '..');
-export const OUT_ROOT = join(PROJECT_ROOT, '.debug', 'typesafe-spike');
+export const OUT_ROOT = join(debugDirFor(process.env, PROJECT_ROOT), 'typesafe-spike');
 export const KEY_FILE = join(homedir(), '.typesafe', 'api-key', '.env');
 export const MODEL = process.env.TYPESAFE_DEFAULT_MODEL ?? 'jev-latest';
 export const API_URL = `${(process.env.TYPESAFE_BASE_URL ?? 'https://api.typesafe.ai').replace(/\/$/, '')}/v1/systemone`;

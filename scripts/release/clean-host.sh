@@ -16,7 +16,7 @@ set -uo pipefail
 EXT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ST_REPO="${ST_REPO:-https://github.com/SillyTavern/SillyTavern.git}"
 ST_REF="${ST_REF:-}"
-GATES="typecheck,lint,test,build,release"
+GATES="typecheck,typecheck-test,lint,test,build,build-dev,release,debug,plugin,storybook"
 KEEP=0
 STORE=""
 
@@ -33,7 +33,7 @@ done
 # The logs are release evidence, so they live under the extension version they were run against
 # (v2.3 plan 08: `docs/release/<version>/`).
 # `node -p require(...)` cannot resolve a Git Bash `/c/...` path, so the version is read with sed.
-VERSION="$(grep -m1 '"version"' "$EXT_DIR/package.json" | sed 's/[^0-9.]//g')"
+VERSION="$(grep -m1 '"version"' "$EXT_DIR/package.json" | sed -E 's/.*"version": *"([^"]+)".*/\1/')"
 [ -n "$VERSION" ] || VERSION="unknown"
 [ -n "$STORE" ] || STORE="$EXT_DIR/docs/release/$VERSION/clean-host"
 # Absolute from here on. The gates run from the clone, and a relative --store would then write the
@@ -76,7 +76,7 @@ mkdir -p "$(dirname "$TARGET")"
 # The extension is copied WITHOUT node_modules, dist and .debug: a clean host has none of them, and
 # copying dist would defeat the build gate by handing it a bundle it did not make.
 say "== copy extension =="
-tar -C "$EXT_DIR" --exclude=node_modules --exclude=dist --exclude=.debug --exclude=.sb-static --exclude=.git -cf - . | tar -C "$(mkdir -p "$TARGET" && echo "$TARGET")" -xf - >>"$LOG" 2>&1
+tar -C "$EXT_DIR" --exclude=node_modules --exclude=dist --exclude=dist-dev --exclude=.debug --exclude=.sb-static --exclude=.git -cf - . | tar -C "$(mkdir -p "$TARGET" && echo "$TARGET")" -xf - >>"$LOG" 2>&1
 
 if [ -n "${ST_PUBLIC:-}" ]; then say "ST_PUBLIC was set in the environment; unsetting it for the gates"; unset ST_PUBLIC; fi
 
@@ -96,10 +96,14 @@ run_gate() {
 run_gate "npm ci" npm ci --no-audit --no-fund --cache "$WORK/npm-cache"
 
 case ",$GATES," in *,typecheck,*) run_gate "typecheck" npm run typecheck ;; esac
+case ",$GATES," in *,typecheck-test,*) run_gate "typecheck:test" npm run typecheck:test ;; esac
 case ",$GATES," in *,lint,*) run_gate "lint" npm run lint ;; esac
 case ",$GATES," in *,test,*) run_gate "test" npm test ;; esac
 case ",$GATES," in *,build,*) run_gate "build" npm run build ;; esac
+case ",$GATES," in *,build-dev,*) run_gate "build:dev" npm run build:dev ;; esac
 case ",$GATES," in *,release,*) run_gate "test:release" npm run test:release ;; esac
+case ",$GATES," in *,debug,*) run_gate "test:debug" npm run test:debug ;; esac
+case ",$GATES," in *,plugin,*) run_gate "test:plugin" npm run test:plugin ;; esac
 case ",$GATES," in *,storybook,*) run_gate "test-storybook:ci" npm run test-storybook:ci ;; esac
 
 # The record: what host this was, what the extension was, and which of its host seams have moved.

@@ -124,6 +124,31 @@ Registered via `MacrosParser` and auto-updated from the active story:
   — **author-only** (`extract`/`expand` are debug verbs).
 - `/so-mem list | pin <id> on|off | exclude <id> | backlog`
 
+## Judge recommended configuration
+
+The judge (a TypeSafe System One model behind the optional `story-orchestrator-judge` server plugin)
+ships with **every use off**. This is advice for someone who opts in. Every rate below was measured on
+`jev-1.13.0`; on any other model the settings panel reads the use as unproven.
+
+| Use | Recommendation |
+|---|---|
+| `stallCheck` | Recommended. |
+| `variants` / `expansionLookahead` / `lookahead` | Recommended where prepare-ahead is wanted. |
+| `memoryVerify` | Recommended. |
+| `continuity` (warden) | Recommended in `review` mode. |
+| `expansionCritic` | Recommended. |
+| `sceneTrigger` / `sceneTracker` | Recommended. Off the reply path. |
+| `curatorFilter` | Recommended once a curator scope exceeds about 40 entries. |
+| `director` | Recommended only when every candidate has an authored `roster[].role`. |
+| `memoryPairs` | Recommended. |
+| `loreSelect` | Recommended with a known weakness: it ranks by a compressed probability, so which entries win the top slots is weaker than the rate suggests. |
+| `typedExtraction` | Recommended. Needs authored `read_as` hints to do anything. |
+| `agencyCheck` (warden family) | Author view only; `review` mode recommended. |
+| `houseRules` (warden family) | Author view only; needs authored `house_rules`. Write objective rules, one demand each. |
+
+The two reply-path uses (`director`, `loreSelect`) fit their 1500 ms budget at the median; a slow judge
+still delays a turn before either falls back. Every other use is off the reply path.
+
 ## Extraction timing
 
 Accepted blackboard deltas apply at the **next** turn boundary (one transition per boundary, by
@@ -135,8 +160,20 @@ beats land without waiting for cadence — give your decisive transitions a cue.
 ## Development
 
 - `npm run typecheck && npm run lint && npm test` — pure/harness gate.
-- `npm run build` — production bundle + `dist/manifest.json`. `npm run test:release` checks the
-  manifest against the bytes it describes (bundle hash, stable source hash, capability list).
+- `npm run build` — the **prod** bundle into `dist/` + `dist/manifest.json` (`flavor: "prod"`): no
+  `storyOrchestrator*` debug handles or response overrides, main entry within 1 250 000 bytes (the
+  build fails over it). `npm run build:dev` writes the **dev** bundle, with every handle, to `dist-dev/`,
+  which SillyTavern never loads (`manifest.json` names `dist/index.js`). `npm run test:release` checks
+  both manifests against the bytes they describe and refuses a dev build in `dist/`.
+- The live harness (`so-journey`, `so-scenario`, `st-lanes batch`) needs the dev build served:
+  `npm run build:dev && npm run serve:dev` copies `dist-dev/` into `dist/`, then
+  `node scripts/debug/st-session.mts reload`. `npm run build` puts the prod build back.
+- `npm run package` — the release artifact: allowlisted files only (`scripts/release/artifact-allowlist.json`),
+  `release/story-orchestrator-<version>/` + `release-manifest.json` + a zip; refuses a dirty tree.
+  `npm run stage -- --st-root <SillyTavern> [--flavor dev]` installs that tree into a SillyTavern's
+  extension slot and refuses a slot holding a source checkout. `npm run notices` regenerates
+  `THIRD-PARTY-NOTICES.md` from the prod module list; `npm run inventory -- --data-root <data>/<user>`
+  lists what the extension owns in a data root, read-only.
 - `npm run storybook` / `npm run test-storybook:ci` — UI, with the runner invoked by path so it
   works on Windows shells and in CI.
 - `npm run test:debug` / `npm run test:plugin` / `npm run test:release` — the harness, the judge

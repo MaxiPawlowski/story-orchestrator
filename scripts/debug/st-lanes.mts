@@ -1,8 +1,9 @@
 import { execFile, spawn } from 'node:child_process';
 import { cp, mkdir, open, readFile, readdir, rm, writeFile } from 'node:fs/promises';
-import { createWriteStream, existsSync } from 'node:fs';
+import { createWriteStream, existsSync, readFileSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
 import { PROJECT_ROOT } from './lib/connection.mts';
+import { diskFlavourIssue } from './lib/bundleFlavour.mts';
 
 const USAGE = `Usage: node scripts/debug/st-lanes.mts <command> [...]
 
@@ -187,6 +188,17 @@ async function batch(lanes: number[], items: string[], repeat: number, strict: b
   return { summary, green: results.filter((result) => result.code === 0).length, runs: results.length };
 }
 
+export const SERVED_EXTENSION_DIR = resolve(ST_ROOT, 'public', 'scripts', 'extensions', 'third-party', 'story-orchestrator');
+
+export const lanePreflight = (extensionDir: string = SERVED_EXTENSION_DIR): string | null => {
+  const path = resolve(extensionDir, 'dist', 'manifest.json');
+  try {
+    return diskFlavourIssue(existsSync(path) ? JSON.parse(readFileSync(path, 'utf-8')) : null);
+  } catch {
+    return diskFlavourIssue(null);
+  }
+};
+
 export const batchExitCode = (out: { green: number; runs: number }): number => (out.runs > 0 && out.green === out.runs ? 0 : 1);
 
 async function main() {
@@ -210,6 +222,8 @@ async function main() {
     const lanes = String(argValue('--lanes', '1')).split(',').map(Number).filter(Boolean);
     const flags = new Set(['--lanes', '--repeat', '--group', '--wi-gating']);
     const items = rest.filter((arg, index) => !arg.startsWith('--') && !flags.has(rest[index - 1] ?? ''));
+    const refused = lanePreflight();
+    if (refused) throw new Error(`batch refused: ${refused}`);
     const result = await batch(lanes, items, Number(argValue('--repeat', '1')), rest.includes('--strict'), argValue('--group'), argValue('--wi-gating'));
     process.exitCode = batchExitCode(result);
     out = result;

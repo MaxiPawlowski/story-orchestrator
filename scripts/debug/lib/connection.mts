@@ -6,13 +6,18 @@ import { resolve, dirname, relative, isAbsolute } from 'node:path';
 const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 
 // v2.3 plan 11's concurrent-load ingredient: two isolated browser sessions, each with its own CDP
-// port AND its own artifact directory, because two processes sharing one `.debug/` also share
-// `session.json` (the second `st-session start` overwrites the first's record), the journey config
-// snapshot and the asset baseline — so the second run's cleanup can read the first's state. Unset
-// means the historical `.debug/`, so every existing recipe and path is unchanged.
+// port AND its own artifact directory, because two processes sharing one debug dir also share
+// `session.json`, the journey config snapshot and the asset baseline. v2.5 plan 12 P3: unset means
+// lane 0 (`<so-lanes>/0/debug`), outside ST's public/, because run logs, journals and payload
+// captures hold chat text and ST serves everything under public/.
+const lanesRootFor = (env: NodeJS.ProcessEnv, root: string): string => {
+  const configured = String(env.SO_LANES_ROOT ?? "").trim();
+  return configured ? resolve(configured) : resolve(root, "..", "..", "..", "..", "..", "..", "so-lanes");
+};
+
 export function debugDirFor(env: NodeJS.ProcessEnv, root: string = PROJECT_ROOT): string {
   const configured = String(env.SO_DEBUG_DIR ?? "").trim();
-  return configured ? resolve(root, configured) : resolve(root, ".debug");
+  return configured ? resolve(root, configured) : resolve(lanesRootFor(env, root), "0", "debug");
 }
 
 export function browserProfileFor(env: NodeJS.ProcessEnv, debugDir: string, root: string = PROJECT_ROOT): string {
@@ -21,9 +26,9 @@ export function browserProfileFor(env: NodeJS.ProcessEnv, debugDir: string, root
   const stRoot = resolve(root, "..", "..", "..", "..", "..");
   const fromServed = relative(resolve(stRoot, "public"), debugDir);
   const served = fromServed !== "" && !fromServed.startsWith("..") && !isAbsolute(fromServed);
-  if (!served) return resolve(debugDir, "chromium-profile");
-  const lanesRoot = String(env.SO_LANES_ROOT ?? "").trim();
-  return resolve(lanesRoot ? resolve(lanesRoot) : resolve(stRoot, "..", "so-lanes"), "0", "chromium-profile");
+  const laneZero = resolve(lanesRootFor(env, root), "0");
+  if (!served && debugDir !== resolve(laneZero, "debug")) return resolve(debugDir, "chromium-profile");
+  return resolve(laneZero, "chromium-profile");
 }
 
 const DEBUG_DIR = debugDirFor(process.env);
@@ -217,7 +222,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       console.log(`Connected. Page title: "${title}"`);
       console.log(`Page URL: ${page.url()}`);
       console.log(`Mode: ${result.attached ? 'attached session' : 'ephemeral browser'}`);
-      console.log(`.debug/ directory: ${DEBUG_DIR}`);
+      console.log(`debug directory: ${DEBUG_DIR}`);
     } catch (err) {
       console.error('Connection failed:', err instanceof Error ? err.message : String(err));
       process.exitCode = 1;

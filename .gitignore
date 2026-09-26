@@ -11,6 +11,9 @@
 # production
 /build
 /dist
+/dist-dev
+/release
+/.build
 /.sb-static
 /storybook-static
 

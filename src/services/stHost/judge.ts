@@ -51,7 +51,7 @@ export const judgeTransport: JudgeTransport = async (request: JudgeRequest, opti
   try {
     const response = await fetch(`${JUDGE_PLUGIN_BASE}/systemone`, {
       method: "POST",
-      headers: headers(),
+      headers: { ...headers(), "Content-Type": "text/plain;charset=UTF-8", "X-SO-Plugin": "1" },
       body: JSON.stringify(request),
       signal: controller.signal,
     });

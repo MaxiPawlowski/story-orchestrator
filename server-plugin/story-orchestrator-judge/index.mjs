@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-export const PLUGIN_VERSION = '1.0.0';
+export const PLUGIN_VERSION = '1.1.0';
 export const SECRET_KEY = 'typesafe_api_key';
 export const DEFAULT_MODEL = 'jev-1.13.0';
 export const MAX_CHOICE_OPTIONS = 255;
@@ -13,6 +13,11 @@ export const MAX_REQUEST_CHARS = 140_000;
 export const MAX_ESTIMATED_TOKENS = Math.floor(32_768 * 0.9);
 export const CHARS_PER_TOKEN = 3.488;
 export const UPSTREAM_TIMEOUT_MS = 10_000;
+export const PERMITTED_MODELS = Object.freeze(['jev-1.13.0', 'jev-latest', 'jev-preview']);
+export const MAX_BODY_BYTES = MAX_REQUEST_CHARS * 4;
+export const MAX_IN_FLIGHT_PER_USER = 2;
+export const MAX_CALLS_PER_MINUTE_PER_USER = 60;
+export const PLUGIN_HEADER = 'x-so-plugin';
 const RETRY_STATUSES = new Set([429, 529]);
 const RETRY_DELAY_MS = 600;
 const DOTENV_FILE = path.join(os.homedir(), '.typesafe', 'api-key', '.env');
@@ -137,8 +142,60 @@ async function callUpstream(key, payload, fetchImpl) {
     return last;
 }
 
-export function createHandlers({ fetchImpl = globalThis.fetch } = {}) {
-    return {
+const refusal = (status, error) => ({ status, error });
+const header = (request, name) => {
+    const value = request?.headers?.[name];
+    return typeof value === 'string' && value.length ? value : null;
+};
+
+export function guardRequest(request) {
+    if (header(request, PLUGIN_HEADER) !== '1') return refusal(403, `missing ${PLUGIN_HEADER} header`);
+    const site = header(request, 'sec-fetch-site');
+    if (site && site !== 'same-origin') return refusal(403, `cross-origin call (sec-fetch-site: ${site})`);
+    const origin = header(request, 'origin');
+    if (origin) {
+        let originHost = null;
+        try { originHost = new URL(origin).host; } catch { originHost = null; }
+        if (originHost !== header(request, 'host')) return refusal(403, 'foreign origin');
+    }
+    return null;
+}
+
+export async function readTextBody(request, limit = MAX_BODY_BYTES) {
+    if (isRecord(request?.body) && Object.keys(request.body).length) return refusal(415, 'send the request as text/plain');
+    if (!/^text\/plain\b/i.test(header(request, 'content-type') ?? '')) return refusal(415, 'send the request as text/plain');
+    const chunks = [];
+    let size = 0;
+    for await (const chunk of request) {
+        size += chunk.length;
+        if (size > limit) return refusal(413, `request body is over ${limit} bytes`);
+        chunks.push(chunk);
+    }
+    try {
+        return { body: JSON.parse(Buffer.concat(chunks).toString('utf8')) };
+    } catch {
+        return refusal(400, 'request body is not JSON');
+    }
+}
+
+export function createLimiter({ maxInFlight = MAX_IN_FLIGHT_PER_USER, perMinute = MAX_CALLS_PER_MINUTE_PER_USER, now = Date.now } = {}) {
+    const users = new Map();
+    return (handle) => {
+        const user = users.get(handle) ?? { inFlight: 0, stamps: [] };
+        users.set(handle, user);
+        const at = now();
+        user.stamps = user.stamps.filter((stamp) => at - stamp < 60_000);
+        if (user.inFlight >= maxInFlight) return null;
+        if (user.stamps.length >= perMinute) return null;
+        user.inFlight += 1;
+        user.stamps.push(at);
+        return () => { user.inFlight -= 1; };
+    };
+}
+
+export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now } = {}) {
+    const acquire = createLimiter({ now });
+    const handlers = {
         async status(request, response) {
             const resolved = await resolveKey(request);
             return response.json({ configured: Boolean(resolved), keySource: resolved?.source ?? null, model: DEFAULT_MODEL, pluginVersion: PLUGIN_VERSION });
@@ -148,17 +205,33 @@ export function createHandlers({ fetchImpl = globalThis.fetch } = {}) {
             if (issues.length) return response.status(400).json({ error: 'invalid request', issues });
             const resolved = await resolveKey(request);
             if (!resolved) return response.status(409).json({ configured: false, error: 'no TypeSafe API key configured' });
-            const payload = { state: request.body.state, questions: request.body.questions, model: typeof request.body.model === 'string' && request.body.model.trim() ? request.body.model.trim() : DEFAULT_MODEL };
+            const model = typeof request.body.model === 'string' && request.body.model.trim() ? request.body.model.trim() : DEFAULT_MODEL;
+            if (!PERMITTED_MODELS.includes(model)) return response.status(400).json({ error: `model not permitted: ${model}`, permitted: PERMITTED_MODELS });
+            const payload = { state: request.body.state, questions: request.body.questions, model };
             const upstream = await callUpstream(resolved.key, payload, fetchImpl);
             response.status(upstream.status).type('application/json').send(upstream.text);
         },
+        async receive(request, response) {
+            const blocked = guardRequest(request);
+            if (blocked) return response.status(blocked.status).json({ error: blocked.error });
+            const read = await readTextBody(request);
+            if (read.error) return response.status(read.status).json({ error: read.error });
+            const release = acquire(request?.user?.profile?.handle ?? 'default-user');
+            if (!release) return response.status(429).json({ error: 'too many judge calls for this user; retry shortly' });
+            try {
+                return await handlers.systemone({ ...request, headers: request.headers, user: request.user, body: read.body }, response);
+            } finally {
+                release();
+            }
+        },
     };
+    return handlers;
 }
 
 export async function init(router) {
     const handlers = createHandlers();
     router.get('/status', (request, response) => { void handlers.status(request, response); });
-    router.post('/systemone', (request, response) => { void handlers.systemone(request, response); });
+    router.post('/systemone', (request, response) => { void handlers.receive(request, response); });
     const resolved = await resolveKey(null);
     console.log(`[story-orchestrator-judge] loaded; key from ${resolved?.source ?? 'ST secrets (per user) or not configured'}`);
 }

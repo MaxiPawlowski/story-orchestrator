@@ -22,6 +22,7 @@ import { leakCount, listMarkedAssets, removeMarkedAssets } from './so-assets.mts
 import { cleanupSoloChats, restoreActiveEntity, soloChat, withoutSoloChats } from './lib/soloSandbox.mts';
 import { applyExtSetting, cutCommand, emitGeneration, expectOverSteer, expectStateEquals, hostDelete, injectScript, recordState, restoreExtSettings } from './lib/interopVerbs.mts';
 import { branchCreate, cleanupBranchChats, expectNextReadWindow, expectRollbackOutcome, settleReapPrompts, withoutBranchChats } from './lib/identityVerbs.mts';
+import { assertDevBundle } from './lib/bundleFlavour.mts';
 
 const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep] [--group <id|name>]
 
@@ -1177,6 +1178,7 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
   const scenario = await loadFixture(scenarioPath);
   const steps = Array.isArray(scenario) ? scenario : scenario.steps;
   if (!Array.isArray(steps)) throw new Error('Scenario must be an array or { steps: [] }.');
+  await assertDevBundle(page);
   const importedHashes = [];
   let guard = null;
   let result: Record<string, unknown> = { file, steps: [], ok: true, cleanup: null };

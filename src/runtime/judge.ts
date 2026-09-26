@@ -1,14 +1,5 @@
 import {
-  askJudge, modelVerdict, runWardenRescore, WARDEN_RESCORE_USES, type WardenRescoreUse, type WardenRescoreRow,
-  runAgencyCalibration, type AgencyCase, runHouseRuleCalibration, type HouseRuleCase, runCombinedContinuityCalibration, runWardenLoreCalibration, type WardenLoreCase,
-  isCombinedCase, type CombinedContinuityCase, type RescoreResult, buildDirectorRequest, runJudgeDirectorSelfTest,
-  runMemoryPairsCalibration, runMemoryVerifyCalibration, runSceneCalibration, type SceneCalibrationCase, runContradictionReleaseCalibration, type ContradictionReleaseCase,
-  scoreReleasePhaseA, type ReleasePhaseAVerdict,
-  runLoreCalibration, type LoreCalibrationCase, runLoreRelevanceCalibration, type LoreRelevanceReport,
-  runCuratorFilterCalibration, type CuratorFilterCase, runContinuityCalibration, type ContinuityCase,
-  runBackgroundCalibration, type BackgroundCase, runTypedCalibration, type TypedCase, runStallCalibration,
-  type StallCase, runCriticCalibration, type CriticCase, runVariantCalibration, type VariantStub, type MemoryPairCase,
-  type MemoryVerifyCase, type JudgeSelfTestCase, type JudgeSelfTestReport, decideDirector, directorJudgeEligible,
+  askJudge, modelVerdict, buildDirectorRequest, decideDirector, directorJudgeEligible,
   directorRecordP, judgeUseActive, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord,
   type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeRequest, type JudgeResponse,
   type JudgeResult, type JudgeSettings, type JudgeTransport, type JudgeUseKey,
@@ -82,50 +73,6 @@ export class JudgeRuntime {
   probe(request: JudgeRequest, model = this.deps.getSettings().model): Promise<JudgeResult> {
     const settings = this.deps.getSettings();
     return askJudge(this.deps.transport, { ...request, model }, { timeoutMs: Math.max(settings.timeoutMs, JUDGE_PROBE_TIMEOUT_MS) });
-  }
-
-  /**
-   * The two-arm lore comparison. Its own report shape, because there are two
-   * metric sets and a verdict per arm rather than one pass/fail.
-   */
-  calibrateLoreRelevance(cases: unknown[], model?: string): Promise<LoreRelevanceReport> {
-    return runLoreRelevanceCalibration((request) => this.probe(request, model), cases as never);
-  }
-
-  // so-judge calibrate: the page → plugin → API path over a fixture set, recorded nowhere.
-  calibrate(use: string, cases: unknown[], model?: string): Promise<JudgeSelfTestReport> {
-    const ask = (request: JudgeRequest) => this.probe(request, model);
-    if (use === "director") return runJudgeDirectorSelfTest(ask, cases as JudgeSelfTestCase[]);
-    if (use === "memory-verify") return runMemoryVerifyCalibration(ask, cases as MemoryVerifyCase[]);
-    if (use === "memory-pairs") return runMemoryPairsCalibration(ask, cases as MemoryPairCase[]);
-    if (use === "contradiction-release") return runContradictionReleaseCalibration(ask, cases as ContradictionReleaseCase[]);
-    if (use === "scene") return runSceneCalibration(ask, cases as SceneCalibrationCase[]);
-    if (use === "lore") return runLoreCalibration(ask, cases as LoreCalibrationCase[]);
-    if (use === "curator-filter") return runCuratorFilterCalibration(ask, cases as CuratorFilterCase[]);
-    if (use === "continuity") return (cases as CombinedContinuityCase[]).some(isCombinedCase) ? runCombinedContinuityCalibration(
-      ask,
-      cases as CombinedContinuityCase[],
-    ) : runContinuityCalibration(ask, cases as ContinuityCase[]);
-    if (use === "agency") return runAgencyCalibration(ask, cases as AgencyCase[]);
-    if (use === "house-rules") return runHouseRuleCalibration(ask, cases as HouseRuleCase[]);
-    if (use === "warden-lore") return runWardenLoreCalibration(ask, cases as WardenLoreCase[]);
-    if (use === "warden-lore-facts") return runWardenLoreCalibration(ask, cases as WardenLoreCase[], "facts");
-    if (use === "typed") return runTypedCalibration(ask, cases as TypedCase[]);
-    if (use === "stall") return runStallCalibration(ask, cases as StallCase[]);
-    if (use === "critic") return runCriticCalibration(ask, cases as CriticCase[]);
-    if (use === "variants") return runVariantCalibration(ask, cases as VariantStub[]);
-    if (use === "backgrounds") return runBackgroundCalibration(ask, (cases as Array<BackgroundCase & { installed?: string[] }>), (cases as Array<{ installed?: string[] }>)[0]?.installed ?? []);
-    return Promise.reject(new Error(`no calibration for judge use '${use}' yet`));
-  }
-
-  // So-judge rescore — both arms of a judge-off control scored by one question.
-  rescore(use: string, rows: WardenRescoreRow[], model?: string): Promise<RescoreResult[]> {
-    if ((WARDEN_RESCORE_USES as readonly string[]).includes(use)) return runWardenRescore((request) => this.probe(request, model), use as WardenRescoreUse, rows);
-    return Promise.reject(new Error(`no rescore for judge use '${use}' yet`));
-  }
-
-  scoreContradictionRelease(report: Pick<JudgeSelfTestReport, "rows">, cases: ContradictionReleaseCase[], modes: Record<string, readonly string[] | null>): ReleasePhaseAVerdict {
-    return scoreReleasePhaseA(report, cases, modes);
   }
 
   // So-judge reads the verdict here, so the harness and the page share one map.

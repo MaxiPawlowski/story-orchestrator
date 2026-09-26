@@ -358,6 +358,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   }
 
   attachJudge(judge: JudgeRuntime) { this.judge = judge; }
+  getJudge(): JudgeRuntime | null { return this.judge; }
   private sceneRunner: { rerun(): Promise<unknown> } | null = null;
   attachScene(scene: { rerun(): Promise<unknown> } | null) { this.sceneRunner = scene; }
   readonly previewActions = { clearNote: () => this.stagecraft.clearContinuityNote(), rerunScene: async () => { await this.sceneRunner?.rerun(); } };
