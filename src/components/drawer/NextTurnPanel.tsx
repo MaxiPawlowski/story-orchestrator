@@ -48,7 +48,9 @@ const PromptBucketsLine = ({ state }: { state: PromptBucketState | undefined }) 
     <div data-so="next-turn-buckets" data-state={state.matches ? "matches" : "mismatch"} className="opacity-80">
       {promptBucketsText(state)}
       {state.oursExceedsHistory && (
-        <div data-so="next-turn-buckets-tokenizers" className="text-yellow-300">Story Orchestrator&apos;s count is larger than ST&apos;s chat history: the two counts come from different tokenizers, so read ours as an estimate.</div>
+        <div data-so="next-turn-buckets-tokenizers" className="text-yellow-300">
+          Story Orchestrator&apos;s count is larger than ST&apos;s chat history: the two counts come from different tokenizers, so read ours as an estimate.
+        </div>
       )}
     </div>
   );

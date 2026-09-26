@@ -711,6 +711,36 @@
       "silentCatch": "probe",
       "verdict": "pass",
       "reason": "host list read falls back to an empty list"
+    },
+    {
+      "site": "src/services/stHost/macroEngine.ts#engine",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host context unreadable: no new macro engine, the capability row says so"
+    },
+    {
+      "site": "src/services/stHost/promptBuckets.ts#readPromptBuckets",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "becomes a typed refusal the next-turn header states"
+    },
+    {
+      "site": "src/services/stHost/promptBucketsParse.ts#parsePromptBuckets",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "becomes a typed refusal the next-turn header states"
     }
   ]
 }

@@ -8,7 +8,9 @@ interface PromptManagerLike {
 const CHAT_COMPLETION_API = "openai";
 
 export function parsePromptBuckets(mainApi: unknown, manager: unknown): PromptBucketsRead {
-  if (String(mainApi ?? "").trim().toLowerCase() !== CHAT_COMPLETION_API) return { ok: false, reason: "the main API is not Chat Completion, and ST keeps prompt buckets only there", notChatCompletion: true };
+  if (String(mainApi ?? "").trim().toLowerCase() !== CHAT_COMPLETION_API) {
+    return { ok: false, reason: "the main API is not Chat Completion, and ST keeps prompt buckets only there", notChatCompletion: true };
+  }
   const promptManager = manager as PromptManagerLike | null;
   if (!promptManager || typeof promptManager !== "object") return { ok: false, reason: "ST has no Chat Completion prompt manager yet" };
   const getCounts = promptManager.tokenHandler?.getCounts;

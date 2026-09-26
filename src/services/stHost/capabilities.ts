@@ -100,7 +100,16 @@ const wiScanGatingProbe: Probe = async () => {
   }
 };
 
-const PROBES: Record<CapabilityId, Probe> = { macros: macrosProbe, macroArgs: macroArgsProbe, slashCommands: slashCommandsProbe, backgrounds: backgroundsProbe, vectors: vectorsProbe, judge: judgeProbe, contextBudget: contextBudgetProbe, wiScanGating: wiScanGatingProbe };
+const PROBES: Record<CapabilityId, Probe> = {
+  macros: macrosProbe,
+  macroArgs: macroArgsProbe,
+  slashCommands: slashCommandsProbe,
+  backgrounds: backgroundsProbe,
+  vectors: vectorsProbe,
+  judge: judgeProbe,
+  contextBudget: contextBudgetProbe,
+  wiScanGating: wiScanGatingProbe,
+};
 
 export const CAPABILITY_IDS = Object.keys(PROBES) as CapabilityId[];
 

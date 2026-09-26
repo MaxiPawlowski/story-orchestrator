@@ -47,7 +47,9 @@ const GateReplayPanel: React.FC<{ index: number }> = ({ index }) => {
       ) : null}
       {cut !== null ? (
         <div data-so="gate-replay-cut" className="st-muted">
-          {result.divergesAt !== null ? `Valid up to boundary ${cut}: the draft would have moved the story differently there.` : `Valid before boundary ${cut}: a manual activation changed the path there.`}
+          {result.divergesAt !== null
+            ? `Valid up to boundary ${cut}: the draft would have moved the story differently there.`
+            : `Valid before boundary ${cut}: a manual activation changed the path there.`}
         </div>
       ) : null}
       {qualitiesEdited ? (
