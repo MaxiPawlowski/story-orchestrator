@@ -24,4 +24,5 @@ module.exports = {
   },
   reporters: ["default", "<rootDir>/scripts/jest-findings-reporter.cjs"],
   clearMocks: true,
+  globals: { __SO_DEV__: true },
 };

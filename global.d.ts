@@ -37,6 +37,7 @@ declare global {
     toastr?: CustomToastr;
   }
 
+  var __SO_DEV__: boolean;
   var talkControlInterceptor: TalkControlInterceptor | undefined;
   var storyOrchestratorRuntime: import("@runtime/index").RuntimeManager | undefined;
   var storyOrchestratorStudioDraft: typeof import("./src/studio/draft").useDraftStore | undefined;

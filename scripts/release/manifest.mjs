@@ -12,10 +12,14 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { FLAVOURS } from "./buildChecks.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..", "..");
-const dist = join(root, "dist");
+const argValue = (name) => { const index = process.argv.indexOf(name); return index > 0 ? process.argv[index + 1] : undefined; };
+const flavor = argValue("--flavor") ?? "prod";
+if (!(flavor in FLAVOURS)) throw new Error(`unknown --flavor ${flavor}: expected one of ${Object.keys(FLAVOURS).join(", ")}`);
+const dist = join(root, argValue("--out") ?? FLAVOURS[flavor]);
 const OUT = join(dist, "manifest.json");
 
 const sha256 = (buffer) => createHash("sha256").update(buffer).digest("hex");
@@ -90,16 +94,20 @@ const revision = (cwd) => {
 const pkg = readJson(join(root, "package.json"));
 const stPkg = existsSync(join(stRoot, "package.json")) ? readJson(join(stRoot, "package.json")) : null;
 const bundle = join(dist, "index.js");
-if (!existsSync(bundle)) throw new Error("dist/index.js is missing — run this after webpack, not instead of it");
+if (!existsSync(bundle)) throw new Error(`${relative(root, bundle)} is missing — run this after webpack, not instead of it`);
+
+const emitted = readdirSync(dist).filter((name) => name !== "manifest.json" && statSync(join(dist, name)).isFile()).sort()
+  .map((name) => ({ path: name, sha256: sha256(readFileSync(join(dist, name))), bytes: statSync(join(dist, name)).size }));
 
 const manifest = {
   kind: "build-manifest",
+  flavor,
   extension: { name: pkg.name, version: pkg.version, revision: revision(root) },
   builtAt: new Date().toISOString(),
   bundle: { path: "dist/index.js", sha256: sha256(readFileSync(bundle)), bytes: statSync(bundle).size },
+  files: emitted,
   source: { algorithm: "sha256", files: sourceManifest.split("\n").length, sha256: sha256(sourceManifest) },
   host: {
-    root: stRoot,
     version: stPkg?.version ?? null,
     commit: process.env.ST_COMMIT ?? revision(stRoot)?.commit ?? null,
     files: hostFiles(),
