@@ -1,0 +1,4 @@
+DELTA q=courier_found value=true evidence="Rook digs out the courier, alive but half frozen"
+MEMORY type=event importance=3 expiration=permanent entity="Rook" text="Rook found the courier alive in the high pass with the treaty still sealed." evidence="the treaty still sealed in its case"
+SCENE_NONE
+[resolved] Find the missing courier and the treaty before the pass snows shut

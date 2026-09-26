@@ -1,0 +1,26 @@
+{
+  "deltas": [
+    {
+      "q": "courier_missing",
+      "v": true,
+      "evidence": "Our courier never arrived"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [],
+    "mustNotContain": [
+      "courier is dead"
+    ]
+  },
+  "arcs": {
+    "minCount": 1,
+    "mustContain": [
+      "courier"
+    ],
+    "mustNotContain": [
+      "resolved"
+    ]
+  }
+}

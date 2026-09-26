@@ -1,0 +1,30 @@
+{
+  "spec": {
+    "openArcs": [
+      "Find the missing courier and the treaty before the pass snows shut"
+    ]
+  },
+  "deltas": [
+    {
+      "q": "courier_found",
+      "v": true,
+      "evidence": "Rook digs out the courier"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [],
+    "mustNotContain": [
+      "treaty was lost"
+    ]
+  },
+  "arcs": {
+    "minCount": 1,
+    "mustContain": [
+      "resolved",
+      "courier"
+    ],
+    "mustNotContain": []
+  }
+}

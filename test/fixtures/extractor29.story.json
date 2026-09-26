@@ -1,0 +1,49 @@
+{
+  "format": 2,
+  "title": "Found Courier",
+  "description": "v2.5 plan 05 F2 arcs fixture: an existing open thread is explicitly closed.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "courier_found",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the missing courier been found?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Search the pass.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Return to the garrison.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "q": "courier_found",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": []
+}

@@ -1,0 +1,33 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true,
+    "entities": [
+      "Brann"
+    ]
+  },
+  "deltas": [
+    {
+      "q": "cellar_reached",
+      "v": true,
+      "evidence": "In the cellar Brann bars the trapdoor behind him"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [],
+    "mustNotContain": [
+      "Brann is dead"
+    ]
+  },
+  "ledger": {
+    "minCount": 1,
+    "mustContain": [
+      "Brann",
+      "cellar"
+    ],
+    "mustNotContain": [
+      "unknown"
+    ]
+  }
+}

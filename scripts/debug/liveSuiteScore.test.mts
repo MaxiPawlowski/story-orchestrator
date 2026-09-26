@@ -4,6 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreContains, scoreRejected, suiteVerdict, tierTotals, type FixtureScore } from './lib/liveSuiteScore.mts';
 
@@ -144,4 +145,31 @@ test('replayed on the v2.3 record, the rejected tier reads 14 of 15 and meets it
   assert.equal(totals.rejected.scored, 15);
   assert.equal(totals.rejected.passed, 14);
   assert.equal(totals.rejected.ok, true);
+});
+
+const liveFixtures = () => fs.readdirSync(path.join(process.cwd(), 'test/fixtures')).filter((file) => /^extractor.*\.story\.json$/.test(file)).map((file) => file.replace('.story.json', '')).sort();
+const expectedOf = (name: string) => JSON.parse(fs.readFileSync(path.join(process.cwd(), 'test/fixtures', `${name}.expected.json`), 'utf8'));
+
+test('v2.5 plan 05 F2: the live suite runs 29 fixtures, and --expect-count 29 refuses 28', () => {
+  const names = liveFixtures();
+  assert.equal(names.length, 29);
+  assert.equal(names.some((name) => /extractor3\d/.test(name)), false, 'the parked Spanish fixtures stay out of the corpus until adopted');
+  assert.equal(suiteVerdict({ plotAccuracy: 1, min: 0.9, totals: {}, ran: 29, expectCount: 29 }).ok, true);
+  assert.equal(suiteVerdict({ plotAccuracy: 1, min: 0.9, totals: {}, ran: 28, expectCount: 29 }).ok, false);
+});
+
+test('v2.5 plan 05 F2: epistemic x3, ledger x2 and arcs x2 are stated, and no needle this plan wrote or replaced is vacuous', () => {
+  const stating = (tier: string) => liveFixtures().filter((name) => expectedOf(name)[tier]);
+  assert.deepEqual(stating('epistemic'), ['extractor23', 'extractor24', 'extractor25']);
+  assert.deepEqual(stating('ledger'), ['extractor26', 'extractor27']);
+  assert.deepEqual(stating('arcs'), ['extractor28', 'extractor29']);
+  const touched = ['extractor21', 'extractor22', 'extractor23', 'extractor24', 'extractor25', 'extractor26', 'extractor27', 'extractor28', 'extractor29'];
+  const vacuous = touched.flatMap((name) => ['facts', 'memory', 'epistemic', 'ledger', 'arcs'].flatMap((tier) => (scoreContains(tier as 'facts', expectedOf(name)[tier], []).vacuous ?? []).map((entry) => `${name}.${tier}: ${entry}`)));
+  assert.deepEqual(vacuous, []);
+});
+
+test('v2.5 plan 05 F2: the new expectations are frozen as written before any live answer', () => {
+  const frozen: Record<string, string> = { extractor23: '6aa63a7b14747b3b', extractor24: 'e81191ba4104c6db', extractor25: '3ec2276685de4cca', extractor26: 'f734e586d9269995', extractor27: '5d351db158c1b8fc', extractor28: '300d064c81bb6d9c', extractor29: 'b16eece57319e446' };
+  const actual = Object.fromEntries(Object.keys(frozen).map((name) => [name, createHash('sha256').update(fs.readFileSync(path.join(process.cwd(), 'test/fixtures', `${name}.expected.json`), 'utf8').replace(/\r\n/g, '\n')).digest('hex').slice(0, 16)]));
+  assert.deepEqual(actual, frozen);
 });

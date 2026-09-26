@@ -152,10 +152,10 @@ describe("v2.4 plan 04 T15: the prompt says what the check enforces", () => {
     expect(result.audit.prompt).not.toContain(PLAYER_MARK);
   });
 
-  it("leaves the 22 extraction fixture prompts byte-identical", () => {
+  it("leaves the 29 extraction fixture prompts byte-identical", () => {
     const dir = join(process.cwd(), "test/fixtures");
     const names = readdirSync(dir).filter((file) => /^extractor\d*\.story\.json$/.test(file)).map((file) => file.replace(".story.json", ""));
-    expect(names).toHaveLength(22);
+    expect(names).toHaveLength(29);
     names.forEach((name) => {
       const storyRaw = JSON.parse(readFileSync(join(dir, `${name}.story.json`), "utf8"));
       const transcript = JSON.parse(readFileSync(join(dir, `${name}.transcript.json`), "utf8")) as Array<{ index: number; speaker: string; text: string }>;

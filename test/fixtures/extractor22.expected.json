@@ -13,7 +13,7 @@
   "rejected": [],
   "facts": {
     "minCount": 0,
-    "mustContain": [""],
+    "mustContain": ["seal"],
     "mustNotContain": ["oath"]
   }
 }

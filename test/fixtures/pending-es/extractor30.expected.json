@@ -1,0 +1,29 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true
+  },
+  "deltas": [
+    {
+      "q": "carta_robada",
+      "v": true,
+      "evidence": "Inés toma la carta sellada del escritorio"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [],
+    "mustNotContain": [
+      "el alcalde robó"
+    ]
+  },
+  "epistemic": {
+    "minCount": 1,
+    "mustContain": [
+      "hiding",
+      "Inés",
+      "carta"
+    ],
+    "mustNotContain": []
+  }
+}

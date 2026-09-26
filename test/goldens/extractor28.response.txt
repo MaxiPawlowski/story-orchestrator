@@ -1,0 +1,4 @@
+DELTA q=courier_missing value=true evidence="Our courier never arrived"
+MEMORY type=event importance=3 expiration=session entity="Captain Ilse,Rook" text="The garrison's courier, carrying the treaty, never arrived; Rook vowed to ride out at first light." evidence="I'll ride at first light"
+SCENE_NONE
+[arc] Find the missing courier and the treaty before the pass snows shut
