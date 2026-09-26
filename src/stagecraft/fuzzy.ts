@@ -1,3 +1,4 @@
+import { levenshtein } from "@utils/levenshtein";
 import { FUZZY_ANCHOR_THRESHOLD, PATCH_ANCHOR_SEPARATOR } from "./types";
 
 const MIN_ANCHOR_WORDS = 3;
@@ -8,18 +9,6 @@ interface Token { text: string; start: number; end: number }
 const WORD = /[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu;
 
 const tokenize = (value: string): Token[] => [...value.matchAll(WORD)].map((match) => ({ text: match[0].toLowerCase().replace(/['’]/g, ""), start: match.index ?? 0, end: (match.index ?? 0) + match[0].length }));
-
-const levenshtein = (left: string, right: string): number => {
-  let previous = Array.from({ length: right.length + 1 }, (_, index) => index);
-  for (let row = 1; row <= left.length; row += 1) {
-    const current = [row];
-    for (let column = 1; column <= right.length; column += 1) {
-      current[column] = Math.min(previous[column] + 1, current[column - 1] + 1, previous[column - 1] + (left[row - 1] === right[column - 1] ? 0 : 1));
-    }
-    previous = current;
-  }
-  return previous[right.length];
-};
 
 export const anchorSimilarity = (left: string, right: string): number => {
   const longest = Math.max(left.length, right.length);

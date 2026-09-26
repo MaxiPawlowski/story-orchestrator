@@ -1,4 +1,4 @@
-import { parseStoryV2, isValidationErrorList, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryV2, isValidationErrorList, slugifyStoryId } from "@engine/index";
 import { getContext, observeNextSettingsSave, readServerExtensionSettings } from "@services/STAPI";
 import { hashStory } from "./hash";
 import { createSettingsWriteEvidence, missingFromServer, recordSettingsWrite, stillHeldByServer, type LibrarySaveEvidence } from "./librarySave";
@@ -14,10 +14,6 @@ const isStoryRecord = (value: unknown): value is StoryLibraryRecord => {
   return Boolean(record) && typeof record === "object" && typeof record?.id === "string" && Boolean(record.id) && typeof record.version === "number"
     && typeof record.hash === "string" && typeof record.title === "string" && Boolean(storyObject(record.raw));
 };
-
-// Identity is authored (`id`), never derived from content. A story without one keeps a stable
-// identity anyway, derived from the content it had when it entered the library.
-export const storyIdFor = (story: Pick<NormalizedStoryV2, "id">, contentHash: string): string => story.id ?? `legacy-${contentHash}`;
 
 const stampedAt = (record: StoryLibraryRecord) => Date.parse(record.updatedAt ?? record.importedAt ?? "") || 0;
 
@@ -62,8 +58,8 @@ export function findStoryRecord(id: string): StoryLibraryRecord | null {
   return listStoryRecords().find((record) => record.id === id) ?? null;
 }
 
-// A Studio-born story must enter the library with a real id: without one it keys as
-// `legacy-<contentHash>` and every save forks a new record — finding U2, from the authoring side.
+// A Studio-born draft's first save takes a free id, so it never updates a same-title record it did
+// not come from (finding U2, from the authoring side). An id-less import instead updates its title's record.
 export function availableStoryId(base: string): string {
   const used = new Set(listStoryRecords().map((record) => record.id));
   if (!used.has(base)) return base;
@@ -78,7 +74,9 @@ export function saveStoryRecord(raw: unknown): LoadedStory | RuntimeSnapshot["va
   const body = storyObject(raw);
   if (!body) return [{ path: "$", message: "a story is a JSON object" }];
   const hash = hashStory(raw);
-  const id = storyIdFor(parsed, hash);
+  // Identity is authored (`id`), never derived from content. A story without one takes its title's
+  // slug, so re-importing it updates the same record rather than forking one.
+  const id = parsed.id ?? slugifyStoryId(parsed.title);
   const records = listStoryRecords();
   const existing = records.find((record) => record.id === id) ?? null;
   // Same identity, new content: the library record is *updated*, never forked. A version the
@@ -90,7 +88,7 @@ export function saveStoryRecord(raw: unknown): LoadedStory | RuntimeSnapshot["va
     hash,
     title: parsed.title,
     description: parsed.description,
-    raw: body,
+    raw: { ...body, id },
     importedAt: existing?.importedAt ?? new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };

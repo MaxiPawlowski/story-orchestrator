@@ -221,8 +221,8 @@ export interface ArcBridge {
   amount: number;
 }
 
-// What a story needs from the install before it can run. Authored aliases (persona, groupMembers,
-// global_lorebooks) normalize into this shape at parse time, so every reader sees one vocabulary.
+// What a story needs from the install before it can run. One vocabulary: any other key is a
+// validation error (v2.5 plan 11).
 export interface StoryRequirements {
   personas?: string[];
   members?: string[];
@@ -253,6 +253,11 @@ export interface StoryLoreSelect {
 }
 
 export const STORY_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,63}$/;
+
+// The id is the story's identity: derived from the title until the author fixes it, and the library
+// keys by it forever after (spec addendum §Story identity). The Studio and an id-less import share it.
+export const slugifyStoryId = (title: string): string =>
+  title.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^[^a-z0-9]+|-+$/g, "").slice(0, 64) || "story";
 
 // v2.4 plan 07 T23: what the narrator is held to, story-level only. Sent to the judge only when
 // judge.uses.houseRules is on; absent means no rules (today).

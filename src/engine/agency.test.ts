@@ -40,8 +40,12 @@ describe("agency policy (v2.3 plan 07, C4)", () => {
     expect(agencyForCheckpoint(built, null)).toEqual(DEFAULT_AGENCY);
   });
 
-  it("normalizes the authored aliases and refuses a kind it does not know", () => {
-    expect(parsed({ agency: { fallback: "start" } }).checkpointById.next.agency).toEqual({ alternate: "start" });
+  it("refuses a removed alias, an unknown key and a kind it does not know", () => {
+    const alias = parseStoryV2(story({ agency: { fallback: "start" } }));
+    expect(Array.isArray(alias) && alias.find((error) => error.path.endsWith("agency.fallback"))?.message).toMatch(/^unknown key/);
+    const typo = parseStoryV2(story({ agency: { alternat: "start" } }));
+    expect(Array.isArray(typo) && typo.find((error) => error.path.endsWith("agency.alternat"))?.message).toBe('unknown key (did you mean "alternate"?)');
+    expect(parsed({ agency: { alternate: "start" } }).checkpointById.next.agency).toEqual({ alternate: "start" });
     const bad = parseStoryV2(story({ agency: { objective_kind: "world" } }));
     expect(Array.isArray(bad) && bad.some((error) => error.path.endsWith("agency.objective_kind"))).toBe(true);
     const wrongType = parseStoryV2(story({ agency: { protect_player_choice: "yes" } }));

@@ -38,6 +38,7 @@ import {
 import { QUALITY_READ_AS, ratingLevels, READ_AS_TYPES } from "./qualityRead";
 import { progressQualityForAnchor } from "./convergence";
 import { OBJECTIVE_BLOCK_MODES } from "./agency";
+import { nearestKey } from "@utils/levenshtein";
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -240,14 +241,28 @@ const readCheckpointEffects = (value: unknown, path: string, errors: ValidationE
   return effects;
 };
 
-// v2.3 plan 07 (C4). Authored aliases normalize the same way requirements' do, and an unknown
-// objective_kind is an error rather than a silent default: the whole point of the field is that the
-// author said which objective this is.
+// v2.5 plan 11: one authoring vocabulary. A key the object does not know is an error with the key it
+// most likely meant, so a typo or a removed alias never silently requires (or scopes) nothing.
+const rejectUnknownKeys = (value: Record<string, unknown>, known: readonly string[], path: string, errors: ValidationError[]) => {
+  for (const key of Object.keys(value).filter((candidate) => !known.includes(candidate))) {
+    const hint = nearestKey(key, known);
+    addError(errors, `${path}.${key}`, hint ? `unknown key (did you mean "${hint}"?)` : `unknown key (known: ${known.join(", ")})`);
+  }
+};
+
+const AGENCY_KEYS = ["protect_player_choice", "never_narrate_player_action", "objective_kind", "alternate", "player_attempts_only"] as const;
+const REQUIREMENT_KEYS = ["personas", "members", "lorebooks"] as const;
+const STAGECRAFT_KEYS = ["lorebooks"] as const;
+const LORE_SELECT_KEYS = ["lorebooks", "top_k", "min_p"] as const;
+
+// v2.3 plan 07 (C4). An unknown objective_kind is an error rather than a silent default: the whole
+// point of the field is that the author said which objective this is.
 const readAgency = (value: unknown, path: string, errors: ValidationError[]): Partial<AgencyPolicy> | null => {
   if (!isRecord(value)) {
     addError(errors, path, "agency must be an object");
     return null;
   }
+  rejectUnknownKeys(value, AGENCY_KEYS, path, errors);
   const agency: Partial<AgencyPolicy> = {};
   if (value.protect_player_choice !== undefined) {
     if (typeof value.protect_player_choice !== "boolean") addError(errors, `${path}.protect_player_choice`, "must be a boolean");
@@ -262,7 +277,7 @@ const readAgency = (value: unknown, path: string, errors: ValidationError[]): Pa
     if (kind !== "world_pressure" && kind !== "player_action") addError(errors, `${path}.objective_kind`, "must be world_pressure or player_action");
     else agency.objective_kind = kind;
   }
-  const alternate = asString(value.alternate ?? value.fallback);
+  const alternate = asString(value.alternate);
   if (alternate) agency.alternate = alternate;
   if (value.player_attempts_only !== undefined) {
     if (typeof value.player_attempts_only !== "boolean") addError(errors, `${path}.player_attempts_only`, "must be a boolean");
@@ -540,16 +555,15 @@ const readRequirementList = (value: unknown): string[] => {
   return typeof value === "string" && value.trim() ? [value.trim()] : [];
 };
 
-// Authored aliases collapse here so nothing downstream has to know them (runtime/requirements.ts,
-// the Studio editor and the wizard all read {personas, members, lorebooks}).
 const readRequirements = (value: unknown, errors: ValidationError[]): StoryRequirements | undefined => {
   if (!isRecord(value)) {
     addError(errors, "requirements", "requirements must be an object");
     return undefined;
   }
-  const personas = readRequirementList(value.personas ?? value.persona);
-  const members = readRequirementList(value.members ?? value.groupMembers ?? value.group_members);
-  const lorebooks = readRequirementList(value.lorebooks ?? value.globalLorebooks ?? value.global_lorebooks);
+  rejectUnknownKeys(value, REQUIREMENT_KEYS, "requirements", errors);
+  const personas = readRequirementList(value.personas);
+  const members = readRequirementList(value.members);
+  const lorebooks = readRequirementList(value.lorebooks);
   return {
     ...(personas.length ? { personas } : {}),
     ...(members.length ? { members } : {}),
@@ -564,7 +578,8 @@ const readStagecraft = (value: unknown, errors: ValidationError[]): StoryStagecr
     addError(errors, "stagecraft", "stagecraft must be an object");
     return undefined;
   }
-  const lorebooks = readRequirementList(value.lorebooks ?? value.lorebook);
+  rejectUnknownKeys(value, STAGECRAFT_KEYS, "stagecraft", errors);
+  const lorebooks = readRequirementList(value.lorebooks);
   return lorebooks.length ? { lorebooks } : undefined;
 };
 
@@ -585,7 +600,8 @@ const readLoreSelect = (value: unknown, errors: ValidationError[]): StoryLoreSel
     addError(errors, "lore_select", "lore_select must be an object");
     return undefined;
   }
-  const lorebooks = readRequirementList(value.lorebooks ?? value.lorebook);
+  rejectUnknownKeys(value, LORE_SELECT_KEYS, "lore_select", errors);
+  const lorebooks = readRequirementList(value.lorebooks);
   const number = (key: "top_k" | "min_p", min: number, max: number) => {
     const raw = value[key];
     if (raw === undefined) return undefined;

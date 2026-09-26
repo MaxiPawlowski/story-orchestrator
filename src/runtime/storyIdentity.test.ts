@@ -89,10 +89,28 @@ describe("story identity", () => {
     expect(listStoryRecords()[0]).toMatchObject({ id: "sun-ruins", version: 1 });
   });
 
-  it("falls back to a stable legacy id when the story has none", async () => {
+  it("an id-less story takes its title's slug, written into the stored copy", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(storyJson({ id: undefined }));
-    expect(manager.getSnapshot().storyId).toBe(`legacy-${manager.getSnapshot().storyHash}`);
+    expect(manager.getSnapshot().storyId).toBe("quest-for-the-sun-ruins");
+    expect(listStoryRecords()[0].raw.id).toBe("quest-for-the-sun-ruins");
+  });
+
+  it("A7: the same id-less story imported twice is one record, and edited content is that record at version+1", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(storyJson({ id: undefined }));
+    await manager.importStory(storyJson({ id: undefined }));
+    expect(listStoryRecords().map((record) => [record.id, record.version])).toEqual([["quest-for-the-sun-ruins", 1]]);
+    await manager.importStory(storyJson({ id: undefined, description: "Rewritten." }));
+    expect(listStoryRecords().map((record) => [record.id, record.version])).toEqual([["quest-for-the-sun-ruins", 2]]);
+  });
+
+  it("control: a different title is a second record, and an id-carrying import keeps its id", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(storyJson({ id: undefined }));
+    await manager.importStory(storyJson({ id: undefined, title: "Another Road" }));
+    await manager.importStory(storyJson());
+    expect(listStoryRecords().map((record) => record.id).sort()).toEqual(["another-road", "quest-for-the-sun-ruins", "sun-ruins"]);
   });
 
   it("rejects a malformed id instead of silently rewriting it", async () => {

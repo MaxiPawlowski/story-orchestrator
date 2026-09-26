@@ -7,7 +7,7 @@ import Toolbar from "@components/studio/Toolbar";
 import FeedbackAlert from "@components/studio/FeedbackAlert";
 import { useDraftStore } from "../draft";
 import { exportDraft, importDraft } from "../io";
-import { slugifyStoryId } from "../mutations";
+import { slugifyStoryId } from "@engine/index";
 
 type Feedback = { type: "success" | "error"; message: string } | null;
 
