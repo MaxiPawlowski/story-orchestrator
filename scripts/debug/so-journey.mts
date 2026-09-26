@@ -23,6 +23,7 @@ import { applyExtSetting, restoreExtSettings } from './lib/interopVerbs.mts';
 import { cleanupBranchChats, settleReapPrompts, withoutBranchChats } from './lib/identityVerbs.mts';
 import { BLOCKING_DIALOGS, mergeRestore, removableStories, shouldRecoverConfig, validateJourneyExtraction, type DeclaredExtraction, type LibraryCapture } from './lib/configRestore.mts';
 import { applyJudgeMode, modeFromSetup, parseJudgeMode, restoreJudgeConfig, wardenNotes, wardenTally, type JudgeMode } from './lib/judgeHarness.mts';
+import { applyWiGating, parseWiGating, restoreWiGating, type WiGatingMode } from './lib/wiGatingHarness.mts';
 
 const JOURNEY_DIR = resolve(PROJECT_ROOT, 'test/journeys');
 const CONFIG_SNAPSHOT = resolve(DEBUG_DIR, 'so-journey-config-snapshot.json');
@@ -49,6 +50,9 @@ run options:
                   arm. Overrides setup.judge; captured before, restored at cleanup; the record keeps the
                   meter, the warden's notes and every reply for so-judge rescore / so-lore-probe diff
   --warden-mode auto|review  the warden's accept mode in the on arm (default: the install's)
+  --wi-gating scan|file  lorebook gating mode for the run (v2.5 plan 01 G3/G4). scan goes through the
+                  product's confirm, which normalises the install's story lorebooks: LANES ONLY. The
+                  mode is captured before and put back at cleanup; normalised books stay normalised
 
 Check outcomes: pass | fail | blocked | not-runnable | skipped.
 
@@ -285,8 +289,8 @@ async function configureExtraction(page, setup) {
   return { ...selected, settings };
 }
 
-async function applySetup(page, setup, { allowConfig, group = null, judgeMode = null as JudgeMode | null }) {
-  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; extractionBefore?: unknown; extractionDeclared?: unknown; judge?: unknown; judgeMode?: Awaited<ReturnType<typeof applyJudgeMode>>; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[] }; dialogs?: unknown; libraryBefore?: LibraryCapture; recoveredConfig?: unknown; extensionSettings?: unknown[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
+async function applySetup(page, setup, { allowConfig, group = null, judgeMode = null as JudgeMode | null, wiGating = null as WiGatingMode | null }) {
+  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; extractionBefore?: unknown; extractionDeclared?: unknown; judge?: unknown; judgeMode?: Awaited<ReturnType<typeof applyJudgeMode>>; wiGating?: Awaited<ReturnType<typeof applyWiGating>>; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[] }; dialogs?: unknown; libraryBefore?: LibraryCapture; recoveredConfig?: unknown; extensionSettings?: unknown[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
   // Unconditional, and before anything else can write them (S11).
   applied.extractionBefore = await readExtractionSettings(page);
   console.log(`extraction before this run: ${JSON.stringify(applied.extractionBefore)}`);
@@ -359,6 +363,9 @@ async function applySetup(page, setup, { allowConfig, group = null, judgeMode = 
   // cleanup; `--judge-uses off` is the judge-off control arm of the same scripted turns.
   if (judgeMode && allowConfig) applied.judgeMode = await applyJudgeMode(page, judgeMode);
   else if (judgeMode) throw new Error('--judge-uses writes install-wide settings, which --no-config forbids');
+  // v2.5 plan 01 G3/G4: the lorebook gating mode, switched the author's way (the confirm). Install-wide.
+  if (wiGating && allowConfig) applied.wiGating = await applyWiGating(page, wiGating);
+  else if (wiGating) throw new Error('--wi-gating writes install-wide settings and lorebooks, which --no-config forbids');
   if (setup.newChat !== false) {
     // A chat deleted by the previous run can leave ST mid-transition; one retry settles it.
     const session = await beginSandboxSession(page).catch(async (error) => {
@@ -385,7 +392,7 @@ async function applySetup(page, setup, { allowConfig, group = null, judgeMode = 
   return applied;
 }
 
-async function runCleanup(page, journey, { importedHashes, libraryBefore, configSnapshot, guard, keep, allowConfig, assetBaseline, activatedLorebooks, extractionBefore = null, judgeMode = null as Awaited<ReturnType<typeof applyJudgeMode>> | null }) {
+async function runCleanup(page, journey, { importedHashes, libraryBefore, configSnapshot, guard, keep, allowConfig, assetBaseline, activatedLorebooks, extractionBefore = null, judgeMode = null as Awaited<ReturnType<typeof applyJudgeMode>> | null, wiGating = null as Awaited<ReturnType<typeof applyWiGating>> | null }) {
   const cleanup = journey.cleanup ?? {};
   const report: Record<string, unknown> = {};
   // The judge call ring lives in the chat's own metadata, so it dies with the chat a few lines
@@ -418,6 +425,7 @@ async function runCleanup(page, journey, { importedHashes, libraryBefore, config
   report.extraction = await restoreExtractionSettings(page, extractionBefore).catch((error) => ({ error: error.message }));
   report.extensionSettings = await restoreExtSettings(page).catch((error) => ({ error: error.message }));
   if (judgeMode) report.judgeRestore = await restoreJudgeConfig(page, judgeMode.before).catch((error) => ({ error: error.message }));
+  if (wiGating) report.wiGating = { mode: wiGating.mode, applied: wiGating.applied, restore: await restoreWiGating(page, wiGating.before).catch((error) => ({ error: error.message })) };
   // Assets go FIRST: the wizard's created-asset ledger lives in extension settings, and restoring
   // the config snapshot would wipe the very record cleanup uses to catch a renamed asset (plan 06).
   // The baseline scopes that ledger to this run: a real author's wizard sessions and the assets
@@ -517,7 +525,7 @@ function renderChecklist(results) {
   ].join('\n');
 }
 
-export async function runJourney(page, idOrFile, { strict = false, keep = false, only = null, allowConfig = true, group = null, humanRecordFile = null, judgeMode = null as JudgeMode | null } = {}) {
+export async function runJourney(page, idOrFile, { strict = false, keep = false, only = null, allowConfig = true, group = null, humanRecordFile = null, judgeMode = null as JudgeMode | null, wiGating = null as WiGatingMode | null } = {}) {
   const { journey, path } = await resolveJourney(idOrFile);
   // A human check is scored in a file, not by the runner. Without --require-human-record the
   // count is still printed, so an acceptance run cannot read as complete with rubric rows open.
@@ -548,7 +556,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
       await mkdir(DEBUG_DIR, { recursive: true });
       await writeFile(ASSET_BASELINE, JSON.stringify(assetBaseline, null, 2), 'utf-8');
       if (!assetBaseline.trusted) console.log(`Asset baseline UNTRUSTED (${assetBaseline.untrusted.join('; ')}) — cleanup falls back to marker-only scope.`);
-      setupApplied = await applySetup(page, journey.setup ?? {}, { allowConfig, group, judgeMode: judgeMode ?? modeFromSetup(journey.setup) });
+      setupApplied = await applySetup(page, journey.setup ?? {}, { allowConfig, group, judgeMode: judgeMode ?? modeFromSetup(journey.setup), wiGating });
       // `reconcileExpected` lives in lib/journeyTallies.mts so it is unit-tested without a browser.
       const record = (summary, outcome, detail, extra = {}) => results.push({ ...reconcileExpected(summary, outcome, detail ?? ''), ...extra });
 
@@ -597,6 +605,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
         activatedLorebooks: (setupApplied as { lorebooks?: { activated?: string[] } }).lorebooks?.activated ?? [],
         extractionBefore: (setupApplied as { extractionBefore?: unknown }).extractionBefore ?? null,
         judgeMode: (setupApplied as { judgeMode?: Awaited<ReturnType<typeof applyJudgeMode>> }).judgeMode ?? null,
+        wiGating: (setupApplied as { wiGating?: Awaited<ReturnType<typeof applyWiGating>> }).wiGating ?? null,
       }).catch((error) => ({ error: error.message }));
     }
   }
@@ -688,6 +697,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         group: argValue(args, '--group') ?? null,
         humanRecordFile: argValue(args, '--require-human-record') ?? null,
         judgeMode: parseJudgeMode(argValue(args, "--judge-uses"), argValue(args, "--warden-mode")),
+        wiGating: parseWiGating(argValue(args, '--wi-gating')),
       });
       return { ok };
     });

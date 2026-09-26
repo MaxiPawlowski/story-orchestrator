@@ -17,7 +17,7 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
   status                       list lanes and whether each is up
   env <n>                      print the environment that points a debug script at lane n
   run <n> -- <node script args> run one debug script against lane n
-  batch --lanes 1,2 [--repeat 2] [--strict] [--group <id>] <item...>
+  batch --lanes 1,2 [--repeat 2] [--strict] [--group <id>] [--wi-gating scan|file] <item...>
                                run items across lanes, one at a time per lane; an item is a journey
                                id (J3) or a scenario file (test/scenarios/x.json). --repeat runs each
                                item that many times back to back on the SAME lane, so "twice" stays
@@ -128,11 +128,12 @@ async function status() {
 
 type BatchResult = { item: string; lane: number; run: number; code: number; automated: string | null; cleanup: string | null; record: string | null; failures: string[]; log: string; ms: number };
 
-const itemArgs = (item: string, strict: boolean, group: string | null) => (/^J\d+$/i.test(item)
-  ? ['scripts/debug/so-journey.mts', 'run', item.toUpperCase(), ...(strict ? ['--strict'] : [])]
+// v2.5 plan 01 G3/G4: `--wi-gating` reaches journeys only; a scenario that needs a mode switches it itself.
+export const itemArgs = (item: string, strict: boolean, group: string | null, wiGating: string | null = null) => (/^J\d+$/i.test(item)
+  ? ['scripts/debug/so-journey.mts', 'run', item.toUpperCase(), ...(strict ? ['--strict'] : []), ...(wiGating ? ['--wi-gating', wiGating] : [])]
   : ['scripts/debug/so-scenario.mts', 'run', item, '--sandbox', ...(group ? ['--group', group] : [])]);
 
-async function batch(lanes: number[], items: string[], repeat: number, strict: boolean, group: string | null) {
+async function batch(lanes: number[], items: string[], repeat: number, strict: boolean, group: string | null, wiGating: string | null = null) {
   const queue = [...items];
   const results: BatchResult[] = [];
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -143,7 +144,7 @@ async function batch(lanes: number[], items: string[], repeat: number, strict: b
       for (let run = 1; run <= repeat; run += 1) {
         const log = resolve(dir, `${stamp}-${basename(item).replace(/\.json$/, '')}-run${run}.log`);
         const began = Date.now();
-        const { code, output } = await runNode(itemArgs(item, strict, group), laneEnv(n), log);
+        const { code, output } = await runNode(itemArgs(item, strict, group, wiGating), laneEnv(n), log);
         const result = {
           item, lane: n, run, code, log, ms: Date.now() - began,
           automated: output.match(/^automated: .*$/m)?.[0] ?? null,
@@ -183,9 +184,9 @@ async function main() {
     return;
   } else if (command === 'batch') {
     const lanes = String(argValue('--lanes', '1')).split(',').map(Number).filter(Boolean);
-    const flags = new Set(['--lanes', '--repeat', '--group']);
+    const flags = new Set(['--lanes', '--repeat', '--group', '--wi-gating']);
     const items = rest.filter((arg, index) => !arg.startsWith('--') && !flags.has(rest[index - 1] ?? ''));
-    const result = await batch(lanes, items, Number(argValue('--repeat', '1')), rest.includes('--strict'), argValue('--group'));
+    const result = await batch(lanes, items, Number(argValue('--repeat', '1')), rest.includes('--strict'), argValue('--group'), argValue('--wi-gating'));
     process.exitCode = batchExitCode(result);
     out = result;
   } else { console.log(USAGE); process.exitCode = 2; return; }

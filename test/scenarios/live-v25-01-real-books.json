@@ -1,0 +1,141 @@
+{
+  "_note": "v2.5 plan 01 live gates G1 (a/b), G2, G5 and G8 over the lane's REAL library books (overview rule 10: LANES ONLY, never the user's live install). Run twice back to back on one lane with a run header around the batch: node scripts/debug/so-run-header.mts capture --label v25-01-g1; node scripts/debug/st-lanes.mts batch --lanes 1 --repeat 2 test/scenarios/live-v25-01-real-books.json --group <a group holding Arin>; node scripts/debug/so-run-header.mts diff .debug/run-header-v25-01-g1.json. Precondition: a fresh lane (gatingMode file, empty ledger; the fixture refuses otherwise) whose library holds the real stories. It saves every gated real book to sessionStorage first, switches every present gated entry ON on disk (the S1 adversarial start), then switches to per-chat gating through the product's confirm (the popup's OK, as an author does). G2 (first run flips exactly the present gated set, non-gated entries byte-identical, ledger == present gated; second run 0 /api/worldinfo/edit), G1 (b) the other story's chat and (a) a no-story chat, scan view plus three real generations through the T12 ring, missingKey asserted 0, G8 (p95 <= 5 ms over 40 + 10 dry scans, real library plus a 500-entry bulk book, 250 of it gated by a marker story; its normalisation is the growth path, no second confirm), G5 (hand-enable one normalised entry through the API, reload: the start-up verify raises the Repair row, the file shows it on; re-normalise clears it). Cleanup removes the marker stories, returns to file mode, writes every saved book back and asserts each reads back identical, resets the ledger, and deletes SO-V25 books. G1 (c) and G5's 'extension disabled' half are manual: see _design. Predeclared conditions: docs/plans/v2.5/01-wi-scan-gating.md G1, G2, G5, G8; never retuned. Wait for 02 C2's attribution of the save race before the sign-off series (overview sequence).",
+  "_design": {
+    "G1c": "After this fixture's G2 phase (or its first run, before cleanup, using --keep): disable Story Orchestrator in ST's Extensions panel, reload, open the no-story Arin chat and run node scripts/debug/st-eval.mts \"(await import('/scripts/world-info.js')).getSortedEntries().then((e) => e.filter((x) => x.disable !== true).map((x) => x.world + ': ' + x.comment))\". PASS = no entry the ledger (localStorage so-v25-01 G2first) holds is in that list. Then re-enable the extension and run the cleanup step's eval by hand.",
+    "G5-disabled": "With the drifted entry of G5 left drifted (run up to the start-up check with --keep), disable the extension and reload: the drifted entry must be the ONLY ledger entry in the list above. Re-enable, re-normalise from the settings row (#so-wi-renormalize), then clean up."
+  },
+  "steps": [
+    {
+      "inject_script": "../fixtures/interop/t13-spike.js"
+    },
+    {
+      "inject_script": "../fixtures/interop/v25-01-gating.js"
+    },
+    {
+      "eval": "const V = globalThis.__soV25; const S = globalThis.__soT13; const G = globalThis.storyOrchestratorScanGating; const rt = globalThis.storyOrchestratorRuntime; if (!V || !S) throw new Error('inject t13-spike.js and v25-01-gating.js first'); const T = V.record(); const ctx = SillyTavern.getContext(); if (!ctx.groupId) throw new Error('needs a sandbox GROUP chat: so-scenario run <file> --sandbox --group <id>'); const wi = rt.getGlobalSettings().worldInfo; if (wi.gatingMode !== 'file' || Object.keys(wi.normalized ?? {}).length) throw new Error(`the lane is not fresh (mode ${wi.gatingMode}, ledger ${JSON.stringify(wi.normalized)}): run this fixture's cleanup, or re-seed the lane`); const gated = V.gated(); if (!gated.size) throw new Error('no library story gates an entry of a listed lorebook on this lane: seed the real library first'); const books = [...gated.keys()]; const saved = await V.saveBooks(books); const record = V.save({ books, library: rt.getSnapshot().library.map((r) => `${r.id}@${r.version}`), chats: { group: S.here() }, startedAt: new Date().toISOString() }); return { saved, books: record.books, library: record.library, gatedEntries: [...gated.values()].reduce((n, set) => n + set.size, 0) };",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV25; const S = globalThis.__soT13; const G = globalThis.storyOrchestratorScanGating; const rt = globalThis.storyOrchestratorRuntime; if (!V || !S) throw new Error('inject t13-spike.js and v25-01-gating.js first'); const T = V.record(); const gated = V.gated(); const on = await V.allOn(gated); T.adversarialOn = on; V.save(T); return { switchedOnFirst: on };",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV25; const S = globalThis.__soT13; const G = globalThis.storyOrchestratorScanGating; const rt = globalThis.storyOrchestratorRuntime; if (!V || !S) throw new Error('inject t13-spike.js and v25-01-gating.js first'); const T = V.record(); const gated = V.gated(); S.arm(); S.reset(); const before = await V.serverBooks(T.books); const activation = await V.confirmScan(); await new Promise((resolve) => setTimeout(resolve, 1500)); const after = await V.serverBooks(T.books); const diff = V.diff(before, after, gated); const present = V.presentGated(before, gated).sort(); const ledger = V.ledgerKeys().map((key) => key.toLowerCase()).sort(); const missingFromLedger = present.filter((key) => !ledger.includes(key.toLowerCase())); const status = rt.getSnapshot().wiGating; T.G2first = { activation, edits: S.counters.edits, present: present.length, diff, missingFromLedger, status: { active: status?.active, ledger: status?.ledger, drift: status?.drift?.length, missingKey: status?.missingKey?.length } }; V.save(T); const fail = [diff.gatedNotOff.length && 'gated entries not off', diff.nonGatedChanged.length && 'non-gated entries changed', diff.gatedOtherKeysChanged.length && 'a gated entry changed beyond its disable flag', diff.entriesAdded.length + diff.entriesRemoved.length && 'entries added or removed', missingFromLedger.length && 'present gated entries missing from the ledger', diff.gatedOff !== present.length && `flipped ${diff.gatedOff} of ${present.length}`, !status?.active && 'not active'].filter(Boolean); if (fail.length) throw new Error(`G2 FAIL (first run): ${fail.join('; ')} ${JSON.stringify(T.G2first)}`); return T.G2first;",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV25; const S = globalThis.__soT13; const G = globalThis.storyOrchestratorScanGating; const rt = globalThis.storyOrchestratorRuntime; if (!V || !S) throw new Error('inject t13-spike.js and v25-01-gating.js first'); const T = V.record(); S.reset(); await G.sync(); await new Promise((resolve) => setTimeout(resolve, 1500)); T.G2second = { edits: S.counters.edits }; V.save(T); if (T.G2second.edits !== 0) throw new Error(`G2 FAIL (second run): ${T.G2second.edits} /api/worldinfo/edit`); return T.G2second;",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV25; const S = globalThis.__soT13; const G = globalThis.storyOrchestratorScanGating; const rt = globalThis.storyOrchestratorRuntime; if (!V || !S) throw new Error('inject t13-spike.js and v25-01-gating.js first'); const T = V.record(); const source = rt.getSnapshot().library.map((r) => r.raw).find((story) => story.checkpoints.some((cp) => cp.effects?.world_info)); const cps = source.checkpoints.filter((cp) => cp.effects?.world_info).slice(0, 2).map((cp, index) => ({ id: `g1-${index}`, name: `G1 ${index}`, objective: 'x', type: 'anchor', ...(index === 0 ? { start: true } : {}), effects: { world_info: cp.effects.world_info } })); const story = { format: 2, id: 'so-v25-g1', version: 1, title: 'SO-V25 G1', description: 'v2.5 plan 01 G1 (b): a second story gating a subset of a real library story entries; no cast, no requirements.', qualities: [{ key: 'step', type: 'int', source: 'code', rubric: 'Gate step.' }], checkpoints: cps, transitions: cps.length > 1 ? [{ from: 'g1-0', to: 'g1-1', priority: 1, gate: { q: 'step', op: '>=', v: 1 } }] : [], roster: [] }; await rt.importStory(JSON.stringify(story)); await V.waitFor(() => rt.getSnapshot().storyId === 'so-v25-g1' && rt.getSnapshot().ready, 'so-v25-g1 loaded in the group chat'); await G.sync(); await S.settle(); const library = V.library(); const loaded = library.find((s) => s.id === 'so-v25-g1'); const check = await S.check('G1 (b) the other story chat', library, loaded, rt.getEngineState()?.visitedPath ?? ['g1-0'], T.books); T.G1b = { check, missingKey: rt.getSnapshot().wiGating?.missingKey ?? [] }; T.chats.group = S.here(); V.save(T); if (check.wrong.length || T.G1b.missingKey.length) throw new Error(`G1 FAIL (b): ${JSON.stringify(T.G1b)}`); return T.G1b;",
+      "log": true
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 3000,
+        "timeoutMs": 240000
+      }
+    },
+    {
+      "solo_chat": {
+        "character": "Arin"
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV25; const S = globalThis.__soT13; const G = globalThis.storyOrchestratorScanGating; const rt = globalThis.storyOrchestratorRuntime; if (!V || !S) throw new Error('inject t13-spike.js and v25-01-gating.js first'); const T = V.record(); if (rt.getSnapshot().storyId) throw new Error(`the no-story chat plays ${rt.getSnapshot().storyId}`); const check = await S.check('G1 (a) no-story chat', V.library(), null, [], T.books); T.G1a = { check }; T.G1aBefore = globalThis.storyOrchestratorLoreEvidence.slotsForChat().length; V.save(T); if (check.wrong.length) throw new Error(`G1 FAIL (a) scan view: ${JSON.stringify(check)}`); return T.G1a;",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I look around the room.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I wait by the door and listen.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I sit down and rest a while.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV25; const S = globalThis.__soT13; const G = globalThis.storyOrchestratorScanGating; const rt = globalThis.storyOrchestratorRuntime; if (!V || !S) throw new Error('inject t13-spike.js and v25-01-gating.js first'); const T = V.record(); const gated = V.gated(); const slots = globalThis.storyOrchestratorLoreEvidence.slotsForChat().slice(-3); const leaked = slots.flatMap((slot) => slot.scans.flatMap((scan) => scan.entries)).filter((entry) => [...gated].some(([name, comments]) => name.toLowerCase() === String(entry.world).trim().toLowerCase() && comments.has(String(entry.comment ?? '').trim()))).map((entry) => `${entry.world}: ${entry.comment}`); T.G1aRing = { slots: slots.length, leaked: [...new Set(leaked)], missingKey: rt.getSnapshot().wiGating?.missingKey ?? [] }; V.save(T); if (slots.length < 3) throw new Error(`G1 (a) ring: only ${slots.length} loud generations were observed`); if (T.G1aRing.leaked.length || T.G1aRing.missingKey.length) throw new Error(`G1 FAIL (a) ring: ${JSON.stringify(T.G1aRing)}`); return T.G1aRing;",
+      "log": true
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 3000,
+        "timeoutMs": 240000
+      }
+    },
+    {
+      "solo_chat": {
+        "leave": true
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV25; const S = globalThis.__soT13; const G = globalThis.storyOrchestratorScanGating; const rt = globalThis.storyOrchestratorRuntime; if (!V || !S) throw new Error('inject t13-spike.js and v25-01-gating.js first'); const T = V.record(); const bulk = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-V25 Bulk' }, { requirements: { lorebooks: [] } }); if (!bulk.ok && !bulk.message.includes('already exists')) throw new Error(`bulk book: ${bulk.message}`); const comments = Array.from({ length: 500 }, (_, uid) => `Bulk ${String(uid).padStart(3, '0')}`); await S.writeBook('SO-V25 Bulk', { entries: Object.fromEntries(comments.map((comment, uid) => [uid, { uid, comment, key: [`zqx-v25-bulk-${uid}`], keysecondary: [], content: `Bulk entry ${uid}.`, constant: false, disable: false, position: 0, order: 100, depth: 4 }])) }); const story = { format: 2, id: 'so-v25-e', version: 1, title: 'SO-V25 E', description: 'v2.5 plan 01 G8: gates 250 of the 500 bulk entries.', qualities: [{ key: 'step', type: 'int', source: 'code', rubric: 'Gate step.' }], checkpoints: [{ id: 'e1', name: 'E One', objective: 'x', type: 'anchor', start: true, effects: { world_info: { enable: [{ lorebook: 'SO-V25 Bulk', comments: comments.slice(0, 250) }] } } }], transitions: [], roster: [] }; const saved = rt.importStory ? await rt.importStory(JSON.stringify(story)).catch((error) => ({ error: error.message })) : null; await V.waitFor(() => rt.getGlobalSettings().worldInfo.normalized?.['SO-V25 Bulk']?.length === 250, 'the grown bulk set normalised without a second confirm', 120000); return { bulk: comments.length, gatedBulk: rt.getGlobalSettings().worldInfo.normalized['SO-V25 Bulk'].length, saved };",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV25; const S = globalThis.__soT13; const G = globalThis.storyOrchestratorScanGating; const rt = globalThis.storyOrchestratorRuntime; if (!V || !S) throw new Error('inject t13-spike.js and v25-01-gating.js first'); const T = V.record(); const before = G.timings().length; for (let index = 0; index < 40; index += 1) await S.effective(['SO-V25 Bulk']); const chat = (SillyTavern.getContext().chat ?? []).map((message) => String(message?.mes ?? '')).reverse(); for (let index = 0; index < 10; index += 1) await SillyTavern.getContext().getWorldInfoPrompt(chat, 8192, true, { personaDescription: '', characterDescription: '', characterPersonality: '', characterDepthPrompt: '', scenario: '', creatorNotes: '', trigger: 'normal' }); const times = G.timings().slice(before).sort((a, b) => a - b); const p95 = times[Math.min(times.length - 1, Math.ceil(times.length * 0.95) - 1)]; T.G8 = { scans: times.length, p95, max: times[times.length - 1], gatedEntries: V.ledgerKeys().length }; V.save(T); if (times.length < 50) throw new Error(`G8: only ${times.length} scans were timed`); if (!(p95 <= 5)) throw new Error(`G8 FAIL: p95 ${p95} ms over 5 ms`); return T.G8;",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV25; const S = globalThis.__soT13; const G = globalThis.storyOrchestratorScanGating; const rt = globalThis.storyOrchestratorRuntime; if (!V || !S) throw new Error('inject t13-spike.js and v25-01-gating.js first'); const T = V.record(); const ledger = rt.getGlobalSettings().worldInfo.normalized; const book = T.books.find((name) => (ledger[name] ?? []).length); const comment = ledger[book][0]; await S.setDisabled(book, [comment], false); T.G5 = { book, comment }; V.save(T); return T.G5;",
+      "log": true
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 3000,
+        "timeoutMs": 240000
+      }
+    },
+    {
+      "reload": {
+        "timeoutMs": 90000
+      }
+    },
+    {
+      "inject_script": "../fixtures/interop/t13-spike.js"
+    },
+    {
+      "inject_script": "../fixtures/interop/v25-01-gating.js"
+    },
+    {
+      "eval": "const V = globalThis.__soV25; const S = globalThis.__soT13; const G = globalThis.storyOrchestratorScanGating; const rt = globalThis.storyOrchestratorRuntime; if (!V || !S) throw new Error('inject t13-spike.js and v25-01-gating.js first'); const T = V.record(); const gating = globalThis.storyOrchestratorScanGating; await V.waitFor(() => gating?.active(), 'the gating to activate after the reload', 90000); const status = await V.waitFor(() => { const s = rt.getSnapshot().wiGating; return s?.drift?.some((ref) => ref.lorebook === T.G5.book && ref.comment === T.G5.comment) ? s : null; }, 'the drifted entry in the start-up verify'); const repairText = document.querySelector('[data-so=\"repair-step\"]')?.textContent ?? ''; const file = await S.serverBook(T.G5.book); const fileEntry = Object.values(file.entries).find((entry) => String(entry.comment ?? '').trim() === T.G5.comment); const scanView = await S.effective([T.G5.book]); T.G5.startup = { drift: status.drift.length, repairShown: repairText.includes('switched on outside the story'), fileDisable: fileEntry?.disable ?? null, scanOn: scanView.get(S.key(T.G5.book, T.G5.comment)) ?? null, onlyDrift: status.drift.length === 1 }; V.save(T); if (!T.G5.startup.repairShown || T.G5.startup.fileDisable === true || !T.G5.startup.onlyDrift) throw new Error(`G5 FAIL (start-up): ${JSON.stringify(T.G5.startup)}`); return T.G5.startup;",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV25; const S = globalThis.__soT13; const G = globalThis.storyOrchestratorScanGating; const rt = globalThis.storyOrchestratorRuntime; if (!V || !S) throw new Error('inject t13-spike.js and v25-01-gating.js first'); const T = V.record(); const gating = globalThis.storyOrchestratorScanGating; await gating.normalize(); const file = await S.serverBook(T.G5.book); const fileEntry = Object.values(file.entries).find((entry) => String(entry.comment ?? '').trim() === T.G5.comment); const status = rt.getSnapshot().wiGating; T.G5.renormalised = { fileDisable: fileEntry?.disable ?? null, drift: status?.drift?.length ?? null, repairShown: (document.querySelector('[data-so=\"repair-step\"]')?.textContent ?? '').includes('switched on outside the story') }; V.save(T); if (T.G5.renormalised.fileDisable !== true || T.G5.renormalised.drift !== 0 || T.G5.renormalised.repairShown) throw new Error(`G5 FAIL (re-normalise): ${JSON.stringify(T.G5.renormalised)}`); return T.G5.renormalised;",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV25; const S = globalThis.__soT13; const G = globalThis.storyOrchestratorScanGating; const rt = globalThis.storyOrchestratorRuntime; if (!V || !S) throw new Error('inject t13-spike.js and v25-01-gating.js first'); const T = V.record(); for (const id of ['so-v25-g1', 'so-v25-e']) if (rt.getSnapshot().library.some((r) => r.id === id)) await rt.removeStory(id); await globalThis.storyOrchestratorScanGating.requestFile(); const books = await V.restoreBooks(); const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.worldInfo = { gatingMode: 'file', normalized: {}, normalizedFrom: {} }; SillyTavern.getContext().saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); T.cleanup = { books, mode: rt.getGlobalSettings().worldInfo.gatingMode }; T.finishedAt = new Date().toISOString(); V.save(T); if (Object.values(books.identical ?? {}).some((same) => !same)) throw new Error(`cleanup: a real book did not read back identical: ${JSON.stringify(books)}`); return T;",
+      "log": true
+    },
+    {
+      "assets": {
+        "action": "remove",
+        "marker": "SO-V25"
+      }
+    }
+  ]
+}
