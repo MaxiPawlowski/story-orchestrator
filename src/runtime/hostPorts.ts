@@ -9,6 +9,8 @@ export type ProvisioningHost = Pick<typeof Stapi,
 export type CuratorWiHost = Pick<typeof Stapi,
   "readWIEntry" | "readWIEntryAt" | "restoreWIEntryAt" | "updateWIEntryByUid" | "loadLorebook">;
 
+export type WIEntryTarget = Parameters<CuratorWiHost["readWIEntryAt"]>[0];
+
 export type PlayerHost = Pick<typeof Stapi, "getPlayerName">;
 
 export type PromptHost = Pick<typeof Stapi, "setStoryExtensionPrompt" | "clearStoryExtensionPrompt">;

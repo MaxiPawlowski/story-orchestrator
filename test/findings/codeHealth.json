@@ -11,14 +11,12 @@
     "lineChars": 200
   },
   "s2": [
-    "src/runtime/coordinators/stagecraftCoordinator.ts",
     "src/runtime/runtimeManager.ts"
   ],
   "s3": [
     "src/components/drawer/DrawerTabs.tsx",
     "src/engine/validate.ts",
     "src/index.tsx",
-    "src/runtime/coordinators/stagecraftCoordinator.ts",
     "src/runtime/runtimeManager.ts"
   ],
   "s4": {
@@ -111,7 +109,7 @@
     "src/runtime/coordinators/expansionCoordinator.ts": 6,
     "src/runtime/coordinators/extractionCoordinator.ts": 10,
     "src/runtime/coordinators/memoryCoordinator.ts": 2,
-    "src/runtime/coordinators/stagecraftCoordinator.ts": 5,
+    "src/runtime/coordinators/stagecraftCoordinator.ts": 4,
     "src/runtime/effectsApplier.ts": 6,
     "src/runtime/extras.ts": 6,
     "src/runtime/index.ts": 5,
@@ -307,7 +305,7 @@
       "src/memory/sceneSummary.ts": 1,
       "src/runtime/coordinators/expansionCoordinator.ts": 2,
       "src/runtime/coordinators/memoryCoordinator.ts": 1,
-      "src/runtime/coordinators/stagecraftCoordinator.ts": 1,
+      "src/runtime/curatorWriter.ts": 1,
       "src/runtime/effectLedger.ts": 1,
       "src/runtime/memorizeBacklog.ts": 2,
       "src/runtime/roleCalibration.ts": 1,
@@ -399,8 +397,9 @@
     "src/runtime/coordinators/extractionCoordinator.ts": 7,
     "src/runtime/coordinators/memoryCoordinator.ts": 7,
     "src/runtime/coordinators/sceneCoordinator.ts": 7,
-    "src/runtime/coordinators/stagecraftCoordinator.ts": 8,
+    "src/runtime/coordinators/stagecraftCoordinator.ts": 5,
     "src/runtime/curatorFilter.ts": 1,
+    "src/runtime/curatorWriter.ts": 3,
     "src/runtime/effectHost.ts": 3,
     "src/runtime/effectLedger.ts": 2,
     "src/runtime/effectsApplier.ts": 17,

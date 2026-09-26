@@ -28,6 +28,11 @@ const walk = (dir: string): string[] =>
 export const effectiveLines = (text: string) => text.split("\n").reduce((sum, line) => sum + Math.max(1, Math.ceil(line.replace(/\r$/, "").length / EFFECTIVE_WIDTH)), 0);
 const lineCount = (path: string) => effectiveLines(readFileSync(path, "utf8"));
 const importsOf = (path: string) => [...readFileSync(path, "utf8").matchAll(/from\s+"([^"]+)"/g)].map((match) => match[1]);
+const STAGECRAFT_ISOLATED = ["runtime/coordinators/stagecraftCoordinator.ts", "runtime/curatorWriter.ts"];
+const stagecraftLeaks = (source: string) => ({
+  offenders: [...source.matchAll(/from\s+"([^"]+)"/g)].map((match) => match[1]).filter((specifier) => /@memory|@generation|@pacing/.test(specifier)),
+  writes: [...source.matchAll(/enqueue\w*\(|applyEntries\(|setMemory\(/g)].map((match) => match[0]),
+});
 
 describe("architecture guards", () => {
   it("counts a packed line as the lines it replaces, so packing cannot meet a budget", () => {
@@ -96,11 +101,13 @@ describe("architecture guards", () => {
     }
   });
 
-  it("keeps the stagecraft coordinator away from the blackboard and the memory tiers", () => {
-    const path = join(SRC, "runtime/coordinators/stagecraftCoordinator.ts");
-    const source = readFileSync(path, "utf8");
-    expect({ path, offenders: importsOf(path).filter((specifier) => /@memory|@generation|@pacing/.test(specifier)) }).toEqual({ path, offenders: [] });
-    expect({ path, writes: [...source.matchAll(/enqueue\w*\(|applyEntries\(|setMemory\(/g)].map((match) => match[0]) }).toEqual({ path, writes: [] });
+  it("keeps the stagecraft coordinator and its curator writer away from the blackboard and the memory tiers", () => {
+    for (const path of STAGECRAFT_ISOLATED.map((file) => join(SRC, file))) {
+      expect({ path, ...stagecraftLeaks(readFileSync(path, "utf8")) }).toEqual({ path, offenders: [], writes: [] });
+    }
+    expect(stagecraftLeaks('import { addMemoryEntries } from "@memory/index";\nthis.deps.enqueueExtractorDeltas([]);')).toEqual({
+      offenders: ["@memory/index"], writes: ["enqueueExtractorDeltas("],
+    });
   });
 
   it("lets only the declared writer write the continuity note (v2.2 plan 05)", () => {

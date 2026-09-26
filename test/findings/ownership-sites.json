@@ -185,7 +185,7 @@
       "status": "delegate",
       "note": "v2.3 plan 03: its only recognised write is the awaited StagecraftCoordinator.save, which awaits ChatSave.persist (through the manager's persist delegate) and that is where the check lives. The in-memory op update runs before the first await."
     },
-    "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.markWriteAhead": {
+    "src/runtime/curatorWriter.ts#CuratorWriter.markWriteAhead": {
       "status": "local",
       "note": "v2.3 plan 04: the write-ahead record itself, persisted before the host call. It only replaces the in-memory proposal list through updateOps and awaits the same save the caller already owns; it starts no work of its own and mints no token, because its only caller, `writeOp` (through `beforeHostWrite`), checks the run immediately before calling it, after the write-edge read (AE-01)."
     },
@@ -193,11 +193,11 @@
       "status": "local",
       "note": "pushes into a function-local array it returns; the caller owns the write"
     },
-    "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.reconcileWriteAhead": {
+    "src/runtime/curatorWriter.ts#CuratorWriter.reconcileWriteAhead": {
       "status": "checked",
       "note": "v2.5 plan 02 C10 (2026-09-25): the hydrate reconcile of the curator write-ahead marker. A RunGuard minted before the first read and checked after each uid-addressed read (the only await); a lapse returns zero counts before the proposal patch or the journal line, so a reload superseded mid-reconcile settles nothing into the chat that replaced it (stagecraftWriteAhead.test.ts, switch-during-read case). It never writes the host: a landed write is recorded applied, an unlanded one goes back to accepted for the next boundary's fresh read."
     },
-    "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.revertAppliedSince": {
+    "src/runtime/curatorWriter.ts#CuratorWriter.revertAppliedSince": {
       "status": "checked",
       "note": "v2.3 plan 03 + AE-01 (2026-09-25): a RunGuard minted before the settle and checked at three places: at the top of each op, immediately after the compare-and-set read (before `restoreBefore`, the host write), and once more before the proposal patch. So a rollback that outlives its chat neither restores pre-write content into a shared lorebook nor settles records, journals or saves in the chat that replaced it. Before AE-01 the only check preceded the read, and the patch after the loop was unchecked. v2.5 plan 11 (H16, re-read per rule 13): an op without a recorded uid is refused before any await, and `restoreBefore` is now the single uid-addressed host write (no write follows its await, so it left the census)."
     },
@@ -217,7 +217,7 @@
       "status": "delegate",
       "note": "v2.3 plan 03: its only recognised write is the awaited StagecraftCoordinator.save, which awaits ChatSave.persist (through the manager's persist delegate) and that is where the check lives. The in-memory op update runs before the first await."
     },
-    "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.writeOp": {
+    "src/runtime/curatorWriter.ts#CuratorWriter.writeOp": {
       "status": "checked",
       "note": "AE-01 (2026-09-25): was `partial` on \"its caller checks the token before every call\", the census blind spot, since that check preceded both awaits in here. The RunGuard is now threaded in and checked immediately after the write-edge read (before `beforeHostWrite`, the write-ahead record) and immediately after the write-ahead save (before `updateWIEntryByUid`, its one host write). A lapse returns `lapsed` and records nothing: after a switch, state and save both resolve to the chat that replaced this one. A lapse after the write-ahead save leaves the departed chat's op `accepted` with its pending marker, the same row a crash before the host call leaves; nothing reconciles that marker on hydrate, and the op's next boundary in its own chat re-reads the entry and writes it (stagecraftCoordinator.test.ts, AE-01 block)."
     },

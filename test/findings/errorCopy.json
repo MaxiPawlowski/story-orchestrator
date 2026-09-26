@@ -273,7 +273,7 @@
       "reason": "queue tail; the returned promise carries the error"
     },
     {
-      "site": "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.restoreBefore",
+      "site": "src/runtime/curatorWriter.ts#CuratorWriter.restoreBefore",
       "kind": 3,
       "template": "catch {} #1",
       "surface": "console",
