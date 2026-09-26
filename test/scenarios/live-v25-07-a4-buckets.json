@@ -1,0 +1,36 @@
+{
+  "_note": "v2.5 plan 07 A4 live gate + Phase 0 (LANE ONLY, x2 consecutive). Precondition: a Chat Completion profile on the lane per the v2.4 plan 06 recipe (llama-server needs Additional Parameters chat_template_kwargs {enable_thinking: false}), selected with /profile before the run; capture a run header first. Run: node scripts/debug/so-scenario.mts run test/scenarios/live-v25-07-a4-buckets.json --sandbox --group <lane group id>. Two loud generations: after each, ST's own identifiers (read from openai.js promptManager in the page) add up to tokenUsage, the snapshot's bucket view carries the same total and identifiers, Story Orchestrator's T19a sub-count is shown inside chat history and never added, and the identifier set is the same both times (Phase 0: record the identifiers as host facts). Afterwards: switch back to the lane's Text Completion profile, delete the CC profile, read the install values back and diff the run header (0 undeclared).",
+  "steps": [
+    {
+      "eval": "const ctx = SillyTavern.getContext(); if (ctx.mainApi !== 'openai') throw new Error(`this gate needs a Chat Completion main API; mainApi is ${ctx.mainApi}`); for (const key of Object.keys(globalThis).filter((name) => name.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.__p0704 = { runs: [] }; return { mainApi: ctx.mainApi };",
+      "log": true
+    },
+    {
+      "import_story": {
+        "file": "./live-v24-08.story.json"
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I look around the yard.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "eval": "await new Promise((resolve) => setTimeout(resolve, 500)); const { promptManager } = await import('/scripts/openai.js'); const counts = { ...promptManager.tokenHandler.getCounts() }; const sum = Object.values(counts).reduce((left, right) => left + (Number.isFinite(right) ? right : 0), 0); if (sum !== promptManager.tokenUsage) throw new Error(`identifiers add to ${sum}, tokenUsage ${promptManager.tokenUsage}`); const view = globalThis.storyOrchestratorRuntime.getSnapshot().nextTurnBuckets; if (!view || 'unavailable' in view) throw new Error(`no bucket view: ${JSON.stringify(view)}`); if (view.total !== promptManager.tokenUsage || view.sum !== view.total || !view.matches) throw new Error(`bucket view ${view.sum}/${view.total} vs ST ${promptManager.tokenUsage}`); if (view.ours !== null && view.groups.reduce((left, group) => left + group.tokens, 0) !== view.total) throw new Error('our sub-count was added to the sum'); globalThis.__p0704.runs.push(Object.keys(counts).filter((key) => counts[key] > 0).sort()); return { total: view.total, chatHistory: view.chatHistory, ours: view.ours, identifiers: Object.keys(counts) };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "And the gate, is it open?",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "eval": "await new Promise((resolve) => setTimeout(resolve, 500)); const { promptManager } = await import('/scripts/openai.js'); const counts = { ...promptManager.tokenHandler.getCounts() }; const view = globalThis.storyOrchestratorRuntime.getSnapshot().nextTurnBuckets; if (!view || 'unavailable' in view || view.total !== promptManager.tokenUsage || !view.matches) throw new Error(`second generation: ${JSON.stringify(view)}`); const now = Object.keys(counts).filter((key) => counts[key] > 0).sort(); const first = globalThis.__p0704.runs[0]; const drift = [...first.filter((key) => !now.includes(key)), ...now.filter((key) => !first.includes(key))]; delete globalThis.__p0704; if (drift.length) throw new Error(`identifiers changed between two generations: ${drift.join(', ')}`); return { identifiers: now };",
+      "log": true
+    }
+  ]
+}

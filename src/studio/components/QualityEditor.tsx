@@ -143,6 +143,9 @@ const QualityEditor: React.FC = () => {
             <Field label="Key">
               <input className="text_pole st-input" value={selected.key} disabled={isReserved} onChange={(event) => handleRenameKey(event.target.value)} />
             </Field>
+            <p data-so="quality-macro-help" className="text-[10px] st-muted">
+              In a prompt: {`{{story_quality_${selected.key}}}`} works everywhere; {`{{story_quality::${selected.key}}}`} needs SillyTavern&apos;s new macro engine.
+            </p>
             <div className="grid grid-cols-2 gap-3">
               <Field label="Type">
                 <select className="text_pole st-input" value={selected.type} disabled={isReserved} onChange={(event) => handleTypeChange(event.target.value as QualityType)}>

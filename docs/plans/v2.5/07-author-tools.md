@@ -220,3 +220,62 @@ Run-header capture/diff around each batch; `host.macroEngine` must differ only i
 - A3: replay only the chat's own retained window (≤ 200 boundaries), or also offer replay over an archived journey
   record file for authors testing a story offline?
 - A2: when a key is unknown, return `(no quality "k")` (visible to the model) or an empty string?
+
+## Gate record (code items)
+
+**2026-09-26, branch `worktree-agent-a1dcb4e24f2e1e018` (fast-forwarded to master `06ea92d` first). Code items only. Nothing ran live: no lane, no main ST, nothing under `C:\dev\so-lanes`.** Built with the review edits already in this doc: A4 has no ±2 % check (#46), A1 is gated on plan 10's Author-session row (#47), A3 runs its own J3/J7 ×2 (#8/#44), gate replay reads a new `evaluated` blackboard and skips manual activations (#43/#45). Plan 03 runs in parallel, so `runtimeManager.ts` (663 raw lines, untouched) and every coordinator are unchanged; new work sits in new modules (`modelCalls.ts`, `promptBuckets.ts`, `promptBucketsHost.ts`, `studio/gateReplay.ts`) wired through `snapshotBuilder`, `runtime/index.ts` (+2 lines) and `index.tsx`.
+
+### Decisions this build took (each the plan's own recommendation; the user's call stands)
+
+| Q | Taken |
+|---|---|
+| A1: may SO add a button to ST's message actions? | **Not built.** The plan 10 Author-session row exists (`10-acceptance.md:245-246`), but no session has run, so the gate is unmet. A1 stays "not built in v2.5" until the row fails or the author asks for per-message entry; the baseline amendment is not taken. |
+| A2: unknown key → text or empty? | `(no quality "k")`, visible, as designed. |
+| A3: replay window | The chat's own retained window only (≤ 200 boundaries); no replay over archived record files in the UI. |
+| A5: who stamps `callId` on audits? | Nobody yet: H4 is not on master, so there is no `callId` to stamp. Blocked on plan 13 H4; plan 07 owns it when H4 lands. |
+
+### Items (failing test first unless noted)
+
+| Commit | Item | Red first → green | Controls |
+|---|---|---|---|
+| `2d882a7` | **A2** `stHost/macroEngine.ts` (`macros.register` with `unnamedArgs` + `strictArgs: true`, unregister through `macros.registry`, typed results); `registerHostMacro` takes an argument-macro definition and routes it there (the user rule: new macros go through `registerHostMacro`); one `story_quality` macro: value, `(unset)`, or `(no quality "k")`; capability `macroArgs` (present only with `macros.register` and the new engine; the detail names the per-key fallback); Studio key help line; host facts v25-07-H1..H7 | 7 red (macroEngine, qualityMacros, macros, capabilities) → green | no `macros.register` and a `null` registration own nothing; a macro is unregistered only by the seam that registered it |
+| `68dba90` | **A3 core** `BoundaryLogEntry.evaluated` = values `selectFiring` read (after the drain + mechanical refresh, before progress), `null` on a manual activation; `evaluateGate` takes a `{get}` reader; `studio/gateReplay.ts` `replayGate` | engine 4 red → green; `replayGate` 10 cases (module missing = red) | property: 6 stories (sun-ruins, both Adolion fixtures, branching, linear, convergence-drift) × 25 seeds, 40 steps, 5 % manual activations: every unchanged gate's decision equals the recording at every source boundary, fires > 20, progress fires > 0 |
+| `a4bdd02` | **A3 UI** `GateReplayPanel` under the `GateBuilder` (`[data-so="gate-replay"]`, `data-state` holds/never/unavailable; summary, unknown, valid-until, definition-edit limit, rows with `/chat-jump`); source only when the Studio opens from the drawer (`intent.fromChat`), built in `index.tsx` from the chat's persisted `engineHistory` + pinned story, injected by `GateReplayContext` (the Studio imports no runtime) | `buildReplaySource`/`qualitySignature`/`draftEdges` 3 red → green; stories written with the panel | "no history" and "opened without a chat" stories |
+| `37d32f0` | **A5** (form without H4) `runtime/modelCalls.ts`: judge rows `judge:typesafe:<model>`, LLM rows (shared read, director/fallback speaker pick, last curator pass) route `null` → "route not recorded"; snapshot `modelCalls`; Scheduler-tab `ModelCallsPanel` (`[data-so="model-calls"]`); journal judge events carry `detail.route`; `so-journal` markdown route column | modelCalls 6 (module missing = red), journal 1 red → green | rule and mention picks are not model calls; a judge call no model answered has no route |
+| `89d9ac1` | **A4** `stHost/promptBuckets.ts` (read-only `openai.js` `promptManager`) + pure `promptBucketsParse.ts`; `runtime/promptBuckets.ts` groups main / character / world info / chat history / other, Σ vs `tokenUsage`, SO's T19a count inside chat history and never summed, tokenizer-disagreement flag; refresh off `GENERATE_AFTER_DATA` on a timer; next-turn header line `[data-so="next-turn-buckets"]`; host facts v25-07-H8..H13 | parse 5 + view 5 (modules missing = red) → green | Text Completion shows nothing (quiet); a transient read failure keeps the last good view, a switch away from CC clears it |
+| `302b010` | harness: `so-ui model-calls | gate-replay [i] | gate-replay-history --out`, next-turn state carries buckets, scenario `ui` actions `model-calls`/`gate-replay`, `assert-player-clean` sweeps `[data-so="gate-replay"]`, `[data-so="model-calls"]`, `[data-so="model-call"]`, `[data-so="next-turn-buckets"]`, `.so-inspect`, `#so-inspector` | node:test 2 red (import) → green | — |
+| `1d270ec` | mutations `test/findings/mutations/v25-07.txt`: 15 mutants, **15 killed** (incl. the plan's: replay on `before`, on raw `after.blackboard`, drop `atSource`, register/read present on the old engine, infer an LLM route, count a depth block as its own bucket) | — | baseline and restored 88/88 |
+
+### Deviations and findings (read before trusting the list above)
+
+- **A4 was built before its Phase 0.** The order of work puts Phase 0 (a CC lane, two loud generations) first. It is live, so the seam and header are built from source reads (v25-07-H8..H13) and Phase 0 is pending. `tokenUsage` is `getTotal()` of the same counts (`openai.js:3472`), so Σ = total holds by construction; the live run checks the identifiers are stable and that our view equals ST's.
+- **A4 has no settings capability row.** `ccPromptBuckets` as a capability would read "unavailable" in yellow on every Text Completion install (this one included). The header states the reason instead, and says nothing on Text Completion.
+- **`macroArgs` reads absent on an install with the new engine off**, so such an install shows one more yellow capability row. That is a real limit of the feature, stated with the fallback. The probe is cached per page load like the others; Recheck re-reads a flipped setting (the macro itself needs no reload, H6).
+- **A3's live correctness check is not run, and neither is plan 10's H-k.** Two vehicles exist: `src/studio/gateReplay.records.test.ts` replays every `engine-history-*.json` under `test/journeys/records/v2.5-plan07/` (it **skips** until records exist, and then requires 100 % and at least one progress fire), and `so-ui gate-replay-history --out <file>` writes that file from a live chat when H-k is not built. The UI shipped before the live check, which the plan orders the other way; the offline property over six stories is the evidence until then, and a live miss still blocks the UI.
+- **Replay source is the persisted blob, not the engine**: `loadPersistedRuntime(storyId).engineHistory` (in-memory chat metadata, written on every persist). A boundary committed and not yet persisted is not replayed.
+- The **Studio's source story** is still `active.raw ?? getPlayedStoryRaw()` (`index.tsx` `openStudio`): the library record when the chat plays a story the library holds. `declared` comes from the pinned story (`manager.getStory()`), so replay is against what the chat played; the limit line appears when the draft's quality definitions differ from it.
+- **Red-first exceptions**: the Storybook stories, `GateReplayPanel`, `ModelCallsPanel`, `promptBucketsHost.ts` and the `so-journal` route column were written with or before their tests. The mutation sweep covers the logic they render.
+- Four runtime wiring suites mock `@services/STAPI` by hand and needed `readPromptBuckets` added (`startupWiring`, `loreForceWiring`, `generationWiring`, `lifecycleDispose`).
+- The legacy-free guards (`src` and scripts) forbid the word in new code and fixtures, so the old-engine leg fixture is named `live-v25-07-a2-engine-off.json`.
+
+### Machine gates on HEAD `1d270ec`
+
+- `npm run typecheck && npm run typecheck:test && npm run lint && npm test` → exit 0; jest **282 suites passed, 1 skipped (the A3 records test, no records yet) / 4022 tests passed, 1 skipped**.
+- `npm run test:debug` → **317 pass / 0 fail** (after the build; without `dist/` the run-header manifest test fails, an environment limit); `npm run debug:typecheck` → exit 0.
+- `ST_PUBLIC=C:/dev/SillyTavern-MainBranch/public npm run build` → OK (bundle `6d6abda42307`, source `63e6238304bd`, ST 1.19.0); `npm run test:release` → **37 / 37** with `ST_PUBLIC`.
+- Storybook (nested-worktree form, as plan 11/01): `node ../../../node_modules/storybook/bin/index.cjs build --output-dir .sb-static`, `npx http-server .sb-static -p 6117`, then `node ../../../node_modules/@storybook/test-runner/dist/test-storybook.js --url http://127.0.0.1:6117 --maxWorkers 1 --index-json` → **37 suites / 261 tests passed** (includes `Studio/GateReplayPanel` 5, `Drawer/ModelCallsPanel` 3, `NextTurnPanel` +4, `QualityEditor` MacroHelp, `TransitionEditor` without a chat). Run `npm run test-storybook:ci` verbatim from the main checkout at merge.
+- `architecture.test.ts` 13/13; manager and coordinators untouched; ownership census and fault matrix unchanged (no new write after an await).
+- `st-session.mts reload`: not run (nothing live).
+
+### Live pending (LANES ONLY; ×2 consecutive on one lane, one bundle per record, run header captured and diffed around each batch, records under `test/journeys/records/v2.5-plan07/`)
+
+| Gate | Command / vehicle | Notes |
+|---|---|---|
+| A2 new engine | `node scripts/debug/so-scenario.mts run test/scenarios/live-v25-07-a2-quality-arg.json --sandbox --group <id>` | both forms reach the real request with the same value after a `/cp set`; undeclared key named; AN restored |
+| A2 engine off | switch `experimental_macro_engine` off, `st-session.mts reload`, `so-scenario.mts run test/scenarios/live-v25-07-a2-engine-off.json --sandbox --group <id>`, switch back on + reload | `#so-capability-macroArgs` names the fallback; `::` literal; per-key resolves; `host.macroEngine` is the one declared diff |
+| A3 correctness (before the freeze) | J3 and J7 ×2 on a dev candidate; before each sandbox cleanup `node scripts/debug/so-ui.mts gate-replay-history --out test/journeys/records/v2.5-plan07/<run>/engine-history-<check>.json` (or plan 10 H-k once built); then `npx jest src/studio/gateReplay.records.test.ts` | 100 % of recorded fires reproduced; at least one fire carrying `effects.progress`; any miss blocks the UI |
+| A3 UI | play J3 on a lane, drawer Author view → Edit story → Transitions, edit a threshold, `so-ui.mts gate-replay <i>` | first-hold boundary equals offline `replayGate` over the exported history; the unchanged gate shows the recorded fire |
+| A4 + Phase 0 | CC profile per v2.4 plan 06 (`chat_template_kwargs {enable_thinking:false}`), `/profile`, `so-scenario.mts run test/scenarios/live-v25-07-a4-buckets.json --sandbox --group <id>`; record the identifiers as host facts; switch back, delete the CC profile, read back, diff the run header | Σ identifiers = `tokenUsage`, view equals ST's, SO shown inside chat history, identifiers stable across two generations |
+| A5 (no H4) | `so-scenario.mts run test/scenarios/live-v25-07-a5-calls.json --sandbox --group <id>`, then `so-ui.mts model-calls` (author view) and `so-journal.mts export --kind judge` | LLM rows "route not recorded", judge rows `judge:typesafe:<model>`; the routed form waits on plan 13 H4 |
+| Player clean | `so-ui.mts assert-player-clean` in player mode on a lane after any of the above | the new selectors never appear on a player surface |
+| A1 | not built | waits on plan 10's Author session (the row at `10-acceptance.md:245-246`) and the baseline decision |

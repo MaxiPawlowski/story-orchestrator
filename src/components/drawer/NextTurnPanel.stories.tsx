@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { fn, within, userEvent, expect } from "@storybook/test";
 import { buildForeignRows, buildNextTurnCost, buildNextTurnPreview, type NextTurnBudget, type NextTurnSourceBlock, type TokenCount } from "@runtime/nextTurn";
 import type { RuntimeSnapshot } from "@runtime/types";
+import { bucketView } from "@runtime/promptBuckets";
 import { NextTurnPanel } from "./NextTurnPanel";
 
 const OWN: NextTurnSourceBlock[] = [
@@ -108,5 +109,40 @@ export const MemoryTrim: Story = {
     await expect(trim).toHaveTextContent("3 of 5 rows · 380 of 400 budget tokens · 2 trimmed · 1 held out before the budget");
     await expect(trim).toHaveTextContent("this session's largest 400");
     await expect(canvasElement.querySelector('[data-so="next-turn-row"][data-key="story_orchestrator_pacing"] [data-so="next-turn-trim"]')).toBeNull();
+  },
+};
+
+const withBuckets = (state: RuntimeSnapshot["nextTurnBuckets"]): RuntimeSnapshot => ({ ...snapshotWith(host, BUDGET), nextTurnBuckets: state }) as RuntimeSnapshot;
+
+export const ChatCompletionBuckets: Story = {
+  args: { snapshot: withBuckets(bucketView({ main: 120, charDescription: 300, worldInfoBefore: 40, chatHistory: 2000, summary: 60 }, 2520, 150)) },
+  play: async ({ canvasElement }) => {
+    const line = canvasElement.querySelector('[data-so="next-turn-buckets"]');
+    await expect(line?.getAttribute("data-state")).toBe("matches");
+    await expect(line).toHaveTextContent("Prompt: main 120 · character 300 · world info 40 · chat history 2000 (of which Story Orchestrator 150) · other 60 · of 2520");
+  },
+};
+
+export const ChatCompletionBucketsDisagree: Story = {
+  args: { snapshot: withBuckets(bucketView({ main: 10, chatHistory: 20 }, 40, 90)) },
+  play: async ({ canvasElement }) => {
+    const line = canvasElement.querySelector('[data-so="next-turn-buckets"]');
+    await expect(line?.getAttribute("data-state")).toBe("mismatch");
+    await expect(line).toHaveTextContent("ST reports 40");
+    await expect(canvasElement.querySelector('[data-so="next-turn-buckets-tokenizers"]')).not.toBeNull();
+  },
+};
+
+export const ChatCompletionBucketsUnavailable: Story = {
+  args: { snapshot: withBuckets({ unavailable: "the prompt manager has no token counts", quiet: false }) },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('[data-so="next-turn-buckets"]')).toHaveTextContent("the prompt manager has no token counts");
+  },
+};
+
+export const TextCompletionShowsNoBuckets: Story = {
+  args: { snapshot: withBuckets({ unavailable: "the main API is not Chat Completion", quiet: true }) },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('[data-so="next-turn-buckets"]')).toBeNull();
   },
 };

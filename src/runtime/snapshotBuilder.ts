@@ -18,7 +18,9 @@ import { samplerOverlay } from "./samplerOverlay";
 import { scanGateView, wiGatingStatus } from "./worldInfoMode";
 import { buildForeignRows, buildNextTurnCost, buildNextTurnPreview } from "./nextTurn";
 import { promptCost } from "./promptCost";
+import { promptBuckets } from "./promptBuckets";
 import { roleHealth } from "./roleHealth";
+import { buildModelCalls } from "./modelCalls";
 import { readChatIdentity } from "./chatIdentity";
 import type { ExtensionPromptBlocks } from "@services/STAPI";
 import type { ExtractionHealth } from "@extraction/index";
@@ -93,6 +95,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     budget: cost.budget,
   });
   const nextTurnForeign = buildForeignRows(sources.promptBlocks.foreign, countOf, cost.budget);
+  const nextTurnCost = buildNextTurnCost(nextTurn, nextTurnForeign, cost.budget, cost.lastGenerationBudget);
   const narrative = buildNarrativeStatus({
     storyTitle: story?.title ?? null,
     checkpointName: active?.name ?? null,
@@ -185,7 +188,9 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     nextTurn,
     chatJump: jumpIndex(sources.chat, sources.fingerprints),
     nextTurnForeign,
-    nextTurnCost: buildNextTurnCost(nextTurn, nextTurnForeign, cost.budget, cost.lastGenerationBudget),
+    nextTurnCost,
+    nextTurnBuckets: promptBuckets.view(nextTurnCost.ownTokens),
     roleRoutes: roleHealth.view(),
+    modelCalls: buildModelCalls({ judgeCalls: extras.judge.calls, audits: extras.extraction.audits, talkDecisions: extras.talk.decisions, curatorPass: extras.stagecraft.lastPass }),
   };
 }

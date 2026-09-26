@@ -1,7 +1,7 @@
 import { ApplyQueue, type ApplyQueueEntry, type QueueDrainResult } from "./applyQueue";
 import { Blackboard, type BlackboardSnapshot } from "./blackboard";
 import { applyTransitionProgress } from "./convergence";
-import type { CheckpointEffects, NormalizedStoryV2, NormalizedTransition } from "./schema";
+import type { CheckpointEffects, NormalizedStoryV2, NormalizedTransition, PrimitiveValue } from "./schema";
 import { selectFiring } from "./transitions";
 
 export interface EngineHost {
@@ -45,6 +45,7 @@ export interface BoundaryLogEntry {
   source: "gate" | "manual";
   context: BoundaryContext;
   queue: QueueDrainResult;
+  evaluated: Record<string, PrimitiveValue> | null;
 }
 
 // The oldest point a rollback can reach, and everything that gets there. Persisted with the state:
@@ -214,6 +215,7 @@ export class StoryEngine {
     this.refreshMechanicalQualities();
 
     const outgoing = story.outgoingByCheckpoint[this.activeCheckpointId] ?? [];
+    const evaluated = blackboard.snapshot().values;
     const fired = selectFiring(outgoing, blackboard);
     let effects: CheckpointEffects | null = null;
 
@@ -232,7 +234,7 @@ export class StoryEngine {
 
     this.boundary += 1;
     const after = this.serialize();
-    this.boundaryLog.push({ at: this.host.now(), boundary: this.boundary, before, after, fired, source: "gate", context: normalizedContext, queue });
+    this.boundaryLog.push({ at: this.host.now(), boundary: this.boundary, before, after, fired, source: "gate", context: normalizedContext, queue, evaluated });
     if (this.boundaryLog.length > 200) this.boundaryLog.shift();
     this.recordSnapshot();
 
@@ -277,7 +279,7 @@ export class StoryEngine {
     this.visitedPath.push(id);
     this.boundary += 1;
     const after = this.serialize();
-    this.boundaryLog.push({ at: this.host.now(), boundary: this.boundary, before, after, fired: null, source: "manual", context: normalizedContext, queue });
+    this.boundaryLog.push({ at: this.host.now(), boundary: this.boundary, before, after, fired: null, source: "manual", context: normalizedContext, queue, evaluated: null });
     if (this.boundaryLog.length > 200) this.boundaryLog.shift();
     this.recordSnapshot();
     return { boundary: this.boundary, queue, fired: null, effects: checkpoint.effects ?? null, activeCheckpointId: this.activeCheckpointId, context: normalizedContext, previousLastMessageId: before.lastMessageId };

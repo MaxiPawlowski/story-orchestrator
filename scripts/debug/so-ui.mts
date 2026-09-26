@@ -1,3 +1,4 @@
+import { writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON, writeScreenshot } from './lib/output.mts';
@@ -581,12 +582,60 @@ export async function getNextTurnState(page) {
     return {
       visible: Boolean(root),
       cost: root ? { text: text(root.querySelector('[data-so="next-turn-cost"]')), budget: root.querySelector('[data-so="next-turn-cost"]')?.getAttribute('data-budget') ?? null, drift: text(root.querySelector('[data-so="next-turn-budget-drift"]')) } : null,
+      buckets: root?.querySelector('[data-so="next-turn-buckets"]') ? { state: root.querySelector('[data-so="next-turn-buckets"]').getAttribute('data-state'), text: text(root.querySelector('[data-so="next-turn-buckets"]')) } : null,
       rows: Array.from(root?.querySelectorAll('[data-so="next-turn-row"]') ?? []).map((row) => ({ key: row.getAttribute('data-key'), tokens: text(row.querySelector('[data-so="next-turn-tokens"]')), trim: text(row.querySelector('[data-so="next-turn-trim"]')) })),
       foreign: Array.from(root?.querySelectorAll('[data-so="next-turn-foreign-row"]') ?? []).map((row) => ({ key: row.getAttribute('data-key'), text: text(row)?.slice(0, 200) ?? null, controls: row.querySelectorAll('button').length })),
       snapshot: snapshot ? { nextTurn: (snapshot.nextTurn ?? []).map((row) => ({ key: row.key, tokens: row.tokens ?? null, tokenSource: row.tokenSource ?? null, share: row.share ?? null })), cost: snapshot.nextTurnCost ?? null, foreign: (snapshot.nextTurnForeign ?? []).map((row) => row.key) } : null,
     };
   });
   return tabError ? { ...state, tabError } : state;
+}
+
+// v2.5 plan 07 A5: the author Calls list (Scheduler tab) next to the snapshot rows that rendered it.
+export async function getModelCallsState(page) {
+  const tabError = await showDrawerTab(page, 'Scheduler');
+  const state = await evaluateInST(page, () => {
+    const text = (node) => node?.textContent?.trim() ?? null;
+    const root = document.querySelector('#drawer-manager [data-so="model-calls"]');
+    return {
+      visible: Boolean(root),
+      rows: Array.from(root?.querySelectorAll('[data-so="model-call"]') ?? []).map((row) => ({ kind: row.getAttribute('data-kind'), route: text(row.querySelector('[data-so="model-call-route"]')), result: text(row.querySelector('[data-so="model-call-result"]')) })),
+      snapshot: globalThis.storyOrchestratorRuntime?.getSnapshot?.()?.modelCalls ?? null,
+    };
+  });
+  return tabError ? { ...state, tabError } : state;
+}
+
+// v2.5 plan 07 A3: the Studio's gate replay for one transition (Transitions tab, the Studio opened from the drawer).
+export async function getGateReplayState(page, { transition = 0 } = {}) {
+  await switchStudioTab(page, 'Transitions');
+  const button = page.locator('#so-studio-modal ul[aria-label="Transitions"] button').nth(transition);
+  if (await button.count()) await button.click();
+  return evaluateInST(page, () => {
+    const text = (node) => node?.textContent?.trim() ?? null;
+    const root = document.querySelector('#so-studio-modal [data-so="gate-replay"]');
+    return {
+      visible: Boolean(root),
+      state: root?.getAttribute('data-state') ?? null,
+      summary: text(root?.querySelector('[data-so="gate-replay-summary"]')) ?? text(root),
+      cut: text(root?.querySelector('[data-so="gate-replay-cut"]')),
+      unknown: text(root?.querySelector('[data-so="gate-replay-unknown"]')),
+      rows: Array.from(root?.querySelectorAll('[data-so="gate-replay-row"]') ?? []).map((row) => ({ boundary: Number(row.getAttribute('data-boundary')), text: text(row) })),
+    };
+  });
+}
+
+// v2.5 plan 07 A3: what the offline correctness check replays (src/studio/gateReplay.records.test.ts reads
+// test/journeys/records/v2.5-plan07/**/engine-history-*.json in this shape).
+export function gateReplayHistoryFrom(blob) {
+  const record = blob?.stories?.[blob?.selectedStoryId];
+  if (!record?.pinnedStory || !record?.engineHistory) return null;
+  return { storyId: record.storyId ?? blob.selectedStoryId, pinnedStory: record.pinnedStory, engineHistory: record.engineHistory };
+}
+
+export async function getGateReplayHistory(page) {
+  const blob = await evaluateInST(page, () => SillyTavern.getContext().chatMetadata?.story_orchestrator ?? null);
+  return gateReplayHistoryFrom(blob);
 }
 
 // v2.4 plan 08 T19c: the fate badge each memory row carries, counted on the page and in the snapshot.
@@ -865,6 +914,8 @@ export const PLAYER_FORBIDDEN_SELECTORS = [
   // v2.4 plan 08: token costs, foreign blocks, memory fates and message jumps are author view only.
   '[data-so="next-turn-cost"]', '[data-so="next-turn-tokens"]', '[data-so="next-turn-trim"]', '[data-so="next-turn-foreign"]', '[data-so="next-turn-foreign-row"]',
   '[data-so="memory-fate"]', '[data-so="jump-to-message"]',
+  // v2.5 plan 07: gate replay, the Calls list, the Chat Completion buckets and the (not built) message inspector.
+  '[data-so="gate-replay"]', '[data-so="model-calls"]', '[data-so="model-call"]', '[data-so="next-turn-buckets"]', '.so-inspect', '#so-inspector',
 ];
 
 // v2.4 plan 03 X17: recovery controls ARE player-visible (pipeline "Try again", backlog "Stop"), so the
@@ -956,7 +1007,7 @@ export async function openStoryDrawer(page) {
   return { alreadyOpen: false };
 }
 
-const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|stagecraft|curator-accept|curator-reject|memory-queue|hit-test|branch-continue|screenshot> [label]
+const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|stagecraft|curator-accept|curator-reject|memory-queue|model-calls|gate-replay|gate-replay-history|hit-test|branch-continue|screenshot> [label]
 
 all: print settings + drawer state.
 settings: print settings panel state.
@@ -985,6 +1036,9 @@ memory-queue [action] [--key <conflictKey>] [--side <n>] [--index <n>]: the reco
   Actions: keep|lock (--key, --side), reread|dismiss (--key), reconfirm|discard (--index into the quarantined list).
   It clicks the panel's own control, then re-reads, so the result shows what the author would see after the click.
 hit-test <selector>: ask which element is topmost at the target's own centre. Exits 1 when a real pointer would not land on it.
+model-calls: the author Calls list (Scheduler tab): each row's kind, route ("route not recorded" for LLM passes until plan 13 H4) and result (v2.5 plan 07 A5).
+gate-replay [transitionIndex]: the Studio's gate replay panel for one transition (open the Studio from the drawer first) (v2.5 plan 07 A3).
+gate-replay-history --out <file>: write this chat's {storyId, pinnedStory, engineHistory} for the offline A3 correctness check.
 branch-continue: open the drawer Overview, hit-test #so-branch-continue, click it with a real pointer and wait for #so-branch-notice to go (v2.4 plan 02).
 screenshot [label]: take an annotated screenshot.`;
 
@@ -1071,6 +1125,27 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       const state = await getPipelineState(page);
       console.log(JSON.stringify(state, null, 2));
       await writeJSON(state, 'so-ui-pipeline');
+    }
+
+    if (subcommand === 'model-calls') {
+      const state = await getModelCallsState(page);
+      console.log(JSON.stringify(state, null, 2));
+      await writeJSON(state, 'so-ui-model-calls');
+    }
+
+    if (subcommand === 'gate-replay') {
+      const state = await getGateReplayState(page, { transition: Number(process.argv[3] ?? 0) || 0 });
+      console.log(JSON.stringify(state, null, 2));
+      await writeJSON(state, 'so-ui-gate-replay');
+    }
+
+    if (subcommand === 'gate-replay-history') {
+      const history = await getGateReplayHistory(page);
+      if (!history) throw new Error('this chat has no selected story record with a pinned story and an engine history');
+      const index = process.argv.indexOf('--out');
+      const out = index >= 0 ? process.argv[index + 1] : null;
+      if (out) await writeFile(out, JSON.stringify(history, null, 2));
+      console.log(JSON.stringify({ storyId: history.storyId, boundaries: history.engineHistory.log.length, out }, null, 2));
     }
 
     if (subcommand === 'assert-player-clean') {

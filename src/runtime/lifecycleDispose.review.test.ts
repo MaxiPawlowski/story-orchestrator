@@ -47,6 +47,7 @@ jest.mock("@services/STAPI", () => ({
   readInjectedPromptBlocks: () => [],
   readExtensionPromptBlocks: () => ({ own: [], foreign: [] }),
   readPromptBudget: () => ({ ok: false, reason: "no host in this test" }),
+  readPromptBuckets: () => ({ ok: false, reason: "no host in this test" }),
   showTextPopup: async () => undefined,
 }));
 

@@ -1,4 +1,5 @@
 export { getContext, getPlayerName, registerHostMacro, unregisterHostMacro } from "@services/stHost/context";
+export type { HostArgMacro } from "@services/stHost/macroEngine";
 export { showTextPopup, showConfirmPopup, showChoicePopup } from "@services/stHost/popup";
 export { bindNavbarDrawerToggle, toggleNavbarDrawer } from "@services/stHost/drawers";
 export { sendSystemChatMessage } from "@services/stHost/chatMessages";
@@ -8,6 +9,8 @@ export type { ExtensionPromptBlock, ExtensionPromptBlocks, InjectedPromptBlock }
 export { readPromptBudget } from "@services/stHost/contextBudget";
 export { sendChatJump } from "@services/stHost/chatJump";
 export type { PromptBudget, PromptBudgetRead } from "@services/stHost/contextBudget";
+export { readPromptBuckets } from "@services/stHost/promptBuckets";
+export type { PromptBucketsRead } from "@services/stHost/promptBucketsParse";
 export type { StoryOrchestratorHostContext } from "@services/stHost/context";
 export { subscribeToHostEvent, subscribeToHostEvents } from "@services/stHost/events";
 export type { HostEventPayloads, HostEventName, TypedHostEventHandler, HostSubscriptionEntry } from "@services/stHost/events";

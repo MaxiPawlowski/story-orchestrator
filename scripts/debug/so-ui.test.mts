@@ -6,7 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { assignedRoleProfiles, branchContinue, closeCharacterPanel, jumpToCitation, memoryQueueSelector, PLAYER_FORBIDDEN_SELECTORS, PLAYER_RECOVERY_CONTROLS, recoveryControlFindings } from './so-ui.mts';
+import { assignedRoleProfiles, branchContinue, closeCharacterPanel, gateReplayHistoryFrom, jumpToCitation, memoryQueueSelector, PLAYER_FORBIDDEN_SELECTORS, PLAYER_RECOVERY_CONTROLS, recoveryControlFindings } from './so-ui.mts';
 
 test('keep and lock address the side row inside the named pair', () => {
   assert.equal(memoryQueueSelector({ action: 'keep', key: 'fact:abc' }), '[data-so="conflict-pair"][data-key="fact:abc"] [data-so="conflict-keep"] >> nth=0');
@@ -142,4 +142,17 @@ test('assigned role profiles resolve to the offered label, and a dangling id rea
 test('jump refuses when no citation matches instead of clicking nothing', async () => {
   const page = { locator: () => ({ nth: () => ({ count: async () => 0 }) }) } as never;
   await assert.rejects(jumpToCitation(page, {}), /no citation matched \[data-so="jump-to-message"\] \(index 0\)/);
+});
+
+test('v2.5 plan 07: the player-clean sweep forbids the author tools (gate replay, calls, buckets, inspector)', () => {
+  for (const selector of ['[data-so="gate-replay"]', '[data-so="model-calls"]', '[data-so="model-call"]', '[data-so="next-turn-buckets"]', '.so-inspect', '#so-inspector']) {
+    assert.ok(PLAYER_FORBIDDEN_SELECTORS.includes(selector), selector);
+  }
+});
+
+test('v2.5 plan 07 A3: the replay history is the selected story record of the chat blob, pinned story and engine history together', () => {
+  const record = { storyId: 's1', pinnedStory: { title: 'S' }, engineHistory: { from: { boundary: 0, messageId: -1 }, base: {}, log: [{ boundary: 1 }] } };
+  assert.deepEqual(gateReplayHistoryFrom({ selectedStoryId: 's1', stories: { s1: record, s2: { storyId: 's2' } } }), { storyId: 's1', pinnedStory: record.pinnedStory, engineHistory: record.engineHistory });
+  assert.equal(gateReplayHistoryFrom({ selectedStoryId: 's2', stories: { s2: { storyId: 's2' } } }), null);
+  assert.equal(gateReplayHistoryFrom(null), null);
 });
