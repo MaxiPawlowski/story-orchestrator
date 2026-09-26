@@ -4,11 +4,11 @@
 harnesses' CLI (like claude code, and opencode) for each non narrative llm call"). Phase 0 (host facts, isolation
 spike) can run now. The build depends on **11** (settings `schema: 1` baseline), **03** (the client seam stays one
 injected call surface) and **12** (the plugin enters the artifact allowlist and the security gate). Its live gates are
-plan 10 rows H1–H5. Verified against master `e7626d7`. **Re-verify every path:line before building** (v2.4 rule 1).
+plan 10 rows H1–H5. Verified against master `e7626d7`; revised 2026-09-26 (configurable knobs H7, spikes made steps H8–H10, role order H6). **Re-verify every path:line before building** (v2.4 rule 1).
 
 ## Goal
 
-Every non-narrative LLM call (the five `PassRole` families) can be answered by a **cloud model reached through a CLI
+Every non-narrative LLM call (the `PassRole` families: five today, nine after H9) can be answered by a **cloud model reached through a CLI
 harness the user is already logged into**: Claude Code (`claude -p`), Codex (`codex exec`) or opencode
 (`opencode run`), per role, next to today's Connection Manager profiles. This uses the user's subscriptions and lets
 different model families serve different roles. It does not replace anything:
@@ -42,8 +42,11 @@ different model families serve different roles. It does not replace anything:
 per-call record and a usage meter for the memory-model transport (none exists today); the settings UI, capability probe,
 Repair rows and egress copy; per role × route calibration; three harnesses (Claude Code, Codex, opencode).
 
-**Spikes, not builds:** H-S1 warm harness servers (`opencode serve` + `run --attach`, `codex app-server`); H-S2 splitting
-`authoring` into `wizard` / `expansion` / `critic`, so the critic can be a different family from the generator; H-S3
+**Plan steps that were spikes (user, 2026-09-26: "make them real plan steps"):** H8 warm harness servers, H9 the role
+split (`authoring` → `wizard` / `expansion` / `critic`; `read` → `read` / `memorize` / `epistemic`), H10 the cross-family
+critic. Each keeps a predeclared decision condition; a miss removes the step's code, it is not retuned.
+
+**Still a candidate, not a step here:** H-S3
 "LLM-as-judge via a harness" (belongs to plan 06, listed there as a candidate).
 
 **Out:** the narrative reply and NPC replies (`effectsApplier.ts:127`, `runtime/index.ts:269`); the TypeSafe judge
@@ -101,10 +104,10 @@ transport behind `callExtractionReply`, not a change to any coordinator. The rou
 | | | No system-prompt flag in `exec --help`; the instruction goes in the prompt, or a config key (unverified) | `codex exec --help` |
 | | | Quota: the ChatGPT plan answered "usage limit … try again at Sep 27th, 2026 8:58 PM" (2026-09-25) | memory `codex-review-pending` |
 | | | The Windows sandbox broke Codex MCP read-only mode on this box; `codex exec` works | memory `codex-review-pending` |
-| opencode | 1.18.31 (1.18.32 available; upgrade needs an elevated shell, choco) | `opencode run`: `--format json` (JSONL events: `step_start`, `text`, `step_finish` with `tokens`, or `error`), `-m provider/model`, `--agent`, `--pure` (no external plugins), `--dir`, `--variant` (effort), `--attach <url>` to a running `opencode serve` | `opencode run --help` |
+| opencode | 1.18.31 at the probes; 1.18.32 since 2026-09-26 (choco, elevated) | `opencode run`: `--format json` (JSONL events: `step_start`, `text`, `step_finish` with `tokens`, or `error`), `-m provider/model`, `--agent`, `--pure` (no external plugins), `--dir`, `--variant` (effort), `--attach <url>` to a running `opencode serve` | `opencode run --help` |
 | | | Credentials here: OpenAI (OAuth, ChatGPT plan), Z.AI Coding Plan (API), lm-studio-custom | `opencode auth list` |
 | | | **gpt-6 family works through the ChatGPT login** (user's pick): `openai/gpt-6-astra-fast` 6.0 s, `openai/gpt-6-astra` 6.7 s wall. `gpt-5.4-mini` is refused ("not supported when using Codex with a ChatGPT account") | probe 2026-09-25 |
-| | | Default agent: **5 029 input tokens** for PONG. An inline agent via `OPENCODE_CONFIG_CONTENT` (`prompt` replaced, `tools {"*": false}`, edit/bash/webfetch `deny`) + `--agent`: **133 input tokens**, same answer, 6.7 s wall. So startup, not the model, is most of opencode's latency (H-S1) | probe 2026-09-25 |
+| | | Default agent: **5 029 input tokens** for PONG. An inline agent via `OPENCODE_CONFIG_CONTENT` (`prompt` replaced, `tools {"*": false}`, edit/bash/webfetch `deny`) + `--agent`: **133 input tokens**, same answer, 6.7 s wall. So startup, not the model, is most of opencode's latency (H8) | probe 2026-09-25 |
 | | | `--pure` does not isolate config: `opencode debug config` shows a user agent loaded from the global config | `opencode debug config` |
 | | | Exit code 1 on an API error, with a JSONL `error` event (`APIError`, `statusCode`, `responseBody`) | probe 2026-09-25 |
 | | | A 429 from Z.AI ("Insufficient balance", `isRetryable: true`) was **retried internally for 79 s** before returning. The plugin's own deadline must win | probe 2026-09-25 |
@@ -125,7 +128,11 @@ dir) that P0-2 and plan 12 PS-H 5 plant canaries in.
 ```
 type ModelRoute =
   | { kind: "profile"; profileId: string }
-  | { kind: "harness"; harness: "claude" | "codex" | "opencode"; model: string; effort?: string };
+  | { kind: "harness"; harness: "claude" | "codex" | "opencode"; model: string; options?: HarnessRouteOptions };
+type HarnessRouteOptions = {        // every field optional; unset = the H7 default
+  effort?: string; maxInputTokens?: number; maxOutputTokens?: number;
+  timeoutScale?: number; transport?: "spawn" | "server";   // "server" only after H8 passes
+};
 type RoleRoute = { route: ModelRoute; onFailure?: { profileId: string } };
 extraction.routes: Partial<Record<PassRole, RoleRoute>>   // replaces extraction.profiles (rule 9: no migration)
 ```
@@ -225,9 +232,11 @@ Process rules (each one a test in `plugin.test.mjs` plus the plan-12 security ga
 - The scheduler gates each lane by **the breaker of the route its next job uses**, fixing the "both lanes gated by
   the read profile" gap (`scheduler.ts:413,456`) at the same time, because a read on a local profile and a synthesis
   on a harness must not hold each other.
-- The token budget of a harness route is the lower of the model's context (from `/status`) and a setting
-  `harness.maxInputTokens` (default 32 768). A subscription counts tokens, so memorize whole-chat and canon passes are
-  bounded by choice, not by the model's 200k.
+- The token budget of a harness route is `options.maxInputTokens` if set, else the model's context from `/status` minus
+  the role's output reserve (the same `inputBudget` arithmetic a profile uses, `extraction/inputBudget.ts`). No fixed cap
+  (user, 2026-09-26: 32k "is not near enough"). What a call costs a subscription is shown, not capped: the role Test and
+  the H4 meter report tokens per call and per session, and the preflight confirm (`requestBudget.ts:19`) fires for a
+  harness route over a configurable token threshold, as it does today for memorize.
 
 ### H4 — Call record and usage meter
 
@@ -247,7 +256,7 @@ Process rules (each one a test in `plugin.test.mjs` plus the plan-12 security ga
   capability is present. An "On failure" select next to a harness route (none / a profile).
 - Each role shows what it sends, like `JUDGE_USE_COPY` (`judge/settings.ts:156-171`), with the vendor named:
   "Story reads send the last N messages, the story's qualities and the current checkpoint to Anthropic via
-  Claude Code." `read` carries epistemic and ledger passes, so its copy says private knowledge is sent too.
+  Claude Code." `epistemic` (H9) carries the epistemic and ledger passes, so its copy says private character knowledge is sent.
 - The role Test button reports p50/p90 latency and tokens per call for the route. The director shows the measured p90
   against its 20 s budget and a warning above 4 s (it runs before the group reply).
 - Author view: the meter per route. Player mode: nothing new (rule 7), except the pipeline's existing pause copy.
@@ -256,6 +265,74 @@ Process rules (each one a test in `plugin.test.mjs` plus the plan-12 security ga
 
 Decided by Phase A only. Defaults stay "Same as memory model" for every role (goal 1), whatever the numbers.
 `docs/plans/v2.5/recommended-config.md` gains a column per route.
+
+**Phase A order, proposed 2026-09-26 (the roles after H9).** Cloud first where a local run is measured weak, a pass is
+rare, or a bigger context fixes a recorded failure. Local first where a pass is frequent, on-path or private.
+
+| Order | Role | First arms | Why |
+|---|---|---|---|
+| 1 | `wizard` | `claude:opus`, `claude:sonnet`, `opencode:openai/gpt-6-astra` | Rare, interactive, quality-bound. Local authoring missed its es opShape floor (v2.5-seeds §E, es 7/8 < 0.90) |
+| 2 | `memorize` | `claude:sonnet`, `opencode:openai/gpt-6-astra-fast` | Whole-chat pass timed out on the local backend (A11: 256 s at 481 tok/s). A 200k context takes it in one call |
+| 3 | `synthesis` | `claude:sonnet`, `opencode:openai/gpt-6-astra` | Canon, arc and scene prose: off-path and a few calls per scene |
+| 4 | `expansion` + `critic` | generator `claude:sonnet`, critic `opencode:openai/gpt-6-astra` and the reverse (H10) | The one place two families check each other |
+| 5 | `curator` | `claude:haiku`, `opencode:openai/gpt-6-astra-fast` | Local now meets every curator floor (`65733265d301`); cloud only if it beats that |
+| 6 | `read` (cadence) | `claude:haiku`, `opencode:openai/gpt-6-astra-fast` | Every few turns, so the heaviest on quota; it also frees the shared llama-server for lanes (seeds E1). Measure calls per J3 session before recommending |
+| — | `epistemic` | local | Private knowledge per character. Routable, but the copy warns it sends secrets; not in the first arms |
+| — | `director` | local | On-path before the group reply; 2–7 s spawn. Measured only as H5 |
+
+### H7 — Configuration (every knob is a setting)
+
+Install-wide under `extraction` (settings `schema: 1`, plan 11); per-route values override the harness defaults.
+
+| Setting | Scope | Default | Notes |
+|---|---|---|---|
+| `routes[role].route` | per role | unset = memory profile | H1 |
+| `routes[role].onFailure` | per role | none (pause) | a profile the author picks |
+| `routes[role].route.options.model` / `effort` | per route | the harness's own default | effort maps to `--effort` (Claude), `--variant` (opencode), `-c model_reasoning_effort` (Codex) |
+| `options.maxInputTokens` | per route | model context − output reserve | no fixed cap (H3) |
+| `options.maxOutputTokens` | per route | the role's `maxTokensFor` value | enforced as `maxOutputChars` where the CLI has no flag |
+| `options.timeoutScale` | per route | 1 | multiplies `callTimeoutMs`; spawn cost is added on top |
+| `options.transport` | per route | `spawn` | `server` offered only after H8 passes for that harness |
+| `harness.preflightTokens` | install | 60 000 | a harness call above it asks first, like memorize today |
+| `harness.<name>.binary` | install (server config) | resolved from PATH | set in the plugin's config, not the page (the page never names a path) |
+| `harness.<name>.concurrency` | install (server config) | 2 | plus per-role single-flight (review edit) |
+| `harness.<name>.queueLimit` | install (server config) | 8 | |
+| `harness.allowNonAdmin` | install (server config) | false | Q2 |
+
+Server-side values live in the plugin's own config file (not extension settings), so a page cannot widen them.
+
+### H8 — Warm harness servers (was spike H-S1)
+
+opencode spends ~5–6 s of a 6.7 s PONG on startup (§Host facts). `opencode serve` + `run --attach <url>` and
+`codex app-server` keep one process warm per harness.
+- **Decision condition (predeclared):** on the P0-1 PONG set, `server` p50 wall ≤ 0.6 × `spawn` p50 **and** H-N1, H-N1b,
+  P0-2 and P0-7 all pass against the server (its config is the isolated one), 5/5. Else `transport: server` is not
+  offered for that harness and its code is removed.
+- The server binds loopback only, with a random port and a password the plugin generates (`--password`), and is started
+  and stopped by the plugin's `init`/`exit`. Claude Code has no server mode: it stays `spawn`.
+
+### H9 — Role split (was spike H-S2)
+
+`PASS_ROLES` becomes nine: `read` (cadence and manual reads), `memorize` (backlog windows and whole-chat pass,
+`extractionCoordinator.ts:480-494`), `epistemic` (epistemic + ledger passes, `:384,402`), `synthesis`, `wizard` (copilot
+stages, suggest, report; `copilotCoordinator.ts:46`), `expansion` (generation + repair; `generation/generate.ts:30-44`),
+`critic` (LLM critic and variant pick; `generation/critic.ts:99`, `generate.ts:98`), `director`, `curator`.
+- Each caller passes its new role; the census test (`passProfiles.test.ts:63-81`) is extended so every
+  `callExtractionReply` site names one of the nine.
+- An unset new role falls back exactly as today (memory profile), so the split changes nothing until a route is set.
+- Calibration fixtures: `authoring.json` → `wizard`; a new `critic.json` (≥ 20 planted-defect chains plus ≥ 10 clean
+  ones, Spanish slice, labels frozen before any answer is read) with floors **catch ≥ 0.80, false flag ≤ 0.10**;
+  `memorize` and `epistemic` are scored by the live suite's facts / epistemic tiers (plan 05 F2 fixtures).
+- Rule 9: `extraction.routes` is new under `schema: 1`, so no migration of `extraction.profiles` (plan 11 already
+  resets pre-release settings shapes).
+
+### H10 — Cross-family critic (new step)
+
+With `expansion` and `critic` routable apart, measure whether a critic from a different family catches more than one
+from the generator's family.
+- Arms on `critic.json`: same family (sonnet generates, sonnet critiques) vs cross (sonnet / gpt-6-astra) and the reverse.
+- **Decision condition:** cross catch ≥ same catch + 0.10 with false flag ≤ 0.10, in both runs. Met: the recommended
+  config pairs families. Not met: recorded; the roles stay independently routable (H9 needs no H10 result).
 
 ## Phase 0 — host facts and the isolation spike (runs now, no product code)
 
@@ -283,8 +360,8 @@ on it. Codex waits for its quota (2026-09-27 20:58).
   `test/fixtures/role-calibration/{curator,authoring,synthesis}.json`; the read role through the live suite
   (`so-live-suite run --min 0.9 --min-tier facts=0.68,rejected=0.9 --expect-count 22`,
   `v2.4/04-extraction-input-quality.md:341`). No new floor, none retuned.
-- **Arms:** `shared-65733265d301` (recorded, the local baseline), `claude:haiku`, `claude:sonnet`,
-  `opencode:openai/gpt-6-astra-fast`, `opencode:openai/gpt-6-astra`, `codex:<default>` when its quota is back.
+- **Arms:** `shared-65733265d301` (recorded, the local baseline) plus the per-role arms in H6's table, run in that
+  order; `codex:<default>` joins each row when its quota is back. Roles are H9's nine.
   `so-role-calibration.mts --arm harness:<name>:<model>`.
 - Each arm runs **twice** (no sampler control, so ×2 also measures variance). Goldens under
   `test/goldens/live/role-calibration/<role>-<arm>.json`, replayed in jest like the existing ones.
@@ -334,10 +411,10 @@ time**, and relieves the llama-server contention of v2.5-seeds E1 for the roles 
   verified here; the README states the user runs each harness under their own account, and question Q1 is the user's.
 - **Your dev quota is the product's quota.** Phase A on `claude:*` spends the same Claude plan this repo is
   developed with. Budget it per run (the call counts above) and run it off-hours.
-- **Privacy.** Chat text, including epistemic secrets (role `read`), leaves the machine to Anthropic or OpenAI. The
+- **Privacy.** Chat text, including epistemic secrets (role `epistemic` after H9), leaves the machine to Anthropic or OpenAI. The
   per-role copy names the vendor; plan 12's privacy section and egress gate cover it.
 - **Latency.** 2–7 s per call before the model works. Fine off-path; the director is the only on-path role (warned).
-- **Harness drift.** Flags change between CLI versions (opencode 1.18.31 → .32 pending). `/status` records the version,
+- **Harness drift.** Flags change between CLI versions (opencode upgraded 1.18.31 → 1.18.32 on 2026-09-26; Phase 0 re-runs on it). `/status` records the version,
   the run header diffs it, and `plugin.test.mjs` pins the argv per harness version family.
 - **Budget lines.** No coordinator line is needed (one seam). The ring gets at most 10 manager lines, reserved by
   plan 03 (`03-code-health.md` budget reservation); plan 03 frees them first (overview rule 12).
@@ -347,8 +424,8 @@ time**, and relieves the llama-server contention of v2.5-seeds E1 for the roles 
 - Q1 Vendor terms for subscription use from the extension: acceptable to you for personal use, and what does the README say for other users?
 - Q2 Multi-user ST: harness routes admin-only (default), or open to every user of the install?
 - Q3 API-key billing through the same harnesses (e.g. `ANTHROPIC_API_KEY` + `--bare`) — in 2.5, or subscriptions only?
-- Q4 Split `authoring` into `wizard` / `expansion` / `critic` (spike H-S2) before Phase A, so each gets its own route?
-- Q5 Default `harness.maxInputTokens` 32 768 — right cap for your plans?
-- Q6 Which roles do you most want on cloud first (my guess: `authoring` for the wizard, then `synthesis`)?
+- ~~Q4~~ Decided 2026-09-26: the split is step H9 (user: make the spikes real steps).
+- ~~Q5~~ Decided 2026-09-26: no fixed cap; every knob configurable (H3, H7).
+- Q6 H6's proposed Phase A order (wizard, memorize, synthesis, expansion+critic, curator, read; epistemic and director local): accept?
 - Q7 Should the plugin always spawn each CLI with a plugin-owned config home holding only the login, so that user-level
   instructions can never reach the model by construction?
