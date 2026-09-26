@@ -13,6 +13,7 @@ import {
   setGroupMembersDisabled,
   getActiveGroup,
   getContext,
+  guardHostStream,
   isHostGenerating,
   stopHostGeneration,
 } from "@services/STAPI";
@@ -370,9 +371,12 @@ export class EffectsApplier {
   }
 
   private async speak(reply: NpcReplyEffect) {
-    const lapse = reply.kind === "scripted" ? undefined : this.ownership.signal?.();
+    if (reply.kind === "scripted") return fireReply(reply);
+    const stream = guardHostStream(openChatId());
+    const lapse = this.ownership.signal?.();
     const before = generationWatch.openedCount();
     const stopIfOurs = () => {
+      if (stream.halt()) return;
       if (before !== null && generationWatch.openedCount() === before + 1 && isHostGenerating()) stopHostGeneration();
     };
     lapse?.addEventListener("abort", stopIfOurs, { once: true });
@@ -380,6 +384,7 @@ export class EffectsApplier {
       await fireReply(reply);
     } finally {
       lapse?.removeEventListener("abort", stopIfOurs);
+      stream.release();
     }
   }
 

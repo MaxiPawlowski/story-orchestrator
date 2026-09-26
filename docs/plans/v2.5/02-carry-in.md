@@ -328,3 +328,34 @@ A fix has to act before the swap (for example, stop or detach the stream before 
 
   Re-seed both lanes (`st-lanes seed <n> --fresh`) before the next batch.
 - localStorage: `so-v25-a11-scale` removed. The read-back shows no `so-v25-*` keys and no `storyOrchestratorDebug*` globals (`<rec>/localstorage-cleanup.log`).
+
+## Gate record (code, D1/C7 fixes, 2026-09-26)
+
+Built on master `0ae7107` in a worktree. Nothing live ran (no lanes, no main ST). The live re-runs owed are listed per item.
+
+### C1 / D1: the in-flight NPC reply no longer lands in the next chat
+
+**Mechanism: a chat-identity guard on the stream's own write path** (`src/services/stHost/streamGuard.ts`, wired as `guardHostStream` in `stHost/generation.ts`, armed by `EffectsApplier.speak` for every `llm` reply).
+
+Host evidence (ST `7c3994196`):
+- No event fires before the swap. `event_types` has no pre-change event (`events.js:3-111`). Every switch path clears and repoints first and emits `CHAT_CHANGED` only after the next chat is loaded and printed: `getChat` → `chat.splice` (`script.js:7658`) → `loadItemizedPrompts` + `printMessages` → `CHAT_CHANGED` (`:7700`); `/go` → `openChat` sets the character before `reloadCurrentChat` (`slash-commands.js:5110-5115`, `script.js:1710-1723`); `openGroupChat` clears, then repoints `chat_id`, then loads (`group-chats.js:2203-2210`); `openCharacterChat` the same (`script.js:7744-7749`). So anything hooked on `CHAT_CHANGED` runs after the ticks have already been able to write into the loaded chat.
+- ST's switch guards are partial. `selectCharacterById` refuses while a group generates (`script.js:885-887`) and `openGroupById` while `is_send_press || is_group_generating` (`group-chats.js:2029`), but `/go` (`slash-commands.js:5085-5115`), the past-chats list (`bookmarks.js:688-716` → `openGroupChat`/`openCharacterChat`) and the welcome screen (`welcome-screen.js:494,522`) have none. Holding the switch is not ours to do.
+- Every write the stream makes goes through one instance method. Ticks call `this.onProgressStreaming(this.messageId, …)` (`script.js:3896`), which writes `chat[messageId].mes` (`:3679-3685`); the finish calls `onFinishStreaming` → `finalizeIntermediaryMessage` → `this.onProgressStreaming(…, true)` (`:3756`, `:3808-3810`), then `saveChatConditional()` (`:3815`). Generate reaches the finish only when `!isStopped && isFinished` (`:5408`, `:5439`).
+- Why the step-2 stop made it worse: `stopGeneration` → `onStopStreaming` sets `isFinished = true` (`:3847-3850`, `:5607-5610`), so the aborted stream takes the finish path and saves into the chat now open. That is D1's stack exactly.
+- `chat` is one live array mutated in place (`script.js:411`, `:1604`, `:7658`), and `getCurrentChatId()` reads the selected group or character (`:541-547`). In every switch path the chat id changes or the array is cleared before the next chat is loaded, and the load needs a fetch, so a synchronous check at the write sees the move before the next chat's rows exist.
+
+The guard wraps `onProgressStreaming` on each streaming processor seen during the reply (armed on `STREAM_TOKEN_RECEIVED`, `script.js:3895`, and again by `halt()`). A write whose open chat id is not the reply's, or whose `chat[messageId]` is not the object the stream started on, is refused: the stream is marked `isStopped` + `isFinished` and its fetch aborted (`streamingProcessor.abortController`, `:6154-6160`), and the write throws. A tick's throw is caught by `generate()` without `onErrorStreaming` because `isFinished` is set (`:3900-3906`), so no `MESSAGE_RECEIVED` is emitted into the next chat; the finish's throw leaves `onFinishStreaming` before `saveChatConditional`. `release()` calls `activateSendButtons` (`:7075-7080`) only when a stream was halted, because a halted solo Generate never unblocks itself. The normal case is untouched: the check passes and the original method runs.
+
+Step-2 stop: kept only as the fallback where no streaming processor exists (non-streaming requests, or before the request). On lapse, `halt()` stops the live stream through the guard first and returns true, so `stopHostGeneration` is no longer called on a streaming reply (it would force the finish).
+
+Not covered (residual, stated in the fault matrix): a non-streaming response that arrives between the next chat's load and `CHAT_CHANGED` (`saveReply` appends into the open chat, `script.js:5531`); a streaming response whose headers arrive after the switch (`onStartStreaming` pushes its placeholder into the open chat, `:3633`).
+
+Tests (red first): `src/runtime/npcStreamLanding.review.test.ts` drives the real `EffectsApplier` and the real guard against a fake stream that mirrors `script.js:3874-3911` and Generate `:5396-5446`. On the unchanged applier it failed 4 of 5 (mid-stream with a tick after the load, natural finish, before the first token, send button); the control (no switch: lands and saves once) passed. `src/services/stHost/streamGuard.test.ts` (5). Mutants 6/6 killed (`test/findings/mutations/v25-c1-stream-guard.txt`). Fault matrix `effects|aborted` moved from covered to **partial** with the injected-switch citations and the residual above. Census row `EffectsApplier.speak` rewritten.
+
+Live re-run owed (lane, populated next chat, ×2), after `npm run build` and `st-session.mts reload` on the lane:
+1. `node scripts/debug/st-lanes.mts seed 1 --fresh`, then `node scripts/debug/st-lanes.mts run 1 -- scripts/debug/st-session.mts reload`, `node scripts/debug/st-lanes.mts run 1 -- scripts/debug/st-navigation.mts open-group 1759606632088`, `MSYS_NO_PATHCONV=1 node scripts/debug/st-lanes.mts run 1 -- scripts/debug/st-actions.mts slash "/profile Artemis RunPod RP"`.
+2. Pick a Ponticius solo chat with at least 2 messages and name it: `node scripts/debug/st-lanes.mts run 1 -- scripts/debug/st-eval.mts "localStorage.setItem('so-v25-c1-solo','<chat file name>')"`.
+3. `node scripts/debug/st-lanes.mts run 1 -- scripts/debug/st-eval.mts --file test/scenarios/live-v25-c1/setup.js`
+4. `node scripts/debug/st-lanes.mts run 1 -- scripts/debug/st-eval.mts --file test/scenarios/live-v25-c1/switch-populated.js > run-1.json` (the script now returns `verdict {landed, pass}`: the solo chat's rows on disk before vs after). Repeat 3-4 for run 2. Green = `discriminates: true` and `verdict.pass: true` on both runs; 2 of 2 landed on bundle `0f4332fac075`.
+5. Control on a mutant build with the guard's write check removed: expect `verdict.landed: true`.
+6. Clean up: `localStorage.removeItem('so-v25-c1-solo')`, the sandbox group chats and the `so-v25-c2c1` story (`so-library.mts remove "SO-V25-C2C1 save race and NPC switch"`).

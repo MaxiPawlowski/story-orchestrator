@@ -16,6 +16,7 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ chat: [{ mes: "hello" }], chatId: "chat-a", extensionSettings: {}, chatMetadata: {} }),
   getActiveGroup: () => null,
   isHostGenerating: () => host.generating,
+  guardHostStream: () => ({ halt: () => false, release: () => undefined }),
   stopHostGeneration: () => {
     host.stopped += 1;
     host.finish?.();
