@@ -86,6 +86,21 @@ describe("RuntimeManager snapshot cache", () => {
     expect(manager.getCachedSnapshot().judgeMeter.calls).toBe(before + 1);
   });
 
+  it("the memo deep-equals a fresh build after every step of a scripted sequence", () => {
+    const manager = new RuntimeManager();
+    const steps: Array<[string, () => void]> = [
+      ["read", () => undefined],
+      ["judge call", () => manager.recordJudgeCall(call)],
+      ["scene read", () => manager.recordSceneRead(null)],
+      ["notify", () => manager.notify()],
+      ["second judge call", () => manager.recordJudgeCall({ ...call, use: "warden" })],
+    ];
+    for (const [name, step] of steps) {
+      step();
+      expect({ name, snapshot: manager.getCachedSnapshot() }).toEqual({ name, snapshot: manager.getSnapshot() });
+    }
+  });
+
   it("control: without the touch, the cached snapshot would still show the old meter", () => {
     const manager = new RuntimeManager();
     const before = manager.getCachedSnapshot().judgeMeter.calls;

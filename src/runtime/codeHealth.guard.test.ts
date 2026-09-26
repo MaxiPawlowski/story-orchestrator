@@ -32,6 +32,13 @@ describe("code health ratchets (v2.5 plan 03 D0)", () => {
     expect(ratchetSet(measureS2(scan), spec.s2)).toEqual(clean);
   });
 
+  it("S2: the architecture guard keeps the lowered constants (a re-raised budget fails here)", () => {
+    const architecture = readFileSync(join(SRC, "runtime/architecture.test.ts"), "utf8");
+    const constant = (name: string) => Number(new RegExp(`${name} = (\\d+);`).exec(architecture)?.[1]);
+    expect({ manager: constant("MANAGER_LINE_BUDGET"), coordinator: constant("COORDINATOR_LINE_BUDGET") })
+      .toEqual({ manager: spec.budgets.manager, coordinator: spec.budgets.coordinator });
+  });
+
   it("S2 control: a planted 561-line coordinator and a 701-line manager fail", () => {
     const result = measureS2(planted({ "src/runtime/coordinators/planted.ts": lines(561), "src/runtime/runtimeManager.ts": lines(701), "src/runtime/coordinators/fine.ts": lines(560) }));
     expect(result).toEqual(["src/runtime/coordinators/planted.ts", "src/runtime/runtimeManager.ts"]);
