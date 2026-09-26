@@ -1,0 +1,59 @@
+{
+  "probe": "p04",
+  "started": "2026-09-26T12:51:58.048Z",
+  "finished": "2026-09-26T12:52:22.008Z",
+  "node": "v22.22.0",
+  "data": {
+    "opencodeBadModel": {
+      "code": 1,
+      "killed": null,
+      "wallMs": 4278,
+      "spawnMs": 10,
+      "spawnError": null,
+      "text": "",
+      "inputTokens": 0,
+      "cacheRead": 0,
+      "outputTokens": 0,
+      "totalIn": 0,
+      "reasons": [],
+      "types": [
+        "error"
+      ],
+      "toolEvents": 0,
+      "errors": [
+        "{\"name\":\"UnknownError\",\"data\":{\"message\":\"Unexpected server error. Check server logs for details.\",\"ref\":\"err_ecc3388c\"}}"
+      ],
+      "canariesInReply": [],
+      "stderrHead": ""
+    },
+    "opencodeLoggedOut": {
+      "code": 1,
+      "killed": null,
+      "wallMs": 3677,
+      "spawnMs": 9,
+      "spawnError": null,
+      "text": "",
+      "inputTokens": 0,
+      "cacheRead": 0,
+      "outputTokens": 0,
+      "totalIn": 0,
+      "reasons": [],
+      "types": [
+        "error"
+      ],
+      "toolEvents": 0,
+      "errors": [
+        "{\"name\":\"UnknownError\",\"data\":{\"message\":\"Unexpected server error. Check server logs for details.\",\"ref\":\"err_6382371c\"}}"
+      ],
+      "canariesInReply": [],
+      "stderrHead": "",
+      "note": "XDG_DATA_HOME throwaway: no auth.json"
+    },
+    "codexLoggedOut": {
+      "code": 1,
+      "wallMs": 15980,
+      "stdout": "{\"type\":\"thread.started\",\"thread_id\":\"01a0ddc5-dac0-7b73-b398-a2a463cd4dec\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"Reconnecting... 2/5 (unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: wss://api.openai.com/v1/responses, cf-ray: a4126829edde0360-MAD)\"}\n{\"type\":\"error\",\"message\":\"Reconnecting... 3/5 (unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: wss://api.openai.com/v1/responses, cf-ray: a412682d3a8f0144-MAD)\"}\n{\"type\":\"error\",\"message\":\"Reconnecting... 4/5 (unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: wss://api.openai.com/v1/responses, cf-ray: a41268338b4d24a7-MAD)\"}\n{\"type\":\"error\",\"message\":\"Reconnecting... 5/5 (unexpected status 401 Unauthorize",
+      "stderr": "2026-09-26T12:52:06.751938Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-26T12:52:06.868418Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-26T12:52:07.188167Z ERROR codex_api::e"
+    }
+  }
+}

@@ -1,0 +1,529 @@
+{
+  "probe": "p07",
+  "started": "2026-09-26T14:27:51.705Z",
+  "finished": "2026-09-26T14:29:55.971Z",
+  "node": "v22.22.0",
+  "data": {
+    "callsPerArm": 5,
+    "arms": {
+      "flagsOn": {
+        "runs": [
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 11934,
+            "spawnMs": 17,
+            "spawnError": null,
+            "text": "REPLYCANARY88FE0CAF",
+            "inputTokens": 155,
+            "cacheRead": 0,
+            "outputTokens": 13,
+            "totalIn": 155,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInReply": [],
+            "stderrHead": "",
+            "replyHasCanary": true,
+            "netSamples": 62
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 5894,
+            "spawnMs": 18,
+            "spawnError": null,
+            "text": "REPLYCANARY0EDED3F9",
+            "inputTokens": 159,
+            "cacheRead": 0,
+            "outputTokens": 15,
+            "totalIn": 159,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInReply": [],
+            "stderrHead": "",
+            "replyHasCanary": true,
+            "netSamples": 40
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 5681,
+            "spawnMs": 19,
+            "spawnError": null,
+            "text": "REPLYCANARYBB254DE6",
+            "inputTokens": 154,
+            "cacheRead": 0,
+            "outputTokens": 13,
+            "totalIn": 154,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInReply": [],
+            "stderrHead": "",
+            "replyHasCanary": true,
+            "netSamples": 40
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 6097,
+            "spawnMs": 19,
+            "spawnError": null,
+            "text": "REPLYCANARY08B8E591",
+            "inputTokens": 158,
+            "cacheRead": 0,
+            "outputTokens": 14,
+            "totalIn": 158,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInReply": [],
+            "stderrHead": "",
+            "replyHasCanary": true,
+            "netSamples": 41
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 6101,
+            "spawnMs": 19,
+            "spawnError": null,
+            "text": "REPLYCANARYE5F8375B",
+            "inputTokens": 158,
+            "cacheRead": 0,
+            "outputTokens": 15,
+            "totalIn": 158,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInReply": [],
+            "stderrHead": "",
+            "replyHasCanary": true,
+            "netSamples": 46
+          }
+        ],
+        "remotes": [
+          {
+            "remote": "104.20.32.17:443",
+            "state": "ESTABLISHED"
+          },
+          {
+            "remote": "104.18.32.47:443",
+            "state": "ESTABLISHED"
+          },
+          {
+            "remote": "104.16.7.34:443",
+            "state": "ESTABLISHED"
+          },
+          {
+            "remote": "172.64.155.209:443",
+            "state": "ESTABLISHED"
+          },
+          {
+            "remote": "104.16.5.34:443",
+            "state": "SYN_SENT"
+          },
+          {
+            "remote": "104.16.6.34:443",
+            "state": "SYN_SENT"
+          },
+          {
+            "remote": "104.16.2.34:443",
+            "state": "ESTABLISHED"
+          },
+          {
+            "remote": "172.66.173.149:443",
+            "state": "ESTABLISHED"
+          }
+        ],
+        "hostnames": {
+          "104.18.32.47": [
+            "chatgpt.com"
+          ],
+          "104.16.2.34": [
+            "registry.npmjs.org"
+          ],
+          "172.66.173.149": [
+            "models.opencode.ai"
+          ]
+        },
+        "dbRowDelta": {
+          "event": 77,
+          "event_sequence": 5,
+          "message": 10,
+          "part": 20,
+          "session": 5
+        },
+        "dbCanaryRows": {
+          "event": {
+            "PROMPTCANARY88FE0CAF": 3,
+            "REPLYCANARY88FE0CAF": 2,
+            "PROMPTCANARY0EDED3F9": 1,
+            "REPLYCANARY0EDED3F9": 2,
+            "PROMPTCANARYBB254DE6": 1,
+            "REPLYCANARYBB254DE6": 2,
+            "PROMPTCANARY08B8E591": 1,
+            "REPLYCANARY08B8E591": 2,
+            "PROMPTCANARYE5F8375B": 3,
+            "REPLYCANARYE5F8375B": 2
+          },
+          "part": {
+            "PROMPTCANARY88FE0CAF": 1,
+            "REPLYCANARY88FE0CAF": 2,
+            "PROMPTCANARY0EDED3F9": 1,
+            "REPLYCANARY0EDED3F9": 2,
+            "PROMPTCANARYBB254DE6": 1,
+            "REPLYCANARYBB254DE6": 2,
+            "PROMPTCANARY08B8E591": 1,
+            "REPLYCANARY08B8E591": 2,
+            "PROMPTCANARYE5F8375B": 1,
+            "REPLYCANARYE5F8375B": 2
+          },
+          "session": {
+            "PROMPTCANARY88FE0CAF": 1,
+            "PROMPTCANARYE5F8375B": 1
+          }
+        },
+        "realDirsNewer": {
+          "opencodeData": [
+            {
+              "file": "log\\opencode.log",
+              "size": 6785630,
+              "scanned": true,
+              "canaries": 0
+            },
+            {
+              "file": "opencode.db",
+              "size": 664526848,
+              "scanned": false
+            },
+            {
+              "file": "opencode.db-shm",
+              "size": 32768,
+              "scanned": false
+            },
+            {
+              "file": "opencode.db-wal",
+              "size": 8606712,
+              "scanned": false
+            }
+          ],
+          "opencodeConfig": [],
+          "opencodeCache": [],
+          "opencodeState": [],
+          "opencodeTmp": [],
+          "codexHome": []
+        },
+        "throwawayHomes": [
+          [],
+          [],
+          [],
+          [],
+          []
+        ]
+      },
+      "flagsOff": {
+        "runs": [
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 5925,
+            "spawnMs": 18,
+            "spawnError": null,
+            "text": "REPLYCANARY40C81093",
+            "inputTokens": 5061,
+            "cacheRead": 0,
+            "outputTokens": 13,
+            "totalIn": 5061,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInReply": [],
+            "stderrHead": "",
+            "replyHasCanary": true,
+            "netSamples": 43
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 7481,
+            "spawnMs": 20,
+            "spawnError": null,
+            "text": "REPLYCANARYD748D0BE",
+            "inputTokens": 1223,
+            "cacheRead": 3840,
+            "outputTokens": 14,
+            "totalIn": 5063,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInReply": [],
+            "stderrHead": "",
+            "replyHasCanary": true,
+            "netSamples": 52
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 5941,
+            "spawnMs": 19,
+            "spawnError": null,
+            "text": "REPLYCANARYE8B0AC0A",
+            "inputTokens": 5066,
+            "cacheRead": 0,
+            "outputTokens": 16,
+            "totalIn": 5066,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInReply": [],
+            "stderrHead": "",
+            "replyHasCanary": true,
+            "netSamples": 43
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 6022,
+            "spawnMs": 22,
+            "spawnError": null,
+            "text": "REPLYCANARY3AE49D64",
+            "inputTokens": 5063,
+            "cacheRead": 0,
+            "outputTokens": 14,
+            "totalIn": 5063,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInReply": [],
+            "stderrHead": "",
+            "replyHasCanary": true,
+            "netSamples": 42
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 8271,
+            "spawnMs": 19,
+            "spawnError": null,
+            "text": "REPLYCANARY43771D46",
+            "inputTokens": 1219,
+            "cacheRead": 3840,
+            "outputTokens": 13,
+            "totalIn": 5059,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInReply": [],
+            "stderrHead": "",
+            "replyHasCanary": true,
+            "netSamples": 50
+          }
+        ],
+        "remotes": [
+          {
+            "remote": "104.20.32.17:443",
+            "state": "ESTABLISHED"
+          },
+          {
+            "remote": "104.16.6.34:443",
+            "state": "ESTABLISHED"
+          },
+          {
+            "remote": "104.18.32.47:443",
+            "state": "ESTABLISHED"
+          },
+          {
+            "remote": "104.16.7.34:443",
+            "state": "ESTABLISHED"
+          },
+          {
+            "remote": "172.66.173.149:443",
+            "state": "ESTABLISHED"
+          },
+          {
+            "remote": "104.16.2.34:443",
+            "state": "ESTABLISHED"
+          },
+          {
+            "remote": "104.16.5.34:443",
+            "state": "ESTABLISHED"
+          },
+          {
+            "remote": "172.64.155.209:443",
+            "state": "ESTABLISHED"
+          }
+        ],
+        "hostnames": {
+          "104.18.32.47": [
+            "chatgpt.com"
+          ],
+          "104.16.2.34": [
+            "registry.npmjs.org"
+          ],
+          "172.66.173.149": [
+            "models.opencode.ai"
+          ]
+        },
+        "dbRowDelta": {
+          "event": 76,
+          "event_sequence": 5,
+          "message": 10,
+          "part": 20,
+          "session": 5
+        },
+        "dbCanaryRows": {
+          "event": {
+            "PROMPTCANARY40C81093": 1,
+            "REPLYCANARY40C81093": 2,
+            "PROMPTCANARYD748D0BE": 3,
+            "REPLYCANARYD748D0BE": 2,
+            "PROMPTCANARYE8B0AC0A": 1,
+            "REPLYCANARYE8B0AC0A": 2,
+            "PROMPTCANARY3AE49D64": 1,
+            "REPLYCANARY3AE49D64": 2,
+            "PROMPTCANARY43771D46": 1,
+            "REPLYCANARY43771D46": 2
+          },
+          "part": {
+            "PROMPTCANARY40C81093": 1,
+            "REPLYCANARY40C81093": 2,
+            "PROMPTCANARYD748D0BE": 1,
+            "REPLYCANARYD748D0BE": 2,
+            "PROMPTCANARYE8B0AC0A": 1,
+            "REPLYCANARYE8B0AC0A": 2,
+            "PROMPTCANARY3AE49D64": 1,
+            "REPLYCANARY3AE49D64": 2,
+            "PROMPTCANARY43771D46": 1,
+            "REPLYCANARY43771D46": 2
+          },
+          "session": {
+            "PROMPTCANARYD748D0BE": 1
+          }
+        },
+        "realDirsNewer": {
+          "opencodeData": [
+            {
+              "file": "log\\opencode.log",
+              "size": 6805930,
+              "scanned": true,
+              "canaries": 0
+            },
+            {
+              "file": "opencode.db",
+              "size": 664616960,
+              "scanned": false
+            },
+            {
+              "file": "opencode.db-shm",
+              "size": 32768,
+              "scanned": false
+            },
+            {
+              "file": "opencode.db-wal",
+              "size": 8606712,
+              "scanned": false
+            }
+          ],
+          "opencodeConfig": [],
+          "opencodeCache": [],
+          "opencodeState": [],
+          "opencodeTmp": [],
+          "codexHome": []
+        },
+        "throwawayHomes": [
+          [],
+          [],
+          [],
+          [],
+          []
+        ]
+      }
+    },
+    "attributable": {
+      "session": 80,
+      "message": 159,
+      "part": 313,
+      "todo": 0,
+      "session_message": 0,
+      "session_input": 0,
+      "session_context_epoch": 0,
+      "session_share": 0,
+      "event": 1236,
+      "event_sequence": 80,
+      "project_directory": 1
+    }
+  }
+}

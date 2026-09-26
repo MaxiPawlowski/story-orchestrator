@@ -1,0 +1,56 @@
+{
+  "probe": "p03",
+  "started": "2026-09-26T14:22:47.124Z",
+  "finished": "2026-09-26T14:23:05.738Z",
+  "node": "v22.22.0",
+  "data": {
+    "runs": [
+      {
+        "bin": "real",
+        "killed": "deadline",
+        "wallMs": 3500,
+        "overDeadlineMs": 500,
+        "tree": [
+          "conhost.exe"
+        ],
+        "aliveAfter": 0,
+        "checkMs": 839
+      },
+      {
+        "bin": "real",
+        "killed": "deadline",
+        "wallMs": 3773,
+        "overDeadlineMs": 773,
+        "tree": [
+          "conhost.exe"
+        ],
+        "aliveAfter": 0,
+        "checkMs": 797
+      },
+      {
+        "bin": "real",
+        "killed": "deadline",
+        "wallMs": 4001,
+        "overDeadlineMs": 1001,
+        "tree": [
+          "conhost.exe"
+        ],
+        "aliveAfter": 0,
+        "checkMs": 833
+      },
+      {
+        "bin": "chocoShim",
+        "killed": "deadline",
+        "wallMs": 4033,
+        "overDeadlineMs": 1033,
+        "tree": [
+          "conhost.exe",
+          "opencode.exe"
+        ],
+        "aliveAfter": 0,
+        "checkMs": 813
+      }
+    ],
+    "pass": false
+  }
+}

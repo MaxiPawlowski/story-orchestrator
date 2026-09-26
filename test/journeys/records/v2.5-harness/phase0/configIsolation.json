@@ -1,0 +1,90 @@
+{
+  "probe": "configIsolation",
+  "started": "2026-09-26T12:50:01.568Z",
+  "finished": "2026-09-26T12:50:12.922Z",
+  "node": "v22.22.0",
+  "data": {
+    "canaries": [
+      "cwdClaude",
+      "cwdAgents",
+      "xdgInstr",
+      "xdgAgentsMd",
+      "xdgAgent",
+      "xdgSkill",
+      "homeClaude",
+      "homeSkill"
+    ],
+    "isolated": {
+      "debug config": {
+        "code": 0,
+        "canariesSeen": [
+          "xdgAgent"
+        ],
+        "skillNamesSeen": [],
+        "realAgentNamesSeen": 0,
+        "realSkillNamesSeen": 0,
+        "realConfigPathSeen": false,
+        "chars": 790
+      },
+      "debug skill": {
+        "code": 0,
+        "canariesSeen": [
+          "xdgSkill"
+        ],
+        "skillNamesSeen": [
+          "canary-a87de824"
+        ],
+        "realAgentNamesSeen": 0,
+        "realSkillNamesSeen": 0,
+        "realConfigPathSeen": false,
+        "chars": 17765
+      },
+      "debug agent so-text": {
+        "code": 0,
+        "canariesSeen": [],
+        "skillNamesSeen": [],
+        "realAgentNamesSeen": 0,
+        "realSkillNamesSeen": 0,
+        "realConfigPathSeen": false,
+        "chars": 2322
+      }
+    },
+    "noQuiet": {
+      "debug config": {
+        "code": 0,
+        "canariesSeen": [
+          "xdgAgent"
+        ],
+        "skillNamesSeen": [],
+        "realAgentNamesSeen": 0,
+        "realSkillNamesSeen": 0,
+        "realConfigPathSeen": false,
+        "chars": 790
+      },
+      "debug skill": {
+        "code": 0,
+        "canariesSeen": [
+          "xdgSkill",
+          "homeSkill"
+        ],
+        "skillNamesSeen": [
+          "canary-a87de824",
+          "homecanary-a87de824"
+        ],
+        "realAgentNamesSeen": 0,
+        "realSkillNamesSeen": 0,
+        "realConfigPathSeen": false,
+        "chars": 18076
+      },
+      "debug agent so-text": {
+        "code": 0,
+        "canariesSeen": [],
+        "skillNamesSeen": [],
+        "realAgentNamesSeen": 0,
+        "realSkillNamesSeen": 0,
+        "realConfigPathSeen": false,
+        "chars": 2510
+      }
+    }
+  }
+}

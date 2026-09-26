@@ -1,0 +1,154 @@
+{
+  "probe": "hn1bOpencode",
+  "started": "2026-09-26T14:19:09.130Z",
+  "finished": "2026-09-26T14:22:47.122Z",
+  "node": "v22.22.0",
+  "data": {
+    "runs": [
+      {
+        "code": 0,
+        "killed": null,
+        "wallMs": 35035,
+        "spawnMs": 22,
+        "spawnError": null,
+        "text": "PONG",
+        "inputTokens": 135,
+        "cacheRead": 0,
+        "outputTokens": 6,
+        "totalIn": 135,
+        "reasons": [
+          "stop"
+        ],
+        "types": [
+          "step_start",
+          "text",
+          "step_finish"
+        ],
+        "toolEvents": 0,
+        "errors": [],
+        "canariesInReply": [],
+        "stderrHead": "",
+        "marker": true,
+        "nodeChildren": 1,
+        "mcpEvents": 0
+      },
+      {
+        "code": 0,
+        "killed": null,
+        "wallMs": 38038,
+        "spawnMs": 18,
+        "spawnError": null,
+        "text": "PONG",
+        "inputTokens": 134,
+        "cacheRead": 0,
+        "outputTokens": 6,
+        "totalIn": 134,
+        "reasons": [
+          "stop"
+        ],
+        "types": [
+          "step_start",
+          "text",
+          "step_finish"
+        ],
+        "toolEvents": 0,
+        "errors": [],
+        "canariesInReply": [],
+        "stderrHead": "",
+        "marker": true,
+        "nodeChildren": 1,
+        "mcpEvents": 0
+      },
+      {
+        "code": 0,
+        "killed": null,
+        "wallMs": 37328,
+        "spawnMs": 25,
+        "spawnError": null,
+        "text": "PONG",
+        "inputTokens": 134,
+        "cacheRead": 0,
+        "outputTokens": 6,
+        "totalIn": 134,
+        "reasons": [
+          "stop"
+        ],
+        "types": [
+          "step_start",
+          "text",
+          "step_finish"
+        ],
+        "toolEvents": 0,
+        "errors": [],
+        "canariesInReply": [],
+        "stderrHead": "",
+        "marker": true,
+        "nodeChildren": 1,
+        "mcpEvents": 0
+      },
+      {
+        "code": 0,
+        "killed": null,
+        "wallMs": 38582,
+        "spawnMs": 30,
+        "spawnError": null,
+        "text": "PONG",
+        "inputTokens": 134,
+        "cacheRead": 0,
+        "outputTokens": 6,
+        "totalIn": 134,
+        "reasons": [
+          "stop"
+        ],
+        "types": [
+          "step_start",
+          "text",
+          "step_finish"
+        ],
+        "toolEvents": 0,
+        "errors": [],
+        "canariesInReply": [],
+        "stderrHead": "",
+        "marker": true,
+        "nodeChildren": 1,
+        "mcpEvents": 0
+      },
+      {
+        "code": 0,
+        "killed": null,
+        "wallMs": 34966,
+        "spawnMs": 19,
+        "spawnError": null,
+        "text": "PONG",
+        "inputTokens": 134,
+        "cacheRead": 0,
+        "outputTokens": 6,
+        "totalIn": 134,
+        "reasons": [
+          "stop"
+        ],
+        "types": [
+          "step_start",
+          "text",
+          "step_finish"
+        ],
+        "toolEvents": 0,
+        "errors": [],
+        "canariesInReply": [],
+        "stderrHead": "",
+        "marker": true,
+        "nodeChildren": 1,
+        "mcpEvents": 0
+      }
+    ],
+    "control": {
+      "markerSeen": true,
+      "what": "opencode mcp list (no model call) with the same planted config",
+      "code": 0,
+      "marker": true,
+      "out": "T  MCP Servers\n|\n•  ✗ canary failed\n|      Operation timed out after 30000ms\n|      C:\\Program Files\\nodejs\\node.exe -e require('fs').writeFileSync(\"C:\\\\Users\\\\ROLAPO~1\\\\AppData\\\\Local\\\\Temp\\\\so-p0\\\\hn1b-oc-ctl-fNgII5\\\\mcp-marker.txt\", String(process.pid)); setTimeout(() => {}, 30000)\n|\n—  1 server(s)\n\n\r\n",
+      "nodeChildren": 1
+    },
+    "pass": false
+  }
+}
