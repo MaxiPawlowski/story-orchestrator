@@ -1,0 +1,90 @@
+{
+ "auditsSeen": 22,
+ "rejectedTotal": 4,
+ "reasons": {
+  "evidence not in window": 4
+ },
+ "evidenceNotInWindow": 4,
+ "rows": [
+  {
+   "at": "2026-09-26T01:30:35.378Z",
+   "window": {
+    "from": 0,
+    "to": 4
+   },
+   "inWindowShipped": [],
+   "anyChatShipped": [],
+   "windowIds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "wordOverlapMsgs": [],
+   "line": "DELTA luke_alive=true evidence=\"N/A\""
+  },
+  {
+   "at": "2026-09-26T01:30:35.378Z",
+   "window": {
+    "from": 0,
+    "to": 4
+   },
+   "inWindowShipped": [],
+   "anyChatShipped": [],
+   "windowIds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "wordOverlapMsgs": [],
+   "line": "DELTA luke_decision=\"undecided\" evidence=\"N/A\""
+  },
+  {
+   "at": "2026-09-26T01:30:35.378Z",
+   "window": {
+    "from": 0,
+    "to": 4
+   },
+   "inWindowShipped": [],
+   "anyChatShipped": [],
+   "windowIds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "wordOverlapMsgs": [],
+   "line": "DELTA reward_claimed=false evidence=\"N/A\""
+  },
+  {
+   "at": "2026-09-26T01:54:23.338Z",
+   "window": {
+    "from": 44,
+    "to": 51
+   },
+   "inWindowShipped": [],
+   "anyChatShipped": [],
+   "windowIds": [
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51
+   ],
+   "wordOverlapMsgs": [
+    45,
+    47,
+    49,
+    51
+   ],
+   "line": "DELTA reward_claimed=false evidence=\"The path is blocked! T-the Sphinx! We have to go through the Sphinx!\""
+  }
+ ]
+}

@@ -316,7 +316,7 @@ new or changed book is re-declared here first, never moved on the fly.
 **Dangling bindings:**
 - The 10 chats that bind a moved per-chat book read it as empty. ST checks `world_names` (`world-info.js:1014,1168`) and
   loads by name (`:2036-2058`).
-- On a confirmed Restart the mirror adopts a fresh per-chat book.
+- A confirmed Restart leaves the slot as it is. The mirror adopts a fresh per-chat book on its first write (the first sync with a live `relationship` row); until then the dangling slot reads as empty, and the adoption replaces it (verdict (a), leftovers gate record).
 
 **Vehicle:** `scripts/debug/so-legacy-books.mts plan|move|verify|restore-check --root <data> --dest <dir>`, with node:test
 coverage for the candidate rule, the collision refusal and the manifest.
@@ -530,3 +530,73 @@ Machine gates after the fixture changes (no src change): `npm test` 267 suites /
 - Lane 2: D2/D3 and the PR-08 lane-2 round-trip of one D1 book (main session, after J7).
 - H20 deletion, S9 re-point, closing the twin baseline (Gate record steps 0-8 §Still needed); mutation sweep M1-M10; `test-storybook:ci`; Verified ST host facts row for `SlashCommandEnumValue`.
 - J10.9/J10.10 and J1.8/J1.9 human rows unscored.
+
+## Gate record (code leftovers: H20, S9, twin baseline, mutants, storybook, host fact, mirror)
+
+Date 2026-09-26. Branch `worktree-agent-a94c9f25a1e7473b5`, fast-forwarded to master `13b76f8`. Code and docs only: no lane, no main ST, nothing under `C:\dev\so-lanes` touched. Worktree gates use a `node_modules` junction to the main checkout and `ST_PUBLIC=C:/dev/SillyTavern-MainBranch/public`.
+
+Baseline on `13b76f8` (before any change): `npm run typecheck && npm run typecheck:test && npm run lint` exit 0; `npm test` 267 suites / 3891 tests pass; `npm run test:debug` 296 tests, 1 fail (`so-run-header.test.mts` "the build half reads plan 08s nested manifest": the fresh worktree has no `dist/manifest.json`; green after `npm run build`), so every later `test:debug` run follows a build.
+
+### 1. H20, S9, twin baseline (`cfd9542`)
+
+- H20: `--legacy-mirrors`, `AssetsArgs.legacyMirrors`, `LEGACY_PREFIX`/`CHAT_ID_SUFFIX`, `legacyMirrorTargets` and its S9 test deleted from `scripts/debug/lib/assetScope.mts`, `assetScope.test.mts`, `so-assets.mts` (21 hits: 7 + 4 + 10). `removeMarkedAssets` scopes to the marker/ledger set only; `clean` no longer carries `legacyLeft`.
+- S9: `test/findings/ledger.json` `provenBy` → `scripts/debug/lib/assetScope.test.mts :: regex scripts and QR sets are in scope by marker prefix only (S9)` (`findingsLedger.test.ts` 6/6).
+- Twin baseline: `test/findings/legacy-baseline-scripts.json` `closed: true`, `baseline: {}`; allowlist unchanged (the three `so-legacy-books` name lines).
+- `.claude/rules/gotchas.md` cleanup bullet: `--legacy-mirrors` noted as removed by H20.
+- Gates: typecheck, typecheck:test, lint, debug:typecheck exit 0; `npm test` 267 / 3891 pass; `npm run test:debug` 295 tests, 294 pass, 1 skipped, 0 fail (one test fewer: the deleted S9 legacy-mirror case).
+
+### 2. Mutation sweep M1-M10
+
+Record: `test/findings/mutations/v25-11-legacy.txt`. Every mutant applied through `node scripts/mutate.mjs … --find … --replace … -- <cmd>` (the file is restored after each run; `git status` clean of src after the sweep).
+
+| # | Mutant | Command | Result |
+|---|---|---|---|
+| M1 | `KNOWN_VERSIONS=[4, BLOB_VERSION]` | jest `blobUnreadable.review.test.ts` | 3 failed / 16, CAUGHT |
+| M2 | `chatIdentity` `!== 4` | jest `chatIdentity.review` + `branchContinue.review` | 13 failed / 33, CAUGHT |
+| M3 | record guard (`every(isCurrentRecord)`) removed | jest `blobUnreadable.review.test.ts` | 5 failed / 16, CAUGHT |
+| M4 | sanitizer keeps envelope-less rows | jest `extrasHydrate.test.ts` | 1 failed / 10, CAUGHT |
+| M5 | unknown-key `addError` removed | jest `stagecraftFormat` + `agency` | 3 failed / 19, CAUGHT |
+| M6 | `settingsRoot()` stamps on read | jest `settingsRoot.test.ts` | 3 failed / 7, CAUGHT |
+| M7 | `createdLorebooks ?? session?.applied` restored | jest `copilotOwnedLorebooks.test.ts` | 1 failed / 6, CAUGHT |
+| M8 | src guard allowlist match widened to `/.*/` | jest `legacyFree.guard.test.ts` | 1 failed / 10, CAUGHT |
+| M8b | same widening in the twin guard | `node --test scripts/debug/legacyFree.test.mts` | first run SURVIVED (6/6 pass); control gained "a different legacy line in an allowlisted file is unexpected"; rerun 1 fail, CAUGHT |
+| M9 | D1 filter accepts a `so-owner` book | `node --test scripts/debug/so-legacy-books.test.mts` | 6 failed / 12, CAUGHT |
+| M10 | destination-root collision check skipped | same | first run SURVIVED (12/12 pass: the test matched `/already exists/`, and the later `mkdir(dest)` EEXIST satisfied it); test now asserts `/refused: destination root .* already exists/`; rerun 1 fail, CAUGHT |
+
+Gates after the two test fixes: typecheck, typecheck:test, lint, debug:typecheck exit 0; `npm test` 267 / 3891 pass; `npm run test:debug` 295 tests, 294 pass, 1 skipped, 0 fail.
+
+### 3. `test-storybook:ci`
+
+GREEN: 34 suites / 241 tests pass (interaction + a11y, "No accessibility violations detected" on every suite), on the storybook build of `83ffea0`. No plan-11 defect: the stories plan 11 deleted (`MemoryLegacyRowsAreAStatedUnknown`, `ALegacySideReadsAsUnknown`) are gone from the index and nothing else referenced them.
+
+- `npm run test-storybook:ci` itself exits 1 in this worktree with "No tests found", before any story runs. Cause is the worktree location, not the code: the runner's glob is `join(workingDir, "src/**/*.stories.@(ts|tsx)")`, the project root resolves to the MAIN checkout (git root lookup; the worktree's `.git` is a file), and with `STORYBOOK_PROJECT_ROOT` pointed at the worktree the joined pattern reads `story-orchestrator\.claude/worktrees/…`, where micromatch takes `\.` as an escaped dot, so 0 files match. Same result with the root given in forward or back slashes.
+- Run that passed: `npm run storybook:build` (inside the ci script, build OK), then `concurrently -k -s first "npm run serve-sb" "wait-on -t 60000 http://127.0.0.1:6006 && node node_modules/@storybook/test-runner/dist/test-storybook.js --url http://127.0.0.1:6006 --maxWorkers 1 --index-json"` (`.debug/sb.sh`). `--index-json` builds the test list from the served `index.json`, i.e. every story in the build, instead of globbing source files. The plain `npm run test-storybook:ci` should still be run from the main checkout at merge time.
+
+### 4. Verified ST host facts: `SlashCommandEnumValue` (`83ffea0`)
+
+Row added to `docs/plans/v2/00-implementation-overview.md` §Verified ST host facts, after `executeSlashCommandsWithOptions`. Verified on `C:\dev\SillyTavern-MainBranch` (package.json `1.19.0`): `public/scripts/st-context.js:98` imports it from `./slash-commands/SlashCommandEnumValue.js`, `:169` exposes it on the context; class at `public/scripts/slash-commands/SlashCommandEnumValue.js:42`, constructor `:62` `(value, description = null, type = 'enum', typeIcon = '◊', …)`. Consumer: `runtime/slashCommands.ts` `buildEnumList` (the `/story` argument enum list). The `hostTypes.ts:82` comment still says ST 1.18.0, where C3 verified it; both versions export it.
+
+### 5. Mirror after Restart: verdict (a), by design
+
+L3 saw, after a confirmed Restart plus one real turn, the chat's lorebook slot still naming its D1-moved per-chat book and `memory.wiBook` null. Read-only investigation says this is the designed behaviour, not a dangling binding that is never replaced:
+
+- **The mirror creates a book only when it has something to mirror.** `syncMemoryMirror` (`src/runtime/memoryMirror.ts:90-91`): `const owned = input.book?.chatId === chatId ? input.book : null; if (!owned && !live.length) return idle;`. `live` is `mirroredEntries`, which keeps only live, unsuperseded, unfolded rows of `type === "relationship"` (`:60-61`). After a Restart the memory is fresh (`restartStory` → `dropPersistedRuntime` → `loadStory(…, "activate")` → `hydrateExtras(undefined)`, `runtimeManager.ts:543`; the unreadable path writes `createBlob(chatId)`, `persistence.ts:176-182`), so `wiBook` is null and nothing is ensured, written or bound until the first relationship row exists. One turn did not produce one.
+- **The dangling slot is inert meanwhile.** ST's `getChatLore` (`public/scripts/world-info.js:4543-4561`) calls `loadWorldInfo(chatWorld)`, and the server answers a missing file with the dummy `{ entries: {} }` (`src/endpoints/worldinfo.js:17-30`, `allowDummy` from `/get` at `:76`), so the moved book contributes no entries. ST's own `/getchatbook` path also treats a slot whose name is not in `world_names` as empty (`world-info.js:1014,1168`).
+- **The first adoption replaces it.** `bindChatLorebook` (`src/services/stHost/worldInfo.ts:196-207`) refuses only when the current slot names a book that EXISTS (`lorebookExists(current)`), so a slot naming a moved book is overwritten with the fresh mirror book (`"bound"`); when the moved book carried this chat's own mirror name (`Story Orchestrator - <title> - <chatId>`), `ensureLorebook` creates a fresh file under that name and the slot already names it (`"already-bound"`). ST's `createNewWorldInfo` → `saveWorldInfo` overwrites any cached dummy (`world-info.js:4462`, `:4183`). Existing proof: `worldInfo.test.ts` "treats a binding to a deleted book as empty, like /getchatbook".
+- New jest cases pinning the composition (`src/runtime/memoryMirror.test.ts`): "a restarted chat whose slot names a moved book binds nothing until there is a memory to mirror, then replaces the slot" and "a restarted chat whose moved book carried this chat's mirror name gets a fresh book under the same binding". Both pass on the unchanged product code; no src change, so the ownership census and the manager/coordinator budgets are untouched.
+
+**Proposed plan-text correction** (§One-time data actions, "Dangling bindings", second bullet; not applied, the plan body is left as written): replace "On a confirmed Restart the mirror adopts a fresh per-chat book." with "A confirmed Restart leaves the slot as it is. The mirror adopts a fresh per-chat book on its first write, which is the first sync with a live `relationship` memory row (`memoryMirror.ts:90-91`); until then the dangling slot reads as empty, and the adoption replaces it (`bindChatLorebook` treats a slot naming a missing book as empty)."
+
+Gates (after the two tests): typecheck, typecheck:test, lint, debug:typecheck exit 0; `npm test` 267 suites / 3893 tests pass (+2); `npm run test:debug` 295 tests, 294 pass, 1 skipped, 0 fail. `test:release` not run (nothing under `scripts/release` changed).
+
+### Still open after this record
+
+- `npm run test-storybook:ci` verbatim from the main checkout (the worktree run used `--index-json`, above).
+- Lane 2: D2/D3 and the PR-08 lane-2 round-trip of one D1 book; J10.9/J10.10 and J1.8/J1.9 human rows (unchanged from the step-9 record).
+- The plan-text correction above, if accepted.
+
+## Gate record (lane 2 step 9, 2026-09-26, main session)
+
+- D2 lane 2: `so-legacy-books.mts move-dir --src C:\dev\so-lanes\2\data --dst <backup>\lanes\2\data --port 8102` after J7 finished and `st-lanes stop 2`: tree hash match true. D3: `st-lanes seed 2` (no `--fresh`), `start 2`.
+- D1 round-trip (PR-08): `Story Orchestrator - Untitled Story.json` copied from the backup into lane 2's `worlds/`: sha256 `eb319e0fa976` identical on both sides; after `st-session reload` the server's `world_names` lists it and `/api/worldinfo/get` returns 1 entry (table: 1). The copy stays in the lane (a lane is a copy).
+- Plan 11: steps 0-9 and live gates L1-L6 green; the dangling-binding text corrected above. Still open: the unscored human rows (J10.9, J10.10, J1.8, J1.9) for plan 10's human session; `test-storybook:ci` verbatim from the main checkout (next build).

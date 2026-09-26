@@ -1,0 +1,283 @@
+Following the session journal → C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\test\journeys\records\v2.4-postfreeze\e080b9749436\J7\run2\journal-follow.jsonl every 1000 ms. Ctrl-C to stop.
+2026-09-26T02:01:26.867Z session      chat 2026-09-24@05h22m36s897ms · story none · at — (boundary 0, 0 messages)
+2026-09-26T01:29:20.188Z story        away recap not due
+2026-09-26T01:29:20.399Z status       Started Quest for the Sun Ruins
+2026-09-26T01:29:20.404Z story        quality macro skipped
+2026-09-26T01:29:20.404Z story        quality macro skipped
+2026-09-26T01:29:35.115Z status       Following Investigate the Job Board
+2026-09-26T01:30:08.888Z status       Moved into Accept the Mission
+2026-09-26T01:30:29.627Z status       Following Accept the Mission
+2026-09-26T01:31:10.264Z status       Moved into Departure Preparations
+2026-09-26T01:32:07.016Z status       Following Departure Preparations
+2026-09-26T01:36:43.516Z status       Moved into Travel with Luke
+2026-09-26T01:36:43.677Z status       Following Travel with Luke
+2026-09-26T01:41:31.373Z status       Moved into Riddle Solved
+2026-09-26T01:41:37.764Z status       Moved into Find the Artifact
+2026-09-26T01:46:07.553Z status       Following Find the Artifact
+2026-09-26T01:53:36.301Z status       Moved into Return to the Guild
+2026-09-26T01:54:00.298Z payload      7 story blocks injected (generation)
+2026-09-26T01:54:40.425Z status       Following Return to the Guild
+2026-09-26T01:54:48.220Z payload      6 story blocks injected (generation)
+2026-09-26T01:55:28.222Z payload      7 story blocks injected (generation)
+2026-09-26T01:56:05.804Z payload      7 story blocks injected (generation)
+2026-09-26T01:56:43.601Z payload      6 story blocks injected (generation)
+2026-09-26T01:58:37.416Z story        restored 6 host change(s)
+2026-09-26T01:58:37.417Z story        No story selected: this chat's saved story state was saved by another version of Story Orchestrator: Restart to replace it
+2026-09-26T01:58:37.429Z story        7 host change(s) were edited outside this story and left alone
+2026-09-26T01:58:37.430Z status       No story selected: this chat's saved story state was saved by another version of Story Orchestrator: Restart to replace it
+2026-09-26T02:01:28.915Z session      chat 2026-09-25@23h01m28s046ms · story none · at — (boundary 0, 1 messages)
+2026-09-26T01:29:20.188Z story        away recap not due
+2026-09-26T01:29:20.399Z status       Started Quest for the Sun Ruins
+2026-09-26T01:29:20.404Z story        quality macro skipped
+2026-09-26T01:29:20.404Z story        quality macro skipped
+2026-09-26T01:29:35.115Z status       Following Investigate the Job Board
+2026-09-26T01:30:08.888Z status       Moved into Accept the Mission
+2026-09-26T01:30:29.627Z status       Following Accept the Mission
+2026-09-26T01:31:10.264Z status       Moved into Departure Preparations
+2026-09-26T01:32:07.016Z status       Following Departure Preparations
+2026-09-26T01:36:43.516Z status       Moved into Travel with Luke
+2026-09-26T01:36:43.677Z status       Following Travel with Luke
+2026-09-26T01:41:31.373Z status       Moved into Riddle Solved
+2026-09-26T01:41:37.764Z status       Moved into Find the Artifact
+2026-09-26T01:46:07.553Z status       Following Find the Artifact
+2026-09-26T01:53:36.301Z status       Moved into Return to the Guild
+2026-09-26T01:54:00.298Z payload      7 story blocks injected (generation)
+2026-09-26T01:54:40.425Z status       Following Return to the Guild
+2026-09-26T01:54:48.220Z payload      6 story blocks injected (generation)
+2026-09-26T01:55:28.222Z payload      7 story blocks injected (generation)
+2026-09-26T01:56:05.804Z payload      7 story blocks injected (generation)
+2026-09-26T01:56:43.601Z payload      6 story blocks injected (generation)
+2026-09-26T01:58:37.416Z story        restored 6 host change(s)
+2026-09-26T01:58:37.417Z story        No story selected: this chat's saved story state was saved by another version of Story Orchestrator: Restart to replace it
+2026-09-26T01:58:37.429Z story        7 host change(s) were edited outside this story and left alone
+2026-09-26T01:58:37.430Z status       No story selected: this chat's saved story state was saved by another version of Story Orchestrator: Restart to replace it
+2026-09-26T02:01:28.133Z status       No story selected for this chat
+2026-09-26T02:01:30.950Z session      chat 2026-09-25@23h01m28s046ms · story sun-ruins · at Investigate the Job Board (boundary 0, 1 messages)
+2026-09-26T02:01:30.981Z story        away recap not due
+2026-09-26T02:01:31.193Z status       Started Quest for the Sun Ruins
+2026-09-26T02:01:31.199Z story        quality macro skipped
+2026-09-26T02:01:31.199Z story        quality macro skipped
+2026-09-26T02:01:33.228Z payload      1 story blocks injected (generation)
+2026-09-26T02:01:52.020Z boundary     boundary 1: nothing applied (gate)
+2026-09-26T02:01:52.145Z status       Following Investigate the Job Board
+2026-09-26T02:01:56.723Z payload      1 story blocks injected (generation)
+2026-09-26T02:02:08.314Z delta        queued approached_board=true, tension_current=0 for the next boundary
+2026-09-26T02:02:07.703Z extraction   read cue:cp1->cp2 msgs 0-2 → 2 accepted, 0 rejected
+2026-09-26T02:02:07.703Z delta        approached_board = true
+2026-09-26T02:02:07.703Z delta        tension_current = 0
+2026-09-26T02:02:07.703Z delta        queued approached_board=true, tension_current=0 for the next boundary
+2026-09-26T02:02:07.703Z audit        audit cue:cp1->cp2 msgs 0-2 scope [approached_board, artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 2 accepted, 0 rejected
+2026-09-26T02:02:20.526Z boundary     applied approached_board=true, tension_current=0
+2026-09-26T02:02:20.526Z transition   cp1 → cp2
+2026-09-26T02:02:21.319Z payload      2 story blocks injected (generation)
+2026-09-26T02:02:55.283Z payload      2 story blocks injected (generation)
+2026-09-26T02:02:55.283Z status       Moved into Accept the Mission
+2026-09-26T02:03:17.977Z delta        queued tension_current=0.075 for the next boundary
+2026-09-26T02:03:17.359Z extraction   read scene:cast msgs 0-4 → 1 accepted, 0 rejected
+2026-09-26T02:03:17.359Z delta        tension_current = 0.075
+2026-09-26T02:03:17.359Z delta        queued tension_current=0.075 for the next boundary
+2026-09-26T02:03:17.359Z audit        audit scene:cast msgs 0-4 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 1 accepted, 0 rejected
+2026-09-26T02:03:22.845Z boundary     applied tension_current=0.075
+2026-09-26T02:03:22.968Z status       Following Accept the Mission
+2026-09-26T02:03:22.978Z boundary     boundary 4: nothing applied (gate)
+2026-09-26T02:03:49.795Z extraction   read cadence msgs 1-8 → 1 accepted, 0 rejected
+2026-09-26T02:03:49.795Z delta        tension_current = 0.1275
+2026-09-26T02:03:49.795Z delta        queued tension_current=0.1275 for the next boundary
+2026-09-26T02:03:49.795Z audit        audit cadence msgs 1-8 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 1 accepted, 0 rejected
+2026-09-26T02:04:07.136Z payload      3 story blocks injected (generation)
+2026-09-26T02:04:07.164Z payload      4 story blocks injected (generation)
+2026-09-26T02:04:31.854Z payload      3 story blocks injected (generation)
+2026-09-26T02:04:45.141Z boundary     applied tension_current=0.1275
+2026-09-26T02:04:53.955Z payload      3 story blocks injected (generation)
+2026-09-26T02:04:53.983Z payload      4 story blocks injected (generation)
+2026-09-26T02:05:20.394Z payload      4 story blocks injected (generation)
+2026-09-26T02:05:42.821Z boundary     boundary 6: nothing applied (gate)
+2026-09-26T02:05:42.965Z boundary     boundary 7: nothing applied (gate)
+2026-09-26T02:05:45.590Z payload      3 story blocks injected (generation)
+2026-09-26T02:05:46.764Z payload      4 story blocks injected (generation)
+2026-09-26T02:06:14.001Z delta        queued mission_accepted=true, tension_current=0.16425 for the next boundary
+2026-09-26T02:06:13.282Z extraction   read cadence msgs 9-12 → 2 accepted, 0 rejected
+2026-09-26T02:06:13.282Z delta        mission_accepted = true
+2026-09-26T02:06:13.282Z delta        tension_current = 0.16425
+2026-09-26T02:06:13.282Z delta        queued mission_accepted=true, tension_current=0.16425 for the next boundary
+2026-09-26T02:06:13.282Z audit        audit cadence msgs 9-12 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 2 accepted, 0 rejected
+2026-09-26T02:06:19.350Z payload      5 story blocks injected (generation)
+2026-09-26T02:06:44.982Z boundary     applied mission_accepted=true, tension_current=0.16425
+2026-09-26T02:06:44.982Z transition   cp2 → cp3
+2026-09-26T02:06:49.853Z extraction   read cue:cp2->cp3 msgs 6-13 → 2 accepted, 0 rejected
+2026-09-26T02:06:49.853Z delta        mission_accepted = true
+2026-09-26T02:06:49.853Z delta        tension_current = 0.189975
+2026-09-26T02:06:49.853Z delta        queued mission_accepted=true, tension_current=0.189975 for the next boundary
+2026-09-26T02:06:50.271Z payload      4 story blocks injected (generation)
+2026-09-26T02:06:49.853Z audit        audit cue:cp2->cp3 msgs 6-13 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, mission_accepted, reward_claimed, tension_current] → 2 accepted, 0 rejected
+2026-09-26T02:07:23.506Z status       Moved into Departure Preparations
+2026-09-26T02:07:23.521Z boundary     applied mission_accepted=true, tension_current=0.189975
+2026-09-26T02:07:23.955Z status       Following Departure Preparations
+2026-09-26T02:07:23.969Z boundary     boundary 10: nothing applied (gate)
+2026-09-26T02:07:24.897Z payload      4 story blocks injected (generation)
+2026-09-26T02:07:59.519Z delta        queued luke_decision=undecided for the next boundary
+2026-09-26T02:08:00.540Z delta        queued luke_decision=undecided for the next boundary
+2026-09-26T02:08:01.558Z delta        queued luke_decision=undecided for the next boundary
+2026-09-26T02:07:59.099Z extraction   read scene:cast msgs 8-15 → 1 accepted, 0 rejected
+2026-09-26T02:07:59.099Z delta        luke_decision = undecided
+2026-09-26T02:07:59.099Z delta        queued luke_decision=undecided for the next boundary
+2026-09-26T02:07:59.099Z audit        audit scene:cast msgs 8-15 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, reward_claimed, riddle_answer, tension_current] → 1 accepted, 0 rejected
+2026-09-26T02:08:22.562Z boundary     applied luke_decision=undecided
+2026-09-26T02:08:29.375Z extraction   read cadence msgs 13-17 → 2 accepted, 0 rejected
+2026-09-26T02:08:29.375Z delta        luke_decision = undecided
+2026-09-26T02:08:29.375Z delta        tension_current = 0.20798250000000001
+2026-09-26T02:08:29.375Z delta        queued luke_decision=undecided, tension_current=0.20798250000000001 for the next boundary
+2026-09-26T02:08:29.375Z audit        audit cadence msgs 13-17 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, reward_claimed, riddle_answer, tension_current] → 2 accepted, 0 rejected
+2026-09-26T02:08:54.039Z payload      4 story blocks injected (generation)
+2026-09-26T02:08:54.065Z payload      5 story blocks injected (generation)
+2026-09-26T02:09:28.090Z payload      4 story blocks injected (generation)
+2026-09-26T02:09:58.023Z boundary     applied luke_decision=undecided, tension_current=0.20798250000000001
+2026-09-26T02:09:58.179Z boundary     boundary 13: nothing applied (gate)
+2026-09-26T02:10:01.000Z payload      4 story blocks injected (generation)
+2026-09-26T02:10:04.060Z payload      5 story blocks injected (generation)
+2026-09-26T02:10:12.709Z extraction   read cadence msgs 18-22 → 2 accepted, 0 rejected
+2026-09-26T02:10:12.709Z delta        luke_decision = accepted
+2026-09-26T02:10:12.709Z delta        tension_current = 0.22058774999999997
+2026-09-26T02:10:12.709Z delta        queued luke_decision=accepted, tension_current=0.22058774999999997 for the next boundary
+2026-09-26T02:10:12.709Z audit        audit cadence msgs 18-22 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, reward_claimed, riddle_answer, tension_current] → 2 accepted, 0 rejected
+2026-09-26T02:10:44.573Z delta        queued luke_decision=accepted for the next boundary
+2026-09-26T02:10:44.022Z extraction   read cue:cp3->cp-4a msgs 16-23 → 1 accepted, 0 rejected
+2026-09-26T02:10:44.022Z delta        luke_decision = accepted
+2026-09-26T02:10:44.022Z delta        queued luke_decision=accepted for the next boundary
+2026-09-26T02:10:44.022Z audit        audit cue:cp3->cp-4a msgs 16-23 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, luke_decision, reward_claimed, riddle_answer, tension_current] → 1 accepted, 0 rejected
+2026-09-26T02:11:02.209Z payload      5 story blocks injected (generation)
+2026-09-26T02:11:34.073Z boundary     applied luke_decision=accepted; discarded luke_decision=accepted, tension_current=0.22058774999999997 (superseded)
+2026-09-26T02:11:34.073Z transition   cp3 → cp-4a
+2026-09-26T02:11:35.212Z payload      6 story blocks injected (generation)
+2026-09-26T02:11:35.212Z status       Moved into Travel with Luke
+2026-09-26T02:11:39.283Z payload      7 story blocks injected (generation)
+2026-09-26T02:11:39.334Z boundary     boundary 15: nothing applied (gate)
+2026-09-26T02:11:39.578Z status       Following Travel with Luke
+2026-09-26T02:12:09.574Z payload      7 story blocks injected (generation)
+2026-09-26T02:12:43.618Z boundary     boundary 16: nothing applied (gate)
+2026-09-26T02:12:43.646Z payload      5 story blocks injected (generation)
+2026-09-26T02:12:43.785Z boundary     boundary 17: nothing applied (gate)
+2026-09-26T02:13:14.290Z payload      6 story blocks injected (generation)
+2026-09-26T02:13:14.316Z payload      7 story blocks injected (generation)
+2026-09-26T02:13:14.556Z extraction   read cadence msgs 23-29 → 0 accepted, 0 rejected
+2026-09-26T02:13:14.556Z audit        audit cadence msgs 23-29 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, reward_claimed, riddle_answer, tension_current] → 0 accepted, 0 rejected
+2026-09-26T02:14:14.123Z payload      7 story blocks injected (generation)
+2026-09-26T02:14:57.101Z boundary     boundary 18: nothing applied (gate)
+2026-09-26T02:14:57.288Z boundary     boundary 19: nothing applied (gate)
+2026-09-26T02:15:00.191Z payload      7 story blocks injected (generation)
+2026-09-26T02:15:35.939Z delta        queued riddle_answer=moon, chamber_entered=true, tension_current=0.29558775 for the next boundary
+2026-09-26T02:15:35.302Z extraction   read cadence msgs 30-32 → 3 accepted, 0 rejected
+2026-09-26T02:15:35.302Z delta        riddle_answer = moon
+2026-09-26T02:15:35.302Z delta        chamber_entered = true
+2026-09-26T02:15:35.302Z delta        tension_current = 0.29558775
+2026-09-26T02:15:35.302Z delta        queued riddle_answer=moon, chamber_entered=true, tension_current=0.29558775 for the next boundary
+2026-09-26T02:15:35.302Z audit        audit cadence msgs 30-32 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, reward_claimed, riddle_answer, tension_current] → 3 accepted, 0 rejected
+2026-09-26T02:15:49.489Z payload      8 story blocks injected (generation)
+2026-09-26T02:16:19.278Z delta        queued riddle_answer=moon, chamber_entered=true, guardian_respect=3, tension_current=0.43191142499999996 for the next boundary
+2026-09-26T02:16:20.301Z delta        queued riddle_answer=moon, chamber_entered=true, guardian_respect=3, tension_current=0.43191142499999996 for the next boundary
+2026-09-26T02:16:18.885Z extraction   read cue:cp-4a->cp-4a1 msgs 26-33 → 4 accepted, 0 rejected
+2026-09-26T02:16:18.885Z delta        riddle_answer = moon
+2026-09-26T02:16:18.885Z delta        chamber_entered = true
+2026-09-26T02:16:18.885Z delta        guardian_respect = 3
+2026-09-26T02:16:18.885Z delta        tension_current = 0.43191142499999996
+2026-09-26T02:16:18.885Z delta        queued riddle_answer=moon, chamber_entered=true, guardian_respect=3, tension_current=0.43191142499999996 for the next boundary
+2026-09-26T02:16:18.885Z audit        audit cue:cp-4a->cp-4a1 msgs 26-33 scope [artifact_secured, chamber_entered, guardian_respect, luke_alive, reward_claimed, riddle_answer, tension_current] → 4 accepted, 0 rejected
+2026-09-26T02:16:27.858Z boundary     applied riddle_answer=moon, chamber_entered=true, guardian_respect=3, tension_current=0.43191142499999996; discarded riddle_answer=moon, chamber_entered=true, tension_current=0.29558775 (superseded)
+2026-09-26T02:16:27.858Z transition   cp-4a → cp-4a1
+2026-09-26T02:16:28.570Z status       Moved into Riddle Solved
+2026-09-26T02:16:28.582Z boundary     boundary 21: nothing applied (gate)
+2026-09-26T02:16:28.582Z transition   cp-4a1 → cp-5
+2026-09-26T02:16:34.629Z status       Moved into Find the Artifact
+2026-09-26T02:17:06.407Z payload      6 story blocks injected (generation)
+2026-09-26T02:17:06.436Z payload      7 story blocks injected (generation)
+2026-09-26T02:17:43.756Z payload      6 story blocks injected (generation)
+2026-09-26T02:18:08.459Z boundary     boundary 22: nothing applied (gate)
+2026-09-26T02:18:08.628Z status       Following Find the Artifact
+2026-09-26T02:18:19.817Z extraction   read cadence msgs 33-40 → 0 accepted, 0 rejected
+2026-09-26T02:18:19.817Z audit        audit cadence msgs 33-40 scope [artifact_secured, reward_claimed, tension_current] → 0 accepted, 0 rejected
+2026-09-26T02:19:41.541Z payload      6 story blocks injected (generation)
+2026-09-26T02:20:24.657Z payload      7 story blocks injected (generation)
+2026-09-26T02:21:03.569Z boundary     boundary 23: nothing applied (gate)
+2026-09-26T02:21:03.757Z boundary     boundary 24: nothing applied (gate)
+2026-09-26T02:21:06.313Z payload      6 story blocks injected (generation)
+2026-09-26T02:21:36.690Z delta        queued tension_current=0.5273379974999999 for the next boundary
+2026-09-26T02:21:37.715Z delta        queued tension_current=0.5273379974999999 for the next boundary
+2026-09-26T02:21:36.687Z extraction   read cadence msgs 41-43 → 1 accepted, 0 rejected
+2026-09-26T02:21:36.687Z delta        tension_current = 0.5273379974999999
+2026-09-26T02:21:36.687Z delta        queued tension_current=0.5273379974999999 for the next boundary
+2026-09-26T02:21:36.687Z audit        audit cadence msgs 41-43 scope [artifact_secured, reward_claimed, tension_current] → 1 accepted, 0 rejected
+2026-09-26T02:21:50.806Z payload      7 story blocks injected (generation)
+2026-09-26T02:22:29.825Z boundary     applied tension_current=0.5273379974999999
+2026-09-26T02:22:30.095Z boundary     boundary 26: nothing applied (gate)
+2026-09-26T02:22:31.215Z payload      6 story blocks injected (generation)
+2026-09-26T02:22:34.806Z payload      7 story blocks injected (generation)
+2026-09-26T02:23:07.628Z delta        queued tension_current=0.5191365982499999 for the next boundary
+2026-09-26T02:23:06.990Z extraction   read cadence msgs 44-46 → 1 accepted, 0 rejected
+2026-09-26T02:23:06.990Z delta        tension_current = 0.5191365982499999
+2026-09-26T02:23:06.990Z delta        queued tension_current=0.5191365982499999 for the next boundary
+2026-09-26T02:23:06.990Z audit        audit cadence msgs 44-46 scope [artifact_secured, reward_claimed, tension_current] → 1 accepted, 0 rejected
+2026-09-26T02:23:20.712Z boundary     applied tension_current=0.5191365982499999
+2026-09-26T02:23:20.891Z reconciliation stall re-check queued for artifact_secured
+2026-09-26T02:23:22.187Z payload      6 story blocks injected (generation)
+2026-09-26T02:23:24.011Z payload      7 story blocks injected (generation)
+2026-09-26T02:23:54.270Z extraction   read reconcile:artifact_secured msgs 37-48 → 0 accepted, 0 rejected
+2026-09-26T02:23:55.747Z reconciliation stall re-check resolved (0 evidence)
+2026-09-26T02:23:54.270Z audit        audit reconcile:artifact_secured msgs 37-48 scope [artifact_secured, reward_claimed, tension_current] → 0 accepted, 0 rejected
+2026-09-26T02:24:25.728Z payload      7 story blocks injected (generation)
+2026-09-26T02:25:13.883Z payload      6 story blocks injected (generation)
+2026-09-26T02:25:49.296Z boundary     boundary 28: nothing applied (gate)
+2026-09-26T02:25:49.514Z boundary     boundary 29: nothing applied (gate)
+2026-09-26T02:25:52.319Z payload      6 story blocks injected (generation)
+2026-09-26T02:25:52.349Z payload      7 story blocks injected (generation)
+2026-09-26T02:26:21.660Z extraction   read cadence msgs 47-50 → 2 accepted, 0 rejected
+2026-09-26T02:26:21.660Z delta        artifact_secured = true
+2026-09-26T02:26:21.660Z delta        tension_current = 0.5883956187749999
+2026-09-26T02:26:21.660Z delta        queued artifact_secured=true, tension_current=0.5883956187749999 for the next boundary
+2026-09-26T02:26:21.660Z audit        audit cadence msgs 47-50 scope [artifact_secured, reward_claimed, tension_current] → 2 accepted, 0 rejected
+2026-09-26T02:26:47.917Z boundary     applied artifact_secured=true, tension_current=0.5883956187749999, progress_toward_cp-6=2
+2026-09-26T02:26:47.917Z transition   cp-5 → cp-6
+2026-09-26T02:26:50.909Z payload      6 story blocks injected (generation)
+2026-09-26T02:26:51.374Z payload      7 story blocks injected (generation)
+2026-09-26T02:27:01.853Z status       Moved into Return to the Guild
+2026-09-26T02:28:01.181Z boundary     boundary 31: nothing applied (gate)
+2026-09-26T02:28:01.370Z status       Following Return to the Guild
+2026-09-26T02:28:05.123Z delta        queued reward_claimed=false, tension_current=0.4118769331424999 for the next boundary
+2026-09-26T02:28:04.465Z extraction   read scene:cast msgs 46-53 → 2 accepted, 0 rejected
+2026-09-26T02:28:04.465Z delta        reward_claimed = false
+2026-09-26T02:28:04.465Z delta        tension_current = 0.4118769331424999
+2026-09-26T02:28:04.465Z delta        queued reward_claimed=false, tension_current=0.4118769331424999 for the next boundary
+2026-09-26T02:28:04.465Z audit        audit scene:cast msgs 46-53 scope [reward_claimed, tension_current] → 2 accepted, 0 rejected
+2026-09-26T02:28:52.924Z payload      5 story blocks injected (generation)
+2026-09-26T02:29:43.393Z boundary     applied reward_claimed=false, tension_current=0.4118769331424999
+2026-09-26T02:30:14.458Z delta        queued reward_claimed=false, tension_current=0.4383138531997499 for the next boundary
+2026-09-26T02:30:13.572Z extraction   read cadence msgs 51-58 → 2 accepted, 0 rejected
+2026-09-26T02:30:13.572Z delta        reward_claimed = false
+2026-09-26T02:30:13.572Z delta        tension_current = 0.4383138531997499
+2026-09-26T02:30:13.572Z delta        queued reward_claimed=false, tension_current=0.4383138531997499 for the next boundary
+2026-09-26T02:30:13.572Z audit        audit cadence msgs 51-58 scope [reward_claimed, tension_current] → 2 accepted, 0 rejected
+2026-09-26T02:31:20.449Z session      chat 2026-09-24@05h22m36s897ms · story none · at — (boundary 0, 0 messages)
+2026-09-26T02:01:30.981Z story        away recap not due
+2026-09-26T02:01:31.193Z status       Started Quest for the Sun Ruins
+2026-09-26T02:01:31.199Z story        quality macro skipped
+2026-09-26T02:01:31.199Z story        quality macro skipped
+2026-09-26T02:01:52.145Z status       Following Investigate the Job Board
+2026-09-26T02:02:55.283Z status       Moved into Accept the Mission
+2026-09-26T02:03:22.968Z status       Following Accept the Mission
+2026-09-26T02:07:23.506Z status       Moved into Departure Preparations
+2026-09-26T02:07:23.955Z status       Following Departure Preparations
+2026-09-26T02:11:35.212Z status       Moved into Travel with Luke
+2026-09-26T02:11:39.578Z status       Following Travel with Luke
+2026-09-26T02:16:28.570Z status       Moved into Riddle Solved
+2026-09-26T02:16:34.629Z status       Moved into Find the Artifact
+2026-09-26T02:18:08.628Z status       Following Find the Artifact
+2026-09-26T02:25:52.319Z payload      6 story blocks injected (generation)
+2026-09-26T02:25:52.349Z payload      7 story blocks injected (generation)
+2026-09-26T02:26:50.909Z payload      6 story blocks injected (generation)
+2026-09-26T02:26:51.374Z payload      7 story blocks injected (generation)
+2026-09-26T02:27:01.853Z status       Moved into Return to the Guild
+2026-09-26T02:28:01.370Z status       Following Return to the Guild
+2026-09-26T02:28:52.924Z payload      5 story blocks injected (generation)
+2026-09-26T02:31:19.850Z story        restored 6 host change(s)
+2026-09-26T02:31:19.851Z story        No story selected: this chat's saved story state was saved by another version of Story Orchestrator: Restart to replace it
+2026-09-26T02:31:19.855Z story        7 host change(s) were edited outside this story and left alone
+2026-09-26T02:31:19.856Z status       No story selected: this chat's saved story state was saved by another version of Story Orchestrator: Restart to replace it

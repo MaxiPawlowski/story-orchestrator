@@ -162,6 +162,31 @@ describe("syncMemoryMirror", () => {
     expect(books.get(bookA)).toHaveLength(1);
   });
 
+  it("a restarted chat whose slot names a moved book binds nothing until there is a memory to mirror, then replaces the slot", async () => {
+    const moved = "Story Orchestrator - Crossing Old - chat-a";
+    const { host, books, state, calls } = fakeHost({ slot: moved });
+    const idle = await syncMemoryMirror(input([memory({ type: "fact", tier: "facts" })]), host);
+    expect(idle!.changed).toBe(false);
+    expect(calls.binds).toEqual([]);
+    expect(state.slot).toBe(moved);
+    const relationship = memory();
+    const result = await syncMemoryMirror(input([relationship]), host);
+    expect(calls.created).toEqual([bookA]);
+    expect(enabledComments(books.get(bookA))).toEqual([`so_${relationship.id}`]);
+    expect(state.slot).toBe(bookA);
+    expect(result!.summary.binding).toBe("bound");
+  });
+
+  it("a restarted chat whose moved book carried this chat's mirror name gets a fresh book under the same binding", async () => {
+    const { host, books, state, calls } = fakeHost({ slot: bookA });
+    const relationship = memory();
+    const result = await syncMemoryMirror(input([relationship]), host);
+    expect(calls.created).toEqual([bookA]);
+    expect(enabledComments(books.get(bookA))).toEqual([`so_${relationship.id}`]);
+    expect(state.slot).toBe(bookA);
+    expect(result!.summary.binding).toBe("already-bound");
+  });
+
   it("rewrites everything into a book the user deleted", async () => {
     const entry = memory();
     const { host, books, calls } = fakeHost();

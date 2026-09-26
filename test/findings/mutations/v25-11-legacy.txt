@@ -1,0 +1,35 @@
+v2.5 plan 11 mutation sweep M1-M10, 2026-09-26, on cfd9542 (master 13b76f8 + H20/S9/twin close). Each mutant applied with
+`node scripts/mutate.mjs <file> --find <text> --replace <text> -- <command>` (proves the edit landed, runs, restores the file).
+"caught" = the command exited non-zero. `git status` clean of src changes after the sweep.
+
+M1  src/runtime/persistence.ts KNOWN_VERSIONS=[4, BLOB_VERSION]
+    npx jest --runInBand src/runtime/blobUnreadable.review.test.ts -> Tests: 3 failed, 13 passed, 16 total. CAUGHT.
+M2  src/runtime/chatIdentity.ts `blob.version !== BLOB_VERSION` -> `blob.version !== 4`
+    npx jest --runInBand src/runtime/chatIdentity.review.test.ts src/runtime/branchContinue.review.test.ts -> Tests: 13 failed, 20 passed, 33 total. CAUGHT.
+M3  src/runtime/persistence.ts recognized(): `&& Object.values(value.stories).every(isCurrentRecord)` removed (record guard)
+    npx jest --runInBand src/runtime/blobUnreadable.review.test.ts -> Tests: 5 failed, 11 passed, 16 total. CAUGHT.
+M4  src/runtime/extras.ts enveloped(): `&& isProvenance((row as T).provenance)` removed (sanitizer keeps envelope-less rows)
+    npx jest --runInBand src/runtime/extrasHydrate.test.ts -> Tests: 1 failed, 9 passed, 10 total. CAUGHT.
+M5  src/engine/validate.ts rejectUnknownKeys: `addError(` -> `void (` (unknown-key check removed)
+    npx jest --runInBand src/engine/stagecraftFormat.test.ts src/engine/agency.test.ts -> Tests: 3 failed, 16 passed, 19 total. CAUGHT.
+M6  src/runtime/settingsRoot.ts settingsRoot() returns stampSchema(root) (stamp written on read)
+    npx jest --runInBand src/runtime/settingsRoot.test.ts -> Tests: 3 failed, 4 passed, 7 total. CAUGHT.
+M7  src/runtime/coordinators/copilotCoordinator.ts sessionOwnedLorebooks: `createdLorebooks ?? []` -> `createdLorebooks ?? session?.applied ?? []`
+    npx jest --runInBand src/runtime/coordinators/copilotOwnedLorebooks.test.ts -> Tests: 1 failed, 5 passed, 6 total. CAUGHT.
+M8  test/findings/legacyFree.ts (src S1 guard) allowlist match `entry.text === hit` -> `/.*/.test(hit)`
+    npx jest --runInBand src/runtime/legacyFree.guard.test.ts -> Tests: 1 failed, 9 passed, 10 total. CAUGHT.
+M8b scripts/debug/legacyFree.test.mts (twin guard), same widening
+    first run: node --test scripts/debug/legacyFree.test.mts -> pass 6, fail 0. SURVIVED: the twin control had no
+    "a different legacy line in an allowlisted file is unexpected" case (the src guard has it).
+    fix: control gains `judgeLegacy({'x.mts': 'const legacy = 1;\nconst legacyPath = 2;'}, allowlist).unexpected == ['x.mts: 1 hit(s), baseline 0']`.
+    rerun -> pass 5, fail 1. CAUGHT.
+M9  scripts/debug/so-legacy-books.mts planCandidates: the `so-owner` exclusion line removed (D1 filter accepts a marked book)
+    node --test scripts/debug/so-legacy-books.test.mts -> pass 6, fail 6. CAUGHT.
+M10 scripts/debug/so-legacy-books.mts moveBooks: `if (existsSync(dest)) throw ... destination root ... already exists` removed
+    first run: node --test scripts/debug/so-legacy-books.test.mts -> pass 12, fail 0. SURVIVED: the collision test matched
+    /already exists/, and without the check the later `mkdir(dest)` throws EEXIST "file already exists" before any rename,
+    so the test passed on the wrong refusal.
+    fix: the collision test asserts /refused: destination root .* already exists/.
+    rerun -> pass 11, fail 1. CAUGHT.
+
+Result: 10/10 plan mutants caught (+ M8b on the twin guard); 2 survivors on first run, both closed by tightening the test, no product change.

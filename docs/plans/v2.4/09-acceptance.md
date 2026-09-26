@@ -525,3 +525,7 @@ Lane drivers are archived under the root: `run-scenario.sh`, `journey-pf.sh`, `j
   has a fix on the bundle that no run isolates.
 - **The attested verdict is still the frozen candidate's.** Re-attesting v2.4 needs a new frozen candidate carrying these
   fixes and a full matrix on it. These rows are post-freeze evidence, not an attestation.
+
+### J7 after the A35 fix (2026-09-26, master 7034eec, bundle e080b9749436, lane 2)
+
+A35 (`normalizeEvidenceText` kept markdown `*`/`_`, `5e9f95d`) was the cause of the post-freeze J7 red. J7 `--strict`, same fixture, two consecutive runs: **8/8 pass, cleanup clean, both runs** (`test/journeys/records/v2.4-postfreeze/e080b9749436/J7/run{1,2}/`). J7: **green ×2, fixVerdict fixed**. This build also carries v2.5 plan 11 (legacy removal), which J7 does not exercise beyond a fresh sandbox chat. With it, every post-freeze row is green; A6/A11 stay "green, trigger not exercised" (v2.5 plan 02 arms), A36 goes to v2.5 plan 05 (an explicit no-coercion control makes it a decision, not a defect).

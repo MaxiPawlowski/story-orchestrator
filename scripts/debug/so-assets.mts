@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { legacyMirrorTargets, markerNamed, parseAssetsArgs } from './lib/assetScope.mts';
+import { markerNamed, parseAssetsArgs } from './lib/assetScope.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { deleteLorebooksInPage } from './lib/lorebookDelete.mts';
@@ -145,13 +145,11 @@ export async function listMarkedAssets(page, marker = DEFAULT_MARKER, { baseline
 
 export const leakCount = (found) => found.characters.length + found.groups.length + found.lorebooks.length + (found.regexScripts?.length ?? 0) + (found.qrSets?.length ?? 0);
 
-export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseline = null, legacyMirrors = [] as string[] } = {}) {
+export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseline = null } = {}) {
   const { usable, reasons } = baselineTrust(baseline);
   if (baseline && !usable) console.log(`Asset baseline untrusted, falling back to marker-only scope: ${reasons.join('; ')}`);
   const found = await listMarkedAssets(page, marker, { baseline });
-  const legacy = legacyMirrorTargets(found.allLorebooks, legacyMirrors);
-  const targets = { ...found, lorebooks: [...new Set([...found.lorebooks, ...legacy.targets])] };
-  const books = await deleteLorebooksInPage(page, targets.lorebooks);
+  const books = await deleteLorebooksInPage(page, found.lorebooks);
   const removed = await evaluateInST(page, async ({ targets, baseline, books }) => {
     const ctx = SillyTavern.getContext();
     const headers = ctx.getRequestHeaders();
@@ -201,14 +199,13 @@ export async function removeMarkedAssets(page, marker = DEFAULT_MARKER, { baseli
       root.wizardSessions = kept;
     }
     return report;
-  }, { targets, baseline: usable, books });
+  }, { targets: found, baseline: usable, books });
   const saved = await saveSettingsNow(page).catch((error) => ({ error: error.message }));
   const leaked = await listMarkedAssets(page, marker, { baseline, ledger: found.ledger });
-  const legacyLeft = legacy.targets.filter((name) => leaked.allLorebooks.includes(name));
-  return { marker, found, removed, saved, leaked, legacyMirrors: { ...legacy, left: legacyLeft }, clean: leakCount(leaked) === 0 && legacyLeft.length === 0 && removed.staleCache.length === 0 && !('error' in saved) };
+  return { marker, found, removed, saved, leaked, clean: leakCount(leaked) === 0 && removed.staleCache.length === 0 && !('error' in saved) };
 }
 
-const USAGE = `Usage: node scripts/debug/so-assets.mts <list|remove|assert-clean> [--marker <prefix>] [--baseline <file>] [--legacy-mirrors "<name>|<name>"]
+const USAGE = `Usage: node scripts/debug/so-assets.mts <list|remove|assert-clean> [--marker <prefix>] [--baseline <file>]
 
 Marker-scoped view of the ST assets a wizard journey created (default marker "${DEFAULT_MARKER}").
 In scope: assets whose name starts with the marker, plus the names in the created-asset ledger of
@@ -222,8 +219,6 @@ ledger).
 
   --baseline <file>        an asset baseline (so-journey writes .debug/so-journey-asset-baseline.json).
                            Never implied: a stale one would count every ledger entry since it was taken.
-  --legacy-mirrors <names> '|'-separated "Story Orchestrator - <title>" books from before per-chat
-                           mirroring. Deleted only when named exactly, listed, and without a chat id.
 
   list          print in-scope characters / groups / lorebooks / regex scripts / QR sets
   remove        delete them, drop the test sessions, evict deleted books from the page cache, re-check
@@ -235,11 +230,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     console.log(USAGE);
     process.exit(hasHelpFlag() ? 0 : 1);
   }
-  const { command, marker, baselineFile, legacyMirrors } = parseAssetsArgs(args, DEFAULT_MARKER);
+  const { command, marker, baselineFile } = parseAssetsArgs(args, DEFAULT_MARKER);
   runCli(async (page) => {
     const baseline = baselineFile ? JSON.parse(await readFile(baselineFile, 'utf-8')) : null;
     if (command === 'remove') {
-      const result = await removeMarkedAssets(page, marker, { baseline, legacyMirrors });
+      const result = await removeMarkedAssets(page, marker, { baseline });
       console.log(JSON.stringify(result, null, 2));
       await writeJSON(result, 'so-assets-remove');
       if (!result.clean) throw new Error(`assets leaked: ${JSON.stringify(result.leaked)}`);
