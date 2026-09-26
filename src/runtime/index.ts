@@ -61,6 +61,7 @@ const registerHostSurfaces = () => {
 const startWatches = () => {
   bridge = new TurnBridge(runtimeManager, runtimeManager.chatSave);
   bridge.start();
+  if (__SO_DEV__) void import("./spikes").then(({ installSpikes }) => { if (started && bridge) runtimeDisposers.push(installSpikes(bridge, runtimeManager)); });
   const requirementsWatch = new RequirementsWatch(runtimeManager.requirementsHost, subscribeToHostEvents);
   requirementsWatch.start();
   runtimeDisposers.push(() => requirementsWatch.stop());
@@ -88,7 +89,7 @@ const windowAccess = (): WindowAccess => {
 
 export const RUNTIME_GLOBALS = [
   "storyOrchestratorScheduler", "storyOrchestratorLoreEvidence", "storyOrchestratorLore", "storyOrchestratorJudge",
-  "storyOrchestratorLiveSuite", "storyOrchestratorScanGating",
+  "storyOrchestratorLiveSuite", "storyOrchestratorScanGating", "storyOrchestratorSpikes",
 ] as const;
 
 export function startRuntime() {

@@ -365,6 +365,8 @@ export class RuntimeManager extends CoordinatorDelegates {
   getPossibleTransitions(): string[] { return buildPossibleTransitions(this.loaded?.story ?? null, this.loaded ? this.engine.serialize() : null); }
   private rejectQuality(reason: string): false { this.status = reason; this.notify(); return false; }
   readonly expansions = { commitValidated: () => this.expansion.commitValidated(), regenerate: (key: string) => this.expansion.regenerate(key) };
+  readonly writes = { pending: (): ApplyQueueEntry[] => (this.loaded ? this.engine.pendingWrites : []),
+    requeue: (entries: ApplyQueueEntry[]) => { if (this.loaded) entries.forEach((entry) => this.engine.enqueue(entry)); } };
 
   /** The identity in-flight work is checked against, for writers constructed outside the manager; read-only. */
   getOwnership(): RunOwnership { return this.owner.ownership; }

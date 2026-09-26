@@ -38,7 +38,7 @@ const USAGE = `Usage: node scripts/debug/so-run-header.mts <capture|diff|show> [
 
 Fields: build.head/manifest (dist), bundle.served (the hash of what the page is running),
 host.stVersion/mainApi/onlineStatus, profiles.selected/extraction,
-judge.plugin/model/enabled/uses, stagecraft.*, extraction.*, chat.groupId/chatId/authorView,
+judge.plugin/model/enabled/uses, stagecraft.*, extraction.*, spikes.* (v2.5 plan 09 flags), chat.groupId/chatId/authorView,
 story.id/playedVersion/contentHash, group.disabledMembers, inventory.v2Stories/wizardSessions/
 lorebooksSelected.`;
 
@@ -217,6 +217,7 @@ export async function capturePage(page) {
         profileId: settings?.extraction?.profileId ?? null,
         profiles: settings?.extraction?.profiles ?? {},
       },
+      spikes: settings?.spikes ?? null,
       display: {
         announceTransitions: settings?.display?.announceTransitions ?? null,
         hudEnabled: settings?.display?.hudEnabled ?? null,
