@@ -1,0 +1,19 @@
+ok   settings.schema  null -> 1  (allowed by settings.schema)
+ok   warnings  -the settings root carries no schema stamp: its shape baseline is not read  (allowed by warnings)
+{
+  "baseline": "C:\\dev\\so-lanes\\3\\debug\\run-header-v25-11-lane3-before.json",
+  "label": "v25-11-lane3-after",
+  "allow": [
+    "settings.schema",
+    "warnings"
+  ],
+  "differences": 2,
+  "progress": 0,
+  "blocking": 0,
+  "blockingPaths": [],
+  "warnings": [
+    "the settings root carries no schema stamp: its shape baseline is not read"
+  ],
+  "wrote": "C:\\dev\\so-lanes\\3\\debug\\run-header-v25-11-lane3-after.json",
+  "ok": true
+}

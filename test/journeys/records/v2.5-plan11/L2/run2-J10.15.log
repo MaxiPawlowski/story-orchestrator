@@ -1,0 +1,15 @@
+--- J10.15 a chat whose story state was saved as v4 (the format before v5) shows the one unreadable notice, refuses a selection and keeps its bytes; a confirmed Restart replaces it with a v5 blob that a real turn then writes with engineHistory, visitedPath and pinnedStory (v2.5 plan 11 L2)
+J10.15 1/7 eval ok 2770ms
+J10.15 2/7 eval ok 1726ms
+J10.15 2/7 eval -> {"storyId":null,"flagged":{"foundVersion":4,"notice":"saved by another version of Story Orchestrator: Restart to replace it"},"notice":"This chat's saved story state was saved by another version of Story Orchestrator: Restart to replace it.","notices":1}
+J10.15 3/7 import_story ok 41ms
+J10.15 3/7 import_story -> {"ok":false,"snapshot":{"ready":false,"storyId":null,"storyHash":null,"storyIdentity":{"id":null,"playedVersion":null,"libraryVersion":null,"pinned":false,"drifted":false},"blobUnreadable":{"foundVersion":4,"notice":"saved by another version of Story Orchestrator: Restart to replace it"},"orphanedLorebooks":[],"chatIdentity":null,"storyTitle":null,"storyDescription":null,"activeCheckpointId":null,"activeCheckpointName":null,"activeObjective":null,"boundary":0,"blackboard":{},"blackboardMeta":{},"checkpoints":[],"requirements":{"ready":true,"missingPersonas":[],"missingMembers":[],"missingLorebooks":[]},"validationErrors":[],"library":[{"id":"adolion-academy","version":11,"hash":"v2-0edc606a","title":"Adolion: House Nightriver","description":"Play an heir of House Nightriver in Aegis City, 
+J10.15 4/7 eval ok 1638ms
+J10.15 4/7 eval -> {"storyId":null,"inMemoryIdentical":true,"identical":true}
+J10.15 5/7 restart_story ok 563ms
+J10.15 5/7 restart_story -> {"ok":true,"activeCheckpointId":"cp1"}
+J10.15 6/7 send_generate ok 89586ms
+J10.15 6/7 send_generate -> {"sent":"I look around the guild hall and wave to Arin.","messagesBefore":1,"messagesAfter":5,"newMessages":4,"replied":true,"lastSpeaker":"Luke","lastLength":1548}
+J10.15 7/7 eval ok 5164ms
+J10.15 7/7 eval -> {"storyId":"sun-ruins","flagged":null,"serverVersion":5,"memoryVersion":5,"stampedFor":"2026-09-25@22h42m29s500ms","openChat":"2026-09-25@22h42m29s500ms","marker":null,"engineHistory":true,"visitedPath":true,"pinnedStory":true}
+PASS         J10.15   a chat whose story state was saved as v4 (the format before v5) shows the one unreadable notice, refuses a selection and keeps its bytes; a confirmed Restart replaces it with a v5 blob that a real turn then writes with engineHistory, visitedPath and pinnedStory (v2.5 plan 11 L2)

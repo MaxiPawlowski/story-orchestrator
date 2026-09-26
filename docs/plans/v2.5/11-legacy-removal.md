@@ -481,3 +481,52 @@ Not run: `test-storybook:ci`; mutation sweep M1-M10 (`test/findings/mutations/v2
 - Step 9: D1/D2/D3 data moves with manifest + restore check (`so-legacy-books.mts` not built); then H20 deletion, S9 re-point, close the twin baseline.
 - `node scripts/debug/st-session.mts reload` after a build; live L1-L6 (J10 ×2 incl. J10.15, a real old chat, v24-02 ×2, J1 ×2, assets clean) — all NOT run, so plan 11 is NOT green.
 - Verified ST host facts row for `SlashCommandEnumValue`.
+
+## Gate record (step 9 + live gates)
+
+Date 2026-09-26 (UTC; record timestamps 01:31Z–01:56Z). master `c69a927` (steps 0-8 merge `7034eec`, A35 `5e9f95d`, step-9 tool). dist NOT rebuilt: served bundle `e080b9749436` on both lanes (hashed in-page). `test:release` NOT run.
+
+### Step 9 data actions (main session)
+
+| # | Done | Evidence |
+|---|---|---|
+| D1 | 18 books moved `C:\dev\SillyTavern-MainBranch\data\default-user\worlds\` → `C:\dev\backups\story-orchestrator\v2.5-plan11-2026-09-26\worlds\`, main ST stopped | `…\v2.5-plan11-2026-09-26\manifest.json` (tool `so-legacy-books`, commit `c69a927`, 2026-09-26T01:31:41Z, preMoveListing 38, files 18, moved 18, complete) |
+| D2 | lanes 1 and 3: `C:\dev\so-lanes\{1,3}\data` → `…\v2.5-plan11-2026-09-26\lanes\{1,3}\data` | `…\lanes\1\data.manifest.json` (01:33:50Z), `…\lanes\3\data.manifest.json` (01:34:12Z): tree hash before = after, `match: true` |
+| D3 | lanes 1 and 3 re-seeded (no `--fresh`) from the cleaned install and started (8101/9301, 8103/9303) | `st-lanes.mts status` |
+
+Lane 2: D2/D3 and the PR-08 lane-2 round-trip NOT done (lane 2 busy with J7; left to the main session).
+
+### Per-lane prep (lanes 1 and 3)
+
+`st-lanes.mts run <n> -- scripts/debug/st-session.mts reload` → `st-navigation.mts open-group 1759606632088` → `MSYS_NO_PATHCONV=1 st-actions.mts slash "/profile Artemis RunPod RP"` → in-page `ConnectionManagerRequestService.sendRequest` PONG (lane 1 825 ms, lane 3 819 ms; `curl :18080/health` ok) → `so-run-header.mts capture`. Note `st-lanes run <n> -- <script>` takes the script path, not `node <script>` (it prefixes `node` itself).
+
+### Gates
+
+| Gate | Lane | Command | Result | Records |
+|---|---|---|---|---|
+| L1 | 1 | `st-lanes.mts batch --lanes 1 --repeat 2 --strict J10` | first series RED ×2 (J10.15 step 2, fixture timing, below); after the fixture fix **GREEN ×2**: 10 pass / 0 fail / 0 blocked, cleanup clean, first try 10/10, human J10.9/J10.10 unscored (104 s, 153 s) | `test/journeys/records/v2.5-plan11/L1/` (`run{1,2}-journey-J10.json`, logs, `batch.json`; red series in `failed-before-fixture-fix/`) |
+| L2 | 1 | inside L1 (J10.15) | **GREEN ×2**: `#so-blob-unreadable` exactly 1 node with the notice, snapshot flags `foundVersion 4`; `import_story` refused (`ok:false`, storyId null); server and in-memory blob byte-identical; confirmed Restart → `sun-ruins` cp1; `send_generate` `expectReply` answered (run 1 3 new msgs, run 2 4); server read-back `serverVersion 5 = memoryVersion 5`, stamped for the open chat, no v4 marker, `engineHistory`/`visitedPath`/`pinnedStory` true | `L2/run{1,2}-J10.15.log` (extracted from `L1/run{1,2}.log`) |
+| L3 | 3 | `st-navigation open-group 1789797226071` + `open-chat <id>`, then `so-scenario.mts run test/journeys/records/v2.5-plan11/L3/l3-real-old-chat.json` (no `--sandbox`) | **GREEN on two different real v3 chats** of "Adolion - The Adventurer's Road" (lane-3 copy): `2026-09-19@03h43m00s631ms` (27 msgs) and `2026-09-19@03h48m18s080ms` (40 msgs). Each: v3 blob, notice ×1, server bytes unchanged by opening; selection of `adolion-adventurer` refused with bytes identical; confirmed Restart → `adolion-adventurer` at `guild-hall`, requirements ready, journaled; one real turn (Adolion Narrator, 41 s / 61 s); server holds v5 stamped for the chat with `engineHistory`/`visitedPath`/`pinnedStory`, boundary 1, messages 27→29 / 40→42 | `L3/` (fixture, `run1-chat-03h43m00s631ms.*`, `run2-chat-03h48m18s080ms.*`, `attempt0-select-step-harness.result.json`) |
+| L4 | 3 | `st-lanes.mts batch --lanes 3 --repeat 2 --group 1759606632088 test/scenarios/v24-02-unrecognized-blob.json` | **GREEN ×2** (11/11 steps, 15 s / 14 s, cleanup failed [] ) | `L4/` |
+| L5 | 1 (J1), 3 (A7) | `st-lanes.mts batch --lanes 1 --repeat 2 --strict J1`; `st-lanes.mts batch --lanes 3 --repeat 2 --group 1759606632088 test/scenarios/live-v25-11-a7-idless-import.json` | J1 **GREEN ×2**: 8 pass / 0 fail, cleanup clean, first try 8/8; J1.6's first real transition came from real extraction. A7 scenario **GREEN ×2** (after one fixture fix, below): id-less `Linear Vault` keys as `linear-vault` in library + chat blob; same-content re-import keeps 1 record at v1; edited re-import updates the 1 record to v2 (chat stays pinned, drifted) | `L5/J1/`, `L5/A7-idless-import/` (red series in `failed-cleanup-leak/`) |
+| L6 | 1, 3, real root | `st-lanes.mts run <n> -- scripts/debug/so-assets.mts assert-clean --marker SO-J9` and `--marker SO-`; `so-legacy-books.mts verify --root C:/dev/SillyTavern-MainBranch/data/default-user --dest C:/dev/backups/story-orchestrator/v2.5-plan11-2026-09-26`; `so-legacy-books.mts restore-check --dest …` | **GREEN**: assert-clean exit 0 ×4 (both markers, both lanes); verify `ok, complete, preMove 38, manifest 18, now 20, missing [], extra []`; restore-check 18/18 matched, mismatched [] | `L6/` |
+
+Run headers (`headers/`): lane 1 before/after J10×2+J1×2 → 0 differences (`--allow-warnings`, reason below); lane 3 before/after L4+probe+L3 → only `settings.schema null -> 1` + its warning (allowed) after re-opening group 1759606632088; lane 3 A7 before/after → 0 differences, exit 0.
+
+Machine gates after the fixture changes (no src change): `npm test` 267 suites / 3891 tests pass; `npm run test:debug` 296/296 pass. No build.
+
+### Deviations
+
+- **J10.15 fixture fix (harness timing, not product).** Step 2 read `#so-blob-unreadable` in the same task as `await rt.loadSelectedFromChat()`; the settings panel re-renders from a `setState` in the snapshot subscriber, one macrotask later. Probe on lane 3 (`.debug/v25-11-notice-probe.json`, sandbox): `at0: null`, after `setTimeout(0)` and at 500 ms the notice is present. The step now polls up to 3 s for the node, and additionally asserts it is shown **exactly once** (`notices === 1`), which the plan's L2 wording asks for. The first J10 series (both runs red on this step only, 9/10) is archived in `L1/failed-before-fixture-fix/`.
+- **L3 on lane 3, not lane 1** (plan says lane 1): ran in parallel with J10 on lane 1 to keep the shared backend to one extra consumer; lane 3 is the same seeded copy. L3 was done on **two different real v3 chats** (one run each), not twice on one chat.
+- **L3 first attempt**: the fixture's `select_story` step with `expectFail` failed as a step because that verb THROWS on refusal (`Story not found`) rather than returning `ok:false`, which `expectFail` does not catch. Replaced by an eval calling `rt.selectStory` and asserting `false` + `storyId null` (returns `{refused:true}` per the T2 rule). The failed attempt stopped before any write (record `attempt0-…`); the chat was still v3 when rerun.
+- **L4 and L6 lane-3 checks on lane 3** (allowed by the brief).
+- **L5 split**: J1 imports the shipped `sun-ruins` example, which carries an authored id, so J1 alone does not exercise A7. J1 ×2 covers "extraction answers"; the id-less keying is covered by a new no-model scenario `test/scenarios/live-v25-11-a7-idless-import.json` ×2 on lane 3. Its first series leaked the `linear-vault` record (run 2 then correctly refused a non-fresh library): sandbox cleanup removes imports by the hash the CHAT plays, and after an edited re-import the library record carries the edited hash while the chat stays pinned to the old one. Fix in the fixture: a last step removes `linear-vault` (step 1 proves it did not exist before). The leaked record was removed by hand on lane 3 (`rt.removeStory('linear-vault')`) before the rerun; the A7 header diff is 0. The cleanup-by-played-hash gap itself is a harness limitation for any scenario that re-imports an edited same-id story (not fixed here).
+- **Run-header warning allowed**: both lanes' settings roots carry no `schema` stamp at capture (seeded from the install, which has not written its root since plan 11). The stamp lands on first write (lane 3 after the scenarios: `settings.schema 1`); on lane 1 the journeys' `restoreConfig` writes the unstamped pre-run root back, so it reads unstamped again. Diffs were taken with `--allow-warnings`; 0 blocking differences on either lane.
+- L3 observation (not asserted): after Restart + one turn the chat still binds its D1-moved per-chat book name in `chat_metadata.world_info` and `memory.wiBook` is null (no mirror book yet on lane 3); the plan's "mirror adopts a fresh per-chat book" happens on the mirror's first write, which one turn did not reach.
+
+### Still open
+
+- Lane 2: D2/D3 and the PR-08 lane-2 round-trip of one D1 book (main session, after J7).
+- H20 deletion, S9 re-point, closing the twin baseline (Gate record steps 0-8 §Still needed); mutation sweep M1-M10; `test-storybook:ci`; Verified ST host facts row for `SlashCommandEnumValue`.
+- J10.9/J10.10 and J1.8/J1.9 human rows unscored.

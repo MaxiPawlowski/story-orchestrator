@@ -1,0 +1,27 @@
+{
+  "file": "test/journeys/records/v2.5-plan11/L3/l3-real-old-chat.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "eval",
+      "ok": true,
+      "ms": 1529
+    },
+    {
+      "index": 1,
+      "key": "select_story",
+      "ok": false,
+      "ms": 6,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: Error: Story not found: adolion-adventurer\n    at eval (eval at evaluate (:290:30), <anonymous>:7:20)\n    at async <anonymous>:316:30"
+    }
+  ],
+  "ok": false,
+  "error": "Evaluation failed in SillyTavern page: page.evaluate: Error: Story not found: adolion-adventurer\n    at eval (eval at evaluate (:290:30), <anonymous>:7:20)\n    at async <anonymous>:316:30",
+  "retries": [],
+  "firstAttempt": "fail",
+  "cleanup": null,
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

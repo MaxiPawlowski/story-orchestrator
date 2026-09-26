@@ -1,0 +1,119 @@
+{
+  "name": "live-v25-11-a7-idless-import",
+  "objective": "v2.5 plan 11 L5 (A7), no model. A fresh import of an id-less format-2 story (test/fixtures/linear.story.json, title 'Linear Vault') keys by its title slug in the library and in the chat blob; re-importing the same content keeps one record at the same version; an edited re-import updates that one record to version+1 instead of forking. Run with --sandbox: cleanup removes the imported record by hash. The last step removes the linear-vault record itself: sandbox cleanup removes imports by the hash the CHAT plays, and after the edited re-import the library record carries the edited hash while the chat keeps its pinned copy, so the record would outlive the run (found live, lane 3 run 2). Step 1 proves the record did not exist before the run.",
+  "steps": [
+    {
+      "eval": "const lib = (SillyTavern.getContext().extensionSettings['story-orchestrator']?.v2Stories ?? []); const ids = lib.map((r) => r.id); if (ids.includes('linear-vault')) throw new Error(`the library already holds linear-vault, so this import is not fresh: ${JSON.stringify(ids)}`); globalThis.__v2511A7 = { count: lib.length }; return { libraryBefore: ids };",
+      "log": true
+    },
+    {
+      "import_story": {
+        "file": "../fixtures/linear.story.json"
+      },
+      "log": 200
+    },
+    {
+      "expect": {
+        "storyId": "linear-vault",
+        "activeCheckpoint": "start"
+      }
+    },
+    {
+      "eval": "const lib = (SillyTavern.getContext().extensionSettings['story-orchestrator']?.v2Stories ?? []); const blob = SillyTavern.getContext().chatMetadata.story_orchestrator; const records = lib.filter((r) => r.id === 'linear-vault'); const result = { records: records.length, version: records[0]?.version ?? null, title: records[0]?.title ?? null, libraryCount: lib.length, selected: blob?.selectedStoryId ?? null, keys: Object.keys(blob?.stories ?? {}) }; if (result.records !== 1 || result.libraryCount !== globalThis.__v2511A7.count + 1) throw new Error(`an id-less import did not add exactly one record keyed by its title slug: ${JSON.stringify(result)}`); if (result.selected !== 'linear-vault' || !result.keys.includes('linear-vault')) throw new Error(`the chat does not key the id-less story by its title slug: ${JSON.stringify(result)}`); globalThis.__v2511A7.version = result.version; return result;",
+      "log": true
+    },
+    {
+      "import_story": {
+        "file": "../fixtures/linear.story.json"
+      },
+      "log": 200
+    },
+    {
+      "eval": "const lib = (SillyTavern.getContext().extensionSettings['story-orchestrator']?.v2Stories ?? []); const records = lib.filter((r) => r.id === 'linear-vault'); const result = { records: records.length, version: records[0]?.version ?? null, libraryCount: lib.length }; if (result.records !== 1 || result.libraryCount !== globalThis.__v2511A7.count + 1 || result.version !== globalThis.__v2511A7.version) throw new Error(`re-importing the same id-less story forked or re-versioned it: ${JSON.stringify(result)}`); return result;",
+      "log": true
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "title": "Linear Vault",
+        "description": "A minimal linear v2 story, edited for the v2.5 plan 11 A7 live check.",
+        "qualities": [
+          {
+            "key": "message_count",
+            "type": "int",
+            "source": "code",
+            "monotonic": true,
+            "rubric": "Current rendered message count."
+          },
+          {
+            "key": "has_key",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did the player obtain the key?"
+          },
+          {
+            "key": "door_open",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did the vault door open?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "Find Key",
+            "objective": "Find the key.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "door",
+            "name": "Open Door",
+            "objective": "Open the door.",
+            "type": "anchor"
+          },
+          {
+            "id": "end",
+            "name": "Inside",
+            "objective": "Enter the vault.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "start",
+            "to": "door",
+            "priority": 1,
+            "gate": {
+              "q": "has_key",
+              "op": "==",
+              "v": true
+            }
+          },
+          {
+            "from": "door",
+            "to": "end",
+            "priority": 1,
+            "gate": {
+              "q": "door_open",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": []
+      },
+      "log": 200
+    },
+    {
+      "eval": "const lib = (SillyTavern.getContext().extensionSettings['story-orchestrator']?.v2Stories ?? []); const records = lib.filter((r) => r.id === 'linear-vault'); const result = { records: records.length, version: records[0]?.version ?? null, description: records[0]?.raw?.description ?? records[0]?.story?.description ?? null, libraryCount: lib.length }; if (result.records !== 1 || result.libraryCount !== globalThis.__v2511A7.count + 1) throw new Error(`an edited id-less re-import forked the record instead of updating it: ${JSON.stringify(result)}`); if (result.version !== globalThis.__v2511A7.version + 1) throw new Error(`an edited id-less re-import did not bump the version by one: ${JSON.stringify(result)}`); return result;",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ok = await rt.removeStory('linear-vault'); const ids = (SillyTavern.getContext().extensionSettings['story-orchestrator']?.v2Stories ?? []).map((r) => r.id); if (!ok || ids.includes('linear-vault')) throw new Error(`the run's linear-vault record was not removed: ${JSON.stringify({ ok, ids })}`); return { removed: true, libraryAfter: ids };",
+      "log": true
+    }
+  ]
+}

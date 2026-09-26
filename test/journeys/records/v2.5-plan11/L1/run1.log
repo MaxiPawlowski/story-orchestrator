@@ -1,0 +1,134 @@
+
+=== J10 identity-and-settings ===
+Story identity and settings homes: a chat plays its pinned copy through library edits and deletion, a new chat inherits the install profile, Restart is the only reset, and a chat saved by another version is refused until a confirmed Restart replaces it.
+
+extraction before this run: {"enabled":true,"cadence":1,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","profiles":{}}
+Global config snapshot: C:\dev\so-lanes\1\debug\so-journey-config-snapshot.json
+extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+--- J10.1 the example story carries an authored id, and the chat keys its state by it
+J10.1 1/3 import_story ok 284ms
+J10.1 2/3 expect ok 41ms
+J10.1 3/3 eval ok 5ms
+--- J10.2 the memory profile is stored install-wide, never in the chat
+J10.2 1/2 ui ok 196ms
+J10.2 2/2 eval ok 5ms
+--- J10.3 re-selecting the same story hydrates progress instead of wiping it
+J10.3 1/5 slash ok 2190ms
+J10.3 2/5 send ok 1665ms
+J10.3 3/5 wait ok 40ms
+J10.3 4/5 select_story ok 350ms
+J10.3 5/5 expect ok 42ms
+--- J10.4 a library edit does not reach a chat that already pinned the story
+J10.4 1/3 eval ok 359ms
+J10.4 2/3 expect ok 64ms
+J10.4 3/3 eval ok 4ms
+--- J10.5 deleting the library record leaves the running chat playable from its pinned copy
+J10.5 1/2 eval ok 355ms
+J10.5 2/2 expect ok 39ms
+--- J10.6 a brand-new chat on a configured install plays immediately, with no per-chat setup
+J10.6 1/5 eval ok 359ms
+J10.6 2/5 eval ok 3044ms
+J10.6 3/5 select_story ok 251ms
+J10.6 4/5 eval ok 21ms
+J10.6 5/5 expect ok 41ms
+--- J10.7 Restart is the only reset, and it re-pins the latest library version
+J10.7 1/5 slash ok 1808ms
+J10.7 2/5 send ok 1659ms
+J10.7 3/5 wait ok 33ms
+J10.7 4/5 restart_story ok 671ms
+J10.7 5/5 expect ok 40ms
+--- J10.13 a chat blob written by another build (v6) is read detached and never overwritten: import and a cancelled restart leave it byte-identical, and only a confirmed restart replaces it (v2.4 plan 02 §1)
+J10.13 1/10 eval ok 2959ms
+J10.13 2/10 seed_metadata ok 135ms
+J10.13 2/10 seed_metadata -> {"version":6,"selectedStoryId":"so-v24-02-future","keys":["so-v24-02-future"]}
+J10.13 3/10 eval ok 6ms
+J10.13 3/10 eval -> {"version":6,"marker":"written-by-v6","futureField":{"kept":true},"storyId":null,"flagged":{"foundVersion":6,"notice":"saved by another version of Story Orchestrator: Restart to replace it"},"journaled":true}
+J10.13 4/10 eval ok 1636ms
+J10.13 4/10 eval -> {"serverVersion":6,"identical":true,"inMemoryIdentical":true}
+J10.13 5/10 import_story ok 38ms
+J10.13 5/10 import_story -> {"ok":false,"snapshot":{"ready":false,"storyId":null,"storyHash":null,"storyIdentity":{"id":null,"playedVersion":null,"libraryVersion":null,"pinned":false,"drifted":false},"blobUnreadable":{"foundVersion":6,"notice":"saved by another version of Story Orchestrator: Restart to replace it"},"orphanedLorebooks":[],"chatIdentity":null,"storyTitle":null,"storyDescription":null,"activeCheckpointId":null,"activeCheckpointName":null,"activeObjective":null,"boundary":0,"blackboard":{},"blackboardMeta":{},"checkpoints":[],"requirements":{"ready":true,"missingPersonas":[],"missingMembers":[],"missingLorebooks":[]},"validationErrors":[],"library":[{"id":"adolion-academy","version":11,"hash":"v2-0edc606a","title":"Adolion: House Nightriver","description":"Play an heir of House Nightriver in Aegis City, 
+J10.13 6/10 eval ok 5ms
+J10.13 6/10 eval -> {"storyId":null,"status":"Story not selected: this chat's saved story state was saved by another version of Story Orchestrator: Restart to replace it","inLibrary":true,"identical":true,"journaled":true}
+J10.13 7/10 restart_story ok 142ms
+J10.13 7/10 restart_story -> {"ok":false,"activeCheckpointId":null}
+J10.13 8/10 eval ok 5ms
+J10.13 8/10 eval -> {"identical":true,"storyId":null}
+J10.13 9/10 restart_story ok 550ms
+J10.13 9/10 restart_story -> {"ok":true,"activeCheckpointId":"cp1"}
+J10.13 10/10 eval ok 1526ms
+J10.13 10/10 eval -> {"version":5,"stampedFor":"2026-09-25@22h40m24s759ms","openChat":"2026-09-25@22h40m24s759ms","futureStory":false,"storyId":"sun-ruins","flagged":null,"serverVersion":5,"serverStamped":"2026-09-25@22h40m24s759ms","journaled":true}
+--- J10.14 a branch opened mid-story is noticed, never auto-adopted, and Continue from here rolls it back to the branch tail with the parent's lorebook unbound (v2.4 plan 02 §5)
+J10.14 1/21 eval ok 2978ms
+J10.14 2/21 eval ok 14ms
+J10.14 2/21 eval -> {"greetingsCleared":1}
+J10.14 3/21 eval ok 5ms
+J10.14 4/21 import_story ok 265ms
+J10.14 5/21 eval ok 8ms
+J10.14 6/21 send ok 1770ms
+J10.14 7/21 extract ok 1724ms
+J10.14 8/21 send ok 1665ms
+J10.14 9/21 extract ok 1046ms
+J10.14 10/21 record_state ok 8ms
+J10.14 10/21 record_state -> {"as":"after-line-1","boundary":2,"active":"start","rows":{"memory":3,"epistemic":0,"ledger":0}}
+J10.14 11/21 send ok 1657ms
+J10.14 12/21 extract ok 920ms
+J10.14 13/21 eval ok 351ms
+J10.14 13/21 eval -> {"chatId":"2026-09-25@22h40m31s763ms","integrity":"3ad8fa1b-2516-4b15-a586-c579f108f2c9","book":"Story Orchestrator - v24-01 Delete Decode - 2026-09-25@22h40m31s763ms","boundary":3}
+J10.14 14/21 branch_create ok 320ms
+J10.14 14/21 branch_create -> {"command":"/branch-create 1","name":"2026-09-25@22h40m31s763ms - Branch #1","kind":"branch","opened":true,"branchChats":["2026-09-25@22h40m31s763ms - Branch #1"]}
+J10.14 15/21 eval ok 4ms
+J10.14 15/21 eval -> {"branch":"2026-09-25@22h40m31s763ms - Branch #1","main_chat":"2026-09-25@22h40m31s763ms","integrity":"58567046-3d47-48a5-b591-c78c75ab1561","blobStampedFor":"2026-09-25@22h40m31s763ms","slot":null,"storyLoaded":null}
+J10.14 16/21 eval ok 5ms
+J10.14 16/21 eval -> {"slot":null,"chatIdentity":{"kind":"branch","parentChat":"2026-09-25@22h40m31s763ms","checkpointName":"Start"}}
+J10.14 17/21 ui ok 95ms
+J10.14 17/21 ui -> {"selector":"#so-branch-continue","found":true,"clickable":true,"at":{"x":517,"y":136},"topmost":"button#so-branch-continue.menu_button.self-start.interactable","target":"button#so-branch-continue.menu_button.self-start.interactable","clicked":true,"noticeGone":true}
+J10.14 18/21 wait ok 1529ms
+J10.14 19/21 expect ok 5ms
+J10.14 19/21 expect -> {"rollbackOutcome":{"rollbackOutcome":{"result":"applied","fromMessage":2,"since":"after-line-1"},"last":{"seq":3,"result":"applied","fromMessage":2,"at":"2026-09-26T01:40:45.052Z"},"sinceSeq":2}}
+J10.14 20/21 expect ok 19ms
+J10.14 21/21 eval ok 348ms
+J10.14 21/21 eval -> {"branchBook":"Story Orchestrator - v24-01 Delete Decode - 2026-09-25@22h40m31s763ms - Branch #1","parentBlob":"2026-09-25@22h40m31s763ms"}
+--- J10.15 a chat whose story state was saved as v4 (the format before v5) shows the one unreadable notice, refuses a selection and keeps its bytes; a confirmed Restart replaces it with a v5 blob that a real turn then writes with engineHistory, visitedPath and pinnedStory (v2.5 plan 11 L2)
+J10.15 1/7 eval ok 2920ms
+J10.15 2/7 eval ok 1727ms
+J10.15 2/7 eval -> {"storyId":null,"flagged":{"foundVersion":4,"notice":"saved by another version of Story Orchestrator: Restart to replace it"},"notice":"This chat's saved story state was saved by another version of Story Orchestrator: Restart to replace it.","notices":1}
+J10.15 3/7 import_story ok 37ms
+J10.15 3/7 import_story -> {"ok":false,"snapshot":{"ready":false,"storyId":null,"storyHash":null,"storyIdentity":{"id":null,"playedVersion":null,"libraryVersion":null,"pinned":false,"drifted":false},"blobUnreadable":{"foundVersion":4,"notice":"saved by another version of Story Orchestrator: Restart to replace it"},"orphanedLorebooks":[],"chatIdentity":null,"storyTitle":null,"storyDescription":null,"activeCheckpointId":null,"activeCheckpointName":null,"activeObjective":null,"boundary":0,"blackboard":{},"blackboardMeta":{},"checkpoints":[],"requirements":{"ready":true,"missingPersonas":[],"missingMembers":[],"missingLorebooks":[]},"validationErrors":[],"library":[{"id":"adolion-academy","version":11,"hash":"v2-0edc606a","title":"Adolion: House Nightriver","description":"Play an heir of House Nightriver in Aegis City, 
+J10.15 4/7 eval ok 1640ms
+J10.15 4/7 eval -> {"storyId":null,"inMemoryIdentical":true,"identical":true}
+J10.15 5/7 restart_story ok 556ms
+J10.15 5/7 restart_story -> {"ok":true,"activeCheckpointId":"cp1"}
+J10.15 6/7 send_generate ok 41296ms
+J10.15 6/7 send_generate -> {"sent":"I look around the guild hall and wave to Arin.","messagesBefore":1,"messagesAfter":4,"newMessages":3,"replied":true,"lastSpeaker":"Ponticius","lastLength":922}
+J10.15 7/7 eval ok 3655ms
+J10.15 7/7 eval -> {"storyId":"sun-ruins","flagged":null,"serverVersion":5,"memoryVersion":5,"stampedFor":"2026-09-25@22h40m46s502ms","openChat":"2026-09-25@22h40m46s502ms","marker":null,"engineHistory":true,"visitedPath":true,"pinnedStory":true}
+Restored global config from C:\dev\so-lanes\1\debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"],"saved":{"status":200},"preservedStories":["v24-01-delete-decode","sun-ruins"],"preservedSessions":[]}
+
+PASS         J10.1    the example story carries an authored id, and the chat keys its state by it
+PASS         J10.2    the memory profile is stored install-wide, never in the chat
+PASS         J10.3    re-selecting the same story hydrates progress instead of wiping it
+PASS         J10.4    a library edit does not reach a chat that already pinned the story
+PASS         J10.5    deleting the library record leaves the running chat playable from its pinned copy
+PASS         J10.6    a brand-new chat on a configured install plays immediately, with no per-chat setup
+PASS         J10.7    Restart is the only reset, and it re-pins the latest library version
+PASS         J10.13   a chat blob written by another build (v6) is read detached and never overwritten: import and a cancelled restart leave it byte-identical, and only a confirmed restart replaces it (v2.4 plan 02 §1)
+PASS         J10.14   a branch opened mid-story is noticed, never auto-adopted, and Continue from here rolls it back to the branch tail with the parent's lorebook unbound (v2.4 plan 02 §5)
+PASS         J10.15   a chat whose story state was saved as v4 (the format before v5) shows the one unreadable notice, refuses a selection and keeps its bytes; a confirmed Restart replaces it with a v5 blob that a real turn then writes with engineHistory, visitedPath and pinnedStory (v2.5 plan 11 L2)
+SKIP         J10.9     — human check — operator scores it
+SKIP         J10.10    — human check — operator scores it
+
+J10
+automated: 10 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped
+human:     0 scored, 2 unscored
+cleanup:   clean
+first try: 10 of 10 passing check(s) needed no retry
+
+--- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+[J10.9] (U6) Reading the settings panel, was it clear which settings apply to every chat and which only to this one?
+      anchors: 1 = no idea · 3 = worked it out · 5 = obvious at a glance
+[J10.10] (U6) The memory-model self-test: did its result tell you something you could act on?
+      anchors: 1 = meaningless · 3 = confirmed it works · 5 = told me exactly what this model can and cannot do
+[free] What would make you stop using this?
+
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-26T01-41-53-523Z_journey-J10.json
+Matrix: C:\dev\so-lanes\1\debug\journey-J10.md

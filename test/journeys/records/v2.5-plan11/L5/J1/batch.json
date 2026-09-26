@@ -1,0 +1,36 @@
+{
+  "lanes": [
+    1
+  ],
+  "items": [
+    "J1"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "J1",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-26T01-45-36-489Z-J1-run1.log",
+      "ms": 214312,
+      "automated": "automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\1\\debug\\2026-09-26T01-49-10-777Z_journey-J1.json",
+      "failures": []
+    },
+    {
+      "item": "J1",
+      "lane": 1,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-26T01-45-36-489Z-J1-run2.log",
+      "ms": 214092,
+      "automated": "automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\1\\debug\\2026-09-26T01-52-44-873Z_journey-J1.json",
+      "failures": []
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+1/8 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the library already holds linear-vault, so this import is not fresh: ["adolion-academy","adolion-adventurer","so-j9-wizard","so-j9-fixme","linear-vault"]
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:194)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:379)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-26T01-52-11-542Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-26T01-52-17-395Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 1,
+  "cleanup": {
+    "removedStoryHashes": [],
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@22h52m11s055ms",
+    "owned": [
+      "2026-09-25@22h52m11s055ms"
+    ],
+    "deleted": [
+      "2026-09-25@22h52m11s055ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1525,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@22h52m11s055ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

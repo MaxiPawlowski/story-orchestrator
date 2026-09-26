@@ -1,0 +1,56 @@
+{
+  "file": "test/journeys/records/v2.5-plan11/L3/l3-real-old-chat.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "eval",
+      "ok": true,
+      "ms": 1522
+    },
+    {
+      "index": 1,
+      "key": "eval",
+      "ok": true,
+      "ms": 3
+    },
+    {
+      "index": 2,
+      "key": "eval",
+      "ok": true,
+      "ms": 1651
+    },
+    {
+      "index": 3,
+      "key": "restart_story",
+      "ok": true,
+      "ms": 683
+    },
+    {
+      "index": 4,
+      "key": "eval",
+      "ok": true,
+      "ms": 4
+    },
+    {
+      "index": 5,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 41291
+    },
+    {
+      "index": 6,
+      "key": "eval",
+      "ok": true,
+      "ms": 3650
+    }
+  ],
+  "ok": true,
+  "error": null,
+  "retries": [],
+  "firstAttempt": "pass",
+  "cleanup": null,
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

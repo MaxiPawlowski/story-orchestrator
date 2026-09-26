@@ -1,0 +1,80 @@
+1/9 eval ok 6ms
+1/9 eval -> {"libraryBefore":["adolion-academy","adolion-adventurer","so-j9-wizard","so-j9-fixme"]}
+2/9 import_story ok 271ms
+2/9 import_story -> {"ok":true,"snapshot":{"ready":true,"storyId":"linear-vault","storyHash":"v2-bcd4f779","storyIdentity":{"id":"linear-vault","playedVersion":1,"libraryVersion":1,"pinned":true,"drifted":false},"blobUnr
+3/9 expect ok 39ms
+4/9 eval ok 6ms
+4/9 eval -> {"records":1,"version":1,"title":"Linear Vault","libraryCount":5,"selected":"linear-vault","keys":["linear-vault"]}
+5/9 import_story ok 362ms
+5/9 import_story -> {"ok":true,"snapshot":{"ready":true,"storyId":"linear-vault","storyHash":"v2-bcd4f779","storyIdentity":{"id":"linear-vault","playedVersion":1,"libraryVersion":1,"pinned":true,"drifted":false},"blobUnr
+6/9 eval ok 5ms
+6/9 eval -> {"records":1,"version":1,"libraryCount":5}
+7/9 import_story ok 666ms
+7/9 import_story -> {"ok":true,"snapshot":{"ready":true,"storyId":"linear-vault","storyHash":"v2-bcd4f779","storyIdentity":{"id":"linear-vault","playedVersion":1,"libraryVersion":2,"pinned":true,"drifted":true},"blobUnre
+8/9 eval ok 5ms
+8/9 eval -> {"records":1,"version":2,"description":"A minimal linear v2 story, edited for the v2.5 plan 11 A7 live check.","libraryCount":5}
+9/9 eval ok 8ms
+9/9 eval -> {"removed":true,"libraryAfter":["adolion-academy","adolion-adventurer","so-j9-wizard","so-j9-fixme"]}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-26T01-53-12-591Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 9,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-bcd4f779"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@22h53m04s809ms",
+    "owned": [
+      "2026-09-25@22h53m04s809ms"
+    ],
+    "deleted": [
+      "2026-09-25@22h53m04s809ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1525,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@22h53m04s809ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

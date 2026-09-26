@@ -1,0 +1,40 @@
+{
+  "lanes": [
+    1
+  ],
+  "items": [
+    "J10"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "J10",
+      "lane": 1,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-26T01-36-40-867Z-J10-run1.log",
+      "ms": 55597,
+      "automated": "automated: 9 pass, 1 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\1\\debug\\2026-09-26T01-37-36-440Z_journey-J10.json",
+      "failures": [
+        "FAIL J10.15"
+      ]
+    },
+    {
+      "item": "J10",
+      "lane": 1,
+      "run": 2,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-26T01-36-40-867Z-J10-run2.log",
+      "ms": 56636,
+      "automated": "automated: 9 pass, 1 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\1\\debug\\2026-09-26T01-38-33-079Z_journey-J10.json",
+      "failures": [
+        "FAIL J10.15"
+      ]
+    }
+  ]
+}
