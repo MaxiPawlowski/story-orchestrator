@@ -251,7 +251,7 @@
     },
     "src/runtime/effectsApplier.ts#EffectsApplier.speak": {
       "status": "local",
-      "note": "v2.5 plan 02 C1 step 2: one NPC reply, awaited. `fireReply` is the reply itself (its caller, fireNpcReplies, checks the run before it and after it); the only call after the await is removing this function's own abort listener, which writes nothing. The listener is the in-flight stop: when the epoch is replaced while an llm /trigger streams, it stops the generation only if exactly one outermost generation opened since the trigger started (generationWatch) and ST still generates, so a generation the player started in the next chat is never stopped (npcTriggerStop.review.test.ts)."
+      "note": "v2.5 plan 02 C1 step 2: one NPC reply, awaited. `fireReply` is the reply itself (its caller, fireNpcReplies, checks the run before it and after it); after the await it removes its own abort listener and releases its stream guard. v2.5 C1 fix (D1): an llm reply arms guardHostStream(openChatId()) (stHost/streamGuard.ts), which wraps the streaming processor's onProgressStreaming, the one write path for every tick and for the finish (script.js:3886-3896, :3756, :3808-3815), and refuses any write whose open chat id or chat[messageId] object is not the one the stream started in: it marks the stream stopped+finished and aborts its fetch, so onFinishStreaming never runs and nothing is saved (npcStreamLanding.review.test.ts). release() then gives the send button back (activateSendButtons) only when it halted a stream, because the halted Generate never unblocks by itself; that host call after the await is deliberate, the halted stream belongs to no chat. On lapse, halt() stops the live stream through the guard; only when no streaming processor exists (non-streaming, or before the request) does the old stop run, and only if exactly one outermost generation opened since the trigger and ST still generates (npcTriggerStop.review.test.ts)."
     },
     "src/runtime/effectsApplier.ts#EffectsApplier.releaseWorldInfo": {
       "status": "delegate",
@@ -327,7 +327,7 @@
     },
     "src/runtime/runtimeManager.ts#RuntimeManager.commitBoundary": {
       "status": "checked",
-      "note": "v2.3 plan 03: mints before boundary work and checks after checkpoint effects, accepted stagecraft, persistence and transition announcement before any later runtime write, observer or notification. The persistence chokepoint and child writers retain their own guards. v2.4 plan 02 T3: the fingerprint reconcile runs first (ChatSave.reconcile, which checks the run before stepping back and answers stillOwns after), and the commit stops there when the run lapsed, before the engine write."
+      "note": "v2.3 plan 03: mints before boundary work and checks after checkpoint effects, accepted stagecraft, persistence and transition announcement before any later runtime write, observer or notification. The persistence chokepoint and child writers retain their own guards. v2.4 plan 02 T3: the fingerprint reconcile runs first (ChatSave.reconcile, which checks the run before stepping back and answers stillOwns after), and the commit stops there when the run lapsed, before the engine write. v2.5 C7: the transition announcement now runs right after the engine commit, before the checkpoint effects (so the note precedes the onEnter NPC reply it announces), with its own check after it."
     },
     "src/runtime/runtimeManager.ts#RuntimeManager.fireAfterSpeak": {
       "status": "checked",

@@ -1,0 +1,12 @@
+v2.5 C1 fix (plan 02 D1): an llm NPC /trigger reply never writes or saves into the chat the player switched to. Mutations 2026-09-26 (each mutant applied alone as an exact-text replacement to src/services/stHost/streamGuard.ts by .debug/mut.py, file restored byte-for-byte after each run; every replacement matched exactly once)
+Suites per mutant: src/services/stHost/streamGuard.test.ts (5) + src/runtime/npcStreamLanding.review.test.ts (5). Baseline green.
+Red first: npcStreamLanding.review.test.ts ran against the unchanged effectsApplier and failed 4 of 5 (mid-stream, natural finish, before first token, settle); the control passed.
+
+- M1 the chat[messageId] identity check deleted: KILLED
+- M2 the chat id check deleted: KILLED (stops at the first write after the chat id changes)
+- M3 settle on every release: KILLED (control: halt with no processor)
+- M4 halt() does not arm the live processor: KILLED (a switch before the first token)
+- M5 stop leaves isFinished false: KILLED
+- M6 the token listener never arms: KILLED
+
+6 of 6 killed.

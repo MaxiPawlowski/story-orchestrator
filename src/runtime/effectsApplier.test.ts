@@ -2,7 +2,7 @@ import type { Checkpoint, NormalizedStoryV2 } from "@engine/index";
 import { parseStoryV2OrThrow } from "@engine/validate";
 import { applyBackground, applyCharacterAN, clearCharacterAN, disableWIEntry, enableWIEntry, executeSlashCommands, setGroupMembersDisabled } from "@services/STAPI";
 import { EffectsApplier, PENDING_NOT_SAVED } from "./effectsApplier";
-import { setScanGatingActive } from "./worldInfoMode";
+import { readGatingModeWith, setScanGatingActive, setScanGatingSettled } from "./worldInfoMode";
 import type { RuntimeExtras, RuntimeSnapshot } from "./types";
 import { testOwnership } from "../../test/findings/testOwnership";
 
@@ -291,6 +291,41 @@ describe("world_info effect", () => {
     await new EffectsApplier(testOwnership()).applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
     await new EffectsApplier(testOwnership()).releaseWorldInfo([other, story], story);
     expect(calls(disableWIEntry)).toEqual([["Checkpoints", ["One"]], ["Other", ["Theirs"]]]);
+  });
+
+  it("v2.5 P01-L1: in scan mode, before the gating activates or settles, neither the path replay nor the release writes a lorebook", async () => {
+    const stop = readGatingModeWith(() => "scan");
+    try {
+      await new EffectsApplier(testOwnership()).applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
+      await new EffectsApplier(testOwnership()).releaseWorldInfo([other, story], story);
+      expect({ off: calls(disableWIEntry), on: calls(enableWIEntry) }).toEqual({ off: [], on: [] });
+    } finally {
+      stop();
+    }
+  });
+
+  it("v2.5 P01-L1: in scan mode, once the gating settles on the file path (no scan capability), both write again", async () => {
+    const stop = readGatingModeWith(() => "scan");
+    setScanGatingSettled(true);
+    try {
+      await new EffectsApplier(testOwnership()).applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
+      await new EffectsApplier(testOwnership()).releaseWorldInfo([other, story], story);
+      expect(calls(disableWIEntry)).toEqual([["Checkpoints", ["One"]], ["Other", ["Theirs"]]]);
+    } finally {
+      setScanGatingSettled(false);
+      stop();
+    }
+  });
+
+  it("control (v2.5 P01-L1): file mode is unchanged, the path replay and the release write at once without any gating", async () => {
+    const stop = readGatingModeWith(() => "file");
+    try {
+      await new EffectsApplier(testOwnership()).applyCheckpoint(story, story.checkpointById.three, extras(true), snapshot, "hydrate", ["one", "two", "three"]);
+      await new EffectsApplier(testOwnership()).releaseWorldInfo([other, story], story);
+      expect(calls(disableWIEntry)).toEqual([["Checkpoints", ["One"]], ["Other", ["Theirs"]]]);
+    } finally {
+      stop();
+    }
   });
 
   it("journals a release the host refused", async () => {

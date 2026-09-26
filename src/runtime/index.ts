@@ -31,6 +31,7 @@ import { loreEvidence } from "./worldInfoEvidence";
 import { startLoreEvidence } from "./worldInfoEvidenceHost";
 import { startSamplerOverlay } from "./samplerOverlayHost";
 import { startScanGating } from "./worldInfoScanHost";
+import { readGatingModeWith } from "./worldInfoMode";
 import { promptCost } from "./promptCost";
 import { attachPromptBuckets } from "./promptBucketsHost";
 import { roleHealth } from "./roleHealth";
@@ -63,6 +64,7 @@ const registerSlashCommandsWhenReady = (attempt = 0) => {
 export function startRuntime() {
   if (started) return runtimeManager;
   started = true;
+  runtimeDisposers.push(readGatingModeWith(() => getGlobalSettings().worldInfo.gatingMode));
   runtimeDisposers.push(setProfileRouter((role, fallback) => resolveProfile({ ...runtimeManager.getExtractionSettings(), profileId: fallback }, role, profileExists)));
   runtimeDisposers.push(setAnsweredObserver((call) => scheduler?.noteAnswered(call.profileId, call.ms)));
   const schedulerHost: SchedulerHost = {

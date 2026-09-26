@@ -388,8 +388,8 @@
     },
     "persistence|afterHostWrite": {
       "status": "partial",
-      "evidence": "src/runtime/runtimeManager.test.ts#a boundary that lapses during persistence stops before announcement",
-      "note": "Covers a world lapse at the persist step stopping the announce tail; no case where the save itself fails."
+      "evidence": "src/runtime/runtimeManager.test.ts#a boundary that lapses during persistence stops before observers, after the announcement it already posted",
+      "note": "Covers a world lapse at the persist step stopping the observer tail (since v2.5 C7 the transition note is posted before the checkpoint effects, so it precedes persist); no case where the save itself fails."
     },
     "persistence|persistFailure": {
       "status": "covered",
@@ -452,10 +452,10 @@
       "note": "The sequence stops before the write that outlives the chat."
     },
     "effects|aborted": {
-      "status": "covered",
-      "evidence": "src/runtime/npcRepliesOwnership.review.test.ts#a chat switch during a generating reply writes nothing into the departed chat's state",
-      "alsoEvidence": ["src/runtime/npcRepliesOwnership.review.test.ts#a generating reply in a chat that did not move records its own last message", "src/runtime/npcTriggerStop.review.test.ts#stops the trigger's own generation when the chat changes while it streams", "src/runtime/npcTriggerStop.review.test.ts#issues no stop when another generation opened after the trigger's (the player's, in the new chat)"],
-      "note": "Was na (\"performs no model call\"), which was wrong: an `llm` NPC reply is `/trigger await=true`, a main-model generation (v2.5 plan 02 C1). COVERED (v2.4 follow-up 2026-09-25): a sequence whose chat moved during the awaited reply writes nothing after it (the post-await check in fireNpcReplies); control: an unmoved chat records its own last message. v2.5 plan 02 C1 step 2 (2026-09-26): the in-flight /trigger generation is stopped through stopHostGeneration when the epoch is replaced while it streams, only when exactly one outermost generation opened since the trigger and ST still generates (npcTriggerStop.review.test.ts; mutants 5/5 killed, test/findings/mutations/v25-02-c1-trigger-stop.txt). Built ahead of its live step 0: where an unstopped reply lands after a switch, and whether /trigger await=true resolves on stop, are still owed live."
+      "status": "partial",
+      "evidence": "src/runtime/npcStreamLanding.review.test.ts#a switch mid-stream leaves the populated next chat untouched in memory and unsaved (tokens after the load, CHAT_CHANGED later)",
+      "alsoEvidence": ["src/runtime/npcStreamLanding.review.test.ts#a switch after the last token (the natural finish) still writes and saves nothing in the next chat", "src/runtime/npcStreamLanding.review.test.ts#a switch before the first token does not turn the stop into a finish that saves the next chat", "src/runtime/npcStreamLanding.review.test.ts#control: a reply in a chat that did not move streams, lands and is saved exactly as before", "src/runtime/npcRepliesOwnership.review.test.ts#a chat switch during a generating reply writes nothing into the departed chat's state", "src/runtime/npcTriggerStop.review.test.ts#stops the trigger's own generation when the chat changes while it streams"],
+      "note": "PARTIAL (v2.5 C1 fix, 2026-09-26). Was covered on the step-2 stop, which live showed ineffective (2 of 2 populated runs landed, v2.5 plan 02 gate record D1): it ran inside CHAT_CHANGED, after ST had loaded the next chat, and stopGeneration sets isFinished, which sends the stream through onFinishStreaming into chat[messageId] of the open chat and saves it (script.js:3847-3850, :5408, :5439, :3808-3815). Now covered deterministically for STREAMING replies: the tests inject the chat switch (chat id change plus the next chat loaded into the global chat) mid-stream, after the last token and before the first token, and assert the next chat is untouched and unsaved; the guard (stHost/streamGuard.ts) refuses every onProgressStreaming write whose chat id or chat[messageId] object moved. The fake stream mirrors script.js:3874-3911 and Generate :5396-5446, so it is a replica and the live re-run is owed. Not covered: a NON-streaming reply whose response lands between the next chat's load and CHAT_CHANGED (saveReply appends into the open chat, script.js:5531; the step-2 abort only helps before the response), and a streaming response whose headers arrive after the switch (onStartStreaming pushes its placeholder into the open chat, :3633). The post-await check in fireNpcReplies still keeps the departed chat's extras clean."
     },
     "hostDeletes|delayedSuccess": {
       "status": "covered",
