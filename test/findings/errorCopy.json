@@ -1,0 +1,716 @@
+{
+  "$comment": "v2.5 plan 03 E2. Rows are extracted by test/support/codeHealth.ts errorCopySites (kinds: 1 toast/popup literal, 2 template interpolating an error, 3 bare catch or constant .catch). Reviewed by hand: surface, rawError, silentCatch, verdict, reason. Pass = no rawError on a player surface; every kind-3 row logs or is a probe. 'closed' flips true when no row fails.",
+  "closed": false,
+  "rows": [
+    {
+      "site": "src/components/drawer/DrawerTabs.tsx#excludeWithUndo",
+      "kind": 1,
+      "template": "\"Memory excluded — click here to undo\"",
+      "surface": "player",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "constant toast"
+    },
+    {
+      "site": "src/components/drawer/DrawerTabs.tsx#submit",
+      "kind": 1,
+      "template": "\"Moment flagged in the session journal.\"",
+      "surface": "player",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "constant toast"
+    },
+    {
+      "site": "src/components/settings/CapabilitiesGroup.tsx#copy",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "player",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "clipboard failure becomes the visible 'failed' state"
+    },
+    {
+      "site": "src/components/studio/GraphPanel.tsx#initialize",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "container not ready: retried"
+    },
+    {
+      "site": "src/copilot/authoring.ts#provisioningIssues>callback",
+      "kind": 2,
+      "template": "`ops.${item.index}: ${item.validation.message}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "our validator's message, shown in the wizard"
+    },
+    {
+      "site": "src/copilot/parse.ts#parseSuggestions",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "unparseable reply yields no suggestions"
+    },
+    {
+      "site": "src/copilot/validate.ts#validateProposal>callback",
+      "kind": 2,
+      "template": "`${diagnostic.path}: ${diagnostic.message}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "our validator's message, shown in the Studio"
+    },
+    {
+      "site": "src/copilot/validate.ts#validateProposal>callback",
+      "kind": 2,
+      "template": "`${error.path}: ${error.message}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "our validator's message, shown in the Studio"
+    },
+    {
+      "site": "src/engine/validate.ts#parseStoryV2OrThrow>callback",
+      "kind": 2,
+      "template": "`${error.path}: ${error.message}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "our validator's message"
+    },
+    {
+      "site": "src/extraction/cues.ts#scheduleForcedCues",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "fail",
+      "reason": "an authored extractor_trigger that is not a regex is skipped without a word"
+    },
+    {
+      "site": "src/extraction/parse.ts#parseJsonLiteral",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "parse attempt"
+    },
+    {
+      "site": "src/extraction/scheduler.ts#ExtractionScheduler.rereadAfterMutation",
+      "kind": 3,
+      "template": ".catch(() => undefined)",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "settle signal race; the bound resolves anyway"
+    },
+    {
+      "site": "src/extraction/tokenMeter.ts#prime",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host count failure falls back to the estimate"
+    },
+    {
+      "site": "src/generation/critic.ts#runCritic",
+      "kind": 3,
+      "template": ".catch(() => null)",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "judge critic failure falls back to the model critic"
+    },
+    {
+      "site": "src/generation/generate.ts#generateVariants",
+      "kind": 3,
+      "template": ".catch(() => \"\")",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "an unreadable variant scores null / empty and is not picked"
+    },
+    {
+      "site": "src/generation/generate.ts#generateVariants>callback",
+      "kind": 3,
+      "template": ".catch(() => null)",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "an unreadable variant scores null / empty and is not picked"
+    },
+    {
+      "site": "src/generation/merge.ts#mergeExpansions>callback",
+      "kind": 2,
+      "template": "`${error.path}: ${error.message}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "our validator's message inside a thrown merge error"
+    },
+    {
+      "site": "src/generation/parse.ts#parseCriticVerdict",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "invalid critic JSON becomes a failed verdict"
+    },
+    {
+      "site": "src/index.tsx#deleteStory",
+      "kind": 1,
+      "template": "`${question} Its ${restore.entries} lorebook ${restore.entries === 1 ? \"entry stays\" : \"entries stay\"} off at rest unless you restore ${restore.entries === 1 ? \"it\" : \"them\"}.`",
+      "surface": "player",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "popup copy; interpolates counts only"
+    },
+    {
+      "site": "src/index.tsx#openStudio",
+      "kind": 1,
+      "template": "\"You have an unsaved Studio draft for this story. Resume it?\"",
+      "surface": "player",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "constant popup copy"
+    },
+    {
+      "site": "src/index.tsx#openWizard",
+      "kind": 1,
+      "template": "\"Start a new story? Your unsaved Studio draft will be discarded.\"",
+      "surface": "player",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "constant popup copy"
+    },
+    {
+      "site": "src/index.tsx#SettingsPanel>callback",
+      "kind": 2,
+      "template": "`${error.path}:${error.message}`",
+      "surface": "player",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "a React key over our validator's messages"
+    },
+    {
+      "site": "src/index.tsx#toggleAuthorView",
+      "kind": 1,
+      "template": "\"Author view shows gates, upcoming checkpoints and what characters are hiding. That will spoil this story for you as a player. Show it anyway?\"",
+      "surface": "player",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "constant popup copy"
+    },
+    {
+      "site": "src/runtime/consolidationMatches.ts#buildMatchSets",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "fail",
+      "reason": "vector purge failure is dropped without a word"
+    },
+    {
+      "site": "src/runtime/coordinators/copilotCoordinator.ts#safe",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host list read falls back to an empty list"
+    },
+    {
+      "site": "src/runtime/coordinators/expansionCoordinator.ts#ExpansionCoordinator.mergedStoryOrBase",
+      "kind": 2,
+      "template": "`Expansion merge failed: ${error.message}`",
+      "surface": "player",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "fail",
+      "reason": "error.message reaches snapshot.status, shown in the settings panel"
+    },
+    {
+      "site": "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.applyAccepted",
+      "kind": 3,
+      "template": ".catch(() => undefined)",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "queue tail; the returned promise carries the error"
+    },
+    {
+      "site": "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.restoreBefore",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "restore failure answers false, which the caller records"
+    },
+    {
+      "site": "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.runCuratorPass",
+      "kind": 2,
+      "template": "`wi-curator:${reason}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "a pass-reason key, not an error"
+    },
+    {
+      "site": "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.runWardenPass",
+      "kind": 3,
+      "template": ".catch(() => null)",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "fail",
+      "reason": "warden call failure is dropped without a word"
+    },
+    {
+      "site": "src/runtime/effectsApplier.ts#EffectsApplier.restoreEffects",
+      "kind": 3,
+      "template": ".catch(() => false)",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "restore failure is recorded as revert-failed"
+    },
+    {
+      "site": "src/runtime/entryTokens.ts#tokensFor",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host count failure: no token count"
+    },
+    {
+      "site": "src/runtime/mirrorReaper.ts#MirrorReaper.onChatDeleted",
+      "kind": 3,
+      "template": ".catch(() => undefined)",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "queue tail; the returned promise carries the error"
+    },
+    {
+      "site": "src/runtime/mirrorReaper.ts#parseOwnerMarker",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "parse attempt"
+    },
+    {
+      "site": "src/runtime/mirrorReaperHost.ts#confirm",
+      "kind": 1,
+      "template": "`The chat \"${chatId}\" was deleted, but its story-memory lorebook \"${book}\" is still there. Delete the lorebook too? This cannot be undone.`",
+      "surface": "player",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "popup names the chat and book, no error text"
+    },
+    {
+      "site": "src/runtime/promptCost.ts#PromptCost.flush",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host count failure falls back to the estimate"
+    },
+    {
+      "site": "src/runtime/runtimeManager.ts#warn>callback",
+      "kind": 2,
+      "template": "`${warning.path}: ${warning.message}`",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "validation warnings to the console"
+    },
+    {
+      "site": "src/runtime/stateExport.ts#exportState",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "player",
+      "rawError": false,
+      "silentCatch": "logs",
+      "verdict": "pass",
+      "reason": "toast + the state goes to the log"
+    },
+    {
+      "site": "src/runtime/storyUpdate.ts#applyStoryUpdate",
+      "kind": 2,
+      "template": "`the saved story does not validate: ${parsed[0]?.message ?? \"invalid\"}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "our validator's message in the Studio save result"
+    },
+    {
+      "site": "src/runtime/talkControl.ts#TalkController.runDirector",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "fail",
+      "reason": "director/judge failure falls back to the rules pick without a word"
+    },
+    {
+      "site": "src/runtime/talkControl.ts#TalkController.runJudge",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "fail",
+      "reason": "director/judge failure falls back to the rules pick without a word"
+    },
+    {
+      "site": "src/runtime/worldInfoGating.ts#normalize",
+      "kind": 1,
+      "template": "`Story lorebook entries now rest off: ${refText(flipped)}`",
+      "surface": "player",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "toast names entries, no error text"
+    },
+    {
+      "site": "src/runtime/worldInfoGating.ts#serial",
+      "kind": 3,
+      "template": ".catch(() => undefined)",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "queue tail; the returned promise carries the error"
+    },
+    {
+      "site": "src/services/stHost/backgrounds.ts#nameFromCssUrl",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host read probe answers a neutral value the caller reads"
+    },
+    {
+      "site": "src/services/stHost/characters.ts#getCharacters",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host read probe answers a neutral value the caller reads"
+    },
+    {
+      "site": "src/services/stHost/chatFiles.ts#post",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host read probe answers a neutral value the caller reads"
+    },
+    {
+      "site": "src/services/stHost/connectionProfiles.ts#listConnectionProfiles",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host read probe answers a neutral value the caller reads"
+    },
+    {
+      "site": "src/services/stHost/context.ts#settingsReady>callback",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host read probe answers a neutral value the caller reads"
+    },
+    {
+      "site": "src/services/stHost/contextLimit.ts#readProfileContextLimit",
+      "kind": 2,
+      "template": "`the preset could not be read (${error instanceof Error ? error.message : String(error)})`",
+      "surface": "player",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "fail",
+      "reason": "error.message reaches the settings panel's memory-model line"
+    },
+    {
+      "site": "src/services/stHost/groups.ts#readServerGroup",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host read probe answers a neutral value the caller reads"
+    },
+    {
+      "site": "src/services/stHost/groups.ts#saveGroupFlags",
+      "kind": 2,
+      "template": "`group ${group.id} could not be saved: ${error instanceof Error ? error.message : \"the host refused the write\"}`",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "WriteResult reason: effect ledger and journal"
+    },
+    {
+      "site": "src/services/stHost/judge.ts#judgeStatus",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host read probe answers a neutral value the caller reads"
+    },
+    {
+      "site": "src/services/stHost/persistence.ts#chatSaveTarget",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host read probe answers a neutral value the caller reads"
+    },
+    {
+      "site": "src/services/stHost/persistence.ts#readServerBoundary",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host read probe answers a neutral value the caller reads"
+    },
+    {
+      "site": "src/services/stHost/persistence.ts#readServerExtensionSettings",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host read probe answers a neutral value the caller reads"
+    },
+    {
+      "site": "src/services/stHost/version.ts#getHostVersion",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host read probe answers a neutral value the caller reads"
+    },
+    {
+      "site": "src/services/stHost/version.ts#macroEngineInUse",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host read probe answers a neutral value the caller reads"
+    },
+    {
+      "site": "src/services/stHost/worldInfo.ts#readServerLorebook",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host read probe answers a neutral value the caller reads"
+    },
+    {
+      "site": "src/services/stHost/worldInfo.ts#setWIEntryDisabledState",
+      "kind": 2,
+      "template": "`\"${lorebook}\" could not be saved: ${error instanceof Error ? error.message : \"the host refused the write\"}`",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "WriteResult reason: journal"
+    },
+    {
+      "site": "src/services/stHost/worldInfo.ts#updateWIEntryByUid",
+      "kind": 2,
+      "template": "`\"${book.name}\" could not be saved: ${error instanceof Error ? error.message : \"the host refused the write\"}`",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "WriteResult reason: journal"
+    },
+    {
+      "site": "src/stagecraft/parse.ts#readOp",
+      "kind": 2,
+      "template": "`${kind}: ${reason}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "curator parse rejection, author review"
+    },
+    {
+      "site": "src/stagecraft/proposal.ts#nearMatch",
+      "kind": 2,
+      "template": "`${exact.message} (near match, ${Math.round(found.score * 100)}%)`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "curator preview message, author review"
+    },
+    {
+      "site": "src/stagecraft/proposal.ts#planCuratorProposal",
+      "kind": 2,
+      "template": "`${op.kind}: ${preview.message}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "curator preview message, author review"
+    },
+    {
+      "site": "src/studio/components/ProposalReview.tsx#ProposalReview>callback",
+      "kind": 2,
+      "template": "` — ${entry.message}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "Studio proposal review"
+    },
+    {
+      "site": "src/studio/components/StudioGraph.tsx#handleCopyMermaid",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "clipboard failure becomes the visible not-copied state"
+    },
+    {
+      "site": "src/studio/components/StudioToolbar.tsx#download",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "fail",
+      "reason": "a failed download is dropped without a word"
+    },
+    {
+      "site": "src/studio/components/StudioToolbar.tsx#handleFile",
+      "kind": 2,
+      "template": "`Import failed: ${result[0]?.message ?? \"invalid story\"}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "our validator's message in the Studio"
+    },
+    {
+      "site": "src/studio/components/StudioToolbar.tsx#handleSave",
+      "kind": 2,
+      "template": "` Not applied to this chat: ${error instanceof Error ? error.message : String(error)}`",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "Studio save result, author only"
+    },
+    {
+      "site": "src/studio/io.ts#importDraft",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "invalid JSON becomes a validation error"
+    },
+    {
+      "site": "src/studio/StudioModal.tsx#requestClose",
+      "kind": 1,
+      "template": "\"Discard unsaved Studio changes?\"",
+      "surface": "player",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "constant popup copy"
+    },
+    {
+      "site": "src/studio/StudioModal.tsx#safe",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host list read falls back to an empty list"
+    }
+  ]
+}
