@@ -1,0 +1,107 @@
+{
+  "description": "F3 long: the poison letter is read at 41 and never mentioned again; the break is at 51.",
+  "slice": "long",
+  "lang": "en",
+  "participants": [
+    "Orin",
+    "Selene"
+  ],
+  "sceneStart": 40,
+  "detectFrom": 44,
+  "to": 51,
+  "transcript": [
+    {
+      "index": 40,
+      "speaker": "Narrator",
+      "text": "In the back room of the Gilded Stag, Orin unfolds a letter and reads it by lamplight."
+    },
+    {
+      "index": 41,
+      "speaker": "Orin",
+      "text": "Orin reads the letter twice: the duke's envoy will be poisoned at the feast tomorrow night. He burns the letter in the lamp and tells no one."
+    },
+    {
+      "index": 42,
+      "speaker": "Narrator",
+      "text": "Ash drifts to the floor. Orin pockets the lamp's brass cap out of habit."
+    },
+    {
+      "index": 43,
+      "speaker": "Selene",
+      "text": "Selene bursts in, flushed from the stairs. \"The envoy wants you at his table tomorrow. Isn't that wonderful?\""
+    },
+    {
+      "index": 44,
+      "speaker": "Orin",
+      "text": "\"Wonderful,\" Orin says, and smiles too quickly."
+    },
+    {
+      "index": 45,
+      "speaker": "Selene",
+      "text": "Selene chatters about the seating plan, the musicians, the roast swan."
+    },
+    {
+      "index": 46,
+      "speaker": "Narrator",
+      "text": "Downstairs a fiddler tunes up; laughter rolls through the common room."
+    },
+    {
+      "index": 47,
+      "speaker": "Selene",
+      "text": "\"I'll sit beside the envoy myself and taste every course,\" Selene says brightly. \"Nothing can go wrong.\""
+    },
+    {
+      "index": 48,
+      "speaker": "Orin",
+      "text": "Orin only nods and pours two cups of wine."
+    },
+    {
+      "index": 49,
+      "speaker": "Narrator",
+      "text": "The bells ring midnight over the town."
+    },
+    {
+      "index": 50,
+      "speaker": "Selene",
+      "text": "Selene yawns and heads for the door. \"Sleep, Orin. Tomorrow is a happy day.\""
+    },
+    {
+      "index": 51,
+      "speaker": "Narrator",
+      "text": "Orin sits alone in the dark room long after she leaves."
+    }
+  ],
+  "expected": {
+    "epistemic": [
+      {
+        "setAt": 41,
+        "tag": "knows",
+        "subject": "Orin",
+        "needles": [
+          "poison"
+        ]
+      },
+      {
+        "setAt": 41,
+        "subject": "Selene",
+        "needles": [
+          "poison"
+        ],
+        "tags": [
+          "unaware",
+          "hiding"
+        ]
+      }
+    ],
+    "ledger": [],
+    "forbidden": [
+      {
+        "tag": "knows",
+        "subject": "Selene",
+        "needles": [
+          "poison"
+        ]
+      }
+    ]
+  }
+}

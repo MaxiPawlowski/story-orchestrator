@@ -1,4 +1,5 @@
-import { askText, buildFixtureRun, parseSharedReadResponse, type ExtractionFixtureSpec, type ModelCall } from "@extraction/index";
+import { askText, buildFixtureRun, parseSharedReadResponse, type ExtractionFixtureSpec, type ModelCall, type SceneArm, type SceneArmSpec } from "@extraction/index";
+import { sceneArmRunner, type SceneArmResult } from "./sceneArmRunner";
 import { profileExists } from "@services/STAPI";
 import { createModelCall } from "./modelCall";
 import { buildTypedPlan, readTypedDeltas } from "@judge/index";
@@ -32,6 +33,7 @@ export interface LiveFixtureOptions {
 }
 
 export interface LiveSuiteHandle {
+  runSceneArm: (spec: SceneArmSpec, arm: SceneArm, chunkBudget?: number) => Promise<SceneArmResult>;
   runFixture: (spec: ExtractionFixtureSpec, options?: LiveFixtureOptions) => Promise<LiveFixtureResult>;
   runCuratorCreate: (entry: CreateCase) => Promise<{ prompt: string; rawResponse: string; sample: CreateCaseSample }>;
   runRoleCase: <R extends CalibrationRole>(role: R, entry: CalibrationCaseMap[R]) => Promise<RoleCaseRecord<R>>;
@@ -52,6 +54,7 @@ export function registerLiveSuite(manager: RuntimeManager) {
     runCuratorCreate: curatorCreateRunner(manager),
     runRoleCase: (role, entry) => runRoleCase(role, entry, { profileId: manager.getExtractionSettings().profileId, model }),
     summarizeRoleCalibration,
+    runSceneArm: sceneArmRunner(model),
     runFixture: async (spec, options = {}) => {
       const hinted = { ...spec, story: withHints(spec.story, options.hints) };
       const first = buildFixtureRun(hinted);

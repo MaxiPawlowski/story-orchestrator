@@ -1,0 +1,108 @@
+{
+  "description": "F3 long (ledger): the silver chest is moved to the cellar at 60; the break is at 72.",
+  "slice": "long",
+  "lang": "en",
+  "participants": [
+    "Brann",
+    "Ilka"
+  ],
+  "sceneStart": 59,
+  "detectFrom": 65,
+  "to": 72,
+  "transcript": [
+    {
+      "index": 59,
+      "speaker": "Narrator",
+      "text": "Snow piles against the inn's shutters."
+    },
+    {
+      "index": 60,
+      "speaker": "Brann",
+      "text": "Brann carries the silver chest down to the cellar and hides it behind the wine racks."
+    },
+    {
+      "index": 61,
+      "speaker": "Narrator",
+      "text": "Upstairs, the common room fills with drovers."
+    },
+    {
+      "index": 62,
+      "speaker": "Ilka",
+      "text": "Ilka serves stew and counts coins at the bar."
+    },
+    {
+      "index": 63,
+      "speaker": "Brann",
+      "text": "Brann comes back up and wipes his hands on his apron."
+    },
+    {
+      "index": 64,
+      "speaker": "Narrator",
+      "text": "A drover starts a song about a lost ewe."
+    },
+    {
+      "index": 65,
+      "speaker": "Ilka",
+      "text": "\"We're short on bread,\" Ilka says."
+    },
+    {
+      "index": 66,
+      "speaker": "Brann",
+      "text": "\"I'll bake at first light,\" Brann says."
+    },
+    {
+      "index": 67,
+      "speaker": "Narrator",
+      "text": "The fire pops and a log settles."
+    },
+    {
+      "index": 68,
+      "speaker": "Ilka",
+      "text": "Ilka laughs at a drover's joke."
+    },
+    {
+      "index": 69,
+      "speaker": "Brann",
+      "text": "Brann stacks clean bowls behind the bar."
+    },
+    {
+      "index": 70,
+      "speaker": "Narrator",
+      "text": "The drovers drift off to their rooms one by one."
+    },
+    {
+      "index": 71,
+      "speaker": "Ilka",
+      "text": "Ilka banks the fire."
+    },
+    {
+      "index": 72,
+      "speaker": "Brann",
+      "text": "Brann locks the front door and blows out the lamps."
+    }
+  ],
+  "expected": {
+    "epistemic": [],
+    "ledger": [
+      {
+        "setAt": 60,
+        "entity": "Silver Chest",
+        "field": "location",
+        "needles": [
+          "cellar"
+        ]
+      }
+    ],
+    "forbidden": []
+  },
+  "entities": [
+    {
+      "name": "Silver Chest",
+      "type": "object"
+    },
+    {
+      "name": "Brann",
+      "type": "character"
+    }
+  ]
+}

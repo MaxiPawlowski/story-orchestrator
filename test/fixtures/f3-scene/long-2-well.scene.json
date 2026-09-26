@@ -1,0 +1,120 @@
+{
+  "description": "F3 long: Mara lies about the key at 10 while the narrator shows it in her boot; the break is at 22.",
+  "slice": "long",
+  "lang": "en",
+  "participants": [
+    "Mara",
+    "Jory"
+  ],
+  "sceneStart": 9,
+  "detectFrom": 15,
+  "to": 22,
+  "transcript": [
+    {
+      "index": 9,
+      "speaker": "Narrator",
+      "text": "The ruined chapel smells of wet stone. Jory circles the altar, searching."
+    },
+    {
+      "index": 10,
+      "speaker": "Mara",
+      "text": "\"The crypt key? I dropped it down the old well,\" Mara tells Jory. The narrator's eye catches the key's iron glint in Mara's boot, where she slid it an hour ago."
+    },
+    {
+      "index": 11,
+      "speaker": "Jory",
+      "text": "Jory groans and peers at the well. \"Then we fish for it at dawn.\""
+    },
+    {
+      "index": 12,
+      "speaker": "Narrator",
+      "text": "Rain starts to drum on the broken roof."
+    },
+    {
+      "index": 13,
+      "speaker": "Jory",
+      "text": "Jory spreads his bedroll under the one dry arch."
+    },
+    {
+      "index": 14,
+      "speaker": "Mara",
+      "text": "Mara hums an old marching song while she sharpens her knife."
+    },
+    {
+      "index": 15,
+      "speaker": "Narrator",
+      "text": "An owl settles on the bell rope and does not move."
+    },
+    {
+      "index": 16,
+      "speaker": "Jory",
+      "text": "\"Remind me why we took this job,\" Jory says."
+    },
+    {
+      "index": 17,
+      "speaker": "Mara",
+      "text": "\"The pay,\" Mara says. \"Always the pay.\""
+    },
+    {
+      "index": 18,
+      "speaker": "Narrator",
+      "text": "The fire burns down to red coals."
+    },
+    {
+      "index": 19,
+      "speaker": "Jory",
+      "text": "Jory tells a long story about his uncle's goat."
+    },
+    {
+      "index": 20,
+      "speaker": "Mara",
+      "text": "Mara laughs in the right places."
+    },
+    {
+      "index": 21,
+      "speaker": "Narrator",
+      "text": "Thunder rolls somewhere past the hills."
+    },
+    {
+      "index": 22,
+      "speaker": "Jory",
+      "text": "Jory falls asleep mid-sentence, snoring softly."
+    }
+  ],
+  "expected": {
+    "epistemic": [
+      {
+        "setAt": 10,
+        "subject": "Jory",
+        "needles": [
+          "well"
+        ],
+        "tags": [
+          "believes",
+          "unaware"
+        ]
+      },
+      {
+        "setAt": 10,
+        "subject": "Mara",
+        "needles": [
+          "key"
+        ],
+        "tags": [
+          "hiding",
+          "knows"
+        ]
+      }
+    ],
+    "ledger": [],
+    "forbidden": [
+      {
+        "tag": "knows",
+        "subject": "Jory",
+        "needles": [
+          "boot"
+        ]
+      }
+    ]
+  }
+}

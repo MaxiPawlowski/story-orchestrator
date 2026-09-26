@@ -23,3 +23,4 @@ export * from "./modelRoute";
 export * from "./scope";
 export * from "./tokenMeter";
 export * from "./types";
+export * from "./sceneArms";

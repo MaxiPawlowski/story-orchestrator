@@ -1,0 +1,110 @@
+{
+  "description": "F3 long: Captain Hale notices the forger's ink at 5 and keeps silent; the break is at 17.",
+  "slice": "long",
+  "lang": "en",
+  "participants": [
+    "Hale",
+    "Clerk Wren"
+  ],
+  "sceneStart": 4,
+  "detectFrom": 10,
+  "to": 17,
+  "transcript": [
+    {
+      "index": 4,
+      "speaker": "Narrator",
+      "text": "The quartermaster's office is cramped and smells of candle fat."
+    },
+    {
+      "index": 5,
+      "speaker": "Hale",
+      "text": "Captain Hale notices violet ink on Clerk Wren's cuff, the same violet as the forged supply orders, and says nothing about it."
+    },
+    {
+      "index": 6,
+      "speaker": "Clerk Wren",
+      "text": "\"The grain tally for the week, Captain,\" Wren says, sliding a ledger across."
+    },
+    {
+      "index": 7,
+      "speaker": "Hale",
+      "text": "Hale signs the tally without reading it."
+    },
+    {
+      "index": 8,
+      "speaker": "Narrator",
+      "text": "A cart rattles past the window."
+    },
+    {
+      "index": 9,
+      "speaker": "Clerk Wren",
+      "text": "Wren complains about the damp in the storeroom."
+    },
+    {
+      "index": 10,
+      "speaker": "Hale",
+      "text": "\"Have the roofers come,\" Hale says."
+    },
+    {
+      "index": 11,
+      "speaker": "Narrator",
+      "text": "The candle gutters and Wren trims the wick."
+    },
+    {
+      "index": 12,
+      "speaker": "Clerk Wren",
+      "text": "\"Will that be all, Captain?\""
+    },
+    {
+      "index": 13,
+      "speaker": "Hale",
+      "text": "\"For today,\" Hale says pleasantly."
+    },
+    {
+      "index": 14,
+      "speaker": "Narrator",
+      "text": "Wren gathers his papers and bows."
+    },
+    {
+      "index": 15,
+      "speaker": "Clerk Wren",
+      "text": "Wren whistles as he goes down the stairs."
+    },
+    {
+      "index": 16,
+      "speaker": "Narrator",
+      "text": "The door clicks shut."
+    },
+    {
+      "index": 17,
+      "speaker": "Hale",
+      "text": "Hale sits back and stares at the closed door for a long time."
+    }
+  ],
+  "expected": {
+    "epistemic": [
+      {
+        "setAt": 5,
+        "subject": "Hale",
+        "needles": [
+          "ink"
+        ],
+        "tags": [
+          "suspects",
+          "knows",
+          "hiding"
+        ]
+      }
+    ],
+    "ledger": [],
+    "forbidden": [
+      {
+        "tag": "knows",
+        "subject": "Wren",
+        "needles": [
+          "suspect"
+        ]
+      }
+    ]
+  }
+}

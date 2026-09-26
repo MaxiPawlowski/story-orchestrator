@@ -1,0 +1,53 @@
+{
+  "description": "F3 short (ledger): Brann reaches the cellar inside the detecting window (extractor26's scene).",
+  "slice": "short",
+  "lang": "en",
+  "participants": [
+    "Brann"
+  ],
+  "sceneStart": 20,
+  "detectFrom": 16,
+  "to": 23,
+  "transcript": [
+    {
+      "index": 20,
+      "speaker": "Narrator",
+      "text": "Raiders hammer on the inn's front door."
+    },
+    {
+      "index": 21,
+      "speaker": "Brann",
+      "text": "Brann limps down the cellar stairs, blood soaking through the bandage on his left leg."
+    },
+    {
+      "index": 22,
+      "speaker": "Brann",
+      "text": "In the cellar Brann bars the trapdoor behind him and leans on the wine racks, wounded and breathing hard."
+    },
+    {
+      "index": 23,
+      "speaker": "Narrator",
+      "text": "Above him, boots cross the floorboards and fade toward the stables."
+    }
+  ],
+  "expected": {
+    "epistemic": [],
+    "ledger": [
+      {
+        "setAt": 22,
+        "entity": "Brann",
+        "field": "location",
+        "needles": [
+          "cellar"
+        ]
+      }
+    ],
+    "forbidden": []
+  },
+  "entities": [
+    {
+      "name": "Brann",
+      "type": "character"
+    }
+  ]
+}

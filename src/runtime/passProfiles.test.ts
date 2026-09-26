@@ -58,6 +58,7 @@ const CALL_SITE_ROLES: Record<string, string[]> = {
   "runtime/memorizeBacklog.ts": ["read"],
   "runtime/roleCalibration.ts": ["authoring", "curator", "director", "synthesis"],
   "runtime/roleSelfTest.ts": ["authoring", "curator", "director", "synthesis"],
+  "runtime/sceneArmRunner.ts": ["read"],
   "runtime/selfTest.ts": ["read"],
   "runtime/wiring/talk.ts": ["director"],
   "studio/components/StudioCopilot.stories.tsx": ["authoring"],
