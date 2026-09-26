@@ -1,6 +1,6 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import { failureClass } from "@extraction/breaker";
-import { callExtractionModel } from "@extraction/client";
+import { askText, type ModelCall } from "@extraction/modelRoute";
 import { maxTokensForInput } from "@extraction/callBudget";
 import { cleanWindowMessage } from "@extraction/windowHygiene";
 import {
@@ -49,7 +49,7 @@ import {
   restoreWIEntryAt, setStoryExtensionPrompt, updateWIEntryByUid, type WIEntryTarget,
 } from "@services/STAPI";
 import { lorebookFileId } from "@utils/string";
-import type { ExtractionRuntimeSettings, StagecraftRuntimeState } from "../types";
+import type { StagecraftRuntimeState } from "../types";
 import type { EstablishedFact } from "../continuity";
 
 // One curator pass every few boundaries at most: the reply path never waits for it, and a story that
@@ -61,7 +61,7 @@ export interface StagecraftCoordinatorDeps {
   getState: () => EngineState | null;
   getStagecraft: () => StagecraftRuntimeState;
   setStagecraft: (next: StagecraftRuntimeState) => void;
-  getExtractionSettings: () => ExtractionRuntimeSettings;
+  model: ModelCall;
   getCanon: () => string;
   getOpenArcs: () => string[];
   filterEntries?: (entries: CuratorEntryView[], context: { checkpoint: { name: string; objective: string }; canon: string; openThreads: string[] }) => Promise<CuratorEntryView[]>;
@@ -200,11 +200,11 @@ export class StagecraftCoordinator {
       const shown = this.deps.filterEntries ? await this.deps.filterEntries(entries, { checkpoint: { name: checkpointName, objective }, canon, openThreads: openArcs }).catch(() => entries) : entries;
       const declined = declinedOps(this.state.proposals, state.activeCheckpointId, state.checkpointStartedBoundary ?? 0);
       const prompt = buildWiCuratorPrompt({ storyTitle: story.title, checkpointName, objective, canon, openArcs, entries: shown, declined });
-      const response = await callExtractionModel(prompt, {
-        profileId: this.deps.getExtractionSettings().profileId, role: "curator",
+      const response = await askText(this.deps.model, prompt, {
+        role: "curator", pass: "curator",
         maxTokens: maxTokensForInput("curator", prompt),
         ...(this.deps.ownership.signal ? { signal: this.deps.ownership.signal() } : {}),
-        debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugCuratorResponse ?? null,
+        debugResponse: debugResponse ?? null,
       });
       // The write edge. Everything above was read from, or computed for, the world the token
       // names; if that world moved while the model was thinking, this result belongs to it and

@@ -1,3 +1,4 @@
+import { readWith } from "../../test/support/modelCall";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
@@ -23,7 +24,7 @@ describe("judged typed read inside the shared read (v2.2 plan 06)", () => {
 
   it("takes the judged qualities out of the LLM scope, keeps one writer per quality, and records the split", async () => {
     const judge: TypedJudge = async ({ qualities }) => ({ deltas: [{ delta: { q: "player_has_key", v: true, source: "extractor" }, evidence: "I pick up the brass key.", judge: 0.97 }], answered: qualities.map((quality) => quality.key), model: "jev-1.13.0", confidences: { player_has_key: 0.97 } });
-    const { audit } = await runSharedRead({ story, state, priority: 1, reason: "cadence", window, judgeTyped: judge, client: { profileId: null, debugResponse: llm } });
+    const { audit } = await runSharedRead({ story, state, priority: 1, reason: "cadence", window, judgeTyped: judge, ...readWith(null, { debugResponse: llm }) });
     expect(audit.scope).not.toContain("player_has_key");
     expect(audit.prompt).not.toContain("player_has_key");
     expect(audit.acceptedDeltas.map((entry) => [entry.delta.q, entry.delta.v, entry.judge])).toEqual([["player_has_key", true, 0.97], ["location", "vault", undefined]]);
@@ -32,11 +33,11 @@ describe("judged typed read inside the shared read (v2.2 plan 06)", () => {
 
   it("leaves a quality the judge did not settle to the LLM read, and a failing judge changes nothing", async () => {
     const unsure: TypedJudge = async () => ({ deltas: [], answered: [], model: "jev-1.13.0", confidences: {} });
-    const residual = await runSharedRead({ story, state, priority: 1, reason: "cadence", window, judgeTyped: unsure, client: { profileId: null, debugResponse: llm } });
+    const residual = await runSharedRead({ story, state, priority: 1, reason: "cadence", window, judgeTyped: unsure, ...readWith(null, { debugResponse: llm }) });
     expect(residual.audit.scope).toContain("player_has_key");
     expect(residual.audit.acceptedDeltas.map((entry) => entry.delta.q)).toEqual(["player_has_key", "location"]);
     const broken: TypedJudge = async () => { throw new Error("down"); };
-    const fallback = await runSharedRead({ story, state, priority: 1, reason: "cadence", window, judgeTyped: broken, client: { profileId: null, debugResponse: llm } });
+    const fallback = await runSharedRead({ story, state, priority: 1, reason: "cadence", window, judgeTyped: broken, ...readWith(null, { debugResponse: llm }) });
     expect(fallback.audit.judged).toEqual({ keys: [], model: null, confidences: {}, fallback: "error", error: "down" });
     expect(fallback.audit.scope).toContain("player_has_key");
   });

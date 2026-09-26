@@ -1,3 +1,4 @@
+import { plantedModel } from "../../test/support/modelCall";
 // AE-04 (external review, 2026-09-25): `extraction|delayedError` cited "onBoundary returns
 // synchronously and never rejects", which injects no failure at all. These hold a read's model call
 // open, fail it after the wait, and assert what the scheduler is left holding.
@@ -38,6 +39,7 @@ function harness() {
     getStory: () => ({}) as unknown as NormalizedStoryV2,
     getEngineState: () => ({ lastMessageId: 9 }) as unknown as EngineState,
     getExtractionSettings: () => settings,
+    model: plantedModel,
     getFacts: () => [],
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],

@@ -1,3 +1,4 @@
+import { testModel } from "../../../test/support/modelCallHost";
 // v2.4 plan 03 D5: an author's "generate the road ahead" is a manual heavy pass, so it is announced
 // before it is sent, and a cancel sends nothing. A debug response sends nothing either way.
 
@@ -40,7 +41,7 @@ function harness() {
     getStoryRaw: () => ({}),
     getState: () => ({ activeCheckpointId: "a", blackboard: { values: {}, versions: {}, latched: {} } }) as unknown as EngineState,
     getExpansion: () => store,
-    getSettings: () => ({ enabled: true, profileId: "p1", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 }),
+    model: testModel("p1"),
     getCanon: () => "",
     getFactTexts: () => [],
     replaceStory: () => undefined,

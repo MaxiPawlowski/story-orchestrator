@@ -1,3 +1,4 @@
+import { testModel } from "../../../test/support/modelCallHost";
 // v2.4 plan 03 D5 wiring (wave 2). The budget modules were pure and unwired; this pins that every
 // pass that sends the transcript to the memory model now sends a bounded request, through the real
 // shared read and the real client, with only the host seam faked.
@@ -84,7 +85,7 @@ function harness(options: { lastSceneEnd?: number; shortTermEnd?: number; limit?
     getStory: () => story,
     getState: () => ({ ...engine.serialize(), lastMessageId: host.chat.length - 1 }),
     getExtraction: () => extraction,
-    getSettings: () => ({ profileId: "p1", enabled: true, cadence: 1 }),
+    model: testModel("p1"),
     requestBudget: () => ({ contextLimit: { value: options.limit ?? LIMIT, source: "preset" }, meter: createTokenMeter(options.countAsync) }),
     memory,
     getFiredTransitions: () => [],

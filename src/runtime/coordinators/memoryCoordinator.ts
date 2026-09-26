@@ -2,7 +2,7 @@ import {
   progressQualityForAnchor, type BlackboardDelta, type EngineState, type NormalizedStoryV2, type NormalizedTransition,
 } from "@engine/index";
 import {
-  callExtractionModel, deriveScope, getCanonLite, lapseAsEmpty, maxTokensForInput, runSharedRead, stripChannelNoise, type ExtraGateSource,
+  askText, deriveScope, getCanonLite, lapseAsEmpty, maxTokensForInput, runSharedRead, stripChannelNoise, type ExtraGateSource, type ModelCall,
   type ParsedDelta, type ParsedFact, type SharedReadWindow,
 } from "@extraction/index";
 import {
@@ -40,7 +40,7 @@ import {
   enabledCharacterNames, rosterMemberName,
 } from "../roster";
 import {
-  VERIFY_DROP_LIMIT, type CanonSource, type ExtractionRuntimeSettings, type MemoryBackfillState,
+  VERIFY_DROP_LIMIT, type CanonSource, type MemoryBackfillState,
   type MemoryRuntimeState, type VerifyDrop,
 } from "../types";
 
@@ -49,7 +49,7 @@ export interface MemoryCoordinatorDeps {
   getState: () => EngineState | null;
   getMemory: () => MemoryRuntimeState;
   setMemory: (next: MemoryRuntimeState) => void;
-  getExtractionSettings: () => ExtractionRuntimeSettings;
+  model: ModelCall;
   getFiredTransitions: () => NormalizedTransition[];
   getExpansionGateSources: () => ExtraGateSource[];
   enqueueExtractorDeltas: (accepted: ParsedDelta[], window: { from: number; to: number }, origin: string) => void;
@@ -264,7 +264,6 @@ export class MemoryCoordinator {
 
   async runArcSummaryPass(arcIds: string[]): Promise<boolean> {
     if (!this.deps.getStory() || !this.enabled || !arcIds.length) return false;
-    const settings = this.deps.getExtractionSettings();
     const sceneSummaries = this.state.entries.filter((entry) => entry.tier === "scene_history").slice(-5).map((entry, index) => `Scene ${index + 1}: ${entry.text}`).join("\n");
     const memories = this.highImportanceFacts(20).map((entry) => `[${entry.type}] ${entry.text}`).join("\n");
     // One await and one write PER ARC, which is why the guard is a handle rather than a wrapper:
@@ -277,11 +276,7 @@ export class MemoryCoordinator {
       const arc = this.state.arcs.find((candidate) => candidate.id === id);
       if (!arc || arc.status !== "resolved" || arc.summary) continue;
       const prompt = buildArcSummaryPrompt(arc.text, sceneSummaries, memories);
-      const summary = await callExtractionModel(prompt, {
-        profileId: settings.profileId, role: "synthesis",
-        maxTokens: maxTokensForInput("arcSummary", prompt), signal: run.signal, refuseIncomplete: true,
-        debugResponse: globalThis.storyOrchestratorDebugArcSummaryResponse ?? null,
-      });
+      const summary = await askText(this.deps.model, prompt, { role: "synthesis", pass: "arcSummary", maxTokens: maxTokensForInput("arcSummary", prompt), signal: run.signal, refuseIncomplete: true });
       if (!run.stillOwns()) break;
       const trimmed = stripChannelNoise(summary);
       if (!trimmed) continue;
@@ -385,13 +380,9 @@ export class MemoryCoordinator {
     const run = beginRun(this.deps.ownership);
     this.canonInFlight = true;
     try {
-      const settings = this.deps.getExtractionSettings();
       const prompt = buildCanonSummaryPrompt(story.title, arcSummaries, facts, checkpoint);
-      const text = await callExtractionModel(prompt, {
-        profileId: settings.profileId, role: "synthesis",
-        maxTokens: maxTokensForInput("canon", prompt), signal: run.signal, refuseIncomplete: true,
-        debugResponse: globalThis.storyOrchestratorDebugCanonResponse ?? null,
-      }).catch(lapseAsEmpty);
+      const ask = { role: "synthesis", pass: "canon", maxTokens: maxTokensForInput("canon", prompt), signal: run.signal, refuseIncomplete: true } as const;
+      const text = await askText(this.deps.model, prompt, ask).catch(lapseAsEmpty);
       const trimmed = stripChannelNoise(text);
       if (!trimmed || !run.stillOwns()) return false;
       const arcs = resolvedArcs(this.state.arcs);
@@ -549,7 +540,8 @@ export class MemoryCoordinator {
       scope,
       firedTransitions: this.deps.getFiredTransitions(),
       facts: this.getFacts(),
-      client: { ...this.deps.getExtractionSettings(), role: "read", debugResponse: globalThis.storyOrchestratorDebugSupersessionResponse ?? null },
+      model: this.deps.model,
+      ask: { role: "read", pass: "supersession" },
     });
     if (!result.audit.acceptedDeltas.length || !run.stillOwns()) return false;
     this.deps.enqueueExtractorDeltas(result.audit.acceptedDeltas, result.audit.window, result.audit.id);

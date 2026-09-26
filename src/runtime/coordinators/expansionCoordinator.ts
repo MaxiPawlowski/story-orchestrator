@@ -14,8 +14,7 @@ import { getPlayerName } from "@services/STAPI";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunGuard, type RunOwnership } from "../runToken";
 import { failureClass } from "@extraction/breaker";
-import { estimateTokens, type ExtraGateSource, type Preflight, type PreflightConfirm } from "@extraction/index";
-import type { ExtractionRuntimeSettings } from "../types";
+import { estimateTokens, type ExtraGateSource, type ModelCall, type Preflight, type PreflightConfirm } from "@extraction/index";
 
 export const expansionKey = (candidate: Pick<StubExpansionCandidate, "sourceCheckpointId" | "stubId" | "targetAnchorId">) => `${candidate.sourceCheckpointId}->${candidate.stubId}->${candidate.targetAnchorId}`;
 
@@ -24,7 +23,7 @@ export interface ExpansionCoordinatorDeps {
   getStoryRaw: () => unknown;
   getState: () => EngineState | null;
   getExpansion: () => ExpansionRuntimeState;
-  getSettings: () => ExtractionRuntimeSettings;
+  model: ModelCall;
   getCanon: () => string;
   getFactTexts: () => string[];
   replaceStory: (story: NormalizedStoryV2) => void;
@@ -222,7 +221,7 @@ export class ExpansionCoordinator {
     if (!entry || !story || !state) return false;
     const candidate = findStubExpansionCandidate(story, entry.sourceCheckpointId);
     if (!candidate || candidate.stubId !== entry.stubId) return false;
-    await this.generate(candidate, globalThis.storyOrchestratorDebugGenerationResponse ?? null);
+    await this.generate(candidate, this.deps.model.planted?.("generation") ?? null);
     return true;
   }
 
@@ -236,7 +235,7 @@ export class ExpansionCoordinator {
       this.deps.notify();
       return false;
     }
-    const response = debugResponse ?? globalThis.storyOrchestratorDebugGenerationResponse ?? null;
+    const response = debugResponse ?? this.deps.model.planted?.("generation") ?? null;
     if (confirm && response === null && !(await confirm(this.preflight(story, state, candidate)))) return false;
     await this.generate(candidate, response);
     return true;
@@ -267,7 +266,7 @@ export class ExpansionCoordinator {
     try {
       const state = this.deps.getState()!;
       const input = planExpansion(story, state.blackboard, candidate, this.deps.getCanon(), this.deps.getFactTexts());
-      const generated = await generateReviewedBeats(story, input, { ...this.deps.getSettings(), role: "authoring", signal: run.signal, debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugGenerationResponse ?? null }, this.expansionJudge(story, input));
+      const generated = await generateReviewedBeats(story, input, this.deps.model, { role: "authoring", pass: "generation", signal: run.signal, debugResponse: debugResponse ?? null }, this.expansionJudge(story, input));
       if (!run.stillOwns()) return;
       if (generated.issues.length || !generated.codeCheck || !generated.codeCheck.ok) {
         this.entries[key] = { ...this.entries[key], status: "failed", beats: generated.beats, codeCheck: generated.codeCheck, lastError: generated.issues.join("; ") || generated.codeCheck?.issues.join("; ") || "Generation failed", ...(generated.variants ? { variants: generated.variants } : {}), updatedAt: new Date().toISOString() };

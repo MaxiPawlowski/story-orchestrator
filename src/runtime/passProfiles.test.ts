@@ -1,25 +1,25 @@
 import { readFileSync, readdirSync } from "fs";
 import { join } from "path";
 import { PASS_ROLES } from "@extraction/passRole";
-import { resolveProfile, sanitizePassProfiles } from "./passProfiles";
+import { resolveRoute, sanitizePassProfiles } from "./passProfiles";
 
 const exists = (ids: string[]) => (id: string) => ids.includes(id);
 
 describe("per-pass profile routing (v2.4 plan 08 T18)", () => {
   it("an unset role uses the memory model profile: today's behaviour is the default for every role", () => {
     for (const role of PASS_ROLES) {
-      expect(resolveProfile({ profileId: "memory", profiles: {} }, role, exists(["memory"]))).toEqual({ ok: true, profileId: "memory", source: "fallback" });
-      expect(resolveProfile({ profileId: "memory" }, role, exists(["memory"]))).toEqual({ ok: true, profileId: "memory", source: "fallback" });
+      expect(resolveRoute({ profileId: "memory", profiles: {} }, role, exists(["memory"]))).toEqual({ ok: true, route: { kind: "profile", profileId: "memory" }, source: "fallback" });
+      expect(resolveRoute({ profileId: "memory" }, role, exists(["memory"]))).toEqual({ ok: true, route: { kind: "profile", profileId: "memory" }, source: "fallback" });
     }
   });
 
   it("a set role routes to its own profile", () => {
-    expect(resolveProfile({ profileId: "memory", profiles: { director: "fast" } }, "director", exists(["memory", "fast"]))).toEqual({ ok: true, profileId: "fast", source: "role" });
-    expect(resolveProfile({ profileId: "memory", profiles: { director: "fast" } }, "curator", exists(["memory", "fast"]))).toEqual({ ok: true, profileId: "memory", source: "fallback" });
+    expect(resolveRoute({ profileId: "memory", profiles: { director: "fast" } }, "director", exists(["memory", "fast"]))).toEqual({ ok: true, route: { kind: "profile", profileId: "fast" }, source: "role" });
+    expect(resolveRoute({ profileId: "memory", profiles: { director: "fast" } }, "curator", exists(["memory", "fast"]))).toEqual({ ok: true, route: { kind: "profile", profileId: "memory" }, source: "fallback" });
   });
 
   it("a role set to a profile that no longer exists refuses instead of silently falling back", () => {
-    expect(resolveProfile({ profileId: "memory", profiles: { curator: "deleted" } }, "curator", exists(["memory"]))).toEqual({ ok: false, profileId: "deleted", reason: expect.stringContaining("World Info curator") });
+    expect(resolveRoute({ profileId: "memory", profiles: { curator: "deleted" } }, "curator", exists(["memory"]))).toEqual({ ok: false, profileId: "deleted", reason: expect.stringContaining("World Info curator") });
   });
 
   it("never routes to an empty id: the sanitizer drops blank and unknown roles", () => {
@@ -29,7 +29,7 @@ describe("per-pass profile routing (v2.4 plan 08 T18)", () => {
   });
 
   it("keeps the fallback null when no memory model is chosen, so the call reports it as today", () => {
-    expect(resolveProfile({ profileId: null }, "read", exists([]))).toEqual({ ok: true, profileId: null, source: "fallback" });
+    expect(resolveRoute({ profileId: null }, "read", exists([]))).toEqual({ ok: true, route: null, source: "fallback" });
   });
 });
 
@@ -43,6 +43,7 @@ const walk = (dir: string): string[] => readdirSync(dir, { withFileTypes: true }
 
 const CALL_SITE_ROLES: Record<string, string[]> = {
   "copilot/authoring.ts": [],
+  "extraction/modelRoute.ts": [],
   "extraction/scheduler.ts": ["read"],
   "extraction/sharedRead.ts": [],
   "generation/critic.ts": [],
@@ -53,7 +54,8 @@ const CALL_SITE_ROLES: Record<string, string[]> = {
   "runtime/coordinators/memoryCoordinator.ts": ["read", "synthesis"],
   "runtime/coordinators/stagecraftCoordinator.ts": ["curator"],
   "runtime/index.ts": ["director"],
-  "runtime/liveSuite.ts": ["read"],
+  "runtime/liveSuite.ts": ["read", "curator"],
+  "runtime/modelCall.ts": [],
   "runtime/roleCalibration.ts": ["authoring", "curator", "director", "synthesis"],
   "runtime/roleSelfTest.ts": ["authoring", "curator", "director", "synthesis"],
   "runtime/selfTest.ts": ["read"],
@@ -63,7 +65,7 @@ const CALL_SITE_ROLES: Record<string, string[]> = {
 describe("every model call names its role (census)", () => {
   const callers = walk(SRC)
     .filter((path) => !path.endsWith(join("extraction", "client.ts")))
-    .filter((path) => /\b(callExtractionModel|callExtractionReply|runSharedRead|runAuthoringStage|runDriverSuggest|runDriverReport|generateReviewedBeats|generateBeats|runCritic)\(/.test(readFileSync(path, "utf8")))
+    .filter((path) => /\b(askText|modelOf\(options\)|callExtractionReply|runSharedRead|runAuthoringStage|runDriverSuggest|runDriverReport|generateReviewedBeats|generateBeats|runCritic)\(/.test(readFileSync(path, "utf8")))
     .map((path) => path.slice(SRC.length + 1).replace(/\\/g, "/"))
     .sort();
 
@@ -77,6 +79,6 @@ describe("every model call names its role (census)", () => {
   });
 
   it("the census check fails on a synthetic offender", () => {
-    expect(/role: "curator"/.test("callExtractionModel(prompt, { profileId })")).toBe(false);
+    expect(/role: "curator"/.test("askText(model, prompt, { pass })")).toBe(false);
   });
 });

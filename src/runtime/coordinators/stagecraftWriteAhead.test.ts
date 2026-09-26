@@ -1,3 +1,4 @@
+import { textModel } from "../../../test/support/modelCall";
 import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { readWIEntryAt, restoreWIEntryAt, updateWIEntryByUid } from "@services/STAPI";
 import type { CuratorOpRecord, CuratorProposalRecord } from "@stagecraft/index";
@@ -20,7 +21,7 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ extensionSettings: {}, chat: [] }),
 }));
 
-jest.mock("@extraction/client", () => ({ callExtractionModel: jest.fn(async () => "NONE") }));
+const callExtractionModel = jest.fn(async (..._args: unknown[]): Promise<string> => "NONE");
 
 const ORIGINAL = "The bridge stands, its ropes new and taut.";
 const REWRITTEN = "The bridge is gone.";
@@ -66,7 +67,7 @@ const harness = (record: CuratorProposalRecord) => {
     getState: () => ({ activeCheckpointId: "cp1", boundary: 12, lastMessageId: 24, blackboard: { values: {}, versions: {}, latched: {} } } as unknown as EngineState),
     getStagecraft: () => state,
     setStagecraft: (next) => { state = next; },
-    getExtractionSettings: () => ({ profileId: "p" } as ExtractionRuntimeSettings),
+    model: textModel(callExtractionModel),
     getCanon: () => "",
     getOpenArcs: () => [],
     journal: (summary) => journal.push(summary),

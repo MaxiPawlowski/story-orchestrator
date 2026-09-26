@@ -1,5 +1,5 @@
 import type { StoryV2 } from "@engine/index";
-import { callExtractionReply, detectDegenerate, estimateTokens, maxTokensFor, maxTokensForInput, stripChannelNoise, type PassRole } from "@extraction/index";
+import { detectDegenerate, profileRoute, routedModel, type ModelCall, estimateTokens, maxTokensFor, maxTokensForInput, stripChannelNoise, type PassRole } from "@extraction/index";
 import { renderStagePrompt, runAuthoringStage, type CopilotStage, type ProposalOp } from "@copilot/index";
 import { parseDirectorResponse, renderDirectorPrompt, type DirectorWindowMessage } from "@talk/index";
 import { buildWiCuratorPrompt, parseCuratorResponse, planCuratorProposal, type CuratorScope, type WiCuratorOp } from "@stagecraft/index";
@@ -82,8 +82,11 @@ export interface RoleCaseRecord<R extends CalibrationRole = CalibrationRole> {
 
 export interface RoleCaseOptions {
   profileId: string | null;
+  model?: ModelCall;
   now?: () => number;
 }
+
+const modelOf = (options: RoleCaseOptions): ModelCall => options.model ?? routedModel(profileRoute(options.profileId));
 
 const NOISE = /<\/?think(?:ing)?>|<\|?channel\|?>|<\|start\|>|<\|end\|>|<\|message\|>/i;
 
@@ -152,7 +155,7 @@ const runDirector: Runner<"director"> = async (entry, options, clock) => {
     window: entry.input.window,
   });
   const started = clock();
-  const reply = await callExtractionReply(prompt, { profileId: options.profileId, role: "director", maxTokens: DIRECTOR_MAX_TOKENS });
+  const reply = await modelOf(options)(prompt, { role: "director", pass: "director", maxTokens: DIRECTOR_MAX_TOKENS });
   const latencyMs = Math.round(clock() - started);
   return { responses: [reply.text], finishes: [reply.finish], latencyMs, score: scoreDirector(entry, reply.text, latencyMs) };
 };
@@ -160,7 +163,7 @@ const runDirector: Runner<"director"> = async (entry, options, clock) => {
 const runCurator: Runner<"curator"> = async (entry, options, clock) => {
   const prompt = buildWiCuratorPrompt(entry.scope);
   const started = clock();
-  const reply = await callExtractionReply(prompt, { profileId: options.profileId, role: "curator", maxTokens: maxTokensForInput("curator", prompt) });
+  const reply = await modelOf(options)(prompt, { role: "curator", pass: "curator", maxTokens: maxTokensForInput("curator", prompt) });
   return { responses: [reply.text], finishes: [reply.finish], latencyMs: Math.round(clock() - started), score: scoreCurator(entry, reply.text) };
 };
 
@@ -168,7 +171,8 @@ const runAuthoring: Runner<"authoring"> = async (entry, options, clock) => {
   const started = clock();
   const result = await runAuthoringStage(
     { draft: entry.draft, stage: entry.stage, message: entry.message, history: [], ...(entry.environment ? { environment: entry.environment } : {}) },
-    { profileId: options.profileId, role: "authoring" },
+    modelOf(options),
+    { role: "authoring", pass: "copilot" },
   );
   const responses = [result.audit.rawResponse, ...(result.audit.repairResponse !== undefined ? [result.audit.repairResponse] : [])];
   return {
@@ -182,7 +186,7 @@ const runAuthoring: Runner<"authoring"> = async (entry, options, clock) => {
 const runSynthesis: Runner<"synthesis"> = async (entry, options, clock) => {
   const scene = entry.messages.map((message) => `${message.speaker}: ${message.text}`).join("\n");
   const started = clock();
-  const reply = await callExtractionReply(buildSceneSummaryPrompt(scene), { profileId: options.profileId, role: "synthesis", maxTokens: maxTokensFor("sceneSummary", estimateTokens(scene)) });
+  const reply = await modelOf(options)(buildSceneSummaryPrompt(scene), { role: "synthesis", pass: "sceneSummary", maxTokens: maxTokensFor("sceneSummary", estimateTokens(scene)) });
   return { responses: [reply.text], finishes: [reply.finish], latencyMs: Math.round(clock() - started), score: scoreSynthesis(reply.text, reply.finish) };
 };
 

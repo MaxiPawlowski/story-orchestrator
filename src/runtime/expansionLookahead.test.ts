@@ -1,3 +1,4 @@
+import { testModel } from "../../test/support/modelCallHost";
 import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
 import type { ExpansionCacheEntry, ExpansionRuntimeState } from "@generation/index";
 import { defaultJudgeSettings, type JudgeSettings, type SceneReadRecord } from "@judge/index";
@@ -49,7 +50,7 @@ const setup = (options: { lookahead?: boolean; scene?: SceneReadRecord | null; e
     getStoryRaw: () => RAW,
     getState: () => ({ activeCheckpointId: "a", blackboard: { values: {}, versions: {}, latched: {} } }) as unknown as EngineState,
     getExpansion: () => expansion,
-    getSettings: () => ({ enabled: true, profileId: "p1", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 }),
+    model: testModel("p1"),
     getCanon: () => "",
     getFactTexts: () => [],
     replaceStory: (next) => { replaced.push(next); },

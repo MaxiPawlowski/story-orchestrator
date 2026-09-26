@@ -1,3 +1,4 @@
+import { textModel } from "../../../test/support/modelCall";
 // v2.3 plan 03: converting the memory-writing extraction passes onto `beginRun`.
 //
 // Both passes here send a window of the transcript to a model and write the answer into the
@@ -38,8 +39,6 @@ jest.mock("@extraction/index", () => {
   const actual = jest.requireActual("@extraction/index");
   return {
     ...actual,
-    // The slow part. The test releases it after moving the world, which is the whole scenario.
-    callExtractionModel: () => { modelGate.calls += 1; modelGate.onCall?.(modelGate.calls); return modelGate.promise; },
     getChatWindow: (from: number, to: number) => ({ from, to, messages: [{ speaker: "Player", text: "We reach the gate." }] }),
   };
 });
@@ -106,7 +105,7 @@ function harness() {
     getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3 }),
     getExtraction: () => extractionState,
-    getSettings: () => ({ profileId: "p1", enabled: true, cadence: 1 }),
+    model: textModel(() => { modelGate.calls += 1; modelGate.onCall?.(modelGate.calls); return modelGate.promise; }),
     memory,
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],

@@ -1,3 +1,4 @@
+import { plantedModel } from "../../test/support/modelCall";
 // v2.4 acceptance A6 (J7 run 3, lane 2): reads were held for about 32 minutes while the main model
 // kept rendering turns. The trip was honest (three reads missed a 64 s budget on a queued pod), but
 // every recovery probe died on a fixed 10 s budget ("signal timed out" overwrote the trip detail),
@@ -44,6 +45,7 @@ function harness(probe: Probe) {
     getStory: () => ({}) as unknown as NormalizedStoryV2,
     getEngineState: () => ({ lastMessageId: 9 }) as unknown as EngineState,
     getExtractionSettings: () => settings,
+    model: plantedModel,
     getFacts: () => [],
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],

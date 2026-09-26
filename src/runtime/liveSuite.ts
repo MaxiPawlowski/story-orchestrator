@@ -1,4 +1,6 @@
-import { buildFixtureRun, callExtractionModel, parseSharedReadResponse, type ExtractionFixtureSpec } from "@extraction/index";
+import { askText, buildFixtureRun, parseSharedReadResponse, type ExtractionFixtureSpec, type ModelCall } from "@extraction/index";
+import { profileExists } from "@services/STAPI";
+import { createModelCall } from "./modelCall";
 import { buildTypedPlan, readTypedDeltas } from "@judge/index";
 import { buildCreateCandidatePrompt, caseContext, caseScope, scoreCreateSample, type CreateCase, type CreateCaseSample } from "@stagecraft/createCandidate";
 import type { RuntimeManager } from "./runtimeManager";
@@ -42,10 +44,13 @@ const withHints = (story: unknown, hints: LiveFixtureOptions["hints"]) => {
   return { ...raw, qualities: (raw.qualities ?? []).map((quality) => ({ ...quality, ...(hints[String(quality.key)] ?? {}) })) };
 };
 
+const liveModel = (manager: RuntimeManager): ModelCall => createModelCall({ settings: () => manager.getExtractionSettings(), exists: profileExists, planted: false });
+
 export function registerLiveSuite(manager: RuntimeManager) {
+  const model = liveModel(manager);
   const handle: LiveSuiteHandle = {
     runCuratorCreate: curatorCreateRunner(manager),
-    runRoleCase: (role, entry) => runRoleCase(role, entry, { profileId: manager.getExtractionSettings().profileId }),
+    runRoleCase: (role, entry) => runRoleCase(role, entry, { profileId: manager.getExtractionSettings().profileId, model }),
     summarizeRoleCalibration,
     runFixture: async (spec, options = {}) => {
       const hinted = { ...spec, story: withHints(spec.story, options.hints) };
@@ -67,8 +72,7 @@ export function registerLiveSuite(manager: RuntimeManager) {
       }
       const answered = judged?.answered ?? [];
       const { story, prompt } = answered.length ? buildFixtureRun({ ...hinted, excludeKeys: answered }) : first;
-      const profileId = manager.getExtractionSettings().profileId;
-      const rawResponse = await callExtractionModel(prompt, { profileId, role: "read", maxTokens: 512 });
+      const rawResponse = await askText(model, prompt, { role: "read", pass: "read", maxTokens: 512 });
       const parsed = parseSharedReadResponse(rawResponse, story);
       return {
         prompt,
@@ -93,7 +97,7 @@ export function curatorCreateRunner(manager: RuntimeManager): LiveSuiteHandle["r
   return async (entry) => {
     const context = caseContext(entry);
     const prompt = buildCreateCandidatePrompt(caseScope(entry), context);
-    const rawResponse = await callExtractionModel(prompt, { profileId: manager.getExtractionSettings().profileId, role: "curator", maxTokens: 512 });
+    const rawResponse = await askText(liveModel(manager), prompt, { role: "curator", pass: "curator", maxTokens: 512 });
     return { prompt, rawResponse, sample: scoreCreateSample(entry, rawResponse) };
   };
 }

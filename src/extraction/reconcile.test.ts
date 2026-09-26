@@ -1,3 +1,4 @@
+import { readWith } from "../../test/support/modelCall";
 let mockChat: Array<{ mes: string; name: string; is_user: boolean }> = [];
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -49,7 +50,7 @@ describe("reconciliation recovery", () => {
       priority: 1,
       reason: "cadence",
       stabilityLag: 1,
-      client: { profileId: null, debugResponse: readGolden("reconcile-cadence.response.txt") },
+      ...readWith(null, { debugResponse: readGolden("reconcile-cadence.response.txt") }),
     });
     expect(cadence.audit.acceptedDeltas).toEqual([]);
     expect(engine.serialize().activeCheckpointId).toBe("start");
@@ -67,7 +68,7 @@ describe("reconciliation recovery", () => {
       priority: 0,
       reason: job.reason,
       window: job.window,
-      client: { profileId: null, debugResponse: readGolden("reconcile-targeted.response.txt") },
+      ...readWith(null, { debugResponse: readGolden("reconcile-targeted.response.txt") }),
     });
     expect(targeted.audit.acceptedDeltas).toHaveLength(1);
     expect(targeted.audit.acceptedDeltas[0].delta).toMatchObject({ q: "player_has_key", v: true });

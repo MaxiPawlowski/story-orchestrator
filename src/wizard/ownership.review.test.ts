@@ -1,3 +1,4 @@
+import { testModel } from "../../test/support/modelCallHost";
 // Promoted from the 2026-09-18 external review. R8: the wizard is create-only by contract, but it
 // treats a story's `requirements.lorebooks` as write authority — so importing a story that merely
 // DECLARES a dependency on one of the user's own books lets the wizard overwrite entries in it.
@@ -41,7 +42,7 @@ const coordinator = (storyValue: ReturnType<typeof story>) => new CopilotCoordin
   getStory: () => storyValue,
   getState: () => null,
   getSettings: () => ({}) as never,
-  getProfileId: () => null,
+  model: testModel(null),
   getCanon: () => "",
   notify: () => {},
 } as never);

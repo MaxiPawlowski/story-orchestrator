@@ -11,12 +11,13 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ chat: [] }),
 }));
 
-jest.mock("@extraction/client", () => ({
-  callExtractionModel: jest.fn(async (prompt: string, options: { debugResponse?: string | null }) => {
+jest.mock("@extraction/client", () => {
+  const callExtractionModel = jest.fn(async (prompt: string, options: { debugResponse?: string | null }) => {
     calls.push(prompt);
     return options.debugResponse ?? "";
-  }),
-}));
+  });
+  return { callExtractionModel, routedModel: () => async (prompt: string, ask: { debugResponse?: string | null }) => ({ text: await callExtractionModel(prompt, ask), finish: "stop" }) };
+});
 
 const CORE_GOOD = [
   'DELTA q=location value="tunnel" evidence="She leads the way into the tunnel"',

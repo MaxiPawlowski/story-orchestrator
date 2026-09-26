@@ -1,4 +1,4 @@
-import { buildFixtureRun, callExtractionModel, parseSharedReadResponse, type ExtractionFixtureSpec, type ParsedSharedRead } from "@extraction/index";
+import { askText, buildFixtureRun, parseSharedReadResponse, profileRoute, routedModel, type ExtractionFixtureSpec, type ModelCall, type ParsedSharedRead } from "@extraction/index";
 
 export const SELF_TEST_TIERS = ["deltas", "memory", "arcs", "epistemic", "ledger"] as const;
 export type SelfTestTier = typeof SELF_TEST_TIERS[number];
@@ -20,6 +20,7 @@ export interface SelfTestReport {
 
 export interface SelfTestOptions {
   profileId: string | null;
+  model?: ModelCall;
   debugResponses?: string[];
   cancelled?: () => boolean;
   onProgress?: (step: { pass: number; total: number; label: string }) => void;
@@ -170,7 +171,7 @@ export async function runModelSelfTest(options: SelfTestOptions): Promise<SelfTe
     const { story, prompt } = buildFixtureRun(pass.spec);
     try {
       const planted = options.debugResponses ?? globalThis.storyOrchestratorDebugSelfTestResponses ?? null;
-      const raw = await callExtractionModel(prompt, { profileId, role: "read", maxTokens: 512, debugResponse: planted?.[index] ?? null });
+      const raw = await askText(options.model ?? routedModel(profileRoute(profileId)), prompt, { role: "read", pass: "read", maxTokens: 512, debugResponse: planted?.[index] ?? null });
       if (options.cancelled?.()) return { ranAt, profileId, results, error: "Cancelled." };
       results.push(...pass.grade(parseSharedReadResponse(raw, story)));
     } catch (error) {

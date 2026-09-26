@@ -1,6 +1,6 @@
 import { PASS_ROLES, PASS_ROLE_LABELS, type PassRole } from "@extraction/passRole";
 import type { ExtractionHealth } from "@extraction/breaker";
-import { resolveProfile, type PassProfiles } from "./passProfiles";
+import { resolvedProfileId, resolveRoute, type PassProfiles } from "./passProfiles";
 import type { RoleSelfTestResult } from "./roleSelfTest";
 
 export type RoleRouteState = "fallback" | "untested" | "ok" | "missing" | "not-configured" | "not-answering" | "failed";
@@ -24,10 +24,10 @@ export interface RoleRouteInput {
 
 const routeOf = (input: RoleRouteInput, role: PassRole): RoleRouteView => {
   const label = PASS_ROLE_LABELS[role];
-  const route = resolveProfile(input.settings, role, input.exists);
+  const route = resolveRoute(input.settings, role, input.exists);
   if (!route.ok) return { role, label, profileId: route.profileId, state: "missing", detail: route.reason };
-  if (route.source === "fallback") return { role, label, profileId: route.profileId, state: "fallback", detail: "Same as memory model" };
-  const profileId = route.profileId as string;
+  if (route.source === "fallback") return { role, label, profileId: resolvedProfileId(route), state: "fallback", detail: "Same as memory model" };
+  const profileId = resolvedProfileId(route) as string;
   const health = input.health(profileId);
   if (health?.kind === "config") return { role, label, profileId, state: "not-configured", detail: `${label}: ${health.detail}` };
   if (health?.kind === "transport") return { role, label, profileId, state: "not-answering", detail: `${label}: the profile is not answering (${health.detail})` };

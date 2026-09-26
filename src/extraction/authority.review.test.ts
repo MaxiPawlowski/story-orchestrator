@@ -6,6 +6,7 @@
 
 import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
 import { callExtractionReply } from "@extraction/client";
+import { viaReply } from "../../test/support/modelCall";
 import { parseSharedReadResponse } from "@extraction/parse";
 import { runSharedRead } from "@extraction/sharedRead";
 import { MAX_DELTAS_PER_READ } from "@extraction/sharedRead";
@@ -48,7 +49,8 @@ const readWith = async (response: string, scopeKey: "crossed") => {
     reason: "review",
     scope: [{ quality: s.qualityByKey[scopeKey], key: scopeKey, hints: [] }] as never,
     window: { from: 0, to: 0, messages: [{ speaker: "User", text: "crossed", id: 0 }] } as never,
-    client: { profileId: "review", role: "read" },
+    model: viaReply(callExtractionReply, "review"),
+    ask: { role: "read", pass: "read" },
   });
 };
 

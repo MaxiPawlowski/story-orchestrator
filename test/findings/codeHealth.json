@@ -20,7 +20,6 @@
     "src/components/drawer/DrawerTabs.tsx",
     "src/engine/validate.ts",
     "src/index.tsx",
-    "src/runtime/coordinators/extractionCoordinator.ts",
     "src/runtime/coordinators/memoryCoordinator.ts",
     "src/runtime/coordinators/stagecraftCoordinator.ts",
     "src/runtime/runtimeManager.ts"
@@ -118,7 +117,7 @@
     "src/runtime/coordinators/stagecraftCoordinator.ts": 5,
     "src/runtime/effectsApplier.ts": 6,
     "src/runtime/extras.ts": 6,
-    "src/runtime/index.ts": 6,
+    "src/runtime/index.ts": 5,
     "src/runtime/journal.ts": 3,
     "src/runtime/judge.ts": 3,
     "src/runtime/librarySave.ts": 1,
@@ -172,11 +171,9 @@
     "src/wizard/provisioning.ts": 3
   },
   "s6": [
-    "src/runtime/coordinators/copilotCoordinator.ts -> src/copilot/index.ts",
     "src/runtime/coordinators/copilotCoordinator.ts -> src/extraction/index.ts",
     "src/runtime/coordinators/copilotCoordinator.ts -> src/services/STAPI.ts",
     "src/runtime/coordinators/expansionCoordinator.ts -> src/extraction/index.ts",
-    "src/runtime/coordinators/expansionCoordinator.ts -> src/generation/index.ts",
     "src/runtime/coordinators/expansionCoordinator.ts -> src/services/STAPI.ts",
     "src/runtime/coordinators/extractionCoordinator.ts -> src/extraction/index.ts",
     "src/runtime/coordinators/extractionCoordinator.ts -> src/memory/index.ts",
@@ -192,7 +189,6 @@
     "src/runtime/coordinators/memoryCoordinator.ts -> src/services/STAPI.ts",
     "src/runtime/coordinators/pacingCoordinator.ts -> src/runtime/extras.ts",
     "src/runtime/coordinators/pacingCoordinator.ts -> src/services/STAPI.ts",
-    "src/runtime/coordinators/stagecraftCoordinator.ts -> src/extraction/client.ts",
     "src/runtime/coordinators/stagecraftCoordinator.ts -> src/services/STAPI.ts"
   ],
   "s7": [
@@ -368,7 +364,7 @@
     "src/engine/validate.ts": 3,
     "src/extraction/backlogPlan.ts": 1,
     "src/extraction/breaker.ts": 1,
-    "src/extraction/client.ts": 3,
+    "src/extraction/client.ts": 2,
     "src/extraction/evidence.ts": 3,
     "src/extraction/parse.ts": 1,
     "src/extraction/preflight.ts": 1,
@@ -448,7 +444,6 @@
     "src/runtime/mirrorReaperHost.ts": 1,
     "src/runtime/narrative.ts": 8,
     "src/runtime/nextTurn.ts": 3,
-    "src/runtime/passProfiles.ts": 1,
     "src/runtime/persistence.ts": 7,
     "src/runtime/pipeline.ts": 2,
     "src/runtime/promptCost.ts": 2,
@@ -552,16 +547,7 @@
     "src/services/stHost/worldInfoScan.ts": 1,
     "src/utils/event-source.ts": 2
   },
-  "d1": [
-    "src/copilot/authoring.ts",
-    "src/extraction/sharedRead.ts",
-    "src/generation/critic.ts",
-    "src/generation/generate.ts",
-    "src/runtime/coordinators/extractionCoordinator.ts",
-    "src/runtime/coordinators/memoryCoordinator.ts",
-    "src/runtime/coordinators/stagecraftCoordinator.ts",
-    "src/runtime/index.ts"
-  ],
+  "d1": [],
   "q1t": {
     "src/extraction/scheduler.test.ts#setTimeout": 2,
     "src/extraction/schedulerClear.review.test.ts#setTimeout": 3,

@@ -1,3 +1,4 @@
+import { testModel } from "../../../test/support/modelCallHost";
 // v2.3 plan 11 §Fault matrix — expansion under a world switch.
 //
 // Found by the census, not by a journey. `ExpansionCoordinator.generate` awaits a model call that
@@ -63,7 +64,7 @@ function harness(options: { switchDuringGeneration: boolean; ownership?: boolean
     getStoryRaw: () => ({}),
     getState: () => ({ activeCheckpointId: "a", blackboard: { values: {}, versions: {}, latched: {} } }) as unknown as EngineState,
     getExpansion: () => stores[String(context.chatId ?? "")],
-    getSettings: () => ({ enabled: true, profileId: "p1", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 }),
+    model: testModel("p1"),
     getCanon: () => "",
     getFactTexts: () => [],
     replaceStory: () => undefined,

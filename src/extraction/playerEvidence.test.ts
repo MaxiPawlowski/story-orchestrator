@@ -1,3 +1,4 @@
+import { readWith } from "../../test/support/modelCall";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { StoryEngine, parseStoryV2, parseStoryV2OrThrow, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
@@ -53,7 +54,7 @@ const read = (evidenceFrom: "any" | "world" | undefined, reply: string, withNarr
   const s = story(evidenceFrom);
   const engine = new StoryEngine();
   engine.loadStory(s);
-  return runSharedRead({ story: s, state: engine.serialize(), priority: 0, reason: "t15", window: window(withNarrator), client: { profileId: "p1", debugResponse: reply } });
+  return runSharedRead({ story: s, state: engine.serialize(), priority: 0, reason: "t15", window: window(withNarrator), ...readWith("p1", { debugResponse: reply }) });
 };
 
 describe("v2.4 plan 04 T15: evidenceSources", () => {
@@ -145,7 +146,7 @@ describe("v2.4 plan 04 T15: the prompt says what the check enforces", () => {
       window: window(true),
       scope: deriveScope(s, "hall", { values: {}, versions: {}, latched: {} }).map((entry) => (entry.key === "idol_taken" ? { ...entry, quality: { ...entry.quality, read_as: "choice" as const } } : entry)),
       judgeTyped: async () => ({ deltas: [], answered: ["idol_taken"], model: "m", confidences: {} }),
-      client: { profileId: "p1", debugResponse: "NO_DELTA" },
+      ...readWith("p1", { debugResponse: "NO_DELTA" }),
     });
     expect(result.audit.prompt).not.toContain(PLAYER_MARK);
   });

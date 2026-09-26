@@ -1,6 +1,6 @@
 import { countTokens, listConnectionProfiles, profileExists, readProfileContextLimit, showConfirmPopup } from "@services/STAPI";
 import { createTokenMeter, preflightMessage, preflightNeeded, type PassRole, type Preflight, type RequestBudget } from "@extraction/index";
-import { resolveProfile } from "./passProfiles";
+import { resolvedProfileId, resolveRoute } from "./passProfiles";
 import { getGlobalSettings } from "./settingsStore";
 
 export const requestBudget = (profileId: string | null): RequestBudget => ({
@@ -9,7 +9,7 @@ export const requestBudget = (profileId: string | null): RequestBudget => ({
 });
 
 /** v2.4 plan 08 T18: the profile a role's passes go to, from the install-wide settings (a refused route names its dangling id). */
-export const routedProfileId = (role: PassRole): string | null => resolveProfile(getGlobalSettings().extraction, role, profileExists).profileId;
+export const routedProfileId = (role: PassRole): string | null => resolvedProfileId(resolveRoute(getGlobalSettings().extraction, role, profileExists));
 
 /** Each role's passes are budgeted against its own profile's context limit. */
 export const requestBudgetFor = (role: PassRole): RequestBudget => requestBudget(routedProfileId(role));

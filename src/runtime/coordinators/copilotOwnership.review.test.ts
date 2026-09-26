@@ -1,3 +1,4 @@
+import { testModel } from "../../../test/support/modelCallHost";
 import type { StoryV2 } from "@engine/index";
 import { activateGlobalLorebook, listAllLorebooks, upsertWIEntry } from "@services/STAPI";
 import type { ProvisioningOp } from "@wizard/index";
@@ -53,7 +54,7 @@ function harness() {
     getStory: () => null,
     getState: () => null,
     getSettings: () => ({}) as never,
-    getProfileId: () => null,
+    model: testModel(null),
     getCanon: () => "",
     notify: () => {},
     ownership,

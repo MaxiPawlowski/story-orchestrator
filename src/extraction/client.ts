@@ -1,27 +1,16 @@
-import { sendConnectionProfileRequest, type ModelFailureKind, type ModelFinish } from "@services/STAPI";
+import { sendConnectionProfileRequest, type ModelFailureKind } from "@services/STAPI";
 import { anySignal } from "@utils/signals";
 import { PROBE_MAX_TOKENS, PROBE_PROMPT, PROBE_TIMEOUT_MS, type ProbeResult } from "./breaker";
 import { callTimeoutMs, DEFAULT_MAX_TOKENS, estimateTokens, TIMEOUT_RETRY_SCALE } from "./callBudget";
-import { detectDegenerate } from "./degenerate";
+import type { ExtractionReply, ModelCall, ModelRoute } from "./modelRoute";
 import { stripReasoningBlocks } from "./parse";
-import type { PassRole } from "./passRole";
-import type { RequestBudget } from "./tokenMeter";
 
-export interface ExtractionClientOptions {
-  profileId: string | null;
-  role: PassRole;
+export interface CallOptions {
   maxTokens?: number;
   debugResponse?: string | null;
   temperature?: number;
   signal?: AbortSignal;
-  refuseIncomplete?: boolean;
-  budget?: RequestBudget;
   timeoutScale?: number;
-}
-
-export interface ExtractionReply {
-  text: string;
-  finish: ModelFinish;
 }
 
 export class ModelCallError extends Error {
@@ -46,20 +35,6 @@ export function setAnsweredObserver(observer: (call: CallAnswered) => void): () 
   };
 }
 
-export type ProfileRouter = (role: PassRole, fallback: string | null) => { ok: true; profileId: string | null } | { ok: false; profileId: string; reason: string };
-
-let profileRouter: ProfileRouter | null = null;
-
-/** v2.4 plan 08 T18: the runtime installs the per-role route once; unset, every call keeps its own profileId. */
-export function setProfileRouter(router: ProfileRouter): () => void {
-  profileRouter = router;
-  return () => {
-    if (profileRouter === router) profileRouter = null;
-  };
-}
-
-export const routeProfile = (role: PassRole, fallback: string | null): ReturnType<ProfileRouter> => profileRouter?.(role, fallback) ?? { ok: true, profileId: fallback };
-
 export const isLapse = (error: unknown): boolean => error instanceof ModelCallError && error.kind === "lapsed";
 
 export async function probeModel(profileId: string, timeoutMs: number = PROBE_TIMEOUT_MS): Promise<ProbeResult> {
@@ -73,12 +48,10 @@ export const lapseAsEmpty = (error: unknown): string => {
   throw error;
 };
 
-export async function callExtractionReply(prompt: string, options: ExtractionClientOptions): Promise<ExtractionReply> {
+export async function callExtractionReply(prompt: string, route: ModelRoute | null, options: CallOptions = {}): Promise<ExtractionReply> {
   if (options.debugResponse !== undefined && options.debugResponse !== null) return { text: stripReasoningBlocks(options.debugResponse), finish: "unknown" };
-  const route = routeProfile(options.role, options.profileId);
-  if (!route.ok) throw new ModelCallError("config", route.reason, route.profileId);
+  if (!route) throw new ModelCallError("config", "No memory LLM profile selected");
   const profileId = route.profileId;
-  if (!profileId) throw new ModelCallError("config", "No memory LLM profile selected");
   const maxTokens = options.maxTokens ?? DEFAULT_MAX_TOKENS;
   const timeoutMs = Math.round(callTimeoutMs(maxTokens, estimateTokens(prompt)) * (options.timeoutScale ?? 1));
   const startedAt = Date.now();
@@ -108,9 +81,4 @@ export async function retryOnTimeout<T>(ask: (timeoutScale: number) => Promise<T
   }
 }
 
-export const isIncomplete = (reply: ExtractionReply): boolean => reply.finish === "length" || detectDegenerate(reply.text).degenerate;
-
-export async function callExtractionModel(prompt: string, options: ExtractionClientOptions): Promise<string> {
-  const reply = await callExtractionReply(prompt, options);
-  return options.refuseIncomplete && isIncomplete(reply) ? "" : reply.text;
-}
+export const routedModel = (route: ModelRoute | null): ModelCall => (prompt, ask) => callExtractionReply(prompt, route, ask);

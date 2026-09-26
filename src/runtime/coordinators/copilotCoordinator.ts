@@ -5,7 +5,7 @@ import {
   runAuthoringStage, runDriverReport, runDriverSuggest, type CopilotMessage, type CopilotStage, type DriverContext,
   type ProposalResult, type Suggestion,
 } from "@copilot/index";
-import { getLastMessageText } from "@extraction/index";
+import { getLastMessageText, type ModelAsk, type ModelCall } from "@extraction/index";
 import {
   newWizardSession, recordGrant, validateProvisioningOp, wizardSessionKey, type ProvisioningEnvironment,
   type ProvisioningOp, type ProvisioningResult, type WizardSessionState,
@@ -25,7 +25,7 @@ export interface CopilotCoordinatorDeps {
   getStory: () => NormalizedStoryV2 | null;
   getState: () => EngineState | null;
   getSettings: () => CopilotRuntimeSettings;
-  getProfileId: () => string | null;
+  model: ModelCall;
   getCanon: () => string;
   notify: () => void;
   ownership: RunOwnership;
@@ -42,12 +42,13 @@ export class CopilotCoordinator {
 
   constructor(private readonly deps: CopilotCoordinatorDeps) {}
 
-  private client(debugResponse?: string): { profileId: string | null; role: "authoring"; debugResponse: string | null } {
-    return { profileId: this.deps.getProfileId(), role: "authoring", debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugCopilotResponse ?? null };
+  private ask(debugResponse?: string): ModelAsk {
+    return { role: "authoring", pass: "copilot", debugResponse: debugResponse ?? null };
   }
 
   async runStage(input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[]; environment?: ProvisioningEnvironment }, debugResponse?: string): Promise<ProposalResult> {
-    return runAuthoringStage({ ...input, environment: input.environment ?? (input.stage === "provisioning" ? this.getProvisioningEnvironment(input.draft) : undefined) }, this.client(debugResponse));
+    const environment = input.environment ?? (input.stage === "provisioning" ? this.getProvisioningEnvironment(input.draft) : undefined);
+    return runAuthoringStage({ ...input, environment }, this.deps.model, this.ask(debugResponse));
   }
 
   // What the install already has, plus which lorebooks this story owns — the only facts the
@@ -204,13 +205,13 @@ export class CopilotCoordinator {
   async runSuggest(debugResponse?: string): Promise<Suggestion[]> {
     const context = this.getDriverContext();
     if (!context) return [];
-    return runDriverSuggest(context, this.client(debugResponse));
+    return runDriverSuggest(context, this.deps.model, this.ask(debugResponse));
   }
 
   async runReport(debugResponse?: string): Promise<string> {
     const context = this.getDriverContext();
     if (!context) return "";
-    return runDriverReport(context, this.client(debugResponse));
+    return runDriverReport(context, this.deps.model, this.ask(debugResponse));
   }
 
   setNudge(text: string, depth = 1) {

@@ -4,6 +4,7 @@ import type { ExtraGateSource, TypedJudge } from "./types";
 import { getChatWindow } from "./chatWindow";
 import { Breaker, DANGLING_PROFILE_DETAIL, failedProfile, failureClass, probeTimeoutMs, type ExtractionHealth, type ProbeResult, type ProbeTrigger } from "./breaker";
 import { isLapse } from "./client";
+import type { ModelCall } from "./modelRoute";
 import { runSharedRead, sharedReadWindow } from "./sharedRead";
 import type { RequestBudget } from "./tokenMeter";
 import type { ParsedFact, SharedReadAudit, SharedReadWindow } from "./types";
@@ -14,7 +15,6 @@ export interface SchedulerSettings {
   cadence: number;
   reconciliationMultiplier: number;
   stabilityLag: number;
-  debugResponse?: string | null;
   pressureThreshold?: number;
   budget?: RequestBudget;
 }
@@ -52,6 +52,7 @@ export interface SchedulerHost {
   getStory(): NormalizedStoryV2 | null;
   getEngineState(): EngineState | null;
   getExtractionSettings(): SchedulerSettings;
+  model: ModelCall;
   getFacts(): ParsedFact[];
   getFiredTransitions(): NormalizedTransition[];
   getExpansionGateSources(): ExtraGateSource[];
@@ -434,8 +435,8 @@ export class ExtractionScheduler {
         const window = sharedReadWindow({ state, priority, window: job.window && getChatWindow(job.window.from, job.window.to), stabilityLag: settings.stabilityLag });
         const ownership = this.host.beginRead?.({ from: window.from, to: window.to }) ?? null;
         read = ownership ? { ownership, window: { from: window.from, to: window.to } } : null;
-        const client = { ...settings, role: "read" as const, ...(ownership?.signal ? { signal: ownership.signal } : {}) };
-        const result = await this.runWithRetries(() => runSharedRead({ story, state, priority, reason: job.reason, window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), extraGateSources: this.host.getExpansionGateSources(), openArcs: this.host.getOpenArcs(), epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false, entities: this.host.getEntities?.() ?? [], judgeTyped: this.host.judgeTyped?.() ?? null, client }));
+        const ask = { role: "read" as const, pass: "read" as const, ...(settings.budget ? { budget: settings.budget } : {}), ...(ownership?.signal ? { signal: ownership.signal } : {}) };
+        const result = await this.runWithRetries(() => runSharedRead({ story, state, priority, reason: job.reason, window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), extraGateSources: this.host.getExpansionGateSources(), openArcs: this.host.getOpenArcs(), epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false, entities: this.host.getEntities?.() ?? [], judgeTyped: this.host.judgeTyped?.() ?? null, model: this.host.model, ask }));
         await this.host.applyExtractionAudit(result.audit, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, ownership);
         if (read) this.rereadIfMutated(read, startedEpoch);
       }

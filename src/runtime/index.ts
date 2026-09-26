@@ -1,4 +1,4 @@
-import { callExtractionModel, getChatWindow, ExtractionScheduler, probeModel, setAnsweredObserver, setProfileRouter, type SchedulerHost, type SchedulerJob, type SchedulerSettings } from "@extraction/index";
+import { askText, getChatWindow, ExtractionScheduler, probeModel, setAnsweredObserver, type SchedulerHost, type SchedulerJob, type SchedulerSettings } from "@extraction/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { sceneFieldsInConflict } from "@memory/index";
 import { clearStoryExtensionPrompt, countTokens, executeSlashCommands, forceActivateEntries, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName, getScannableEntries, judgeStatus, judgeTransport, noteHostSettingsLoaded, profileExists, readExtensionPromptBlocks, readInjectedPromptBlocks, readPromptBudget, setStoryExtensionPrompt, settingsReady, subscribeToHostEvents, willAddUserMessage, EXTENSION_SETTINGS_LOADED_EVENT, type HostSubscriptionEntry } from "@services/STAPI";
@@ -13,7 +13,6 @@ import { getGlobalSettings } from "./settingsStore";
 import { registerLiveSuite } from "./liveSuite";
 import { registerRuntimeMacros } from "./macros";
 import { requestBudget, routedProfileId } from "./requestBudget";
-import { resolveProfile } from "./passProfiles";
 import { startMirrorReaper } from "./mirrorReaperHost";
 import { runtimeManager } from "./runtimeManager";
 import { beginRun } from "./runToken";
@@ -62,7 +61,6 @@ const registerSlashCommandsWhenReady = (attempt = 0) => {
 export function startRuntime() {
   if (started) return runtimeManager;
   started = true;
-  runtimeDisposers.push(setProfileRouter((role, fallback) => resolveProfile({ ...runtimeManager.getExtractionSettings(), profileId: fallback }, role, profileExists)));
   runtimeDisposers.push(setAnsweredObserver((call) => scheduler?.noteAnswered(call.profileId, call.ms)));
   const schedulerHost: SchedulerHost = {
     getStory: () => runtimeManager.getStory(),
@@ -70,9 +68,9 @@ export function startRuntime() {
     getExtractionSettings: (): SchedulerSettings => ({
       ...runtimeManager.getExtractionSettings(),
       profileId: routedProfileId("read"),
-      debugResponse: globalThis.storyOrchestratorDebugExtractionResponse ?? null,
       budget: requestBudget(routedProfileId("read")),
     }),
+    model: runtimeManager.model,
     getFacts: () => runtimeManager.getExtractionFacts(),
     getFiredTransitions: () => runtimeManager.getFiredTransitions(),
     getExpansionGateSources: () => runtimeManager.getExpansionGateSources(),
@@ -261,12 +259,7 @@ export function startRuntime() {
     getLastMessageId: chatLastId,
     getWindow: recentWindow,
     getCheckpointInfo: () => runtimeManager.getActiveCheckpointInfo(),
-    callDirector: (prompt, signal) => callExtractionModel(prompt, {
-      profileId: runtimeManager.getExtractionSettings().profileId, role: "director",
-      maxTokens: DIRECTOR_MAX_TOKENS,
-      signal,
-      debugResponse: globalThis.storyOrchestratorDebugDirectorResponse ?? null,
-    }),
+    callDirector: (prompt, signal) => askText(runtimeManager.model, prompt, { role: "director", pass: "director", maxTokens: DIRECTOR_MAX_TOKENS, signal }),
     breakerOpen: () => scheduler?.breakerOpen(routedProfileId("director")) ?? false,
     triggerMember: async (name) => { await executeSlashCommands(`/trigger await=true ${quoteSlashArg(name)}`, { silent: false }); },
     recordDecision: (audit) => runtimeManager.recordTalkDecision(audit),

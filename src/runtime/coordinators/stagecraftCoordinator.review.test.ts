@@ -1,9 +1,9 @@
+import { textModel } from "../../../test/support/modelCall";
 // Promoted from the 2026-09-18 external review (scripts/review/reviewRegression.test.ts).
 // Each finding() states the contract the fix must satisfy; test/findings/ledger.json says whether
 // it is still open and, while open, the reason it must fail with. See v2.3 plan 01 §A.
 
 import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
-import { callExtractionModel } from "@extraction/client";
 import { StagecraftCoordinator } from "@runtime/coordinators/stagecraftCoordinator";
 import { createStagecraft } from "@runtime/extras";
 import type { WardenCheckInput } from "@stagecraft/index";
@@ -30,7 +30,7 @@ jest.mock("@services/STAPI", () => ({
   activateGlobalLorebook: jest.fn(async () => ({ ok: true as const })),
   listAllLorebooks: () => ["Existing user book"],
 }));
-jest.mock("@extraction/client", () => ({ callExtractionModel: jest.fn() }));
+const callExtractionModel = jest.fn(async (..._args: unknown[]): Promise<string> => "");
 
 const chatRef = { current: [] as unknown[] };
 
@@ -93,7 +93,7 @@ function harness(options: { uidKnown?: boolean } = {}) {
     getState: () => ({ ...engine.serialize(), boundary: messageId, lastMessageId: messageId }),
     getStagecraft: () => state,
     setStagecraft: (next: typeof state) => { state = next; },
-    getExtractionSettings: () => ({ profileId: "review" }) as never,
+    model: textModel(callExtractionModel),
     getCanon: () => "",
     getOpenArcs: () => [],
     journal: () => {},

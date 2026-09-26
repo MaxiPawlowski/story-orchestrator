@@ -1,6 +1,6 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
 import { stableStringify } from "@runtime/hash";
-import { callExtractionReply, type ExtractionClientOptions, type ExtractionReply } from "./client";
+import type { ExtractionReply, ModelAsk, ModelCall } from "./modelRoute";
 import { getChatWindow } from "./chatWindow";
 import { getCanonLite } from "./canonLite";
 import { hashContract, PLAYER_MARK, renderSharedReadPrompt } from "./contract";
@@ -86,7 +86,8 @@ export interface RunSharedReadOptions {
   epistemicLedgerCapable?: boolean;
   entities?: string[];
   judgeTyped?: TypedJudge | null;
-  client: ExtractionClientOptions;
+  model: ModelCall;
+  ask: ModelAsk;
 }
 
 const createId = (parts: unknown) => {
@@ -151,7 +152,7 @@ export async function fitReadWindow(window: SharedReadWindow, overheadPrompt: st
 
 export async function runSharedRead(options: RunSharedReadOptions): Promise<SharedReadResult> {
   const scope = scopeOf(options);
-  const fitted = await fitReadWindow(sharedReadWindow(options), sharedReadOverhead(options), options.client.budget, options.client.maxTokens ?? DEFAULT_RESPONSE_TOKENS);
+  const fitted = await fitReadWindow(sharedReadWindow(options), sharedReadOverhead(options), options.ask.budget, options.ask.maxTokens ?? DEFAULT_RESPONSE_TOKENS);
   const { window } = fitted;
   const hinted = scope.filter((entry) => entry.quality.read_as && entry.quality.source === "extractor");
   // V18: a judge that threw used to leave no trace, so its audit read exactly like one where the
@@ -164,15 +165,15 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
   const residual = scope.filter((entry) => !answered.has(entry.key));
   const contract = readContract(options, window, residual);
   const prompt = renderSharedReadPrompt(contract);
-  const ask = (): Promise<ExtractionReply> => (scope.length ? callExtractionReply(prompt, options.client) : Promise.resolve({ text: "NO_DELTA", finish: "stop" }));
+  const ask = (): Promise<ExtractionReply> => (scope.length ? options.model(prompt, options.ask) : Promise.resolve({ text: "NO_DELTA", finish: "stop" }));
   let reply = await ask();
   let parsed = parseSharedReadResponse(reply.text, options.story);
-  if (refusal(reply, parsed, options.client.maxTokens)) {
+  if (refusal(reply, parsed, options.ask.maxTokens)) {
     reply = await ask();
     parsed = parseSharedReadResponse(reply.text, options.story);
   }
   const rawResponse = reply.text;
-  const refused = refusal(reply, parsed, options.client.maxTokens);
+  const refused = refusal(reply, parsed, options.ask.maxTokens);
   const screened = refused ? { accepted: [], rejected: [{ line: rawResponse.slice(0, 500), reason: refused }] } : screenDeltas(parsed, residual, answered, window);
   const audit: SharedReadAudit = {
     id: createId({ prompt, rawResponse, at: Date.now() }),

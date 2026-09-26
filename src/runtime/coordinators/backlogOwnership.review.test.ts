@@ -1,3 +1,4 @@
+import { testModel } from "../../../test/support/modelCallHost";
 const host = { chat: Array.from({ length: 12 }, (_, index) => ({ name: index % 2 ? "Mira" : "Max", mes: `line ${index}`, is_user: index % 2 === 0 })) };
 const reads: Array<{ reason: string; release: () => void; fail: (error: Error) => void; done?: boolean }> = [];
 const sceneBreakAt = new Set<number>();
@@ -55,7 +56,7 @@ function harness(emitSceneBreak: (audit: unknown, collect?: SceneJob[]) => void 
     getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [], qualities: [], checkpoints: [], transitions: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 11, visitedAnchors: [], blackboard: { values: {}, versions: {}, latched: {} } }),
     getExtraction: () => ({ audits: [], reconciliationEvents: [], judgedReads: [] }),
-    getSettings: () => ({ profileId: "p1", enabled: true, cadence: 1 }),
+    model: testModel("p1"),
     memory,
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],

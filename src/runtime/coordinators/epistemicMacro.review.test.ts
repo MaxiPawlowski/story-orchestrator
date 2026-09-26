@@ -1,3 +1,4 @@
+import { testModel } from "../../../test/support/modelCallHost";
 // v2.4 plan 01 T10 (X5, inv 15): `story_epistemic` renders `getEpistemicBlock()`. In a group it used to
 // re-render for `activeSpeakerId`, and after our own transition Note that read null, so the macro merged
 // EVERY member's private knowledge. In a group it now answers the applied block: empty at rest, the
@@ -65,7 +66,7 @@ function harness(roster: Array<{ id: string; name: string }> = story.roster) {
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5, blackboard: { values: {}, versions: {} } }),
     getMemory: () => memoryState,
     setMemory: (next: typeof memoryState) => { memoryState = next; },
-    getExtractionSettings: () => ({ profileId: "p1", enabled: true }),
+    model: testModel("p1"),
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
     enqueueExtractorDeltas: () => {},

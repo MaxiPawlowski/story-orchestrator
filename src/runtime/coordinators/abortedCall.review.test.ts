@@ -1,3 +1,4 @@
+import { testModel } from "../../../test/support/modelCallHost";
 import { parseStoryV2OrThrow, StoryEngine, type EngineState } from "@engine/index";
 import { ModelCallError } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
@@ -69,7 +70,7 @@ function memoryHarness(presummarised: boolean) {
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5, blackboard: { values: {}, versions: {}, latched: {} } }),
     getMemory: () => memoryState,
     setMemory: (next: typeof memoryState) => { memoryState = next; },
-    getExtractionSettings: () => ({ profileId: "p1", enabled: true }),
+    model: testModel("p1"),
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
     enqueueExtractorDeltas: () => {},
@@ -109,7 +110,7 @@ function expansionHarness() {
     getStoryRaw: () => ({}),
     getState: () => ({ activeCheckpointId: "a", blackboard: { values: {}, versions: {}, latched: {} } }) as unknown as EngineState,
     getExpansion: () => stores[w.deps.chat],
-    getSettings: () => ({ enabled: true, profileId: "p1", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 }),
+    model: testModel("p1"),
     getCanon: () => "",
     getFactTexts: () => [],
     replaceStory: () => undefined,
@@ -141,7 +142,7 @@ function curatorHarness() {
     getState: () => ({ ...engine.serialize(), boundary: 10, lastMessageId: 10 }),
     getStagecraft: () => state,
     setStagecraft: (next: typeof state) => { state = next; },
-    getExtractionSettings: () => ({ profileId: "p1" }) as never,
+    model: testModel("p1"),
     getCanon: () => "",
     getOpenArcs: () => [],
     journal: () => {},

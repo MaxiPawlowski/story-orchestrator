@@ -1,3 +1,4 @@
+import { testModel } from "../../../test/support/modelCallHost";
 // v2.3 plan 03: the two memory passes that synthesise from memory rather than from the transcript.
 //
 // `runArcSummaryPass` is the shape that decided the guard's design: one await and one write PER
@@ -108,7 +109,7 @@ function harness(arcCount: number, presummarised = 0) {
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5, blackboard: { values: {}, versions: {}, latched: {} } }),
     getMemory: () => memoryState,
     setMemory: (next: typeof memoryState) => { memoryState = next; },
-    getExtractionSettings: () => ({ profileId: "p1", enabled: true }),
+    model: testModel("p1"),
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
     enqueueExtractorDeltas: () => {},
@@ -347,7 +348,7 @@ function consolidationHarness(groupSize: number) {
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5 }),
     getMemory: () => memoryState,
     setMemory: (next: typeof memoryState) => { patches.push("patch"); memoryState = next; },
-    getExtractionSettings: () => ({ profileId: "p1", enabled: true }),
+    model: testModel("p1"),
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
     enqueueExtractorDeltas: () => {},
@@ -430,7 +431,7 @@ describe("V3: a supersession bridge enqueues only into the story it read for", (
       getState: () => engine.serialize(),
       getMemory: () => ({ entries: [], settings: { enabled: true } }),
       setMemory: () => {},
-      getExtractionSettings: () => ({ profileId: "p1", enabled: true }),
+      model: testModel("p1"),
       getFiredTransitions: () => [],
       getExpansionGateSources: () => [],
       enqueueExtractorDeltas: (deltas: unknown[]) => { enqueued.push(...deltas); },
@@ -471,7 +472,7 @@ describe("V11: the ledger cap is told where the history floor is", () => {
       historyFloor: () => 5,
       getMemory: () => memory,
       setMemory: (next: typeof memory) => { memory = next; },
-      getExtractionSettings: () => ({ profileId: "p1", enabled: true }),
+      model: testModel("p1"),
       getFiredTransitions: () => [],
       getExpansionGateSources: () => [],
       enqueueExtractorDeltas: () => {},

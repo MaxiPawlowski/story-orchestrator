@@ -287,7 +287,7 @@ describe("v2.4 plan 03 D2: a lapsed read is discarded, never retried, never an e
     const { host, calls } = lapsedHost({ applyExtractionAudit: async () => undefined });
     new ExtractionScheduler(host).schedule({ priority: 0, reason: "manual", window: { from: 0, to: 0, messages: [] } });
     await flush();
-    expect(read.mock.calls[0][0].client.signal).toBe(calls.signal);
+    expect(read.mock.calls[0][0].ask.signal).toBe(calls.signal);
     expect(calls.released).toBe(1);
   });
 

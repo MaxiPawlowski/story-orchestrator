@@ -16,8 +16,9 @@ import {
 } from "@memory/index";
 import type { CuratorOp, CuratorPassOutcome } from "@stagecraft/index";
 import {
-  getContext, readExtensionPromptBlocks, readInjectedPromptBlocks, showTextPopup, type WIEntrySnapshot,
+  getContext, profileExists, readExtensionPromptBlocks, readInjectedPromptBlocks, showTextPopup, type WIEntrySnapshot,
 } from "@services/STAPI";
+import { createModelCall } from "./modelCall";
 import { AwayRecapController, type AwayRecap } from "./awayRecap";
 import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./narrative";
 import { CopilotCoordinator } from "./coordinators/copilotCoordinator";
@@ -99,13 +100,13 @@ export class RuntimeManager {
   });
   // V26: what every coordinator reads the loaded story and engine through, and how each one saves.
   private readonly view = { getStory: () => this.loaded?.story ?? null, getState: () => (this.loaded ? this.engine.serialize() : null) };
-  private readonly lifecycle = { persist: () => this.persist(), notify: () => this.notify(), ownership: this.owner.ownership };
+  readonly model = createModelCall({ settings: () => this.getExtractionSettings(), exists: profileExists });
+  private readonly lifecycle = { persist: () => this.persist(), notify: () => this.notify(), ownership: this.owner.ownership, model: this.model };
   private readonly memory: MemoryCoordinator = new MemoryCoordinator({
     ...this.view,
     historyFloor: () => (this.loaded ? this.engine.historyFrom().messageId : null),
     getMemory: () => this.extras.memory,
     setMemory: (next) => { this.extras.memory = next; },
-    getExtractionSettings: () => this.getExtractionSettings(),
     getFiredTransitions: () => this.getFiredTransitions(),
     getExpansionGateSources: () => this.getExpansionGateSources(),
     enqueueExtractorDeltas: (accepted, window, origin) => this.enqueueExtractorDeltas(accepted, window, origin),
@@ -122,7 +123,6 @@ export class RuntimeManager {
     ...this.view,
     getStoryRaw: () => this.loaded?.record.raw,
     getExpansion: () => this.extras.expansion,
-    getSettings: () => this.getExtractionSettings(),
     getCanon: () => this.memory.getCanon(),
     getFactTexts: () => this.memory.getFacts().map((fact) => fact.text),
     replaceStory: (story) => this.replaceStory(story),
@@ -135,7 +135,6 @@ export class RuntimeManager {
   private readonly extraction: ExtractionCoordinator = new ExtractionCoordinator({
     ...this.view,
     getExtraction: () => this.extras.extraction,
-    getSettings: () => this.getExtractionSettings(),
     memory: this.memory,
     getFiredTransitions: () => this.getFiredTransitions(),
     getExpansionGateSources: () => this.getExpansionGateSources(),
@@ -175,7 +174,6 @@ export class RuntimeManager {
     ...this.view,
     getStagecraft: () => this.extras.stagecraft,
     setStagecraft: (next) => { this.extras.stagecraft = next; },
-    getExtractionSettings: () => this.getExtractionSettings(),
     getCanon: () => this.memory.getCanon(),
     getOpenArcs: () => this.memory.getOpenArcs(),
     filterEntries: createCuratorFilter(() => this.judge),
@@ -189,7 +187,6 @@ export class RuntimeManager {
   private readonly copilot: CopilotCoordinator = new CopilotCoordinator({
     ...this.view,
     getSettings: () => this.extras.copilot,
-    getProfileId: () => this.getExtractionSettings().profileId,
     getCanon: () => this.memory.getCanon(),
     ...this.lifecycle,
     wizardSession: (key) => loadWizardSession(key),

@@ -1,5 +1,6 @@
 import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
 import { callExtractionReply } from "@extraction/client";
+import { viaReply } from "../../test/support/modelCall";
 import { estimateTokens } from "@extraction/callBudget";
 import { runSharedRead } from "@extraction/sharedRead";
 import { createTokenMeter, type RequestBudget } from "@extraction/tokenMeter";
@@ -50,7 +51,8 @@ async function read(window: ReturnType<typeof chat>, requestBudget: RequestBudge
     reason,
     scope: [{ quality: s.qualityByKey.crossed, key: "crossed", hints: [] }] as never,
     window,
-    client: { profileId: "p1", ...(requestBudget ? { budget: requestBudget } : {}) },
+    model: viaReply(callExtractionReply),
+    ask: { role: "read", pass: "read", ...(requestBudget ? { budget: requestBudget } : {}) },
   });
   const sent = mock.mock.calls.map((call) => call[0] as string);
   return { result, sent };
@@ -144,6 +146,7 @@ describe("v2.4 plan 03 D5: the scheduler's reads carry the budget from their set
       getStory: () => s,
       getEngineState: () => ({ ...engine.serialize(), lastMessageId: 299 }),
       getExtractionSettings: () => ({ enabled: true, profileId: "p1", cadence: 1, reconciliationMultiplier: 2, stabilityLag: 0, budget: budget(4096) }),
+      model: viaReply(callExtractionReply),
       getFacts: () => [],
       getFiredTransitions: () => [],
       getExpansionGateSources: () => [],

@@ -1,3 +1,4 @@
+import { testModel } from "../../../test/support/modelCallHost";
 // v2.4 plan 03 D6, per site. `refuseIncomplete` lives in the client, so a site that stops passing it
 // stores a truncated summary and no client test notices. Each case drives the real client through a
 // fake host reply: `finish: "length"` stores nothing at that site, and the control stores the answer.
@@ -42,7 +43,7 @@ function memoryHarness(presummarised: boolean) {
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5, blackboard: { values: {}, versions: {}, latched: {} } }),
     getMemory: () => memoryState,
     setMemory: (next: typeof memoryState) => { memoryState = next; },
-    getExtractionSettings: () => ({ profileId: "p1", enabled: true }),
+    model: testModel("p1"),
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
     enqueueExtractorDeltas: () => {},
@@ -60,7 +61,7 @@ function shortTermHarness() {
     getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3 }),
     getExtraction: () => ({ audits: [], reconciliationEvents: [], judgedReads: [] }),
-    getSettings: () => ({ profileId: "p1", enabled: true, cadence: 1 }),
+    model: testModel("p1"),
     memory: {
       enabled: true,
       shortTermSummaryEnd: -1,

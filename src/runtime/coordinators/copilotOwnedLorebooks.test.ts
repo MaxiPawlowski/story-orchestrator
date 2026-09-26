@@ -1,3 +1,4 @@
+import { testModel } from "../../../test/support/modelCallHost";
 import type { StoryV2 } from "@engine/index";
 import { createCharacterCard, createLorebook, upsertWIEntry } from "@services/STAPI";
 import type { ProvisioningOp, WizardSessionState } from "@wizard/index";
@@ -30,7 +31,7 @@ const harness = (stored: WizardSessionState | null) => {
     getStory: () => null,
     getState: () => null,
     getSettings: () => ({}) as never,
-    getProfileId: () => null,
+    model: testModel(null),
     getCanon: () => "",
     notify: () => {},
     wizardSession: () => session,

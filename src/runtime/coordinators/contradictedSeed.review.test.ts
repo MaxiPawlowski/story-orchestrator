@@ -1,3 +1,4 @@
+import { testModel } from "../../../test/support/modelCallHost";
 // v2.4 plan 07, found live (J8.5 on-arm x2, 2026-09-25, test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/).
 //
 // A scripted Courier line ("I crossed the old stone bridge … It held firm under my boots") was read
@@ -119,7 +120,7 @@ function harness() {
     getState: () => engine,
     getMemory: () => memory,
     setMemory: (next: MemoryRuntimeState) => { memory = next; },
-    getExtractionSettings: () => ({ profileId: "p1", enabled: true }),
+    model: testModel("p1"),
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
     enqueueExtractorDeltas: () => {},
@@ -133,7 +134,7 @@ function harness() {
     getStory: () => story,
     getState: () => engine,
     getExtraction: () => extraction,
-    getSettings: () => ({ profileId: "p1", enabled: true, cadence: 1 }),
+    model: testModel("p1"),
     memory: memoryCoordinator,
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],

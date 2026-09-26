@@ -1,3 +1,4 @@
+import { testModel } from "../../../test/support/modelCallHost";
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
@@ -28,7 +29,7 @@ function harness() {
     getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3 }),
     getExtraction: () => extraction,
-    getSettings: () => ({ profileId: "p1", enabled: true, cadence: 1 }),
+    model: testModel("p1"),
     memory,
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],

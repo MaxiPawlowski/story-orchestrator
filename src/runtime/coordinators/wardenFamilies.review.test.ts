@@ -1,3 +1,4 @@
+import { testModel } from "../../../test/support/modelCallHost";
 import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { defaultJudgeSettings, type JudgeRequest, type JudgeSettings } from "@judge/index";
 import { clearStoryExtensionPrompt, setStoryExtensionPrompt } from "@services/STAPI";
@@ -57,7 +58,7 @@ const harness = (options: { continuity?: boolean; mode?: "auto" | "review" | "of
     getState: () => engineState,
     getStagecraft: () => state,
     setStagecraft: (next) => { state = next; },
-    getExtractionSettings: () => ({ profileId: "p" } as ExtractionRuntimeSettings),
+    model: testModel("p"),
     getCanon: () => "",
     getOpenArcs: () => [],
     warden: {

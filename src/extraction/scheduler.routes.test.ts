@@ -1,3 +1,4 @@
+import { plantedModel } from "../../test/support/modelCall";
 const mockChat: Array<{ name: string; mes: string }> = [];
 
 jest.mock("@services/STAPI", () => ({
@@ -32,6 +33,7 @@ function harness() {
     getStory: () => ({}) as unknown as NormalizedStoryV2,
     getEngineState: () => ({ lastMessageId: 9 }) as unknown as EngineState,
     getExtractionSettings: () => settings,
+    model: plantedModel,
     getFacts: () => [],
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],

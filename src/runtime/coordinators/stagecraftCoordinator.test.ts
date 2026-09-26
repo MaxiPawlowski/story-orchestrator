@@ -1,5 +1,5 @@
+import { textModel } from "../../../test/support/modelCall";
 import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
-import { callExtractionModel } from "@extraction/client";
 import { clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, loadLorebook, readWIEntry, readWIEntryAt, restoreWIEntryAt, setStoryExtensionPrompt, updateWIEntryByUid, upsertWIEntry } from "@services/STAPI";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
 import { createStagecraft, sanitizeStagecraft } from "../extras";
@@ -27,7 +27,7 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ extensionSettings: {}, saveSettingsDebounced: () => undefined, chat: mockChat }),
 }));
 
-jest.mock("@extraction/client", () => ({ callExtractionModel: jest.fn(async () => "NONE") }));
+const callExtractionModel = jest.fn(async (..._args: unknown[]): Promise<string> => "NONE");
 
 const lorebook = (content = "The bridge stands, its ropes new and taut.") => ({
   entries: {
@@ -85,7 +85,7 @@ const harness = (options: { story?: NormalizedStoryV2 | null; state?: EngineStat
     getState: () => options.state ?? engineState(),
     getStagecraft: () => state,
     setStagecraft: (next) => { state = next; writes += 1; },
-    getExtractionSettings: () => ({ profileId: "p" } as ExtractionRuntimeSettings),
+    model: textModel(callExtractionModel),
     getCanon: () => "The flood took the bridge.",
     getOpenArcs: () => ["Who cut the ropes?"],
     ...(options.filterEntries ? { filterEntries: options.filterEntries } : {}),

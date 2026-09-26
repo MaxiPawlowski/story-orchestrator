@@ -17,6 +17,7 @@ export * from "./reconcile";
 export * from "./scheduler";
 export * from "./sharedRead";
 export * from "./passRole";
+export * from "./modelRoute";
 export * from "./scope";
 export * from "./tokenMeter";
 export * from "./types";

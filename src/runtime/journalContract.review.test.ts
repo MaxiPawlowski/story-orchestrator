@@ -1,3 +1,4 @@
+import { testModel } from "../../test/support/modelCallHost";
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
@@ -48,7 +49,7 @@ describe("V20e: the journal contract", () => {
       getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [] }),
       getState: () => ({ activeCheckpointId: "cp1", boundary: 3 }),
       getExtraction: () => ({ audits: [], reconciliationEvents: [], judgedReads: [] }),
-      getSettings: () => ({ profileId: "p1", enabled: true, cadence: 1 }),
+      model: testModel("p1"),
       memory: { enabled: false, capable: false, applyEntries: async () => {}, recordVerifyDrops: () => {}, applyArcSignals: () => [], applyEpistemic: () => {}, applyLedger: () => {}, updateInjection: () => {} },
       getFiredTransitions: () => [],
       getExpansionGateSources: () => [],

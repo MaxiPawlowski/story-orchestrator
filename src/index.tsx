@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import ReactDOM from "react-dom/client";
-import { bindNavbarDrawerToggle, capabilityReport, hostFacts, judgeStatus, listConnectionProfiles, readProfileContextLimit, showChoicePopup, showConfirmPopup, toggleNavbarDrawer, writeJudgeSecret, type CapabilityReport, type HostFacts } from "@services/STAPI";
+import { bindNavbarDrawerToggle, capabilityReport, hostFacts, judgeStatus, listConnectionProfiles, profileExists, readProfileContextLimit, showChoicePopup, showConfirmPopup, toggleNavbarDrawer, writeJudgeSecret, type CapabilityReport, type HostFacts } from "@services/STAPI";
 import packageJson from "../package.json";
 import { runJudgeDirectorSelfTest, type JudgeSelfTestReport } from "@judge/index";
 import { getGlobalSettings, setJudgeSettings } from "@runtime/settingsStore";
@@ -8,9 +8,10 @@ import CapabilitiesGroup from "./components/settings/CapabilitiesGroup";
 import EntryPoints from "./components/settings/EntryPoints";
 import JudgeSettingsGroup, { type JudgeSettingsGroupProps, type JudgeSettingsPatch } from "./components/settings/JudgeSettingsGroup";
 import { runModelSelfTest, type SelfTestReport } from "@runtime/selfTest";
+import { createModelCall } from "@runtime/modelCall";
 import { runRoleSelfTest } from "@runtime/roleSelfTest";
 import { roleHealth } from "@runtime/roleHealth";
-import { resolveProfile } from "@runtime/passProfiles";
+import { resolvedProfileId, resolveRoute } from "@runtime/passProfiles";
 import type { PassRole } from "@extraction/passRole";
 import { RoleProfilesGroup } from "@components/settings/RoleProfilesGroup";
 import { isArcTemplateName } from "@pacing/index";
@@ -247,6 +248,7 @@ const SettingsPanel = () => {
     setSelfTest(null);
     const report = await runModelSelfTest({
       profileId: snapshot.extraction.settings.profileId,
+      model: createModelCall({ settings: () => snapshot.extraction.settings, exists: profileExists, planted: false }),
       cancelled: () => selfTestCancelled.current,
     });
     setSelfTest(report);
@@ -259,9 +261,9 @@ const SettingsPanel = () => {
   };
 
   const testRole = async (role: PassRole) => {
-    const route = resolveProfile(snapshot.extraction.settings, role, (id) => profiles.some((profile) => profile.id === id));
+    const route = resolveRoute(snapshot.extraction.settings, role, (id) => profiles.some((profile) => profile.id === id));
     setTestingRole(role);
-    roleHealth.record(await runRoleSelfTest(role, { profileId: route.ok ? route.profileId : null }));
+    roleHealth.record(await runRoleSelfTest(role, { profileId: route.ok ? resolvedProfileId(route) : null }));
     setTestingRole(null);
   };
 
