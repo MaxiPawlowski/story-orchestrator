@@ -12,7 +12,7 @@ export interface JudgeRuntimeDeps {
   record(record: JudgeCallRecord): void;
   context(): { boundary: number; messageId: number };
   // v2.3 plan 03 (C1). Optional: a caller that supplies none keeps today behaviour.
-  ownership?: RunOwnership;
+  ownership: RunOwnership;
   now?: () => number;
 }
 
@@ -130,9 +130,9 @@ export class JudgeRuntime {
     // recorded, with the other chat's boundary, in the other chat's ring — and plan 11 builds its
     // cost and latency report out of these rings.
     const asked = this.deps.context();
-    const token = this.deps.ownership?.mint();
+    const token = this.deps.ownership.mint();
     if (!(await this.available())) {
-      const owned = token ? this.deps.ownership?.check(token) : undefined;
+      const owned = token ? this.deps.ownership.check(token) : undefined;
       if (!owned || owned.ok) this.recordFallback(use, "unavailable", request, asked);
       return { answers: null, model: null, latencyMs: 0, stateChars: JSON.stringify(request.state).length, questionCount: Object.keys(request.questions).length, fallback: "unavailable", cached: false };
     }
@@ -141,7 +141,7 @@ export class JudgeRuntime {
       cache: this.cache,
       // v2.3 plan 03: a story load, restart or chat change cancels this request in flight rather
       // than paying for an answer the token check below will refuse anyway.
-      ...(this.deps.ownership?.signal ? { signal: this.deps.ownership.signal() } : {}),
+      ...(this.deps.ownership.signal ? { signal: this.deps.ownership.signal() } : {}),
       ...(this.deps.now ? { now: this.deps.now } : {}),
     });
     if (result.fallback === "error") this.invalidateStatus();
@@ -165,7 +165,7 @@ export class JudgeRuntime {
     // silently returning null here would look like a judge failure rather than a switch. It was
     // still paid for (v2.4 plan 07): the chat that asked is charged, now if it is still open,
     // otherwise on its next recorded call in this page session.
-    const owned = token ? this.deps.ownership?.check(token) : undefined;
+    const owned = token ? this.deps.ownership.check(token) : undefined;
     if (token && owned && owned.ok === false) {
       this.charge({ ...record, discarded: owned.reason }, token.chatId);
       return { ...result, discarded: owned.reason };
@@ -176,7 +176,7 @@ export class JudgeRuntime {
   }
 
   private charge(record: JudgeCallRecord, askedIn: string | null) {
-    if (this.deps.ownership?.mint().chatId === askedIn) {
+    if (this.deps.ownership.mint().chatId === askedIn) {
       this.deps.record(record);
       return;
     }

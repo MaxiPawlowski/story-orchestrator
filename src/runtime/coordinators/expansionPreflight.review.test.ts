@@ -5,6 +5,7 @@ import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
 import type { ExpansionRuntimeState } from "@generation/index";
 import { sendConnectionProfileRequest } from "@services/STAPI";
 import { ExpansionCoordinator } from "./expansionCoordinator";
+import { testOwnership } from "../../../test/findings/testOwnership";
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -34,7 +35,7 @@ const story = parseStoryV2OrThrow({
 
 function harness() {
   const store: ExpansionRuntimeState = { entries: {}, scheduler: { queueDepth: 0, inFlight: false, lastError: null } };
-  const coordinator = new ExpansionCoordinator({
+  const coordinator = new ExpansionCoordinator({ ownership: testOwnership(),
     getStory: () => story,
     getStoryRaw: () => ({}),
     getState: () => ({ activeCheckpointId: "a", blackboard: { values: {}, versions: {}, latched: {} } }) as unknown as EngineState,

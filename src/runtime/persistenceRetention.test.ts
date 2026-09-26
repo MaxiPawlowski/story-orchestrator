@@ -1,4 +1,5 @@
 import type { PersistedStoryRuntime } from "./types";
+import { currentRecord } from "../../test/findings/currentRecord";
 
 // v2.3 plan 05. A chat keeps a bounded number of story states, and the UI promises that switching
 // stories preserves a run. The bound is therefore a promise about the chat's own state, and an
@@ -15,15 +16,7 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 import { evictedStoryNotice, getMetadataBlob, savePersistedRuntime, STORY_STATE_RETENTION } from "./persistence";
-const record = (storyId: string, updatedAt: string): PersistedStoryRuntime => ({
-  storyId,
-  storyTitle: storyId,
-  pinnedStory: {},
-  playedVersion: 1,
-  contentHashAtLoad: "h",
-  engineState: {} as never,
-  extras: { updatedAt } as never,
-});
+const record = (storyId: string, updatedAt: string): PersistedStoryRuntime => currentRecord(storyId, { storyTitle: storyId, extras: { updatedAt } }) as never;
 
 const fill = (count: number) => Array.from({ length: count }, (_, index) => record(`s${index}`, `2026-09-2${index}T00:00:00.000Z`));
 

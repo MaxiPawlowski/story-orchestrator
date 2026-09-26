@@ -13,6 +13,7 @@ import { SceneCoordinator } from "./sceneCoordinator";
 import { JudgeRuntime } from "../judge";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
 import { control, finding, must } from "../../../test/findings/ledger";
+import { testOwnership } from "../../../test/findings/testOwnership";
 
 const story = parseStoryV2OrThrow({
   format: 2,
@@ -49,7 +50,7 @@ function harness() {
     mint: (window = null) => mintToken(current, window),
     check: (token: RunToken) => tokenMatches(current, token),
   };
-  const judge = new JudgeRuntime({
+  const judge = new JudgeRuntime({ ownership: testOwnership(),
     getSettings: () => settings,
     transport: (request) => new Promise<JudgeResponse>((resolve, reject) => { pending.push({ request, resolve, reject }); }),
     status: async () => ({ configured: true }),

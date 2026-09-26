@@ -9,6 +9,7 @@ jest.mock("@services/STAPI", () => ({
 
 import { ExtractionCoordinator } from "./extractionCoordinator";
 import type { ReadOwnership } from "@extraction/index";
+import { testOwnership } from "../../../test/findings/testOwnership";
 
 function harness() {
   const writes: string[] = [];
@@ -23,7 +24,7 @@ function harness() {
     applyLedger: () => { writes.push("applyLedger"); },
     updateInjection: () => {},
   };
-  const coordinator = new ExtractionCoordinator({
+  const coordinator = new ExtractionCoordinator({ ownership: testOwnership(),
     getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3 }),
     getExtraction: () => extraction,

@@ -5,6 +5,7 @@ import {
 } from "./mirrorReaper";
 import { mirrorLorebookName } from "./memoryMirror";
 import { beginRun } from "./runToken";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 // v2.4 plan 02 T14. The reap deletes a lorebook, and ST announces a group chat's deletion before it knows
 // whether the delete worked (02-H11). Every guard below has a case that fails without it.
@@ -41,6 +42,7 @@ const harness = (world: Partial<World> = {}, patch: Partial<MirrorReaperDeps> = 
     },
     notify: () => { calls.notified += 1; },
     registry,
+    ownership: testOwnership(),
     ...patch,
   };
   return { reaper: new MirrorReaper(deps), state, calls, registry };

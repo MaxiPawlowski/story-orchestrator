@@ -104,7 +104,7 @@ const memoryState = (): MemoryRuntimeState => ({
   conflicts: [],
   resolvedConflicts: [],
   pinnedOverflow: 0,
-  legacyPinPromptSeen: false,
+  storyStart: 0,
   updatedAt: "t",
 });
 

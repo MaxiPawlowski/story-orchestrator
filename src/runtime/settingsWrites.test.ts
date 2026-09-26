@@ -4,7 +4,7 @@ import { defaultGlobalSettings, getGlobalSettings, sanitizeGlobalSettings, setGl
 import { isValidationErrorList } from "@engine/index";
 import type { LoadedStory } from "./types";
 
-// v2.4 E3 completion. The library's writes (save, removal, the read-time migration) and the settings
+// v2.4 E3 completion. The library's writes (save, removal) and the settings
 // store are extension-settings writes like the wizard sessions: `saveSettingsDebounced()` swallows its own
 // failure (H15), so each reads T8's observation of `/api/settings/save` and the server's copy (H16).
 
@@ -82,20 +82,7 @@ describe("v2.4 E3: library writes record save evidence", () => {
     await expect(heard[0].evidence).resolves.toEqual({ confirmed: true });
   });
 
-  it("the read-time migration write is observed, and confirmed only when the server holds the rekeyed records", async () => {
-    settings["story-orchestrator"] = { v2Stories: [{ hash: "h1", title: "Old", raw: { id: "old" }, importedAt: "2026-09-01T00:00:00.000Z" }] };
-    host.server = { v2Stories: [{ hash: "h1", title: "Old" }] };
-    listStoryRecords();
-    expect(heard.map(({ summary, label }) => ({ summary, label }))).toEqual([{ summary: "library migration not confirmed", label: "rekeyed records old" }]);
-    await expect(heard[0].evidence).resolves.toEqual({ confirmed: false, reason: "the server's library does not hold old" });
-    host.server = { v2Stories: root().v2Stories as unknown[] };
-    settings["story-orchestrator"] = { v2Stories: [{ hash: "h1", title: "Old", raw: { id: "old" }, importedAt: "2026-09-01T00:00:00.000Z" }] };
-    heard = [];
-    listStoryRecords();
-    await expect(heard[0].evidence).resolves.toEqual({ confirmed: true });
-  });
-
-  it("control: a library that needs no migration writes nothing and observes nothing", () => {
+  it("control: a library read writes nothing and observes nothing", () => {
     saved(story());
     heard = [];
     host.observed = 0;

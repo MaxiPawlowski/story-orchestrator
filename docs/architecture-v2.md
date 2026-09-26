@@ -62,8 +62,8 @@ src/
     turnBridge.ts           # ST events -> boundary commits / mutation rollback
     effectsApplier.ts persistence.ts storyLibrary.ts
     extras.ts               # RuntimeExtras factories/sanitizers, hydrateExtras, applyGlobalSettings/stripGlobalSettings
-    settingsStore.ts        # install-wide settings home; liftLegacyChatSettings migration
-    persistenceMigration.ts # v2 hash-keyed blob -> v3 id-keyed -> v4 (plan 05 provenance)
+    settingsStore.ts        # install-wide settings home
+    settingsRoot.ts         # the one extension-settings root, stamped schema 1 by writes (v2.5 plan 11)
     selfTest.ts snapshot.ts # model self-test over fixtures; pure snapshot readouts
     journal.ts              # SessionJournal: status/flag records, payload ring, buildSessionJournal()
     narrative.ts            # the one composed player "where am I" view (drawer, away popup, /story)
@@ -282,8 +282,8 @@ already skips unchanged content.
   that only a second consecutive run exposed (a chat-scoped cache bug and a 0-op curator proposal).
 - **Nondeterminism belongs in the checks, never in a mock**: `wait: {talkDecisions}` waits for the
   signal instead of reading at `idle`; `stagecraft: {expectOps, attempts}` re-asks the curator when a
-  small model formats every line unparseably; migration gates use `seed_metadata: {file}` so they run
-  over a blob captured from a real pre-v2.1 chat rather than one synthesized from live state.
+  small model formats every line unparseably; unreadable-path gates use `seed_metadata: {file|blob}` so
+  they run over a blob this build never wrote rather than one synthesized from live state.
 - **Session journal**: `runtime/journal.ts` merges the persisted rings (boundary log, transitions,
   extraction audits + accepted deltas, reconciliation, payload captures, talk decisions) with
   status transitions and player ⚑ flags into one ordered timeline. Only status/flag records are

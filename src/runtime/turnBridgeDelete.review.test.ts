@@ -1,5 +1,6 @@
 import { TurnBridge } from "./turnBridge";
 import type { RuntimeManager } from "./runtimeManager";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 // v2.4 plan 01 T1. ST emits MESSAGE_DELETED with the post-delete chat.length (host-facts 01-H1), so the
 // bridge has to decode which message went from the chat it saw before. These cases pin the three
@@ -42,7 +43,7 @@ function harness() {
     loadSelectedFromChat: jest.fn(async () => undefined),
     reapplyPromptBlocks: jest.fn(),
     reapplyCopilotNudge: jest.fn(),
-    getOwnership: () => undefined,
+    getOwnership: () => testOwnership(),
     notify: jest.fn(),
   };
   new TurnBridge(manager as unknown as RuntimeManager).start();

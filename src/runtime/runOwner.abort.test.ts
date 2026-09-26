@@ -1,5 +1,6 @@
 import { RunOwner } from "./runOwner";
 import { beginRun } from "./runToken";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 const owner = (chat = "chat-a") => {
   const deps = { chat };
@@ -76,7 +77,7 @@ describe("RunOwner aborts the host request of a run the mutation invalidates (v2
   });
 
   it("an unowned run carries a signal that never aborts", () => {
-    const run = beginRun(undefined, { from: 0, to: 1 });
+    const run = beginRun(testOwnership(), { from: 0, to: 1 });
     expect(run.signal.aborted).toBe(false);
     expect(() => run.release()).not.toThrow();
   });

@@ -1,9 +1,9 @@
 import { getContext, saveOpenChat, type SaveObservation } from "@services/STAPI";
-import { migrateMetadataBlob, migrateV3ToV4 } from "./persistenceMigration";
-import { listStoryRecords } from "./storyLibrary";
 import type { PersistedStoryRuntime, StoryOrchestratorMetadataBlob } from "./types";
 
 const METADATA_KEY = "story_orchestrator";
+
+export const BLOB_VERSION = 5;
 
 // Keep the selected story plus the most recent others; a pinned copy is ~17 KB, so an unbounded
 // map would grow chat_metadata without limit.
@@ -37,7 +37,9 @@ const saveChatWrite = (kind: ChatWriteKind) => {
   });
 };
 
-const createBlob = (): StoryOrchestratorMetadataBlob => ({ version: 4, chatId: openChatId(), selectedStoryId: null, stories: {} });
+const createBlob = (chatId: string): StoryOrchestratorMetadataBlob => ({ version: BLOB_VERSION, chatId, selectedStoryId: null, stories: {} });
+
+const detachedBlob = (): StoryOrchestratorMetadataBlob => createBlob(openChatId() ?? "");
 
 /**
  * v2.3 plan 03. A blob stamped for another chat is not this chat's to read.
@@ -52,7 +54,7 @@ const createBlob = (): StoryOrchestratorMetadataBlob => ({ version: 4, chatId: o
  * whatever metadata object was open erased the other chat's run. Automatic writes into a foreign
  * blob are refused; an explicit selection adopts it (`adoptChatState`, from `selectStory`), and a rename re-stamps it.
  */
-const belongsHere = (blob: StoryOrchestratorMetadataBlob): boolean => blob.chatId === null || blob.chatId === openChatId();
+const belongsHere = (blob: StoryOrchestratorMetadataBlob): boolean => blob.chatId === openChatId();
 
 export type BlobMismatch =
   | { kind: "foreign"; stampedFor: string; openChat: string | null }
@@ -62,11 +64,24 @@ let mismatch: BlobMismatch | null = null;
 
 export const blobMismatch = (): BlobMismatch | null => mismatch;
 
-const KNOWN_VERSIONS: unknown[] = [2, 3, 4];
+const KNOWN_VERSIONS: unknown[] = [BLOB_VERSION];
 
 const storedValue = (): unknown => (getContext().chatMetadata as Record<string, unknown>)[METADATA_KEY];
 
-const recognized = (value: unknown): value is Record<string, unknown> => isRecord(value) && KNOWN_VERSIONS.includes(value.version) && isRecord(value.stories);
+const ENGINE_NUMBERS = ["boundary", "checkpointStartedBoundary", "checkpointStartedAt", "checkpointStartedMessageId", "lastMessageId", "chatLength"];
+
+const isEngineState = (value: unknown): boolean => isRecord(value) && typeof value.activeCheckpointId === "string" && isRecord(value.blackboard)
+  && Array.isArray(value.visitedAnchors) && Array.isArray(value.visitedPath) && ENGINE_NUMBERS.every((key) => typeof value[key] === "number" && Number.isFinite(value[key]));
+
+const isEngineHistory = (value: unknown): boolean => isRecord(value) && isRecord(value.from) && isEngineState(value.base) && Array.isArray(value.log);
+
+/** v2.5 plan 11: a stored record is this build's only when every field this build requires is there,
+ *  so "required" holds on disk and not only in the type. */
+export const isCurrentRecord = (value: unknown): boolean => isRecord(value) && isEngineState(value.engineState) && isEngineHistory(value.engineHistory)
+  && isRecord(value.pinnedStory) && isRecord(value.extras);
+
+const recognized = (value: unknown): value is Record<string, unknown> => isRecord(value) && KNOWN_VERSIONS.includes(value.version) && typeof value.chatId === "string" && Boolean(value.chatId)
+  && isRecord(value.stories) && Object.values(value.stories).every(isCurrentRecord);
 
 const unrecognized = (value: unknown): boolean => value !== undefined && value !== null && !recognized(value);
 
@@ -81,23 +96,11 @@ export const describeMismatch = (found: BlobMismatch): string => (found.kind ===
 
 export type UnreadableBlob = Extract<BlobMismatch, { kind: "unreadable" }>;
 
-export const unreadableNotice = (found: UnreadableBlob): string => (typeof found.foundVersion === "number" && found.foundVersion > 4
-  ? `saved by a newer Story Orchestrator (v${found.foundVersion}): update, or Restart to replace it`
-  : `${describeMismatch(found)}: Restart to replace it`);
+export const UNREADABLE_NOTICE = "saved by another version of Story Orchestrator: Restart to replace it";
 
 const storedBlob = (): StoryOrchestratorMetadataBlob | null => {
-  const metadata = getContext().chatMetadata as Record<string, unknown>;
   const existing = storedValue();
-  if (!recognized(existing)) return null;
-  const current = existing.version === 4
-    ? (existing as unknown as StoryOrchestratorMetadataBlob)
-    // v3 is one step behind: it has the right shape and only wants the stamp. v2 and earlier go
-    // through the full migration, which ends by calling migrateV3ToV4 itself.
-    : existing.version === 3
-      ? migrateV3ToV4(existing as unknown as { selectedStoryId: string | null; stories: StoryOrchestratorMetadataBlob["stories"] })
-      : migrateMetadataBlob(existing, listStoryRecords());
-  if (current && belongsHere(current)) metadata[METADATA_KEY] = current;
-  return current;
+  return recognized(existing) ? existing as unknown as StoryOrchestratorMetadataBlob : null;
 };
 
 const noteMismatch = (next: BlobMismatch) => {
@@ -115,26 +118,27 @@ export function getMetadataBlob(): StoryOrchestratorMetadataBlob {
     return current;
   }
   if (current) {
-    noteMismatch({ kind: "foreign", stampedFor: String(current.chatId), openChat: openChatId() });
-    return createBlob();
+    noteMismatch({ kind: "foreign", stampedFor: current.chatId, openChat: openChatId() });
+    return detachedBlob();
   }
   const existing = storedValue();
   if (unrecognized(existing)) {
     noteMismatch({ kind: "unreadable", foundVersion: foundVersionOf(existing), openChat: openChatId() });
-    return createBlob();
+    return detachedBlob();
   }
   mismatch = null;
-  const blob = createBlob();
+  const chatId = openChatId();
+  if (chatId === null) return detachedBlob();
+  const blob = createBlob(chatId);
   (getContext().chatMetadata as Record<string, unknown>)[METADATA_KEY] = blob;
   return blob;
 }
 
-/** v2.4 plan 02 §3: the boundary the stored copy holds for the story it selects, read without adopting,
- *  migrating or stamping anything. Null when the copy is not this chat's, selects another story, or
- *  holds none. */
+/** v2.4 plan 02 §3: the boundary the stored copy holds for the story it selects, read without adopting
+ *  or stamping anything. Null when the copy is not this chat's, selects another story, or holds none. */
 export const storedBoundaryFor = (storyId: string): number | null => {
   const existing = storedValue();
-  if (!recognized(existing) || existing.version !== 4 || existing.chatId !== openChatId() || existing.selectedStoryId !== storyId) return null;
+  if (!recognized(existing) || existing.chatId !== openChatId() || existing.selectedStoryId !== storyId) return null;
   const boundary = (existing.stories as Record<string, Partial<PersistedStoryRuntime>>)[storyId]?.engineState?.boundary;
   return typeof boundary === "number" ? boundary : null;
 };
@@ -146,6 +150,7 @@ export const unreadableStored = (): UnreadableBlob | null => {
 
 const ownBlob = (write: string): StoryOrchestratorMetadataBlob | null => {
   const blob = getMetadataBlob();
+  if (openChatId() === null) return null;
   if (!mismatch) return blob;
   console.warn(`[Story Orchestrator] ${write} refused: this chat's metadata holds state ${describeMismatch(mismatch)}`);
   return null;
@@ -158,7 +163,9 @@ export const adoptChatState = (): boolean => {
   const current = storedBlob();
   if (!current) return !unrecognized(storedValue());
   if (belongsHere(current)) return true;
-  current.chatId = openChatId();
+  const chatId = openChatId();
+  if (chatId === null) return false;
+  current.chatId = chatId;
   const integrity = openChatIntegrity();
   if (integrity) current.integrity = integrity;
   (getContext().chatMetadata as Record<string, unknown>)[METADATA_KEY] = current;
@@ -167,9 +174,10 @@ export const adoptChatState = (): boolean => {
 };
 
 export function replaceUnreadableBlob(): boolean {
-  if (!unrecognized(storedValue())) return false;
+  const chatId = openChatId();
+  if (chatId === null || !unrecognized(storedValue())) return false;
   mismatch = null;
-  (getContext().chatMetadata as Record<string, unknown>)[METADATA_KEY] = createBlob();
+  (getContext().chatMetadata as Record<string, unknown>)[METADATA_KEY] = createBlob(chatId);
   saveChatWrite("replace");
   return true;
 }
@@ -234,19 +242,11 @@ export const openChatIntegrity = (): string | null => {
   return typeof integrity === "string" && integrity ? integrity : null;
 };
 
-export function savePersistedRuntime(record: PersistedStoryRuntime, onRestamp?: (from: string, to: string) => void): string[] {
+export function savePersistedRuntime(record: PersistedStoryRuntime): string[] {
   const blob = ownBlob("saving story state");
   if (!blob) return [];
-  // An unstamped blob (written before v4, or migrated from v3 where the chat could not be
-  // recovered) takes the open chat's id the first time this chat writes to it.
-  if (blob.chatId === null) blob.chatId = openChatId();
-  // v2.4 plan 02: a blob that belongs here but carries another integrity was adopted by a build that
-  // restamps the chat id only. It is this chat's, so it is restamped, never read as foreign.
   const integrity = openChatIntegrity();
-  if (integrity !== null && blob.integrity !== integrity) {
-    if (typeof blob.integrity === "string" && blob.integrity) onRestamp?.(blob.integrity, integrity);
-    blob.integrity = integrity;
-  }
+  if (integrity !== null) blob.integrity = integrity;
   blob.stories[record.storyId] = record;
   blob.selectedStoryId = record.storyId;
   return gcStories(blob);

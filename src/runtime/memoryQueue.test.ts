@@ -54,7 +54,6 @@ const state = (patch: Partial<MemoryRuntimeState> = {}): MemoryRuntimeState => (
   conflicts: [],
   resolvedConflicts: [],
   pinnedOverflow: 0,
-  legacyPinPromptSeen: false,
   updatedAt: "t",
   ...patch,
 });

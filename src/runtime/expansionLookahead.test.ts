@@ -3,6 +3,7 @@ import type { ExpansionCacheEntry, ExpansionRuntimeState } from "@generation/ind
 import { defaultJudgeSettings, type JudgeSettings, type SceneReadRecord } from "@judge/index";
 import { ExpansionCoordinator } from "./coordinators/expansionCoordinator";
 import { JudgeRuntime } from "./judge";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -43,7 +44,7 @@ const setup = (options: { lookahead?: boolean; scene?: SceneReadRecord | null; e
   const scheduled: string[] = [];
   const replaced: unknown[] = [];
   let persisted = 0;
-  const coordinator = new ExpansionCoordinator({
+  const coordinator = new ExpansionCoordinator({ ownership: testOwnership(),
     getStory: () => story,
     getStoryRaw: () => RAW,
     getState: () => ({ activeCheckpointId: "a", blackboard: { values: {}, versions: {}, latched: {} } }) as unknown as EngineState,

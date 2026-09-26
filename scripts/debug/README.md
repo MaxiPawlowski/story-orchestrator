@@ -51,7 +51,7 @@ Playwright MCP is configured via the repo `.mcp.json` (`npx @playwright/mcp@late
 | `so-assets.mts` | `list`, `remove`, `assert-clean` `[--marker <prefix>]` — the ST assets a wizard run created (marker + the `applied` ledger of test sessions only — marker-keyed, or recorded since a journey's baseline); a real author's sessions and assets are never touched |
 | `so-responsive.mts` | `[--surface drawer\|settings\|studio\|all]` — 24 viewports from 320×568 to 2560×1440 against the live page; reports our roots' horizontal overflow and any `[data-so]` control outside the viewport; **needs no backend**, exits 1 on a finding, restores the original viewport |
 | `so-copilot.mts` | `context`, `suggest [--debug j]`, `report [--debug j]`, `nudge <text>`, `clear-nudge`, `probe [--debug d]`, `advance <id>`, `stage <stage> [--message m] [--debug j]` |
-| `so-library.mts` | library summary (id + version), `<id\|hash>` detail, `remove <id\|hash\|title>`, `wipe-chat-meta [--hash h]`, `--legacy` |
+| `so-library.mts` | library summary (id + version), `<id>` detail, `remove <id\|title>`, `wipe-chat-meta [--id i]` |
 | `so-judge.mts` | `status \| ask <request.json> \| calibrate [--use director] [--min 0.85] [--record] \| calls [--last 20]` — v2.2 judge: plugin status (key source, never the key), one request through the plugin, fixture calibration page → plugin → TypeSafe, the chat's judge call ring. Needs `npm run plugin:install` + `enableServerPlugins: true` |
 | `so-live-suite.mts` | `run [--min 0.9] [--filter <substr>] [--record]` — real-model delta accuracy over `test/fixtures/extractor*` triples; exact-match on `{q,v}` |
 | `st-search.mts` | ST host source search, `--context-exports`, `--event-types`, `--endpoints` |
@@ -75,10 +75,10 @@ Supported steps: `import_story`, `seed_metadata`, `select_story`, `restart_story
 
 `delete` is the **tail-truncate** shape: it cuts the chat at the id (everything from it onward goes) and emits `MESSAGE_DELETED`, so it only ever reproduces a delete of the LAST rows. A delete from the middle of the chat is `host_delete: <id|"last">` (ST's own `deleteMessage`), and a range is `cut: "a-b"` (`/cut`).
 
-`seed_metadata` writes a captured `chat_metadata.story_orchestrator` blob into the sandbox chat
-verbatim and hydrates it (`{ "seed_metadata": { "file": "../fixtures/legacy-v2-chat-blob.json" } }`) —
-a migration gate has to run over bytes this build never wrote, not over state built from the live
-snapshot.
+`seed_metadata` writes a `chat_metadata.story_orchestrator` blob into the sandbox chat verbatim and
+hydrates it (`{ "seed_metadata": { "blob": { "version": 4, "chatId": "c1", "selectedStoryId": "s1", "stories": {} } } }`,
+or `{ "file": … }`) — an unreadable-path gate has to run over bytes this build never wrote, not over state
+built from the live snapshot.
 
 `send_generate` also takes `{ "text": "...", "timeoutMs": 300000 }` — group turns on a local model regularly need minutes.
 

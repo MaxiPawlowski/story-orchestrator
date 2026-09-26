@@ -2,6 +2,7 @@ import { defaultJudgeSettings, type JudgeRequest, type JudgeResponse, type Judge
 import type { ReconciliationPlan } from "@extraction/index";
 import { JudgeRuntime } from "./judge";
 import { RuntimeManager } from "./runtimeManager";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 const mockContext = {
   chat: [] as Array<{ mes: string; name?: string; is_user?: boolean }>,
@@ -73,7 +74,7 @@ const setup = async (uses: Partial<JudgeSettings["uses"]>, answer: (request: Jud
   const transport = jest.fn<ReturnType<JudgeTransport>, Parameters<JudgeTransport>>(async (request) => answer(request));
   const manager = new RuntimeManager();
   const uses_: string[] = [];
-  manager.attachJudge(new JudgeRuntime({ getSettings: () => settings, transport, status: async () => ({ configured: true }), record: (record) => { uses_.push(record.use); manager.recordJudgeCall(record); }, context: () => ({ boundary: 0, messageId: mockContext.chat.length - 1 }) }));
+  manager.attachJudge(new JudgeRuntime({ ownership: testOwnership(), getSettings: () => settings, transport, status: async () => ({ configured: true }), record: (record) => { uses_.push(record.use); manager.recordJudgeCall(record); }, context: () => ({ boundary: 0, messageId: mockContext.chat.length - 1 }) }));
   await manager.importStory(JSON.stringify(story));
   return { manager, transport, records: uses_ };
 };

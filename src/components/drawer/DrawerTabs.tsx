@@ -179,14 +179,9 @@ const BlackboardTab = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
   </div>
 );
 
-// v2.3 plan 05: an envelope that came from before this build says so as an UNKNOWN, never as a
-// source it does not have — the rule lives in @memory/provenance, so this panel and the conflict
-// queue cannot drift apart on it. The title carries the long form, and its message when it has one.
-const originTitle = (entry: MemoryEntry): string => !entry.provenance
-  ? "this row came from before envelopes were recorded"
-  : entry.provenance.source === "legacy"
-    ? "this chat was saved before envelopes were recorded, so where this row came from is not known"
-    : describeProvenance(entry);
+// v2.3 plan 05: the rule lives in @memory/provenance, so this panel and the conflict queue cannot
+// drift apart on it. The title carries the long form, and its message when it has one.
+const originTitle = (entry: MemoryEntry): string => describeProvenance(entry);
 
 // v2.3 plan 09: past this many rows a list stops being readable and starts being scrolled. Below it
 // the controls would be chrome, so they appear with the volume that needs them.
@@ -210,10 +205,6 @@ const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapshot: Run
     .filter((entry) => !needle || entry.text.toLowerCase().includes(needle) || (entry.characterId ?? "").toLowerCase().includes(needle));
   const toggleTier = (tier: MemoryTier) => setHiddenTiers((current) => (current.includes(tier) ? current.filter((candidate) => candidate !== tier) : [...current, tier]));
   const lastAudit = snapshot.extraction.audits[snapshot.extraction.audits.length - 1];
-  // v2.3 plan 05 (M5/M6): a row an older chat pinned has only a LEGACY envelope — the sanitizer
-  // stamps every hydrated row so "no envelope" never means "not live" — so the question is asked of
-  // the source, not of the envelope's absence.
-  const legacyPins = snapshot.memory.entries.filter((entry) => entry.pinned && entry.provenance?.source === "legacy");
 
   // v2.3 plan 05: the warden's card cites the fact a reply broke, so the author can be taken to it.
   // The highlight is transient on purpose — it says "this one", not "this one is special".
@@ -253,17 +244,6 @@ const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapshot: Run
       {(snapshot.memory.pinnedOverflow ?? 0) > 0 && (
         <div id="so-pinned-overflow" className="text-amber-300">
           {snapshot.memory.pinnedOverflow} pinned {snapshot.memory.pinnedOverflow === 1 ? "entry" : "entries"} did not fit this tier's budget — unpin or trim them, or raise the budget.
-        </div>
-      )}
-      {legacyPins.length > 0 && !snapshot.memory.legacyPinPromptSeen && (
-        <div id="so-legacy-pins" data-so="legacy-pins" className="border border-solid border-white/20 mt-1 p-1">
-          <div>{legacyPins.length} {legacyPins.length === 1 ? "fact was" : "facts were"} pinned in an earlier chat, before pins were told apart from locks. A pin only protects a fact from being trimmed; a lock also stops a later pass retiring it.</div>
-          <div className="flex gap-2 mt-1">
-            <button className="menu_button" data-so="legacy-keep-pins" onClick={() => void manager.memoryActions.dismissLegacyPinPrompt()}>Keep them as pins</button>
-            {legacyPins.slice(0, 3).map((entry) => (
-              <button key={entry.id} className="menu_button" data-so="legacy-lock" title={entry.text} onClick={() => void manager.memoryActions.setMemoryLocked(entry.id, true)}>Lock “{entry.text.slice(0, 24)}”</button>
-            ))}
-          </div>
         </div>
       )}
       {authorView && <ConflictQueue snapshot={snapshot} manager={manager} />}
@@ -342,8 +322,6 @@ const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapshot: Run
                       {authorView && entry.foldedInto && <span title={`folded into ${entry.foldedInto}`}>🗜 folded</span>}
                       {authorView && entry.contradicted && !entry.supersededBy && <span>⚠ contradicted</span>}
                       {authorView && entry.recallCount > 0 && <span>recall {entry.recallCount}</span>}
-                      {/* v2.3 plan 05: a legacy envelope is a STATED unknown, not a read — showing "legacy"
-                          would dress it as an extractor source the row never had. */}
                       {authorView && <span data-so="memory-origin" title={originTitle(entry)}>{originLabel(entry.provenance)}</span>}
                       {authorView && <MessageCitation messageId={entry.provenance?.messageId} />}
                       {authorView && snapshot.memoryInjection?.fates[entry.id] && <span data-so="memory-fate" data-fate={snapshot.memoryInjection.fates[entry.id]}>{FATE_LABELS[snapshot.memoryInjection.fates[entry.id]]}</span>}

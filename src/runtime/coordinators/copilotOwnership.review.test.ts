@@ -59,7 +59,7 @@ function harness() {
     ownership,
     // R8: the fixture's story owns its book through the wizard session ledger, which is the only
     // thing that grants write authority — `requirements.lorebooks` is a dependency, not a licence.
-    wizardSession: () => ({ key: "ownership-story", stage: "provisioning", history: [], questions: [], applied: ["Story Book"], seed: "", updatedAt: "" }),
+    wizardSession: () => ({ key: "ownership-story", stage: "provisioning", history: [], questions: [], applied: ["Story Book"], createdLorebooks: ["Story Book"], seed: "", updatedAt: "" }),
     saveWizardSession: () => {},
   });
   return {

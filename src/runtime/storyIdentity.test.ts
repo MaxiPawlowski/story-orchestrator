@@ -89,10 +89,28 @@ describe("story identity", () => {
     expect(listStoryRecords()[0]).toMatchObject({ id: "sun-ruins", version: 1 });
   });
 
-  it("falls back to a stable legacy id when the story has none", async () => {
+  it("an id-less story takes its title's slug, written into the stored copy", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(storyJson({ id: undefined }));
-    expect(manager.getSnapshot().storyId).toBe(`legacy-${manager.getSnapshot().storyHash}`);
+    expect(manager.getSnapshot().storyId).toBe("quest-for-the-sun-ruins");
+    expect(listStoryRecords()[0].raw.id).toBe("quest-for-the-sun-ruins");
+  });
+
+  it("A7: the same id-less story imported twice is one record, and edited content is that record at version+1", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(storyJson({ id: undefined }));
+    await manager.importStory(storyJson({ id: undefined }));
+    expect(listStoryRecords().map((record) => [record.id, record.version])).toEqual([["quest-for-the-sun-ruins", 1]]);
+    await manager.importStory(storyJson({ id: undefined, description: "Rewritten." }));
+    expect(listStoryRecords().map((record) => [record.id, record.version])).toEqual([["quest-for-the-sun-ruins", 2]]);
+  });
+
+  it("control: a different title is a second record, and an id-carrying import keeps its id", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(storyJson({ id: undefined }));
+    await manager.importStory(storyJson({ id: undefined, title: "Another Road" }));
+    await manager.importStory(storyJson());
+    expect(listStoryRecords().map((record) => record.id).sort()).toEqual(["another-road", "quest-for-the-sun-ruins", "sun-ruins"]);
   });
 
   it("rejects a malformed id instead of silently rewriting it", async () => {
@@ -230,31 +248,18 @@ describe("settings homes", () => {
     expect(second.getSnapshot().pacing.shapeOverride).toBeNull();
   });
 
-  it("lifts a pre-v2.1 chat's settings into the install once", async () => {
-    mockContext.chatMetadata = {
-      story_orchestrator: {
-        version: 2,
-        selectedStoryHash: "v2-old",
-        stories: {
-          "v2-old": {
-            storyHash: "v2-old",
-            storyTitle: "Quest for the Sun Ruins",
-            engineState: null,
-            extras: {
-              extraction: { settings: { enabled: true, profileId: "legacy-profile", cadence: 7, reconciliationMultiplier: 2, stabilityLag: 1 }, audits: [], reconciliationEvents: [], lastReadBoundary: 0, scheduler: { queueDepth: 0, inFlight: false, lastError: null } },
-              ui: { authorView: true, announceTransitions: false, hudEnabled: true },
-              updatedAt: "2026-08-01T00:00:00.000Z",
-            },
-          },
-        },
-      },
-    };
-    const manager = new RuntimeManager();
-    await manager.importStory(storyJson());
-    await manager.loadSelectedFromChat();
+  it("a chat's per-chat settings are ignored: the install's settings win and are not rewritten", async () => {
+    const first = new RuntimeManager();
+    await first.importStory(storyJson());
+    const extras = blob().stories["sun-ruins"].extras as unknown as Record<string, Record<string, unknown>>;
+    extras.extraction = { ...extras.extraction, settings: { enabled: true, profileId: "chat-profile", cadence: 7, reconciliationMultiplier: 2, stabilityLag: 1 } };
+    extras.ui = { authorView: true, announceTransitions: false, hudEnabled: false };
+    const install = JSON.stringify(getGlobalSettings());
 
-    expect(getGlobalSettings().extraction).toMatchObject({ profileId: "legacy-profile", cadence: 7 });
-    expect(getGlobalSettings().display.announceTransitions).toBe(false);
-    expect(getGlobalSettings().migratedFromChat).toBeTruthy();
+    const second = new RuntimeManager();
+    await second.selectStory("sun-ruins");
+    expect(second.getSnapshot().extraction.settings).toMatchObject({ profileId: null, cadence: 3 });
+    expect(second.getSnapshot().ui).toMatchObject({ authorView: true, announceTransitions: true, hudEnabled: true });
+    expect(JSON.stringify(getGlobalSettings())).toBe(install);
   });
 });

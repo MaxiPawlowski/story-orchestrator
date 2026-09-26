@@ -12,6 +12,7 @@ import type { ConflictPair, LedgerView, MemoryEntry } from "@memory/index";
 import { provenance } from "@memory/provenance";
 import { createWardenCheck, establishedFacts } from "./continuity";
 import { JudgeRuntime } from "./judge";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 const fact = (id: string, text: string, patch: Partial<MemoryEntry> = {}): MemoryEntry => ({
   id, tier: "facts", text, type: "event", importance: 2, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: "", createdAt: 1, recallCount: 0, ...patch,
@@ -49,7 +50,7 @@ describe("continuity check (v2.2 plan 05)", () => {
   const setup = (options: { enabled?: boolean; p?: number[] } = {}) => {
     const settings: JudgeSettings = { ...defaultJudgeSettings(), enabled: options.enabled ?? true };
     const requests: JudgeRequest[] = [];
-    const judge = new JudgeRuntime({
+    const judge = new JudgeRuntime({ ownership: testOwnership(),
       getSettings: () => settings,
       transport: async (request) => {
         requests.push(request);

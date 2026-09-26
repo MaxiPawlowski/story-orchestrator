@@ -40,17 +40,16 @@ describe("wizardSessions (R8)", () => {
     expect(loadWizardSession("sun-ruins")?.grants).toEqual([]);
   });
 
-  // V18: a session first stored now records which of its assets are books; a UI snapshot, which
-  // carries no such list, must not erase it; a session stored before it stays without one.
-  it("stores a new session with an empty book list, keeps the list through a UI snapshot, and leaves a legacy session without one", () => {
+  // V18: a session records which of its assets are books; a UI snapshot, which carries no such list,
+  // must not erase it; a stored session without one reads as owning no book.
+  it("stores a new session with an empty book list, keeps the list through a UI snapshot, and reads a stored session without one as an empty list", () => {
     saveWizardSession(session());
     expect(loadWizardSession("sun-ruins")?.createdLorebooks).toEqual([]);
     saveWizardSession(session({ createdLorebooks: ["Harbour"] }));
     saveWizardSession(session({ stage: "checkpoints" }));
     expect(loadWizardSession("sun-ruins")?.createdLorebooks).toEqual(["Harbour"]);
-    settings["story-orchestrator"] = { wizardSessions: [session({ key: "legacy", applied: ["Harbour"] })] };
-    saveWizardSession(session({ key: "legacy", stage: "checkpoints", applied: ["Harbour"] }));
-    expect(loadWizardSession("legacy")?.createdLorebooks).toBeUndefined();
+    settings["story-orchestrator"] = { wizardSessions: [{ ...session({ key: "listless", applied: ["Harbour"] }), createdLorebooks: undefined }] };
+    expect(loadWizardSession("listless")?.createdLorebooks).toEqual([]);
   });
 
   it("keeps sessions of other keys untouched", () => {

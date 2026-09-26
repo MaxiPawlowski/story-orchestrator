@@ -2,6 +2,7 @@ import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
 import { createJudgeRuntime, defaultJudgeSettings, dropJudgeCallsAfter, type JudgeAnswer, type JudgeRequest, type JudgeSettings, type SceneReadRecord } from "@judge/index";
 import { reachableFrom, SceneCoordinator, SCENE_JUDGE_READ_REASON } from "./coordinators/sceneCoordinator";
 import { JudgeRuntime } from "./judge";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 const story = parseStoryV2OrThrow({
   format: 2,
@@ -38,7 +39,7 @@ const setup = (uses: Partial<JudgeSettings["uses"]>, breakP = 0.82) => {
   const settings: JudgeSettings = { ...defaultJudgeSettings(), enabled: true, uses: { ...defaultJudgeSettings().uses, ...uses } };
   const requests: JudgeRequest[] = [];
   const calls: string[] = [];
-  const judge = new JudgeRuntime({
+  const judge = new JudgeRuntime({ ownership: testOwnership(),
     getSettings: () => settings,
     transport: async (request) => {
       requests.push(request);
@@ -52,7 +53,7 @@ const setup = (uses: Partial<JudgeSettings["uses"]>, breakP = 0.82) => {
   let judgeState = createJudgeRuntime();
   const injected: Array<string | null> = [];
   const scheduled: string[] = [];
-  const scene = new SceneCoordinator({
+  const scene = new SceneCoordinator({ ownership: testOwnership(),
     judge: () => judge,
     getStory: () => story,
     getState: () => state,
@@ -147,7 +148,7 @@ describe("SceneCoordinator (v2.2 plan 03)", () => {
   it("a story that switches the block off keeps the read but injects nothing", async () => {
     const env = setup({ sceneTracker: true });
     const withoutBlock = { ...story, scene_read: { inject: false } };
-    const scene = new SceneCoordinator({ ...(env.scene as unknown as { deps: ConstructorParameters<typeof SceneCoordinator>[0] }).deps, getStory: () => withoutBlock });
+    const scene = new SceneCoordinator({ ownership: testOwnership(), ...(env.scene as unknown as { deps: ConstructorParameters<typeof SceneCoordinator>[0] }).deps, getStory: () => withoutBlock });
     const record: SceneReadRecord | null = await scene.run({ boundary: 3, messageId: 9, heuristicFired: false, scheduleRead: () => undefined });
     expect(record?.facts.location).toBe("desert road");
     expect(env.injected).toEqual([]);

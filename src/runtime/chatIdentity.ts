@@ -1,6 +1,6 @@
 import { executeSlashCommands, getContext, unbindChatLorebook } from "@services/STAPI";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
-import { adoptChatState, openChatIntegrity, storedBoundaryFor } from "./persistence";
+import { adoptChatState, BLOB_VERSION, openChatIntegrity, storedBoundaryFor } from "./persistence";
 import { beginRun, type RunContext, type RunGuard, type RunOwnership } from "./runToken";
 
 // v2.4 plan 02 §3. ST re-reads a chat it already has open (`reloadCurrentChat`: `/persona-sync`, a
@@ -106,7 +106,7 @@ const mirrorBookOf = (selected: Record<string, unknown>): string | null => {
 export function classifyStoredIdentity(input: StoredIdentityInput): StoredIdentity | null {
   const blob = recordOf(input.blob);
   const stampedFor = blob?.chatId;
-  if (!blob || blob.version !== 4 || typeof stampedFor !== "string" || !stampedFor || !input.openChat || stampedFor === input.openChat) return null;
+  if (!blob || blob.version !== BLOB_VERSION || typeof stampedFor !== "string" || !stampedFor || !input.openChat || stampedFor === input.openChat) return null;
   const storyId = typeof blob.selectedStoryId === "string" && blob.selectedStoryId ? blob.selectedStoryId : null;
   const selected = storyId ? recordOf(recordOf(blob.stories)?.[storyId]) : null;
   const stamped = typeof blob.integrity === "string" && blob.integrity ? blob.integrity : null;

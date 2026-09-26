@@ -7,6 +7,7 @@ import { parseStoryV2OrThrow } from "@engine/index";
 import { CopilotCoordinator } from "@runtime/coordinators/copilotCoordinator";
 import { upsertWIEntry } from "@services/STAPI";
 import { control, finding, must } from "../../test/findings/ledger";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -36,7 +37,7 @@ const story = () => parseStoryV2OrThrow({
   roster: [],
 });
 
-const coordinator = (storyValue: ReturnType<typeof story>) => new CopilotCoordinator({
+const coordinator = (storyValue: ReturnType<typeof story>) => new CopilotCoordinator({ ownership: testOwnership(),
   getStory: () => storyValue,
   getState: () => null,
   getSettings: () => ({}) as never,

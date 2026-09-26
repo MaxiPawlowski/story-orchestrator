@@ -219,8 +219,7 @@ register), so plan 08's Evidence column writes itself.
 | J10.5 | auto | U2 | Deleting the library record leaves the running chat playable from its pinned copy |
 | J10.6 | auto | U1 I3 | A brand-new chat on a configured install plays immediately, with no per-chat setup |
 | J10.7 | auto | U2 | Restart is the only reset, and it re-pins the latest library version |
-| J10.8 | auto | I3 | A pre-v2.1 (hash-keyed) chat blob migrates to id-keyed state with the story pinned |
-| J10.11 | auto | I3 | The same migration over a blob **captured verbatim from a real pre-v2.1 chat** (`test/fixtures/legacy-v2-chat-blob.json`, provenance recorded in the file): both stories survive, keys are id-keyed, and checkpoint / boundary / blackboard values are unchanged |
+| J10.15 | auto | T11 | A v4 blob (the format before v5) shows the one unreadable notice, refuses a selection with its bytes kept; a confirmed Restart writes a v5 blob, and a real turn saves `engineHistory`, `visitedPath` and `pinnedStory` (v2.5 plan 11; J10.8 and J10.11, the v2 migration checks, were deleted with the migration) |
 | J10.9 | human | U6 | "Was it clear which settings apply to every chat and which only to this one?" |
 | J10.10 | human | U6 | "Did the memory-model self-test tell you something you could act on?" |
 

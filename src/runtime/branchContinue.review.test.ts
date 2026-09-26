@@ -2,6 +2,7 @@ import { RuntimeManager } from "./runtimeManager";
 import { TurnBridge } from "./turnBridge";
 import { branchFromOldest, classifyStoredIdentity, continueFromBranch, loadAtStartup, unbindBranchMirror, type StoredIdentityInput } from "./chatIdentity";
 import { beginRun } from "./runToken";
+import { BLOB_VERSION } from "./persistence";
 import { executeSlashCommands, unbindChatLorebook } from "@services/STAPI";
 import type { StoryOrchestratorMetadataBlob } from "./types";
 
@@ -131,7 +132,7 @@ beforeEach(() => {
 });
 
 describe("v2.4 plan 02 §5: classifyStoredIdentity", () => {
-  const parentBlob = { version: 4, chatId: "chat-a", integrity: "i-a", selectedStoryId: "s", stories: { s: { engineState: { activeCheckpointId: "cp2" }, pinnedStory: { checkpoints: [{ id: "cp1", name: "Gate" }, { id: "cp2", name: "Road" }] }, extras: { memory: { wiBook: { name: "Book A", chatId: "chat-a" } } } } } };
+  const parentBlob = { version: BLOB_VERSION, chatId: "chat-a", integrity: "i-a", selectedStoryId: "s", stories: { s: { engineState: { activeCheckpointId: "cp2" }, pinnedStory: { checkpoints: [{ id: "cp1", name: "Gate" }, { id: "cp2", name: "Road" }] }, extras: { memory: { wiBook: { name: "Book A", chatId: "chat-a" } } } } } };
   const branch: StoredIdentityInput = { openChat: "branch-1", blob: parentBlob, mainChat: "chat-a", integrity: "i-b" };
 
   it("a blob stamped for the chat main_chat names, under a new integrity, is a branch, named by its checkpoint", () => {
@@ -269,7 +270,6 @@ describe("v2.4 plan 02 §5: Continue from here", () => {
     expect(manager.getEngineState()).toMatchObject({ activeCheckpointId: "start", lastMessageId: 1 });
     expect(manager.getSnapshot()).toMatchObject({ ready: true, chatIdentity: null });
     expect(note).toHaveBeenCalledWith("branch continued", expect.stringContaining("chat-a"));
-    expect(journalSummaries(manager)).not.toContain("integrity-restamped");
   });
 
   it("a swipe-branch steps back from the first message that differs", async () => {

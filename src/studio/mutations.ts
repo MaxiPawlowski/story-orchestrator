@@ -186,11 +186,6 @@ export const setHouseRules = (draft: StoryDraft, rules: string[]): StoryDraft =>
   return rules.length ? { ...rest, house_rules: rules } : rest;
 };
 
-// The id is the story's identity: it is derived from the title until the author fixes it, and the
-// library keys by it forever after (spec addendum §Story identity).
-export const slugifyStoryId = (title: string): string =>
-  title.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^[^a-z0-9]+|-+$/g, "").slice(0, 64) || "story";
-
 export const setStoryId = (draft: StoryDraft, id: string): StoryDraft => {
   const { id: _dropped, ...rest } = draft;
   const next = id.trim().toLowerCase();

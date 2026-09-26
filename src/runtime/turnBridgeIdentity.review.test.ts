@@ -1,5 +1,7 @@
 import { hostMessageId, TurnBridge } from "./turnBridge";
 import type { RuntimeManager } from "./runtimeManager";
+import { BLOB_VERSION } from "./persistence";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 const handlers = new Map<string, (...args: unknown[]) => unknown>();
 const host = { generating: false, chat: [] as Array<{ mes: string; gen_finished?: unknown }>, chatId: "renamed", chatMetadata: {} as Record<string, unknown> };
@@ -41,7 +43,7 @@ function harness() {
     loadSelectedFromChat: jest.fn(async () => undefined),
     reapplyPromptBlocks: jest.fn(),
     reapplyCopilotNudge: jest.fn(),
-    getOwnership: () => undefined,
+    getOwnership: () => testOwnership(),
     notify: jest.fn(),
   };
   new TurnBridge(manager as unknown as RuntimeManager).start();
@@ -141,7 +143,7 @@ describe("V4: what one turn is", () => {
 describe("V5: a renamed chat keeps its story", () => {
   it("CHAT_RENAMED re-stamps the blob and reloads the story", async () => {
     const manager = harness();
-    host.chatMetadata = { story_orchestrator: { version: 4, chatId: "original", selectedStoryId: "s1", stories: {} } };
+    host.chatMetadata = { story_orchestrator: { version: BLOB_VERSION, chatId: "original", selectedStoryId: "s1", stories: {} } };
     await emit("CHAT_RENAMED", { oldFileName: "original.jsonl", newFileName: "renamed.jsonl" });
     expect((host.chatMetadata.story_orchestrator as { chatId: string }).chatId).toBe("renamed");
     expect(manager.loadSelectedFromChat).toHaveBeenCalledTimes(1);
@@ -149,7 +151,7 @@ describe("V5: a renamed chat keeps its story", () => {
 
   it("control: a rename that is not this chat's reloads nothing", async () => {
     const manager = harness();
-    host.chatMetadata = { story_orchestrator: { version: 4, chatId: "original", selectedStoryId: "s1", stories: {} } };
+    host.chatMetadata = { story_orchestrator: { version: BLOB_VERSION, chatId: "original", selectedStoryId: "s1", stories: {} } };
     await emit("CHAT_RENAMED", { oldFileName: "other.jsonl", newFileName: "renamed.jsonl" });
     expect(manager.loadSelectedFromChat).not.toHaveBeenCalled();
   });

@@ -76,15 +76,15 @@ describe("v2.4 plan 03 D5: where a scene starts", () => {
   const record = (to: number, kind: DerivedRecord["kind"] = "scene_summary"): DerivedRecord => ({ id: `r${to}`, kind, boundary: 1, messageId: to, inputs: [], range: { from: 0, to } });
 
   it("starts after the previous scene summary's range", () => {
-    expect(sceneRangeFrom([record(12), record(30), record(50, "short_term")], 44)).toBe(31);
+    expect(sceneRangeFrom([record(12), record(30), record(50, "short_term")], 44, 0)).toBe(31);
   });
 
   it("starts at 0 when no scene was summarized yet", () => {
-    expect(sceneRangeFrom([record(50, "short_term")], 44)).toBe(0);
+    expect(sceneRangeFrom([record(50, "short_term")], 44, 0)).toBe(0);
   });
 
   it("never starts after the message that ended the scene", () => {
-    expect(sceneRangeFrom([record(60)], 44)).toBe(44);
+    expect(sceneRangeFrom([record(60)], 44, 0)).toBe(44);
   });
 
   it("starts at the story's start when no scene was summarized yet", () => {

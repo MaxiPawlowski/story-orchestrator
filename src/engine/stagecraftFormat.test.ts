@@ -39,10 +39,22 @@ describe("format-2 stagecraft fields", () => {
     }))).toEqual([{ path: "checkpoints.0.effects.background", message: "background must be a filename string or { name }" }]);
   });
 
-  it("reads the curator allowlist and accepts the singular alias", () => {
+  it("reads the curator allowlist, and refuses the removed singular alias with a hint", () => {
     expect(parseStoryV2OrThrow(story({ stagecraft: { lorebooks: ["Xentar Checkpoints", " Story Lore "] } })).stagecraft)
       .toEqual({ lorebooks: ["Xentar Checkpoints", "Story Lore"] });
-    expect(parseStoryV2OrThrow(story({ stagecraft: { lorebook: "Story Lore" } as never })).stagecraft).toEqual({ lorebooks: ["Story Lore"] });
+    expect(errors(story({ stagecraft: { lorebook: "Story Lore" } as never }))).toEqual([{ path: "stagecraft.lorebook", message: 'unknown key (did you mean "lorebooks"?)' }]);
+  });
+
+  it("refuses the removed requirement aliases and lore_select's singular with a did-you-mean hint", () => {
+    expect(errors(story({ requirements: { groupMembers: ["Arin"] } as never }))).toEqual([{ path: "requirements.groupMembers", message: 'unknown key (did you mean "members"?)' }]);
+    expect(errors(story({ requirements: { persona: "Max" } as never }))).toEqual([{ path: "requirements.persona", message: 'unknown key (did you mean "personas"?)' }]);
+    expect(errors(story({ requirements: { global_lorebooks: ["Lore"] } as never }))).toEqual([{ path: "requirements.global_lorebooks", message: 'unknown key (did you mean "lorebooks"?)' }]);
+    expect(errors(story({ lore_select: { lorebook: "Lore" } as never }))).toEqual([{ path: "lore_select.lorebook", message: 'unknown key (did you mean "lorebooks"?)' }]);
+    expect(errors(story({ requirements: { zzz: [] } as never }))[0].message).toBe("unknown key (known: personas, members, lorebooks)");
+  });
+
+  it("control: the canonical keys parse with no error", () => {
+    expect(errors(story({ requirements: { personas: ["Max"], members: ["Arin"], lorebooks: ["Lore"] }, stagecraft: { lorebooks: ["Lore"] }, lore_select: { lorebooks: ["Lore"], top_k: 3, min_p: 0.2 } }))).toEqual([]);
   });
 
   it("treats an empty allowlist as no allowlist at all", () => {

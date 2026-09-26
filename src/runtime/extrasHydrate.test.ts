@@ -14,9 +14,8 @@ import { sanitizeExpansion, sanitizeExtraction, sanitizeMemory } from "./extras"
 import { repairActiveCheckpoint, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import type { RuntimeExtras } from "./types";
 
-// v2.3 plan 05. A chat saved before envelopes existed hydrates and plays unchanged (v2.1 rule 6), and
-// every row it brings is a STATED unknown: stamped `legacy`, still live, never dressed as an extractor
-// read that nobody can point at.
+// v2.5 plan 11. Every stored row carries its envelope; one that does not is dropped at hydrate, and
+// the drop is counted rather than silent.
 
 const blob = (overrides: Record<string, unknown> = {}): RuntimeExtras => ({
   memory: {
@@ -27,13 +26,16 @@ const blob = (overrides: Record<string, unknown> = {}): RuntimeExtras => ({
   },
 } as unknown as RuntimeExtras);
 
-describe("hydrating a chat written before envelopes (v2.3 plan 05)", () => {
-  it("stamps every row legacy, and legacy is live", () => {
-    const memory = sanitizeMemory(blob());
-    expect(memory.entries[0].provenance).toMatchObject({ source: "legacy", messageId: -1, validity: "live" });
-    expect(memory.epistemic[0].provenance?.source).toBe("legacy");
-    expect(memory.ledger[0].provenance?.source).toBe("legacy");
-    expect(memory.entries.every(isLive)).toBe(true);
+describe("hydrating stored rows and their envelopes", () => {
+  it("drops a row without an envelope, and counts it", () => {
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => undefined);
+    const valid = { source: "extractor" as const, messageId: 4, boundary: 2, pass: "shared-read", validity: "live" as const };
+    const memory = sanitizeMemory(blob({ entries: [blob().memory.entries[0], { ...blob().memory.entries[0], id: "m2", provenance: valid }, { ...blob().memory.entries[0], id: "m3", provenance: { source: "legacy", messageId: -1, boundary: -1, pass: "hydrate", validity: "live" } }] }));
+    expect(memory.entries.map((entry) => entry.id)).toEqual(["m2"]);
+    expect(memory.epistemic).toEqual([]);
+    expect(memory.ledger).toEqual([]);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("2 memory, 1 epistemic, 1 ledger"));
+    warn.mockRestore();
   });
 
   it("keeps an envelope the blob already carries", () => {
@@ -49,13 +51,12 @@ describe("hydrating a chat written before envelopes (v2.3 plan 05)", () => {
   });
 });
 
-// v2.3 plan 07. A chain generated before R9 was read with `outcomes[0]`, so it carries no outcome ids
-// and cannot express the branches its siblings were authored with. The cache does not survive the
-// contract that produced it: the entry is dropped and the stub re-generates on arrival.
+// v2.3 plan 07. The cache does not survive the contract that produced it: the entry is dropped and the
+// stub re-generates on arrival.
 describe("expansion cache contract", () => {
-  const entry = (contract?: number) => ({ key: "a->b->c", status: "inserted", sourceCheckpointId: "a", stubId: "b", targetAnchorId: "c", basis: {}, blackboardVersionSum: 0, beats: [], needsReview: false, verdicts: [], codeCheck: null, insertedCheckpointIds: [], lastError: null, attempts: 1, updatedAt: "x", ...(contract === undefined ? {} : { contract }) });
+  const entry = (contract?: number) => ({ key: "a->b->c", status: "inserted", sourceCheckpointId: "a", stubId: "b", targetAnchorId: "c", basis: {}, blackboardVersionSum: 0, beats: [], needsReview: false, verdicts: [], codeCheck: null, insertedCheckpointIds: [], lastError: null, attempts: 1, origin: "active", updatedAt: "x", ...(contract === undefined ? {} : { contract }) });
 
-  it("drops a pre-R9 chain and keeps a current one", () => {
+  it("a chain from another contract is dropped, and a current one is kept", () => {
     const kept = sanitizeExpansion({ expansion: { entries: { "a->b->c": entry(EXPANSION_CONTRACT) }, scheduler: { queueDepth: 0, inFlight: false, lastError: null } } } as unknown as RuntimeExtras);
     expect(Object.keys(kept.entries)).toEqual(["a->b->c"]);
     expect(kept.entries["a->b->c"].contract).toBe(EXPANSION_CONTRACT);
@@ -64,13 +65,12 @@ describe("expansion cache contract", () => {
     expect(dropped.entries).toEqual({});
   });
 
-  it("V12: a pre-R9 chain the chat is PLAYING is upgraded in place, not dropped — its checkpoints are where the player stands", () => {
-    const legacy = { ...entry(), status: "inserted", beats: [{ objective: "o", guidance: "g", tension_target: "calm", outcomes: [{ label: "a", gate: { q: "x", op: "==", v: true } }, { label: "b", gate: { q: "y", op: "==", v: true } }] }] };
-    const kept = sanitizeExpansion({ expansion: { entries: { "a->b->c": legacy }, scheduler: { queueDepth: 0, inFlight: false, lastError: null } } } as unknown as RuntimeExtras);
-    const upgraded = kept.entries["a->b->c"];
-    expect(upgraded.contract).toBe(EXPANSION_CONTRACT);
-    expect(upgraded.beats[0].id).toBe("0");
-    expect(upgraded.beats[0].outcomes.map((outcome) => outcome.id)).toEqual(["0:0", "0:1"]);
+  it("a playing chain from another contract is dropped too, and so is one with no origin", () => {
+    const other = sanitizeExpansion({ expansion: { entries: { "a->b->c": { ...entry(), status: "inserted" } }, scheduler: { queueDepth: 0, inFlight: false, lastError: null } } } as unknown as RuntimeExtras);
+    expect(other.entries).toEqual({});
+    const { origin: _origin, ...unmarked } = entry(EXPANSION_CONTRACT);
+    const originless = sanitizeExpansion({ expansion: { entries: { "a->b->c": unmarked }, scheduler: { queueDepth: 0, inFlight: false, lastError: null } } } as unknown as RuntimeExtras);
+    expect(originless.entries).toEqual({});
   });
 });
 

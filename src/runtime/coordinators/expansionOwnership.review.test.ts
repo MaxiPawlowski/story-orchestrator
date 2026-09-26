@@ -19,6 +19,7 @@ import { mintToken, tokenMatches } from "./../runToken";
 import { sanitizeExpansion } from "../extras";
 import type { RuntimeExtras } from "../types";
 import { ExpansionCoordinator } from "./expansionCoordinator";
+import { testOwnership } from "../../../test/findings/testOwnership";
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -69,7 +70,7 @@ function harness(options: { switchDuringGeneration: boolean; ownership?: boolean
     setStatus: () => undefined,
     persist: async () => { persists += 1; },
     notify: () => undefined,
-    ownership: options.ownership === false ? undefined : ownership,
+    ownership: options.ownership === false ? testOwnership() : ownership,
   } as never);
   return {
     coordinator, stores, context, persists: () => persists,

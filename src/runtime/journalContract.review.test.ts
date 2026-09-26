@@ -15,6 +15,7 @@ import type { BoundaryLogEntry } from "@engine/index";
 import type { SharedReadAudit } from "@extraction/index";
 import { ExtractionCoordinator } from "./coordinators/extractionCoordinator";
 import { buildSessionJournal, DISCARD_REASON } from "./journal";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 // Plan 01 §A, the journal contract: read -> queued -> applied/discarded is linked by the read's id,
 // not by matching equal delta strings; a boundary that applied nothing is journaled; a discarded write
@@ -43,7 +44,7 @@ describe("V20e: the journal contract", () => {
 
   it("a shared read enqueues its deltas under its own audit id", async () => {
     const origins: string[] = [];
-    const coordinator = new ExtractionCoordinator({
+    const coordinator = new ExtractionCoordinator({ ownership: testOwnership(),
       getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [] }),
       getState: () => ({ activeCheckpointId: "cp1", boundary: 3 }),
       getExtraction: () => ({ audits: [], reconciliationEvents: [], judgedReads: [] }),

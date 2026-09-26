@@ -180,7 +180,7 @@ export interface SceneReadRecord {
    * import the memory layer.
    */
   provenance?: {
-    source: "extractor" | "judge" | "author" | "code" | "curator" | "blackboard" | "legacy";
+    source: "extractor" | "judge" | "author" | "code" | "curator" | "blackboard";
     messageId: number;
     boundary: number;
     pass: string;

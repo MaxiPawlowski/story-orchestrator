@@ -136,7 +136,7 @@ export interface CuratorPassAudit {
  * structurally because the stagecraft core is pure and may not import the memory layer.
  */
 export interface CuratorProvenance {
-  source: "extractor" | "judge" | "author" | "code" | "curator" | "blackboard" | "legacy";
+  source: "extractor" | "judge" | "author" | "code" | "curator" | "blackboard";
   messageId: number;
   boundary: number;
   pass: string;

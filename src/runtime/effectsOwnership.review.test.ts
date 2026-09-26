@@ -19,6 +19,7 @@ import { samplerOverlay } from "./samplerOverlay";
 import { EffectsApplier } from "./effectsApplier";
 import { beginRun, mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "./runToken";
 import { control } from "../../test/findings/ledger";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 const hostWrites: string[] = [];
 const hostGate = { onWrite: null as ((name: string) => void) | null };
@@ -203,7 +204,7 @@ control("a world that moves during the NPC replies still leaves the marker unset
 control("an applier with no ownership still applies everything", async () => {
   // Every existing construction passes none, and a missing guard must never mean a missing effect.
   const h = harness();
-  const unowned = new EffectsApplier();
+  const unowned = new EffectsApplier(testOwnership());
   await unowned.applyCheckpoint(story, checkpoint, h.extras as never, snapshot, "activate", ["cp-1", "cp-2"]);
   expect(h.extras.lastAppliedCheckpointId).toBe("cp-2");
 });

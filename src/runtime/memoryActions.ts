@@ -3,7 +3,7 @@ import type { MemoryCoordinator } from "./coordinators/memoryCoordinator";
 import type { DecisionRefusal } from "./memoryQueue";
 
 // v2.3 plan 05. The memory actions the author view drives: the reconciliation queue, locks,
-// reconfirmation and the legacy-pin prompt. They stay in one object because they are one conversation
+// and reconfirmation. They stay in one object because they are one conversation
 // — "is this true?" — and because the manager, which is the façade everything else calls, is held to
 // a line budget a dozen one-line delegates would spend for nothing.
 export interface MemoryActionDeps {
@@ -12,7 +12,6 @@ export interface MemoryActionDeps {
   dismissMemoryConflict: (key: string) => Promise<boolean>;
   setMemoryLocked: (id: string, locked: boolean) => Promise<void>;
   reconfirmMemoryEntry: (id: string) => Promise<boolean>;
-  dismissLegacyPinPrompt: () => Promise<void>;
   rereadConflictWindow: (key: string) => Promise<boolean>;
   discardQuarantined: (id: string) => Promise<boolean>;
   lastRefusal: () => DecisionRefusal | null;
@@ -26,7 +25,6 @@ export function memoryDelegates(memory: MemoryCoordinator): MemoryActionDeps {
     dismissMemoryConflict: (key) => memory.dismissMemoryConflict(key),
     setMemoryLocked: (id, locked) => memory.setMemoryLocked(id, locked),
     reconfirmMemoryEntry: (id) => memory.reconfirmMemoryEntry(id),
-    dismissLegacyPinPrompt: () => memory.dismissLegacyPinPrompt(),
     rereadConflictWindow: (key) => memory.rereadConflictWindow(key),
     discardQuarantined: (id) => memory.excludeMemoryEntry(id),
     lastRefusal: () => memory.lastDecisionRefusal(),
@@ -42,7 +40,6 @@ export function memoryActions(deps: MemoryActionDeps) {
     dismissMemoryConflict: (key: string) => deps.dismissMemoryConflict(key),
     setMemoryLocked: (id: string, locked: boolean) => deps.setMemoryLocked(id, locked),
     reconfirmMemoryEntry: (id: string) => deps.reconfirmMemoryEntry(id),
-    dismissLegacyPinPrompt: () => deps.dismissLegacyPinPrompt(),
     rereadConflictWindow: (key: string) => deps.rereadConflictWindow(key),
     /** V8: through the same write-or-put-back as every other decision in this panel. */
     discardQuarantined: (id: string) => deps.discardQuarantined(id),

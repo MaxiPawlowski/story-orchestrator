@@ -4,6 +4,7 @@ import { PLAYER_ATTEMPTS_CLAUSE, objectiveClause } from "@engine/index";
 import type { SharedReadAudit } from "@extraction/index";
 import { disableWIEntry, enableWIEntry, executeSlashCommands, getActiveGroup } from "@services/STAPI";
 import { RuntimeManager } from "./runtimeManager";
+import { BLOB_VERSION } from "./persistence";
 import { control } from "../../test/findings/ledger";
 
 const mockExtensionPrompts: Record<string, { value: string; depth: number }> = {};
@@ -330,37 +331,8 @@ describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
   });
 });
 
-describe("RuntimeManager memory migration", () => {
+describe("RuntimeManager memory hydrate", () => {
   beforeEach(() => resetHost());
-
-  it("migrates a legacy extras.extraction.facts blob into the facts memory tier on hydrate", async () => {
-    const manager = new RuntimeManager();
-    await manager.importStory(JSON.stringify(story));
-    const storyId = manager.getSnapshot().storyId as string;
-
-    const blob = mockContext.chatMetadata.story_orchestrator as { stories: Record<string, { extras: Record<string, unknown> }> };
-    const persistedExtras = blob.stories[storyId].extras;
-    delete persistedExtras.memory;
-    persistedExtras.extraction = {
-      ...(persistedExtras.extraction as Record<string, unknown>),
-      facts: [{ text: "Mara trusts the player.", evidence: "I trust you.", importance: 2, boundary: 1, messageId: 3 }],
-    };
-
-    await manager.selectStory(storyId, "hydrate");
-
-    const migrated = manager.getSnapshot().memory.entries;
-    expect(migrated).toHaveLength(1);
-    expect(migrated[0]).toMatchObject({ tier: "facts", type: "fact", text: "Mara trusts the player.", evidence: "I trust you.", importance: 2, expiration: "permanent", createdAt: 1, messageId: 3 });
-  });
-
-  it("does not re-migrate once extras.memory already exists", async () => {
-    const manager = new RuntimeManager();
-    await manager.importStory(JSON.stringify(story));
-    const storyId = manager.getSnapshot().storyId as string;
-
-    await manager.selectStory(storyId, "hydrate");
-    expect(manager.getSnapshot().memory.entries).toHaveLength(0);
-  });
 
   it("clears a stuck backfill.running flag on reload so a new backlog can start", async () => {
     const manager = new RuntimeManager();
@@ -1321,28 +1293,6 @@ describe("RuntimeManager plan-13 surfacing", () => {
     await manager.selectStory(Object.keys(metadata.stories)[0], "hydrate");
     expect(mockPopupCloses.count).toBe(before);
   });
-
-  it("strips channel noise from persisted memory prose on hydrate", async () => {
-    const manager = new RuntimeManager();
-    await manager.importStory(JSON.stringify(gatedStory));
-    await manager.applyExtractionAudit({ ...sceneBreakAudit(), sceneBreak: undefined }, [], [
-      { tier: "session_details", type: "detail", importance: 1, expiration: "session", entities: [], text: "Clean detail.", evidence: "quote" },
-    ]);
-    const metadata = mockContext.chatMetadata.story_orchestrator as { stories: Record<string, { extras: { memory: { entries: Array<{ text: string }>; arcs: unknown[]; canon: unknown } } }> };
-    const storyId = Object.keys(metadata.stories)[0];
-    const memory = metadata.stories[storyId].extras.memory;
-    memory.entries[0].text = "<|channel>thought\n<channel|>The party searched the ruins.";
-    memory.arcs = [{ id: "arc-1", text: "<channel|>Find the key.", status: "resolved", summary: "<|channel>thought\nKey found.", openedAt: 0, messageId: 0 }];
-    memory.canon = { text: "<|channel>thought\n<channel|>Canon so far.", inputHash: "x", updatedAt: "2026-07-06T00:00:00.000Z" };
-
-    await manager.selectStory(storyId, "hydrate");
-    const snapshot = manager.getSnapshot();
-    expect(snapshot.memory.entries[0].text).toBe("The party searched the ruins.");
-    const arcs = manager.getArcs();
-    expect(arcs[0].text).toBe("Find the key.");
-    expect(arcs[0].summary).toBe("");
-    expect(manager.getCanon()).toContain("Canon so far.");
-  });
 });
 
 describe("RuntimeManager transition announcements and pending deltas", () => {
@@ -1744,7 +1694,7 @@ describe("V5: opening a chat whose saved state is stamped for another chat", () 
   beforeEach(() => resetHost());
 
   it("journals the mismatch and leaves the stored state untouched", async () => {
-    const foreign = { version: 4, chatId: "chat-elsewhere", selectedStoryId: "s1", stories: {} };
+    const foreign = { version: BLOB_VERSION, chatId: "chat-elsewhere", selectedStoryId: "s1", stories: {} };
     mockContext.chatMetadata = { story_orchestrator: foreign };
     const manager = new RuntimeManager();
     await manager.loadSelectedFromChat();

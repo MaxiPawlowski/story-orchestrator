@@ -58,7 +58,6 @@ const state = (entries: MemoryEntry[]): MemoryRuntimeState => ({
   conflicts: [],
   resolvedConflicts: [],
   pinnedOverflow: 0,
-  legacyPinPromptSeen: false,
   updatedAt: "t",
 });
 

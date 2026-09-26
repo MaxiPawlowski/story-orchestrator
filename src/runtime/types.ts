@@ -23,6 +23,7 @@ import type { MessageFingerprints } from "./fingerprints";
 import type { ChatIdentitySnapshot } from "./chatIdentity";
 import type { InjectedPromptBlock } from "@services/STAPI";
 import type { TalkDecisionSource } from "@talk/index";
+import type { BLOB_VERSION } from "./persistence";
 
 export interface PayloadCapture {
   at: string;
@@ -37,7 +38,7 @@ export interface StoryLibraryRecord {
   hash: string;
   title: string;
   description: string;
-  raw: unknown;
+  raw: Record<string, unknown>;
   importedAt: string;
   updatedAt: string;
 }
@@ -252,12 +253,9 @@ export interface MemoryRuntimeState extends MemoryStoreState {
   /** v2.3 plan 05 (M7). Pinned rows the injection budget could not fit, so the author is told
    *  instead of losing them quietly. */
   pinnedOverflow: number;
-  /** v2.3 plan 05 (M5/M6). Rows an older chat pinned carry no envelope, so the author is asked once
-   *  per chat whether those pins stay pins or become locks. */
-  legacyPinPromptSeen: boolean;
   /** v2.4 plan 03 D5. The first message this story's play covers in this chat: the player's last message when it
    *  started, or 0 before the player spoke. The first scene summary starts here; earlier history is the backlog's. */
-  storyStart?: number;
+  storyStart: number;
   updatedAt: string;
 }
 
@@ -310,29 +308,27 @@ export interface JudgedReadRecord {
 export interface PersistedStoryRuntime {
   storyId: string;
   storyTitle: string;
-  pinnedStory: unknown;
+  pinnedStory: Record<string, unknown>;
   playedVersion: number;
   contentHashAtLoad: string;
   engineState: EngineState;
-  // v2.3 plan 04: the bounded boundary log and the floor it reaches. A blob written before this
-  // existed has no history, and its chat can only roll back from the point it was saved.
-  engineHistory?: EngineHistory;
+  // v2.3 plan 04: the bounded boundary log and the floor it reaches.
+  engineHistory: EngineHistory;
   extras: RuntimeExtras;
-  // v2.4 plan 02 T3, an optional v4 field (no version bump): absent reads as unknown, never a mismatch.
+  // v2.4 plan 02 T3: absent when the capture had nothing to fingerprint; absent reads as unknown, never a mismatch.
   fingerprints?: MessageFingerprints;
 }
 
 export interface StoryOrchestratorMetadataBlob {
-  version: 4;
+  version: typeof BLOB_VERSION;
   /**
    * v2.3 plan 03. The chat this blob belongs to.
    *
    * `chat_metadata` is handed to us by SillyTavern, and the host swaps it when the chat changes.
    * Without a stamp there is no way to tell a blob that belongs here from one the host has just
-   * swapped in or out from under a read. It is nullable because a blob written before this field
-   * existed is still perfectly readable — it is stamped on the first save instead.
+   * swapped in or out from under a read. A stored blob without one is unreadable (v2.5 plan 11).
    */
-  chatId: string | null;
+  chatId: string;
   // v2.4 plan 02: `chat_metadata.integrity` at the last own save. Advisory: it only tells a branch from a
   // foreign blob, and a same-chat reload from a switch.
   integrity?: string | null;

@@ -17,7 +17,7 @@ export interface LoreSelectDeps {
   getEntries: () => Promise<HostScannableEntry[]>;
   force: (entries: HostScannableEntry[]) => Promise<WriteResult<{ entries: number }>>;
   // v2.3 plan 03 (C1, the "lore" surface). Optional: an unwired caller never lapses.
-  ownership?: RunOwnership;
+  ownership: RunOwnership;
 }
 
 export interface LoreSelection {

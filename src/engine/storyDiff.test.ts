@@ -304,7 +304,7 @@ describe("pruneEngineState", () => {
     expect(pruned.checkpointStartedMessageId).toBe(state.lastMessageId);
   });
 
-  it("keeps the entered path minus dropped checkpoints, and leaves a pre-path state for the engine to infer", () => {
+  it("keeps the entered path minus dropped checkpoints", () => {
     const state = playedState();
     expect(state.visitedPath).toEqual(["start", "middle"]);
     const next = parseStoryV2OrThrow(edited((draft) => {
@@ -312,8 +312,6 @@ describe("pruneEngineState", () => {
       draft.transitions = [{ from: "start", to: "end", gate: { q: "trust", op: ">=", v: 99 }, priority: 0 }];
     }));
     expect(pruneEngineState(state, next, diffStories(parseStoryV2OrThrow(baseStory()), next, state)).visitedPath).toEqual(["start"]);
-    const { visitedPath: _dropped, ...legacy } = state;
-    expect(pruneEngineState(legacy, next, diffStories(parseStoryV2OrThrow(baseStory()), next, legacy)).visitedPath).toBeUndefined();
   });
 
   it("releases a lock the new story no longer declares", () => {

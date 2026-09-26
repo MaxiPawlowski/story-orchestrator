@@ -81,7 +81,7 @@ export interface ExpansionCacheEntry {
   key: string;
   status: ExpansionStatus;
   /** The contract this chain was generated under; anything else is discarded on hydrate. */
-  contract?: number;
+  contract: number;
   sourceCheckpointId: string;
   stubId: string;
   targetAnchorId: string;
@@ -94,7 +94,7 @@ export interface ExpansionCacheEntry {
   insertedCheckpointIds: string[];
   lastError: string | null;
   attempts: number;
-  origin?: "active" | "lookahead";
+  origin: "active" | "lookahead";
   headingP?: number;
   variants?: VariantRecord;
   updatedAt: string;

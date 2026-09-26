@@ -1,8 +1,8 @@
 import { getContext, observeNextSettingsSave, readServerExtensionSettings } from "@services/STAPI";
-import type { WizardSessionState } from "@wizard/index";
+import type { WizardSessionState, WizardSessionUpdate } from "@wizard/index";
 import { createSettingsWriteEvidence, type LibrarySaveEvidence } from "./librarySave";
+import { SETTINGS_ROOT_KEY, settingsRoot, writableSettingsRoot } from "./settingsRoot";
 
-const ROOT_KEY = "story-orchestrator";
 const SETTINGS_KEY = "wizardSessions";
 const SESSION_LIMIT = 8;
 
@@ -27,7 +27,7 @@ const missingSession = (stored: unknown[] | null, write: SessionWrite): string |
 const confirmSessionWrite = createSettingsWriteEvidence<SessionWrite>({
   observe: () => observeNextSettingsSave(),
   readBack: async () => {
-    const root = await readServerExtensionSettings(ROOT_KEY);
+    const root = await readServerExtensionSettings(SETTINGS_ROOT_KEY);
     return root === null ? null : Array.isArray(root[SETTINGS_KEY]) ? (root[SETTINGS_KEY] as unknown[]) : [];
   },
 }, missingSession);
@@ -40,7 +40,7 @@ export function onWizardSessionSave(listener: (save: WizardSessionSave) => void)
 }
 
 const writeSessions = (sessions: WizardSessionState[], write: SessionWrite): Promise<LibrarySaveEvidence> => {
-  getRoot()[SETTINGS_KEY] = sessions;
+  writableSettingsRoot()[SETTINGS_KEY] = sessions;
   const evidence = confirmSessionWrite(write);
   getContext().saveSettingsDebounced();
   sessionSaveListener?.({ summary: `wizard session ${write.updatedAt === null ? "clear" : "save"} not confirmed`, label: `wizard session ${write.key}`, evidence });
@@ -50,37 +50,30 @@ const writeSessions = (sessions: WizardSessionState[], write: SessionWrite): Pro
 // Delegated decision (plan 06): the wizard session lives in extension settings, not in the draft
 // store. Setting up a story is install-level authoring work, and it has to survive a page reload —
 // an interrupted setup that vanishes on refresh is the failure this is for.
-const getRoot = () => {
-  const settings = getContext().extensionSettings;
-  settings["story-orchestrator"] = settings["story-orchestrator"] ?? {};
-  return settings["story-orchestrator"] as Record<string, unknown>;
-};
 
 const isSession = (value: unknown): value is WizardSessionState =>
   Boolean(value) && typeof value === "object" && typeof (value as WizardSessionState).key === "string" && Array.isArray((value as WizardSessionState).history);
 
 const listSessions = (): WizardSessionState[] => {
-  const stored = getRoot()[SETTINGS_KEY];
-  return Array.isArray(stored) ? stored.filter(isSession) : [];
+  const stored = settingsRoot()[SETTINGS_KEY];
+  return Array.isArray(stored) ? stored.filter(isSession).map((session) => ({ ...session, createdLorebooks: Array.isArray(session.createdLorebooks) ? session.createdLorebooks : [] })) : [];
 };
 
 export function loadWizardSession(key: string): WizardSessionState | null {
   return listSessions().find((session) => session.key === key) ?? null;
 }
 
-export function saveWizardSession(session: WizardSessionState): Promise<LibrarySaveEvidence> {
+export function saveWizardSession(session: WizardSessionUpdate): Promise<LibrarySaveEvidence> {
   const sessions = listSessions();
   const previous = sessions.find((entry) => entry.key === session.key);
   // UI persistence writes ordinary conversation fields after provisioning returns. Grants are
   // written inside the coordinator first; an older UI snapshot must not erase them on its next save.
   // A caller that explicitly includes `grants` owns that field (including `[]` to revoke all).
-  // V18: a session first stored from now on records which of its assets are books; one stored
-  // before keeps no such list, and ownership then falls back to its whole ledger.
-  const createdLorebooks = session.createdLorebooks ?? previous?.createdLorebooks ?? (previous ? undefined : []);
-  const merged = {
+  // V18: the book list is the coordinator's; a UI snapshot without one keeps the stored list.
+  const merged: WizardSessionState = {
     ...session,
     ...(session.grants === undefined && previous?.grants ? { grants: previous.grants } : {}),
-    ...(createdLorebooks === undefined ? {} : { createdLorebooks }),
+    createdLorebooks: session.createdLorebooks ?? previous?.createdLorebooks ?? [],
     updatedAt: new Date().toISOString(),
   };
   const others = sessions.filter((entry) => entry.key !== session.key);

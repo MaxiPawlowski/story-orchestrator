@@ -277,8 +277,8 @@ control("a world lost during an accepted write stops the ops behind it", async (
 control("a rollback in its own world restores every applied write", async () => {
   const h = harness();
   h.state.proposals = [
-    { ...acceptedRecord("p1", 10, "First"), appliedAt: new Date().toISOString(), ops: [{ ...acceptedRecord("p1", 10, "First").ops[0], status: "applied", before: { content: "Original", disabled: false } }] },
-    { ...acceptedRecord("p2", 11, "Second"), appliedAt: new Date().toISOString(), ops: [{ ...acceptedRecord("p2", 11, "Second").ops[0], status: "applied", before: { content: "Second-before", disabled: false } }] },
+    { ...acceptedRecord("p1", 10, "First"), appliedAt: new Date().toISOString(), ops: [{ ...acceptedRecord("p1", 10, "First").ops[0], status: "applied", target: { lorebookFileId: "Review Lore", uid: 1 }, before: { content: "Original", disabled: false } }] },
+    { ...acceptedRecord("p2", 11, "Second"), appliedAt: new Date().toISOString(), ops: [{ ...acceptedRecord("p2", 11, "Second").ops[0], status: "applied", target: { lorebookFileId: "Review Lore", uid: 1 }, before: { content: "Second-before", disabled: false } }] },
   ] as never;
   const reverted = await h.coordinator.revertAppliedSince(10);
 
@@ -286,11 +286,12 @@ control("a rollback in its own world restores every applied write", async () => 
 });
 
 describe("V10: a revert that could not finish keeps what it needs to retry", () => {
-  const applied = (content: string, before: string) => ({ ...acceptedRecord("x", 10, content).ops[0], status: "applied" as const, before: { content: before, disabled: false } });
+  const applied = (content: string, before: string) => ({ ...acceptedRecord("x", 10, content).ops[0], status: "applied" as const, target: { lorebookFileId: "Review Lore", uid: 1 }, before: { content: before, disabled: false } });
+  const refuseUnwritable = () => (restoreWIEntryAt as jest.Mock).mockImplementation(async (_target: unknown, image: { content: string }) => (image.content === "Unwritable" ? { ok: false, reason: "refused" } : { ok: true, confirmed: true }));
 
   it("a record whose other op reverted keeps its revert-failed op and that op's before-image", async () => {
     const h = harness();
-    (upsertWIEntry as jest.Mock).mockImplementation(async (_book: string, _entry: string, text: string) => (text === "Unwritable" ? "failed" : "updated"));
+    refuseUnwritable();
     h.state.proposals = [{ ...acceptedRecord("p1", 10, "Two"), appliedAt: new Date().toISOString(), ops: [applied("One", "Unwritable"), applied("Two", "Original")] }] as never;
     const reverted = await h.coordinator.revertAppliedSince(10);
     expect(reverted).toBe(1);
@@ -311,7 +312,7 @@ describe("V10: a revert that could not finish keeps what it needs to retry", () 
     const h = harness();
     const lapsed = (content: string) => ({ ...acceptedRecord("x", 10, content).ops[0], status: "rejected" as const });
     h.state.proposals = [{ ...acceptedRecord("p1", 10, "c"), appliedAt: new Date().toISOString(), ops: [lapsed("a"), lapsed("b"), applied("c", "Original"), { ...applied("d", "Unwritable") }] }] as never;
-    (upsertWIEntry as jest.Mock).mockImplementation(async (_book: string, _entry: string, text: string) => (text === "Unwritable" ? "failed" : "updated"));
+    refuseUnwritable();
     await h.coordinator.revertAppliedSince(10);
     const ops = h.state.proposals.find((proposal) => proposal.id === "p1")!.ops.map((entry) => (entry.op as { text: string }).text);
     expect(ops).toEqual(["a", "b", "d"]);
@@ -366,28 +367,38 @@ describe("V10: a revert addresses the entry by its recorded uid", () => {
     expect(h.state.proposals[0].ops[0]).toMatchObject({ status: "revert-failed", before: { content: "Original" } });
   });
 
-  it("control: a write recorded without a uid is still reverted by its name", async () => {
+  it("a write recorded without a uid is refused, never reverted by its name", async () => {
     const h = harness({ uidKnown: false });
     await upsertWIEntry("Review Lore", "Bridge", "First");
-    const legacy = acceptedRecord("p1", 10, "First");
-    h.state.proposals = [{ ...legacy, appliedAt: new Date().toISOString(), ops: [{ ...legacy.ops[0], status: "applied", before: { content: "Original", disabled: false }, after: { content: "First", disabled: false } }] }] as never;
+    const unaddressed = acceptedRecord("p1", 10, "First");
+    h.state.proposals = [{ ...unaddressed, appliedAt: new Date().toISOString(), ops: [{ ...unaddressed.ops[0], status: "applied", before: { content: "Original", disabled: false }, after: { content: "First", disabled: false } }] }] as never;
+    (upsertWIEntry as jest.Mock).mockClear();
+    expect(await h.coordinator.revertAppliedSince(10)).toBe(0);
     expect(h.content).toBe("First");
+    expect(h.state.proposals[0].ops[0]).toMatchObject({ status: "revert-failed", message: expect.stringContaining("recorded without a uid; not reverted") });
+    expect(restoreWIEntryAt).not.toHaveBeenCalled();
+    expect(upsertWIEntry).not.toHaveBeenCalled();
+  });
+
+  it("control: the same write recorded with its uid is reverted", async () => {
+    const h = harness();
+    const addressed = acceptedRecord("p1", 10, "First");
+    h.state.proposals = [{ ...addressed, appliedAt: new Date().toISOString(), ops: [{ ...addressed.ops[0], status: "applied", target: { lorebookFileId: "Review Lore", uid: 1 }, before: { content: "Original", disabled: false }, after: { content: "Original", disabled: false } }] }] as never;
     expect(await h.coordinator.revertAppliedSince(10)).toBe(1);
     expect(h.content).toBe("Original");
-    expect(restoreWIEntryAt).not.toHaveBeenCalled();
   });
 });
 
 control("a rollback that outlives its world stops restoring pre-write content", async () => {
   const h = harness();
   h.state.proposals = [
-    { ...acceptedRecord("p1", 10, "First"), appliedAt: new Date().toISOString(), ops: [{ ...acceptedRecord("p1", 10, "First").ops[0], status: "applied", before: { content: "Original", disabled: false } }] },
-    { ...acceptedRecord("p2", 11, "Second"), appliedAt: new Date().toISOString(), ops: [{ ...acceptedRecord("p2", 11, "Second").ops[0], status: "applied", before: { content: "Second-before", disabled: false } }] },
+    { ...acceptedRecord("p1", 10, "First"), appliedAt: new Date().toISOString(), ops: [{ ...acceptedRecord("p1", 10, "First").ops[0], status: "applied", target: { lorebookFileId: "Review Lore", uid: 1 }, before: { content: "Original", disabled: false } }] },
+    { ...acceptedRecord("p2", 11, "Second"), appliedAt: new Date().toISOString(), ops: [{ ...acceptedRecord("p2", 11, "Second").ops[0], status: "applied", target: { lorebookFileId: "Review Lore", uid: 1 }, before: { content: "Second-before", disabled: false } }] },
   ] as never;
-  (upsertWIEntry as jest.Mock).mockImplementation(async () => { h.switchChat(); return "updated"; });
+  (restoreWIEntryAt as jest.Mock).mockImplementation(async () => { h.switchChat(); return { ok: true, confirmed: true }; });
   const reverted = await h.coordinator.revertAppliedSince(10);
 
-  expect((upsertWIEntry as jest.Mock).mock.calls.length).toBe(1);
+  expect((restoreWIEntryAt as jest.Mock).mock.calls.length).toBe(1);
   expect(reverted).toBe(1);
 });
 

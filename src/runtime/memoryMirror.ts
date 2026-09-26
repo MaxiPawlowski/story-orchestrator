@@ -2,7 +2,6 @@ import { hashMemoryText } from "@memory/stores";
 import { isLive } from "@memory/provenance";
 import type { MemoryEntry } from "@memory/types";
 import type { ChatLorebookBinding, ChatOwner, Lorebook, WIUpsertResult } from "@services/STAPI";
-import { lorebookFileId } from "@utils/string";
 import type { WriteResult } from "@utils/writeResult";
 import type { MemoryMirrorBook } from "./types";
 import { MIRROR_BOOK_PREFIX, OWNER_COMMENT, ownerMarkerContent } from "./mirrorReaper";
@@ -17,7 +16,7 @@ export interface MemoryMirrorHost {
   bindChatLorebook: (name: string, replaceable?: string[]) => ChatLorebookBinding;
   // v2.3 plan 03. Optional: without it the chat-id comparison below still runs, so behaviour is
   // unchanged for a caller that supplies none.
-  ownership?: RunOwnership;
+  ownership: RunOwnership;
   // v2.4 plan 02 T14: who the adopted book is for, written into it as the `so-owner` marker the reaper
   // requires. Optional like `ownership`: without it no marker is written, and such a book is never reaped.
   owner?: () => ChatOwner | null;
@@ -69,16 +68,6 @@ async function leftoverComments(host: MemoryMirrorHost, lorebook: string, live: 
     .filter((entry) => entry.disable !== true)
     .map((entry) => entry.comment?.trim() ?? "")
     .filter((comment) => comment.startsWith(COMMENT_PREFIX) && !live.has(comment));
-}
-
-// v2.4 E4: a book mirrored before T14 carries no marker, so the reaper can never take it. It is marked on a
-// later sync only on the ownership the reaper itself requires: this chat's wiBook names it (the caller only
-// reaches here for the book `ensureLorebook(wiBook.name)` answered), and its name is exactly this chat's
-// mirror name. A book that carries any marker is left as it is.
-async function unmarkedOwnBook(host: MemoryMirrorHost, title: string, book: string, chatId: string): Promise<boolean> {
-  if (lorebookFileId(book) !== lorebookFileId(mirrorLorebookName(title, chatId))) return false;
-  const data = await host.loadLorebook(book);
-  return Boolean(data) && !Object.values(data?.entries ?? {}).some((entry) => entry.comment?.trim() === OWNER_COMMENT);
 }
 
 // Adopting a book (first write in this chat, a branch, a restart, or the book deleted under us)
@@ -144,9 +133,7 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
   // unreapable, never wrongly reapable.
   if (lapsed()) return null;
   const candidate = host.owner?.();
-  const marking = candidate?.chatId === chatId && (adopting || await unmarkedOwnBook(host, input.title, ensured.name, chatId));
-  if (lapsed()) return null;
-  const owner = marking ? candidate : null;
+  const owner = adopting && candidate?.chatId === chatId ? candidate : null;
   if (owner?.chatId === chatId && await host.upsertWIEntry(ensured.name, OWNER_COMMENT, ownerMarkerContent(owner, new Date().toISOString())) !== "failed") {
     if (lapsed()) return null;
     await host.disableWIEntry(ensured.name, OWNER_COMMENT);
