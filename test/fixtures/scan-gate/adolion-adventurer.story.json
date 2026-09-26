@@ -1,0 +1,1275 @@
+{
+  "format": 2,
+  "id": "adolion-adventurer",
+  "version": 9,
+  "title": "Adolion: The Adventurer's Road",
+  "description": "A new adventuring party out of Aegis City takes the Wendhope posting, finds a frontier village under nightly siege by something out of the forest, and - once it has earned the rank - goes down the Driftmere Mines after whatever silenced a god.",
+  "arc_template": "rising",
+  "qualities": [
+    {
+      "key": "path",
+      "type": "enum",
+      "values": [
+        "wendhope"
+      ],
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Which posting has the party committed to? Answer wendhope once the player, or the party on the player's behalf, takes the D-rank Investigate Wendhope job. Until they actually commit, say nothing about this quality at all."
+    },
+    {
+      "key": "reached_walls",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "scope_hint": {
+        "from": "road-to-wendhope"
+      },
+      "rubric": "Has the party come within sight of Wendhope's walls and been challenged by its archers?"
+    },
+    {
+      "key": "inside_wendhope",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "scope_hint": {
+        "from": "at-the-walls"
+      },
+      "rubric": "Have the defenders let the party through the gate into Wendhope?"
+    },
+    {
+      "key": "survived_first_night",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "scope_hint": {
+        "from": "first-night"
+      },
+      "rubric": "Has the party held the wall through a Screecher assault until the fog withdrew at dawn?"
+    },
+    {
+      "key": "evidence",
+      "type": "int",
+      "source": "extractor",
+      "monotonic": true,
+      "scope_hint": {
+        "from": "at-the-walls"
+      },
+      "ledger_binding": {
+        "entity": "The Party",
+        "field": "clues found"
+      },
+      "rubric": "How many distinct clues about the Screechers has the party actually learned in play? Count each once: the fog comes only at night and only from Needlehaven; killed Screechers leave white flowers; villagers recognise faces among them; the weapons lead and the bodies follow; every runner sent was swallowed by the fog; Ol' Nan's song about the Lord Spirit."
+    },
+    {
+      "key": "knows_spirit",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "scope_hint": {
+        "from": "at-the-walls"
+      },
+      "rubric": "Does the party know there is a Lord Spirit of Needlehaven behind this, whether from Ol' Nan's song or by working it out?"
+    },
+    {
+      "key": "in_needlehaven",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "scope_hint": {
+        "from": "what-wendhope-knows"
+      },
+      "rubric": "Has the party entered Needlehaven forest?"
+    },
+    {
+      "key": "spirit_outcome",
+      "type": "enum",
+      "values": [
+        "destroyed",
+        "appeased"
+      ],
+      "source": "extractor",
+      "latching": true,
+      "scope_hint": {
+        "from": "the-lord-spirit"
+      },
+      "rubric": "How did the party end it? destroyed if they cut or burned the Lord Spirit's heartwood; appeased if they closed the cut and gave back what was taken so it could sleep. Until it is actually ended, say nothing about this quality at all."
+    },
+    {
+      "key": "next_job",
+      "type": "enum",
+      "values": [
+        "god_eater"
+      ],
+      "source": "extractor",
+      "latching": true,
+      "scope_hint": {
+        "from": "after-the-fog"
+      },
+      "rubric": "Has the party taken the Driftmere expedition, the posting about the mines where the god of mining fell silent? Answer god_eater if they accept it. Until they do, say nothing about this quality at all."
+    },
+    {
+      "key": "entered_mines",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "scope_hint": {
+        "from": "driftmere"
+      },
+      "rubric": "Has the party gone down into the Driftmere Mines?"
+    },
+    {
+      "key": "descent",
+      "type": "int",
+      "source": "extractor",
+      "monotonic": true,
+      "scope_hint": {
+        "from": "the-first-descent"
+      },
+      "ledger_binding": {
+        "entity": "The Party",
+        "field": "mine floors cleared"
+      },
+      "rubric": "How many floors of the Driftmere Mines has the party got past so far, whether by fighting the Floor Boss, solving it, bargaining with it or slipping around it?"
+    },
+    {
+      "key": "knows_devourer",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "scope_hint": {
+        "from": "the-first-descent"
+      },
+      "rubric": "Does the party know that something the monsters call the Devourer waits at the bottom and that the floors are holding the line until its ascension?"
+    },
+    {
+      "key": "past_the_seal",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "scope_hint": {
+        "from": "the-sealed-wall"
+      },
+      "rubric": "Has the party got through Filwern's sealed wall on the bottom floor?"
+    },
+    {
+      "key": "devourer_outcome",
+      "type": "enum",
+      "values": [
+        "slain",
+        "resealed"
+      ],
+      "source": "extractor",
+      "latching": true,
+      "scope_hint": {
+        "from": "the-devourer"
+      },
+      "rubric": "How did the party end the Devourer? slain if they killed it; resealed if they restored Filwern's wards instead, at the cost of the mine. Until it is actually ended, say nothing about this quality at all."
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "guild-hall",
+      "name": "The Guild Hall",
+      "objective": "Take a posting and form a party.",
+      "type": "anchor",
+      "tension_target": "calm",
+      "target_turn_length": 5,
+      "guidance": "Busy, loud and safe. Let the player look over the board and talk to people. Tobias will walk anyone through the Wendhope posting and is honest that it reads like a collapsed shaft. If the player will not choose, have Tobias press the Sheridan money and have Belle lose patience and commit the party for them.",
+      "talk_control": {
+        "lead": "Adolion Narrator",
+        "speakers": [
+          {
+            "member": "Adolion Narrator",
+            "weight": 2
+          },
+          {
+            "member": "Tobias",
+            "weight": 1
+          },
+          {
+            "member": "Belle",
+            "weight": 1
+          },
+          {
+            "member": "Dalan",
+            "weight": 1
+          }
+        ],
+        "no_repeat": false,
+        "allow_silence": false,
+        "director": {
+          "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+        }
+      },
+      "effects": {
+        "author_note": {
+          "text": "[Scene: the Adventurer's Guild hall in Aegis City, busy and loud. Tobias works the quest counter; Belle and Dalan are both looking for a party. Keep it light and let {{story_player_name}} lead.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 2,
+          "role": "system"
+        },
+        "world_info": {
+          "enable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP guild-hall - Scene",
+                "Cast - The Party"
+              ]
+            }
+          ]
+        },
+        "cast_changes": {
+          "enable": [
+            "Tobias",
+            "Belle",
+            "Dalan"
+          ]
+        }
+      }
+    },
+    {
+      "id": "road-to-wendhope",
+      "name": "The Road North",
+      "objective": "Travel to Wendhope and notice what the road is missing.",
+      "type": "anchor",
+      "tension_target": "stirring",
+      "target_turn_length": 4,
+      "guidance": "Two days of road. Let {{story_role_companion_a}} and {{story_role_companion_b}} talk with {{story_player_name}}. The wrongness is an absence, not a threat: abandoned carriages with cargo still strapped on, no bandits, no traffic at all. Do not show fog or Screechers yet.",
+      "talk_control": {
+        "lead": "Adolion Narrator",
+        "speakers": [
+          {
+            "member": "Adolion Narrator",
+            "weight": 2
+          },
+          {
+            "member": "Belle",
+            "weight": 1
+          },
+          {
+            "member": "Dalan",
+            "weight": 1
+          }
+        ],
+        "no_repeat": false,
+        "allow_silence": false,
+        "director": {
+          "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+        }
+      },
+      "effects": {
+        "author_note": {
+          "text": "[The party travels north to Wendhope. Let the companions talk on the road, and build unease from what is missing rather than from danger.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 2,
+          "role": "system"
+        },
+        "world_info": {
+          "disable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP guild-hall - Scene"
+              ]
+            }
+          ],
+          "enable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP road-to-wendhope - Scene"
+              ]
+            }
+          ]
+        },
+        "cast_changes": {
+          "disable": [
+            "Tobias"
+          ]
+        }
+      }
+    },
+    {
+      "id": "at-the-walls",
+      "name": "Hold, Wendhope Is Closed",
+      "objective": "Get inside Wendhope before sundown.",
+      "type": "anchor",
+      "tension_target": "tense",
+      "target_turn_length": 5,
+      "guidance": "Grod and two wounded archers refuse the gate with arrows nocked. They are exhausted and afraid, not hostile, and they mention signs the party never passed. Sundown is the clock: say so, and mean it. The Guild seal, the Sheridan contract, offered supplies, healing for the wounded or simply refusing to leave will all work. Halena arrives if it drags.",
+      "talk_control": {
+        "lead": "Adolion Narrator",
+        "speakers": [
+          {
+            "member": "Adolion Narrator",
+            "weight": 2
+          },
+          {
+            "member": "Belle",
+            "weight": 1
+          },
+          {
+            "member": "Dalan",
+            "weight": 1
+          }
+        ],
+        "no_repeat": false,
+        "allow_silence": false,
+        "director": {
+          "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+        }
+      },
+      "effects": {
+        "author_note": {
+          "text": "[Wendhope's gate is shut and the archers on the parapet will not open it. Sundown is a real deadline. Let {{story_player_name}} find the way in.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 2,
+          "role": "system"
+        },
+        "world_info": {
+          "disable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP road-to-wendhope - Scene"
+              ]
+            }
+          ],
+          "enable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP at-the-walls - Scene",
+                "Wendhope - Defenders"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "first-night",
+      "name": "The Red Fog",
+      "objective": "Hold the wall until dawn.",
+      "type": "anchor",
+      "tension_target": "critical",
+      "target_turn_length": 6,
+      "guidance": "The fog comes first, red and thick, out of Needlehaven and around the whole village. Then the screeching. Make the Screechers frightening through what they ignore: pain, wounds, missing limbs. Give each party member a moment. Show one fall and bubble away, and leave white flowers on the ground where it did. At dawn the fog withdraws into the trees.",
+      "talk_control": {
+        "lead": "Adolion Narrator",
+        "speakers": [
+          {
+            "member": "Adolion Narrator",
+            "weight": 2
+          },
+          {
+            "member": "Belle",
+            "weight": 1
+          },
+          {
+            "member": "Dalan",
+            "weight": 1
+          }
+        ],
+        "no_repeat": false,
+        "allow_silence": false,
+        "director": {
+          "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+        }
+      },
+      "effects": {
+        "author_note": {
+          "text": "[Night assault on Wendhope's wall. Fast, vivid, genuinely dangerous. End on dawn and the fog pulling back into Needlehaven.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 2,
+          "role": "system"
+        },
+        "world_info": {
+          "disable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP at-the-walls - Scene"
+              ]
+            }
+          ],
+          "enable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP first-night - Scene",
+                "Wendhope - The Screechers"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "what-wendhope-knows",
+      "name": "What Wendhope Knows",
+      "objective": "Work out what is coming out of that forest.",
+      "type": "anchor",
+      "tension_target": "stirring",
+      "target_turn_length": 8,
+      "guidance": "The investigation scene, and the slow one. Duggy is defensive about the mine, Halena counts arrows out loud, Qinne is drowning and will overshare if handled gently. Ol' Nan sings about the Lord Spirit of Needlehaven for anyone who sits with her. Give up roughly one clue per scene of real effort and never hand over the answer. Keep the supply clock audible: food, arrows, and how many nights are left.",
+      "talk_control": {
+        "lead": "Adolion Narrator",
+        "speakers": [
+          {
+            "member": "Adolion Narrator",
+            "weight": 2
+          },
+          {
+            "member": "Belle",
+            "weight": 1
+          },
+          {
+            "member": "Dalan",
+            "weight": 1
+          }
+        ],
+        "no_repeat": false,
+        "allow_silence": false,
+        "director": {
+          "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+        }
+      },
+      "effects": {
+        "author_note": {
+          "text": "[Daylight in Wendhope. This is an investigation: let {{story_player_name}} ask, search and sit with people. One clue per real effort, never the whole answer.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 2,
+          "role": "system"
+        },
+        "world_info": {
+          "disable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP first-night - Scene"
+              ]
+            }
+          ],
+          "enable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP what-wendhope-knows - Scene",
+                "Wendhope - Clues"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "into-needlehaven",
+      "name": "Into Needlehaven",
+      "objective": "Follow the trail into the forest while the sun is up.",
+      "type": "anchor",
+      "tension_target": "tense",
+      "target_turn_length": 6,
+      "guidance": "Daylight is the only safety and it is running out; say how long is left. White flowers mark where Screechers fell and there are more of them the deeper the party goes. The mine road is the obvious way; the hunting trails are the quiet one. Alabaster shows in the trees before it shows in anything that moves.",
+      "talk_control": {
+        "lead": "Adolion Narrator",
+        "speakers": [
+          {
+            "member": "Adolion Narrator",
+            "weight": 2
+          },
+          {
+            "member": "Belle",
+            "weight": 1
+          },
+          {
+            "member": "Dalan",
+            "weight": 1
+          }
+        ],
+        "no_repeat": false,
+        "allow_silence": false,
+        "director": {
+          "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+        }
+      },
+      "effects": {
+        "author_note": {
+          "text": "[Needlehaven by daylight. The forest is quiet and wrong, and the light is a clock. Reward reading the ground.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 2,
+          "role": "system"
+        },
+        "world_info": {
+          "disable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP what-wendhope-knows - Scene"
+              ]
+            }
+          ],
+          "enable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP into-needlehaven - Scene",
+                "Wendhope - The Truth"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "the-lord-spirit",
+      "name": "The Lord Spirit of Needlehaven",
+      "objective": "End it, one way or the other.",
+      "type": "anchor",
+      "tension_target": "peak",
+      "target_turn_length": 7,
+      "guidance": "The Spirit is enormous, alabaster heartwood grown through cut stone, and it is in pain. The taken stand around it, still held. Make both roads real: cutting the heartwood works and kills Needlehaven with it, and so does closing the cut and giving back what was taken, which costs Wendhope the mine it lives on. Do not let it be free. Whatever the party chooses, the held bodies go down and leave flowers.",
+      "talk_control": {
+        "lead": "Adolion Narrator",
+        "speakers": [
+          {
+            "member": "Adolion Narrator",
+            "weight": 2
+          },
+          {
+            "member": "Belle",
+            "weight": 1
+          },
+          {
+            "member": "Dalan",
+            "weight": 1
+          }
+        ],
+        "no_repeat": false,
+        "allow_silence": false,
+        "director": {
+          "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+        }
+      },
+      "effects": {
+        "author_note": {
+          "text": "[The confrontation. Both endings are real and both cost something. Make the party choose rather than stumble.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 2,
+          "role": "system"
+        },
+        "world_info": {
+          "disable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP into-needlehaven - Scene"
+              ]
+            }
+          ],
+          "enable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP the-lord-spirit - Scene"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "after-the-fog",
+      "name": "After the Fog",
+      "objective": "Take the reward and the reckoning back to Aegis City.",
+      "type": "anchor",
+      "tension_target": "calm",
+      "target_turn_length": 5,
+      "guidance": "Quiet. Wendhope counts survivors and buries the returned. Duggy is either ruined or grateful depending on which way it went, and Qinne needs to hear that she did enough. In Aegis City, Tobias pays the Sheridan money and says plainly that this was not a D-rank job and the Guildmaster will want to hear it.",
+      "talk_control": {
+        "lead": "Adolion Narrator",
+        "speakers": [
+          {
+            "member": "Adolion Narrator",
+            "weight": 2
+          },
+          {
+            "member": "Tobias",
+            "weight": 1
+          },
+          {
+            "member": "Belle",
+            "weight": 1
+          },
+          {
+            "member": "Dalan",
+            "weight": 1
+          }
+        ],
+        "no_repeat": false,
+        "allow_silence": false,
+        "director": {
+          "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+        }
+      },
+      "effects": {
+        "author_note": {
+          "text": "[Aftermath, then Aegis City. Let the cost land before the reward does. Once it has, Tobias can put the Driftmere expedition in front of a party that has now earned it.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 2,
+          "role": "system"
+        },
+        "world_info": {
+          "disable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP the-lord-spirit - Scene"
+              ]
+            }
+          ],
+          "enable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP after-the-fog - Scene"
+              ]
+            }
+          ]
+        },
+        "cast_changes": {
+          "enable": [
+            "Tobias"
+          ]
+        }
+      }
+    },
+    {
+      "id": "driftmere",
+      "name": "Driftmere",
+      "objective": "Learn what happened to the mines before going down them.",
+      "type": "anchor",
+      "tension_target": "stirring",
+      "target_turn_length": 6,
+      "guidance": "A town with nothing to do and no income. Baroness Serenola is competent, candid and worried, and she will tell the party everything she knows, which is not enough. The Minotaur's Tusk holds the one survivor of the returned expedition, who insists the tunnels moved. Let the party hear that offerings to Filwern crumble to dust before they hear any theory about why.",
+      "talk_control": {
+        "lead": "Adolion Narrator",
+        "speakers": [
+          {
+            "member": "Adolion Narrator",
+            "weight": 2
+          },
+          {
+            "member": "Belle",
+            "weight": 1
+          },
+          {
+            "member": "Dalan",
+            "weight": 1
+          }
+        ],
+        "no_repeat": false,
+        "allow_silence": false,
+        "director": {
+          "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+        }
+      },
+      "effects": {
+        "author_note": {
+          "text": "[Driftmere, before the descent. Give the party the town, the Baroness and the survivor's account. The mine can wait a scene.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 2,
+          "role": "system"
+        },
+        "world_info": {
+          "disable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP after-the-fog - Scene"
+              ]
+            }
+          ],
+          "enable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP driftmere - Scene",
+                "Driftmere - The Town"
+              ]
+            }
+          ]
+        },
+        "cast_changes": {
+          "disable": [
+            "Tobias"
+          ]
+        }
+      }
+    },
+    {
+      "id": "the-first-descent",
+      "name": "The First Descent",
+      "objective": "Get down a floor and understand what you are in.",
+      "type": "anchor",
+      "tension_target": "tense",
+      "target_turn_length": 6,
+      "guidance": "Sell the wrongness geometrically: a mapped tunnel opening into a hall it cannot fit inside. The first Floor Boss should be beatable and should clearly be the smallest of them. Let the party find the first carving.",
+      "talk_control": {
+        "lead": "Adolion Narrator",
+        "speakers": [
+          {
+            "member": "Adolion Narrator",
+            "weight": 2
+          },
+          {
+            "member": "Belle",
+            "weight": 1
+          },
+          {
+            "member": "Dalan",
+            "weight": 1
+          }
+        ],
+        "no_repeat": false,
+        "allow_silence": false,
+        "director": {
+          "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+        }
+      },
+      "effects": {
+        "author_note": {
+          "text": "[The first floors. Make the changed layout the horror, not the monsters. End on the way further down.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 2,
+          "role": "system"
+        },
+        "world_info": {
+          "disable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP driftmere - Scene"
+              ]
+            }
+          ],
+          "enable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP the-first-descent - Scene",
+                "Driftmere Mines - The Dungeon"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "the-changed-deep",
+      "name": "The Changed Deep",
+      "objective": "Go deep enough to learn what the floors are guarding.",
+      "type": "anchor",
+      "tension_target": "critical",
+      "target_turn_length": 9,
+      "guidance": "This is the long middle and it should feel like a descent, not a corridor. Give each floor one clear identity and one Floor Boss that owns it, and vary what beats them: force, a puzzle, a bargain, avoiding them entirely. Traps are constant on the clever floors. Let the carvings and the intelligent monsters give up the word ascension, then a name.",
+      "talk_control": {
+        "lead": "Adolion Narrator",
+        "speakers": [
+          {
+            "member": "Adolion Narrator",
+            "weight": 2
+          },
+          {
+            "member": "Belle",
+            "weight": 1
+          },
+          {
+            "member": "Dalan",
+            "weight": 1
+          }
+        ],
+        "no_repeat": false,
+        "allow_silence": false,
+        "director": {
+          "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+        }
+      },
+      "effects": {
+        "author_note": {
+          "text": "[Floor by floor. One identity and one master per floor, and a different way through each time. Feed the ascension in piece by piece.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 2,
+          "role": "system"
+        },
+        "world_info": {
+          "disable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP the-first-descent - Scene"
+              ]
+            }
+          ],
+          "enable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP the-changed-deep - Scene"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "the-sealed-wall",
+      "name": "The Sealed Wall",
+      "objective": "Decide how to get past Filwern's seals.",
+      "type": "anchor",
+      "tension_target": "critical",
+      "target_turn_length": 6,
+      "guidance": "The seals are old dwarven divine work and the crack in them is the mine's fault. This is the last place to turn back and the party should feel that. Breaking through is easy and wrong; working out what the wards are for takes reading, and Filwern will answer if anyone thinks to make an offering here rather than break something.",
+      "talk_control": {
+        "lead": "Adolion Narrator",
+        "speakers": [
+          {
+            "member": "Adolion Narrator",
+            "weight": 2
+          },
+          {
+            "member": "Belle",
+            "weight": 1
+          },
+          {
+            "member": "Dalan",
+            "weight": 1
+          }
+        ],
+        "no_repeat": false,
+        "allow_silence": false,
+        "director": {
+          "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+        }
+      },
+      "effects": {
+        "author_note": {
+          "text": "[The seals. Make going through deliberate, and make the party understand what they are opening before they open it.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 2,
+          "role": "system"
+        },
+        "world_info": {
+          "disable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP the-changed-deep - Scene"
+              ]
+            }
+          ],
+          "enable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP the-sealed-wall - Scene",
+                "Driftmere - The Truth"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "the-devourer",
+      "name": "The God-Eater",
+      "objective": "Stop the ascension.",
+      "type": "anchor",
+      "tension_target": "peak",
+      "target_turn_length": 8,
+      "guidance": "It is enormous, half-finished with a god, and it does not hurry. Keep both endings live: killing it frees what is left of Filwern and reopens the mine, and restoring the seal instead costs Driftmere the workings forever but leaves the god whole. Make the party choose while it is still fighting them.",
+      "talk_control": {
+        "lead": "Adolion Narrator",
+        "speakers": [
+          {
+            "member": "Adolion Narrator",
+            "weight": 2
+          },
+          {
+            "member": "Belle",
+            "weight": 1
+          },
+          {
+            "member": "Dalan",
+            "weight": 1
+          }
+        ],
+        "no_repeat": false,
+        "allow_silence": false,
+        "director": {
+          "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+        }
+      },
+      "effects": {
+        "author_note": {
+          "text": "[The confrontation. Two real endings, chosen under pressure, both of them expensive.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 2,
+          "role": "system"
+        },
+        "world_info": {
+          "disable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP the-sealed-wall - Scene"
+              ]
+            }
+          ],
+          "enable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP the-devourer - Scene"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "what-filwern-left",
+      "name": "What Filwern Left",
+      "objective": "Tell Driftmere what it costs.",
+      "type": "anchor",
+      "tension_target": "calm",
+      "target_turn_length": 5,
+      "guidance": "Quiet and consequential. Whether the mine reopens decides what happens to this town, and Serenola will say so plainly either way. Let the party hear what the Nightrivers make of the report.",
+      "talk_control": {
+        "lead": "Adolion Narrator",
+        "speakers": [
+          {
+            "member": "Adolion Narrator",
+            "weight": 2
+          },
+          {
+            "member": "Belle",
+            "weight": 1
+          },
+          {
+            "member": "Dalan",
+            "weight": 1
+          }
+        ],
+        "no_repeat": false,
+        "allow_silence": false,
+        "director": {
+          "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+        }
+      },
+      "effects": {
+        "author_note": {
+          "text": "[Aftermath in Driftmere. The town's future is the scene, not the monster.]",
+          "position": "chat",
+          "depth": 4,
+          "interval": 2,
+          "role": "system"
+        },
+        "world_info": {
+          "disable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP the-devourer - Scene"
+              ]
+            }
+          ],
+          "enable": [
+            {
+              "lorebook": "Adolion Adventurer Checkpoints",
+              "comments": [
+                "CP what-filwern-left - Scene"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "transitions": [
+    {
+      "from": "guild-hall",
+      "to": "road-to-wendhope",
+      "priority": 1,
+      "gate": {
+        "q": "path",
+        "op": "==",
+        "v": "wendhope"
+      },
+      "extractor_trigger": "\\b(take|accept|sign|grab|choose|go|head)\\b.*\\b(wendhope|mining village|posting|quest|job)\\b",
+      "extraction_hint": "Set path to wendhope once the party commits to the Investigate Wendhope posting."
+    },
+    {
+      "from": "road-to-wendhope",
+      "to": "at-the-walls",
+      "priority": 1,
+      "gate": {
+        "q": "reached_walls",
+        "op": "==",
+        "v": true
+      },
+      "extractor_trigger": "\\b(wall|walls|gate|parapet|archer|hold)\\b|\\bwendhope\\b",
+      "extraction_hint": "Set reached_walls true once Wendhope's walls are in sight and the archers challenge the party."
+    },
+    {
+      "from": "at-the-walls",
+      "to": "first-night",
+      "priority": 1,
+      "gate": {
+        "q": "inside_wendhope",
+        "op": "==",
+        "v": true
+      },
+      "extractor_trigger": "\\b(open|let|inside|through|enter|gate|admit)\\b",
+      "extraction_hint": "Set inside_wendhope true once the defenders actually let the party in."
+    },
+    {
+      "from": "first-night",
+      "to": "what-wendhope-knows",
+      "priority": 1,
+      "gate": {
+        "q": "survived_first_night",
+        "op": "==",
+        "v": true
+      },
+      "extractor_trigger": "\\b(dawn|sunrise|morning|withdraw|thin|receded?)\\b",
+      "extraction_hint": "Set survived_first_night true once the assault is over and the fog has pulled back at dawn."
+    },
+    {
+      "from": "what-wendhope-knows",
+      "to": "into-needlehaven",
+      "priority": 1,
+      "gate": {
+        "q": "in_needlehaven",
+        "op": "==",
+        "v": true
+      },
+      "extractor_trigger": "\\b(needlehaven|forest|trees|treeline|trail|mine road)\\b",
+      "extraction_hint": "Set in_needlehaven true once the party goes into Needlehaven forest."
+    },
+    {
+      "from": "into-needlehaven",
+      "to": "the-lord-spirit",
+      "priority": 1,
+      "gate": {
+        "all": [
+          {
+            "q": "evidence",
+            "op": ">=",
+            "v": 3
+          },
+          {
+            "q": "knows_spirit",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(spirit|heartwood|roots?|alabaster|heart|clearing|cut)\\b",
+      "extraction_hint": "Count each distinct clue in evidence, and set knows_spirit true once the party knows a Lord Spirit of Needlehaven is behind it."
+    },
+    {
+      "from": "the-lord-spirit",
+      "to": "after-the-fog",
+      "priority": 1,
+      "gate": {
+        "any": [
+          {
+            "q": "spirit_outcome",
+            "op": "==",
+            "v": "destroyed"
+          },
+          {
+            "q": "spirit_outcome",
+            "op": "==",
+            "v": "appeased"
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(destroy|cut|burn|shatter|kill|seal|close|return|give back|sleep|appease)\\b",
+      "extraction_hint": "Set spirit_outcome to destroyed or appeased once the party has actually ended it."
+    },
+    {
+      "from": "after-the-fog",
+      "to": "driftmere",
+      "priority": 1,
+      "gate": {
+        "q": "next_job",
+        "op": "==",
+        "v": "god_eater"
+      },
+      "extractor_trigger": "\\b(driftmere|expedition|filwern|mines?)\\b",
+      "extraction_hint": "Set next_job to god_eater once the party takes the Driftmere expedition."
+    },
+    {
+      "from": "driftmere",
+      "to": "the-first-descent",
+      "priority": 1,
+      "gate": {
+        "q": "entered_mines",
+        "op": "==",
+        "v": true
+      },
+      "extractor_trigger": "\\b(descend|lift|down|shaft|mine|entrance)\\b",
+      "extraction_hint": "Set entered_mines true once the party goes down into the Driftmere Mines."
+    },
+    {
+      "from": "the-first-descent",
+      "to": "the-changed-deep",
+      "priority": 1,
+      "gate": {
+        "q": "descent",
+        "op": ">=",
+        "v": 1
+      },
+      "extractor_trigger": "\\b(floor|boss|deeper|descend|down)\\b",
+      "extraction_hint": "Count floors of the Driftmere Mines the party has got past in descent."
+    },
+    {
+      "from": "the-changed-deep",
+      "to": "the-sealed-wall",
+      "priority": 1,
+      "gate": {
+        "all": [
+          {
+            "q": "descent",
+            "op": ">=",
+            "v": 4
+          },
+          {
+            "q": "knows_devourer",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(seal|sealed|ward|wall|bottom|devourer|ascension)\\b",
+      "extraction_hint": "Count floors in descent, and set knows_devourer true once the party knows the Devourer and the ascension are what the floors are guarding."
+    },
+    {
+      "from": "the-sealed-wall",
+      "to": "the-devourer",
+      "priority": 1,
+      "gate": {
+        "q": "past_the_seal",
+        "op": "==",
+        "v": true
+      },
+      "extractor_trigger": "\\b(break|breach|open|through|past|unseal|offering)\\b",
+      "extraction_hint": "Set past_the_seal true once the party is through the sealed wall."
+    },
+    {
+      "from": "the-devourer",
+      "to": "what-filwern-left",
+      "priority": 1,
+      "gate": {
+        "any": [
+          {
+            "q": "devourer_outcome",
+            "op": "==",
+            "v": "slain"
+          },
+          {
+            "q": "devourer_outcome",
+            "op": "==",
+            "v": "resealed"
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(kill|slay|destroy|seal|reseal|ward|restore|end)\\b",
+      "extraction_hint": "Set devourer_outcome to slain or resealed once the party has actually ended it."
+    }
+  ],
+  "roster": [
+    {
+      "id": "dm",
+      "name": "Adolion Narrator"
+    },
+    {
+      "id": "guild_rep",
+      "name": "Tobias"
+    },
+    {
+      "id": "companion_a",
+      "name": "Belle"
+    },
+    {
+      "id": "companion_b",
+      "name": "Dalan"
+    }
+  ],
+  "arc_bridges": [
+    {
+      "arcMatch": "wendhope",
+      "anchor": "after-the-fog",
+      "amount": 1
+    },
+    {
+      "arcMatch": "needlehaven",
+      "anchor": "after-the-fog",
+      "amount": 1
+    },
+    {
+      "arcMatch": "screecher",
+      "anchor": "after-the-fog",
+      "amount": 1
+    },
+    {
+      "arcMatch": "driftmere",
+      "anchor": "what-filwern-left",
+      "amount": 1
+    },
+    {
+      "arcMatch": "devourer",
+      "anchor": "what-filwern-left",
+      "amount": 1
+    },
+    {
+      "arcMatch": "filwern",
+      "anchor": "what-filwern-left",
+      "amount": 1
+    }
+  ],
+  "stagecraft": {
+    "lorebooks": [
+      "Adolion Chronicle"
+    ]
+  },
+  "requirements": {
+    "members": [
+      "Adolion Narrator",
+      "Tobias",
+      "Belle",
+      "Dalan"
+    ],
+    "lorebooks": [
+      "Adolion World",
+      "Adolion Adventurer Checkpoints",
+      "Adolion Chronicle"
+    ]
+  }
+}

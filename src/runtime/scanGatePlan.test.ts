@@ -1,3 +1,5 @@
+import { readFileSync } from "fs";
+import { join } from "path";
 import { gatedWorldInfo, parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
 import { applyScanGate, restsOffIn, scanGatePlan, type ScanEntry, type ScanGateRow } from "./scanGatePlan";
 import { noteScanGate, scanGateView, setScanGatingActive } from "./worldInfoMode";
@@ -75,6 +77,45 @@ describe("scanGatePlan (v2.4 plan 05 T13 spike)", () => {
       cases += 1;
     }
     expect(cases).toBe(300);
+  });
+
+  // v2.5 plan 01 tests: the same property over the shipped stories, as fixed seeds. Paths are walks along each
+  // story's own transitions, so the gated sets and the book sharing are the ones a real install carries (the
+  // academy gates 58 entries of a book it shares with its checkpoint book; sun-ruins and adventurer share none).
+  it("gives every gated entry the file path's state over the real shipped stories, walking their own transitions", () => {
+    const root = join(__dirname, "..", "..");
+    const shipped = [
+      "examples/sun-ruins/quest-for-the-sun-ruins.json",
+      "test/fixtures/scan-gate/adolion-academy.story.json",
+      "test/fixtures/scan-gate/adolion-adventurer.story.json",
+    ].map((file) => parseStoryV2OrThrow(JSON.parse(readFileSync(join(root, file), "utf8"))));
+    const walk = (next: () => number, story: NormalizedStoryV2): string[] => {
+      const start = story.checkpoints.find((checkpoint) => checkpoint.start)?.id ?? story.checkpoints[0].id;
+      const path = [start];
+      for (let step = 0; step < 8; step += 1) {
+        const exits = story.transitions.filter((transition) => transition.from === path[path.length - 1]);
+        if (!exits.length || next() < 0.15) break;
+        path.push(pick(next, exits).to);
+      }
+      return path;
+    };
+    const every = new Set<string>();
+    for (const [lorebook, comments] of gatedWorldInfo(shipped)) for (const comment of comments) every.add(`${bookKey(lorebook)}|${comment}`);
+    expect(every.size).toBeGreaterThanOrEqual(100);
+    let cases = 0;
+    for (let seed = 1; seed <= 60; seed += 1) {
+      const next = rng(seed * 7919);
+      const loaded = seed % 4 === 0 ? null : shipped[seed % shipped.length];
+      const path = loaded ? walk(next, loaded) : [];
+      const start = new Map([...every].map((key) => [key, next() < 0.5]));
+      const expected = filePath(shipped, loaded, path, start);
+      const actual = new Map<string, boolean>();
+      for (const [key, book] of scanGatePlan(shipped, loaded, path)) for (const [comment, on] of book.entries) actual.set(`${key}|${comment}`, !on);
+      expect([...actual.keys()].sort()).toEqual([...every].sort());
+      for (const key of every) expect({ seed, key, disabled: actual.get(key) }).toEqual({ seed, key, disabled: expected.get(key) });
+      cases += 1;
+    }
+    expect(cases).toBe(60);
   });
 
   it("no story turns every library gated entry off", () => {
