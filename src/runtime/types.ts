@@ -15,6 +15,7 @@ import type { ChatJumpIndex } from "./messageJump";
 import type { PassProfiles } from "./passProfiles";
 import type { RoleRouteView } from "./roleHealth";
 import type { ModelCallRow } from "./modelCalls";
+import type { PromptBucketState } from "./promptBuckets";
 import type { PipelineStatus } from "./pipeline";
 import type { OrphanedLorebook } from "./mirrorReaper";
 import type { LoreEvidenceView } from "./worldInfoEvidence";
@@ -438,6 +439,7 @@ export interface RuntimeSnapshot {
   /** v2.4 plan 08 T18: which profile each family of passes asks, and whether it answers. */
   roleRoutes?: RoleRouteView[];
   modelCalls?: ModelCallRow[];
+  nextTurnBuckets?: PromptBucketState;
 }
 
 export interface LoadedStory {

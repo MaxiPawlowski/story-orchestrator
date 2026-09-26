@@ -9,6 +9,8 @@ export type { ExtensionPromptBlock, ExtensionPromptBlocks, InjectedPromptBlock }
 export { readPromptBudget } from "@services/stHost/contextBudget";
 export { sendChatJump } from "@services/stHost/chatJump";
 export type { PromptBudget, PromptBudgetRead } from "@services/stHost/contextBudget";
+export { readPromptBuckets } from "@services/stHost/promptBuckets";
+export type { PromptBucketsRead } from "@services/stHost/promptBucketsParse";
 export type { StoryOrchestratorHostContext } from "@services/stHost/context";
 export { subscribeToHostEvent, subscribeToHostEvents } from "@services/stHost/events";
 export type { HostEventPayloads, HostEventName, TypedHostEventHandler, HostSubscriptionEntry } from "@services/stHost/events";

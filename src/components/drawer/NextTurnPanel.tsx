@@ -1,4 +1,5 @@
 import { formatShare, nextTurnCostText } from "@runtime/nextTurn";
+import { promptBucketsText, type PromptBucketState } from "@runtime/promptBuckets";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { tierOfKey, trimText } from "./memoryFate";
 
@@ -38,6 +39,21 @@ const ForeignGroup = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
   );
 };
 
+const PromptBucketsLine = ({ state }: { state: PromptBucketState | undefined }) => {
+  if (!state || ("unavailable" in state && state.quiet)) return null;
+  if ("unavailable" in state) {
+    return <div data-so="next-turn-buckets" data-state="unavailable" className="opacity-60">Prompt buckets unavailable: {state.unavailable}</div>;
+  }
+  return (
+    <div data-so="next-turn-buckets" data-state={state.matches ? "matches" : "mismatch"} className="opacity-80">
+      {promptBucketsText(state)}
+      {state.oursExceedsHistory && (
+        <div data-so="next-turn-buckets-tokenizers" className="text-yellow-300">Story Orchestrator&apos;s count is larger than ST&apos;s chat history: the two counts come from different tokenizers, so read ours as an estimate.</div>
+      )}
+    </div>
+  );
+};
+
 export const NextTurnPanel = ({ snapshot, actions, onOpenOwner }: { snapshot: RuntimeSnapshot; actions: NextTurnActions; onOpenOwner: (tab: NextTurnOwnerTab) => void }) => {
   const rows = snapshot.nextTurn;
   const cost = snapshot.nextTurnCost;
@@ -45,6 +61,7 @@ export const NextTurnPanel = ({ snapshot, actions, onOpenOwner }: { snapshot: Ru
     <div id="so-next-turn" className="flex flex-col gap-1">
       <div className="font-medium opacity-100">Next reply ({rows.length} contributor{rows.length === 1 ? "" : "s"})</div>
       <div data-so="next-turn-cost" data-budget={cost.budget ?? "unknown"} className="opacity-80">{nextTurnCostText(cost)}</div>
+      <PromptBucketsLine state={snapshot.nextTurnBuckets} />
       {cost.lastGenerationBudget !== null && cost.budget !== null && cost.lastGenerationBudget !== cost.budget && (
         <div data-so="next-turn-budget-drift" className="text-yellow-300">The last generation was handed {cost.lastGenerationBudget} tokens, not {cost.budget}: a setting changed since.</div>
       )}
