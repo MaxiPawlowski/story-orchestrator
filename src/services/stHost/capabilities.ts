@@ -4,6 +4,7 @@ import { judgeStatus, JUDGE_PLUGIN_BASE } from "./judge";
 import { backgroundsModule } from "./modules";
 import { listSlashCommands } from "./selectors";
 import { getHostVersion, macroEngineInUse } from "./version";
+import { installScanGating, probeScanGating } from "./worldInfoScan";
 
 // v2.3 plan 06. Every seam this extension reaches through has a way of being missing, and the ways
 // differ: a build with no MacrosParser, a route this ST version never mounted, a plugin nobody
@@ -15,7 +16,7 @@ import { getHostVersion, macroEngineInUse } from "./version";
 // attempt, and is NOT cached, so the next use retries it.
 
 export type CapabilityState = "present" | "absent" | "error";
-export type CapabilityId = "macros" | "slashCommands" | "backgrounds" | "vectors" | "judge" | "contextBudget";
+export type CapabilityId = "macros" | "slashCommands" | "backgrounds" | "vectors" | "judge" | "contextBudget" | "wiScanGating";
 
 export interface CapabilityReport {
   id: CapabilityId;
@@ -77,7 +78,20 @@ const contextBudgetProbe: Probe = () => {
   return budget.ok ? present(`${budget.prompt} prompt tokens (context ${budget.context} - reply ${budget.response})`) : absent(`${budget.reason}, so the next-turn preview shows no share of the context`);
 };
 
-const PROBES: Record<CapabilityId, Probe> = { macros: macrosProbe, slashCommands: slashCommandsProbe, backgrounds: backgroundsProbe, vectors: vectorsProbe, judge: judgeProbe, contextBudget: contextBudgetProbe };
+// v2.5 plan 01 C: per-chat lorebook gating needs a WORLDINFO_ENTRIES_LOADED listener placed last that sees each
+// scan's per-call copies (05-H2/H3/H11). A no-op handler is installed, one probe scan is run, and it is removed.
+const wiScanGatingProbe: Probe = async () => {
+  const handle = installScanGating(() => undefined);
+  try {
+    const report = await probeScanGating(handle);
+    if (report.state === "error") throw new Error(report.detail);
+    return report.state === "present" ? present("a probe scan reached the per-chat gating") : absent(`${report.detail}, so lorebook gating stays on file writes`);
+  } finally {
+    handle.dispose();
+  }
+};
+
+const PROBES: Record<CapabilityId, Probe> = { macros: macrosProbe, slashCommands: slashCommandsProbe, backgrounds: backgroundsProbe, vectors: vectorsProbe, judge: judgeProbe, contextBudget: contextBudgetProbe, wiScanGating: wiScanGatingProbe };
 
 export const CAPABILITY_IDS = Object.keys(PROBES) as CapabilityId[];
 

@@ -1,4 +1,4 @@
-import { authorsOwnNote, progressQualityForAnchor, ratingLevels, storyWarnings, TENSION_CURRENT_KEY, type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type StoryV2, type ValidationError } from "@engine/index";
+import { authorsOwnNote, gatedWorldInfo, progressQualityForAnchor, ratingLevels, storyWarnings, TENSION_CURRENT_KEY, type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type StoryV2, type ValidationError } from "@engine/index";
 import { directorEnabled } from "@talk/index";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
@@ -35,6 +35,7 @@ export const DIAGNOSTIC_CODES = [
   "quality-outcome-player-evidence",
   "house-rule-compound",
   "checkpoint-inherits-author-note",
+  "world-info-rests-off",
 ] as const;
 
 // v2.3 plan 09. Every code says what it costs the story before it says what is technically wrong: the
@@ -65,7 +66,13 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   "quality-outcome-player-evidence": "A player's line alone can move the story here: writing that they did it counts as done.",
   "house-rule-compound": "The check asks one question per rule, so a rule that demands two things is judged on whichever one the model reads.",
   "checkpoint-inherits-author-note": "The model keeps being told an earlier checkpoint's note here.",
+  "world-info-rests-off": "These lorebook entries stay off in their lorebooks, and are switched on only in this story's own chats.",
 };
+
+// v2.5 plan 01 D: what the Studio needs to know about the install, not the story.
+export interface DiagnosticsContext {
+  worldInfoGating?: "file" | "scan";
+}
 
 const namesOption = (text: string, option: string) => {
   const words = text.toLowerCase().split(/[^\p{L}\p{N}_]+/u);
@@ -116,7 +123,7 @@ const hintApplies = (quality: Quality, at: string, reachableFrom: (start: string
   return true;
 };
 
-export const runDiagnostics = (draft: StoryV2): Diagnostic[] => {
+export const runDiagnostics = (draft: StoryV2, context: DiagnosticsContext = {}): Diagnostic[] => {
   const diagnostics: Diagnostic[] = [];
   const push = (code: (typeof DIAGNOSTIC_CODES)[number], severity: DiagnosticSeverity, path: string, message: string) => diagnostics.push({ code, severity, path, message, consequence: DIAGNOSTIC_CONSEQUENCES[code] });
 
@@ -308,6 +315,14 @@ export const runDiagnostics = (draft: StoryV2): Diagnostic[] => {
   const locationIndex = draft.qualities.findIndex((quality) => quality.key === "location");
   if (locationIndex >= 0 && draft.qualities[locationIndex].type === "string" && !draft.scene_read?.locations?.length) {
     push("scene-read-location-empty", "warning", `qualities.${locationIndex}`, "'location' is free text, so the scene tracker can never say where the scene is: the judge only picks from a list. Make it an enum, or list places under Scene read");
+  }
+
+  if (context.worldInfoGating === "scan") {
+    const books = [...gatedWorldInfo([draft])].filter(([, comments]) => comments.size > 0);
+    if (books.length) {
+      const counts = books.map(([lorebook, comments]) => `${comments.size} lorebook ${comments.size === 1 ? "entry" : "entries"} in ${lorebook}`).join(", ");
+      push("world-info-rests-off", "info", "checkpoints", `Per-chat lorebook gating is on: ${counts} rest off in their files, and SillyTavern's lorebook editor shows them off. Story Orchestrator switches them on per chat along the story's path; with the extension off they stay off`);
+    }
   }
 
   return diagnostics;

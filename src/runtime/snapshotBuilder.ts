@@ -15,7 +15,7 @@ import { findStoryRecord, listStoryRecords } from "./storyLibrary";
 import { orphanedLorebooks } from "./mirrorReaper";
 import { loreEvidenceView } from "./worldInfoEvidence";
 import { samplerOverlay } from "./samplerOverlay";
-import { scanGateView } from "./worldInfoMode";
+import { scanGateView, wiGatingStatus } from "./worldInfoMode";
 import { buildForeignRows, buildNextTurnCost, buildNextTurnPreview } from "./nextTurn";
 import { promptCost } from "./promptCost";
 import { roleHealth } from "./roleHealth";
@@ -164,6 +164,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     judgeMeter: judgeMeterView(extras.judge),
     loreEvidence: loreEvidenceView(story, extras.memory.wiBook?.name ?? null),
     scanGate: scanGateView(),
+    wiGating: wiGatingStatus(),
     samplerOverlay: samplerOverlay.view(),
     stagecraftScope: curatorLorebooks(story),
     pendingDeltas,

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { isValidationErrorList, parseStoryV2, type StoryV2, type ValidationError } from "@engine/index";
-import { runDiagnostics, type Diagnostic } from "./diagnostics";
+import { runDiagnostics, type Diagnostic, type DiagnosticsContext } from "./diagnostics";
 
 export type StoryDraft = StoryV2;
 
@@ -21,9 +21,11 @@ const validate = (draft: StoryDraft): ValidationError[] => {
   return isValidationErrorList(parsed) ? parsed : [];
 };
 
+let diagnosticsContext: DiagnosticsContext = {};
+
 const derive = (draft: StoryDraft, baseline: StoryDraft) => ({
   errors: validate(draft),
-  diagnostics: runDiagnostics(draft),
+  diagnostics: runDiagnostics(draft, diagnosticsContext),
   dirty: JSON.stringify(draft) !== JSON.stringify(baseline),
 });
 
@@ -124,3 +126,9 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
 }));
 
 export const resetDraftStore = (): void => useDraftStore.getState().newDraft();
+
+/** v2.5 plan 01 D: the install facts diagnostics read. Set when the Studio opens; re-derives the open draft. */
+export const setDiagnosticsContext = (context: DiagnosticsContext): void => {
+  diagnosticsContext = context;
+  useDraftStore.setState((state) => ({ diagnostics: runDiagnostics(state.draft, diagnosticsContext) }));
+};

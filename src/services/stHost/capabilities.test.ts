@@ -24,6 +24,22 @@ jest.mock("./modules", () => ({
   get scriptModule() { return mockHost.script; },
 }));
 
+const mockScan = { ordered: true, emits: true, throws: false, installed: 0, disposed: 0 };
+
+jest.mock("./worldInfoScan", () => ({
+  installScanGating: () => {
+    mockScan.installed += 1;
+    let seen = 0;
+    return { ordered: mockScan.ordered, reassert: () => undefined, dispose: () => { mockScan.disposed += 1; }, scans: () => seen, bump: () => { seen += 1; } };
+  },
+  probeScanGating: async (handle: { ordered: boolean; bump: () => void; scans: () => number }) => {
+    if (!handle.ordered) return { state: "absent", detail: "this SillyTavern cannot order event listeners (no makeFirst/makeLast)" };
+    if (mockScan.throws) return { state: "error", detail: "the probe scan failed" };
+    if (mockScan.emits) handle.bump();
+    return handle.scans() > 0 ? { state: "present", detail: "the handler ran on a probe scan" } : { state: "absent", detail: "getSortedEntries emitted no WORLDINFO_ENTRIES_LOADED the handler saw" };
+  },
+}));
+
 jest.mock("./version", () => ({
   getHostVersion: async () => mockHost.hostVersion,
   macroEngineInUse: () => mockHost.macroEngine,
@@ -52,6 +68,7 @@ describe("capability probes", () => {
     mockHost.macroEngine = "new";
     mockHost.script = { getMaxContextTokens: () => 98304, getMaxResponseTokens: () => 600, getMaxPromptTokens: () => 97704 };
     globalThis.fetch = okFetch(mockHost.vectorStatus) as unknown as typeof fetch;
+    Object.assign(mockScan, { ordered: true, emits: true, throws: false, installed: 0, disposed: 0 });
   });
 
   it("probes every capability id and reports a healthy install as present", async () => {
@@ -135,6 +152,25 @@ describe("capability probes", () => {
     mockHost.hostVersion = null;
     mockHost.macroEngine = "unknown";
     await expect(hostFacts()).resolves.toEqual({ stVersion: null, stCommit: null, macroEngine: "unknown" });
+  });
+
+  it("v2.5 plan 01: per-chat lorebook gating is a capability, probed with a temporary handler it always removes", async () => {
+    await expect(probeCapability("wiScanGating")).resolves.toMatchObject({ state: "present" });
+    expect([mockScan.installed, mockScan.disposed]).toEqual([1, 1]);
+    mockScan.ordered = false;
+    const absent = await probeCapability("wiScanGating", { refresh: true });
+    expect(absent.state).toBe("absent");
+    expect(absent.detail).toContain("lorebook gating stays on file writes");
+    expect(absent.detail).not.toMatch(/spike|T13/);
+    expect([mockScan.installed, mockScan.disposed]).toEqual([2, 2]);
+  });
+
+  it("a probe scan that failed is an error it will retry, not an absent feature", async () => {
+    mockScan.throws = true;
+    await expect(probeCapability("wiScanGating")).resolves.toMatchObject({ state: "error" });
+    mockScan.throws = false;
+    await expect(probeCapability("wiScanGating")).resolves.toMatchObject({ state: "present" });
+    expect(mockScan.disposed).toBe(2);
   });
 
   it("states the main API's prompt budget as present, and a build without the exports as absent", async () => {

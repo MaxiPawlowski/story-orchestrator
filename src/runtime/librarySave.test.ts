@@ -110,6 +110,24 @@ describe("v2.4 E3: every install-wide write reads its settings save", () => {
     expect(arm).toHaveBeenCalledTimes(1);
   });
 
+  it("v2.5 plan 01: a second listener (lorebook gating) never replaces the journal's, and each stops alone", () => {
+    const arm = jest.fn(async () => ({ confirmed: true as const }));
+    const journal = jest.fn();
+    const gating = jest.fn();
+    const stopJournal = onSettingsWrite(journal);
+    const stopGating = onSettingsWrite(gating);
+    const evidence = recordSettingsWrite("s", "l", arm);
+    expect(journal).toHaveBeenCalledWith({ summary: "s", label: "l", evidence });
+    expect(gating).toHaveBeenCalledWith({ summary: "s", label: "l", evidence });
+    expect(arm).toHaveBeenCalledTimes(1);
+    stopGating();
+    recordSettingsWrite("s", "l", arm);
+    expect(journal).toHaveBeenCalledTimes(2);
+    expect(gating).toHaveBeenCalledTimes(1);
+    stopJournal();
+    expect(recordSettingsWrite("s", "l", arm)).toBeNull();
+  });
+
   it("one failed settings request that served several writes journals one row, labelled by the first", async () => {
     const journal = jest.fn();
     const refused = (request: number) => Promise.resolve({ confirmed: false as const, reason: "the settings save answered 500", request });

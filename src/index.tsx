@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import ReactDOM from "react-dom/client";
-import { bindNavbarDrawerToggle, capabilityReport, hostFacts, judgeStatus, listConnectionProfiles, readProfileContextLimit, showConfirmPopup, toggleNavbarDrawer, writeJudgeSecret, type CapabilityReport, type HostFacts } from "@services/STAPI";
+import { bindNavbarDrawerToggle, capabilityReport, hostFacts, judgeStatus, listConnectionProfiles, readProfileContextLimit, showChoicePopup, showConfirmPopup, toggleNavbarDrawer, writeJudgeSecret, type CapabilityReport, type HostFacts } from "@services/STAPI";
 import packageJson from "../package.json";
 import { runJudgeDirectorSelfTest, type JudgeSelfTestReport } from "@judge/index";
 import { getGlobalSettings, setJudgeSettings } from "@runtime/settingsStore";
@@ -20,6 +20,8 @@ import { startRuntime } from "@runtime/index";
 import { STORY_STATE_RETENTION } from "@runtime/persistence";
 import { branchFromOldest, continueFromBranch } from "@runtime/chatIdentity";
 import { exportState } from "@runtime/stateExport";
+import { removalRestore, wiGating } from "@runtime/worldInfoScanHost";
+import WorldInfoGatingGroup from "./components/settings/WorldInfoGatingGroup";
 import { jumpToMessage } from "@runtime/messageJumpHost";
 import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
 import StudioModal, { STUDIO_TAB_IDS, type StudioOpenIntent } from "./studio/StudioModal";
@@ -29,7 +31,7 @@ import DrawerTabs from "./components/drawer/DrawerTabs";
 import HudStrip from "./components/drawer/HudStrip";
 import BranchNotice from "./components/drawer/BranchNotice";
 import HelpTooltip from "./components/studio/HelpTooltip";
-import { useDraftStore, type StoryDraft } from "./studio/draft";
+import { setDiagnosticsContext, useDraftStore, type StoryDraft } from "./studio/draft";
 import "./styles.css";
 
 // v2.3 plan 08: the version the settings panel reports is the one this bundle was built from.
@@ -72,6 +74,7 @@ const openStudio = async (intent?: StudioOpenIntent) => {
     if (source) store.loadDraft(source, active?.hash ?? null);
     else store.newDraft();
   }
+  setDiagnosticsContext({ worldInfoGating: getGlobalSettings().worldInfo.gatingMode });
   setStudioOpen(true, intent);
 };
 
@@ -79,6 +82,7 @@ const openStudio = async (intent?: StudioOpenIntent) => {
 const openWizard = async () => {
   if (useDraftStore.getState().dirty && !(await showConfirmPopup("Start a new story? Your unsaved Studio draft will be discarded.", { okButton: "New story", cancelButton: "Keep editing" }))) return;
   useDraftStore.getState().newDraft();
+  setDiagnosticsContext({ worldInfoGating: getGlobalSettings().worldInfo.gatingMode });
   setStudioOpen(true, { tab: "copilot", stage: "qualities" });
 };
 
@@ -296,10 +300,19 @@ const SettingsPanel = () => {
     const current = manager.getSnapshot();
     const active = current.library.find((story) => story.id === current.storyId);
     if (!active) return;
-    const ok = await showConfirmPopup(`Delete "${active.title}" from the library? Chats already playing it keep their own pinned copy and carry on; new chats can no longer pick it.`, { okButton: "Delete", cancelButton: "Keep" });
-    if (!ok) return;
+    const question = `Delete "${active.title}" from the library? Chats already playing it keep their own pinned copy and carry on; new chats can no longer pick it.`;
+    const restore = removalRestore(active.id);
+    const choice = restore
+      ? await showChoicePopup(`${question} Its ${restore.entries} lorebook ${restore.entries === 1 ? "entry stays" : "entries stay"} off at rest unless you restore ${restore.entries === 1 ? "it" : "them"}.`, {
+        okButton: { id: "delete", label: "Delete" },
+        choices: [{ id: "restore", label: "Delete and restore these lorebook entries" }],
+        cancelButton: "Keep",
+      })
+      : (await showConfirmPopup(question, { okButton: "Delete", cancelButton: "Keep" })) ? "delete" : null;
+    if (!choice) return;
     setBusy(true);
-    await manager.removeStory(active.id);
+    const removed = await manager.removeStory(active.id);
+    if (removed && choice === "restore" && restore) await restore.run();
     setBusy(false);
   };
 
@@ -430,6 +443,15 @@ const SettingsPanel = () => {
               <input type="checkbox" checked={snapshot.talk.enabled} onChange={(event) => manager.setTalkDirectionEnabled(event.target.checked)} />
               <span>Speaker direction <HelpTooltip title="Let checkpoints with talk control decide who speaks next in group chats: name mentions win, then the LLM director, then weighted rules. Swipes, quiet passes, and explicit /trigger are never affected." /></span>
             </label>
+          </div>
+          <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+            <GroupHeader title="Lorebooks" scope="install" id="so-lorebooks-header" />
+            <WorldInfoGatingGroup
+              status={snapshot.wiGating ?? null}
+              authorView={snapshot.ui.authorView}
+              onChoose={(mode) => void (mode === "scan" ? wiGating()?.requestScan() : wiGating()?.requestFile())}
+              onRenormalize={() => void wiGating()?.renormalize()}
+            />
           </div>
           <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
             <GroupHeader title="Stagecraft" scope="install" id="so-stagecraft-header" />

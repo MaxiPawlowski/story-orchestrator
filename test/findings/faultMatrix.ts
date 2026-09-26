@@ -20,6 +20,7 @@ export const FAULT_PACKAGES = [
   "effects",
   "hostDeletes",
   "wiEvidence",
+  "wiNormalize",
 ] as const;
 
 export const FAULT_SHAPES = [

@@ -1,0 +1,510 @@
+{
+  "_note": "v2.5 plan 01 G7: 05-H5 live. A sticky entry (SO-T13 Xentar 'CP1 - Scenario', sticky 3; helpers t13-manual.js) activated in file mode stays active across the switch to per-chat gating made through the product's confirm (no reload, unlike the v2.4 spike's S9), with ST's own sticky record hash still matching the scan's entry hash. Run on a CLEAN HOST at each ST version the README claims (overview V10), and on a lane: so-scenario run test/scenarios/live-v25-01-g7-sticky.json --sandbox --group <a group holding Arin, Ponticius and Luke>. It saves and restores any real library book the confirm normalises. PREDECLARED (plan 01 G7): PASS = CP1 - Scenario fires on the first scan-mode turn AND the sticky record hash matches; no one-time loss is accepted, so any loss FAILS. Never retuned.",
+  "steps": [
+    {
+      "inject_script": "../fixtures/interop/t13-spike.js"
+    },
+    {
+      "inject_script": "../fixtures/interop/t13-manual.js"
+    },
+    {
+      "inject_script": "../fixtures/interop/v25-01-gating.js"
+    },
+    {
+      "eval": "const V = globalThis.__soV25; const M = globalThis.__soT13m; const rt = globalThis.storyOrchestratorRuntime; if (!V || !M) throw new Error('inject t13-spike.js, t13-manual.js and v25-01-gating.js first'); const ctx = SillyTavern.getContext(); if (!ctx.groupId) throw new Error('needs a sandbox GROUP chat'); const wi = rt.getGlobalSettings().worldInfo; if (wi.gatingMode !== 'file' || Object.keys(wi.normalized ?? {}).length) throw new Error(`not fresh (mode ${wi.gatingMode}); run this fixture's cleanup first`); for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const real = [...V.gated().keys()]; const saved = await V.saveBooks(real); V.save({ realBooks: real, startedAt: new Date().toISOString() }); return { realBooksSaved: saved, setup: await M.setup() };",
+      "log": true
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-t13-a",
+        "version": 1,
+        "title": "SO-T13 A",
+        "description": "Humanity's last survivors shelter in the ruined city of Xentar as its magical wards fail. The Adventurers Guild sends a team to recover the legendary Sun's Heart Artifact from the perilous Sun Ruins, past ancient traps and a riddling sphinx.",
+        "arc_template": "rising",
+        "qualities": [
+          {
+            "key": "approached_board",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did the player move close to or examine the guild job board?"
+          },
+          {
+            "key": "mission_accepted",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did the party accept the Sun Ruins mission from the board?"
+          },
+          {
+            "key": "luke_decision",
+            "type": "enum",
+            "values": [
+              "undecided",
+              "accepted",
+              "declined"
+            ],
+            "source": "extractor",
+            "rubric": "Has the player decided whether to bring Luke along? accepted if they agree, declined if they refuse, otherwise undecided."
+          },
+          {
+            "key": "riddle_answer",
+            "type": "enum",
+            "values": [
+              "unanswered",
+              "moon",
+              "wrong"
+            ],
+            "source": "extractor",
+            "scope_hint": {
+              "from": "cp3",
+              "until": "cp-5"
+            },
+            "rubric": "What answer was given to the sphinx's riddle? moon if the correct answer 'the moon' was spoken, wrong if an incorrect answer was given, otherwise unanswered."
+          },
+          {
+            "key": "luke_alive",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is Luke still alive?"
+          },
+          {
+            "key": "chamber_entered",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Has the party entered the inner chamber where the artifact rests?"
+          },
+          {
+            "key": "artifact_secured",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Has the party secured the Sun's Heart Artifact?"
+          },
+          {
+            "key": "reward_claimed",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Has the party returned to the guild and claimed their reward?"
+          },
+          {
+            "key": "guardian_respect",
+            "type": "int",
+            "source": "extractor",
+            "ledger_binding": {
+              "entity": "Sphinx",
+              "field": "respect"
+            },
+            "rubric": "How much does the sphinx guardian respect the party, from 0 (contempt) to 5 (deep respect)?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "cp1",
+            "name": "Investigate the Job Board",
+            "objective": "Get close to the guild's job board to see available missions.",
+            "type": "anchor",
+            "start": true,
+            "tension_target": "calm",
+            "guidance": "A relaxed guild-hall opening. Let the player wander toward the job board at their own pace.",
+            "target_turn_length": 3,
+            "effects": {
+              "world_info": {
+                "enable": [
+                  {
+                    "lorebook": "SO-T13 Xentar",
+                    "comments": [
+                      "CP1 - Mission",
+                      "CP1 - Scenario"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "cp2",
+            "name": "Accept the Mission",
+            "objective": "Pick up the Sun Ruins mission from the board.",
+            "type": "anchor",
+            "tension_target": "stirring",
+            "target_turn_length": 3,
+            "effects": {
+              "world_info": {
+                "enable": [
+                  {
+                    "lorebook": "SO-T13 Xentar",
+                    "comments": [
+                      "CP2 - Mission",
+                      "CP2 - Scenario"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "cp3",
+            "name": "Departure Preparations",
+            "objective": "Decide whether to take Luke along before departing for the Sun Ruins.",
+            "type": "anchor",
+            "tension_target": "stirring",
+            "target_turn_length": 3,
+            "effects": {
+              "world_info": {
+                "enable": [
+                  {
+                    "lorebook": "SO-T13 Xentar",
+                    "comments": [
+                      "CP3 - Luke"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "cp-4a",
+            "name": "Travel with Luke",
+            "objective": "Reach the Sun Ruins with Luke and face the sphinx's riddle.",
+            "type": "intermediate",
+            "tension_target": "tense",
+            "state_snapshot": {
+              "luke_alive": true
+            },
+            "guidance": "The sphinx blocks the only way in. It can be passed by answering its riddle — or by earning its deep respect.",
+            "effects": {
+              "world_info": {
+                "enable": [
+                  {
+                    "lorebook": "SO-T13 Xentar",
+                    "comments": [
+                      "CP4 - Scenario",
+                      "CP4 - Sphinx",
+                      "CP4 - Sphinx's Riddle"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "cp-4b",
+            "name": "Travel Alone",
+            "objective": "Reach the Sun Ruins with only your companion and face the sphinx's riddle.",
+            "type": "intermediate",
+            "tension_target": "tense",
+            "effects": {
+              "world_info": {
+                "enable": [
+                  {
+                    "lorebook": "SO-T13 Xentar",
+                    "comments": [
+                      "CP4 - Scenario",
+                      "CP4 - Sphinx",
+                      "CP4 - Sphinx's Riddle"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "cp-4a1",
+            "name": "Riddle Solved",
+            "objective": "Enter the chamber and approach the artifact.",
+            "type": "intermediate",
+            "tension_target": "tense"
+          },
+          {
+            "id": "cp-4a2",
+            "name": "Riddle Failed",
+            "objective": "Enter the chamber and approach the artifact despite the loss.",
+            "type": "intermediate",
+            "tension_target": "critical",
+            "state_snapshot": {
+              "luke_alive": false
+            },
+            "guidance": "Luke paid for the wrong answer. Grief hangs over the party, but the chamber lies open ahead."
+          },
+          {
+            "id": "cp-5",
+            "name": "Find the Artifact",
+            "objective": "Recover the Sun's Heart Artifact from the inner chamber.",
+            "type": "anchor",
+            "tension_target": "critical",
+            "target_turn_length": 3
+          },
+          {
+            "id": "cp-6",
+            "name": "Return to the Guild",
+            "objective": "Deliver the artifact to the Guild Master and claim your reward.",
+            "type": "anchor",
+            "tension_target": "peak",
+            "target_turn_length": 3,
+            "convergence_threshold": 1,
+            "state_snapshot": {
+              "reward_claimed": true
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "from": "cp1",
+            "to": "cp2",
+            "priority": 1,
+            "gate": {
+              "q": "approached_board",
+              "op": "==",
+              "v": true
+            },
+            "extractor_trigger": "\\b(get close|approach|move closer|examine|investigate|look at|read)\\b.*\\b(board|posting|mission)\\b",
+            "extraction_hint": "Watch for the player moving toward or reading the job board."
+          },
+          {
+            "from": "cp2",
+            "to": "cp3",
+            "priority": 1,
+            "gate": {
+              "q": "mission_accepted",
+              "op": "==",
+              "v": true
+            },
+            "extractor_trigger": "\\b(accept|take|pick up|choose|claim)\\b.*\\b(mission|quest|job|task)\\b",
+            "extraction_hint": "Watch for the player accepting the Sun Ruins mission."
+          },
+          {
+            "from": "cp3",
+            "to": "cp-4a",
+            "priority": 2,
+            "gate": {
+              "q": "luke_decision",
+              "op": "==",
+              "v": "accepted"
+            },
+            "extractor_trigger": "\\b(agree|allow|let|take|bring|include)\\b.*\\b(luke|young adventurer|new companion)\\b",
+            "extraction_hint": "Set luke_decision to accepted when the player agrees to bring Luke."
+          },
+          {
+            "from": "cp3",
+            "to": "cp-4b",
+            "priority": 1,
+            "gate": {
+              "q": "luke_decision",
+              "op": "==",
+              "v": "declined"
+            },
+            "extractor_trigger": "\\b(decline|refuse|deny|leave|go without)\\b.*\\b(luke|young adventurer|new companion)\\b",
+            "extraction_hint": "Set luke_decision to declined when the player refuses to bring Luke."
+          },
+          {
+            "from": "cp-4a",
+            "to": "cp-4a1",
+            "priority": 2,
+            "gate": {
+              "any": [
+                {
+                  "q": "riddle_answer",
+                  "op": "==",
+                  "v": "moon"
+                },
+                {
+                  "q": "guardian_respect",
+                  "op": ">=",
+                  "v": 4
+                }
+              ]
+            },
+            "extractor_trigger": "\\b(the moon|moon)\\b",
+            "extraction_hint": "Set riddle_answer to moon only if the correct answer 'the moon' is spoken. Track guardian_respect if the party impresses the sphinx."
+          },
+          {
+            "from": "cp-4a",
+            "to": "cp-4a2",
+            "priority": 1,
+            "gate": {
+              "q": "riddle_answer",
+              "op": "==",
+              "v": "wrong"
+            },
+            "extraction_hint": "Set riddle_answer to wrong if an incorrect answer is given to the sphinx.",
+            "extractor_trigger": "\b(wrong|incorrect|fail(s|ed|ure)?)\b"
+          },
+          {
+            "from": "cp-4b",
+            "to": "cp-5",
+            "priority": 1,
+            "gate": {
+              "q": "riddle_answer",
+              "op": "==",
+              "v": "moon"
+            },
+            "effects": {
+              "progress": {
+                "anchor": "cp-6",
+                "amount": 1
+              }
+            },
+            "extractor_trigger": "\\b(the moon|moon)\\b"
+          },
+          {
+            "from": "cp-4a1",
+            "to": "cp-5",
+            "priority": 1,
+            "gate": {
+              "q": "chamber_entered",
+              "op": "==",
+              "v": true
+            },
+            "effects": {
+              "progress": {
+                "anchor": "cp-6",
+                "amount": 1
+              }
+            },
+            "extractor_trigger": "\\b(investigate|approach|examine|enter|inspect|study)\\b.*\\b(chamber|room|hall|space)\\b"
+          },
+          {
+            "from": "cp-4a2",
+            "to": "cp-5",
+            "priority": 1,
+            "gate": {
+              "q": "chamber_entered",
+              "op": "==",
+              "v": true
+            },
+            "effects": {
+              "progress": {
+                "anchor": "cp-6",
+                "amount": 1
+              }
+            },
+            "extractor_trigger": "\\b(investigate|approach|examine|enter|inspect|study)\\b.*\\b(chamber|room|hall|space)\\b"
+          },
+          {
+            "from": "cp-5",
+            "to": "cp-6",
+            "priority": 1,
+            "gate": {
+              "all": [
+                {
+                  "q": "artifact_secured",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "progress_toward_cp-6",
+                  "op": ">=",
+                  "v": 1
+                }
+              ]
+            },
+            "extractor_trigger": "\\b(return|go back|head back|depart|travel back)\\b.*\\b(guild|xentar)\\b",
+            "extraction_hint": "Watch for the party securing the artifact and setting out for the guild."
+          }
+        ],
+        "roster": [
+          {
+            "id": "dm",
+            "name": "DM Narrator"
+          },
+          {
+            "id": "companion",
+            "name": "Arin"
+          },
+          {
+            "id": "guild_master",
+            "name": "Ponticius"
+          },
+          {
+            "id": "little_brother",
+            "name": "Luke"
+          }
+        ],
+        "arc_bridges": [
+          {
+            "arcMatch": "sun's heart",
+            "anchor": "cp-6",
+            "amount": 1
+          },
+          {
+            "arcMatch": "missing brother",
+            "anchor": "cp-6",
+            "amount": 1
+          }
+        ],
+        "requirements": {
+          "lorebooks": [
+            "SO-T13 Xentar"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV25; const M = globalThis.__soT13m; const rt = globalThis.storyOrchestratorRuntime; if (!V || !M) throw new Error('inject t13-spike.js, t13-manual.js and v25-01-gating.js first'); if (rt.getSnapshot().storyId !== 'so-t13-a' || !rt.getSnapshot().requirements.ready) throw new Error(`chat A: ${JSON.stringify({ story: rt.getSnapshot().storyId, requirements: rt.getSnapshot().requirements })}`); return { A: M.here('A'), path: rt.getEngineState()?.visitedPath };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "select-profile"
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV25; const M = globalThis.__soT13m; const rt = globalThis.storyOrchestratorRuntime; if (!V || !M) throw new Error('inject t13-spike.js, t13-manual.js and v25-01-gating.js first'); globalThis.__g7 = { before: M.slots() }; return globalThis.__g7;",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I look over the notice board and the busy room.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV25; const M = globalThis.__soT13m; const rt = globalThis.storyOrchestratorRuntime; if (!V || !M) throw new Error('inject t13-spike.js, t13-manual.js and v25-01-gating.js first'); const slot = await M.settled(globalThis.__g7.before); const probe = await M.stickyProbe('G7 file: after the first real turn at cp1'); if (!slot.fired.includes('CP1 - Scenario')) throw new Error(`G7 setup: CP1 - Scenario did not fire in file mode: ${JSON.stringify(slot.fired)}`); if (!probe.sticky) throw new Error(`G7 setup: no sticky record for CP1 - Scenario: ${JSON.stringify(probe)}`); return { fired: slot.fired, probe };",
+      "log": true
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 3000,
+        "timeoutMs": 240000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV25; const M = globalThis.__soT13m; const rt = globalThis.storyOrchestratorRuntime; if (!V || !M) throw new Error('inject t13-spike.js, t13-manual.js and v25-01-gating.js first'); const activation = await V.confirmScan(); const probe = await M.stickyProbe('G7 scan: after the confirmed switch (no reload), before a turn'); globalThis.__g7 = { before: M.slots() }; return { activation, probe };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I stay close to the others and keep listening.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV25; const M = globalThis.__soT13m; const rt = globalThis.storyOrchestratorRuntime; if (!V || !M) throw new Error('inject t13-spike.js, t13-manual.js and v25-01-gating.js first'); const slot = await M.settled(globalThis.__g7.before); const probe = await M.stickyProbe('G7 scan: after the first real turn in scan mode'); const verdict = { fired: slot.fired.includes('CP1 - Scenario'), hashMatches: probe.hashMatches === true, probe }; if (!verdict.fired || !verdict.hashMatches) throw new Error(`G7 FAIL: CP1 - Scenario did not stay active across the switch (no one-time loss was predeclared): ${JSON.stringify(verdict)}`); return verdict;",
+      "log": true
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 3000,
+        "timeoutMs": 240000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV25; const M = globalThis.__soT13m; const rt = globalThis.storyOrchestratorRuntime; if (!V || !M) throw new Error('inject t13-spike.js, t13-manual.js and v25-01-gating.js first'); if (rt.getSnapshot().library.some((r) => r.id === 'so-t13-a')) await rt.removeStory('so-t13-a'); await globalThis.storyOrchestratorScanGating.requestFile(); const books = await V.restoreBooks(); const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.worldInfo = { gatingMode: 'file', normalized: {}, normalizedFrom: {} }; SillyTavern.getContext().saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); M.off?.(); const record = M.report?.() ?? M.load(); if (Object.values(books.identical ?? {}).some((same) => !same)) throw new Error(`cleanup: a real book did not read back identical: ${JSON.stringify(books)}`); return { books, record };",
+      "log": true
+    },
+    {
+      "assets": {
+        "action": "remove",
+        "marker": "SO-T13"
+      }
+    }
+  ]
+}
