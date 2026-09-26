@@ -375,7 +375,12 @@ export class EffectsApplier {
       const count = extras.firedNpcReplies[key] ?? 0;
       const max = Math.max(1, reply.maxTriggers ?? 1);
       if (count >= max) continue;
-      if (typeof reply.probability === "number" && Math.random() > reply.probability) continue;
+      if (typeof reply.probability === "number") {
+        const roll = Math.random();
+        const fired = roll <= reply.probability;
+        this.deps.journal?.(`NPC reply ${reply.member} (${trigger}) ${fired ? "fired" : "skipped"} by its roll`, `rolled ${roll.toFixed(3)} against ${reply.probability} at ${key}`);
+        if (!fired) continue;
+      }
       extras.firedNpcReplies[key] = count + 1;
       await fireReply(reply);
       if (!run.stillOwns()) return;
