@@ -40,9 +40,16 @@ export function emptyCwd(label = "cwd") {
   return fs.mkdtempSync(path.join(ROOT, `${label}-`));
 }
 
+export const PASS_THROUGH = [
+  "HTTPS_PROXY", "HTTP_PROXY", "NO_PROXY", "ALL_PROXY", "NODE_EXTRA_CA_CERTS", "SSL_CERT_FILE", "SSL_CERT_DIR",
+  "CODEX_CA_CERTIFICATE", "DO_NOT_TRACK", "DISABLE_TELEMETRY", "DISABLE_ERROR_REPORTING",
+  "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC",
+];
+
 export function envFor(harness, home, extra = {}) {
   const env = {};
   for (const k of PASS) if (process.env[k] !== undefined) env[k] = process.env[k];
+  for (const k of PASS_THROUGH) if (process.env[k] !== undefined) env[k] = process.env[k];
   env.USERPROFILE = home;
   env.HOME = home;
   env.HOMEPATH = home.slice(2);
@@ -114,7 +121,12 @@ export async function run(harness, argv, opts = {}) {
   const { env, cwd, stdin = "", timeoutMs = 120000, maxOutputChars = 0, watch = false, bin = BIN[harness], shell = false } = opts;
   const t0 = performance.now();
   let spawnMs = null;
-  const child = spawn(bin, argv, { env, cwd, shell, windowsHide: true });
+  let child;
+  try {
+    child = spawn(bin, argv, { env, cwd, shell, windowsHide: true });
+  } catch (e) {
+    return { harness, stdout: "", stderr: "", code: null, killed: null, pid: null, tree: [], remotes: [], samples: 0, spawnError: `${e.code ?? ""} sync ${e.message}`, wallMs: Math.round(performance.now() - t0), spawnMs: null };
+  }
   const result = { harness, stdout: "", stderr: "", code: null, killed: null, pid: child.pid, tree: new Map(), remotes: new Map(), samples: 0 };
   child.on("spawn", () => { spawnMs = performance.now() - t0; });
   let done = false;

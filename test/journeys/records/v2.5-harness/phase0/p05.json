@@ -1,0 +1,58 @@
+{
+  "probe": "p05",
+  "started": "2026-09-26T14:23:05.739Z",
+  "finished": "2026-09-26T14:27:51.704Z",
+  "node": "v22.22.0",
+  "data": {
+    "bound2000": {
+      "code": 0,
+      "killed": "output-bound",
+      "wallMs": 139373,
+      "spawnMs": 7,
+      "spawnError": null,
+      "text": "# Rivers: The Moving Architecture of Earth\n\nA river is among the most familiar things in the world, yet it is difficult to say exactly where one begins or ends. Its beginning may be a spring beneath a",
+      "inputTokens": 137,
+      "cacheRead": 0,
+      "outputTokens": 4627,
+      "totalIn": 137,
+      "reasons": [
+        "stop"
+      ],
+      "types": [
+        "step_start",
+        "text",
+        "step_finish"
+      ],
+      "toolEvents": 0,
+      "errors": [],
+      "canariesInReply": [],
+      "stderrHead": "",
+      "stdoutChars": 27795
+    },
+    "envTokenMax300": {
+      "code": 0,
+      "killed": null,
+      "wallMs": 146580,
+      "spawnMs": 7,
+      "spawnError": null,
+      "text": "# Rivers: The Moving Architecture of the Earth\n\nA river is among the most familiar features of the natural world, yet it resists simple definition. It is water moving downhill, but it is also the chan",
+      "inputTokens": 136,
+      "cacheRead": 0,
+      "outputTokens": 4498,
+      "totalIn": 136,
+      "reasons": [
+        "stop"
+      ],
+      "types": [
+        "step_start",
+        "text",
+        "step_finish"
+      ],
+      "toolEvents": 0,
+      "errors": [],
+      "canariesInReply": [],
+      "stderrHead": "",
+      "textChars": 25682
+    }
+  }
+}

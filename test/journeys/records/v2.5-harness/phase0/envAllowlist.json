@@ -1,0 +1,66 @@
+{
+  "probe": "envAllowlist",
+  "started": "2026-09-26T12:50:01.358Z",
+  "finished": "2026-09-26T12:50:01.566Z",
+  "node": "v22.22.0",
+  "data": {
+    "secretNamesInParent": [
+      "ANTHROPIC_AUTH_TOKEN",
+      "ANTHROPIC_BASE_URL",
+      "ANTHROPIC_DEFAULT_FABLE_MODEL",
+      "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+      "ANTHROPIC_DEFAULT_OPUS_MODEL",
+      "ANTHROPIC_DEFAULT_SONNET_MODEL",
+      "ANTHROPIC_MODEL",
+      "CLAUDE_CODE_MESSAGING_TOKEN",
+      "CLAUDE_CODE_OAUTH_SCOPES"
+    ],
+    "allowlisted": {
+      "ANTHROPIC_AUTH_TOKEN": "absent",
+      "ANTHROPIC_BASE_URL": "absent",
+      "ANTHROPIC_DEFAULT_FABLE_MODEL": "absent",
+      "ANTHROPIC_DEFAULT_HAIKU_MODEL": "absent",
+      "ANTHROPIC_DEFAULT_OPUS_MODEL": "absent",
+      "ANTHROPIC_DEFAULT_SONNET_MODEL": "absent",
+      "ANTHROPIC_MODEL": "absent",
+      "CLAUDE_CODE_MESSAGING_TOKEN": "absent",
+      "CLAUDE_CODE_OAUTH_SCOPES": "absent",
+      "SO_P0_SECRET_CANARY": "absent",
+      "HTTPS_PROXY": "present-unchanged",
+      "NO_PROXY": "present-unchanged",
+      "NODE_EXTRA_CA_CERTS": "present-unchanged",
+      "DO_NOT_TRACK": "present-unchanged"
+    },
+    "controlFullEnv": {
+      "ANTHROPIC_AUTH_TOKEN": "present-unchanged",
+      "ANTHROPIC_BASE_URL": "present-unchanged",
+      "ANTHROPIC_DEFAULT_FABLE_MODEL": "present-unchanged",
+      "ANTHROPIC_DEFAULT_HAIKU_MODEL": "present-unchanged",
+      "ANTHROPIC_DEFAULT_OPUS_MODEL": "present-unchanged",
+      "ANTHROPIC_DEFAULT_SONNET_MODEL": "present-unchanged",
+      "ANTHROPIC_MODEL": "present-unchanged",
+      "CLAUDE_CODE_MESSAGING_TOKEN": "present-unchanged",
+      "CLAUDE_CODE_OAUTH_SCOPES": "present-unchanged",
+      "SO_P0_SECRET_CANARY": "present-unchanged",
+      "HTTPS_PROXY": "present-unchanged",
+      "NO_PROXY": "present-unchanged",
+      "NODE_EXTRA_CA_CERTS": "present-unchanged",
+      "DO_NOT_TRACK": "present-unchanged"
+    },
+    "pass": true,
+    "passThroughList": [
+      "HTTPS_PROXY",
+      "HTTP_PROXY",
+      "NO_PROXY",
+      "ALL_PROXY",
+      "NODE_EXTRA_CA_CERTS",
+      "SSL_CERT_FILE",
+      "SSL_CERT_DIR",
+      "CODEX_CA_CERTIFICATE",
+      "DO_NOT_TRACK",
+      "DISABLE_TELEMETRY",
+      "DISABLE_ERROR_REPORTING",
+      "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC"
+    ]
+  }
+}

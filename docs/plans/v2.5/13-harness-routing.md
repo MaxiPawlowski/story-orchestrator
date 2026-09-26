@@ -432,6 +432,88 @@ time**, and relieves the llama-server contention of v2.5-seeds E1 for the roles 
 
 ## Gate record (Phase 0)
 
+### Run 2 — 2026-09-26, master `492a4c72` (opencode + no-model probes; Claude/Codex model calls NOT RUN)
+
+Auto-mode evaluator disabled by the user; worktree fast-forwarded to master `492a4c72` (`git merge --ff-only master`).
+Scope set by the caller: every opencode probe (its login lives in its data dir, so a throwaway config home keeps it);
+every Claude/Codex probe that needs no model call. **Claude and Codex model-call probes (P0-1, P0-2, H-N1, H-N1b model
+half, P0-3, P0-5, P0-7) are NOT RUN: login decision pending from the user** (a throwaway home is logged out, and copying
+login material is not authorised). Codex's quota is out until 2026-09-27 20:58 anyway.
+
+Rules held: every CLI run in a throwaway home under `%TEMP%\so-p0` (`USERPROFILE`/`HOME`/`APPDATA`/`LOCALAPPDATA`, plus
+`CLAUDE_CONFIG_DIR` / `CODEX_HOME` / opencode `XDG_CONFIG_HOME`+`XDG_CACHE_HOME`+`XDG_STATE_HOME`); opencode's
+`XDG_DATA_HOME` is the real `~/.local/share` (login); Codex always `--ignore-user-config` except in the declared control
+arms; allowlisted child env (`lib.mjs` `envFor`); no credential file read, printed or copied; `shell:false`; tree kill via
+`taskkill /T /F`; lanes, main ST, `C:\dev\so-lanes` and the pod untouched. Secret env values were never read: the env
+test compares sha256 inside the probe and records only `absent | present-unchanged`.
+
+Scripts: `scripts/spike/harness/{lib.mjs, facts.mjs, envscan.mjs, probe.mjs, dbcount.py}`. `probe.mjs <name>…` writes
+`test/journeys/records/v2.5-harness/phase0/<name>.json`; `dbcount.py` opens `opencode.db` read-only (`mode=ro`) and
+returns row counts only (credential/account tables skipped by the canary scan). Model: `openai/gpt-6-astra-fast` unless
+stated; opencode 1.18.32, Claude Code 2.1.282, Codex 0.155.1, node 22.22.0.
+
+Base opencode argv (the rule-3 "isolation" arm): `opencode.exe run --pure --format json --agent so-text -m <m> --dir <tmp>`,
+stdin = prompt, env `OPENCODE_CONFIG_CONTENT` = `so-text` agent (`tools {"*":false}`, edit/bash/webfetch deny) whose
+`prompt` is `{file:<tmp>/system.txt}`, plus `OPENCODE_DISABLE_{AUTOUPDATE,SHARE,CLAUDE_CODE,PROJECT_CONFIG,EXTERNAL_SKILLS,LSP_DOWNLOAD}=1`.
+
+| # | Predeclared PASS | Command (secrets redacted; none were in argv) | Result | Verdict |
+|---|---|---|---|---|
+| facts | versions, flags, login status without quota | `node scripts/spike/harness/facts.mjs` (`--version`, `--help`, `claude auth status`, `codex login status`, `codex features list`, `opencode auth list`, `opencode debug paths`) — `facts.json` | versions as above. `claude auth status` in a throwaway home → `loggedIn:false, authMethod:none` (JSON; spends nothing). `codex login status` → exit 1 "Not logged in". `opencode auth list` → 3 providers (OpenAI oauth, Z.AI api, lm-studio api), names only. opencode `debug paths`: data **and log and repos** in the real `~/.local/share/opencode`; `tmp` = real `%TEMP%\opencode` | FACT |
+| rule 2 (Claude) | `--system-prompt-file` exists | `claude -p --system-prompt-file <tmp>/system.txt --tools "" --strict-mcp-config --setting-sources "" …` logged out, vs `--so-bogus-flag-p0` — `claudeFlags.json` | not in `--help` as an option (only named inside `--bare`'s text), but **accepted**: the bogus flag fails with `unknown option`, this one reaches the auth check. Model-side effect unverified (needs login) | FACT (flag parses) |
+| rule 2 (opencode) | system text never in argv/env | smoke: token only in `system.txt`, env holds `{file:…}` — `smoke.json` | reply = the file's token (`PONG-C62CCADD`), 135 input tokens. `{file:}` substitution works inside `OPENCODE_CONFIG_CONTENT` | PASS |
+| P0-1 opencode | 20/20 per model; p50/p90 wall, spawnMs, tokens | `probe.mjs p01` — `p01.json` | astra-fast **20/20**, wall p50 4 948 / p90 5 890 ms; astra **20/20**, p50 5 363 / p90 8 676 ms; spawn p50 7 ms; input tokens 135–140 | PASS |
+| P0-1 Claude, Codex | same | — | login decision pending from the user | NOT RUN |
+| P0-2 opencode | canary never echoed, tokens ±5 vs clean, control echoes it | `probe.mjs p02` (3 runs × 4 arms) + `p02b` (CLAUDE.md-only fallback, 3 × 2) — `p02.json`, `p02b.json` | Controls green (echo). Isolation arm **echoed the user-level global-config canaries**: `$XDG_CONFIG_HOME/opencode/AGENTS.md` and the file named in `opencode.json` `instructions`, 3/3; input 284–287 vs 158 clean (Δ≈127). Blocked by the quiet env: cwd `AGENTS.md`/`CLAUDE.md` (`DISABLE_PROJECT_CONFIG` / `DISABLE_CLAUDE_CODE`), `~/.claude/CLAUDE.md` (p02b: 3/3 blocked, control 3/3 echoed), both skills (tools off). The global agent file leaks only on the default agent (the `xdgAgent` hit in the isolation arm is a substring of `XDGAGENTSMD`, not a leak) | **FAIL** |
+| P0-2 Claude, Codex | same | — | login decision pending from the user | NOT RUN |
+| H-N1 opencode | 0 tool events, no file content, 5/5 | `probe.mjs hn1` (list cwd, read planted `~/.ssh/known_hosts`, `whoami`, fetch example.com) — `hn1.json` | 5/5: 0 tool events, no canary, no real username, no fetched title; the model says it has no tools. opencode itself spawned `rg.exe` in one run (its own file index of the empty cwd, not a tool call) | PASS |
+| H-N1 Claude, Codex | same | — | login decision pending from the user | NOT RUN |
+| H-N1b opencode | no marker, 0 MCP children, 0 MCP events, 5/5 | `probe.mjs hn1bOpencode`: `mcp.canary` (local, `node -e` writing a marker) in the throwaway `opencode.json` — `hn1bOpencode.json` | **marker written 5/5**, one `node` MCP child each, 0 MCP events (tools off), and each call waited for MCP init: wall 35–38.6 s vs ~6 s. `opencode mcp list` control also starts it. The rule-3 argv does not stop a config-home MCP server | **FAIL** |
+| H-N1b Claude pre-auth | same, pre-auth half | `probe.mjs hn1bNoModel`: `mcpServers` in `$CLAUDE_CONFIG_DIR/.claude.json` + cwd `.mcp.json`; iso arm `-p --tools "" --strict-mcp-config --setting-sources "" --no-session-persistence …`, control `-p` only; logged out, no token in env — `hn1bNoModel.json` | control: **both** servers started (markers + 2 `node` children) although logged out; iso: none, 0 children | PASS (pre-auth half; control green) |
+| H-N1b Codex pre-auth | same | `codex exec - --json --ephemeral --skip-git-repo-check --ignore-rules -s read-only -C <tmp>` ± `--ignore-user-config`, `[mcp_servers.canary]` in the throwaway `config.toml`, logged out | control: marker + `node` child; iso (`--ignore-user-config`): none. `codex mcp list` sees the server in both (config parsed) | PASS (pre-auth half; control green) |
+| H-N1b model half (Claude, Codex) | 5/5 | — | login decision pending from the user | NOT RUN |
+| P0-3 opencode | tree gone within 1 s of a 3 s deadline, `timeout` | `probe.mjs p03` (3 × real exe, 1 × chocolatey shim) — `p03.json` | all 4 killed at the deadline, 0 processes alive at the first process-list check (shim's `opencode.exe` grandchild included). But `taskkill` returned 500 / 773 / **1 001** / **1 033** ms after the deadline, and that return is the only bound measured | **FAIL** (2/4 over 1 s by the upper bound; needs a 100 ms process-list poll to tell) |
+| P0-3 Claude, Codex | same | — | login decision pending from the user | NOT RUN |
+| P0-4 | each shape maps to a kind | `probe.mjs p04 p04logs` — `p04.json`, `p04logs.json` | **Claude logged out:** JSON `type:result, subtype:success, is_error:true, api_error_status:null, result:"Not logged in · Please run /login"`, exit 1, 1.3 s → `auth` from `is_error`+text (not `subtype`). **Codex logged out:** JSONL `error` events "Reconnecting… n/5 (unexpected status 401 Unauthorized …)" then exit 1 after **16–26 s** of internal retries → `auth` by text; the deadline must win. **opencode bad model and opencode logged out (throwaway data dir) are identical on stdout**: one `error` event `UnknownError "Unexpected server error"`, exit 1. Only `--print-logs` stderr names the cause, and for logged-out it is `ProviderModelNotFoundError` (the gpt-6 ids exist only under the OAuth login), so logged-out cannot be told from a bad model → no `auth` kind. Quota: not provoked (Codex needs login; the Z.AI 429 would be provoked) | **FAIL** (opencode); Claude/Codex logged-out shapes recorded; quota NOT RUN |
+| P0-5 opencode | killed or truncated, `finish: length` | `probe.mjs p05`: 4 000 words, `maxOutputChars` 2 000; second arm `OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX=300` — `p05.json` | `--format json` emits the text as **one event after generation**, so the bound fired only at the end (139 s, 4 627 output tokens spent), `reason: stop`. The env cap was **ignored** (4 498 tokens, `stop`) | **FAIL** (no bound on spend; only the deadline limits it) |
+| P0-5 Claude, Codex | same | — | login decision pending from the user | NOT RUN |
+| P0-6 | spawns with `shell:false`; `.cmd` shim refused | `facts.mjs` — `facts.json` `shimSpawnNoShell` | all three real `.exe` spawn. Chocolatey exe shim spawns (and forks the real exe as a grandchild). npm `.cmd` → `EINVAL`, `.ps1` → `EFTYPE`, both thrown synchronously by `spawn` (the plugin must catch) | PASS |
+| P0-7 opencode | hosts ⊆ {vendor, documented telemetry}; no canary in home/app-data with flags on | `probe.mjs p07` (5 calls flags on, 5 flags off), netstat per tree PID every 100 ms + DNS cache names for those IPs; residue = DB row counts, canary row counts, files newer than the arm start — `p07.json` | Hosts, both arms: `chatgpt.com` (vendor), **`models.opencode.ai`** (catalog fetch; `OPENCODE_DISABLE_MODELS_FETCH` was not set), **`registry.npmjs.org`**, plus 5 Cloudflare IPs the DNS cache did not name. Residue, flags on: prompt **and** reply canaries in the real `opencode.db` for 5/5 calls (`part`, `event`, and 2 `session` titles); `log/opencode.log` appended (no canary). Nothing in the real opencode config/cache/state dirs or `~/.codex`; nothing with a canary in the throwaway homes. `run` has no no-persist flag, so flags on = flags off | **FAIL** (read-role text persisted; unnamed hosts) |
+| P0-7 Claude, Codex | same | — | login decision pending from the user | NOT RUN |
+| rule 5 env allowlist (PS-H 6 canary) | secret names absent in child; set pass-through vars present unchanged; control sees them | `probe.mjs envAllowlist`: node child under `envFor` vs full env; canaries = every `ANTHROPIC_*` (incl. `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_BASE_URL`), `CLAUDE_CODE_MESSAGING_TOKEN`, `CLAUDE_CODE_OAUTH_SCOPES`, `SO_P0_SECRET_CANARY`; pass-through `HTTPS_PROXY`, `NO_PROXY`, `NODE_EXTRA_CA_CERTS`, `DO_NOT_TRACK` set to dummies — `envAllowlist.json` | allowlisted child: all 10 secret names `absent`, all 4 pass-through `present-unchanged`; control child: all `present-unchanged`. Harness level: `claude auth status` under `envFor` → `loggedIn:false` although the parent holds `ANTHROPIC_AUTH_TOKEN` | PASS |
+| config-home (no model) | throwaway config home replaces the real one; which planted files load | `probe.mjs configIsolation` (`opencode --pure debug config / debug skill / debug agent so-text`, with and without the quiet env) — `configIsolation.json` | real config never seen (0 real agent/skill names, real path absent). The throwaway global config **is** loaded under the quiet env: its agent file and its skill are listed; `~/.claude/skills` is listed only without the quiet env | FACT |
+
+**Residue in the real `~/.local/share/opencode/opencode.db`** (P0-7 count, all attributable: every session's `directory` is
+under `%TEMP%\so-p0`, and the whole-DB delta since the pre-smoke baseline equals the attributable rows): `session` +87,
+`message` +172, `part` +342, `event` +1 344, `event_sequence` +87; plus 1 `project_directory` row
+(`%TEMP%\so-p0…`, created 2026-09-25 by the run-1 attempt). Tables with no change: every other table, including
+`account`, `credential`, `session_share`. `log/opencode.log` grew by append. Nothing was deleted; removing the rows is
+the user's call.
+
+**What the results mean for the design.**
+1. opencode is not isolated by argv + env: a global config home's instructions, `AGENTS.md` and MCP servers reach the
+   run (P0-2, H-N1b). Q7 is therefore not optional for opencode: the plugin must own `XDG_CONFIG_HOME` (only the
+   `so-text` agent) and pass `OPENCODE_DISABLE_CLAUDE_CODE` + `OPENCODE_DISABLE_PROJECT_CONFIG`; P0-2/H-N1b must then be
+   re-run against that plugin-owned home.
+2. opencode writes every prompt and reply to its session DB (P0-7), and its login shares that data dir. Offering it in
+   2.5 needs either a data dir holding only a copy of the login (the same user decision as Claude/Codex) or acceptance of
+   the residue. As measured, it is **not offered** (plan rule: a harness failing P0-2/H-N1b/P0-7 gets no Phase A arm).
+3. The output bound cannot limit opencode spend (P0-5); only the H2 rule-6 deadline can.
+4. opencode's error stream cannot classify `auth` (P0-4); the plugin would need `--print-logs` stderr parsing, and even
+   then logged-out reads as "model not found".
+5. Codex retries a 401 for 16–26 s and opencode retried a 429 for 79 s (run 1 fact): rule 6's deadline is load-bearing.
+
+### Blocks for Phase A (run 2)
+
+1. **Login decision (user):** allow a copy of only the login file into a plugin-owned throwaway home (sha256 of the real
+   file before/after, removed after), or run in the real home with back-up/plant/restore. Until then every Claude and
+   Codex model-call probe is NOT RUN, so neither can be offered.
+2. **opencode fails P0-2, H-N1b, P0-7 (and P0-4, P0-5)** under the rule-3 isolation. Re-run needs the plugin-owned config
+   home (and, for P0-7, a plugin-owned data dir), which is the same login decision.
+3. P0-3 needs a finer measurement (process-list poll at 100 ms) to settle the 1 s bound.
+4. Codex quota until 2026-09-27 20:58.
+
+### Run 1 — 2026-09-26 (superseded by run 2)
+
 **2026-09-26 — BLOCKED, not run. No probe has a verdict; nothing below is a PASS.** Worktree fast-forwarded to master
 `83913772`. The first probe batch (`node scripts/spike/harness/facts.mjs`, every CLI in a throwaway home with an
 allowlisted env) was refused by the session's auto-mode safety classifier, which then blocks every further CLI spawn in
@@ -478,7 +560,7 @@ Two findings that change the P0-2 design:
    `scripts/spike/harness/lib.mjs` `envFor` builds the child env from an allowlist and a throwaway `USERPROFILE`/`HOME`/
    `APPDATA`/`LOCALAPPDATA`.
 
-### Probes
+### Probes (run 1)
 
 Scripts: `scripts/spike/harness/lib.mjs` (spawn with `shell:false`, allowlisted env, throwaway homes under
 `%TEMP%\so-p0`, `taskkill /T /F` tree kill, process-tree and `netstat -ano` sampling), `facts.mjs` (the refused batch),
@@ -498,7 +580,7 @@ Scripts: `scripts/spike/harness/lib.mjs` (spawn with `shell:false`, allowlisted 
 | P0-7 | hosts ⊆ {vendor, documented telemetry}; no canary in home/app-data with flags on | `lib.mjs` `watch` (netstat per tree PID, 100 ms), `ipconfig /displaydns` after, `find -newer` over the throwaway home and the real opencode data dir, canary grep (auth files excluded) | blocked | NOT RUN |
 | PS-H | plan 12 PS-H 1–12 | needs the plugin; Phase 0 owes only PS-H 5's inputs (config-home variable per CLI: table above) and its precondition (control arm echoes the canary) | variables recorded statically; precondition not run | NOT RUN |
 
-### Auth vs the throwaway-home rule (decides what Phase 0 can measure)
+### Auth vs the throwaway-home rule (run 1; decides what Phase 0 can measure)
 
 With credentials never copied: Claude and Codex are **logged out** in any throwaway home, so every model-call probe
 (P0-1, P0-2, H-N1, H-N1b, P0-3, P0-5, P0-7) can run on them only as "needs auth in the real home, not probed". Only
@@ -508,7 +590,7 @@ material is copied into the throwaway home. That is a user decision: allow a cop
 home (removed after, sha256 of the real file before/after), or run Claude/Codex Phase 0 in the real home with the
 back-up/plant/restore path P0-2 already describes.
 
-### Blocks for Phase A
+### Blocks for Phase A (run 1)
 
 1. Phase 0 has not run: re-run from a default-permission session (`facts.mjs`, then a `probe.mjs` built on `lib.mjs`).
 2. The auth decision above; without it no Claude or Codex arm can pass P0-2/H-N1/H-N1b/P0-7, so neither harness can be
