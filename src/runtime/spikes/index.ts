@@ -2,6 +2,7 @@ import { getContext } from "@services/STAPI";
 import { log } from "@utils/log";
 import type { RuntimeManager } from "../runtimeManager";
 import { getGlobalSettings } from "../settingsStore";
+import { publishSpikeDebug } from "../spikeDebug";
 import type { TurnBridge } from "../turnBridge";
 import { RecommitEdit } from "./recommitEdit";
 import { chatStore, SwipeBack } from "./swipeBack";
@@ -26,11 +27,11 @@ export function installSpikes(bridge: TurnBridge, manager: RuntimeManager): () =
   });
   const swipe = new SwipeBack({ host: manager, store: chatStore, enabled: () => getGlobalSettings().spikes.swipeBackCache, chat: openChat });
   bridge.setMutationSeam((kind, messageId) => recommit.seam(kind, messageId) ?? swipe.seam(kind, messageId));
-  globalThis.storyOrchestratorSpikes = { recommitEdit: { stats: () => ({ ...recommit.stats }) }, swipeBackCache: { stats: () => ({ ...swipe.stats }) } };
+  const unpublish = publishSpikeDebug({ recommitEdit: { stats: () => ({ ...recommit.stats }) }, swipeBackCache: { stats: () => ({ ...swipe.stats }) } });
   return () => {
     bridge.setMutationSeam(null);
     recommit.dispose();
     swipe.dispose();
-    globalThis.storyOrchestratorSpikes = undefined;
+    unpublish();
   };
 }

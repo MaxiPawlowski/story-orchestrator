@@ -9,6 +9,10 @@
       "status": "checked",
       "note": "v2.5 plan 09 SP2 spike (2026-09-26; dev-only import, install-wide flag spikes.recommitEdit, default off): the run is minted when the bridge hands the edit over, before the rollback, and is re-checked on entry, after the rollback (before the re-enqueue and the re-commit) and after the re-commit (before the read). commitBoundary and runExtractionNow mint their own runs; the stats it bumps are in-memory counters."
     },
+    "src/runtime/wiring/spikes.ts#refreshSpikes": {
+      "status": "local",
+      "note": "v2.5 plan 09 SP9 spike (2026-09-26): after awaiting the dev-only import of the witness filter it writes only the module-level spikeHooks.witness slot and its own dispose handle, in memory, and only while its own epoch is current (a later refresh or stopSpikes bumps it). Nothing chat-scoped or persisted; the filter it starts keeps its witness records in WeakMaps keyed by live message objects and never writes the chat."
+    },
     "src/runtime/sceneArmRunner.ts#sceneArmRunner>anonymous": {
       "status": "local",
       "note": "v2.5 plan 05 F3 spike (2026-09-26): the so-f3-arms probe. Writes only the SceneArmResult it builds and returns (promptChars, passes, signals); it reads no chat, writes no store, chat metadata or host state, so a chat switch mid-run changes nothing it writes."

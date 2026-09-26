@@ -8,15 +8,22 @@ const DEV_ONLY = [
   "src/stagecraft/createCandidate.ts",
   "src/judge/calibration.ts",
   "src/judge/selfTestCases.ts",
+];
+const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
+const SPIKES = [
   "src/runtime/spikes/index.ts",
   "src/runtime/spikes/recommitEdit.ts",
   "src/runtime/spikes/swipeBack.ts",
   "src/runtime/spikes/swipeCache.ts",
+  "src/runtime/spikes/toolTurnProbe.ts",
+  "src/runtime/spikes/toolTurnSummary.ts",
+  "src/runtime/spikes/witnessFilter.ts",
+  "src/runtime/spikes/witnessFilterHost.ts",
 ];
-const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
+const SPIKE_PATTERN = /^src\/runtime\/spikes\//;
 const LAZY_USER_FEATURES = ["src/judge/selfTest.ts", "src/runtime/selfTest.ts", "src/runtime/roleSelfTest.ts", "src/extraction/fixtureRun.ts"];
 
-const isDevOnly = (path: string) => DEV_ONLY.includes(path) || DEV_ONLY_PATTERN.test(path);
+const isDevOnly = (path: string) => DEV_ONLY.includes(path) || DEV_ONLY_PATTERN.test(path) || SPIKE_PATTERN.test(path);
 const ENTRY = join(SRC, "index.tsx");
 
 const staticReach = (files: string[], read?: (path: string) => string) =>
@@ -37,6 +44,19 @@ describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", 
     const present = new Set(files.map(rel));
     expect(DEV_ONLY.filter((path) => !present.has(path))).toEqual([]);
     expect(files.map(rel).filter((path) => DEV_ONLY_PATTERN.test(path)).length).toBeGreaterThanOrEqual(6);
+    expect(SPIKES.filter((path) => !present.has(path))).toEqual([]);
+    expect(files.map(rel).filter((path) => SPIKE_PATTERN.test(path)).sort()).toEqual([...SPIKES].sort());
+  });
+
+  it.each([
+    ["the SP10 probe", 'export { createToolTurnProbe } from "./runtime/spikes/toolTurnProbe";', "src/runtime/spikes/toolTurnProbe.ts"],
+    ["the SP9 witness filter", 'export { startWitnessFilter } from "./runtime/spikes/witnessFilterHost";', "src/runtime/spikes/witnessFilterHost.ts"],
+    ["the SP9 pure filter", 'import "./runtime/spikes/witnessFilter";', "src/runtime/spikes/witnessFilter.ts"],
+  ])("control: a planted static import of %s from the entry fails", (_label, line, module) => {
+    const planted = join(SRC, "index.tsx");
+    const fs = require("fs") as typeof import("fs");
+    const read = (path: string) => (path === planted ? `${fs.readFileSync(path, "utf8")}\n${line}\n` : fs.readFileSync(path, "utf8"));
+    expect(staticReach(files, read).filter(isDevOnly)).toContain(module);
   });
 
   it("control: a planted static import of the live suite from the entry fails", () => {

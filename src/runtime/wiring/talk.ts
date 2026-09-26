@@ -6,6 +6,7 @@ import { routedProfileId } from "../requestBudget";
 import { runtimeManager } from "../runtimeManager";
 import { DIRECTOR_MAX_TOKENS, TalkController, type TalkControlHost } from "../talkControl";
 import { promptCost } from "../promptCost";
+import { spikeHooks } from "./spikes";
 import type { LiveParts, WindowAccess } from "./types";
 
 const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, recentWindow }: WindowAccess): TalkControlHost => ({
@@ -33,10 +34,11 @@ const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, rec
 
 export const startTalk = (live: LiveParts, judgeRuntime: JudgeRuntime, window: WindowAccess, onLoreIntercept: (type: string, aborted: boolean) => Promise<void>) => {
   live.talk = new TalkController(talkHost(live, judgeRuntime, window));
-  globalThis.talkControlInterceptor = async (_chat, contextSize, abort, type) => {
+  globalThis.talkControlInterceptor = async (chat, contextSize, abort, type) => {
     promptCost.noteGenerationBudget(contextSize);
     let aborted = false;
     await live.talk?.intercept((immediate) => { aborted = true; abort(immediate); }, type);
     await onLoreIntercept(type, aborted);
+    if (!aborted && Array.isArray(chat)) spikeHooks.witness?.(chat, type);
   };
 };
