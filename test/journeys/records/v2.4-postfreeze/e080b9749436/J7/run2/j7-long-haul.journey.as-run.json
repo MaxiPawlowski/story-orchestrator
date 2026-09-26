@@ -1,0 +1,431 @@
+{
+  "id": "J7",
+  "title": "long-haul",
+  "objective": "Full sun-ruins play-through to the finale on the real model: every anchor reached, convergence honoured, success-criteria hooks recorded. Expensive — run at plan 01 (baseline) and plan 07/08 (acceptance) only.",
+  "expensive": true,
+  "setup": {
+    "newChat": true,
+    "resetChatState": true,
+    "snapshotGlobalConfig": true,
+    "activateLorebooks": [
+      "Xentar Checkpoints"
+    ],
+    "group": "1759606632088",
+    "extraction": {
+      "cadence": 1,
+      "stabilityLag": 0,
+      "profile": "inherit"
+    }
+  },
+  "cleanup": {
+    "restoreConfig": true,
+    "deleteChat": true,
+    "enableMembers": [
+      "DM Narrator",
+      "Arin",
+      "Ponticius",
+      "Luke"
+    ]
+  },
+  "capabilities": {},
+  "checks": [
+    {
+      "id": "J7.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp1 → cp2: the player approaches the job board Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.",
+      "steps": [
+        {
+          "import_story": {
+            "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
+          }
+        },
+        {
+          "ui": {
+            "action": "select-profile"
+          }
+        },
+        {
+          "eval": "globalThis.storyOrchestratorRuntime.setExtractionSettings({ cadence: 2 }); const s = globalThis.storyOrchestratorRuntime.getSnapshot().extraction.settings; if (!s.enabled || !s.profileId) throw new Error(`extraction not configured after import: ${JSON.stringify(s)}`); return s;"
+        },
+        {
+          "expect": {
+            "activeCheckpoint": "cp1",
+            "requirementsReady": true
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I push through the crowd and get close to the job board to read the postings.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "idle": true,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I read the Sun Ruins notice aloud to Arin, tracing the seal with a finger.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "\"This one — the Sun Ruins job.\" I stay at the board, pointing at the notice.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We take a breath, look around, and carry on.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "wait": {
+            "checkpointIn": [
+              "cp2",
+              "cp3"
+            ],
+            "timeoutMs": 300000
+          },
+          "attempts": 2,
+          "retryBack": 2
+        }
+      ]
+    },
+    {
+      "id": "J7.2",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp2 → cp3: the party accepts the Sun Ruins mission Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "\"We'll take it,\" I tell Ponticius, and I accept the Sun Ruins mission on the spot.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I take the Sun Ruins contract from Ponticius and sign it.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We take a breath, look around, and carry on.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "wait": {
+            "timeoutMs": 300000,
+            "checkpointIn": [
+              "cp3",
+              "cp-4a",
+              "cp-4b",
+              "cp-4a1",
+              "cp-4a2",
+              "cp-5",
+              "cp-6"
+            ]
+          },
+          "attempts": 2,
+          "retryBack": 2
+        }
+      ]
+    },
+    {
+      "id": "J7.3",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp3 → cp-4a: the player agrees to bring Luke along Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "Luke begs to come with us. I agree to bring Luke on the expedition.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "\"Fine — Luke comes with us.\" I sling his pack over my shoulder and we set out.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We take a breath, look around, and carry on.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "wait": {
+            "timeoutMs": 300000,
+            "checkpointIn": [
+              "cp-4a",
+              "cp-4b",
+              "cp-4a1",
+              "cp-4a2",
+              "cp-5",
+              "cp-6"
+            ]
+          },
+          "attempts": 2,
+          "retryBack": 2
+        }
+      ]
+    },
+    {
+      "id": "J7.4",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp-4a → cp-4a1: the sphinx riddle is answered correctly Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "I face the sphinx and answer its riddle: \"The moon.\"",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "\"My answer is the moon,\" I repeat to the sphinx, meeting its gaze.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We take a breath, look around, and carry on.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "wait": {
+            "timeoutMs": 300000,
+            "checkpointIn": [
+              "cp-4a1",
+              "cp-4a2",
+              "cp-5",
+              "cp-6"
+            ]
+          },
+          "attempts": 2,
+          "retryBack": 2
+        }
+      ]
+    },
+    {
+      "id": "J7.5",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp-4a1 → cp-5: the party enters the inner chamber, and convergence progress is recorded Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "We step past the archway and enter the chamber of ancient machinery.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We walk into the chamber and start examining the machinery inside.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We take a breath, look around, and carry on.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "wait": {
+            "timeoutMs": 300000,
+            "checkpointIn": [
+              "cp-5",
+              "cp-6"
+            ]
+          },
+          "attempts": 2,
+          "retryBack": 2
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const rows = rt.getSnapshot().convergence ?? []; const row = rows.find((entry) => entry.anchorId === 'cp-6'); if (!row) throw new Error('no convergence row for cp-6: ' + JSON.stringify(rows)); if (!(row.progress >= 1)) throw new Error('cp-6 recorded no convergence progress: ' + JSON.stringify(row)); return { anchor: row.anchorId, progress: row.progress, threshold: row.threshold };"
+        }
+      ]
+    },
+    {
+      "id": "J7.6",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cp-5 → cp-6: the artifact is secured and the party returns to the guild Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "I lift the Sun's Heart from its pedestal and secure the artifact in my pack.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "idle": true,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "\"Back to Xentar.\" We head back to the guild with the artifact.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We carry the artifact back through the ruins and into the guild hall at Xentar.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We take a breath, look around, and carry on.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "wait": {
+            "timeoutMs": 300000,
+            "checkpointIn": [
+              "cp-6"
+            ]
+          },
+          "attempts": 2,
+          "retryBack": 2
+        }
+      ]
+    },
+    {
+      "id": "J7.7",
+      "mode": "auto",
+      "findings": [],
+      "goal": "every anchor was visited and none was skipped",
+      "steps": [
+        {
+          "eval": "const visited = globalThis.storyOrchestratorRuntime.getEngineState().visitedAnchors; const want = ['cp1', 'cp2', 'cp3', 'cp-5', 'cp-6']; const missing = want.filter((id) => !visited.includes(id)); if (missing.length) throw new Error(`anchors skipped: ${missing.join(', ')} (visited ${visited.join(', ')})`); return visited;"
+        }
+      ]
+    },
+    {
+      "id": "J7.8",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the long session left a coherent journal and memory behind",
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const events = rt.getSessionJournal(); const kinds = new Set(events.map((e) => e.kind)); const transitions = events.filter((e) => e.kind === 'transition').length; if (transitions < 5) throw new Error(`expected 5+ transition events, got ${transitions}`); const memory = rt.getSnapshot().memory.entries.length; if (!memory) throw new Error('no memory entries after a full play-through'); return { events: events.length, transitions, memory, kinds: [...kinds] };"
+        }
+      ]
+    },
+    {
+      "id": "J7.9",
+      "mode": "human",
+      "findings": [],
+      "prompt": "Over the whole play-through, did the story feel authored — arriving where it was meant to — or did it feel like it was dragging you along rails?",
+      "anchors": "1 = pure rails · 3 = authored but visible machinery · 5 = felt like a GM running my choices"
+    },
+    {
+      "id": "J7.10",
+      "mode": "human",
+      "findings": [],
+      "prompt": "Did the finale land, given what actually happened in your run?",
+      "anchors": "1 = disconnected from my choices · 3 = generic ending · 5 = paid off my run specifically"
+    }
+  ]
+}

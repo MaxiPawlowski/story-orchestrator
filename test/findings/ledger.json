@@ -387,7 +387,7 @@
       "owner": "01",
       "evidence": "node",
       "status": "closed",
-      "provenBy": "scripts/debug/lib/assetScope.test.mts :: a legacy mirror is deleted only when named exactly, listed, and without a chat-id suffix (S9)"
+      "provenBy": "scripts/debug/lib/assetScope.test.mts :: regex scripts and QR sets are in scope by marker prefix only (S9)"
     },
     {
       "id": "S10",

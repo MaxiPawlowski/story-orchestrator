@@ -68,6 +68,7 @@ Vendored host-type ledger (post-acceptance hardening 2026-07-07; `src/services/s
 | context `characters` | `public/scripts/st-context.js:119` |
 | context `saveWorldInfo`, `loadWorldInfo` | `public/scripts/st-context.js:107` |
 | context `executeSlashCommandsWithOptions` (+ `parserFlags` option keyed by `PARSER_FLAG` ids 1/2, `handleParserErrors`) | `public/scripts/st-context.js` (slash-commands.js:6988-7033; SlashCommandParser.js:38-41) |
+| context `SlashCommandEnumValue` (required since v2.5 plan 11 C3, no `contextFallback`: `runtime/slashCommands.ts` `buildEnumList` calls `new context.SlashCommandEnumValue(value, description)` for the `/story` argument enum list; re-verified on ST 1.19.0, 2026-09-26) | `public/scripts/st-context.js:98` (import), `:169` (context member); class `public/scripts/slash-commands/SlashCommandEnumValue.js:42`, constructor `:62` `(value, description = null, type = 'enum', typeIcon = '◊', …)` |
 | `ScriptHostModule.setGenerationParamsFromPreset` | `public/script.js:8095` |
 | `ScriptHostModule.isGenerating` | `public/script.js:604` |
 | `ScriptHostModule.stopGeneration` (streaming stop + `abortController.abort`, emits `GENERATION_STOPPED`, returns whether anything stopped; v2.5 plan 02 C1) | `public/script.js:5607-5620` |

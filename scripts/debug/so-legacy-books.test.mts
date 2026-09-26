@@ -106,7 +106,7 @@ test('collision: an existing destination root or an existing dst refuses before 
   await mkdir(dest, { recursive: true });
   let renames = 0;
   const renameFn = (async () => { renames += 1; }) as never;
-  await assert.rejects(moveBooks({ root, dest, declared: await declaredFor(root), port: 8000, probe: NEVER, renameFn }), /already exists/);
+  await assert.rejects(moveBooks({ root, dest, declared: await declaredFor(root), port: 8000, probe: NEVER, renameFn }), /refused: destination root .* already exists/);
   assert.equal(renames, 0);
   assert.equal((await planCandidates(root)).candidates.length, 3);
 });
