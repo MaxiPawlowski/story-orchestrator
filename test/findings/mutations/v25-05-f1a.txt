@@ -1,0 +1,18 @@
+v2.5 plan 05 F1a (FACT/MEMORY attributed to the message their evidence quotes), 2026-09-26, worktree on 11199ed (script .debug/mut05.py + .debug/mut-f1a.json; each mutant alone, exact-text replacement matching once, file restored byte-for-byte).
+
+Measurement M1 (offline, before any code; throwaway jest replay of every v2.4-acceptance and v2.4-postfreeze journal-follow audit, window rebuilt from the audit's prompt transcript, the D1 method; evidenceSources as on 11199ed):
+- acceptance (358 audits): FACT 209 lines, 188 found (0.900); MEMORY 669, 603 found (0.901). Of the found, source before window.to: FACT 112 / at window.to 76; MEMORY 362 / 241.
+- postfreeze (139 audits): FACT 153, 137 found (0.895); MEMORY 375, 333 found (0.888). Before window.to: FACT 112 / 25; MEMORY 208 / 125.
+- Floor (found-rate >= 0.8 of FACT lines) MET on both slices -> F1a built.
+Red first: src/runtime/coordinators/factAttribution.review.test.ts on 11199ed: 3 failed / 6 (messageId undefined from the read, 7 on the stored row, the row gone after a rollback of 7).
+
+src/extraction/sharedRead.ts (attributed) / src/runtime/coordinators/extractionCoordinator.ts (applyAudit stamps)
+- F1a-M1 the coordinator stamps window.to again: KILLED, 2 of 15 (with rollbackReplay.property)
+    "a fact quoted from message 3 is stamped message 3, and its provenance says so"
+    "a fact quoted from message 3 survives a rollback of message 7"
+- F1a-M2 provenance keeps window.to while the entry moves (drawer label diverges): KILLED, 1 of 7
+- F1a-M3 MEMORY lines are not attributed: KILLED, 4 of 425 (with src/extraction)
+- F1a-M4 the last source is taken instead of the first: KILLED, 1 of 7
+    "a quote two messages hold is attributed to the earlier one"
+- F1a-M5 a MEMORY line keeps window.to in the coordinator: KILLED, 2 of 7
+Controls green under every mutant: unfound evidence keeps window.to and dies with it; whitespace and label-only evidence attribute nothing; a fact passed in without a source keeps window.to. rollbackReplay.property.test.ts green on the new attribution.

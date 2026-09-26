@@ -70,6 +70,11 @@ const screenDeltas = (parsed: ParsedSharedRead, residual: readonly ScopedQuality
   return { accepted, rejected };
 };
 
+const attributed = <T extends { evidence: string; messageId?: number }>(line: T, window: SharedReadWindow): T => {
+  const [first] = evidenceSources(line.evidence, window.messages);
+  return first === undefined ? line : { ...line, messageId: first };
+};
+
 export interface RunSharedReadOptions {
   story: NormalizedStoryV2;
   state: EngineState;
@@ -202,5 +207,12 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
   // A refused response is refused whole: the lines that survived a truncation are not more
   // trustworthy than the ones that did not, and the fact/memory/arc lines have no bound of their own.
   if (refused) return { audit, facts: [], memory: [], arcs: [], epistemic: [], ledger: [] };
-  return { audit, facts: parsed.facts, memory: parsed.memory, arcs: parsed.arcs, epistemic: parsed.epistemic, ledger: parsed.ledger };
+  return {
+    audit,
+    facts: parsed.facts.map((fact) => attributed(fact, window)),
+    memory: parsed.memory.map((line) => attributed(line, window)),
+    arcs: parsed.arcs,
+    epistemic: parsed.epistemic,
+    ledger: parsed.ledger,
+  };
 }
