@@ -1,5 +1,6 @@
 import { gatedWorldInfo } from "@engine/index";
 import type { NormalizedLedger } from "./scanGatePlan";
+import type { NormalizedFrom } from "./settingsStore";
 import { bookKey } from "./worldInfoMatch";
 
 // v2.5 plan 01 B. The ledger says which gated entries rest off in their files; the files are the truth.
@@ -48,6 +49,25 @@ export async function verifyLedger(ledger: NormalizedLedger, index: GatedIndex, 
     }
   }
   return verdict;
+}
+
+export interface RestoreBook {
+  lorebook: string;
+  comments: string[];
+}
+
+// v2.5 plan 01 E. Only what normalisation turned off (`wasOn`), still in the ledger, and gated by no remaining story.
+export function restorePlan(removed: unknown, remaining: unknown[], ledger: NormalizedLedger, from: Record<string, NormalizedFrom[]>): RestoreBook[] {
+  const kept = gatedIndex(remaining);
+  const held = (records: Record<string, string[]>, lorebook: string) => Object.entries(records).find(([name]) => bookKey(name) === bookKey(lorebook))?.[1] ?? [];
+  const wasOn = (lorebook: string, comment: string) => Object.entries(from).find(([name]) => bookKey(name) === bookKey(lorebook))?.[1].some((row) => row.comment === comment && row.wasOn) ?? false;
+  const plan: RestoreBook[] = [];
+  for (const { lorebook, comments } of gatedIndex([removed]).values()) {
+    const inLedger = new Set(held(ledger, lorebook));
+    const restorable = [...comments].filter((comment) => inLedger.has(comment) && wasOn(lorebook, comment) && !isGated(kept, lorebook, comment));
+    if (restorable.length) plan.push({ lorebook, comments: restorable });
+  }
+  return plan;
 }
 
 export const ledgerCounts = (ledger: NormalizedLedger): { books: number; entries: number } => ({

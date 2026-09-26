@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import ReactDOM from "react-dom/client";
-import { bindNavbarDrawerToggle, capabilityReport, hostFacts, judgeStatus, listConnectionProfiles, readProfileContextLimit, showConfirmPopup, toggleNavbarDrawer, writeJudgeSecret, type CapabilityReport, type HostFacts } from "@services/STAPI";
+import { bindNavbarDrawerToggle, capabilityReport, hostFacts, judgeStatus, listConnectionProfiles, readProfileContextLimit, showChoicePopup, showConfirmPopup, toggleNavbarDrawer, writeJudgeSecret, type CapabilityReport, type HostFacts } from "@services/STAPI";
 import packageJson from "../package.json";
 import { runJudgeDirectorSelfTest, type JudgeSelfTestReport } from "@judge/index";
 import { getGlobalSettings, setJudgeSettings } from "@runtime/settingsStore";
@@ -20,6 +20,7 @@ import { startRuntime } from "@runtime/index";
 import { STORY_STATE_RETENTION } from "@runtime/persistence";
 import { branchFromOldest, continueFromBranch } from "@runtime/chatIdentity";
 import { exportState } from "@runtime/stateExport";
+import { removalRestore } from "@runtime/worldInfoScanHost";
 import { jumpToMessage } from "@runtime/messageJumpHost";
 import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
 import StudioModal, { STUDIO_TAB_IDS, type StudioOpenIntent } from "./studio/StudioModal";
@@ -296,10 +297,19 @@ const SettingsPanel = () => {
     const current = manager.getSnapshot();
     const active = current.library.find((story) => story.id === current.storyId);
     if (!active) return;
-    const ok = await showConfirmPopup(`Delete "${active.title}" from the library? Chats already playing it keep their own pinned copy and carry on; new chats can no longer pick it.`, { okButton: "Delete", cancelButton: "Keep" });
-    if (!ok) return;
+    const question = `Delete "${active.title}" from the library? Chats already playing it keep their own pinned copy and carry on; new chats can no longer pick it.`;
+    const restore = removalRestore(active.id);
+    const choice = restore
+      ? await showChoicePopup(`${question} Its ${restore.entries} lorebook ${restore.entries === 1 ? "entry stays" : "entries stay"} off at rest unless you restore ${restore.entries === 1 ? "it" : "them"}.`, {
+        okButton: { id: "delete", label: "Delete" },
+        choices: [{ id: "restore", label: "Delete and restore these lorebook entries" }],
+        cancelButton: "Keep",
+      })
+      : (await showConfirmPopup(question, { okButton: "Delete", cancelButton: "Keep" })) ? "delete" : null;
+    if (!choice) return;
     setBusy(true);
-    await manager.removeStory(active.id);
+    const removed = await manager.removeStory(active.id);
+    if (removed && choice === "restore" && restore) await restore.run();
     setBusy(false);
   };
 

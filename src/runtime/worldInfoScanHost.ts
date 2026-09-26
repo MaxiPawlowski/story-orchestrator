@@ -43,6 +43,19 @@ export const wiGating = (): WiGating | null => running;
 
 const library = () => listStoryRecords().map((record) => record.raw);
 
+/** v2.5 plan 01 E: what the removal dialog may offer for a library story, and the restore it runs if chosen. */
+export function removalRestore(storyId: string): { entries: number; run: () => Promise<{ restored: number; refused: string[] }> } | null {
+  const gating = running;
+  const record = listStoryRecords().find((entry) => entry.id === storyId);
+  if (!gating || !record || getGlobalSettings().worldInfo.gatingMode !== "scan") return null;
+  const entries = gating.restorable(record.raw).reduce((sum, book) => sum + book.comments.length, 0);
+  if (!entries) return null;
+  return { entries, run: async () => {
+    const outcome = await gating.restore(record.raw);
+    return { restored: outcome.restored.length, refused: outcome.refused };
+  } };
+}
+
 const confirmNormalisation = (preview: NormalizePreviewBook[]) => {
   const total = preview.reduce((sum, book) => sum + book.entries, 0);
   const lines = preview.map((book) => `${book.lorebook}: ${book.entries} ${book.entries === 1 ? "entry" : "entries"}`);

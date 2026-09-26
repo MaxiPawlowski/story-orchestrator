@@ -1,4 +1,4 @@
-import { gatedIndex, verifyLedger, type BookEntries } from "./worldInfoLedger";
+import { gatedIndex, restorePlan, verifyLedger, type BookEntries } from "./worldInfoLedger";
 
 const story = (books: Record<string, string[]>) => ({ checkpoints: [{ effects: { world_info: { enable: Object.entries(books).map(([lorebook, comments]) => ({ lorebook, comments })) } } }] });
 
@@ -47,5 +47,21 @@ describe("verifyLedger (v2.5 plan 01 B: verify, never trust)", () => {
     const verdict = await verifyLedger({ ruins: ["CP1", "Gone"], Removed: ["X"] }, gatedIndex(library), read);
     expect(verdict.drift).toEqual([]);
     expect(reads).toEqual(["ruins"]);
+  });
+});
+
+describe("restorePlan (v2.5 plan 01 E: restore on story removal)", () => {
+  const removed = story({ Ruins: ["CP1", "CP2", "Shared"] });
+  const remaining = [story({ Ruins: ["Shared"] })];
+  const from = { Ruins: [{ comment: "CP1", wasOn: true }, { comment: "CP2", wasOn: false }, { comment: "Shared", wasOn: true }] };
+  const ledger = { Ruins: ["CP1", "CP2", "Shared"] };
+
+  it("re-enables only what was on before normalisation and no remaining story gates", () => {
+    expect(restorePlan(removed, remaining, ledger, from)).toEqual([{ lorebook: "Ruins", comments: ["CP1"] }]);
+  });
+
+  it("offers nothing for an entry the ledger no longer holds, or that carries no provenance", () => {
+    expect(restorePlan(removed, remaining, { Ruins: ["CP2"] }, from)).toEqual([]);
+    expect(restorePlan(removed, remaining, ledger, {})).toEqual([]);
   });
 });

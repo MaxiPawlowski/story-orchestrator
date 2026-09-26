@@ -476,6 +476,10 @@
     "src/runtime/worldInfoGating.ts#createWiGating.verify": {
       "status": "checked",
       "note": "v2.5 plan 01 B (2026-09-25): awaits verifyLedger (read-only) and re-checks the lifetime run before it replaces the controller's verdict and journals newly drifted entries. Its run is the gating's own lifetime (`lifetime`, bumped by dispose), not a chat: every write it makes is install-wide (lorebook files, the ledger, the mode, the active flag), so a chat switch must not leave half a gated set normalised; stopping the runtime does stop it."
+    },
+    "src/runtime/worldInfoGating.ts#createWiGating.restore>serial": {
+      "status": "checked",
+      "note": "v2.5 plan 01 E (2026-09-26): the removal dialog's restore. Checks the gating's lifetime run before each book's enable and again before dropping the restored entries from the ledger and provenance, so a stopped gating writes nothing (worldInfoGating.test.ts \"a stopped gating restores nothing\"; control \"offers only entries that were on before normalisation, and restores them only when asked\"). Install-wide work, so its run is the gating's lifetime, not a chat."
     }
   }
 }

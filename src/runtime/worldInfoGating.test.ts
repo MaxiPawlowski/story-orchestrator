@@ -157,6 +157,51 @@ describe("lorebook gating control (v2.5 plan 01 A/C)", () => {
   });
 });
 
+describe("lorebook gating: restore on story removal (v2.5 plan 01 E)", () => {
+  const removed = story({ Ruins: ["CP1", "CP2"] });
+
+  it("offers only entries that were on before normalisation, and restores them only when asked", async () => {
+    const h = harness({ library: [removed] });
+    h.disk.get("Ruins")!.set("CP2", true);
+    h.library.value = [removed];
+    await h.gating.requestScan();
+    expect(h.settings.normalizedFrom).toEqual({ Ruins: [{ comment: "CP1", wasOn: true }, { comment: "CP2", wasOn: false }] });
+    h.library.value = [];
+    expect(h.gating.restorable(removed)).toEqual([{ lorebook: "Ruins", comments: ["CP1"] }]);
+    expect(h.events.filter((event) => event.startsWith("enable"))).toEqual([]);
+    const outcome = await h.gating.restore(removed);
+    expect(outcome.restored).toEqual([{ lorebook: "Ruins", comment: "CP1" }]);
+    expect(h.events.filter((event) => event.startsWith("enable"))).toEqual(["enable:Ruins:CP1"]);
+    expect(h.disk.get("Ruins")!.get("CP1")).toBe(false);
+    expect(h.disk.get("Ruins")!.get("CP2")).toBe(true);
+    expect(h.settings.normalized).toEqual({ Ruins: ["CP2"] });
+    expect(h.settings.normalizedFrom).toEqual({ Ruins: [{ comment: "CP2", wasOn: false }] });
+  });
+
+  it("the story being removed never counts as remaining, even while the library still lists it", async () => {
+    const own = { id: "ruins", ...removed };
+    const h = harness({ library: [own] });
+    await h.gating.requestScan();
+    expect(h.gating.restorable(own)).toEqual([{ lorebook: "Ruins", comments: ["CP1", "CP2"] }]);
+  });
+
+  it("never restores an entry a remaining story still gates", async () => {
+    const h = harness({ library: [removed] });
+    await h.gating.requestScan();
+    h.library.value = [story({ Ruins: ["CP1"] })];
+    expect(h.gating.restorable(removed)).toEqual([{ lorebook: "Ruins", comments: ["CP2"] }]);
+  });
+
+  it("a stopped gating restores nothing", async () => {
+    const h = harness({ library: [removed] });
+    await h.gating.requestScan();
+    h.library.value = [];
+    h.gating.dispose();
+    expect((await h.gating.restore(removed)).restored).toEqual([]);
+    expect(h.events.filter((event) => event.startsWith("enable"))).toEqual([]);
+  });
+});
+
 describe("lorebook gating: verify, missingKey and re-normalise (v2.5 plan 01 B)", () => {
   it("verifies the ledger against the files at start-up and publishes drift without writing", async () => {
     const h = harness({ mode: "scan", ledger: { Ruins: ["CP1"] } });

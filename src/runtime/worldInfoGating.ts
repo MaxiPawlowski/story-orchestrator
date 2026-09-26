@@ -2,7 +2,7 @@ import type { WriteResult } from "@utils/writeResult";
 import { beginRun, type RunOwnership } from "./runToken";
 import type { ScanGateRow } from "./scanGatePlan";
 import type { WorldInfoSettings } from "./settingsStore";
-import { gatedIndex, ledgerCounts, verifyLedger, type BookEntries, type GatedEntryRef, type LedgerVerdict } from "./worldInfoLedger";
+import { gatedIndex, ledgerCounts, restorePlan, verifyLedger, type RestoreBook, type BookEntries, type GatedEntryRef, type LedgerVerdict } from "./worldInfoLedger";
 import type { WiGatingStatus } from "./worldInfoMode";
 import { normalizeGatedEntries, type NormalizeOutcome } from "./worldInfoNormalize";
 
@@ -43,6 +43,8 @@ export interface WiGating {
   requestFile: () => Promise<void>;
   renormalize: () => Promise<NormalizeOutcome | null>;
   noteScan: (owner: "story" | "no-story", rows: ScanGateRow[]) => void;
+  restorable: (removed: unknown) => RestoreBook[];
+  restore: (removed: unknown) => Promise<{ restored: GatedEntryRef[]; refused: string[] }>;
   status: () => WiGatingStatus;
   active: () => boolean;
   dispose: () => void;
@@ -71,7 +73,7 @@ export function createWiGating(deps: WiGatingDeps): WiGating {
   let generation = 0;
   const lifetime: RunOwnership = {
     mint: () => ({ chatId: null, storyId: null, playedVersion: null, sessionEpoch: generation, window: null, windowRevision: 0 }),
-    check: (token) => (token.sessionEpoch === generation ? { ok: true } : { ok: false, reason: "epoch", detail: "the lorebook gating stopped" }),
+    check: (token) => (!disposed && token.sessionEpoch === generation ? { ok: true } : { ok: false, reason: "epoch", detail: "the lorebook gating stopped" }),
   };
 
   const status = (): WiGatingStatus => ({
@@ -203,6 +205,38 @@ export function createWiGating(deps: WiGatingDeps): WiGating {
     return outcome;
   });
 
+  const idOf = (story: unknown) => (story && typeof story === "object" ? (story as { id?: unknown }).id : undefined);
+  const restorable = (removed: unknown) => {
+    const remaining = deps.library().filter((story) => idOf(removed) === undefined || idOf(story) !== idOf(removed));
+    return restorePlan(removed, remaining, deps.settings().normalized, deps.settings().normalizedFrom);
+  };
+
+  // Never automatic: the removal dialog's own choice. Each confirmed enable leaves the ledger, because the entry
+  // no longer rests off.
+  const restore = (removed: unknown) => serial(async () => {
+    const run = beginRun(lifetime);
+    const outcome = { restored: [] as GatedEntryRef[], refused: [] as string[] };
+    for (const book of restorable(removed)) {
+      if (!run.stillOwns()) break;
+      const result = await deps.enable(book.lorebook, book.comments);
+      if (!result.ok) {
+        outcome.refused.push(result.reason);
+        continue;
+      }
+      if (result.confirmed === false || !run.stillOwns()) continue;
+      const { normalized, normalizedFrom } = deps.settings();
+      const drop = new Set(book.comments);
+      const strip = <T>(records: Record<string, T[]>, comment: (row: T) => string) => Object.fromEntries(Object.entries(records)
+        .map(([name, rows]): [string, T[]] => [name, name.toLowerCase() === book.lorebook.toLowerCase() ? rows.filter((row) => !drop.has(comment(row))) : rows])
+        .filter(([, rows]) => rows.length > 0));
+      deps.write({ normalized: strip(normalized, (row) => row), normalizedFrom: strip(normalizedFrom, (row) => row.comment) });
+      outcome.restored.push(...book.comments.map((comment) => ({ lorebook: book.lorebook, comment })));
+    }
+    if (outcome.restored.length) deps.journal("lorebook entries restored", refText(outcome.restored));
+    if (outcome.refused.length) deps.journal("lorebook restore refused", outcome.refused.join("; "));
+    return outcome;
+  });
+
   const noteScan = (owner: "story" | "no-story", rows: ScanGateRow[]) => {
     if (owner !== "story") return;
     const found = rows.filter((row) => !row.on && row.fileDisabled === null).map((row) => ({ lorebook: row.lorebook, comment: row.comment }));
@@ -220,6 +254,8 @@ export function createWiGating(deps: WiGatingDeps): WiGating {
     requestFile,
     renormalize,
     noteScan,
+    restorable,
+    restore,
     status,
     active: () => active,
     dispose: () => {
