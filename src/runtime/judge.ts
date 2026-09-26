@@ -1,6 +1,6 @@
 import {
   askJudge, modelVerdict, runWardenRescore, WARDEN_RESCORE_USES, type WardenRescoreUse, type WardenRescoreRow,
-  runAgencyCalibration, type AgencyCase, runHouseRuleCalibration, type HouseRuleCase, runCombinedContinuityCalibration,
+  runAgencyCalibration, type AgencyCase, runHouseRuleCalibration, type HouseRuleCase, runCombinedContinuityCalibration, runWardenLoreCalibration, type WardenLoreCase,
   isCombinedCase, type CombinedContinuityCase, type RescoreResult, buildDirectorRequest, runJudgeDirectorSelfTest,
   runMemoryPairsCalibration, runMemoryVerifyCalibration, runSceneCalibration, type SceneCalibrationCase,
   runLoreCalibration, type LoreCalibrationCase, runLoreRelevanceCalibration, type LoreRelevanceReport,
@@ -106,6 +106,8 @@ export class JudgeRuntime {
     ) : runContinuityCalibration(ask, cases as ContinuityCase[]);
     if (use === "agency") return runAgencyCalibration(ask, cases as AgencyCase[]);
     if (use === "house-rules") return runHouseRuleCalibration(ask, cases as HouseRuleCase[]);
+    if (use === "warden-lore") return runWardenLoreCalibration(ask, cases as WardenLoreCase[]);
+    if (use === "warden-lore-facts") return runWardenLoreCalibration(ask, cases as WardenLoreCase[], "facts");
     if (use === "typed") return runTypedCalibration(ask, cases as TypedCase[]);
     if (use === "stall") return runStallCalibration(ask, cases as StallCase[]);
     if (use === "critic") return runCriticCalibration(ask, cases as CriticCase[]);

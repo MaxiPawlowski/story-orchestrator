@@ -1,0 +1,637 @@
+{
+  "use": "warden-lore",
+  "floors": {
+    "contradicts": 0.85,
+    "consistent": 0.966,
+    "untouched": 0.966
+  },
+  "labelledAt": "2026-09-26",
+  "source": "v2.5 plan 08 L7 Phase A. One case = one reply against the story-book lore entries that fired on its generation, as the warden would ask them (one Noul per entry, state = the reply and the entries only). Labels written before any answer was read: contradicts = the reply states or shows what the entry says is not so; consistent = the reply touches the entry and agrees with it; untouched = every other entry of the case. Negation pairs share a `pair`; L16/L17/L24 never touch their lore. Three replies are real Artemis replies from the v2.4 plan 07 J8.5 records (reused from house-rules.json H01-H03, source names each). Floors predeclared (plan 08 R1/R2): contradicts recall >= 0.85; consistent and untouched specificity >= 0.966 each (the warden's bar); flag at WARDEN_LORE_P 0.7, never retuned.",
+  "rows": [
+    {
+      "id": "L01",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Old stone bridge",
+          "text": "The old stone bridge over the river collapsed in the spring floods and has not been rebuilt."
+        },
+        {
+          "comment": "Arin's weapons",
+          "text": "Arin fights with a pair of daggers and a shortbow; he never carries a sword."
+        },
+        {
+          "comment": "Elves",
+          "text": "Elves cannot swim and fear deep water."
+        }
+      ],
+      "reply": {
+        "speaker": "Arin",
+        "text": "“You got it,” *Arin says with a nod, turning on his point heel and setting off back the way they came. His cloak flutters slightly as he strides confidently through the forest, the sounds of the forest alive around them.*\n*He pauses for a moment, glancing over his shoulder with a playful smirk.* “Let’s make this quick. I don’t trust this place. Feels like it’s waiting for something.” *His hand instinctively rests on the hilt of one of his daggers, fingers tapping against the leather grip as they walk.*\n*They reach the riverbank soon enough, the sound of rushing water growing louder. But as Arin steps forward, he stops short, eyes narrowing as he gaze lands on the river.*\n“Fuck,” *he mutters, his voice losing its playful edge. He looks back at you, his brow furrowed in frustration.* “The bridge is gone.” *He points toward the gaping hole where the old stone structure once stood, the current swift and violent.*\n*Arin runs his hand through his tousled brown hair, clearly annoyed.* “Well, that’s just fantastic. Anyone else get a mess like this when they’re on a quick trip back to town?” *He looks around the riverbank, trying to find a few logs or rocks that could help them cross.* “Looks like we’re going to have to find another way across, or we’ll be taking a long detour.”\n*He shifts his weight, and his shortbow is still slung over his shoulder. His eyes scan the river, calculating.* “Any thoughts, Max? Or should we start swimming and hope we don’t get swept downstream?”"
+      },
+      "contradicts": [],
+      "consistent": [
+        0,
+        1
+      ],
+      "source": "record: test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/J8.5-on-run2.journey.json cleanup.rescore.rows m3 (reply reused from house-rules.json H01) (Artemis, 2026-09-25)"
+    },
+    {
+      "id": "L02",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Luke's gear",
+          "text": "Luke wears no armour at all; he fights in a plain linen shirt."
+        },
+        {
+          "comment": "Old stone bridge",
+          "text": "The old stone bridge over the river collapsed in the spring floods and has not been rebuilt."
+        },
+        {
+          "comment": "Dragons",
+          "text": "Dragons nest only in the northern peaks, far from any river."
+        }
+      ],
+      "reply": {
+        "speaker": "Luke",
+        "text": "“Wait, the bridge is gone?!” *Luke's voice pitches higher, his eyes widening as he stares at the river.* “I—I mean, that's not what we're supposed to find!” *He looks back and forth between Arin and the collapsed bridge, his voice rapid and uncertain.* “But if it's gone, then… then we can still cross, right? There must be some other way.” *He looks over to Arin, his eager-to-please expression shifting into a bit of worry.*\n*Luke's hand goes to the hilt of his short sword, his fingers clutching it with a bit too much excitement.* “Maybe we can… maybe we can jump over? No, that's too wide.” *He looks back at the river, his pale face creasing in concern.* “But we can't just swim! What if there are monsters in the river? What if we're—what if we're being swept downstream into some monster's nest?” *His words tumble out of his mouth quickly, his chainmail clattering as he shifts his weight.*\n*He turns to look at Arin, his eagerness shining through.* \"But we can find a way, right? We've got—we've got you and Max!\" *He looks at Max with a bit of awe, as if he's just sure that they'll find a solution.* \"You guys are legends! You'll know exactly what to do!\"\n*Luke's oversized chainmail clatters as he stands there, his short sword clattering against his hip as he looks between Arin and and the river.* \"So... so what should we do? Maybe we can build a raft? Or... or look for another crossing?\" *He looks back at Arin with hopeful eyes.*"
+      },
+      "contradicts": [
+        0
+      ],
+      "consistent": [
+        1
+      ],
+      "source": "record: test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/J8.5-on-run2.journey.json cleanup.rescore.rows m4 (Artemis, 2026-09-25) (reply reused from house-rules.json H02)"
+    },
+    {
+      "id": "L03",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Upstream ferry",
+          "text": "The cable ferry upstream was burned down last year; no crossing remains there."
+        },
+        {
+          "comment": "Silent forest",
+          "text": "The forest north of the river is silent: no birds have lived there since the blight."
+        },
+        {
+          "comment": "Guild fees",
+          "text": "The guild charges three marks for every contract it posts."
+        }
+      ],
+      "reply": {
+        "speaker": "DM Narrator",
+        "text": "*The river's roar gradually softens as you walk upstream, the sound of rushing water becoming a low rumble in the distance. The forest path is damp and quiet, with only the occasional rustle of leaves and the distant call of birds overhead. The scent of wet earth and crushed ferns fills the air, cool and refreshing after the dust and noise of the city.*\n*After a while, the path opens into a small clearing. There, stretched across the turbulent river, is the cable ferry crossing Ponticius spoke of—a sturdy-looking rope and wooden platform, though the rope itself appears worn and frayed in places, hanging loosely over the churning water.*\n*The platform itself, a simple wooden slab with iron rings bolted to its surface, sits at the river's edge, ready to be used. A smaller wooden pulley system on the near bank is bolted into a large stone pillar, the rope stretching from it to the far shore.*\n*The water below is treacherous, white foam and debris whipping past at high speed, but the cable and platform seem stable enough—provided they don't slip or hold.*\n*Arin glances at the frayed rope with a frown, his eyes scanning the river's width. He shifts his weight, testing the platform with a tentative step.*\n\"Well, this looks... promising,\" *he says, his voice tinged with a mix of sarcasm and caution. He glances over at you and Luke, his expression unreadable.* \"So... who's going to be the first to try it?\""
+      },
+      "contradicts": [
+        0,
+        1
+      ],
+      "consistent": [],
+      "source": "record: test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/J8.5-on-run1.journey.json cleanup.rescore.rows m9 (Artemis, 2026-09-25) (reply reused from house-rules.json H03)"
+    },
+    {
+      "id": "L04",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Queen Ilsa",
+          "text": "Queen Ilsa died three winters ago; her son rules as regent."
+        },
+        {
+          "comment": "Harbour",
+          "text": "The harbour of Vael freezes over every winter."
+        }
+      ],
+      "reply": {
+        "speaker": "Herald",
+        "text": "\"By order of Queen Ilsa, who spoke to the council this very morning, the gates close at dusk!\""
+      },
+      "contradicts": [
+        0
+      ],
+      "consistent": [],
+      "pair": "ilsa",
+      "source": "authored"
+    },
+    {
+      "id": "L05",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Queen Ilsa",
+          "text": "Queen Ilsa died three winters ago; her son rules as regent."
+        },
+        {
+          "comment": "Harbour",
+          "text": "The harbour of Vael freezes over every winter."
+        }
+      ],
+      "reply": {
+        "speaker": "Herald",
+        "text": "\"By order of the regent, who has ruled since his mother, Queen Ilsa, was laid to rest, the gates close at dusk!\""
+      },
+      "contradicts": [],
+      "consistent": [
+        0
+      ],
+      "pair": "ilsa",
+      "source": "authored"
+    },
+    {
+      "id": "L06",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Mira's magic",
+          "text": "Mira has no magic of any kind; she was born without the gift."
+        },
+        {
+          "comment": "The tower",
+          "text": "The wizard's tower has no door at ground level."
+        }
+      ],
+      "reply": {
+        "speaker": "Narrator",
+        "text": "Mira raises her hand and a ribbon of blue fire leaps from her fingertips, scattering the wolves."
+      },
+      "contradicts": [
+        0
+      ],
+      "consistent": [],
+      "pair": "mira",
+      "source": "authored"
+    },
+    {
+      "id": "L07",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Mira's magic",
+          "text": "Mira has no magic of any kind; she was born without the gift."
+        },
+        {
+          "comment": "The tower",
+          "text": "The wizard's tower has no door at ground level."
+        }
+      ],
+      "reply": {
+        "speaker": "Narrator",
+        "text": "Mira has no spell to answer the wolves, so she swings her lantern and throws a burning branch at the pack."
+      },
+      "contradicts": [],
+      "consistent": [
+        0
+      ],
+      "pair": "mira",
+      "source": "authored"
+    },
+    {
+      "id": "L08",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "The tower",
+          "text": "The wizard's tower has no door at ground level; the only way in is a window thirty feet up."
+        },
+        {
+          "comment": "Mira's magic",
+          "text": "Mira has no magic of any kind; she was born without the gift."
+        }
+      ],
+      "reply": {
+        "speaker": "Narrator",
+        "text": "You walk up to the wizard's tower, push open the heavy oak door at its base and step into the entrance hall."
+      },
+      "contradicts": [
+        0
+      ],
+      "consistent": [],
+      "pair": "tower",
+      "source": "authored"
+    },
+    {
+      "id": "L09",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "The tower",
+          "text": "The wizard's tower has no door at ground level; the only way in is a window thirty feet up."
+        },
+        {
+          "comment": "Mira's magic",
+          "text": "Mira has no magic of any kind; she was born without the gift."
+        }
+      ],
+      "reply": {
+        "speaker": "Narrator",
+        "text": "You circle the tower twice and find only smooth stone at its base; high above, a single window glints in the moonlight."
+      },
+      "contradicts": [],
+      "consistent": [
+        0
+      ],
+      "pair": "tower",
+      "source": "authored"
+    },
+    {
+      "id": "L10",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Currency",
+          "text": "Coins in Vael are called marks."
+        },
+        {
+          "comment": "Night city",
+          "text": "It is always night in the city of Vael."
+        },
+        {
+          "comment": "The river",
+          "text": "The river Sael runs south to the sea."
+        }
+      ],
+      "reply": {
+        "speaker": "Merchant Oda",
+        "text": "\"Twelve marks for the lot, and not a copper less,\" Oda says, holding the lantern closer to the coins."
+      },
+      "contradicts": [],
+      "consistent": [
+        0
+      ],
+      "source": "authored"
+    },
+    {
+      "id": "L11",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Night city",
+          "text": "It is always night in the city of Vael; the sun never rises over it."
+        },
+        {
+          "comment": "Currency",
+          "text": "Coins in Vael are called marks."
+        }
+      ],
+      "reply": {
+        "speaker": "Narrator",
+        "text": "Noon sun blazes over Vael, bleaching the white walls and driving the beggars into the shade."
+      },
+      "contradicts": [
+        0
+      ],
+      "consistent": [],
+      "source": "authored"
+    },
+    {
+      "id": "L12",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Captain Voss",
+          "text": "Captain Voss lost his left hand at the border and wears an iron hook."
+        },
+        {
+          "comment": "The border fort",
+          "text": "The border fort was abandoned after the siege."
+        }
+      ],
+      "reply": {
+        "speaker": "Captain Voss",
+        "text": "Voss claps both hands on the table and laces his fingers together, grinning at the recruits."
+      },
+      "contradicts": [
+        0
+      ],
+      "consistent": [],
+      "source": "authored"
+    },
+    {
+      "id": "L13",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Captain Voss",
+          "text": "Captain Voss lost his left hand at the border and wears an iron hook."
+        },
+        {
+          "comment": "The border fort",
+          "text": "The border fort was abandoned after the siege."
+        }
+      ],
+      "reply": {
+        "speaker": "Captain Voss",
+        "text": "Voss taps his iron hook against the map. \"The old fort stands empty. Nobody has manned it since the siege.\""
+      },
+      "contradicts": [],
+      "consistent": [
+        0,
+        1
+      ],
+      "source": "authored"
+    },
+    {
+      "id": "L14",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Dragons",
+          "text": "Dragons are extinct; none has been seen alive for three hundred years."
+        },
+        {
+          "comment": "The guild",
+          "text": "The adventurers' guild meets in the old granary."
+        }
+      ],
+      "reply": {
+        "speaker": "Narrator",
+        "text": "A shadow falls over the square as a living dragon wheels above the rooftops and roars at the crowd."
+      },
+      "contradicts": [
+        0
+      ],
+      "consistent": [],
+      "source": "authored"
+    },
+    {
+      "id": "L15",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Dragons",
+          "text": "Dragons are extinct; none has been seen alive for three hundred years."
+        },
+        {
+          "comment": "The guild",
+          "text": "The adventurers' guild meets in the old granary."
+        }
+      ],
+      "reply": {
+        "speaker": "Scholar",
+        "text": "\"This skull is all that is left of them,\" the scholar says. \"No one has seen a living dragon in three centuries.\""
+      },
+      "contradicts": [],
+      "consistent": [
+        0
+      ],
+      "source": "authored"
+    },
+    {
+      "id": "L16",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Dragons",
+          "text": "Dragons are extinct; none has been seen alive for three hundred years."
+        },
+        {
+          "comment": "Currency",
+          "text": "Coins in Vael are called marks."
+        },
+        {
+          "comment": "Night city",
+          "text": "It is always night in the city of Vael."
+        }
+      ],
+      "reply": {
+        "speaker": "Arin",
+        "text": "\"Pass me the rope,\" Arin says, knotting it around the post. \"We go down together, slowly.\""
+      },
+      "contradicts": [],
+      "consistent": [],
+      "source": "authored"
+    },
+    {
+      "id": "L17",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Captain Voss",
+          "text": "Captain Voss lost his left hand at the border and wears an iron hook."
+        },
+        {
+          "comment": "The river",
+          "text": "The river Sael runs south to the sea."
+        }
+      ],
+      "reply": {
+        "speaker": "Luke",
+        "text": "\"I'm hungry,\" Luke says, rummaging in his pack. \"Did anyone bring the bread?\""
+      },
+      "contradicts": [],
+      "consistent": [],
+      "source": "authored"
+    },
+    {
+      "id": "L18",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "The river",
+          "text": "The river Sael runs south, from the mountains to the sea."
+        },
+        {
+          "comment": "Old stone bridge",
+          "text": "The old stone bridge collapsed in the spring floods."
+        }
+      ],
+      "reply": {
+        "speaker": "Narrator",
+        "text": "The Sael flows north here, climbing from the sea toward the mountains, and you follow its current upstream to the coast."
+      },
+      "contradicts": [
+        0
+      ],
+      "consistent": [],
+      "source": "authored"
+    },
+    {
+      "id": "L19",
+      "lang": "es",
+      "lore": [
+        {
+          "comment": "La reina Ilsa",
+          "text": "La reina Ilsa murió hace tres inviernos; su hijo gobierna como regente."
+        },
+        {
+          "comment": "El puerto",
+          "text": "El puerto de Vael se congela cada invierno."
+        }
+      ],
+      "reply": {
+        "speaker": "Heraldo",
+        "text": "\"¡Por orden de la reina Ilsa, que habló esta mañana ante el consejo, las puertas se cierran al anochecer!\""
+      },
+      "contradicts": [
+        0
+      ],
+      "consistent": [],
+      "pair": "ilsa-es",
+      "source": "authored"
+    },
+    {
+      "id": "L20",
+      "lang": "es",
+      "lore": [
+        {
+          "comment": "La reina Ilsa",
+          "text": "La reina Ilsa murió hace tres inviernos; su hijo gobierna como regente."
+        },
+        {
+          "comment": "El puerto",
+          "text": "El puerto de Vael se congela cada invierno."
+        }
+      ],
+      "reply": {
+        "speaker": "Heraldo",
+        "text": "\"¡Por orden del regente, que gobierna desde que enterraron a su madre, la reina Ilsa, las puertas se cierran al anochecer!\""
+      },
+      "contradicts": [],
+      "consistent": [
+        0
+      ],
+      "pair": "ilsa-es",
+      "source": "authored"
+    },
+    {
+      "id": "L21",
+      "lang": "es",
+      "lore": [
+        {
+          "comment": "La magia de Mira",
+          "text": "Mira no tiene ningún tipo de magia; nació sin el don."
+        },
+        {
+          "comment": "La torre",
+          "text": "La torre del mago no tiene puerta a nivel del suelo."
+        }
+      ],
+      "reply": {
+        "speaker": "Narrador",
+        "text": "Mira alza la mano y una cinta de fuego azul brota de sus dedos, dispersando a los lobos."
+      },
+      "contradicts": [
+        0
+      ],
+      "consistent": [],
+      "source": "authored"
+    },
+    {
+      "id": "L22",
+      "lang": "es",
+      "lore": [
+        {
+          "comment": "Los dragones",
+          "text": "Los dragones están extintos; nadie ha visto uno vivo en trescientos años."
+        },
+        {
+          "comment": "La moneda",
+          "text": "En Vael las monedas se llaman marcos."
+        }
+      ],
+      "reply": {
+        "speaker": "Posadero",
+        "text": "\"Son diez marcos por la habitación, amigo,\" dice el posadero, y desliza la llave por la barra."
+      },
+      "contradicts": [],
+      "consistent": [
+        1
+      ],
+      "source": "authored"
+    },
+    {
+      "id": "L23",
+      "lang": "es",
+      "lore": [
+        {
+          "comment": "El capitán Voss",
+          "text": "El capitán Voss perdió la mano izquierda en la frontera y lleva un garfio de hierro."
+        },
+        {
+          "comment": "El fuerte",
+          "text": "El fuerte de la frontera quedó abandonado tras el asedio."
+        }
+      ],
+      "reply": {
+        "speaker": "Capitán Voss",
+        "text": "Voss da una palmada con ambas manos sobre la mesa y entrelaza los dedos, sonriendo a los reclutas."
+      },
+      "contradicts": [
+        0
+      ],
+      "consistent": [],
+      "source": "authored"
+    },
+    {
+      "id": "L24",
+      "lang": "es",
+      "lore": [
+        {
+          "comment": "Los dragones",
+          "text": "Los dragones están extintos; nadie ha visto uno vivo en trescientos años."
+        },
+        {
+          "comment": "El río",
+          "text": "El río Sael corre hacia el sur, hasta el mar."
+        }
+      ],
+      "reply": {
+        "speaker": "Arin",
+        "text": "\"Pásame la cuerda,\" dice Arin mientras la ata al poste. \"Bajamos juntos, despacio.\""
+      },
+      "contradicts": [],
+      "consistent": [],
+      "source": "authored"
+    },
+    {
+      "id": "L25",
+      "lang": "es",
+      "lore": [
+        {
+          "comment": "Ciudad nocturna",
+          "text": "En la ciudad de Vael siempre es de noche; el sol nunca sale sobre ella."
+        },
+        {
+          "comment": "La moneda",
+          "text": "En Vael las monedas se llaman marcos."
+        }
+      ],
+      "reply": {
+        "speaker": "Narrador",
+        "text": "El sol del mediodía cae a plomo sobre Vael y blanquea sus muros."
+      },
+      "contradicts": [
+        0
+      ],
+      "consistent": [],
+      "source": "authored"
+    },
+    {
+      "id": "L26",
+      "lang": "es",
+      "lore": [
+        {
+          "comment": "La torre",
+          "text": "La torre del mago no tiene puerta a nivel del suelo; solo se entra por una ventana a diez metros de altura."
+        },
+        {
+          "comment": "La magia de Mira",
+          "text": "Mira no tiene ningún tipo de magia; nació sin el don."
+        }
+      ],
+      "reply": {
+        "speaker": "Narrador",
+        "text": "Rodeas la torre dos veces y solo encuentras piedra lisa en su base; muy arriba, una única ventana brilla a la luz de la luna."
+      },
+      "contradicts": [],
+      "consistent": [
+        0
+      ],
+      "source": "authored"
+    }
+  ]
+}
