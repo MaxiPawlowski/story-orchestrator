@@ -18,12 +18,13 @@ export const JUDGE_USE_KEYS = [
   "expansionLookahead",
   "agencyCheck",
   "houseRules",
+  "loreExclusive",
 ] as const;
 
 export type JudgeUseKey = (typeof JUDGE_USE_KEYS)[number];
 export type JudgeUses = Record<JudgeUseKey, boolean>;
 
-export const JUDGE_USE_DEPENDENCIES: Partial<Record<JudgeUseKey, JudgeUseKey>> = { expansionLookahead: "lookahead" };
+export const JUDGE_USE_DEPENDENCIES: Partial<Record<JudgeUseKey, JudgeUseKey>> = { expansionLookahead: "lookahead", loreExclusive: "loreSelect" };
 
 export const JUDGE_PICK_MODES = ["code", "llm"] as const;
 export type JudgePickMode = (typeof JUDGE_PICK_MODES)[number];
@@ -218,6 +219,12 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
     description: "After a character reply, checks it against the story's house rules; a broken rule is named in the next reply's prompt. Uses the continuity warden's review or auto mode.",
     sends: "the character reply and the story's house rules",
   },
+  loreExclusive: {
+    label: "Exclusive lore selection",
+    description: "For a story marked exclusive, switches off, for that one reply, the entries of its lore-select books the judge did not pick. Only with per-chat gating; " +
+      "a timeout, a refused pick or a timed entry keeps the keyword scan as it is.",
+    sends: "nothing beyond Lore selection: it acts on the same request",
+  },
 };
 
 export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = [
@@ -235,7 +242,8 @@ export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = [
   "curatorFilter",
   "agencyCheck",
   "houseRules",
+  "loreExclusive",
 ];
 
 // Steering-grade usages, listed only in author view.
-export const AUTHOR_JUDGE_USES: readonly JudgeUseKey[] = ["expansionCritic", "expansionLookahead", "agencyCheck", "houseRules"];
+export const AUTHOR_JUDGE_USES: readonly JudgeUseKey[] = ["expansionCritic", "expansionLookahead", "agencyCheck", "houseRules", "loreExclusive"];

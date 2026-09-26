@@ -1,0 +1,104 @@
+{
+  "_note": "v2.5 plan 08 G-L4 P3, LIVE on a lane with worldInfo.scanMemory ON: a fact written at the last message, then that message deleted (rollback); the next real turn's scan buffers must hold the rolled-back facts block (A1 path), i.e. not the removed fact. so-scenario run test/scenarios/live-v25-08-l4-rollback.json --sandbox --group <group holding Arin and DM Narrator>.",
+  "steps": [
+    {
+      "inject_script": "../fixtures/interop/v25-08-lore.js"
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; if (!rt.getGlobalSettings().worldInfo?.scanMemory) throw new Error('switch worldInfo.scanMemory on first'); return true;"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v25-08-mirror",
+        "title": "SO-V25-08 Mirror",
+        "description": "v2.5 plan 08 G-L1: the unbound mirror in scan mode.",
+        "qualities": [
+          {
+            "key": "location",
+            "type": "enum",
+            "values": [
+              "hall",
+              "vault"
+            ],
+            "source": "extractor",
+            "rubric": "Where is the party now?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "The hall",
+            "objective": "Explore the hall.",
+            "type": "anchor",
+            "start": true
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator"
+          }
+        ],
+        "requirements": {
+          "lorebooks": [
+            "SO-V25-08 Mirror Req"
+          ]
+        }
+      }
+    },
+    {
+      "ui": {
+        "action": "select-profile"
+      }
+    },
+    {
+      "send_generate": {
+        "text": "We step into the hall and I light the blue lantern by the stairs.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 3000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const before = rt.getMemoryInjectionBlocks?.().facts ?? ''; const mk = (text) => ({ tier: 'facts', type: 'fact', importance: 3, expiration: 'permanent', entities: [], text, evidence: 'seed' }); const lastId = ctx.chat.length - 1; await rt.applyExtractionAudit({ id: 'v2508-p3', createdAt: new Date().toISOString(), priority: 0, reason: 'manual', contractHash: 'h', scope: [], window: { from: lastId, to: lastId }, prompt: 'p', rawResponse: 'r', acceptedDeltas: [], rejected: [] }, [], [mk('The brass statue by the stairs is hollow and hides a key.')]); globalThis.__l4r = { before, at: lastId, after: rt.getMemoryInjectionBlocks?.().facts ?? '' }; if (!globalThis.__l4r.after.includes('hollow')) throw new Error('the seeded fact did not reach the facts block'); return globalThis.__l4r;",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions('/cut ' + globalThis.__l4r.at); return { cut: globalThis.__l4r.at };",
+      "log": true
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 3000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; globalThis.__l4r.buffers = []; globalThis.__l4r.listener = (payload) => { globalThis.__l4r.buffers.push(JSON.stringify(payload ?? null)); }; ctx.eventSource.on(ctx.eventTypes.WORLDINFO_SCAN_DONE, globalThis.__l4r.listener); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "I look around the hall again.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; ctx.eventSource.removeListener(ctx.eventTypes.WORLDINFO_SCAN_DONE, globalThis.__l4r.listener); const text = globalThis.__l4r.buffers.join('\\n'); const facts = rt.getMemoryInjectionBlocks?.().facts ?? ''; if (text.includes('is hollow and hides a key') || facts.includes('hollow')) throw new Error('P3: the rolled-back fact still reaches the scan buffer or the facts block'); return { buffers: globalThis.__l4r.buffers.length, rolledBack: true };",
+      "log": true
+    }
+  ]
+}

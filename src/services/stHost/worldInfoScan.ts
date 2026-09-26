@@ -1,4 +1,5 @@
 import type { HostScannableEntry } from "./hostTypes";
+import { getContext } from "./context";
 import { getScannableEntries } from "./worldInfoActivate";
 import { LOADED_ARRAYS, observeWorldInfoScans } from "./worldInfoEvidence";
 import { log } from "@utils/log";
@@ -26,6 +27,11 @@ export function installScanGating(apply: (arrays: HostScannableEntry[][]) => voi
     },
   });
   return { reassert: observation.reassert, dispose: observation.dispose, ordered: observation.ordered, scans: () => seen };
+}
+
+export function vectorsScanWorldInfo(): boolean {
+  const vectors = (getContext().extensionSettings as Record<string, unknown> | undefined)?.vectors;
+  return typeof vectors === "object" && vectors !== null && (vectors as { enabled_world_info?: unknown }).enabled_world_info === true;
 }
 
 // The `wiScanGating` capability (in CAPABILITY_IDS): `present` only when the handler was

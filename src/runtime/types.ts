@@ -48,11 +48,24 @@ export interface StoryLibraryRecord {
   updatedAt: string;
 }
 
+export type LoreSource = "global" | "chat" | "persona" | "character";
+
+export interface SlotConflict {
+  book: string;
+  kind: "story-book" | "user-book";
+}
+
 export interface RequirementsState {
   ready: boolean;
   missingPersonas: string[];
   missingMembers: string[];
   missingLorebooks: string[];
+  /** Which binding ST scans each present book through (author view). */
+  satisfiedBy?: Record<string, LoreSource>;
+  /** A book bound to some enabled members but not all: the members without it. */
+  characterGaps?: Record<string, string[]>;
+  /** File mode: the chat slot holds a book that is not this chat's memory mirror, so the mirror cannot bind. */
+  slotConflict?: SlotConflict | null;
 }
 
 export interface TalkDecisionAudit {

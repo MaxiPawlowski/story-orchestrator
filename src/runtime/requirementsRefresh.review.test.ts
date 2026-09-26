@@ -11,6 +11,7 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => globalThis.__requirementsTestContext,
   listGroupMembers: () => [],
   listGlobalLorebooks: () => [],
+  readLoreBindings: () => ({ global: [], chat: null, persona: null, characters: [] }),
 }));
 
 import { RuntimeManager } from "./runtimeManager";

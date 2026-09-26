@@ -1,8 +1,14 @@
 import type { NormalizedStoryV2 } from "@engine/index";
-import { installScanGating, probeScanGating, readLorebookEntries, setLorebookEntriesDisabled, showConfirmPopup, type ScanGatingHandle } from "@services/STAPI";
+import {
+  installScanGating, loadLorebook, probeScanGating, readLorebookEntries, setLorebookEntriesDisabled, showConfirmPopup, subscribeToHostEvent, vectorsScanWorldInfo,
+  type ScanGatingHandle,
+} from "@services/STAPI";
 import { replayWorldInfoFiles } from "./effectsApplier";
 import { onSettingsWrite } from "./librarySave";
-import { evaluateRequirements } from "./requirements";
+import { applyLoreExclusive, loreExclusiveFor, type LoreExclusiveRefusal, type LoreExclusiveStats } from "./loreExclusive";
+import type { CompleteLoreSelection } from "./loreSelect";
+import { createMirrorScan } from "./mirrorScan";
+import { evaluateRequirements, requirementsOptions } from "./requirements";
 import { beginRun, type RunOwnership } from "./runToken";
 import type { NormalizedLedger, ScanGateRow, ScanGateStats } from "./scanGatePlan";
 import { getGlobalSettings, setGlobalSettings } from "./settingsStore";
@@ -10,6 +16,7 @@ import { listStoryRecords } from "./storyLibrary";
 import { createWiGating, type CapabilityReading, type NormalizePreviewBook, type WiGating } from "./worldInfoGating";
 import { gatedBy } from "./worldInfoLedger";
 import { noteScanGate, scanGatingActive, setScanGatingActive, setScanGatingSettled, setWiGatingStatus } from "./worldInfoMode";
+import type { MemoryMirrorBook } from "./types";
 import type { NormalizeOutcome } from "./worldInfoNormalize";
 import { ScanGateProvider, type ScanGateChoice } from "./worldInfoScan";
 
@@ -18,6 +25,13 @@ export interface ScanGatingWiring {
   ownedChat: () => string | null;
   story: () => NormalizedStoryV2 | null;
   path: () => string[];
+  mirrorBook: () => MemoryMirrorBook | null;
+  exclusive: {
+    useActive: () => boolean;
+    messageId: () => number;
+    loud: () => boolean;
+    selection: () => CompleteLoreSelection | null;
+  };
   ownership: RunOwnership;
   journal: (summary: string, note: string) => void;
   notify: () => void;
@@ -28,6 +42,8 @@ export interface ScanGatingDebug {
   capability: () => CapabilityReading | null;
   gate: () => ScanGateChoice;
   lastScan: () => (ScanGateStats & { owner: "story" | "no-story" }) | null;
+  lastMirror: () => number;
+  lastExclusive: () => { refusal: LoreExclusiveRefusal | null; stats: LoreExclusiveStats } | null;
   timings: () => number[];
   normalize: () => Promise<NormalizeOutcome | null>;
   requestScan: () => Promise<boolean>;
@@ -87,16 +103,26 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     ownedChat: deps.ownedChat,
     story: deps.story,
     path: deps.path,
-    ready: () => evaluateRequirements(deps.story()).ready,
+    ready: () => evaluateRequirements(deps.story(), requirementsOptions(null, true)).ready,
     library,
     libraryRevision: () => listStoryRecords().map((record) => `${record.id}@${record.version}:${record.hash}`).join(","),
     ledger: () => ledger,
   });
+  const mirror = createMirrorScan({
+    owner: () => ({ chatId: deps.chatId(), ownedChat: deps.ownedChat(), hasStory: deps.story() !== null, book: deps.mirrorBook() }),
+    load: loadLorebook,
+  });
+  let lastMirror = 0;
+  let lastExclusive: { refusal: LoreExclusiveRefusal | null; stats: LoreExclusiveStats } | null = null;
+  let stopMirrorWatch: (() => void) | null = null;
   const apply = (arrays: Parameters<Parameters<typeof installScanGating>[0]>[0]) => {
     if (!scanGatingActive()) return;
     const started = performance.now();
+    lastMirror = mirror.append(arrays);
     const rows: ScanGateRow[] = [];
     lastScan = provider.apply(arrays, rows);
+    const plan = loreExclusiveFor({ ...deps.exclusive, scanActive: scanGatingActive, story: deps.story, chatId: deps.chatId, vectorsScanWorldInfo });
+    lastExclusive = { refusal: plan.refusal, stats: applyLoreExclusive(arrays, plan) };
     timings.push(performance.now() - started);
     if (timings.length > SCAN_TIMING_LIMIT) timings.shift();
     const of = ownersOf();
@@ -113,11 +139,16 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     disable: (lorebook, comments) => setLorebookEntriesDisabled(lorebook, comments, true),
     enable: (lorebook, comments) => setLorebookEntriesDisabled(lorebook, comments, false),
     handler: {
-      install: () => { handle = installScanGating(apply); },
+      install: () => {
+        handle = installScanGating(apply);
+        stopMirrorWatch ??= subscribeToHostEvent("WORLDINFO_UPDATED", (name, data) => { mirror.updated(name, data); });
+      },
       probe: () => (handle ? probeScanGating(handle) : Promise.resolve({ state: "error" as const, detail: "the scan handler is not installed" })),
       dispose: () => {
         handle?.dispose();
         handle = null;
+        stopMirrorWatch?.();
+        stopMirrorWatch = null;
       },
     },
     setActive: setScanGatingActive,
@@ -125,7 +156,8 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     replayFilePath: async () => {
       const story = deps.story();
       const owned = story && deps.chatId() !== null && deps.chatId() === deps.ownedChat() ? story : null;
-      const refused = await replayWorldInfoFiles(library(), owned, owned && evaluateRequirements(owned).ready ? deps.path() : null, beginRun(deps.ownership));
+      const ready = owned !== null && evaluateRequirements(owned, requirementsOptions(deps.mirrorBook(), false)).ready;
+      const refused = await replayWorldInfoFiles(library(), owned, ready ? deps.path() : null, beginRun(deps.ownership));
       if (refused.length) deps.journal("world_info could not be applied", refused.join("; "));
     },
     confirm: confirmNormalisation,
@@ -145,6 +177,8 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     capability: () => gating.status().capability,
     gate: () => provider.choose(),
     lastScan: () => lastScan,
+    lastMirror: () => lastMirror,
+    lastExclusive: () => lastExclusive,
     timings: () => [...timings],
     normalize: gating.renormalize,
     requestScan: gating.requestScan,
@@ -156,6 +190,8 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     reassert: () => handle?.reassert(),
     dispose: () => {
       stopWatching();
+      stopMirrorWatch?.();
+      stopMirrorWatch = null;
       gating.dispose();
       if (running === gating) running = null;
       setWiGatingStatus(null);

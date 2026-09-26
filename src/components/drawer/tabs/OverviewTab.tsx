@@ -1,10 +1,31 @@
-import type { RuntimeSnapshot } from "@runtime/types";
+import type { LoreSource, RuntimeSnapshot } from "@runtime/types";
 import PlayerOverview from "../PlayerOverview";
 import ScenePanel from "../ScenePanel";
 
 const extractionReady = (snapshot: RuntimeSnapshot): boolean => snapshot.extraction.settings.enabled && Boolean(snapshot.extraction.settings.profileId);
 
 const StatusDot = ({ ok }: { ok: boolean }) => <span className={`status-indicator status-${ok ? "success" : "error"}`} />;
+
+const SOURCE_LABELS: Record<LoreSource, string> = { global: "selected globally", chat: "chat lorebook", persona: "persona lorebook", character: "every member's card" };
+
+const LoreBindings = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
+  const { satisfiedBy = {}, characterGaps = {}, slotConflict = null } = snapshot.requirements;
+  const bound = Object.entries(satisfiedBy);
+  const gaps = Object.entries(characterGaps);
+  if (!bound.length && !gaps.length && !slotConflict) return null;
+  return (
+    <div className="flex flex-col gap-1 text-xs opacity-80">
+      {bound.map(([book, source]) => <div key={book} data-so="lore-satisfied-by">{book}: {SOURCE_LABELS[source]}</div>)}
+      {gaps.map(([book, members]) => <div key={book} data-so="lore-character-gap">{book}: not bound to {members.join(", ")}</div>)}
+      {slotConflict && (
+        <div data-so="mirror-slot-conflict">
+          Memory mirror not scanned in this chat: the chat lorebook slot holds {slotConflict.book}
+          {slotConflict.kind === "story-book" ? ", which this story requires" : ""}.
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Diagnose-only dots were the half of this panel: the wizard turns them into a next step it can
 // actually take — create the missing cards, lorebook and group. Personas stay diagnostic.
@@ -24,6 +45,7 @@ const AuthorRequirements = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSn
           {item.missing.length > 0 && <div className="text-xs opacity-80">Missing: {item.missing.join(", ")}</div>}
         </div>
       ))}
+      <LoreBindings snapshot={snapshot} />
       {provisionable && onFixWithWizard && (
         <button
           id="so-fix-with-wizard"

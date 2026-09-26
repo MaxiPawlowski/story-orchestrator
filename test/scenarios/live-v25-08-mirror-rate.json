@@ -1,0 +1,432 @@
+{
+  "_note": "v2.5 plan 08 L6 (G-L6), LIVE, real LLM on a lane copy. A story that invites relationship claims, 26 real turns at extraction cadence 2, so consolidation (boundaries 10 and 20) and the hall -> vault scene break both run. Step 0 (L6): every sync reports ran/skipped/live (memoryMirror summary), recorded after boundaries 10, 20 and the last. PASS needs the mirror book to exist and hold >= 1 enabled so_ entry. PREDECLARED (never retuned): the strip rule (median rate >= 0.8) applies only when >= 5 so_ entries were each eligible in >= 20 loud generations; otherwise the verdict is UNMEASURABLE with the counts and nothing changes. The record names the gating mode and the read route; run it in scan mode (L1) for the rate that ships, and once in file mode as the U6 comparison.",
+  "steps": [
+    {
+      "reload": true
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v25-08-mirror-rate",
+        "title": "SO-V25-08 Mirror Rate",
+        "description": "v2.5 plan 08 L6: a story built to invite relationship claims (trust, debts, family, betrayal) among a small cast, so the memory mirror has relationship rows to write and the evidence ring has keyed entries to tally.",
+        "qualities": [
+          {
+            "key": "location",
+            "type": "enum",
+            "values": [
+              "hall",
+              "vault"
+            ],
+            "source": "extractor",
+            "rubric": "Where is the party now: the guild hall or the vault beneath the city?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "The guild hall",
+            "objective": "Learn who owes whom, and who can be trusted.",
+            "type": "anchor",
+            "start": true
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator"
+          }
+        ]
+      }
+    },
+    {
+      "ui": {
+        "action": "select-profile"
+      }
+    },
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ enabled: true, cadence: 2 }); const ev = globalThis.storyOrchestratorLoreEvidence; if (!ev) throw new Error('no evidence ring on this build'); const settings = rt.getGlobalSettings(); globalThis.__soL6 = { chatId: SillyTavern.getContext().getCurrentChatId(), gatingMode: settings.worldInfo?.gatingMode ?? null, routes: { fallback: settings.extraction?.profileId ?? null, read: settings.extraction?.profiles?.read ?? null, synthesis: settings.extraction?.profiles?.synthesis ?? null }, syncs: [] }; return globalThis.__soL6;",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "We reach the moonlit hall. I tell Arin I trust him with my life after he pulled me out of the river last winter.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 1,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "Arin admits he still owes the guild master a debt, and I promise to help him pay it off.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 2,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I ask the DM Narrator what the guards think of Arin; they call him my sworn shield.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 3,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "Arin and I argue about the map, but he apologises and we shake hands like brothers.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 4,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I tell Arin that Mara the smith is my cousin and that she forged his blade.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 5,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "Arin says he has never forgiven Captain Voss for abandoning him at the border.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 6,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I thank Arin for guarding my back and swear I will never leave him behind either.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 7,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "We meet Mara at her forge; she greets Arin warmly and scolds me for not writing.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 8,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "Captain Voss arrives and sneers at Arin; I step between them and defend my friend.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 9,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "Mara quietly tells me she distrusts Captain Voss and that he owes her silver.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 10,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const state = globalThis.__soL6; if (SillyTavern.getContext().getCurrentChatId() !== state.chatId) throw new Error('the chat changed under the run'); const summary = await rt.syncWorldInfo(); state.syncs.push({ at: rt.getSnapshot().boundary ?? null, ran: summary.ran, skipped: summary.skipped, live: summary.live, created: summary.created, updated: summary.updated }); return summary;",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "Arin confesses he is afraid Voss will expose his past to the guild.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 11,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I promise Arin that whatever Voss knows, I will stand with him before the guild.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 12,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "We leave the hall and head down into the vault beneath the city, Arin leading with a torch.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 13,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "In the vault Arin finds a letter from Voss to the guild master naming Arin a deserter.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 14,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I burn the letter and tell Arin his secret is safe with me.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 15,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "Mara follows us into the vault and admits she has been working for Voss all along.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 16,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "Arin feels betrayed by Mara; I try to make peace between them.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 17,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "Mara begs Arin for forgiveness and offers him her family's ring as a pledge.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 18,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "Arin accepts the ring and says Mara is family again, but he will not forget.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 19,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "Captain Voss corners us in the vault; Arin tells him their old friendship is over.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 20,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const state = globalThis.__soL6; if (SillyTavern.getContext().getCurrentChatId() !== state.chatId) throw new Error('the chat changed under the run'); const summary = await rt.syncWorldInfo(); state.syncs.push({ at: rt.getSnapshot().boundary ?? null, ran: summary.ran, skipped: summary.skipped, live: summary.live, created: summary.created, updated: summary.updated }); return summary;",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I remind Voss that he still owes Mara silver and that the guild will hear of it.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 21,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "Voss backs down and swears he will leave Arin alone if we keep quiet.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 22,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "Back in the hall, Arin tells the guild master he is proud to call me his partner.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 23,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "Mara and Arin share a drink and talk about the years they lost to Voss's lies.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 24,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I ask Arin whether he still trusts Mara; he says he trusts her because I do.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 25,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "We toast to the three of us: Arin, Mara and me, bound by what happened in the vault.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "boundary": 26,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const state = globalThis.__soL6; if (SillyTavern.getContext().getCurrentChatId() !== state.chatId) throw new Error('the chat changed under the run'); const summary = await rt.syncWorldInfo(); state.syncs.push({ at: rt.getSnapshot().boundary ?? null, ran: summary.ran, skipped: summary.skipped, live: summary.live, created: summary.created, updated: summary.updated }); return summary;",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const state = globalThis.__soL6; const ctx = SillyTavern.getContext(); if (ctx.getCurrentChatId() !== state.chatId) throw new Error('the chat changed under the run'); const snapshot = rt.getSnapshot(); const book = snapshot.memory?.wiBook ?? null; if (!book?.name) throw new Error(`no mirror book was built: ${JSON.stringify(state.syncs)}`); const data = await ctx.loadWorldInfo(book.name); const soEntries = Object.values(data?.entries ?? {}).filter((entry) => String(entry.comment ?? '').startsWith('so_') && entry.disable !== true); if (!soEntries.length) throw new Error(`the mirror book holds no enabled so_ entry: ${JSON.stringify(state.syncs)}`); const all = globalThis.storyOrchestratorLoreEvidence.mirrorRates(); const sampled = all.filter((row) => row.eligible >= 20); const floorMet = sampled.length >= 5; const rates = sampled.map((row) => row.rate).sort((a, b) => a - b); const mid = Math.floor(rates.length / 2); const median = rates.length ? (rates.length % 2 ? rates[mid] : (rates[mid - 1] + rates[mid]) / 2) : null; const verdict = !floorMet ? 'UNMEASURABLE (sample floor: >= 5 so_ entries each eligible in >= 20 loud generations): change nothing' : median >= 0.8 ? 'STRIP (median >= 0.8)' : 'RECORD ONLY (median < 0.8): change nothing'; return { book: book.name, enabledSoEntries: soEntries.length, sampled: sampled.length, entries: all.length, median, verdict, gatingMode: state.gatingMode, routes: state.routes, sceneCount: snapshot.memory?.sceneCount ?? null, syncs: state.syncs, rows: all };",
+      "log": true
+    }
+  ]
+}

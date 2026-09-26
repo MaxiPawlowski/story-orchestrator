@@ -84,8 +84,8 @@ describe("runDiagnostics", () => {
     expect(runDiagnostics(clean)).toHaveLength(0);
   });
 
-  it("fires every diagnostic exactly once on the seeded-error story", () => {
-    const diagnostics = runDiagnostics(seeded, { worldInfoGating: "scan" });
+  it("fires every diagnostic exactly once on the seeded-error story, plus the exclusive lore-select with no book (it cannot share the seeded scope)", () => {
+    const diagnostics = [...runDiagnostics(seeded, { worldInfoGating: "scan" }), ...runDiagnostics({ ...clean, lore_select: { lorebooks: [], exclusive: true } })];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));
     DIAGNOSTIC_CODES.forEach((code) => {
@@ -163,6 +163,13 @@ describe("runDiagnostics", () => {
   it("warns about a lore-select book the story does not require, case-insensitively (v2.2 plan 04)", () => {
     const story: StoryV2 = { ...clean, requirements: { lorebooks: ["Vault Lore"] }, lore_select: { lorebooks: ["vault lore", "Other Lore"] } };
     expect(runDiagnostics(story).filter((entry) => entry.code === "lore-select-inactive").map((entry) => entry.path)).toEqual(["lore_select.lorebooks.1"]);
+  });
+
+  it("L5: warns when exclusive lore-select names no lorebook, and not when it names one", () => {
+    const empty: StoryV2 = { ...clean, lore_select: { lorebooks: [], exclusive: true } };
+    expect(runDiagnostics(empty).filter((entry) => entry.code === "lore-select-exclusive-empty").map((entry) => [entry.severity, entry.path])).toEqual([["warning", "lore_select.exclusive"]]);
+    const scoped: StoryV2 = { ...clean, requirements: { lorebooks: ["Vault Lore"] }, lore_select: { lorebooks: ["Vault Lore"], exclusive: true } };
+    expect(runDiagnostics(scoped).some((entry) => entry.code === "lore-select-exclusive-empty")).toBe(false);
   });
 
   it("notes judge hints: plain single-word options, the latching floor, and a 'not for' that names its own option (v2.2 plan 06)", () => {

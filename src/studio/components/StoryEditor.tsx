@@ -200,6 +200,20 @@ const LoreSelectSection = ({ draft, mutate, lorebookNames }: { draft: Draft; mut
         />
       </label>
     ) : null}
+    {draft.lore_select ? (
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          data-so="lore-select-exclusive"
+          type="checkbox"
+          aria-label="Exclude unpicked entries"
+          checked={Boolean(draft.lore_select.exclusive)}
+          onChange={(event) => mutate((current) => setLoreSelect(current, { ...(current.lore_select ?? { lorebooks: [] }), exclusive: event.target.checked }))}
+        />
+        <span className="text-xs st-muted">Exclude unpicked entries<HelpTooltip title={"Only when the player's install turns on Exclusive lore selection and gates lore per chat: " +
+          "the entries of these books the judge did not pick are switched off for that one reply. Constant, checkpoint-gated and timed entries are never switched off, and a " +
+          "timeout keeps the ordinary keyword scan."} /></span>
+      </label>
+    ) : null}
   </div>
 );
 

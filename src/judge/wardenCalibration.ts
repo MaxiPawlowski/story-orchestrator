@@ -1,9 +1,9 @@
 import { continuityFactRows, type ContinuityCase, type RescoreResult, type RescoreRow } from "./curatorCalibration";
-import { AGENCY_SCORE, HOUSE_RULE_P, WARDEN_MAX_RULES } from "./policy";
+import { AGENCY_SCORE, CONTINUITY_P, HOUSE_RULE_P, WARDEN_LORE_P, WARDEN_MAX_RULES } from "./policy";
 import { noulAnswer, scoreAnswer } from "./questions";
 import type { JudgeSelfTestReport, JudgeSelfTestRow } from "./selfTest";
 import type { JudgeAnswer, JudgeFallback, JudgeRequest, JudgeResult } from "./types";
-import { AGENCY_LEVELS, buildWardenRequests, readWarden, type WardenInput } from "./warden";
+import { AGENCY_LEVELS, buildWardenRequests, keptLore, readWarden, type WardenInput, type WardenLore } from "./warden";
 import { median } from "./stats";
 
 export type Ask = (request: JudgeRequest) => Promise<JudgeResult>;
@@ -98,6 +98,49 @@ export async function runHouseRuleCalibration(ask: Ask, cases: HouseRuleCase[]):
         right: p !== null && (family === "broken" ? flagged : !flagged),
         picked: p === null ? null : `p=${p}`,
         detail: rule,
+        latencyMs: asked.latencyMs,
+        ...(asked.fallback ? { fallback: asked.fallback } : {}),
+      };
+    });
+    return { rows, model: asked.model, latencyMs: asked.latencyMs };
+  })));
+}
+
+export interface WardenLoreCase {
+  id: string;
+  lang: string;
+  lore: WardenLore[];
+  reply: { speaker: string; text: string };
+  contradicts: number[];
+  consistent: number[];
+  pair?: string;
+  source?: string;
+}
+
+export type WardenLoreArm = "lore" | "facts" | "none";
+
+const wardenLoreInput = (entry: WardenLoreCase, arm: WardenLoreArm): WardenInput => ({
+  reply: entry.reply,
+  facts: arm === "facts" ? keptLore(entry.lore).map((item) => item.text) : [],
+  agency: null,
+  houseRules: [],
+  ...(arm === "lore" ? { lore: entry.lore } : {}),
+});
+
+export async function runWardenLoreCalibration(ask: Ask, cases: WardenLoreCase[], arm: WardenLoreArm = "lore"): Promise<JudgeSelfTestReport> {
+  return report(await Promise.all(cases.map(async (entry) => {
+    const asked = await askWarden(ask, wardenLoreInput(entry, arm));
+    const key = arm === "facts" ? "fact" : "lore";
+    const threshold = arm === "facts" ? CONTINUITY_P : WARDEN_LORE_P;
+    const rows: JudgeSelfTestRow[] = keptLore(entry.lore).map((item, index) => {
+      const p = asked.answers ? noulAnswer(asked.answers, `${key}:${index}`) : null;
+      const flagged = p !== null && p >= threshold;
+      const family = entry.contradicts.includes(index) ? "contradicts" : entry.consistent.includes(index) ? "consistent" : "untouched";
+      return {
+        id: `${entry.id}.${family}:${index}`,
+        right: p !== null && (family === "contradicts" ? flagged : !flagged),
+        picked: p === null ? null : `p=${p}`,
+        detail: item.comment,
         latencyMs: asked.latencyMs,
         ...(asked.fallback ? { fallback: asked.fallback } : {}),
       };

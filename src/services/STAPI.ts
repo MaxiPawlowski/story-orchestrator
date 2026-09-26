@@ -58,19 +58,20 @@ export type { CharacterCardInput } from "@services/stHost/provisioning";
 export {
   listActiveWorldInfoComments,
   listGlobalLorebooks,
+  readLoreBindings,
   listGroupMembers,
   listLorebookComments,
   listPersonas,
   listSlashCommands,
 } from "@services/stHost/selectors";
-export type { HostSlashCommandMeta } from "@services/stHost/selectors";
+export type { HostLoreBindings, HostSlashCommandMeta } from "@services/stHost/selectors";
 export { getActiveGroup, resolveGroupMemberId, setGroupMembersDisabled, setGroupMemberDisabled, readGroupMemberDisabled } from "@services/stHost/groups";
 export { guardHostStream, hostSystemUserName, isHostGenerating, stopHostGeneration, willAddUserMessage } from "@services/stHost/generation";
 export { forceActivateEntries, getScannableEntries, type HostScannableEntry } from "@services/stHost/worldInfoActivate";
 export { readLorebookEntries, setLorebookEntriesDisabled } from "@services/stHost/worldInfoFiles";
 export { observeWorldInfoScans, loadedEntries, type HostEntriesLoaded, type WorldInfoScanObservation } from "@services/stHost/worldInfoEvidence";
 export { observeSamplerPayloads, readSamplerPreset, samplerApi, type SamplerPayloadHandlers } from "@services/stHost/samplerOverlay";
-export { installScanGating, probeScanGating, type ScanGatingHandle } from "@services/stHost/worldInfoScan";
+export { installScanGating, probeScanGating, vectorsScanWorldInfo, type ScanGatingHandle } from "@services/stHost/worldInfoScan";
 export { getSelectedConnectionProfileId, listConnectionProfiles, profileExists, sendConnectionProfileRequest } from "@services/stHost/connectionProfiles";
 export type { ModelFailureKind, ModelFinish, ModelReply, ModelRequestOptions, ModelSamplers } from "@services/stHost/modelReply";
 export type { ConnectionProfileSummary } from "@services/stHost/connectionProfiles";

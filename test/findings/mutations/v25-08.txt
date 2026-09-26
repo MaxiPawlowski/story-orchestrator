@@ -1,0 +1,18 @@
+v2.5 plan 08 (lore on the scan seam, code items), mutations 2026-09-26 on the plan-08 branch. Each mutant was applied alone as an exact-text replacement by .debug/mutate08.py (asserted to match exactly once), the plan-08 suites were run (mirrorScan, memoryMirror, scanGatePlan, requirements, injectionRegistry, extensionPrompts, scanMemory, loreSelect, loreExclusive, wardenLore), and the file was restored byte for byte. The plan's required mutants are M1 (L1 owner check), M2 (no-double), M5 (D2 every-member), M6 (L4 registry guard), M8 (L5 every chunk answered) and M9 (L5 gated-set exemption); its seventh, the L7 story-book filter on content capture, has no code to mutate because the L7 runtime is not built (Phase A only; M14 covers the Phase A threshold instead). M3, M4, M7, M10-M13 cover checks added while building. Negative controls (jest): L1 'appending without the guard leaks the parent's memory into its branch' (mirrorScan.test.ts), L4 'negative control: a registry that marks the epistemic block scannable fails the guard' and 'the ledger and a key outside the allowlist fail too' (injectionRegistry.test.ts), L7 'the fixture scored with the lore removed from the input falls below R1' (wardenLore.test.ts).
+
+Baseline: Tests: 118 passed, 118 total (exit 0)
+- M1 L1 owner check: any chat that has a recorded book gets the mirror (src/runtime/mirrorScan.ts): KILLED, Tests: 2 failed, 116 passed, 118 total
+- M2 L1 no-double check removed (src/runtime/mirrorScan.ts): KILLED, Tests: 1 failed, 117 passed, 118 total
+- M3 L1 scan-mode sync binds on adoption as in file mode (src/runtime/memoryMirror.ts): KILLED, Tests: 2 failed, 116 passed, 118 total
+- M4 L1 a slower earlier refresh overwrites a later one (ticket check removed) (src/runtime/mirrorScan.ts): KILLED, Tests: 1 failed, 117 passed, 118 total
+- M5 D2 every-member check: one bound member satisfies the requirement (src/runtime/requirementsRead.ts): KILLED, Tests: 1 failed, 117 passed, 118 total
+- M6 L4 registry guard: the never-scannable check removed (src/constants/injectionRegistry.ts): KILLED, Tests: 2 failed, 116 passed, 118 total
+- M7 L4 seam grants scan to any key (src/services/stHost/extensionPrompts.ts): KILLED, Tests: 1 failed, 117 passed, 118 total
+- M8 L5 every-chunk-answered condition removed from the complete selection (src/runtime/loreSelect.ts): KILLED, Tests: 1 failed, 117 passed, 118 total
+- M9 L5 gated-set exemption removed (src/runtime/loreExclusive.ts): KILLED, Tests: 2 failed, 116 passed, 118 total
+- M10 L5 timed-entry exemption removed (src/runtime/loreExclusive.ts): KILLED, Tests: 2 failed, 116 passed, 118 total
+- M11 L5 vectors-WI refusal removed (src/runtime/loreExclusive.ts): KILLED, Tests: 1 failed, 117 passed, 118 total
+- M12 L5 selection for another message accepted (src/runtime/loreExclusive.ts): KILLED, Tests: 1 failed, 117 passed, 118 total
+- M13 L5 a missing disable key is added (suppressed) instead of counted (src/runtime/loreExclusive.ts): KILLED, Tests: 1 failed, 117 passed, 118 total
+- M14 L7 lore flag threshold loosened below the predeclared 0.7 (src/judge/warden.ts): KILLED, Tests: 1 failed, 117 passed, 118 total
+Restored: Tests: 118 passed, 118 total (exit 0)

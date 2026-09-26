@@ -11,10 +11,11 @@ const emitter = {
 };
 
 const scanner = { emits: true };
+const host: { extensionSettings?: Record<string, unknown> } = {};
 const payload = () => ({ globalLore: [{ world: "SO-T13 Ruins", uid: 1, comment: "CP1", disable: true }], characterLore: [], chatLore: [], personaLore: [] });
 
 jest.mock("./context", () => ({
-  getContext: () => ({ eventSource: emitter.ordered ? emitter : { on: emitter.on.bind(emitter), off: emitter.off.bind(emitter) }, eventTypes: { WORLDINFO_ENTRIES_LOADED: "worldinfo_entries_loaded" } }),
+  getContext: () => ({ extensionSettings: host.extensionSettings, eventSource: emitter.ordered ? emitter : { on: emitter.on.bind(emitter), off: emitter.off.bind(emitter) }, eventTypes: { WORLDINFO_ENTRIES_LOADED: "worldinfo_entries_loaded" } }),
 }));
 jest.mock("./worldInfoActivate", () => ({
   getScannableEntries: async () => {
@@ -23,7 +24,7 @@ jest.mock("./worldInfoActivate", () => ({
   },
 }));
 
-import { installScanGating, probeScanGating } from "./worldInfoScan";
+import { installScanGating, probeScanGating, vectorsScanWorldInfo } from "./worldInfoScan";
 
 beforeEach(() => {
   emitter.events.clear();
@@ -72,5 +73,16 @@ describe("installScanGating (v2.4 plan 05 T13 spike)", () => {
     const handle = installScanGating(() => undefined);
     handle.dispose();
     expect([...emitter.events.values()].flat()).toEqual([]);
+  });
+});
+
+describe("L5: vectors World Info (v25-08-H10)", () => {
+  it("reads the vectors extension's own switch, and treats an unreadable one as off", () => {
+    host.extensionSettings = undefined;
+    expect(vectorsScanWorldInfo()).toBe(false);
+    host.extensionSettings = { vectors: { enabled_world_info: false } };
+    expect(vectorsScanWorldInfo()).toBe(false);
+    host.extensionSettings = { vectors: { enabled_world_info: true } };
+    expect(vectorsScanWorldInfo()).toBe(true);
   });
 });

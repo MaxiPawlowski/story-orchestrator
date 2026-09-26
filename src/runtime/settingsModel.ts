@@ -34,9 +34,11 @@ export interface WorldInfoSettings {
   gatingMode: WorldInfoGatingMode;
   normalized: Record<string, string[]>;
   normalizedFrom: Record<string, NormalizedFrom[]>;
+  /** Facts, scene history and checkpoint guidance join the World Info scan buffer. Off unless the author switches it on. */
+  scanMemory: boolean;
 }
 
-export const defaultWorldInfoSettings = (): WorldInfoSettings => ({ gatingMode: "file", normalized: {}, normalizedFrom: {} });
+export const defaultWorldInfoSettings = (): WorldInfoSettings => ({ gatingMode: "file", normalized: {}, normalizedFrom: {}, scanMemory: false });
 
 const sanitizeProvenance = (value: unknown): Record<string, NormalizedFrom[]> => {
   if (!isRecord(value)) return {};
@@ -62,7 +64,12 @@ const sanitizeWorldInfoSettings = (value: unknown): WorldInfoSettings => {
       ])
       .filter(([, comments]) => comments.length > 0))
     : {};
-  return { gatingMode: value.gatingMode === "scan" ? "scan" : "file", normalized, normalizedFrom: sanitizeProvenance(value.normalizedFrom) };
+  return {
+    gatingMode: value.gatingMode === "scan" ? "scan" : "file",
+    normalized,
+    normalizedFrom: sanitizeProvenance(value.normalizedFrom),
+    scanMemory: value.scanMemory === true,
+  };
 };
 
 export interface ChatOverrides {

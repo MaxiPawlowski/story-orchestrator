@@ -250,6 +250,7 @@ export interface StoryLoreSelect {
   lorebooks: string[];
   top_k?: number;
   min_p?: number;
+  exclusive?: boolean;
 }
 
 export const STORY_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,63}$/;

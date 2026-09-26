@@ -2,7 +2,7 @@ import { forceActivateEntries, getContext, getScannableEntries, settingsReady, w
 import { LoreSelector } from "../loreSelect";
 import type { JudgeRuntime } from "../judge";
 import { runtimeManager } from "../runtimeManager";
-import { isQuietType, type GenerationLifecycle } from "../generationLifecycle";
+import { isQuietType, withholds, type GenerationLifecycle } from "../generationLifecycle";
 import { loreEvidence } from "../worldInfoEvidence";
 import { startLoreEvidence } from "../worldInfoEvidenceHost";
 import { startSamplerOverlay } from "../samplerOverlayHost";
@@ -17,7 +17,7 @@ const innermostType = (generation: GenerationLifecycle) => {
   return open.nested.length ? open.nested[open.nested.length - 1] : open.outermost?.type ?? null;
 };
 
-const startGating = (disposers: Disposers) => {
+const startGating = (disposers: Disposers, exclusive: Parameters<typeof startScanGating>[0]["exclusive"]) => {
   let scanGating: ReturnType<typeof startScanGating> | null = null;
   let scanGatingDisposed = false;
   void settingsReady().then(() => {
@@ -27,6 +27,8 @@ const startGating = (disposers: Disposers) => {
       ownedChat: () => runtimeManager.getRunContext().claimedChat ?? null,
       story: () => runtimeManager.getStory(),
       path: () => runtimeManager.getEngineState()?.visitedPath ?? [],
+      mirrorBook: () => runtimeManager.getMirrorBook(),
+      exclusive,
       ownership: runtimeManager.getOwnership(),
       journal: (summary, note) => runtimeManager.noteRecap(summary, note, "lore"),
       notify: () => runtimeManager.notify(),
@@ -54,7 +56,7 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
     context: () => runtimeManager.getRunContext(),
     story: () => runtimeManager.getStory(),
     state: () => runtimeManager.getEngineState(),
-    mirrorBook: () => runtimeManager.getSnapshot().memory.wiBook?.name ?? null,
+    mirrorBook: () => runtimeManager.getMirrorBook()?.name ?? null,
     lastMessageId: chatLastId,
     innermostType: () => innermostType(generation),
     journal: (flag) => runtimeManager.noteRecap(flag.summary, flag.detail, "lore"),
@@ -63,7 +65,12 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
   disposers.push(() => loreWatch.dispose());
   disposers.push(startSamplerOverlay({ chatId, generation: () => generation.snapshot(), journal: (summary, note) => runtimeManager.noteRecap(summary, note) }));
   globalThis.storyOrchestratorLoreEvidence = loreEvidence;
-  const scanGating = startGating(disposers);
+  const scanGating = startGating(disposers, {
+    useActive: () => judgeRuntime.active("loreExclusive"),
+    messageId: chatLastId,
+    loud: () => generation.snapshot().outermost !== null && !withholds(innermostType(generation)),
+    selection: () => lore.completeSelection(),
+  });
 
   let awaitsMessage = false;
   let awaitsIntercept = false;

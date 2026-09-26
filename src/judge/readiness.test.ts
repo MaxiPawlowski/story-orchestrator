@@ -42,7 +42,7 @@ describe("judge readiness (v2.3 plan 09)", () => {
     const rows = judgeReadiness(settings({ stallCheck: true }));
     expect(rows.find((row) => row.key === "stallCheck")).toMatchObject({ enabled: true, verdict: "measured", calibration: 1, live: "J11.23" });
     expect([...BUILT_JUDGE_USES].sort()).toEqual([...JUDGE_USE_KEYS].sort());
-    expect(JUDGE_USE_KEYS.filter((key) => JUDGE_READINESS[key].calibration === null || JUDGE_READINESS[key].measuredOn === null)).toEqual([]);
+    expect(JUDGE_USE_KEYS.filter((key) => JUDGE_READINESS[key].calibration === null || JUDGE_READINESS[key].measuredOn === null)).toEqual(["loreExclusive"]);
     expect(JUDGE_USE_KEYS.every((key) => !JUDGE_USE_COPY[key].description.startsWith("Not built") && !JUDGE_USE_COPY[key].description.startsWith("Not measured"))).toBe(true);
   });
 
@@ -54,6 +54,12 @@ describe("judge readiness (v2.3 plan 09)", () => {
     expect((["agencyCheck", "houseRules"] as const).every((key) => AUTHOR_JUDGE_USES.includes(key) && defaultJudgeSettings().uses[key] === false)).toBe(true);
     expect(judgeReadiness(settings({ agencyCheck: true, houseRules: true })).filter((row) => row.enabled).map((row) => row.verdict)).toEqual(["measured", "measured"]);
     expect(judgeReadiness(settings({ agencyCheck: true }, { model: "jev-2.0.0" })).find((row) => row.key === "agencyCheck")?.verdict).toBe("unproven");
+  });
+
+  it("L5: exclusive lore selection is author-only, off, blocked without lore selection and unproven with it until X1/X2 run", () => {
+    expect(AUTHOR_JUDGE_USES.includes("loreExclusive") && defaultJudgeSettings().uses.loreExclusive === false).toBe(true);
+    expect(judgeReadiness(settings({ loreExclusive: true }), JUDGE_USE_DEPENDENCIES).find((row) => row.key === "loreExclusive")).toMatchObject({ verdict: "blocked", blockedBy: "loreSelect" });
+    expect(judgeReadiness(settings({ loreExclusive: true, loreSelect: true }), JUDGE_USE_DEPENDENCIES).find((row) => row.key === "loreExclusive")?.verdict).toBe("unproven");
   });
 
   it("calls an enabled use with its dependency off blocked, not measured", () => {

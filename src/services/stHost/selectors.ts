@@ -1,6 +1,6 @@
 import { getContext } from "./context";
-import type { HostSlashCommand } from "./hostTypes";
-import { listAllLorebooks, listSelectedLorebooks, type Lorebook } from "./worldInfo";
+import type { HostCharacter, HostSlashCommand } from "./hostTypes";
+import { getWorldInfoSettings, listAllLorebooks, listSelectedLorebooks, readChatLorebookSlot, type Lorebook } from "./worldInfo";
 
 const trim = (value: string | null | undefined) => value?.trim() ?? "";
 
@@ -29,6 +29,56 @@ export function listGlobalLorebooks(): string[] {
   const existing = new Set(listAllLorebooks().map((name) => name.toLowerCase()));
   const selected = uniq(listSelectedLorebooks().map((name) => trim(name)).filter(Boolean));
   return existing.size ? selected.filter((name) => existing.has(name.toLowerCase())) : selected;
+}
+
+export interface HostLoreBindings {
+  global: string[];
+  chat: string | null;
+  persona: string | null;
+  characters: Array<{ name: string; books: string[] }>;
+}
+
+const withoutExtension = (file: string) => file.replace(/\.[^/.]+$/, "");
+
+// Who ST can draft here: a group's enabled members (group-chats.js:1003), or the open character.
+function draftableCharacters(): HostCharacter[] {
+  const { groupId, groups, characters, characterId } = getContext();
+  const activeGroupId = trim(groupId == null ? "" : String(groupId));
+  if (activeGroupId) {
+    const group = groups.find((entry) => trim(entry.id) === activeGroupId);
+    if (!group) return [];
+    return group.members.filter((member) => !group.disabled_members.includes(member))
+      .flatMap((member): HostCharacter[] => characters.filter((character) => character.avatar === member).slice(0, 1));
+  }
+  const index = characterId === undefined || characterId === "" ? NaN : Number(characterId);
+  const character = Number.isInteger(index) ? characters[index] : undefined;
+  return character ? [character] : [];
+}
+
+// The books ST scans beyond the global selection: the chat slot, the persona's book and each draftable
+// character's books (world-info.js:4475-4588). A binding to a book that no longer exists counts as empty.
+export function readLoreBindings(): HostLoreBindings {
+  const context = getContext();
+  const existing = new Map(listAllLorebooks().map((name) => [name.toLowerCase(), name]));
+  const live = (value: unknown): string | null => {
+    const name = typeof value === "string" ? value.trim() : "";
+    if (!name) return null;
+    return existing.size ? existing.get(name.toLowerCase()) ?? null : name;
+  };
+  const charLore = getWorldInfoSettings().world_info?.charLore ?? [];
+  const extraBooks = (avatar: string) => {
+    const found = charLore.find((entry) => entry.name === withoutExtension(avatar))?.extraBooks;
+    return Array.isArray(found) ? found : [];
+  };
+  return {
+    global: listGlobalLorebooks(),
+    chat: live(readChatLorebookSlot()),
+    persona: live(context.powerUserSettings?.persona_description_lorebook),
+    characters: draftableCharacters().map((character) => ({
+      name: trim(character.name),
+      books: uniq([character.data?.extensions?.world, ...extraBooks(trim(character.avatar))].flatMap((book) => live(book) ?? [])),
+    })),
+  };
 }
 
 // Every book that exists, active or not — the set create-only validation must use. Lives in

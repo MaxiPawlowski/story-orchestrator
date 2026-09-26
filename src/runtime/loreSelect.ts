@@ -20,6 +20,15 @@ export interface LoreSelectDeps {
   ownership: RunOwnership;
 }
 
+export interface CompleteLoreSelection {
+  chatId: string;
+  storyKey: string;
+  messageId: number;
+  picks: Array<{ world: string; uid: number }>;
+}
+
+export const loreStoryKey = (story: NormalizedStoryV2): string => `${story.id ?? ""}@${story.version}`;
+
 export interface LoreSelection {
   trigger: LoreTrigger;
   cached: boolean;
@@ -32,6 +41,7 @@ const sameBook = (left: string, right: string) => left.trim().toLowerCase() === 
 // next scan, so rollback has nothing to undo and a failure leaves ST's keyword scan as it was.
 export class LoreSelector {
   private cache: { key: string; entries: HostScannableEntry[]; picks: LoreSelection["picks"] } | null = null;
+  private complete: CompleteLoreSelection | null = null;
 
   constructor(private readonly deps: LoreSelectDeps) {}
 
@@ -39,7 +49,12 @@ export class LoreSelector {
     return Boolean(this.deps.judge()?.active("loreSelect") && this.deps.getStory()?.lore_select?.lorebooks.length);
   }
 
+  completeSelection(): CompleteLoreSelection | null {
+    return this.complete;
+  }
+
   async select(trigger: LoreTrigger): Promise<LoreSelection | null> {
+    this.complete = null;
     const judge = this.deps.judge();
     const story = this.deps.getStory();
     const state = this.deps.getState();
@@ -55,9 +70,16 @@ export class LoreSelector {
     // generation, so a selection that outlives its chat seeds another chat prompt with this story
     // lore. Minted before the cache check, because the cached path forces too.
     const run = beginRun(this.deps.ownership);
+    const messageId = this.deps.getLastMessageId();
+    const chatId = this.deps.getChatId();
+    const record = (picks: LoreSelection["picks"]) => {
+      if (chatId !== null && run.stillOwns()) this.complete = { chatId, storyKey: loreStoryKey(story), messageId, picks: picks.map(({ world, uid }) => ({ world, uid })) };
+    };
     if (this.cache?.key === key) {
+      const cached = this.cache.picks;
       if (!(await this.forced(this.cache.entries, run))) return null;
-      return { trigger, cached: true, picks: this.cache.picks };
+      record(cached);
+      return { trigger, cached: true, picks: cached };
     }
     const scannable = await this.deps.getEntries();
     const books = [...new Set(scannable.map((entry) => entry.world))].filter((world) => scope.lorebooks.some((name) => sameBook(name, world)));
@@ -89,8 +111,10 @@ export class LoreSelector {
     const picked: LorePick[] = pickLore(answered.flatMap((scored) => scored ?? []), pickScope);
     const entries = picked.flatMap((pick) => byKey.get(`${pick.entry.world}.${pick.entry.uid}`) ?? []);
     const picks = picked.map((pick) => ({ world: pick.entry.world, uid: pick.entry.uid, comment: pick.entry.comment, p: pick.p }));
-    if (run.stillOwns() && answered.every((scored) => scored !== null)) this.cache = { key, entries, picks };
+    const everyAnswered = answered.every((scored) => scored !== null);
+    if (run.stillOwns() && everyAnswered) this.cache = { key, entries, picks };
     if (!(await this.forced(entries, run))) return null;
+    if (everyAnswered) record(picks);
     return { trigger, cached: false, picks };
   }
 

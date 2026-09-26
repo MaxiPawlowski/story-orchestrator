@@ -30,6 +30,7 @@ export const DIAGNOSTIC_CODES = [
   "agency-alternate-is-self",
   "scene-read-location-empty",
   "lore-select-inactive",
+  "lore-select-exclusive-empty",
   "quality-hint-no-criteria",
   "quality-hint-latching-note",
   "quality-criteria-self-exclusion",
@@ -61,6 +62,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   "agency-alternate-is-self": "If the player refuses the route, the recovery sends them back into it.",
   "scene-read-location-empty": "The story can never say where the scene is, so nothing can key off a place.",
   "lore-select-inactive": "This lore may never be active, so the story cannot rely on it being in play.",
+  "lore-select-exclusive-empty": "Exclusive lore-select has no lorebook to judge, so it never excludes anything.",
   "quality-hint-no-criteria": "The model reads this from a bare list, so it may read it loosely.",
   "quality-hint-latching-note": "This value is written once and then holds, so the first confident read decides.",
   "quality-criteria-self-exclusion": "One option says it is not itself, which tells the model nothing.",
@@ -412,6 +414,12 @@ const checkLoreSelect = (run: DiagnosticRun) => {
       `'${name}' is not a required lorebook, so it may not be active; lore-select only reaches books ST is scanning. Add it under Requirements`,
     );
   });
+  if (draft.lore_select?.exclusive && !draft.lore_select.lorebooks.some((name) => name.trim())) push(
+    "lore-select-exclusive-empty",
+    "warning",
+    "lore_select.exclusive",
+    "exclusive lore-select is on but names no lorebook; add the lorebooks it may judge",
+  );
 };
 
 const checkHouseRules = (run: DiagnosticRun) => {

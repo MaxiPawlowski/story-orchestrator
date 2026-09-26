@@ -81,9 +81,9 @@ describe("v2.4 plan 02 §8: the watch", () => {
     return { watch, handlers, unsubscribe, fake, calls };
   };
 
-  it("subscribes the persona, group and lorebook-selection events", () => {
+  it("subscribes the persona, group, lorebook-selection and character-edit events, and re-reads at each generation (a chat-slot bind emits nothing)", () => {
     const { handlers } = watchWith(null);
-    expect([...handlers.keys()].sort()).toEqual(["GROUP_UPDATED", "PERSONA_CHANGED", "WORLDINFO_SETTINGS_UPDATED"]);
+    expect([...handlers.keys()].sort()).toEqual(["CHARACTER_EDITED", "GENERATION_STARTED", "GROUP_UPDATED", "PERSONA_CHANGED", "WORLDINFO_SETTINGS_UPDATED"]);
   });
 
   it("refreshes once, 250 ms after the last event of a burst", async () => {

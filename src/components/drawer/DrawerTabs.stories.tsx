@@ -1254,6 +1254,55 @@ export const FixRequirementsWithWizard: Story = {
   },
 };
 
+const boundLoreSnapshot = (): RuntimeSnapshot => {
+  const snapshot = sampleSnapshot() as unknown as { requirements: Record<string, unknown> };
+  snapshot.requirements = {
+    ready: false,
+    missingPersonas: [],
+    missingMembers: [],
+    missingLorebooks: ["Cast Lore"],
+    satisfiedBy: { "Sun Ruins Lore": "chat" },
+    characterGaps: { "Cast Lore": ["Luke"] },
+    slotConflict: { book: "Sun Ruins Lore", kind: "story-book" },
+  };
+  return derive(snapshot as unknown as RuntimeSnapshot);
+};
+
+// Author view names which binding ST scans each required book through, the member a character-bound
+// book is missing on, and a file-mode chat slot the memory mirror cannot take.
+export const AuthorLoreBindings: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={boundLoreSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("Sun Ruins Lore: chat lorebook")).toBeInTheDocument();
+    await expect(canvas.getByText("Cast Lore: not bound to Luke")).toBeInTheDocument();
+    await expect(canvasElement.querySelector('[data-so="mirror-slot-conflict"]')?.textContent).toContain("Memory mirror not scanned in this chat");
+  },
+};
+
+export const PlayerSeesNoLoreBindings: Story = {
+  render: () => {
+    const snapshot = playerSnapshot() as unknown as { requirements: Record<string, unknown> };
+    snapshot.requirements = {
+      ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [],
+      satisfiedBy: { "Sun Ruins Lore": "chat" }, slotConflict: { book: "Sun Ruins Lore", kind: "story-book" },
+    };
+    return (
+      <div style={{ maxWidth: 360 }}>
+        <DrawerTabs snapshot={derive(snapshot as unknown as RuntimeSnapshot)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('[data-so="lore-satisfied-by"]')).toBeNull();
+    await expect(canvasElement.querySelector('[data-so="mirror-slot-conflict"]')).toBeNull();
+  },
+};
+
 export const PlayerSeesNoWizardFix: Story = {
   render: () => {
     const snapshot = playerSnapshot() as unknown as { requirements: Record<string, unknown> };

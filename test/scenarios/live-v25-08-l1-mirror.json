@@ -1,0 +1,254 @@
+{
+  "_note": "v2.5 plan 08 G-L1 (U1-U5, U7), LIVE on a lane in SCAN mode (switch per-chat gating on first through the product confirm, as plan 01's G-series does). so-scenario run test/scenarios/live-v25-08-l1-mirror.json --sandbox --group <group holding Arin and DM Narrator>. Predeclared (plan 08 L1 table): U1 0 mirror entries in any scan view or activation for a branch, a no-story chat and another story's chat, 3 real generations each; U2 parity 100 % and a keyed turn fires a mirror entry; U3 a user book in the slot is left as it was and the mirror still scans; U4 each mirror entry at most once with a slot bound the file-mode way; U5 handler p95 <= 5 ms over 50 scans; U7 the owning chat still scans its mirror while the story's requirement is unmet (its required book deselected; the plan names a missing persona or member, any unmet requirement is the same `ready` false). U6 is live-memory-mirror.json run in FILE mode (it asserts the bound slot, so it fails by design in scan mode). Cleanup: the run deletes its SO-V25-08 book; the sandbox cleanup deletes the branch, the solo chat and the mirror books.",
+  "steps": [
+    {
+      "inject_script": "../fixtures/interop/v25-08-lore.js"
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.requireScan(); if (!ctx.groupId) throw new Error('needs a sandbox GROUP chat holding Arin and DM Narrator'); await V.createBook('SO-V25-08 Mirror Req', [{ comment: 'hall', content: 'The hall is lit by blue lanterns.', key: ['lantern'] }]); await V.selectGlobal('SO-V25-08 Mirror Req', true); globalThis.__l1 = { chatId: ctx.getCurrentChatId() }; return globalThis.__l1;"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v25-08-mirror",
+        "title": "SO-V25-08 Mirror",
+        "description": "v2.5 plan 08 G-L1: the unbound mirror in scan mode.",
+        "qualities": [
+          {
+            "key": "location",
+            "type": "enum",
+            "values": [
+              "hall",
+              "vault"
+            ],
+            "source": "extractor",
+            "rubric": "Where is the party now?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "The hall",
+            "objective": "Explore the hall.",
+            "type": "anchor",
+            "start": true
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator"
+          }
+        ],
+        "requirements": {
+          "lorebooks": [
+            "SO-V25-08 Mirror Req"
+          ]
+        }
+      }
+    },
+    {
+      "ui": {
+        "action": "select-profile"
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const mk = (text, entities) => ({ tier: 'facts', type: 'relationship', importance: 2, expiration: 'permanent', entities, text, evidence: 'seed' }); await rt.applyExtractionAudit({ id: 'v2508-seed', createdAt: new Date().toISOString(), priority: 0, reason: 'manual', contractHash: 'h', scope: [], window: { from: 0, to: 0 }, prompt: 'p', rawResponse: 'r', acceptedDeltas: [], rejected: [] }, [], [ mk('Arin has sworn an oath to guard Max, and keeps a silver bell tied to his belt as its token.', ['Arin']), mk('Arin owes the guild master Ponticius forty marks from an old wager.', ['Arin', 'Ponticius'])]); const sync = await rt.syncWorldInfo(); if (!sync.ran || !sync.lorebook) throw new Error('the mirror did not sync: ' + JSON.stringify(sync)); if (sync.binding === 'bound' || ctx.chatMetadata.world_info === sync.lorebook) throw new Error('L1: scan mode bound the chat slot: ' + JSON.stringify({ sync, slot: ctx.chatMetadata.world_info })); globalThis.__l1.book = sync.lorebook; return { sync, slot: ctx.chatMetadata.world_info ?? null };",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const book = globalThis.__l1.book; const stored = (await V.bookSoComments(book)).sort(); const scanned = (await V.mirrorComments(book)).sort(); if (stored.length < 2 || JSON.stringify(stored) !== JSON.stringify(scanned)) throw new Error('U2 parity: ' + JSON.stringify({ stored, scanned })); globalThis.__l1.u2 = { stored: stored.length, scanned: scanned.length }; return globalThis.__l1.u2;",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "Arin, is that silver bell still tied to your belt? Ring it if anything moves near the door.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const book = globalThis.__l1.book; const out = V.stopCapture(); const fired = out.generations.flat().filter((entry) => String(entry.world).toLowerCase() === book.toLowerCase()); if (!fired.length) throw new Error('U2: a keyed turn fired no mirror entry: ' + JSON.stringify(out.generations)); const view = globalThis.storyOrchestratorLoreEvidence.view(rt.getStory?.() ?? null, book); globalThis.__l1.u2.fired = fired.map((entry) => entry.comment); globalThis.__l1.u2.origins = (view.last?.fired ?? []).filter((entry) => entry.origin === 'mirror').length; return globalThis.__l1.u2;",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const book = globalThis.__l1.book; const stored = await V.bookSoComments(book); V.bindChatSlot(book); const scanned = await V.mirrorComments(book); V.restoreBindings(); const counts = {}; scanned.forEach((comment) => { counts[comment] = (counts[comment] ?? 0) + 1; }); const doubled = Object.entries(counts).filter(([, count]) => count > 1); if (doubled.length || scanned.length !== stored.length) throw new Error('U4 no double with a slot bound the file-mode way: ' + JSON.stringify({ stored: stored.length, scanned: scanned.length, doubled })); globalThis.__l1.u4 = { scanned: scanned.length, doubled: 0 }; return globalThis.__l1.u4;",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const book = globalThis.__l1.book; const userBook = 'SO-V25-08 User Slot'; await V.createBook(userBook, [{ comment: 'user note', content: 'A note the user bound to this chat.', key: ['zzz-never'] }]); V.bindChatSlot(userBook); const sync = await rt.syncWorldInfo(); const slotAfter = ctx.chatMetadata.world_info; const scanned = await V.mirrorComments(book); const stored = await V.bookSoComments(book); V.restoreBindings(); await V.deleteBook(userBook); if (slotAfter !== userBook || scanned.length !== stored.length) throw new Error('U3 slot freedom: ' + JSON.stringify({ slotAfter, scanned: scanned.length, stored: stored.length, sync })); globalThis.__l1.u3 = { slot: slotAfter, scanned: scanned.length }; return globalThis.__l1.u3;",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const gating = globalThis.storyOrchestratorScanGating; const before = gating.timings().length; for (let index = 0; index < 50; index += 1) await V.scanView(); const all = gating.timings(); const last = all.slice(-50).sort((a, b) => a - b); const p95 = last[Math.ceil(0.95 * last.length) - 1]; globalThis.__l1.u5 = { scans: all.length - before, p95Ms: Number(p95.toFixed(3)), bound: 5 }; if (!(p95 <= 5)) throw new Error('U5 handler p95 over 5 ms: ' + JSON.stringify(globalThis.__l1.u5)); return globalThis.__l1.u5;",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await V.selectGlobal('SO-V25-08 Mirror Req', false); ctx.eventSource.emit(ctx.eventTypes.WORLDINFO_SETTINGS_UPDATED); await new Promise((resolve) => setTimeout(resolve, 600)); if (rt.getSnapshot().requirements.ready) throw new Error('U7 needs the requirement unmet'); const book = globalThis.__l1.book; const stored = await V.bookSoComments(book); const scanned = await V.mirrorComments(book); const gate = globalThis.storyOrchestratorScanGating.gate(); await V.selectGlobal('SO-V25-08 Mirror Req', true); if (!stored.length || scanned.length !== stored.length || gate.owner !== 'no-story') throw new Error('U7 not-ready parity: ' + JSON.stringify({ book, stored: stored.length, scanned: scanned.length, gateOwner: gate.owner })); globalThis.__l1.u7 = { book, scanned: scanned.length, gateOwner: gate.owner }; return globalThis.__l1.u7;",
+      "log": true
+    },
+    {
+      "solo_chat": {
+        "character": "DM Narrator"
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "Arin, is that silver bell still tied to your belt? Ring it if anything moves.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I ask Arin about the forty marks he still owes the guild master.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "We wait by the door and listen.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const book = globalThis.__l1.book; const out = V.stopCapture(); const leaked = out.generations.flat().filter((entry) => String(entry.world).toLowerCase() === book.toLowerCase()); const view = await V.mirrorCount(book); if (leaked.length || view) throw new Error(`U1 no-story: mirror entries reached a chat that does not own them: ${JSON.stringify({ leaked, view })}`); (globalThis.__l1.u1 ??= {})['no-story'] = { generations: out.generations.length, leaked: 0, view }; return globalThis.__l1.u1;",
+      "log": true
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v25-08-other",
+        "title": "SO-V25-08 Other",
+        "description": "v2.5 plan 08 G-L1 U1: another story's chat.",
+        "qualities": [
+          {
+            "key": "location",
+            "type": "enum",
+            "values": [
+              "hall",
+              "vault"
+            ],
+            "source": "extractor",
+            "rubric": "Where is the party now?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "The hall",
+            "objective": "Explore the hall.",
+            "type": "anchor",
+            "start": true
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator"
+          }
+        ],
+        "requirements": {
+          "lorebooks": [
+            "SO-V25-08 Mirror Req"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "Arin, is that silver bell still tied to your belt? Ring it if anything moves.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I ask Arin about the forty marks he still owes the guild master.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "We wait by the door and listen.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const book = globalThis.__l1.book; const out = V.stopCapture(); const leaked = out.generations.flat().filter((entry) => String(entry.world).toLowerCase() === book.toLowerCase()); const view = await V.mirrorCount(book); if (leaked.length || view) throw new Error(`U1 another-story: mirror entries reached a chat that does not own them: ${JSON.stringify({ leaked, view })}`); (globalThis.__l1.u1 ??= {})['another-story'] = { generations: out.generations.length, leaked: 0, view }; return globalThis.__l1.u1;",
+      "log": true
+    },
+    {
+      "solo_chat": {
+        "leave": true
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; if (ctx.getCurrentChatId() !== globalThis.__l1.chatId) throw new Error('did not return to the owning chat: ' + ctx.getCurrentChatId()); return true;"
+    },
+    {
+      "branch_create": {
+        "mesId": 1
+      },
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; if (ctx.getCurrentChatId() === globalThis.__l1.chatId) throw new Error('branch_create did not open the branch'); return { branch: ctx.getCurrentChatId() };"
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "Arin, is that silver bell still tied to your belt? Ring it if anything moves.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I ask Arin about the forty marks he still owes the guild master.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "We wait by the door and listen.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const book = globalThis.__l1.book; const out = V.stopCapture(); const leaked = out.generations.flat().filter((entry) => String(entry.world).toLowerCase() === book.toLowerCase()); const view = await V.mirrorCount(book); if (leaked.length || view) throw new Error(`U1 branch: mirror entries reached a chat that does not own them: ${JSON.stringify({ leaked, view })}`); (globalThis.__l1.u1 ??= {})['branch'] = { generations: out.generations.length, leaked: 0, view }; return globalThis.__l1.u1;",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await V.selectGlobal('SO-V25-08 Mirror Req', false); await V.deleteBook('SO-V25-08 Mirror Req'); return globalThis.__l1;",
+      "log": true
+    }
+  ]
+}

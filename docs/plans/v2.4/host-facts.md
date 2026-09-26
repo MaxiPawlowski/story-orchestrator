@@ -262,3 +262,24 @@ this plan reaches the host; the rows are what the J13 journey's tally and the re
 | v25-06-H2 | A generated reply is pushed as `{ name: name2, is_user: false, mes, … }` with **no** `is_system` key, so `!message.is_system` (not `=== false`) is the test | `script.js:6743-6757` (`saveReply`, new-message branch) | open |
 | v25-06-H3 | A player message carries `is_user: true, is_system: false` and its `mes` | `script.js:5874` (`sendMessageAsUser`), `:5878-5882` | open |
 | v25-06-H4 | A greeting is `{ is_user: false, is_system: false, mes }`: it looks like a reply, which is why J13 counts replies only after the chat length it recorded at configure time | `script.js:7714-7719` (`getFirstMessage`) | open |
+
+## v2.5 Plan 08 (lore on the scan seam, 2026-09-26)
+
+Re-read on the live 1.19.0 tree (`7c3994196`, `package.json:118`). The 1.18.0 column is left to V10 Q4, as for v2.5 plans 01, 02 and 07.
+
+| # | Fact | 1.19.0 | 1.18.0 |
+|---|---|---|---|
+| v25-08-H1 | `getSortedEntries` builds the four arrays as `const` locals and passes them **by reference** to `WORLDINFO_ENTRIES_LOADED`; only after the emit does it sort them, put chat lore first, then persona lore, parse decorators and hash each entry (`getStringHash(JSON.stringify(entry))`). An entry a listener **pushes** into `chatLore` is sorted, hashed and scanned like a loaded one | `world-info.js:4590-4604` (emit `:4604`), chat lore first `:4624-4625`, hash `:4628-4633` | open |
+| v25-08-H2 | Chat lore = `chat_metadata[METADATA_KEY]`, skipped when that book is globally selected | `getChatLore` `world-info.js:4544-4561` (skip `:4551-4554`) | open |
+| v25-08-H3 | Character lore = `characters[this_chid].data.extensions.world` plus `world_info.charLore[name = getCharaFilename()].extraBooks`, each skipped when globally selected, bound to the chat slot or the persona's book. `this_chid` is the **drafted** character; `getCharaFilename` is the avatar file name without its extension | `getCharacterLore` `world-info.js:4475-4525` (`:4481`, `:4488-4491`, dedup `:4499-4512`); `utils.js:1342-1346` | open |
+| v25-08-H4 | Persona lore = `power_user.persona_description_lorebook`, skipped when it is the chat slot or globally selected; the context exposes `power_user` as `powerUserSettings` | `getPersonaLore` `world-info.js:4564-4588`; `st-context.js:229` | open |
+| v25-08-H5 | `setExtensionPrompt(key, value, position, depth, scan = false, role, filter)` stores `scan: !!scan`; `checkWorldInfo` adds every prompt whose `scan` is true to the scan buffer (`buffer.addInject`) before the first scan | `script.js:8926-8935`; `world-info.js:4719-4725` | open |
+| v25-08-H6 | `WORLDINFO_UPDATED(name, data)` is emitted by `_save` after every book save (immediate or debounced) | `world-info.js:4151-4161` (emit `:4160`), `saveWorldInfo` `:4177` | open |
+| v25-08-H7 | Binding or clearing the chat lorebook slot from ST's UI emits **no event**: `assignLorebookToChat` writes `chat_metadata[METADATA_KEY]`, toggles the button and calls `saveMetadata()` | `world-info.js:5951-5988` (write `:5973-5984`) | open |
+| v25-08-H8 | `CHARACTER_EDITED` is emitted with `{detail: {id, character}}` on a character save and by `/char-update`-style slash edits | `events.js:44`; `script.js:9902`; `slash-commands.js:5437` | open |
+| v25-08-H9 | A group's enabled members are `members` minus `disabled_members` (avatar file names) | `group-chats.js:1003` | open |
+| v25-08-H10 | Vectors' World Info pass runs only when `extension_settings.vectors.enabled_world_info` (default `false`); it calls `getSortedEntries` itself, skips `entry.disable`, and per world inserts entries whose content hash is new and **deletes** saved hashes absent from the view. A scan-local suppression inside that call would therefore delete vector items | `vectors/index.js:117`, `:791-793`, `:1629`, `:1647`, `:1683-1692`; settings object `:1730`, `:1738` | open |
+| v25-08-H11 | Timed effects (sticky, cooldown) find their entry by the hash computed after `ENTRIES_LOADED`, so any change to a copy's JSON (a `disable` key added, or `false` flipped) makes an active effect lose its entry; `delay` is read from the entry itself | `world-info.js:584-585`, `:619-626`, `:668-672`; hash `:4632` | open |
+| v25-08-H12 | Other `getSortedEntries` callers besides `checkWorldInfo` (`:4744`): the `CHAT_CHANGED` pre-cache (`:1013-1018`, result discarded) and vectors (`vectors/index.js:1629`). Every caller emits `ENTRIES_LOADED`, and the event carries nothing that names the caller | `world-info.js:1017`, `:4744`, `:4604` | open |
+
+All rows are source reads only; U2/U4/U5 (an appended entry scanned, no double, handler p95) are the live proof and are **not run**.

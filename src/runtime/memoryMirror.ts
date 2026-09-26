@@ -6,6 +6,7 @@ import type { WriteResult } from "@utils/writeResult";
 import type { MemoryMirrorBook } from "./types";
 import { MIRROR_BOOK_PREFIX, OWNER_COMMENT, ownerMarkerContent } from "./mirrorReaper";
 import { beginRun, type RunOwnership } from "./runToken";
+import { log } from "@utils/log";
 
 export interface MemoryMirrorHost {
   getChatId: () => string | null;
@@ -14,6 +15,8 @@ export interface MemoryMirrorHost {
   upsertWIEntry: (lorebook: string, comment: string, content: string, keys?: string[]) => Promise<WIUpsertResult>;
   disableWIEntry: (lorebook: string, comments: string | string[]) => Promise<WriteResult<{ changed: boolean }>>;
   bindChatLorebook: (name: string, replaceable?: string[]) => ChatLorebookBinding;
+  scanActive?: () => boolean;
+  unbindChatLorebook?: (name: string) => Promise<WriteResult<{ name: string }>>;
   // Optional: without it the chat-id comparison below still runs, so behaviour is
   // unchanged for a caller that supplies none.
   ownership: RunOwnership;
@@ -28,7 +31,10 @@ export interface MemoryMirrorSummary {
   unchanged: number;
   disabled: number;
   lorebook: string | null;
-  binding: ChatLorebookBinding | null;
+  binding: ChatLorebookBinding | "released" | null;
+  ran: boolean;
+  skipped: "no-chat" | "nothing-live" | "no-book" | null;
+  live: number;
 }
 
 export interface MemoryMirrorInput {
@@ -60,7 +66,13 @@ export const mirrorLorebookName = (title: string, chatId: string) => `${MIRROR_B
 export const mirroredEntries = (entries: MemoryEntry[]) => entries.filter((entry) =>
   !entry.supersededBy && !entry.foldedInto && isLive(entry) && entry.type === "relationship");
 
-export const emptyMirrorSummary = (): MemoryMirrorSummary => ({ created: 0, updated: 0, unchanged: 0, disabled: 0, lorebook: null, binding: null });
+export const emptyMirrorSummary = (): MemoryMirrorSummary => ({ created: 0, updated: 0, unchanged: 0, disabled: 0, lorebook: null, binding: null, ran: false, skipped: null, live: 0 });
+
+const skippedSync = (result: MemoryMirrorResult, skipped: MemoryMirrorSummary["skipped"]): MemoryMirrorResult => {
+  result.summary.skipped = skipped;
+  log.debug("memory mirror sync skipped", result.summary);
+  return result;
+};
 
 async function leftoverComments(host: MemoryMirrorHost, lorebook: string, live: Set<string>): Promise<string[]> {
   const data = await host.loadLorebook(lorebook);
@@ -78,7 +90,7 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
   const summary = emptyMirrorSummary();
   const idle: MemoryMirrorResult = { summary, book: input.book, writes: input.writes, changed: false };
   const chatId = host.getChatId();
-  if (!chatId) return idle;
+  if (!chatId) return skippedSync(idle, "no-chat");
   // This function already had an ownership check — the `host.getChatId() !== chatId`
   // comparison before the binding below — but it was hand-rolled, so the write-edge census could
   // not see it and it only ever asked about the chat. A STORY SWAP inside the same chat passed it,
@@ -87,11 +99,13 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
   const run = beginRun(host.ownership);
   const lapsed = () => host.getChatId() !== chatId || !run.stillOwns();
   const live = mirroredEntries(input.entries);
+  summary.live = live.length;
   const owned = input.book?.chatId === chatId ? input.book : null;
-  if (!owned && !live.length) return idle;
+  if (!owned && !live.length) return skippedSync(idle, "nothing-live");
 
   const ensured = await host.ensureLorebook(owned?.name ?? mirrorLorebookName(input.title, chatId));
-  if (!ensured) return idle;
+  if (!ensured) return skippedSync(idle, "no-book");
+  summary.ran = true;
   summary.lorebook = ensured.name;
   const adopting = !owned || ensured.created;
   const liveComments = new Set(live.map(mirrorComment));
@@ -142,7 +156,11 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
   // let the departing story's rows land in the chat's shared book, and its stale sweep disable the
   // new story's entries. Both halves: the chat comparison, plus story, version and epoch via the token.
   if (lapsed()) return null;
-  if (adopting) summary.binding = host.bindChatLorebook(ensured.name, input.book ? [input.book.name] : []);
+  if (host.scanActive?.()) {
+    const released = await host.unbindChatLorebook?.(ensured.name);
+    if (released?.ok) summary.binding = "released";
+  } else if (adopting) summary.binding = host.bindChatLorebook(ensured.name, input.book ? [input.book.name] : []);
   const changed = adopting || summary.created > 0 || summary.updated > 0 || summary.disabled > 0;
+  log.debug("memory mirror sync", summary);
   return { summary, book: { name: ensured.name, chatId }, writes, changed };
 }

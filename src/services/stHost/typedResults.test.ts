@@ -43,6 +43,7 @@ const READS: Record<string, string> = {
   noteHostSettingsLoaded: "records that ST emitted its settings-loaded event, in our own flag",
   installSaveWatcher: "installs OUR observer on the save route; it writes nothing ST keeps",
   profileExists: "a question about the install's connection profiles (v2.4 plan 03 D1 preflight)",
+  vectorsScanWorldInfo: "a question about the install: does the vectors extension run its own World Info pass (v2.5 plan 08 L5, v25-08-H10)",
 };
 
 // V17: the guard used to read the return type WRITTEN before `{` or `=>`, so an unannotated host write

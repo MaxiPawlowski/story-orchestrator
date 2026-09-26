@@ -243,6 +243,14 @@ describe("judge settings", () => {
     expect(judgeUseActive({ ...on, enabled: false }, "director")).toBe(false);
   });
 
+  it("L5: loreExclusive is off by default, its own switch, and needs loreSelect", () => {
+    expect(defaultJudgeSettings().uses.loreExclusive).toBe(false);
+    const exclusive = sanitizeJudgeSettings({ enabled: true, uses: { loreExclusive: true } });
+    expect(judgeUseActive(exclusive, "loreExclusive")).toBe(false);
+    expect(judgeUseActive({ ...exclusive, uses: { ...exclusive.uses, loreSelect: true } }, "loreExclusive")).toBe(true);
+    expect(judgeUseActive(sanitizeJudgeSettings({ enabled: true, uses: { loreSelect: true } }), "loreExclusive")).toBe(false);
+  });
+
   it("keeps a bounded call ring and drops records past a rollback point", () => {
     let state = createJudgeRuntime();
     for (let index = 0; index < JUDGE_CALL_RING_LIMIT + 3; index += 1) {

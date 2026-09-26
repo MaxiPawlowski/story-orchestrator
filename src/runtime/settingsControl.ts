@@ -47,6 +47,14 @@ export class SettingsControl {
     this.refresh();
   }
 
+  scanMemory(on: boolean) {
+    setGlobalSettings({ worldInfo: { scanMemory: on } });
+    this.refresh(() => {
+      this.deps.updateInjection();
+      this.deps.updateSteering();
+    });
+  }
+
   stagecraft(settings: Partial<StagecraftSettings>) {
     setGlobalSettings({ stagecraft: settings });
     this.refresh();

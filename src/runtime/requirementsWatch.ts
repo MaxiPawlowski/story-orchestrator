@@ -3,9 +3,10 @@ import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 // Requirements used to be re-read only at commit, activate, load and rollback, so a
 // player who switched to the persona a story asks for, enabled the member or selected the lorebook
 // waited a whole turn for the story to notice, and the checkpoint's effects waited with it. The host
-// says when each of those changes: PERSONA_CHANGED (personas.js:166), GROUP_UPDATED and
-// WORLDINFO_SETTINGS_UPDATED. A burst of them (a persona switch saves settings and may reload the
-// chat) is one refresh, 250 ms after the last.
+// says when each of those changes: PERSONA_CHANGED (personas.js:166), GROUP_UPDATED,
+// WORLDINFO_SETTINGS_UPDATED and CHARACTER_EDITED for a card's bound book (events.js:44). Binding the chat
+// lorebook slot emits nothing (world-info.js:5973-5984), so the next GENERATION_STARTED re-reads it. A burst
+// of them (a persona switch saves settings and may reload the chat) is one refresh, 250 ms after the last.
 
 export const REQUIREMENTS_DEBOUNCE_MS = 250;
 
@@ -64,6 +65,8 @@ export class RequirementsWatch {
       { eventName: "PERSONA_CHANGED", handler },
       { eventName: "GROUP_UPDATED", handler },
       { eventName: "WORLDINFO_SETTINGS_UPDATED", handler },
+      { eventName: "CHARACTER_EDITED", handler },
+      { eventName: "GENERATION_STARTED", handler },
     ]);
   }
 

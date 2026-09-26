@@ -89,6 +89,13 @@ export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
     measuredOn: MEASURED_ON,
     recommendation: "Known weakness: ranking by a compressed, heavily tied probability, so which entries win is weaker than the rate suggests. Fits its 1500 ms reply-path budget at p50.",
   },
+  loreExclusive: {
+    calibration: null,
+    latencyP50Ms: null,
+    live: null,
+    measuredOn: null,
+    recommendation: "Not measured yet: its recall and noise floors (v2.5 plan 08 X1/X2) have not run live, so keep it off.",
+  },
 };
 
 /** The `use` string each call-ring row carries, mapped to the readiness rows it measures. */

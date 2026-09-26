@@ -143,5 +143,12 @@ describe("setLoreSelect (v2.2 plan 04)", () => {
     expect(setLoreSelect(draft, { lorebooks: ["Story Lore"], top_k: undefined }).lore_select).toEqual({ lorebooks: ["Story Lore"] });
     expect(setLoreSelect({ ...draft, lore_select: { lorebooks: ["Story Lore"] } }, { lorebooks: [] })).not.toHaveProperty("lore_select");
   });
+
+  it("L5: keeps the exclusive flag only when set, and keeps it with no book so the diagnostic can name it", () => {
+    const draft = newStoryDraft();
+    expect(setLoreSelect(draft, { lorebooks: ["Story Lore"], exclusive: true }).lore_select).toEqual({ lorebooks: ["Story Lore"], exclusive: true });
+    expect(setLoreSelect(draft, { lorebooks: ["Story Lore"], exclusive: false }).lore_select).toEqual({ lorebooks: ["Story Lore"] });
+    expect(setLoreSelect(draft, { lorebooks: [], exclusive: true }).lore_select).toEqual({ lorebooks: [], exclusive: true });
+  });
 });
 
