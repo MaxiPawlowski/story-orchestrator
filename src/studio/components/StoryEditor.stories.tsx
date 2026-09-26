@@ -101,6 +101,19 @@ export const LoreSelectScope: Story = {
   },
 };
 
+// v2.5 plan 08 L5: the exclusive switch appears once a book is listed and is kept only while on.
+export const LoreSelectExclusive: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.queryByLabelText("Exclude unpicked entries")).toBeNull();
+    await userEvent.click(canvas.getByRole("button", { name: "+ Lore-select lorebook" }));
+    await userEvent.click(canvas.getByLabelText("Exclude unpicked entries"));
+    await expect(useDraftStore.getState().draft.lore_select).toEqual({ lorebooks: ["Xentar Checkpoints"], exclusive: true });
+    await userEvent.click(canvas.getByLabelText("Exclude unpicked entries"));
+    await expect(useDraftStore.getState().draft.lore_select).toEqual({ lorebooks: ["Xentar Checkpoints"] });
+  },
+};
+
 // v2.4 plan 07 T23: house rules are a list of one-demand rules, capped at 8, with the count shown.
 export const HouseRules: Story = {
   play: async ({ canvasElement }) => {

@@ -10,7 +10,7 @@ const REQUIREMENT_KEYS = ["personas", "members", "lorebooks"] as const;
 
 const STAGECRAFT_KEYS = ["lorebooks"] as const;
 
-const LORE_SELECT_KEYS = ["lorebooks", "top_k", "min_p"] as const;
+const LORE_SELECT_KEYS = ["lorebooks", "top_k", "min_p", "exclusive"] as const;
 
 const readRequirementList = (value: unknown): string[] => {
   if (Array.isArray(value)) return value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0).map((entry) => entry.trim());
@@ -75,7 +75,10 @@ const readLoreSelect = (value: unknown, errors: ValidationError[]): StoryLoreSel
   };
   const topK = number("top_k", 1, 12);
   const minP = number("min_p", 0, 1);
-  return lorebooks.length ? { lorebooks, ...(topK !== undefined ? { top_k: topK } : {}), ...(minP !== undefined ? { min_p: minP } : {}) } : undefined;
+  if (value.exclusive !== undefined && typeof value.exclusive !== "boolean") addError(errors, "lore_select.exclusive", "lore_select.exclusive must be true or false");
+  return lorebooks.length
+    ? { lorebooks, ...(topK !== undefined ? { top_k: topK } : {}), ...(minP !== undefined ? { min_p: minP } : {}), ...(value.exclusive === true ? { exclusive: true } : {}) }
+    : undefined;
 };
 
 const readHouseRules = (value: unknown, errors: ValidationError[]): string[] | undefined => {

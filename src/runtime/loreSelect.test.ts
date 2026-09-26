@@ -140,3 +140,34 @@ describe("LoreSelector (v2.2 plan 04)", () => {
     expect(env.requests).toHaveLength(1);
   });
 });
+
+describe("L5: the complete selection exclusive mode may act on", () => {
+  it("records this generation's picks only when every chunk answered and the force landed", async () => {
+    const env = setup();
+    await env.selector.select("MESSAGE_SENT");
+    expect(env.selector.completeSelection()).toEqual({ chatId: "chat-1", storyKey: "lore-fixture@1", messageId: 4, picks: [{ world: "Story Lore", uid: 1 }, { world: "story lore", uid: 6 }] });
+  });
+
+  it("X3: a judge that did not answer leaves no selection, so the keyword scan stands", async () => {
+    const env = setup({ fail: true });
+    await env.selector.select("MESSAGE_SENT");
+    expect(env.selector.completeSelection()).toBeNull();
+  });
+
+  it("X3: a refused force leaves no selection", async () => {
+    const env = setup({ forceFails: true });
+    await env.selector.select("MESSAGE_SENT");
+    expect(env.selector.completeSelection()).toBeNull();
+  });
+
+  it("the cached re-force at the same message keeps the picks; another story's ask at a new message records its own", async () => {
+    const env = setup();
+    await env.selector.select("MESSAGE_SENT");
+    await env.selector.select("GENERATION_STARTED");
+    expect(env.selector.completeSelection()?.picks).toHaveLength(2);
+    env.setLastMessageId(6);
+    env.setStoryId("elsewhere");
+    await env.selector.select("GENERATION_STARTED");
+    expect(env.selector.completeSelection()).toMatchObject({ storyKey: "elsewhere@1", messageId: 6 });
+  });
+});

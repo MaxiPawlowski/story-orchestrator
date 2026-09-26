@@ -1,7 +1,12 @@
 import type { NormalizedStoryV2 } from "@engine/index";
-import { installScanGating, loadLorebook, probeScanGating, readLorebookEntries, setLorebookEntriesDisabled, showConfirmPopup, subscribeToHostEvent, type ScanGatingHandle } from "@services/STAPI";
+import {
+  installScanGating, loadLorebook, probeScanGating, readLorebookEntries, setLorebookEntriesDisabled, showConfirmPopup, subscribeToHostEvent, vectorsScanWorldInfo,
+  type ScanGatingHandle,
+} from "@services/STAPI";
 import { replayWorldInfoFiles } from "./effectsApplier";
 import { onSettingsWrite } from "./librarySave";
+import { applyLoreExclusive, loreExclusiveFor, type LoreExclusiveRefusal, type LoreExclusiveStats } from "./loreExclusive";
+import type { CompleteLoreSelection } from "./loreSelect";
 import { createMirrorScan } from "./mirrorScan";
 import { evaluateRequirements, requirementsOptions } from "./requirements";
 import { beginRun, type RunOwnership } from "./runToken";
@@ -21,6 +26,12 @@ export interface ScanGatingWiring {
   story: () => NormalizedStoryV2 | null;
   path: () => string[];
   mirrorBook: () => MemoryMirrorBook | null;
+  exclusive: {
+    useActive: () => boolean;
+    messageId: () => number;
+    loud: () => boolean;
+    selection: () => CompleteLoreSelection | null;
+  };
   ownership: RunOwnership;
   journal: (summary: string, note: string) => void;
   notify: () => void;
@@ -32,6 +43,7 @@ export interface ScanGatingDebug {
   gate: () => ScanGateChoice;
   lastScan: () => (ScanGateStats & { owner: "story" | "no-story" }) | null;
   lastMirror: () => number;
+  lastExclusive: () => { refusal: LoreExclusiveRefusal | null; stats: LoreExclusiveStats } | null;
   timings: () => number[];
   normalize: () => Promise<NormalizeOutcome | null>;
   requestScan: () => Promise<boolean>;
@@ -101,6 +113,7 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     load: loadLorebook,
   });
   let lastMirror = 0;
+  let lastExclusive: { refusal: LoreExclusiveRefusal | null; stats: LoreExclusiveStats } | null = null;
   let stopMirrorWatch: (() => void) | null = null;
   const apply = (arrays: Parameters<Parameters<typeof installScanGating>[0]>[0]) => {
     if (!scanGatingActive()) return;
@@ -108,6 +121,8 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     lastMirror = mirror.append(arrays);
     const rows: ScanGateRow[] = [];
     lastScan = provider.apply(arrays, rows);
+    const plan = loreExclusiveFor({ ...deps.exclusive, scanActive: scanGatingActive, story: deps.story, chatId: deps.chatId, vectorsScanWorldInfo });
+    lastExclusive = { refusal: plan.refusal, stats: applyLoreExclusive(arrays, plan) };
     timings.push(performance.now() - started);
     if (timings.length > SCAN_TIMING_LIMIT) timings.shift();
     const of = ownersOf();
@@ -163,6 +178,7 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     gate: () => provider.choose(),
     lastScan: () => lastScan,
     lastMirror: () => lastMirror,
+    lastExclusive: () => lastExclusive,
     timings: () => [...timings],
     normalize: gating.renormalize,
     requestScan: gating.requestScan,

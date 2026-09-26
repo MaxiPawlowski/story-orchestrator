@@ -163,7 +163,8 @@
     "lore|delayedError": {
       "status": "covered",
       "evidence": "src/runtime/loreSelect.test.ts#forces nothing when the judge fails, and honours an authored top_k",
-      "note": "A judge that fails late forces nothing and the call is still recorded."
+      "alsoEvidence": ["src/runtime/loreSelect.test.ts#X3: a judge that did not answer leaves no selection, so the keyword scan stands"],
+      "note": "A judge that fails late forces nothing and the call is still recorded. v2.5 plan 08 L5: it also leaves no complete selection, so exclusive mode suppresses nothing and the keyword scan stands."
     },
     "lore|malformedResponse": {
       "status": "partial",
@@ -183,7 +184,8 @@
     "lore|beforeHostWrite": {
       "status": "covered",
       "evidence": "src/runtime/loreSelect.test.ts#reports no selection when the host refuses the force, and does not claim it applied",
-      "note": "FOUND BY THIS CENSUS: force()'s WriteResult was discarded, so a refused force produced a selection the caller treated as applied. Fixed here. The same reading found the cached re-force, which had no token check and a key naming the chat, the message and the scope but NOT the story, so a chat that swapped to a story with the same lore scope re-forced the departed story's picks. Also fixed; the key now carries id+version."
+      "alsoEvidence": ["src/runtime/loreSelect.test.ts#X3: a refused force leaves no selection"],
+      "note": "v2.5 plan 08 L5: a refused force also leaves exclusive mode nothing to act on. FOUND BY THIS CENSUS: force()'s WriteResult was discarded, so a refused force produced a selection the caller treated as applied. Fixed here. The same reading found the cached re-force, which had no token check and a key naming the chat, the message and the scope but NOT the story, so a chat that swapped to a story with the same lore scope re-forced the departed story's picks. Also fixed; the key now carries id+version."
     },
     "lore|afterHostWrite": {
       "status": "na",

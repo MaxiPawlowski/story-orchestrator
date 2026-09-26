@@ -161,10 +161,15 @@ export const setSceneRead = (draft: StoryDraft, sceneRead: StorySceneRead): Stor
 // Lore-select's scope, kept as typed like setSceneRead. No book means no block.
 export const setLoreSelect = (draft: StoryDraft, loreSelect: StoryLoreSelect): StoryDraft => {
   const { lore_select: _dropped, ...rest } = draft;
-  if (!loreSelect.lorebooks.length) return rest;
+  if (!loreSelect.lorebooks.length && !loreSelect.exclusive) return rest;
   return {
     ...rest,
-    lore_select: { lorebooks: loreSelect.lorebooks, ...(loreSelect.top_k !== undefined ? { top_k: loreSelect.top_k } : {}), ...(loreSelect.min_p !== undefined ? { min_p: loreSelect.min_p } : {}) },
+    lore_select: {
+      lorebooks: loreSelect.lorebooks,
+      ...(loreSelect.top_k !== undefined ? { top_k: loreSelect.top_k } : {}),
+      ...(loreSelect.min_p !== undefined ? { min_p: loreSelect.min_p } : {}),
+      ...(loreSelect.exclusive ? { exclusive: true } : {}),
+    },
   };
 };
 

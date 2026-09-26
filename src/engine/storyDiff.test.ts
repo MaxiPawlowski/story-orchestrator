@@ -94,6 +94,13 @@ describe("storyDiff classification table", () => {
     expect(codes(result)).toContain("lore-select-changed");
   });
 
+  it("L5: switching lore-select to exclusive is the same compatible row, worded for the mode", () => {
+    const scoped = edited((draft) => { draft.lore_select = { lorebooks: ["Diff Lore"] }; });
+    const result = diffStories(parseStoryV2OrThrow(scoped), parseStoryV2OrThrow(edited((draft) => { draft.lore_select = { lorebooks: ["Diff Lore"], exclusive: true }; })), playedState());
+    expect(result.classification).toBe("compatible");
+    expect(result.entries).toEqual([expect.objectContaining({ code: "lore-select-changed", message: "What lore-select may judge, or whether it excludes unpicked entries, changed." })]);
+  });
+
   it("keeps a house_rules edit compatible, adding, editing or removing a rule (v2.4 plan 07 T23)", () => {
     const withRules = edited((draft) => { draft.house_rules = ["No guns.", "No swearing."]; });
     const added = run(withRules);
