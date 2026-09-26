@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
+import { fileURLToPath } from "node:url";
 import { crc32, deflateRawSync } from "node:zlib";
 
 export const loadAllowlist = (root) => JSON.parse(readFileSync(join(root, "scripts", "release", "artifact-allowlist.json"), "utf8"));
@@ -48,7 +49,11 @@ export function stageTree(root, out, list) {
   }
 }
 
-export function targetIssues(stRoot, repoRoot) {
+const OWN_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+
+export const stagedTopLevel = (allowlist) => new Set([...allowlist.files, ...allowlist.optional, ...allowlist.dirs, "dist/", "release-manifest.json"].map((path) => path.split("/")[0]));
+
+export function targetIssues(stRoot, repoRoot, allowlist = loadAllowlist(OWN_ROOT)) {
   const issues = [];
   if (!existsSync(join(stRoot, "src", "plugin-loader.js"))) issues.push(`${stRoot} is not a SillyTavern root (no src/plugin-loader.js)`);
   const slot = resolve(stRoot, "public", "scripts", "extensions", "third-party", "story-orchestrator");
@@ -59,6 +64,9 @@ export function targetIssues(stRoot, repoRoot) {
     const name = (() => { try { return JSON.parse(readFileSync(manifest, "utf8")).display_name; } catch { return null; } })();
     if (name !== "Story Orchestrator") issues.push(`${slot} holds another extension (${name ?? "unreadable manifest"})`);
   }
+  const allowed = stagedTopLevel(allowlist);
+  const foreign = existsSync(slot) ? readdirSync(slot).filter((entry) => !allowed.has(entry)) : [];
+  issues.push(...foreign.map((entry) => `${slot} holds ${entry}, which a staged tree never has: it is a source checkout or someone else's files, and stage never replaces it`));
   return issues;
 }
 

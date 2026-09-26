@@ -103,6 +103,16 @@ test("stage refuses a target that is not an ST extension slot or that holds the 
     assert.deepEqual(targetIssues(st, root), []);
     assert.match(targetIssues(st, slot).join(), /the repo itself/);
     assert.match(targetIssues(st, join(slot, "nested")).join(), /the repo itself/);
+    for (const foreign of [".git", "src", "package.json", "docs"]) {
+      const path = join(slot, foreign);
+      if (foreign.includes(".json")) writeFileSync(path, "{}"); else mkdirSync(path);
+      assert.match(targetIssues(st, root).join(), new RegExp(`holds ${foreign.replace(".", "\\.")}, which a staged tree never has`), `a slot holding ${foreign} is a source checkout and must never be replaced`);
+      rmSync(path, { recursive: true, force: true });
+    }
+    mkdirSync(join(slot, "dist"));
+    mkdirSync(join(slot, "examples"));
+    writeFileSync(join(slot, "README.md"), "");
+    assert.deepEqual(targetIssues(st, root), [], "control: a previously staged tree is replaceable");
   } finally {
     rmSync(st, { recursive: true, force: true });
   }
