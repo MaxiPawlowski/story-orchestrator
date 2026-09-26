@@ -1,0 +1,13 @@
+v2.5 plan 05 F4 measurement M4 (reasoning-template strip), 2026-09-26, worktree on 007b35f.
+
+Replay (throwaway jest, .debug/zzM4Replay.tmp.test.ts, deleted after the run): every archived model reply run through the CURRENT stripReasoningBlocks (src/extraction/parse.ts), residue = a leading <think>/<thinking>/Gemma <|channel>thought/Harmony block, or any closing tag, left after the strip.
+Sources: test/goldens/live/**/*.response.txt (raw live-suite recordings, pre-strip), test/goldens/live/role-calibration/*.json (curator, director, synthesis, authoring responses), every so-live-suite-report.json and responses/*.txt under test/journeys/records, and the rawResponse of every audit in the 51 archived journal-follow records.
+- replies: 898
+- carrying a reasoning block before the strip: 22 (all test/goldens/live extractor*.response.txt, the Gemma empty-thought form "<|channel>thought
+<channel|>")
+- residue after the strip: 0
+- emptied by the strip: 0
+- empty as recorded: 12, all reason "j11-seed" (scripted J11 seed audits, no model call)
+Route: every archived reply is the profile route (TC, llama.cpp RunPod "Story Orchestrator Memory RunPod" / "Artemis RunPod RP", per the run headers archived beside them). No CC-route and no harness-route replies exist in the archive, so the CC "empty content" failure mode has 0 samples: unmeasured, not zero.
+The template strip arm (prefix/suffix from each CM profile's reasoning-template) was not replayed: it needs the lane copies' profile settings, and nothing live or lane-side runs in this pass. It can only remove more than today's strip, and today's residue is already 0.
+Floor (residue >= 1 real reply on any route): NOT MET on the profile route. F4 NOT BUILT (fixed forms stay the authority). Reopens on a residue sample from a CC or harness route (plan 13 calibration re-runs M4).
