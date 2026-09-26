@@ -1,9 +1,3 @@
-// v2.5 plan 02 / plan 05 F0 A11: the forced-timeout arm of live-v24-03-memorize. The arm scales every
-// memory-model budget by `storyOrchestratorDebugCallBudgetScale` (src/extraction/callBudget.ts). One
-// uniform scale has to make the whole-chat pass time out on its first ask and answer on its 2x retry,
-// while every other pass still answers on its retry, or the backlog fails for a reason the arm is not
-// about. The scale is read from a base run's measured passes, never guessed.
-
 import { callTimeoutMs, TIMEOUT_RETRY_SCALE } from '../../../src/extraction/callBudget.ts';
 
 export const A11_SCALE_KEY = 'so-v25-a11-scale';
