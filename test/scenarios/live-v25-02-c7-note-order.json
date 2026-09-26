@@ -1,0 +1,30 @@
+{
+  "_note": "v2.5 plan 02 C7 (seed A4, rule 7). Real model, so-scenario --sandbox --group <id with DM Narrator>, lanes only. A checkpoint whose onEnter effect is an llm NPC reply: asserts the player-visible ORDER the plan wants, the checkpoint transition note (/comment, is_system, extra.type comment) BEFORE the NPC reply it announces. EXPECTED RED on today's build: applyActive('activate') awaits fireNpcReplies (src/runtime/effectsApplier.ts) before the manager announces (src/runtime/runtimeManager.ts), so the note lands after the reply (A4 measured ~20.7 s later). The change ships only after the player session or a user decision (10-acceptance.md §Human sessions); this fixture is the order check for it, and until then a red run with noteIndex > replyIndex is the expected record.",
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "id": "v25-c7-note-order",
+        "title": "C7 note order",
+        "description": "The transition note precedes the reply it announces.",
+        "qualities": [{ "key": "ready", "type": "bool", "source": "extractor", "latching": true, "rubric": "Is the NPC ready to speak?" }],
+        "checkpoints": [
+          { "id": "start", "name": "Start", "objective": "Prepare.", "type": "anchor", "start": true },
+          { "id": "speak", "name": "The Narrator Speaks", "objective": "The narrator speaks once.", "type": "anchor", "effects": { "npc_replies": [{ "trigger": "onEnter", "member": "DM Narrator", "kind": "llm", "maxTriggers": 1 }] } }
+        ],
+        "transitions": [{ "from": "start", "to": "speak", "priority": 1, "gate": { "q": "ready", "op": "==", "v": true } }],
+        "roster": [{ "id": "DM Narrator", "name": "DM Narrator" }]
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); if (!ctx.groupId || !ctx.chatId) throw new Error('needs a group chat with DM Narrator'); globalThis.__c7 = { from: ctx.chat.length }; return { from: ctx.chat.length, announce: globalThis.storyOrchestratorRuntime.getGlobalSettings()?.display?.announceTransitions ?? null };",
+      "log": true
+    },
+    { "slash": "/cp set ready true" },
+    { "wait": { "checkpointIn": ["speak"], "timeoutMs": 60000 } },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const from = globalThis.__c7.from; const until = Date.now() + 300000; const find = () => { const rows = ctx.chat.map((m, i) => ({ i, m })).filter(({ i }) => i >= from); const note = rows.find(({ m }) => m.is_system && m.extra?.type === 'comment'); const reply = rows.find(({ m }) => !m.is_user && !m.is_system && m.name === 'DM Narrator'); return { note: note ? { index: note.i, text: String(note.m.mes).slice(0, 120), at: note.m.send_date } : null, reply: reply ? { index: reply.i, text: String(reply.m.mes).slice(0, 80), at: reply.m.send_date } : null }; }; let seen = find(); while ((!seen.note || !seen.reply) && Date.now() < until) { await new Promise((done) => setTimeout(done, 500)); seen = find(); } if (!seen.reply) throw new Error('the onEnter NPC reply never landed: ' + JSON.stringify(seen)); if (!seen.note) throw new Error('no transition note was posted (announcements off?): ' + JSON.stringify(seen)); if (seen.note.index > seen.reply.index) throw new Error('C7: the transition note came after the reply it announces: ' + JSON.stringify(seen)); return seen;",
+      "log": 1500
+    }
+  ]
+}
