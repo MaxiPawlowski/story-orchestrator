@@ -201,6 +201,10 @@
       "status": "local",
       "note": "pushes into a function-local array it returns; the caller owns the write"
     },
+    "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.reconcileWriteAhead": {
+      "status": "checked",
+      "note": "v2.5 plan 02 C10 (2026-09-25): the hydrate reconcile of the curator write-ahead marker. A RunGuard minted before the first read and checked after each uid-addressed read (the only await); a lapse returns zero counts before the proposal patch or the journal line, so a reload superseded mid-reconcile settles nothing into the chat that replaced it (stagecraftWriteAhead.test.ts, switch-during-read case). It never writes the host: a landed write is recorded applied, an unlanded one goes back to accepted for the next boundary's fresh read."
+    },
     "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.revertAppliedSince": {
       "status": "checked",
       "note": "v2.3 plan 03 + AE-01 (2026-09-25): a RunGuard minted before the settle and checked at three places: at the top of each op, immediately after the compare-and-set read (before `restoreBefore`, the host write), and once more before the proposal patch. So a rollback that outlives its chat neither restores pre-write content into a shared lorebook nor settles records, journals or saves in the chat that replaced it. Before AE-01 the only check preceded the read, and the patch after the loop was unchecked. v2.5 plan 11 (H16, re-read per rule 13): an op without a recorded uid is refused before any await, and `restoreBefore` is now the single uid-addressed host write (no write follows its await, so it left the census)."
@@ -331,7 +335,7 @@
     },
     "src/runtime/runtimeManager.ts#RuntimeManager.loadStory": {
       "status": "checked",
-      "note": "v2.3 replan V3 (2026-09-23): promoted from partial: the tail after applyCheckpoint now stops when superseded (the release is checked per write, then asked again). A superseded load used to retitle the newer load, release ITS gated lore and select the old id; only the current load queues a recap (S3). v2.4 plan 02 T3: the hydrate reconcile after the final persist is ChatSave.reconcile(run), which asks the load's own run before it steps back."
+      "note": "v2.3 replan V3 (2026-09-23): promoted from partial: the tail after applyCheckpoint now stops when superseded (the release is checked per write, then asked again). A superseded load used to retitle the newer load, release ITS gated lore and select the old id; only the current load queues a recap (S3). v2.4 plan 02 T3: the hydrate reconcile after the final persist is ChatSave.reconcile(run), which asks the load's own run before it steps back. v2.5 plan 02 C10: on hydrate it awaits StagecraftCoordinator.reconcileWriteAhead (checked) and asks the run again before the status/persist tail."
     },
     "src/runtime/chatSave.ts#ChatSave.persist": {
       "status": "checked",

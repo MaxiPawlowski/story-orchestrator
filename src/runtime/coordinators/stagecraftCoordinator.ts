@@ -36,6 +36,11 @@ import {
   type WardenCheckFinding,
   type WardenCheckInput,
   type WardenFamiliesActive,
+  noWriteAheads,
+  pendingWriteAheads,
+  settleWriteAheads,
+  type WriteAheadCounts,
+  type WriteAheadLive,
 } from "@stagecraft/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { beginRun, type RunGuard, type RunOwnership, type RunToken } from "../runToken";
@@ -314,7 +319,7 @@ export class StagecraftCoordinator {
           ops.push(entry);
           continue;
         }
-        const result = await this.writeOp(story, entry, run, async (pending) => this.markWriteAhead(record.id, index, pending));
+        const result = await this.writeOp(story, entry, run, messageId, async (pending) => this.markWriteAhead(record.id, index, pending));
         if (result.lapsed) return applied;
         if (result.ok) applied += 1;
         ops.push(result.record);
@@ -331,7 +336,7 @@ export class StagecraftCoordinator {
 
   // A lapse returns before the next write and records nothing: after a switch, the state and the
   // save both resolve to the chat that replaced this one.
-  private async writeOp(story: NormalizedStoryV2, entry: CuratorOpRecord, run: RunGuard, beforeHostWrite: (pending: CuratorOpRecord) => Promise<void>): Promise<{ ok: boolean; record: CuratorOpRecord; lapsed?: true }> {
+  private async writeOp(story: NormalizedStoryV2, entry: CuratorOpRecord, run: RunGuard, messageId: number, beforeHostWrite: (pending: CuratorOpRecord) => Promise<void>): Promise<{ ok: boolean; record: CuratorOpRecord; lapsed?: true }> {
     const op = entry.op;
     if (isNoteOp(op)) return { ok: false, record: entry };
     if (!isCuratorWritable(story, op.lorebook, op.comment)) {
@@ -353,7 +358,7 @@ export class StagecraftCoordinator {
     if (!preview.ok) return { ok: false, record: { ...entry, status: "failed", message: preview.message } };
     const before = { content: live.content, disabled: live.disabled, uid };
     const after = op.kind === "enable" || op.kind === "disable" ? { content: before.content, disabled: op.kind === "disable" } : { content: preview.content ?? "", disabled: before.disabled };
-    const pending: CuratorOpRecord = { ...entry, before, after, target: { lorebookFileId: fileId, uid }, writeAhead: { status: "pending", at: new Date().toISOString() } };
+    const pending: CuratorOpRecord = { ...entry, before, after, target: { lorebookFileId: fileId, uid }, writeAhead: { status: "pending", at: new Date().toISOString(), messageId } };
     await beforeHostWrite(pending);
     if (run.lapsed()) return { ok: false, record: pending, lapsed: true };
     try {
@@ -363,6 +368,22 @@ export class StagecraftCoordinator {
     } catch (error) {
       return { ok: false, record: { ...pending, status: "failed", message: error instanceof Error ? error.message : "write failed", writeAhead: undefined } };
     }
+  }
+
+  async reconcileWriteAhead(): Promise<WriteAheadCounts> {
+    const pending = pendingWriteAheads(this.state.proposals);
+    if (!pending.length) return noWriteAheads();
+    const run = beginRun(this.deps.ownership);
+    const live = new Map<string, WriteAheadLive | null>();
+    for (const { key, entry } of pending) {
+      const at = uidTarget(entry);
+      live.set(key, at ? await readWIEntryAt(at) : null);
+      if (run.lapsed()) return noWriteAheads();
+    }
+    const { proposals, counts } = settleWriteAheads(this.state.proposals, live, new Date().toISOString());
+    this.patch({ proposals });
+    this.deps.journal(`World Info curator writes reconciled on reload: ${counts.applied} landed, ${counts.retry} to rewrite, ${counts.left} left alone`);
+    return counts;
   }
 
   // A rollback undoes the story; a curator write made after that point has to go with it. The
