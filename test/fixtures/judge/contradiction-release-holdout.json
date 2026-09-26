@@ -1,0 +1,22 @@
+{
+  "use": "contradiction-release",
+  "floors": { "releaseErr": 0.05, "releaseErrEs": 0, "paraphraseRelease": 0.6 },
+  "labelledAt": "2026-09-26",
+  "source": "Held out: written and labelled before either release wording was asked anything, never used to tune wording (b). Scored once per wording, after wording (b) is tuned on K0 (test/fixtures/memory/contradictions.json). Every row is scored; the floors read the contradicts and agrees rows.",
+  "rows": [
+    { "id": "R01", "lang": "en", "label": "contradicts", "established": "The lighthouse keeper died in the winter storm.", "claim": "The lighthouse keeper survived the winter storm and still tends the lamp." },
+    { "id": "R02", "lang": "en", "label": "contradicts", "established": "The granary at Holt is full for the winter.", "claim": "The granary at Holt is empty for the winter." },
+    { "id": "R03", "lang": "en", "label": "contradicts", "established": "Brannoc swore loyalty to the duke at the spring court.", "claim": "Brannoc refused to swear loyalty to the duke at the spring court." },
+    { "id": "R04", "lang": "es", "label": "contradicts", "established": "La torre del mago ardió hasta los cimientos.", "claim": "La torre del mago sigue intacta, sin una sola quemadura." },
+    { "id": "R05", "lang": "es", "label": "contradicts", "established": "Elena guarda el mapa del tesoro en su camarote.", "claim": "Elena nunca ha tenido el mapa del tesoro en su camarote." },
+    { "id": "R06", "lang": "en", "label": "agrees", "established": "The lighthouse keeper died in the winter storm.", "claim": "The winter storm killed the lighthouse keeper." },
+    { "id": "R07", "lang": "en", "label": "agrees", "established": "The granary at Holt is full for the winter.", "claim": "The granary at Holt is stocked to the rafters for the winter." },
+    { "id": "R08", "lang": "en", "label": "agrees", "established": "Brannoc swore loyalty to the duke at the spring court.", "claim": "At the spring court Brannoc knelt and swore loyalty to the duke." },
+    { "id": "R09", "lang": "es", "label": "agrees", "established": "La torre del mago ardió hasta los cimientos.", "claim": "De la torre del mago solo quedan los cimientos quemados." },
+    { "id": "R10", "lang": "es", "label": "agrees", "established": "Elena guarda el mapa del tesoro en su camarote.", "claim": "Elena tiene el mapa del tesoro escondido en su camarote." },
+    { "id": "R11", "lang": "en", "label": "update", "established": "The granary at Holt is full for the winter.", "claim": "Since the raid the granary at Holt has been emptied." },
+    { "id": "R12", "lang": "es", "label": "update", "established": "Elena guarda el mapa del tesoro en su camarote.", "claim": "Elena ya no guarda el mapa en su camarote: se lo entregó al capitán anoche." },
+    { "id": "R13", "lang": "en", "label": "distinct", "established": "Brannoc swore loyalty to the duke at the spring court.", "claim": "Brannoc's brother swore loyalty to the duke at the spring court." },
+    { "id": "R14", "lang": "en", "label": "distinct", "established": "The lighthouse keeper died in the winter storm.", "claim": "The lighthouse keeper's dog died in the winter storm." }
+  ]
+}

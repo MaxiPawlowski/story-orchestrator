@@ -238,6 +238,19 @@ Re-read on the live 1.19.0 tree (`7c3994196`). The 1.18.0 column is left to V10 
 
 Phase 0 of A4 (identifiers stable across two loud CC generations, Σ = `tokenUsage` read live, the declared minimum) is live and **not run**; H8-H13 are source reads only.
 
+## v2.5 Plan 04 (memory contradictions, 2026-09-26)
+
+Re-read on the live 1.19.0 tree (`7c3994196`), server source `src/endpoints/vectors.js`. N1 and the J1 Phase A
+instrument call no host API; these rows back the K0 cosine bracket script (`scripts/debug/so-contradiction-cosine.mts`),
+which repeats the v2.4 `pair-cosine-probe.js` method. The 1.18.0 column is left to V10 Q4, as for v2.5 plan 07.
+
+| # | Fact | 1.19.0 | 1.18.0 |
+|---|---|---|---|
+| v25-04-H1 | `POST /api/vector/insert` takes `{collectionId, items, source}` and keeps only `{hash, text, index}` per item; each item is stored with that triple as its metadata | `vectors.js:512-523`, stored `:330` | open |
+| v25-04-H2 | `POST /api/vector/query` answers `{metadata, hashes}`: the top-`topK` items, `metadata` filtered to `score >= threshold` (the score itself is dropped), `hashes` unfiltered. `threshold` defaults to 0 and `topK` to 10 | `vectors.js:472-486`, `queryCollection` `:385-392` | open |
+| v25-04-H3 | So a pair's cosine is recoverable only by bisecting the threshold: the item is in `metadata` iff its score reaches the threshold. 14 halvings bound it to 1/16384 | `vectors.js:390` | open |
+| v25-04-H4 | `POST /api/vector/purge` removes the collection's directory for every source | `vectors.js:583-596` | open |
+
 ## v2.5 Plan 06 (judge next, code items, 2026-09-26)
 
 Re-read on the live 1.19.0 tree (`7c3994196`). The 1.18.0 column is left to V10 Q4, as for v2.5 plans 01/02/07. No product code in

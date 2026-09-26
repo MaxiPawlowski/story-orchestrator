@@ -8,7 +8,7 @@ jest.mock("@services/STAPI", () => ({
   MEMORY_INJECTION_KEY_PREFIX: "so-memory-",
 }));
 
-import { buildJaccardMatchSets, conflictWindow, heldContradictions, heldGroup, isEstablished, isLive, provenance, unionMatchSets, withOverride, type MatchSets, type MemoryEntry } from "@memory/index";
+import { buildJaccardMatchSets, conflictWindow, DEFAULT_DEDUP_THRESHOLDS, heldContradictions, heldGroup, isEstablished, isLive, jaccardSimilarity, provenance, unionMatchSets, withOverride, type MatchSets, type MemoryEntry } from "@memory/index";
 import { detectMemoryConflicts, dismissMemoryConflict, findHeldContradictions, holdMemoryContradictions, settleUncertain, type MemoryQueueDeps } from "./memoryQueue";
 import type { MemoryRuntimeState } from "./types";
 
@@ -183,6 +183,61 @@ describe("the queue holds the claim and leaves the established row standing", ()
 
   it("reads the claim's window, never the standing row's", () => {
     expect(conflictWindow({ sides: [{ store: "memory", id: "seed", label: SEED, messageId: 100000, standing: true }, { store: "memory", id: "claim", label: STANDING, messageId: 4 }] })).toEqual({ from: 4, to: 4 });
+  });
+});
+
+describe("an explicit negation below the Jaccard band (polarity screen)", () => {
+  const belowBand = (established: string, said: string) => {
+    expect(jaccardSimilarity(established, said)).toBeLessThan(DEFAULT_DEDUP_THRESHOLDS.jaccardSameTopic);
+  };
+
+  it.each([
+    ["en, a negated verb that inflection and punctuation keep apart", "Mira knows the password to the archive.", "Mira doesn't know the archive password."],
+    ["es, ya no", "El puente sigue en pie.", "El puente ya no existe."],
+    ["es, a second negator", "El puente sigue en pie.", "Del puente ya no queda nada."],
+  ])("holds the claim against an established row (%s)", async (_label, established, said) => {
+    belowBand(established, said);
+    const h = harness([seed({ text: established })]);
+    expect(await findHeldContradictions(h.deps, [claim({ text: said })])).toHaveLength(1);
+  });
+
+  it("does not hold an agreeing pair that carries a negator on both sides", async () => {
+    const established = "Oswin never trusted the harbourmaster.";
+    const said = "The harbourmaster was not someone Oswin trusted.";
+    belowBand(established, said);
+    const h = harness([seed({ text: established })]);
+    expect(await findHeldContradictions(h.deps, [claim({ text: said })])).toEqual([]);
+  });
+
+  it("does not hold a negated claim about another subject", async () => {
+    const established = "Mira knows the password to the archive.";
+    const said = "The ferry does not run on feast days.";
+    belowBand(established, said);
+    const h = harness([seed({ text: established })]);
+    expect(await findHeldContradictions(h.deps, [claim({ text: said })])).toEqual([]);
+  });
+
+  it("does not hold a same-subject distinct claim with the same polarity", async () => {
+    const established = "Tomas is a locksmith in the capital.";
+    const said = "Tomas bought a small house near the capital gates last spring.";
+    belowBand(established, said);
+    const h = harness([seed({ text: established })]);
+    expect(await findHeldContradictions(h.deps, [claim({ text: said })])).toEqual([]);
+  });
+
+  it("keeps holding a negation the dup band already joins, against a lock", async () => {
+    const established = "The bridge was not destroyed.";
+    const said = "The bridge was destroyed.";
+    expect(jaccardSimilarity(established, said)).toBeGreaterThanOrEqual(DEFAULT_DEDUP_THRESHOLDS.jaccardDup);
+    const h = harness([seed({ text: established, locked: true })]);
+    expect(await findHeldContradictions(h.deps, [claim({ text: said })])).toHaveLength(1);
+  });
+
+  it("still lets a marked update through below an unlocked row", async () => {
+    const established = "Mira knows the password to the archive.";
+    const said = "Mira no longer knows the archive password.";
+    const h = harness([seed({ text: established })]);
+    expect(await findHeldContradictions(h.deps, [claim({ text: said })])).toEqual([]);
   });
 });
 

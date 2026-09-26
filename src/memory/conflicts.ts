@@ -2,6 +2,7 @@ import { isLive, withOverride, withValidity, type Provenance } from "./provenanc
 import { ledgerKey } from "./ledger";
 import { hasStateChangeMarker } from "./similarity";
 import { buildJaccardMatchSets, type MatchSets } from "./consolidate";
+import { polarityMatchSets } from "./polarity";
 import type { LedgerEntry, MemoryEntry } from "./types";
 
 // Two stores can both hold a claim about the same thing and disagree. The soft
@@ -275,8 +276,9 @@ export function markConflicted<T extends { provenance: Provenance }>(records: T[
 // by the author. A pin is retention, not truth, so a pinned extracted row is not settled. A new claim in its band is HELD — queued with the established row standing — instead of
 // joining the live facts on its own. "In its band" is the consolidation bands (vectors, else
 // Jaccard), which cannot tell a contradiction from an agreeing paraphrase: both are held, and an
-// agreeing one loses nothing because the established row already says it. A contradiction worded with
-// too little overlap to reach the same-topic band is not seen at all.
+// agreeing one loses nothing because the established row already says it. Below the band, a claim of
+// opposite polarity (an explicit negator on one side only) about the same subject is held too; a
+// contradiction worded with too little overlap and no negator is not seen at all.
 export const isEstablished = (entry: MemoryEntry): boolean => Boolean(entry.locked || entry.provenance?.override || entry.provenance?.source === "author");
 
 export const standsEstablished = (entry: MemoryEntry): boolean => isEstablished(entry) && isLive(entry) && !entry.supersededBy && !entry.foldedInto;
@@ -301,9 +303,10 @@ export function unionMatchSets(left: MatchSets, right: MatchSets): MatchSets {
  *  bands OR the Jaccard bands. Measured on lane 2, "the bridge is gone" vs "the bridge is intact" sat at
  *  cosine 0.410 / 0.359 (under the 0.55 same-topic band) and at Jaccard 0.533 / 0.571 (over its 0.4
  *  band): a sentence embedding barely moves on polarity, so vectors alone stored the claim live. The
- *  union only widens the hold on settled rows; ordinary consolidation keeps its single source. */
-export const establishedBands = (group: MemoryEntry[], vectors: MatchSets | null): MatchSets => {
-  const overlap = buildJaccardMatchSets(group);
+ *  union only widens the hold on settled rows; ordinary consolidation keeps its single source. The
+ *  polarity screen joins it here and nowhere else. */
+export const establishedBands = (group: MemoryEntry[], vectors: MatchSets | null, subjectFloor: number): MatchSets => {
+  const overlap = unionMatchSets(buildJaccardMatchSets(group), polarityMatchSets(group, subjectFloor));
   return vectors ? unionMatchSets(vectors, overlap) : overlap;
 };
 

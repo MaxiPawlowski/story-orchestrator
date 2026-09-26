@@ -4,6 +4,7 @@ import {
   type ConflictPair, type ConflictWindow, type HeldContradiction, type LedgerBinding, type MatchSets, type MemoryEntry, type SceneConflictValue, type UncertainPair,
 } from "@memory/index";
 import type { Provenance, Provenanced } from "@memory/provenance";
+import { PAIR_JACCARD_FLOOR } from "@judge/index";
 import type { RunGuard } from "./runToken";
 import type { MemoryRuntimeState } from "./types";
 import { log } from "@utils/log";
@@ -107,7 +108,7 @@ export async function findHeldContradictions(deps: MemoryQueueDeps, candidates: 
   const established = deps.getMemory().entries.filter(standsEstablished);
   if (!deps.getMemory().settings.enabled || !established.length || !candidates.length) return [];
   const group = heldGroup(established, candidates);
-  const matches = establishedBands(group, deps.matchSets ? await deps.matchSets(group) : null);
+  const matches = establishedBands(group, deps.matchSets ? await deps.matchSets(group) : null, PAIR_JACCARD_FLOOR);
   return heldContradictions(established, candidates, matches);
 }
 

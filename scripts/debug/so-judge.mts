@@ -9,19 +9,23 @@ import { calibrationOk, type ModelVerdict } from './lib/calibrationVerdict.mts';
 import { eventsFromJsonl, eventsFromRecord, timeoutReport, dedupe, type TimeoutEvent } from './lib/judgeTimeouts.mts';
 import { blindSample, replyEffectVerdict, runFromRescore } from './lib/replyEffect.mts';
 import { armSummary, costInputOf, costReport, costReportAcross, filterJudgeCalls, rescoreRates, withEstablished } from './lib/judgeHarness.mts';
+import { K0_BRACKET_DIR, K0_FIXTURE_NAME, bracketFileNames, releaseCases, releaseFixturePath, releaseModes, type Brackets } from './lib/contradictionRelease.mts';
 import { classifyProbe, limitProbeCases, probeRequest, requestChars, JEV_USD_PER_MTOK_INPUT, type ProbeResult } from './lib/limitProbe.mts';
 
 const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
 
   status                              plugin reachability, key source (never the key), install settings
   ask <request.json>                  POST one System One request through the plugin from the page
-  calibrate [--use director|memory-verify|memory-pairs|scene|lore|lore-relevance|curator-filter|continuity|backgrounds|typed|stall|critic|variants|agency|house-rules] [--fixture <name>] [--model <id>] [--min 0.85] [--record]
+  calibrate [--use director|memory-verify|memory-pairs|contradiction-release|scene|lore|lore-relevance|curator-filter|continuity|backgrounds|typed|stall|critic|variants|agency|house-rules] [--fixture <name>] [--model <id>] [--min 0.85] [--record]
                                       run test/fixtures/judge/<fixture|use>.json page -> plugin -> TypeSafe;
                                       --model asks that model without changing install settings; the report records the model that answered
                                       and a modelVerdict (matched | resolved, with resolvedTo | mismatch | unknown; the last two exit 1);
                                       exit 1 below the fixture's family floors, or below --min when there are none;
                                       an explicit --min also binds the overall rate; --record writes test/goldens/judge/<use>.calibration.json;
-                                      --use continuity --fixture continuity-combined asks the continuity rows inside the combined warden request (T22/T23 regression)
+                                      --use continuity --fixture continuity-combined asks the continuity rows inside the combined warden request (T22/T23 regression);
+                                      --use contradiction-release defaults to K0 (test/fixtures/memory/contradictions.json) and scores v2.5 plan 04's
+                                      Phase A floors per wording in every band mode (Jaccard, and one vectors mode per recorded cosine bracket file;
+                                      none recorded = unmeasured, exit 1); --fixture contradiction-release-holdout scores the hold-out; --min is ignored
   calls [--last 20] [--use <use>] [--chat <chatId>]
                                       the open chat's judge call ring (extras.judge.calls), one use only with --use; --chat refuses
                                       unless that chat is the one open (a ring is read from the open chat, never guessed)
@@ -174,6 +178,35 @@ async function calibrate(page: any, use: string, fixtureName: string, min: numbe
   if (record) {
     await mkdir(join(PROJECT_ROOT, 'test', 'goldens', 'judge'), { recursive: true });
     await writeFile(join(PROJECT_ROOT, 'test', 'goldens', 'judge', `${fixtureName}.calibration.json`), `${JSON.stringify({ recordedAt: new Date().toISOString(), summary, rows: report.rows }, null, 2)}\n`);
+  }
+  return { ok: summary.ok };
+}
+
+async function calibrateRelease(page: any, fixtureName: string, record: boolean, requestedModel?: string) {
+  const fixture = JSON.parse(await readFile(join(PROJECT_ROOT, releaseFixturePath(fixtureName)), 'utf-8'));
+  const bracketNames = bracketFileNames(await readdir(join(PROJECT_ROOT, K0_BRACKET_DIR)));
+  const brackets: Brackets[] = await Promise.all(bracketNames.map(async (name) => JSON.parse(await readFile(join(PROJECT_ROOT, K0_BRACKET_DIR, name), 'utf-8'))));
+  const cases = releaseCases(fixture);
+  const modes = releaseModes(fixture, brackets);
+  const report = await evaluateInST(page, async ({ cases, modes, model }: { cases: unknown[]; modes: Record<string, string[] | null>; model?: string }) => {
+    const judge = (globalThis as any).storyOrchestratorJudge;
+    if (!judge) throw new Error('storyOrchestratorJudge not registered (extension not loaded?)');
+    const out = await judge.calibrate('contradiction-release', cases, model);
+    return { ...out, phaseA: judge.scoreContradictionRelease(out, cases, modes), verdict: judge.modelVerdict(model ?? null, out.model) };
+  }, { cases, modes, model: requestedModel });
+  const labelOf: Record<string, string> = Object.fromEntries(cases.map((row) => [row.id, `${row.label}${row.lang === 'es' ? ',es' : ''}`]));
+  for (const row of report.rows) console.log(`${row.right ? 'ok  ' : 'MISS'} ${row.id.padEnd(6)} ${String(row.picked).padEnd(8)} ${String(row.latencyMs).padStart(5)} ms  [${labelOf[row.id.split('.')[0]] ?? ''}]${row.fallback ? `  fallback=${row.fallback}` : ''}${row.detail ? `  ${row.detail}` : ''}`);
+  for (const mode of report.phaseA.modes) {
+    if (!mode.measured) console.log(`OPEN ${mode.mode}: unmeasured (no cosine bracket file; run so-contradiction-cosine.mts capture --record)`);
+    for (const arm of mode.arms) console.log(`${arm.ok ? 'ok  ' : 'FAIL'} ${mode.mode} (${arm.wording}) releaseErr ${arm.releaseErr.hit}/${arm.releaseErr.total} es ${arm.releaseErrEs.hit}/${arm.releaseErrEs.total} paraphrase ${arm.paraphraseRelease.hit}/${arm.paraphraseRelease.total}`);
+  }
+  const modelVerdict = report.verdict.verdict as ModelVerdict;
+  const summary = { use: 'contradiction-release', fixture: fixtureName, rows: cases.length, modes: Object.keys(modes), brackets: bracketNames, passing: report.phaseA.passing, p50LatencyMs: report.p50LatencyMs, requestedModel: requestedModel ?? null, model: report.model, modelVerdict, ...(report.verdict.resolvedTo ? { resolvedTo: report.verdict.resolvedTo } : {}), ok: report.phaseA.ok && modelVerdict !== 'mismatch' && modelVerdict !== 'unknown' };
+  console.log(JSON.stringify(summary, null, 2));
+  await writeJSON({ summary, report }, `so-judge-calibrate-${fixtureName}`);
+  if (record) {
+    await mkdir(join(PROJECT_ROOT, 'test', 'goldens', 'judge'), { recursive: true });
+    await writeFile(join(PROJECT_ROOT, 'test', 'goldens', 'judge', `${fixtureName}.calibration.json`), `${JSON.stringify({ recordedAt: new Date().toISOString(), summary, phaseA: report.phaseA, rows: report.rows }, null, 2)}\n`);
   }
   return { ok: summary.ok };
 }
@@ -365,6 +398,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url) && process.argv[2] === 'c
     if (command === 'limit-probe') return limitProbe(page, process.argv.includes('--send'));
     if (command === 'rescore') return rescore(page, argValue('--use', 'continuity'), argValue('--records', ''), process.argv.includes('--model') ? argValue('--model', '') : undefined, process.argv.includes('--facts') ? argValue('--facts', '') : undefined);
     const requestedModel = process.argv.includes('--model') ? argValue('--model', '') : undefined;
+    if (argValue('--use', 'director') === 'contradiction-release') return calibrateRelease(page, argValue('--fixture', K0_FIXTURE_NAME), process.argv.includes('--record'), requestedModel);
     if (argValue('--use', 'director') === 'lore-relevance') return calibrateRelevance(page, argValue('--fixture', 'lore-relevance'), requestedModel);
     return calibrate(page, argValue('--use', 'director'), argValue('--fixture', argValue('--use', 'director')), Number(argValue('--min', '0.85')), process.argv.includes('--record'), requestedModel);
   });

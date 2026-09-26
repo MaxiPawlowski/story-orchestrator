@@ -1,0 +1,255 @@
+== J3/run1 rows=15 contradictedMarks=0
+  00 Arin and the player are at the Adventurer's Guild job board considering available missions.
+  01 There is a quest to retrieve the Sun's Heart Artifact, which Arin notes is riskier but potentially legendary in payout.
+  02 Arin and Max are at the Adventurer's Guild job board considering the Sun Ruins mission.
+  03 The Sun Ruins are buried and contain unstable magic that has been rotting for centuries.
+  04 The Sun Ruins mission is considered high-risk and potentially high-reward, with rumors suggesting it could help the city.
+  05 The Guild Master Ponticius is watching the party and warns them about the dangers of the Sun Ruins mission.
+  06 Arin is excited despite the danger, with a spark in his eyes.
+  07 The Sun Ruins are buried and full of unstable magic that has been rotting for centuries.
+  08 The Sun Ruins were once the ancestors' crown jewel but are now considered a tomb for the ambitious.
+  09 Ponticius led a company into the Sun Ruins thirty years ago, lost six men, and recovered only dormant fragments of the Sun's Heart.
+  10 Luke's brother went into the Sun Ruins three months ago and hasn't returned.
+  11 Arin explicitly states he trusts Max with his life and will support the decision to take the mission.
+  12 Ponticius is the Guild Master, an experienced adventurer who led a failed expedition to the Sun Ruins 30 years ago.
+  13 Arin explicitly states he trusts Max with his life.
+  14 Arin has green eyes and a wooden chin.
+== J3/run2 rows=9 contradictedMarks=0
+  00 The party is at the Adventurer's Guild hall, which is crowded with morning drinkers and adventurers.
+  01 A quest posting for the Sun Ruins excavation exists, offering substantial reward but warning of unstable magical signatures.
+  02 Arin is standing by the guild's job board with Max, having just read the Sun Ruins mission posting.
+  03 The Sun Ruins mission is for excavating a buried district of old Xentar, believed to hold ancient knowledge and artifacts, with a substantial reward but warning of unstable magical signatures.
+  04 Ponticius is the Guild Master who warned the party about the Sun Ruins, having led a failed expedition there twenty years ago.
+  05 Arin has been eyeing some fancy tea.
+  06 The Guild Master is watching Max and Arin at the quest board, warning them about the dangers of the Sun Ruins.
+  07 Ponticius led a team into the Sun Ruins twenty years ago and encountered horrors.
+  08 The Sun Ruins posting has a seal that Arin associates with the city's failing wards.
+== J7/run1 rows=50 contradictedMarks=0
+  00 The party is at the Adventurer's Guild reception area examining the job board.
+  01 A job posting for the Sun Ruins—Sector 7 offers 500 silver pieces and archive access for investigating the burial district for magical artifacts or workshops.
+  02 The Sun Ruins job posting is marked with a crimson wax seal of a setting sun.
+  03 The Sun Ruins mission offers 500 silver pieces and archive access for investigating the burial district in Sector 7.
+  04 Arin has heard the Sun Ruins are dangerous due to unstable magic.
+  05 Arin is with Max at the Adventurer's Guild job board, discussing the Sun Ruins mission.
+  06 The Sun Ruins mission offers 500 silver pieces and access to the archives for investigating the burial district in Sector 7.
+  07 Arin recognizes the setting sun seal as belonging to 'old blood'—someone with connections or old money.
+  08 The party is at the Adventurer's Guild job board, having just read the Sun Ruins mission posting.
+  09 Ponticius is the Guild Master, a tall lean man with a scarred face and graying hair who has been observing the party.
+  10 Arin suspects the setting sun seal indicates the mission is from someone with old money or connections who knows exactly what's in the ruins.
+  11 The Guild Master Ponticius is assessing Max and Arin's suitability for the Sun Ruins mission, challenging them to prove their worth.
+  12 Ponticius has a deep scar across his left cheek and a streak of gray hair.
+  13 The Sun Ruins mission is considered high-risk and involves ancient magic that modern society has forgotten.
+  14 The Sun Ruins mission was requested by a figure within the Council of Elders who wants the job done discreetly and needs something specific for the city's continued survival.
+  15 Arin suggests getting drinks before heading out on the mission.
+  16 The Sun Ruins mission was commissioned by the Council of Elders for something critical to the city's survival, not just for coin.
+  17 Max accepted the Sun Ruins mission and received 100 silver pieces in advance.
+  18 Ponticius provided 100 silver pieces in advance for the Sun Ruins mission and warned that the Council would not be kind if they failed.
+  19 Arin and Max are in the guild hall reception area, having just signed the Sun Ruins contract.
+  20 Arin is carrying the folded Sun Ruins contract in his armor.
+  21 Arin is focused on planning and supply gathering for the mission, showing a cautious approach.
+  22 Max and Arin have officially signed the contract for the Sun Ruins mission to Sector 7, and agreed to let Luke join them.
+  23 Luke's older brother, an experienced adventurer, disappeared months ago in the Sun Ruins (Sector 7) and Luke is desperate to find him.
+  24 The party needs to gather supplies (torches, ropes, medical supplies) and consider preparation for unstable magic in the burial district.
+  25 Max and Arin officially accepted Luke to join their expedition to the Sun Ruins in Sector 7 after he pleaded to search for his missing brother.
+  26 Luke's older brother disappeared months ago on a mission to the Sun Ruins in Sector 7.
+  27 Luke is wearing oversized chainmail that clatters and looks like it belongs to someone twice his size.
+  28 Luke is a novice adventurer, approximately 18 years old, wearing oversized chainmail armor that clanks when he moves.
+  29 Luke's older brother, an experienced adventurer, disappeared months ago on a mission to the Sun Ruins in Sector 7.
+  30 Arin is wary and concerned about bringing Luke on the mission, viewing it as high-risk and potentially suicidal for the novice.
+  31 The party has entered the burial district in Sector 7, a vast underground chamber with a central pedestal holding the Sun's Heart artifact.
+  32 The Sun's Heart artifact is the crystalline core powering the burial district.
+  33 Luke is in awe of the ruins and determined to find his brother.
+  34 The party has entered the burial district chamber, which is carved from smooth white stone and contains crystalline urns and ancient machinery that hums with energy.
+  35 The Sun's Heart artifact is a crystalline core on a central pedestal that pulses with light and warmth.
+  36 The ruins contain a combination of magic and forgotten technology that the current age no longer understands.
+  37 The burial district chamber is carved from smooth white stone with crystalline urns along the walls and ancient machinery that hums with energy.
+  38 The party has successfully retrieved the Sun's Heart artifact from its pedestal.
+  39 Removing the Sun's Heart artifact caused the chamber's energy signature to change and the machinery to begin shifting and grinding.
+  40 The party has entered the burial district chamber in Sector 7, where the Sun's Heart artifact rests on a central pedestal.
+  41 Luke is wearing oversized chainmail that clatters and slides off his arm.
+  42 Arin is skeptical of Luke's abilities but has accepted him as part of the team, warning that they can't risk their lives for him if things get dangerous.
+  43 The party successfully recovered the Sun's Heart artifact from the burial district chamber in the Sun Ruins.
+  44 The party returned to the guild hall in Xentar with the artifact.
+  45 The Sun's Heart artifact was powering the ancient machinery in the burial district chamber.
+  46 The party is currently in the tavern area of the guild hall in Xentar.
+  47 The party successfully retrieved the Sun's Heart artifact from the Sun Ruins and returned to the guild hall in Xentar.
+  48 The Sun's Heart is a crystalline core that was powering the ancient machinery in the burial district chamber.
+  49 The party has returned to the guild hall in Xentar and is being questioned by Ponticius about the artifact and Luke's brother.
+== J7/run2 rows=69 contradictedMarks=0
+  00 The Guildhall is crowded with adventurers, smelling of ale, sweat, and old leather, with lanterns casting flickering light.
+  01 A high-reward quest posting for 'The Sun’s Heart' at the Sun Ruins offering 500 gold and a favor from the City Council.
+  02 The Guildhall is crowded, smelling of ale, sweat, and old leather, with lanterns casting flickering light.
+  03 A quest posting for 'The Sun’s Heart' at the Sun Ruins offers 500 gold and a favor from the City Council.
+  04 Arin and Max are at the Adventurer's Guild looking at the job board.
+  05 The Sun's Heart quest offers 500 gold and a favor from the City Council for retrieving something from the Sun Ruins.
+  06 Arin recognizes the Sun Ruins quest as unusually high-reward and high-risk, suggesting the City Council is desperate.
+  07 Arin and Max are at the Adventurer's Guild job board, considering the Sun's Heart quest.
+  08 Ponticius is a grizzled man with gray-streaked hair who removed the Sun's Heart notice from the board.
+  09 The Sun's Heart is an artifact that can power the city's barriers.
+  10 The Sun Ruins are a high-risk area where many adventurers have gone and never returned.
+  11 The Sun's Heart artifact is said to be able to power the city's barriers.
+  12 The quest notice for the Sun's Heart has a seal that feels warm to the touch and seems magical.
+  13 The Sun's Heart quest offers 500 gold and a favor from the City Council.
+  14 Ponticius is aware of the Sun's Heart quest and its significance, and has removed the notice from the board.
+  15 Arin and Max have accepted the Sun Ruins mission from the guild board.
+  16 Arin wants to grab roasted meat from the tavern cook before heading out.
+  17 Arin and Max accepted the Sun Ruins mission from the guild board after being warned by Ponticius about its danger.
+  18 Ponticius is a gray-templed man with a commanding presence who warned the party that the Sun Ruins quest is a 'death sentence for most'.
+  19 The party is in the Guildhall, preparing to head out for the Sun Ruins mission after grabbing supplies and food.
+  20 The Sun Ruins pre-date the city's fall by centuries and contain the Sun's Heart, which powers Xentar's magical barriers.
+  21 Arin is confident about taking the mission but acknowledges the danger, making a silent promise not to leave Max's side.
+  22 The Sun's Heart is not just a treasure but an artifact capable of powering Xentar's magical barriers, making its retrieval critical to the city's survival.
+  23 Arin is visibly shaken by the revelation that the mission involves the city's survival, showing fear and hesitation.
+  24 Arin and Max accepted the Sun Ruins mission from Ponticius at the guild.
+  25 Arin and Max are gathering supplies (food, water, medicine, arrows, rope) before departing.
+  26 Luke is desperate to find his brother Garret who has been missing for three days after going to the Sun Ruins.
+  27 Luke wears oversized chainmail and carries a short sword that is too heavy for him.
+  28 Luke's brother Garret has been missing for three days after going to the Sun Ruins on the Sun's Heart quest.
+  29 Luke is a young, inexperienced adventurer wearing oversized chainmail and carrying a short sword too heavy for him.
+  30 Max agreed to let Luke accompany the party on the mission to the Sun Ruins.
+  31 Luke is wearing oversized chainmail that clinks as he walks.
+  32 The party has exited the Guildhall and is approaching the Sun Ruins, which lie past the last standing buildings of Xentar.
+  33 The party has encountered a massive stone sphinx guardian in a courtyard within the Sun Ruins. It blocks the sealed door and demands they answer a riddle to proceed.
+  34 The Sun Ruins contain collapsed towers, crumbling walls, and a faint persistent hum like distant machinery.
+  35 The party has encountered a massive stone sphinx guardian with glowing golden eyes in a courtyard within the Sun Ruins.
+  36 The sphinx's voice is described as ancient and heavy, and it warns that those who fail its riddle face consequences.
+  37 Luke is terrified but determined to help, expressing fear of losing Max as well.
+  38 The party has encountered a massive stone sphinx guardian with glowing golden eyes blocking the path deeper into the Sun Ruins.
+  39 The sphinx's voice is described as ancient and heavy.
+  40 Luke is terrified but hopeful, gripping his oversized sword as he watches Max answer the sphinx's riddle.
+  41 Luke is gripping his oversized short sword like a lifeline, his knuckles white with fear and hope.
+  42 Luke watches Max with awe and desperation as he answers the sphinx's riddle.
+  43 The Sun's Heart is a crystalline core the size of a human head, pulsing with dormant golden light, resting on an elevated pedestal in the center of the chamber of ancient machinery.
+  44 The chamber of ancient machinery is vast with massive gears and cogs, crystalline arrays providing ethereal light, and a floor of metal and stone with glowing channels.
+  45 Arin has committed to helping Max find his brother Garret in the ruins.
+  46 The Sun's Heart rests on an elevated pedestal in the center of the chamber, pulsing with dormant golden light.
+  47 Luke believes his brother Garret must be in the chamber of ancient machinery.
+  48 Arin has committed to finding Luke's brother and retrieving the Sun's Heart.
+  49 The chamber is a maze of ancient technology with crystalline arrays, massive gears, bronze pipes, and copper wiring that power the Sun's Heart.
+  50 There is evidence of previous visitors in the chamber: footprints, discarded equipment, and signs of struggle suggesting combat.
+  51 The evidence of others in the Sun Ruins chamber gives hope that Luke's brother Garret might still be alive.
+  52 The party is in a vast chamber with ancient machinery, crystalline arrays, and the dormant Sun's Heart pulsing in the distance.
+  53 Luke is terrified but determined to find his brother Garret.
+  54 A mysterious clicking sound of metal against metal was heard from the shadows.
+  55 The Sun's Heart is secured in Max's pack after being removed from its pedestal, which caused a temporary surge of power throughout the chamber.
+  56 Removing the Sun's Heart from its pedestal awakened something dangerous in the ruins.
+  57 Luke is desperate to find his brother Garret and believes he might be in the Sun Ruins.
+  58 The Sun's Heart artifact pulses with golden light and warmth when removed from its pedestal.
+  59 The party is in the inner chamber of the Sun Ruins; Max has just secured the Sun's Heart artifact, and something hostile is approaching from the shadows.
+  60 The party successfully retrieved the Sun's Heart artifact from the Sun Ruins but failed to find Luke's brother Garret.
+  61 The Sun's Heart artifact pulses with golden light and warmth when removed from its pedestal.
+  62 Luke is devastated by the failure to find his brother Garret but remains grateful to Max and Arin.
+  63 The party successfully retrieved the Sun's Heart artifact from the Sun Ruins but failed to find Luke's brother Garret.
+  64 The Sun's Heart artifact pulses with golden light and warmth when removed from its pedestal.
+  65 Luke is grateful for the party's help but remains desperate to find his missing brother Garret.
+  66 Luke returned from the Sun Ruins without finding his brother Garret, but with renewed determination to become a real adventurer and continue searching.
+  67 The Sun's Heart artifact is currently in the party's possession and Ponticius has demanded to see it.
+  68 Luke has shown significant growth from a scared boy to someone with purpose and determination, though still emotionally fragile.
+== J7/run1 rows=51 contradictedMarks=0
+  00 Arin and the player are at the Adventurer's Guild job board looking for missions.
+  01 A mission posting for the Ruins of Valithon offers a considerable reward for retrieving an ancient artifact.
+  02 Arin is concerned about the dangers of the Sun Ruins mission, noting unstable magic and ancient guardians.
+  03 The mission posting for the Ruins of Valithon is newer than others on the board and written in a cramped, urgent hand.
+  04 The Sun Ruins are considered extremely dangerous, with unstable magic and ancient guardians.
+  05 The Guild has lost more adventurers to the Sun Ruins than any other location.
+  06 The party received a leather-bound journal containing limited knowledge of the Ruins of Valithon and the artifact within.
+  07 The Sun Ruins contain an artifact called the Sun's Heart, which could bolster Xentar's protective wards.
+  08 The Guild has provided a leather-bound journal containing limited knowledge from previous expeditions to the ruins.
+  09 The party received a small pouch of coins as an advance on their reward.
+  10 The Sun Ruins contain active ancient magic and previous teams sent there have not returned.
+  11 Arin is checking his gear and suggesting they gather supplies like water, rations, and torches before departing.
+  12 Luke is a young man in his late teens wearing oversized chainmail who wants to join the party to find his missing brother.
+  13 Luke approached the party pleading to join the Sun Ruins mission to find his brother who disappeared months ago.
+  14 The party decided to leave Luke behind despite his desperate pleas to join the mission to find his brother.
+  15 Luke pleaded to join the Sun Ruins mission to find his missing brother.
+  16 Luke wears oversized chainmail and gear that clatters when he moves.
+  17 Arin is conflicted about Luke joining but suggests he could help with supplies.
+  18 The party agreed to bring Luke on the expedition to the Sun Ruins.
+  19 Arin reluctantly suggested Luke could help by carrying supplies and watching their backs.
+  20 The party agreed to let Luke join the expedition to the Sun Ruins to search for his missing brother.
+  21 The party agreed to let Luke join the expedition to the Sun Ruins to search for his missing brother.
+  22 The party has left Xentar and is traveling through overgrown, narrow paths toward the Sun Ruins of Valithon under a bruised purple evening sky.
+  23 The party is approaching the outskirts of Xentar, with the Sun Ruins visible as a silhouette against the evening sky.
+  24 Luke is wearing oversized chainmail that clanks with each step.
+  25 The party successfully answered the Sphinx's riddle with 'the moon', causing it to grant them passage into the Sun Ruins' inner chamber.
+  26 The party has entered the inner chamber of the Sun Ruins through a sealed archway that was opened by the Sphinx.
+  27 The party has entered the inner chamber and found the Sun's Heart artifact on a stone pedestal; it is beginning to awaken and pulse with energy.
+  28 Luke is filled with hope and determination to find his brother in the ruins.
+  29 The Sphinx remains outside the chamber, watching the party from the shadows.
+  30 The party has entered the inner chamber and found the Sun's Heart artifact on a central pedestal; it is actively reacting to their presence.
+  31 The Sphinx guardian respected the party's answer to its riddle and allowed them passage.
+  32 The Sun's Heart artifact is in the inner chamber on a stone pedestal, pulsing with golden light and reacting to the party's presence.
+  33 The Sphinx demands a trial of combat to prove the party's worth before they can claim the artifact.
+  34 Luke is willing to fight the Sphinx despite his fear, driven by the hope of finding his brother.
+  35 The inner chamber contains humming ancient machinery and the Sun's Heart artifact, which pulses with golden light and emits a low rhythmic hum.
+  36 The Sun's Heart artifact is located within a chamber of humming machinery and reacts to Luke's presence and words.
+  37 Luke believes his brother told him about a hidden chamber in the ruins where the Sun's Heart could be found from the inside.
+  38 The Sphinx remains at the archway, silently watching the party.
+  39 The party recovered the Sun's Heart artifact, triggering the collapse of the inner chamber.
+  40 The Sphinx is watching the party from the archway as the chamber collapses, its wings beating slowly.
+  41 The Sun's Heart radiates heat through Max's pack and its power is violently awake.
+  42 The party recovered the Sun's Heart artifact, triggering the collapse of the inner chamber.
+  43 The Sphinx stands at the sealed archway, watching the party as the chamber collapses around them.
+  44 Luke believes his brother told him about a hidden chamber in the ruins where the Sun's Heart was hidden.
+  45 The party recovered the Sun's Heart artifact, triggering the collapse of the inner chamber and awakening the Sphinx guardian.
+  46 The Sun's Heart artifact radiates heat and pulses with violent energy when removed from its pedestal.
+  47 The Sphinx guardian blocks the only remaining exit from the collapsing ruins, demanding the party prove their worth.
+  48 Luke found a weathered piece of leather-bound journal in the debris that he believes his brother left for him.
+  49 Luke is overwhelmed by grief and terror, believing his brother and others are dead, but finds hope in a journal he discovered.
+  50 The Sun's Heart artifact is pulsing with violent energy and radiating heat through the pack.
+== J7/run2 rows=55 contradictedMarks=0
+  00 Arin is running low on expensive fancy tea from the south.
+  01 Arin and Max are at the Adventurer's Guild job board, looking for missions.
+  02 Arin's father told him stories about the Sun Ruins being dangerous, unstable, and containing old workshops where artifacts were made.
+  03 The Sun Ruins mission is a special request bearing the Guild Master's seal, typically reserved for high-level adventurers.
+  04 Arin enjoys fancy tea from the south.
+  05 Ponticius is a weathered man with a graying beard and scarred leather armor who smells of tobacco and old iron.
+  06 The Sun Ruins contain the Sun's Heart, an artifact that could fix Xentar's failing barriers.
+  07 Arin is running low on expensive fancy tea from the south.
+  08 Ponticius gave Max and Arin a coin purse for supplies and warned them about unstable wards and glowing objects in the Sun Ruins.
+  09 The Sun Ruins are located beyond the western gate, requiring travel through a blasted wasteland and old workshop district.
+  10 Ponticius gave Max and Arin a coin purse for supplies and warned them about unstable wards and glowing objects in the Sun Ruins.
+  11 Arin's father told him stories about the Sun Ruins containing dangerous guardians, mind-stripping wards, and failed experiments in the workshop district.
+  12 Max and Arin are heading toward the western gate of Xentar to begin their journey to the Sun Ruins.
+  13 Ponticius is a weathered man with a graying beard and scarred leather armor who warns about unstable wards and glowing objects in the Sun Ruins.
+  14 The Sun Ruins contain the Sun's Heart artifact which could restore Xentar's protective barriers.
+  15 To reach the Sun Ruins, one must cross the western gate, the blasted wasteland, and the old workshop district.
+  16 Arin's father told him stories about the Sun Ruins containing guardians that never sleep and wards that could strip one's mind bare.
+  17 Arin's father mentioned the workshop district had failed experiments and unstable magic.
+  18 Luke is a young man in his late teens with brown hair, wearing loose chainmail armor and carrying an oversized short sword.
+  19 Luke's brother went on a mission to the Sun Ruins and never returned; Luke believes he is still alive.
+  20 Ponticius warned that Xentar's barriers are weakening and the Sun's Heart artifact could restore the city's protective wards.
+  21 Luke's brother Kaelen went on a mission to the Sun Ruins and disappeared.
+  22 Luke is wearing oversized, poorly-fitting chainmail armor and carries a short sword.
+  23 Max agreed to let Luke join the expedition despite Arin's concerns.
+  24 Luke begged to join the expedition to the Sun Ruins to find his missing brother Kaelen.
+  25 Luke's brother is named Kaelen and went missing in the Sun Ruins.
+  26 Luke wears oversized chainmail armor and carries a short sword.
+  27 Max agreed to let Luke join the expedition to the Sun Ruins despite Arin's initial objections.
+  28 Luke is a young novice warrior with oversized chainmail armor and a short sword.
+  29 The party has left the Guild hall and is heading toward the western gate to begin their journey to the Sun Ruins.
+  30 The sphinx guardian accepts 'the moon' as the correct answer to its riddle and grants entry to the Sun Ruins.
+  31 The inner chamber of the Sun Ruins contains unstable wards and never-sleeping guardians.
+  32 Luke is extremely excited and nervous about entering the Sun Ruins, eager to prove himself.
+  33 Luke triggered the chamber's wards by stepping on glowing lines while rushing toward the Sun's Heart, causing the artifact and machinery to activate.
+  34 Luke's brother Kaelen sought the Sun's Heart to save the city and prove himself as an adventurer.
+  35 The party has reached the inner chamber containing the Sun's Heart artifact. Luke accidentally triggered the chamber's wards by stepping on glowing lines, causing the ancient machinery and the artifact to activate with blinding light.
+  36 The party has entered the inner chamber of the Sun Ruins where the Sun's Heart rests on a raised pedestal, surrounded by ancient machinery and glowing floor lines.
+  37 Luke accidentally triggered the chamber's wards by stepping on a glowing line, causing the Sun's Heart to flare and machinery to activate.
+  38 Arin confirms the chamber's dangerous state matches his father's warnings about the Sun Ruins.
+  39 The Sun's Heart is a large crystal core resting on a raised pedestal in the inner chamber, pulsing with dormant golden energy.
+  40 The inner chamber contains ancient machinery lining the walls with strange symbols, and the air has a faint hum that vibrates in the teeth.
+  41 The Sun's Heart powers the ancient wards in the Sun Ruins.
+  42 Arin's father told him stories about the symbols and mechanisms in the Sun Ruins.
+  43 The party has entered the inner chamber of the Sun Ruins where the Sun's Heart artifact rests on a raised pedestal, pulsing with dormant golden energy.
+  44 The Sun's Heart is a large crystal core that powers ancient wards in the Sun Ruins.
+  45 Luke is wearing oversized chainmail armor that clatters with each movement.
+  46 Arin recognizes the symbols on the machinery from stories his father told him about the ancient mechanism that controls the wards.
+  47 Max secured the Sun's Heart artifact from its pedestal, triggering the chamber's machinery and wards.
+  48 Securing the Sun's Heart activated the chamber's machinery and attracted something approaching from the depths.
+  49 Max, Arin, and Luke successfully recovered the Sun's Heart artifact from the Sun Ruins and escaped the chamber's guardians.
+  50 The party is at the ruined entrance of the Sun Ruins, exhausted but safe after escaping the chamber.
+  51 Arin's expression softened toward Luke after their narrow escape.
+  52 The party successfully recovered the Sun's Heart from the Sun Ruins and narrowly escaped the guardians.
+  53 The party has returned to the Guild hall and is presenting the Sun's Heart to Ponticius at his table.
+  54 Arin acknowledges that Luke proved his worth during the mission.
