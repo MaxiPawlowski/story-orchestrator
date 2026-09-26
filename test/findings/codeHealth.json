@@ -11,9 +11,7 @@
     "lineChars": 200
   },
   "s2": [],
-  "s3": [
-    "src/runtime/runtimeManager.ts"
-  ],
+  "s3": [],
   "s4": {
     "lines": [
       "src/components/studio/GraphPanel.tsx#GraphPanel",
@@ -105,12 +103,13 @@
     "src/runtime/librarySave.ts": 1,
     "src/runtime/loreSelect.ts": 2,
     "src/runtime/macros.ts": 2,
+    "src/runtime/managerDelegates.ts": 2,
     "src/runtime/memoryQueue.ts": 3,
     "src/runtime/messageIdentity.ts": 2,
     "src/runtime/narrative.ts": 1,
     "src/runtime/pipeline.ts": 1,
     "src/runtime/roleCalibration.ts": 3,
-    "src/runtime/runtimeManager.ts": 10,
+    "src/runtime/runtimeManager.ts": 8,
     "src/runtime/samplerOverlayHost.ts": 1,
     "src/runtime/settingsModel.ts": 2,
     "src/runtime/settingsStore.ts": 1,

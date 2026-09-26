@@ -313,7 +313,7 @@
       "status": "checked",
       "note": "v2.3 replan V3 (2026-09-23): mints before the engine moves and stops after applyCheckpoint if the world moved, instead of stamping status, steering and injection onto whatever loaded meanwhile."
     },
-    "src/runtime/runtimeManager.ts#RuntimeManager.applyExtractionAudit": {
+    "src/runtime/managerDelegates.ts#CoordinatorDelegates.applyExtractionAudit": {
       "status": "delegate",
       "note": "awaits ExtractionCoordinator.applyAudit, which owns the check"
     },
@@ -337,15 +337,15 @@
       "status": "checked",
       "note": "v2.3 plan 03, moved out of ChatSave.persist by V26 (the manager keeps a one-line delegate): the chokepoint. A runtime hydrated for another chat declines to write, so every coordinator save() is covered by one check. Reproduction in persistOwnership.review.test.ts."
     },
-    "src/runtime/runtimeManager.ts#RuntimeManager.removeArc": {
+    "src/runtime/managerDelegates.ts#CoordinatorDelegates.removeArc": {
       "status": "delegate",
       "note": "awaits MemoryCoordinator.removeArc, which owns the check"
     },
-    "src/runtime/runtimeManager.ts#RuntimeManager.removeEpistemicEntry": {
+    "src/runtime/managerDelegates.ts#CoordinatorDelegates.removeEpistemicEntry": {
       "status": "delegate",
       "note": "awaits MemoryCoordinator.removeEpistemicEntry, which owns the check"
     },
-    "src/runtime/runtimeManager.ts#RuntimeManager.removeLedgerEntry": {
+    "src/runtime/managerDelegates.ts#CoordinatorDelegates.removeLedgerEntry": {
       "status": "delegate",
       "note": "awaits MemoryCoordinator.removeLedgerEntry, which owns the check"
     },
@@ -361,23 +361,23 @@
       "status": "checked",
       "note": "v2.3 replan V3 (2026-09-23): mints after invalidateRuns and stops if a newer load or clear overtook the exit restore — it used to wipe the new story's fresh extras and release ITS gated lore (keep=null). The release is checked per write and asked again after."
     },
-    "src/runtime/runtimeManager.ts#RuntimeManager.setArcPinned": {
+    "src/runtime/managerDelegates.ts#CoordinatorDelegates.setArcPinned": {
       "status": "delegate",
       "note": "awaits MemoryCoordinator.setArcPinned, which owns the check"
     },
-    "src/runtime/runtimeManager.ts#RuntimeManager.setCuratorOpDecision": {
+    "src/runtime/managerDelegates.ts#CoordinatorDelegates.setCuratorOpDecision": {
       "status": "delegate",
       "note": "awaits StagecraftCoordinator.setOpDecision, which owns the check"
     },
-    "src/runtime/runtimeManager.ts#RuntimeManager.setEpistemicPinned": {
+    "src/runtime/managerDelegates.ts#CoordinatorDelegates.setEpistemicPinned": {
       "status": "delegate",
       "note": "awaits MemoryCoordinator.setEpistemicPinned, which owns the check"
     },
-    "src/runtime/runtimeManager.ts#RuntimeManager.setLedgerPinned": {
+    "src/runtime/managerDelegates.ts#CoordinatorDelegates.setLedgerPinned": {
       "status": "delegate",
       "note": "awaits MemoryCoordinator.setLedgerPinned, which owns the check"
     },
-    "src/runtime/runtimeManager.ts#RuntimeManager.setMemoryPinned": {
+    "src/runtime/managerDelegates.ts#CoordinatorDelegates.setMemoryPinned": {
       "status": "delegate",
       "note": "awaits MemoryCoordinator.setMemoryPinned, which owns the check"
     },

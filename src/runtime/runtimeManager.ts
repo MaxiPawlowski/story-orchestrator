@@ -2,29 +2,20 @@ import { appendJudgeCall, type JudgeCallRecord, type SceneReadRecord } from "@ju
 import type { JudgeRuntime } from "./judge";
 import {
   StoryEngine, type RollbackOutcome, type ApplyQueueEntry, type BoundaryContext, type BoundaryResult, type EngineState,
-  type NormalizedStoryV2, type NormalizedTransition, type StoryV2, type TalkControl, type ValidationError,
+  type NormalizedStoryV2, type NormalizedTransition, type TalkControl, type ValidationError,
 } from "@engine/index";
-import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Suggestion } from "@copilot/index";
-import type { ProvisioningEnvironment, ProvisioningOp, ProvisioningResult, WizardSessionState, WizardSessionUpdate } from "@wizard/index";
 import {
-  type ExtraGateSource, type ExtractionScheduler, type ParsedDelta, type ParsedFact, type ReadOwnership,
-  type SchedulerJob, type SharedReadAudit, type SharedReadWindow,
+  type ExtractionScheduler, type ParsedDelta, type SchedulerJob, type SharedReadAudit, type SharedReadWindow,
 } from "@extraction/index";
+import { clearAllMemoryInjection } from "@memory/index";
 import {
-  clearAllMemoryInjection, type ArcEntry, type EpistemicEntry, type LedgerView, type MemoryEntry, type MemoryTier,
-  type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine, type UncertainPair,
-} from "@memory/index";
-import type { CuratorOp, CuratorPassOutcome } from "@stagecraft/index";
-import {
-  getContext, profileExists, readExtensionPromptBlocks, readInjectedPromptBlocks, showTextPopup, type WIEntrySnapshot,
+  getContext, profileExists, readExtensionPromptBlocks, readInjectedPromptBlocks, showTextPopup,
 } from "@services/STAPI";
 import { createModelCall } from "./modelCall";
 import { AwayRecapController, type AwayRecap } from "./awayRecap";
 import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./narrative";
 import { coordinatorHosts } from "./coordinatorHosts";
-import type { JudgedExtractionWork } from "./coordinators/extractionCoordinator";
 import { wireCoordinators } from "./managerWiring";
-import type { MemoryMirrorSummary } from "./memoryMirror";
 import { activeSpeakerId, enabledCharacterIds, namesForRosterId, rosterIdForName } from "./roster";
 import { EffectsApplier } from "./effectsApplier";
 import { createExtras, hydrateExtras, TALK_DECISION_LIMIT } from "./extras";
@@ -49,16 +40,15 @@ import {
   importStoryJson, loadSelectedStory, releaseGatedWorldInfo, removeStory, restartStory, selectStory,
   type StorySelectionDeps,
 } from "./storySelection";
-import { clearWizardSession, loadWizardSession, saveWizardSession } from "./wizardSessions";
-import { confirmPreflight } from "./requestBudget";
 import type {
   CopilotRuntimeSettings, PersistedStoryRuntime, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory,
-  MemoryRuntimeSettings, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, StagecraftRuntimeState,
-  StagecraftSettings, StoryLibraryRecord, TalkDecisionAudit, TalkRuntimeState, UiRuntimeSettings,
+  MemoryRuntimeSettings, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, StagecraftSettings,
+  StoryLibraryRecord, TalkDecisionAudit, TalkRuntimeState, UiRuntimeSettings,
 } from "./types";
 import { withholds } from "./generationLifecycle";
+import { CoordinatorDelegates } from "./managerDelegates";
 
-export class RuntimeManager {
+export class RuntimeManager extends CoordinatorDelegates {
   private engine = new StoryEngine();
   private loaded: LoadedStory | null = null;
   private extras: RuntimeExtras = createExtras(getGlobalSettings);
@@ -94,7 +84,7 @@ export class RuntimeManager {
   private readonly view = { getStory: () => this.loaded?.story ?? null, getState: () => (this.loaded ? this.engine.serialize() : null), hosts: coordinatorHosts };
   readonly model = createModelCall({ settings: () => this.getExtractionSettings(), exists: profileExists });
   private readonly lifecycle = { persist: () => this.persist(), notify: () => this.notify(), ownership: this.owner.ownership, model: this.model };
-  private readonly co = wireCoordinators({
+  protected readonly co = wireCoordinators({
     view: this.view, lifecycle: this.lifecycle, engine: this.engine, loaded: () => this.loaded, extras: () => this.extras, judge: () => this.judge,
     setStatus: (status) => { this.status = status; }, unsaved: () => !this.chatSave.landed(), commitBoundary: () => this.commitBoundary(),
     firedTransitions: () => this.getFiredTransitions(), gateSources: () => this.getExpansionGateSources(), replaceStory: (story) => this.replaceStory(story),
@@ -126,6 +116,7 @@ export class RuntimeManager {
   private lastStoryUpdate: StoryUpdateOutcome | null = null;
 
   constructor() {
+    super();
     this.effects = new EffectsApplier(this.owner.ownership, { reads: { read: readEffectTarget }, restore: restoreEffectTarget, persist: () => this.persist(), unsaved: () => hasUnsavedChanges(this.extras.saveHealth), journal: (summary, note) => this.noteRecap(summary, note ?? "") });
   }
 
@@ -329,26 +320,8 @@ export class RuntimeManager {
   getUiSettings(): UiRuntimeSettings { return this.extras.ui; }
   getGlobalSettings() { return getGlobalSettings(); }
 
-  async runCopilotStage(input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[]; environment?: ProvisioningEnvironment }, debugResponse?: string): Promise<ProposalResult> { return this.copilot.runStage(input, debugResponse); }
-  getProvisioningEnvironment(draft?: StoryV2): ProvisioningEnvironment { return this.copilot.getProvisioningEnvironment(draft); }
-  async applyProvisioning(op: ProvisioningOp, draft?: StoryV2): Promise<ProvisioningResult> { return this.copilot.applyProvisioning(op, draft); }
-  async readProvisioningEntry(lorebook: string, comment: string): Promise<WIEntrySnapshot | null> { return this.copilot.readProvisioningEntry(lorebook, comment); }
-  getWizardSession(key: string): WizardSessionState | null { return loadWizardSession(key); }
-  saveWizardSession(session: WizardSessionUpdate) { saveWizardSession(session); }
-  clearWizardSession(key: string) { clearWizardSession(key); }
-  getDriverContext(): DriverContext | null { return this.copilot.getDriverContext(); }
-  async runCopilotSuggest(debugResponse?: string): Promise<Suggestion[]> { return this.copilot.runSuggest(debugResponse); }
-  async runCopilotReport(debugResponse?: string): Promise<string> { return this.copilot.runReport(debugResponse); }
-  setCopilotNudge(text: string, depth = 1) { this.copilot.setNudge(text, depth); }
-  clearCopilotNudge() { this.copilot.clearNudge(); }
-  reapplyCopilotNudge() { this.copilot.reapplyNudge(); }
   reapplyPromptBlocks() { this.copilot.reapplyNudge(); if (!this.loaded) return; this.memory.updateInjection(); this.pacing.updateSteering(); }
-  getActiveNudge(): string | null { return this.copilot.getActiveNudge(); }
-  getExtractionFacts(): ParsedFact[] { return this.memory.getFacts(); }
   getFiredTransitions(): NormalizedTransition[] { return this.engine.stateLog.map((entry) => entry.fired).filter((transition): transition is NormalizedTransition => Boolean(transition)); }
-  getExpansionGateSources(): ExtraGateSource[] { return this.expansion.getGateSources(); }
-  recordReconciliation(descriptor: { checkpointId: string; boundary: number; targetedKeys: string[] }) { this.extraction.recordReconciliation(descriptor); }
-  judgedExtraction(work: JudgedExtractionWork): boolean { return this.extraction.judged(work); }
 
   setSchedulerSnapshot(snapshot: ExtractionRuntimeState["scheduler"]) { this.extraction.setSchedulerSnapshot(snapshot); this.expansion.setSchedulerSnapshot(snapshot); void this.persist(); this.notify(); }
 
@@ -363,39 +336,12 @@ export class RuntimeManager {
     this.engine.enqueue({ source: "extractor", origin, blackboardVersionSum: Object.values(versions).reduce((sum, version) => sum + version, 0), turnRange: window, deltas: acceptedDeltas.map((entry) => entry.delta), ...(tensionLevels.length ? { tensionLevels } : {}) });
   }
 
-  async applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memoryLines: ParsedMemoryLine[] = [], arcSignals: ParsedArcSignal[] = [], epistemicSignals: ParsedEpistemicSignal[] = [], ledgerSignals: ParsedLedgerSignal[] = [], read: ReadOwnership | null = null) { await this.extraction.applyAudit(audit, facts, memoryLines, arcSignals, epistemicSignals, ledgerSignals, read); }
-
-  async runArcSummaryPass(arcIds: string[]): Promise<boolean> { return this.memory.runArcSummaryPass(arcIds); }
-  detectSceneBreak() { return this.extraction.detectSceneBreak(); }
-  async runSceneBreakPass(audit: SharedReadAudit) { await this.extraction.runSceneBreakPass(audit); }
-  shouldCompactShortTerm(messageId: number): boolean { return this.extraction.shouldCompactShortTerm(messageId); }
-  async runShortTermCompaction() { await this.extraction.runShortTermCompaction(); }
-  async runEpistemicLedgerPass(audit: SharedReadAudit): Promise<boolean> { return this.extraction.runEpistemicLedgerPass(audit); }
-  async runExtractionNow(debugResponse?: string, reason = "manual") { return this.extraction.runNow(debugResponse, reason); }
-  runMemorizeBacklog(windowSize?: number) { return this.extraction.backlog.runMemorizeBacklog(windowSize); }
-  memorizeChat() { return this.extraction.backlog.runMemorizeBacklog(undefined, confirmPreflight); }
-  cancelMemorizeBacklog(): boolean { return this.extraction.backlog.cancelMemorizeBacklog(); }
-  async setMemoryPinned(id: string, pinned: boolean) { await this.memory.setMemoryPinned(id, pinned); }
-  async excludeMemoryEntry(id: string) { await this.memory.queue.excludeMemoryEntry(id); }
-  async restoreMemoryEntry(entry: MemoryEntry) { await this.memory.restoreMemoryEntry(entry); }
-  async editMemoryEntry(id: string, text: string) { await this.memory.editMemoryEntry(id, text); }
-  async storeDroppedMemory(id: string) { return this.memory.queue.storeDroppedEntry(id); }
   attachJudge(judge: JudgeRuntime) { this.judge = judge; }
   private sceneRunner: { rerun(): Promise<unknown> } | null = null;
   attachScene(scene: { rerun(): Promise<unknown> } | null) { this.sceneRunner = scene; }
   readonly previewActions = { clearNote: () => this.stagecraft.clearContinuityNote(), rerunScene: async () => { await this.sceneRunner?.rerun(); } };
-  getArcs(): ArcEntry[] { return this.memory.getArcs(); }
-  getOpenArcs(): string[] { return this.memory.getOpenArcs(); }
-  getEpistemicLedgerCapable(): boolean { return this.memory.capable; }
-  getEntities(): string[] { return this.memory.getEntities(); }
-  async setArcPinned(id: string, pinned: boolean) { await this.memory.setArcPinned(id, pinned); }
-  async removeArc(id: string) { await this.memory.removeArc(id); }
-  getCanon(): string { return this.memory.canon.getCanon(); }
   getPossibleTransitions(): string[] { return buildPossibleTransitions(this.loaded?.story ?? null, this.loaded ? this.engine.serialize() : null); }
   private rejectQuality(reason: string): false { this.status = reason; this.notify(); return false; }
-  async regenerateCanon(force = false): Promise<boolean> { return this.memory.canon.regenerateCanon(force); }
-  scheduleExpansionForActive(schedule: (reason: string, run: () => Promise<void>) => void) { return this.expansion.scheduleForActive(schedule); }
-  async runExpansionNow(debugResponse?: string, confirm = false) { return this.expansion.runNow(debugResponse, confirm ? (preflight) => confirmPreflight(preflight, "authoring") : undefined); }
   readonly expansions = { commitValidated: () => this.expansion.commitValidated(), regenerate: (key: string) => this.expansion.regenerate(key) };
 
   /** The identity in-flight work is checked against, for writers constructed outside the manager; read-only. */
@@ -499,41 +445,13 @@ export class RuntimeManager {
 
   rosterIdForName(name: string): string | null { return rosterIdForName(this.loaded?.story ?? null, name); }
 
-  onMemberDrafted(chId: number | [number]) { this.memory.onMemberDrafted(chId); }
   onGenerationStarted(type: unknown, dryRun?: unknown) { if (withholds(type)) this.withholdTurnBlocks(); this.stagecraft.onGenerationStarted(type, dryRun); }
-  commitContinuityNote(rendered: boolean) { this.stagecraft.commitNote(rendered); }
-  runWardenPass(replyMessageId: number) { return this.stagecraft.runWardenPass(replyMessageId); }
 
-  withholdTurnBlocks() { this.memory.withholdPrivateKnowledge(); this.pacing.withholdGuidance(); }
   clearPrivateInjection() { if (!this.loaded) return; this.memory.updateInjection(); this.pacing.updateSteering(); }
-
-  getEpistemic(): EpistemicEntry[] { return this.memory.getEpistemic(); }
-  getLedger(): LedgerView[] { return this.memory.getLedger(); }
-  getEpistemicBlock(): string { return this.memory.getEpistemicBlock(); }
-  getAppliedEpistemicBlock(): string { return this.memory.getAppliedEpistemicBlock(); }
-  getLedgerBlock(): string { return this.memory.getLedgerBlock(); }
 
   setEpistemicLedgerCapable(capable: boolean) { this.setMemorySettings({ epistemicLedgerCapable: capable }); }
 
-  async setEpistemicPinned(id: string, pinned: boolean) { await this.memory.setEpistemicPinned(id, pinned); }
-  async removeEpistemicEntry(id: string) { await this.memory.removeEpistemicEntry(id); }
-  async setLedgerPinned(id: string, pinned: boolean) { await this.memory.setLedgerPinned(id, pinned); }
-  async removeLedgerEntry(id: string) { await this.memory.removeLedgerEntry(id); }
-  getMemoryInjectionBlocks(): Record<MemoryTier, string> { return this.memory.getInjectionBlocks(); }
-
-  async runConsolidation(): Promise<{ dropped: number; superseded: number; confirmed: number; uncertain: UncertainPair[] }> { return this.memory.runConsolidation(); }
-
-  async runSupersessionBridge(supersedingEntries: MemoryEntry[]): Promise<boolean> { return this.memory.runSupersessionBridge(supersedingEntries); }
-
-  async syncWorldInfo(): Promise<MemoryMirrorSummary> { return this.memory.syncWorldInfo(); }
-
-  getStagecraftState(): StagecraftRuntimeState { return this.stagecraft.getState(); }
   setStagecraftSettings(settings: Partial<StagecraftSettings>) { this.settingsControl.stagecraft(settings); }
-  curatorDueForRun(): boolean { return this.stagecraft.dueForRun(); }
-  async runWiCuratorPass(reason?: string, debugResponse?: string): Promise<CuratorPassOutcome> { return this.stagecraft.runCuratorPass(reason, debugResponse); }
-  async setCuratorOpDecision(id: string, index: number, status: "accepted" | "rejected", op?: CuratorOp) { await this.stagecraft.setOpDecision(id, index, status, op); }
-  async decideCuratorProposal(id: string, status: "accepted" | "rejected") { await this.stagecraft.decideProposal(id, status); }
-  async applyCuratorProposals(): Promise<number> { return this.stagecraft.applyAccepted(); }
 
   private getBoundaryContext(at?: number): BoundaryContext { const chat = Array.isArray(getContext().chat) ? getContext().chat : []; const last = at === undefined ? chat.length - 1 : Math.min(at, chat.length - 1); return { lastMessageId: last, chatLength: last + 1 }; }
 
