@@ -162,6 +162,7 @@ export async function capturePage(page) {
     if (!runtime) warnings.push('no storyOrchestratorRuntime handle: settings and author view fall back to raw extension settings');
     else if (!snapshot) warnings.push('runtime handle exposes no getSnapshot(): author view not read');
     if (!ctx.extensionSettings?.['story-orchestrator']) warnings.push('no story-orchestrator extension settings root: inventories are empty, not proven empty');
+    else if (typeof root.schema !== 'number') warnings.push('the settings root carries no schema stamp: its shape baseline is not read');
     if (ctx.groupId && !(ctx.groups ?? []).some((entry: any) => String(entry.id) === String(ctx.groupId))) warnings.push('open group is not in ctx.groups: cast is not read');
     if (!stVersion) warnings.push('/version did not answer: host version not read');
     if (lorebooksSelected === null) warnings.push('world-info.js did not load: the lorebook selection is unknown, not empty');
@@ -180,6 +181,7 @@ export async function capturePage(page) {
         oai: { preset: oai.preset_settings_openai ?? null, temp: oai.temp_openai ?? null, top_p: oai.top_p_openai ?? null },
       },
       warnings,
+      settings: { schema: typeof root.schema === 'number' ? root.schema : null },
       bundle: { served },
       host: {
         stVersion,
@@ -242,7 +244,7 @@ export async function capturePage(page) {
       },
       // The three inventories a run can mutate without anyone noticing (S8, S11, S12).
       inventory: {
-        v2Stories: (root.v2Stories ?? []).map((record: any) => `${record.id ?? record.hash ?? '?'}@${record.version ?? '?'}`).sort(),
+        v2Stories: (root.v2Stories ?? []).map((record: any) => `${record.id ?? '?'}@${record.version ?? '?'}`).sort(),
         wizardSessions: Object.keys(root.wizardSessions ?? {}).sort(),
         debugGlobals: debugGlobals.sort(),
         lorebooksSelected,

@@ -24,51 +24,31 @@ export async function dumpStoryLibrary(page) {
   });
 }
 
-export async function dumpStory(page, idOrHash) {
+export async function dumpStory(page, id) {
   return evaluateInST(page, (needle) => {
     const ctx = SillyTavern.getContext();
     const records = ctx.extensionSettings?.['story-orchestrator']?.v2Stories;
     if (!Array.isArray(records)) return null;
-    return records.find((record) => record.id === needle) ?? records.find((record) => record.hash === needle) ?? null;
-  }, idOrHash);
+    return records.find((record) => record.id === needle) ?? null;
+  }, id);
 }
 
-export async function dumpLegacyLibrary(page) {
-  return evaluateInST(page, () => {
-    const ctx = SillyTavern.getContext();
-    const studio = ctx.extensionSettings?.['story-orchestrator']?.studio;
-    if (!studio?.stories) return { stories: [], lastSelectedKey: null };
-    return {
-      stories: studio.stories.map((record) => ({
-        id: record.id,
-        name: record.name,
-        checkpointCount: Array.isArray(record.story?.checkpoints) ? record.story.checkpoints.length : 0,
-        transitionCount: Array.isArray(record.story?.transitions) ? record.story.transitions.length : 0,
-        updatedAt: record.updatedAt ? new Date(record.updatedAt).toISOString() : null,
-        meta: record.meta ?? null,
-      })),
-      lastSelectedKey: studio.lastSelectedKey ?? null,
-    };
-  });
-}
-
-export async function removeStory(page, hashOrTitle) {
+export async function removeStory(page, idOrTitle) {
   const result = await evaluateInST(page, async (needle) => {
     const ctx = SillyTavern.getContext();
     const root = ctx.extensionSettings?.['story-orchestrator'];
     if (!root || !Array.isArray(root.v2Stories)) return { removed: [], remaining: [] };
     const search = String(needle).trim().toLowerCase();
     const removed = root.v2Stories
-      .filter((record) => record.id === needle || record.hash === needle || (record.title ?? '').trim().toLowerCase() === search)
-      .map((record) => ({ id: record.id ?? null, hash: record.hash, title: record.title }));
-    if (removed.length) root.v2Stories = root.v2Stories.filter((record) => !removed.some((gone) => gone.hash === record.hash));
+      .filter((record) => record.id === needle || (record.title ?? '').trim().toLowerCase() === search)
+      .map((record) => ({ id: record.id ?? null, title: record.title }));
+    if (removed.length) root.v2Stories = root.v2Stories.filter((record) => !removed.some((gone) => gone.id === record.id));
     return { removed, remaining: root.v2Stories.map((record) => record.title) };
-  }, hashOrTitle);
+  }, idOrTitle);
   return result.removed.length ? { ...result, saved: await saveSettingsNow(page) } : result;
 }
 
-// Per-chat state is keyed by story id (blob v3); `only` is an id, and a v2 chat's hash keys still
-// match because the migration keeps unresolvable ones as `legacy-<hash>`.
+// Per-chat state is keyed by story id; `only` is an id.
 export async function wipeChatMeta(page, only) {
   return evaluateInST(page, async (onlyId) => {
     const ctx = SillyTavern.getContext();
@@ -76,10 +56,10 @@ export async function wipeChatMeta(page, only) {
     if (!meta) return { wiped: false, reason: 'no story_orchestrator metadata on this chat' };
     if (onlyId) {
       const keys = meta.stories ? Object.keys(meta.stories) : [];
-      const others = keys.filter((candidate) => candidate !== onlyId && candidate !== `legacy-${onlyId}`);
+      const others = keys.filter((candidate) => candidate !== onlyId);
       if (others.length) return { wiped: false, reason: `chat also references ${others.join(', ')} — refusing partial wipe`, keys };
     }
-    const summary = { selected: meta.selectedStoryId ?? meta.selectedStoryHash ?? null, storyKeys: meta.stories ? Object.keys(meta.stories) : [] };
+    const summary = { selected: meta.selectedStoryId ?? null, storyKeys: meta.stories ? Object.keys(meta.stories) : [] };
     delete ctx.chatMetadata.story_orchestrator;
     if (typeof ctx.saveMetadata === 'function') await ctx.saveMetadata();
     return { wiped: true, chatId: ctx.chatId, was: summary };
@@ -90,11 +70,10 @@ const USAGE = `Usage: node so-library.mts [action] [args]
 
 Actions:
   (none)                     Print the v2 story library (extensionSettings["story-orchestrator"].v2Stories)
-  <id|hash>                  Print the full story record for an id or content hash
-  remove <id|hash|title>     Remove matching stories from the library (by id first) and flush settings
+  <id>                       Print the full story record for an id
+  remove <id|title>          Remove matching stories from the library (by id first) and flush settings
   wipe-chat-meta [--id i]    Delete chat_metadata.story_orchestrator from the current chat
-                             (with --id: only when the chat references solely that story)
-  --legacy                   Print the legacy v1 studio library instead`;
+                             (with --id: only when the chat references solely that story)`;
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   if (hasHelpFlag()) {
@@ -105,22 +84,16 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const args = stripCommonArgs(process.argv.slice(2));
     const action = args[0];
 
-    if (args.includes('--legacy')) {
-      const data = await dumpLegacyLibrary(page);
-      console.log(JSON.stringify(data, null, 2));
-      await writeJSON(data, 'so-library-legacy');
-      return;
-    }
     if (action === 'remove') {
       const target = args.slice(1).join(' ');
-      if (!target) { console.error('Usage: remove <id|hash|title>'); return { ok: false }; }
+      if (!target) { console.error('Usage: remove <id|title>'); return { ok: false }; }
       const data = await removeStory(page, target);
       console.log(JSON.stringify(data, null, 2));
       await writeJSON(data, 'so-library-remove');
       return { ok: data.removed.length > 0 };
     }
     if (action === 'wipe-chat-meta') {
-      const idIndex = args.indexOf('--id') >= 0 ? args.indexOf('--id') : args.indexOf('--hash');
+      const idIndex = args.indexOf('--id');
       const only = idIndex >= 0 ? args[idIndex + 1] : undefined;
       const data = await wipeChatMeta(page, only);
       console.log(JSON.stringify(data, null, 2));

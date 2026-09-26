@@ -62,10 +62,9 @@ node scripts/debug/so-state.mts current        # primary runtime snapshot: chatI
 node scripts/debug/so-state.mts current --expect bb.player_has_key=true
 node scripts/debug/so-state.mts all --full
 node scripts/debug/so-library.mts              # v2 story library (extensionSettings["story-orchestrator"].v2Stories)
-node scripts/debug/so-library.mts <hash>       # full v2 story record
-node scripts/debug/so-library.mts remove "<hash|title>"       # remove from library + flush settings (test cleanup)
-node scripts/debug/so-library.mts wipe-chat-meta [--hash h]   # delete chat_metadata.story_orchestrator from current chat
-node scripts/debug/so-library.mts --legacy     # old v1 studio store
+node scripts/debug/so-library.mts <id>         # full v2 story record
+node scripts/debug/so-library.mts remove "<id|title>"         # remove from library + flush settings (test cleanup)
+node scripts/debug/so-library.mts wipe-chat-meta [--id i]     # delete chat_metadata.story_orchestrator from current chat
 node scripts/debug/st-eval.mts "<js>"          # run async JS in the ST page; ctx + rt in scope; bare expression or statements with return
 node scripts/debug/st-eval.mts --file <path>   # same, snippet from file — replaces throwaway one-off .mts scripts
 node scripts/debug/st-context.mts [keys...]    # getContext() summary or specific keys (chatId mainApi ...)

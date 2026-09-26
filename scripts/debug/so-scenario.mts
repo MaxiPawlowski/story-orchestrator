@@ -118,9 +118,8 @@ async function resolveStory(value, scenarioDir) {
   return value;
 }
 
-// Migration gates need a blob this build never wrote. The fixture is captured verbatim from a real
-// chat (`test/fixtures/legacy-v2-chat-blob.json` carries its provenance), written into the sandbox
-// chat as-is, and hydrated through the ordinary load path — no synthesizing from live state.
+// Unreadable-path gates need a blob this build never wrote: a fixture or an inline blob, written into
+// the sandbox chat as-is and hydrated through the ordinary load path — no synthesizing from live state.
 async function seedMetadata(page, spec, scenarioDir) {
   const raw = spec?.file ? await readJSON(resolve(scenarioDir, spec.file)) : spec?.blob;
   const blob = raw?.blob ?? raw;
@@ -131,7 +130,7 @@ async function seedMetadata(page, spec, scenarioDir) {
     await ctx.saveMetadata?.();
     await globalThis.storyOrchestratorRuntime.loadSelectedFromChat();
     const now = ctx.chatMetadata.story_orchestrator;
-    return { version: now?.version ?? null, selectedStoryId: now?.selectedStoryId ?? now?.selectedStoryHash ?? null, keys: Object.keys(now?.stories ?? {}) };
+    return { version: now?.version ?? null, selectedStoryId: now?.selectedStoryId ?? null, keys: Object.keys(now?.stories ?? {}) };
   }, blob);
 }
 
@@ -619,7 +618,7 @@ async function selectStory(page, selector) {
   return evaluateInST(page, async (selector) => {
     const runtime = globalThis.storyOrchestratorRuntime;
     const library = runtime.getSnapshot().library ?? [];
-    const record = library.find((entry) => entry.id === selector || entry.hash === selector || entry.title === selector);
+    const record = library.find((entry) => entry.id === selector || entry.title === selector);
     const target = record?.id ?? selector;
     const ok = await runtime.selectStory(target);
     if (!ok) throw new Error(`Story not found: ${selector}`);
@@ -738,7 +737,7 @@ async function copilotStep(page, spec) {
 }
 
 // Reload the ST page and wait for the extension to come back up: the honest way to test
-// hydration, migration and "return after a gap" paths.
+// hydration, unreadable-blob and "return after a gap" paths.
 async function reloadStep(page, spec, guard = null) {
   const timeout = (typeof spec === 'object' && spec?.timeoutMs) || 60000;
   await page.reload({ waitUntil: 'domcontentloaded', timeout });

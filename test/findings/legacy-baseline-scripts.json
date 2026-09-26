@@ -1,15 +1,10 @@
 {
-  "$comment": "v2.5 plan 11 step 0. S1 twin baseline for scripts/debug, scripts/release, test/fixtures, test/scenarios and test/journeys/*.journey.json (scripts/debug/legacyFree.test.mts, npm run test:debug). Per-file count of lines matching the S1 regex plus selectedStoryHash|legacy-v2|v3-chat-blob|persistenceMigration. Only shrinks; 'closed' flips true once it is empty. Kept history (test/journeys/records, test/findings/mutations, scripts/review, docs) is not scanned.",
+  "$comment": "v2.5 plan 11 step 0. S1 twin baseline for scripts/debug, scripts/release, test/fixtures, test/scenarios and test/journeys/*.journey.json (scripts/debug/legacyFree.test.mts, npm run test:debug). Per-file count of lines matching the S1 regex plus selectedStoryHash|legacy-v2|v3-chat-blob|persistenceMigration. Only shrinks; 'closed' flips true once it is empty. Kept history (test/journeys/records, test/findings/mutations, scripts/review, docs) is not scanned. Open after step 8 by design: the three remaining files are H20 (so-assets --legacy-mirrors / legacyMirrorTargets / its S9 test), which plan 11 deletes only after step 9 moves the old mirror books; then the S9 ledger row is re-pointed, these entries go, and 'closed' flips true.",
   "closed": false,
   "baseline": {
     "scripts/debug/lib/assetScope.mts": 7,
     "scripts/debug/lib/assetScope.test.mts": 4,
-    "scripts/debug/so-assets.mts": 10,
-    "scripts/debug/so-library.mts": 10,
-    "scripts/debug/so-scenario.mts": 4,
-    "scripts/debug/so-state.mts": 1,
-    "test/scenarios/v24-acc-I6.json": 2,
-    "test/scenarios/v24-acc-I7.json": 7
+    "scripts/debug/so-assets.mts": 10
   },
   "allowlist": []
 }

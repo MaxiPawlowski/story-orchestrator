@@ -99,7 +99,7 @@ export async function dumpCurrentChatState(page) {
   const data = await evaluateInST(page, () => {
     const ctx = SillyTavern.getContext();
     const blob = ctx.chatMetadata?.story_orchestrator ?? null;
-    const selected = blob?.selectedStoryId ?? blob?.selectedStoryHash ?? null;
+    const selected = blob?.selectedStoryId ?? null;
     const entry = selected && blob?.stories ? blob.stories[selected] ?? null : null;
     const runtimeSnapshot = globalThis.storyOrchestratorRuntime?.getSnapshot?.() ?? null;
     const activeNudge = globalThis.storyOrchestratorRuntime?.getActiveNudge?.() ?? null;

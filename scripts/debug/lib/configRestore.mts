@@ -4,8 +4,8 @@
 type Root = Record<string, unknown> & { v2Stories?: unknown; wizardSessions?: unknown };
 
 const idOfStory = (record: unknown): string | null => {
-  const entry = record as { id?: unknown; hash?: unknown } | null;
-  return typeof entry?.id === 'string' ? entry.id : typeof entry?.hash === 'string' ? entry.hash : null;
+  const id = (record as { id?: unknown } | null)?.id;
+  return typeof id === 'string' ? id : null;
 };
 const keyOfSession = (session: unknown): string | null => {
   const key = (session as { key?: unknown } | null)?.key;
