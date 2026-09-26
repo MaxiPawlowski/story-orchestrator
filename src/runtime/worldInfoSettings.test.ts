@@ -5,15 +5,31 @@ jest.mock("@services/STAPI", () => ({
 
 import { defaultGlobalSettings, sanitizeGlobalSettings } from "./settingsStore";
 
-describe("worldInfo settings (v2.4 plan 05 T13 spike)", () => {
-  it("defaults to the file path with an empty normalisation ledger, and no plan flips that", () => {
-    expect(defaultGlobalSettings().worldInfo).toEqual({ gatingMode: "file", normalized: {} });
-    expect(sanitizeGlobalSettings({}).worldInfo).toEqual({ gatingMode: "file", normalized: {} });
+describe("worldInfo settings (v2.5 plan 01)", () => {
+  it("defaults to the file path with an empty ledger and no provenance, and no plan flips that", () => {
+    expect(defaultGlobalSettings().worldInfo).toEqual({ gatingMode: "file", normalized: {}, normalizedFrom: {} });
+    expect(sanitizeGlobalSettings({}).worldInfo).toEqual({ gatingMode: "file", normalized: {}, normalizedFrom: {} });
   });
 
   it("keeps an explicit scan mode and a clean ledger, and drops anything else", () => {
-    expect(sanitizeGlobalSettings({ worldInfo: { gatingMode: "scan", normalized: { "SO-T13 Ruins": ["CP1", "CP1", "", 3], Empty: [], Junk: "x" } } }).worldInfo)
-      .toEqual({ gatingMode: "scan", normalized: { "SO-T13 Ruins": ["CP1"] } });
+    expect(sanitizeGlobalSettings({ worldInfo: { gatingMode: "scan", normalized: { Ruins: ["CP1", "CP1", "", 3], Empty: [], Junk: "x" } } }).worldInfo)
+      .toEqual({ gatingMode: "scan", normalized: { Ruins: ["CP1"] }, normalizedFrom: {} });
     expect(sanitizeGlobalSettings({ worldInfo: { gatingMode: "SCAN" } }).worldInfo.gatingMode).toBe("file");
+  });
+
+  it("round-trips the provenance of each normalised entry (W1: a new key beside the unchanged ledger)", () => {
+    const worldInfo = { gatingMode: "scan", normalized: { Ruins: ["CP1", "CP2"] }, normalizedFrom: { Ruins: [{ comment: "CP1", wasOn: true }, { comment: "CP2", wasOn: false }] } };
+    const once = sanitizeGlobalSettings({ worldInfo }).worldInfo;
+    expect(once).toEqual(worldInfo);
+    expect(sanitizeGlobalSettings({ worldInfo: once }).worldInfo).toEqual(worldInfo);
+  });
+
+  it("drops a malformed provenance row, a duplicate comment, and a book with no rows", () => {
+    const normalizedFrom = {
+      Ruins: [{ comment: "CP1", wasOn: true }, { comment: "CP1", wasOn: false }, { comment: "", wasOn: true }, { comment: "CP3" }, "CP4", { comment: "CP5", wasOn: "yes" }],
+      Empty: [],
+      Junk: "x",
+    };
+    expect(sanitizeGlobalSettings({ worldInfo: { normalized: {}, normalizedFrom } }).worldInfo.normalizedFrom).toEqual({ Ruins: [{ comment: "CP1", wasOn: true }] });
   });
 });

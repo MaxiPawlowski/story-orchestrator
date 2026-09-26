@@ -24,16 +24,37 @@ export interface GlobalSettings {
   worldInfo: WorldInfoSettings;
 }
 
-// v2.4 plan 05 T13 spike. `scan` is never the default and no plan flips it; `normalized` is the
-// install-wide ledger of gated entries whose FILE rests off (book -> comments).
+// v2.5 plan 01. `scan` is written only by the author's confirm (Q2: an install that never opens the setting stays
+// `file`). `normalized` is the ledger of gated entries whose FILE rests off (book -> comments); `normalizedFrom`
+// is what each entry was before, and is all a restore may undo.
 export type WorldInfoGatingMode = "file" | "scan";
+
+export interface NormalizedFrom {
+  comment: string;
+  wasOn: boolean;
+}
 
 export interface WorldInfoSettings {
   gatingMode: WorldInfoGatingMode;
   normalized: Record<string, string[]>;
+  normalizedFrom: Record<string, NormalizedFrom[]>;
 }
 
-export const defaultWorldInfoSettings = (): WorldInfoSettings => ({ gatingMode: "file", normalized: {} });
+export const defaultWorldInfoSettings = (): WorldInfoSettings => ({ gatingMode: "file", normalized: {}, normalizedFrom: {} });
+
+const sanitizeProvenance = (value: unknown): Record<string, NormalizedFrom[]> => {
+  if (!isRecord(value)) return {};
+  return Object.fromEntries(Object.entries(value)
+    .map(([book, rows]): [string, NormalizedFrom[]] => {
+      const seen = new Set<string>();
+      const kept = (Array.isArray(rows) ? rows : [])
+        .filter((row): row is NormalizedFrom => isRecord(row) && typeof row.comment === "string" && row.comment.trim().length > 0 && typeof row.wasOn === "boolean")
+        .filter((row) => !seen.has(row.comment) && Boolean(seen.add(row.comment)))
+        .map((row) => ({ comment: row.comment, wasOn: row.wasOn }));
+      return [book, kept];
+    })
+    .filter(([, rows]) => rows.length > 0));
+};
 
 const sanitizeWorldInfoSettings = (value: unknown): WorldInfoSettings => {
   if (!isRecord(value)) return defaultWorldInfoSettings();
@@ -42,7 +63,7 @@ const sanitizeWorldInfoSettings = (value: unknown): WorldInfoSettings => {
       .map(([book, comments]): [string, string[]] => [book, Array.isArray(comments) ? [...new Set(comments.filter((comment): comment is string => typeof comment === "string" && comment.trim().length > 0))] : []])
       .filter(([, comments]) => comments.length > 0))
     : {};
-  return { gatingMode: value.gatingMode === "scan" ? "scan" : "file", normalized };
+  return { gatingMode: value.gatingMode === "scan" ? "scan" : "file", normalized, normalizedFrom: sanitizeProvenance(value.normalizedFrom) };
 };
 
 export interface ChatOverrides {
