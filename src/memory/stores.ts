@@ -185,3 +185,15 @@ export const DEFAULT_TIER_TOKEN_BUDGETS: Record<MemoryTier, number> = {
 export function capAllTiers(state: MemoryStoreState, budgets: Record<MemoryTier, number> = DEFAULT_TIER_BUDGETS): MemoryStoreState {
   return (Object.keys(budgets) as MemoryTier[]).reduce((next, tier) => capTier(next, tier, budgets[tier]), state);
 }
+
+export interface ShortTermLimits {
+  rows: number;
+  tokens: number;
+}
+
+export type ShortTermPlacement = (entries: MemoryEntry[], entry: MemoryEntry, limits: () => ShortTermLimits) => { entries: MemoryEntry[]; inputs: string[] };
+
+export const rollingShortTerm: ShortTermPlacement = (entries, entry) => ({
+  entries: [...entries.filter((candidate) => candidate.tier !== "short_term"), entry],
+  inputs: entries.filter((candidate) => candidate.tier === "short_term").map((candidate) => candidate.id),
+});

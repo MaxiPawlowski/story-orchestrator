@@ -14,7 +14,7 @@ import {
   removeLedger, restoreEntry, setArcPinned, setLocked, setArcSummary, setEpistemicPinned, setLedgerPinned, setPinned,
   type ArcEntry, type DerivedRecord, type EpistemicEntry, type LedgerBinding, type LedgerView, type MemoryEntry,
   type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type UncertainPair,
-  consolidateTierJudged, clearContradicted, sceneRangeFrom,
+  consolidateTierJudged, clearContradicted, sceneRangeFrom, rollingShortTerm, type ShortTermPlacement,
 } from "@memory/index";
 import { PAIR_JACCARD_FLOOR, type SceneReadRecord } from "@judge/index";
 import type { Provenance } from "@memory/provenance";
@@ -174,13 +174,13 @@ export class MemoryCoordinator {
     return sceneOccurrence;
   }
 
-  async replaceShortTerm(entry: MemoryEntry, window: { from: number; to: number }) {
+  async replaceShortTerm(entry: MemoryEntry, window: { from: number; to: number }, place: ShortTermPlacement = rollingShortTerm) {
     const run = beginRun(this.deps.ownership, window);
     await computeEntryTokens(this.deps.hosts.tokens, [entry]);
     if (!run.stillOwns()) return;
-    const entries = [...this.state.entries.filter((candidate) => candidate.tier !== "short_term"), entry];
-    const replaced = this.state.entries.filter((candidate) => candidate.tier === "short_term");
-    this.record({ kind: "short_term", inputs: replaced.map((candidate) => candidate.id), outputId: entry.id,
+    const limits = () => ({ rows: this.state.settings.tierBudgets.short_term, tokens: this.state.settings.tierTokenBudgets.short_term });
+    const { entries, inputs } = place(this.state.entries, entry, limits);
+    this.record({ kind: "short_term", inputs, outputId: entry.id,
         range: window, removed: disappearingEntries(this.state.entries, entries), messageId: window.to });
     this.patch({ entries, shortTermSummaryEnd: window.to });
   }

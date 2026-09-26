@@ -21,7 +21,8 @@ import { disappearingEntries, recordDerived, type DerivedRecord } from "./derive
 import { applyEpistemicSignals } from "./epistemic";
 import { applyLedgerSignals, buildLedgerView } from "./ledger";
 import { reverseMemoryState, type MemoryRollbackState } from "./reverse";
-import { addMemoryEntries, createMemoryState, excludeEntry, hashMemoryText } from "./stores";
+import { addMemoryEntries, createMemoryState, excludeEntry, hashMemoryText, rollingShortTerm, type ShortTermPlacement } from "./stores";
+import { appendShortTerm } from "./shortTermAppend";
 import type { ArcEntry, EpistemicEntry, LedgerEntry, MemoryEntry } from "./types";
 
 const ITERATIONS = 400;
@@ -74,7 +75,9 @@ interface World {
 
 const emptyWorld = (): World => ({ ...createMemoryState(), shortTermSummaryEnd: -1, arcs: [], epistemic: [], ledger: [], canon: null, verifyDrops: [], derived: [] });
 
-const step = (world: World, op: Op): World => {
+const SHORT_TERM_LIMITS = { rows: 3, tokens: Number.POSITIVE_INFINITY };
+
+const stepWith = (shape: ShortTermPlacement) => (world: World, op: Op): World => {
   if (op.kind === "read") {
     const { state } = addMemoryEntries(world, [memory(op.index, op.messageId)], { from: op.messageId, to: op.messageId });
     return { ...world, ...state };
@@ -101,10 +104,9 @@ const step = (world: World, op: Op): World => {
   if (op.kind === "compact") {
     // The rolling short-term summary: one entry per tier, replaced, with the watermark moving with it.
     const summary: MemoryEntry = { ...memory(op.index + 100, op.messageId), tier: "short_term", type: "detail", text: `summary ${op.index}` };
-    const entries = [...world.entries.filter((entry) => entry.tier !== "short_term"), summary];
+    const { entries, inputs } = shape(world.entries, summary, () => SHORT_TERM_LIMITS);
     const from = world.shortTermSummaryEnd + 1;
-    const replaced = world.entries.filter((entry) => entry.tier === "short_term");
-    const derived = recordDerived(world.derived, { kind: "short_term", inputs: replaced.map((entry) => entry.id), outputId: summary.id, range: { from, to: op.messageId }, removed: disappearingEntries(world.entries, entries), boundary: op.messageId, messageId: op.messageId });
+    const derived = recordDerived(world.derived, { kind: "short_term", inputs, outputId: summary.id, range: { from, to: op.messageId }, removed: disappearingEntries(world.entries, entries), boundary: op.messageId, messageId: op.messageId });
     return { ...world, entries, shortTermSummaryEnd: op.messageId, derived };
   }
   // Consolidate: the newest fact supersedes the ones sharing its subject, which is M1's link.
@@ -120,6 +122,9 @@ const step = (world: World, op: Op): World => {
   return { ...world, ...consolidated, derived: recordDerived(world.derived, { kind: "dedup", inputs: [winner], removed: disappearingEntries(world.entries, consolidated.entries), boundary: op.messageId, messageId: op.messageId }) };
 };
 
+const step = stepWith(rollingShortTerm);
+const appendStep = stepWith(appendShortTerm);
+
 const rollbackTo = (world: World, messageId: number, boundary: number): World => {
   const next = reverseMemoryState(world as World & Pick<MemoryRollbackState, "storyStart">, messageId, boundary);
   return { ...world, ...next };
@@ -131,8 +136,8 @@ const entryView = (entries: MemoryEntry[]) => entries.map((entry) => `${entry.id
 const beliefView = (entries: EpistemicEntry[]) => entries.map((entry) => `${entry.subject}|${entry.tag}|${entry.content}${entry.supersededBy ? "|retired" : ""}`).sort();
 const derivedView = (records: DerivedRecord[]) => records.map((record) => `${record.kind}|${record.messageId}|${record.outputId ?? ""}|${(record.inputs ?? []).join(",")}|${(record.removed ?? []).map((entry) => entry.id).join(",")}|${record.hash ?? ""}`).sort();
 
-describe("review: rollback is replay", () => {
-  it.each(SEEDS)("holds across random sequences (seed %i)", (seed) => {
+const randomCuts = (seed: number, step: (world: World, op: Op) => World) => {
+  {
     const random = rng(seed);
     const ops: Op[] = [];
     const full = emptyWorld();
@@ -166,15 +171,19 @@ describe("review: rollback is replay", () => {
       // And the read-coverage log, so a forced re-read after the rollback is not discarded as seen.
       expect({ where, coverage: rolled.writeLog.map((entry) => entry.range.to) }).toEqual({ where, coverage: replayed.writeLog.map((entry) => entry.range.to) });
     }
-  });
+  }
+};
+
+describe("review: rollback is replay", () => {
+  it.each(SEEDS)("holds across random sequences (seed %i)", (seed) => randomCuts(seed, step));
 });
 
 // v2.4 plan 01 T1. ST reports a delete as the post-delete chat length (host-facts 01-H1), which is the
 // removed message only at the tail. The property above holds for a rollback POINT; this one feeds that
 // point from the decoder over a real middle delete, so "rollback ≡ replay" holds end to end: the store
 // must equal a replay that stopped before the removed message, whatever came after it.
-describe("v2.4 T1: a middle delete through the decoder is replay without the removed message", () => {
-  it.each(SEEDS)("holds for random middle deletes of one to three messages (seed %i)", (seed) => {
+const middleDeletes = (seed: number, step: (world: World, op: Op) => World) => {
+  {
     const random = rng(seed);
     const kinds: Op["kind"][] = ["read", "read", "ledger", "epistemic", "consolidate", "exclude", "compact"];
     const ops: Op[] = Array.from({ length: 60 }, (_, index) => ({ kind: kinds[Math.floor(random() * kinds.length)], messageId: index, index }));
@@ -197,5 +206,25 @@ describe("v2.4 T1: a middle delete through the decoder is replay without the rem
       expect({ where, derived: derivedView(rolled.derived) }).toEqual({ where, derived: derivedView(replayed.derived) });
       expect({ where, watermark: rolled.shortTermSummaryEnd }).toEqual({ where, watermark: replayed.shortTermSummaryEnd });
     }
+  }
+};
+
+describe("v2.4 T1: a middle delete through the decoder is replay without the removed message", () => {
+  it.each(SEEDS)("holds for random middle deletes of one to three messages (seed %i)", (seed) => middleDeletes(seed, step));
+});
+
+describe("v2.5 plan 09 SP4 T1: rollback is replay with the append-only short_term", () => {
+  it.each(SEEDS)("holds across random sequences (seed %i)", (seed) => randomCuts(seed, appendStep));
+  it.each(SEEDS)("holds for random middle deletes of one to three messages (seed %i)", (seed) => middleDeletes(seed, appendStep));
+
+  it("control: the generator really rotates and appends, so the property is not vacuous for this shape", () => {
+    const kinds: Op["kind"][] = ["read", "read", "ledger", "epistemic", "consolidate", "exclude", "compact"];
+    const random = rng(SEEDS[0]);
+    const ops: Op[] = Array.from({ length: 60 }, (_, index) => ({ kind: kinds[Math.floor(random() * kinds.length)], messageId: index, index }));
+    const full = ops.reduce(appendStep, emptyWorld());
+    const compactions = full.derived.filter((record) => record.kind === "short_term");
+    expect(full.entries.filter((entry) => entry.tier === "short_term").length).toBe(SHORT_TERM_LIMITS.rows);
+    expect(compactions.some((record) => (record.removed ?? []).length > 0)).toBe(true);
+    expect(compactions.every((record) => record.inputs.length === 0)).toBe(true);
   });
 });

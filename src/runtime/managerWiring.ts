@@ -13,6 +13,7 @@ import { createCuratorFilter } from "./curatorFilter";
 import type { JudgeRuntime } from "./judge";
 import type { JournalRecordKind } from "./journal";
 import { requestBudgetFor } from "./requestBudget";
+import { getGlobalSettings } from "./settingsStore";
 import type { RollbackDeps } from "./rollback";
 import type { StoryUpdateDeps } from "./storyUpdate";
 import type { RunOwnership } from "./runToken";
@@ -90,6 +91,7 @@ export function wireCoordinators(port: ManagerPort) {
     setStatus: (status) => port.setStatus(status),
     judge: () => port.judge(),
     requestBudget: (role) => requestBudgetFor(role),
+    spikes: () => getGlobalSettings().spikes,
     ...lifecycle,
   });
   const pacing = new PacingCoordinator({
@@ -112,6 +114,7 @@ export function wireCoordinators(port: ManagerPort) {
       nudgeActive: () => copilot.getActiveNudge() !== null,
     }),
     journal: (summary, note) => port.journal("stagecraft", summary, note),
+    spikes: () => getGlobalSettings().spikes,
     ...lifecycle,
   });
   const copilot: CopilotCoordinator = new CopilotCoordinator({

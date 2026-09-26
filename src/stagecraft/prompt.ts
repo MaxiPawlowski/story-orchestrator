@@ -1,21 +1,25 @@
-import { CURATOR_MAX_OPS, CURATOR_MAX_TEXT, CURATOR_SHOWN_CONTENT, PATCH_ANCHOR_SEPARATOR, collapseContent, contentShownInPart, type CuratorScope } from "./types";
+import { CURATOR_MAX_OPS, CURATOR_MAX_TEXT, CURATOR_SHOWN_CONTENT, PATCH_ANCHOR_SEPARATOR, collapseContent, contentShownInPart, type CuratorEntryView, type CuratorScope } from "./types";
 import { entryRef } from "./scope";
 import { truncate } from "@utils/string";
+
+export const NO_CURATOR_ENTRIES = "(this story's lorebooks have no entries yet)";
+
+export const renderCuratorEntry = (entry: CuratorEntryView, entries: CuratorEntryView[]): string => [
+  `- ${[
+    entryRef(entry, entries),
+    `"${entry.comment}"`,
+  ].filter(Boolean).join(" ")} (${entry.lorebook})${entry.disabled ? " [currently off]" : ""}${contentShownInPart(entry.content) ? " [shown in part — patch only]" : ""}`,
+  `  keys: ${entry.keys.join(", ") || "(none)"}`,
+  `  content: ${truncate(collapseContent(entry.content), CURATOR_SHOWN_CONTENT) || "(empty)"}`,
+].join("\n");
 
 // Same discipline as the extractor contract: a closed vocabulary (only the entry titles listed here
 // may be named), an explicit evidence expectation, and one line per change so a small model cannot
 // drift into prose. The prompt never receives a lorebook the story did not put on its allowlist.
 export function buildWiCuratorPrompt(scope: CuratorScope): string {
   const entries = scope.entries.length
-    ? scope.entries.map((entry) => [
-        `- ${[
-          entryRef(entry, scope.entries),
-          `"${entry.comment}"`,
-        ].filter(Boolean).join(" ")} (${entry.lorebook})${entry.disabled ? " [currently off]" : ""}${contentShownInPart(entry.content) ? " [shown in part — patch only]" : ""}`,
-        `  keys: ${entry.keys.join(", ") || "(none)"}`,
-        `  content: ${truncate(collapseContent(entry.content), CURATOR_SHOWN_CONTENT) || "(empty)"}`,
-      ].join("\n")).join("\n")
-    : "(this story's lorebooks have no entries yet)";
+    ? scope.entries.map((entry) => renderCuratorEntry(entry, scope.entries)).join("\n")
+    : NO_CURATOR_ENTRIES;
   const declined = (scope.declined ?? []).slice(0, CURATOR_MAX_OPS).map((op) => `- [${op.kind}] ${op.comment}`);
 
   return [

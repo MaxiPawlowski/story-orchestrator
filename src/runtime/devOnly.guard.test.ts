@@ -1,6 +1,8 @@
 import { join } from "path";
 import { SRC, buildGraph, prodFiles, reachableFrom, rel } from "../../test/support/codeHealth";
 
+const PLAN_09_SPIKES = ["src/memory/shortTermAppend.ts", "src/stagecraft/curatorTiers.ts", "src/stagecraft/curatorDigest.ts"];
+
 const DEV_ONLY = [
   "src/runtime/liveSuite.ts",
   "src/runtime/judgeHarness.ts",
@@ -10,6 +12,7 @@ const DEV_ONLY = [
   "src/judge/selfTestCases.ts",
   "src/services/stHost/chatScenario.ts",
   "src/engine/chance.ts",
+  ...PLAN_09_SPIKES,
 ];
 const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
 const SPIKES = [
@@ -45,6 +48,19 @@ describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", 
 
   it("the self-tests the settings panel runs load lazily, not with the entry", () => {
     expect(staticReach(files).filter((path) => LAZY_USER_FEATURES.includes(path))).toEqual([]);
+  });
+
+  it("plan 09 spike modules load only behind their own flag, never with the entry (rule 2)", () => {
+    expect(staticReach(files).filter((path) => PLAN_09_SPIKES.includes(path))).toEqual([]);
+    const present = new Set(files.map(rel));
+    expect(PLAN_09_SPIKES.filter((path) => !present.has(path))).toEqual([]);
+  });
+
+  it("control: a planted static import of a spike module fails", () => {
+    const store = join(SRC, "memory", "index.ts");
+    const fs = require("fs") as typeof import("fs");
+    const read = (path: string) => (path === store ? `${fs.readFileSync(path, "utf8")}\nexport * from "./shortTermAppend";\n` : fs.readFileSync(path, "utf8"));
+    expect(staticReach(files, read).filter((path) => PLAN_09_SPIKES.includes(path))).toContain("src/memory/shortTermAppend.ts");
   });
 
   it("every listed dev-only module exists, so the list cannot rot into a vacuous pass", () => {
