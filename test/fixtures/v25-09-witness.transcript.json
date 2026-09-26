@@ -1,0 +1,239 @@
+{
+  "_note": "v2.5 plan 09 SP9 F1/F2 fixture. Authored witness sets per message (who was in earshot, from the narrative): 24 messages over three scenes (hall, yard, office, hall again), one whispered exchange. Every text carries a unique marker so a request can be searched for it. 'player' is the persona. A speaker always witnesses their own words; the filter never needs the set to say so.",
+  "members": [
+    "DM Narrator",
+    "Arin",
+    "Ponticius"
+  ],
+  "messages": [
+    {
+      "marker": "[w01]",
+      "speaker": "DM Narrator",
+      "text": "The guild hall is loud with the evening crowd; a courier waits by the door. [w01]",
+      "witnesses": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius"
+      ]
+    },
+    {
+      "marker": "[w02]",
+      "speaker": "player",
+      "text": "I wave the courier over and take the sealed letter. [w02]",
+      "witnesses": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius"
+      ]
+    },
+    {
+      "marker": "[w03]",
+      "speaker": "Arin",
+      "text": "Arin leans in. That seal is from the harbour office. [w03]",
+      "witnesses": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius"
+      ]
+    },
+    {
+      "marker": "[w04]",
+      "speaker": "Ponticius",
+      "text": "Ponticius frowns. The harbour office owes the guild money. [w04]",
+      "witnesses": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius"
+      ]
+    },
+    {
+      "marker": "[w05]",
+      "speaker": "player",
+      "text": "I break the seal and read it out. [w05]",
+      "witnesses": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius"
+      ]
+    },
+    {
+      "marker": "[w06]",
+      "speaker": "DM Narrator",
+      "text": "The letter asks the guild to guard a shipment leaving at dawn. [w06]",
+      "witnesses": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius"
+      ]
+    },
+    {
+      "marker": "[w07]",
+      "speaker": "player",
+      "text": "I lean close to Arin and whisper that the handwriting is forged. [w07]",
+      "witnesses": [
+        "DM Narrator",
+        "Arin"
+      ]
+    },
+    {
+      "marker": "[w08]",
+      "speaker": "Arin",
+      "text": "Arin whispers back that she saw the same hand on a fake permit last week. [w08]",
+      "witnesses": [
+        "DM Narrator",
+        "Arin"
+      ]
+    },
+    {
+      "marker": "[w09]",
+      "speaker": "Ponticius",
+      "text": "Ponticius stands. I will check the ledgers in my office. He leaves the hall. [w09]",
+      "witnesses": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius"
+      ]
+    },
+    {
+      "marker": "[w10]",
+      "speaker": "DM Narrator",
+      "text": "In the yard, the lantern light catches a cart with a broken wheel. [w10]",
+      "witnesses": [
+        "DM Narrator",
+        "Arin"
+      ]
+    },
+    {
+      "marker": "[w11]",
+      "speaker": "player",
+      "text": "Arin, did you notice the cart carries the harbour mark? [w11]",
+      "witnesses": [
+        "DM Narrator",
+        "Arin"
+      ]
+    },
+    {
+      "marker": "[w12]",
+      "speaker": "Arin",
+      "text": "I did. And the driver is the courier from the hall. [w12]",
+      "witnesses": [
+        "DM Narrator",
+        "Arin"
+      ]
+    },
+    {
+      "marker": "[w13]",
+      "speaker": "player",
+      "text": "I tell Arin to keep watch on the driver and head for the office. [w13]",
+      "witnesses": [
+        "DM Narrator",
+        "Arin"
+      ]
+    },
+    {
+      "marker": "[w14]",
+      "speaker": "DM Narrator",
+      "text": "The office smells of ink; Ponticius has three ledgers open. [w14]",
+      "witnesses": [
+        "DM Narrator",
+        "Ponticius"
+      ]
+    },
+    {
+      "marker": "[w15]",
+      "speaker": "Ponticius",
+      "text": "The harbour office paid us last month. This letter is a lie. [w15]",
+      "witnesses": [
+        "DM Narrator",
+        "Ponticius"
+      ]
+    },
+    {
+      "marker": "[w16]",
+      "speaker": "player",
+      "text": "I tell Ponticius the handwriting is forged. [w16]",
+      "witnesses": [
+        "DM Narrator",
+        "Ponticius"
+      ]
+    },
+    {
+      "marker": "[w17]",
+      "speaker": "Ponticius",
+      "text": "Then someone wants our guards away from the vault at dawn. [w17]",
+      "witnesses": [
+        "DM Narrator",
+        "Ponticius"
+      ]
+    },
+    {
+      "marker": "[w18]",
+      "speaker": "DM Narrator",
+      "text": "Outside the window, the broken cart is gone from the yard. [w18]",
+      "witnesses": [
+        "DM Narrator",
+        "Ponticius"
+      ]
+    },
+    {
+      "marker": "[w19]",
+      "speaker": "player",
+      "text": "I run back to the hall and call everyone together. [w19]",
+      "witnesses": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius"
+      ]
+    },
+    {
+      "marker": "[w20]",
+      "speaker": "Arin",
+      "text": "Arin arrives breathless. The driver took the cart toward the vault. [w20]",
+      "witnesses": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius"
+      ]
+    },
+    {
+      "marker": "[w21]",
+      "speaker": "Ponticius",
+      "text": "Then we guard the vault, not the shipment. [w21]",
+      "witnesses": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius"
+      ]
+    },
+    {
+      "marker": "[w22]",
+      "speaker": "DM Narrator",
+      "text": "The hall falls quiet as the plan is laid out. [w22]",
+      "witnesses": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius"
+      ]
+    },
+    {
+      "marker": "[w23]",
+      "speaker": "player",
+      "text": "I tell everyone we move at midnight. [w23]",
+      "witnesses": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius"
+      ]
+    },
+    {
+      "marker": "[w24]",
+      "speaker": "Arin",
+      "text": "I will take the back door. [w24]",
+      "witnesses": [
+        "DM Narrator",
+        "Arin",
+        "Ponticius"
+      ]
+    }
+  ]
+}
