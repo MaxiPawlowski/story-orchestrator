@@ -275,6 +275,36 @@ describe("a new claim that contradicts an established fact is held, not stored l
   });
 });
 
+describe("the polarity screen holds an explicit negation below the Jaccard band, on established rows only", () => {
+  const KNOWS = "Mira knows the password to the archive.";
+  const DOES_NOT = "Mira doesn't know the archive password.";
+  const fact = (text: string) => `FACT importance=3 text="${text}" evidence="${COURIER_QUOTE}"`;
+  const fillers = ["Arin carries two curved daggers.", "Ponticius keeps the guild ledger locked.", "Rain fell on the eastern hills all week.", "The market sells dried figs cheaply.", "A grey mare waits tied near the inn.", "Wolves were heard beyond the northern ridge."];
+
+  it("holds the negated claim against a locked fact through the write path", async () => {
+    const env = harness();
+    await env.read(fact(KNOWS), 1);
+    await env.coordinator.setMemoryLocked(row(env.memory(), KNOWS)!.id, true);
+    await env.read(fact(DOES_NOT), 2);
+    expect(isLive(row(env.memory(), DOES_NOT)!)).toBe(false);
+    expect(isLive(row(env.memory(), KNOWS)!)).toBe(true);
+    expect(env.memory().conflicts.map((pair) => pair.sides.map((side) => side.label))).toEqual([[KNOWS, DOES_NOT]]);
+  });
+
+  it("never reaches ordinary consolidation: two unlocked rows of opposite polarity get no soft mark and no queued pair", async () => {
+    const env = harness();
+    await env.read(fact(KNOWS), 1);
+    await env.read(fact(DOES_NOT), 2);
+    for (const [index, text] of fillers.entries()) await env.read(`FACT importance=1 text="${text}" evidence="${COURIER_QUOTE}"`, index + 3);
+    expect(env.memory().entries.length).toBeGreaterThanOrEqual(8);
+    await env.coordinator.runConsolidation();
+    expect(row(env.memory(), KNOWS)!.contradicted).toBeFalsy();
+    expect(row(env.memory(), DOES_NOT)!.contradicted).toBeFalsy();
+    expect(isLive(row(env.memory(), DOES_NOT)!)).toBe(true);
+    expect(env.memory().conflicts).toEqual([]);
+  });
+});
+
 // Found live (2026-09-25, bundle 9b2f890a5987, RED x2): with ST vectors present the vectors band alone
 // decided the pair, and the Courier claims sit at cosine 0.410 / 0.359 against the seed, under the 0.55
 // same-topic band, so both were stored live. Jaccard scores the same pairs 0.533 / 0.571 against its 0.4

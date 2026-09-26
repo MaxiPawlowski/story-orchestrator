@@ -13,6 +13,7 @@ export * from "./budget";
 export * from "./score";
 export * from "./consolidate";
 export * from "./conflicts";
+export * from "./polarity";
 export * from "./supersede";
 export * from "./parse";
 export * from "./contract";

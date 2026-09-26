@@ -1,4 +1,9 @@
-import { a0Arm, classCounts, jaccardBand, loadCosineBrackets, loadK0, rowsSha256, scoreK0 } from "../../test/support/contradictions";
+import { PAIR_JACCARD_FLOOR } from "@judge/index";
+import { a0Arm, classCounts, jaccardBand, loadCosineBrackets, loadK0, rowsSha256, scoreK0, type BandArm } from "../../test/support/contradictions";
+import { establishedBands } from "./conflicts";
+import { opposedPolarity } from "./polarity";
+
+const n1Arm: BandArm = (group, vectors) => establishedBands(group, vectors, PAIR_JACCARD_FLOOR);
 
 const fixture = loadK0();
 
@@ -78,5 +83,44 @@ describe("A0: today's bands on K0", () => {
     const score = scoreK0(fixture, a0Arm, { kind: "vectors", cosine: flat });
     expect(score.held).toContain("K15");
     expect(score.recall.belowPlain.total).toBe(4);
+  });
+});
+
+describe("N1: the polarity screen on K0, against its predeclared floor", () => {
+  const a0 = scoreK0(fixture, a0Arm, { kind: "jaccard" });
+  const n1 = scoreK0(fixture, n1Arm, { kind: "jaccard" });
+
+  it("Jaccard-only mode: below-band explicit-negation recall 8/8 (es 4/4), in-band recall unchanged", () => {
+    expect([n1.recall.belowNegation.hit, n1.recall.belowNegation.total]).toEqual([8, 8]);
+    expect([n1.recall.belowNegationEs.hit, n1.recall.belowNegationEs.total]).toEqual([4, 4]);
+    expect(n1.recall.belowNegation.hit / n1.recall.belowNegation.total).toBeGreaterThanOrEqual(0.6);
+    expect(n1.recall.belowNegationEs.hit / n1.recall.belowNegationEs.total).toBeGreaterThanOrEqual(0.6);
+    expect([n1.recall.inBand.hit, n1.recall.inBand.total]).toEqual([6, 6]);
+    expect([n1.recall.belowPlain.hit, n1.recall.belowPlain.total]).toEqual([0, 5]);
+    expect([n1.recall.all.hit, n1.recall.es.hit]).toEqual([14, 6]);
+  });
+
+  it("Jaccard-only mode: one more false hold than A0 (K35, a same-subject distinct claim with a negator), within A0 + 1", () => {
+    expect(n1.falseHold.all.ids.filter((id) => !a0.falseHold.all.ids.includes(id))).toEqual(["K35"]);
+    expect(n1.falseHold.all.hit).toBeLessThanOrEqual(a0.falseHold.all.hit + 1);
+    expect(a0.held.filter((id) => !n1.held.includes(id))).toEqual([]);
+    expect(n1.update.ids).toEqual(a0.update.ids);
+  });
+
+  it("vectors-present mode is bounded by text alone: the screen reads no cosine, and every Jaccard-band row is held in both modes", () => {
+    const screened = fixture.rows.filter((row) => opposedPolarity(row.established, row.claim, PAIR_JACCARD_FLOOR));
+    const negations = fixture.rows.filter((row) => row.label === "contradicts" && row.form === "negation");
+    expect(negations.filter((row) => !screened.includes(row)).map((row) => row.id)).toEqual([]);
+    const extraFalse = screened.filter((row) => (row.label === "agrees" || row.label === "distinct") && row.band.jaccard === "below");
+    expect(extraFalse.map((row) => row.id)).toEqual(["K35"]);
+  });
+
+  it("replays a vectors mode through the same arm and keeps every A0 hold", () => {
+    const cosine = Object.fromEntries(fixture.rows.map((row, index) => [row.id, index % 3 === 0 ? 0.6 : 0.3]));
+    const a0Vectors = scoreK0(fixture, a0Arm, { kind: "vectors", cosine });
+    const n1Vectors = scoreK0(fixture, n1Arm, { kind: "vectors", cosine });
+    expect(a0Vectors.held.filter((id) => !n1Vectors.held.includes(id))).toEqual([]);
+    expect(n1Vectors.recall.belowNegation.hit).toBe(n1Vectors.recall.belowNegation.total);
+    expect(n1Vectors.falseHold.all.hit).toBeLessThanOrEqual(a0Vectors.falseHold.all.hit + 1);
   });
 });
