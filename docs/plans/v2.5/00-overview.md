@@ -62,6 +62,19 @@ version bump), which existed for downgrade safety and are retired by E9. The del
 13. **Touching a function with a `checked` census row re-reads every write after each of its awaits.** Historical example,
     found in C1 and fixed in `644aa05`: a `checked` row with an unchecked write after its await (`src/runtime/effectsApplier.ts`
     `fireNpcReplies`, `test/findings/ownership-sites.json` note). This is the census gotcha (`.claude/rules/gotchas.md`, "A `checked` row …").
+14. **Live-test economy (user decision 2026-09-26; supersedes "×2 per plan gate" in plans 01–09, 11–13).**
+    - **Per-plan live gates run ×1** (a smoke that catches defects early); the **×2 consecutive** requirement is met once, in
+      plan 10's acceptance matrix, which re-runs every row ×2 on the frozen candidate. A per-plan row is recorded
+      `green ×1 (×2 in plan 10)`, never `green ×2`. A plan whose change is risky to real user data (a lorebook or chat write
+      outside the sandbox, e.g. plan 01's normaliser) keeps its own ×2 before merge.
+    - **Batched live runs:** plans merge code-green in groups (next: 03 + the pending C1/C7/G5/C2 fixes + 04/05/06/08), one
+      build, one combined lane batch. A red row is traced to its plan by its fixture; a defect is fixed and re-run ×1.
+    - **Long journeys once per batch:** a J3/J7/J11/J12 run in a batch serves every plan that cites it.
+    - **Mutant/control builds in one window** near the end (each needs its own dist, so the lanes stop for it); until then a
+      control is recorded `control pending (mutant window)`.
+    - **Agents iterate on related tests** (`jest --findRelatedTests`, the touched `node:test` files) and run the full gates
+      before every commit that lands on master and at every merge.
+    - Unchanged: plan 10 is ×2 per row, negative controls, archived records, predeclared floors, the prod-ready rule.
 
 ## Plan sequence
 
