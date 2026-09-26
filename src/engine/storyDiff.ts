@@ -1,5 +1,6 @@
 import type { EngineState } from "./engine";
-import type { GateLeaf, GateNode, NormalizedStoryV2, PrimitiveValue, Quality, Transition } from "./schema";
+import type { GateLeaf, GateNode, NormalizedStoryV2, Transition } from "./schema";
+import { qualityAccepts } from "./blackboard";
 
 // Plan 05: what changes when an author edits a story a chat is already playing. The table below is
 // the spec — every row is a jest fixture. "Live" always means the running chat actually holds the
@@ -80,14 +81,6 @@ const transitionKeys = (transitions: Transition[]): Map<string, Transition> => {
 
 const sameValue = (left: unknown, right: unknown) => JSON.stringify(left ?? null) === JSON.stringify(right ?? null);
 
-const typeAccepts = (quality: Quality, value: PrimitiveValue): boolean => {
-  if (quality.type === "bool") return typeof value === "boolean";
-  if (quality.type === "string") return typeof value === "string";
-  if (quality.type === "enum") return typeof value === "string" && Boolean(quality.values?.includes(value));
-  if (quality.type === "float") return typeof value === "number" && Number.isFinite(value);
-  return typeof value === "number" && Number.isInteger(value);
-};
-
 const rosterRefs = (story: NormalizedStoryV2): Set<string> => {
   const refs = new Set<string>();
   const add = (value: unknown) => { if (typeof value === "string" && value.trim()) refs.add(value.trim().toLowerCase()); };
@@ -131,13 +124,13 @@ export function diffStories(previous: NormalizedStoryV2, next: NormalizedStoryV2
     }
     const value = values[quality.key];
     if (after.type !== quality.type) {
-      if (live(quality.key) && !typeAccepts(after, value)) {
+      if (live(quality.key) && !qualityAccepts(after, value)) {
         drop(quality.key);
         push("invalidating", "quality-retyped-live", path, `“${quality.key}” changed from ${quality.type} to ${after.type}, and the value this chat holds no longer fits.`);
       } else {
         push("compatible", "quality-retyped", path, `“${quality.key}” changed from ${quality.type} to ${after.type}.`);
       }
-    } else if (after.type === "enum" && live(quality.key) && !typeAccepts(after, value)) {
+    } else if (after.type === "enum" && live(quality.key) && !qualityAccepts(after, value)) {
       drop(quality.key);
       push("invalidating", "quality-enum-narrowed-live", path, `“${quality.key}” no longer allows “${String(value)}”, which this chat holds.`);
     }

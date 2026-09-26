@@ -1,4 +1,5 @@
 import { stripReasoningBlocks } from "./parse";
+import { isRecord } from "@utils/guards";
 
 export const HYGIENE_VERSION = 1;
 
@@ -29,8 +30,6 @@ const HIDDEN_STYLE = /\bstyle\s*=\s*(["'])[^"']*?\bdisplay\s*:\s*none\b/i;
 const FENCE = /^\s{0,3}(`{3,}|~{3,})\s*([^`\s][^`]*)?$/;
 const ENTITY = /&(amp|lt|gt|quot|apos|nbsp|#\d+|#x[0-9a-f]+);/gi;
 const NAMED_ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: "\"", apos: "'", nbsp: " " };
-
-const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 
 const closers = new Map<string, RegExp>();
 

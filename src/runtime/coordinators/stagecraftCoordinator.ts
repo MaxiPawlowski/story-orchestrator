@@ -17,6 +17,7 @@ import type { ChatHost, CuratorWiHost, PlayerHost, PromptHost } from "../hostPor
 import type { StagecraftRuntimeState } from "../types";
 import type { EstablishedFact } from "../continuity";
 import { CuratorWriter } from "../curatorWriter";
+import { withholds } from "../generationLifecycle";
 
 // One curator pass every few boundaries at most: the reply path never waits for it, and a story that
 // moves fast should not fund a model call per turn.
@@ -382,7 +383,7 @@ export class StagecraftCoordinator {
   // and the note waits for the next one.
   onGenerationStarted(type: unknown, dryRun: unknown) {
     const settings = this.state.settings;
-    if (dryRun === true || type === "quiet" || type === "impersonate" || settings.wardenAcceptMode === "off" || this.deps.warden?.nudgeActive()) return;
+    if (dryRun === true || withholds(type) || settings.wardenAcceptMode === "off" || this.deps.warden?.nudgeActive()) return;
     this.withdrawRemovedRules();
     const active = this.activeFamilies();
     const carried = newestCarriedNote(this.state.proposals, active);

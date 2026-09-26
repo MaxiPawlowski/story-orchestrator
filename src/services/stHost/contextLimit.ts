@@ -1,13 +1,12 @@
 import { defaultContextLimit, usableContextLimit, type ContextLimit } from "@extraction/inputBudget";
 import { getContext } from "./context";
 import type { HostConnectApiMap } from "./hostTypes";
+import { isRecord } from "@utils/guards";
 
 const PRESET_CONTEXT_KEY: Record<string, string> = {
   textgenerationwebui: "max_length",
   openai: "openai_max_context",
 };
-
-const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 
 export function contextLimitFromPreset(selectedApi: string | undefined, presetName: string, preset: unknown): ContextLimit {
   const key = selectedApi ? PRESET_CONTEXT_KEY[selectedApi] : undefined;

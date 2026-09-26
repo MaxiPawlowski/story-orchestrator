@@ -1,5 +1,6 @@
 import { abortReasonName } from "@utils/signals";
 import type { HostModelRequestCustom } from "./hostTypes";
+import { isRecord } from "@utils/guards";
 
 export type ModelFinish = "stop" | "length" | "unknown";
 export type ModelFailureKind = "lapsed" | "timeout" | "transport" | "config";
@@ -45,8 +46,6 @@ const CONFIG_MESSAGES: RegExp[] = [
   /^API type .+ does not support (chat|text) completions$/,
   /^No memory LLM profile selected$/,
 ];
-
-const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 
 const messageOf = (error: unknown): string => (error instanceof Error ? error.message : typeof error === "string" ? error : "");
 const nameOf = (error: unknown): string => (typeof error === "object" && error !== null && "name" in error && typeof error.name === "string" ? error.name : "");

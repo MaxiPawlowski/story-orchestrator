@@ -2,6 +2,7 @@ import { buildChainRequest, judgeVerdict, pickChain, readChain, type ChainInput,
 import { CRITIC_ADVANCES_MIN, CRITIC_CONTRADICTS_MAX, CRITIC_NEW_CHARACTER_MAX } from "./policy";
 import type { JudgeSelfTestReport, JudgeSelfTestRow } from "./selfTest";
 import type { JudgeRequest, JudgeResult } from "./types";
+import { median } from "./stats";
 
 export interface CriticCase {
   id: string;
@@ -16,12 +17,6 @@ export interface VariantStub {
   base: Omit<ChainInput, "beats">;
   chains: Array<{ label: "clean" | "contradicts" | "wanders"; beats: ChainInput["beats"] }>;
 }
-
-const median = (values: number[]): number | null => {
-  if (!values.length) return null;
-  const sorted = [...values].sort((left, right) => left - right);
-  return sorted[Math.floor((sorted.length - 1) / 2)];
-};
 
 const toReport = (perCase: Array<{ rows: JudgeSelfTestRow[]; model: string | null; latencyMs: number }>): JudgeSelfTestReport => {
   const rows = perCase.flatMap((entry) => entry.rows);

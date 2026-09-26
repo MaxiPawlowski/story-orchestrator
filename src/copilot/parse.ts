@@ -33,18 +33,11 @@ import {
 } from "@engine/index";
 import { capQuestions, type WizardQuestion } from "@wizard/index";
 import type { Proposal, ProposalOp, Suggestion, TransitionRef } from "./types";
+import { isRecord } from "@utils/guards";
+import { normalizeJsonText } from "@utils/json";
 
-const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 const isPrimitive = (value: unknown): value is PrimitiveValue => typeof value === "string" || typeof value === "number" || typeof value === "boolean";
 const isPrimitiveOrArray = (value: unknown): value is PrimitiveValue | PrimitiveValue[] => isPrimitive(value) || (Array.isArray(value) && value.every(isPrimitive));
-
-const normalizeJsonText = (raw: string): string => {
-  const trimmed = raw.trim();
-  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
-  if (fenced) return fenced[1].trim();
-  const embedded = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-  return embedded ? embedded[1].trim() : trimmed;
-};
 
 const readGate = (value: unknown, path: string, issues: string[]): GateNode | null => {
   if (!isRecord(value)) {

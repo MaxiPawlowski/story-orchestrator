@@ -1,5 +1,5 @@
 import { jaccardSimilarity } from "./similarity";
-import { isLive, provenance as provenanceOf, withValidity, type ProvenanceSource } from "./provenance";
+import { isLive, keepPinnedFrom, provenance as provenanceOf, type ProvenanceSource } from "./provenance";
 import { EPISTEMIC_TAGS, generateMemoryId, type EpistemicEntry, type EpistemicTag, type ParsedEpistemicSignal } from "./types";
 
 export const EPISTEMIC_MIN_LENGTH = 3;
@@ -173,12 +173,7 @@ export function removeEpistemic(entries: EpistemicEntry[], id: string): Epistemi
 // edited away in front of the character it was meant to conceal from.
 export function rollbackEpistemic(entries: EpistemicEntry[], messageId: number): EpistemicEntry[] {
   return entries
-    .flatMap((entry): EpistemicEntry[] => {
-      const sourced = typeof entry.messageId === "number" && entry.messageId >= messageId;
-      if (!sourced) return [entry];
-      if (!entry.pinned) return [];
-      return [{ ...entry, ...withValidity(entry, "source-removed") }];
-    })
+    .flatMap((entry) => keepPinnedFrom(entry, messageId))
     .map((entry) => {
       if (!entry.retiredAt || entry.retiredAt.messageId < messageId) return entry;
       const { supersededBy: _by, retiredAt: _at, ...rest } = entry;

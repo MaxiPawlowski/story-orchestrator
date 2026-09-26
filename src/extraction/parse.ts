@@ -1,4 +1,4 @@
-import { TENSION_CURRENT_KEY, type NormalizedStoryV2, type PrimitiveValue, type Quality } from "@engine/index";
+import { qualityAccepts, TENSION_CURRENT_KEY, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
 import { parseArcLine, parseEpistemicLine, parseLedgerLine, parseMemoryLine, parseSceneBreakLine } from "@memory/parse";
 import { isTensionLevel, levelToNumeric } from "@pacing/index";
 import type { ParsedSharedRead } from "./types";
@@ -72,14 +72,6 @@ export function stripChannelNoise(raw: string): string {
   while (lines.length && /^(?:thought|analysis|final)?$/i.test(lines[0])) lines.shift();
   return lines.join("\n").trim();
 }
-
-export const qualityAccepts = (quality: Pick<Quality, "type" | "values">, value: PrimitiveValue) => {
-  if (quality.type === "bool") return typeof value === "boolean";
-  if (quality.type === "string") return typeof value === "string";
-  if (quality.type === "enum") return typeof value === "string" && Boolean(quality.values?.includes(value));
-  if (quality.type === "float") return typeof value === "number" && Number.isFinite(value);
-  return typeof value === "number" && Number.isInteger(value);
-};
 
 const parseBareWord = (raw: string): string | undefined => {
   const word = raw.match(/^'([^']*)'$/)?.[1] ?? raw;

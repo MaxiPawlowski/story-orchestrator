@@ -236,8 +236,8 @@ export function unionMatchSets(left: MatchSets, right: MatchSets): MatchSets {
  *  band): a sentence embedding barely moves on polarity, so vectors alone stored the claim live. The
  *  union only widens the hold on settled rows; ordinary consolidation keeps its single source. */
 export const establishedBands = (group: MemoryEntry[], vectors: MatchSets | null): MatchSets => {
-  const jaccard = buildJaccardMatchSets(group);
-  return vectors ? unionMatchSets(vectors, jaccard) : jaccard;
+  const overlap = buildJaccardMatchSets(group);
+  return vectors ? unionMatchSets(vectors, overlap) : overlap;
 };
 
 /** Below a lock, a candidate carrying a state-change marker is an UPDATE that consolidation may

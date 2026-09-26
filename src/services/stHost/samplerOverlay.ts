@@ -1,6 +1,7 @@
 import type { SamplerApi } from "@utils/samplerKeys";
 import { getContext } from "./context";
 import { subscribeToHostEvent } from "./events";
+import { isRecord } from "@utils/guards";
 
 const PRESET_API: Record<SamplerApi, string> = { textgen: "textgenerationwebui", chat: "openai" };
 
@@ -10,8 +11,6 @@ export const samplerApi = (): SamplerApi | null => {
   if (api === "openai") return "chat";
   return null;
 };
-
-const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 
 export function readSamplerPreset(name: string, api: SamplerApi): Record<string, unknown> | null {
   const manager = getContext().getPresetManager?.(PRESET_API[api]);

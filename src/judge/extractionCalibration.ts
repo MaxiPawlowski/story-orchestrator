@@ -4,6 +4,7 @@ import { STALL_GENUINE_P } from "./policy";
 import { noulAnswer } from "./questions";
 import type { JudgeSelfTestReport, JudgeSelfTestRow } from "./selfTest";
 import type { JudgeRequest, JudgeResult } from "./types";
+import { median } from "./stats";
 
 export interface TypedCase {
   id: string;
@@ -21,12 +22,6 @@ export interface StallCase {
   window: TypedWindowMessage[];
   leaves: Array<StallLeaf & { shown: boolean }>;
 }
-
-const median = (values: number[]): number | null => {
-  if (!values.length) return null;
-  const sorted = [...values].sort((left, right) => left - right);
-  return sorted[Math.floor((sorted.length - 1) / 2)];
-};
 
 const toReport = (perCase: Array<{ rows: JudgeSelfTestRow[]; model: string | null; latencyMs: number }>): JudgeSelfTestReport => {
   const rows = perCase.flatMap((entry) => entry.rows);

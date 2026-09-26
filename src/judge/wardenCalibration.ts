@@ -1,9 +1,10 @@
-import type { ContinuityCase, RescoreResult, RescoreRow } from "./curatorCalibration";
-import { AGENCY_SCORE, CONTINUITY_P, HOUSE_RULE_P, WARDEN_MAX_RULES } from "./policy";
+import { continuityFactRows, type ContinuityCase, type RescoreResult, type RescoreRow } from "./curatorCalibration";
+import { AGENCY_SCORE, HOUSE_RULE_P, WARDEN_MAX_RULES } from "./policy";
 import { noulAnswer, scoreAnswer } from "./questions";
 import type { JudgeSelfTestReport, JudgeSelfTestRow } from "./selfTest";
 import type { JudgeAnswer, JudgeFallback, JudgeRequest, JudgeResult } from "./types";
 import { AGENCY_LEVELS, buildWardenRequests, readWarden, type WardenInput } from "./warden";
+import { median } from "./stats";
 
 export type Ask = (request: JudgeRequest) => Promise<JudgeResult>;
 
@@ -22,12 +23,6 @@ export async function askWarden(ask: Ask, input: WardenInput): Promise<WardenAsk
   if (!results.length || failed) return { answers: null, model, latencyMs, ...(failed?.fallback ? { fallback: failed.fallback } : {}) };
   return { answers: Object.assign({}, ...results.map((result) => result.answers)), model, latencyMs };
 }
-
-const median = (values: number[]): number | null => {
-  if (!values.length) return null;
-  const sorted = [...values].sort((left, right) => left - right);
-  return sorted[Math.floor((sorted.length - 1) / 2)];
-};
 
 const report = (perCase: Array<{ rows: JudgeSelfTestRow[]; model: string | null; latencyMs: number }>): JudgeSelfTestReport => {
   const rows = perCase.flatMap((entry) => entry.rows);
@@ -124,13 +119,7 @@ export async function runCombinedContinuityCalibration(ask: Ask, cases: Combined
     const pOf = (index: number) => (asked.answers ? noulAnswer(asked.answers, `fact:${index}`) : null);
     const rows: JudgeSelfTestRow[] = [
       { id: `${entry.id}.reply`, right: asked.answers !== null && Boolean(note) === entry.contradicts.length > 0, picked: asked.answers ? (note ? note.facts.join(" | ") : "no note") : null, ...base },
-      ...entry.established.map((fact, index) => {
-        const p = pOf(index);
-        const flagged = p !== null && p >= CONTINUITY_P;
-        return entry.contradicts.includes(index)
-          ? { id: `${entry.id}.broken:${index}`, right: flagged, picked: p === null ? null : `p=${p}`, detail: fact, ...base }
-          : { id: `${entry.id}.consistent:${index}`, right: !flagged, picked: p === null ? null : `p=${p}`, detail: fact, ...base };
-      }),
+      ...continuityFactRows(entry, pOf, base),
     ];
     return { rows, model: asked.model, latencyMs: asked.latencyMs };
   })));

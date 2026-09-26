@@ -1,4 +1,4 @@
-import { isLive, provenance as provenanceOf, withValidity, type ProvenanceSource } from "./provenance";
+import { isLive, keepPinnedFrom, provenance as provenanceOf, type ProvenanceSource } from "./provenance";
 import { generateMemoryId, type LedgerEntry, type LedgerView, type ParsedLedgerSignal } from "./types";
 
 export const LEDGER_CAP = 60;
@@ -82,12 +82,7 @@ export function removeLedger(entries: LedgerEntry[], id: string): LedgerEntry[] 
 }
 
 export function rollbackLedger(entries: LedgerEntry[], messageId: number): LedgerEntry[] {
-  return entries.flatMap((entry): LedgerEntry[] => {
-    const sourced = typeof entry.messageId === "number" && entry.messageId >= messageId;
-    if (!sourced) return [entry];
-    if (!entry.pinned) return [];
-    return [{ ...entry, ...withValidity(entry, "source-removed") }];
-  });
+  return entries.flatMap((entry) => keepPinnedFrom(entry, messageId));
 }
 
 /** V11 (carried from V9): below the engine's history floor a rollback only ever restores a key's

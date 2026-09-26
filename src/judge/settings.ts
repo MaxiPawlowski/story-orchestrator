@@ -1,6 +1,7 @@
 import type { SceneReadRecord } from "./scene";
 import { JUDGE_CALL_RING_LIMIT, JUDGE_DEFAULT_MODEL, JUDGE_DEFAULT_TIMEOUT_MS } from "./policy";
 import type { JudgeCallRecord } from "./types";
+import { isRecord } from "@utils/guards";
 
 export const JUDGE_USE_KEYS = [
   "director",
@@ -55,8 +56,6 @@ export interface JudgeRuntimeState {
   scene: SceneReadRecord | null;
   meter: JudgeMeter;
 }
-
-const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 
 export const defaultJudgeUses = (): JudgeUses => Object.fromEntries(JUDGE_USE_KEYS.map((key) => [key, false])) as JudgeUses;
 

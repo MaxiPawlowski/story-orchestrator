@@ -1,5 +1,4 @@
-import { ratingLevels, type PrimitiveValue, type Quality, type QualityCriterion } from "@engine/index";
-import { qualityAccepts } from "@extraction/parse";
+import { qualityAccepts, ratingLevels, type PrimitiveValue, type Quality, type QualityCriterion } from "@engine/index";
 import { findNumbers, findStringCandidates } from "./numbers";
 import { EXTRACTION_CONFIDENCE, EXTRACTION_LATCHING_BUMP, STALL_DIRECT_P, STALL_GENUINE_P } from "./policy";
 import { choice, choiceAnswer, noul, noulAnswer, scoreAnswer, score } from "./questions";

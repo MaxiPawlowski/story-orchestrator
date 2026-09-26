@@ -1,6 +1,7 @@
 import { getContext } from "./context";
 import { extensionsSharedModule } from "./modules";
 import { requestModelReply, type InstructSequences, type ModelReply, type ModelRequestHost, type ModelRequestOptions } from "./modelReply";
+import { isRecord } from "@utils/guards";
 
 export interface ConnectionProfileSummary {
   id: string;
@@ -8,8 +9,6 @@ export interface ConnectionProfileSummary {
   api?: string;
   model?: string;
 }
-
-const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 
 export function listConnectionProfiles(): ConnectionProfileSummary[] {
   try {

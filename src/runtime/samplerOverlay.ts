@@ -1,4 +1,5 @@
 import { applySamplerOverlay, type SamplerApi, type SamplerValues } from "@utils/samplerKeys";
+import { withholds } from "./generationLifecycle";
 
 export interface SamplerOverlaySpec {
   chatId: string;
@@ -24,10 +25,8 @@ export interface SamplerRequest {
   innermost: string | null;
 }
 
-const WITHHOLDING: ReadonlySet<string> = new Set(["quiet", "impersonate"]);
-
 export const isLoudRequest = (request: SamplerRequest): boolean =>
-  !request.dryRun && request.open && !WITHHOLDING.has(request.innermost ?? "") && !WITHHOLDING.has(request.type ?? "");
+  !request.dryRun && request.open && !withholds(request.innermost) && !withholds(request.type);
 
 export class SamplerOverlay {
   private active: SamplerOverlayView | null = null;

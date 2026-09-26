@@ -2,7 +2,8 @@ import { backgroundCandidates, backgroundDecision, BACKGROUND_NONE, buildBackgro
 import { CONTINUITY_P } from "./policy";
 import { noulAnswer } from "./questions";
 import type { JudgeSelfTestReport, JudgeSelfTestRow } from "./selfTest";
-import type { JudgeRequest, JudgeResult } from "./types";
+import type { JudgeFallback, JudgeRequest, JudgeResult } from "./types";
+import { median } from "./stats";
 
 export interface ContinuityCase {
   id: string;
@@ -21,12 +22,6 @@ export interface BackgroundCase {
   acceptable: string[];
 }
 
-const median = (values: number[]): number | null => {
-  if (!values.length) return null;
-  const sorted = [...values].sort((left, right) => left - right);
-  return sorted[Math.floor((sorted.length - 1) / 2)];
-};
-
 const report = (perCase: Array<{ rows: JudgeSelfTestRow[]; model: string | null; latencyMs: number }>): JudgeSelfTestReport => {
   const rows = perCase.flatMap((entry) => entry.rows);
   return { ranAt: new Date().toISOString(), model: perCase.find((entry) => entry.model)?.model ?? null, total: rows.length, right: rows.filter((row) => row.right).length, p50LatencyMs: median(perCase.map((entry) => entry.latencyMs)), rows };
@@ -34,6 +29,17 @@ const report = (perCase: Array<{ rows: JudgeSelfTestRow[]; model: string | null;
 
 // Rows: `<case>.reply` (a note appears exactly when the reply broke a fact), `<case>.broken:<i>`
 // per contradicted fact (flagged?) and `<case>.consistent:<i>` per consistent fact (false alarm?).
+type FactCase = Pick<ContinuityCase, "id" | "established" | "contradicts">;
+
+export const continuityFactRows = (entry: FactCase, pOf: (index: number) => number | null, base: { latencyMs: number; fallback?: JudgeFallback }): JudgeSelfTestRow[] =>
+  entry.established.map((fact, index) => {
+    const p = pOf(index);
+    const flagged = p !== null && p >= CONTINUITY_P;
+    return entry.contradicts.includes(index)
+      ? { id: `${entry.id}.broken:${index}`, right: flagged, picked: p === null ? null : `p=${p}`, detail: fact, ...base }
+      : { id: `${entry.id}.consistent:${index}`, right: !flagged, picked: p === null ? null : `p=${p}`, detail: fact, ...base };
+  });
+
 export async function runContinuityCalibration(ask: (request: JudgeRequest) => Promise<JudgeResult>, cases: ContinuityCase[]): Promise<JudgeSelfTestReport> {
   return report(await Promise.all(cases.map(async (entry) => {
     const result = await ask(buildContinuityRequest(entry.reply, entry.established));
@@ -43,13 +49,7 @@ export async function runContinuityCalibration(ask: (request: JudgeRequest) => P
     const pOf = (index: number) => (answers ? noulAnswer(answers, `fact:${index}`) : null);
     const rows: JudgeSelfTestRow[] = [
       { id: `${entry.id}.reply`, right: Boolean(note) === entry.contradicts.length > 0, picked: note ? note.facts.join(" | ") : "no note", ...base },
-      ...entry.established.map((fact, index) => {
-        const p = pOf(index);
-        const flagged = p !== null && p >= CONTINUITY_P;
-        return entry.contradicts.includes(index)
-          ? { id: `${entry.id}.broken:${index}`, right: flagged, picked: p === null ? null : `p=${p}`, detail: fact, ...base }
-          : { id: `${entry.id}.consistent:${index}`, right: !flagged, picked: p === null ? null : `p=${p}`, detail: fact, ...base };
-      }),
+      ...continuityFactRows(entry, pOf, base),
     ];
     return { rows, model: result.model, latencyMs: result.latencyMs };
   })));

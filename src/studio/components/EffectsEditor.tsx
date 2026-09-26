@@ -2,8 +2,8 @@ import React from "react";
 import { NPC_REPLY_KINDS, NPC_REPLY_TRIGGERS, type CheckpointEffects, type NpcReplyEffect, type NpcReplyKind, type NpcReplyTrigger, type RosterMember } from "@engine/index";
 import MultiSelect from "@components/studio/MultiSelect";
 import HelpTooltip from "@components/studio/HelpTooltip";
+import { isRecord } from "@utils/guards";
 
-const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 const readStrings = (value: unknown): string[] => (Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : []);
 
 interface WorldInfoEntry { lorebook: string; comments: string[] }

@@ -168,70 +168,13 @@
   "s7": [],
   "q3t": [],
   "s8": {
-    "helpers": [
-      "src/copilot/parse.ts#isRecord",
-      "src/engine/validate.ts#isRecord",
-      "src/engine/worldInfoEffects.ts#isRecord",
-      "src/extraction/windowHygiene.ts#isRecord",
-      "src/generation/parse.ts#isRecord",
-      "src/judge/settings.ts#isRecord",
-      "src/memory/conflicts.ts#jaccard",
-      "src/memory/parse.ts#tokenize",
-      "src/runtime/effectsApplier.ts#isRecord",
-      "src/runtime/persistence.ts#isRecord",
-      "src/runtime/settingsModel.ts#isRecord",
-      "src/services/stHost/connectionProfiles.ts#isRecord",
-      "src/services/stHost/contextLimit.ts#isRecord",
-      "src/services/stHost/judge.ts#isRecord",
-      "src/services/stHost/modelReply.ts#isRecord",
-      "src/services/stHost/samplerOverlay.ts#isRecord",
-      "src/stagecraft/fuzzy.ts#tokenize",
-      "src/stagecraft/prompt.ts#truncate",
-      "src/studio/components/EffectsEditor.tsx#isRecord"
-    ],
-    "withholding": {
-      "src/runtime/coordinators/stagecraftCoordinator.ts#compare": 2,
-      "src/runtime/index.ts#compare": 2,
-      "src/runtime/runtimeManager.ts#compare": 2,
-      "src/runtime/samplerOverlay.ts#set": 1,
-      "src/runtime/worldInfoEvidenceHost.ts#set": 1
-    },
+    "helpers": [],
+    "withholding": {},
     "fnv": [
-      "src/extraction/contract.ts",
-      "src/extraction/sharedRead.ts",
-      "src/judge/loreRelevanceCalibration.ts",
-      "src/memory/stores.ts"
+      "src/judge/loreRelevanceCalibration.ts"
     ],
-    "popupCasts": 3,
-    "duplicates": [
-      [
-        "src/copilot/parse.ts#normalizeJsonText",
-        "src/generation/parse.ts#normalizeJsonText"
-      ],
-      [
-        "src/engine/blackboard.ts#valueMatchesQuality",
-        "src/engine/storyDiff.ts#typeAccepts",
-        "src/extraction/parse.ts#qualityAccepts",
-        "src/generation/parse.ts#valueMatches"
-      ],
-      [
-        "src/judge/curatorCalibration.ts#median",
-        "src/judge/expansionCalibration.ts#median",
-        "src/judge/extractionCalibration.ts#median",
-        "src/judge/loreCalibration.ts#median",
-        "src/judge/sceneCalibration.ts#median",
-        "src/judge/selfTest.ts#median",
-        "src/judge/wardenCalibration.ts#median"
-      ],
-      [
-        "src/judge/curatorCalibration.ts#runContinuityCalibration>callback>callback",
-        "src/judge/wardenCalibration.ts#runCombinedContinuityCalibration>callback>callback"
-      ],
-      [
-        "src/memory/epistemic.ts#rollbackEpistemic>callback",
-        "src/memory/ledger.ts#rollbackLedger>callback"
-      ]
-    ],
+    "popupCasts": 1,
+    "duplicates": [],
     "dead": [],
     "duplicateBodyAllowlist": []
   },

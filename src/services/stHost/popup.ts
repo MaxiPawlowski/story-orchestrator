@@ -1,5 +1,13 @@
 import { getContext } from "./context";
 
+interface PopupHost {
+  callGenericPopup?: (content: string | HTMLElement, type: number, inputValue?: string, popupOptions?: Record<string, unknown>) => Promise<unknown>;
+  POPUP_TYPE?: { CONFIRM?: number; TEXT?: number };
+  POPUP_RESULT?: { AFFIRMATIVE?: number };
+}
+
+const popupHost = (): PopupHost | undefined => getContext() as unknown as PopupHost | undefined;
+
 export interface TextPopupOptions {
   okButton?: string;
   wide?: boolean;
@@ -11,11 +19,7 @@ export interface ConfirmPopupOptions {
 }
 
 export async function showConfirmPopup(content: PopupContent, options: ConfirmPopupOptions = {}): Promise<boolean> {
-  const context = getContext() as unknown as {
-    callGenericPopup?: (content: string | HTMLElement, type: number, inputValue?: string, popupOptions?: Record<string, unknown>) => Promise<unknown>;
-    POPUP_TYPE?: { CONFIRM?: number };
-    POPUP_RESULT?: { AFFIRMATIVE?: number };
-  } | undefined;
+  const context = popupHost();
   if (typeof context?.callGenericPopup !== "function") {
     return window.confirm(plainText(content));
   }
@@ -51,11 +55,7 @@ const plainText = (content: PopupContent): string => (typeof content === "string
 // takes `customButtons` whose results start at 2 (popup.js:288-290) alongside the built-in
 // AFFIRMATIVE=1 / NEGATIVE=0 / CANCELLED=null (popup.js:24-27).
 export async function showChoicePopup<T extends string>(content: PopupContent, options: ChoicePopupOptions<T>): Promise<T | null> {
-  const context = getContext() as unknown as {
-    callGenericPopup?: (content: string | HTMLElement, type: number, inputValue?: string, popupOptions?: Record<string, unknown>) => Promise<unknown>;
-    POPUP_TYPE?: { CONFIRM?: number };
-    POPUP_RESULT?: { AFFIRMATIVE?: number };
-  } | undefined;
+  const context = popupHost();
   const choices = options.choices ?? [];
   if (typeof context?.callGenericPopup !== "function") {
     return window.confirm(plainText(content) || options.okButton.label) ? options.okButton.id : null;
@@ -85,11 +85,8 @@ export interface TextPopupHandle {
  * button carries result 1, so a click is the supported close path.
  */
 export function showTextPopup(content: PopupContent, options: TextPopupOptions = {}): TextPopupHandle {
-  const context = getContext() as unknown as {
-    callGenericPopup?: (content: string | HTMLElement, type: number, inputValue?: string, popupOptions?: Record<string, unknown>) => Promise<unknown>;
-    POPUP_TYPE?: { TEXT?: number };
-  };
-  if (typeof context.callGenericPopup !== "function") {
+  const context = popupHost();
+  if (typeof context?.callGenericPopup !== "function") {
     console.warn("[Story Orchestrator] host has no callGenericPopup; popup suppressed");
     return { close: () => undefined };
   }

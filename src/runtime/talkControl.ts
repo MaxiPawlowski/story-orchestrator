@@ -4,13 +4,14 @@ import { buildCandidates, chooseByRules, directorEnabled, directorInstruction, f
 import { timeoutAbortReason } from "@utils/signals";
 import { beginRun, type MessageWindow, type RunGuard, type RunOwnership } from "./runToken";
 import type { TalkDecisionAudit } from "./types";
+import { WITHHOLDING_TYPES } from "./generationLifecycle";
 
 export const DIRECTOR_TIMEOUT_MS = 20000;
 export const DIRECTOR_MAX_TOKENS = 96;
 export const DIRECTOR_WINDOW_MESSAGES = 8;
 
 const LOUD_INTERCEPT_TYPE = "normal";
-const QUIET_WRAPPER_TYPES = new Set(["quiet", "swipe", "continue", "impersonate"]);
+const QUIET_WRAPPER_TYPES = new Set([...WITHHOLDING_TYPES, "swipe", "continue"]);
 
 export interface TalkCheckpointInfo {
   id: string;

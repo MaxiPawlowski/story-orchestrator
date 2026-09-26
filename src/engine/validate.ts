@@ -39,10 +39,7 @@ import { QUALITY_READ_AS, ratingLevels, READ_AS_TYPES } from "./qualityRead";
 import { progressQualityForAnchor } from "./convergence";
 import { OBJECTIVE_BLOCK_MODES } from "./agency";
 import { nearestKey } from "@utils/levenshtein";
-
-const isRecord = (value: unknown): value is Record<string, unknown> => {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-};
+import { isRecord } from "@utils/guards";
 
 const isPrimitive = (value: unknown): value is PrimitiveValue => {
   return typeof value === "string" || typeof value === "number" || typeof value === "boolean";

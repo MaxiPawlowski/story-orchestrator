@@ -56,6 +56,7 @@ import type {
   MemoryRuntimeSettings, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, StagecraftRuntimeState,
   StagecraftSettings, StoryLibraryRecord, TalkDecisionAudit, TalkRuntimeState, UiRuntimeSettings,
 } from "./types";
+import { withholds } from "./generationLifecycle";
 
 export class RuntimeManager {
   private engine = new StoryEngine();
@@ -499,7 +500,7 @@ export class RuntimeManager {
   rosterIdForName(name: string): string | null { return rosterIdForName(this.loaded?.story ?? null, name); }
 
   onMemberDrafted(chId: number | [number]) { this.memory.onMemberDrafted(chId); }
-  onGenerationStarted(type: unknown, dryRun?: unknown) { if (type === "impersonate" || type === "quiet") this.withholdTurnBlocks(); this.stagecraft.onGenerationStarted(type, dryRun); }
+  onGenerationStarted(type: unknown, dryRun?: unknown) { if (withholds(type)) this.withholdTurnBlocks(); this.stagecraft.onGenerationStarted(type, dryRun); }
   commitContinuityNote(rendered: boolean) { this.stagecraft.commitNote(rendered); }
   runWardenPass(replyMessageId: number) { return this.stagecraft.runWardenPass(replyMessageId); }
 

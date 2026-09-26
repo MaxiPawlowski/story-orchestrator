@@ -1,5 +1,5 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
-import { stableStringify } from "@runtime/hash";
+import { fnv1a, stableStringify } from "@runtime/hash";
 import type { ExtractionReply, ModelAsk, ModelCall } from "./modelRoute";
 import { getCanonLite } from "./canonLite";
 import { hashContract, PLAYER_MARK, renderSharedReadPrompt } from "./contract";
@@ -90,15 +90,7 @@ export interface RunSharedReadOptions {
   readWindow?: ChatWindowReader;
 }
 
-const createId = (parts: unknown) => {
-  let hash = 2166136261;
-  const text = stableStringify(parts);
-  for (let index = 0; index < text.length; index += 1) {
-    hash ^= text.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-  }
-  return (hash >>> 0).toString(16).padStart(8, "0");
-};
+const createId = (parts: unknown) => fnv1a(stableStringify(parts));
 
 const noReader: ChatWindowReader = () => { throw new Error("a shared read needs a window or a chat reader"); };
 

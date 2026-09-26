@@ -2,6 +2,7 @@ import { buildDirectorRequest, decideDirector, DIRECTOR_NOBODY } from "./directo
 import { buildPairRequest, buildVerifyRequest, pairDecision, readPair, readVerify, verifyVerdict, type JudgePairRelation } from "./memory";
 import { JUDGE_SELF_TEST_CASES, type JudgeSelfTestCase } from "./selfTestCases";
 import type { JudgeFallback, JudgeRequest, JudgeResult } from "./types";
+import { median } from "./stats";
 
 export interface JudgeSelfTestRow {
   id: string;
@@ -20,12 +21,6 @@ export interface JudgeSelfTestReport {
   p50LatencyMs: number | null;
   rows: JudgeSelfTestRow[];
 }
-
-const median = (values: number[]): number | null => {
-  if (!values.length) return null;
-  const sorted = [...values].sort((left, right) => left - right);
-  return sorted[Math.floor((sorted.length - 1) / 2)];
-};
 
 export async function runJudgeDirectorSelfTest(ask: (request: JudgeRequest) => Promise<JudgeResult>, cases: JudgeSelfTestCase[] = JUDGE_SELF_TEST_CASES): Promise<JudgeSelfTestReport> {
   const rows = await Promise.all(cases.map(async (entry): Promise<JudgeSelfTestRow & { model: string | null }> => {

@@ -28,6 +28,7 @@ import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoG
 import { scanGatingActive } from "./worldInfoMode";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { generationWatch } from "./generationWatch";
+import { isRecord } from "@utils/guards";
 
 // v2.3 plan 06. What a host effect changed, read back from the host as it is NOW. Every reader is a
 // QUESTION with an honest "cannot tell", so a reconcile never guesses: a target whose value cannot be
@@ -55,7 +56,6 @@ const NOTHING_TO_RESTORE = new Set<EffectTarget["kind"]>(["preset"]);
 
 export const OVERLAY_UNSUPPORTED_REASON = "a checkpoint preset applies on Text Completion and Chat Completion connections only; this connection uses another API";
 
-const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 const readStrings = (value: unknown): string[] => Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0) : typeof value === "string" && value.trim() ? [value] : [];
 
 const readNpcReplies = (effects: CheckpointEffects | undefined): NpcReplyEffect[] => {

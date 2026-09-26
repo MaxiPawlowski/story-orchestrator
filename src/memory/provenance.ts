@@ -104,3 +104,10 @@ export function describeProvenance(record: Provenanced): string {
  *  read carries no envelope. One rule, both the Memory tab and the conflict queue, because two
  *  renderings of the same envelope is how one of them goes stale. */
 export const originLabel = (found?: Provenance): string => (!found ? "origin unknown" : `${found.source} · ${found.pass}`);
+
+export const keepPinnedFrom = <T extends { messageId?: number | null; pinned?: boolean; provenance: Provenance }>(entry: T, messageId: number): T[] => {
+  const sourced = typeof entry.messageId === "number" && entry.messageId >= messageId;
+  if (!sourced) return [entry];
+  if (!entry.pinned) return [];
+  return [{ ...entry, ...withValidity(entry, "source-removed") }];
+};

@@ -1,7 +1,6 @@
 import { CURATOR_MAX_OPS, CURATOR_MAX_TEXT, CURATOR_SHOWN_CONTENT, PATCH_ANCHOR_SEPARATOR, collapseContent, contentShownInPart, type CuratorScope } from "./types";
 import { entryRef } from "./scope";
-
-const truncate = (value: string, limit: number) => (value.length > limit ? `${value.slice(0, limit)}…` : value);
+import { truncate } from "@utils/string";
 
 // Same discipline as the extractor contract: a closed vocabulary (only the entry titles listed here
 // may be named), an explicit evidence expectation, and one line per change so a small model cannot

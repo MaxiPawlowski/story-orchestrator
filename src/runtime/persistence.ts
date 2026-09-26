@@ -1,5 +1,6 @@
 import { getContext, saveOpenChat, type SaveObservation } from "@services/STAPI";
 import type { PersistedStoryRuntime, StoryOrchestratorMetadataBlob } from "./types";
+import { isRecord } from "@utils/guards";
 
 const METADATA_KEY = "story_orchestrator";
 
@@ -8,8 +9,6 @@ export const BLOB_VERSION = 5;
 // Keep the selected story plus the most recent others; a pinned copy is ~17 KB, so an unbounded
 // map would grow chat_metadata without limit.
 export const STORY_STATE_RETENTION = 5;
-
-const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 
 const openChatId = (): string | null => {
   const id = getContext().chatId;

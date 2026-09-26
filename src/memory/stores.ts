@@ -1,4 +1,4 @@
-import { stableStringify } from "@runtime/hash";
+import { fnv1a, stableStringify } from "@runtime/hash";
 import { clearOverride, withOverride, withValidity } from "./provenance";
 import type { MemoryEntry, MemoryExpiration, MemoryStoreState, MemoryTier, MemoryWriteLogEntry } from "./types";
 
@@ -14,13 +14,7 @@ export function createMemoryState(): MemoryStoreState {
 }
 
 export function hashMemoryText(text: string): string {
-  const value = stableStringify(text.trim().toLowerCase());
-  let hash = 2166136261;
-  for (let index = 0; index < value.length; index += 1) {
-    hash ^= value.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-  }
-  return (hash >>> 0).toString(16).padStart(8, "0");
+  return fnv1a(stableStringify(text.trim().toLowerCase()));
 }
 
 export function addMemoryEntries(state: MemoryStoreState, entries: MemoryEntry[], range: TurnRange): { state: MemoryStoreState; accepted: MemoryEntry[]; discarded: MemoryEntry[] } {

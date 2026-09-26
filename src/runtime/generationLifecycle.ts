@@ -19,7 +19,7 @@ export interface GenerationLifecycleSnapshot {
   openedCount: number;
 }
 
-const WITHHOLDING_TYPES: ReadonlySet<string> = new Set(["quiet", "impersonate"]);
+export const WITHHOLDING_TYPES: ReadonlySet<string> = new Set(["quiet", "impersonate"]);
 const REWRITES_LAST_MESSAGE: ReadonlySet<string> = new Set(["swipe", "continue", "regenerate"]);
 
 const isParams = (value: unknown): value is Record<string, unknown> | undefined =>
@@ -32,7 +32,9 @@ export const isHostStartedShape = (args: readonly unknown[]): boolean =>
 
 export const isHostEndedShape = (args: readonly unknown[]): boolean => args[0] === undefined || typeof args[0] === "number";
 
-const withholds = (type: string | null) => type !== null && WITHHOLDING_TYPES.has(type);
+export const withholds = (type: unknown) => typeof type === "string" && WITHHOLDING_TYPES.has(type);
+
+export const isQuietType = (type: unknown) => type === "quiet";
 
 const messageIndex = (value: unknown): number | null => {
   const id = typeof value === "number" ? value : typeof value === "string" && value.trim() !== "" ? Number(value) : NaN;

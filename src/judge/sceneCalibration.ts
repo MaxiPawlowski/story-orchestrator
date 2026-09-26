@@ -2,6 +2,7 @@ import { HEADING_P, PRESENT_P, SCENE_TRIGGER } from "./policy";
 import { buildSceneReadRequest, readScene, type SceneReadInput } from "./scene";
 import { judgeFamilyScores, type JudgeSelfTestReport, type JudgeSelfTestRow } from "./selfTest";
 import type { JudgeRequest, JudgeResult } from "./types";
+import { median } from "./stats";
 
 export interface SceneCalibrationCase {
   id: string;
@@ -17,12 +18,6 @@ export type SceneFamilyKey = "present" | "location" | "time" | "heading" | "brea
 // costs today and a false trigger costs one GPU read: no false trigger at all, and recall over the
 // regex's measured 6 of 12 (plan 03 Phase A).
 export const SCENE_CALIBRATION_FLOORS: Record<SceneFamilyKey, number> = { present: 0.9, location: 0.85, time: 0.8, heading: 0.85, break: 0.5, nobreak: 1 };
-
-const median = (values: number[]): number | null => {
-  if (!values.length) return null;
-  const sorted = [...values].sort((left, right) => left - right);
-  return sorted[Math.floor((sorted.length - 1) / 2)];
-};
 
 export async function runSceneCalibration(ask: (request: JudgeRequest) => Promise<JudgeResult>, cases: SceneCalibrationCase[]): Promise<JudgeSelfTestReport> {
   const perCase = await Promise.all(cases.map(async (entry) => {

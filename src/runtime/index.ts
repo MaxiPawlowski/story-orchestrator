@@ -18,7 +18,7 @@ import { runtimeManager } from "./runtimeManager";
 import { beginRun } from "./runToken";
 import { registerSlashCommands } from "./slashCommands";
 import { DIRECTOR_MAX_TOKENS, DIRECTOR_WINDOW_MESSAGES, TalkController, type TalkControlHost } from "./talkControl";
-import { GenerationLifecycle, type GenerationIntent } from "./generationLifecycle";
+import { GenerationLifecycle, isQuietType, type GenerationIntent } from "./generationLifecycle";
 import { generationWatch } from "./generationWatch";
 import { isTurnMessageType, TurnBridge } from "./turnBridge";
 import { RequirementsWatch } from "./requirementsWatch";
@@ -234,14 +234,14 @@ export function startRuntime() {
     .catch((error) => console.warn("[Story Orchestrator] lore-select failed", error));
   const onLoreGenerationStarted = async (type: string | undefined, params: Record<string, unknown> | undefined, dryRun: boolean | undefined) => {
     loreAwaitsMessage = false;
-    if (dryRun || type === "quiet" || params?.quiet_prompt) return;
+    if (dryRun || isQuietType(type) || params?.quiet_prompt) return;
     loreAwaitsIntercept = false;
     if (!lore.active()) return;
     if (willAddUserMessage(type, params, dryRun)) loreAwaitsMessage = true;
     else loreAwaitsIntercept = true;
   };
   const onLoreIntercept = async (type: string, aborted: boolean) => {
-    if (type === "quiet" || !loreAwaitsIntercept) return;
+    if (isQuietType(type) || !loreAwaitsIntercept) return;
     loreAwaitsIntercept = false;
     if (!aborted) await selectLore("GENERATION_STARTED");
   };

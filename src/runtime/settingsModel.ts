@@ -4,6 +4,7 @@ import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/
 import { defaultJudgeSettings, sanitizeJudgeSettings, type JudgeSettings } from "@judge/index";
 import { sanitizePassProfiles } from "./passProfiles";
 import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, StagecraftSettings } from "./types";
+import { isRecord } from "@utils/guards";
 
 // User/install lifetime (spec addendum §Configuration homes). Chat lifetime keeps only engine
 // state, rings and the per-chat overrides listed in ChatOverrides.
@@ -91,8 +92,6 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   judge: defaultJudgeSettings(),
   worldInfo: defaultWorldInfoSettings(),
 });
-
-const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 
 const clampAlpha = (value: unknown) => (typeof value === "number" && value >= 0 && value <= 1 ? value : DEFAULT_TENSION_EMA_ALPHA);
 

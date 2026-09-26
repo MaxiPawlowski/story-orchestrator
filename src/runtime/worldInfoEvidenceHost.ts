@@ -4,10 +4,9 @@ import { lorebookFileId } from "@utils/string";
 import type { RunContext } from "./runToken";
 import { loreEvidence, type EntryRef, type LoreEvidence, type LoreFlag, type ScanInput } from "./worldInfoEvidence";
 import { sameLorebook } from "./worldInfoMatch";
+import { withholds } from "./generationLifecycle";
 
-const WITHHOLDING = new Set(["quiet", "impersonate"]);
-
-export const isLoudGeneration = (type: string | null) => type === null || !WITHHOLDING.has(type);
+export const isLoudGeneration = (type: string | null) => type === null || !withholds(type);
 
 export interface LoreEvidenceWiring {
   chatId: () => string | null;
