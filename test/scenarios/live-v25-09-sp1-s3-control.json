@@ -1,0 +1,296 @@
+{
+  "_note": "v2.5 plan 09 SP1 S3 control arm (today), LIVE on the dev build, spike flag OFF. The same script as live-v25-09-sp1-s3.json; each swipe-back's read calls, hit count (always 0) and state equality are recorded, not asserted, as the 'today' column.",
+  "steps": [
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; if (!ctx.groupId || !ctx.chatId) throw new Error('needs a group chat (so-scenario --sandbox --group <id>)'); if (!globalThis.storyOrchestratorSpikes?.swipeBackCache) throw new Error('the SP1 spike module is not loaded: serve the dev build (npm run build:dev && npm run serve:dev)'); for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const settings = ctx.extensionSettings['story-orchestrator']?.settings; if (!settings) throw new Error('no settings root'); const before = settings.spikes ? { ...settings.spikes } : null; settings.spikes = { ...(settings.spikes ?? {}), swipeBackCache: false }; ctx.saveSettingsDebounced(); if (rt.getGlobalSettings().spikes?.swipeBackCache !== false) throw new Error('the spike flag did not land'); const live = (row) => !row.supersededBy && (!row.provenance || row.provenance.validity === 'live'); globalThis.__sp1 = { before, flag: false, records: {}, legs: [] }; globalThis.__sp1.snap = () => { const s = rt.getEngineState(); const engine = rt.engine; return { engine: { active: s.activeCheckpointId, boundary: s.boundary, values: s.blackboard.values, versions: s.blackboard.versions, path: s.visitedPath, last: s.lastMessageId, started: s.checkpointStartedMessageId }, pending: (engine?.pendingWrites ?? []).map((w) => ({ range: w.turnRange ?? null, deltas: (w.deltas ?? []).map((d) => d.q + '=' + JSON.stringify(d.v)) })), memory: [...new Set((rt.getSnapshot().memory?.entries ?? []).filter(live).map((r) => r.tier + '|' + (r.messageId ?? '-') + '|' + r.text))].sort() }; }; const read = rt.getGlobalSettings(); return { flag: false, before, cadence: read.extraction.cadence, judge: read.judge.enabled };",
+      "log": true
+    },
+    {
+      "import_story": {
+        "file": "./live-v24-01-t10.story.json"
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I set my pack down by the long table and ask Ponticius what work the guild has.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const id = ctx.chat.length - 1; const row = ctx.chat[id]; if (!row || row.is_user || row.is_system || !String(row.mes ?? '').trim()) throw new Error('the newest message is not a reply'); if (rt.getEngineState().lastMessageId !== id) throw new Error('the newest reply is not committed: engine last ' + rt.getEngineState().lastMessageId + ', reply ' + id); const swipe = row.swipe_id ?? 0; if (swipe !== 0) throw new Error('expected swipe ' + 0 + ', at ' + swipe); globalThis.__sp1.id = id; globalThis.__sp1.records[swipe] = globalThis.__sp1.snap(); return { id, swipe, swipes: row.swipes?.length ?? 1, state: globalThis.__sp1.records[swipe].engine };",
+      "log": true
+    },
+    {
+      "slash": "/swipe direction=right await=true"
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const id = ctx.chat.length - 1; const row = ctx.chat[id]; if (!row || row.is_user || row.is_system || !String(row.mes ?? '').trim()) throw new Error('the newest message is not a reply'); if (rt.getEngineState().lastMessageId !== id) throw new Error('the newest reply is not committed: engine last ' + rt.getEngineState().lastMessageId + ', reply ' + id); const swipe = row.swipe_id ?? 0; if (swipe !== 1) throw new Error('expected swipe ' + 1 + ', at ' + swipe); globalThis.__sp1.id = id; globalThis.__sp1.records[swipe] = globalThis.__sp1.snap(); return { id, swipe, swipes: row.swipes?.length ?? 1, state: globalThis.__sp1.records[swipe].engine };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; globalThis.__sp1.legs.push({ leg: 1, direction: 'left', at: Date.now(), stats: globalThis.storyOrchestratorSpikes.swipeBackCache.stats(), audits: rt.getExtractionAudits().length }); return globalThis.__sp1.legs[globalThis.__sp1.legs.length - 1];",
+      "log": true
+    },
+    {
+      "slash": "/swipe direction=left await=true"
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const s = globalThis.__sp1; const leg = s.legs[s.legs.length - 1]; const row = ctx.chat[s.id]; const swipe = row.swipe_id ?? 0; if (ctx.chat.length - 1 !== s.id) throw new Error('the chat grew during a swipe-back'); if (swipe !== 0) throw new Error('the swipe-back landed on swipe ' + swipe + ', expected ' + 0); const stats = globalThis.storyOrchestratorSpikes.swipeBackCache.stats(); leg.reads = rt.getExtractionAudits().filter((audit) => Date.parse(audit.createdAt) >= leg.at).map((audit) => ({ reason: audit.reason, window: audit.window })); leg.hit = stats.hits - leg.stats.hits; const now = s.snap(); const want = s.records[swipe]; leg.equal = JSON.stringify(now) === JSON.stringify(want); leg.diff = leg.equal ? null : Object.fromEntries(Object.keys(now).map((k) => [k, JSON.stringify(now[k]) === JSON.stringify(want[k])])); const got = { leg: leg.leg, swipe, hit: leg.hit, reads: leg.reads.length, equal: leg.equal, diff: leg.diff }; if (s.flag && (leg.hit !== 1 || leg.reads.length !== 0 || !leg.equal)) throw new Error('S3: swipe-back ' + leg.leg + ' :: ' + JSON.stringify({ ...got, readReasons: leg.reads, now: leg.equal ? null : now, want: leg.equal ? null : want })); return got;",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; globalThis.__sp1.legs.push({ leg: 2, direction: 'right', at: Date.now(), stats: globalThis.storyOrchestratorSpikes.swipeBackCache.stats(), audits: rt.getExtractionAudits().length }); return globalThis.__sp1.legs[globalThis.__sp1.legs.length - 1];",
+      "log": true
+    },
+    {
+      "slash": "/swipe direction=right await=true"
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const s = globalThis.__sp1; const leg = s.legs[s.legs.length - 1]; const row = ctx.chat[s.id]; const swipe = row.swipe_id ?? 0; if (ctx.chat.length - 1 !== s.id) throw new Error('the chat grew during a swipe-back'); if (swipe !== 1) throw new Error('the swipe-back landed on swipe ' + swipe + ', expected ' + 1); const stats = globalThis.storyOrchestratorSpikes.swipeBackCache.stats(); leg.reads = rt.getExtractionAudits().filter((audit) => Date.parse(audit.createdAt) >= leg.at).map((audit) => ({ reason: audit.reason, window: audit.window })); leg.hit = stats.hits - leg.stats.hits; const now = s.snap(); const want = s.records[swipe]; leg.equal = JSON.stringify(now) === JSON.stringify(want); leg.diff = leg.equal ? null : Object.fromEntries(Object.keys(now).map((k) => [k, JSON.stringify(now[k]) === JSON.stringify(want[k])])); const got = { leg: leg.leg, swipe, hit: leg.hit, reads: leg.reads.length, equal: leg.equal, diff: leg.diff }; if (s.flag && (leg.hit !== 1 || leg.reads.length !== 0 || !leg.equal)) throw new Error('S3: swipe-back ' + leg.leg + ' :: ' + JSON.stringify({ ...got, readReasons: leg.reads, now: leg.equal ? null : now, want: leg.equal ? null : want })); return got;",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; globalThis.__sp1.legs.push({ leg: 3, direction: 'left', at: Date.now(), stats: globalThis.storyOrchestratorSpikes.swipeBackCache.stats(), audits: rt.getExtractionAudits().length }); return globalThis.__sp1.legs[globalThis.__sp1.legs.length - 1];",
+      "log": true
+    },
+    {
+      "slash": "/swipe direction=left await=true"
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const s = globalThis.__sp1; const leg = s.legs[s.legs.length - 1]; const row = ctx.chat[s.id]; const swipe = row.swipe_id ?? 0; if (ctx.chat.length - 1 !== s.id) throw new Error('the chat grew during a swipe-back'); if (swipe !== 0) throw new Error('the swipe-back landed on swipe ' + swipe + ', expected ' + 0); const stats = globalThis.storyOrchestratorSpikes.swipeBackCache.stats(); leg.reads = rt.getExtractionAudits().filter((audit) => Date.parse(audit.createdAt) >= leg.at).map((audit) => ({ reason: audit.reason, window: audit.window })); leg.hit = stats.hits - leg.stats.hits; const now = s.snap(); const want = s.records[swipe]; leg.equal = JSON.stringify(now) === JSON.stringify(want); leg.diff = leg.equal ? null : Object.fromEntries(Object.keys(now).map((k) => [k, JSON.stringify(now[k]) === JSON.stringify(want[k])])); const got = { leg: leg.leg, swipe, hit: leg.hit, reads: leg.reads.length, equal: leg.equal, diff: leg.diff }; if (s.flag && (leg.hit !== 1 || leg.reads.length !== 0 || !leg.equal)) throw new Error('S3: swipe-back ' + leg.leg + ' :: ' + JSON.stringify({ ...got, readReasons: leg.reads, now: leg.equal ? null : now, want: leg.equal ? null : want })); return got;",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; globalThis.__sp1.legs.push({ leg: 4, direction: 'right', at: Date.now(), stats: globalThis.storyOrchestratorSpikes.swipeBackCache.stats(), audits: rt.getExtractionAudits().length }); return globalThis.__sp1.legs[globalThis.__sp1.legs.length - 1];",
+      "log": true
+    },
+    {
+      "slash": "/swipe direction=right await=true"
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const s = globalThis.__sp1; const leg = s.legs[s.legs.length - 1]; const row = ctx.chat[s.id]; const swipe = row.swipe_id ?? 0; if (ctx.chat.length - 1 !== s.id) throw new Error('the chat grew during a swipe-back'); if (swipe !== 1) throw new Error('the swipe-back landed on swipe ' + swipe + ', expected ' + 1); const stats = globalThis.storyOrchestratorSpikes.swipeBackCache.stats(); leg.reads = rt.getExtractionAudits().filter((audit) => Date.parse(audit.createdAt) >= leg.at).map((audit) => ({ reason: audit.reason, window: audit.window })); leg.hit = stats.hits - leg.stats.hits; const now = s.snap(); const want = s.records[swipe]; leg.equal = JSON.stringify(now) === JSON.stringify(want); leg.diff = leg.equal ? null : Object.fromEntries(Object.keys(now).map((k) => [k, JSON.stringify(now[k]) === JSON.stringify(want[k])])); const got = { leg: leg.leg, swipe, hit: leg.hit, reads: leg.reads.length, equal: leg.equal, diff: leg.diff }; if (s.flag && (leg.hit !== 1 || leg.reads.length !== 0 || !leg.equal)) throw new Error('S3: swipe-back ' + leg.leg + ' :: ' + JSON.stringify({ ...got, readReasons: leg.reads, now: leg.equal ? null : now, want: leg.equal ? null : want })); return got;",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; globalThis.__sp1.legs.push({ leg: 5, direction: 'left', at: Date.now(), stats: globalThis.storyOrchestratorSpikes.swipeBackCache.stats(), audits: rt.getExtractionAudits().length }); return globalThis.__sp1.legs[globalThis.__sp1.legs.length - 1];",
+      "log": true
+    },
+    {
+      "slash": "/swipe direction=left await=true"
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const s = globalThis.__sp1; const leg = s.legs[s.legs.length - 1]; const row = ctx.chat[s.id]; const swipe = row.swipe_id ?? 0; if (ctx.chat.length - 1 !== s.id) throw new Error('the chat grew during a swipe-back'); if (swipe !== 0) throw new Error('the swipe-back landed on swipe ' + swipe + ', expected ' + 0); const stats = globalThis.storyOrchestratorSpikes.swipeBackCache.stats(); leg.reads = rt.getExtractionAudits().filter((audit) => Date.parse(audit.createdAt) >= leg.at).map((audit) => ({ reason: audit.reason, window: audit.window })); leg.hit = stats.hits - leg.stats.hits; const now = s.snap(); const want = s.records[swipe]; leg.equal = JSON.stringify(now) === JSON.stringify(want); leg.diff = leg.equal ? null : Object.fromEntries(Object.keys(now).map((k) => [k, JSON.stringify(now[k]) === JSON.stringify(want[k])])); const got = { leg: leg.leg, swipe, hit: leg.hit, reads: leg.reads.length, equal: leg.equal, diff: leg.diff }; if (s.flag && (leg.hit !== 1 || leg.reads.length !== 0 || !leg.equal)) throw new Error('S3: swipe-back ' + leg.leg + ' :: ' + JSON.stringify({ ...got, readReasons: leg.reads, now: leg.equal ? null : now, want: leg.equal ? null : want })); return got;",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; globalThis.__sp1.legs.push({ leg: 6, direction: 'right', at: Date.now(), stats: globalThis.storyOrchestratorSpikes.swipeBackCache.stats(), audits: rt.getExtractionAudits().length }); return globalThis.__sp1.legs[globalThis.__sp1.legs.length - 1];",
+      "log": true
+    },
+    {
+      "slash": "/swipe direction=right await=true"
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const s = globalThis.__sp1; const leg = s.legs[s.legs.length - 1]; const row = ctx.chat[s.id]; const swipe = row.swipe_id ?? 0; if (ctx.chat.length - 1 !== s.id) throw new Error('the chat grew during a swipe-back'); if (swipe !== 1) throw new Error('the swipe-back landed on swipe ' + swipe + ', expected ' + 1); const stats = globalThis.storyOrchestratorSpikes.swipeBackCache.stats(); leg.reads = rt.getExtractionAudits().filter((audit) => Date.parse(audit.createdAt) >= leg.at).map((audit) => ({ reason: audit.reason, window: audit.window })); leg.hit = stats.hits - leg.stats.hits; const now = s.snap(); const want = s.records[swipe]; leg.equal = JSON.stringify(now) === JSON.stringify(want); leg.diff = leg.equal ? null : Object.fromEntries(Object.keys(now).map((k) => [k, JSON.stringify(now[k]) === JSON.stringify(want[k])])); const got = { leg: leg.leg, swipe, hit: leg.hit, reads: leg.reads.length, equal: leg.equal, diff: leg.diff }; if (s.flag && (leg.hit !== 1 || leg.reads.length !== 0 || !leg.equal)) throw new Error('S3: swipe-back ' + leg.leg + ' :: ' + JSON.stringify({ ...got, readReasons: leg.reads, now: leg.equal ? null : now, want: leg.equal ? null : want })); return got;",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; globalThis.__sp1.legs.push({ leg: 7, direction: 'left', at: Date.now(), stats: globalThis.storyOrchestratorSpikes.swipeBackCache.stats(), audits: rt.getExtractionAudits().length }); return globalThis.__sp1.legs[globalThis.__sp1.legs.length - 1];",
+      "log": true
+    },
+    {
+      "slash": "/swipe direction=left await=true"
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const s = globalThis.__sp1; const leg = s.legs[s.legs.length - 1]; const row = ctx.chat[s.id]; const swipe = row.swipe_id ?? 0; if (ctx.chat.length - 1 !== s.id) throw new Error('the chat grew during a swipe-back'); if (swipe !== 0) throw new Error('the swipe-back landed on swipe ' + swipe + ', expected ' + 0); const stats = globalThis.storyOrchestratorSpikes.swipeBackCache.stats(); leg.reads = rt.getExtractionAudits().filter((audit) => Date.parse(audit.createdAt) >= leg.at).map((audit) => ({ reason: audit.reason, window: audit.window })); leg.hit = stats.hits - leg.stats.hits; const now = s.snap(); const want = s.records[swipe]; leg.equal = JSON.stringify(now) === JSON.stringify(want); leg.diff = leg.equal ? null : Object.fromEntries(Object.keys(now).map((k) => [k, JSON.stringify(now[k]) === JSON.stringify(want[k])])); const got = { leg: leg.leg, swipe, hit: leg.hit, reads: leg.reads.length, equal: leg.equal, diff: leg.diff }; if (s.flag && (leg.hit !== 1 || leg.reads.length !== 0 || !leg.equal)) throw new Error('S3: swipe-back ' + leg.leg + ' :: ' + JSON.stringify({ ...got, readReasons: leg.reads, now: leg.equal ? null : now, want: leg.equal ? null : want })); return got;",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; globalThis.__sp1.legs.push({ leg: 8, direction: 'right', at: Date.now(), stats: globalThis.storyOrchestratorSpikes.swipeBackCache.stats(), audits: rt.getExtractionAudits().length }); return globalThis.__sp1.legs[globalThis.__sp1.legs.length - 1];",
+      "log": true
+    },
+    {
+      "slash": "/swipe direction=right await=true"
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const s = globalThis.__sp1; const leg = s.legs[s.legs.length - 1]; const row = ctx.chat[s.id]; const swipe = row.swipe_id ?? 0; if (ctx.chat.length - 1 !== s.id) throw new Error('the chat grew during a swipe-back'); if (swipe !== 1) throw new Error('the swipe-back landed on swipe ' + swipe + ', expected ' + 1); const stats = globalThis.storyOrchestratorSpikes.swipeBackCache.stats(); leg.reads = rt.getExtractionAudits().filter((audit) => Date.parse(audit.createdAt) >= leg.at).map((audit) => ({ reason: audit.reason, window: audit.window })); leg.hit = stats.hits - leg.stats.hits; const now = s.snap(); const want = s.records[swipe]; leg.equal = JSON.stringify(now) === JSON.stringify(want); leg.diff = leg.equal ? null : Object.fromEntries(Object.keys(now).map((k) => [k, JSON.stringify(now[k]) === JSON.stringify(want[k])])); const got = { leg: leg.leg, swipe, hit: leg.hit, reads: leg.reads.length, equal: leg.equal, diff: leg.diff }; if (s.flag && (leg.hit !== 1 || leg.reads.length !== 0 || !leg.equal)) throw new Error('S3: swipe-back ' + leg.leg + ' :: ' + JSON.stringify({ ...got, readReasons: leg.reads, now: leg.equal ? null : now, want: leg.equal ? null : want })); return got;",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; globalThis.__sp1.legs.push({ leg: 9, direction: 'left', at: Date.now(), stats: globalThis.storyOrchestratorSpikes.swipeBackCache.stats(), audits: rt.getExtractionAudits().length }); return globalThis.__sp1.legs[globalThis.__sp1.legs.length - 1];",
+      "log": true
+    },
+    {
+      "slash": "/swipe direction=left await=true"
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const s = globalThis.__sp1; const leg = s.legs[s.legs.length - 1]; const row = ctx.chat[s.id]; const swipe = row.swipe_id ?? 0; if (ctx.chat.length - 1 !== s.id) throw new Error('the chat grew during a swipe-back'); if (swipe !== 0) throw new Error('the swipe-back landed on swipe ' + swipe + ', expected ' + 0); const stats = globalThis.storyOrchestratorSpikes.swipeBackCache.stats(); leg.reads = rt.getExtractionAudits().filter((audit) => Date.parse(audit.createdAt) >= leg.at).map((audit) => ({ reason: audit.reason, window: audit.window })); leg.hit = stats.hits - leg.stats.hits; const now = s.snap(); const want = s.records[swipe]; leg.equal = JSON.stringify(now) === JSON.stringify(want); leg.diff = leg.equal ? null : Object.fromEntries(Object.keys(now).map((k) => [k, JSON.stringify(now[k]) === JSON.stringify(want[k])])); const got = { leg: leg.leg, swipe, hit: leg.hit, reads: leg.reads.length, equal: leg.equal, diff: leg.diff }; if (s.flag && (leg.hit !== 1 || leg.reads.length !== 0 || !leg.equal)) throw new Error('S3: swipe-back ' + leg.leg + ' :: ' + JSON.stringify({ ...got, readReasons: leg.reads, now: leg.equal ? null : now, want: leg.equal ? null : want })); return got;",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; globalThis.__sp1.legs.push({ leg: 10, direction: 'right', at: Date.now(), stats: globalThis.storyOrchestratorSpikes.swipeBackCache.stats(), audits: rt.getExtractionAudits().length }); return globalThis.__sp1.legs[globalThis.__sp1.legs.length - 1];",
+      "log": true
+    },
+    {
+      "slash": "/swipe direction=right await=true"
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const s = globalThis.__sp1; const leg = s.legs[s.legs.length - 1]; const row = ctx.chat[s.id]; const swipe = row.swipe_id ?? 0; if (ctx.chat.length - 1 !== s.id) throw new Error('the chat grew during a swipe-back'); if (swipe !== 1) throw new Error('the swipe-back landed on swipe ' + swipe + ', expected ' + 1); const stats = globalThis.storyOrchestratorSpikes.swipeBackCache.stats(); leg.reads = rt.getExtractionAudits().filter((audit) => Date.parse(audit.createdAt) >= leg.at).map((audit) => ({ reason: audit.reason, window: audit.window })); leg.hit = stats.hits - leg.stats.hits; const now = s.snap(); const want = s.records[swipe]; leg.equal = JSON.stringify(now) === JSON.stringify(want); leg.diff = leg.equal ? null : Object.fromEntries(Object.keys(now).map((k) => [k, JSON.stringify(now[k]) === JSON.stringify(want[k])])); const got = { leg: leg.leg, swipe, hit: leg.hit, reads: leg.reads.length, equal: leg.equal, diff: leg.diff }; if (s.flag && (leg.hit !== 1 || leg.reads.length !== 0 || !leg.equal)) throw new Error('S3: swipe-back ' + leg.leg + ' :: ' + JSON.stringify({ ...got, readReasons: leg.reads, now: leg.equal ? null : now, want: leg.equal ? null : want })); return got;",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const s = globalThis.__sp1; const settings = ctx.extensionSettings['story-orchestrator'].settings; if (s.before) settings.spikes = s.before; else delete settings.spikes; ctx.saveSettingsDebounced(); const legs = s.legs.map((leg) => ({ leg: leg.leg, direction: leg.direction, hit: leg.hit, reads: leg.reads?.length ?? null, equal: leg.equal })); return { flag: s.flag, restored: s.before, legs, hits: legs.reduce((n, leg) => n + (leg.hit ?? 0), 0), reads: legs.reduce((n, leg) => n + (leg.reads ?? 0), 0), equal: legs.filter((leg) => leg.equal).length };",
+      "log": true
+    }
+  ]
+}
