@@ -1,0 +1,43 @@
+{
+  "format": 2,
+  "id": "live-v25-09-sp7",
+  "version": 1,
+  "title": "Live v2.5 09 SP7 - Seeded chance",
+  "description": "SP7 live fixture: a hall where the rules pick the speaker by weight (D4b), a gate whose onEnter NPC reply rolls at 0.5 (D4), and a code roll quality drawn at gate entry that decides which way the gate goes (D5 machinery).",
+  "qualities": [
+    { "key": "opened", "type": "bool", "source": "extractor", "rubric": "Has the party walked up to the old gate?" },
+    { "key": "tried", "type": "bool", "source": "extractor", "rubric": "Has the party tried to open the old gate?" },
+    { "key": "lock_gives", "type": "bool", "source": "code", "rubric": "Does the old lock give way this visit?", "roll": { "sides": 20, "target": 12 } }
+  ],
+  "roster": [
+    { "id": "dm", "name": "DM Narrator" },
+    { "id": "companion", "name": "Arin" },
+    { "id": "guild_master", "name": "Ponticius" }
+  ],
+  "requirements": { "members": ["Arin", "Ponticius"] },
+  "checkpoints": [
+    {
+      "id": "hall",
+      "name": "The Hall",
+      "objective": "The party waits in the hall before walking to the old gate.",
+      "type": "anchor",
+      "start": true,
+      "talk_control": { "speakers": [{ "member": "Ponticius", "weight": 1 }, { "member": "Arin", "weight": 1 }], "no_repeat": false, "allow_silence": false }
+    },
+    {
+      "id": "gate",
+      "name": "The Old Gate",
+      "objective": "The party stands before the old gate and may try the lock.",
+      "type": "anchor",
+      "talk_control": { "speakers": [{ "member": "Ponticius", "weight": 1 }, { "member": "Arin", "weight": 1 }], "no_repeat": false, "allow_silence": false },
+      "effects": { "npc_replies": [{ "trigger": "onEnter", "member": "Arin", "kind": "scripted", "text": "Arin runs a hand over the rusted lock.", "probability": 0.5, "maxTriggers": 9 }] }
+    },
+    { "id": "through", "name": "Through the Gate", "objective": "The lock gave way and the party is through.", "type": "anchor" },
+    { "id": "barred", "name": "Barred", "objective": "The lock held and the party must find another way.", "type": "anchor" }
+  ],
+  "transitions": [
+    { "from": "hall", "to": "gate", "priority": 1, "gate": { "q": "opened", "op": "==", "v": true } },
+    { "from": "gate", "to": "through", "priority": 2, "gate": { "all": [{ "q": "tried", "op": "==", "v": true }, { "q": "lock_gives", "op": "==", "v": true }] } },
+    { "from": "gate", "to": "barred", "priority": 1, "gate": { "all": [{ "q": "tried", "op": "==", "v": true }, { "q": "lock_gives", "op": "==", "v": false }] } }
+  ]
+}
