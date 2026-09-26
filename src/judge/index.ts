@@ -5,6 +5,7 @@ export * from "./readiness";
 export * from "./client";
 export * from "./director";
 export * from "./memory";
+export * from "./contradiction";
 export * from "./settings";
 export * from "./selfTest";
 export * from "./selfTestCases";

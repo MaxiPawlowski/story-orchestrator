@@ -2,7 +2,7 @@ import {
   askJudge, modelVerdict, runWardenRescore, WARDEN_RESCORE_USES, type WardenRescoreUse, type WardenRescoreRow,
   runAgencyCalibration, type AgencyCase, runHouseRuleCalibration, type HouseRuleCase, runCombinedContinuityCalibration,
   isCombinedCase, type CombinedContinuityCase, type RescoreResult, buildDirectorRequest, runJudgeDirectorSelfTest,
-  runMemoryPairsCalibration, runMemoryVerifyCalibration, runSceneCalibration, type SceneCalibrationCase,
+  runMemoryPairsCalibration, runMemoryVerifyCalibration, runSceneCalibration, type SceneCalibrationCase, runContradictionReleaseCalibration, type ContradictionReleaseCase,
   runLoreCalibration, type LoreCalibrationCase, runLoreRelevanceCalibration, type LoreRelevanceReport,
   runCuratorFilterCalibration, type CuratorFilterCase, runContinuityCalibration, type ContinuityCase,
   runBackgroundCalibration, type BackgroundCase, runTypedCalibration, type TypedCase, runStallCalibration,
@@ -97,6 +97,7 @@ export class JudgeRuntime {
     if (use === "director") return runJudgeDirectorSelfTest(ask, cases as JudgeSelfTestCase[]);
     if (use === "memory-verify") return runMemoryVerifyCalibration(ask, cases as MemoryVerifyCase[]);
     if (use === "memory-pairs") return runMemoryPairsCalibration(ask, cases as MemoryPairCase[]);
+    if (use === "contradiction-release") return runContradictionReleaseCalibration(ask, cases as ContradictionReleaseCase[]);
     if (use === "scene") return runSceneCalibration(ask, cases as SceneCalibrationCase[]);
     if (use === "lore") return runLoreCalibration(ask, cases as LoreCalibrationCase[]);
     if (use === "curator-filter") return runCuratorFilterCalibration(ask, cases as CuratorFilterCase[]);

@@ -13,7 +13,7 @@ const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
 
   status                              plugin reachability, key source (never the key), install settings
   ask <request.json>                  POST one System One request through the plugin from the page
-  calibrate [--use director|memory-verify|memory-pairs|scene|lore|lore-relevance|curator-filter|continuity|backgrounds|typed|stall|critic|variants|agency|house-rules] [--fixture <name>] [--model <id>] [--min 0.85] [--record]
+  calibrate [--use director|memory-verify|memory-pairs|contradiction-release|scene|lore|lore-relevance|curator-filter|continuity|backgrounds|typed|stall|critic|variants|agency|house-rules] [--fixture <name>] [--model <id>] [--min 0.85] [--record]
                                       run test/fixtures/judge/<fixture|use>.json page -> plugin -> TypeSafe;
                                       --model asks that model without changing install settings; the report records the model that answered
                                       and a modelVerdict (matched | resolved, with resolvedTo | mismatch | unknown; the last two exit 1);

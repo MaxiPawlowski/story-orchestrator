@@ -1,7 +1,7 @@
 v2.5 plan 04 (memory contradictions, code items), mutations 2026-09-26 on the plan-04 branch. Each mutant is an exact-text replacement (asserted to match once) applied by .debug/mutate04.py, the suites below run with jest, and every file restored byte for byte. A jest exit other than 0 = KILLED.
 Suites: src/memory/contradictions.fixture.test.ts, src/runtime/memoryQueueHeld.test.ts, src/runtime/coordinators/contradictedSeed.review.test.ts.
-The plan's J1 mutants (releases on update, releases on fallback, reads memoryPairs instead of its own key, releases below PAIR_MIN_CONFIDENCE) are not applicable: J1 is not built (Phase A is live pending; Q3/Q4 are open).
-Result: 6/6 killed.
+The J1 release write is not built (Phase A is live pending; Q3/Q4 are open), so the J1 wiring mutant (reads memoryPairs instead of its own key) waits for it; the decision mutants run against the Phase A instrument below.
+N1 result: 6/6 killed.
 
 Baseline: exit 0, 0 failed, 55 passed, 55 total
 - N1-M1 polarity sign ignored: KILLED, 6 failed, 49 passed, 55 total
@@ -25,3 +25,21 @@ Baseline: exit 0, 0 failed, 55 passed, 55 total
     "vectors-present mode is bounded by text alone: the screen reads no cosine, and every Jaccard-band row is held in both modes"
     "holds the claim against an established row (en, a negated verb that inflection and punctuation keep apart)"
 Restored: exit 0, 0 failed, 55 passed, 55 total
+
+J1 Phase A instrument (src/judge/contradiction.ts: the two release wordings, the release decision, the floor scorer). Same method, .debug/mutate04b.py, suite src/judge/contradiction.test.ts. These cover the decision the J1 build would call; the key-wiring mutant (reads memoryPairs) waits for the build. Result: 5/5 killed.
+
+Baseline: exit 0, 0 failed, 13 passed, 13 total
+- J1A-M1 (b) releases on update: KILLED, 1 failed, 12 passed, 13 total
+    "(b) releases only a confident agrees"
+- J1A-M2 releases on fallback: KILLED, 4 failed, 9 passed, 13 total
+    "holds on a timeout fallback, whatever the answers say"
+    "holds on a error fallback, whatever the answers say"
+    "holds on a unavailable fallback, whatever the answers say"
+- J1A-M3 releases below PAIR_MIN_CONFIDENCE: KILLED, 1 failed, 12 passed, 13 total
+    "(b) releases only a confident agrees"
+- J1A-M4 (a) releases on update: KILLED, 2 failed, 11 passed, 13 total
+    "(a) maps the pair question: duplicate, distinct and unrelated release; update and an undecided pair hold"
+    "a judge that answers every label right passes both wordings"
+- J1A-M5 floor check ignores the Spanish slice: KILLED, 1 failed, 12 passed, 13 total
+    "a released Spanish contradiction fails the arm even when the overall rate is within 0.05"
+Restored: exit 0, 0 failed, 13 passed, 13 total
