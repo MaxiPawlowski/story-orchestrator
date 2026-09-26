@@ -1,6 +1,6 @@
 # Plan 03 — Code health and budget headroom
 
-**Status: DRAFT 2026-09-25 — awaits user approval.** Depends on plan 11 (legacy removal runs first: it deletes read
+**Status: IN PROGRESS 2026-09-26 (code items; see Gate record).** Drafted 2026-09-25. Depends on plan 11 (legacy removal runs first: it deletes read
 branches and narrows the types every item here touches). Plans 04 and 06 wait on this plan's coordinator lines; plan 12's
 bundle budget (F1) is measured after its extractions; plan 13 (harness routing) builds on the model-call seam it types.
 Verified against master `e7626d7` on 2026-09-25. **Step 0 re-measures everything below on the post-11 tree** (v2.4 rule 1).
@@ -75,6 +75,98 @@ the audit (master `1b4e642`) or the overview.
 
 Plan 11's measured savings are small: `liftLegacyChatSettings` leaves the manager (`:44,542`, H9) and the legacy pin
 prompt leaves `memoryCoordinator` (`:341-342`, H11). Neither reaches S2 by itself.
+
+### Step 0 re-measure (post-11/01/02 tree, master `06ea92d`, 2026-09-26)
+
+Measured by `test/support/codeHealth.ts` (TS-API scanner, committed with step 1; the architecture formula, 120-char
+effective width) over prod `src/**/*.ts(x)` minus `*.test.*`, `*.stories.*`, `__mocks__`. Δ = vs the table above.
+
+| Claim | Now | Δ |
+|---|---|---|
+| Manager | **740 / 740** | — (plan 11 H9 saving spent by plan 01/02) |
+| `memoryCoordinator` / `extractionCoordinator` / `stagecraftCoordinator` | **618** / **604** / **616** of 620 | −1 / 0 / **+15** (plan 02 C10 reconcile) |
+| other coordinators | expansion 325, copilot 263, scene 223, pacing 124 | +1 / −1 / 0 / 0 |
+| Prod files over 600 | 7: `DrawerTabs.tsx` 948, `engine/validate.ts` 849, `index.tsx` 783, manager 740, memory 618, stagecraft 616, extraction 604 | DrawerTabs −24, validate +19, index +23 |
+| Prod totals | 326 files, 38 501 raw, 41 543 eff | +6 files |
+| Lines > 200 / > 300; max | **394** / 50; 1 291 (`runtime/judge.ts:1`) | −3 / 0 |
+| Functions > 150 lines | **14**: `SettingsPanel` 357, `startRuntime` 286, `StudioCopilot` 279, `createWiGating` 220 (new, plan 01), `GraphPanel` 208, `runDiagnostics` 204, `QualityEditor` 201, `StoryEditor` 181, `CheckpointEditor` 168, `MemoryTab` 162, `readOp` 160, `StudioModal` 160, `diffStories` 152, `registerSlashCommands` 152 | +1 |
+| Branches > 40 | `readOp` 87, `parseStoryV2` 44 | — |
+| Nesting > 5 | `applyGeneration` 7, `consolidateTier` 6, `consolidateTierJudged` 6 (the metric counts an `else if` as one level deeper, as the AST nests it) | — |
+| Coordinators with a value import of `@services/STAPI` | 6 of 7 (all but scene) | — |
+| Tests: `jest.mock` files / STAPI mocks / under `coordinators/` | 146 / 127 / 20 | +7 / +6 / +1 |
+| Import cycle | 1 SCC: `engine/index.ts`, `engine/replay.ts`, `pacing/{guidance,index,shapes,steering,tension}.ts` | — |
+| Test-only module in the entry graph | `engine/replay.ts` | — |
+| Dead exports (exported, the name appears nowhere else in `src/`, `scripts/`, `test/`) | **31** (24 values, 7 types): the audit's 10 plus 21 left by plan 11's deletions and missed by the audit's method | +21 |
+| `isRecord` copies | 15 (`persistenceMigration.ts` gone) | −1 |
+| Withholding set | 3 sets (`generationLifecycle.ts:22`, `samplerOverlay.ts:27`, `worldInfoEvidenceHost.ts:8`) + 2 inline checks (`stagecraftCoordinator.ts:541`, `runtimeManager.ts:615`); superset `talkControl.ts:13` | +1 inline |
+| FNV-1a | 5 bodies: `runtime/hash.ts:10`, `extraction/contract.ts:62`, `extraction/sharedRead.ts:93`, `memory/stores.ts:18`, `judge/loreRelevanceCalibration.ts:57` | audit said 2 |
+| `as unknown as` outside `stHost/` | **7** sites / 7 files (`graphPanelUtils.ts:130`, `judge/settings.ts:110`, `extras.ts:269`, `persistence.ts:103`, `roleSelfTest.ts:108`, `ProvisioningCard.tsx:66`, `fakeDocument.ts:36`) | −2 (plan 11) |
+| Non-null `!` / `console.*` / bare `catch {` | 43 / 45 (11 prefixes; `console.log` `stHost/authorNotes.ts:39`) / 33 | 0 / −2 / 0 |
+| Wall clock / real sleeps | `windowHygiene.test.ts:196-198`; 900 ms ×2 `scheduler.test.ts:276,301`, 1 200 ms ×3 `schedulerClear.review.test.ts:122,135,145` | — |
+| `notify()` sites / `useRuntimeSnapshot` roots | 47 / 4 (`index.tsx:124,175,551,636`) | +2 / — |
+| Machine gates on `06ea92d` | typecheck 0, typecheck:test 0, lint 0, jest **275 suites / 3 975 tests** green, test:debug 313/315 (1 fail needs `dist/manifest.json`, green after a build) | — |
+
+**D3 estimates re-read.** Every coordinator must reach 560 and the manager 700: memory −58, extraction −44, stagecraft −56,
+manager −40 is the floor; the ≥ 60 headroom reservation makes it −118 / −104 / −116 / −100.
+
+## Predeclared (D0, committed before measuring)
+
+Written from the plan text before any of these were measured. Each item is fixed here; the measured lists that follow
+(`test/findings/codeHealth.json`, `test/findings/errorCopy.json`) are read against it, never the reverse.
+
+**S4 metric.** As §D0, with nesting counted literally: every `if` (including an `else if`, which the AST nests under its
+`if`), loop, `switch` and `try` adds one level; nested function-like nodes are excluded from both counts and measured on
+their own. Names: declarations by name, class members as `Class.member`, an arrow by its variable or property, an
+anonymous callback as `<enclosing>>callback`. Offender key = `file#name`.
+
+**S8 helper allowlist, canonical homes, scanner scope.**
+
+| Name(s) | Home | Detected by |
+|---|---|---|
+| `isRecord` | `src/utils/guards.ts` | a declaration of that name anywhere else |
+| `WITHHOLDING_TYPES` (quiet/impersonate) | `src/runtime/generationLifecycle.ts` | a `Set`/array literal holding exactly `"quiet"` and `"impersonate"` anywhere else, or a `=== "quiet"` / `=== "impersonate"` comparison outside the home and `stHost/` (ST's own generation types, `stHost/generation.ts`, are host facts, not our set) |
+| `tokenize`, `jaccard` | `src/memory/similarity.ts` | a declaration of that name anywhere else |
+| `truncate` | `src/utils/string.ts` | a declaration of that name anywhere else |
+| FNV-1a | `src/runtime/hash.ts` | the offset basis `2166136261` / `0x811c9dc5` anywhere else |
+| popup context cast | `src/services/stHost/popup.ts` (one helper) | `as unknown as` inside `popup.ts` more than once |
+
+Scope: prod files (the S3 set). Duplicate bodies: every function-like node with ≥ 3 statements; normalised text = the
+body's statements printed by the TS printer with comments removed and whitespace collapsed. Two or more with the same text
+fail unless their `file#name` pair is in `duplicateBodyAllowlist` (empty at declaration). `talkControl`'s superset is
+allowed by name only if it is built from `WITHHOLDING_TYPES`. Dead-export allowlist: exported types of
+`src/engine/schema.ts` only (the public format).
+
+**T1.** The `!` allowlist starts empty; an entry needs `file#name`, a count and a reason, ≤ 5 entries total (Q3 default:
+aim for 0). `as unknown as` outside `src/services/stHost/**` has no allowlist.
+
+**T3 citation pattern** (comment lines in prod `src/**` and in `tsconfig.json`; string contents are not comments):
+```
+/\bplan\s*\d{1,2}\b|\bv\d\.\d\b|\b(?:V|S|T|L|C|H|A|D|E|F|M|P|Q|R|U|X|AE|PR|J)\d{1,3}[a-z]?\b|\b\d{2}-H\d+\b|\b20\d\d-\d\d-\d\d\b/i
+```
+A matching line passes only if (a) every match on it sits inside a host-fact citation, i.e. an ST source path with a line
+(`/[\w./-]+\.(?:js|mjs|cjs):\d+(?:[-–]\d+)?/`, e.g. `script.js:1590`), or (b) it is inside a JSDoc block attached to an
+exported declaration in `src/services/stHost/**`. Other comments carry no rule here (Q1 default: "why" comments without an
+id stay).
+
+**E2 error-copy inventory.** Schema as §D0. Rows are extracted by AST from prod, keyed `file#enclosing-function` +
+normalised template text (no line numbers), and are:
+1. every string or template literal passed as the first argument to a toast (`toastr.*`, an injected `toast(...)`) or
+   popup seam (`showConfirmPopup`, `showChoicePopup`, `showTextPopup`);
+2. every template literal, anywhere, that interpolates `.message`, `String(<x>)` of a caught value, or an identifier
+   named `error`, `err`, `e`, `cause` or `reason`;
+3. every bare `catch {` and every `.catch(() => <constant>)`.
+
+`surface`: **player** = toasts, popups, the settings panel, the drawer's player tabs, the HUD, `pipeline.text`, `/story`;
+**author** = author view, Studio, `pipeline.detail`, journal, `/cp`; **console** = logger only. Pass: no row with
+`rawError: true` and `surface: player`; every row of kind 3 has `silentCatch` `logs` or `probe`; a row absent from the
+file fails the jest guard, and so does a stale row.
+
+**Q1t parallel-load recipe.** From the extension root, 3 times back to back:
+```
+npx concurrently -n A,B,C,BUILD "npm test" "npm test" "npm test" "npm run build"
+```
+Record per run: exit code, each jest's `Tests:` line, timing failures (a test that fails on time and passes alone); and
+once: `node -v`, CPU model and `os.cpus().length`, `os.freemem()`. Pass = 9/9 jest runs green, 0 timing failures.
 
 ## Host facts
 
