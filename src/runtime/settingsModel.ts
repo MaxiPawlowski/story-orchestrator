@@ -21,13 +21,14 @@ export interface GlobalSettings {
   spikes: SpikeFlags;
 }
 
-export interface SpikeFlags {
-  sp4AppendShortTerm: boolean;
-}
+const SPIKE_FLAGS = ["sp4AppendShortTerm", "sp8CuratorTiers", "sp8CuratorDigest"] as const;
 
-export const defaultSpikeFlags = (): SpikeFlags => ({ sp4AppendShortTerm: false });
+export type SpikeFlags = Record<(typeof SPIKE_FLAGS)[number], boolean>;
 
-const sanitizeSpikeFlags = (value: unknown): SpikeFlags => ({ sp4AppendShortTerm: isRecord(value) && value.sp4AppendShortTerm === true });
+const sanitizeSpikeFlags = (value: unknown): SpikeFlags =>
+  Object.fromEntries(SPIKE_FLAGS.map((flag) => [flag, isRecord(value) && value[flag] === true])) as SpikeFlags;
+
+export const defaultSpikeFlags = (): SpikeFlags => sanitizeSpikeFlags({});
 
 // `scan` is written only by the author's confirm (an install that never opens the setting stays
 // `file`). `normalized` is the ledger of gated entries whose FILE rests off (book -> comments); `normalizedFrom`

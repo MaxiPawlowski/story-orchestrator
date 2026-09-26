@@ -114,6 +114,7 @@ export function wireCoordinators(port: ManagerPort) {
       nudgeActive: () => copilot.getActiveNudge() !== null,
     }),
     journal: (summary, note) => port.journal("stagecraft", summary, note),
+    spikes: () => getGlobalSettings().spikes,
     ...lifecycle,
   });
   const copilot: CopilotCoordinator = new CopilotCoordinator({

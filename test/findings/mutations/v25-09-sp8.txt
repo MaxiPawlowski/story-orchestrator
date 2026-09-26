@@ -1,0 +1,8 @@
+v2.5 plan 09 SP8 W1 (curator protected spans), mutations 2026-09-26 on the spike branch. Each mutant was applied alone as an exact-text replacement by .debug/mutate-sp8.mjs (asserted to match exactly once), the W1/W2 suites were run (src/stagecraft/curatorTiers.test.ts, src/runtime/coordinators/curatorTiersSpike.review.test.ts), and the file was restored byte for byte. M1-M4 are the four mutants the report predeclares (docs/plans/v2.5/09-sp8-spike-report.md W1). Negative controls (jest): flag off, every violation becomes a card and an accepted violation is written (today); flag on in review leaves all eight W2 ops pending; flag off in auto accepts all eight.
+
+Baseline: Tests: 42 passed, 42 total (exit 0)
+- M1 no plan-time check: refuseProtected is never applied (src/runtime/coordinators/stagecraftCoordinator.ts): KILLED, Tests: 10 failed, 32 passed, 42 total
+- M2 no write-edge check: the guard is never handed to the writer (src/runtime/coordinators/stagecraftCoordinator.ts): KILLED, Tests: 2 failed, 40 passed, 42 total
+- M3 overlap test made strict at the span's first character: a region that begins before the span is not seen (src/stagecraft/curatorTiers.ts): KILLED, Tests: 4 failed, 38 passed, 42 total
+- M4 an unclosed span is treated as closed (dropped) (src/stagecraft/curatorTiers.ts): KILLED, Tests: 4 failed, 38 passed, 42 total
+Restored: Tests: 42 passed, 42 total (exit 0)

@@ -1,7 +1,7 @@
 import type { NormalizedStoryV2 } from "@engine/index";
 import {
   isCheckpointGated, isCuratorWritable, isNoteOp, noWriteAheads, pendingWriteAheads, previewCuratorOp, settleWriteAheads,
-  type CuratorOpRecord, type CuratorProposalRecord, type WriteAheadCounts, type WriteAheadLive,
+  type CuratorOpRecord, type CuratorProposalRecord, type WiCuratorOp, type WriteAheadCounts, type WriteAheadLive,
 } from "@stagecraft/index";
 import { lorebookFileId } from "@utils/string";
 import type { CuratorWiHost, WIEntryTarget } from "./hostPorts";
@@ -40,6 +40,7 @@ export class CuratorWriter {
   // save both resolve to the chat that replaced this one.
   async writeOp(
     story: NormalizedStoryV2, entry: CuratorOpRecord, run: RunGuard, messageId: number, beforeHostWrite: (pending: CuratorOpRecord) => Promise<void>,
+    guard?: (op: WiCuratorOp, content: string) => string | null,
   ): Promise<{ ok: boolean; record: CuratorOpRecord; lapsed?: true }> {
     const op = entry.op;
     if (isNoteOp(op)) return { ok: false, record: entry };
@@ -61,6 +62,8 @@ export class CuratorWriter {
     if (!isCuratorWritable(story, op.lorebook, comment)) return { ok: false, record: { ...entry, status: "failed", message: `"${op.comment}" is now "${comment}", which the curator may not write` } };
     const preview = previewCuratorOp(op, { lorebook: op.lorebook, comment: op.comment, keys: live.keys, content: live.content, disabled: live.disabled, uid });
     if (!preview.ok) return { ok: false, record: { ...entry, status: "failed", message: preview.message } };
+    const refused = guard?.(op, live.content) ?? null;
+    if (refused) return { ok: false, record: { ...entry, status: "failed", message: refused } };
     const before = { content: live.content, disabled: live.disabled, uid };
     const after = op.kind === "enable" || op.kind === "disable" ? { content: before.content, disabled: op.kind === "disable" } : { content: preview.content ?? "", disabled: before.disabled };
     const pending: CuratorOpRecord = { ...entry, before, after, target: { lorebookFileId: fileId, uid }, writeAhead: { status: "pending", at: new Date().toISOString(), messageId } };

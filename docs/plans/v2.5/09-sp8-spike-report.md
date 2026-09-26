@@ -1,7 +1,8 @@
 # v2.5 plan 09 — SP8 curator write tiers, protected spans, category digest — spike report
 
-**Verdict: pending.** Conditions and procedures fixed here before any SP8 code or run (rule 1). The conditions are the plan's
-table (`09-research-spikes.md` §SP8) and are **never retuned**. This section only fixes how each one is measured.
+**Verdict: pending (W3, W4 b live).** W1, W2 and W4 (a) PASS deterministically; W3 and W4 (b) have not run. The conditions and
+procedures below were committed in `7776f867`, before any SP8 code existed (rule 1). The conditions are the plan's table
+(`09-research-spikes.md` §SP8) and are **never retuned**. This section only fixes how each one is measured.
 
 ## What the spike builds (two install-wide flags, both default off, never flipped by this plan; the curator itself stays off by default)
 
@@ -47,3 +48,71 @@ table (`09-research-spikes.md` §SP8) and are **never retuned**. This section on
 | W4 | Digest | on an Adolion-sized book (≥ 150 entries): prompt chars ≤ 40 % of the full list, and the role-calibration floors above still met | (a) jest `src/stagecraft/curatorDigest.spike.test.ts`: a 264-entry book synthesised from the size profile of the install's `Adolion World` (`test/fixtures/spikes/v25-09/adolion-world-profile.json`: per-entry title/content/key lengths and initial, no text; sha256 `90195cea…`), padded under each of the 20 curator calibration cases (`test/fixtures/role-calibration/curator.json`) with the case's own entries first. Ratio = digest prompt chars / today's prompt chars over the same entries (`buildWiCuratorPrompt`). Pass iff the **maximum** ratio over the 20 cases ≤ 0.40. (b) live: `so-role-calibration.mts run --role curator --digest-pad "Adolion World"` — the same 20 cases, each padded with the lane's real `Adolion World` (read only), prompted through the digest, parsed against every entry, refused per the title-only rule, and scored by today's `scoreCurator` rules and floors (validity ≥ 0.9, opShape ≥ 0.85, decision ≥ 0.7, `roleCalibration.ts:207`). Pass iff every floor is met in **both** runs; the run also records the real book's ratio beside (a). | jest once + live ×2 |
 
 A PASS of W1–W3 unlocks tiers and spans; W4 is judged separately and unlocks the digest (plan).
+
+## Results
+
+| # | Measured | Result | ST version note |
+|---|---|---|---|
+| W1 | Cases in `test/support/curatorSpikeCases.ts` (each first checked to be a change today's `previewCuratorOp` accepts, so a refusal is the spike's). Pure (`curatorTiers.test.ts`): 10/10 violations refused, 4/4 controls pass. Plan time through `runCuratorPass`, flag on (`curatorTiersSpike.review.test.ts`): **10/10** violations never become a card and each drop carries the protected-text/marker reason; **4/4** controls become cards. Write edge through `applyAccepted` with the ten injected as accepted: **10/10** end `failed` with the reason, **0** host writes; the four controls are written (4 writes) and the span survives; an op planned against an unprotected entry is refused when the entry holds a span at the write. Flag-off controls: all ten become cards, and an accepted `disable` of the protected entry is written. Mutants M1–M4 all **killed** (`test/findings/mutations/v25-09-sp8.txt`: M1 10 failed, M2 2, M3 4, M4 4 of 42). | **PASS** | markers rely on `world-info.js:5058` + `macros.js:659` + `core-macros.js:282` at ST 7c3994196; re-check on the release version (plan 12 R5) |
+| W2 | Accept mode `auto`, flag on, two real passes proposing the eight ops (two per kind): the **4/4** auto-tier ops `accepted` and then `applied`, the **4/4** review-tier ops `pending` after the apply, and exactly the four auto entries written (100 % both ways). Controls: flag off in `auto` → 8/8 accepted (today); flag on in `review` → 8/8 pending, 0 writes. | **PASS** | n/a (our code) |
+| W3 | not run (live) | **pending** | pending (lane install version from the run header) |
+| W4 (a) | 20 cases, each padded to 265–267 entries with the synthesised Adolion-sized book: today's prompt 117 252–117 713 chars, digest 9 145–9 606; **maximum ratio 0.0816** (bar 0.40). Informational: on this padding no required entry whose required kinds are text edits only is title-only in any case (`hiddenRequired` empty), so the live floors are not handicapped by the digest's selection on the synthetic book; the real book's own terms may crowd the 16 full slots, which (b) measures. | **PASS** | n/a (pure) |
+| W4 (b) | not run (live) | **pending** | pending |
+
+Commands: `npx jest src/stagecraft/curatorTiers src/runtime/coordinators/curatorTiersSpike src/stagecraft/curatorDigest src/runtime/curatorDigestRunner`
+(ratios printed with `SO_SPIKE_REPORT=1`), mutants `node .debug/mutate-sp8.mjs` (worktree scratch; the record is committed), 2026-09-26.
+The floors cited in W4 now sit at `roleCalibration.ts:209` (the SP8 code added the `scoreCurator` pad/narrow parameters above them;
+the floors are unchanged).
+
+## Negative controls
+
+- D3 (plan 12): `devOnly.guard.test.ts` lists `src/stagecraft/curatorTiers.ts` and `src/stagecraft/curatorDigest.ts`; neither is
+  statically reachable from `src/index.tsx` (the coordinator loads them with `import()` only while a flag is on; `liveSuite`, itself
+  dev-only, imports the digest for W4 b). The planted-import control covers the list.
+- Flag off: the coordinator does not even await an import (`spikesOn()`), so today's pass and apply keep their microtask order;
+  every flag-off control above reproduces today's behaviour.
+- `curatorDigestRunner.test.ts`: the W4 (b) harness pads, digests, prompts the `curator` role, scores with the title-only refusal
+  (an unseen rewrite is dropped, the enable survives), and refuses a missing or too-small pad book.
+
+## Cost so far (for the worth review)
+
+Prod graph: main entry 1 175 103 → **1 176 800 B** (+1 697; budget 1 250 000) for the flag reads, `renderCuratorEntry` /
+`NO_CURATOR_ENTRIES` (a refactor of `buildWiCuratorPrompt`, byte-identical output) and the writer's optional `guard`. Spike chunks:
+tiers 3 346 B, digest 3 151 B, both lazy. `stagecraftCoordinator.ts` +22 lines (budget 560), `curatorWriter.ts` +3. New host
+seam: none; one new host fact (ST's comment macro) for the marker syntax. Invariant 6 (stagecraft proposes, never writes; scope =
+`stagecraft.lorebooks` minus gated entries, re-checked at the write edge): only narrowed — both checks remove writes, neither adds
+a book, an entry or an op kind.
+
+## Live legs (pending)
+
+The curator stays **off by default**; each leg switches it on for its own run and puts it back (W3 in its score step; W4 b never
+switches it, it calls the curator role directly). Both need the dev build served on the lane:
+
+```
+npm run build:dev && npm run serve:dev
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/st-session.mts reload
+```
+
+W3, ×2 in one series (`--repeat 2`), a sandbox group chat on the lane's Arin group:
+
+```
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-run-header.mts capture --label v25-09-sp8-w3
+node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict --group 1759606632088 test/scenarios/live-v25-09-sp8-w3-safety.json
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-run-header.mts diff <capture.json>
+```
+
+Pass iff each run's score step logs `proposals >= 20`, `violations = 0`, `refusedShare <= 0.25` (the last step throws otherwise).
+A crashed run leaves the marker book: `node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-assets.mts remove --marker SO-V25-09`.
+
+W4 (b), ×2 consecutive on one lane and one route (the curator role's shared route, as the recorded calibration goldens):
+
+```
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-run-header.mts capture --label v25-09-sp8-w4
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-role-calibration.mts run --role curator --digest-pad "Adolion World" --expect-count 20 --arm digest-<bundle12>-r1 --record
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-role-calibration.mts run --role curator --digest-pad "Adolion World" --expect-count 20 --arm digest-<bundle12>-r2 --record
+node scripts/debug/so-role-calibration.mts verdict test/goldens/live/role-calibration/curator-digest-<bundle12>-r1.json test/goldens/live/role-calibration/curator-digest-<bundle12>-r2.json
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-run-header.mts diff <capture.json>
+```
+
+Pass iff the verdict is `recommended` (every floor met in both runs). Each report carries `digestRatio` (the real book's ratio).
+Records under `test/journeys/records/v2.5-plan09/sp8/live-<bundle12>/`.

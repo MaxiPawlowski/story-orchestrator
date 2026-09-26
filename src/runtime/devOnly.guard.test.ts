@@ -11,7 +11,7 @@ const DEV_ONLY = [
 ];
 const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
 const LAZY_USER_FEATURES = ["src/judge/selfTest.ts", "src/runtime/selfTest.ts", "src/runtime/roleSelfTest.ts", "src/extraction/fixtureRun.ts"];
-const PLAN_09_SPIKES = ["src/memory/shortTermAppend.ts"];
+const PLAN_09_SPIKES = ["src/memory/shortTermAppend.ts", "src/stagecraft/curatorTiers.ts", "src/stagecraft/curatorDigest.ts"];
 
 const isDevOnly = (path: string) => DEV_ONLY.includes(path) || DEV_ONLY_PATTERN.test(path);
 const ENTRY = join(SRC, "index.tsx");
