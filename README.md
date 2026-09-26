@@ -124,6 +124,31 @@ Registered via `MacrosParser` and auto-updated from the active story:
   — **author-only** (`extract`/`expand` are debug verbs).
 - `/so-mem list | pin <id> on|off | exclude <id> | backlog`
 
+## Judge recommended configuration
+
+The judge (a TypeSafe System One model behind the optional `story-orchestrator-judge` server plugin)
+ships with **every use off**. This is advice for someone who opts in. Every rate below was measured on
+`jev-1.13.0`; on any other model the settings panel reads the use as unproven.
+
+| Use | Recommendation |
+|---|---|
+| `stallCheck` | Recommended. |
+| `variants` / `expansionLookahead` / `lookahead` | Recommended where prepare-ahead is wanted. |
+| `memoryVerify` | Recommended. |
+| `continuity` (warden) | Recommended in `review` mode. |
+| `expansionCritic` | Recommended. |
+| `sceneTrigger` / `sceneTracker` | Recommended. Off the reply path. |
+| `curatorFilter` | Recommended once a curator scope exceeds about 40 entries. |
+| `director` | Recommended only when every candidate has an authored `roster[].role`. |
+| `memoryPairs` | Recommended. |
+| `loreSelect` | Recommended with a known weakness: it ranks by a compressed probability, so which entries win the top slots is weaker than the rate suggests. |
+| `typedExtraction` | Recommended. Needs authored `read_as` hints to do anything. |
+| `agencyCheck` (warden family) | Author view only; `review` mode recommended. |
+| `houseRules` (warden family) | Author view only; needs authored `house_rules`. Write objective rules, one demand each. |
+
+The two reply-path uses (`director`, `loreSelect`) fit their 1500 ms budget at the median; a slow judge
+still delays a turn before either falls back. Every other use is off the reply path.
+
 ## Extraction timing
 
 Accepted blackboard deltas apply at the **next** turn boundary (one transition per boundary, by

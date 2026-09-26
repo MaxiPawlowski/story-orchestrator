@@ -172,7 +172,7 @@ export function JudgeSettingsGroup({
         <a
           id="so-judge-recommended-config"
           className="text-xs opacity-70 underline"
-          href="scripts/extensions/third-party/story-orchestrator/docs/plans/v2.3/recommended-config.md"
+          href="scripts/extensions/third-party/story-orchestrator/README.md#judge-recommended-configuration"
           target="_blank"
           rel="noreferrer"
         >
