@@ -57,11 +57,11 @@ declare global {
   var storyOrchestratorDebugSelfTestResponses: string[] | null | undefined;
   var storyOrchestratorDebugDirectorResponse: string | null | undefined;
   var storyOrchestratorJudge: import("./src/runtime/judgeHarness").JudgeHarness | undefined;
-  var storyOrchestratorSpikes: {
+  var storyOrchestratorSpikes: ({
     refresh?: () => Promise<import("./src/runtime/settingsModel").SpikeSettings>;
     recommitEdit?: { stats: () => import("./src/runtime/spikes/recommitEdit").RecommitStats };
     swipeBackCache?: { stats: () => import("./src/runtime/spikes/swipeBack").SwipeBackStats };
-  } | undefined;
+  } & Partial<import("./src/runtime/spikes/install").SpikeDebug>) | undefined;
   var storyOrchestratorScheduler: { nextReadWindow: () => import("./src/extraction/scheduler").NextReadWindow | null } | undefined;
   var storyOrchestratorLoreEvidence: import("./src/runtime/worldInfoEvidence").LoreEvidence | undefined;
   var storyOrchestratorScanGating: import("./src/runtime/worldInfoScanHost").ScanGatingDebug | undefined;

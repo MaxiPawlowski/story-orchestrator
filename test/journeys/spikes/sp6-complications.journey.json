@@ -1,0 +1,783 @@
+{
+  "id": "SP6",
+  "title": "complication pool",
+  "objective": "v2.5 plan 09 SP6 K3/K4/K5 live legs: one scripted quiet wait at a waystation that wants critical tension, played for a fixed 72 player turns. Two arms by localStorage so-sp6-arm (release = spikes.sp6Complications on, control = off; the control arm derives the same release points from its own log without injecting anything) crossed with the judge arm by --judge-uses (agencyCheck + --warden-mode auto, or off). Each run appends one record to localStorage so-sp6-records; so-sp6-score applies the predeclared bars over the eight records.",
+  "setup": {
+    "newChat": true,
+    "resetChatState": true,
+    "snapshotGlobalConfig": true,
+    "configureExtraction": true,
+    "group": "1759606632088",
+    "extraction": {
+      "cadence": 1,
+      "stabilityLag": 0,
+      "profile": "inherit"
+    }
+  },
+  "cleanup": {
+    "restoreConfig": true,
+    "deleteChat": true
+  },
+  "capabilities": {
+    "sp6-spike": "typeof globalThis.storyOrchestratorSpikes?.complications === 'function' && typeof globalThis.storyOrchestratorRuntime?.getBoundaryLog === 'function'",
+    "warden-families": "typeof globalThis.storyOrchestratorRuntime?.runWardenPass === 'function' && 'agencyCheck' in (globalThis.storyOrchestratorRuntime?.getGlobalSettings?.()?.judge?.uses ?? {})"
+  },
+  "checks": [
+    {
+      "id": "SP6.1",
+      "mode": "auto",
+      "findings": [],
+      "requires": [
+        "sp6-spike",
+        "warden-families"
+      ],
+      "goal": "SP6 K3/K4/K5 (v2.5 plan 09): 72 scripted quiet turns at the waystation (tension_target critical, complication_after 2, 24-item pool). The check passes when the arm reached >= 20 release points, the release arm carried the block on every one and the control arm on none. The bars are applied offline by so-sp6-score over release/control x judge on/off, each x2 consecutive: K3 agency flags (judge on) of each release run <= mean control + 1; K4 0 restatements (restate span >= 6 words or a meta token) in release-arm replies N+1; K5 (judge off) each release run reaches the target band within 6 boundaries of release in >= 60 % of releases, each control run <= 30 %.",
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const mode = globalThis.__soJudgeMode ?? null; if (!mode) throw new Error('SP6 is a control-arm journey: run it with --judge-uses agencyCheck --warden-mode auto (judge-on arm) or --judge-uses off (judge-off arm)'); if (mode.label === 'on' && !mode.uses.includes('agencyCheck')) throw new Error('SP6.1 judge-on arm: run with --judge-uses agencyCheck'); const arm = localStorage.getItem('so-sp6-arm'); if (arm !== 'release' && arm !== 'control') throw new Error(\"set the arm first: localStorage.setItem('so-sp6-arm', 'release'|'control')\"); if (typeof globalThis.storyOrchestratorSpikes?.complications !== 'function') throw new Error('storyOrchestratorSpikes.complications missing: this bundle has no SP6 spike'); if (mode.label === 'on') { const status = await fetch('/api/plugins/story-orchestrator-judge/status', { headers: ctx.getRequestHeaders() }).then((response) => (response.ok ? response.json() : null)).catch(() => null); if (!status?.configured) throw new Error(`judge plugin not reachable or not configured: ${JSON.stringify(status)}`); if (rt.getStagecraftState().settings.wardenAcceptMode !== 'auto') throw new Error('SP6.1 judge-on arm: run with --warden-mode auto'); } root.settings = { ...(root.settings ?? {}), spikes: { ...((root.settings ?? {}).spikes ?? {}), sp6Complications: arm === 'release' } }; ctx.saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 1500)); if (rt.getGlobalSettings().spikes?.sp6Complications !== (arm === 'release')) throw new Error('the sp6Complications flag did not take'); rt.setStagecraftSettings({ curatorEnabled: false }); globalThis.__soSp6 = { arm, judge: mode.label, started: (ctx.chat ?? []).length, carried: [] }; return { arm, judge: mode.label, uses: Object.entries(root.settings.judge.uses).filter(([, on]) => on).map(([key]) => key) };",
+          "log": true
+        },
+        {
+          "import_story": {
+            "file": "../scenarios/live-v25-09-sp6.story.json"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; if (!SillyTavern.getContext().groupId) throw new Error('needs a sandbox GROUP chat holding DM Narrator'); const state = rt.getEngineState(); if (state.activeCheckpointId !== 'waystation') throw new Error(`not at the waystation: ${state.activeCheckpointId}`); if (!rt.getSnapshot().requirements?.ready) throw new Error('requirements not ready: the group needs DM Narrator'); globalThis.__soSp6.startBoundary = state.boundary; return { at: state.activeCheckpointId };",
+          "log": true
+        },
+        {
+          "send_generate": {
+            "text": "We wait by the hearth for the eastern caravan.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I ask the keeper how late the caravan usually runs.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We order another round of watered ale and keep waiting.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I check our packs and count the remaining rations.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We play a slow game of dice to pass the time.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I look out of the window at the empty road east.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We talk quietly about the job waiting at the end of the road.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I stretch my legs and walk once around the common room.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We doze a little by the fire.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I ask whether anyone has heard news from the east.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We mend a strap on one of the saddles.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I sit back and listen to the other travellers talk.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We wait by the hearth for the eastern caravan.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I ask the keeper how late the caravan usually runs.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We order another round of watered ale and keep waiting.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I check our packs and count the remaining rations.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We play a slow game of dice to pass the time.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I look out of the window at the empty road east.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We talk quietly about the job waiting at the end of the road.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I stretch my legs and walk once around the common room.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We doze a little by the fire.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I ask whether anyone has heard news from the east.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We mend a strap on one of the saddles.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I sit back and listen to the other travellers talk.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We wait by the hearth for the eastern caravan.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I ask the keeper how late the caravan usually runs.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We order another round of watered ale and keep waiting.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I check our packs and count the remaining rations.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We play a slow game of dice to pass the time.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I look out of the window at the empty road east.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We talk quietly about the job waiting at the end of the road.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I stretch my legs and walk once around the common room.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We doze a little by the fire.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I ask whether anyone has heard news from the east.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We mend a strap on one of the saddles.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I sit back and listen to the other travellers talk.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We wait by the hearth for the eastern caravan.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I ask the keeper how late the caravan usually runs.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We order another round of watered ale and keep waiting.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I check our packs and count the remaining rations.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We play a slow game of dice to pass the time.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I look out of the window at the empty road east.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We talk quietly about the job waiting at the end of the road.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I stretch my legs and walk once around the common room.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We doze a little by the fire.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I ask whether anyone has heard news from the east.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We mend a strap on one of the saddles.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I sit back and listen to the other travellers talk.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We wait by the hearth for the eastern caravan.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I ask the keeper how late the caravan usually runs.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We order another round of watered ale and keep waiting.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I check our packs and count the remaining rations.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We play a slow game of dice to pass the time.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I look out of the window at the empty road east.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We talk quietly about the job waiting at the end of the road.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I stretch my legs and walk once around the common room.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We doze a little by the fire.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I ask whether anyone has heard news from the east.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We mend a strap on one of the saddles.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I sit back and listen to the other travellers talk.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We wait by the hearth for the eastern caravan.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I ask the keeper how late the caravan usually runs.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We order another round of watered ale and keep waiting.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I check our packs and count the remaining rations.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We play a slow game of dice to pass the time.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I look out of the window at the empty road east.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We talk quietly about the job waiting at the end of the road.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I stretch my legs and walk once around the common room.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We doze a little by the fire.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I ask whether anyone has heard news from the east.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "We mend a strap on one of the saddles.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "send_generate": {
+            "text": "I sit back and listen to the other travellers talk.",
+            "timeoutMs": 300000,
+            "expectReply": true
+          }
+        },
+        {
+          "eval": "const captures = globalThis.storyOrchestratorRuntime.getPayloadCaptures?.() ?? []; const last = captures[captures.length - 1]; const block = (last?.blocks ?? []).find((entry) => entry.key === 'story_orchestrator_complication'); if (block) globalThis.__soSp6.carried.push({ capturedAt: last.capturedAt ?? null, value: block.value }); return { carried: Boolean(block) };"
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const state = globalThis.__soSp6; if (!state) throw new Error('the SP6.1 configure step did not run'); const view = globalThis.storyOrchestratorSpikes.complications(); const log = rt.getBoundaryLog(); const chat = ctx.chat ?? []; const releases = view.releases.map((release) => { const at = log.findIndex((entry) => entry.boundary === release.boundary); const messageId = at >= 0 ? log[at].context.lastMessageId : -1; const reply = chat.slice(messageId + 1).find((message) => !message.is_user && !message.is_system && typeof message.mes === 'string' && message.mes.trim()); const after = at >= 0 ? view.directions.slice(at + 1, at + 7) : []; return { boundary: release.boundary, id: release.id, block: view.compose(release), reply: reply?.mes ?? null, after, reached: after.length ? after.includes('hold') || after.includes('ease') : null }; }); const agencyFlags = rt.getStagecraftState().proposals.filter((record) => record.curator === 'warden').flatMap((record) => record.ops).filter((entry) => entry.op.kind === 'note' && entry.op.family === 'agency').length; const replies = chat.slice(state.started).filter((message) => !message.is_user && !message.is_system && typeof message.mes === 'string' && message.mes.trim()).length; const record = { at: new Date().toISOString(), chatId: ctx.chatId, arm: state.arm, judge: state.judge, flag: view.flag, replies, agencyFlags, releases, carried: state.carried.length }; const stored = JSON.parse(localStorage.getItem('so-sp6-records') ?? '[]'); stored.push(record); localStorage.setItem('so-sp6-records', JSON.stringify(stored)); const root = ctx.extensionSettings['story-orchestrator']; root.settings.spikes = { ...(root.settings.spikes ?? {}), sp6Complications: false }; ctx.saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 1500)); delete globalThis.__soSp6; if (releases.length < 20) throw new Error(`only ${releases.length} release point(s) in this ${state.arm} arm; the predeclared size is 20 released turns (the record is kept in so-sp6-records)`); if (state.arm === 'release' && state.carried.length < releases.length) throw new Error(`the release arm carried the block on ${state.carried.length} of ${releases.length} releases`); if (state.arm === 'control' && state.carried.length) throw new Error(`the control arm carried a complication ${state.carried.length} time(s)`); return { arm: record.arm, judge: record.judge, replies, agencyFlags, releases: releases.length, carried: record.carried };",
+          "log": true
+        }
+      ]
+    }
+  ]
+}

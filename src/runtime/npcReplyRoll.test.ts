@@ -63,3 +63,41 @@ describe("C9: an NPC reply's probability roll is journaled", () => {
     expect(spoken).toHaveLength(1);
   });
 });
+
+describe("SP7: the roll seam replaces Math.random when it answers", () => {
+  beforeEach(() => { spoken.length = 0; });
+  afterEach(() => { jest.restoreAllMocks(); });
+
+  const seamed = (roll: (key: string) => number | null) => {
+    const journal: Array<{ summary: string; note?: string }> = [];
+    const applier = new EffectsApplier(ownership, { journal: (summary, note) => journal.push({ summary, note }), roll });
+    const extras = { firedNpcReplies: {}, lastSelfInjectionMessageId: -1, ui: {}, requirements: { ready: true } } as never;
+    return { applier, extras, journal };
+  };
+
+  it("a seam draw decides the roll and Math.random is never asked", async () => {
+    const random = jest.spyOn(Math, "random");
+    const keys: string[] = [];
+    const h = seamed((key) => { keys.push(key); return 0.9; });
+    await h.applier.fireNpcReplies(checkpoint(0.25), h.extras, "onEnter");
+    expect(random).not.toHaveBeenCalled();
+    expect(keys).toEqual(["cp-2:onEnter:corin:0"]);
+    expect(spoken).toEqual([]);
+    expect(h.journal[0].note).toBe("rolled 0.900 against 0.25 at cp-2:onEnter:corin:0");
+  });
+
+  it("a re-entry that asks the seam the same key gets the same outcome", async () => {
+    const h = seamed(() => 0.2);
+    await h.applier.fireNpcReplies(checkpoint(0.25), h.extras, "onEnter");
+    const again = seamed(() => 0.2);
+    await again.applier.fireNpcReplies(checkpoint(0.25), again.extras, "onEnter");
+    expect(h.journal).toEqual(again.journal);
+  });
+
+  it("control: a seam that answers null falls back to Math.random, as today", async () => {
+    jest.spyOn(Math, "random").mockReturnValue(0.1);
+    const h = seamed(() => null);
+    await h.applier.fireNpcReplies(checkpoint(0.25), h.extras, "onEnter");
+    expect(h.journal[0].note).toBe("rolled 0.100 against 0.25 at cp-2:onEnter:corin:0");
+  });
+});

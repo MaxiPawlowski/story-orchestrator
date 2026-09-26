@@ -1,5 +1,7 @@
 import { getChatWindow } from "@extraction/index";
-import { getContext, noteHostSettingsLoaded, settingsReady, subscribeToHostEvents } from "@services/STAPI";
+import {
+  clearStoryExtensionPrompt, getContext, noteHostSettingsLoaded, setStoryExtensionPrompt, settingsReady, subscribeToHostEvents,
+} from "@services/STAPI";
 import { registerRuntimeMacros } from "./macros";
 import { startMirrorReaper } from "./mirrorReaperHost";
 import { runtimeManager } from "./runtimeManager";
@@ -46,6 +48,21 @@ const registerSlashCommandsWhenReady = (attempt = 0) => {
   if (!slashRegistered && attempt < 100) window.setTimeout(() => registerSlashCommandsWhenReady(attempt + 1), 100);
 };
 
+const spikePort = () => ({
+  flags: () => getGlobalSettings().spikes,
+  chatId: () => getContext().chatId ?? null,
+  storyId: () => runtimeManager.getStory()?.id ?? null,
+  boundary: () => runtimeManager.getEngineState()?.boundary ?? null,
+  raw: () => runtimeManager.getPlayedStoryRaw(),
+  story: () => runtimeManager.getStory(),
+  log: () => runtimeManager.getBoundaryLog(),
+  shape: () => runtimeManager.getSnapshot().pacing.shapeOverride ?? null,
+  prompt: {
+    set: (key: string, text: string, depth: number) => { setStoryExtensionPrompt(key, text, depth); },
+    clear: (key: string) => { clearStoryExtensionPrompt(key); },
+  },
+});
+
 const registerHostSurfaces = () => {
   // A build with no MacrosParser throws on the first registration, and this call sits
   // in the middle of startRuntime: unguarded, a missing macro engine would take the bridge, the judge,
@@ -58,6 +75,14 @@ const registerHostSurfaces = () => {
   if (__SO_DEV__) void import("./liveSuite").then(({ registerLiveSuite }) => { if (started) registerLiveSuite(runtimeManager); });
   if (__SO_DEV__) void import("./spikes/toolTurnProbe").then(({ registerToolTurnProbe }) => { if (started) registerToolTurnProbe(runtimeManager); });
   if (__SO_DEV__) void import("./spikes/sp5ScenarioHost").then(({ registerScenarioSpike }) => { if (started) runtimeDisposers.push(registerScenarioSpike()); });
+  if (__SO_DEV__) void import("./spikes/install").then(({ installSpikes }) => {
+    if (!started) return;
+    let unpublish = () => {};
+    runtimeDisposers.push(installSpikes(spikePort(), (debug) => {
+      unpublish();
+      unpublish = debug ? publishSpikeDebug(debug) : () => {};
+    }));
+  });
   window.setTimeout(() => registerSlashCommandsWhenReady(), 0);
   window.setTimeout(() => registerSlashCommandsWhenReady(), 1000);
 };

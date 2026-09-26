@@ -1,0 +1,24 @@
+{
+  "format": 2,
+  "id": "sp7-chance",
+  "version": 1,
+  "title": "SP7 chance gates (jest)",
+  "description": "v2.5 plan 09 SP7 D1 fixture: a gate that loops, so a code roll quality is drawn again at every re-entry at a new boundary. lock_gives is a d20 at or under 12, clue_die is the raw d6 face.",
+  "qualities": [
+    { "key": "tried", "type": "bool", "source": "extractor", "rubric": "Has the party tried the gate this visit?" },
+    { "key": "lock_gives", "type": "bool", "source": "code", "rubric": "Does the old lock give way this visit?", "roll": { "sides": 20, "target": 12 } },
+    { "key": "clue_die", "type": "int", "source": "code", "rubric": "The face the clue die shows this visit.", "roll": { "sides": 6, "target": 6 } }
+  ],
+  "checkpoints": [
+    { "id": "gate", "name": "The Gate", "objective": "The party tries the old gate.", "type": "anchor", "start": true },
+    { "id": "through", "name": "Through", "objective": "The gate gave way; the party walks back to it.", "type": "anchor" },
+    { "id": "barred", "name": "Barred", "objective": "The gate held; the party walks back to it.", "type": "anchor" }
+  ],
+  "transitions": [
+    { "from": "gate", "to": "through", "priority": 2, "gate": { "all": [{ "q": "tried", "op": "==", "v": true }, { "q": "lock_gives", "op": "==", "v": true }] } },
+    { "from": "gate", "to": "barred", "priority": 1, "gate": { "all": [{ "q": "tried", "op": "==", "v": true }, { "q": "lock_gives", "op": "==", "v": false }] } },
+    { "from": "through", "to": "gate", "priority": 1, "gate": { "q": "tried", "op": "==", "v": false } },
+    { "from": "barred", "to": "gate", "priority": 1, "gate": { "q": "tried", "op": "==", "v": false } }
+  ],
+  "roster": []
+}

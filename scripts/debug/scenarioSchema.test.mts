@@ -16,7 +16,7 @@ const corpus = (dir: string) => readdirSync(join(ROOT, dir))
   .map((name) => ({ name, dir, doc: JSON.parse(readFileSync(join(ROOT, dir, name), 'utf-8').replace(/^﻿/, '')) }));
 
 test('every shipped scenario and journey passes the closed vocabulary', () => {
-  const files = [...corpus('test/scenarios'), ...corpus('test/journeys')];
+  const files = [...corpus('test/scenarios'), ...corpus('test/journeys'), ...corpus('test/journeys/spikes')];
   assert.ok(files.length > 40, `expected the whole corpus, found ${files.length} fixtures`);
   const broken = files
     .map((file) => ({ name: file.name, problems: validateFixture(file.doc, file.name) }))
@@ -31,7 +31,7 @@ test('every shipped scenario and journey passes the closed vocabulary', () => {
 // have believed (2026-09-22). It is a text check because the fixture is the text.
 test('no fixture reads a page global it never sets', () => {
   const files: Array<{ name: string; text: string }> = [];
-  for (const dir of ['test/scenarios', 'test/journeys']) {
+  for (const dir of ['test/scenarios', 'test/journeys', 'test/journeys/spikes']) {
     for (const name of readdirSync(join(ROOT, dir)).filter((entry) => entry.endsWith('.json'))) {
       const text = readFileSync(join(ROOT, dir, name), 'utf-8');
       const injected = [...text.matchAll(/"inject_script":\s*"([^"]+)"/g)].map((match) => readFileSync(join(ROOT, dir, match[1]), 'utf-8'));
@@ -121,8 +121,8 @@ test('an eval that does not compile is caught at load, with the step named', () 
 // A corpus guard proves nothing about a file it never read, and "the check is green" reads the same
 // either way. Naming the newest fixtures is how the next plan's scenario cannot be silently left out.
 test('the corpus actually contains the plan-05 and plan-06 live-gate fixtures', () => {
-  const files = [...corpus('test/scenarios'), ...corpus('test/journeys')].map((file) => file.name);
-  for (const name of ['plan05-pin-quarantine.json', 'plan05-pin-private-rollback.json', 'plan05-decision-write.json', 'live-effects-owned-restore.json', 'effects-preset.json']) {
+  const files = [...corpus('test/scenarios'), ...corpus('test/journeys'), ...corpus('test/journeys/spikes')].map((file) => file.name);
+  for (const name of ['plan05-pin-quarantine.json', 'plan05-pin-private-rollback.json', 'plan05-decision-write.json', 'live-effects-owned-restore.json', 'effects-preset.json', 'live-v25-09-sp7-d4.json', 'live-v25-09-sp7-d4b.json', 'live-v25-09-sp6-k2.json', 'sp6-complications.journey.json']) {
     assert.ok(files.includes(name), `${name} is not in the validated corpus`);
   }
   assert.ok(files.length > 45, `expected the whole corpus, found ${files.length} fixtures`);
@@ -160,7 +160,7 @@ test('a verb value of the wrong shape is refused at LOAD, not at step N', () => 
 });
 
 test('every shipped journey declares the extraction it runs at (plan 01 §E)', () => {
-  const journeys = corpus('test/journeys').filter((file) => file.name.endsWith('.journey.json'));
+  const journeys = [...corpus('test/journeys'), ...corpus('test/journeys/spikes')].filter((file) => file.name.endsWith('.journey.json'));
   assert.ok(journeys.length >= 13, `expected every journey, found ${journeys.length}`);
   const broken = journeys.flatMap((file) => validateJourneyExtraction(file.doc.setup).map((problem) => `${file.name}: ${problem}`));
   assert.deepEqual(broken, []);

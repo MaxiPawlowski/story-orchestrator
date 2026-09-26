@@ -14,6 +14,7 @@ import { generationWatch } from "../generationWatch";
 import { promptCost } from "../promptCost";
 import { attachPromptBuckets } from "../promptBucketsHost";
 import { roleHealth } from "../roleHealth";
+import { spikeSeams } from "../spikeSeams";
 import type { LoreWiring } from "./lore";
 import type { Disposers, LiveParts } from "./types";
 
@@ -79,7 +80,10 @@ export const attachGenerationObservers = (live: LiveParts, disposers: Disposers,
 
 export const subscribeGenerationEvents = (live: LiveParts, generation: GenerationLifecycle, lore: LoreWiring, chatLastId: () => number, startupLoad: () => void) => {
   const handlers = intentHandlers(live, lore);
-  const apply = (intents: GenerationIntent[]) => intents.forEach((intent) => dispatch(handlers, intent));
+  const apply = (intents: GenerationIntent[]) => intents.forEach((intent) => {
+    spikeSeams.generation?.(intent);
+    dispatch(handlers, intent);
+  });
   const onStarted = async (...args: unknown[]) => {
     lore.loreWatch.reassert();
     lore.scanGating.reassert();
