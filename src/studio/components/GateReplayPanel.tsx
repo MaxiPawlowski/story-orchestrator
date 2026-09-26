@@ -57,11 +57,11 @@ const GateReplayPanel: React.FC<{ index: number }> = ({ index }) => {
       ) : null}
       <ul className="flex max-h-40 flex-col gap-0.5 overflow-y-auto" aria-label="Replayed boundaries">
         {shown.map((row) => (
-          <li key={row.boundary} data-so="gate-replay-row" data-boundary={row.boundary} className={row.afterDivergence ? "st-muted" : ""}>
+          <li key={row.boundary} data-so="gate-replay-row" data-boundary={row.boundary} className={`flex flex-wrap items-center gap-x-2${row.afterDivergence ? " st-muted" : ""}`}>
             {source.jump ? (
-              <button type="button" className="menu_button text-xs" data-so="gate-replay-jump" data-mesid={row.messageId} onClick={() => source.jump?.(row.messageId)}>{at(row)}</button>
-            ) : at(row)}
-            {" "}{rowText(row)}
+              <button type="button" className="menu_button shrink-0 text-xs" data-so="gate-replay-jump" data-mesid={row.messageId} onClick={() => source.jump?.(row.messageId)}>{at(row)}</button>
+            ) : <span>{at(row)}</span>}
+            {" "}<span data-so="gate-replay-verdict">{rowText(row)}</span>
           </li>
         ))}
       </ul>

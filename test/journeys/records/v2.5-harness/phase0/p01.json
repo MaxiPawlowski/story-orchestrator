@@ -1,0 +1,1040 @@
+{
+  "probe": "p01",
+  "started": "2026-09-26T14:12:37.919Z",
+  "finished": "2026-09-26T14:16:38.000Z",
+  "node": "v22.22.0",
+  "data": {
+    "openai/gpt-6-astra-fast": {
+      "answered": 20,
+      "of": 20,
+      "wallP50": 4948,
+      "wallP90": 5890,
+      "spawnP50": 7,
+      "inputTokens": [
+        136,
+        138,
+        139,
+        137,
+        140
+      ],
+      "runs": [
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 4865,
+          "spawnMs": 10,
+          "spawnError": null,
+          "text": "PONG-CD49CC99",
+          "inputTokens": 136,
+          "cacheRead": 0,
+          "outputTokens": 10,
+          "totalIn": 136,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 6126,
+          "spawnMs": 9,
+          "spawnError": null,
+          "text": "PONG-CCD7E0A6",
+          "inputTokens": 138,
+          "cacheRead": 0,
+          "outputTokens": 13,
+          "totalIn": 138,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 4948,
+          "spawnMs": 9,
+          "spawnError": null,
+          "text": "PONG-790A9E0F",
+          "inputTokens": 139,
+          "cacheRead": 0,
+          "outputTokens": 13,
+          "totalIn": 139,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 5045,
+          "spawnMs": 7,
+          "spawnError": null,
+          "text": "PONG-7CD9014F",
+          "inputTokens": 139,
+          "cacheRead": 0,
+          "outputTokens": 12,
+          "totalIn": 139,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 4501,
+          "spawnMs": 8,
+          "spawnError": null,
+          "text": "PONG-1A197A42",
+          "inputTokens": 138,
+          "cacheRead": 0,
+          "outputTokens": 12,
+          "totalIn": 138,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 5512,
+          "spawnMs": 6,
+          "spawnError": null,
+          "text": "PONG-2B560A13",
+          "inputTokens": 137,
+          "cacheRead": 0,
+          "outputTokens": 12,
+          "totalIn": 137,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 4372,
+          "spawnMs": 7,
+          "spawnError": null,
+          "text": "PONG-6B0AB03B",
+          "inputTokens": 140,
+          "cacheRead": 0,
+          "outputTokens": 13,
+          "totalIn": 140,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 5352,
+          "spawnMs": 6,
+          "spawnError": null,
+          "text": "PONG-554CA1F1",
+          "inputTokens": 139,
+          "cacheRead": 0,
+          "outputTokens": 12,
+          "totalIn": 139,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 5890,
+          "spawnMs": 7,
+          "spawnError": null,
+          "text": "PONG-C76F6A25",
+          "inputTokens": 138,
+          "cacheRead": 0,
+          "outputTokens": 12,
+          "totalIn": 138,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 5695,
+          "spawnMs": 6,
+          "spawnError": null,
+          "text": "PONG-3A64245F",
+          "inputTokens": 137,
+          "cacheRead": 0,
+          "outputTokens": 12,
+          "totalIn": 137,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 4909,
+          "spawnMs": 9,
+          "spawnError": null,
+          "text": "PONG-180E7630",
+          "inputTokens": 136,
+          "cacheRead": 0,
+          "outputTokens": 11,
+          "totalIn": 136,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 4322,
+          "spawnMs": 7,
+          "spawnError": null,
+          "text": "PONG-4A93CCFE",
+          "inputTokens": 138,
+          "cacheRead": 0,
+          "outputTokens": 12,
+          "totalIn": 138,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 4789,
+          "spawnMs": 7,
+          "spawnError": null,
+          "text": "PONG-21DEC639",
+          "inputTokens": 136,
+          "cacheRead": 0,
+          "outputTokens": 10,
+          "totalIn": 136,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 4936,
+          "spawnMs": 8,
+          "spawnError": null,
+          "text": "PONG-9FEA5362",
+          "inputTokens": 137,
+          "cacheRead": 0,
+          "outputTokens": 12,
+          "totalIn": 137,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 5453,
+          "spawnMs": 7,
+          "spawnError": null,
+          "text": "PONG-1713E1A9",
+          "inputTokens": 138,
+          "cacheRead": 0,
+          "outputTokens": 13,
+          "totalIn": 138,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 4797,
+          "spawnMs": 7,
+          "spawnError": null,
+          "text": "PONG-2D34F2C0",
+          "inputTokens": 139,
+          "cacheRead": 0,
+          "outputTokens": 14,
+          "totalIn": 139,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 4846,
+          "spawnMs": 7,
+          "spawnError": null,
+          "text": "PONG-C82AF454",
+          "inputTokens": 136,
+          "cacheRead": 0,
+          "outputTokens": 10,
+          "totalIn": 136,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 5000,
+          "spawnMs": 7,
+          "spawnError": null,
+          "text": "PONG-8942FCEB",
+          "inputTokens": 137,
+          "cacheRead": 0,
+          "outputTokens": 12,
+          "totalIn": 137,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 6019,
+          "spawnMs": 10,
+          "spawnError": null,
+          "text": "PONG-88710B6C",
+          "inputTokens": 137,
+          "cacheRead": 0,
+          "outputTokens": 12,
+          "totalIn": 137,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 5377,
+          "spawnMs": 14,
+          "spawnError": null,
+          "text": "PONG-E05F1614",
+          "inputTokens": 138,
+          "cacheRead": 0,
+          "outputTokens": 11,
+          "totalIn": 138,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        }
+      ]
+    },
+    "openai/gpt-6-astra": {
+      "answered": 20,
+      "of": 20,
+      "wallP50": 5363,
+      "wallP90": 8676,
+      "spawnP50": 7,
+      "inputTokens": [
+        136,
+        138,
+        135,
+        137,
+        139
+      ],
+      "runs": [
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 6443,
+          "spawnMs": 9,
+          "spawnError": null,
+          "text": "PONG-62A12221",
+          "inputTokens": 136,
+          "cacheRead": 0,
+          "outputTokens": 11,
+          "totalIn": 136,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 5363,
+          "spawnMs": 7,
+          "spawnError": null,
+          "text": "PONG-AC49B92D",
+          "inputTokens": 138,
+          "cacheRead": 0,
+          "outputTokens": 12,
+          "totalIn": 138,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 10700,
+          "spawnMs": 7,
+          "spawnError": null,
+          "text": "PONG-E400A736",
+          "inputTokens": 135,
+          "cacheRead": 0,
+          "outputTokens": 10,
+          "totalIn": 135,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 4895,
+          "spawnMs": 6,
+          "spawnError": null,
+          "text": "PONG-F427E690",
+          "inputTokens": 136,
+          "cacheRead": 0,
+          "outputTokens": 10,
+          "totalIn": 136,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 5210,
+          "spawnMs": 7,
+          "spawnError": null,
+          "text": "PONG-D0DB066D",
+          "inputTokens": 137,
+          "cacheRead": 0,
+          "outputTokens": 11,
+          "totalIn": 137,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 5878,
+          "spawnMs": 7,
+          "spawnError": null,
+          "text": "PONG-30AA0EC6",
+          "inputTokens": 138,
+          "cacheRead": 0,
+          "outputTokens": 12,
+          "totalIn": 138,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 23272,
+          "spawnMs": 7,
+          "spawnError": null,
+          "text": "PONG-697A651E",
+          "inputTokens": 137,
+          "cacheRead": 0,
+          "outputTokens": 11,
+          "totalIn": 137,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 4958,
+          "spawnMs": 7,
+          "spawnError": null,
+          "text": "PONG-7D6347FD",
+          "inputTokens": 137,
+          "cacheRead": 0,
+          "outputTokens": 12,
+          "totalIn": 137,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 6501,
+          "spawnMs": 6,
+          "spawnError": null,
+          "text": "PONG-DAD5813D",
+          "inputTokens": 135,
+          "cacheRead": 0,
+          "outputTokens": 11,
+          "totalIn": 135,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 4914,
+          "spawnMs": 11,
+          "spawnError": null,
+          "text": "PONG-EE6612D1",
+          "inputTokens": 137,
+          "cacheRead": 0,
+          "outputTokens": 12,
+          "totalIn": 137,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 4517,
+          "spawnMs": 6,
+          "spawnError": null,
+          "text": "PONG-2E794744",
+          "inputTokens": 137,
+          "cacheRead": 0,
+          "outputTokens": 11,
+          "totalIn": 137,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 4754,
+          "spawnMs": 7,
+          "spawnError": null,
+          "text": "PONG-0ACCEB20",
+          "inputTokens": 137,
+          "cacheRead": 0,
+          "outputTokens": 12,
+          "totalIn": 137,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 5158,
+          "spawnMs": 6,
+          "spawnError": null,
+          "text": "PONG-1BC98882",
+          "inputTokens": 137,
+          "cacheRead": 0,
+          "outputTokens": 11,
+          "totalIn": 137,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 5057,
+          "spawnMs": 7,
+          "spawnError": null,
+          "text": "PONG-4C2113C1",
+          "inputTokens": 139,
+          "cacheRead": 0,
+          "outputTokens": 13,
+          "totalIn": 139,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 8676,
+          "spawnMs": 11,
+          "spawnError": null,
+          "text": "PONG-1C3320D2",
+          "inputTokens": 139,
+          "cacheRead": 0,
+          "outputTokens": 13,
+          "totalIn": 139,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 5741,
+          "spawnMs": 10,
+          "spawnError": null,
+          "text": "PONG-611149A0",
+          "inputTokens": 138,
+          "cacheRead": 0,
+          "outputTokens": 11,
+          "totalIn": 138,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 6109,
+          "spawnMs": 8,
+          "spawnError": null,
+          "text": "PONG-1248AD5B",
+          "inputTokens": 139,
+          "cacheRead": 0,
+          "outputTokens": 12,
+          "totalIn": 139,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 5258,
+          "spawnMs": 7,
+          "spawnError": null,
+          "text": "PONG-9164D572",
+          "inputTokens": 137,
+          "cacheRead": 0,
+          "outputTokens": 11,
+          "totalIn": 137,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 7718,
+          "spawnMs": 9,
+          "spawnError": null,
+          "text": "PONG-C7FE5D6F",
+          "inputTokens": 139,
+          "cacheRead": 0,
+          "outputTokens": 13,
+          "totalIn": 139,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        },
+        {
+          "code": 0,
+          "killed": null,
+          "wallMs": 5947,
+          "spawnMs": 9,
+          "spawnError": null,
+          "text": "PONG-1D54F508",
+          "inputTokens": 137,
+          "cacheRead": 0,
+          "outputTokens": 12,
+          "totalIn": 137,
+          "reasons": [
+            "stop"
+          ],
+          "types": [
+            "step_start",
+            "text",
+            "step_finish"
+          ],
+          "toolEvents": 0,
+          "errors": [],
+          "canariesInReply": [],
+          "stderrHead": "",
+          "ok": true
+        }
+      ]
+    }
+  }
+}

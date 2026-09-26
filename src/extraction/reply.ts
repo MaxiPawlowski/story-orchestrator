@@ -13,6 +13,7 @@ export interface CallOptions {
   temperature?: number;
   signal?: AbortSignal;
   timeoutScale?: number;
+  budgetKind?: string;
 }
 
 export type RouteReply = (prompt: string, route: ModelRoute | null, options?: CallOptions) => Promise<ExtractionReply>;
@@ -37,7 +38,7 @@ export const replyVia = (transport: ModelTransport): RouteReply => async (prompt
   if (!route) throw new ModelCallError("config", "No memory LLM profile selected");
   const profileId = route.profileId;
   const maxTokens = options.maxTokens ?? DEFAULT_MAX_TOKENS;
-  const timeoutMs = Math.round(callTimeoutMs(maxTokens, estimateTokens(prompt)) * (options.timeoutScale ?? 1));
+  const timeoutMs = Math.round(callTimeoutMs(maxTokens, estimateTokens(prompt), options.budgetKind) * (options.timeoutScale ?? 1));
   const startedAt = Date.now();
   const reply = await transport(profileId, prompt, maxTokens, {
     signal: anySignal([options.signal, AbortSignal.timeout(timeoutMs)]),

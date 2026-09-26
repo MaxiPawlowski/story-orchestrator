@@ -29,6 +29,16 @@ const provisioningIssues = (input: AuthoringStageInput, ops: ReturnType<typeof p
     .map((item) => `ops.${item.index}: ${item.validation.message}`);
 };
 
+const qualityKeyLines = (input: AuthoringStageInput, ops: ReturnType<typeof parseProposal>["proposal"]["ops"]): string[] => {
+  if (input.stage === "qualities" || input.stage === "provisioning") return [];
+  const declared = input.draft.qualities.map((quality) => quality.key);
+  const refused = [...new Set(ops.flatMap((op) => (op.kind === "addQuality" && !declared.includes(op.quality.key) ? [op.quality.key] : [])))];
+  return [
+    `Declared quality keys: ${declared.join(", ") || "(none)"}. A snapshot or gate in this stage may use only these.`,
+    ...(refused.length ? [`Not declared, so no op in the ${input.stage} stage may use it: ${refused.join(", ")}`] : []),
+  ];
+};
+
 export async function runAuthoringStage(input: AuthoringStageInput, model: ModelCall, ask: ModelAsk): Promise<ProposalResult> {
   const prompt = renderStagePrompt(input.stage, input.draft, input.message, input.history, input.environment);
   const first = await askReply(model, prompt, { ...ask, maxTokens: STAGE_MAX_TOKENS });
@@ -41,7 +51,7 @@ export async function runAuthoringStage(input: AuthoringStageInput, model: Model
   const firstProblems = parsed.questions.length ? [] : [...parsed.issues, ...(input.stage === "provisioning" ? validation.stageIssues : validation.blocking), ...provisioning];
 
   if (firstProblems.length) {
-    const repairPrompt = `${prompt}\n\nPrevious response was invalid:\n${firstProblems.join("\n")}\nReturn corrected exact JSON only.`;
+    const repairPrompt = `${prompt}\n\nPrevious response was invalid:\n${[...firstProblems, ...qualityKeyLines(input, parsed.proposal.ops)].join("\n")}\nReturn corrected exact JSON only.`;
     const repair = await askReply(model, repairPrompt, { ...ask, maxTokens: STAGE_MAX_TOKENS });
     const repairResponse = repair.text;
     audit.repairPrompt = repairPrompt;

@@ -1,0 +1,22 @@
+{
+  "probe": "p04logs",
+  "started": "2026-09-26T14:33:28.754Z",
+  "finished": "2026-09-26T14:33:33.838Z",
+  "node": "v22.22.0",
+  "data": {
+    "badModel": {
+      "code": 1,
+      "wallMs": 2418,
+      "errorLines": [
+        "timestamp=2026-09-26T14:33:31.113Z level=ERROR run=edd31620 message=failed ref=err_537da598 error=\"ProviderModelNotFoundError: Model not found: openai/so-p0-no-such-model. Did you mean: gpt-5.6-sol, gpt-5.6-sol-fast, gpt-6-sol?\" cause=\"ProviderModelNotFoundError: Model not found: openai/so-p0-no-such-model. Did you mean: gpt-5.6-sol, gpt-5.6-sol-fast, gpt-6-sol?\\n    at <anonymous> (B:/~BUN/root/c"
+      ]
+    },
+    "loggedOut": {
+      "code": 1,
+      "wallMs": 2654,
+      "errorLines": [
+        "timestamp=2026-09-26T14:33:33.757Z level=ERROR run=9f25f43d message=failed ref=err_13a7285c error=\"ProviderModelNotFoundError: Model not found: openai/gpt-6-astra-fast. Did you mean: gpt-6-astra-fast?\" cause=\"ProviderModelNotFoundError: Model not found: openai/gpt-6-astra-fast. Did you mean: gpt-6-astra-fast?\\n    at <anonymous> (B:/~BUN/root/chunk-gfsm6vk4.js:439:94093)\\n    at SessionPrompt.getM"
+      ]
+    }
+  }
+}

@@ -1,4 +1,5 @@
-import { askText, buildFixtureRun, parseSharedReadResponse, type ContextLimit, type ExtractionFixtureSpec, type ModelCall, type PassRole, type SceneArm, type SceneArmSpec } from "@extraction/index";
+import { askText, buildFixtureRun, parseSharedReadResponse, type ExtractionFixtureSpec, type ExtractionReply, type ModelCall, type ModelPass, type PassRole } from "@extraction/index";
+import type { ContextLimit, SceneArm, SceneArmSpec } from "@extraction/index";
 import { requestBudgetFor, routedProfileId } from "./requestBudget";
 import { sceneArmRunner, type SceneArmResult } from "./sceneArmRunner";
 import { profileExists } from "@services/STAPI";
@@ -46,6 +47,7 @@ export interface LiveSuiteHandle {
   runCuratorCreate: (entry: CreateCase) => Promise<{ prompt: string; rawResponse: string; sample: CreateCaseSample }>;
   runRoleCase: <R extends CalibrationRole>(role: R, entry: CalibrationCaseMap[R]) => Promise<RoleCaseRecord<R>>;
   summarizeRoleCalibration: (role: CalibrationRole, records: RoleCaseRecord[], options?: { floorIds?: string[] }) => RoleSummary;
+  askModel: (prompt: string, maxTokens: number, role: PassRole) => Promise<ExtractionReply>;
 }
 
 const withHints = (story: unknown, hints: LiveFixtureOptions["hints"]) => {
@@ -53,6 +55,8 @@ const withHints = (story: unknown, hints: LiveFixtureOptions["hints"]) => {
   const raw = story as { qualities?: Array<Record<string, unknown>> };
   return { ...raw, qualities: (raw.qualities ?? []).map((quality) => ({ ...quality, ...(hints[String(quality.key)] ?? {}) })) };
 };
+
+const ROLE_PASS: Record<PassRole, ModelPass> = { read: "read", synthesis: "sceneSummary", authoring: "copilot", director: "director", curator: "curator" };
 
 const liveModel = (manager: RuntimeManager): ModelCall => createModelCall({ settings: () => manager.getExtractionSettings(), exists: profileExists, planted: false });
 
@@ -68,6 +72,7 @@ export function registerLiveSuite(manager: RuntimeManager) {
       await budget.meter.prime([text]);
       return { estimate: budget.meter.count(text), contextLimit: budget.contextLimit, profileId: routedProfileId(role) };
     },
+    askModel: (prompt, maxTokens, role) => model(prompt, { role, pass: ROLE_PASS[role], maxTokens }),
     runFixture: async (spec, options = {}) => {
       const hinted = { ...spec, story: withHints(spec.story, options.hints) };
       const first = buildFixtureRun(hinted);

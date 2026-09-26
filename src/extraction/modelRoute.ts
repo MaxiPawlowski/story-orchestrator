@@ -25,6 +25,7 @@ export interface ModelAsk {
   signal?: AbortSignal;
   refuseIncomplete?: boolean;
   timeoutScale?: number;
+  budgetKind?: string;
   budget?: RequestBudget;
   temperature?: number;
   debugResponse?: string | null;
