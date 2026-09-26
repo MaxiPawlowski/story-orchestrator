@@ -114,6 +114,29 @@ node:test with a fake page.
 | D3 | `liveSuite`, `*Calibration`, `selfTestCases`, `createCandidate`, and every plan-09 spike module not built under an approved build plan, load only through a dev-only dynamic import | TS-API import-graph guard from `src/index.tsx` in jest (the `architecture.test.ts` style); control: a planted static import fails |
 | D4 | `JudgeSettingsGroup.tsx:124` links to the README's recommended-configuration section (shipped) instead of `docs/plans` | grep guard: 0 `docs/plans` in `src/**/*.tsx` hrefs |
 
+### Dev build on the lanes: the switch (built 2026-09-26)
+
+The prod `dist/` has no `storyOrchestrator*` handles and no debug response overrides (D1/D2). The live harness (lanes, `so-journey`,
+`so-scenario`, `st-lanes`) drives those handles, so it runs on the dev build. How ST picks a bundle, verified on ST `7c3994196`:
+- ST loads `/scripts/extensions/<name>/<manifest.js>` (`public/scripts/extensions.js:819`, and `:434` for hooks). Our `manifest.json`
+  names `dist/index.js`, and the shipped manifest keeps naming it. Nothing in ST reads `dist-dev/`.
+- A lane is its own ST server over the **same code tree**: `st-lanes.mts start` spawns `server.js` with `cwd: ST_ROOT` and only a
+  different `--dataRoot`. Every lane therefore serves the one `dist/` of the checkout inside ST's `public/`, never a worktree's.
+
+The switch, until P3's repo move (Q1) makes `npm run stage --flavor dev` the route:
+
+| Step | Command |
+|---|---|
+| serve the dev build | `npm run build:dev && npm run serve:dev` (`scripts/release/serveFlavour.mjs`: checks the dev manifest's flavour, its file list and every hash, then replaces `dist/` with `dist-dev/`) |
+| make the page run it | `node scripts/debug/st-session.mts reload`; on a lane `node scripts/debug/st-lanes.mts run <n> -- scripts/debug/st-session.mts reload` |
+| back to prod | `npm run build` (required before `npm run test:release`, which refuses a dev `dist/`) |
+
+Guards: `so-journey` and `so-scenario` call `assertDevBundle` (`scripts/debug/lib/bundleFlavour.mts`) first and refuse a page with no
+`storyOrchestratorRuntime`, naming whether the served `dist/manifest.json` is `prod` (the switch above) or `dev` (a cached or stale
+page: reload); `st-lanes.mts batch` runs `lanePreflight` and refuses before any lane runs when the served `dist/manifest.json` is not
+`flavor: "dev"`; the run header records `build.manifest.flavor`. `npm run dev` (watch) writes `dist-dev/`, so follow each rebuild with
+`npm run serve:dev`. The same text is in `.claude/rules/debug-scripts.md`.
+
 ### F1 — bundle budget
 
 Main entry ≤ **1 250 000 bytes** (decimal MB, the stricter reading of "1.25 MB"; predeclared, never retuned), with
@@ -383,3 +406,100 @@ Gates per CLAUDE.md: build/release tooling → `typecheck && lint && test && bui
 - ~~Q6~~ Resolved 2026-09-25: plan 13 §H2 rule 7 now takes PS-J 2's `text/plain` + `express.text({limit})` bound before parse, then the prompt bound after it.
   Agree that the gate needs both?
 - U6, U7 above.
+
+## Gate record (code items)
+
+Branch `worktree-wf_aaec966e-c75-5`, built 2026-09-26, merged with master at `c017c169` (master `13db430c`). No live run: no lane, main ST,
+`C:\dev\so-lanes` or pod was used. Per rule 14 every live row below is owed ×1 in the next batch (×2 in plan 10).
+
+### Built
+
+| Item | Commit | What | Controls |
+|---|---|---|---|
+| R/R6 | `c30d7311` | `build` → `dist/` (prod), `build:dev` → `dist-dev/`; `__SO_DEV__`; `output.clean`; prod `devtool: false`; livereload watch-only; manifest `flavor`, every emitted file + sha256, `host.root` gone | planted dev manifest in `dist/`, planted `.map`, planted `host.root` |
+| D1/D2 | `7390d5ff` | 13 debug reads, the budget scale and every `storyOrchestrator*` handle behind `__SO_DEV__`; panel reaches the judge by import | dev bundle carries them (grep control) |
+| D3 | `04f5f0ba` | import-graph guard from `src/index.tsx`: no dev-only module statically reachable | planted static `liveSuite` import; calibration re-export from the judge barrel |
+| D4 | `7c3a7f7f` | judge recommended-config link → `README.md#judge-recommended-configuration`; guard on `href`/`src` into unshipped dirs; linked README anchors exist | planted `docs/plans` href, relative dev links |
+| D2 harness | `4c34a140` | the switch above: `serve:dev`, `assertDevBundle`, `lanePreflight`, run-header flavour | prod, stale-page, missing-manifest cases |
+| P3 (debug dir) | `a05d672c` | `SO_DEBUG_DIR` default `<so-lanes>/0/debug` (lane-0 profile unchanged); `st-payload --out` and the typesafe spike follow it | a planted `.debug` join fails `servedDebugDir.test.mts` |
+| R4/U2/UP | `1a32a787` | version equality (package, manifest, dist manifest, top CHANGELOG heading) every build; tag equality in release mode; CHANGELOG 2.4.0; clean-host keeps pre-release suffixes, excludes `dist-dev`, default gates + `typecheck:test`, `build:dev`, `test:debug`, `test:plugin`, `storybook` | heading behind; `--release` on untagged HEAD (ran: fails); stray tag |
+| R3 | `6b3bc1f0`, fix `ff71d5c7` | allowlist, `npm run package` (dirty tree refused, stage, `release-manifest.json`, zip), `npm run stage` | planted `docs/`, map, test file, `opencode.json`, dropped chunk; slot holding `.git`/`src`/`package.json`/`docs` |
+| LI | `48374331` | `THIRD-PARTY-NOTICES.md` from the prod module list (12 packages, all MIT; loader runtimes and webpack runtime counted); Smart-Memory adaptation; examples provenance; unused `yaml` removed (lock-only) | planted package, unused dep, GPL licence, unrecorded example |
+| F1 | `f0ce32c6` | Studio + cytoscape lazy; author-only drawer tabs and DriverPanel lazy behind keyed Suspense (`[data-so-tab]`); webpack `performance` error at 1 250 000 (prod) | +1 byte; a build at a 1 000 000 budget fails (ran); cytoscape absent from main, present in a chunk |
+| Q2t | `9164ce81` | `.github/workflows/ci.yml` (master + `v*` tags, ST pinned at `7c3994196`, every gate, `test:release --release` on tags) | a missing gate |
+| PS-J 1/2/3/6 | `700add67` | judge plugin 1.1.0: permitted models = the page's model-id map; `text/plain` read under a byte bound (413), a body ST parsed refused (415); `X-SO-Plugin: 1` + same-origin guard (403); per user ≤ 2 in flight, ≤ 60/min (429); stHost transport sends `text/plain` + the header | permitted model passes, normal page call passes, another user not held, window slides; every refusal 0 upstream calls |
+| UN (inventory) | `25638f75` | `npm run inventory` (read-only; judge key by presence only) | 3/3 mutants killed |
+| SM 3b/5/6 | `b6d96091` | `scripts/debug/so-artifact-smoke.mts probe` (black-box, no handle read) + `release/smokeChecks.mjs` | planted global, 404 chunk, zero-chunk run, console chunk error, bundle mismatch |
+| F1 live fixture | `0de802cf` | `test/scenarios/live-v25-12-lazy-chunks.json` (dev build, no model); evals syntax-checked, schema-valid | player mode mounts no author tab |
+
+### Gates (after the merge with master, `c017c169`)
+
+| Gate | Result |
+|---|---|
+| `npm run typecheck` / `typecheck:test` / `lint` | 0 errors |
+| `npm test` | 4139 / 4139 (ownership census, fault matrix, architecture budgets, code-health ratchets included) |
+| `ST_PUBLIC=C:/dev/SillyTavern-MainBranch/public npm run build` / `build:dev` | compiled, 0 warnings; prod main entry **1 232 264 B** (budget 1 250 000); was 1 824 734 |
+| `npm run test:release` | 77 / 77 |
+| `ST_ROOT=C:/dev/SillyTavern-MainBranch npm run test:debug` | 388 / 388, 0 skipped (without `ST_ROOT` a worktree skips `eventNames`) |
+| `npm run test:plugin` | 12 / 12 |
+| `npm run debug:typecheck` | 0 errors (it also failed on master's D1 commit: `__SO_DEV__` undeclared for the debug tsconfig; fixed in `4c34a140`) |
+| Storybook, nested-worktree form (`storybook build` then `test-storybook --index-json`) | 37 suites / 262 tests |
+| Budgets | manager 495 / 700; largest coordinator 467 / 560 (`memoryCoordinator`) |
+
+`test-storybook:ci` verbatim and `npm run package` on a clean tree are owed from the main checkout at merge (a worktree carries a
+modified `.claude/settings.local.json`, so `package` refuses it, correctly). `package` + `stage` were exercised on a temp clone of this
+branch: 18 files staged, zip read back by Python `zipfile` and Windows `tar`, dev stage into a fake ST root.
+
+### Host facts verified (ST `7c399419636c4df3d6d035fcddf9ccbb8248b432`)
+
+| Fact | Where |
+|---|---|
+| ST loads `/scripts/extensions/<name>/<manifest.js>` | `public/scripts/extensions.js:819` (script), `:434` (hooks) |
+| global JSON and urlencoded parsers, 500 MB, before any plugin route | `src/server-main.js:110-111` |
+| body-parser sets `req.body = {}` before its type check, so a `text/plain` body arrives unread | `node_modules/body-parser` 1.20.4, `lib/types/json.js:108,120` |
+| plugin routes mount under `/api/plugins/<id>` | `src/plugin-loader.js:213-222` |
+
+### Deviations and findings
+
+- **Stage deleted nothing, but could have.** Exercising `npm run stage` from a temp clone with `--st-root C:/dev/SillyTavern-MainBranch`
+  reached `rmSync` on the real extension slot, because the first guard only refused a slot that was the repo running the command.
+  The removal threw at the slot root before deleting anything; `git status` of the main checkout and of all 62 registered worktrees
+  showed no deletion. Fixed in `ff71d5c7`: stage refuses any slot holding an entry a staged tree never has.
+- **F1 needed more than the Studio.** Studio + cytoscape lazy left the main entry at 1 263 135 B, 13 135 over. The author-only drawer
+  tabs and the DriverPanel went lazy too (author view adds, so player mode never loads them). Studio loads as two chunks (its code and
+  the cytoscape vendor chunk), dagre as a third when the graph shows; the plan's "one lazy chunk" reads as "behind `import()`".
+- **Chunk ids are path-dependent**: a clone whose `node_modules` resolves elsewhere emits other chunk ids and another bundle sha from
+  the same source sha. Reproducibility claims hold for one checkout layout; clean-host and CI each install their own `node_modules`.
+- **A1 not built.** With `color-contrast` on, 138 of 261 stories fail. Most nodes are ST's own `.menu_button` under the Storybook
+  theme mock (`.storybook/st-theme.css`, about 400 nodes) and our `opacity-60`/`opacity-50` dimming (about 140). Whether the mock must
+  match a specific ST theme is the question before any fix; the rule stays off.
+- **PS-J plugin 1.1.0 needs re-installing** wherever 1.0.0 is installed: the new page sends `text/plain`, which 1.0.0 reads as an empty
+  body (400), so every judge use falls back until `npm run plugin:install` and an ST restart. A user-set `judge.model` outside the
+  permitted list is refused 400 and the use falls back.
+- `so-artifact-smoke.mts` lives in `scripts/debug/` (the plan named `scripts/release/artifact-smoke.mts`) so `debug:typecheck` covers it.
+- Examples provenance: the four card PNGs are recorded as added in `ea0126e2` with "image origin not recorded", licensed as the repo.
+
+### Not built here (open decisions or other plans)
+
+- U6 (distribution): Route A/B/C, `manifest.json` `homePage`/`auto_update`, the release commit route and its fast-forward check, SM
+  steps 1-4, UP, R1, the CI remote. U7 (judge key scope): PS-J row 4 and the README sentence.
+- Q1 (repo move out of `public/`): the move itself, `ST_ROOT`/`ST_PUBLIC` required everywhere, moving the existing `.debug/` contents.
+- Q2 (`install-plugins.mjs`) and JP; Q3/Q5 (remove-owned action); Q4 (the PS-J numbers are the proposals, as built).
+- PS-H and the harness uninstall rows: the harness plugin is not on master (plan 13 Phase A).
+- T4 (React 19 types, eslint 9, `npm audit`): the user's decision, untouched.
+- README rewrite (install, first run, privacy, backup, uninstall, troubleshooting) waits for the FR/EG/UN/BR records; A2 statement with it.
+
+### Live-pending (exact commands; lane `<n>`, group `<id>`)
+
+| Row | Command / step |
+|---|---|
+| dev switch | `npm run build:dev && npm run serve:dev`; `node scripts/debug/st-lanes.mts run <n> -- scripts/debug/st-session.mts reload`; then `node scripts/debug/st-lanes.mts batch --lanes <n> J3` must start (preflight passes) |
+| switch refusal | `npm run build`, then `node scripts/debug/st-lanes.mts batch --lanes <n> J3` must refuse with `batch refused: dist/manifest.json has flavor "prod"`; `node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-scenario.mts run test/scenarios/live-v25-12-lazy-chunks.json --sandbox --group <id>` must refuse with `live harness refused: the page runs the PROD bundle` |
+| F1 lazy chunks (dev) | serve dev as above, then `node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-scenario.mts run test/scenarios/live-v25-12-lazy-chunks.json --sandbox --group <id>` |
+| SM 3b/5/6 (prod) | `npm run build`, reload the lane, `node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-artifact-smoke.mts probe --out <record>` (with `--release-manifest release/story-orchestrator-<v>/release-manifest.json` on a packaged tree) |
+| PS-J 2/6 on a real route | on a lane with the 1.1.0 plugin installed (`npm run plugin:install -- --st-root <lane ST>`, restart): a 5 MB `text/plain` POST → 413; a JSON-typed POST → 415; `disableCsrfProtection: true` + accounts off: a cross-origin `text/plain` POST without `X-SO-Plugin` and one with a foreign `Origin` → 403, 0 upstream calls (stub `TYPESAFE_BASE_URL`); a page call passes |
+| PS-J 3, 5 | 20 parallel page calls → ≤ 2 upstream concurrent, rest 429; no CSRF token → 403; logged-out → refused |
+| judge regression | J11 judge checks and J8.5 on the lane after the plugin re-install (the transport changed content type) |
+| lazy drawer in journeys | J3 and J5 (drawer-tab steps now wait for `[data-so-tab]`) |
+| SV, EG, FR, UN, BR, UP, JP, E3, SM 1-4 | as designed above; SV/UP/JP/SM 1-4 wait for Q1/U6, FR/UN/BR/EG/E3 are runnable on a lane copy with the artifact staged by `npm run stage -- --st-root <lane ST root>` |
+| `.debug` move | `mkdir -p C:/dev/so-lanes/0/debug && mv C:/dev/SillyTavern-MainBranch/public/scripts/extensions/third-party/story-orchestrator/.debug/* C:/dev/so-lanes/0/debug/` (main checkout, the user's call), then SV's `.debug` probe → 404 |
