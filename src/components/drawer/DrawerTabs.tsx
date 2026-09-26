@@ -9,6 +9,7 @@ import ConflictQueue from "./ConflictQueue";
 import PlayerOverview from "./PlayerOverview";
 import StagecraftPanel from "./StagecraftPanel";
 import ScenePanel from "./ScenePanel";
+import ModelCallsPanel from "./ModelCallsPanel";
 import { NextTurnPanel, type NextTurnOwnerTab } from "./NextTurnPanel";
 import { FATE_LABELS } from "./memoryFate";
 import { MessageCitation, MessageJumpProvider } from "./MessageCitation";
@@ -540,6 +541,7 @@ const SchedulerTab = ({ snapshot, manager, onOpenFact }: { snapshot: RuntimeSnap
   <div className="flex flex-col gap-3">
     <StagecraftPanel snapshot={snapshot} manager={manager} onOpenFact={onOpenFact} />
     <TalkDecisionsPanel snapshot={snapshot} />
+    <ModelCallsPanel calls={snapshot.modelCalls ?? []} />
     <div className="text-xs opacity-80">
       <div className="font-medium opacity-100">Extraction</div>
       <div>Queue {snapshot.extraction.scheduler.queueDepth}, in flight {snapshot.extraction.scheduler.inFlight ? "yes" : "no"}</div>

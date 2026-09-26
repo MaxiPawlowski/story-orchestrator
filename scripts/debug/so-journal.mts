@@ -45,7 +45,7 @@ export async function readSessionJournal(page) {
   });
 }
 
-function renderMarkdown(journal) {
+export function renderMarkdown(journal) {
   const lines = [
     `# Session journal — ${journal.storyTitle ?? 'no story'}`,
     '',
@@ -53,12 +53,12 @@ function renderMarkdown(journal) {
     `- checkpoint at export: ${journal.activeCheckpoint ?? '—'} (boundary ${journal.boundary})`,
     `- events: ${journal.events.length}`,
     '',
-    '| # | at | kind | boundary | msg | summary |',
-    '|---|---|---|---|---|---|',
+    '| # | at | kind | boundary | msg | route | summary |',
+    '|---|---|---|---|---|---|---|',
   ];
   journal.events.forEach((event, index) => {
     const summary = String(event.summary ?? '').replace(/\|/g, '/').replace(/\n/g, ' ');
-    lines.push(`| ${index + 1} | ${event.at} | ${event.kind} | ${event.boundary >= 0 ? event.boundary : '—'} | ${event.messageId >= 0 ? event.messageId : '—'} | ${summary} |`);
+    lines.push(`| ${index + 1} | ${event.at} | ${event.kind} | ${event.boundary >= 0 ? event.boundary : '—'} | ${event.messageId >= 0 ? event.messageId : '—'} | ${event.detail?.route ?? '—'} | ${summary} |`);
   });
   const flags = journal.events.filter((event) => event.kind === 'flag');
   if (flags.length) {

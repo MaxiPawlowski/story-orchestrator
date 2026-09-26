@@ -19,6 +19,7 @@ import { scanGateView, wiGatingStatus } from "./worldInfoMode";
 import { buildForeignRows, buildNextTurnCost, buildNextTurnPreview } from "./nextTurn";
 import { promptCost } from "./promptCost";
 import { roleHealth } from "./roleHealth";
+import { buildModelCalls } from "./modelCalls";
 import { readChatIdentity } from "./chatIdentity";
 import type { ExtensionPromptBlocks } from "@services/STAPI";
 import type { ExtractionHealth } from "@extraction/index";
@@ -187,5 +188,6 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     nextTurnForeign,
     nextTurnCost: buildNextTurnCost(nextTurn, nextTurnForeign, cost.budget, cost.lastGenerationBudget),
     roleRoutes: roleHealth.view(),
+    modelCalls: buildModelCalls({ judgeCalls: extras.judge.calls, audits: extras.extraction.audits, talkDecisions: extras.talk.decisions, curatorPass: extras.stagecraft.lastPass }),
   };
 }
