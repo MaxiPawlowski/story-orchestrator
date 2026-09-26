@@ -1,4 +1,5 @@
-import { askText, buildFixtureRun, parseSharedReadResponse, type ExtractionFixtureSpec, type ModelCall, type SceneArm, type SceneArmSpec } from "@extraction/index";
+import { askText, buildFixtureRun, parseSharedReadResponse, type ContextLimit, type ExtractionFixtureSpec, type ModelCall, type PassRole, type SceneArm, type SceneArmSpec } from "@extraction/index";
+import { requestBudgetFor, routedProfileId } from "./requestBudget";
 import { sceneArmRunner, type SceneArmResult } from "./sceneArmRunner";
 import { profileExists } from "@services/STAPI";
 import { createModelCall } from "./modelCall";
@@ -32,7 +33,14 @@ export interface LiveFixtureOptions {
   hints?: Record<string, Record<string, unknown>>;
 }
 
+export interface BudgetReading {
+  estimate: number;
+  contextLimit: ContextLimit;
+  profileId: string | null;
+}
+
 export interface LiveSuiteHandle {
+  measureBudget: (text: string, role?: PassRole) => Promise<BudgetReading>;
   runSceneArm: (spec: SceneArmSpec, arm: SceneArm, chunkBudget?: number) => Promise<SceneArmResult>;
   runFixture: (spec: ExtractionFixtureSpec, options?: LiveFixtureOptions) => Promise<LiveFixtureResult>;
   runCuratorCreate: (entry: CreateCase) => Promise<{ prompt: string; rawResponse: string; sample: CreateCaseSample }>;
@@ -55,6 +63,11 @@ export function registerLiveSuite(manager: RuntimeManager) {
     runRoleCase: (role, entry) => runRoleCase(role, entry, { profileId: manager.getExtractionSettings().profileId, model }),
     summarizeRoleCalibration,
     runSceneArm: sceneArmRunner(model),
+    measureBudget: async (text, role = "read") => {
+      const budget = requestBudgetFor(role);
+      await budget.meter.prime([text]);
+      return { estimate: budget.meter.count(text), contextLimit: budget.contextLimit, profileId: routedProfileId(role) };
+    },
     runFixture: async (spec, options = {}) => {
       const hinted = { ...spec, story: withHints(spec.story, options.hints) };
       const first = buildFixtureRun(hinted);
