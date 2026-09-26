@@ -328,3 +328,33 @@ A fix has to act before the swap (for example, stop or detach the stream before 
 
   Re-seed both lanes (`st-lanes seed <n> --fresh`) before the next batch.
 - localStorage: `so-v25-a11-scale` removed. The read-back shows no `so-v25-*` keys and no `storyOrchestratorDebug*` globals (`<rec>/localstorage-cleanup.log`).
+
+## Gate record (C2 guard + H1 harness, code)
+
+2026-09-26, worktree on master `0ae7107`. Code only: nothing live, no lane, main ST or `C:\dev\so-lanes` touched. `src` change is local to `src/services/stHost/persistence.ts`.
+
+### C2: late-bound save of ours refused whatever its rows
+
+- **Guard** (`switchRefusal`, `src/services/stHost/persistence.ts`): a chat save is held back when an armed save of ours (an observation armed with a chat id: `persist` via `observeNextSave`, `saveOpenChat`) was asked for chat X, the request names chat Y ≠ X, and Y is the chat ST has open at post time. That is the late-binding signature (`saveChatConditional` reads the open chat after its 100 ms poll). The row count no longer matters. It is recorded like the empty case: `report(...lost)`, so the save evidence reads `lost` and the next persist retries in the right chat. The empty-save rules are unchanged.
+- **ST's own saves are not blocked:** a save with no armed save of ours is sent (control), and a save of a chat that is NOT the open one (ST's `/branch-create` writes the branch file while the parent is open) is sent (existing control `a save of another chat that carries messages is sent`). Residual, by design: the watcher attributes the first chat save after an arm to us (the model since v2.3 plan 06). If ST's own save of the newly opened chat is the first request inside our ~100 ms window, it is held back, and our own late save, posted just after with the same open chat's state, goes out unarmed. No unit case can separate the two; the live re-run below is what measures it.
+- **Refusal ring for the recorder:** every refusal is pushed to `globalThis.storyOrchestratorSaveRefusals` (cap 50, monotonic `seq`: file, rows, integrity slug, `askedFor`, open chat, reason). `so-save-recorder.mts` drains it: when our watcher is outermost (the live case) the refusal becomes its own record (`source: 'watcher'`), ordered before the next event the recorder sees; when the watcher is inner, the recorder marks its own record `refused` instead of recording it twice. Refusals present before `arm` are not imported. `flagSaves` adds a `refused` flag.
+
+| Check | Result |
+|---|---|
+| Red first (ring exported, guard not yet built) | `npx jest src/services/stHost/saveWatcher.test.ts`: 4 failed, 18 passed (the two refusal cases hang on the posted request; the two controls failed on the leftover pending request, since fixed with `sentBy`, which answers what went out) |
+| Green | 22/22 in `saveWatcher.test.ts`, 24/24 with `persistence.test.ts` |
+| Mutant 1: row-count condition reinstated (`if (!target \|\| target.messages > 0) return null;`) | 2 failed, 20 passed: both refusal cases (`Expected: 0, Received: 1` requests sent); every control green. Restored |
+| Mutant 2: open-chat check dropped (refuse any other-chat save while armed) | 1 failed: `control: a save of another chat that carries messages is sent` (the branch-create shape). Restored |
+| Recorder | `node --test scripts/debug/so-save-recorder.test.mts`: 9/9 (3 new: watcher outermost drained from the ring and ordered, watcher inner marked not duplicated, pre-arm refusals not imported) |
+
+### Machine gates (both commits)
+
+`npm run typecheck` 0 errors · `npm run typecheck:test` 0 errors · `npm run lint` clean · `npm test` 282 suites passed (1 skipped), 4027 tests passed (1 skipped) · `npm run debug:typecheck` 0 errors · `npm run test:debug` 320 pass, 0 fail. `test:debug` needs a built `dist/manifest.json` (`so-run-header.test.mts` reads it); a fresh worktree has none, so `npm run build` ran first (dist is untracked, nothing served).
+
+### Live re-run owed for C2 (not run here)
+
+The guard is not live-green. Re-run the plan-02 C2 recipe on a **lane**, with a new bundle, ×2 green:
+1. `npm run build`, `st-lanes seed 1 --fresh`, `st-session reload`, `so-run-header capture` (bundle ≠ `0f4332fac075`), `open-group 1759606632088`.
+2. The red fixture the attribution asked for: the solo chat **with messages** (the populated-solo case), not the empty one. `so-save-recorder.mts arm`, then `test/journeys/records/v2.5-plan02/C2/c2-attempt.js` with the setting write (`setUiSettings`) immediately before `/go`.
+3. Pass: the drain shows a `refused` record (`source: 'watcher'`, `askedFor` = the group chat, file = the solo chat, rows > 0); the solo chat's file on disk is byte-identical before/after; the group chat's `saveHealth` reads `lost` and the next persist in the group chat lands (read-back boundary equal). Also assert no ST save of the solo chat was refused when the setting write is NOT made (control arm, ×2).
+4. Archive under `test/journeys/records/v2.5-plan02/C2-guard/`.

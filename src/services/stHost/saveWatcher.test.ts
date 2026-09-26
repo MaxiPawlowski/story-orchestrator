@@ -5,8 +5,10 @@ const eventSource = {
 };
 const emit = (name: string) => [...(handlers.get(name) ?? [])].forEach((handler) => handler());
 
+let mockOpenChat = "chat-1";
+
 jest.mock("./context", () => ({
-  getContext: () => ({ chatId: "chat-1", groupId: "g1", saveMetadata: async () => undefined, eventSource, eventTypes: { SETTINGS_UPDATED: "settings_updated" }, getRequestHeaders: () => ({ "Content-Type": "application/json" }) }),
+  getContext: () => ({ chatId: mockOpenChat, groupId: "g1", saveMetadata: async () => undefined, eventSource, eventTypes: { SETTINGS_UPDATED: "settings_updated" }, getRequestHeaders: () => ({ "Content-Type": "application/json" }) }),
 }));
 
 type Answer = { ok: boolean; status: number; json: () => Promise<unknown> };
@@ -19,7 +21,7 @@ const base = ((url: string) => {
 }) as unknown as typeof fetch;
 globalThis.fetch = base;
 
-import { installSaveWatcher, observeNextSave, observeNextSettingsSave, readServerExtensionSettings, saveOpenChat, saveWatcherStats } from "./persistence";
+import { installSaveWatcher, observeNextSave, observeNextSettingsSave, readServerExtensionSettings, saveOpenChat, saveWatcherRefusalRing, saveWatcherRefusals, saveWatcherStats } from "./persistence";
 
 const answer = (status: number) => pending.shift()!.resolve({ ok: status < 300, status, json: async () => ({}) });
 const settle = async () => { for (let i = 0; i < 5; i += 1) await Promise.resolve(); };
@@ -217,5 +219,67 @@ describe("v2.4 plan 02: every chat save of ours arms the guard", () => {
     answer(200);
     await second;
     expect(reopened.ok && await reopened.observed).toMatchObject({ askedBy: "drop" });
+  });
+});
+
+describe("v2.5 plan 02 C2: a save of ours that ST ran after the open chat changed", () => {
+  beforeAll(() => installSaveWatcher());
+  afterEach(() => { mockOpenChat = "chat-1"; });
+  const chatBody = (key: "id" | "file_name", id: string, messages: number) => JSON.stringify({ [key]: id, chat: [{ chat_metadata: { integrity: `i-${id}` } }, ...Array.from({ length: messages }, (_, index) => ({ mes: `m${index}` }))] });
+  const soloSave = (id: string, messages: number) => fetch("/api/chats/save", { method: "POST", body: chatBody("file_name", id, messages) });
+  const groupSave = (id: string, messages: number) => fetch("/api/chats/group/save", { method: "POST", body: chatBody("id", id, messages) });
+  const sentBy = async (post: () => Promise<Response>) => {
+    const before = pending.length;
+    const response = post();
+    await settle();
+    const sent = pending.length - before;
+    while (pending.length > before) answer(200);
+    expect((await response).ok).toBe(true);
+    return sent;
+  };
+
+  it("holds back the late save even when the chat it lands in has messages, and records it as lost", async () => {
+    const watched = observeNextSave(2000, "chat-1");
+    mockOpenChat = "solo-1";
+    const refused = saveWatcherStats().refused;
+    expect(await sentBy(() => soloSave("solo-1", 3))).toBe(0);
+    expect(saveWatcherStats().refused).toBe(refused + 1);
+    expect(await watched).toMatchObject({ ok: false, requested: false, lost: expect.stringMatching(/"solo-1".*"chat-1"/) });
+    expect(saveWatcherRefusals().at(-1)).toMatchObject({ file: "solo-1", rows: 3, integrity: "i-solo-1", askedFor: "chat-1", open: "solo-1" });
+  });
+
+  it("saveOpenChat arms the same guard", async () => {
+    const opened = await saveOpenChat();
+    mockOpenChat = "solo-2";
+    expect(await sentBy(() => soloSave("solo-2", 2))).toBe(0);
+    expect(opened.ok && await opened.observed).toMatchObject({ ok: false, lost: expect.stringContaining("solo-2") });
+  });
+
+  it("control: a save of ours that posts to the chat it was asked for is sent, messages and all", async () => {
+    const watched = observeNextSave(2000, "chat-1");
+    const refused = saveWatcherStats().refused;
+    const save = groupSave("chat-1", 3);
+    await settle();
+    answer(200);
+    await save;
+    expect(saveWatcherStats().refused).toBe(refused);
+    expect(await watched).toMatchObject({ ok: true, requested: true, status: 200 });
+  });
+
+  it("control: ST's own save of the chat it now has open is sent when no save of ours is armed", async () => {
+    mockOpenChat = "solo-3";
+    const refused = saveWatcherStats().refused;
+    const save = soloSave("solo-3", 4);
+    await settle();
+    answer(200);
+    expect((await save).status).toBe(200);
+    expect(saveWatcherStats().refused).toBe(refused);
+  });
+
+  it("exposes the refusals on a page global a recorder can drain, in order", () => {
+    const ring = (globalThis as { storyOrchestratorSaveRefusals?: unknown[] }).storyOrchestratorSaveRefusals;
+    expect(ring).toBe(saveWatcherRefusalRing());
+    expect(saveWatcherRefusals().length).toBeGreaterThan(0);
+    expect(saveWatcherRefusals().every((entry, index, all) => index === 0 || entry.seq > all[index - 1].seq)).toBe(true);
   });
 });
