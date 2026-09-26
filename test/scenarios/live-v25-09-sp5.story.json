@@ -1,0 +1,21 @@
+{
+  "format": 2,
+  "id": "so-v25-sp5",
+  "version": 1,
+  "title": "SO-SP5 Scenario",
+  "description": "v2.5 plan 09 SP5 spike: checkpoints that set the chat's scenario override. The road sets none, so it keeps the gate's.",
+  "qualities": [
+    { "key": "left_gate", "type": "bool", "source": "extractor", "rubric": "Has the party walked out through the city gate?" },
+    { "key": "in_hall", "type": "bool", "source": "extractor", "rubric": "Has the party stepped inside the guild hall?" }
+  ],
+  "roster": [],
+  "checkpoints": [
+    { "id": "gate", "name": "The Gate", "objective": "Wait at the gate.", "type": "anchor", "start": true, "effects": { "scenario": "SO-SP5 scenario one: the party waits at the city gate." } },
+    { "id": "road", "name": "The Road", "objective": "Walk the road.", "type": "anchor" },
+    { "id": "hall", "name": "The Hall", "objective": "Report inside.", "type": "anchor", "effects": { "scenario": "SO-SP5 scenario three: the party stands in the guild hall." } }
+  ],
+  "transitions": [
+    { "id": "out", "from": "gate", "to": "road", "priority": 0, "gate": { "q": "left_gate", "op": "==", "v": true } },
+    { "id": "in", "from": "road", "to": "hall", "priority": 0, "gate": { "q": "in_hall", "op": "==", "v": true } }
+  ]
+}

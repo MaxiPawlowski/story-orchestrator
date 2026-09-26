@@ -21,7 +21,7 @@ export interface GlobalSettings {
   spikes: SpikeSettings;
 }
 
-export const SPIKE_FLAGS = ["recommitEdit", "swipeBackCache", "witnessFilter"] as const;
+export const SPIKE_FLAGS = ["recommitEdit", "swipeBackCache", "witnessFilter", "sp5Scenario"] as const;
 
 export type SpikeFlag = (typeof SPIKE_FLAGS)[number];
 

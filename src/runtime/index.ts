@@ -57,6 +57,7 @@ const registerHostSurfaces = () => {
   }
   if (__SO_DEV__) void import("./liveSuite").then(({ registerLiveSuite }) => { if (started) registerLiveSuite(runtimeManager); });
   if (__SO_DEV__) void import("./spikes/toolTurnProbe").then(({ registerToolTurnProbe }) => { if (started) registerToolTurnProbe(runtimeManager); });
+  if (__SO_DEV__) void import("./spikes/sp5ScenarioHost").then(({ registerScenarioSpike }) => { if (started) runtimeDisposers.push(registerScenarioSpike()); });
   window.setTimeout(() => registerSlashCommandsWhenReady(), 0);
   window.setTimeout(() => registerSlashCommandsWhenReady(), 1000);
 };
