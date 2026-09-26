@@ -338,3 +338,64 @@ describe("v2.4 T14 (X18): scene rows are no longer mirrored", () => {
     expect(result!.summary.disabled).toBe(1);
   });
 });
+
+describe("L1: in scan mode the mirror never takes the chat lorebook slot", () => {
+  const scanHost = (options: Parameters<typeof fakeHost>[0] = {}) => {
+    const fake = fakeHost(options);
+    const released: string[] = [];
+    fake.host.scanActive = () => true;
+    fake.host.unbindChatLorebook = jest.fn(async (name: string) => {
+      if (fake.state.slot !== name) return { ok: false as const, reason: "the slot names another book" };
+      fake.state.slot = "";
+      released.push(name);
+      return { ok: true as const, name };
+    });
+    return { ...fake, released };
+  };
+
+  it("adopts and writes its book without binding it", async () => {
+    const { host, books, state, calls } = scanHost();
+    const result = await syncMemoryMirror(input([memory()]), host);
+    expect(enabledComments(books.get(bookA))).toHaveLength(1);
+    expect(calls.binds).toEqual([]);
+    expect(state.slot).toBe("");
+    expect(result).toMatchObject({ changed: true, book: { name: bookA, chatId: "chat-a" }, summary: { binding: null } });
+  });
+
+  it("U3: a user book already in the slot is left exactly as it was", async () => {
+    const { host, state, released } = scanHost({ books: { "My Notes": [] }, slot: "My Notes" });
+    await syncMemoryMirror(input([memory()]), host);
+    expect(state.slot).toBe("My Notes");
+    expect(released).toEqual([]);
+  });
+
+  it("releases a slot that names exactly this chat's own book (a legacy file-mode binding)", async () => {
+    const { host, state, released } = scanHost({ books: { [bookA]: [] }, slot: bookA });
+    const kept = memory();
+    const result = await syncMemoryMirror(input([kept], { book: { name: bookA, chatId: "chat-a" }, writes: { [`so_${kept.id}`]: hashMemoryText(kept.text) } }), host);
+    expect(released).toEqual([bookA]);
+    expect(state.slot).toBe("");
+    expect(result!.summary.binding).toBe("released");
+  });
+
+  it("control: file mode (scan not active) binds on adoption exactly as before", async () => {
+    const { host, state } = scanHost();
+    host.scanActive = () => false;
+    await syncMemoryMirror(input([memory()]), host);
+    expect(state.slot).toBe(bookA);
+  });
+
+  it("releases nothing when the chat changed before the release", async () => {
+    const { host, state, released } = scanHost({ books: { [bookA]: [] }, slot: bookA });
+    const kept = memory();
+    const unbind = host.unbindChatLorebook;
+    host.ensureLorebook = jest.fn(async (name: string) => {
+      state.chatId = "chat-b";
+      return { name, created: false };
+    });
+    const result = await syncMemoryMirror(input([kept], { book: { name: bookA, chatId: "chat-a" } }), host);
+    expect(result).toBeNull();
+    expect(unbind).not.toHaveBeenCalled();
+    expect(released).toEqual([]);
+  });
+});

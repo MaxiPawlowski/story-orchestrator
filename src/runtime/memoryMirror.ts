@@ -14,6 +14,8 @@ export interface MemoryMirrorHost {
   upsertWIEntry: (lorebook: string, comment: string, content: string, keys?: string[]) => Promise<WIUpsertResult>;
   disableWIEntry: (lorebook: string, comments: string | string[]) => Promise<WriteResult<{ changed: boolean }>>;
   bindChatLorebook: (name: string, replaceable?: string[]) => ChatLorebookBinding;
+  scanActive?: () => boolean;
+  unbindChatLorebook?: (name: string) => Promise<WriteResult<{ name: string }>>;
   // Optional: without it the chat-id comparison below still runs, so behaviour is
   // unchanged for a caller that supplies none.
   ownership: RunOwnership;
@@ -28,7 +30,7 @@ export interface MemoryMirrorSummary {
   unchanged: number;
   disabled: number;
   lorebook: string | null;
-  binding: ChatLorebookBinding | null;
+  binding: ChatLorebookBinding | "released" | null;
 }
 
 export interface MemoryMirrorInput {
@@ -142,7 +144,10 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
   // let the departing story's rows land in the chat's shared book, and its stale sweep disable the
   // new story's entries. Both halves: the chat comparison, plus story, version and epoch via the token.
   if (lapsed()) return null;
-  if (adopting) summary.binding = host.bindChatLorebook(ensured.name, input.book ? [input.book.name] : []);
+  if (host.scanActive?.()) {
+    const released = await host.unbindChatLorebook?.(ensured.name);
+    if (released?.ok) summary.binding = "released";
+  } else if (adopting) summary.binding = host.bindChatLorebook(ensured.name, input.book ? [input.book.name] : []);
   const changed = adopting || summary.created > 0 || summary.updated > 0 || summary.disabled > 0;
   return { summary, book: { name: ensured.name, chatId }, writes, changed };
 }

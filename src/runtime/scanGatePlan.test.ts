@@ -5,6 +5,8 @@ import { applyScanGate, restsOffIn, scanGatePlan, type ScanEntry, type ScanGateR
 import { noteScanGate, scanGateView, setScanGatingActive } from "./worldInfoMode";
 import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoGates";
 import { bookKey } from "./worldInfoMatch";
+import { appendMirrorEntries, mirrorScanEntries } from "./mirrorScan";
+import type { HostScannableEntry } from "@services/STAPI";
 
 const BOOKS = ["Shared", "Own A", "Own B", "shared"];
 const COMMENTS = ["c1", "c2", "c3", "c4", "c5", "c6"];
@@ -197,5 +199,23 @@ describe("scanGateView (S5)", () => {
     setScanGatingActive(true);
     expect(scanGateView()).toBeNull();
     setScanGatingActive(false);
+  });
+});
+
+describe("L1: an appended mirror book is never touched by the gate", () => {
+  it("keeps every appended so_ copy exactly as appended, over seeded libraries and paths", () => {
+    const mirror = "Story Orchestrator - Crossing - chat-a";
+    const book = { entries: Object.fromEntries(COMMENTS.map((comment, uid) => [uid, { uid, comment: `so_${comment}`, content: comment, key: [comment], disable: false }])) };
+    for (let seed = 1; seed <= 100; seed += 1) {
+      const next = rng(seed * 31);
+      const library = Array.from({ length: 1 + Math.floor(next() * 4) }, (_, index) => randomStory(next, index));
+      const loaded = next() < 0.2 ? null : pick(next, library);
+      const path = loaded ? ["cp0", ...some(next, loaded.checkpoints.map((checkpoint) => checkpoint.id), 4)] : [];
+      const arrays: ScanEntry[][] = [BOOKS.flatMap((world, index) => COMMENTS.map((comment, uid) => copy(world, index * 10 + uid, comment))), [], [], []];
+      expect(appendMirrorEntries(arrays as HostScannableEntry[][], mirror, mirrorScanEntries(mirror, book))).toBe(COMMENTS.length);
+      const before = JSON.stringify(arrays[2]);
+      applyScanGate(arrays, scanGatePlan(library, loaded, path), () => false);
+      expect(JSON.stringify(arrays[2])).toBe(before);
+    }
   });
 });

@@ -94,7 +94,8 @@
     "memory|worldSwitched": {
       "status": "covered",
       "evidence": "src/runtime/coordinators/memoryOwnership.review.test.ts#an entry whose token count lands after a chat switch is not written",
-      "note": "The token-count await is the far side of the check; the entry is dropped."
+      "alsoEvidence": ["src/runtime/memoryMirror.test.ts#releases nothing when the chat changed before the release", "src/runtime/mirrorScan.test.ts#U1: a chat that does not own the book gets nothing and loads nothing"],
+      "note": "The token-count await is the far side of the check; the entry is dropped. v2.5 plan 08 L1 (the plan's mirror|chatSwitch cell, placed here because the matrix has no mirror package): a mirror sync whose chat changed releases no slot, and a scan in a chat that does not own the mirror book appends and loads nothing."
     },
     "memory|aborted": {
       "status": "covered",

@@ -3,12 +3,13 @@ import {
   createCharacterCard, createGroup, createLorebook, currentChatOwner, DEFAULT_VECTOR_SOURCE, disableWIEntry,
   ensureLorebook, getActiveGroup, getAllCharacterNames, getCharacterNameById, getContext, getPlayerName,
   hostSystemUserName, listAllLorebooks, listGlobalLorebooks, listGroupNames, loadLorebook, readInjectedPromptBlocks,
-  readWIEntry, readWIEntryAt, resolveGroupMemberId, restoreWIEntryAt, setStoryExtensionPrompt, updateWIEntryByUid,
+  readWIEntry, readWIEntryAt, resolveGroupMemberId, restoreWIEntryAt, setStoryExtensionPrompt, unbindChatLorebook, updateWIEntryByUid,
   upsertWIEntry, vectorInsert, vectorPurge, vectorQuery,
 } from "@services/STAPI";
 import { getChatWindow, getLastMessageText } from "@extraction/chatWindow";
 import { scanningPromptHost } from "./scanMemory";
 import { getGlobalSettings } from "./settingsStore";
+import { scanGatingActive } from "./worldInfoMode";
 import type {
   ChatHost, CuratorWiHost, InjectionHost, MirrorHost, PlayerHost, PromptHost, ProvisioningHost, RosterHost, TokenHost, VectorHost,
 } from "./hostPorts";
@@ -41,7 +42,9 @@ const vectorHost: VectorHost = { vectorQuery, vectorInsert, vectorPurge, capabil
 
 const tokenHost: TokenHost = { countTokens };
 
-const mirrorHost: MirrorHost = { ensureLorebook, loadLorebook, upsertWIEntry, disableWIEntry, bindChatLorebook, owner: currentChatOwner };
+const mirrorHost: MirrorHost = {
+  ensureLorebook, loadLorebook, upsertWIEntry, disableWIEntry, bindChatLorebook, owner: currentChatOwner, scanActive: scanGatingActive, unbindChatLorebook,
+};
 
 export const coordinatorHosts = {
   prompt: promptHost, player: playerHost, provisioning: provisioningHost, curator: curatorHost, chat: chatHost, roster: rosterHost,

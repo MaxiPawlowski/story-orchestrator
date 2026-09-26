@@ -1,7 +1,8 @@
 import type { NormalizedStoryV2 } from "@engine/index";
-import { installScanGating, probeScanGating, readLorebookEntries, setLorebookEntriesDisabled, showConfirmPopup, type ScanGatingHandle } from "@services/STAPI";
+import { installScanGating, loadLorebook, probeScanGating, readLorebookEntries, setLorebookEntriesDisabled, showConfirmPopup, subscribeToHostEvent, type ScanGatingHandle } from "@services/STAPI";
 import { replayWorldInfoFiles } from "./effectsApplier";
 import { onSettingsWrite } from "./librarySave";
+import { createMirrorScan } from "./mirrorScan";
 import { evaluateRequirements, requirementsOptions } from "./requirements";
 import { beginRun, type RunOwnership } from "./runToken";
 import type { NormalizedLedger, ScanGateRow, ScanGateStats } from "./scanGatePlan";
@@ -30,6 +31,7 @@ export interface ScanGatingDebug {
   capability: () => CapabilityReading | null;
   gate: () => ScanGateChoice;
   lastScan: () => (ScanGateStats & { owner: "story" | "no-story" }) | null;
+  lastMirror: () => number;
   timings: () => number[];
   normalize: () => Promise<NormalizeOutcome | null>;
   requestScan: () => Promise<boolean>;
@@ -94,9 +96,16 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     libraryRevision: () => listStoryRecords().map((record) => `${record.id}@${record.version}:${record.hash}`).join(","),
     ledger: () => ledger,
   });
+  const mirror = createMirrorScan({
+    owner: () => ({ chatId: deps.chatId(), ownedChat: deps.ownedChat(), hasStory: deps.story() !== null, book: deps.mirrorBook() }),
+    load: loadLorebook,
+  });
+  let lastMirror = 0;
+  let stopMirrorWatch: (() => void) | null = null;
   const apply = (arrays: Parameters<Parameters<typeof installScanGating>[0]>[0]) => {
     if (!scanGatingActive()) return;
     const started = performance.now();
+    lastMirror = mirror.append(arrays);
     const rows: ScanGateRow[] = [];
     lastScan = provider.apply(arrays, rows);
     timings.push(performance.now() - started);
@@ -115,11 +124,16 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     disable: (lorebook, comments) => setLorebookEntriesDisabled(lorebook, comments, true),
     enable: (lorebook, comments) => setLorebookEntriesDisabled(lorebook, comments, false),
     handler: {
-      install: () => { handle = installScanGating(apply); },
+      install: () => {
+        handle = installScanGating(apply);
+        stopMirrorWatch ??= subscribeToHostEvent("WORLDINFO_UPDATED", (name, data) => { mirror.updated(name, data); });
+      },
       probe: () => (handle ? probeScanGating(handle) : Promise.resolve({ state: "error" as const, detail: "the scan handler is not installed" })),
       dispose: () => {
         handle?.dispose();
         handle = null;
+        stopMirrorWatch?.();
+        stopMirrorWatch = null;
       },
     },
     setActive: setScanGatingActive,
@@ -148,6 +162,7 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     capability: () => gating.status().capability,
     gate: () => provider.choose(),
     lastScan: () => lastScan,
+    lastMirror: () => lastMirror,
     timings: () => [...timings],
     normalize: gating.renormalize,
     requestScan: gating.requestScan,
@@ -159,6 +174,8 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     reassert: () => handle?.reassert(),
     dispose: () => {
       stopWatching();
+      stopMirrorWatch?.();
+      stopMirrorWatch = null;
       gating.dispose();
       if (running === gating) running = null;
       setWiGatingStatus(null);
