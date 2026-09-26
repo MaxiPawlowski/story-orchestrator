@@ -1,0 +1,22 @@
+{
+  "format": 2,
+  "id": "spike-edits",
+  "version": 1,
+  "title": "Spike edits",
+  "description": "v2.5 plan 09 SP1/SP2 jest fixture: two extractor bools, three checkpoints, a back edge.",
+  "qualities": [
+    { "key": "go", "type": "bool", "source": "extractor", "rubric": "Has the party set off?" },
+    { "key": "key", "type": "bool", "source": "extractor", "rubric": "Does the party hold the key?" }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "The Camp", "objective": "Get moving.", "type": "anchor", "start": true },
+    { "id": "road", "name": "The Road", "objective": "Find the key.", "type": "anchor" },
+    { "id": "gate", "name": "The Gate", "objective": "Open the gate.", "type": "anchor" }
+  ],
+  "transitions": [
+    { "from": "start", "to": "road", "priority": 0, "gate": { "q": "go", "op": "==", "v": true } },
+    { "from": "road", "to": "gate", "priority": 0, "gate": { "q": "key", "op": "==", "v": true } },
+    { "from": "gate", "to": "road", "priority": 0, "gate": { "q": "key", "op": "==", "v": false } }
+  ],
+  "roster": []
+}

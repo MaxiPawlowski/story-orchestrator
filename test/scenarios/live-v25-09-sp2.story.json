@@ -1,0 +1,49 @@
+{
+  "format": 2,
+  "id": "live-v25-09-sp2",
+  "version": 1,
+  "title": "Live v2.5 09 SP2 — The Brass Key",
+  "description": "v2.5 plan 09 SP2 live fixture. Two gates an edit of the newest reply can satisfy (the key is handed over; the vault door swings open). Each checkpoint carries a marker Author's Note, so the request ST sends names the state it was built from.",
+  "qualities": [
+    { "key": "key_given", "type": "bool", "source": "extractor", "rubric": "Has Ponticius put the brass vault key into the player's hand?" },
+    { "key": "door_open", "type": "bool", "source": "extractor", "rubric": "Has the vault door been swung open?" }
+  ],
+  "checkpoints": [
+    {
+      "id": "hall",
+      "name": "The Hall",
+      "objective": "Ponticius sizes up the player before trusting them with anything.",
+      "type": "anchor",
+      "start": true,
+      "effects": { "author_note": { "text": "[SO-SP2-HALL] The vault key is still on Ponticius's belt.", "position": "chat", "depth": 1, "interval": 1, "role": "system" } },
+      "talk_control": { "speakers": [{ "member": "Ponticius", "weight": 3 }, { "member": "Arin", "weight": 1 }], "lead": "Ponticius", "no_repeat": false, "allow_silence": false }
+    },
+    {
+      "id": "vault",
+      "name": "The Vault",
+      "objective": "The player holds the brass key and stands before the vault door.",
+      "type": "anchor",
+      "effects": { "author_note": { "text": "[SO-SP2-VAULT] The player holds the brass vault key.", "position": "chat", "depth": 1, "interval": 1, "role": "system" } },
+      "talk_control": { "speakers": [{ "member": "Ponticius", "weight": 3 }, { "member": "Arin", "weight": 1 }], "lead": "Ponticius", "no_repeat": false, "allow_silence": false }
+    },
+    {
+      "id": "open",
+      "name": "The Open Vault",
+      "objective": "The vault door stands open.",
+      "type": "anchor",
+      "effects": { "author_note": { "text": "[SO-SP2-OPEN] The vault door stands open.", "position": "chat", "depth": 1, "interval": 1, "role": "system" } },
+      "talk_control": { "speakers": [{ "member": "Ponticius", "weight": 3 }, { "member": "Arin", "weight": 1 }], "lead": "Ponticius", "no_repeat": false, "allow_silence": false }
+    }
+  ],
+  "transitions": [
+    { "from": "hall", "to": "vault", "priority": 1, "gate": { "q": "key_given", "op": "==", "v": true } },
+    { "from": "vault", "to": "open", "priority": 1, "gate": { "q": "door_open", "op": "==", "v": true } }
+  ],
+  "roster": [
+    { "id": "dm", "name": "DM Narrator" },
+    { "id": "companion", "name": "Arin" },
+    { "id": "guild_master", "name": "Ponticius" },
+    { "id": "little_brother", "name": "Luke" }
+  ],
+  "requirements": { "members": ["Arin", "Ponticius"] }
+}
