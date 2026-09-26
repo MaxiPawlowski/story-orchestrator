@@ -1,4 +1,4 @@
-const host = { listed: ["Ruins"] as string[], disk: new Map<string, { entries: Record<number, Record<string, unknown>> }>(), reads: [] as string[] };
+const host = { listed: ["Ruins"] as string[], disk: new Map<string, { entries: Record<number, Record<string, unknown>> }>(), reads: [] as string[], calls: [] as string[] };
 
 jest.mock("./worldInfo", () => ({
   findLorebook: (name: string) => host.listed.find((entry) => entry.toLowerCase() === name.toLowerCase()) ?? null,
@@ -6,14 +6,40 @@ jest.mock("./worldInfo", () => ({
     host.reads.push(name);
     return host.disk.get(name) ?? null;
   },
+  disableWIEntry: async (name: string, comments: string[]) => {
+    host.calls.push(`disable:${name}:${comments.join("|")}`);
+    return { ok: true, changed: true, confirmed: true };
+  },
+  enableWIEntry: async (name: string, comments: string[]) => {
+    host.calls.push(`enable:${name}:${comments.join("|")}`);
+    return { ok: true, changed: true, confirmed: true };
+  },
 }));
 
-import { readLorebookEntries } from "./worldInfoFiles";
+jest.mock("./modules", () => ({
+  worldInfoModule: { worldInfoCache: { delete: (name: string) => { host.calls.push(`evict:${name}`); return true; } } },
+}));
+
+import { readLorebookEntries, setLorebookEntriesDisabled } from "./worldInfoFiles";
 
 beforeEach(() => {
   host.listed = ["Ruins"];
   host.disk.clear();
   host.reads = [];
+  host.calls = [];
+});
+
+describe("setLorebookEntriesDisabled (v2.5 plan 01 A)", () => {
+  it("drops the book's cached copy before the write, so the write starts from the server's file", async () => {
+    expect(await setLorebookEntriesDisabled("ruins", ["CP1"], true)).toEqual({ ok: true, changed: true, confirmed: true });
+    await setLorebookEntriesDisabled("Ruins", ["CP1"], false);
+    expect(host.calls).toEqual(["evict:Ruins", "disable:Ruins:CP1", "evict:Ruins", "enable:Ruins:CP1"]);
+  });
+
+  it("refuses an unlisted book without touching the cache", async () => {
+    expect(await setLorebookEntriesDisabled("Gone", ["CP1"], true)).toEqual({ ok: false, reason: 'there is no lorebook "Gone"' });
+    expect(host.calls).toEqual([]);
+  });
 });
 
 describe("readLorebookEntries (v2.5 plan 01 B)", () => {

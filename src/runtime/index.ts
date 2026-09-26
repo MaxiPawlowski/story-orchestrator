@@ -211,8 +211,8 @@ export function startRuntime() {
   runtimeDisposers.push(() => loreWatch.dispose());
   runtimeDisposers.push(startSamplerOverlay({ chatId: () => getContext().chatId ?? null, generation: () => generation.snapshot(), journal: (summary, note) => runtimeManager.noteRecap(summary, note) }));
   globalThis.storyOrchestratorLoreEvidence = loreEvidence;
-  // v2.4 plan 05 T13 spike: inert unless `worldInfo.gatingMode` is "scan" (default "file"). The flag
-  // is install-wide, so it is read once the extension settings have loaded, never before.
+  // v2.5 plan 01: lorebook gating. `worldInfo.gatingMode` is install-wide (default "file"), so the gating starts
+  // once the extension settings have loaded, never before, and follows every later settings write.
   let scanGating: ReturnType<typeof startScanGating> | null = null;
   let scanGatingDisposed = false;
   void settingsReady().then(() => {
@@ -224,6 +224,7 @@ export function startRuntime() {
       path: () => runtimeManager.getEngineState()?.visitedPath ?? [],
       ownership: runtimeManager.getOwnership(),
       journal: (summary, note) => runtimeManager.noteRecap(summary, note, "lore"),
+      notify: () => runtimeManager.notify(),
     });
   });
   runtimeDisposers.push(() => { scanGatingDisposed = true; scanGating?.dispose(); scanGating = null; });

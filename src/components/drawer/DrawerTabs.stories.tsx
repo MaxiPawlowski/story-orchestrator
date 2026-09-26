@@ -577,8 +577,8 @@ export const PayloadScanGate: Story = {
       chatId: "chat-1",
       owner: "story",
       rows: [
-        { lorebook: "SO-T13 Xentar", comment: "CP1 - Mission", uid: 9, fileDisabled: true, effectiveDisabled: false },
-        { lorebook: "SO-T13 Xentar", comment: "CP2 - Mission", uid: 17, fileDisabled: true, effectiveDisabled: true },
+        { lorebook: "SO-T13 Xentar", comment: "CP1 - Mission", uid: 9, on: true, fileDisabled: true, effectiveDisabled: false },
+        { lorebook: "SO-T13 Xentar", comment: "CP2 - Mission", uid: 17, on: false, fileDisabled: true, effectiveDisabled: true },
       ],
     };
     return (

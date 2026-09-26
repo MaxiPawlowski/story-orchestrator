@@ -447,11 +447,35 @@
     },
     "src/runtime/worldInfoNormalize.ts#normalizeGatedEntries": {
       "status": "checked",
-      "note": "v2.4 plan 05 T13 spike (2026-09-24): the one-time normaliser that sets each gated entry of a MARKER book (`SO-T13` prefix, `spikeBook`) to rest off in its file. Install-wide, not per chat, but minted from the manager's ownership so a chat switch or story load mid-run stops it; `run.stillOwns()` is checked immediately before each book's `disableWIEntry` (worldInfoNormalize.test.ts \"stops before a write once its run has lapsed\"). The ledger/outcome writes after the awaits are the call's own result object, returned to the caller (worldInfoScanHost), which writes the install-wide ledger. A lapsed run leaves the rest for the next run: the ledger only ever records what landed and was confirmed. The T12 evidence ring is not a row: it never awaits, so it is not a write-after-await site."
+      "note": "v2.5 plan 01 A (2026-09-25; was the T13 spike's marker-book normaliser): sets each gated entry of every library story to rest off in its file. `run.stillOwns()` is checked immediately before each book's disable write (worldInfoNormalize.test.ts \"stops before a write once its run has lapsed\", control \"control: an owned run writes\"). The run it is given is the lorebook gating's lifetime (worldInfoGating.ts), because the work is install-wide. The ledger/provenance writes after the awaits are the call's own result object, returned to the caller, which writes the install-wide ledger only if its run still holds. The ledger only ever records what landed and was confirmed, or what the file read showed already off."
     },
     "src/runtime/worldInfoLedger.ts#verifyLedger": {
       "status": "local",
       "note": "v2.5 plan 01 B (2026-09-25): the ledger verifier is read-only. After each awaited book read it pushes only into the verdict object it returns (drift, missing, unreadable); it writes no file, no setting and no chat state, so a world that moved during a read changes nothing it touches. The caller publishes the verdict as install-wide status (drift is a fact about a lorebook file, not about a chat)."
+    },
+    "src/runtime/effectsApplier.ts#replayWorldInfoFiles": {
+      "status": "delegate",
+      "note": "v2.5 plan 01 C (2026-09-25): leaving scan mode applies the open chat's state through the file path. It awaits applyWorldInfo twice (release, then the path), handing it the caller's run (worldInfoScanHost mints it from the manager's ownership, because the path belongs to the open chat); applyWorldInfo checks before each write."
+    },
+    "src/runtime/worldInfoGating.ts#createWiGating.normalize": {
+      "status": "checked",
+      "note": "v2.5 plan 01 A (2026-09-25): awaits normalizeGatedEntries (which checks the same run before each book write) and then re-checks before writing the ledger and provenance. Its run is the gating's own lifetime (`lifetime`, bumped by dispose), not a chat: every write it makes is install-wide (lorebook files, the ledger, the mode, the active flag), so a chat switch must not leave half a gated set normalised; stopping the runtime does stop it. A stopped run leaves a confirmed file write outside the ledger; the next run records it through the already-off branch (W4). worldInfoGating.test.ts \"stopping the gating mid-normalisation stops before the next write, records nothing and never activates\" (control: \"control: an unstopped run normalises both books\")."
+    },
+    "src/runtime/worldInfoGating.ts#createWiGating.renormalize>serial": {
+      "status": "checked",
+      "note": "v2.5 plan 01 B (2026-09-25): the Repair action. Awaits normalize (checked) and re-checks the lifetime run before re-verifying and clearing the missing-key list, which is the controller's own in-memory state. Its run is the gating's own lifetime (`lifetime`, bumped by dispose), not a chat: every write it makes is install-wide (lorebook files, the ledger, the mode, the active flag), so a chat switch must not leave half a gated set normalised; stopping the runtime does stop it."
+    },
+    "src/runtime/worldInfoGating.ts#createWiGating.requestScan": {
+      "status": "checked",
+      "note": "v2.5 plan 01 A/C (2026-09-25): reads each book for the preview (pushes into a local array), awaits the author's confirm, and re-checks the lifetime run before writing the mode; a cancelled confirm writes nothing (worldInfoGating.test.ts \"the confirm gates the first write: cancelling leaves file mode and writes nothing\"). Its run is the gating's own lifetime (`lifetime`, bumped by dispose), not a chat: every write it makes is install-wide (lorebook files, the ledger, the mode, the active flag), so a chat switch must not leave half a gated set normalised; stopping the runtime does stop it."
+    },
+    "src/runtime/worldInfoGating.ts#createWiGating.syncOnce": {
+      "status": "checked",
+      "note": "v2.5 plan 01 W2 (2026-09-25): probe, verify, normalise, then activate. Re-checks the lifetime run after the probe and before activating, so a stopped gating never activates the scan view. Its run is the gating's own lifetime (`lifetime`, bumped by dispose), not a chat: every write it makes is install-wide (lorebook files, the ledger, the mode, the active flag), so a chat switch must not leave half a gated set normalised; stopping the runtime does stop it."
+    },
+    "src/runtime/worldInfoGating.ts#createWiGating.verify": {
+      "status": "checked",
+      "note": "v2.5 plan 01 B (2026-09-25): awaits verifyLedger (read-only) and re-checks the lifetime run before it replaces the controller's verdict and journals newly drifted entries. Its run is the gating's own lifetime (`lifetime`, bumped by dispose), not a chat: every write it makes is install-wide (lorebook files, the ledger, the mode, the active flag), so a chat switch must not leave half a gated set normalised; stopping the runtime does stop it."
     }
   }
 }

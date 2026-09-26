@@ -130,9 +130,9 @@ describe("applyScanGate", () => {
     const rows: ScanGateRow[] = [];
     applyScanGate([entries], gate, () => true, rows);
     expect(rows).toEqual([
-      { lorebook: "Ruins", comment: "On", uid: 1, fileDisabled: true, effectiveDisabled: false },
-      { lorebook: "Ruins", comment: "Off", uid: 2, fileDisabled: false, effectiveDisabled: true },
-      { lorebook: "Ruins", comment: "NoKey", uid: 4, fileDisabled: null, effectiveDisabled: null },
+      { lorebook: "Ruins", comment: "On", uid: 1, on: true, fileDisabled: true, effectiveDisabled: false },
+      { lorebook: "Ruins", comment: "Off", uid: 2, on: false, fileDisabled: false, effectiveDisabled: true },
+      { lorebook: "Ruins", comment: "NoKey", uid: 4, on: false, fileDisabled: null, effectiveDisabled: null },
     ]);
   });
 

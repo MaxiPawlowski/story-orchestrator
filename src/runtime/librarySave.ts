@@ -79,20 +79,20 @@ export interface SettingsWrite {
   evidence: Promise<LibrarySaveEvidence>;
 }
 
-let settingsWriteListener: ((write: SettingsWrite) => void) | null = null;
+const settingsWriteListeners = new Set<(write: SettingsWrite) => void>();
 
-/** v2.4 E3: the runtime hears every library and settings-store write; one listener, like the chat writes. */
+/** v2.4 E3: the runtime hears every library and settings-store write. v2.5 plan 01: the lorebook gating listens
+ *  too (a library save can grow a gated set), so a second listener joins the journal's instead of replacing it. */
 export function onSettingsWrite(listener: (write: SettingsWrite) => void): () => void {
-  settingsWriteListener = listener;
-  return () => { if (settingsWriteListener === listener) settingsWriteListener = null; };
+  settingsWriteListeners.add(listener);
+  return () => { settingsWriteListeners.delete(listener); };
 }
 
 /** Arms the write's evidence only while something listens: a page with no runtime pays no read-back. */
 export function recordSettingsWrite(summary: string, label: string, arm: () => Promise<LibrarySaveEvidence>): Promise<LibrarySaveEvidence> | null {
-  const listener = settingsWriteListener;
-  if (!listener) return null;
+  if (!settingsWriteListeners.size) return null;
   const evidence = arm();
-  listener({ summary, label, evidence });
+  [...settingsWriteListeners].forEach((listener) => listener({ summary, label, evidence }));
   return evidence;
 }
 

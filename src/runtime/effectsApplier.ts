@@ -110,6 +110,15 @@ const applyWorldInfo = async (plans: WorldInfoBookPlan[], run?: RunGuard): Promi
   return refused;
 };
 
+// v2.5 plan 01 C: leaving scan mode applies the open chat's state through the file path at once. It enables
+// from rest-off (S6). `path` is null when the story's requirements do not hold, which leaves its own entries
+// alone, as the file path does.
+export const replayWorldInfoFiles = async (library: unknown[], story: NormalizedStoryV2 | null, path: string[] | null, run?: RunGuard): Promise<string[]> => {
+  const released = await applyWorldInfo(releasePlan(story ? [...library, story] : library, story), run);
+  if (!story || !path) return released;
+  return [...released, ...(await applyWorldInfo(worldInfoPlan(story, path), run))];
+};
+
 // v2.3 plan 06 (S2). `disabled_members` lives on the GROUP, shared by every chat that opens it, so a
 // checkpoint's cast change outlives the chat that made it: one story's staging would otherwise decide
 // another story's cast. Each member an effect names is its own ledger row, carrying the flag the

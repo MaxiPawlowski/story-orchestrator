@@ -58,6 +58,8 @@ export interface ScanGateRow {
   lorebook: string;
   comment: string;
   uid: number;
+  /** What the chat's path wants: on, or off (resting). */
+  on: boolean;
   /** The copy as the scan loaded it: the file's state, unless a listener before us changed it. Null = no key. */
   fileDisabled: boolean | null;
   /** What this scan used. */
@@ -112,7 +114,7 @@ export function applyScanGate(arrays: ScanEntry[][], gate: ScanGate, restsOff: (
       }
       const fileDisabled = disableOf(entry);
       gateEntry(entry, on, restsOff(book.lorebook, comment), stats);
-      rows?.push({ lorebook: book.lorebook, comment, uid: entry.uid, fileDisabled, effectiveDisabled: disableOf(entry) });
+      rows?.push({ lorebook: book.lorebook, comment, uid: entry.uid, on, fileDisabled, effectiveDisabled: disableOf(entry) });
     }
   }
   return stats;
