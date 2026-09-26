@@ -3,7 +3,7 @@
   "closed": false,
   "rows": [
     {
-      "site": "src/components/drawer/DrawerTabs.tsx#excludeWithUndo",
+      "site": "src/components/drawer/tabs/MemoryTab.tsx#excludeWithUndo",
       "kind": 1,
       "template": "\"Memory excluded — click here to undo\"",
       "surface": "player",
@@ -183,9 +183,9 @@
       "reason": "invalid critic JSON becomes a failed verdict"
     },
     {
-      "site": "src/index.tsx#deleteStory",
+      "site": "src/components/settings/StoryGroup.tsx#deletionChoice",
       "kind": 1,
-      "template": "`${question} Its ${restore.entries} lorebook ${restore.entries === 1 ? \"entry stays\" : \"entries stay\"} off at rest unless you restore ${restore.entries === 1 ? \"it\" : \"them\"}.`",
+      "template": "`${question} ${entries}`",
       "surface": "player",
       "rawError": false,
       "silentCatch": null,
@@ -213,7 +213,7 @@
       "reason": "constant popup copy"
     },
     {
-      "site": "src/index.tsx#SettingsPanel>callback",
+      "site": "src/components/settings/StoryGroup.tsx#StoryGroup>callback",
       "kind": 2,
       "template": "`${error.path}:${error.message}`",
       "surface": "player",
