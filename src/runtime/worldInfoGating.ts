@@ -169,7 +169,13 @@ export function createWiGating(deps: WiGatingDeps): WiGating {
     deps.setActive(true);
   };
 
-  const sync = () => serial(syncOnce);
+  const sync = () => serial(async () => {
+    try {
+      await syncOnce();
+    } catch (error) {
+      deps.journal("lorebook gating failed", error instanceof Error ? error.message : String(error));
+    }
+  });
 
   const requestScan = async (): Promise<boolean> => {
     const index = gatedIndex(deps.library());

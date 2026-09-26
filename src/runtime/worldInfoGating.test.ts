@@ -267,6 +267,19 @@ describe("lorebook gating: verify, missingKey and re-normalise (v2.5 plan 01 B)"
     expect(h.active()).toBe(true);
   });
 
+  it("a write that throws late records nothing, never activates, journals why, and the next sync still runs", async () => {
+    const h = harness();
+    h.holdWrites(Promise.reject(new Error("the server went away")));
+    await expect(h.gating.requestScan()).resolves.toBe(false);
+    expect(h.settings.normalized).toEqual({});
+    expect(h.active()).toBe(false);
+    expect(h.journal).toContainEqual(["lorebook gating failed", "the server went away"]);
+    h.holdWrites(null);
+    await h.gating.sync();
+    expect(h.active()).toBe(true);
+    expect(h.settings.normalized).toEqual({ Ruins: ["CP1"] });
+  });
+
   it("re-normalise does nothing in file mode", async () => {
     const h = harness({ mode: "file", ledger: { Ruins: ["CP1"] } });
     expect(await h.gating.renormalize()).toBeNull();

@@ -1,5 +1,5 @@
 {
-  "$comment": "v2.3 plan 11 §Fault matrix. Eleven stateful packages against ten fault shapes (v2.4 plan 03 added the `aborted` shape and the `hostDeletes` package, decision E8; v2.4 plan 05 added `wiEvidence`), one row per cell, each either citing the test that demonstrates it or saying what is not yet demonstrated. Generated set, hand-classified status. The guard in src/runtime/faultMatrix.guard.test.ts fails when this file and the code disagree: a missing pair, a row for a pair the matrix does not have, a citation whose test is not in the file it names, or an unproven cell that still cites something. Statuses: covered (a test asserts the designed behaviour for this package under this fault) | partial (a test covers part of it, and the note says which part) | todo (nothing covers it) | na (the shape cannot apply, and the note says why).",
+  "$comment": "v2.3 plan 11 §Fault matrix. Eleven stateful packages against ten fault shapes (v2.4 plan 03 added the `aborted` shape and the `hostDeletes` package, decision E8; v2.4 plan 05 added `wiEvidence`, v2.5 plan 01 `wiNormalize`), one row per cell, each either citing the test that demonstrates it or saying what is not yet demonstrated. Generated set, hand-classified status. The guard in src/runtime/faultMatrix.guard.test.ts fails when this file and the code disagree: a missing pair, a row for a pair the matrix does not have, a citation whose test is not in the file it names, or an unproven cell that still cites something. Statuses: covered (a test asserts the designed behaviour for this package under this fault) | partial (a test covers part of it, and the note says which part) | todo (nothing covers it) | na (the shape cannot apply, and the note says why).",
   "cells": {
     "extraction|delayedSuccess": {
       "status": "covered",
@@ -551,6 +551,64 @@
       "note": "A story load, restart or chat change drops every slot; an edit at or before a slot's reply drops that slot."
     },
     "wiEvidence|aborted": {
+      "status": "na",
+      "note": "Performs no model call, so nothing can be cancelled mid-call."
+    },
+    "wiNormalize|delayedSuccess": {
+      "status": "covered",
+      "evidence": "src/runtime/worldInfoGating.test.ts#confirmed: normalises first, then activates (W2); a scan before that runs the file path",
+      "note": "v2.5 plan 01: a lorebook write held open and released later lands, is recorded, and only then does the scan view activate; until then scans run the file path."
+    },
+    "wiNormalize|delayedError": {
+      "status": "covered",
+      "evidence": "src/runtime/worldInfoGating.test.ts#a write that throws late records nothing, never activates, journals why, and the next sync still runs",
+      "note": "A host write that rejects after the wait records nothing in the ledger, leaves the file path in charge, journals the reason, and does not take the gating down: the next settings write retries it."
+    },
+    "wiNormalize|malformedResponse": {
+      "status": "covered",
+      "evidence": "src/runtime/worldInfoNormalize.test.ts#never records an entry the book does not hold, or a book that is not listed",
+      "note": "A book read that is not listed, or that lacks a gated comment, is never recorded as normalised; the entry is picked up once it exists."
+    },
+    "wiNormalize|duplicateCompletion": {
+      "status": "covered",
+      "evidence": "src/runtime/worldInfoNormalize.test.ts#flips exactly the gated entries of every listed library book, once: the second run writes nothing",
+      "alsoEvidence": [
+        "src/runtime/worldInfoNormalize.test.ts#a gated set that grows normalises only what is new"
+      ],
+      "note": "A second normalisation over the same library writes nothing (the ledger is incremental), and a grown set writes only the new entries."
+    },
+    "wiNormalize|backendUnavailable": {
+      "status": "covered",
+      "evidence": "src/runtime/worldInfoGating.test.ts#an absent capability keeps the file path, says why, and writes nothing",
+      "note": "A host whose scans cannot be gated (the wiScanGating capability absent or erroring) keeps the file path, says why in the status, and normalises nothing; an unreadable book is skipped, never written blind."
+    },
+    "wiNormalize|beforeHostWrite": {
+      "status": "covered",
+      "evidence": "src/runtime/worldInfoNormalize.test.ts#stops before a write once its run has lapsed",
+      "alsoEvidence": [
+        "src/runtime/worldInfoGating.test.ts#the confirm gates the first write: cancelling leaves file mode and writes nothing"
+      ],
+      "note": "The run is asked immediately before each book's write, and nothing is written before the author's confirm. A book deleted between the read and the write (the host-deletes shape) is refused by the typed write (`there is no lorebook`) and recorded as refused, never as normalised: see the afterHostWrite citation."
+    },
+    "wiNormalize|afterHostWrite": {
+      "status": "covered",
+      "evidence": "src/runtime/worldInfoNormalize.test.ts#a refused or unconfirmed write is not recorded as normalised, so the next run retries it",
+      "note": "A write the server refused, or whose read-back could not confirm it, never enters the ledger; the next run re-reads the file and retries (W4: an entry that did land is then recorded through the already-off branch)."
+    },
+    "wiNormalize|persistFailure": {
+      "status": "partial",
+      "evidence": "src/runtime/worldInfoNormalize.test.ts#records what each entry was before it was normalised, and writes nothing for an entry already resting off",
+      "note": "COVERED: an entry that rests off in its file but is missing from the ledger (a ledger save that never landed, W4) is recorded on the next run without a write, as wasOn false. NOT COVERED: its provenance is then lost (the original wasOn true is not recoverable), so a later removal restore cannot offer it; stated as the W4 risk, not hidden."
+    },
+    "wiNormalize|worldSwitched": {
+      "status": "covered",
+      "evidence": "src/runtime/worldInfoGating.test.ts#stopping the gating mid-normalisation stops before the next write, records nothing and never activates",
+      "alsoEvidence": [
+        "src/runtime/worldInfoGating.test.ts#control: an unstopped run normalises both books"
+      ],
+      "note": "The normaliser's world is the gating's lifetime, not a chat (its writes are install-wide lorebook state): stopping the runtime mid-run stops before the next book and never activates; a chat switch deliberately does not stop it, because half a gated set would leak."
+    },
+    "wiNormalize|aborted": {
       "status": "na",
       "note": "Performs no model call, so nothing can be cancelled mid-call."
     }
