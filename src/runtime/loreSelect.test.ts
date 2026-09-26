@@ -4,6 +4,7 @@ import type { HostScannableEntry } from "@services/STAPI";
 import { JudgeRuntime } from "./judge";
 import { LoreSelector } from "./loreSelect";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "./runToken";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -32,7 +33,7 @@ const setup = (options: { uses?: Partial<JudgeSettings["uses"]>; loreSelect?: Re
   let lastMessageId = 4;
   const requests: JudgeRequest[] = [];
   const records: Array<{ use: string; p?: Record<string, number | string> }> = [];
-  const judge = new JudgeRuntime({
+  const judge = new JudgeRuntime({ ownership: testOwnership(),
     getSettings: () => settings,
     transport: async (request) => {
       requests.push(request);

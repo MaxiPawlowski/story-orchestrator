@@ -1,6 +1,7 @@
 import { couldNot, wrote } from "@utils/writeResult";
 import type { RunOwnership } from "./runToken";
 import { normalizeGatedEntries, spikeBook, type NormalizeDeps } from "./worldInfoNormalize";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 const story = (books: Record<string, string[]>) => ({ checkpoints: [{ effects: { world_info: { enable: Object.entries(books).map(([lorebook, comments]) => ({ lorebook, comments })) } } }] });
 
@@ -11,6 +12,7 @@ const host = () => {
   ]);
   const calls: Array<[string, string[]]> = [];
   const deps: NormalizeDeps = {
+    ownership: testOwnership(),
     onlyBooks: spikeBook,
     present: async (lorebook) => {
       const book = [...disk.entries()].find(([name]) => name.toLowerCase() === lorebook.toLowerCase())?.[1];

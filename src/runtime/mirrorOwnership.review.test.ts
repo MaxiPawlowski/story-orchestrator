@@ -20,6 +20,7 @@
 import { syncMemoryMirror, type MemoryMirrorHost } from "./memoryMirror";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "./runToken";
 import { control } from "../../test/findings/ledger";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 function harness(withOwnership = true) {
   let current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
@@ -38,7 +39,7 @@ function harness(withOwnership = true) {
     upsertWIEntry: async () => "created",
     disableWIEntry: async () => ({ ok: true as const, changed: true }),
     bindChatLorebook: (name) => { bindings.push(name); return { bound: true } as never; },
-    ...(withOwnership ? { ownership } : {}),
+    ownership: withOwnership ? ownership : testOwnership(),
   };
 
   return {

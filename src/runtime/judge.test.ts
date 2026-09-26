@@ -1,5 +1,6 @@
 import { defaultJudgeSettings, type JudgeCallRecord, type JudgeDirectorInput, type JudgeResponse, type JudgeSettings, type JudgeTransport } from "@judge/index";
 import { JudgeRuntime, JUDGE_STATUS_TTL_MS } from "./judge";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 const settings = (patch: Partial<JudgeSettings> = {}, uses: Partial<JudgeSettings["uses"]> = {}): JudgeSettings => {
   const base = defaultJudgeSettings();
@@ -33,7 +34,7 @@ const setup = (options: { settings?: JudgeSettings; transport?: JudgeTransport; 
   const transport = jest.fn<ReturnType<JudgeTransport>, Parameters<JudgeTransport>>(options.transport ?? (async () => pickMara));
   const status = jest.fn(async () => (options.configured === null ? null : { configured: options.configured ?? true }));
   const clock = options.clock ?? { now: 1_000_000 };
-  const runtime = new JudgeRuntime({
+  const runtime = new JudgeRuntime({ ownership: testOwnership(),
     getSettings: () => options.settings ?? settings(),
     transport,
     status,

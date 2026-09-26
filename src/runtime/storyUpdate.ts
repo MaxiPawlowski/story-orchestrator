@@ -27,7 +27,7 @@ export interface StoryUpdateDeps {
   swapStory: (loaded: LoadedStory, state: EngineState | null, reanchored: boolean) => Promise<void>;
   restart: () => Promise<boolean>;
   journal: (outcome: StoryUpdateOutcome) => void;
-  ownership?: RunOwnership;
+  ownership: RunOwnership;
 }
 
 const versionLabel = (from: number | null, to: number | null) => (from !== null && to !== null && from !== to ? ` (v${from} → v${to})` : "");

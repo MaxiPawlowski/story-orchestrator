@@ -12,6 +12,7 @@ import type { SceneReadRecord } from "@judge/index";
 import { SceneCoordinator } from "@runtime/coordinators/sceneCoordinator";
 import { parseStoryV2OrThrow } from "@engine/index";
 import { control, finding, must } from "../../../test/findings/ledger";
+import { testOwnership } from "../../../test/findings/testOwnership";
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -52,7 +53,7 @@ function harness({ answers }: { answers: boolean }) {
   // the latest failure" produce identical timestamps and the assertion proves nothing — which is
   // exactly what a mutation sweep caught on 2026-09-20.
   let clock = 1_000;
-  const coordinator = new SceneCoordinator({
+  const coordinator = new SceneCoordinator({ ownership: testOwnership(),
     judge: () => ({
       active: () => true,
       // No answers is what a timeout, an error or an unreachable plugin all look like here.

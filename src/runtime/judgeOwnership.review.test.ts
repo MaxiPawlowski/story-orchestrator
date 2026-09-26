@@ -13,6 +13,7 @@ import { choice } from "@judge/index";
 import { mintToken, tokenMatches, type RunContext, type RunToken } from "./runToken";
 import type { JudgeCallRecord } from "@judge/index";
 import { control, finding, must } from "../../test/findings/ledger";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -52,7 +53,7 @@ function harness({ ownership = true }: { ownership?: boolean } = {}) {
     status: async () => ({ configured: true, model: "jev-1.13.0" }),
     record: (row: JudgeCallRecord) => { rings[chatId].push(row); },
     context: () => ({ boundary, messageId: boundary * 2 }),
-    ...(ownership ? { ownership: { mint: () => mintToken(ctx()), check: (token: RunToken) => tokenMatches(ctx(), token) } } : {}),
+    ownership: ownership ? { mint: () => mintToken(ctx()), check: (token: RunToken) => tokenMatches(ctx(), token) } : testOwnership(),
     now: () => 0,
   } as never);
 
@@ -126,7 +127,7 @@ control("a discarded call still returns its answer to the caller", async () => {
   expect(result.discarded).toBe("epoch");
 });
 
-control("a call with no ownership supplied still records, so an old caller is unaffected", async () => {
+control("a call under an ownership that never lapses still records", async () => {
   const h = harness({ ownership: false });
   const pending = h.runtime.ask("sceneTracker", request as never);
   await Promise.resolve();

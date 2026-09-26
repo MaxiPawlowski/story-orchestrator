@@ -166,10 +166,7 @@ export type RestoreScope = "leave" | "exit" | "restart" | { since: number };
 const openChatId = () => String(getContext().chatId ?? "");
 
 export class EffectsApplier {
-  // Optional so every existing construction (and every test written before this) keeps working:
-  // an applier with no ownership never lapses and records nothing. The write-edge census tracks
-  // real coverage.
-  constructor(private readonly ownership?: RunOwnership, private readonly deps: EffectApplierDeps = {}) {}
+  constructor(private readonly ownership: RunOwnership, private readonly deps: EffectApplierDeps = {}) {}
 
   private appliedChat: string | null = null;
 

@@ -16,7 +16,7 @@ export interface MemoryMirrorHost {
   bindChatLorebook: (name: string, replaceable?: string[]) => ChatLorebookBinding;
   // v2.3 plan 03. Optional: without it the chat-id comparison below still runs, so behaviour is
   // unchanged for a caller that supplies none.
-  ownership?: RunOwnership;
+  ownership: RunOwnership;
   // v2.4 plan 02 T14: who the adopted book is for, written into it as the `so-owner` marker the reaper
   // requires. Optional like `ownership`: without it no marker is written, and such a book is never reaped.
   owner?: () => ChatOwner | null;

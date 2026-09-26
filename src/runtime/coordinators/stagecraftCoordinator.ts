@@ -73,7 +73,7 @@ export interface StagecraftCoordinatorDeps {
   // through `setStagecraft` — which resolves to whatever chat is current when the promise lands,
   // not the one the work belongs to. The token is minted before the awaits and checked at the
   // write edge. Optional so an existing caller keeps today's behaviour until it supplies one.
-  ownership?: RunOwnership;
+  ownership: RunOwnership;
 }
 
 const uniqueRecordId = (base: string, records: CuratorProposalRecord[]): string => {
@@ -131,7 +131,7 @@ export class StagecraftCoordinator {
   /** V3: a pass holds the coordinator only while its own world is still open — a slow pass started
    *  in another chat used to block this chat's pass until its model call returned to be discarded. */
   private busy(hold: PassHold | null): boolean {
-    return hold !== null && (!hold.token || this.deps.ownership?.check(hold.token).ok !== false);
+    return hold !== null && (!hold.token || this.deps.ownership.check(hold.token).ok !== false);
   }
 
   private get state(): StagecraftRuntimeState {
@@ -181,7 +181,7 @@ export class StagecraftCoordinator {
     if (!curatorHasScope(story)) return { ran: false, skipped: "no-scope", record: null };
     if (this.busy(this.curatorHold)) return { ran: false, skipped: "in-flight", record: null };
     // Minted before the first await, so it describes the world this pass was asked about.
-    const token = this.deps.ownership?.mint();
+    const token = this.deps.ownership.mint();
     const hold: PassHold = { token };
     this.curatorHold = hold;
     try {
@@ -198,13 +198,13 @@ export class StagecraftCoordinator {
       const response = await callExtractionModel(prompt, {
         profileId: this.deps.getExtractionSettings().profileId, role: "curator",
         maxTokens: maxTokensForInput("curator", prompt),
-        ...(this.deps.ownership?.signal ? { signal: this.deps.ownership.signal() } : {}),
+        ...(this.deps.ownership.signal ? { signal: this.deps.ownership.signal() } : {}),
         debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugCuratorResponse ?? null,
       });
       // The write edge. Everything above was read from, or computed for, the world the token
       // names; if that world moved while the model was thinking, this result belongs to it and
       // not to whatever is open now.
-      const owned = token ? this.deps.ownership?.check(token) : undefined;
+      const owned = token ? this.deps.ownership.check(token) : undefined;
       if (owned && owned.ok === false) {
         this.deps.journal(`World Info curator result discarded (${owned.reason})`, owned.detail);
         return { ran: true, record: null, discarded: owned.reason };
@@ -244,7 +244,7 @@ export class StagecraftCoordinator {
     } catch (error) {
       // A failure belongs to its own chat too: writing `lastError` after a switch marks the wrong
       // chat's panel with an error it never had.
-      const owned = token ? this.deps.ownership?.check(token) : undefined;
+      const owned = token ? this.deps.ownership.check(token) : undefined;
       if (owned && owned.ok === false) return { ran: true, record: null, discarded: owned.reason };
       this.patch({ lastError: error instanceof Error ? error.message : "Curator pass failed" });
       await this.save();
@@ -458,7 +458,7 @@ export class StagecraftCoordinator {
       if (lapsed) await this.save();
       return false;
     }
-    const token = this.deps.ownership?.mint();
+    const token = this.deps.ownership.mint();
     const hold: PassHold = { token };
     this.wardenHold = hold;
     try {
@@ -467,7 +467,7 @@ export class StagecraftCoordinator {
       const input: WardenCheckInput = { reply, facts: established.map((fact) => fact.text), agency: playerLine !== null ? { player: getPlayerName(), message: playerLine } : null, houseRules: families.houseRules };
       const asks = input.facts.length > 0 || input.agency !== null || input.houseRules.length > 0;
       const findings = asks ? await warden.check(input).catch(() => null) : null;
-      const owned = token ? this.deps.ownership?.check(token) : undefined;
+      const owned = token ? this.deps.ownership.check(token) : undefined;
       if (owned && owned.ok === false) return false;
       if (!findings?.length || readReply(replyMessageId)?.text !== reply.text) {
         if (lapsed) await this.save();

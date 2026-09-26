@@ -29,6 +29,7 @@ jest.mock("@services/STAPI", () => ({
 import { EffectsApplier, OVERLAY_UNSUPPORTED_REASON } from "./effectsApplier";
 import { samplerOverlay } from "./samplerOverlay";
 import type { RuntimeExtras } from "./types";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 const story = { title: "S", checkpointById: {}, checkpoints: [] } as never;
 const extrasFor = () => ({
@@ -43,7 +44,7 @@ const extrasFor = () => ({
 
 function harness() {
   const notes: Array<[string, string | undefined]> = [];
-  const applier = new EffectsApplier(undefined, { journal: (summary, note) => { notes.push([summary, note]); }, persist: async () => {} });
+  const applier = new EffectsApplier(testOwnership(), { journal: (summary, note) => { notes.push([summary, note]); }, persist: async () => {} });
   return { applier, notes };
 }
 

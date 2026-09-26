@@ -2,6 +2,7 @@ import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunTo
 import { TalkController, type TalkControlHost } from "./talkControl";
 import type { TalkDecisionAudit } from "./types";
 import { control } from "../../test/findings/ledger";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
@@ -206,7 +207,7 @@ control("an edit inside the window the decision read discards it, an append afte
 control("a world that never moves leaves the guard permissive for an unwired caller", async () => {
   const h = harness();
   const { host, calls } = h;
-  const unwired = new TalkController({ ...host, ownership: undefined });
+  const unwired = new TalkController({ ...host, ownership: testOwnership() });
   await unwired.intercept(makeAbort().abort, "normal");
   await settle();
 

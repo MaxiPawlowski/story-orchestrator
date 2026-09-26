@@ -5,6 +5,7 @@
 import { TurnBridge } from "@runtime/turnBridge";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { control, finding, must } from "../../test/findings/ledger";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 const handlers = new Map<string, (...args: unknown[]) => unknown>();
 
@@ -35,7 +36,7 @@ const setup = () => {
     loadSelectedFromChat: jest.fn(async () => {}),
     reapplyPromptBlocks: jest.fn(),
     reapplyCopilotNudge: jest.fn(),
-    getOwnership: () => undefined,
+    getOwnership: () => testOwnership(),
     notify: jest.fn(),
   };
   const bridge = new TurnBridge(manager as unknown as RuntimeManager);

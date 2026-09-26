@@ -5,6 +5,7 @@
 // conversion uniform, so its own semantics have to be pinned before fifty sites depend on them.
 
 import { beginRun, type RunContext, type RunOwnership, type RunToken, mintToken, tokenMatches } from "./runToken";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 function world() {
   let current: RunContext = {
@@ -69,7 +70,7 @@ describe("beginRun", () => {
   test("an unowned run never lapses, so an unwired caller is unaffected", () => {
     // Deliberately permissive: fifty sites convert one at a time, and a half-converted tree must
     // keep working. The census guard, not this default, is what tracks real coverage.
-    const run = beginRun(undefined);
+    const run = beginRun(testOwnership());
     expect(run.stillOwns()).toBe(true);
     expect(run.lapsed()).toBeNull();
   });

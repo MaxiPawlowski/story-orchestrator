@@ -7,13 +7,10 @@ type HostMacroValue = string | ((nonce: string) => string);
 type MacrosHost = { MacrosParser: { registerMacro: (key: string, value: HostMacroValue, description?: string) => void; unregisterMacro: (key: string) => void } };
 
 const hostGlobal = globalThis as { SillyTavern?: { getContext?: () => unknown } };
-const contextFallback = hostGlobal.SillyTavern?.getContext
-  ? null
-  : await importSTModule<{ getContext: () => unknown }>("/scripts/extensions.js");
 const macrosHost = await importSTModule<MacrosHost>("/scripts/macros.js");
 
-export const getContext = (): StoryOrchestratorHostContext =>
-  (hostGlobal.SillyTavern?.getContext?.() ?? contextFallback?.getContext()) as StoryOrchestratorHostContext;
+// v2.5 plan 11 C2: `globalThis.SillyTavern` exists on every supported host (script.js:292, ST 1.18.0).
+export const getContext = (): StoryOrchestratorHostContext => hostGlobal.SillyTavern?.getContext?.() as StoryOrchestratorHostContext;
 
 /**
  * v2.3 plan 06 (F2). `extension_settings` is not ours to read until ST has loaded it: before

@@ -2,6 +2,7 @@ import type { SharedReadAudit } from "@extraction/index";
 import { defaultJudgeSettings, type JudgeRequest, type JudgeResponse, type JudgeSettings, type JudgeTransport } from "@judge/index";
 import { JudgeRuntime } from "./judge";
 import { RuntimeManager } from "./runtimeManager";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 const mockContext = {
   chat: [] as Array<{ mes: string; name?: string; is_user?: boolean }>,
@@ -108,7 +109,7 @@ const setup = async (uses: Partial<JudgeSettings["uses"]>) => {
   const transport = jest.fn<ReturnType<JudgeTransport>, Parameters<JudgeTransport>>(async (request) => answer(request));
   const manager = new RuntimeManager();
   const records: string[] = [];
-  manager.attachJudge(new JudgeRuntime({
+  manager.attachJudge(new JudgeRuntime({ ownership: testOwnership(),
     getSettings: () => settings,
     transport,
     status: async () => ({ configured: true }),

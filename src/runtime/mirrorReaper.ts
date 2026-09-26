@@ -107,7 +107,7 @@ export interface MirrorReaperDeps {
   confirm: (book: string, chatId: string) => Promise<boolean>;
   deleteLorebook: (name: string) => Promise<WriteResult<{ name: string }>>;
   notify: () => void;
-  ownership?: RunOwnership;
+  ownership: RunOwnership;
   registry?: OrphanRegistry;
 }
 

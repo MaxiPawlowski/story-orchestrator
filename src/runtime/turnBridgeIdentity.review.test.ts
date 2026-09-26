@@ -1,6 +1,7 @@
 import { hostMessageId, TurnBridge } from "./turnBridge";
 import type { RuntimeManager } from "./runtimeManager";
 import { BLOB_VERSION } from "./persistence";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 const handlers = new Map<string, (...args: unknown[]) => unknown>();
 const host = { generating: false, chat: [] as Array<{ mes: string; gen_finished?: unknown }>, chatId: "renamed", chatMetadata: {} as Record<string, unknown> };
@@ -42,7 +43,7 @@ function harness() {
     loadSelectedFromChat: jest.fn(async () => undefined),
     reapplyPromptBlocks: jest.fn(),
     reapplyCopilotNudge: jest.fn(),
-    getOwnership: () => undefined,
+    getOwnership: () => testOwnership(),
     notify: jest.fn(),
   };
   new TurnBridge(manager as unknown as RuntimeManager).start();

@@ -1,5 +1,6 @@
 import { isTurnMessageType, TurnBridge } from "./turnBridge";
 import type { RuntimeManager } from "./runtimeManager";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 const handlers = new Map<string, (...args: unknown[]) => unknown>();
 let hostGenerating = false;
@@ -28,7 +29,7 @@ const makeManager = () => ({
   loadSelectedFromChat: jest.fn(async () => undefined),
   reapplyPromptBlocks: jest.fn(),
   reapplyCopilotNudge: jest.fn(),
-  getOwnership: () => undefined,
+  getOwnership: () => testOwnership(),
   notify: jest.fn(),
 });
 

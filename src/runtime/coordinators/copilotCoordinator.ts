@@ -28,7 +28,7 @@ export interface CopilotCoordinatorDeps {
   getProfileId: () => string | null;
   getCanon: () => string;
   notify: () => void;
-  ownership?: RunOwnership;
+  ownership: RunOwnership;
   // v2.3 plan 02 (R8). Which lorebooks this story may write into, and the author's way to add one.
   wizardSession?: (key: string) => WizardSessionState | null;
   saveWizardSession?: (session: WizardSessionState) => void;

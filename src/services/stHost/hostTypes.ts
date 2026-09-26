@@ -79,6 +79,8 @@ export interface SillyTavernContext {
   worldInfo?: Record<string, HostWorldInfoEntry>;
   powerUserSettings?: { personas?: Record<string, string> };
   SlashCommandParser?: { commands?: Record<string, HostSlashCommand> };
+  // v2.5 plan 11 C3: exported on every supported host (st-context.js:98 import, :169 export, ST 1.18.0).
+  SlashCommandEnumValue: new (value: string, description?: string) => unknown;
   // Provisioning seam (v2.1 plan 06): st-context.js:129 / :230 / :237. `getCharacters` is ST's
   // reload, not a getter — it refreshes both the character and the group caches (script.js:1326).
   getRequestHeaders?: (options?: { omitContentType?: boolean }) => Record<string, string>;

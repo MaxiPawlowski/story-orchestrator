@@ -8,6 +8,7 @@ const fakeContext = {
   SlashCommandParser: { addCommandObject: (command: FakeCommand) => { commands[command.name] = command; }, commands },
   SlashCommand: { fromProps: (props: FakeCommand) => props },
   SlashCommandArgument: { fromProps: (props: unknown) => props },
+  SlashCommandEnumValue: class { constructor(readonly value: string, readonly description?: string) {} },
   ARGUMENT_TYPE: { STRING: "string" },
 };
 

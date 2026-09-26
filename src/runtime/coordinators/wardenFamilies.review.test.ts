@@ -7,6 +7,7 @@ import { createStagecraft } from "../extras";
 import { createWarden, wardenFamilies } from "../continuity";
 import { JudgeRuntime } from "../judge";
 import type { ExtractionRuntimeSettings, StagecraftRuntimeState } from "../types";
+import { testOwnership } from "../../../test/findings/testOwnership";
 
 const mockChat: Array<Record<string, unknown>> = [];
 
@@ -51,7 +52,7 @@ const harness = (options: { continuity?: boolean; mode?: "auto" | "review" | "of
   let state: StagecraftRuntimeState = { ...createStagecraft(), settings: { curatorEnabled: false, acceptMode: "review", wardenEnabled: options.continuity ?? false, wardenAcceptMode: options.mode ?? "auto" } };
   const inputs: WardenCheckInput[] = [];
   const families = { agency: options.agency ?? false, houseRules: options.houseRules ?? [] };
-  const coordinator = new StagecraftCoordinator({
+  const coordinator = new StagecraftCoordinator({ ownership: testOwnership(),
     getStory: () => story(),
     getState: () => engineState,
     getStagecraft: () => state,
@@ -209,7 +210,7 @@ describe("T22/T23 wiring (runtime/continuity.ts)", () => {
   const judgeWith = (uses: Partial<JudgeSettings["uses"]>, enabled = true) => {
     const settings: JudgeSettings = { ...defaultJudgeSettings(), enabled, uses: { ...defaultJudgeSettings().uses, ...uses } };
     const requests: JudgeRequest[] = [];
-    const judge = new JudgeRuntime({
+    const judge = new JudgeRuntime({ ownership: testOwnership(),
       getSettings: () => settings,
       transport: async (request) => { requests.push(request); return { model: "jev-1.13.0", answers: { agency: { type: "score", score: 3.2, confidence: 0.9, probabilities: {} }, "rule:0": { type: "noul", noul: 0.9 }, "rule:1": { type: "noul", noul: 0.1 } } }; },
       status: async () => ({ configured: true }),

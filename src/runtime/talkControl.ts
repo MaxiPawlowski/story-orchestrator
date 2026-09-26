@@ -36,7 +36,7 @@ export interface TalkControlHost {
   getPlayerName?(): string;
   triggerMember(name: string): Promise<void>;
   recordDecision(audit: TalkDecisionAudit): void;
-  ownership?: RunOwnership;
+  ownership: RunOwnership;
 }
 
 type JudgeNote = { confidence: number; via: "choice" | "composite" };

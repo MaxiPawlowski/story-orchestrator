@@ -18,7 +18,7 @@ export interface NormalizeDeps {
   /** Comments present in the book (null when it is not listed). */
   present: (lorebook: string) => Promise<Set<string> | null>;
   disable: (lorebook: string, comments: string[]) => Promise<WriteResult<{ changed: boolean; confirmed?: boolean }>>;
-  ownership?: RunOwnership;
+  ownership: RunOwnership;
 }
 
 export interface NormalizeOutcome {

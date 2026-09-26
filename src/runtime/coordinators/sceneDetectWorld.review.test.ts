@@ -8,6 +8,7 @@
 import { ExtractionCoordinator } from "./extractionCoordinator";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
 import { control, finding, must } from "../../../test/findings/ledger";
+import { testOwnership } from "../../../test/findings/testOwnership";
 
 const host: { group: { members: string[]; disabled_members: string[] } | null; chat: Array<{ name: string; mes: string; is_user: boolean }> } = {
   group: null,
@@ -37,7 +38,7 @@ function harness(owned = true) {
     getStory: () => ({ title: "Adolion", qualityByKey: {}, checkpointById: {}, roster: [] }),
     getState: () => ({ activeCheckpointId: "guild-hall", boundary: 1, blackboard: { values: location === undefined ? {} : { location } } }),
     memory: { enabled: true },
-    ...(owned ? { ownership } : {}),
+    ownership: owned ? ownership : testOwnership(),
   } as never);
   return {
     detect: () => coordinator.detectSceneBreak(),

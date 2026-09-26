@@ -2,6 +2,7 @@ import type { StoryV2 } from "@engine/index";
 import { createCharacterCard, createLorebook, upsertWIEntry } from "@services/STAPI";
 import type { ProvisioningOp, WizardSessionState } from "@wizard/index";
 import { CopilotCoordinator } from "./copilotCoordinator";
+import { testOwnership } from "../../../test/findings/testOwnership";
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -25,7 +26,7 @@ const draft = { format: 2, id: "owned", version: 1, title: "Owned", description:
 
 const harness = (stored: WizardSessionState | null) => {
   let session = stored;
-  const coordinator = new CopilotCoordinator({
+  const coordinator = new CopilotCoordinator({ ownership: testOwnership(),
     getStory: () => null,
     getState: () => null,
     getSettings: () => ({}) as never,

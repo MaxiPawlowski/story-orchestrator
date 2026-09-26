@@ -60,7 +60,7 @@ export interface ExtractionCoordinatorDeps {
   notify: () => void;
   // v2.3 plan 03. Optional so the conversion can land one coordinator at a time: an unwired
   // caller never lapses, and the write-edge census is what tracks real coverage.
-  ownership?: RunOwnership;
+  ownership: RunOwnership;
 }
 
 // Owns extras.extraction and every off-path read: the shared-read audit pipeline, the
@@ -302,10 +302,10 @@ export class ExtractionCoordinator {
 
     const ownership = this.deps.ownership;
     const recorded = this.sceneDetectCursor;
-    const cursor = recorded && (!recorded.world || !ownership || ownership.check(recorded.world).ok) ? recorded : null;
+    const cursor = recorded && (!recorded.world || ownership.check(recorded.world).ok) ? recorded : null;
     const locationChanged = Boolean(cursor && cursor.location !== null && locationValue !== null && cursor.location !== locationValue);
     const castChanged = Boolean(cursor && cursor.cast !== null && cast !== null && cursor.cast !== cast);
-    this.sceneDetectCursor = { location: locationValue, cast, world: ownership?.mint() ?? null };
+    this.sceneDetectCursor = { location: locationValue, cast, world: ownership.mint() };
 
     return detectSceneBreakHeuristic(text, locationChanged, castChanged);
   }

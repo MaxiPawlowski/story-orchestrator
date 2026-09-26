@@ -1,6 +1,7 @@
 import type { TalkControl } from "@engine/index";
 import { DIRECTOR_TIMEOUT_MS, TalkController, type TalkControlHost } from "./talkControl";
 import type { TalkDecisionAudit } from "./types";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 interface HostCalls {
   director: string[];
@@ -11,6 +12,7 @@ interface HostCalls {
 const makeHost = (overrides: Partial<TalkControlHost> = {}) => {
   const calls: HostCalls = { director: [], triggered: [], decisions: [] };
   const host: TalkControlHost = {
+    ownership: testOwnership(),
     isGroupChat: () => true,
     getChatId: () => "chat-1",
     getActiveTalkControl: (): TalkControl | null => ({ director: true, allow_silence: true }),

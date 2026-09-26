@@ -15,6 +15,7 @@
 import { EffectsApplier } from "./effectsApplier";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "./runToken";
 import { control } from "../../test/findings/ledger";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 const spoken: string[] = [];
 const speechGate = { onSpeak: null as ((count: number) => void) | null };
@@ -105,7 +106,7 @@ control("a world that moved BEFORE the call is simply the world the call belongs
 control("an applier with no ownership still fires everything", async () => {
   // Every existing construction passes none, and a missing guard must never mean a missing line.
   const h = harness();
-  const unowned = new EffectsApplier();
+  const unowned = new EffectsApplier(testOwnership());
   await unowned.fireNpcReplies(checkpoint, h.extras, "onEnter" as never);
   expect(spoken).toHaveLength(3);
 });

@@ -21,7 +21,7 @@ export interface SceneCoordinatorDeps {
   journal?: (summary: string, note: string) => void;
   withheldFields?: () => ReadonlySet<string>;
   // v2.3 plan 03 (C1, the "scene" surface). Optional: an unwired caller never lapses.
-  ownership?: RunOwnership;
+  ownership: RunOwnership;
   now?: () => number;
 }
 

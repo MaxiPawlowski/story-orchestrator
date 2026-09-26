@@ -60,7 +60,7 @@ export interface MemoryCoordinatorDeps {
    *  decision reads it because `persist` cannot answer the question itself (see `memoryQueue`). */
   unsaved?: () => boolean;
   notify: () => void;
-  ownership?: RunOwnership;
+  ownership: RunOwnership;
   historyFloor?: () => number | null;
   /** v2.3 plan 05: the stored scene read, whose claims the ledger and the blackboard can contradict. */
   getScene?: () => SceneReadRecord | null;

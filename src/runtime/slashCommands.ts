@@ -24,17 +24,8 @@ const dump = (message: string) => {
   return message;
 };
 
-type SlashEnumValueFactory = new (value: string, description?: string) => unknown;
-
-const hasSlashEnumValue = (value: unknown): value is SlashEnumValueFactory => typeof value === "function";
-
-// SlashCommandArgument wraps bare strings itself; the typed values only add the description line
-// in autocomplete, so a host without the class still gets a usable enum.
-const buildEnumList = (context: ReturnType<typeof getContext>, values: Array<[string, string]>): unknown[] => {
-  const EnumValue = context.SlashCommandEnumValue;
-  if (!hasSlashEnumValue(EnumValue)) return values.map(([value]) => value);
-  return values.map(([value, description]) => new EnumValue(value, description));
-};
+const buildEnumList = (context: ReturnType<typeof getContext>, values: Array<[string, string]>): unknown[] =>
+  values.map(([value, description]) => new context.SlashCommandEnumValue(value, description));
 
 let lastMemListIds: string[] = [];
 

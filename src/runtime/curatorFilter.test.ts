@@ -2,6 +2,7 @@ import { defaultJudgeSettings, type JudgeRequest, type JudgeSettings } from "@ju
 import type { CuratorEntryView } from "@stagecraft/index";
 import { createCuratorFilter } from "./curatorFilter";
 import { JudgeRuntime } from "./judge";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 const views = (count: number, disabled: number[] = []): CuratorEntryView[] => Array.from({ length: count }, (_, index) => ({ lorebook: "Story Lore", comment: `Entry ${index}`, keys: [], content: `About ${index}.`, disabled: disabled.includes(index) }));
 const context = { checkpoint: { name: "The bank", objective: "Cross" }, canon: "The flood took the bridge.", openThreads: ["Who cut the ropes?"] };
@@ -10,7 +11,7 @@ const setup = (options: { on?: boolean; p?: (index: number) => number | null; fa
   const settings: JudgeSettings = { ...defaultJudgeSettings(), enabled: true, uses: { ...defaultJudgeSettings().uses, curatorFilter: options.on ?? true } };
   const requests: JudgeRequest[] = [];
   const records: Array<{ use: string; p?: Record<string, number | string> }> = [];
-  const judge = new JudgeRuntime({
+  const judge = new JudgeRuntime({ ownership: testOwnership(),
     getSettings: () => settings,
     transport: async (request) => {
       requests.push(request);

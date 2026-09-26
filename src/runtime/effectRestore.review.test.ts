@@ -32,6 +32,7 @@ import { reconcileLedger } from "./effectLedger";
 import { restoreEffectTarget } from "./effectHost";
 import type { EffectLedgerRow, RuntimeExtras } from "./types";
 import { finding } from "../../test/findings/ledger";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 const story = { title: "S", checkpointById: {}, checkpoints: [] } as never;
 const extrasFor = (ledger: EffectLedgerRow[] = [], cast: Array<{ member: string; disabled: boolean }> = []) => ({
@@ -55,7 +56,7 @@ function harness() {
   const restored: EffectLedgerRow[] = [];
   const notes: string[] = [];
   let persisted = 0;
-  const applier = new EffectsApplier(undefined, {
+  const applier = new EffectsApplier(testOwnership(), {
     journal: (summary) => { notes.push(summary); },
     reads: { read: (target) => (target.kind === "cast" ? { disabled: host.group.disabled_members.includes(target.member) } : target.kind === "an" ? { text: "story note" } : null) },
     restore: async (row) => {

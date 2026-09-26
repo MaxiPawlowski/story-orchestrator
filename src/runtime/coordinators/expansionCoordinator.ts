@@ -34,7 +34,7 @@ export interface ExpansionCoordinatorDeps {
   setStatus: (status: string) => void;
   persist: () => Promise<void>;
   notify: () => void;
-  ownership?: RunOwnership;
+  ownership: RunOwnership;
 }
 
 // Owns extras.expansion: the generated-beat cache, its LLM generation and the staleness

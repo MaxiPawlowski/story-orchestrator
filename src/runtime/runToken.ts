@@ -144,19 +144,14 @@ export interface RunGuard {
   release(): void;
 }
 
-/**
- * Begin a run. `ownership` is optional so a caller that has not been wired yet — and every test
- * written before this existed — keeps working: an unowned run never lapses. That is deliberately
- * permissive, and it is why `ownership.guard.test.ts` tracks which sites actually check rather
- * than trusting that a guard exists somewhere.
- */
-export function beginRun(ownership: RunOwnership | undefined, window: MessageWindow | null = null): RunGuard {
-  const token = ownership?.mint(window) ?? null;
-  const verdict = (): TokenCheck => (token && ownership ? ownership.check(token) : { ok: true });
+/** Begin a run. Every caller names the ownership it runs under (v2.5 plan 11 I1). */
+export function beginRun(ownership: RunOwnership, window: MessageWindow | null = null): RunGuard {
+  const token = ownership.mint(window);
+  const verdict = (): TokenCheck => ownership.check(token);
   let live: LiveRun | null = null;
   const track = (): LiveRun => {
     if (live) return live;
-    const tracked = ownership?.live?.(window) ?? { signal: ownership?.signal?.() ?? NEVER_ABORTS, release: () => {} };
+    const tracked = ownership.live?.(window) ?? { signal: ownership.signal?.() ?? NEVER_ABORTS, release: () => {} };
     live = verdict().ok || tracked.signal.aborted ? tracked : { signal: AbortSignal.abort(), release: tracked.release };
     return live;
   };

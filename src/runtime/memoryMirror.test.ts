@@ -3,6 +3,7 @@ import type { MemoryEntry } from "@memory/types";
 import type { ChatLorebookBinding, ChatOwner, Lorebook } from "@services/STAPI";
 import { mirroredEntries, mirrorLorebookName, syncMemoryMirror, type MemoryMirrorHost, type MemoryMirrorInput } from "./memoryMirror";
 import { OWNER_COMMENT, ownerMarkerContent, parseOwnerMarker } from "./mirrorReaper";
+import { testOwnership } from "../../test/findings/testOwnership";
 
 type FakeEntry = { uid: number; comment: string; content: string; key: string[]; disable: boolean };
 
@@ -11,6 +12,7 @@ const fakeHost = (options: { chatId?: string | null; books?: Record<string, Fake
   const state = { chatId: options.chatId === undefined ? "chat-a" : options.chatId, slot: options.slot ?? "" };
   const calls = { created: [] as string[], upserts: [] as string[], disabled: [] as string[][], binds: [] as Array<{ name: string; replaceable: string[] }> };
   const host: MemoryMirrorHost = {
+    ownership: testOwnership(),
     getChatId: () => state.chatId,
     ensureLorebook: jest.fn(async (name: string) => {
       if (books.has(name)) return { name, created: false };
