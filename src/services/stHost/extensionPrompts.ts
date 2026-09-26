@@ -2,6 +2,7 @@ import { getContext } from "./context";
 import type { HostExtensionPrompt } from "./hostTypes";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { log } from "@utils/log";
+import { isScannableInjectionKey } from "@constants/injectionRegistry";
 
 const EXTENSION_PROMPT_IN_CHAT = 1;
 const EXTENSION_PROMPT_ROLE_SYSTEM = 0;
@@ -16,11 +17,12 @@ const heldBlock = (key: string): HostExtensionPrompt | null => {
   return entry && typeof entry === "object" ? entry : null;
 };
 
-const holds = (key: string, text: string, depth: number): boolean => {
+const holds = (key: string, text: string, depth: number, scan: boolean): boolean => {
   const entry = heldBlock(key);
   return entry !== null
     && entry.value === text
     && Number(entry.depth) === depth
+    && Boolean(entry.scan) === scan
     && Number(entry.position) === EXTENSION_PROMPT_IN_CHAT
     && Number(entry.role ?? EXTENSION_PROMPT_ROLE_SYSTEM) === EXTENSION_PROMPT_ROLE_SYSTEM;
 };
@@ -39,11 +41,14 @@ const resolveSetExtensionPrompt = (): SetExtensionPromptFn | null => {
   return context.setExtensionPrompt.bind(context);
 };
 
-export function setStoryExtensionPrompt(key: string, text: string, depth: number): WriteResult<{ changed: boolean }> {
-  if (holds(key, text, depth)) return wrote({ changed: false });
+// `scan` adds the block to every World Info scan buffer (script.js:8926-8935, world-info.js:4719-4725); only
+// a key the injection registry marks scannable may ever carry it.
+export function setStoryExtensionPrompt(key: string, text: string, depth: number, scan = false): WriteResult<{ changed: boolean }> {
+  const scanned = scan && isScannableInjectionKey(key);
+  if (holds(key, text, depth, scanned)) return wrote({ changed: false });
   const write = resolveSetExtensionPrompt();
   if (!write) return couldNot("this build exposes no setExtensionPrompt, so the block never reaches a prompt");
-  write(key, text, EXTENSION_PROMPT_IN_CHAT, depth, false, EXTENSION_PROMPT_ROLE_SYSTEM);
+  write(key, text, EXTENSION_PROMPT_IN_CHAT, depth, scanned, EXTENSION_PROMPT_ROLE_SYSTEM);
   return wrote({ changed: true });
 }
 

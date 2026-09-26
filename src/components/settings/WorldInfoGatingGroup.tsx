@@ -6,6 +6,8 @@ export interface WorldInfoGatingGroupProps {
   authorView: boolean;
   onChoose: (mode: "file" | "scan") => void;
   onRenormalize: () => void;
+  scanMemory: boolean;
+  onScanMemory: (on: boolean) => void;
 }
 
 const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
@@ -17,7 +19,10 @@ const entryList = (entries: Array<{ lorebook: string; comment: string }>, named:
 // C. Install-wide. Choosing per chat opens the confirm that normalises the story lorebooks
 // (nothing changes before it); choosing file writes asks nothing. Drift is the Repair row's target, and the
 // re-normalise button is its one action.
-export function WorldInfoGatingGroup({ status, authorView, onChoose, onRenormalize }: WorldInfoGatingGroupProps) {
+const SCAN_MEMORY_COPY = "Memory text can trigger lore: established facts, scene history and checkpoint guidance join every World Info scan, so a lorebook entry " +
+  "whose keys they mention can activate. What characters privately know and the state ledger never join it.";
+
+export function WorldInfoGatingGroup({ status, authorView, onChoose, onRenormalize, scanMemory, onScanMemory }: WorldInfoGatingGroupProps) {
   const mode = status?.mode ?? "file";
   const busy = status?.busy ?? false;
   const unavailable = mode === "scan" && status?.capability && status.capability.state !== "present" ? status.capability : null;
@@ -42,6 +47,12 @@ export function WorldInfoGatingGroup({ status, authorView, onChoose, onRenormali
           {status.missing.length ? ` · ${plural(status.missing.length, "entry", "entries")} no longer in its lorebook` : ""}
           {status.unreadable.length ? ` · could not read ${status.unreadable.join(", ")}` : ""}
         </div>
+      )}
+      {authorView && (
+        <label data-so="wi-scan-memory" className="flex items-start gap-2 text-xs">
+          <input id="so-wi-scan-memory" type="checkbox" checked={scanMemory} onChange={(event) => onScanMemory(event.target.checked)} />
+          <span>{SCAN_MEMORY_COPY}</span>
+        </label>
       )}
       {unavailable && (
         <div data-so="wi-unavailable" className="text-xs text-yellow-300">Per-chat gating is unavailable on this SillyTavern ({unavailable.detail}); lorebooks are gated by file writes.</div>

@@ -7,13 +7,15 @@ import {
   upsertWIEntry, vectorInsert, vectorPurge, vectorQuery,
 } from "@services/STAPI";
 import { getChatWindow, getLastMessageText } from "@extraction/chatWindow";
+import { scanningPromptHost } from "./scanMemory";
+import { getGlobalSettings } from "./settingsStore";
 import type {
   ChatHost, CuratorWiHost, InjectionHost, MirrorHost, PlayerHost, PromptHost, ProvisioningHost, RosterHost, TokenHost, VectorHost,
 } from "./hostPorts";
 
 const chatRows = (): unknown[] => (Array.isArray(getContext().chat) ? getContext().chat : []);
 
-const promptHost: PromptHost = { setStoryExtensionPrompt, clearStoryExtensionPrompt };
+const promptHost: PromptHost = scanningPromptHost({ setStoryExtensionPrompt, clearStoryExtensionPrompt }, () => getGlobalSettings().worldInfo.scanMemory);
 
 const chatHost: ChatHost = {
   chatWindow: getChatWindow,

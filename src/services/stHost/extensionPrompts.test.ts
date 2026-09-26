@@ -102,3 +102,24 @@ describe("A1: the write skip reads the host's extension prompts", () => {
     expect(setExtensionPrompt).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("L4: a scannable block is written with scan and re-written when the flag changes", () => {
+  beforeEach(() => { host.exposes = true; clearChat(); setExtensionPrompt.mockClear(); });
+
+  it("passes scan through for a key the registry marks scannable", () => {
+    setStoryExtensionPrompt("story_orchestrator_memory_facts", "facts", 4, true);
+    expect(setExtensionPrompt).toHaveBeenLastCalledWith("story_orchestrator_memory_facts", "facts", 1, 4, true, 0);
+  });
+
+  it("refuses scan for a key the registry never allows (the epistemic block stays out of every scan)", () => {
+    setStoryExtensionPrompt("story_orchestrator_epistemic", "secret", 4, true);
+    expect(setExtensionPrompt).toHaveBeenLastCalledWith("story_orchestrator_epistemic", "secret", 1, 4, false, 0);
+  });
+
+  it("the skip compares the scan flag, so switching it rewrites an unchanged block", () => {
+    setStoryExtensionPrompt("story_orchestrator_memory_facts", "facts", 4, false);
+    expect(setStoryExtensionPrompt("story_orchestrator_memory_facts", "facts", 4, true)).toEqual({ ok: true, changed: true });
+    expect(setStoryExtensionPrompt("story_orchestrator_memory_facts", "facts", 4, true)).toEqual({ ok: true, changed: false });
+    expect(setExtensionPrompt).toHaveBeenCalledTimes(2);
+  });
+});

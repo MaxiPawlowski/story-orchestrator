@@ -7,20 +7,22 @@ export interface InjectionSpec {
   readonly dynamicDepth?: boolean;
   /** What the next-turn preview calls this block, instead of the raw key. */
   readonly label: string;
+  /** May be added to the World Info scan buffer when the install switches memory scanning on. */
+  readonly scannable?: true;
 }
 
 export const INJECTION_REGISTRY = {
   pacing: { key: "story_orchestrator_pacing", depth: 2, writer: "runtime/runtimeManager.applyPacingSteering" , label: "Pacing steering" },
-  memoryFacts: { key: `${MEMORY_INJECTION_KEY_PREFIX}facts`, depth: 4, writer: "memory/inject.applyMemoryInjection", label: "Memory — established facts" },
+  memoryFacts: { key: `${MEMORY_INJECTION_KEY_PREFIX}facts`, depth: 4, writer: "memory/inject.applyMemoryInjection", label: "Memory — established facts", scannable: true },
   memorySessionDetails: { key: `${MEMORY_INJECTION_KEY_PREFIX}session_details`, depth: 3, writer: "memory/inject.applyMemoryInjection", label: "Memory — session details" },
   memoryShortTerm: { key: `${MEMORY_INJECTION_KEY_PREFIX}short_term`, depth: 2, writer: "memory/inject.applyMemoryInjection", label: "Memory — short term" },
-  memorySceneHistory: { key: `${MEMORY_INJECTION_KEY_PREFIX}scene_history`, depth: 6, writer: "memory/inject.applyMemoryInjection", label: "Memory — scene history" },
+  memorySceneHistory: { key: `${MEMORY_INJECTION_KEY_PREFIX}scene_history`, depth: 6, writer: "memory/inject.applyMemoryInjection", label: "Memory — scene history", scannable: true },
   epistemic: { key: "story_orchestrator_epistemic", depth: 4, writer: "memory/inject.applyEpistemicInjection" , label: "What the speaker knows" },
   ledger: { key: "story_orchestrator_ledger", depth: 3, writer: "memory/inject.applyLedgerInjection" , label: "State ledger" },
   copilotNudge: { key: "story_copilot_nudge", depth: 4, writer: "runtime/runtimeManager.setCopilotNudge", dynamicDepth: true , label: "Author nudge" },
   sceneTracker: { key: "story_orchestrator_scene", depth: 1, writer: "runtime/coordinators/sceneCoordinator" , label: "Scene so far" },
   continuityNote: { key: "story_orchestrator_continuity", depth: 0, writer: "runtime/coordinators/stagecraftCoordinator" , label: "Continuity note" },
-  checkpointGuidance: { key: "story_orchestrator_guidance", depth: 4, writer: "runtime/coordinators/pacingCoordinator", label: "Checkpoint guidance" },
+  checkpointGuidance: { key: "story_orchestrator_guidance", depth: 4, writer: "runtime/coordinators/pacingCoordinator", label: "Checkpoint guidance", scannable: true },
 } as const satisfies Record<string, InjectionSpec>;
 
 export const INJECTION_DEPTH_COLLISION_ALLOWLIST: ReadonlyArray<ReadonlySet<string>> = [
@@ -29,11 +31,26 @@ export const INJECTION_DEPTH_COLLISION_ALLOWLIST: ReadonlyArray<ReadonlySet<stri
   new Set([INJECTION_REGISTRY.memorySessionDetails.key, INJECTION_REGISTRY.ledger.key]),
 ];
 
+// Private knowledge and the state ledger never reach a scan: a scanned block is text any lorebook key can
+// match, and what it pulls in lands in the prompt of whoever is drafted next.
+const NEVER_SCANNABLE: ReadonlySet<string> = new Set(["epistemic", "ledger"]);
+const SCANNABLE_ALLOWLIST: ReadonlySet<string> = new Set(["memoryFacts", "memorySceneHistory", "checkpointGuidance"]);
+
+export const SCANNABLE_INJECTIONS: ReadonlySet<string> = new Set((Object.values(INJECTION_REGISTRY) as InjectionSpec[]).filter((spec) => spec.scannable).map((spec) => spec.key));
+
+export const isScannableInjectionKey = (key: string): boolean => SCANNABLE_INJECTIONS.has(key);
+
 const setsEqual = (a: ReadonlySet<string>, b: ReadonlySet<string>): boolean => a.size === b.size && [...a].every((value) => b.has(value));
 
-export function findInjectionRegistryProblems(): string[] {
-  const specs = Object.values(INJECTION_REGISTRY) as InjectionSpec[];
+export function findInjectionRegistryProblems(registry: Record<string, InjectionSpec> = INJECTION_REGISTRY): string[] {
+  const specs = Object.values(registry);
   const problems: string[] = [];
+
+  for (const [name, spec] of Object.entries(registry)) {
+    if (!spec.scannable) continue;
+    if (NEVER_SCANNABLE.has(name)) problems.push(`"${spec.key}" may never be added to the World Info scan`);
+    else if (!SCANNABLE_ALLOWLIST.has(name)) problems.push(`"${spec.key}" is not on the scannable allowlist`);
+  }
 
   const seen = new Map<string, number>();
   for (const spec of specs) seen.set(spec.key, (seen.get(spec.key) ?? 0) + 1);

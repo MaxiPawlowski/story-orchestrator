@@ -477,6 +477,8 @@ export class RuntimeManager extends CoordinatorDelegates {
 
   setStagecraftSettings(settings: Partial<StagecraftSettings>) { this.settingsControl.stagecraft(settings); }
 
+  setScanMemory(on: boolean) { this.settingsControl.scanMemory(on); }
+
   private getBoundaryContext(at?: number): BoundaryContext { const chat = Array.isArray(getContext().chat) ? getContext().chat : []; const last = at === undefined ? chat.length - 1 : Math.min(at,
       chat.length - 1); return { lastMessageId: last, chatLength: last + 1 }; }
 

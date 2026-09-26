@@ -108,7 +108,7 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
           <MemoryModelGroup snapshot={snapshot} manager={manager} />
           <DisplayGroup snapshot={snapshot} manager={manager} />
           <GroupChatGroup snapshot={snapshot} manager={manager} />
-          <LorebooksGroup snapshot={snapshot} />
+          <LorebooksGroup snapshot={snapshot} manager={manager} />
           <StagecraftGroup snapshot={snapshot} manager={manager} />
           <JudgeSettingsGroup
             settings={judge.judge}

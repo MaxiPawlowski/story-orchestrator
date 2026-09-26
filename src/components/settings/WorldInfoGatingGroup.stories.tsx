@@ -19,7 +19,7 @@ const status = (overrides: Partial<WiGatingStatus> = {}): WiGatingStatus => ({
 const meta: Meta<typeof WorldInfoGatingGroup> = {
   title: "Settings/WorldInfoGatingGroup",
   component: WorldInfoGatingGroup,
-  args: { status: null, authorView: false, onChoose: fn(), onRenormalize: fn() },
+  args: { status: null, authorView: false, onChoose: fn(), onRenormalize: fn(), scanMemory: false, onScanMemory: fn() },
 };
 
 export default meta;
@@ -82,5 +82,24 @@ export const BusyLocksTheControl: Story = {
     await expect((canvasElement.querySelector("#so-wi-gating-mode") as HTMLSelectElement).disabled).toBe(true);
     await expect((canvasElement.querySelector("#so-wi-renormalize") as HTMLButtonElement).disabled).toBe(true);
     await expect(within(canvasElement).getByText(/Preparing/)).toBeInTheDocument();
+  },
+};
+
+export const ScanMemoryIsAnAuthorSwitchAndOffByDefault: Story = {
+  args: { authorView: true },
+  play: async ({ canvasElement, args }) => {
+    const box = canvasElement.querySelector("#so-wi-scan-memory") as HTMLInputElement;
+    await expect(box.checked).toBe(false);
+    await expect(canvasElement.querySelector('[data-so="wi-scan-memory"]')?.textContent).toMatch(/memory text can trigger lore/i);
+    await expect(canvasElement.querySelector('[data-so="wi-scan-memory"]')?.textContent).toMatch(/never/);
+    await userEvent.click(box.closest("label") as HTMLElement);
+    await expect(args.onScanMemory).toHaveBeenCalledWith(true);
+  },
+};
+
+export const ScanMemoryHiddenFromThePlayer: Story = {
+  args: { authorView: false, scanMemory: true },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-wi-scan-memory")).toBeNull();
   },
 };

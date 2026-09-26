@@ -1,4 +1,6 @@
+import { useState } from "react";
 import type { RuntimeManager } from "@runtime/index";
+import { getGlobalSettings } from "@runtime/settingsStore";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { wiGating } from "@runtime/worldInfoScanHost";
 import { isArcTemplateName } from "@pacing/index";
@@ -45,17 +47,25 @@ export const GroupChatGroup = ({ snapshot, manager }: GroupProps) => (
   </div>
 );
 
-export const LorebooksGroup = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
-  <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
-    <GroupHeader title="Lorebooks" scope="install" id="so-lorebooks-header" />
-    <WorldInfoGatingGroup
-      status={snapshot.wiGating ?? null}
-      authorView={snapshot.ui.authorView}
-      onChoose={(mode) => void (mode === "scan" ? wiGating()?.requestScan() : wiGating()?.requestFile())}
-      onRenormalize={() => void wiGating()?.renormalize()}
-    />
-  </div>
-);
+export const LorebooksGroup = ({ snapshot, manager }: GroupProps) => {
+  const [scanMemory, setScanMemory] = useState(() => getGlobalSettings().worldInfo.scanMemory);
+  return (
+    <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+      <GroupHeader title="Lorebooks" scope="install" id="so-lorebooks-header" />
+      <WorldInfoGatingGroup
+        status={snapshot.wiGating ?? null}
+        authorView={snapshot.ui.authorView}
+        onChoose={(mode) => void (mode === "scan" ? wiGating()?.requestScan() : wiGating()?.requestFile())}
+        onRenormalize={() => void wiGating()?.renormalize()}
+        scanMemory={scanMemory}
+        onScanMemory={(on) => {
+          manager.setScanMemory(on);
+          setScanMemory(getGlobalSettings().worldInfo.scanMemory);
+        }}
+      />
+    </div>
+  );
+};
 
 const WardenControls = ({ snapshot, manager }: GroupProps) => (
   <>
