@@ -1,6 +1,6 @@
 # v2.5 plan 09 — SP1 spike report: swipe-back cache
 
-**Verdict: pending.** Conditions and fixtures committed before any code or run (rule 1). Nothing below is a result yet.
+**Verdict: pending S3 (live) and S4 (human sessions). S1 and S2 PASS (jest, once).** Conditions and fixtures were committed before any code or run (rule 1, `98106a44`).
 S4 is scored from the human sessions inside plan 10 (Q4, review #74); SP1's verdict waits for it, and SP1 is off the 2.5
 pick list (review #74).
 
@@ -55,9 +55,61 @@ engine + queued writes + live memory rows).
 
 ## Results
 
+Jest legs ran once (rule 1) on the code commit that follows the conditions commit `98106a44`:
+`npx jest src/runtime/spikes/swipeBack.review.test.ts`. S3 has not run (no lanes in this build step); S4 is plan 10's.
+
 | # | Measured | Result |
 |---|---|---|
-| S1 | pending | pending |
-| S2 | pending | pending |
-| S3 | pending (live) | pending |
+| S1 | **800/800** cuts back at A's recorded state (seeds 1–4 × 200): 800 hits, **0** reads started by the swipe-backs. Not vacuous: B moved the state away from A's recording (boundary counter aside) in 800/800 cuts, 499 recordings held queued writes that the restore had to bring back, 3773 live memory rows compared. Controls: flag off (today's rollback) is not back at A's state at seed 1 cut 0; a restore without the queued writes fails at seed 1 cut 1 | **PASS** |
+| S2 | Pure: a key differing in exactly one part (chat, message, text, scope, story version) misses, the stored key hits. Integration, real manager: (text) the A swipe rewritten after it was read, 0 hits; (story version) a compatible v2 hot swap, played version 2, 0 hits; (scope) a gate source that pulls a new quality into the restore point's scope, 0 hits; control, nothing changed, 1 hit. Mutants: a key without the part hits in the pure case for every part, and in the integration case for text, version and scope (1 hit each), so each mutant fails S2 | **PASS** |
+| S3 | pending (live, ×2 each arm) | pending |
 | S4 | pending (human sessions, plan 10) | pending |
+
+**Procedure changes (rule 1: the declared procedure measured nothing; the bar did not move).**
+- S2 (scope): every quality of `spike-edits.story.json` is pulled into the scope from every checkpoint (all three
+  checkpoints reach each other), so no gate source could change the restore point's scope keys and the case as declared
+  could not vary the one part it tests. The scope case runs on that story plus one extractor quality no authored gate
+  references (`lamp`, built in the test); the gate source pulls `lamp` in, and the test asserts the scope hash changed
+  before it swipes back.
+- S2 (story version): the declared order (update between B and the swipe-back) leaves no restore point: a story update
+  hydrates without the boundary log (`RuntimeManager.swapStory` → `engine.hydrate(state)`), so no key can be formed and a
+  mutant without the version could not hit either. The update lands after A is read and before B is generated, so B's
+  boundary is logged and the key forms, differing from A's only in the version.
+
+**Verdict so far:** S1 and S2 PASS, so no deterministic condition fails the spike; the code stays behind its flag. The
+verdict waits for S3 (live) and S4 (plan 10, HU); the worth review (rule 8) comes after both.
+
+## What the spike changes (and what it leaves in prod)
+
+- Dev-only, on plan 12 D3's list (planted-import control in `devOnly.guard.test.ts` covers all four spike modules):
+  `src/runtime/spikes/swipeCache.ts` (the key and a 32-entry cache), `src/runtime/spikes/swipeBack.ts` (capture,
+  lookup, restore), installed with SP2 by `src/runtime/spikes/index.ts` (`storyOrchestratorSpikes.swipeBackCache.stats()`:
+  captures, hits, misses). The bridge seam asks SP2 first (edit/update), then SP1 (swipe).
+- In the prod graph, removed with the spike if it does not become `SP1.b`: the flag (`spikes.swipeBackCache`, literal
+  `true` only) and `RuntimeManager.writes.pending` (read-only; `requeue` and the seam are SP2's). Prod main entry
+  1 174 929 B (was 1 174 410 before plan 09; budget 1 250 000).
+- A hit replaces the bridge's rollback; a miss, the flag off, a non-newest message and every non-swipe mutation keep
+  today's path. A hit starts a new epoch (`loadSelectedFromChat`), so a read of the other swipe that is still running is
+  discarded, not applied.
+- Ownership census: `SwipeBack.restore` is `checked` (see its row: the epoch bump is intended, so after the load the chat
+  and the engine's last message are compared with the key).
+- Unmeasured here, for the worth review: a capture deep-copies the chat's story record on every notify that satisfies the
+  capture condition (cost grows with the record); the restore rewinds the whole record, the session journal and the
+  effect ledger included.
+
+## Live legs (pending): exact commands
+
+S3 runs on one lane, dev build, real LLM, run header around the batch, `--strict`; each arm ×2 back to back. `<n>` = the
+lane; the group is the T10/T1 sandbox group. Records: `test/journeys/records/v2.5-plan09/sp1/live-<bundle12>/`.
+
+```bash
+npm run build:dev && npm run serve:dev
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/st-session.mts reload
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-run-header.mts capture --label v25-09-sp1-start
+node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict --group 1759606632088 test/scenarios/live-v25-09-sp1-s3-control.json test/scenarios/live-v25-09-sp1-s3.json
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-run-header.mts diff <debug-dir>/run-header-v25-09-sp1-start.json
+```
+
+Scoring: S3 = both flag-on runs pass (every one of the 10 swipe-backs hits, starts 0 reads, equals that swipe's
+recording); the control arm's per-swipe-back reads are the "today" column. S4 = swipe-back events per 100 player turns in
+plan 10's human sessions (U4), ≥ 3.

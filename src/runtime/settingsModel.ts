@@ -23,11 +23,15 @@ export interface GlobalSettings {
 
 export interface SpikeSettings {
   recommitEdit: boolean;
+  swipeBackCache: boolean;
 }
 
-export const defaultSpikeSettings = (): SpikeSettings => ({ recommitEdit: false });
+export const defaultSpikeSettings = (): SpikeSettings => ({ recommitEdit: false, swipeBackCache: false });
 
-const sanitizeSpikeSettings = (value: unknown): SpikeSettings => ({ recommitEdit: isRecord(value) && value.recommitEdit === true });
+const sanitizeSpikeSettings = (value: unknown): SpikeSettings => ({
+  recommitEdit: isRecord(value) && value.recommitEdit === true,
+  swipeBackCache: isRecord(value) && value.swipeBackCache === true,
+});
 
 // `scan` is written only by the author's confirm (an install that never opens the setting stays
 // `file`). `normalized` is the ledger of gated entries whose FILE rests off (book -> comments); `normalizedFrom`

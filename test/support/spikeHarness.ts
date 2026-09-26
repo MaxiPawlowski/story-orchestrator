@@ -140,13 +140,13 @@ export class SpikeWorld {
   readonly reader = new ScriptedReader(this.manager);
   boundaries: Array<{ messageId: number; fired: boolean; text: string }> = [];
 
-  static async open(): Promise<SpikeWorld> {
+  static async open(story = SPIKE_STORY): Promise<SpikeWorld> {
     resetSpikeHost();
     const world = new SpikeWorld();
     world.bridge.start();
     world.manager.onBoundary((result) => world.boundaries.push({ messageId: result.context.lastMessageId, fired: Boolean(result.fired), text: spikeContext.chat[result.context.lastMessageId]?.mes ?? "" }));
     await spikeEvents.emit("CHAT_CHANGED");
-    await world.manager.importStory(SPIKE_STORY);
+    await world.manager.importStory(story);
     await world.settle();
     return world;
   }
@@ -186,7 +186,45 @@ export class SpikeWorld {
     await this.settle();
   }
 
+  async newSwipe(messageId: number, text: string) {
+    const row: SpikeRow = spikeContext.chat[messageId];
+    row.swipes = [...(row.swipes ?? [row.mes]), ""];
+    row.swipe_id = row.swipes.length - 1;
+    row.mes = "";
+    await spikeEvents.emit("MESSAGE_SWIPED", messageId);
+    await this.settle();
+    row.mes = text;
+    row.swipes[row.swipe_id] = text;
+    await spikeEvents.emit("MESSAGE_RECEIVED", messageId, "swipe");
+    await this.settle();
+  }
+
+  async swipeTo(messageId: number, swipeId: number) {
+    const row: SpikeRow = spikeContext.chat[messageId];
+    row.swipe_id = swipeId;
+    row.mes = row.swipes?.[swipeId] ?? row.mes;
+    await spikeEvents.emit("MESSAGE_SWIPED", messageId);
+    await this.settle();
+  }
+
   close() {
     this.bridge.stop();
   }
 }
+
+export interface ExactProjection extends SpikeProjection {
+  boundary: number;
+  versions: Record<string, number>;
+  pending: string[];
+}
+
+export const projectExact = (manager: RuntimeManager): ExactProjection => {
+  const state = manager.getEngineState();
+  if (!state) throw new Error("no story loaded");
+  return {
+    ...project(manager),
+    boundary: state.boundary,
+    versions: { ...state.blackboard.versions },
+    pending: manager.writes.pending().map((write) => `${write.turnRange ? `${write.turnRange.from}-${write.turnRange.to}` : "-"}:${write.deltas.map((delta) => `${delta.q}=${JSON.stringify(delta.v)}`).join(",")}`),
+  };
+};

@@ -235,7 +235,7 @@ describe("v2.5 plan 09 SP2 R3: no double commit", () => {
 
 describe("v2.5 plan 09 SP2: the install-wide flag", () => {
   it("is off by default and on only for a literal true", () => {
-    expect(defaultGlobalSettings().spikes).toEqual({ recommitEdit: false });
+    expect(defaultGlobalSettings().spikes.recommitEdit).toBe(false);
     expect(sanitizeGlobalSettings({}).spikes.recommitEdit).toBe(false);
     expect(sanitizeGlobalSettings({ spikes: { recommitEdit: "yes" } }).spikes.recommitEdit).toBe(false);
     expect(sanitizeGlobalSettings({ spikes: { recommitEdit: true } }).spikes.recommitEdit).toBe(true);

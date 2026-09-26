@@ -10,6 +10,8 @@ const DEV_ONLY = [
   "src/judge/selfTestCases.ts",
   "src/runtime/spikes/index.ts",
   "src/runtime/spikes/recommitEdit.ts",
+  "src/runtime/spikes/swipeBack.ts",
+  "src/runtime/spikes/swipeCache.ts",
 ];
 const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
 const LAZY_USER_FEATURES = ["src/judge/selfTest.ts", "src/runtime/selfTest.ts", "src/runtime/roleSelfTest.ts", "src/extraction/fixtureRun.ts"];
@@ -47,7 +49,7 @@ describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", 
     const runtime = join(SRC, "runtime", "index.ts");
     const fs = require("fs") as typeof import("fs");
     const read = (path: string) => (path === runtime ? `import { installSpikes } from "./spikes";\nvoid installSpikes;\n${fs.readFileSync(path, "utf8")}` : fs.readFileSync(path, "utf8"));
-    expect(staticReach(files, read).filter(isDevOnly)).toEqual(expect.arrayContaining(["src/runtime/spikes/index.ts", "src/runtime/spikes/recommitEdit.ts"]));
+    expect(staticReach(files, read).filter(isDevOnly)).toEqual(expect.arrayContaining(["src/runtime/spikes/index.ts", "src/runtime/spikes/recommitEdit.ts", "src/runtime/spikes/swipeBack.ts", "src/runtime/spikes/swipeCache.ts"]));
   });
 
   it("control: re-exporting the calibrations from the judge barrel again fails", () => {
