@@ -1,9 +1,10 @@
 import { useState } from "react";
 import {
   AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES, judgeReadiness, judgeReadinessConcerns,
-  type JudgeMeterView, type JudgeReadinessKey, type JudgeReadinessRow, type JudgeSelfTestReport, type JudgeSettings,
+  type JudgeMeterView, type JudgeReadinessKey, type JudgeReadinessRow, type JudgeSettings,
   type JudgeUseKey, type JudgeUses,
 } from "@judge/index";
+import type { JudgeSelfTestReport } from "@judge/selfTest";
 import type { JudgeStatus } from "@services/STAPI";
 import type { WriteResult } from "@utils/writeResult";
 import HelpTooltip from "@components/studio/HelpTooltip";

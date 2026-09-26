@@ -48,7 +48,7 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
     force: forceActivateEntries,
     ownership: runtimeManager.getOwnership(),
   });
-  globalThis.storyOrchestratorLore = { selector: lore, willAddUserMessage };
+  if (__SO_DEV__) globalThis.storyOrchestratorLore = { selector: lore, willAddUserMessage };
   const loreWatch = startLoreEvidence({
     chatId,
     context: () => runtimeManager.getRunContext(),
@@ -62,7 +62,7 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
   });
   disposers.push(() => loreWatch.dispose());
   disposers.push(startSamplerOverlay({ chatId, generation: () => generation.snapshot(), journal: (summary, note) => runtimeManager.noteRecap(summary, note) }));
-  globalThis.storyOrchestratorLoreEvidence = loreEvidence;
+  if (__SO_DEV__) globalThis.storyOrchestratorLoreEvidence = loreEvidence;
   const scanGating = startGating(disposers);
 
   let awaitsMessage = false;

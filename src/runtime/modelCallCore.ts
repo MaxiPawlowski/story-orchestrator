@@ -19,7 +19,7 @@ const DEBUG_RESPONSES: Record<ModelPass, () => string | null | undefined> = {
   director: () => globalThis.storyOrchestratorDebugDirectorResponse,
 };
 
-export const debugResponseFor = (pass: ModelPass): string | null => DEBUG_RESPONSES[pass]() ?? null;
+export const debugResponseFor = (pass: ModelPass): string | null => (__SO_DEV__ ? DEBUG_RESPONSES[pass]() ?? null : null);
 
 export interface ModelCallDeps {
   settings: () => RouteSettings;

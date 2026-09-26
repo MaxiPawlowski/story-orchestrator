@@ -22,3 +22,7 @@ export const absolutePathValues = (value, at = []) => {
 };
 
 export const livereloadHits = (text) => (text.match(/livereload/gi) ?? []).length;
+
+export const PROD_GLOBAL_ALLOWLIST = [];
+
+export const surfaceNames = (text) => [...new Set(text.match(/storyOrchestrator[A-Z]\w*/g) ?? [])].sort();

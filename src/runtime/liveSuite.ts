@@ -57,7 +57,7 @@ export function registerLiveSuite(manager: RuntimeManager) {
       const first = buildFixtureRun(hinted);
       let judged: LiveFixtureResult["judged"];
       let judgedDeltas: LiveFixtureResult["deltas"] = [];
-      const judge = globalThis.storyOrchestratorJudge;
+      const judge = manager.getJudge();
       if (options.judge && judge) {
         const qualities = first.scope.map((entry) => entry.quality).filter((quality) => quality.read_as && quality.source === "extractor");
         const checkpoint = first.story.checkpointById[first.activeCheckpointId];

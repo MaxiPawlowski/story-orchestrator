@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { capabilityReport, hostFacts, judgeStatus, writeJudgeSecret, type CapabilityReport, type HostFacts } from "@services/STAPI";
-import { runJudgeDirectorSelfTest, type JudgeSelfTestReport } from "@judge/index";
+import type { JudgeSelfTestReport } from "@judge/selfTest";
 import { getGlobalSettings, setJudgeSettings } from "@runtime/settingsStore";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
@@ -27,16 +27,16 @@ interface SettingsPanelProps {
   host: SettingsHost;
 }
 
-const useJudgeControls = () => {
+const useJudgeControls = (manager: RuntimeManager) => {
   const [judge, setJudge] = useState(() => getGlobalSettings().judge);
   const [status, setStatus] = useState<JudgeSettingsGroupProps["status"]>("unchecked");
   const [selfTest, setSelfTest] = useState<{ running: boolean; report: JudgeSelfTestReport | null }>({ running: false, report: null });
 
   const recheck = useCallback(() => {
     setStatus("checking");
-    globalThis.storyOrchestratorJudge?.invalidateStatus();
+    manager.getJudge()?.invalidateStatus();
     void judgeStatus().then(setStatus);
-  }, []);
+  }, [manager]);
 
   const change = (patch: JudgeSettingsPatch) => {
     const next = setJudgeSettings(patch).judge;
@@ -45,9 +45,10 @@ const useJudgeControls = () => {
   };
 
   const test = async () => {
-    const runtime = globalThis.storyOrchestratorJudge;
+    const runtime = manager.getJudge();
     if (!runtime) return;
     setSelfTest({ running: true, report: null });
+    const { runJudgeDirectorSelfTest } = await import("@judge/selfTest");
     const report = await runJudgeDirectorSelfTest((request) => runtime.probe(request));
     setSelfTest({ running: false, report });
   };
@@ -71,7 +72,7 @@ const useHostProbe = () => {
 const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
   const [importOpen, setImportOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const judge = useJudgeControls();
+  const judge = useJudgeControls(manager);
   const hostProbe = useHostProbe();
 
   const { recheck } = judge;

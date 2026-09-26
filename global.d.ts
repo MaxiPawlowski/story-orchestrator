@@ -56,7 +56,7 @@ declare global {
   var storyOrchestratorDebugCopilotResponse: string | null | undefined;
   var storyOrchestratorDebugSelfTestResponses: string[] | null | undefined;
   var storyOrchestratorDebugDirectorResponse: string | null | undefined;
-  var storyOrchestratorJudge: import("./src/runtime/judge").JudgeRuntime | undefined;
+  var storyOrchestratorJudge: import("./src/runtime/judgeHarness").JudgeHarness | undefined;
   var storyOrchestratorScheduler: { nextReadWindow: () => import("./src/extraction/scheduler").NextReadWindow | null } | undefined;
   var storyOrchestratorLoreEvidence: import("./src/runtime/worldInfoEvidence").LoreEvidence | undefined;
   var storyOrchestratorScanGating: import("./src/runtime/worldInfoScanHost").ScanGatingDebug | undefined;

@@ -37,9 +37,11 @@ const memoryModelLimit = (profileId: string | null) => {
   return { ...limit, inputBudget: inputBudget(limit, DEFAULT_MAX_TOKENS).input };
 };
 
-ui.global("storyOrchestratorRuntime", manager);
-ui.global("storyOrchestratorStudioDraft", useDraftStore);
-ui.global("storyOrchestratorStudioTabs", STUDIO_TAB_IDS);
+if (__SO_DEV__) {
+  ui.global("storyOrchestratorRuntime", manager);
+  ui.global("storyOrchestratorStudioDraft", useDraftStore);
+  ui.global("storyOrchestratorStudioTabs", STUDIO_TAB_IDS);
+}
 
 // One Studio for the whole extension: the settings panel and the drawer's author view are separate
 // React roots, so the modal lives in its own root with a module-level open flag both can flip.
@@ -345,4 +347,4 @@ const stopExtension = () => {
   stopRuntime();
 };
 
-ui.global("storyOrchestratorStop", stopExtension);
+if (__SO_DEV__) ui.global("storyOrchestratorStop", stopExtension);

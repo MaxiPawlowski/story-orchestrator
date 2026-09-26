@@ -1,6 +1,5 @@
 import { getChatWindow } from "@extraction/index";
 import { getContext, noteHostSettingsLoaded, settingsReady, subscribeToHostEvents } from "@services/STAPI";
-import { registerLiveSuite } from "./liveSuite";
 import { registerRuntimeMacros } from "./macros";
 import { startMirrorReaper } from "./mirrorReaperHost";
 import { runtimeManager } from "./runtimeManager";
@@ -54,7 +53,7 @@ const registerHostSurfaces = () => {
   } catch (error) {
     log.warn("host macros unavailable; {{story_*}} will not resolve", error);
   }
-  registerLiveSuite(runtimeManager);
+  if (__SO_DEV__) void import("./liveSuite").then(({ registerLiveSuite }) => { if (started) registerLiveSuite(runtimeManager); });
   window.setTimeout(() => registerSlashCommandsWhenReady(), 0);
   window.setTimeout(() => registerSlashCommandsWhenReady(), 1000);
 };
@@ -100,8 +99,11 @@ export function startRuntime() {
   registerHostSurfaces();
   startWatches();
   const access = windowAccess();
-  globalThis.storyOrchestratorScheduler = { nextReadWindow: () => live.scheduler?.nextReadWindow(access.chatLastId()) ?? null };
+  if (__SO_DEV__) globalThis.storyOrchestratorScheduler = { nextReadWindow: () => live.scheduler?.nextReadWindow(access.chatLastId()) ?? null };
   const judgeRuntime = startJudge(live, access);
+  if (__SO_DEV__) void import("./judgeHarness").then(({ createJudgeHarness }) => {
+    if (started && runtimeManager.getJudge() === judgeRuntime) globalThis.storyOrchestratorJudge = createJudgeHarness(judgeRuntime);
+  });
   startScene(live, runtimeDisposers, judgeRuntime, access);
   const generation = new GenerationLifecycle(isTurnMessageType);
   const lore = startLore(runtimeDisposers, judgeRuntime, generation, access);

@@ -43,8 +43,9 @@ const soGlobals = () => Object.keys(globalThis).filter((name) => name.startsWith
 describe("stopRuntime", () => {
   afterEach(() => stopRuntime());
 
-  it("control: a started runtime holds host macros and storyOrchestrator globals", () => {
+  it("control: a started runtime holds host macros and storyOrchestrator globals", async () => {
     startRuntime();
+    await new Promise((resolve) => setTimeout(resolve, 0));
     expect(macros.size).toBeGreaterThan(10);
     expect(macros.has("story_title")).toBe(true);
     expect(soGlobals()).toEqual(expect.arrayContaining(["storyOrchestratorScheduler", "storyOrchestratorJudge", "storyOrchestratorLore"]));
@@ -57,6 +58,13 @@ describe("stopRuntime", () => {
     expect(soGlobals()).toEqual([]);
     for (const name of RUNTIME_GLOBALS) expect(Reflect.has(globalThis, name)).toBe(false);
     expect(typeof globalThis.talkControlInterceptor).toBe("function");
+  });
+
+  it("a dev handle that loads after stop is not published", async () => {
+    startRuntime();
+    stopRuntime();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(soGlobals()).toEqual([]);
   });
 
   it("a start after stop registers each macro once again", () => {

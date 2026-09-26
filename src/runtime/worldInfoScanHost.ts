@@ -151,7 +151,7 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     requestFile: gating.requestFile,
     sync: gating.sync,
   };
-  globalThis.storyOrchestratorScanGating = debug;
+  if (__SO_DEV__) globalThis.storyOrchestratorScanGating = debug;
   return {
     reassert: () => handle?.reassert(),
     dispose: () => {
@@ -159,7 +159,7 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
       gating.dispose();
       if (running === gating) running = null;
       setWiGatingStatus(null);
-      globalThis.storyOrchestratorScanGating = undefined;
+      if (__SO_DEV__) globalThis.storyOrchestratorScanGating = undefined;
     },
   };
 }

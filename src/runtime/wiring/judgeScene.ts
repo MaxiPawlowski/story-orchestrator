@@ -17,7 +17,6 @@ export const startJudge = (live: LiveParts, { chatLastId }: WindowAccess) => {
     context: () => ({ boundary: runtimeManager.getEngineState()?.boundary ?? 0, messageId: chatLastId() }),
     ownership: runtimeManager.getOwnership(),
   });
-  globalThis.storyOrchestratorJudge = judgeRuntime;
   live.typedJudge = createTypedJudge(() => judgeRuntime);
   runtimeManager.attachJudge(judgeRuntime);
   return judgeRuntime;
