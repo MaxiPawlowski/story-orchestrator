@@ -101,27 +101,26 @@ describe("review: engine long-history behaviour", () => {
   });
 });
 
-describe("review: the floor a migrated chat cannot reach below", () => {
-  control("a state hydrated without a history reports where its floor is, and only that is out of reach", () => {
-    // A blob written before the engine kept a history (`test/fixtures/v3-chat-blob.json` is a real
-    // one): one boundary cannot reconstruct history the blob never held, so everything below the
-    // floor is unavailable until Restart — while the floor itself and everything above it roll back
-    // as usual. The chat is not frozen, and it is not silently un-rollbackable either.
+describe("review: the floor a swapped story cannot reach below", () => {
+  control("swapStory hydrates without a history: it reports where its floor is, and only that is out of reach", () => {
+    // swapStory hands the engine a state and no history: everything below that floor is unavailable,
+    // while the floor itself and everything above it roll back as usual. The chat is not frozen, and
+    // it is not silently un-rollbackable either.
     const first = new StoryEngine({ now: () => 0 });
     first.loadStory(crossingStory());
     first.enqueue({ source: "extractor", blackboardVersionSum: 0, turnRange: { from: 0, to: 0 }, deltas: [{ q: "crossed", v: true, source: "extractor" }] });
     first.commitBoundary({ lastMessageId: 2, chatLength: 3 });
     const saved = first.serialize();
 
-    const migrated = new StoryEngine({ now: () => 0 });
-    migrated.loadStory(crossingStory());
-    migrated.hydrate(saved, null);
-    expect(migrated.historyFrom()).toEqual({ boundary: saved.boundary, messageId: saved.lastMessageId });
+    const swapped = new StoryEngine({ now: () => 0 });
+    swapped.loadStory(crossingStory());
+    swapped.hydrate(saved, null);
+    expect(swapped.historyFrom()).toEqual({ boundary: saved.boundary, messageId: saved.lastMessageId });
 
-    migrated.commitBoundary({ lastMessageId: 4, chatLength: 5 });
-    expect(migrated.boundaryBeforeMessage(1)).toBeNull();
-    expect(migrated.rollbackTo(0)).toEqual({ ok: false, reason: "history-unavailable", oldest: migrated.historyFrom() });
-    expect(migrated.rollbackTo(saved.boundary)).toEqual({ ok: true, result: "applied" });
-    expect(migrated.historyFrom().boundary).toBe(saved.boundary);
+    swapped.commitBoundary({ lastMessageId: 4, chatLength: 5 });
+    expect(swapped.boundaryBeforeMessage(1)).toBeNull();
+    expect(swapped.rollbackTo(0)).toEqual({ ok: false, reason: "history-unavailable", oldest: swapped.historyFrom() });
+    expect(swapped.rollbackTo(saved.boundary)).toEqual({ ok: true, result: "applied" });
+    expect(swapped.historyFrom().boundary).toBe(saved.boundary);
   });
 });

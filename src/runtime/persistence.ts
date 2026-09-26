@@ -68,7 +68,20 @@ const KNOWN_VERSIONS: unknown[] = [BLOB_VERSION];
 
 const storedValue = (): unknown => (getContext().chatMetadata as Record<string, unknown>)[METADATA_KEY];
 
-const recognized = (value: unknown): value is Record<string, unknown> => isRecord(value) && KNOWN_VERSIONS.includes(value.version) && typeof value.chatId === "string" && Boolean(value.chatId) && isRecord(value.stories);
+const ENGINE_NUMBERS = ["boundary", "checkpointStartedBoundary", "checkpointStartedAt", "checkpointStartedMessageId", "lastMessageId", "chatLength"];
+
+const isEngineState = (value: unknown): boolean => isRecord(value) && typeof value.activeCheckpointId === "string" && isRecord(value.blackboard)
+  && Array.isArray(value.visitedAnchors) && Array.isArray(value.visitedPath) && ENGINE_NUMBERS.every((key) => typeof value[key] === "number" && Number.isFinite(value[key]));
+
+const isEngineHistory = (value: unknown): boolean => isRecord(value) && isRecord(value.from) && isEngineState(value.base) && Array.isArray(value.log);
+
+/** v2.5 plan 11: a stored record is this build's only when every field this build requires is there,
+ *  so "required" holds on disk and not only in the type. */
+export const isCurrentRecord = (value: unknown): boolean => isRecord(value) && isEngineState(value.engineState) && isEngineHistory(value.engineHistory)
+  && isRecord(value.pinnedStory) && isRecord(value.extras);
+
+const recognized = (value: unknown): value is Record<string, unknown> => isRecord(value) && KNOWN_VERSIONS.includes(value.version) && typeof value.chatId === "string" && Boolean(value.chatId)
+  && isRecord(value.stories) && Object.values(value.stories).every(isCurrentRecord);
 
 const unrecognized = (value: unknown): boolean => value !== undefined && value !== null && !recognized(value);
 

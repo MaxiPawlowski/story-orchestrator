@@ -258,7 +258,7 @@ export interface MemoryRuntimeState extends MemoryStoreState {
   legacyPinPromptSeen: boolean;
   /** v2.4 plan 03 D5. The first message this story's play covers in this chat: the player's last message when it
    *  started, or 0 before the player spoke. The first scene summary starts here; earlier history is the backlog's. */
-  storyStart?: number;
+  storyStart: number;
   updatedAt: string;
 }
 
@@ -316,7 +316,7 @@ export interface PersistedStoryRuntime {
   contentHashAtLoad: string;
   engineState: EngineState;
   // v2.3 plan 04: the bounded boundary log and the floor it reaches.
-  engineHistory?: EngineHistory;
+  engineHistory: EngineHistory;
   extras: RuntimeExtras;
   // v2.4 plan 02 T3: absent when the capture had nothing to fingerprint; absent reads as unknown, never a mismatch.
   fingerprints?: MessageFingerprints;

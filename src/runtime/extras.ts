@@ -51,6 +51,7 @@ export const createMemory = (): MemoryRuntimeState => ({
   resolvedConflicts: [],
   pinnedOverflow: 0,
   legacyPinPromptSeen: false,
+  storyStart: 0,
   settings: defaultMemorySettings(),
   backfill: null,
   sceneCount: 0,
@@ -109,7 +110,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
       resolvedConflicts: Array.isArray(existing.resolvedConflicts) ? existing.resolvedConflicts.filter((key) => typeof key === "string").slice(-CONFLICT_LIMIT) : [],
       pinnedOverflow: typeof existing.pinnedOverflow === "number" ? existing.pinnedOverflow : 0,
       legacyPinPromptSeen: existing.legacyPinPromptSeen === true,
-      ...(typeof existing.storyStart === "number" ? { storyStart: existing.storyStart } : {}),
+      storyStart: typeof existing.storyStart === "number" ? existing.storyStart : 0,
       updatedAt: existing.updatedAt ?? new Date().toISOString(),
     };
   }
@@ -134,6 +135,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
     resolvedConflicts: [],
     pinnedOverflow: 0,
     legacyPinPromptSeen: false,
+    storyStart: 0,
     updatedAt: new Date().toISOString(),
   };
 };

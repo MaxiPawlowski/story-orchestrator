@@ -12,13 +12,14 @@ jest.mock("./storyLibrary", () => ({ listStoryRecords: () => [], findStoryRecord
 import { adoptChatState, BLOB_VERSION, blobMismatch, dropPersistedRuntime, getMetadataBlob, loadPersistedRuntime, restampRenamedChat, savePersistedRuntime, setSelectedStoryId } from "./persistence";
 import { loadSelectedStory, selectStory, type StorySelectionDeps } from "./storySelection";
 import { finding } from "../../test/findings/ledger";
+import { currentRecord } from "../../test/findings/currentRecord";
 
 declare global {
   // eslint-disable-next-line no-var
   var __foreignContext: { chatId: string; chatMetadata: Record<string, unknown>; saveMetadata: jest.Mock };
 }
 
-const story = (id: string) => ({ storyId: id, storyTitle: "S", pinnedStory: null, playedVersion: 1, contentHashAtLoad: "h", engineState: null, extras: {} }) as never;
+const story = (id: string) => currentRecord(id) as never;
 const chatA = () => ({ version: BLOB_VERSION, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: story("s1") } });
 
 function open(chatId: string, blob: unknown) {

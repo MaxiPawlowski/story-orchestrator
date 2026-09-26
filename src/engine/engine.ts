@@ -17,7 +17,7 @@ export interface EngineState {
   blackboard: BlackboardSnapshot;
   activeCheckpointId: string;
   visitedAnchors: string[];
-  visitedPath?: string[];
+  visitedPath: string[];
   boundary: number;
   checkpointStartedBoundary: number;
   checkpointStartedAt: number;
@@ -71,30 +71,17 @@ export const ROLLBACK_HORIZON = 200;
 
 const DEFAULT_HOST: EngineHost = { now: () => Date.now() };
 
-// State saved before the engine kept a full path knows only the anchors. The intermediates that
-// led to the active checkpoint are recovered wherever the graph leaves a single way in.
+// A story edit can take away the checkpoint a chat was parked at (a generated chain that no longer
+// merges). The chat resumes at the newest checkpoint of its trail that the graph still has.
 export function repairActiveCheckpoint(state: EngineState, story: NormalizedStoryV2): { state: EngineState; detail: string | null } {
   if (story.checkpointById[state.activeCheckpointId]) return { state, detail: null };
-  const trail = [...[...(state.visitedPath ?? [])].reverse(), ...[...state.visitedAnchors].reverse()];
+  const trail = [...[...state.visitedPath].reverse(), ...[...state.visitedAnchors].reverse()];
   const fallback = trail.find((id) => story.checkpointById[id]) ?? story.startCheckpointId;
-  const keep = (ids: string[] | undefined) => ids?.filter((id) => story.checkpointById[id]);
+  const keep = (ids: string[]) => ids.filter((id) => story.checkpointById[id]);
   return {
-    state: { ...state, activeCheckpointId: fallback, visitedAnchors: keep(state.visitedAnchors) ?? [], ...(state.visitedPath ? { visitedPath: keep(state.visitedPath) } : {}) },
-    detail: `the saved checkpoint ${state.activeCheckpointId} is not in this story's graph (a generated chain that did not survive the upgrade); resumed at ${fallback}`,
+    state: { ...state, activeCheckpointId: fallback, visitedAnchors: keep(state.visitedAnchors), visitedPath: keep(state.visitedPath) },
+    detail: `the saved checkpoint ${state.activeCheckpointId} is not in this story's graph; resumed at ${fallback}`,
   };
-}
-
-function inferVisitedPath(story: NormalizedStoryV2, visitedAnchors: string[], activeCheckpointId: string): string[] {
-  if (visitedAnchors.at(-1) === activeCheckpointId) return [...visitedAnchors];
-  const transitions = Object.values(story.outgoingByCheckpoint).flat();
-  const sourcesOf = (id: string) => [...new Set(transitions.filter((transition) => transition.to === id).map((transition) => transition.from))];
-  const tail = [activeCheckpointId];
-  let sources = sourcesOf(activeCheckpointId);
-  while (sources.length === 1 && !tail.includes(sources[0]) && story.checkpointById[sources[0]]?.type === "intermediate") {
-    tail.unshift(sources[0]);
-    sources = sourcesOf(sources[0]);
-  }
-  return [...visitedAnchors, ...tail];
 }
 
 export class StoryEngine {
@@ -160,14 +147,11 @@ export class StoryEngine {
     this.boundaryLog.length = 0;
     this.snapshots.clear();
     if (!history) {
-      // A blob written before the engine kept a history: this chat can only roll back from now on,
-      // which is a permanent floor until Restart, not "until the next boundary".
+      // swapStory hydrates without a history: this chat can only roll back from now on.
       this.recordSnapshot();
       return;
     }
-    // A blob written before the base was kept still restores its log; its floor is then the oldest
-    // boundary it holds, which is one boundary newer than a history that carries the base.
-    if (history.base) this.snapshots.set(history.base.boundary, history.base);
+    this.snapshots.set(history.base.boundary, history.base);
     history.log.forEach((entry) => this.boundaryLog.push({ ...entry }));
     this.boundaryLog.forEach((entry) => this.snapshots.set(entry.boundary, entry.after));
     this.recordSnapshot();
@@ -395,13 +379,13 @@ export class StoryEngine {
   private restoreStateFields(state: EngineState): void {
     this.activeCheckpointId = state.activeCheckpointId;
     this.visitedAnchors = [...state.visitedAnchors];
-    this.visitedPath = state.visitedPath?.length ? [...state.visitedPath] : inferVisitedPath(this.requireStory(), state.visitedAnchors, state.activeCheckpointId);
+    this.visitedPath = [...state.visitedPath];
     this.boundary = state.boundary;
-    this.checkpointStartedBoundary = state.checkpointStartedBoundary ?? state.boundary;
-    this.checkpointStartedAt = state.checkpointStartedAt ?? this.host.now();
-    this.checkpointStartedMessageId = state.checkpointStartedMessageId ?? state.lastMessageId ?? Math.max(-1, state.boundary - 1);
-    this.lastMessageId = state.lastMessageId ?? Math.max(-1, state.boundary - 1);
-    this.chatLength = state.chatLength ?? Math.max(0, this.lastMessageId + 1);
+    this.checkpointStartedBoundary = state.checkpointStartedBoundary;
+    this.checkpointStartedAt = state.checkpointStartedAt;
+    this.checkpointStartedMessageId = state.checkpointStartedMessageId;
+    this.lastMessageId = state.lastMessageId;
+    this.chatLength = state.chatLength;
   }
 
   private normalizeContext(context: BoundaryContext): BoundaryContext {

@@ -452,15 +452,4 @@ describe("StoryEngine checkpointPath", () => {
     expect(restored.checkpointPath).toEqual(saved.visitedPath);
   });
 
-  it("infers the intermediates of a state saved before the path existed wherever only one way leads in", () => {
-    const engine = load();
-    enter(engine, ["cp2", "cp3", "cp-4a", "cp-4a1"]);
-    const { visitedPath: _dropped, ...legacy } = engine.serialize();
-    const hydrated = load();
-    hydrated.hydrate(legacy);
-    expect(hydrated.checkpointPath).toEqual(["cp1", "cp2", "cp3", "cp-4a", "cp-4a1"]);
-    const atAnchor = load();
-    atAnchor.hydrate({ ...legacy, activeCheckpointId: "cp3", visitedAnchors: ["cp1", "cp2", "cp3"] });
-    expect(atAnchor.checkpointPath).toEqual(["cp1", "cp2", "cp3"]);
-  });
 });

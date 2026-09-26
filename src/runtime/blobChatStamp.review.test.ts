@@ -13,6 +13,7 @@
 // nothing is stored at all.
 
 import { control, must } from "../../test/findings/ledger";
+import { currentRecord } from "../../test/findings/currentRecord";
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -28,7 +29,7 @@ declare global {
   var __blobContext: { chatId: string | undefined; chatMetadata: Record<string, unknown>; saveMetadata?: () => void };
 }
 
-const story = (id: string) => ({ storyId: id, storyTitle: "S", pinnedStory: null, playedVersion: 1, contentHashAtLoad: "h", engineState: null, extras: {} }) as never;
+const story = (id: string) => currentRecord(id) as never;
 
 function openChat(chatId: string | undefined, blob: unknown) {
   globalThis.__blobContext = { chatId, chatMetadata: blob === undefined ? {} : { story_orchestrator: blob }, saveMetadata: () => {} };

@@ -18,13 +18,14 @@ jest.mock("./storyLibrary", () => ({
 
 import { adoptChatState, BLOB_VERSION, blobMismatch, dropPersistedRuntime, getMetadataBlob, restampRenamedChat, savePersistedRuntime, setSelectedStoryId } from "./persistence";
 import { loadSelectedStory, restartStory, selectStory, type StorySelectionDeps } from "./storySelection";
+import { currentEngineState, currentRecord } from "../../test/findings/currentRecord";
 
 declare global {
   // eslint-disable-next-line no-var
   var __unreadableContext: { chatId: string; chatMetadata: Record<string, unknown>; saveMetadata: jest.Mock };
 }
 
-const record = (id: string) => ({ storyId: id, storyTitle: "S", pinnedStory: null, playedVersion: 1, contentHashAtLoad: "h", engineState: null, extras: {} }) as never;
+const record = (id: string) => currentRecord(id) as never;
 
 const SHAPES: Array<[string, () => unknown, number | string | null]> = [
   ["a v6 blob from another build", () => ({ version: 6, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: { storyId: "s1", journal: ["kept"] } }, fingerprints: { v: 1 } }), 6],
@@ -34,6 +35,11 @@ const SHAPES: Array<[string, () => unknown, number | string | null]> = [
   ["a string version \"5\"", () => ({ version: "5", chatId: "chat-a", selectedStoryId: "s1", stories: { s1: {} } }), "5"],
   ["a blob with no version", () => ({ chatId: "chat-a", selectedStoryId: "s1", stories: { s1: {} } }), null],
   ["a v5 blob whose stories is not a record", () => ({ version: 5, chatId: "chat-a", selectedStoryId: "s1", stories: ["s1"] }), 5],
+  ["a v5 blob whose record lacks engineHistory", () => ({ version: 5, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: currentRecord("s1", { engineHistory: undefined }) } }), 5],
+  ["a v5 blob whose engine state lacks visitedPath", () => ({ version: 5, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: currentRecord("s1", { engineState: currentEngineState({ visitedPath: undefined }) }) } }), 5],
+  ["a v5 blob whose record lacks pinnedStory", () => ({ version: 5, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: currentRecord("s1", { pinnedStory: null }) } }), 5],
+  ["a v5 blob whose engine state has a null lastMessageId", () => ({ version: 5, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: currentRecord("s1", { engineState: currentEngineState({ lastMessageId: null as never }) }) } }), 5],
+  ["a v5 blob whose unselected record lacks extras", () => ({ version: 5, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: currentRecord("s1"), s2: currentRecord("s2", { extras: undefined }) } }), 5],
 ];
 
 function open(blob: unknown, chatId = "chat-a") {
