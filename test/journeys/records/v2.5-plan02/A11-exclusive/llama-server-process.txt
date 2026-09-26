@@ -1,0 +1,23 @@
+/workspace/llama/bin/llama-server --host 127.0.0.1 --port 8080 -m /workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf --n-gpu-layers 999 --ctx-size 196608 --parallel 4 --flash-attn on --cache-type-k q8_0 --cache-type-v q8_0 --jinja --no-slots --metrics --no-webui --kv-unified 
+total 0
+dr-x------ 2 root root 36 Sep 26 07:39 .
+dr-xr-xr-x 9 root root  0 Sep 26 05:01 ..
+lrwx------ 1 root root 64 Sep 26 07:39 0 -> /dev/null
+l-wx------ 1 root root 64 Sep 26 07:39 1 -> /dev/null
+lrwx------ 1 root root 64 Sep 26 07:39 10 -> /dev/nvidia-uvm
+lrwx------ 1 root root 64 Sep 26 07:39 11 -> /dev/nvidia3
+lrwx------ 1 root root 64 Sep 26 07:39 12 -> /dev/nvidia3
+lrwx------ 1 root root 64 Sep 26 07:39 13 -> /dev/nvidia3
+lrwx------ 1 root root 64 Sep 26 07:39 14 -> /dev/nvidia3
+lrwx------ 1 root root 64 Sep 26 07:39 19 -> anon_inode:[eventfd]
+l-wx------ 1 root root 64 Sep 26 07:39 2 -> /dev/null
+lrwx------ 1 root root 64 Sep 26 07:39 20 -> /dev/nvidia3
+lrwx------ 1 root root 64 Sep 26 07:39 21 -> /dev/nvidia3
+lrwx------ 1 root root 64 Sep 26 07:39 22 -> /dev/nvidia3
+lrwx------ 1 root root 64 Sep 26 07:39 23 -> /dev/nvidia3
+lrwx------ 1 root root 64 Sep 26 07:39 24 -> /dev/nvidia3
+lrwx------ 1 root root 64 Sep 26 07:39 25 -> /dev/nvidia3
+lrwx------ 1 root root 64 Sep 26 07:39 26 -> anon_inode:[eventfd]
+lrwx------ 1 root root 64 Sep 26 07:39 27 -> /dev/nvidia3
+    PID                  STARTED CMD
+     94 Sat Sep 26 05:01:10 2026 /workspace/llama/bin/llama-server --host 127.0.0.1 --port 8080 -m /workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf --n-gpu-layers 999 --ctx-size 196608 --parallel 4 --flash-attn on --cache-type-k q8_0 --cache-type-v q8_0 --jinja --no-slots --metrics --no-webui --kv-unified

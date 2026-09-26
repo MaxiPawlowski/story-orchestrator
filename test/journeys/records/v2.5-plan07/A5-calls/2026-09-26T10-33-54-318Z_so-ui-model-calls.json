@@ -1,0 +1,22 @@
+{
+  "visible": true,
+  "rows": [
+    {
+      "kind": "llm",
+      "route": "route not recorded",
+      "result": "1 accepted, 0 rejected"
+    }
+  ],
+  "snapshot": [
+    {
+      "at": "2026-09-26T10:33:38.645Z",
+      "kind": "llm",
+      "role": "read:cadence",
+      "route": null,
+      "result": "1 accepted, 0 rejected",
+      "ms": null,
+      "tokens": null,
+      "messageId": 2
+    }
+  ]
+}

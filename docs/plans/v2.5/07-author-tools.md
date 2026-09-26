@@ -279,3 +279,17 @@ Run-header capture/diff around each batch; `host.macroEngine` must differ only i
 | A5 (no H4) | `so-scenario.mts run test/scenarios/live-v25-07-a5-calls.json --sandbox --group <id>`, then `so-ui.mts model-calls` (author view) and `so-journal.mts export --kind judge` | LLM rows "route not recorded", judge rows `judge:typesafe:<model>`; the routed form waits on plan 13 H4 |
 | Player clean | `so-ui.mts assert-player-clean` in player mode on a lane after any of the above | the new selectors never appear on a player surface |
 | A1 | not built | waits on plan 10's Author session (the row at `10-acceptance.md:245-246`) and the baseline decision |
+
+## Gate record (live, bundle c67dcdba7564, 2026-09-26)
+
+| Item | Verdict | Runs | Record |
+|---|---|---|---|
+| A2 `{{story_quality::k}}` (new engine) | green x2 | identical fixture bytes; the real request carried the resolved value, unknown key reads `(no quality ...)` | `test/journeys/records/v2.5-plan07/A2-quality-arg/` |
+| A2 engine off | green x2 | `::` stays literal, per-key macro resolves, capability row names the fallback | `A2-engine-off/` |
+| A5 calls list | green x2 (LLM rows); judge-route half not exercised (judge off on the lane) | + one `--keep` run for the UI read | `A5-calls/` |
+| A3 gate replay | correctness green x2: J3 x2 + J7 x2 `--strict`, all 13 recorded fires reproduce (`gateReplay.records.test.ts` 1/1 over 4 histories) | histories captured by a read-only poller (H-k not built) | `A3/` |
+| A3 Studio UI | **defect**: replay rows render one character wide (`GateReplayPanel.tsx:58-61`, ST `.menu_button` inside the flex column; Storybook lacks ST CSS) | screenshot `A3/ui-check/ui-check3.png` | `A3/ui-check/` |
+| player clean | green | `so-ui assert-player-clean` in player mode | `player-clean/` |
+| A4 buckets | not run (needs a Chat Completion profile on the lane) | | |
+
+Per overview rule 14 these count as the per-plan smoke; the x2 of record is plan 10's.

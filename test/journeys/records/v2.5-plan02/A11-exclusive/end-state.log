@@ -1,0 +1,28 @@
+{
+  "ok": true,
+  "value": {
+    "tail": [
+      "2026-09-20@04h40m32s180ms",
+      "2026-09-20@07h06m38s396ms"
+    ],
+    "lib": [
+      "adolion-academy",
+      "adolion-adventurer",
+      "live-v24-01-t10",
+      "sun-ruins",
+      "so-j9-wizard",
+      "so-j9-fixme",
+      "v24-01-delete-decode",
+      "v24-01-delete-decode-2"
+    ],
+    "soBooks": [],
+    "extraction": {
+      "enabled": true,
+      "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+      "cadence": 3,
+      "reconciliationMultiplier": 1.5,
+      "stabilityLag": 0
+    }
+  }
+}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-26T10-24-24-234Z_st-eval.json

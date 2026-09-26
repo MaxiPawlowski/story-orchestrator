@@ -1,0 +1,36 @@
+{
+  "lanes": [
+    2
+  ],
+  "items": [
+    "test/scenarios/live-v25-05-memorize-timeout.json"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/scenarios/live-v25-05-memorize-timeout.json",
+      "lane": 2,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-26T09-24-36-931Z-live-v25-05-memorize-timeout-run1.log",
+      "ms": 382761,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v25-05-memorize-timeout.json",
+      "lane": 2,
+      "run": 2,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-26T09-24-36-931Z-live-v25-05-memorize-timeout-run2.log",
+      "ms": 415682,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

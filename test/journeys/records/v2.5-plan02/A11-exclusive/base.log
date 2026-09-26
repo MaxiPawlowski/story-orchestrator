@@ -1,0 +1,107 @@
+1/16 import_story ok 280ms
+2/16 eval ok 14ms
+2/16 eval -> {"healed":null,"profile":"Story Orchestrator Memory RunPod","apiUrl":"http://127.0.0.1:18080","cadence":99,"authorView":false}
+3/16 eval ok 2071ms
+3/16 eval -> {"seeded":330,"before":1,"length":331,"chars":455438,"estTokens":113860,"storyId":"live-v24-03"}
+4/16 ui ok 129ms
+5/16 ui ok 126ms
+6/16 eval ok 1794ms
+6/16 eval -> {"preflight":"3 requests, about 206,128 tokens to Story Orchestrator Memory RunPod. Send them?","confirmMs":118,"planningMs":255,"backfill":{"running":true,"processed":0,"total":3,"lastError":null,"preparing":true}}
+7/16 eval ok 194969ms
+7/16 eval -> {"backfill":{"running":true,"processed":1,"total":3,"lastError":null},"inFlight":{"n":2,"kind":"read","t0":1790414283036,"ms":null,"outcome":"pending","status":null,"promptChars":67181,"estTokens":16796,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":null},"entries":0}
+8/16 expect_ui ok 6ms
+9/16 ui ok 531ms
+9/16 ui -> {"ok":true,"tabs":["Overview","Memory"],"surfaces":["#drawer-manager","#so-hud","#story-orchestrator-settings"],"selectorsChecked":51,"findings":[],"sweep":[],"recoveryControls":[{"tab":"Memory","surface":"#drawer-manager","selector":"#so-memorize-stop","visible":true,"text":"Stop"}]}
+10/16 ui ok 105ms
+11/16 ui ok 7ms
+11/16 ui -> {"selector":"#so-memorize-stop","found":true,"clickable":true,"at":{"x":589,"y":214},"topmost":"button#so-memorize-stop.menu_button.interactable","target":"button#so-memorize-stop.menu_button.interactable"}
+12/16 eval ok 584ms
+12/16 eval -> {"stoppedInMs":70,"abortLatencyMs":10,"aborted":{"n":2,"kind":"read","t0":1790414283036,"ms":717,"outcome":"aborted","status":null,"promptChars":67181,"estTokens":16796,"tokensEvaluated":null,"predictedN":null,"decodeTokS":null,"prefillTokS":null,"promptMs":null,"predictedMs":null,"stopType":null,"error":"signal is aborted without reason"},"backfill":{"running":false,"processed":1,"total":3,"lastError":null,"stoppedNote":"Stopped after 1 of 2 parts. What was read is kept; the whole-chat pass did not run."},"note":"Stopped after 1 of 2 parts. What was read is kept; the whole-chat pass did not run.","entriesBefore":0,"entriesAfter":0}
+13/16 eval ok 1563ms
+13/16 eval -> {"backfill":{"running":true,"processed":0,"total":1,"lastError":null,"preparing":true},"ended":false}
+14/16 eval ok 281291ms
+14/16 eval -> {"ms":280310,"result":true,"error":null,"backfill":{"running":false,"processed":3,"total":3,"lastError":null},"requests":[{"n":3,"kind":"read","t0":1790414286269,"ms":123488,"outcome":"ok","status":200,"promptChars":401933,"estTokens":100484,"tokensEvaluated":88331,"predictedN":183,"decodeTokS":16.867724693153384,"prefillTokS":790.8189687792628,"promptMs":111695.601,"predictedMs":10789.837,"stopType":"eos","error":null},{"n":4,"kind":"read","t0":1790414410793,"ms":16087,"outcome":"ok","status":200,"promptChars":67181,"estTokens":16796,"tokensEvaluated":14856,"predictedN":13,"decodeTokS":25.5680365452469,"prefillTokS":1268.7183135338066,"promptMs":11709.455,"predictedMs":469.336,"stopType":"eos","error":null},{"n":5,"kind":"read","t0":1790414427460,"ms":137795,"outcome":"ok","status":200,"p
+15/16 eval ok 5ms
+15/16 eval -> {"profileUrl":"http://127.0.0.1:18080","wasDead":false,"requests":5,"e1":[{"kind":"read","predictedN":43,"decodeTokS":16.800779556171406,"prefillTokS":798.2626231765208,"promptN":88280},{"kind":"read","predictedN":183,"decodeTokS":16.867724693153384,"prefillTokS":790.8189687792628,"promptN":88331},{"kind":"read","predictedN":13,"decodeTokS":25.5680365452469,"prefillTokS":1268.7183135338066,"promptN":14856},{"kind":"read","predictedN":406,"decodeTokS":16.85801414591348,"prefillTokS":789.8772246353062,"promptN":88335}]}
+16/16 eval ok 7ms
+16/16 eval -> {"forcedArm":null,"ms":280310,"chat":331,"budget":{"contextLimit":{"value":98304,"source":"preset"},"inputBudget":87961,"maxTokens":512,"tokens":87668},"estimateVsTrue":[{"reason":"memorize:window","window":{"from":0,"to":285},"estimate":87719,"inputBudget":87961,"trueTokens":88331,"trueOverInputBudget":370},{"reason":"memorize:window","window":{"from":286,"to":330},"estimate":14736,"inputBudget":87961,"trueTokens":14856,"trueOverInputBudget":-73105},{"reason":"memorize:full","window":{"from":45,"to":330},"estimate":87668,"inputBudget":87961,"trueTokens":88335,"trueOverInputBudget":374}],"windows":[{"window":{"from":0,"to":285},"tokens":87719},{"window":{"from":286,"to":330},"tokens":14736}],"full":{"window":{"from":45,"to":330},"trimmedFrom":0,"tokens":87668,"truncated":null},"requests":[{"n":3,"kind":"read","t0":1790414286269,"ms":123488,"outcome":"ok","status":200,"promptChars":401933,"estTokens":100484,"tokensEvaluated":88331,"predictedN":183,"decodeTokS":16.867724693153384,"prefillTokS":790.8189687792628,"promptMs":111695.601,"predictedMs":10789.837,"stopType":"eos","error":null},{"n":4,"kind":"read","t0":1790414410793,"ms":16087,"outcome":"ok","status":200,"promptChars":67181,"estTokens":16796,"tokensEvaluated":14856,"predictedN":13,"decodeTokS":25.5680365452469,"prefillTokS":1268.7183135338066,"promptMs":11709.455,"predictedMs":469.336,"stopType":"eos","error":null},{"n":5,"kind":"read","t0":1790414427460,"ms":137795,"outcome":"ok","status":200,"promptChars":401761,"estTokens":100441,"tokensEvaluated":88335,"predictedN":406,"decodeTokS":16.85801414591348,"prefillTokS":789.8772246353062,"promptMs":111833.836,"predictedMs":24024.182,"stopType":"eos","error":null}],"reasked":[],"timeoutRetries":[],"backfill":{"running":false,"processed":3,"total":3,"lastError":null}}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-26T09-22-53-296Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 16,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-313db404"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-26@06h14m43s492ms",
+    "owned": [
+      "2026-09-26@06h14m43s492ms"
+    ],
+    "deleted": [
+      "2026-09-26@06h14m43s492ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1537,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-26@06h14m43s492ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 99,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

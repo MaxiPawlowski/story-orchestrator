@@ -1,0 +1,4 @@
+tokens 88031
+abort {'t0': 1790417922.3, 'ms': 100017, 'curl_rc': 28, 'http': '000', 'timings': None}
+retry {'t0': 1790418022.3, 'ms': 211423, 'curl_rc': 0, 'http': '200', 'timings': {'cache_n': 0, 'prompt_n': 88032, 'prompt_ms': 207712.04, 'prompt_per_token_ms': 2.35950608869502, 'prompt_per_second': 423.8175119747512, 'predicted_n': 8, 'predicted_ms': 565.233, 'predicted_per_token_ms': 80.74757142857142, 'predicted_per_second': 12.38427338814259}}
+done

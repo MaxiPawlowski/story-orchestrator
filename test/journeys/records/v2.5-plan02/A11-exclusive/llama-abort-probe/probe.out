@@ -1,0 +1,7 @@
+tokens {'A': 88024, 'B': 88020, 'C': 88022, 'D': 88028}
+E1 {'t0': 1790415772.7, 'ms': 114310, 'curl_rc': 0, 'http': '200', 'timings': {'cache_n': 0, 'prompt_n': 88025, 'prompt_ms': 110197.725, 'prompt_per_token_ms': 1.2518912240840672, 'prompt_per_second': 798.791445104697, 'predicted_n': 8, 'predicted_ms': 421.868, 'predicted_per_token_ms': 60.26685714285714, 'predicted_per_second': 16.592867911289787}}
+E2a {'t0': 1790415892.0, 'ms': 60018, 'curl_rc': 28, 'http': '000', 'timings': None}
+E2b {'t0': 1790415952.0, 'ms': 55857, 'curl_rc': 0, 'http': '200', 'timings': {'cache_n': 55296, 'prompt_n': 32725, 'prompt_ms': 54316.546, 'prompt_per_token_ms': 1.659787501909855, 'prompt_per_second': 602.4867634256419, 'predicted_n': 8, 'predicted_ms': 403.001, 'predicted_per_token_ms': 57.571571428571424, 'predicted_per_second': 17.369683946193685}}
+E3a {'t0': 1790416012.9, 'ms': 60017, 'curl_rc': 28, 'http': '000', 'timings': None}
+E3b {'t0': 1790416072.9, 'ms': 114714, 'curl_rc': 0, 'http': '200', 'timings': {'cache_n': 0, 'prompt_n': 88029, 'prompt_ms': 111342.391, 'prompt_per_token_ms': 1.2648376216928512, 'prompt_per_second': 790.615319191412, 'predicted_n': 8, 'predicted_ms': 402.843, 'predicted_per_token_ms': 57.549, 'predicted_per_second': 17.376496550765435}}
+done

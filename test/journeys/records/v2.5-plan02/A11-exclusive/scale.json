@@ -1,0 +1,31 @@
+{
+  "ok": true,
+  "scale": 0.39,
+  "lo": 0.2954875975701999,
+  "hi": 0.48352515966032705,
+  "full": {
+    "measuredMs": 137795,
+    "budgetMs": 256482,
+    "firstMs": 100028,
+    "retryMs": 200056
+  },
+  "passes": [
+    {
+      "n": 3,
+      "ms": 123488,
+      "promptChars": 401933
+    },
+    {
+      "n": 4,
+      "ms": 16087,
+      "promptChars": 67181
+    },
+    {
+      "n": 5,
+      "ms": 137795,
+      "promptChars": 401761
+    }
+  ],
+  "maxTokens": 512,
+  "set": "node scripts/debug/st-eval.mts \"localStorage.setItem('so-v25-a11-scale', '0.39')\""
+}

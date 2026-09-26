@@ -1,0 +1,28 @@
+{
+  "ok": true,
+  "value": {
+    "groupId": "1759606632088",
+    "chatId": "2026-09-20@07h06m38s396ms",
+    "len": 0,
+    "tail": [
+      "2026-09-20@04h40m32s180ms",
+      "2026-09-20@07h06m38s396ms"
+    ],
+    "serverTail": [
+      "2026-09-20@04h40m32s180ms",
+      "2026-09-20@07h06m38s396ms"
+    ],
+    "serverChatId": "2026-09-20@07h06m38s396ms",
+    "lib": [
+      "adolion-academy",
+      "adolion-adventurer",
+      "live-v24-01-t10",
+      "sun-ruins",
+      "so-j9-wizard",
+      "so-j9-fixme",
+      "v24-01-delete-decode",
+      "v24-01-delete-decode-2"
+    ]
+  }
+}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-26T09-14-03-762Z_st-eval.json

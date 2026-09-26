@@ -1,0 +1,19 @@
+DIFF settings.schema  null -> 1
+DIFF warnings  -the settings root carries no schema stamp: its shape baseline is not read
+{
+  "baseline": "test/journeys/records/v2.5-plan02/A11-exclusive/header-base-start.json",
+  "label": "diff-end",
+  "allow": [],
+  "differences": 2,
+  "progress": 0,
+  "blocking": 2,
+  "blockingPaths": [
+    "settings.schema",
+    "warnings"
+  ],
+  "warnings": [
+    "the settings root carries no schema stamp: its shape baseline is not read"
+  ],
+  "wrote": "C:\\dev\\so-lanes\\2\\debug\\run-header-diff-end.json",
+  "ok": false
+}

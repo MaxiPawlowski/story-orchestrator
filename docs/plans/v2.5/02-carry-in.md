@@ -328,3 +328,10 @@ A fix has to act before the swap (for example, stop or detach the stream before 
 
   Re-seed both lanes (`st-lanes seed <n> --fresh`) before the next batch.
 - localStorage: `so-v25-a11-scale` removed. The read-back shows no `so-v25-*` keys and no `storyOrchestratorDebug*` globals (`<rec>/localstorage-cleanup.log`).
+
+## Gate record (A11 exclusive backend, bundle c67dcdba7564, 2026-09-26)
+
+- A11 forced arm: **0/2 on an exclusive backend** (lane 2 alone, requests_processing 0 before each run). Same failure as the shared runs: the FIRST window (~88k tokens, 123.5 s cold) is cut at the scaled 100 s budget and its retry misses 200 s.
+- Cause, reproduced directly against llama-server on the pod (no ST, no extension) and through ST's request path with a synthetic prompt: after a DEEP abort (~80k tokens read) an identical retry gets `cache_n` 0 and re-reads at ~424 tok/s (vs 790 cold), 211 s; after a shallow abort (~55k) it reuses the cache and finishes in 56 s. Records: `test/journeys/records/v2.5-plan02/A11-exclusive/` (`llama-abort-probe/`, `diag-run3/`).
+- **Harness defect, not product:** `scripts/debug/lib/timeoutArm.mts` `forcedTimeoutScale` (1) accepts scales where other passes also time out (its lower bound should require every other pass to answer on its FIRST ask), and (2) models the retry as a cold ask. For this chat the arm is infeasible (window 1 needs scale > 0.53, the whole-chat pass < 0.484). Fix: the arm reports `infeasible`, and a fixture whose whole-chat pass is clearly larger than any window (or an arm that scales only the whole-chat pass).
+- **New product defect (A37):** the extension budgets `max_tokens` 512 but with the preset included ST sends `n_predict` = the preset's 1200, and llama obeys `n_predict` (`src/services/stHost/modelReply.ts:123-128`; ST `custom-request.js:411-414`, `textgen-settings.js:1696`). 1,237 lane requests carried max_tokens 512 / n_predict 1200; a 1-token probe got 1,200 back. `callTimeoutMs` under-budgets any reply past 512 tokens.
