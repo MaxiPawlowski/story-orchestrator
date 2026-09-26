@@ -132,7 +132,7 @@ describe("v2.5 plan 01 B: a normalised entry switched on outside the story is a 
     expect(step).toEqual({
       area: "lore",
       consequence: "A story lorebook entry was switched on outside the story; it will show in chats without the story.",
-      detail: "Switched on outside the story: Ruins: CP2",
+      detail: "Switched on outside the story: 1 entry in Ruins",
       targetId: WI_GATING_TARGET_ID,
       provisionable: false,
     });
@@ -141,7 +141,14 @@ describe("v2.5 plan 01 B: a normalised entry switched on outside the story is a 
   it("raises the same row for a gated entry the scan could not switch off (missingKey)", () => {
     const step = nextRepairStep(snapshotWith({ wiGating: status({ missingKey: [{ lorebook: "Ruins", comment: "CP3" }] }) } as Partial<RuntimeSnapshot>));
     expect(step?.consequence).toBe("A story lorebook entry was switched on outside the story; it will show in chats without the story.");
-    expect(step?.detail).toBe("Cannot be switched off for this chat: Ruins: CP3");
+    expect(step?.detail).toBe("Cannot be switched off for this chat: 1 entry in Ruins");
+  });
+
+  it("names books and counts, never an entry's comment: checkpoint entry names are spoilers and Repair shows to the player", () => {
+    const drift = [{ lorebook: "Ruins", comment: "CP4 - Sphinx" }, { lorebook: "Ruins", comment: "CP5 - Vault" }, { lorebook: "Archive", comment: "Ending" }];
+    const step = nextRepairStep(snapshotWith({ wiGating: status({ drift }) } as Partial<RuntimeSnapshot>));
+    expect(step?.detail).toBe("Switched on outside the story: 2 entries in Ruins, 1 entry in Archive");
+    expect(step?.detail).not.toMatch(/Sphinx|Vault|Ending/);
   });
 
   it("shows in a chat with no story, because every chat without the story sees the entry", () => {

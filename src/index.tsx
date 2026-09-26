@@ -20,7 +20,8 @@ import { startRuntime } from "@runtime/index";
 import { STORY_STATE_RETENTION } from "@runtime/persistence";
 import { branchFromOldest, continueFromBranch } from "@runtime/chatIdentity";
 import { exportState } from "@runtime/stateExport";
-import { removalRestore } from "@runtime/worldInfoScanHost";
+import { removalRestore, wiGating } from "@runtime/worldInfoScanHost";
+import WorldInfoGatingGroup from "./components/settings/WorldInfoGatingGroup";
 import { jumpToMessage } from "@runtime/messageJumpHost";
 import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
 import StudioModal, { STUDIO_TAB_IDS, type StudioOpenIntent } from "./studio/StudioModal";
@@ -440,6 +441,15 @@ const SettingsPanel = () => {
               <input type="checkbox" checked={snapshot.talk.enabled} onChange={(event) => manager.setTalkDirectionEnabled(event.target.checked)} />
               <span>Speaker direction <HelpTooltip title="Let checkpoints with talk control decide who speaks next in group chats: name mentions win, then the LLM director, then weighted rules. Swipes, quiet passes, and explicit /trigger are never affected." /></span>
             </label>
+          </div>
+          <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+            <GroupHeader title="Lorebooks" scope="install" id="so-lorebooks-header" />
+            <WorldInfoGatingGroup
+              status={snapshot.wiGating ?? null}
+              authorView={snapshot.ui.authorView}
+              onChoose={(mode) => void (mode === "scan" ? wiGating()?.requestScan() : wiGating()?.requestFile())}
+              onRenormalize={() => void wiGating()?.renormalize()}
+            />
           </div>
           <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
             <GroupHeader title="Stagecraft" scope="install" id="so-stagecraft-header" />

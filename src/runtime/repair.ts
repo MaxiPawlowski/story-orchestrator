@@ -26,16 +26,21 @@ export const REPAIR_TARGET_IDS = { memoryModel: "so-extraction-profile" } as con
 
 export const WI_GATING_TARGET_ID = "so-wi-gating";
 
-const entryList = (entries: Array<{ lorebook: string; comment: string }>) => entries.map((entry) => `${entry.lorebook}: ${entry.comment}`).join("; ");
+const entryCounts = (entries: Array<{ lorebook: string; comment: string }>) => {
+  const counts = new Map<string, number>();
+  entries.forEach((entry) => counts.set(entry.lorebook, (counts.get(entry.lorebook) ?? 0) + 1));
+  return [...counts].map(([lorebook, count]) => `${count} ${count === 1 ? "entry" : "entries"} in ${lorebook}`).join(", ");
+};
 
 // v2.5 plan 01 B: install-wide like the orphaned book, so it shows without a story too; last among the
-// story's own steps, because the story in play still sees its own lore correctly.
+// story's own steps, because the story in play still sees its own lore correctly. Books and counts only:
+// a checkpoint entry's name is a spoiler, and this row shows in player mode.
 function wiGatingStep(snapshot: RuntimeSnapshot): RepairStep | null {
   const status = snapshot.wiGating;
   if (status?.mode !== "scan" || (!status.drift.length && !status.missingKey.length)) return null;
   const detail = [
-    ...(status.drift.length ? [`Switched on outside the story: ${entryList(status.drift)}`] : []),
-    ...(status.missingKey.length ? [`Cannot be switched off for this chat: ${entryList(status.missingKey)}`] : []),
+    ...(status.drift.length ? [`Switched on outside the story: ${entryCounts(status.drift)}`] : []),
+    ...(status.missingKey.length ? [`Cannot be switched off for this chat: ${entryCounts(status.missingKey)}`] : []),
   ].join(" · ");
   return {
     area: "lore",
