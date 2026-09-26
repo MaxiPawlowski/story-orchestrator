@@ -1,6 +1,7 @@
-# Plan 09 — Research spikes (the user picks, U3)
+# Plan 09 — Research spikes (all ten run; U3 decided 2026-09-26)
 
-**Status: DRAFT 2026-09-25 — awaits user approval.** Depends on: per spike (column "Needs" in each section and in the
+**Status: DRAFT 2026-09-25, revised 2026-09-26 — awaits user approval.** U3 decided by the user: "go with all the
+spikes, is part of the spike reviewing if its worth including into a real feature". Depends on: per spike (column "Needs" in each section and in the
 ranking). No spike runs before the v2.4 entry condition (overview V1) and plan 11. **Verified against master `e7626d7`**
 on 2026-09-25; Δ marks drift from the cited research line. **Re-verify every path:line before a spike starts** (v2.4 rule 1).
 
@@ -11,8 +12,10 @@ is folded into SP2, because recast's rewrite is the reproduction SP2 measures.
 
 ## Goal
 
-For each candidate the research proposed, a verdict on predeclared conditions: PASS unlocks a build plan for the user's
-approval; FAIL records the measurement and removes the spike code. Nothing here is a build (overview V8). The shape is
+Every candidate runs. Each ends in a two-part verdict: (1) the predeclared conditions, PASS or FAIL, never retuned;
+(2) a **worth review** (rule 8) that decides whether a PASS becomes a real feature. FAIL records the measurement and
+removes the spike code. PASS + "include" becomes build step `<id>.b` in this plan (rule 2); PASS + "defer" or "drop"
+keeps the report and removes the code. Nothing is built before its verdict (overview V8). The shape is
 T13's (`v2.4/05-world-info.md:151-220`, `v2.4/05-t13-spike-report.md`).
 
 ## Rules for every spike
@@ -24,9 +27,10 @@ T13's (`v2.4/05-world-info.md:151-220`, `v2.4/05-t13-spike-report.md`).
    A condition that measured nothing (T13's S4/S7/S9 deviations) is re-measured with a changed procedure, stated in the
    report; the pass bar never moves.
 2. **Spike code sits behind its own install-wide flag, default off, never flipped by this plan.** FAIL → the code is removed
-   before plan 10. PASS → `docs/plans/v2.5/09-<id>-build.md` is written for approval, not built here. At plan 10's freeze
-   no spike code stays in the prod entry graph, PASS or FAIL, unless its `09-<id>-build.md` was approved and built under its
-   own gates in v2.5. A PASS whose build is not done by then keeps its report and records, and its code is removed like a
+   before plan 10. PASS + worth "include" → build step `<id>.b`, written into the spike's report
+   (`09-<id>-spike-report.md` §Build) and built in this plan under the full gates of the area it touches; the user is told
+   the verdict with the report, and no separate approval round is needed (user, 2026-09-26). At plan 10's freeze
+   no spike code stays in the prod entry graph unless its `<id>.b` step was built under its own gates in v2.5. A PASS whose build is not done by then keeps its report and records, and its code is removed like a
    FAIL (the build plan carries forward to v2.6 seeds). Measurement-only harness code may stay only as a dev-only dynamic
    import (`__SO_DEV__`). Each spike module is added to plan 12 D3's list so the shared import-graph walker checks it, with a
    negative control: a planted static import of a spike module fails.
@@ -40,7 +44,12 @@ T13's (`v2.4/05-world-info.md:151-220`, `v2.4/05-t13-spike-report.md`).
 6. **Judge-shaped conditions follow v2.4 rule 4:** own use key, off by default, ≥ 20-case fixture with a Spanish slice,
    judge-off column.
 7. **Player-facing surface waits for the human sessions** (rule 7). A spike may measure an effect on replies; it may not
-   ship a player control.
+   ship a player control. An "include" verdict can build the machinery; its player surface waits on HU.
+8. **Worth review** (after PASS, in the report, before any `<id>.b` code): value (the measured harm or gain, with records),
+   cost (effective lines, budget headroom per `architecture.test.ts`, new host seams), maintenance (host facts it depends on,
+   test surface), and risk to invariants (list each touched). Verdict `include | defer | drop`, with one line of reason.
+   `include` needs measured value; a PASS whose gain is unmeasured, or whose lines are budget-blocked (overview rule 12),
+   is `defer`, recorded as a v2.6 seed.
 
 Cost: **S** ≤ 1 day incl. live legs, **M** 2–4 days, **L** > 4 days or a new seam plus a human-session leg.
 
@@ -273,22 +282,22 @@ thinking template"). **PASS unlocks:** the fold. **FAIL leaves:** documented inf
 
 ---
 
-## Ranked recommendation
+## Run order (all ten run)
 
-Ranked by evidence of harm today, then cost. The user picks (U3); a lower rank is not a refusal.
+Ordered by evidence of harm today, then cost. Order only; every spike runs and gets a worth review.
 
-| Rank | Spike | Cost | Evidence of need today | Needs | Recommendation |
-|---|---|---|---|---|---|
-| 1 | SP2 re-commit after a rewrite | M | every player edit of the newest reply; R1 confirms or kills it in one live run | plan 02 | run |
-| 2 | SP10 tool-call turns | S (+M) | fixture does not exist; mandatory-tools users hit it every turn | CC profile | run Q1–Q2 |
-| 3 | SP3 roster aliases, Phase A | S (+M) | measurable on archived records with no code | — | run Phase A |
-| 4 | SP7 RNG seam (D1–D4) | S (+M) | the NPC reply roll is unseeded today (`effectsApplier.ts:381`) | — | run the seam; gates only if the user wants chance (D5) |
-| 5 | SP5 story-owned scenario | M | research 4/M; host seam and ledger exist | plan 03 | run if cards with scenarios are common in your stories |
-| 6 | SP4 append-only short_term | M | a quality claim, unmeasured | plan 03 | later |
-| 7 | SP6 complication pool | M (+M R13) | no stall case recorded yet | U4 for copy | later |
-| 8 | SP8 curator tiers/spans/digest | S–M | curator is off by default | curator in use | only if you run the curator |
-| 9 | SP1 swipe-back cache | L | value unmeasured until the player session (S4) | U4 | after U4 |
-| 10 | SP9 witness filter | L | no witness source; re-decides a stance | Q3 | not recommended for 2.5 |
+| Order | Spike | Cost | Evidence of need today | Needs |
+|---|---|---|---|---|
+| 1 | SP2 re-commit after a rewrite | M | every player edit of the newest reply; R1 confirms or kills it in one live run | plan 02 |
+| 2 | SP10 tool-call turns | S (+M) | fixture does not exist; mandatory-tools users hit it every turn | CC profile |
+| 3 | SP3 roster aliases (Phase A, then B on PASS) | S (+M) | measurable on archived records with no code | — |
+| 4 | SP7 RNG seam (D1–D4), then chance gates (D5) | S (+M) | the NPC reply roll is unseeded today (`effectsApplier.ts:381`) | — |
+| 5 | SP5 story-owned scenario | M | research 4/M; host seam and ledger exist | plan 03 |
+| 6 | SP4 append-only short_term | M | a quality claim, unmeasured | plan 03 |
+| 7 | SP6 complication pool | M (+M R13) | no stall case recorded yet | player copy: U4 |
+| 8 | SP8 curator tiers/spans/digest | S–M | curator is off by default | curator on for the run |
+| 9 | SP1 swipe-back cache | L | value unmeasured until the player session | S1–S3 here; S4 from HU (plan 10) |
+| 10 | SP9 witness filter | L | no witness source; re-decides the "no message-level hiding" stance | its worth review decides the stance |
 
 ## Risks
 - **A spike that measures nothing** (T13's S4/S7/S9 needed procedure changes). Rule 1 allows a procedure change stated in
@@ -300,10 +309,8 @@ Ranked by evidence of harm today, then cost. The user picks (U3); a lower rank i
 - **Plan 13 routes a role mid-series:** a condition's run is valid only on the route it recorded; a mixed series re-runs.
 
 ## Unresolved questions
-- **Q1 (U3)** Which spikes, in what order? The ranking above is the recommendation.
-- **Q2** SP7 D5: do you want failure-by-odds in your stories at all? Without it only the seam (D1–D4) is worth running.
-- **Q3** SP9: is "no message-level hiding" still the stance? If yes, SP9 is dropped rather than run.
-- **Q4** SP1 is not in the 2.5 pick list: S4 needs the plan-10 human sessions, so it runs after 2.5 as a v2.6 seed
-  (alternative: if picked, S1–S3 run here, S4 is scored from HU inside plan 10, P09 for SP1 is judged after HU, and plan 10
-  entry criterion 1 is satisfied by S1–S3 alone). SP6 stays in the pick list: K1–K5 need no human session; only its player
-  copy waits on U4 under rule 7.
+- ~~Q1 (U3)~~ Decided 2026-09-26: all ten run; the worth review (rule 8) decides what becomes a feature.
+- ~~Q2~~ Decided: SP7 runs D1–D5; whether chance gates ship is its worth review.
+- ~~Q3~~ Decided: SP9 runs; its worth review decides whether "no message-level hiding" stays the stance.
+- ~~Q4~~ Decided: SP1 runs S1–S3 here; S4 is scored from HU inside plan 10, and SP1's verdict waits for HU (plan 10 entry
+  criterion 1 is satisfied by S1–S3 alone).

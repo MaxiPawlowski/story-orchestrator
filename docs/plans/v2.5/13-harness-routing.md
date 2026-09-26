@@ -426,6 +426,6 @@ time**, and relieves the llama-server contention of v2.5-seeds E1 for the roles 
 - Q3 API-key billing through the same harnesses (e.g. `ANTHROPIC_API_KEY` + `--bare`) — in 2.5, or subscriptions only?
 - ~~Q4~~ Decided 2026-09-26: the split is step H9 (user: make the spikes real steps).
 - ~~Q5~~ Decided 2026-09-26: no fixed cap; every knob configurable (H3, H7).
-- Q6 H6's proposed Phase A order (wizard, memorize, synthesis, expansion+critic, curator, read; epistemic and director local): accept?
+- ~~Q6~~ Decided 2026-09-26: the user accepted H6's Phase A order.
 - Q7 Should the plugin always spawn each CLI with a plugin-owned config home holding only the login, so that user-level
   instructions can never reach the model by construction?
