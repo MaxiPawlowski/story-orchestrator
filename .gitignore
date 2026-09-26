@@ -12,6 +12,7 @@
 /build
 /dist
 /dist-dev
+/release
 /.sb-static
 /storybook-static
 

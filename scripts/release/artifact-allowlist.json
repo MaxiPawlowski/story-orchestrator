@@ -1,0 +1,19 @@
+{
+  "files": [
+    "manifest.json",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md",
+    "THIRD-PARTY-NOTICES.md",
+    "dist/manifest.json",
+    "server-plugin/story-orchestrator-judge/index.mjs",
+    "server-plugin/story-orchestrator-judge/package.json"
+  ],
+  "optional": [
+    "server-plugin/story-orchestrator-harness/index.mjs",
+    "server-plugin/story-orchestrator-harness/package.json"
+  ],
+  "dirs": ["examples"],
+  "never": ["docs/", "test/", "scripts/", "src/", ".claude/", ".debug/", "dist-dev/", "vendor/", "stories/", "node_modules/", "release/"],
+  "neverPatterns": ["\\.map$", "\\.test\\.", "^opencode\\.json$", "^\\.mcp\\.json$"]
+}
