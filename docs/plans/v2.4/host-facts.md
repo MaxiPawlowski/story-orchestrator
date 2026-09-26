@@ -237,3 +237,15 @@ Re-read on the live 1.19.0 tree (`7c3994196`). The 1.18.0 column is left to V10 
 | v25-07-H13 | For CC, `prepareOpenAIMessages` runs before `GENERATE_AFTER_DATA` is emitted, so a listener on that event reads this generation's counts | `script.js:5285`, `:5318` | open |
 
 Phase 0 of A4 (identifiers stable across two loud CC generations, Σ = `tokenUsage` read live, the declared minimum) is live and **not run**; H8-H13 are source reads only.
+
+## v2.5 Plan 06 (judge next, code items, 2026-09-26)
+
+Re-read on the live 1.19.0 tree (`7c3994196`). The 1.18.0 column is left to V10 Q4, as for v2.5 plans 01/02/07. No product code in
+this plan reaches the host; the rows are what the J13 journey's tally and the reused `captureControlColumn` read from the page.
+
+| # | Fact | 1.19.0 | 1.18.0 |
+|---|---|---|---|
+| v25-06-H1 | `getContext().chat` is the live `chat` array (the same object ST pushes to), so a count taken after the turns sees every message | `st-context.js:118` (`chat`), import `:7` | open |
+| v25-06-H2 | A generated reply is pushed as `{ name: name2, is_user: false, mes, … }` with **no** `is_system` key, so `!message.is_system` (not `=== false`) is the test | `script.js:6743-6757` (`saveReply`, new-message branch) | open |
+| v25-06-H3 | A player message carries `is_user: true, is_system: false` and its `mes` | `script.js:5874` (`sendMessageAsUser`), `:5878-5882` | open |
+| v25-06-H4 | A greeting is `{ is_user: false, is_system: false, mes }`: it looks like a reply, which is why J13 counts replies only after the chat length it recorded at configure time | `script.js:7714-7719` (`getFirstMessage`) | open |

@@ -1,0 +1,18 @@
+v2.5 plan 06 (judge next, code items), mutations 2026-09-26 on the plan-06 branch. Each mutant was applied alone as an exact-text replacement by .debug/mutate06.py (asserted to match exactly once), the item's own suite was run (jest src/copilot/authoringA16.review.test.ts + authoring.test.ts for J1's fix; node --test for the three harness libs and so-role-calibration.test.mts), and the file was restored byte for byte. The mutants move each predeclared bar the harness encodes (J1 hold-out and x2 rule, J2 close bars, J3 validity/effect/size bars) and delete the J1 fix.
+
+- M1 J1 the repair prompt loses the declared-keys lines (src/copilot/authoring.ts): KILLED, Tests:       2 failed, 15 passed, 17 total
+- M2 J1 the refused addQuality key is never named (src/copilot/authoring.ts): KILLED, Tests:       5 failed, 12 passed, 17 total
+- M3 J1 the qualities stage also gets the declared-keys line (src/copilot/authoring.ts): KILLED, Tests:       1 failed, 16 passed, 17 total
+- M4 J1 a hold-out miss is ignored by the verdict (scripts/debug/lib/roleVerdict.mts): KILLED, # pass 10 / # fail 2
+- M5 J1 one run is enough for a verdict (scripts/debug/lib/roleVerdict.mts): KILLED, # pass 6 / # fail 1
+- M6 J2 the warden call floor lowered to 99 (scripts/debug/lib/judgeTimeouts.mts): KILLED, # pass 11 / # fail 1
+- M7 J2 the warden bar loosened to 1 per 25 (scripts/debug/lib/judgeTimeouts.mts): KILLED, # pass 11 / # fail 1
+- M8 J2 in-flight overlap ignores the chat (scripts/debug/lib/judgeTimeouts.mts): KILLED, # pass 11 / # fail 1
+- M9 J2 cache hits count as calls (scripts/debug/lib/judgeTimeouts.mts): KILLED, # pass 11 / # fail 1
+- M10 J2 p99 read under 100 successful calls (scripts/debug/lib/judgeTimeouts.mts): KILLED, # pass 11 / # fail 1
+- M11 J2 J11.25 x2 dropped from the scene close (scripts/debug/lib/judgeTimeouts.mts): KILLED, # pass 11 / # fail 1
+- M12 J3 off-arm validity bar lowered to 0.1 (scripts/debug/lib/replyEffect.mts): KILLED, # pass 6 / # fail 1
+- M13 J3 effect floor lowered to 0.1 (scripts/debug/lib/replyEffect.mts): KILLED, # pass 6 / # fail 1
+- M14 J3 arm size lowered to 19 (scripts/debug/lib/replyEffect.mts): KILLED, # pass 6 / # fail 1
+- M15 J3 one on run meeting the floor is enough (scripts/debug/lib/replyEffect.mts): KILLED, # pass 6 / # fail 1
+Restored: exit 0, # pass 31 / # fail 0 / Tests:       17 passed, 17 total
