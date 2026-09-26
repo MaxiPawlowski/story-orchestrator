@@ -13,6 +13,7 @@
   "scripts": {
     "build": "webpack --mode production && node scripts/release/manifest.mjs",
     "build:dev": "webpack --mode production --env flavor=dev && node scripts/release/manifest.mjs --flavor dev",
+    "serve:dev": "node scripts/release/serveFlavour.mjs dev",
     "start": "npm run dev",
     "dev": "cross-env NODE_ENV=development concurrently \"webpack --mode development --watch\" \"tsc --noEmit --watch\"",
     "test": "jest --runInBand",

@@ -71,6 +71,7 @@ export function readBuild() {
       // diff could not tell one bundle from another and no header could say what ran (2026-09-22).
       manifest = {
         version: parsed.extension?.version ?? null,
+        flavor: parsed.flavor ?? null,
         commit: parsed.source?.commit ?? parsed.commit ?? null,
         sourceSha256: parsed.source?.sha256 ?? null,
         sourceFiles: parsed.source?.files ?? null,

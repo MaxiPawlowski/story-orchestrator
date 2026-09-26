@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { batchExitCode, createLineStamper, itemArgs } from './st-lanes.mts';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { batchExitCode, createLineStamper, itemArgs, lanePreflight } from './st-lanes.mts';
 
 test('A29: each child line is stamped when it arrives, a split line once it completes', () => {
   const lines: string[] = [];
@@ -44,4 +47,20 @@ test('v2.5 plan 01: --wi-gating reaches a journey and never a scenario', () => {
   assert.deepEqual(itemArgs('j7', true, null, 'scan'), ['scripts/debug/so-journey.mts', 'run', 'J7', '--strict', '--wi-gating', 'scan']);
   assert.deepEqual(itemArgs('J3', false, null), ['scripts/debug/so-journey.mts', 'run', 'J3']);
   assert.deepEqual(itemArgs('test/scenarios/x.json', true, 'g1', 'scan'), ['scripts/debug/so-scenario.mts', 'run', 'test/scenarios/x.json', '--sandbox', '--group', 'g1']);
+});
+
+test('v2.5 plan 12: a lane batch refuses a prod or missing dist/ before any lane runs', () => {
+  const root = mkdtempSync(join(tmpdir(), 'so-lane-preflight-'));
+  try {
+    assert.match(String(lanePreflight(root)), /no dist\/manifest\.json/);
+    mkdirSync(join(root, 'dist'));
+    writeFileSync(join(root, 'dist', 'manifest.json'), JSON.stringify({ kind: 'build-manifest', flavor: 'prod' }));
+    assert.match(String(lanePreflight(root)), /flavor "prod".*npm run build:dev && npm run serve:dev/);
+    writeFileSync(join(root, 'dist', 'manifest.json'), '{not json');
+    assert.match(String(lanePreflight(root)), /no dist\/manifest\.json/);
+    writeFileSync(join(root, 'dist', 'manifest.json'), JSON.stringify({ kind: 'build-manifest', flavor: 'dev' }));
+    assert.equal(lanePreflight(root), null);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
