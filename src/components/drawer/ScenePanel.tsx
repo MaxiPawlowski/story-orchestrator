@@ -3,7 +3,7 @@ import { MessageCitation } from "./MessageCitation";
 
 const pct = (value: number) => `${Math.round(value * 100)}%`;
 
-// v2.2 plan 03, author view only: every field the judge answered with its probability, and the
+// Author view only: every field the judge answered with its probability, and the
 // checkpoints one hop ahead that play is heading toward. Future checkpoint names are spoilers.
 const ScenePanel = ({ scene }: { scene: SceneReadRecord | null | undefined }) => {
   if (!scene) return null;

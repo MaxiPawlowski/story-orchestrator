@@ -9,7 +9,7 @@ export type DiagnosticSeverity = "blocking" | "warning" | "info";
 export interface Diagnostic extends ValidationError {
   code: string;
   severity: DiagnosticSeverity;
-  /** v2.3 plan 09: what it costs the story, in plain words. The technical line stays in `message`. */
+  /** What it costs the story, in plain words. The technical line stays in `message`. */
   consequence?: string;
 }
 
@@ -41,7 +41,7 @@ export const DIAGNOSTIC_CODES = [
   "world-info-rests-off",
 ] as const;
 
-// v2.3 plan 09. Every code says what it costs the story before it says what is technically wrong: the
+// Every code says what it costs the story before it says what is technically wrong: the
 // consequence is what an author can act on, and the message is how they find it. One line each, and
 // the panel renders the consequence first.
 export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], string> = {
@@ -72,7 +72,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   "world-info-rests-off": "These lorebook entries stay off in their lorebooks, and are switched on only in this story's own chats.",
 };
 
-// v2.5 plan 01 D: what the Studio needs to know about the install, not the story.
+// D: what the Studio needs to know about the install, not the story.
 export interface DiagnosticsContext {
   worldInfoGating?: "file" | "scan";
 }

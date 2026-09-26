@@ -48,7 +48,7 @@ export function addMemoryEntries(state: MemoryStoreState, entries: MemoryEntry[]
 }
 
 // A link made at or after the cut belongs to the state that is being removed. Exported because a row
-// a derived artifact hands back (v2.3 plan 04) was captured after the cut and arrives carrying links
+// a derived artifact hands back was captured after the cut and arrives carrying links
 // the cut never had.
 export function stripLinksAfter(entry: MemoryEntry, messageId: number): MemoryEntry {
   let next = entry;
@@ -64,15 +64,15 @@ export function stripLinksAfter(entry: MemoryEntry, messageId: number): MemoryEn
   return next;
 }
 
-// v2.3 plan 04. Three things go with the messages a mutation removed: the rows themselves, any
-// supersession link MADE at or after that point (M1 — otherwise the predecessor stays retired by a
-// winner that is gone), and the read coverage of the window it covered (M2 — otherwise the forced
+// Three things go with the messages a mutation removed: the rows themselves, any
+// supersession link MADE at or after that point (— otherwise the predecessor stays retired by a
+// winner that is gone), and the read coverage of the window it covered (— otherwise the forced
 // re-read of the corrected text is discarded as already seen).
 export function dropByMessageId(state: MemoryStoreState, messageId: number, boundary = -1): MemoryStoreState {
   const kept = state.entries
     .flatMap((entry): MemoryEntry[] => {
       const found = entry.provenance;
-      // v2.3 plan 05. An author decision is anchored to the boundary it was MADE at, not to the
+      // An author decision is anchored to the boundary it was MADE at, not to the
       // message it was about. A decision that still stands outranks that message — the author kept
       // the claim knowing where it came from — so undoing the message does not touch it. Undoing the
       // decision itself does: the claim falls back to what its own source says, live while that
@@ -103,7 +103,7 @@ export function dropByMessageId(state: MemoryStoreState, messageId: number, boun
         return [stripLinksAfter({ ...entry, provenance: { ...rest, validity: removed ? "source-removed" : "live" } }, messageId)];
       }
       if (removed) {
-        // C3: a pinned row is kept as a RECORD, quarantined so no consumer reads it, rather than
+        // A pinned row is kept as a RECORD, quarantined so no consumer reads it, rather than
         // surviving as if nothing happened. An unpinned row goes.
         if (!entry.pinned) return [];
         return [stripLinksAfter({ ...entry, ...withValidity(entry, "source-removed") }, messageId)];
@@ -122,7 +122,7 @@ export function setPinned(state: MemoryStoreState, id: string, pinned: boolean):
   return { ...state, entries: state.entries.map((entry) => (entry.id === id ? { ...entry, pinned } : entry)) };
 }
 
-// v2.3 plan 05 (M6). Pin and lock are different promises: a pin says keep this row when the tier is
+// Pin and lock are different promises: a pin says keep this row when the tier is
 // trimmed, a lock says it is true and no pass may retire it. A contradicting candidate therefore goes
 // to the reconciliation queue instead of superseding it. Locking pins too, because a row that cannot
 // be superseded must not be evicted either, and the lock is itself an author decision — an override
@@ -150,10 +150,10 @@ export function restoreEntry(state: MemoryStoreState, entry: MemoryEntry): Memor
   return { ...state, entries: [...state.entries, entry], excluded: state.excluded.filter((hash) => hash !== hashMemoryText(entry.text)) };
 }
 
-// v2.3 plan 05 (M7): the cached token count belonged to the text that was replaced, so an edited
+// The cached token count belonged to the text that was replaced, so an edited
 // entry kept a cost it no longer had and could fit a budget it had outgrown. Clearing it makes the
 // estimator apply immediately; `MemoryCoordinator.editMemoryEntry` then stores the exact count.
-// The new text is the author's claim, not a read of a message, so it carries an override (V8).
+// The new text is the author's claim, not a read of a message, so it carries an override.
 export function editEntryText(state: MemoryStoreState, id: string, text: string, at: string, boundary: number): MemoryStoreState {
   return { ...state, entries: state.entries.map((entry) => (entry.id === id ? { ...entry, text, tokens: undefined, ...withOverride(entry, "edit", at, boundary) } : entry)) };
 }

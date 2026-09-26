@@ -36,7 +36,7 @@ import {
 
 export const TYPED_READ_WINDOW = 3;
 
-// v2.2 plan 06: judged extraction off the LLM lanes. `judged()` answers synchronously whether it took
+// Judged extraction off the LLM lanes. `judged()` answers synchronously whether it took
 // the work; the judge call itself is fire-and-forget.
 export type JudgedExtractionWork =
   | { kind: "typed"; boundary: number; messageId: number }
@@ -93,7 +93,7 @@ export class ExtractionCoordinator {
     return this.deps.requestBudget?.(role) ?? { contextLimit: defaultContextLimit("no request budget is wired"), meter: createTokenMeter() };
   }
 
-  // v2.3 plan 05: every row this pass writes says where it came from, so a consumer can tell a
+  // Every row this pass writes says where it came from, so a consumer can tell a
   // live claim from one whose source message has since been edited away.
   private provenanceFor(window: { to: number }, pass = "shared-read") {
     return provenance({ source: "extractor", messageId: window.to, boundary: this.deps.getState()?.boundary ?? 0, pass });
@@ -123,7 +123,7 @@ export class ExtractionCoordinator {
     this.markReconciliation(reconciliationTargets(audit.reason), audit.acceptedDeltas.map((entry) => `${entry.delta.q}=${String(entry.delta.v)} (${entry.evidence})`), true);
   }
 
-  // v2.3 plan 02 (R6). A read resolves the request it was scheduled for, matched on its targeted
+  // A read resolves the request it was scheduled for, matched on its targeted
   // keys. Resolving the first *unresolved* event let an ordinary cadence read close a stall it was
   // never about — and left the request that did produce the answer open, which is the stall signal
   // the player sees. No match means no resolution.
@@ -161,7 +161,7 @@ export class ExtractionCoordinator {
     const hinted = deriveScope(story, state.activeCheckpointId, state.blackboard, this.deps.getExpansionGateSources()).filter((entry) => entry.quality.read_as && entry.quality.source === "extractor");
     if (!hinted.length) return;
     const window = this.deps.hosts.chat.chatWindow(Math.max(0, messageId - TYPED_READ_WINDOW + 1), messageId);
-    // C1, the "typed" surface: a judged read whose deltas go into the blackboard apply queue.
+    // The "typed" surface: a judged read whose deltas go into the blackboard apply queue.
     const typedRun = beginRun(this.deps.ownership, { from: window.from, to: window.to });
     const read = await createTypedJudge(() => this.deps.judge?.() ?? null)({ story, state, qualities: hinted.map((entry) => entry.quality), window });
     if (!read || !typedRun.stillOwns() || this.deps.getState()?.lastMessageId !== state.lastMessageId || this.deps.hosts.chat.chatRows().length - 1 !== messageId) return;
@@ -253,7 +253,7 @@ export class ExtractionCoordinator {
     if (memoryEnabled && audit.sceneBreak) this.deps.emitSceneBreak(audit, sceneWork);
   }
 
-  // v2.2 plan 02: check each new FACT/MEMORY line against the read's own window before it is stored.
+  // Check each new FACT/MEMORY line against the read's own window before it is stored.
   // Deltas and arc/epistemic/ledger signals never wait on this; a judge failure stores every line.
   private async verifyEntries(entries: MemoryEntry[], window: { from: number; to: number }): Promise<{ kept: MemoryEntry[]; dropped: VerifyDrop[] }> {
     const judge = this.deps.judge?.() ?? null;
@@ -283,7 +283,7 @@ export class ExtractionCoordinator {
   // came from. Without one a manual read means "read the transcript as it is now": the engine's state
   // lags the chat by design (the boundary for a just-posted message lands on the next flush), and a
   // read taken from that state had an EMPTY window, so the evidence rule rejected every delta it
-  // produced (found live 2026-09-21: three corpus scenarios read nothing and failed five steps later).
+  // produced (found live three corpus scenarios read nothing and failed five steps later).
   async runNow(debugResponse?: string, reason = "manual", window?: { from: number; to: number }) {
     const story = this.deps.getStory();
     const state = this.deps.getState();
@@ -340,7 +340,7 @@ export class ExtractionCoordinator {
   async runSceneBreakPass(audit: SharedReadAudit) {
     const memory = this.deps.memory;
     if (!this.deps.getStory() || !audit.sceneBreak || !memory.enabled) return;
-    // v2.4 plan 03 D5: the whole scene since the previous summary, not only the read that detected the
+    // The whole scene since the previous summary, not only the read that detected the
     // break. The summary describes exactly that span, so an edit inside it makes the summary a
     // description of messages that no longer exist. A reply appended after it is fine.
     const range = { from: memory.sceneStart(audit.window.to), to: audit.window.to };

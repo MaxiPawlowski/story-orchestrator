@@ -26,7 +26,7 @@ export interface CopilotCoordinatorDeps {
   getCanon: () => string;
   notify: () => void;
   ownership: RunOwnership;
-  // v2.3 plan 02 (R8). Which lorebooks this story may write into, and the author's way to add one.
+  // Which lorebooks this story may write into, and the author's way to add one.
   wizardSession?: (key: string) => WizardSessionState | null;
   saveWizardSession?: (session: WizardSessionState) => void;
   openChat?: () => string | null;
@@ -76,7 +76,7 @@ export class CopilotCoordinator {
     return this.deps.wizardSession?.(this.sessionKeyFor(draft)) ?? null;
   }
 
-  // V18: ownership is the books this wizard recorded creating AS books. A name in `applied` alone
+  // Ownership is the books this wizard recorded creating AS books. A name in `applied` alone
   // is only a claim that something by that name was made: a card named after one of the user's
   // listed books read as owning it.
   private sessionOwnedLorebooks(lorebooks: string[], draft?: StoryV2): string[] {
@@ -113,7 +113,7 @@ export class CopilotCoordinator {
   }
 
   // What a review card shows before the author confirms a write: the entry as it stands, so
-  // replacing it is a visible decision rather than a promise (v2.3 plan 02 §R8).
+  // replacing it is a visible decision rather than a promise.
   async readProvisioningEntry(lorebook: string, comment: string): Promise<WIEntrySnapshot | null> {
     return this.deps.hosts.provisioning.readWIEntry(lorebook, comment);
   }
@@ -139,7 +139,7 @@ export class CopilotCoordinator {
         if (!result.ok) return { ok: false, message: `Could not create the lorebook "${op.name}": ${result.reason}.` };
         // Ownership is recorded HERE, at the write edge, not only by the review card's UI: a book
         // created through the runtime path (a scenario, a scripted provision) then has to be
-        // writable, or the create-only rule would forbid the wizard its own book (found live, J8).
+        // writable, or the create-only rule would forbid the wizard its own book (found live).
         this.recordCreated(op.name, "lorebook", draft);
         return { ok: true, message: `Created the lorebook "${op.name}" and switched it on.`, created: op.name };
       }
@@ -155,7 +155,7 @@ export class CopilotCoordinator {
       }
       if (op.kind === "upsertLorebookEntry") {
         if (!run.stillOwns()) return lapsed();
-        // R8: the host is re-read at the write edge. The environment above was built when the card
+        // The host is re-read at the write edge. The environment above was built when the card
         // was rendered; a book can be created, granted or deleted in between.
         const live = this.getProvisioningEnvironment(draft);
         const fileId = lorebookFileId(op.lorebook);

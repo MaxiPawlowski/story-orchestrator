@@ -55,7 +55,7 @@ export const createMemory = (): MemoryRuntimeState => ({
   updatedAt: new Date().toISOString(),
 });
 
-// v2.5 plan 11: a stored row without a valid envelope is dropped, never dressed with a default one;
+// A stored row without a valid envelope is dropped, never dressed with a default one;
 // the count goes to the console so a dropped row is never silent.
 const enveloped = <T extends { provenance: unknown }>(rows: unknown, store: string, dropped: string[]): T[] => {
   if (!Array.isArray(rows)) return [];
@@ -125,7 +125,7 @@ export const sanitizeStagecraft = (value: RuntimeExtras | undefined): Stagecraft
   };
 };
 
-// v2.3 plan 06. What this chat's effects did to shared host state. The ledger travels with the chat
+// What this chat's effects did to shared host state. The ledger travels with the chat
 // so a reloaded chat still knows what it changed and can reconcile a write that never reported back.
 export const createEffects = (): EffectsRuntimeState => ({ ledger: [], cast: [] });
 
@@ -168,13 +168,13 @@ export const sanitizeTalk = (value: RuntimeExtras | undefined): TalkRuntimeState
 // `talk.enabled: false`. Both storyless paths (the manager's field initialiser and `clearStory`) build
 // their extras here, so leaving the install-wide settings out of this one made the snapshot report
 // defaults as though they were settings: `profileId: null` on a chat the install had configured, which
-// the panel cannot tell from "not loaded yet" (F2).
+// the panel cannot tell from "not loaded yet".
 const NO_CHAT_OVERRIDES: ChatOverrides = { authorView: false, shapeOverride: null, talkEnabled: null };
 
 // `createExtras()` runs while the RuntimeManager singleton is being constructed, which happens when
 // this module graph is imported — before a test has finished setting up its host mock, and before ST
 // has necessarily finished wiring `getContext()`. A host that cannot answer yet leaves the defaults
-// standing (the pre-F2 behaviour, and what the store's own `settingsAreLoaded` gate exists for); a
+// standing (the pre- behaviour, and what the store's own `settingsAreLoaded` gate exists for); a
 // host that can answer has already been read by then, so the fallback covers only the window where
 // reading is impossible.
 const withGlobalSettings = (extras: RuntimeExtras, read: () => GlobalSettings): RuntimeExtras => {
@@ -230,8 +230,8 @@ export const sanitizeExpansion = (value: RuntimeExtras | undefined): ExpansionRu
   const existing = value?.expansion;
   if (!existing) return createExpansion();
   const entries = existing.entries && typeof existing.entries === "object"
-    // v2.3 plan 07. A chain generated under an older contract was read with `outcomes[0]` and its
-    // beats carry no outcome ids, so playing it would keep the single-route behaviour R9 removed.
+    // A chain generated under an older contract was read with `outcomes[0]` and its
+    // beats carry no outcome ids, so playing it would keep the single-route behaviour removed.
     // A cache does not survive the contract that produced it: the entry is dropped, and the stub is
     // re-generated on arrival like any other missing chain.
     ? Object.entries(existing.entries)

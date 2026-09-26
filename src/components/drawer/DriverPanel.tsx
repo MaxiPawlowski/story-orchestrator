@@ -17,7 +17,7 @@ type Props = {
   activeNudge: string | null;
   controller: DriverController;
   authorView?: boolean;
-  /** v2.3 plan 07 (C4): the policy in effect, so the author can see what steering must respect. */
+  /** The policy in effect, so the author can see what steering must respect. */
   agency?: AgencyPolicy | null;
 };
 

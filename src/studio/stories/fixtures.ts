@@ -21,7 +21,7 @@ export const sampleStory = (): StoryDraft => ({
   roster: [{ id: "guide", name: "The Guide" }],
 });
 
-// v2.3 plan 09 fixture: nothing here is special except the length. A key that is a sentence, a rubric
+// Fixture: nothing here is special except the length. A key that is a sentence, a rubric
 // that is a paragraph, and twelve options — the shapes a real author produces and a fixed-width row
 // does not survive.
 export const longNameStory = (): StoryDraft => ({

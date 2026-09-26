@@ -33,12 +33,12 @@ export interface DrawerTabsProps {
   onOpenSettings?: () => void;
   onEditStory?: () => void;
   onFixWithWizard?: () => void;
-  /** V19: the settings panel's Repair step, revealed. */
+  /** The settings panel's Repair step, revealed. */
   onOpenRepair?: () => void;
   onNewStory?: () => void;
-  /** v2.4 plan 02 §5 (author view, E1): cut a branch at the oldest point this run can still restore. */
+  /** Cut a branch at the oldest point this run can still restore. */
   onBranchFromOldest?: (messageId: number) => void;
-  /** v2.4 plan 08 T19d (D12, author view): a cited "message N" scrolls the chat there through /chat-jump. */
+  /** A cited "message N" scrolls the chat there through /chat-jump. */
   onJumpToMessage?: (messageId: number) => void;
 }
 
@@ -79,7 +79,7 @@ const FlagControl = ({ manager }: { manager: RuntimeManager }) => {
 
 // Restart is the player's one destructive control (it asks first); "Edit story" is the author's
 // way into Studio from the chat they are playing — that is the chat the save can hot-swap into.
-// v2.3 plan 09 / V19: the drawer footer carries the same four tasks as the settings panel. Continue is
+// The drawer footer carries the same four tasks as the settings panel. Continue is
 // the drawer itself; Repair appears only while a step is missing and lands on the panel's own Repair
 // row, so there is still one control per task.
 const StoryControls = ({ snapshot, manager, onEditStory, onOpenRepair, onNewStory }: {
@@ -121,7 +121,7 @@ const StoryControls = ({ snapshot, manager, onEditStory, onOpenRepair, onNewStor
 
 export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditStory, onFixWithWizard, onOpenRepair, onNewStory, onBranchFromOldest, onJumpToMessage }: DrawerTabsProps) => {
   const [active, setActive] = useState<DrawerTabId>("overview");
-  // v2.3 plan 05: a warden card cites the message a fact was read from, so its button has to land on
+  // A warden card cites the message a fact was read from, so its button has to land on
   // that fact. A `bound:` id is the blackboard's, and the blackboard tab is where it lives; a memory
   // row is focused in the Memory tab instead.
   const [focusFact, setFocusFact] = useState<string | null>(null);

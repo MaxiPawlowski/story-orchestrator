@@ -1,5 +1,5 @@
-// v2.4 plan 08 R15 (X24): one `{{story_quality_<key>}}` per authored quality. The seam registers zero-argument
-// macros only (08-H10), so the parametric `{{story_quality::key}}` form is v2.5. A macro is a pure read of the
+// One `{{story_quality_<key>}}` per authored quality. The seam registers zero-argument
+// macros only, so the parametric `{{story_quality::key}}` form is A macro is a pure read of the
 // blackboard at evaluation: it never drains or computes, and a ledger-bound quality reads through the
 // blackboard, its single writer. Epistemic content has no quality and so no macro.
 

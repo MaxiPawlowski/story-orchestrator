@@ -15,7 +15,7 @@ export const isOneOf = <T extends readonly string[]>(value: unknown, values: T):
   return typeof value === "string" && (values as readonly string[]).includes(value);
 };
 
-// v2.5 plan 11: one authoring vocabulary. A key the object does not know is an error with the key it
+// One authoring vocabulary. A key the object does not know is an error with the key it
 // most likely meant, so a typo or a removed alias never silently requires (or scopes) nothing.
 export const rejectUnknownKeys = (value: Record<string, unknown>, known: readonly string[], path: string, errors: ValidationError[]) => {
   for (const key of Object.keys(value).filter((candidate) => !known.includes(candidate))) {

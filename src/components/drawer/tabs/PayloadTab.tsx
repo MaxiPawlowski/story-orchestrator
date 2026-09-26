@@ -4,7 +4,7 @@ import { lorebookFileId } from "@utils/string";
 import { NextTurnPanel, type NextTurnOwnerTab } from "../NextTurnPanel";
 import { MessageCitation } from "../MessageCitation";
 
-// v2.2 plan 04, author only: what lore-select forced into the latest scan, with each entry's p.
+// Author only: what lore-select forced into the latest scan, with each entry's p.
 const LoreForced = ({ record }: { record: RuntimeSnapshot["loreForced"] | undefined }) => {
   if (!record) return null;
   const picks = Object.entries(record.p ?? {}).filter(([key]) => key !== "trigger");
@@ -22,7 +22,7 @@ const LoreForced = ({ record }: { record: RuntimeSnapshot["loreForced"] | undefi
   );
 };
 
-// v2.4 plan 05 T12, author only: what ST's scans ACTIVATED for the last loud generation, read from
+// Author only: what ST's scans ACTIVATED for the last loud generation, read from
 // WORLD_INFO_ACTIVATED rather than inferred from what was enabled or forced. It never predicts: a dry
 // run emits nothing, so there is no honest preview of this.
 const LoreFired = ({ evidence }: { evidence: RuntimeSnapshot["loreEvidence"] }) => {
@@ -60,7 +60,7 @@ const LoreFired = ({ evidence }: { evidence: RuntimeSnapshot["loreEvidence"] }) 
   );
 };
 
-// v2.5 plan 01 D (was the v2.4 T13 spike's S5 table), author only and only while scan-time gating is active:
+// The scan-gating table, author only and only while scan-time gating is active:
 // per gated entry, the story that gates it, the state the last scan loaded (the file's), the state it used,
 // and whether it fired.
 const flagText = (disabled: boolean | null) => (disabled === null ? "no flag" : disabled ? "off" : "on");

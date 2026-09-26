@@ -1,6 +1,6 @@
 import { SAVE_PLAYER_TEXT, markPending, markSettled, verifySaved, type SaveHealth } from "./saveHealth";
 
-// v2.3 plan 06 (save evidence). One observed save: the request that follows is correlated with its
+// One observed save: the request that follows is correlated with its
 // HTTP status, and the server's own view of this chat is compared with what the chat believes it
 // wrote. It lives here rather than in the manager's persist because that method is the chokepoint
 // every coordinator ends at — the budget a second orchestration would spend there is the reason the
@@ -14,13 +14,13 @@ export interface SaveObservation {
   /** The request LEFT and never got an answer — a blocked or aborted route, a dead connection. It is
    *  not a timeout (`requested` is true) and it is not a refusal (`status` is null), and the two must
    *  not share a reason: a save reported as "never sent" sends an author looking for a scheduler that
-   *  did fire (2026-09-22). */
+   * Did fire. */
   failed: boolean;
-  /** Why the save does not count for the chat it was asked for (v2.4 plan 02: the open chat changed first). */
+  /** Why the save does not count for the chat it was asked for (the open chat changed first). */
   lost?: string;
   /** Which request settled it; absent when none did. */
   burst?: number;
-  /** v2.4 E3: the tag of the save of ours that asked for that request (null: an untagged one). */
+  /** The tag of the save of ours that asked for that request (null: an untagged one). */
   askedBy?: string | null;
 }
 
@@ -33,11 +33,11 @@ export interface SaveEvidenceDeps {
   onWrite: (health: SaveHealth) => void;
   journal: (summary: string, note: string, observation: SaveObservation) => void;
   now: () => string;
-  /** v2.4 E3: false when another write already recorded the request that settled this one. */
+  /** False when another write already recorded the request that settled this one. */
   claim?: (observation: SaveObservation) => boolean;
 }
 
-/** v2.4 E3: one observed request is one save, however many writes it served; the first to record it claims it. */
+/** One observed request is one save, however many writes it served; the first to record it claims it. */
 export class ServedRequests {
   private readonly seen: number[] = [];
 
@@ -86,7 +86,7 @@ export async function recordSaveEvidence(deps: SaveEvidenceDeps, boundary: numbe
     // (the write reported success and did not land; nothing else in this system can see that) or one
     // this page could not read at all. The two are NOT the same finding, and the journal note is read
     // by an author as evidence, so it may only state what was observed: "could not be read" is not
-    // "the server holds an older state" (2026-09-22). Nor is it evidence of a lost write, which is
+    // "the server holds an older state". Nor is it evidence of a lost write, which is
     // what the outcome carries: `unconfirmed` keeps the player line, `unsaved` says a write is gone.
     const stored = health.lastOutcome === "applied" ? boundary : await deps.readBack();
     if (verifySaved(stored, settled) === "unconfirmed") {

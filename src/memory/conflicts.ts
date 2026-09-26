@@ -4,7 +4,7 @@ import { hasStateChangeMarker } from "./similarity";
 import { buildJaccardMatchSets, type MatchSets } from "./consolidate";
 import type { LedgerEntry, MemoryEntry } from "./types";
 
-// v2.3 plan 05 (C3). Two stores can both hold a claim about the same thing and disagree. The soft
+// Two stores can both hold a claim about the same thing and disagree. The soft
 // signal that existed (`entry.contradicted`, a score penalty) is something a strong entry outweighs,
 // so a character could be corrected toward the losing side. A conflict is therefore a HARD state:
 // both records are marked `conflicted`, every consumer excludes them, and the author resolves it in
@@ -17,11 +17,11 @@ export interface ConflictSide {
   label: string;
   /** The message the claim was read from, so the queue can ask the read to look at it again. */
   messageId?: number;
-  /** v2.3 plan 05: how sure the record itself was. Blackboard bound values have none (the author's
+  /** How sure the record itself was. Blackboard bound values have none (the author's
    *  own edit) and say so by leaving it out. */
   confidence?: number;
   provenance?: Provenance;
-  /** v2.4 plan 07: the established side of a held claim. It keeps steering while the pair waits. */
+  /** The established side of a held claim. It keeps steering while the pair waits. */
   standing?: true;
 }
 
@@ -34,7 +34,7 @@ export interface ConflictPair {
   /** Stable identity, so a resolved pair does not re-queue on the next pass. */
   key: string;
   sides: [ConflictSide, ConflictSide];
-  /** v2.3 plan 05: where the disagreement was found. Both sides are already conflicted. */
+  /** Where the disagreement was found. Both sides are already conflicted. */
   detectedAt: string;
   /** The span the two claims were read from, so "re-read the window" reads THAT, not the newest. */
   window: ConflictWindow | null;
@@ -271,8 +271,8 @@ export function markConflicted<T extends { provenance: Provenance }>(records: T[
   return records.map((record) => (wanted.has(idOf(record)) ? { ...record, ...withValidity(record, "conflicted") } : record));
 }
 
-// v2.4 plan 07 (J8.5). A row the story has settled: locked as canon, decided by the author, or written
-// by the author. A pin is retention, not truth (v2.3 M5), so a pinned extracted row is not settled. A new claim in its band is HELD — queued with the established row standing — instead of
+// A row the story has settled: locked as canon, decided by the author, or written
+// by the author. A pin is retention, not truth, so a pinned extracted row is not settled. A new claim in its band is HELD — queued with the established row standing — instead of
 // joining the live facts on its own. "In its band" is the consolidation bands (vectors, else
 // Jaccard), which cannot tell a contradiction from an agreeing paraphrase: both are held, and an
 // agreeing one loses nothing because the established row already says it. A contradiction worded with
@@ -297,7 +297,7 @@ export function unionMatchSets(left: MatchSets, right: MatchSets): MatchSets {
   return { dup: merge(left.dup, right.dup), sameTopic: merge(left.sameTopic, right.sameTopic) };
 }
 
-/** v2.4 plan 07 (live, bundle 9b2f890a5987): the bands that guard an ESTABLISHED row are the vectors
+/** The bands that guard an ESTABLISHED row are the vectors
  *  bands OR the Jaccard bands. Measured on lane 2, "the bridge is gone" vs "the bridge is intact" sat at
  *  cosine 0.410 / 0.359 (under the 0.55 same-topic band) and at Jaccard 0.533 / 0.571 (over its 0.4
  *  band): a sentence embedding barely moves on polarity, so vectors alone stored the claim live. The
@@ -336,7 +336,7 @@ export interface ConflictResolution {
   drop: string;
   at: string;
   boundary: number;
-  /** v2.3 plan 05: "Lock as canon" is one decision, not two — the kept row and its lock are written
+  /** "Lock as canon" is one decision, not two — the kept row and its lock are written
    *  together, so a failure cannot leave a resolved pair with an unlocked winner. */
   lock?: boolean;
 }

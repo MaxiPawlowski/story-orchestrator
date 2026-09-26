@@ -41,7 +41,7 @@ export interface StoryUpdateDescription {
 }
 
 // Author-facing, not player-facing: this popup only ever appears because the author just saved an
-// edit from this chat. v2.3 plan 02 (R7): it returns a description, not markup — the title of an
+// edit from this chat.: it returns a description, not markup — the title of an
 // imported story and a diff message are both text somebody else wrote, and the host assigns popup
 // content to innerHTML (popup.js:534).
 export const describeStoryUpdate = (title: string, diff: StoryDiffResult, from: number | null, to: number | null): StoryUpdateDescription => ({
@@ -59,7 +59,7 @@ export const renderStoryUpdate = (description: StoryUpdateDescription, doc: Docu
   const heading = doc.createElement("h3");
   heading.append(doc.createTextNode(`“${description.title}” changed under this chat${versionLabel(description.from, description.to)}`));
   root.append(heading);
-  // v2.3 plan 09: one save vocabulary. "Saved to the library" and "applied to this chat" are two
+  // One save vocabulary. "Saved to the library" and "applied to this chat" are two
   // different events with different owners, and this popup is where they are most easily confused.
   para("Your edit is already saved to the library. What is left to decide is whether this chat takes it:");
   const list = doc.createElement("ul");

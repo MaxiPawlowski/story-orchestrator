@@ -1,17 +1,17 @@
 import { canonicalModel, isFloatingModel } from "./policy";
 import { JUDGE_USE_KEYS, type JudgeSettings, type JudgeUseKey } from "./settings";
 
-// v2.3 plan 09, re-measured by plan 11. The recommended-configuration table as data the settings
+// Re-measured The recommended-configuration table as data the settings
 // panel can render — the numbers are RECORDED measurements, not a re-run, so the panel says where
-// each one came from. They are this round's: every use was re-calibrated live on 2026-09-22 against
+// each one came from. They are this round's: every use was re-calibrated live on against
 // `jev-1.13.0`, and the goldens under `test/goldens/judge/*.calibration.json` carry the rate, the
-// per-family verdicts and the p50 latency behind each row. `docs/plans/v2.3/recommended-config.md`
-// keeps the evidence and the caveats; the v2.2 page is superseded (its `typedExtraction` read 0.908
+// per-family verdicts and the latency behind each row. `docs/plans recommended-config.md`
+// keeps the evidence and the caveats; the page is superseded (its `typedExtraction` read 0.908
 // where this round measured 0.843, and it had no latency column at all).
 //
 // The point of the summary is the distinction the review asked for: "enabled" is not "working". A use
 // with no calibration is reported `unproven` rather than being quietly listed alongside the measured
-// ones, and a use that is on but whose dependency is off says so. v2.4 plan 07 adds the model: a rate
+// ones, and a use that is on but whose dependency is off says so. adds the model: a rate
 // measured on one model says nothing about another, so a mismatch reads `unproven` (never re-floored).
 
 export type JudgeReadinessKey = JudgeUseKey | "warden";

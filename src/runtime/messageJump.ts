@@ -1,8 +1,8 @@
 import { fingerprintOf, hashAt, type MessageFingerprints } from "./fingerprints";
 
-// v2.4 plan 08 T19d (D12). A "message N" citation opens `/chat-jump N`. ST answers that command with ''
-// whether it scrolled or not (08-H2), so whether a jump is possible is decided here, before it is sent.
-// The plan 02 T3 fingerprints say whether the cited message still reads as it did when a boundary
+// A "message N" citation opens `/chat-jump N`. ST answers that command with ''
+// whether it scrolled or not, so whether a jump is possible is decided here, before it is sent.
+// The fingerprints say whether the cited message still reads as it did when a boundary
 // consumed it; a message no boundary fingerprinted is best-effort, never "changed".
 
 export type JumpFingerprint = "same" | "changed" | "unknown";

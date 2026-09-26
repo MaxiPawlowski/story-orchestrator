@@ -6,7 +6,7 @@ import { gatedIndex, ledgerCounts, restorePlan, verifyLedger, type RestoreBook, 
 import type { WiGatingStatus } from "./worldInfoMode";
 import { normalizeGatedEntries, type NormalizeOutcome } from "./worldInfoNormalize";
 
-// v2.5 plan 01 A/B/C, host-free. The author's confirm is the switch to scan mode (Q2), and the only way
+// A/B/C, host-free. The author's confirm is the switch to scan mode, and the only way
 // the first lorebook write can happen: a sync in file mode writes nothing. In scan mode it verifies the
 // ledger, normalises, and only then activates the scan view (W2), so a scan before that runs the file
 // path. A mode change takes effect at the next sync, which every settings write triggers: no reload.

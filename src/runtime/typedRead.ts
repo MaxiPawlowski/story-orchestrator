@@ -2,7 +2,7 @@ import type { ParsedDelta, TypedJudge } from "@extraction/types";
 import { buildTypedPlan, readTypedDeltas, TYPED_TIMEOUT_MS } from "@judge/index";
 import type { JudgeRuntime } from "./judge";
 
-// v2.2 plan 06: the judged typed read shared by the cadence read (inside runSharedRead) and the
+// The judged typed read shared by the cadence read (inside runSharedRead) and the
 // every-boundary read. Null means "not asked": the flag is off, nothing is hinted, or no answer came.
 export const createTypedJudge = (getJudge: () => JudgeRuntime | null): TypedJudge => async ({ story, state, qualities, window }) => {
   const judge = getJudge();

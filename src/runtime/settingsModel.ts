@@ -20,7 +20,7 @@ export interface GlobalSettings {
   worldInfo: WorldInfoSettings;
 }
 
-// v2.5 plan 01. `scan` is written only by the author's confirm (Q2: an install that never opens the setting stays
+// `scan` is written only by the author's confirm (an install that never opens the setting stays
 // `file`). `normalized` is the ledger of gated entries whose FILE rests off (book -> comments); `normalizedFrom`
 // is what each entry was before, and is all a restore may undo.
 export type WorldInfoGatingMode = "file" | "scan";
@@ -81,7 +81,7 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   tierTokenBudgets: { ...DEFAULT_TIER_TOKEN_BUDGETS },
 });
 
-// Off by default: an agent that edits the author's lorebook has to be asked for (plan 07).
+// Off by default: an agent that edits the author's lorebook has to be asked for.
 export const defaultStagecraftSettings = (): StagecraftSettings => ({ curatorEnabled: false, acceptMode: "review", wardenEnabled: false, wardenAcceptMode: "review" });
 
 export const defaultGlobalSettings = (): GlobalSettings => ({

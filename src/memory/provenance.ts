@@ -1,4 +1,4 @@
-// v2.3 plan 05. One account of where a derived record came from and whether it is still valid, for
+// One account of where a derived record came from and whether it is still valid, for
 // every store that holds a claim about the transcript: memory entries, epistemic rows, ledger
 // versions, scene fields. The consumers (injection, canon, the warden's fact list) read `validity`
 // rather than trusting a row simply because it is present — a claim whose source message was
@@ -23,7 +23,7 @@ export interface Provenance {
   boundary: number;
   /** Which pass produced it: "shared-read", "epistemic-pass", "store-anyway", "manual-edit", … */
   pass: string;
-  /** The message's revision at read time, so an edit invalidates the claim (plan 03's identity). */
+  /** The message's revision at read time, so an edit invalidates the claim (identity). */
   sourceRevision?: number;
   /** Multi-input derivations name the rows they were built from. */
   inputs?: ProvenanceInput[];
@@ -60,7 +60,7 @@ export function provenance(spec: ProvenanceInputSpec): Provenance {
   };
 }
 
-/** v2.5 plan 11: the hydrate sanitizer keeps a row only when its envelope has this shape. */
+/** The hydrate sanitizer keeps a row only when its envelope has this shape. */
 export const isProvenance = (value: unknown): value is Provenance => {
   const found = value as Partial<Provenance> | null;
   return Boolean(found) && typeof found === "object" && (PROVENANCE_SOURCES as readonly unknown[]).includes(found?.source) && (VALIDITIES as readonly unknown[]).includes(found?.validity)

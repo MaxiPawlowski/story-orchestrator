@@ -36,7 +36,7 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     },
   },
   {
-    // v2.2 plan 06: the judged typed read on every boundary, skipped when this boundary's cadence
+    // The judged typed read on every boundary, skipped when this boundary's cadence
     // read already carries the judged step. Fire-and-forget; the manager says whether it ran.
     id: "typed-read",
     order: 15,
@@ -71,7 +71,7 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     },
   },
   {
-    // v2.3 plan 07: a chain the critic passed is `validated`, and THIS is the boundary that makes it
+    // A chain the critic passed is `validated`, and THIS is the boundary that makes it
     // part of what the chat is playing (`inserted`). Ordered before `scene-detect` so the checkpoint
     // ids the scene pass reads are the ones already in the graph.
     id: "expansion-commit",
@@ -92,7 +92,7 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     },
   },
   {
-    // v2.2 plan 03: fire-and-forget, never a scheduler job (it would queue behind LLM reads). It
+    // Fire-and-forget, never a scheduler job (it would queue behind LLM reads). It
     // runs after scene-detect so a judged break only adds a read the heuristic did not schedule.
     id: "scene-read",
     order: 55,
@@ -107,7 +107,7 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     },
   },
   {
-    // v2.2 plan 05: fire-and-forget on the judge, never a scheduler job; the warden itself checks
+    // Fire-and-forget on the judge, never a scheduler job; the warden itself checks
     // that the newest message is a character reply and that it is switched on.
     id: "continuity-warden",
     order: 57,

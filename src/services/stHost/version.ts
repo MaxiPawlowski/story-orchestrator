@@ -1,6 +1,6 @@
 import { getContext } from "./context";
 
-// v2.3 plan 08. `/version` is the server's own answer (`src/server-main.js:272` → `getVersion()` in
+// `/version` is the server's own answer (`src/server-main.js:272` → `getVersion()` in
 // `src/util.js:136`), and it is the only place a client can learn which SillyTavern it is running on:
 // the package version and the git revision the server is on. Cached per page load — it cannot change
 // while the page lives, and a bug report needs it exactly once.

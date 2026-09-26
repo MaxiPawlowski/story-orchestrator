@@ -26,7 +26,7 @@ const keptCriterion = (criterion: QualityCriterion): string | QualityCriterion |
   return criterion.not_for ? { what: criterion.what, not_for: criterion.not_for } : criterion.what;
 };
 
-// v2.2 plan 06: how the judge reads this quality. Nothing here runs until the install opts in to
+// How the judge reads this quality. Nothing here runs until the install opts in to
 // "Every-turn story reads"; a quality without a hint never reaches the judge.
 const QualityReadEditor: React.FC<{
   quality: Quality;

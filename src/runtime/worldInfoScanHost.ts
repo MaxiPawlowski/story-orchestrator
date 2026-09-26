@@ -39,12 +39,12 @@ export const SCAN_TIMING_LIMIT = 500;
 
 let running: WiGating | null = null;
 
-/** v2.5 plan 01: the settings row, the Repair action and the removal dialog reach the gating through this. */
+/** The settings row, the Repair action and the removal dialog reach the gating through this. */
 export const wiGating = (): WiGating | null => running;
 
 const library = () => listStoryRecords().map((record) => record.raw);
 
-/** v2.5 plan 01 E: what the removal dialog may offer for a library story, and the restore it runs if chosen. */
+/** E: what the removal dialog may offer for a library story, and the restore it runs if chosen. */
 export function removalRestore(storyId: string): { entries: number; run: () => Promise<{ restored: number; refused: string[] }> } | null {
   const gating = running;
   const record = listStoryRecords().find((entry) => entry.id === storyId);
@@ -67,7 +67,7 @@ const confirmNormalisation = (preview: NormalizePreviewBook[]) => {
   ].join("\n"), { okButton: "Switch to per chat", cancelButton: "Keep file writes" });
 };
 
-// v2.5 plan 01. The scan handler gates only while the gating is active (normalised first, W2); before that, and
+// The scan handler gates only while the gating is active (normalised first, W2); before that, and
 // in file mode, it does nothing and the file path runs.
 export function startScanGating(deps: ScanGatingWiring): { reassert: () => void; dispose: () => void } {
   setScanGatingActive(false);

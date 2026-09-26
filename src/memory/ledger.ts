@@ -15,7 +15,7 @@ export interface LedgerBinding {
 export interface LedgerSignalContext {
   boundary: number;
   messageId?: number;
-  /** Which pass wrote it (v2.3 plan 05). */
+  /** Which pass wrote it. */
   pass?: string;
   source?: ProvenanceSource;
 }
@@ -40,7 +40,7 @@ export function applyLedgerSignals(
     if (!signal.entity.trim() || !signal.field.trim() || !value) continue;
     const key = ledgerKey(signal.entity, signal.field);
     if (boundKeys.has(key)) continue;
-    // M3: a change is a NEW version, never an overwrite. An in-place edit destroys the value a
+    // A change is a NEW version, never an overwrite. An in-place edit destroys the value a
     // rollback has to restore, which is the whole reason `rollbackLedger` could only keep or drop.
     const previous = next.filter((entry) => ledgerKey(entry.entity, entry.field) === key).at(-1);
     if (previous && isLive(previous) && previous.value === value) continue;
@@ -85,7 +85,7 @@ export function rollbackLedger(entries: LedgerEntry[], messageId: number): Ledge
   return entries.flatMap((entry) => keepPinnedFrom(entry, messageId));
 }
 
-/** V11 (carried from V9): below the engine's history floor a rollback only ever restores a key's
+/** Below the engine's history floor a rollback only ever restores a key's
  *  newest version, so the older ones there are unreachable and go first. */
 function trimOrder(kept: LedgerEntry[], older: LedgerEntry[], floor: number | null): LedgerEntry[] {
   if (floor === null) return older;
@@ -134,7 +134,7 @@ export function buildLedgerView(
     rows.push({ entity: binding.entity, field: binding.field, value: String(value), bound: true, turn: versions[binding.qualityKey] ?? 0 });
   }
   // One row per key: the newest LIVE version is the fact, the older ones are what a rollback
-  // restores. A quarantined version (v2.3 plan 05) neither speaks for the key nor hides the version
+  // restores. A quarantined version neither speaks for the key nor hides the version
   // it replaced, so the row falls back to the newest version still standing.
   const newest = new Map<string, LedgerEntry>();
   for (const entry of entries) {

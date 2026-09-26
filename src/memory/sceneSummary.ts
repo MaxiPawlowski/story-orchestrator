@@ -43,7 +43,7 @@ export function sceneRangeFrom(derived: readonly DerivedRecord[], to: number, st
   return Math.max(0, Math.min(Math.max(storyStart, ...ends), to));
 }
 
-// v2.4 plan 03 D5. A scene is summarized whole: map each chunk that fits, then reduce the chunk
+// A scene is summarized whole: map each chunk that fits, then reduce the chunk
 // summaries (again, if they do not fit either). Chunk summaries are intermediates and are never
 // returned. A refused chunk yields no summary rather than one that silently skips part of the scene.
 export async function summarizeScene(run: SceneSummaryRun): Promise<SceneSummaryOutcome | null> {

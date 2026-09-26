@@ -3,16 +3,16 @@ import type { CapabilityReport, HostFacts } from "@services/STAPI";
 
 export interface CapabilitiesGroupProps {
   reports: CapabilityReport[] | "checking";
-  /** v2.3 plan 08: what it is running on, which a present/absent probe cannot say. */
+  /** What it is running on, which a present/absent probe cannot say. */
   facts?: HostFacts | null;
   extensionVersion?: string;
-  /** v2.4 plan 03 D5: the memory model's context limit and where it came from, never failed closed. */
+  /** The memory model's context limit and where it came from, never failed closed. */
   memoryModel?: MemoryModelLimit | null;
   onRefresh(): void;
   onCopy?(text: string): void;
 }
 
-// v2.3 plan 06/08. An install-health read-out, not a control: it exists so a missing host capability is
+// 08. An install-health read-out, not a control: it exists so a missing host capability is
 // named where the author is standing, instead of surfacing as an effect that quietly did nothing, and
 // so a bug report carries the version, the engine and every probe in one paste. Nothing here is a
 // story spoiler, so it needs no persona gate.

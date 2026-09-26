@@ -1,6 +1,6 @@
 import { generateMemoryId, type MemoryEntry } from "./types";
 
-// v2.3 plan 04. Nothing derived survives the removal of what it was derived from. Every artifact a
+// Nothing derived survives the removal of what it was derived from. Every artifact a
 // pass produces — a short-term compaction, a scene summary, an arc summary, the canon, a memory
 // exclusion, a dedup — records the rows it was built from and the rows it took away, so a rollback
 // past any of its inputs can drop it AND put back exactly what it removed. Without the second half

@@ -5,7 +5,7 @@ import type { RosterHost } from "./hostPorts";
 
 type RosterMember = NormalizedStoryV2["roster"][number];
 
-// v2.4 01-H9..H11: `/comment` notes, hidden rows, `/sd` and tool rows are not a character's turn.
+// `/comment` notes, hidden rows, `/sd` and tool rows are not a character's turn.
 type ChatRow = { name?: string; is_user?: boolean; is_system?: boolean; extra?: { type?: unknown } };
 
 export const rosterMemberName = (member: RosterMember): string => member.name ?? member.id;

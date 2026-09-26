@@ -24,7 +24,7 @@ export interface JudgeRuntimeDeps {
   status(): Promise<JudgeStatusLike | null>;
   record(record: JudgeCallRecord): void;
   context(): { boundary: number; messageId: number };
-  // v2.3 plan 03 (C1). Optional: a caller that supplies none keeps today behaviour.
+  // Optional: a caller that supplies none keeps today behaviour.
   ownership: RunOwnership;
   now?: () => number;
 }
@@ -54,7 +54,7 @@ export class JudgeRuntime {
     return judgeUseActive(this.deps.getSettings(), use);
   }
 
-  // v2.2 plan 07: variants are their own opt-in (count > 1), still behind the master switch.
+  // variants are their own opt-in (count > 1), still behind the master switch.
   expansionSettings(): JudgeSettings["expansion"] | null {
     const settings = this.deps.getSettings();
     return settings.enabled ? settings.expansion : null;
@@ -84,7 +84,7 @@ export class JudgeRuntime {
   }
 
   /**
-   * v2.3 plan 10 (A): the two-arm lore comparison. Its own report shape, because there are two
+   * The two-arm lore comparison. Its own report shape, because there are two
    * metric sets and a verdict per arm rather than one pass/fail.
    */
   calibrateLoreRelevance(cases: unknown[], model?: string): Promise<LoreRelevanceReport> {
@@ -114,13 +114,13 @@ export class JudgeRuntime {
     return Promise.reject(new Error(`no calibration for judge use '${use}' yet`));
   }
 
-  // v2.4 plan 07 (X12): so-judge rescore — both arms of a judge-off control scored by one question.
+  // So-judge rescore — both arms of a judge-off control scored by one question.
   rescore(use: string, rows: WardenRescoreRow[], model?: string): Promise<RescoreResult[]> {
     if ((WARDEN_RESCORE_USES as readonly string[]).includes(use)) return runWardenRescore((request) => this.probe(request, model), use as WardenRescoreUse, rows);
     return Promise.reject(new Error(`no rescore for judge use '${use}' yet`));
   }
 
-  // v2.4 plan 07 T25: so-judge reads the verdict here, so the harness and the page share one map.
+  // So-judge reads the verdict here, so the harness and the page share one map.
   modelVerdict(requested: string | null | undefined, answered: string | null | undefined) {
     return modelVerdict(requested ?? this.deps.getSettings().model, answered);
   }
@@ -141,9 +141,9 @@ export class JudgeRuntime {
 
   async ask(use: string, request: JudgeRequest, options: JudgeAskOptions = {}): Promise<JudgeResult> {
     const settings = this.deps.getSettings();
-    // C1: the call belongs to the world it was ASKED in. Both the numbers it is stamped with and
+    // The call belongs to the world it was ASKED in. Both the numbers it is stamped with and
     // the ring it lands in used to be read after the await, so a call started in one chat could be
-    // recorded, with the other chat's boundary, in the other chat's ring — and plan 11 builds its
+    // recorded, with the other chat's boundary, in the other chat's ring — and builds its
     // cost and latency report out of these rings.
     const asked = this.deps.context();
     const token = this.deps.ownership.mint();
@@ -163,7 +163,7 @@ export class JudgeRuntime {
     const result = await askJudge(this.deps.transport, { ...request, model: settings.model }, {
       timeoutMs: options.timeoutMs ?? settings.timeoutMs,
       cache: this.cache,
-      // v2.3 plan 03: a story load, restart or chat change cancels this request in flight rather
+      // A story load, restart or chat change cancels this request in flight rather
       // than paying for an answer the token check below will refuse anyway.
       ...(this.deps.ownership.signal ? { signal: this.deps.ownership.signal() } : {}),
       ...(this.deps.now ? { now: this.deps.now } : {}),
@@ -187,7 +187,7 @@ export class JudgeRuntime {
     // A call whose chat, story or session moved while it ran is not this chat's to record. The
     // answer is still returned — the caller has its own ownership check at ITS write edge, and
     // silently returning null here would look like a judge failure rather than a switch. It was
-    // still paid for (v2.4 plan 07): the chat that asked is charged, now if it is still open,
+    // still paid for: the chat that asked is charged, now if it is still open,
     // otherwise on its next recorded call in this page session.
     const owned = token ? this.deps.ownership.check(token) : undefined;
     if (token && owned && owned.ok === false) {

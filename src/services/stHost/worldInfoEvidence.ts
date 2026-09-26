@@ -20,7 +20,7 @@ export interface WorldInfoScanObservers {
 }
 
 export interface WorldInfoScanObservation {
-  /** Re-places the first/last observers; listener order is decided only at call time (05-H11). */
+  /** Re-places the first/last observers; listener order is decided only at call time. */
   reassert: () => void;
   /** Whether this host can order listeners at all; without it first/last mean nothing. */
   ordered: boolean;
@@ -34,9 +34,9 @@ const isEntriesLoaded = (value: unknown): value is HostEntriesLoaded =>
 
 export const loadedEntries = (payload: HostEntriesLoaded): HostScannableEntry[] => LOADED_ARRAYS.flatMap((key) => payload[key]);
 
-// v2.4 plan 05 T12. Read-only: nothing here writes, so there is no WriteResult. WORLD_INFO_ACTIVATED
-// fires only for a non-dry scan that activated something (05-H1); WORLDINFO_ENTRIES_LOADED carries
-// the per-call arrays before ST sorts them (05-H2), so a first and a last observer see what every
+// Read-only: nothing here writes, so there is no WriteResult. WORLD_INFO_ACTIVATED
+// fires only for a non-dry scan that activated something; WORLDINFO_ENTRIES_LOADED carries
+// the per-call arrays before ST sorts them, so a first and a last observer see what every
 // other listener did to them in between.
 export function observeWorldInfoScans(observers: WorldInfoScanObservers): WorldInfoScanObservation {
   const context = getContext();

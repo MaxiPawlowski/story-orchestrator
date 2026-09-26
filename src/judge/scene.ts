@@ -154,7 +154,7 @@ export function sceneTrackerText(facts: SceneFacts): string | null {
 }
 
 /**
- * C2 (v2.3 plan 03): how far the stored read can still be trusted. A read that does not answer —
+ * How far the stored read can still be trusted. A read that does not answer —
  * a timeout, an error, an unreachable plugin — used to leave the previous record untouched, so a
  * tracker that had not worked for ten minutes looked exactly like one that answered a second ago.
  * `failures` counts consecutive misses; past `SCENE_STALE_AFTER` the tracker is withheld rather
@@ -175,7 +175,7 @@ export interface SceneReadRecord {
   model: string | null;
   freshness?: SceneFreshness;
   /**
-   * v2.3 plan 05. Where this read came from. It is the same envelope every derived record carries
+   * Where this read came from. It is the same envelope every derived record carries
    * (`@memory/provenance`), declared structurally here because the judge core is pure and may not
    * import the memory layer.
    */
@@ -198,7 +198,7 @@ export interface SceneReadRecord {
 }
 
 /**
- * C2 (v2.3 plan 03): has the judge failed to confirm this scene often enough to stop asserting it?
+ * Has the judge failed to confirm this scene often enough to stop asserting it?
  *
  * It lives here, in the pure module, rather than on the coordinator, because four consumers have
  * to agree about it — the injected tracker block, the player's "where you are" line, the

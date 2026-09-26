@@ -8,7 +8,7 @@ export const READ_AS_TYPES: Record<(typeof QUALITY_READ_AS)[number], ReadonlyArr
   rating: ["int", "float"],
 };
 
-// v2.2 plan 06: a rating's levels come from authored `criteria.levels`, or from a rubric that
+// A rating's levels come from authored `criteria.levels`, or from a rubric that
 // reads "from N (low) to M (high)" with at most 10 steps (spike experiments/extraction.mts).
 export function ratingLevels(quality: Pick<Quality, "rubric" | "criteria">): QualityRatingLevel[] | null {
   if (quality.criteria && "levels" in quality.criteria && Array.isArray(quality.criteria.levels) && quality.criteria.levels.length >= 2) return quality.criteria.levels;

@@ -1,13 +1,13 @@
 import { getContext } from "./context";
 
-// v2.4 plan 02 T14. Which chat file a book was mirrored for, and whether that file still exists. A delete
+// Which chat file a book was mirrored for, and whether that file still exists. A delete
 // event is not the evidence: `deleteGroup` emits GROUP_CHAT_DELETED before it reads `response.ok`
-// (group-chats.js:1328-1337, 02-H11), and `deleteGroupChat` splices the id out of `group.chats` before
+// (group-chats.js:1328-1337), and `deleteGroupChat` splices the id out of `group.chats` before
 // its request (:2286), so neither the event nor the client list alone says the file is gone.
 
 export interface ChatOwner {
   chatId: string;
-  /** `chat_metadata.integrity`, minted by ST on load (script.js:7665-7667, 02-H4). */
+  /** `chat_metadata.integrity`, minted by ST on load (script.js:7665-7667). */
   integrity: string | null;
   groupId: string | null;
   /** The solo character's avatar file: the directory its chats live in (characters.js:1503). */

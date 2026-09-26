@@ -25,7 +25,7 @@ let bridge: TurnBridge | null = null;
 let slashRegistered = false;
 let privateInjectionUnsub: (() => void) | null = null;
 const live: LiveParts = { scheduler: null, scene: null, talk: null, typedJudge: null };
-// v2.3 plan 03: every subscription startRuntime makes, so stopRuntime can undo it. Without this a
+// Every subscription startRuntime makes, so stopRuntime can undo it. Without this a
 // stop/start cycle left the previous run listening, and each boundary dispatched twice — once into
 // live wiring and once into a scheduler and scene coordinator that had already been torn down.
 const runtimeDisposers: Disposers = [];
@@ -43,7 +43,7 @@ const registerSlashCommandsWhenReady = (attempt = 0) => {
 };
 
 const registerHostSurfaces = () => {
-  // v2.3 plan 06. A build with no MacrosParser throws on the first registration, and this call sits
+  // A build with no MacrosParser throws on the first registration, and this call sits
   // in the middle of startRuntime: unguarded, a missing macro engine would take the bridge, the judge,
   // lore selection and speaker direction down with it. The capability report is where it is shown.
   try {
@@ -99,7 +99,7 @@ export function startRuntime() {
   startTalk(live, judgeRuntime, access, lore.onIntercept);
   attachGenerationObservers(live, runtimeDisposers, generation);
   privateInjectionUnsub = subscribeGenerationEvents(live, generation, lore, access.chatLastId, () => void startupLoad());
-  // v2.3 plan 06 (F2). Versioned settings (loaded synchronously from a cache) are already in place,
+  // Versioned settings (loaded synchronously from a cache) are already in place,
   // so the gate opens now and the chat loads now; a page still fetching them opens it on the event.
   // Either way the load happens exactly once, because the gate resolves once.
   void settingsReady().then(() => {

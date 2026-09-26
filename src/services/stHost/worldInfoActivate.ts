@@ -5,7 +5,7 @@ import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 
 export type { HostScannableEntry } from "./hostTypes";
 
-// v2.2 plan 04. What the next World Info scan will iterate, in the scan's own shape: a forced
+// What the next World Info scan will iterate, in the scan's own shape: a forced
 // object is added to the activated set as-is (world-info.js:4886-4889), so it must be one of these.
 export async function getScannableEntries(): Promise<HostScannableEntry[]> {
   if (typeof worldInfoModule.getSortedEntries !== "function") return [];

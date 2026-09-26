@@ -146,7 +146,7 @@ export const setStagecraft = (draft: StoryDraft, stagecraft: StoryStagecraft): S
   return lorebooks.length ? { ...rest, stagecraft: { lorebooks } } : rest;
 };
 
-// v2.2 plan 03: the scene tracker's vocabulary, kept as typed (the parser trims on load), so a new
+// The scene tracker's vocabulary, kept as typed (the parser trims on load), so a new
 // empty row and a space typed mid-name survive the keystroke. An empty block drops out.
 export const setSceneRead = (draft: StoryDraft, sceneRead: StorySceneRead): StoryDraft => {
   const next: StorySceneRead = {
@@ -158,7 +158,7 @@ export const setSceneRead = (draft: StoryDraft, sceneRead: StorySceneRead): Stor
   return Object.keys(next).length ? { ...rest, scene_read: next } : rest;
 };
 
-// v2.2 plan 04: lore-select's scope, kept as typed like setSceneRead. No book means no block.
+// Lore-select's scope, kept as typed like setSceneRead. No book means no block.
 export const setLoreSelect = (draft: StoryDraft, loreSelect: StoryLoreSelect): StoryDraft => {
   const { lore_select: _dropped, ...rest } = draft;
   if (!loreSelect.lorebooks.length) return rest;
@@ -168,7 +168,7 @@ export const setLoreSelect = (draft: StoryDraft, loreSelect: StoryLoreSelect): S
   };
 };
 
-// v2.4 plan 07 T23: kept as typed so a rule can be written word by word; validation trims and caps it.
+// Kept as typed so a rule can be written word by word; validation trims and caps it.
 export const setHouseRules = (draft: StoryDraft, rules: string[]): StoryDraft => {
   const { house_rules: _dropped, ...rest } = draft;
   return rules.length ? { ...rest, house_rules: rules } : rest;

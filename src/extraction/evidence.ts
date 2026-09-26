@@ -1,11 +1,11 @@
-// v2.3 plan 02 (R6). Evidence is a quote, so it has to be checkable against the text the read was
+// Evidence is a quote, so it has to be checkable against the text the read was
 // actually given. A read that answers with a paraphrase, a line from outside its window, or a line
 // stitched together from two messages has answered about a transcript nobody can point at — and the
 // audit, which shows the quote next to the prompt, cannot tell.
 //
-// The unit is the WORD (V14). A substring rule let `"e"` or `"yes"` stand as evidence found in
+// The unit is the WORD. A substring rule let `"e"` or `"yes"` stand as evidence found in
 // "eyes": the quote named text nobody wrote. Each fragment must be a run of whole words, so the
-// minimum span is one whole word. There is still no character-length rule: the review's own R6
+// minimum span is one whole word. There is still no character-length rule: the review's own
 // evidence is the seven-character `"crossed"`, and a bool may legitimately cite `yes`.
 
 import { PLAYER_MARK } from "./contract";

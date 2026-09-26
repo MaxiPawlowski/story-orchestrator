@@ -50,7 +50,7 @@ export class MemorizeBacklog {
 
   // Full-scope re-read of an existing chat, window by window, then one whole-chat pass that is
   // allowed to move the blackboard. Progress is surfaced through the memory backfill state.
-  // v2.4 plan 03 D5: the windows are packed to the request budget (`windowSize` only caps their
+  // The windows are packed to the request budget (`windowSize` only caps their
   // message count), the whole-chat pass is tail-fit, and a caller that passes `confirm` is asked
   // before anything is sent when the run is large. Automatic and debug callers pass none.
   async runMemorizeBacklog(windowSize?: number, confirm?: PreflightConfirm): Promise<boolean> {
@@ -58,7 +58,7 @@ export class MemorizeBacklog {
     const memory = this.deps.memory();
     if (!story || !memory.enabled || memory.backfill?.running || this.backlogStop) return false;
     const length = this.deps.chat().chatRows().length;
-    // V3: the backlog reads the whole chat window by window for minutes; a chat switch in between
+    // The backlog reads the whole chat window by window for minutes; a chat switch in between
     // used to read the NEXT chat's windows into memory this pass still believed was its own.
     const read = beginRun(this.deps.ownership(), { from: 0, to: Math.max(0, length - 1) });
     const stop = new AbortController();

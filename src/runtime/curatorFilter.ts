@@ -10,7 +10,7 @@ export interface CuratorFilterContext {
 
 export type CuratorEntryFilter = (entries: CuratorEntryView[], context: CuratorFilterContext) => Promise<CuratorEntryView[]>;
 
-// v2.2 plan 04: the curator sees only what the story may have overtaken. Small scopes, switched-off
+// The curator sees only what the story may have overtaken. Small scopes, switched-off
 // entries and unanswered ones always stay; with the usage off or the judge down, nothing narrows.
 export const createCuratorFilter = (judge: () => JudgeRuntime | null): CuratorEntryFilter => async (entries, context) => {
   const runtime = judge();

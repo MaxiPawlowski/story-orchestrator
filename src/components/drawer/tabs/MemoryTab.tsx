@@ -14,11 +14,11 @@ const MEMORY_TIER_LABELS: Record<MemoryTier, string> = {
   scene_history: "Scene history",
 };
 
-// v2.3 plan 05: the rule lives in @memory/provenance, so this panel and the conflict queue cannot
+// The rule lives in @memory/provenance, so this panel and the conflict queue cannot
 // drift apart on it. The title carries the long form, and its message when it has one.
 const originTitle = (entry: MemoryEntry): string => describeProvenance(entry);
 
-// v2.3 plan 09: past this many rows a list stops being readable and starts being scrolled. Below it
+// Past this many rows a list stops being readable and starts being scrolled. Below it
 // the controls would be chrome, so they appear with the volume that needs them.
 const MEMORY_SEARCH_FROM = 50;
 
@@ -139,7 +139,7 @@ export const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapsh
     .filter((entry) => !needle || entry.text.toLowerCase().includes(needle) || (entry.characterId ?? "").toLowerCase().includes(needle));
   const toggleTier = (tier: MemoryTier) => setHiddenTiers((current) => (current.includes(tier) ? current.filter((candidate) => candidate !== tier) : [...current, tier]));
 
-  // v2.3 plan 05: the warden's card cites the fact a reply broke, so the author can be taken to it.
+  // The warden's card cites the fact a reply broke, so the author can be taken to it.
   // The highlight is transient on purpose — it says "this one", not "this one is special".
   useEffect(() => {
     if (!focusFact || focusFact.startsWith("bound:")) return;

@@ -1,7 +1,7 @@
 import type { ScoreContext } from "@memory/index";
 import type { InjectorHosts } from "./hostPorts";
 
-// v2.3 plan 05. What the memory scorer is told about the turn being generated: the newest thing said,
+// What the memory scorer is told about the turn being generated: the newest thing said,
 // which of the cast it names, and where the story is. It reads the host chat directly, so it lives
 // beside the other host seams rather than inside the coordinator that happens to call it.
 

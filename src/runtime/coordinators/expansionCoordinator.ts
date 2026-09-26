@@ -92,7 +92,7 @@ export class ExpansionCoordinator {
   }
 
   // The ACTIVE generated checkpoint is never staled: splicing it out mid-play freezes boundary
-  // commits (live finding, v2 acceptance run).
+  // commits (live finding acceptance run).
   revalidateInserted() {
     const story = this.deps.getStory();
     const state = this.deps.getState();
@@ -159,14 +159,14 @@ export class ExpansionCoordinator {
     return true;
   }
 
-  // v2.2 plan 07: one stub one hop ahead of where play is heading (plan 03's look-ahead), one
+  // One stub one hop ahead of where play is heading (look-ahead), one
   // pre-generation in flight at most, never in place of the active candidate.
   private scheduleLookahead(story: NormalizedStoryV2, schedule: (reason: string, run: () => Promise<void>) => void) {
     const scene = this.deps.getSceneRead?.() ?? null;
-    // C2: a tracker the judge can no longer confirm must not steer pre-generation either. Its
+    // A tracker the judge can no longer confirm must not steer pre-generation either. Its
     // headingTo describes where play was going when it last answered, which may be minutes stale.
     if (!scene || isSceneStale(scene) || !this.deps.judge?.()?.active("expansionLookahead")) return;
-    // V13 (C4 precedence): the player is refusing this checkpoint's exits, and a heading toward one of
+    // The player is refusing this checkpoint's exits, and a heading toward one of
     // them is the route they refused. Pre-generating it would narrate them arriving there.
     if (this.deps.refusing?.()) return;
     if (Object.values(this.entries).some((entry) => entry.origin === "lookahead" && (entry.status === "queued" || entry.status === "generating"))) return;
@@ -180,7 +180,7 @@ export class ExpansionCoordinator {
     }
   }
 
-  // v2.2 plan 07: the judge as critic and ranker, each its own opt-in. The judge only checks or
+  // The judge as critic and ranker, each its own opt-in. The judge only checks or
   // ranks what the LLM wrote; code checks stay first and binding.
   private expansionJudge(story: NormalizedStoryV2, input: PlannedExpansionInput): ExpansionJudge {
     const judge = this.deps.judge?.() ?? null;
@@ -204,7 +204,7 @@ export class ExpansionCoordinator {
     };
   }
 
-  // v2.3 plan 07. `validated` is a chain the critic passed, waiting for the boundary that makes it
+  // `validated` is a chain the critic passed, waiting for the boundary that makes it
   // part of what this chat is playing; `inserted` is that boundary having happened. The state exists
   // because "review states → inserted" hid the gap the review named, and because a chain staled
   // before its boundary can now be dropped without ever having claimed to be played.
@@ -222,7 +222,7 @@ export class ExpansionCoordinator {
     return changed;
   }
 
-  // v2.3 plan 07: an author action for `stale`/`failed` (the review's "manual and undocumented for
+  // An author action for `stale`/`failed` (the review's "manual and undocumented for
   // players" gap). It re-runs the same candidate without waiting for the queue's arrival rule.
   async regenerate(key: string): Promise<boolean> {
     const entry = this.entries[key];
@@ -251,7 +251,7 @@ export class ExpansionCoordinator {
     return true;
   }
 
-  // v2.4 plan 03 D5: what an author's "generate now" is about to send: every variant, plus the critic.
+  // What an author's "generate now" is about to send: every variant, plus the critic.
   private preflight(story: NormalizedStoryV2, state: EngineState, candidate: StubExpansionCandidate): Preflight {
     const input = planExpansion(story, state.blackboard, candidate, this.deps.getCanon(), this.deps.getFactTexts());
     const requests = (this.expansionJudge(story, input).variants?.n ?? 1) + 1;
@@ -265,7 +265,7 @@ export class ExpansionCoordinator {
     const baseEntry = this.entries[key] ?? this.emptyEntry(candidate, "generating");
     this.entries[key] = { ...baseEntry, status: "generating", attempts: baseEntry.attempts + 1, updatedAt: new Date().toISOString(), lastError: null };
     this.deps.notify();
-    // v2.3 plan 11 §Fault matrix. A generation is a model call that can run for minutes, and every
+    // Matrix. A generation is a model call that can run for minutes, and every
     // write below the await lands in whatever chat is open when it answers. Without this, a chain
     // generated for chat A was filed into chat B's cache and merged into chat B's story — the
     // ownership hole every other async coordinator already closes, and the one this coordinator was

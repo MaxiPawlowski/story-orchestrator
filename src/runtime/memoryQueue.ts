@@ -7,7 +7,7 @@ import type { Provenance, Provenanced } from "@memory/provenance";
 import type { RunGuard } from "./runToken";
 import type { MemoryRuntimeState } from "./types";
 
-// v2.3 plan 05 (C3). The reconciliation queue: what two stores disagree about, held until the author
+// The reconciliation queue: what two stores disagree about, held until the author
 // decides. It lives here rather than in the memory coordinator for the same reason the rollback
 // composition does — it spans the entries, the ledger and the blackboard, and the coordinator has a
 // line budget. The coordinator keeps the one-line calls.
@@ -26,7 +26,7 @@ export interface MemoryQueueDeps {
   invalidateCanon?: () => void;
   /** Read the span a conflict came from again, rather than whatever the transcript now ends with. */
   reread?: (window: ConflictWindow, reason: string) => Promise<unknown>;
-  /** v2.3 plan 05: whether the last save is still unwritten — the plan-06 save evidence, the same
+  /** Whether the last save is still unwritten — the plan-06 save evidence, the same
    *  seam `EffectsApplier.withLedger` refuses an effect on. It is the ONE signal that answers "did
    *  this decision reach the chat's stored state": `save()` resolves either way, because ST's
    *  `saveMetadata` catches its own errors (script.js:9412) and `persist` returns rather than throws. */
@@ -34,7 +34,7 @@ export interface MemoryQueueDeps {
   save: () => Promise<void>;
   run?: () => RunGuard;
   refused?: (refusal: DecisionRefusal | null) => void;
-  /** v2.4 plan 07: the consolidation bands (ST vectors, else Jaccard). The established-row guard unions Jaccard's with them. Absent means Jaccard. */
+  /** The consolidation bands (ST vectors, else Jaccard). The established-row guard unions Jaccard's with them. Absent means Jaccard. */
   matchSets?: (group: MemoryEntry[]) => Promise<MatchSets>;
 }
 
@@ -100,7 +100,7 @@ export function detectMemoryConflicts(deps: MemoryQueueDeps): ConflictPair[] {
   return queued;
 }
 
-/** v2.4 plan 07 (J8.5). Which of these new rows land in an established row's band. A read, not a
+/** Which of these new rows land in an established row's band. A read, not a
  *  write: the bands may cost host calls, and the caller writes after its own ownership check. */
 export async function findHeldContradictions(deps: MemoryQueueDeps, candidates: MemoryEntry[]): Promise<HeldContradiction[]> {
   const established = deps.getMemory().entries.filter(standsEstablished);
@@ -160,7 +160,7 @@ function unmark<T extends Provenanced>(rows: T[], ids: Set<string>, idOf: (row: 
  * settled, and a next pass that rebuilds the pair from the stored state and asks again.
  *
  * `stores` names exactly the stores this decision patched — including the canon when the caller's
- * `before` invalidates it. The put-back is per row and compare-and-set (v2.4 plan 02, seed D): a row
+ * `before` invalidates it. The put-back is per row and compare-and-set (seed D): a row
  * goes back only while it still IS the row this decision wrote, so a row another writer added or
  * changed during the save is kept and reported rather than clobbered by a snapshot.
  */
@@ -334,7 +334,7 @@ export async function rereadConflictWindow(deps: MemoryQueueDeps, key: string): 
   return (await asked) !== false;
 }
 
-// --- the other author decisions about a memory row (v2.3 plan 05) --------------------------
+// the other author decisions about a memory row --------------------------
 //
 // "Store anyway", "reconfirm" and "lock" are the same conversation as the queue — a human saying a
 // claim is true — so they live here rather than spending the coordinator's line budget on three
@@ -354,7 +354,7 @@ export async function storeDroppedEntry(deps: MemoryQueueDeps, entryId: string, 
 /** A quarantined row the author restates: their claim now, not a read of a message that is gone.
  *  It is ONE decision across both stores that hold knowledge: a private epistemic row quarantined by
  *  a rollback is the same conversation as a public fact, and `activeEpistemic` promised the author
- *  could reconfirm it — which nothing did until 2026-09-22, so a rolled-back `[hiding]` fact was
+ * Could reconfirm it — which nothing did so a rolled-back `[hiding]` fact was
  *  gone for good and the promise lived only in a comment. */
 export async function reconfirmMemoryEntry(deps: MemoryQueueDeps, id: string, at: string): Promise<boolean> {
   const state = deps.getMemory();
@@ -371,7 +371,7 @@ export async function reconfirmMemoryEntry(deps: MemoryQueueDeps, id: string, at
   return false;
 }
 
-/** V8. Discard is an author decision like the other four, so it is written or it is put back. It
+/** Discard is an author decision like the other four, so it is written or it is put back. It
  *  used to call the stores directly: a lost save left the row gone on screen and back after a reload,
  *  and the panel said nothing. A discarded fact is an exclusion — its text stays out of later reads,
  *  and a rollback past the point it was discarded restores it. */

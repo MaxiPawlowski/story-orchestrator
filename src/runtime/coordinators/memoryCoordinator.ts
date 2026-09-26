@@ -45,15 +45,15 @@ export interface MemoryCoordinatorDeps {
   enqueueMechanical: (deltas: BlackboardDelta[]) => void;
   judge?: () => JudgeRuntime | null;
   persist: () => Promise<void>;
-  /** v2.3 plan 05: whether the last save is still unwritten — the plan-06 save evidence. A queue
+  /** Whether the last save is still unwritten — the plan-06 save evidence. A queue
    *  decision reads it because `persist` cannot answer the question itself (see `memoryQueue`). */
   unsaved?: () => boolean;
   notify: () => void;
   ownership: RunOwnership;
   historyFloor?: () => number | null;
-  /** v2.3 plan 05: the stored scene read, whose claims the ledger and the blackboard can contradict. */
+  /** The stored scene read, whose claims the ledger and the blackboard can contradict. */
   getScene?: () => SceneReadRecord | null;
-  /** v2.3 plan 05: read a named span again, rather than whatever the transcript now ends with. */
+  /** Read a named span again, rather than whatever the transcript now ends with. */
   rereadWindow?: (window: { from: number; to: number }, reason: string) => Promise<unknown>;
   hosts: MemoryHosts;
 }
@@ -114,7 +114,7 @@ export class MemoryCoordinator {
 
   private boundaryStamp() { return this.deps.getState()?.boundary ?? 0; }
 
-  // v2.3 plan 04: what this write derived, what it was built from, and what it took away. Recorded
+  // What this write derived, what it was built from, and what it took away. Recorded
   // with the write, so a rollback past the input can drop the artifact and restore the removal.
   private record(input: Omit<DerivedRecord, "id" | "boundary" | "messageId"> & { messageId?: number }) {
     const state = this.deps.getState();
@@ -207,7 +207,7 @@ export class MemoryCoordinator {
 
   async setMemoryPinned(id: string, pinned: boolean) { await this.commit(() => setPinned(this.state, id, pinned)); }
 
-  /** M6. Lock freezes the story's truth: no pass may retire it, and a contradiction is queued. */
+  /** Lock freezes the story's truth: no pass may retire it, and a contradiction is queued. */
   async setMemoryLocked(id: string, locked: boolean) { await this.commit(() => setLocked(this.state, id, locked, new Date().toISOString(), this.boundaryStamp())); }
 
   async restoreMemoryEntry(entry: MemoryEntry) { await this.commit(() => restoreEntry(this.state, entry)); }
@@ -317,7 +317,7 @@ export class MemoryCoordinator {
   applyEpistemic(signals: ParsedEpistemicSignal[], messageId: number, retireIds: string[] = []) {
     const kept = dropCommonKnowledge(signals, enabledCharacterNames(this.deps.getStory(), this.deps.hosts.roster));
     const applied = applyEpistemicSignals(this.state.epistemic, kept, { boundary: this.boundaryStamp(), messageId }, retireIds);
-    // v2.3 plan 05: refresh here too, or a pass that lapses after this write injects the member an empty block.
+    // Refresh here too, or a pass that lapses after this write injects the member an empty block.
     this.patch({ epistemic: capEpistemic(applied.entries) }); this.updateInjection();
   }
 
@@ -347,7 +347,7 @@ export class MemoryCoordinator {
 
   async removeLedgerEntry(id: string) { await this.commit(() => ({ ledger: removeLedger(this.state.ledger, id) })); }
 
-  // --- injection (V26: rendered by MemoryInjector) --------------------------
+  // injection (rendered by MemoryInjector) --------------------------
 
   updateInjection() { this.injector.update(); }
   withholdPrivateKnowledge() { this.injector.withholdPrivateKnowledge(); }

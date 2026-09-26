@@ -1,4 +1,4 @@
-// v2.3 plan 06. R3 was a `false` read as success, so every host WRITE answers with a result that
+// Was a `false` read as success, so every host WRITE answers with a result that
 // says whether it reached the host and, when it did not, why. `reason` is player-safe wording: it is
 // what the requirements panel and the journal show, so "the backend cannot take this" reads the same
 // whether it came from a probe or from the write itself.

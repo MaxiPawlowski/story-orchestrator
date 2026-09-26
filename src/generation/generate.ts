@@ -65,7 +65,7 @@ export async function generateReviewedBeats(story: NormalizedStoryV2, input: Pla
   return { ...checked, ...(await runCritic(story, input, checked.beats, model, ask, judge.critic)) };
 }
 
-// v2.2 plan 07: N chains, one at a time on the P3 lane, each with today's repair pass; the judge
+// N chains, one at a time on the lane, each with today's repair pass; the judge
 // scores the survivors and code (or the LLM, from the judge's top two) picks. The judge never writes
 // beats: with no survivor it is today's failed / needs-review path.
 async function generateVariants(story: NormalizedStoryV2, input: PlannedExpansionInput, model: ModelCall, ask: ModelAsk, variants: NonNullable<ExpansionJudge["variants"]>): Promise<ReviewedBeats> {

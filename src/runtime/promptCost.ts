@@ -2,8 +2,8 @@ import { estimateTokens } from "@memory/budget";
 import { fnv1a } from "./hash";
 import type { NextTurnBudget, TokenCount } from "./nextTurn";
 
-// v2.4 plan 08 T19a. What each block of the next prompt costs, in the main API's own tokenizer. On a
-// connected llama.cpp textgen backend every uncached count is a request to the pod (08-H6), so a value is
+// What each block of the next prompt costs, in the main API's own tokenizer. On a
+// connected llama.cpp textgen backend every uncached count is a request to the pod, so a value is
 // counted at most once, only after a debounce, and never while a generation is open: the reply path never
 // waits on it. A failed count keeps the chars/4 estimate the memory budget already uses, and says so.
 

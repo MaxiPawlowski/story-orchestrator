@@ -1,4 +1,4 @@
-// v2.3 plan 06 (save evidence). ST's `saveMetadata` swallows its own errors, so "the call returned"
+// ST's `saveMetadata` swallows its own errors, so "the call returned"
 // is not evidence that anything was written. What this module decides is the honest reading of the
 // two things that ARE evidence: whether the save request went out and what it answered, and whether
 // the metadata the server holds agrees with what this chat believes it wrote.
@@ -45,7 +45,7 @@ export function verifySaved(stored: number | null, health: SaveHealth): SaveOutc
 export const hasUnsavedChanges = (health: SaveHealth): boolean => health.pendingBoundary !== null;
 
 /**
- * v2.3 plan 05. The narrow reading of the same evidence: was the LAST save observed to fail? A request
+ * The narrow reading of the same evidence: was the LAST save observed to fail? A request
  * that never went out, one answered outside 2xx, or a read-back that shows the server holding an
  * OLDER boundary is evidence a write was lost. A read-back that could not say anything is NOT — the
  * two are different findings, and a caller that refuses work on "could not confirm" refuses work it

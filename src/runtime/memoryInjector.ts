@@ -23,7 +23,7 @@ export interface MemoryInjectorDeps {
   hosts: () => InjectorHosts;
 }
 
-// V26: what the memory stores put into SillyTavern's prompt, split out of MemoryCoordinator. The
+// What the memory stores put into SillyTavern's prompt, split out of MemoryCoordinator. The
 // coordinator owns the stores; this renders them into the extension-prompt slots and holds the
 // per-member private blocks staged for the next draft. Everything here is synchronous host writes, and
 // the only memory field it writes is `pinnedOverflow`, through the coordinator.
@@ -55,7 +55,7 @@ export class MemoryInjector {
     return { tokenBudgets: this.state.settings.tierTokenBudgets, scoreContext: this.scoreContext() };
   }
 
-  /** v2.4 plan 08: the read-models the snapshot takes from the injector, fates from the same update that wrote the blocks. */
+  /** The read-models the snapshot takes from the injector, fates from the same update that wrote the blocks. */
   readModels(): { ledger: LedgerView[]; memoryInjection: MemoryInjectionView | null } {
     return { ledger: this.ledgerView(), memoryInjection: this.lastInjection };
   }
@@ -148,7 +148,7 @@ export class MemoryInjector {
   }
 
   /** What ST's next prompt ACTUALLY holds, not a re-render for whoever speaks next (in a group the
-   *  applied block belongs to the DRAFTED member — see the 2026-09-22 note in the plan-05 record). */
+   * Applied block belongs to the DRAFTED member — see the note in the plan-05 record). */
   appliedEpistemicBlock(): string { return this.hosts.injection.readInjectedPromptBlocks().find((block) => block.key === EPISTEMIC_INJECTION_KEY)?.value ?? ""; }
 
   ledgerBlock(): string { return !this.deps.getStory() || !this.deps.enabled() ? "" : renderLedgerBlock(this.ledgerView()); }

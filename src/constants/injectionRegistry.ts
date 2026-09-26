@@ -5,7 +5,7 @@ export interface InjectionSpec {
   readonly depth: number;
   readonly writer: string;
   readonly dynamicDepth?: boolean;
-  /** v2.3 plan 09: what the next-turn preview calls this block, instead of the raw key. */
+  /** What the next-turn preview calls this block, instead of the raw key. */
   readonly label: string;
 }
 

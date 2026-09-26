@@ -8,14 +8,14 @@ export const requestBudget = (profileId: string | null): RequestBudget => ({
   meter: createTokenMeter(countTokens),
 });
 
-/** v2.4 plan 08 T18: the profile a role's passes go to, from the install-wide settings (a refused route names its dangling id). */
+/** The profile a role's passes go to, from the install-wide settings (a refused route names its dangling id). */
 export const routedProfileId = (role: PassRole): string | null => resolvedProfileId(resolveRoute(getGlobalSettings().extraction, role, profileExists));
 
 /** Each role's passes are budgeted against its own profile's context limit. */
 export const requestBudgetFor = (role: PassRole): RequestBudget => requestBudget(routedProfileId(role));
 
-// v2.4 plan 03 D5: the one popup a manual heavy pass shows before it sends anything. The counts are
-// estimates (ST counts with the main API's tokenizer, 03-H11), which the copy says.
+// The one popup a manual heavy pass shows before it sends anything. The counts are
+// estimates (ST counts with the main API's tokenizer), which the copy says.
 export async function confirmPreflight(preflight: Preflight, role: PassRole = "read"): Promise<boolean> {
   const profileId = routedProfileId(role);
   if (!preflightNeeded(preflight, readProfileContextLimit(profileId))) return true;

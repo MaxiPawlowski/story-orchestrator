@@ -6,7 +6,7 @@ export const PREFLIGHT_LIMIT_SHARE = 0.5;
 export interface Preflight {
   requests: number;
   tokens: number;
-  /** v2.4 plan 07: the judgment-model calls the run adds, when a judge use rides on it. */
+  /** The judgment-model calls the run adds, when a judge use rides on it. */
   judgeCalls?: number;
 }
 

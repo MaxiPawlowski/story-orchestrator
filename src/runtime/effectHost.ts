@@ -3,7 +3,7 @@ import { reconcileLedger } from "./effectLedger";
 import { samplerOverlay } from "./samplerOverlay";
 import type { EffectLedgerRow, EffectTarget } from "./types";
 
-// v2.3 plan 06. What the effect ledger asks the host: "what do you hold for this target?", and "put
+// What the effect ledger asks the host: "what do you hold for this target?", and "put
 // this back". It is a module rather than methods on the applier so the applier stays the recorder,
 // and it is here rather than in `stHost/` because a target is OUR vocabulary, not ST's.
 
@@ -39,7 +39,7 @@ export function readEffectTarget(target: EffectTarget): Record<string, unknown> 
 }
 
 /**
- * v2.3 plan 06. A row left `pending` means the process died between the host write and the save that
+ * A row left `pending` means the process died between the host write and the save that
  * would have reported it. The host's own value answers the only question that matters — did it land?
  * — and leaves one thing for the caller: saying so.
  */
@@ -73,7 +73,7 @@ export async function restoreEffectTarget(row: EffectLedgerRow): Promise<boolean
       // path: `/note ""` is a no-op in ST (authors-note.js guards `if (text)`).
       return (text ? await applyCharacterAN(text) : await clearCharacterAN()).ok;
     }
-    // v2.4 plan 06: a preset is a per-request overlay that never wrote the host, so nothing goes back.
+    // A preset is a per-request overlay that never wrote the host, so nothing goes back.
     case "preset":
     case "wi":
       return false;

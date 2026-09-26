@@ -404,7 +404,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     if (saved) this.engine.hydrate(saved, persisted?.engineHistory ?? null); else this.memory.markStoryStart();
     await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), saved ? "hydrate" : "activate", this.engine.checkpointPath);
     // A superseded load stops here: its tail used to retitle the newer load, release ITS gated lore and
-    // select the old id (V3), and only the current load may queue a recap (S3).
+    // select the old id, and only the current load may queue a recap.
     await releaseGatedWorldInfo(this.effects, previous, loaded.story, run);
     if (!run.stillOwns()) return this.noteRecap("away recap skipped", `a later world change superseded this load: ${run.lapsedDetail() ?? "no detail"}`);
     if (saved) { await this.stagecraft.reconcileWriteAhead(); if (!run.stillOwns()) return; }

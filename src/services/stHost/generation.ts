@@ -19,7 +19,7 @@ export const hostSystemUserName: string = scriptModule.systemUserName;
 const NO_ATTACH_TYPES = ["regenerate", "swipe", "impersonate", "quiet", "continue"];
 const NO_TEXTAREA_TYPES = ["regenerate", "swipe", "quiet", "impersonate"];
 
-// v2.2 plan 04: will this Generate() add a player message before its World Info scan? Mirrors
+// Will this Generate() add a player message before its World Info scan? Mirrors
 // script.js:4399-4401 (which types read #send_textarea), :4448 (text or a pending attachment, not
 // automatic, not quiet, not a dry run) and :4455 (chat completion `send_if_empty`), read at
 // GENERATION_STARTED, which fires before the box is read (:4299). The `depth` retry and a bias-only

@@ -1,6 +1,6 @@
-// v2.4 plan 01 T6 (pure): which host generation is the one a turn's blocks belong to. ST's
-// GENERATION_ENDED is not paired with STARTED (host-facts 01-H5), a nested quiet run clears ST's
-// generating flags mid-turn (01-H6), and other extensions emit the same event names with their own
+// Which host generation is the one a turn's blocks belong to. ST's
+// GENERATION_ENDED is not paired with STARTED (host-facts), a nested quiet run clears ST's
+// generating flags mid-turn, and other extensions emit the same event names with their own
 // `{source}` payload, so every block that rides "this reply" follows the outermost loud generation
 // this reducer tracks, never the raw events.
 

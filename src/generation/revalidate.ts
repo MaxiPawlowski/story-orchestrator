@@ -43,10 +43,10 @@ export function revalidateExpansion(
     .filter(([key, value]) => key in entry.basis && blackboard[key] !== entry.basis[key] && !matches(blackboard[key], value, tolerance))
     .map(([key]) => `${key} drifted from expansion basis`);
   if (driftIssues.length) return { status: "fail", validBeatCount: 0, issues: driftIssues };
-  // v2.3 plan 07 (R9). A route that no longer bridges is not a route: it is a player who takes the
+  // A route that no longer bridges is not a route: it is a player who takes the
   // outcome the merge used to discard and never enters the anchor. Every route is checked, and the
   // beat whose outcome fails is named.
-  // L4 (2026-09-23): the chain is entered only through its entry transition, so what that gate pins holds
+  // The chain is entered only through its entry transition, so what that gate pins holds
   // on entry, as the planner and the code check already assume. Revalidating from the bare blackboard
   // staled a chain before the player could enter it, at the boundary that would have entered it.
   const first = insertedCheckpointIds(entry)[0];

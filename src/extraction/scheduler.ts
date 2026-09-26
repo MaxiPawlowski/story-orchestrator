@@ -79,7 +79,7 @@ export interface SchedulerHost {
   epoch?: () => number;
 }
 
-// V25 (found live by V13, 2026-09-23). Cadence counts BOUNDARIES, and the window used to count
+// Cadence counts BOUNDARIES, and the window used to count
 // MESSAGES: `cadence` of them ending at the stable end. At cadence 1 a read saw only the newest reply,
 // never the player's line before it; in a group, several replies per line pushed the player's own
 // words out of every window; in a solo chat at cadence 3, half the transcript was never read. A
@@ -124,7 +124,7 @@ export class ExtractionScheduler {
   constructor(private readonly host: SchedulerHost) {}
 
   /**
-   * v2.3 plan 03: everything queued belonged to a world that no longer exists — a story load,
+   * Everything queued belonged to a world that no longer exists — a story load,
    * select, restart, clear, or a chat change.
    *
    * The ownership tokens already stop these jobs *writing* anything. This stops them *running*:
@@ -132,7 +132,7 @@ export class ExtractionScheduler {
    * produce a result that is then discarded.
    *
    * It does not touch `inFlight`: clearing the flag would let a second job start beside the one
-   * still awaiting the model. That one is aborted by the epoch change (v2.4 plan 03 D2), and refused
+   * still awaiting the model. That one is aborted by the epoch change, and refused
    * at the write edge if its answer wins the race against the abort.
    */
   clearForNewWorld() {
@@ -232,7 +232,7 @@ export class ExtractionScheduler {
     return Boolean(profileId && this.breaker.isOpen(profileId));
   }
 
-  /** v2.4 plan 08 T18: a routed profile's own reading, for its Repair row. */
+  /** A routed profile's own reading, for its Repair row. */
   profileHealth(profileId: string): ExtractionHealth | null {
     if (profileId === this.readProfile() && this.configProblem) return { kind: "config", detail: this.configProblem };
     const problem = this.profileProblems.get(profileId);
@@ -380,7 +380,7 @@ export class ExtractionScheduler {
     }
   }
 
-  // v2.2 plan 06: this boundary already queued a cadence read, which carries the judged step itself.
+  // This boundary already queued a cadence read, which carries the judged step itself.
   cadenceQueuedAt(boundary: number): boolean {
     return this.cadenceBoundary === boundary;
   }
@@ -433,7 +433,7 @@ export class ExtractionScheduler {
     const index = this.runnable(this.queue);
     if (index < 0) return;
     const [job] = this.queue.splice(index, 1);
-    // The world this job belongs to, read before it runs (v2.3 plan 03 §Abort and cleanup).
+    // The world this job belongs to, read before it runs (and cleanup).
     const startedEpoch = this.host.epoch?.() ?? 0;
     const story = this.host.getStory();
     const state = this.host.getEngineState();

@@ -5,7 +5,7 @@ import type { Provenance } from "@memory/provenance";
 import type { JudgeRuntime } from "./judge";
 
 /**
- * v2.3 plan 05. What the warden is allowed to hold a reply to, WITH the ids it came from. The card
+ * What the warden is allowed to hold a reply to, WITH the ids it came from. The card
  * the author reviews has to be able to say where the claim came from — a bare sentence is a claim
  * with no owner, and the plan's structural fix is that the fact list travels as records.
  */
@@ -19,7 +19,7 @@ export interface EstablishedFact {
 
 export type WardenCheck = (input: WardenInput) => Promise<WardenFinding[] | null>;
 
-// v2.2 plan 05: what the warden holds a reply to. The ledger's bound rows come first (the blackboard
+// What the warden holds a reply to. The ledger's bound rows come first (the blackboard
 // alone writes them), then live facts, pinned ones first.
 export function establishedFacts(
   entries: MemoryEntry[],
@@ -27,7 +27,7 @@ export function establishedFacts(
   boundProvenance: Record<string, Provenance> = {},
   conflicts: ConflictPair[] = [],
 ): EstablishedFact[] {
-  // v2.3 plan 05 (C3): the warden reads live rows only. A quarantined or conflicted fact must never
+  // The warden reads live rows only. A quarantined or conflicted fact must never
   // be the thing a character is corrected toward.
   const live = entries
     .filter((entry) => isLive(entry))
@@ -53,7 +53,7 @@ export function establishedFacts(
 }
 
 // The warden's own switch is `stagecraft.wardenEnabled`; the judge's master switch still gates
-// every call, so nothing is sent while the judgment model is off. v2.4 plan 07: one call asks every
+// every call, so nothing is sent while the judgment model is off. one call asks every
 // family that is on (WARDEN_ARM), and no facts no longer skips it when another family is on.
 export const createWardenCheck = (judge: () => JudgeRuntime | null): WardenCheck => async (input) => {
   const runtime = judge();
@@ -64,7 +64,7 @@ export const createWardenCheck = (judge: () => JudgeRuntime | null): WardenCheck
   return readWarden(Object.assign({}, ...results.map((result) => result.answers)), input);
 };
 
-// T22/T23 are their own judge.uses opt-ins. The agency check stands down where the checkpoint lets
+// Are their own judge.uses opt-ins. The agency check stands down where the checkpoint lets
 // narration write the player (never_narrate_player_action false): the author allowed it.
 export const wardenFamilies = (judge: () => JudgeRuntime | null, view: { getStory: () => NormalizedStoryV2 | null; getState: () => EngineState | null }) => () => {
   const runtime = judge();

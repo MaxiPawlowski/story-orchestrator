@@ -37,7 +37,7 @@ export class CanonSynthesis {
     return getCanonLite(story, state.visitedAnchors, this.deps.firedTransitions(), this.deps.facts());
   }
 
-  /** v2.3 plan 05: a decided conflict or a rollback was built from a claim this text still asserts.
+  /** A decided conflict or a rollback was built from a claim this text still asserts.
    *  The text is kept (an author can read it) but its readers stop treating it as current. */
   canonStale(): boolean { return this.deps.memory().canon?.stale === true; }
 

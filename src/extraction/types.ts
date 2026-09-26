@@ -63,7 +63,7 @@ export interface ParsedDelta {
   messageId?: number;
 }
 
-// v2.2 plan 06: what the judged typed read hands back. `answered` are the hinted qualities it
+// What the judged typed read hands back. `answered` are the hinted qualities it
 // settled over the floor (with or without a change); the LLM read never asks about those.
 export interface JudgedTypedRead {
   deltas: ParsedDelta[];

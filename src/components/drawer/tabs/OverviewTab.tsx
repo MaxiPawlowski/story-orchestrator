@@ -6,8 +6,8 @@ const extractionReady = (snapshot: RuntimeSnapshot): boolean => snapshot.extract
 
 const StatusDot = ({ ok }: { ok: boolean }) => <span className={`status-indicator status-${ok ? "success" : "error"}`} />;
 
-// Diagnose-only dots were the U6 half of this panel: the wizard turns them into a next step it can
-// actually take — create the missing cards, lorebook and group (plan 06). Personas stay diagnostic.
+// Diagnose-only dots were the half of this panel: the wizard turns them into a next step it can
+// actually take — create the missing cards, lorebook and group. Personas stay diagnostic.
 const AuthorRequirements = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSnapshot; onFixWithWizard?: () => void }) => {
   const items = [
     { label: "Persona", missing: snapshot.requirements.missingPersonas },
@@ -43,7 +43,7 @@ const AuthorRequirements = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSn
 // Author-only machine view of the same checkpoint: ids, counters, gate progress and the raw
 // pending queue. Convergence is a spoiler by construction (it names a future anchor), so it never
 // appears without author view.
-// v2.4 plan 02 §5 (seed D out of horizon, X25): an edit past the retained history cannot be rewound here,
+// An edit past the retained history cannot be rewound here,
 // but a branch cut at the floor starts exactly there, and its Continue from here restores it. Author view
 // only until a player session has looked at it (rule 7).
 const HistoryFloor = ({ snapshot, onBranchFromOldest }: { snapshot: RuntimeSnapshot; onBranchFromOldest?: (messageId: number) => void }) => {

@@ -2,7 +2,7 @@ import type { ConflictPair } from "@memory/index";
 import type { MemoryCoordinator } from "./coordinators/memoryCoordinator";
 import type { DecisionRefusal } from "./memoryQueue";
 
-// v2.3 plan 05. The memory actions the author view drives: the reconciliation queue, locks,
+// The memory actions the author view drives: the reconciliation queue, locks,
 // and reconfirmation. They stay in one object because they are one conversation
 // — "is this true?" — and because the manager, which is the façade everything else calls, is held to
 // a line budget a dozen one-line delegates would spend for nothing.
@@ -41,7 +41,7 @@ export function memoryActions(deps: MemoryActionDeps) {
     setMemoryLocked: (id: string, locked: boolean) => deps.setMemoryLocked(id, locked),
     reconfirmMemoryEntry: (id: string) => deps.reconfirmMemoryEntry(id),
     rereadConflictWindow: (key: string) => deps.rereadConflictWindow(key),
-    /** V8: through the same write-or-put-back as every other decision in this panel. */
+    /** Through the same write-or-put-back as every other decision in this panel. */
     discardQuarantined: (id: string) => deps.discardQuarantined(id),
     lastRefusal: () => deps.lastRefusal(),
   };

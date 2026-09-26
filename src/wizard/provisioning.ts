@@ -43,7 +43,7 @@ export function validateProvisioningOp(op: ProvisioningOp, environment: Provisio
       if (!op.comment.trim()) return fail("A lorebook entry needs a title.");
       if (!op.content.trim()) return fail(`"${op.comment}" has no content.`);
       if (!hasFile(environment.lorebookNames, op.lorebook)) return fail(`"${op.lorebook}" does not exist yet. Add a step that creates it before writing entries into it.`);
-      // R8: the story *requiring* a book says it depends on the book. Only a book this wizard made
+      // The story *requiring* a book says it depends on the book. Only a book this wizard made
       // for this story — or one the author explicitly granted — may be written into.
       if (!hasFile(
         environment.ownedLorebooks,
@@ -108,7 +108,7 @@ export interface ProvisioningPlanItem {
   validation: ProvisioningValidation;
 }
 
-// R8. A book the story *requires*, that exists and is not yet this story's to write into, is a
+// A book the story *requires*, that exists and is not yet this story's to write into, is a
 // decision only the author can make — so it becomes a card they can accept or ignore rather than
 // something the model proposes. Empty when the story owns everything it requires (the usual case,
 // since provisioning a missing book makes it owned).

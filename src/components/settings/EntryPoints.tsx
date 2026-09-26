@@ -21,7 +21,7 @@ const Row = ({ title, children }: { title: string; children: React.ReactNode }) 
   </div>
 );
 
-// v2.3 plan 09. The four things a person does here, named once. The controls stay in their own groups
+// The four things a person does here, named once. The controls stay in their own groups
 // below — this is the index, and the one place that says which task is currently asking for something.
 // Repair is the only row that can be *dark* (nothing missing), because it is the one that is about a
 // defect rather than an intention.

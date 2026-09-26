@@ -9,7 +9,7 @@ export type { DecodeJournal };
 import { dropJudgeCallsAfter } from "@judge/index";
 import type { RuntimeExtras } from "./types";
 
-// v2.3 plan 04. The mutation contract spans every store, so the composition lives in one place
+// The mutation contract spans every store, so the composition lives in one place
 // rather than in the manager's line budget. What is *not* here: the engine's own restore (it owns
 // the history) and the decision of what "unavailable" means to a player (narrative.ts).
 export interface RollbackDeps {
@@ -19,7 +19,7 @@ export interface RollbackDeps {
   memory: { rollbackFromMessage: (messageId: number, boundary: number) => unknown; updateInjection: () => unknown };
   stagecraft: { revertAppliedSince: (messageId: number) => Promise<unknown> };
   pacing: { replayCommitted: () => unknown; updateSteering: () => unknown };
-  /** The expansion cache is built from the blackboard, which the rollback just restored (v2.3 plan 04). */
+  /** The expansion cache is built from the blackboard, which the rollback just restored. */
   revalidateExpansion: () => unknown;
   extras: () => RuntimeExtras;
   refreshRequirements: () => void;
@@ -71,9 +71,9 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
     engine.clampToChat(deps.context().chatLength);
     engine.discardPendingFrom(messageId);
   };
-  // E1, one path for both ways the history can be gone: nothing retained precedes the message, or
+  // One path for both ways the history can be gone: nothing retained precedes the message, or
   // the boundary it names has no snapshot left. Either way the player is told, the journal says why,
-  // and what the edit invalidated is dropped (V11: the second route used to return in silence).
+  // and what the edit invalidated is dropped (the second route used to return in silence).
   const unavailable = async (oldest: { boundary: number; messageId: number }): Promise<RollbackOutcome> => {
     quarantine();
     await deps.stagecraft.revertAppliedSince(messageId);
@@ -87,15 +87,15 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
   const boundary = engine.boundaryBeforeMessage(messageId);
   // A memory pass may have reacted to this message even when no blackboard write made a transition.
   // The ENGINE then has nothing to restore while every other store still does, and treating the whole
-  // mutation as a no-op was exactly how M3/M4's live path kept the wounded ledger value and the
+  // mutation as a no-op was exactly how live path kept the wounded ledger value and the
   // retired belief while their pure helpers were green. The horizon is checked FIRST: an edit that
   // reaches past what the chat can reconstruct is the one case where "the engine did not act on it"
-  // is not a reason to stay quiet (E1).
+  // is not a reason to stay quiet.
   if (boundary === null) return unavailable(engine.historyFrom());
   if (!engine.shouldRollbackFromMessage(messageId)) {
     quarantine();
     // A curator write applied at a boundary that consumed the edited message was proposed from the
-    // old text, whether or not the engine moved (V11). The blackboard did not move, so the expansion
+    // old text, whether or not the engine moved. The blackboard did not move, so the expansion
     // basis stands and is deliberately not revalidated.
     await deps.stagecraft.revertAppliedSince(messageId);
     deps.memory.updateInjection();

@@ -4,7 +4,7 @@ import { useDraftStore } from "../draft";
 import { addRosterMember, nextId, removeRosterMember, updateRosterMember } from "../mutations";
 
 // The roster is what every cast-facing picker offers: talk_control speakers and lead, npc_replies
-// members, cast_changes. Studio-born stories used to render those pickers empty (finding U7).
+// members, cast_changes. Studio-born stories used to render those pickers empty (finding).
 const RosterEditor: React.FC<{ memberNames?: string[] }> = ({ memberNames = [] }) => {
   const roster = useDraftStore((state) => state.draft.roster);
   const directed = useDraftStore((state) => state.draft.checkpoints.some((checkpoint) => Boolean(checkpoint.talk_control)));

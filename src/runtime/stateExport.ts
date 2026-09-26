@@ -1,6 +1,6 @@
 import { dumpPersistedRuntime } from "./persistence";
 
-// v2.3 plan 05. The chat's saved state can be dropped by retention, so "Export state" hands the
+// The chat's saved state can be dropped by retention, so "Export state" hands the
 // author a copy of it first. The promise is small enough to test and load-bearing enough not to
 // leave inline in a component: if the clipboard is unreachable the text must still reach the
 // console, because a copy that silently failed is the state the author thinks they saved.

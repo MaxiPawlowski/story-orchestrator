@@ -12,7 +12,7 @@ export interface LiveFixtureResult {
   deltas: Array<{ q: string; v: unknown; evidence: string; judge?: number }>;
   facts: Array<{ text: string; importance: number }>;
   rejected: Array<{ line: string; reason: string }>;
-  // v2.3 plan 01 §F: the same read already parses these tiers, and the suite scored only plot
+  // The same read already parses these tiers, and the suite scored only plot
   // deltas while reporting the number as live extraction accuracy. They are handed back so a
   // fixture that states an expectation for them can be scored against it.
   memory: Array<{ tier: string; text: string }>;
@@ -22,7 +22,7 @@ export interface LiveFixtureResult {
   judged?: { answered: string[]; answers: unknown; model: string | null; fallback?: string };
 }
 
-// v2.2 plan 06 `so-live-suite --judge`: a fixture's own hint sidecar ({key: {read_as, criteria?}})
+// `so-live-suite --judge`: a fixture's own hint sidecar ({key: {read_as, criteria?}})
 // is merged into its story, the judge reads the hinted qualities first, and the LLM prompt covers
 // only the rest, exactly as runSharedRead splits a cadence read. The call is a probe, so nothing is
 // recorded in the open chat.
@@ -91,7 +91,7 @@ export function registerLiveSuite(manager: RuntimeManager) {
   globalThis.storyOrchestratorLiveSuite = handle;
 }
 
-// v2.4 plan 06 F5 Phase A: the create op is measured before it is built. The candidate prompt and
+// Phase A: the create op is measured before it is built. The candidate prompt and
 // the code guards run over the curator's own model (the curator role's routed profile); nothing is written.
 export function curatorCreateRunner(manager: RuntimeManager): LiveSuiteHandle["runCuratorCreate"] {
   return async (entry) => {

@@ -14,7 +14,7 @@ import type {
   SharedReadAudit, SharedReadContract, SharedReadResult, SharedReadWindow, TypedJudge,
 } from "./types";
 
-// v2.3 plan 02 (R6). A response is a bounded answer to a bounded question. Past either bound the
+// A response is a bounded answer to a bounded question. Past either bound the
 // whole read is refused rather than partly believed: the lines that survived a truncation are not
 // more trustworthy than the ones that did not.
 export const MAX_DELTAS_PER_READ = 24;
@@ -126,7 +126,7 @@ interface FittedRead {
   truncated: number[];
 }
 
-// v2.4 plan 03 D5. A DELTA read is never split: a window over budget keeps its newest messages and
+// A DELTA read is never split: a window over budget keeps its newest messages and
 // says where it was cut, so a delta quoting a trimmed message is refused as "evidence not in window".
 export async function fitReadWindow(window: SharedReadWindow, overheadPrompt: string, budget: RequestBudget | undefined, maxTokens: number): Promise<FittedRead> {
   if (!budget) return { window, record: null, trimmedFrom: null, truncated: [] };
@@ -154,7 +154,7 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
   const fitted = await fitReadWindow(sharedReadWindow(options), sharedReadOverhead(options), options.ask.budget, options.ask.maxTokens ?? DEFAULT_RESPONSE_TOKENS);
   const { window } = fitted;
   const hinted = scope.filter((entry) => entry.quality.read_as && entry.quality.source === "extractor");
-  // V18: a judge that threw used to leave no trace, so its audit read exactly like one where the
+  // A judge that threw used to leave no trace, so its audit read exactly like one where the
   // judge was never asked. The read still falls back to the LLM; the audit says why.
   const failure: { message?: string } = {};
   const judged: JudgedTypedRead | null = options.judgeTyped && hinted.length

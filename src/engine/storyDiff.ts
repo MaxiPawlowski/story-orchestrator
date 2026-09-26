@@ -2,7 +2,7 @@ import type { EngineState } from "./engine";
 import type { GateLeaf, GateNode, NormalizedStoryV2, PrimitiveValue, Transition } from "./schema";
 import { qualityAccepts } from "./blackboard";
 
-// Plan 05: what changes when an author edits a story a chat is already playing. The table below is
+// What changes when an author edits a story a chat is already playing. The table below is
 // the spec — every row is a jest fixture. "Live" always means the running chat actually holds the
 // thing the edit touches; the same edit on a fresh chat is compatible by construction.
 export type StoryChangeClass = "identical" | "compatible" | "invalidating";

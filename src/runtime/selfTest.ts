@@ -73,7 +73,7 @@ const CAPABILITY_FIXTURE: ExtractionFixtureSpec = {
   entities: ["Bel", "Corin"],
 };
 
-// R12: the grader used to check that a tier produced ANY line, so a model that answered fluently
+// The grader used to check that a tier produced ANY line, so a model that answered fluently
 // about entirely the wrong things — a dragon on the moon, an interstellar chess tournament — was
 // certified capable, and the settings panel then recommended enabling the tiers it had just
 // mis-graded. Each tier now checks that the answer is about the fixture, whose right answer is

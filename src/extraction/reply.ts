@@ -24,7 +24,7 @@ export interface CallAnswered {
 
 let answeredObserver: ((call: CallAnswered) => void) | null = null;
 
-/** v2.4 acceptance A6: every answered call is evidence the host is alive, which the breaker reads. */
+/** Acceptance every answered call is evidence the host is alive, which the breaker reads. */
 export function setAnsweredObserver(observer: (call: CallAnswered) => void): () => void {
   answeredObserver = observer;
   return () => {

@@ -3,8 +3,8 @@ import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { adoptChatState, BLOB_VERSION, openChatIntegrity, storedBoundaryFor } from "./persistence";
 import { beginRun, type RunContext, type RunGuard, type RunOwnership } from "./runToken";
 
-// v2.4 plan 02 §3. ST re-reads a chat it already has open (`reloadCurrentChat`: `/persona-sync`, a
-// persona change on an untainted group) and emits CHAT_CHANGED with the SAME id (H8, H9). Treated as a
+// ST re-reads a chat it already has open (`reloadCurrentChat`: `/persona-sync`, a
+// persona change on an untainted group) and emits CHAT_CHANGED with the SAME id. Treated as a
 // switch, that dropped this chat's own pending boundaries and in-flight reads. It is the same chat only
 // when all three agree: the epoch was minted in it, the integrity ST loaded is the one it had when this
 // bridge loaded it, and the copy ST just loaded holds the boundary the engine is at. Anything short of
@@ -70,11 +70,11 @@ export function readChatChange(loaded: LoadedChat | null, runtime: { runContext:
   });
 }
 
-// v2.4 plan 02 §5 (D3). A branch or checkpoint copies the parent's `chat_metadata` whole, our blob and the
-// chat lorebook slot included, then adds `main_chat` = the parent and a fresh `integrity` (H1-H3). So the
-// branch reads as foreign (V5); what tells it from any other foreign blob is that `main_chat` names the
+// A branch or checkpoint copies the parent's `chat_metadata` whole, our blob and the
+// chat lorebook slot included, then adds `main_chat` = the parent and a fresh `integrity`. So the
+// branch reads as foreign; what tells it from any other foreign blob is that `main_chat` names the
 // chat the blob is stamped for and the blob's integrity is not this chat's. One hop only: a branch of an
-// unadopted branch names the middle chat, not the stamp. Convert-to-group deletes `main_chat` (H4), so it
+// unadopted branch names the middle chat, not the stamp. Convert-to-group deletes `main_chat`, so it
 // stays foreign. Nothing is adopted on its own: the player chooses Continue from here.
 
 export type ChatIdentitySnapshot =
@@ -136,7 +136,7 @@ export async function unbindBranchMirror(run: RunGuard): Promise<WriteResult<{ n
   return unbindChatLorebook(book);
 }
 
-/** v2.4 E5: the page's first load is no CHAT_CHANGED, so it never reached the bridge's unbind. It runs the
+/** The page's first load is no CHAT_CHANGED, so it never reached the bridge's unbind. It runs the
  *  same one, with the run minted after the load for the same reason: the load itself bumps the epoch. It also
  *  hands the bridge the chat it loaded, so the first same-chat reload after a page load is not a switch. */
 export async function loadAtStartup(host: { load: () => Promise<unknown>; ownership: () => RunOwnership; loaded?: (chat: LoadedChat | null) => void }): Promise<WriteResult<{ name: string }> | null> {
@@ -151,7 +151,7 @@ export interface ContinueBranchDeps {
 }
 
 /** Continue from here: adopt (chat id + integrity), hydrate, and let the hydrate reconcile step the story
- *  back to where the branch ends (T3). */
+ * Back to where the branch ends. */
 export async function continueFromBranch(deps: ContinueBranchDeps): Promise<boolean> {
   const identity = readStoredIdentity();
   const branch = currentChat();
@@ -165,8 +165,8 @@ export async function continueFromBranch(deps: ContinueBranchDeps): Promise<bool
   return true;
 }
 
-/** Author view, E1: a branch cut at the oldest point the run can still restore, whose Continue from here
- *  then restores that point exactly. `/branch-create` opens the branch (H1). */
+/** Author view a branch cut at the oldest point the run can still restore, whose Continue from here
+ * Then restores that point exactly. `/branch-create` opens the branch. */
 export async function branchFromOldest(messageId: number): Promise<WriteResult> {
   if (!Number.isInteger(messageId) || messageId < 0) return couldNot("there is no restorable message to branch from");
   return (await executeSlashCommands(`/branch-create ${messageId}`)) ? wrote() : couldNot("/branch-create did not run");

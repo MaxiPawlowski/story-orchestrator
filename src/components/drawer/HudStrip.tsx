@@ -8,7 +8,7 @@ export interface HudStripProps {
 }
 
 // One glance: where the story is, how it feels, what it has heard, and — only when it matters —
-// that it is catching up, stuck or not set up yet (U5/U6).
+// that it is catching up, stuck or not set up yet.
 const CHIP_LABELS: Partial<Record<RuntimeSnapshot["pipeline"]["state"], string>> = {
   "stalled-rechecking": "catching up…",
   "not-configured": "needs setup",

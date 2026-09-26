@@ -25,9 +25,9 @@ export function resolveGroupMemberId(identifier: string): string | null {
   return found ?? null;
 }
 
-// v2.3 plan 06. The group is SHARED: `disabled_members` outlives the chat that wrote it, so the
+// The group is SHARED: `disabled_members` outlives the chat that wrote it, so the
 // result has to say whether ST accepted the change rather than whether we meant it.
-// V15c: `editGroup(id, false)` only schedules ST's 1 s debounced save, and `_save` never reads the
+// `editGroup(id, false)` only schedules ST's 1 s debounced save, and `_save` never reads the
 // server's answer (group-chats.js:140, 155). So a cast write answered `ok` before anything reached the
 // server; a rollback's restore read as done while the group file still held the old flags. The save is
 // made now and the server's copy read back: `null` is a read that could not answer, not a lost write.

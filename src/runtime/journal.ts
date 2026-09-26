@@ -68,7 +68,7 @@ export const DISCARD_REASON = "superseded: a newer read covered the same turns";
 const writeText = (entry: ApplyQueueEntry) => entry.deltas.map((delta) => `${delta.q}=${String(delta.v)}`);
 const queueRow = (entry: ApplyQueueEntry) => ({ origin: entry.origin ?? entry.source, deltas: writeText(entry) });
 
-// Plan 01 §A: every boundary is journaled, including one that applied nothing, and each write says
+// Every boundary is journaled, including one that applied nothing, and each write says
 // which read produced it (`origin` = the audit id) so read -> applied/discarded links by identity.
 const boundaryEvents = (log: BoundaryLogEntry[]): JournalEvent[] => log.flatMap((entry) => {
   const at = new Date(entry.at).toISOString();

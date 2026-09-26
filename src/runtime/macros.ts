@@ -33,7 +33,7 @@ const syncRoleMacros = (manager: RuntimeManager) => {
 };
 
 /**
- * Returns the disposer for the snapshot subscription it makes. v2.3 plan 03: startRuntime used to
+ * Returns the disposer for the snapshot subscription it makes. startRuntime used to
  * call this and drop it on the floor, so every stop/start cycle left another role-macro sync
  * listener attached to the manager for the life of the page.
  */

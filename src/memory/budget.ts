@@ -17,12 +17,12 @@ export function tierTokenCost(entries: MemoryEntry[]): number {
 export interface BudgetSelection {
   kept: Set<string>;
   dropped: MemoryEntry[];
-  /** Pinned rows the budget could not fit (v2.3 plan 05, M7). Reported, never silently dropped. */
+  /** Pinned rows the budget could not fit. Reported, never silently dropped. */
   pinnedOverflow: number;
 }
 
 /** What one entry costs as part of the injected block, which is the block's own formatting (the
- *  tier label line and the separator) and not only its text (v2.3 plan 05, M7). */
+ * Tier label line and the separator) and not only its text. */
 export const BLOCK_OVERHEAD_TOKENS = 2;
 
 export function blockTokens(entry: MemoryEntry): number {

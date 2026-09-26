@@ -70,7 +70,7 @@ const collectUnmetLeaves = (gate: GateNode, story: NormalizedStoryV2, values: Re
   if ("any" in gate) gate.any.forEach((entry) => collectUnmetLeaves(entry, story, values, out));
 };
 
-// v2.2 plan 06: the stall, planned but not scheduled, so a judge pre-check can decide first.
+// The stall, planned but not scheduled, so a judge pre-check can decide first.
 export function planReconciliation(story: NormalizedStoryV2 | null, state: ReconcileState | null, multiplier: number, readWindow: ChatWindowReader): ReconciliationPlan | null {
   if (!story || !state) return null;
   const checkpoint = story.checkpointById[state.activeCheckpointId];
@@ -105,7 +105,7 @@ export function maybeScheduleReconciliation(
   return plan.descriptor;
 }
 
-// v2.3 plan 02 (R6). A read scheduled for a reconciliation carries the keys it was created for in
+// A read scheduled for a reconciliation carries the keys it was created for in
 // its reason, so the log can resolve the request the answer actually belongs to: the first
 // *unresolved* event is a different set of keys as soon as two stalls overlap.
 export const reconciliationTargets = (reason: string): string[] =>

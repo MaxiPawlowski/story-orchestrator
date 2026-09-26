@@ -10,7 +10,7 @@ import type { StagecraftRuntimeState } from "./types";
 
 const RETAINED_OP_STATUSES = new Set(["applied", "revert-failed", "externally-edited"]);
 
-// V10: an op is reverted by the entry uid it recorded, so a rename after the write does not lose the
+// An op is reverted by the entry uid it recorded, so a rename after the write does not lose the
 // entry. An op recorded without one is never name-addressed: it is refused.
 const uidTarget = (entry: CuratorOpRecord): WIEntryTarget | null =>
   entry.target?.uid !== undefined ? { lorebookFileId: entry.target.lorebookFileId, uid: entry.target.uid } : null;
@@ -49,7 +49,7 @@ export class CuratorWriter {
         : `"${op.lorebook}" is not on this story's stagecraft allowlist`;
       return { ok: false, record: { ...entry, status: "failed", message } };
     }
-    // v2.3 plan 04 (R2): the before-image is read at the write edge. v2.4 plan 06 T17.2: by uid, and
+    // The before-image is read at the write edge. by uid, and
     // an entry that is gone is a failed op, never a created one.
     const fileId = lorebookFileId(op.lorebook);
     const host = this.deps.host();
@@ -96,7 +96,7 @@ export class CuratorWriter {
   async revertAppliedSince(messageId: number, withdrawn: number): Promise<number> {
     const story = this.deps.getStory();
     const run = beginRun(this.deps.ownership());
-    // v2.3 plan 04 (R2). NEWEST RECORD FIRST, and within a record newest op first, so two writes to
+    // NEWEST RECORD FIRST, and within a record newest op first, so two writes to
     // one entry walk back through their own chain: Original -> First -> Second reverts to Original,
     // not to the intermediate text the older record happens to hold.
     const affected = this.deps.state().proposals.filter((record) => record.curator !== "warden" && record.appliedAt && record.messageId >= messageId).reverse();

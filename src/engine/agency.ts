@@ -1,6 +1,6 @@
 import type { AgencyPolicy, Checkpoint, NormalizedStoryV2, ObjectiveKind, StoryV2 } from "./schema";
 
-// v2.3 plan 07 (C4). The policy is the defaults, not "absent = today's phrasing": every story that
+// The policy is the defaults, not "absent = today's phrasing": every story that
 // does not declare `agency` gets these, which is a deliberate behaviour change (spec addendum
 // §Agency). An author who wants escalation phrased the old way sets the booleans false.
 export const DEFAULT_AGENCY: AgencyPolicy = {

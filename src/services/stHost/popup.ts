@@ -35,7 +35,7 @@ export interface ChoicePopupOptions<T extends string> {
   choices?: Array<{ id: T; label: string }>;
 }
 
-// v2.3 plan 02 (R7). A caller that needs markup builds it from the document it is handed, so what
+// A caller that needs markup builds it from the document it is handed, so what
 // it interpolates is a text node at the point of construction. A plain string is content, not
 // markup: it is escaped through one, because the host assigns string content to innerHTML
 // (popup.js:534) and the strings this popup shows include authored story titles.
@@ -51,7 +51,7 @@ export const asContentNode = (content: PopupContent): HTMLElement => {
 
 const plainText = (content: PopupContent): string => (typeof content === "string" ? content : asContentNode(content).textContent ?? "");
 
-// Three-way decisions (plan 05's invalidation flow) need more than confirm/cancel. ST's popup
+// Three-way decisions (invalidation flow) need more than confirm/cancel. ST's popup
 // takes `customButtons` whose results start at 2 (popup.js:288-290) alongside the built-in
 // AFFIRMATIVE=1 / NEGATIVE=0 / CANCELLED=null (popup.js:24-27).
 export async function showChoicePopup<T extends string>(content: PopupContent, options: ChoicePopupOptions<T>): Promise<T | null> {

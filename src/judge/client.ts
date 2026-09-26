@@ -12,7 +12,7 @@ export class JudgeTimeoutError extends Error {
 
 export interface AskJudgeOptions {
   timeoutMs: number;
-  /** v2.3 plan 03: aborted when the epoch this call was made in is replaced. */
+  /** Aborted when the epoch this call was made in is replaced. */
   signal?: AbortSignal;
   now?: () => number;
   cache?: Map<string, JudgeResponse>;

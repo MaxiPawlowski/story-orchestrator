@@ -16,7 +16,7 @@ export type SceneFamilyKey = "present" | "location" | "time" | "heading" | "brea
 
 // The trigger only adds reads next to the regex's text-pattern hits (union), so a miss costs what it
 // costs today and a false trigger costs one GPU read: no false trigger at all, and recall over the
-// regex's measured 6 of 12 (plan 03 Phase A).
+// regex's measured 6 of 12 (Phase A).
 export const SCENE_CALIBRATION_FLOORS: Record<SceneFamilyKey, number> = { present: 0.9, location: 0.85, time: 0.8, heading: 0.85, break: 0.5, nobreak: 1 };
 
 export async function runSceneCalibration(ask: (request: JudgeRequest) => Promise<JudgeResult>, cases: SceneCalibrationCase[]): Promise<JudgeSelfTestReport> {

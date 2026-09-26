@@ -1,8 +1,8 @@
 import { fnv1a } from "./hash";
 
-// v2.4 plan 01 T1. `MESSAGE_DELETED` carries the post-delete `chat.length` (host-facts 01-H1), which
+// `MESSAGE_DELETED` carries the post-delete `chat.length` (host-facts), which
 // names the removed message only for a tail cut. A middle delete, a `/cut` range and a tool-call run
-// removed with its reply (01-H3, 01-H4) all need the chat as it was before the event, so the bridge
+// removed with its reply all need the chat as it was before the event, so the bridge
 // keeps one identity snapshot per chat and diffs it against the chat the event leaves behind.
 // `is_system` is not part of a key (hiding must never misalign a delete), and neither is `swipe_id`
 // (deleting a lower swipe decrements it with `mes` unchanged; a real swipe already changes `mes`).

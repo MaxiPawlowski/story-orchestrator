@@ -43,7 +43,7 @@ export async function judgeStatus(): Promise<JudgeStatus | null> {
 export const judgeTransport: JudgeTransport = async (request: JudgeRequest, options) => {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), options.timeoutMs);
-  // v2.3 plan 03: the caller's epoch signal aborts the same controller, so a story load, restart or
+  // The caller's epoch signal aborts the same controller, so a story load, restart or
   // chat change cancels the request in flight instead of paying for an answer nobody will use.
   const onEpochAbort = () => controller.abort();
   options.signal?.addEventListener("abort", onEpochAbort);

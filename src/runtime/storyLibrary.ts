@@ -23,7 +23,7 @@ const warnOnce = (message: string) => {
   lastLibraryWarning = message;
 };
 
-// v2.5 plan 11: the read is a sanitizer and never writes. A record without an id or version is
+// The read is a sanitizer and never writes. A record without an id or version is
 // dropped with a warning; a duplicate id keeps the newer record.
 const sanitizeRecords = (stored: unknown[]): StoryLibraryRecord[] => {
   const valid = stored.filter(isStoryRecord);
@@ -62,7 +62,7 @@ export function findStoryRecord(id: string): StoryLibraryRecord | null {
 }
 
 // A Studio-born draft's first save takes a free id, so it never updates a same-title record it did
-// not come from (finding U2, from the authoring side). An id-less import instead updates its title's record.
+// not come from (finding from the authoring side). An id-less import instead updates its title's record.
 export function availableStoryId(base: string): string {
   const used = new Set(listStoryRecords().map((record) => record.id));
   if (!used.has(base)) return base;
@@ -102,7 +102,7 @@ export function saveStoryRecord(raw: unknown): LoadedStory | RuntimeSnapshot["va
   return { record, story: { ...parsed, id, version } };
 }
 
-/** v2.4 plan 02 §7: whether the server holds what `saveStoryRecord` wrote; the evidence it already armed, or armed now. */
+/** Whether the server holds what `saveStoryRecord` wrote; the evidence it already armed, or armed now. */
 export const confirmLibrarySave = (record: StoryLibraryRecord): Promise<LibrarySaveEvidence> => armedSaves.get(record) ?? confirmRecord(record);
 
 export function removeStoryRecord(id: string): boolean {

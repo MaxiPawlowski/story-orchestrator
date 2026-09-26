@@ -7,7 +7,7 @@ export interface BranchNoticeProps {
   onContinue: () => Promise<unknown> | void;
 }
 
-// v2.4 plan 02 §5 (D3): non-blocking, and never adopts on its own. The player's one control.
+// Non-blocking, and never adopts on its own. The player's one control.
 export const BranchNotice = ({ identity, onContinue }: BranchNoticeProps) => {
   const [busy, setBusy] = useState(false);
   const run = async () => {

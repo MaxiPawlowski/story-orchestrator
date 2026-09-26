@@ -4,9 +4,9 @@ import type { JudgeRuntime } from "./judge";
 import type { VectorHost } from "./hostPorts";
 
 // Candidate generation for consolidation: ST vectors when available, Jaccard otherwise. Moved out of
-// the memory coordinator in v2.2 plan 02 so the judged path fits its line budget.
+// the memory coordinator so the judged path fits its line budget.
 export async function buildMatchSets(host: VectorHost, group: MemoryEntry[], thresholds: DedupThresholds = DEFAULT_DEDUP_THRESHOLDS): Promise<MatchSets> {
-  // v2.3 plan 06. Absence is a fact about the install, not a failure: asking the vectors API anyway
+  // Absence is a fact about the install, not a failure: asking the vectors API anyway
   // costs a probe, an insert and N queries before the same fallback, and logs a warning that reads
   // like a defect. An `error` still goes down that path, because a fault may not repeat.
   if ((await host.capabilityState("vectors")) === "absent") return buildJaccardMatchSets(group, thresholds);
@@ -46,7 +46,7 @@ export async function buildMatchSets(host: VectorHost, group: MemoryEntry[], thr
   }
 }
 
-// v2.2 plan 02: one judged relation per candidate pair (dup band first, capped per pass). A pair the
+// One judged relation per candidate pair (dup band first, capped per pass). A pair the
 // judge does not answer confidently is left out of the lookup, so the walk keeps today's decision.
 export async function judgePairRelations(judge: JudgeRuntime, group: MemoryEntry[], matches: MatchSets, todays: MatchSets): Promise<RelationLookup> {
   const pairs = candidatePairs(group, matches).sort((left, right) => Number(right.dup) - Number(left.dup)).slice(0, PAIR_MAX_PER_PASS);

@@ -9,7 +9,7 @@ import type { RunGuard } from "./runToken";
 import type { LoadedStory, PersistedStoryRuntime } from "./types";
 
 // Which story this chat plays and where that copy comes from (spec addendum §Story identity). Split
-// out of the manager in v2.1 plan 07 so the lifecycle rules live next to the library and the
+// out of the manager so the lifecycle rules live next to the library and the
 // persistence layer they read, and the manager keeps only the engine-facing half (`loadStory`).
 export interface StorySelectionDeps {
   loadStory: (loaded: LoadedStory, mode: "activate" | "hydrate", persisted?: PersistedStoryRuntime | null) => Promise<void>;
@@ -25,7 +25,7 @@ export interface StorySelectionDeps {
 
 /** Checkpoint entries live in global lorebooks, so any story this install plays (and the one this
  * chat is leaving) may have left some on — after a chat switch, or ST closing mid-story. Only the
- * story now playing keeps its own; its path already decided those. V3: a release that a newer load
+ * story now playing keeps its own; its path already decided those. a release that a newer load
  * overtook would disable the NEW story's entries (they are not `keep`), so it asks the caller's run
  * before each write, and the caller asks it again before going on. */
 export async function releaseGatedWorldInfo(
@@ -72,7 +72,7 @@ export async function importStoryJson(deps: StorySelectionDeps, rawText: string)
     return false;
   }
   // After the load: loading a story starts its journal, so a warning recorded before it was wiped
-  // (found live, V18).
+  // (found live).
   const selected = await selectStory(deps, saved.record.id);
   const warnings = storyWarnings(saved.story);
   if (selected && warnings.length) deps.warn?.(warnings);
@@ -124,7 +124,7 @@ export async function restartStory(deps: StorySelectionDeps, currentId: string |
   const refused = unreadable && refusedSelection?.chat === unreadable.openChat ? refusedSelection.storyId : null;
   const id = currentId ?? (unreadable ? refused : getSelectedStoryId());
   if (!id && !unreadable) return false;
-  // V3: the confirmation waits as long as the player does, and dropping progress afterwards would drop
+  // The confirmation waits as long as the player does, and dropping progress afterwards would drop
   // it in whatever chat is open by then.
   const run = deps.beginRun?.();
   const question = unreadable

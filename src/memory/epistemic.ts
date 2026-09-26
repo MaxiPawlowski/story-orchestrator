@@ -11,7 +11,7 @@ const PRIVATE_TAGS: EpistemicTag[] = ["knows", "suspects", "believes", "hiding"]
 
 const normalize = (value: string): string => value.trim().toLowerCase();
 
-// v2.3 plan 05: every row a pass writes says where it came from, so a consumer can tell a live
+// Every row a pass writes says where it came from, so a consumer can tell a live
 // claim from one whose source message was rolled back.
 function withProvenance(ctx: EpistemicSignalContext, pass: string) {
   return {
@@ -27,7 +27,7 @@ function withProvenance(ctx: EpistemicSignalContext, pass: string) {
 export interface EpistemicSignalContext {
   boundary: number;
   messageId?: number;
-  /** Which pass wrote it, e.g. "epistemic-pass" or "shared-read" (v2.3 plan 05). */
+  /** Which pass wrote it, e.g. "epistemic-pass" or "shared-read". */
   pass?: string;
   /** Where the claim came from. Everything the extraction pipeline writes is extractor-sourced. */
   source?: ProvenanceSource;
@@ -87,7 +87,7 @@ export function applyEpistemicSignals(
   return { entries: [...next, ...added], added, retired };
 }
 
-// v2.3 plan 05: a quarantined row (its source message was rolled back, or a conflict it is part of
+// A quarantined row (its source message was rolled back, or a conflict it is part of
 // is unresolved) is not knowledge any more. It stays in the store so the author can see and
 // reconfirm it, and it reaches no prompt until then.
 export function activeEpistemic(entries: EpistemicEntry[]): EpistemicEntry[] {
@@ -132,7 +132,7 @@ function attributedLine(subject: string, entry: EpistemicEntry): string {
   }
 }
 
-// v2.4 E2: one solo narrator voices every roster member, so a merged second-person block told it
+// One solo narrator voices every roster member, so a merged second-person block told it
 // "You are concealing" one member's secret while "You know" another's. Each line names its subject.
 export function renderAttributedEpistemicBlock(entries: EpistemicEntry[], names: string[]): string {
   const active = activeEpistemic(entries);
@@ -164,10 +164,10 @@ export function removeEpistemic(entries: EpistemicEntry[], id: string): Epistemi
   return entries.filter((entry) => entry.id !== id);
 }
 
-// v2.3 plan 04 (M4). Two things go: the beliefs the removed messages introduced, and the
+// Two things go: the beliefs the removed messages introduced, and the
 // retirements those messages performed — a reveal rolled back must un-retire what it retired.
 //
-// v2.3 plan 05 (M6): a pinned row is KEPT as a record but its source is gone, so it is quarantined
+// A pinned row is KEPT as a record but its source is gone, so it is quarantined
 // (`validity: "source-removed"`) and every consumer filters it out until the author reconfirms it.
 // Keeping it injected instead — the old behaviour — put a private fact whose evidence had been
 // edited away in front of the character it was meant to conceal from.

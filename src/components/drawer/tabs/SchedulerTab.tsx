@@ -31,7 +31,7 @@ const TalkDecisionsPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
   );
 };
 
-// The author half of the stall signal (U5): the player sees "catching up", the author sees which
+// The author half of the stall signal: the player sees "catching up", the author sees which
 // keys the re-read is chasing and what it came back with.
 const ReconciliationPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
   const events = [...snapshot.extraction.reconciliationEvents].reverse();

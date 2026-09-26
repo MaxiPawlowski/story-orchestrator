@@ -16,7 +16,7 @@ export interface GenerationBias {
 
 const STRONG_DRIFT_THRESHOLD = 0.5;
 
-// v2.3 plan 07 (C4). Steering used to phrase every escalation as pressure toward a confrontation the
+// Steering used to phrase every escalation as pressure toward a confrontation the
 // scene was expected to deliver, whatever the checkpoint actually wanted — which is how narration
 // ended up moving the player along a prepared route. The policy decides whether the world presses on
 // its own or the move belongs to the player, and the default (never narrate the player's acts) adds

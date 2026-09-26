@@ -1,7 +1,7 @@
 import { deleteLorebook, listAllLorebooks, probeChatFile, readWIEntry, showConfirmPopup, subscribeToHostEvents } from "@services/STAPI";
 import { lifetimeOwnership, MirrorReaper, orphanRegistry, OWNER_COMMENT } from "./mirrorReaper";
 
-// v2.4 plan 02 T14: the reaper's host wiring, kept out of `mirrorReaper.ts` so the decision stays
+// The reaper's host wiring, kept out of `mirrorReaper.ts` so the decision stays
 // importable in jest. ST's `emit` awaits every listener in turn (lib/eventemitter.js:146), so the
 // handler must not hold the event on the confirm: `deleteGroup` would sit in its announce loop, before
 // its own `response.ok` check, until the player answered.

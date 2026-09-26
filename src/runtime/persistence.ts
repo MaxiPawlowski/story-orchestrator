@@ -41,13 +41,13 @@ const createBlob = (chatId: string): StoryOrchestratorMetadataBlob => ({ version
 const detachedBlob = (): StoryOrchestratorMetadataBlob => createBlob(openChatId() ?? "");
 
 /**
- * v2.3 plan 03. A blob stamped for another chat is not this chat's to read.
+ * A blob stamped for another chat is not this chat's to read.
  *
  * `chat_metadata` belongs to the host, which swaps it when the chat changes. A read racing that
- * swap used to be indistinguishable from an ordinary read, and the result is the defect v2.1
- * plan 08 recorded from the other side: one chat's run appearing in another chat.
+ * swap used to be indistinguishable from an ordinary read, and the result is the defect
+ * Recorded from the other side: one chat's run appearing in another chat.
  *
- * It is neither read nor destroyed (V5, 2026-09-23). The read answers an empty, DETACHED blob — "no
+ * It is neither read nor destroyed. The read answers an empty, DETACHED blob — "no
  * story selected", the honest answer when the state on hand belongs to somebody else — and leaves the
  * stored one exactly as it was: the first version wrote the empty blob back, so the next save of
  * whatever metadata object was open erased the other chat's run. Automatic writes into a foreign
@@ -74,7 +74,7 @@ const isEngineState = (value: unknown): boolean => isRecord(value) && typeof val
 
 const isEngineHistory = (value: unknown): boolean => isRecord(value) && isRecord(value.from) && isEngineState(value.base) && Array.isArray(value.log);
 
-/** v2.5 plan 11: a stored record is this build's only when every field this build requires is there,
+/** A stored record is this build's only when every field this build requires is there,
  *  so "required" holds on disk and not only in the type. */
 export const isCurrentRecord = (value: unknown): boolean => isRecord(value) && isEngineState(value.engineState) && isEngineHistory(value.engineHistory)
   && isRecord(value.pinnedStory) && isRecord(value.extras);
@@ -133,7 +133,7 @@ export function getMetadataBlob(): StoryOrchestratorMetadataBlob {
   return blob;
 }
 
-/** v2.4 plan 02 §3: the boundary the stored copy holds for the story it selects, read without adopting
+/** The boundary the stored copy holds for the story it selects, read without adopting
  *  or stamping anything. Null when the copy is not this chat's, selects another story, or holds none. */
 export const storedBoundaryFor = (storyId: string): number | null => {
   const existing = storedValue();
@@ -211,7 +211,7 @@ export function loadPersistedRuntime(id: string): PersistedStoryRuntime | null {
   return getMetadataBlob().stories[id] ?? null;
 }
 
-// v2.3 plan 05. The retention is a promise the chat makes about its own state, so an eviction is
+// The retention is a promise the chat makes about its own state, so an eviction is
 // reported rather than silent: the ids come back so the caller can journal them and an author can
 // see WHICH story this chat just stopped keeping progress for.
 const gcStories = (blob: StoryOrchestratorMetadataBlob): string[] => {

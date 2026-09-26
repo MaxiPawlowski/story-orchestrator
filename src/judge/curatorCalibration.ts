@@ -84,7 +84,7 @@ export interface RescoreResult {
   fallback?: string;
 }
 
-// v2.4 plan 07 (X12): the judge-off control column. The calibrated continuity question re-asked over
+// The judge-off control column. The calibrated continuity question re-asked over
 // each arm's captured replies, so both arms are scored by one instrument. A reply with no facts to
 // hold it to is not asked (the warden would not have asked either).
 export async function runContinuityRescore(ask: (request: JudgeRequest) => Promise<JudgeResult>, rows: RescoreRow[]): Promise<RescoreResult[]> {

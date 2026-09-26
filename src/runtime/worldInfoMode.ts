@@ -1,9 +1,9 @@
 import type { ScanGateRow } from "./scanGatePlan";
 import type { GatedEntryRef } from "./worldInfoLedger";
 
-// v2.4 plan 05 T13 spike. True only while `worldInfo.gatingMode` is "scan" AND the scan handler was
+// Spike. True only while `worldInfo.gatingMode` is "scan" AND the scan handler was
 // seen running on a probe scan (the `wiScanGating` capability). Otherwise the file path (per-chat
-// writes plus release) runs exactly as before, which is also the S6 fallback.
+// writes plus release) runs exactly as before, which is also the fallback.
 export interface ScanGateView {
   chatId: string | null;
   owner: "story" | "no-story";
@@ -20,14 +20,14 @@ export const setScanGatingActive = (active: boolean): void => {
   if (!active) lastScan = null;
 };
 
-// S5: what the last gated scan loaded and used, per gated entry, for the author view.
+// What the last gated scan loaded and used, per gated entry, for the author view.
 export const noteScanGate = (view: ScanGateView): void => {
   lastScan = view;
 };
 
 export const scanGateView = (): ScanGateView | null => (scanGating ? lastScan : null);
 
-// v2.5 plan 01: the install-wide gating state the settings row and the Repair row read.
+// The install-wide gating state the settings row and the Repair row read.
 export interface WiGatingStatus {
   mode: "file" | "scan";
   active: boolean;

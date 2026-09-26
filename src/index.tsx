@@ -20,7 +20,7 @@ import { setDiagnosticsContext, useDraftStore, type StoryDraft } from "./studio/
 import { buildReplaySource, type GateReplaySource } from "./studio/gateReplay";
 import "./styles.css";
 
-// v2.3 plan 08: the version the settings panel reports is the one this bundle was built from.
+// The version the settings panel reports is the one this bundle was built from.
 const EXTENSION_VERSION = String(packageJson.version ?? "unknown");
 
 const manager = startRuntime();
@@ -70,7 +70,7 @@ const openWizard = async () => {
   setStudioOpen(true, { tab: "copilot", stage: "qualities" });
 };
 
-// "Fix with wizard" (U6): the unmet requirements are the premise, so the author lands on the
+// "Fix with wizard": the unmet requirements are the premise, so the author lands on the
 // provisioning stage already knowing what is missing instead of re-describing it.
 const openWizardForRequirements = async () => {
   const { requirements } = manager.getSnapshot();
@@ -91,7 +91,7 @@ const wizardHost: WizardHost = {
 
 // Saving from the chat that is playing this story is the one automatic library→chat path
 // (spec addendum §Story identity); every other chat keeps its pinned copy.
-// v2.3 plan 09: the chat half of one save vocabulary. The library half is the Studio's; this returns
+// The chat half of one save vocabulary. The library half is the Studio's; this returns
 // only what happened HERE, so the two events never read as one sentence.
 const applySavedStory = async (record: StoryLibraryRecord): Promise<string | null> => {
   if (manager.getSnapshot().storyId !== record.id) return null;
@@ -157,7 +157,7 @@ const SettingsRoot = () => <SettingsPanel snapshot={useRuntimeSnapshot()} manage
 
 // Turning author view on is a one-way look behind the curtain for this chat: gates, future
 // checkpoints and what the cast is hiding. Confirm before spoiling a story you may not have
-// written (plan 04 unresolved question, resolved yes).
+// written (unresolved question, resolved yes).
 const toggleAuthorView = async (next: boolean) => {
   if (next) {
     const ok = await showConfirmPopup(
@@ -169,7 +169,7 @@ const toggleAuthorView = async (next: boolean) => {
   manager.setUiSettings({ authorView: next });
 };
 
-// v2.4 plan 02 §5: the player's Continue from here, and the author's branch cut at the history floor.
+// The player's Continue from here, and the author's branch cut at the history floor.
 const continueBranch = () => continueFromBranch({ selectStory: (storyId) => manager.selectStory(storyId), note: (summary, detail) => manager.chatSave.note(summary, detail) });
 const branchAtFloor = async (messageId: number) => {
   const result = await branchFromOldest(messageId);
@@ -212,7 +212,7 @@ const DrawerPanel = () => {
   );
 };
 
-// v2.4 plan 08 T19d: on a narrow viewport the drawer covers #chat, so it closes before ST scrolls.
+// On a narrow viewport the drawer covers #chat, so it closes before ST scrolls.
 const NARROW_VIEWPORT = 1000;
 
 const jumpFromDrawer = async (messageId: number) => {
@@ -229,7 +229,7 @@ const openSoDrawer = () => {
   if (toggle && content && !content.classList.contains("openDrawer")) toggleNavbarDrawer(toggle);
 };
 
-// The one missing setup step is always in one place (plan 02 made settings install-wide), so the
+// The one missing setup step is always in one place (made settings install-wide), so the
 // player surface points straight at it instead of describing it: ST's Extensions drawer, then our
 // own inline drawer, then scroll it into view.
 const openStorySettings = () => {
@@ -254,7 +254,7 @@ const revealSetting = (id: string) => {
   window.setTimeout(() => element.classList.remove("so-revealed"), 2000);
 };
 
-// V19: the HUD's needs-setup chip and the drawer's Repair button land ON the Repair step, not just on the
+// The HUD's needs-setup chip and the drawer's Repair button land ON the Repair step, not just on the
 // panel: the panel opens first, then the row is revealed once it is laid out.
 const openRepairStep = () => {
   openStorySettings();

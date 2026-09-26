@@ -27,7 +27,7 @@ export type ProvisioningOpKind = ProvisioningOp["kind"];
 export const PROVISIONING_OP_KINDS: readonly ProvisioningOpKind[] = ["createCharacterCard", "createStoryLorebook", "upsertLorebookEntry", "createGroup", "grantLorebook"];
 
 // What already exists on this install. Everything the create-only rule needs, and nothing else.
-// v2.3 plan 02 (R8): `storyLorebooks` is what the story *requires*, which is a claim about what the
+// `storyLorebooks` is what the story *requires*, which is a claim about what the
 // story depends on and not a licence to write. `ownedLorebooks` is the write authority — books this
 // wizard created for this story, plus the ones the author explicitly granted.
 export interface ProvisioningEnvironment {
@@ -36,7 +36,7 @@ export interface ProvisioningEnvironment {
   groupNames: string[];
   storyLorebooks: string[];
   ownedLorebooks: string[];
-  // R8: the subset of `ownedLorebooks` the author allowed rather than the wizard created. A created
+  // The subset of `ownedLorebooks` the author allowed rather than the wizard created. A created
   // book has no business being revocable from here; a granted one is the author's to take back.
   grantedLorebooks: string[];
 }
@@ -48,7 +48,7 @@ export interface ProvisioningResult {
 }
 
 // What an entry holds right now, so a write can show a before/after instead of asking the author to
-// trust the replacement (v2.3 plan 02 §R8). `null` means there is nothing under that title yet.
+// trust the replacement. `null` means there is nothing under that title yet.
 export interface ExistingEntry {
   content: string;
   keys: string[];
@@ -74,7 +74,7 @@ export interface WizardSessionState {
   history: Array<{ role: "author" | "copilot"; text: string }>;
   questions: WizardQuestion[];
   applied: string[];
-  /** V18: the subset of `applied` that is a LOREBOOK this wizard created. `applied` holds names only,
+  /** The subset of `applied` that is a LOREBOOK this wizard created. `applied` holds names only,
    *  so a card and a book of the same name read the same there. */
   createdLorebooks: string[];
   /** Author-confirmed write authority over existing lorebooks; never authored story content. */

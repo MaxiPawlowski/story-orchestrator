@@ -28,7 +28,7 @@ export interface LorePick {
   p: number;
 }
 
-// Revised at calibration (2026-09-19): the spike's wording rated a world's general overview entry
+// Revised at calibration: the spike's wording rated a world's general overview entry
 // "active" in every scene (0.65-0.84 in 13 of 16 windows), which took a top-k slot each time.
 export const LORE_QUESTION_CRITERIA = {
   true: "The entry is about a specific person, place, group, creature or thing that is present, being talked about, or about to matter in this scene",
@@ -58,7 +58,7 @@ export function buildLoreRequests(candidates: LoreEntry[], scene: LoreScene): Ar
     entries,
     request: {
       state: sceneState,
-      // Content stays inline: measured 2026-09-21, moving the entry into a state field and
+      // Content stays inline: measured moving the entry into a state field and
       // referencing it dropped lore recall to 67-74% against a 0.8 floor (verify notes and
       // continuity facts, which are short, held in state at 98-100%).
       questions: Object.fromEntries(entries.map((entry, index) => [

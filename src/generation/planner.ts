@@ -45,7 +45,7 @@ export function planExpansion(
   facts: string[],
 ): PlannedExpansionInput {
   const target = story.checkpointById[candidate.targetAnchorId];
-  // L4 (2026-09-23): a chain is entered only through the transition into its stub, so what that gate pins
+  // A chain is entered only through the transition into its stub, so what that gate pins
   // holds on entry. Planning from the blackboard alone asked the model to re-set it, and the code check
   // then failed chains that did not (`key_found does not bridge`, four of six real generations).
   const deltas = computeStateDelta({ values: { ...blackboard.values, ...gatePins(candidate.transition.gate) }, versions: {}, latched: {} }, target.state_snapshot, story);

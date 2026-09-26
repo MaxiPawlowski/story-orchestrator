@@ -2,7 +2,7 @@ export const JUDGE_DEFAULT_MODEL = "jev-1.13.0";
 export const JUDGE_DEFAULT_TIMEOUT_MS = 1500;
 export const JUDGE_CALL_RING_LIMIT = 300;
 
-// v2.4 plan 07 T25 (D10): docs.typesafe.ai/models, 2026-09-24 — both aliases resolve to jev-1.13.0.
+// Docs.typesafe.ai/models — both aliases resolve to jev-1.13.0.
 export const JUDGE_MODEL_IDS = {
   canonical: { "jev-1.13.0": "jev-1.13.0" } as Record<string, string>,
   floating: ["jev-latest", "jev-preview"] as readonly string[],
@@ -47,7 +47,7 @@ export const SCENE_FIELD_CONFIDENCE = 0.6;
 export const PRESENT_P = 0.7;
 export const HEADING_P = 0.7;
 export const SCENE_TIMEOUT_MS = 2500;
-// C2: how many consecutive failed reads before the tracker is withheld rather than presented as
+// How many consecutive failed reads before the tracker is withheld rather than presented as
 // current. One miss is a blip on a busy backend; two in a row means nothing is confirming it.
 export const SCENE_STALE_AFTER = 2;
 
@@ -81,8 +81,8 @@ export const EXTRACTION_LATCHING_BUMP = 0.1;
 export const STALL_TIMEOUT_MS = 4000;
 export const STALL_DIRECT_P = 0.95;
 export const STALL_GENUINE_P = 0.1;
-// Raised from 2500 on live evidence (2026-09-19): a real boundary read timed out and fell back,
-// and calibration p50 is 1684 ms for a smaller request. Both this and the warden are off the reply
+// Raised from 2500 on live evidence: a real boundary read timed out and fell back,
+// and calibration is 1684 ms for a smaller request. Both this and the warden are off the reply
 // path, so a longer budget costs nothing a player can feel.
 export const TYPED_TIMEOUT_MS = 5000;
 

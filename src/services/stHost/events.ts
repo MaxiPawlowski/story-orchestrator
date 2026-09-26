@@ -31,21 +31,21 @@ export interface HostEventPayloads {
   GENERATION_ENDED: [];
   WORLDINFO_UPDATED: [name: string, data: unknown];
   WORLDINFO_SETTINGS_UPDATED: [];
-  // v2.4 05-H2: the per-call arrays, emitted inside getSortedEntries before its sort/hash/clone.
+  // The per-call arrays, emitted inside getSortedEntries before its sort/hash/clone.
   WORLDINFO_ENTRIES_LOADED: [payload: HostEntriesLoaded];
-  // v2.4 05-H1: every entry a non-dry scan activated; not emitted when nothing fired.
+  // Every entry a non-dry scan activated; not emitted when nothing fired.
   WORLD_INFO_ACTIVATED: [entries: HostScannableEntry[]];
   GROUP_UPDATED: [];
   SETTINGS_UPDATED: [];
   PERSONA_CHANGED: [avatar: string];
   CHARACTER_MESSAGE_RENDERED: [messageId: number, messageType?: string];
   PRESET_CHANGED: [payload: { apiId: string; name: string }];
-  // v2.4 06-H1/H2: script.js:5318 (main Generate only, dry runs too) and openai.js:3146 (every CC request, awaited before fetch).
+  // Script.js:5318 (main Generate only, dry runs too) and openai.js:3146 (every CC request, awaited before fetch).
   GENERATE_AFTER_DATA: [generateData: Record<string, unknown>, dryRun?: boolean];
   CHAT_COMPLETION_SETTINGS_READY: [generateData: Record<string, unknown>];
-  // v2.4 03-H9: script.js:7151-7157, fires on change only and for the main API only.
+  // Script.js:7151-7157, fires on change only and for the main API only.
   ONLINE_STATUS_CHANGED: [status: string];
-  // v2.4 03-H10: connection-manager/index.js:347,780,796,879,996,1015 (keys events.js:82-84).
+  // Connection-manager/index.js:347,780,796,879,996,1015 (keys events.js:82-84).
   CONNECTION_PROFILE_UPDATED: [previous: { id?: string } | undefined, next: { id?: string } | undefined];
   CONNECTION_PROFILE_DELETED: [profile: { id?: string } | undefined];
   CONNECTION_PROFILE_CREATED: [profile: { id?: string } | undefined];

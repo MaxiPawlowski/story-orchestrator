@@ -64,10 +64,10 @@ type Props = {
 
 type TabEntry = { id: StudioTab; label: string };
 
-// v2.3 plan 09 (the review's keyboard trace: ArrowRight on the tablist stayed on the tab it was
+// (the review's keyboard trace: ArrowRight on the tablist stayed on the tab it was
 // already on, and nothing linked a tab to its panel). APG tabs pattern: one tab stop for the list,
 // arrows move focus AND selection with wrapping, Home/End jump to the ends, and the panel says which
-// tab it belongs to. ST's `a11y.js` rewrites `role="button"` onto `.menu_button` in the live DOM, so
+// tab it belongs to. ST's `.js` rewrites `role="button"` onto `.menu_button` in the live DOM, so
 // anything driving this must select by the tablist, never by the role.
 const TAB_KEYS: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1 };
 
@@ -263,7 +263,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
       onCancel={(event) => { event.preventDefault(); void requestClose(); }}
       // A native dialog can also be closed from outside React (`dialog.close()`, a debug script,
       // the browser): without this the element stays mounted but invisible and the Studio looks
-      // open to everything that only counts the node (live finding, plan 05 J2 run).
+      // open to everything that only counts the node (live finding run).
       onClose={onClose}
     >
       <div ref={panelRef} className="st-panel flex h-[85dvh] w-[min(1100px,95dvw)] flex-col overflow-hidden shadow-lg">

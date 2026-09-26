@@ -1,6 +1,6 @@
-// v2.3 plan 03 — one ownership token for every asynchronous write.
+// One ownership token for every asynchronous write.
 //
-// R1 and C1 are one defect with several faces: a unit of work reads the world, awaits a model, and
+// And are one defect with several faces: a unit of work reads the world, awaits a model, and
 // then writes through accessors that resolve to whatever chat is current *now*. A curator pass
 // started in chat A lands its proposal in chat B; a lore selection forces entries for a story that
 // is no longer loaded; a judge call is recorded in the wrong chat's ring. Comparing the last
@@ -46,7 +46,7 @@ export interface RunContext {
    */
   lowestMutatedMessageId?: number | null;
   lowestMutatedSince?: (windowRevision: number) => number | null;
-  /** v2.4 plan 02 §3: the chat the current epoch was minted in, for telling a same-chat reload from a switch. */
+  /** The chat the current epoch was minted in, for telling a same-chat reload from a switch. */
   claimedChat?: string | null;
 }
 
@@ -109,9 +109,9 @@ export const describeMismatch = (check: TokenCheck): string => (check.ok ? "" : 
 export interface RunOwnership {
   mint: (window?: MessageWindow | null) => RunToken;
   check: (token: RunToken) => TokenCheck;
-  /** v2.3 plan 03: aborts when the epoch this work started in is replaced. */
+  /** Aborts when the epoch this work started in is replaced. */
   signal?: () => AbortSignal;
-  /** v2.4 plan 03 D2: a live run's own signal — the epoch's, plus a mutation inside `window`. */
+  /** A live run's own signal — the epoch's, plus a mutation inside `window`. */
   live?: (window: MessageWindow | null) => LiveRun;
 }
 
@@ -138,13 +138,13 @@ export interface RunGuard {
   lapsed(): TokenMismatch | null;
   /** The same, with detail, for a log line. */
   lapsedDetail(): string | null;
-  /** v2.4 plan 03 D2: aborts when this run lapses, so the host request is cancelled, not only refused. */
+  /** Aborts when this run lapses, so the host request is cancelled, not only refused. */
   readonly signal: AbortSignal;
   /** Drops the run from the owner's live registry once its model call is over. */
   release(): void;
 }
 
-/** Begin a run. Every caller names the ownership it runs under (v2.5 plan 11 I1). */
+/** Begin a run. Every caller names the ownership it runs under (I1). */
 export function beginRun(ownership: RunOwnership, window: MessageWindow | null = null): RunGuard {
   const token = ownership.mint(window);
   const verdict = (): TokenCheck => ownership.check(token);

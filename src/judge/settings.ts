@@ -42,7 +42,7 @@ export interface JudgeSettings {
   expansion: JudgeExpansionSettings;
 }
 
-/** v2.4 plan 07 (X23): monotonic spend per chat, exempt from rollback — a rolled-back call was still paid for. */
+/** Monotonic spend per chat, exempt from rollback — a rolled-back call was still paid for. */
 export interface JudgeMeter {
   calls: number;
   cachedCalls: number;
@@ -237,5 +237,5 @@ export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = [
   "houseRules",
 ];
 
-// v2.2 plan 07: steering-grade usages, listed only in author view.
+// Steering-grade usages, listed only in author view.
 export const AUTHOR_JUDGE_USES: readonly JudgeUseKey[] = ["expansionCritic", "expansionLookahead", "agencyCheck", "houseRules"];

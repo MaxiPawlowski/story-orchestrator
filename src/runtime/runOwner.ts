@@ -11,7 +11,7 @@ export interface RunOwnerDeps {
 }
 
 /**
- * v2.3 plan 03: which world the runtime is in, and whether a result from an earlier one may still
+ * Which world the runtime is in, and whether a result from an earlier one may still
  * be written.
  *
  * Kept out of `RuntimeManager` because it is a whole concern with its own rules, and because the
@@ -74,17 +74,17 @@ export class RunOwner {
    */
   private readonly changed = new Set<() => void>();
   /**
-   * v2.3 plan 03. One controller per epoch, aborted when that epoch is replaced. Work started in
+   * One controller per epoch, aborted when that epoch is replaced. Work started in
    * the old world is cancelled rather than left to finish and be discarded at the write edge.
    *
    * Extraction calls honour it: `ConnectionManagerRequestService.sendRequest` takes `custom.signal`
-   * (shared.js:423-424, pass-through :463/:483; 1.18.0 :420), wired by v2.4 plan 03 through each
+   * (shared.js:423-424, pass-through :463/:483; 1.18.0 :420), wired through each
    * run's live signal. The token check stays the guard; the abort only frees the request.
    */
   private aborter = new AbortController();
 
   /**
-   * v2.3 plan 03: told when the world this owner describes is replaced, so queued work for the old
+   * Told when the world this owner describes is replaced, so queued work for the old
    * one can be dropped rather than run. Lives here because the epoch lives here.
    */
   onChanged(listener: () => void) {
@@ -139,7 +139,7 @@ export class RunOwner {
    *
    * Nothing open means nothing to write to. On a page reload the runtime boots on the welcome
    * screen while `chat_metadata` still holds the previous chat's blob; a save there writes empty
-   * state over that chat's own file, and the seed the next load needs is gone (J4, 2026-09-21).
+   * state over that chat's own file, and the seed the next load needs is gone.
    */
   ownsOpenChat(): boolean {
     const open = this.deps.openChatId();

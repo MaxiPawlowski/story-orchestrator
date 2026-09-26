@@ -26,7 +26,7 @@ const confirmSettingsWrite = createSettingsWriteEvidence<{ seq: number }, { valu
   },
 }, heldByServer);
 
-/** v2.4 E3: an install-wide settings write reads its settings save; the server holds it, or a later write. */
+/** An install-wide settings write reads its settings save; the server holds it, or a later write. */
 const writeSettings = (settings: GlobalSettings, label: string) => {
   writableSettingsRoot()[SETTINGS_KEY] = settings;
   const write = { seq: ++writeSeq };
@@ -37,7 +37,7 @@ const writeSettings = (settings: GlobalSettings, label: string) => {
 };
 
 /**
- * v2.3 plan 06 (F2). The read is ALSO a write: it replaces the stored value with its sanitized form.
+ * The read is ALSO a write: it replaces the stored value with its sanitized form.
  * Before ST has loaded the extension settings that write is destructive — `settingsRoot()` would create
  * our key, the sanitized defaults would be stamped in its place, and the author's settings would be
  * gone the moment anything saved. So the write-back waits for the load, and until then a caller gets

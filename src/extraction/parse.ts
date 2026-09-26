@@ -102,7 +102,7 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
         result.rejected.push({ line, reason: "unknown quality" });
         continue;
       }
-      // v2.3 plan 02 (R5). The delta's origin is the parser's to state, never the story's to lend:
+      // The delta's origin is the parser's to state, never the story's to lend:
       // copying the declared source onto a model line made a code-owned quality look extractor-written
       // and walked past the blackboard's own source check.
       if (quality.source !== "extractor") {

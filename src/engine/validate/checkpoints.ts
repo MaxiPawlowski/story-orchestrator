@@ -72,7 +72,7 @@ const readCheckpointEffects = (value: unknown, path: string, errors: ValidationE
 
 const AGENCY_KEYS = ["protect_player_choice", "never_narrate_player_action", "objective_kind", "alternate", "player_attempts_only"] as const;
 
-// v2.3 plan 07 (C4). An unknown objective_kind is an error rather than a silent default: the whole
+// An unknown objective_kind is an error rather than a silent default: the whole
 // point of the field is that the author said which objective this is.
 const readAgency = (value: unknown, path: string, errors: ValidationError[]): Partial<AgencyPolicy> | null => {
   if (!isRecord(value)) {

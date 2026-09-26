@@ -73,7 +73,7 @@ const DiffView = ({ before, after }: { before: string; after: string }) => (
   </div>
 );
 
-// v2.3 plan 05. Which pass read this truth, from which message, how sure it was, and whether another
+// Which pass read this truth, from which message, how sure it was, and whether another
 // store disagrees. A fact with no origin says so rather than implying an extractor read it.
 const originText = (provenance: { source: string; pass: string; messageId: number; confidence?: number } | undefined, conflictingValue?: string) => {
   const rest = [

@@ -121,7 +121,7 @@ export const continuityCombinedInput = (entry: CombinedContinuityCase): WardenIn
 
 export const isCombinedCase = (entry: CombinedContinuityCase): boolean => entry.playerMessage !== undefined || Boolean(entry.houseRules?.length);
 
-// The regression family (plan 07 §6): the continuity rows, asked inside the combined warden request.
+// The regression family: the continuity rows, asked inside the combined warden request.
 export async function runCombinedContinuityCalibration(ask: Ask, cases: CombinedContinuityCase[]): Promise<JudgeSelfTestReport> {
   return report(await Promise.all(cases.map(async (entry) => {
     const input = continuityCombinedInput(entry);
@@ -152,7 +152,7 @@ const rescoreInput = (use: WardenRescoreUse, row: WardenRescoreRow): WardenInput
   return row.houseRules?.length ? { reply: row.reply, facts: [], agency: null, houseRules: row.houseRules } : null;
 };
 
-// X12: both arms scored by the one calibrated question. A row with nothing to hold it to is not
+// Both arms scored by the one calibrated question. A row with nothing to hold it to is not
 // asked (no facts, no player line, no rules), as the warden would not have asked either.
 export async function runWardenRescore(ask: Ask, use: WardenRescoreUse, rows: WardenRescoreRow[]): Promise<RescoreResult[]> {
   const asked = rows.map((row) => ({ row, input: rescoreInput(use, row) })).filter((entry): entry is { row: WardenRescoreRow; input: WardenInput } => entry.input !== null);

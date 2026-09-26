@@ -4,7 +4,7 @@ import { type LoreRelevance } from "./loreRanking";
 import type { LoreEntry, LoreScene } from "./lore";
 import type { JudgeAnswer, JudgeRequest } from "./types";
 
-// v2.3 plan 10 (A) — the MEASUREMENT arm. `buildLoreRequests` asks a Noul per entry, which answers
+// (A) — the MEASUREMENT arm. `buildLoreRequests` asks a Noul per entry, which answers
 // "does the next reply need this" and nothing about order, so equal answers fall to insertion order.
 // This asks one Score per entry over described levels, which is a ranking primitive. Nothing here is
 // wired into the runtime: `LoreSelector` still calls the Noul arm, and this replaces it only if the

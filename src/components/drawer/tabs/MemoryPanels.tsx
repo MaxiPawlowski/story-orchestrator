@@ -21,7 +21,7 @@ const describeEffectTarget = (target: EffectTarget): string => {
   return `preset: ${target.name} (${target.api})`;
 };
 
-// v2.3 plan 06. What this chat changed in state it SHARES with other chats — a group's cast, a
+// What this chat changed in state it SHARES with other chats — a group's cast, a
 // lorebook, the Author's Note — and whether it could be put back. Author-only: it is the machinery a
 // player never needs to know about, and it names entries and upcoming staging.
 export const EffectLedgerPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
@@ -41,7 +41,7 @@ export const EffectLedgerPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) =
   );
 };
 
-// v2.2 plan 02: lines the judgment model found no support for, kept here instead of in memory. The
+// Lines the judgment model found no support for, kept here instead of in memory. The
 // author can store one anyway; it goes in at its judged confidence.
 export const NotStoredPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: RuntimeManager }) => {
   const drops = snapshot.memory.verifyDrops ?? [];
@@ -88,7 +88,7 @@ export const LedgerPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; 
   const rows = snapshot.ledger;
   if (!rows.length) return null;
   const entities = Array.from(new Set(rows.map((row) => row.entity)));
-  // Rows are version lists (M3): the row shows the newest version, so Remove addresses that one.
+  // Rows are version lists: the row shows the newest version, so Remove addresses that one.
   const idFor = (entity: string, field: string) => stored.filter((entry) => entry.entity.toLowerCase() === entity.toLowerCase() && entry.field.toLowerCase() === field.toLowerCase()).at(-1)?.id;
   return (
     <div className="border-t border-solid border-white/10 mt-1 pt-1">

@@ -59,7 +59,7 @@ export function runCodeChecks(story: NormalizedStoryV2, input: PlannedExpansionI
   if (progressTotal < threshold) issues.push(`${progressQualityForAnchor(target.id)} increments ${progressTotal} < threshold ${threshold}`);
   if (beats.length < 2) issues.push("generated chain needs at least two beats so progress can apply before anchor entry");
 
-  // L4 (2026-09-23): the engine fires the first declared outcome whose gate holds, so an outcome gated
+  // The engine fires the first declared outcome whose gate holds, so an outcome gated
   // exactly like an earlier one of the same beat can never fire. Two of two real route-1 walks met a
   // beat whose outcomes both gated on `approach == unknown`: a fork on paper, one route in play.
   beats.forEach((beat, index) => {

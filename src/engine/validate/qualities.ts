@@ -27,7 +27,7 @@ const readEvidenceFrom = (value: Record<string, unknown>, source: Quality["sourc
   return { evidence_from: value.evidence_from };
 };
 
-// v2.2 plan 06: `read_as` + `criteria`. A hint that cannot work is an error, never a silent no-op.
+// `read_as` + `criteria`. A hint that cannot work is an error, never a silent no-op.
 const readQualityRead = (
   value: Record<string, unknown>,
   type: Quality["type"],

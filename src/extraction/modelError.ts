@@ -17,7 +17,7 @@ export const lapseAsEmpty = (error: unknown): string => {
 
 export const isTimeout = (error: unknown): error is ModelCallError => error instanceof ModelCallError && error.kind === "timeout";
 
-/** v2.4 acceptance A11: a timed-out call gets one more ask at TIMEOUT_RETRY_SCALE times its budget, then gives up naming both. */
+/** Acceptance a timed-out call gets one more ask at TIMEOUT_RETRY_SCALE times its budget, then gives up naming both. */
 export async function retryOnTimeout<T>(ask: (timeoutScale: number) => Promise<T>): Promise<T> {
   try {
     return await ask(1);

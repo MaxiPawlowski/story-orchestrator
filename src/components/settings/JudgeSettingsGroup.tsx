@@ -20,7 +20,7 @@ export interface JudgeSettingsGroupProps {
   selfTest: { running: boolean; report: JudgeSelfTestReport | null };
   builtUses?: readonly JudgeUseKey[];
   authorView?: boolean;
-  /** v2.4 plan 07 T24: this chat's judge spend and the model that last answered. */
+  /** This chat's judge spend and the model that last answered. */
   meter?: JudgeMeterView | null;
   wardenEnabled?: boolean;
   onChange(patch: JudgeSettingsPatch): void;

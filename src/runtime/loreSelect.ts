@@ -16,7 +16,7 @@ export interface LoreSelectDeps {
   getLastMessageId: () => number;
   getEntries: () => Promise<HostScannableEntry[]>;
   force: (entries: HostScannableEntry[]) => Promise<WriteResult<{ entries: number }>>;
-  // v2.3 plan 03 (C1, the "lore" surface). Optional: an unwired caller never lapses.
+  // Optional: an unwired caller never lapses.
   ownership: RunOwnership;
 }
 
@@ -28,7 +28,7 @@ export interface LoreSelection {
 
 const sameBook = (left: string, right: string) => left.trim().toLowerCase() === right.trim().toLowerCase();
 
-// v2.2 plan 04. Force, never write: the only host effect is one WORLDINFO_FORCE_ACTIVATE for the
+// Force, never write: the only host effect is one WORLDINFO_FORCE_ACTIVATE for the
 // next scan, so rollback has nothing to undo and a failure leaves ST's keyword scan as it was.
 export class LoreSelector {
   private cache: { key: string; entries: HostScannableEntry[]; picks: LoreSelection["picks"] } | null = null;
@@ -49,9 +49,9 @@ export class LoreSelector {
     // The story is part of the key, not only the chat, the message and the scope: the cached entry
     // holds ENTRIES PICKED for one story's checkpoint and window, and a chat that swapped to another
     // story with the same lore scope used to match the departed story's cache and force its picks
-    // into the new story's next generation (v2.3 plan 11 §Fault matrix).
+    // into the new story's next generation (matrix).
     const key = `${this.deps.getChatId() ?? ""}:${story.id ?? ""}:${story.version}:${this.deps.getLastMessageId()}:${JSON.stringify(scope)}`;
-    // C1 names four surfaces and this is one of them. force() pushes entries into the NEXT
+    // Names four surfaces and this is one of them. force() pushes entries into the NEXT
     // generation, so a selection that outlives its chat seeds another chat prompt with this story
     // lore. Minted before the cache check, because the cached path forces too.
     const run = beginRun(this.deps.ownership);
@@ -94,7 +94,7 @@ export class LoreSelector {
     return { trigger, cached: false, picks };
   }
 
-  // v2.3 plan 11 §Fault matrix. The force is the only write on this path and its result used to be
+  // Matrix. The force is the only write on this path and its result used to be
   // discarded, so a host that refused it still produced a selection the caller treated as applied —
   // the prompt then carried ST's ordinary keyword scan and nothing said why. Nothing to force is
   // not a failure; a refused force is, and this says so. The token check lives here rather than at

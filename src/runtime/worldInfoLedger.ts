@@ -3,7 +3,7 @@ import type { NormalizedLedger } from "./scanGatePlan";
 import type { NormalizedFrom } from "./settingsStore";
 import { bookKey } from "./worldInfoMatch";
 
-// v2.5 plan 01 B. The ledger says which gated entries rest off in their files; the files are the truth.
+// B. The ledger says which gated entries rest off in their files; the files are the truth.
 // Read-only: a verdict is evidence for a Repair row, and every write needs the author's click.
 export type BookEntries = Map<string, boolean | null>;
 
@@ -31,7 +31,7 @@ export function gatedIndex(stories: unknown[]): GatedIndex {
   return index;
 }
 
-// v2.5 plan 01 D: the author table says which story gates each entry.
+// D: the author table says which story gates each entry.
 export function gatedBy(records: Array<{ title: string; raw: unknown }>): (lorebook: string, comment: string) => string[] {
   const indexes = records.map((record) => ({ title: record.title, index: gatedIndex([record.raw]) }));
   return (lorebook, comment) => indexes.filter((entry) => isGated(entry.index, lorebook, comment)).map((entry) => entry.title);
@@ -62,7 +62,7 @@ export interface RestoreBook {
   comments: string[];
 }
 
-// v2.5 plan 01 E. Only what normalisation turned off (`wasOn`), still in the ledger, and gated by no remaining story.
+// E. Only what normalisation turned off (`wasOn`), still in the ledger, and gated by no remaining story.
 export function restorePlan(removed: unknown, remaining: unknown[], ledger: NormalizedLedger, from: Record<string, NormalizedFrom[]>): RestoreBook[] {
   const kept = gatedIndex(remaining);
   const held = (records: Record<string, string[]>, lorebook: string) => Object.entries(records).find(([name]) => bookKey(name) === bookKey(lorebook))?.[1] ?? [];

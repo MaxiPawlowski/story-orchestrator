@@ -41,7 +41,7 @@ export interface StagecraftCoordinatorDeps {
   journal: (summary: string, note?: string) => void;
   persist: () => Promise<void>;
   notify: () => void;
-  // v2.3 plan 03 (R1). A curator pass reads the world, awaits a model for seconds, then writes
+  // A curator pass reads the world, awaits a model for seconds, then writes
   // through `setStagecraft` — which resolves to whatever chat is current when the promise lands,
   // not the one the work belongs to. The token is minted before the awaits and checked at the
   // write edge. Optional so an existing caller keeps today's behaviour until it supplies one.
@@ -97,7 +97,7 @@ export class StagecraftCoordinator {
     });
   }
 
-  /** V3: a pass holds the coordinator only while its own world is still open — a slow pass started
+  /** A pass holds the coordinator only while its own world is still open — a slow pass started
    *  in another chat used to block this chat's pass until its model call returned to be discarded. */
   private busy(hold: PassHold | null): boolean {
     return hold !== null && (!hold.token || this.deps.ownership.check(hold.token).ok !== false);
@@ -301,14 +301,14 @@ export class StagecraftCoordinator {
     return this.writer.revertAppliedSince(messageId, this.settleNotes((op) => op.replyMessageId >= messageId, "reverted"));
   }
 
-  // v2.2 plan 05: fire-and-forget after a committed character reply, never a scheduler job. The judge
+  // Fire-and-forget after a committed character reply, never a scheduler job. The judge
   // decides which established facts the reply broke; the note itself is composed in code.
   private activeFamilies(): WardenFamiliesActive {
     const extra = this.deps.warden?.families?.() ?? { agency: false, houseRules: [] };
     return { continuity: this.state.settings.wardenEnabled, agency: extra.agency, houseRules: extra.houseRules };
   }
 
-  // T23: a story swap that drops a rule withdraws the unapplied notes that named it.
+  // A story swap that drops a rule withdraws the unapplied notes that named it.
   private withdrawRemovedRules(): number {
     const rules = this.deps.getStory()?.house_rules ?? [];
     return this.settleNotes((op, status) => status !== "applied" && withdrawRemovedRules(op, rules), "rule removed");
@@ -387,7 +387,7 @@ export class StagecraftCoordinator {
   }
 
   // An accepted note rides the outermost loud generation: set when it opens, spent only when that
-  // generation closes with its own reply (v2.4 X6). The author's own nudge wins a shared generation,
+  // generation closes with its own reply. The author's own nudge wins a shared generation,
   // and the note waits for the next one.
   onGenerationStarted(type: unknown, dryRun: unknown) {
     const settings = this.state.settings;

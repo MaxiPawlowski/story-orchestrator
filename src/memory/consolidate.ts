@@ -145,7 +145,7 @@ export function applyConsolidation(state: MemoryStoreState, result: Consolidatio
     .map((entry) => {
       let next = entry;
       const winner = superseded.get(entry.id);
-      // First link wins (v2.3 plan 04). Re-retiring an already-retired entry would overwrite the
+      // First link wins. Re-retiring an already-retired entry would overwrite the
       // provenance of the link that is already there, and a rollback could then never restore the
       // state the cut saw: the property test in `rollbackReplay.property.test.ts` found exactly that.
       if (winner && !entry.locked && !entry.supersededBy) next = { ...next, supersededBy: winner, supersededAt: at };

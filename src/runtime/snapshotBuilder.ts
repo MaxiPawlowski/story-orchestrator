@@ -54,10 +54,10 @@ export interface SnapshotSources {
   driver: DriverContext | null;
   activeNudge: string | null;
   payloadCaptures: PayloadCapture[];
-  /** v2.3 plan 09 / v2.4 plan 08: every extension prompt ST holds right now, ours and other extensions'. */
+  /** Every extension prompt ST holds right now, ours and other extensions'. */
   promptBlocks: ExtensionPromptBlocks;
-  /** The open chat: V13 counts the player's own lines in it (a refusal counts turns, not replies), and
-   *  v2.4 plan 08 T19d reads its messages against the stored fingerprints for "changed since". */
+  /** The open chat: counts the player's own lines in it (a refusal counts turns, not replies), and
+   * Reads its messages against the stored fingerprints for "changed since". */
   chat: readonly unknown[];
   fingerprints: MessageFingerprints | null;
   extractionHealth?: ExtractionHealth | null;
@@ -126,7 +126,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
   const agencyRecovery: AgencyRecovery | null = agencyRecoveryOf(story, state, sources.boundaryLog, extras.extraction.audits, playerTurnIds(sources.chat));
   const extractionHealth = sources.extractionHealth ?? null;
   const pipeline = derivePipelineStatus(extras.extraction, { generating: expansionInFlight(extras.expansion) }, extractionHealth);
-  // v2.3 plan 09: what the next reply will carry, in ST's own assembly order. The private block is
+  // What the next reply will carry, in ST's own assembly order. The private block is
   // attributed to the member the last talk decision drafted — in a group that is who ST will swap it
   // for — and the scene block reports the tracker's own staleness and last fallback.
   const lastDecision = extras.talk.decisions[extras.talk.decisions.length - 1] ?? null;
@@ -155,7 +155,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     sceneLocation: confirmedSceneFacts(extras.judge.scene, sceneFieldsInConflict(extras.memory.conflicts))?.location ?? null,
     // Only when a place WAS known: a tracker that has never answered has nothing to be unsure of.
     sceneUnconfirmed: isSceneStale(extras.judge.scene) && Boolean(extras.judge.scene?.facts.location),
-    // v2.3 plan 06: a write this chat believes it made and the server has not confirmed. Player
+    // A write this chat believes it made and the server has not confirmed. Player
     // wording, because the player is the one who would lose the story.
     saveNotice: hasUnsavedChanges(extras.saveHealth) ? SAVE_PLAYER_TEXT : null,
     agencyNotice: agencyRecovery ? REFUSAL_PLAYER_TEXT : null,
@@ -205,7 +205,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     ui: extras.ui,
     talk: extras.talk,
     stagecraft: extras.stagecraft,
-    // v2.3 plan 06: what this chat changed in shared host state, and whether it could be put back.
+    // What this chat changed in shared host state, and whether it could be put back.
     effects: extras.effects,
     saveHealth: extras.saveHealth,
     scene: extras.judge.scene,

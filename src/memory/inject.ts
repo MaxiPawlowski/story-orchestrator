@@ -33,7 +33,7 @@ export interface TierTrim {
 }
 
 const filteredFate = (entry: MemoryEntry, tier: MemoryTier, activeSpeakerId: string | null): MemoryFate | null => {
-  // v2.3 plan 05 (C3): a quarantined row is EXCLUDED, not ranked lower.
+  // A quarantined row is EXCLUDED, not ranked lower.
   if (!isLive(entry)) return "quarantined";
   if (entry.supersededBy) return "superseded";
   if (entry.foldedInto) return "folded";
@@ -75,7 +75,7 @@ export interface TierInjection {
   blocks: Record<MemoryTier, string>;
   /** Pinned rows the budget could not fit — the author is told, rather than losing them silently. */
   pinnedOverflow: number;
-  /** v2.4 plan 08 T19c: one fate per row, from the same filters and budget selection that built the blocks. */
+  /** One fate per row, from the same filters and budget selection that built the blocks. */
   fates: Record<string, MemoryFate>;
   trim: Record<MemoryTier, TierTrim>;
 }
