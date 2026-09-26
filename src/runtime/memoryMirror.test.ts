@@ -369,7 +369,7 @@ describe("L1: in scan mode the mirror never takes the chat lorebook slot", () =>
     expect(released).toEqual([]);
   });
 
-  it("releases a slot that names exactly this chat's own book (a legacy file-mode binding)", async () => {
+  it("releases a slot that names exactly this chat's own book (a file-mode binding)", async () => {
     const { host, state, released } = scanHost({ books: { [bookA]: [] }, slot: bookA });
     const kept = memory();
     const result = await syncMemoryMirror(input([kept], { book: { name: bookA, chatId: "chat-a" }, writes: { [`so_${kept.id}`]: hashMemoryText(kept.text) } }), host);

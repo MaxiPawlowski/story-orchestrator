@@ -1,0 +1,630 @@
+{
+  "_note": "v2.5 plan 08 G-L5 X1/X2, arm `exclusive`, LIVE on a lane in SCAN mode with judge.enabled + loreSelect ON and loreExclusive ON. 35 scripted turns (11 Spanish) from test/fixtures/judge/lore.json (adolion rows) + lore-relevance.json, over two stories (B = windows at 'Below the mountains', A = the rest), against a marked copy of the Adolion pool (SO-V25-08 Adolion; keys = each entry's title after ' - ', authored here). Each turn posts the window's earlier lines with /sendas and generates on its last line; the activated set is WORLD_INFO_ACTIVATED for that generation (T12's source). Predeclared, never retuned: exclusive recall >= 0.85 AND >= keyword recall - 0.05 (X1); exclusive non-needed activations per turn <= 0.7 x keyword (X2). Run both arms on one bundle, same turns: so-scenario run test/scenarios/live-v25-08-l5-x1-keyword.json --sandbox --group <group> then -x1-exclusive.json. The judge host and model are recorded by so-run-header. A miss in either run = L5 recorded not built and the flag removed before plan 10.",
+  "steps": [
+    {
+      "inject_script": "../fixtures/interop/v25-08-lore.js"
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.requireScan(); if (!ctx.groupId) throw new Error('needs a sandbox GROUP chat holding Arin and DM Narrator'); const judge = rt.getGlobalSettings().judge; const exclusiveOn = judge.enabled && judge.uses.loreSelect && judge.uses.loreExclusive; if ('exclusive' === 'exclusive' ? !exclusiveOn : judge.uses.loreExclusive) throw new Error('arm exclusive: set judge.uses.loreExclusive ' + ('exclusive' === 'exclusive' ? 'ON (with loreSelect)' : 'OFF') + ' first'); if (!judge.uses.loreSelect) throw new Error('loreSelect must be on in both arms'); await V.createBook('SO-V25-08 Adolion', [{\"comment\": \"Place - Adolion\", \"content\": \"Adolion is a large fantasy world. It is comprised of a large number of races such as elves, demons, humans, dwarves, goblins, and more. It has medieval technology, magic, and monsters.\\nAppearance: Whole fantasy world, medieval walled kingdoms and stone castles, untamed forests, jungles and snowy mountains, ruins of old wars, magic-driven airships in the skies.\", \"key\": [\"Adolion\"]}, {\"comment\": \"Place - Aegis City\", \"content\": \"Aegis City is the capital city of the Darran Kingdom. It is the largest city on the continent of Sebela. Its ruler is King Davolan. It is otherwise known as the Holy City.\\nAppearance: Vast walled medieval capital, grey stone temples, walled noble district of mansions, bustling market streets, ramshackle slums, golden sun emblems, towering Grand Temple of Boher.\", \"key\": [\"Aegis City\"]}, {\"comment\": \"Lore - Adventurer's Guild\", \"content\": \"The Adventurer's Guild is an organization that manages the many adventurers in Adolion. They are a neutral party and manage the acquisition of quests, adventurer registration, and rewards. The Adventurer's Guild is necessary to keep the world safe for commoners. The Adventurer's Guild consists of two areas, the Guild Reception and the Tavern.\", \"key\": [\"Adventurer's Guild\"]}, {\"comment\": \"Lore - Holy Church\", \"content\": \"The Holy Church is dedicated to the worship of Boher, the God of Life. The Holy Church is in a constant war against any necromancers or undead. Boher's symbol is a golden sun. Boher's followers seek out and destroy demons.\", \"key\": [\"Holy Church\"]}, {\"comment\": \"Lore - Adventurer Rank\", \"content\": \"Adventurers are ranked by the guild to determine what kind of quests they can handle. An adventurer is ranked from the lowest rank of F to the highest rank of A.\", \"key\": [\"Adventurer Rank\"]}, {\"comment\": \"Race - Elves\", \"content\": \"Elves are a reclusive race who have only recently begun to integrate into human societies. Tall, lithe, beautiful, and able to live hundreds of years.\\nAppearance: Tall, lithe, graceful humanoids, long pointed ears, fine elegant features, smooth fair skin, flowing hair, forest-toned leathers or fine robes, longbows common.\", \"key\": [\"Elves\"]}, {\"comment\": \"Race - Dwarf\", \"content\": \"Dwarves are stout folk, usually only about 4 feet tall. They tend to live in mountainous areas and are great crafters. Dwarves famously get along with most races and make the most loyal of friends. Dwarves obsess over their honor.\\nAppearance: Stout humanoids about four feet tall, broad muscular build, thick braided beards, sturdy boots, heavy plate or chain armor, axes and smithing hammers.\", \"key\": [\"Dwarf\"]}, {\"comment\": \"Race - Humans\", \"content\": \"Humans have the shortest lifespan of Adolions races. However, they are often ambitious and diverse, able to accomplish in a short amount of time what it takes other races centuries to complete.\\nAppearance: Medium-height humanoids of varied builds, skin tones and hair colors, rounded ears, clothing ranging from peasant linen to noble finery and plate armor.\", \"key\": [\"Humans\"]}, {\"comment\": \"Creature - Demons\", \"content\": \"Demons are from the infernal planes. They vary in type. With some preferring to trick or deceive mortals into damnation, while others prefer to carve a bloody path of violence. To the mortal races, all demons are evil.\\nAppearance: Infernal beings of many shapes, often horned, red or ashen skin, claws, glowing eyes, some winged or tailed, some disguised as mortals.\", \"key\": [\"Demons\"]}, {\"comment\": \"Place - Vile Jungle\", \"content\": \"Nagora Jungle - or the Vile Jungle - is a large jungle that covers 1/4th of Sebela. Extremely dangerous creatures wander there, mutated by the regions close proximity to the negative energy plane.\\nAppearance: Vast dense jungle covering a quarter of Sebela, tangled dark canopy, steaming swamps, mutated predators, sickly green gloom from negative-energy taint, orc war camps.\", \"key\": [\"Vile Jungle\"]}, {\"comment\": \"Place - Sebela\", \"content\": \"Sebela is the largest continent on Adolion. It features a variety of biomes. It's most notable areas are: Aegis City, the Vile Jungle, the Mountains of Shadow, and Gragow.\\nAppearance: Largest continent of Adolion, varied biomes from dense jungle to snowy mountains and deep forests, walled kingdoms and villages, great capital Aegis City.\", \"key\": [\"Sebela\"]}, {\"comment\": \"Place - Mountains of Shadow\", \"content\": \"The Mountains of Shadow are a dangerous mountainous region covered in thick snow. The tear between worlds is weak here, making it an easy place for the Infernal Plane to infiltrate through. Many demons make their homes here.\\nAppearance: Vast jagged mountain range under thick snow, dark rock peaks, bitter cold, grey overcast gloom, demon-haunted passes and caves, faint infernal glow.\", \"key\": [\"Mountains of Shadow\"]}, {\"comment\": \"Lore - Quests\", \"content\": \"Quests are issued by the Adventurer's Guild after they receive a request from someone in need of help. Quests are easier the lower the rank and more difficult the higher the rank. Quests can take place anywhere in Sebela. Quest Location, Quest Target.\", \"key\": [\"Quests\"]}, {\"comment\": \"Place - Fallen City of Gragow\", \"content\": \"Gragow was a large human city. Became a Lost Zone overnight. Eldritch creatures roam the streets and everyone that was inside is presumed dead. Gragow has some of the most advanced technology in Adolion lost within its walls.\\nAppearance: Once-great walled human city now a dead ruin, empty silent streets, abandoned advanced machinery, eerie oppressive gloom, eldritch creatures lurking in shadows.\", \"key\": [\"Fallen City of Gragow\"]}, {\"comment\": \"Lore - Lost Zone\", \"content\": \"Lost Zones are areas in Adolion that the Adventurer's Guild has decided are too dangerous to investigate. Only foolhardy adventurers and treasure hunters dare try to brave these areas.\", \"key\": [\"Lost Zone\"]}, {\"comment\": \"Creature - goblin\", \"content\": \"Short, green creatures with the intelligence of children. Goblins speak undercommon and are vicious, cruel creatures. They often kill for sport. Goblins can learn to cast spells but often prefer to attack in packs to overwhelm their enemies.\\nAppearance: Short green-skinned humanoids about three feet tall, pointed ears, sharp teeth, wiry bodies, crude scavenged leather scraps, rusty knives, spears and shortbows.\", \"key\": [\"goblin\"]}, {\"comment\": \"Race - Orcs\", \"content\": \"Orcs are a large race of muscular creatures with gray skin and red eyes. They often are seen as barbaric, but in orc society, might makes right.\\nAppearance: Large heavily muscled humanoids, gray skin, red eyes, jutting lower tusks, coarse dark hair, tribal war paint, hide and scrap armor, crude axes.\", \"key\": [\"Orcs\"]}, {\"comment\": \"NPC - Ellie\", \"content\": \"Ellie is a guild receptionist for the Adventurer's Guild. She's regarded as a \\\"Jewel\\\" of the guild, has her own fanclub who wants to keep her single. Elven woman with green hair and blue eyes.\\nAppearance: young woman, elf, short green hair in double buns, blue eyes, black halter collar with gold emblem, blue and white strapless dress with gold trim, white off-shoulder sleeves.\", \"key\": [\"Ellie\"]}, {\"comment\": \"Creature - Demon Boar\", \"content\": \"Demon Boars are large creatures that resemble boars, but are highly aggressive with glowing red eyes and massive tusks. A Demon Boar will often gore its enemies with its massive tusks or breath fire. A Demon Boar is roughly the size of a human male.\\nAppearance: Human-sized boar, bristly dark hide, massive curved tusks, glowing red eyes, smoke and embers leaking from its snout.\", \"key\": [\"Demon Boar\"]}, {\"comment\": \"Lore - village\", \"content\": \"A list of village names: Brittleforest, Cliffwich, Thornhollow, Ebonshield, Pinemere, Fairhorn, Dryscar, Grimacre, Silverfall, Whitvein, Darkpass\", \"key\": [\"village\"]}, {\"comment\": \"Lore - Questgiver\", \"content\": \"A list of Questgiver names: Reverend Johanson, Farmer Jacobs, Holy Knight Taran, Monk Kals, Smithy Eugan, Alchemist Veric, Shopkeeper Eissen, Lady Erika, Lord Tarin, Sergeant Jabari\", \"key\": [\"Questgiver\"]}, {\"comment\": \"Race - Drow\", \"content\": \"Drow are a race of dark-skinned elves who reside in an area called the Darklands, a massive cavernous region under Sebela. Drow live in a matriarchal society and revere spiders. Many Drow are slavers and view other races as only fit to serve their sadistic needs. The largest drow settlement is Kalzobarn located in the Darklands.\\nAppearance: Elves with ash-gray to dark skin, white or silver hair, pointed ears, red or purple eyes, lithe build, dark leathers, spider motifs, poisoned blades.\", \"key\": [\"Drow\"]}, {\"comment\": \"Place - Darklands\", \"content\": \"The Darklands is a massive cavernous region underneath Sebela that houses dangerous monsters and creatures that have grown to fear or shun the sun. The only natural source of light in the Darklands are eerie glowing mushrooms.\\nAppearance: Immense cavern network beneath Sebela, lightless stone tunnels and vast grottos, eerie glowing mushrooms as the only natural light, dripping rock, lurking monsters.\", \"key\": [\"Darklands\"]}, {\"comment\": \"NPC - Arryn\", \"content\": \"Arryn is a beautiful Elf who wields a lance and wears plate armor. She tends to speak in short, choppy phrases. Friends with Dalan.\\nAppearance: young woman, elf, long silver-white hair in high ponytail, red eyes, pointed ears, pale skin, engraved silver plate armor, red cape, long steel spear with red gem.\", \"key\": [\"Arryn\"]}, {\"comment\": \"NPC - Belle\", \"content\": \"Belle is a Barbarian who wields a massive stone greataxe called Cleaver. Very aggressive, dominant, and prone to fighting for fun or to vent her anger.\\nAppearance: young woman, human, long black hair, brown eyes, brown leather cuirass and pauldrons over black shirt, black laced corset, leather belts with pouches, brown shorts, massive stone greataxe.\", \"key\": [\"Belle\"]}, {\"comment\": \"Lore - Clan Nabba\", \"content\": \"Clan Nabba is a wandering, nomadic tribe that lives in the Mountains of Shadow. A patriarchal clan that believes women serve best in household roles. Belle is originally from this clan.\", \"key\": [\"Clan Nabba\"]}, {\"comment\": \"NPC - Fiana\", \"content\": \"Fiana is the barmaid for the Adventurer's Guild. Happy, sociable, flirty. An excellent cook and mixologist. Best friends with Ellie.\\nAppearance: young woman, human, shoulder-length red hair, white maid headdress, blue eyes, black puff-sleeved bolero, blue and red corset dress with bow and blue gem brooch.\", \"key\": [\"Fiana\"]}, {\"comment\": \"Race - Beastfolk\", \"content\": \"Beastfolk refers to people who have a mixture of a beast race and human. This usually manifests as things like animal ears, tails, fangs, claws, and other animal-like traits. Most are half human.\\nAppearance: Mostly human bodies with animal traits, furred animal ears, tails, fangs or claws, cat, fox, dog, cow or rabbit varieties, ordinary clothing.\", \"key\": [\"Beastfolk\"]}, {\"comment\": \"Lore - Inquisition\", \"content\": \"The Inqusition are Hunters of Demons, expected to root out heresy no matter where it occurs. Its members are experts killing and/or exorcising demons. They are backed by the Church of Boher.\", \"key\": [\"Inquisition\"]}, {\"comment\": \"Lore - Quest Target\", \"content\": \"Quest Targets for quests. Targets are either a group of enemies or a single named enemy: Goblins, Orcs, Demon, Demon Boars, Drow, Minotaur, Manticore, Wraith, Bandits, Slavers, Zombies, Skeletons, Vampire, Giant Spiders, Giant Rats\", \"key\": [\"Quest Target\"]}, {\"comment\": \"Creature - Manticore\", \"content\": \"A Manticore is a monstrous amalgamation with the head of a lion and body of a dragon. Often the size of a small house. Can breathe fire and its tail is venomous. Highly aggressive and territorial.\\nAppearance: House-sized beast, lion head with shaggy mane, scaled draconic body, venomous barbed tail, fiery breath, heavy claws.\", \"key\": [\"Manticore\"]}, {\"comment\": \"Creature - Wraith\", \"content\": \"A Wraith is a spirit that's birthed when someone suffers a particularly cruel or violent death. Capable of reanimating unless a ritual is performed to put the spirit to rest. Incorporeal. Casts magic.\\nAppearance: Incorporeal humanoid spirit, translucent shadowy form, tattered ghostly shroud, hollow glowing eyes, trailing spectral wisps, flickering spell-light.\", \"key\": [\"Wraith\"]}, {\"comment\": \"Creature - Minotaur\", \"content\": \"Minotaurs are large bipedal humanoid creatures with the head of a bull. Capable of wielding weapons, preferring greataxes. Territorial but wanders in search of human women to mate with.\\nAppearance: Towering bipedal humanoid, bull head with great horns, heavily muscled fur-covered body, hooves, loincloth or crude armor, massive greataxe.\", \"key\": [\"Minotaur\"]}, {\"comment\": \"Creature - Zombie\", \"content\": \"Zombies are creatures animated by necromantic magic, usually humanoid. Mindless, controlled by a necromancer. Need to destroy the brain to fully kill them or use divine magic.\\nAppearance: Reanimated humanoid corpses, rotting gray-green flesh, torn burial rags or old clothes, vacant clouded eyes, slack jaws, exposed bone.\", \"key\": [\"Zombie\"]}, {\"comment\": \"Creature - Skeleton\", \"content\": \"Skeletons are bones of a humanoid or other creature reanimated by necromancy. Often left to guard tombs. Controlled by a necromancer. Capable of wielding weapons, usually broken weapons.\\nAppearance: Reanimated bare humanoid bones, yellowed skull, empty eye sockets with faint glow, scraps of rusted armor, broken swords and cracked shields.\", \"key\": [\"Skeleton\"]}, {\"comment\": \"Race - Vampire\", \"content\": \"Vampires are typical fantasy vampires. Vampires reproduce by performing the Amplectere.\\nAppearance: Pale ageless humanoid undead, sharp fangs, red eyes, elegant aristocratic features, fine gothic noble clothing, dark cloaks.\", \"key\": [\"Vampire\"]}, {\"comment\": \"NPC - Vampire Queen\", \"content\": \"The Vampire Queen is an enigmatic figure. No one knows where she is. But she is rumored to be immortal and was sealed away in order to prevent her complete domination of Adolion.\", \"key\": [\"Vampire Queen\"]}, {\"comment\": \"Lore - Lich Queen\", \"content\": \"The Lich Queen was nearly responsible for the extermination of all living life on Adolion centuries ago. Her undead armies still cause trouble to this day. Killed along with hey phylactery.\", \"key\": [\"Lich Queen\"]}, {\"comment\": \"Lore - Queen's Cult\", \"content\": \"The Queen's Cult is a loose collection of Necromancers who seek to revive the Lich Queen and replenish her undead armies.\", \"key\": [\"Queen's Cult\"]}, {\"comment\": \"Lore - Bloody Hand Tribe\", \"content\": \"The Bloody Hand Tribe is an Orc tribe that lives in the Vile Jungle. With thousands of members it's the largest orc tribe in existence. Ruled by Chief Gruth. Warlike, aggressive.\", \"key\": [\"Bloody Hand Tribe\"]}, {\"comment\": \"NPC - Butcher\", \"content\": \"The Butcher creates horrifying works of art displaying savagery, gore, and horrific beasts. His work is popular among nobles in Aegis City who enjoy the shock of viewing them.\", \"key\": [\"Butcher\"]}, {\"comment\": \"NPC - Soul Painter\", \"content\": \"The Soul Painter is an artist who creates gruesome depictions of people during their last moments. The people painted are all people who have gone missing.\", \"key\": [\"Soul Painter\"]}, {\"comment\": \"NPC - Kuromu\", \"content\": \"Kuromu is an aspiring artist who sells paintings in the Aegis Slums. His art was popular among nobles for its shock value. He signs his paintings under the pseudonym \\\"Butcher.\\\"\\nAppearance: adult man, human, slim build, messy short black hair, ice-blue eyes, pale skin, black choker, open off-white hooded coat, black crop top with gold harness, black trousers, bracelets, paintbrush.\", \"key\": [\"Kuromu\"]}, {\"comment\": \"Place - Slums\", \"content\": \"The Slums are the poor part of Aegis City. Filled with Thieves, vagrants, and poor folk just trying to survive. Most homes are shanty's, built with whatever spare supplies are available.\\nAppearance: Poorest district of Aegis City, cramped ramshackle shanties of scavenged wood and scrap, muddy narrow alleys, smoke and grime, drab brown-gray palette.\", \"key\": [\"Slums\"]}, {\"comment\": \"Creature - Succubus\", \"content\": \"Succubi or Succubus are a form of demon that feeds on sexual energy. Powerful spellcasters, usually favoring illusion magic to blend in among mortal societies and charm victims. Incubus or Incubi are male succubi.\\nAppearance: Humanoid demons of adult appearance, curved horns, leathery bat wings, thin spaded tail, red or violet eyes, often illusion-disguised as ordinary mortals.\", \"key\": [\"Succubus\"]}, {\"comment\": \"Place - Temple District\", \"content\": \"The Temple District in Aegis City has a lot of temples dedicated to the worship of various Gods. Most notably the Grand Temple of Boher resides here, the largest temple and place of healing in Sebela.\\nAppearance: Aegis City's sacred quarter, stone temples and shrines to many gods, incense smoke, golden sun motifs, vast Grand Temple of Boher and its healing halls.\", \"key\": [\"Temple District\"]}, {\"comment\": \"Place - Noble District\", \"content\": \"The Noble District in Aegis City is exclusive, walled off on all sides and guarded by Aegis City guards at all hours of the day. Nobles show off their extravagance here where laws are more suggestions than rules.\\nAppearance: Walled, gated noble quarter of Aegis City, guards at every gate, lavish mansions and manicured gardens, marble and gilded facades, Aegis Academy within.\", \"key\": [\"Noble District\"]}, {\"comment\": \"NPC - Gabriel Malvoraux\", \"content\": \"Gabriel is a Elder Vampire and Lord of Vampires. Recently reawakened and gathering his power. Lives in Castle Bathorya. Hates mortal races. Daughter is Alice Malvoraux who he wants to make amends with.\", \"key\": [\"Gabriel Malvoraux\"]}, {\"comment\": \"Place - Castle Bathorya\", \"content\": \"Castle Bathorya is a gothic castle, large in its size. Located near the Fallen City of Gragow. Has an enchantment on it that makes it sentient to confuse and trap invaders. It is permanently night while inside castle grounds.\\nAppearance: Huge gothic castle near ruined Gragow, dark stone spires, shifting sentient halls and corridors, eternal night over the grounds, cold moonlit gloom.\", \"key\": [\"Castle Bathorya\"]}, {\"comment\": \"Place - Darran Kingdom\", \"content\": \"The Darran Kingdom is the domain of King Davolan. It covers most of Eastern Sebela. It has a non-aggression pact with the Bloody Hand Tribe.\\nAppearance: Large feudal kingdom spanning eastern Sebela, farmland, forests and walled towns, stone castles of noble houses, royal banners, capital Aegis City.\", \"key\": [\"Darran Kingdom\"]}, {\"comment\": \"Race - Elder Vampire\", \"content\": \"Elder Vampires enjoy immunity from sunlight, though it does cause discomfort. They are immune to holy relics and immortal. Only a few people know about the existence of Elder Vampires.\\nAppearance: Ancient vampires of commanding presence, pale ageless skin, sharp fangs, crimson eyes, rich aristocratic gothic attire, dark velvet cloaks.\", \"key\": [\"Elder Vampire\"]}, {\"comment\": \"Creature - Goblin Lord\", \"content\": \"Goblin Lords are extremely strong goblins, comparable to a B Rank adventurer. Often they lead multiple groups of goblins and raid towns. Usually fight from the backline. Much smarter than their kin.\\nAppearance: Larger, sharper-eyed goblin, green skin, pointed ears, better scavenged armor hung with trophies, crude staff or blade.\", \"key\": [\"Goblin Lord\"]}, {\"comment\": \"Creature - Hobgoblin\", \"content\": \"Hobgoblins are large goblin-like creatures, often over seven feet tall and prefers to wield club-like weapons. Stupid. Often lives with goblins.\\nAppearance: Hulking goblinoid over seven feet tall, green-gray skin, heavy brutish build, small dull eyes, crude hide coverings, huge wooden club.\", \"key\": [\"Hobgoblin\"]}, {\"comment\": \"NPC - Dalan\", \"content\": \"Dalan is a short, feminine, male elf adventurer. Amazing with a bow, hates being called cute. Friends with Arryn. Member of the Evergreen Tribe\\nAppearance: young adult man, short slender elf, messy blonde hair with side braid, pointed ears, green hooded capelet and tunic, white undershirt, brown leather belts, brown gloves, wooden longbow.\", \"key\": [\"Dalan\"]}, {\"comment\": \"Place - Market District\", \"content\": \"Aegis City's Market District is the largest district in the city. It contains a large number of residential homes and many large streets filled with buildings to cater to the needs of adventurers. Many alleyways are set up with stalls for vendors to sell goods.\\nAppearance: Largest district of Aegis City, wide busy streets of shops, inns and homes, alley vendor stalls, colorful awnings, crowds of adventurers and merchants.\", \"key\": [\"Market District\"]}, {\"comment\": \"NPC - Karos\", \"content\": \"Karos is an exceptional butler who is searching for someone worthy of his service. A hand-to-hand fighter skilled in multiple martial arts.\\nAppearance: adult man, human, lithe build, short tidy silver hair, light-blue eyes, white dress shirt, black tie, black waistcoat, black tailcoat, black leather gloves, belts on upper arms.\", \"key\": [\"Karos\"]}, {\"comment\": \"NPC - Kazzym\", \"content\": \"Kazzym is an elder green dragon, ruler of the Forbidden Forest. Known for his short temper and violent nature. Secretly trying to create a philosophers stone. Also secretly publishes alchemy books under a pseudonym. His palace is made of magically twisted trees. Easily pleased if offered rare knowledge.\\nAppearance: adult man, green elder dragon in humanoid form, muscular, spiky green hair, curved dark horns, green eyes, brown skin, open white robe, dark green cloak with gold trim, gold clasp.\", \"key\": [\"Kazzym\"]}, {\"comment\": \"Place - The Forbidden Forest\", \"content\": \"The Forbidden Forest is a dangerous forest filled with all kinds of violent monsters. Ruled by Kazzym. Home to some of the rarest alchemical ingredients in Adolion. Close to a few human settlements the largest of which is Cliffwich.\\nAppearance: Dense perilous forest, towering ancient trees, thick undergrowth rich in rare alchemical herbs, monster lairs, deep green gloom, Kazzym's palace of twisted trees.\", \"key\": [\"The Forbidden Forest\"]}, {\"comment\": \"Lore - Kazzym's Chosen\", \"content\": \"Kazzym's Chosen is a kobold clan that servers Kazzym the Green. Lives in the Forbidden Forest near Kazzym's palace. Led by Greec the Learned.\", \"key\": [\"Kazzym's Chosen\"]}, {\"comment\": \"NPC - Greec\", \"content\": \"Greec is a Kobold Shaman that leads Kazzym's Chosen. Earned his position by offering a rare druidic tome to Kazzym.\", \"key\": [\"Greec\"]}, {\"comment\": \"Creature - Cursed Doll\", \"content\": \"A Cursed Doll is a creature born when a person transfers a living persons soul into a doll. The doll retains memories and the personality of their old body. Often seductive, Cursed Dolls need magic to stay animated and they can get it by initiating physical contact with living beings.\\nAppearance: Adult-sized animated doll, porcelain-smooth skin with visible ball joints, glassy eyes, neatly styled hair, frilled gown.\", \"key\": [\"Cursed Doll\"]}, {\"comment\": \"NPC - Rhea\", \"content\": \"Rhea Allstadt was deemed missing when her family was slaughtered by Inquisitors hundreds of years ago. Secretly, Rhea now inhabits the body of a cursed doll and seeks to transfer her soul back to her real body which is kept preserved below Allstadt Manor.\\nAppearance: adult woman, cursed porcelain doll, long straight silver hair, black lily hair flowers, pale blue eyes, porcelain skin with doll joints, black frilled gothic lace dress, silver cross brooch.\", \"key\": [\"Rhea\"]}, {\"comment\": \"Place - Allstadt Manor\", \"content\": \"Allstadt Manor is an abandoned large manor, cobwebs, dusty, cracked windows, expensive furnishings and decorations, large basement used for torture and magical experiments, skeletons in basement, Rhea's preserved young body is kept in the basement in a vat\\nAppearance: Abandoned large manor, dusty cobwebbed halls, cracked windows, faded costly furnishings, dim gloom, basement laboratory with torture devices and a preserving vat.\", \"key\": [\"Allstadt Manor\"]}, {\"comment\": \"NPC - The Witch of Thornwood\", \"content\": \"The Witch of Thornwood is known in nearby villages as dangerous, people still come to her for help with ailments, her prices are reasonable, rumors say she'll fix any ailment if you give her your soul, rumors say she is actually a demon, rumors are all false.\", \"key\": [\"The Witch of Thornwood\"]}]); await V.selectGlobal('SO-V25-08 Adolion', true); globalThis.__l5 = { arm: 'exclusive', turns: [] }; return { arm: 'exclusive', entries: 64 };"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v25-08-xa",
+        "title": "SO-V25-08 XA",
+        "description": "v2.5 plan 08 G-L5: lore-select over a marked Adolion book.",
+        "qualities": [],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "The road",
+            "objective": "Travel and survive.",
+            "type": "anchor",
+            "start": true
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator"
+          }
+        ],
+        "requirements": {
+          "lorebooks": [
+            "SO-V25-08 Adolion"
+          ]
+        },
+        "lore_select": {
+          "lorebooks": [
+            "SO-V25-08 Adolion"
+          ],
+          "exclusive": true
+        }
+      }
+    },
+    {
+      "ui": {
+        "action": "select-profile"
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"The receptionist behind the long counter is an elven woman with green eyes; half the men at the tables are pretending not to stare at her.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "I step up to the counter. \"I want to sign up. What level does a new member start at, and what kind of jobs can I take on day one?\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.17\", \"SO-V25-08 Adolion.4\", \"SO-V25-08 Adolion.2\", \"SO-V25-08 Adolion.12\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'L01', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"Night in the shanty streets of the capital, where the houses are built from scrap wood and thieves watch every stranger. A thin young man sells canvases from a blanket.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "I crouch by the paintings. The faces in them look exactly like the ones on the missing-person notices. \"Who signs these? And who buys something this gruesome?\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.43\", \"SO-V25-08 Adolion.42\", \"SO-V25-08 Adolion.41\", \"SO-V25-08 Adolion.40\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'L02', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Arin\" raw=false compact=true ${\"\\\"You want to go south? Into the green hell that swallows a quarter of the continent? The things in there are twisted by whatever leaks out of that place.\\\"\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"And the gray-skinned warriors with the red eyes? I heard thousands of them live down there under a single chief.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.9\", \"SO-V25-08 Adolion.39\", \"SO-V25-08 Adolion.16\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'L03', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"The barbarian\" raw=false compact=true ${\"She rests her huge stone axe on her shoulder. \\\"I was born up there, in the snow peaks where the wall between worlds is thin. My people still wander those passes.\\\"\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"Your people. The ones who think a woman's place is the cooking fire? No wonder you left.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.11\", \"SO-V25-08 Adolion.25\", \"SO-V25-08 Adolion.24\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'L04', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"Three riders in red cloaks, holy symbols gleaming on their breastplates, block the road. Their leader says they hunt heresy wherever it hides.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"You think the baron isn't the baron anymore? That something from below is wearing his skin? Then how do you drive it out?\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.28\", \"SO-V25-08 Adolion.3\", \"SO-V25-08 Adolion.8\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'L05', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrador\" raw=false compact=true ${\"Más allá de la ciudad caída se alza un castillo gótico enorme. Dicen que sus pasillos cambian de sitio para atrapar a quien entra.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"¿Y su señor? He oído que es un no-muerto antiguo que ni siquiera teme al sol, y que acaba de despertar.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.48\", \"SO-V25-08 Adolion.47\", \"SO-V25-08 Adolion.50\", \"SO-V25-08 Adolion.13\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'L06', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Aldeano\" raw=false compact=true ${\"\\\"Anoche vinieron las pequeñas criaturas verdes, decenas de ellas. Con ellas venían brutos de más de dos metros con garrotes.\\\"\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"¿Y quién las dirigía? Algo tan organizado necesita un jefe fuerte que dé órdenes desde atrás.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.15\", \"SO-V25-08 Adolion.51\", \"SO-V25-08 Adolion.52\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'L07', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"The alchemist unrolls a map and taps a dark mass of trees. \\\"The rarest ingredients grow there. So do the worst monsters in the land.\\\"\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"I heard a green wyrm rules those woods, with little lizard-folk serving him. Will they let us through if we pay?\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.56\", \"SO-V25-08 Adolion.57\", \"SO-V25-08 Adolion.58\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'L08', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"The abandoned mansion is all cobwebs and cracked windows. In a child's bedroom upstairs, a porcelain doll turns its head to follow you.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"The villagers said the family here was butchered by church hunters centuries ago. One daughter was never found.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.62\", \"SO-V25-08 Adolion.61\", \"SO-V25-08 Adolion.60\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'L09', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrador\" raw=false compact=true ${\"En la barra, la camarera risueña te guiña un ojo y te sirve el mejor cóctel que has probado; dicen que también cocina de maravilla.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"¿Es verdad que eres la mejor amiga de la recepcionista elfa? Necesito que me presentes.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.26\", \"SO-V25-08 Adolion.17\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'L10', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v25-08-xb",
+        "title": "SO-V25-08 XB",
+        "description": "v2.5 plan 08 G-L5: lore-select over a marked Adolion book.",
+        "qualities": [],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "The road",
+            "objective": "Travel and survive.",
+            "type": "anchor",
+            "start": true
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator"
+          }
+        ],
+        "requirements": {
+          "lorebooks": [
+            "SO-V25-08 Adolion"
+          ]
+        },
+        "lore_select": {
+          "lorebooks": [
+            "SO-V25-08 Adolion"
+          ],
+          "exclusive": true
+        }
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"The tunnel opens into a grotto lit only by pale glowing caps on the rock, and further down the dark there are voices.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"The pale ones below. They keep slaves, and they think everything that walks in the sun is cattle. We go quietly or not at all.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.21\", \"SO-V25-08 Adolion.22\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R01', lang: 'en', story: 'B', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v25-08-xa",
+        "title": "SO-V25-08 XA",
+        "description": "v2.5 plan 08 G-L5: lore-select over a marked Adolion book.",
+        "qualities": [],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "The road",
+            "objective": "Travel and survive.",
+            "type": "anchor",
+            "start": true
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator"
+          }
+        ],
+        "requirements": {
+          "lorebooks": [
+            "SO-V25-08 Adolion"
+          ]
+        },
+        "lore_select": {
+          "lorebooks": [
+            "SO-V25-08 Adolion"
+          ],
+          "exclusive": true
+        }
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"Something steps out of the rocks into the road: seven feet of muscle, a bull's head on a man's shoulders, dragging a huge axe.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"Nobody move. It hasn't seen us yet.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.32\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R02', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"A carcass the size of a cart lies half-eaten in the sand, and the tracks around it are lion-wide and clawed like a lizard's.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"Venom in the tail marks, fire around the muzzle. That's not a beast, that's a border dispute.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.30\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R03', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"The woman who died here died badly, and the cold in the room has not lifted since. Something is still standing in the corner.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"We need a rite, not a sword. Cutting it does nothing while its business is unfinished.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.31\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R04', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"The vault is full of them: some still wearing flesh, most down to bare yellow bones, all of them holding rusted weapons and all of them facing the door.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"Something in here is still giving the orders.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.33\", \"SO-V25-08 Adolion.34\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R05', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"Half the shelves are gone. The only volumes anyone still wants are the ones about her - the one who almost emptied the world once, and the rites for bringing her back.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"Whoever is collecting these isn't a scholar. They're a congregation.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.37\", \"SO-V25-08 Adolion.38\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R06', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"The man across the table has no shadow worth the name, walks out at noon into the light without flinching, and is not afraid of the cross on the wall.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"You're older than the church says anything can be. And you're not the only one awake, are you? They still haven't found her.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.50\", \"SO-V25-08 Adolion.36\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R07', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"The driver has pointed ears under a wide hat, a tail coiled on the seat, and a nose that twitches every time the horses do.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"You can hear them before we can, so you're on watch tonight.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.27\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R08', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"The host's smile never reaches the eyes, every guest agrees with everything, and the wine has been poured by the same hand all evening without tiring.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"They aren't feeding on the food. Watch who keeps finding excuses to touch someone.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.44\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R09', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"The riders wear red over their armour and carry brands as well as swords. They have already decided what everyone in the village is, and they are working through the houses one at a time.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"Whatever they're hunting, they don't need proof of it.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.28\", \"SO-V25-08 Adolion.3\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R10', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"The speaker is waist-high with a snout and scales, wearing more jewellery than the baron, and the rest of the little folk go quiet when it raises a claw.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"You didn't get this patch of forest by being liked. What did it cost you to be allowed to speak for him?\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.59\", \"SO-V25-08 Adolion.58\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R11', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"He pours the tea without being asked, knows where every door in the house leads, and offers his terms like a man who has been waiting a long time for the right offer.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"You fight with your hands, and you've never lost. What are you actually asking for?\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.55\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R12', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"The clearing stinks of scorched hair. It is the size of a man, its tusks are longer than a forearm, and embers leak from its snout when it breathes.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"Not the chest. The neck, before it turns.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.18\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R13', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"The camp fills the whole valley floor: thousands of cookfires, one banner, one chief, and no quarrelling between tents.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"No tribe holds together at this size without someone who can hold it. Which one is his?\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.39\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R14', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"The streets are wide with stalls on both sides, then a wall, then the part where the doors are gilded and the guards count you as you pass, and past that the bells of the sacred quarter.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"Markets, mansions, temples. If she's a hostage she's in the second, and if she's an offering she's in the third.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.54\", \"SO-V25-08 Adolion.46\", \"SO-V25-08 Adolion.45\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R15', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"The small archer in the green cloak puts four shafts inside a palm's width at sixty paces and glares at anyone who smiles.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"I'm not going to say it. I want to keep my fingers.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.53\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R16', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrador\" raw=false compact=true ${\"La chica del pelo corto en dos moños lleva el registro de todo el mundo y no mira a nadie dos veces; el resto de la sala sí.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"¿Y tú qué ganas con saberlo todo? A mí me sirve cualquiera que recuerde las caras.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.17\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R17', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Arin\" raw=false compact=true ${\"\\\"No preguntes al primero que veas. Hay un herrero que lo sabe todo de esta comarca y una mujer noble que paga por enterarse la primera.\\\"\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"¿Nombres? Necesito nombres de gente que hable.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.20\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R18', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrador\" raw=false compact=true ${\"El guardia señala el mapa con dos dedos. \\\"Ahí no. El gremio lo cerró hace años y a quien vuelve no se le paga nada.\\\"\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"¿Y qué hay dentro que dé tanto miedo como para prohibirlo en vez de limpiarlo?\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.14\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R19', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrador\" raw=false compact=true ${\"El trono está al este de todo, en la parte del continente que está en paz con los que no deberían ser sus aliados.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"¿Su majestad sabe que su pacto con ellos se leería mal en las parroquias?\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.49\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R20', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrador\" raw=false compact=true ${\"Cuelgan las tareas por letras. Las de la parte baja del alfabeto no las quiere nadie; las de arriba llevan sello de cera y nadie se ofrece.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"Empecemos por abajo. Todo el mundo sube la escalera desde el primer escalón.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.4\", \"SO-V25-08 Adolion.12\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R21', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrador\" raw=false compact=true ${\"Lo que empuja desde fuera no tiene una forma fija: a veces manos, a veces alas, siempre con demasiados ojos.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"No vienen de este mundo. La sal los aguanta, pero no los hiere.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.8\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R22', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrador\" raw=false compact=true ${\"En las aldea de los alrededores la llaman de todo: bruja, santa, estafadora. Todas las versiones coinciden en que cobra distinto a cada uno.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"Y en que a nadie le ha ido peor después. Eso ya es más de lo que puede decir el templo.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.63\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R23', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"The big one left a club's worth of damage and a trail you could follow blind. The little ones did the searching, and they did it in order, room by room.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"The brute is the muscle. Somebody smaller and smarter is running this.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.52\", \"SO-V25-08 Adolion.51\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R24', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrador\" raw=false compact=true ${\"Los cuadros cuelgan en fila y todos son el mismo instante: alguien a punto de dejar de estar. Los compradores ricos pagan por mirarlos.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "\"Los rostros no están inventados. Son personas que existieron, y ninguna figura en las listas de vecinos.\"",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.41\", \"SO-V25-08 Adolion.42\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R25', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const turns = globalThis.__l5.turns; const needed = turns.reduce((sum, turn) => sum + turn.needed, 0); const hit = turns.reduce((sum, turn) => sum + turn.hit, 0); const noise = turns.reduce((sum, turn) => sum + turn.noise, 0); await V.selectGlobal('SO-V25-08 Adolion', false); await V.deleteBook('SO-V25-08 Adolion'); return { arm: 'exclusive', turns: turns.length, spanish: turns.filter((turn) => turn.lang === 'es').length, recall: needed ? Number((hit / needed).toFixed(4)) : null, noisePerTurn: Number((noise / Math.max(1, turns.length)).toFixed(4)), refusals: turns.map((turn) => turn.exclusive?.refusal ?? null), rows: turns };",
+      "log": true
+    }
+  ]
+}

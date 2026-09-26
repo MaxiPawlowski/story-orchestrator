@@ -1,0 +1,69 @@
+{
+  "_note": "v2.5 plan 08 G-L2, LIVE on a lane, once in FILE mode and once in SCAN mode (the record names the mode). so-scenario run test/scenarios/live-v25-08-l2-bindings.json --sandbox --group <group holding Arin and DM Narrator>. Bindings are changed in memory only and put back (no card or settings save). Predeclared: chat-bound ready (satisfiedBy chat; file mode also names the slot conflict), persona-bound ready (persona), bound to one of two members MISSING with the gap named (D2), bound to both ready (character). The two file-mode displacement legs (a) story book first then adoption and (b) mirror first then the author binds through ST's UI are run by hand on the lane with so-ui, recorded beside this run.",
+  "steps": [
+    {
+      "inject_script": "../fixtures/interop/v25-08-lore.js"
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; if (!ctx.groupId) throw new Error('needs a sandbox GROUP chat holding Arin and DM Narrator'); const members = ctx.groups.find((group) => group.id === ctx.groupId)?.members ?? []; await V.createBook('SO-V25-08 Req Lore', [{ comment: 'hall', content: 'The hall is lit by blue lanterns.', key: ['lantern'] }]); globalThis.__l2 = { mode: globalThis.storyOrchestratorScanGating?.active?.() ? 'scan' : 'file', members }; return globalThis.__l2;",
+      "log": true
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v25-08-req",
+        "title": "SO-V25-08 Req",
+        "description": "v2.5 plan 08 G-L2: a story whose lorebook is satisfied by a chat, persona or card binding.",
+        "qualities": [],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "The hall",
+            "objective": "Explore the hall.",
+            "type": "anchor",
+            "start": true
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator"
+          }
+        ],
+        "requirements": {
+          "lorebooks": [
+            "SO-V25-08 Req Lore"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; ctx.eventSource.emit(ctx.eventTypes.WORLDINFO_SETTINGS_UPDATED); await new Promise((resolve) => setTimeout(resolve, 600)); const req = V.requirements(); if (req.ready) throw new Error('the book is not bound anywhere yet, but the requirement reads ready: ' + JSON.stringify(req)); globalThis.__l2.none = req.ready; return req;"
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.bindChatSlot('SO-V25-08 Req Lore'); ctx.eventSource.emit(ctx.eventTypes.WORLDINFO_SETTINGS_UPDATED); await new Promise((resolve) => setTimeout(resolve, 600)); const req = V.requirements(); V.restoreBindings(); const fileMirror = globalThis.__l2.mode === 'file'; if (!req.ready || req.satisfiedBy?.['SO-V25-08 Req Lore'] !== 'chat') throw new Error('chat-bound: ' + JSON.stringify(req)); if (fileMirror && !req.slotConflict) throw new Error('file mode: a story book in the slot must name the mirror conflict: ' + JSON.stringify(req)); globalThis.__l2.chat = { ready: req.ready, by: req.satisfiedBy, conflict: req.slotConflict ?? null }; return globalThis.__l2.chat;",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.bindPersona('SO-V25-08 Req Lore'); ctx.eventSource.emit(ctx.eventTypes.WORLDINFO_SETTINGS_UPDATED); await new Promise((resolve) => setTimeout(resolve, 600)); const req = V.requirements(); V.restoreBindings(); if (!req.ready || req.satisfiedBy?.['SO-V25-08 Req Lore'] !== 'persona') throw new Error('persona-bound: ' + JSON.stringify(req)); globalThis.__l2.persona = { ready: req.ready, by: req.satisfiedBy }; return globalThis.__l2.persona;",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.bindCard('Arin', 'SO-V25-08 Req Lore'); ctx.eventSource.emit(ctx.eventTypes.WORLDINFO_SETTINGS_UPDATED); await new Promise((resolve) => setTimeout(resolve, 600)); const req = V.requirements(); V.restoreBindings(); if (req.ready || !(req.characterGaps?.['SO-V25-08 Req Lore'] ?? []).length) throw new Error('D2: a book bound to one of two members must read missing, naming the gap: ' + JSON.stringify(req)); globalThis.__l2.oneMember = { ready: req.ready, gaps: req.characterGaps }; return globalThis.__l2.oneMember;",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.bindCard('Arin', 'SO-V25-08 Req Lore'); V.bindCard('DM Narrator', 'SO-V25-08 Req Lore'); ctx.eventSource.emit(ctx.eventTypes.WORLDINFO_SETTINGS_UPDATED); await new Promise((resolve) => setTimeout(resolve, 600)); const req = V.requirements(); V.restoreBindings(); if (!req.ready || req.satisfiedBy?.['SO-V25-08 Req Lore'] !== 'character') throw new Error('every enabled member bound: ' + JSON.stringify(req)); globalThis.__l2.everyMember = { ready: req.ready, by: req.satisfiedBy }; return globalThis.__l2.everyMember;",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.restoreBindings(); await V.deleteBook('SO-V25-08 Req Lore'); return globalThis.__l2;",
+      "log": true
+    }
+  ]
+}

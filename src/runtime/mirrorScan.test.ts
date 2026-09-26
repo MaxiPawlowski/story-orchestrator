@@ -38,7 +38,7 @@ describe("L1: the mirror book's enabled so_ entries, as scan copies", () => {
     expect(entries[0].disable).toBe(false);
   });
 
-  it("U4 no double: nothing is appended when the book is already in any array (a legacy-bound slot)", () => {
+  it("U4 no double: nothing is appended when the book is already in any array (a slot bound the file-mode way)", () => {
     for (const index of [0, 1, 2, 3]) {
       const scan = arrays();
       scan[index].push({ world: BOOK.toUpperCase(), uid: 0, comment: "so_r1", content: "Arin trusts Luke." });

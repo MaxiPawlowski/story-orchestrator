@@ -1,0 +1,121 @@
+{
+  "_note": "v2.5 plan 08 G-L5 X3/X4/X6 (+ the X5 refusal), LIVE on a lane in SCAN mode with judge, loreSelect and loreExclusive ON. X3: the judge route is cut for one turn, so no complete selection exists and the handler refuses (no-selection), leaving the keyword scan. X4: a checkpoint-gated entry the judge did not pick still fires. X6: a sticky entry that fired stays active for its span. X5 is the vectors leg: with Vectors > World Info enabled (extension_settings.vectors.enabled_world_info), 10 exclusive turns must show refusal 'vectors-wi' and 0 insert/delete calls caused by suppression (arm the /api/vector/ fetch recorder, rerun this file with vectors WI on). Predeclared, x2 in plan 10. so-scenario run test/scenarios/live-v25-08-l5-fallback.json --sandbox --group <group>.",
+  "steps": [
+    {
+      "inject_script": "../fixtures/interop/v25-08-lore.js"
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.requireScan(); const judge = rt.getGlobalSettings().judge; if (!(judge.enabled && judge.uses.loreSelect && judge.uses.loreExclusive)) throw new Error('X3-X6 need judge, loreSelect and loreExclusive on'); await V.createBook('SO-V25-08 Adolion Timed', [{ comment: 'sticky lore', content: 'The ferryman remembers every face.', key: ['ferryman'], sticky: 3 }, { comment: 'plain lore', content: 'The river is cold.', key: ['river'] }, { comment: 'gated lore', content: 'The vault is sealed.', key: ['vault'] }]); await V.selectGlobal('SO-V25-08 Adolion Timed', true); globalThis.__x = {}; return true;"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v25-08-x3",
+        "title": "SO-V25-08 X3",
+        "description": "v2.5 plan 08 G-L5: lore-select over a marked Adolion book.",
+        "qualities": [],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "The river",
+            "objective": "Cross the river.",
+            "type": "anchor",
+            "start": true,
+            "effects": {
+              "world_info": {
+                "enable": [
+                  {
+                    "lorebook": "SO-V25-08 Adolion Timed",
+                    "comments": [
+                      "gated lore"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator"
+          }
+        ],
+        "requirements": {
+          "lorebooks": [
+            "SO-V25-08 Adolion Timed"
+          ]
+        },
+        "lore_select": {
+          "lorebooks": [
+            "SO-V25-08 Adolion Timed"
+          ],
+          "exclusive": true
+        }
+      }
+    },
+    {
+      "ui": {
+        "action": "select-profile"
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.startCapture(); globalThis.__x.blocked = true; await globalThis.storyOrchestratorJudge?.invalidateStatus?.(); window.__soOrigFetch = window.fetch; window.fetch = (url, init) => (String(url).includes('story-orchestrator-judge') ? Promise.reject(new Error('X3 forced judge outage')) : window.__soOrigFetch(url, init)); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "We reach the river; the ferryman waits by the vault door.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; window.fetch = window.__soOrigFetch; const out = V.stopCapture(); const last = globalThis.storyOrchestratorScanGating.lastExclusive?.(); if (last?.refusal !== 'no-selection' || last.stats.suppressed) throw new Error('X3: a failed judge must leave the keyword scan: ' + JSON.stringify(last)); globalThis.__x.x3 = { refusal: last.refusal, activated: out.generations.flat().map((entry) => entry.comment) }; return globalThis.__x.x3;",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "I ask the ferryman about the sealed vault and the cold river.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const fired = out.generations.flat().map((entry) => entry.comment); const last = globalThis.storyOrchestratorScanGating.lastExclusive?.(); if (!fired.includes('gated lore')) throw new Error('X4: the gated-on entry was suppressed: ' + JSON.stringify({ fired, last })); globalThis.__x.x4 = { fired, last }; return globalThis.__x.x4;",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.startCapture(); return true;"
+    },
+    {
+      "send_generate": {
+        "text": "We wait on the bank and say nothing.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I count the boats in silence.",
+        "expectReply": true,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const sticky = out.generations.map((generation) => generation.some((entry) => entry.comment === 'sticky lore')); const stats = globalThis.storyOrchestratorScanGating.lastExclusive?.()?.stats ?? null; if (globalThis.__x.x4.fired.includes('sticky lore') && !sticky.every(Boolean)) throw new Error('X6: a sticky entry that fired was dropped inside its span: ' + JSON.stringify({ sticky, stats })); globalThis.__x.x6 = { sticky, stats }; return globalThis.__x;",
+      "log": true
+    },
+    {
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await V.selectGlobal('SO-V25-08 Adolion Timed', false); await V.deleteBook('SO-V25-08 Adolion Timed'); return globalThis.__x;",
+      "log": true
+    }
+  ]
+}
