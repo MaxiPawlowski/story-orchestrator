@@ -399,3 +399,14 @@ describe("L1: in scan mode the mirror never takes the chat lorebook slot", () =>
     expect(released).toEqual([]);
   });
 });
+
+describe("L6 step 0: every sync says whether it ran and how many rows were live", () => {
+  it("names a sync with no chat, one with nothing live, and one that wrote", async () => {
+    const noChat = fakeHost({ chatId: null });
+    expect((await syncMemoryMirror(input([memory()]), noChat.host))!.summary).toMatchObject({ ran: false, skipped: "no-chat", live: 0 });
+    const nothing = fakeHost();
+    expect((await syncMemoryMirror(input([memory({ type: "fact", tier: "facts" })]), nothing.host))!.summary).toMatchObject({ ran: false, skipped: "nothing-live", live: 0 });
+    const wrote = fakeHost();
+    expect((await syncMemoryMirror(input([memory(), memory()]), wrote.host))!.summary).toMatchObject({ ran: true, skipped: null, live: 2, created: 2 });
+  });
+});
