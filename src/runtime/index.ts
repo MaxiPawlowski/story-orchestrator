@@ -1,5 +1,7 @@
 import { getChatWindow } from "@extraction/index";
-import { getContext, noteHostSettingsLoaded, settingsReady, subscribeToHostEvents } from "@services/STAPI";
+import {
+  clearStoryExtensionPrompt, getContext, noteHostSettingsLoaded, setStoryExtensionPrompt, settingsReady, subscribeToHostEvents,
+} from "@services/STAPI";
 import { registerRuntimeMacros } from "./macros";
 import { startMirrorReaper } from "./mirrorReaperHost";
 import { runtimeManager } from "./runtimeManager";
@@ -50,6 +52,13 @@ const spikePort = () => ({
   storyId: () => runtimeManager.getStory()?.id ?? null,
   boundary: () => runtimeManager.getEngineState()?.boundary ?? null,
   raw: () => runtimeManager.getPlayedStoryRaw(),
+  story: () => runtimeManager.getStory(),
+  log: () => runtimeManager.getBoundaryLog(),
+  shape: () => runtimeManager.getSnapshot().pacing.shapeOverride ?? null,
+  prompt: {
+    set: (key: string, text: string, depth: number) => { setStoryExtensionPrompt(key, text, depth); },
+    clear: (key: string) => { clearStoryExtensionPrompt(key); },
+  },
 });
 
 const registerHostSurfaces = () => {

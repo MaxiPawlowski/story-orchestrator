@@ -1,7 +1,7 @@
 import { appendJudgeCall, type JudgeCallRecord, type SceneReadRecord } from "@judge/index";
 import type { JudgeRuntime } from "./judge";
 import {
-  StoryEngine, type RollbackOutcome, type ApplyQueueEntry, type BoundaryContext, type BoundaryResult, type EngineState,
+  StoryEngine, type RollbackOutcome, type ApplyQueueEntry, type BoundaryContext, type BoundaryLogEntry, type BoundaryResult, type EngineState,
   type NormalizedStoryV2, type NormalizedTransition, type TalkControl, type ValidationError,
 } from "@engine/index";
 import {
@@ -336,6 +336,8 @@ export class RuntimeManager extends CoordinatorDelegates {
   getGlobalSettings() { return getGlobalSettings(); }
 
   reapplyPromptBlocks() { this.copilot.reapplyNudge(); if (!this.loaded) return; this.memory.updateInjection(); this.pacing.updateSteering(); }
+  getBoundaryLog(): BoundaryLogEntry[] { return this.loaded ? this.engine.stateLog : []; }
+
   getFiredTransitions(): NormalizedTransition[] { return this.engine.stateLog.map((entry) => entry.fired).filter((transition): transition is NormalizedTransition => Boolean(transition)); }
 
   setSchedulerSnapshot(snapshot: ExtractionRuntimeState["scheduler"]) {

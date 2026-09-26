@@ -1,6 +1,6 @@
 import { isRecord } from "@utils/guards";
 
-export const SPIKE_FLAGS = ["sp7Chance"] as const;
+export const SPIKE_FLAGS = ["sp7Chance", "sp6Complications"] as const;
 
 export type SpikeFlag = (typeof SPIKE_FLAGS)[number];
 

@@ -9,7 +9,7 @@ const DEV_ONLY = [
   "src/judge/calibration.ts",
   "src/judge/selfTestCases.ts",
 ];
-const SPIKE_MODULES = ["src/engine/chance.ts", "src/runtime/spikes/install.ts", "src/runtime/spikes/sp7Chance.ts"];
+const SPIKE_MODULES = ["src/engine/chance.ts", "src/runtime/spikes/install.ts", "src/runtime/spikes/sp7Chance.ts", "src/runtime/spikes/sp6Complications.ts"];
 const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
 const LAZY_USER_FEATURES = ["src/judge/selfTest.ts", "src/runtime/selfTest.ts", "src/runtime/roleSelfTest.ts", "src/extraction/fixtureRun.ts"];
 
@@ -53,6 +53,6 @@ describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", 
     const planted = join(SRC, "runtime", "index.ts");
     const fs = require("fs") as typeof import("fs");
     const read = (path: string) => (path === planted ? `import { installSpikes } from "./spikes/install";\n${fs.readFileSync(path, "utf8")}` : fs.readFileSync(path, "utf8"));
-    expect(staticReach(files, read).filter(isDevOnly)).toEqual(expect.arrayContaining(["src/runtime/spikes/install.ts", "src/runtime/spikes/sp7Chance.ts", "src/engine/chance.ts"]));
+    expect(staticReach(files, read).filter(isDevOnly)).toEqual(expect.arrayContaining(["src/runtime/spikes/install.ts", "src/runtime/spikes/sp7Chance.ts", "src/runtime/spikes/sp6Complications.ts", "src/engine/chance.ts"]));
   });
 });
