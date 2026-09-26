@@ -1,3 +1,4 @@
+import { readWith } from "../../test/support/modelCall";
 import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
 import { getChatWindow, getLastMessageText } from "./chatWindow";
 import { buildFixtureRun } from "./fixtureRun";
@@ -46,7 +47,7 @@ const read = async (debugResponse: string) => {
   const engine = new StoryEngine();
   engine.loadStory(s);
   const state = { ...engine.serialize(), lastMessageId: chatRef.current.length - 1 };
-  return runSharedRead({ story: s, state, priority: 0, reason: "hygiene", client: { profileId: "p1", role: "read", debugResponse } });
+  return runSharedRead({ story: s, state, priority: 0, reason: "hygiene", readWindow: getChatWindow, ...readWith("p1", { debugResponse }) });
 };
 
 beforeEach(() => { chatRef.current = hostChat(); });
@@ -90,7 +91,7 @@ describe("v2.4 plan 04 T7: every window reader takes the cleaned text", () => {
       const engine = new StoryEngine();
       engine.loadStory(s);
       const window = { ...getChatWindow(0), form: undefined };
-      return runSharedRead({ story: s, state: engine.serialize(), priority: 0, reason: "hygiene", window, client: { profileId: "p1", role: "read", debugResponse: "NO_DELTA" } });
+      return runSharedRead({ story: s, state: engine.serialize(), priority: 0, reason: "hygiene", window, ...readWith("p1", { debugResponse: "NO_DELTA" }) });
     })();
     expect(raw.audit.windowForm).toBeUndefined();
     expect(raw.audit.prompt).toBe(result.audit.prompt);
@@ -103,7 +104,7 @@ describe("v2.4 plan 04 T7: every window reader takes the cleaned text", () => {
     const engine = new StoryEngine();
     engine.loadStory(s);
     const state = { ...engine.serialize(), lastMessageId: 7 };
-    const result = await runSharedRead({ story: s, state, priority: 0, reason: "hygiene", client: { profileId: "p1", role: "read", debugResponse: "NO_DELTA", budget: { contextLimit: { value: 3000, source: "preset" }, meter: createTokenMeter() } } });
+    const result = await runSharedRead({ story: s, state, priority: 0, reason: "hygiene", readWindow: getChatWindow, ...readWith("p1", { debugResponse: "NO_DELTA", budget: { contextLimit: { value: 3000, source: "preset" }, meter: createTokenMeter() } }) });
     expect(result.audit.trimmedFrom).toBe(0);
     expect(result.audit.windowForm).toEqual(CLEANED_FORM);
   });

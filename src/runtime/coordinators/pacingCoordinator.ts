@@ -4,13 +4,13 @@ import {
 } from "@engine/index";
 import type { ParsedDelta } from "@extraction/index";
 import { composeGuidanceBlock, getSteeringHint, updateEma } from "@pacing/index";
-import { clearStoryExtensionPrompt, setStoryExtensionPrompt } from "@services/STAPI";
 import { PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 
 const GUIDANCE = INJECTION_REGISTRY.checkpointGuidance;
 import { computeExpectedTension } from "../snapshot";
-import { defaultTension } from "../extras";
+import { defaultTension } from "../tensionState";
+import type { PromptHost } from "../hostPorts";
 import type { PacingSettings, TensionRuntimeState } from "../types";
 
 const TENSION_LEVEL_LIMIT = 50;
@@ -23,6 +23,7 @@ export interface PacingCoordinatorDeps {
   getTension: () => TensionRuntimeState;
   setTension: (next: TensionRuntimeState) => void;
   getPacing: () => PacingSettings;
+  hosts: { prompt: PromptHost };
 }
 
 // Tension is written twice: optimistically while extractor deltas are queued (so the smoothed
@@ -98,23 +99,24 @@ export class PacingCoordinator {
 
   updateSteering() {
     const story = this.deps.getStory();
+    const prompt = this.deps.hosts.prompt;
     if (!story) {
-      clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
+      prompt.clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
       this.withholdGuidance();
       return;
     }
     const activeId = this.deps.getState()?.activeCheckpointId ?? null;
     const policy = agencyForCheckpoint(story, activeId);
     const hint = getSteeringHint(this.deps.getTension().smoothed, this.expectedTension(), undefined, policy);
-    if (this.deps.getPacing().hintEnabled && hint) setStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY, hint.text, PACING_HINT_DEPTH);
-    else clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
+    if (this.deps.getPacing().hintEnabled && hint) prompt.setStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY, hint.text, PACING_HINT_DEPTH);
+    else prompt.clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
     const active = activeId ? story.checkpointById[activeId] : null;
     const guidance = composeGuidanceBlock(active, policy, objectiveLineApplies(story, active));
-    if (guidance) setStoryExtensionPrompt(GUIDANCE.key, guidance, GUIDANCE.depth);
+    if (guidance) prompt.setStoryExtensionPrompt(GUIDANCE.key, guidance, GUIDANCE.depth);
     else this.withholdGuidance();
   }
 
   withholdGuidance() {
-    clearStoryExtensionPrompt(GUIDANCE.key);
+    this.deps.hosts.prompt.clearStoryExtensionPrompt(GUIDANCE.key);
   }
 }

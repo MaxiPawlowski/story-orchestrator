@@ -5,17 +5,17 @@ import type { PayloadCapture, TalkDecisionAudit } from "./types";
 
 const at = (seconds: number) => new Date(Date.parse("2026-08-11T10:00:00.000Z") + seconds * 1000).toISOString();
 
-const boundaryEntry = (overrides: Partial<BoundaryLogEntry> = {}): BoundaryLogEntry => ({
+const boundaryEntry = (overrides: Partial<BoundaryLogEntry> = {}) => ({
   at: Date.parse(at(2)),
   boundary: 1,
   before: { activeCheckpointId: "cp1" } as BoundaryLogEntry["before"],
   after: { activeCheckpointId: "cp2" } as BoundaryLogEntry["after"],
-  fired: { from: "cp1", to: "cp2", gate: "mission_accepted == true", declarationIndex: 0 } as BoundaryLogEntry["fired"],
+  fired: { from: "cp1", to: "cp2", gate: "mission_accepted == true", declarationIndex: 0 } as unknown as BoundaryLogEntry["fired"],
   source: "gate",
   context: { lastMessageId: 8, chatLength: 9 },
   queue: { applied: [{ source: "extractor", blackboardVersionSum: 0, deltas: [{ q: "mission_accepted", v: true }], outcomes: [] }], discarded: [] },
   ...overrides,
-});
+}) as BoundaryLogEntry;
 
 const audit = (overrides: Partial<SharedReadAudit> = {}): SharedReadAudit => ({
   id: "audit-1",

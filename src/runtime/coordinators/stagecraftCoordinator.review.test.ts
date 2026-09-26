@@ -1,21 +1,16 @@
+import { textModel } from "../../../test/support/modelCall";
 // Promoted from the 2026-09-18 external review (scripts/review/reviewRegression.test.ts).
 // Each finding() states the contract the fix must satisfy; test/findings/ledger.json says whether
 // it is still open and, while open, the reason it must fail with. See v2.3 plan 01 §A.
 
 import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
-import { callExtractionModel } from "@extraction/client";
 import { StagecraftCoordinator } from "@runtime/coordinators/stagecraftCoordinator";
 import { createStagecraft } from "@runtime/extras";
 import type { WardenCheckInput } from "@stagecraft/index";
-import { loadLorebook, upsertWIEntry, readWIEntry, readWIEntryAt, restoreWIEntryAt, updateWIEntryByUid, enableWIEntry, disableWIEntry } from "@services/STAPI";
 import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
 import { control, finding, must } from "../../../test/findings/ledger";
 
-jest.mock("@services/STAPI", () => ({
-  settingsAreLoaded: () => true,
-  settingsReady: async () => {},
-  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readServerBoundary: async () => null,
+const host = {
   loadLorebook: jest.fn(),
   upsertWIEntry: jest.fn(),
   // The write edge reads the entry itself (R2). The fake book tracks one entry, so this is the same
@@ -29,8 +24,10 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ chat: chatRef.current, extensionSettings: {} }),
   activateGlobalLorebook: jest.fn(async () => ({ ok: true as const })),
   listAllLorebooks: () => ["Existing user book"],
-}));
-jest.mock("@extraction/client", () => ({ callExtractionModel: jest.fn() }));
+};
+const { loadLorebook, upsertWIEntry, readWIEntry, readWIEntryAt, restoreWIEntryAt, updateWIEntryByUid, enableWIEntry, disableWIEntry } = host;
+
+const callExtractionModel = jest.fn(async (..._args: unknown[]): Promise<string> => "");
 
 const chatRef = { current: [] as unknown[] };
 
@@ -88,12 +85,12 @@ function harness(options: { uidKnown?: boolean } = {}) {
   (upsertWIEntry as jest.Mock).mockImplementation(async (_book, _entry, text) => { content = text; return "updated"; });
   (enableWIEntry as jest.Mock).mockImplementation(async () => { disabled = false; return { ok: true, changed: true }; });
   (disableWIEntry as jest.Mock).mockImplementation(async () => { disabled = true; return { ok: true, changed: true }; });
-  const coordinator = new StagecraftCoordinator({
+  const coordinator = new StagecraftCoordinator({ hosts: { prompt: host, chat: { chatRows: () => host.getContext().chat }, player: { getPlayerName: () => "Max" }, curator: host } as never,
     getStory: story,
     getState: () => ({ ...engine.serialize(), boundary: messageId, lastMessageId: messageId }),
     getStagecraft: () => state,
     setStagecraft: (next: typeof state) => { state = next; },
-    getExtractionSettings: () => ({ profileId: "review" }) as never,
+    model: textModel(callExtractionModel),
     getCanon: () => "",
     getOpenArcs: () => [],
     journal: () => {},

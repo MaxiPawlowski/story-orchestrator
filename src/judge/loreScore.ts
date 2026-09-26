@@ -1,10 +1,10 @@
 import { LORE_CHUNK, LORE_CONTENT_CHARS } from "./policy";
 import { score, scoreAnswer } from "./questions";
-import { RELEVANCE_LEVELS, type LoreRelevance } from "./loreRanking";
+import { type LoreRelevance } from "./loreRanking";
 import type { LoreEntry, LoreScene } from "./lore";
 import type { JudgeAnswer, JudgeRequest } from "./types";
 
-// v2.3 plan 10 (A) — the MEASUREMENT arm. `buildLoreRequests` asks a Noul per entry, which answers
+// (A) — the MEASUREMENT arm. `buildLoreRequests` asks a Noul per entry, which answers
 // "does the next reply need this" and nothing about order, so equal answers fall to insertion order.
 // This asks one Score per entry over described levels, which is a ranking primitive. Nothing here is
 // wired into the runtime: `LoreSelector` still calls the Noul arm, and this replaces it only if the
@@ -37,7 +37,10 @@ export function buildLoreScoreRequests(candidates: LoreEntry[], scene: LoreScene
     entries,
     request: {
       state: sceneState,
-      questions: Object.fromEntries(entries.map((entry, index) => [`e:${index}`, score(`How relevant are the specific facts in this lore entry to the next reply in \`transcript\`? Entry "${entry.comment}": ${clip(entry.content)}`, [...LORE_RELEVANCE_SCALE])])),
+      questions: Object.fromEntries(entries.map((entry, index) => [
+        `e:${index}`,
+        score(`How relevant are the specific facts in this lore entry to the next reply in \`transcript\`? Entry "${entry.comment}": ${clip(entry.content)}`, [...LORE_RELEVANCE_SCALE]),
+      ])),
     },
   }));
 }
@@ -67,4 +70,3 @@ export function readLoreScores(answers: Record<string, JudgeAnswer>, entries: Lo
   });
 }
 
-export const LORE_SCORE_LEVELS: readonly LoreRelevance[] = RELEVANCE_LEVELS;

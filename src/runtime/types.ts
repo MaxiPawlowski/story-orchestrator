@@ -2,7 +2,10 @@ import type { AgencyPolicy, ArcTemplate, EngineState, NormalizedStoryV2, Primiti
 import type { JudgeCallRecord, JudgeMeterView, JudgeRuntimeState, SceneReadRecord } from "@judge/index";
 import type { ExtractionHealth, ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
-import type { ConflictPair, ArcEntry, DerivedRecord, EpistemicEntry, LedgerEntry, LedgerView, MemoryEntry, MemoryInjectionView, MemoryStoreState, MemoryTier, Provenance, ScoreWeights } from "@memory/index";
+import type {
+  ConflictPair, ArcEntry, DerivedRecord, EpistemicEntry, LedgerEntry, LedgerView, MemoryEntry, MemoryInjectionView,
+  MemoryStoreState, MemoryTier, Provenance, ScoreWeights,
+} from "@memory/index";
 import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
 import type { CuratorPassAudit, CuratorProposalRecord, StagecraftAcceptMode } from "@stagecraft/index";
@@ -68,7 +71,7 @@ export interface TalkRuntimeState {
   decisions: TalkDecisionAudit[];
 }
 
-// v2.1 plan 07. `curatorEnabled` is the capability flag (default off until a real run earns it);
+// `curatorEnabled` is the capability flag (default off until a real run earns it);
 // `acceptMode` decides what happens to a proposal: review = wait for the author, auto = apply at the
 // next boundary, off = record and journal it but never write.
 export interface StagecraftSettings {
@@ -100,7 +103,7 @@ export interface RuntimeExtras {
   ui: UiRuntimeSettings;
   talk: TalkRuntimeState;
   stagecraft: StagecraftRuntimeState;
-  /** v2.3 plan 06: what this chat's effects did to shared host state, and how to put it back. */
+  /** What this chat's effects did to shared host state, and how to put it back. */
   effects: EffectsRuntimeState;
   saveHealth: SaveHealth;
   judge: JudgeRuntimeState;
@@ -149,7 +152,7 @@ export interface CanonSource {
   provenance?: Provenance;
 }
 
-// v2.3 plan 06. A host effect, and what it did to a shared resource.
+// A host effect, and what it did to a shared resource.
 //
 // `target` is a STABLE identity, never a display name: a group member is its chid, a World Info
 // entry is its book's file id and uid, the Author's Note is a slot, a background is the file ST
@@ -178,17 +181,17 @@ export interface EffectLedgerRow {
   status: EffectLedgerStatus;
   /** Why it failed, or what the host said instead of what we wrote. */
   reason?: string;
-  /** v2.3 plan 04's compare-and-set, applied here: what a revert found instead of `after`. */
+  /** Compare-and-set, applied here: what a revert found instead of `after`. */
   found?: Record<string, unknown> | null;
 }
 
 export interface EffectsRuntimeState {
   ledger: EffectLedgerRow[];
-  /** v2.3 plan 06 (S2): this chat's own cast, mirrored per chat. The group is never the truth. */
+  /** This chat's own cast, mirrored per chat. The group is never the truth. */
   cast: Array<{ member: string; disabled: boolean }>;
 }
 
-// v2.3 plan 06 (save evidence). Whether the chat's own state actually reached the server, which
+// Whether the chat's own state actually reached the server, which
 // `saveMetadata` cannot say: it catches its own errors and returns normally.
 export type SaveOutcome = "applied" | "unconfirmed" | "unsaved";
 
@@ -197,7 +200,7 @@ export interface SaveHealth {
   pendingBoundary: number | null;
   /** The verdict of the LAST save. `unsaved` is the one that is evidence of a lost write — a read-back
    *  that could not say anything is `unconfirmed`, which is a different finding and must not refuse a
-   *  caller's work (v2.3 plan 05 reads this to decide whether an author's decision was written). */
+   * caller's work (the conflict queue reads this to decide whether an author's decision was written). */
   lastOutcome: SaveOutcome | null;
   consecutiveFailures: number;
   lastReason: string | null;
@@ -208,10 +211,10 @@ export interface CanonState {
   text: string;
   inputHash: string;
   updatedAt: string;
-  /** v2.3 plan 05: a decided conflict or a rollback changed what this text was built from, so it is
+  /** A decided conflict or a rollback changed what this text was built from, so it is
    *  held out of play until the next pass re-derives it. */
   stale?: boolean;
-  /** v2.3 plan 05. What the text was built from, with each input's envelope AT THE TIME it was read.
+  /** What the text was built from, with each input's envelope AT THE TIME it was read.
    *  The canon is prose, so its sentences cannot carry envelopes of their own; this is what a reader
    *  can check against, and what says the text is derived rather than read. */
   sources?: CanonSource[];
@@ -243,19 +246,19 @@ export interface MemoryRuntimeState extends MemoryStoreState {
   ledger: LedgerEntry[];
   canon: CanonState | null;
   verifyDrops: VerifyDrop[];
-  /** v2.3 plan 04. Every artifact a pass derived here, with the rows it was built from and the rows
+  /** Every artifact a pass derived here, with the rows it was built from and the rows
    *  it took away, so a rollback past its input can drop it and restore what it removed. */
   derived: DerivedRecord[];
-  /** v2.3 plan 05. Disagreements between two stores, waiting for the author. Both sides are marked
+  /** Disagreements between two stores, waiting for the author. Both sides are marked
    *  `conflicted` while they sit here, so neither steers a reply. */
   conflicts: ConflictPair[];
   /** Conflict keys the author already decided, so a resolved pair does not re-queue on the next
    *  pass. */
   resolvedConflicts: string[];
-  /** v2.3 plan 05 (M7). Pinned rows the injection budget could not fit, so the author is told
+  /** Pinned rows the injection budget could not fit, so the author is told
    *  instead of losing them quietly. */
   pinnedOverflow: number;
-  /** v2.4 plan 03 D5. The first message this story's play covers in this chat: the player's last message when it
+  /** The first message this story's play covers in this chat: the player's last message when it
    *  started, or 0 before the player spoke. The first scene summary starts here; earlier history is the backlog's. */
   storyStart: number;
   updatedAt: string;
@@ -275,7 +278,7 @@ export interface TensionRuntimeState {
 export interface ExtractionRuntimeSettings {
   enabled: boolean;
   profileId: string | null;
-  /** v2.4 plan 08 T18: install-wide per-role profiles; an unset role uses `profileId`. */
+  /** Install-wide per-role profiles; an unset role uses `profileId`. */
   profiles?: PassProfiles;
   cadence: number;
   reconciliationMultiplier: number;
@@ -291,7 +294,7 @@ export interface ExtractionRuntimeState {
   judgedReads: JudgedReadRecord[];
 }
 
-// v2.2 plan 06: one row per judged read that is not part of an LLM read (every boundary, stall
+// One row per judged read that is not part of an LLM read (every boundary, stall
 // pre-check). Its own ring, so twenty of them never push the LLM reads out of `audits`.
 export const JUDGED_READ_LIMIT = 20;
 
@@ -314,24 +317,24 @@ export interface PersistedStoryRuntime {
   playedVersion: number;
   contentHashAtLoad: string;
   engineState: EngineState;
-  // v2.3 plan 04: the bounded boundary log and the floor it reaches.
+  // The bounded boundary log and the floor it reaches.
   engineHistory: EngineHistory;
   extras: RuntimeExtras;
-  // v2.4 plan 02 T3: absent when the capture had nothing to fingerprint; absent reads as unknown, never a mismatch.
+  // Absent when the capture had nothing to fingerprint; absent reads as unknown, never a mismatch.
   fingerprints?: MessageFingerprints;
 }
 
 export interface StoryOrchestratorMetadataBlob {
   version: typeof BLOB_VERSION;
   /**
-   * v2.3 plan 03. The chat this blob belongs to.
+   * The chat this blob belongs to.
    *
    * `chat_metadata` is handed to us by SillyTavern, and the host swaps it when the chat changes.
    * Without a stamp there is no way to tell a blob that belongs here from one the host has just
-   * swapped in or out from under a read. A stored blob without one is unreadable (v2.5 plan 11).
+   * swapped in or out from under a read. A stored blob without one is unreadable.
    */
   chatId: string;
-  // v2.4 plan 02: `chat_metadata.integrity` at the last own save. Advisory: it only tells a branch from a
+  // `chat_metadata.integrity` at the last own save. Advisory: it only tells a branch from a
   // foreign blob, and a same-chat reload from a switch.
   integrity?: string | null;
   selectedStoryId: string | null;
@@ -361,9 +364,9 @@ export interface RuntimeSnapshot {
   storyHash: string | null;
   storyIdentity: StoryIdentity;
   blobUnreadable?: { foundVersion: number | string | null; notice: string } | null;
-  /** v2.4 plan 02 T14: mirror books of deleted chats this session did not delete (session-scoped). */
+  /** Mirror books of deleted chats this session did not delete (session-scoped). */
   orphanedLorebooks?: OrphanedLorebook[];
-  /** v2.4 plan 02 §5: set while no story is loaded and the chat holds a branch's or another chat's state. */
+  /** Set while no story is loaded and the chat holds a branch's or another chat's state. */
   chatIdentity?: ChatIdentitySnapshot | null;
   storyTitle: string | null;
   storyDescription: string | null;
@@ -390,15 +393,15 @@ export interface RuntimeSnapshot {
   saveHealth: SaveHealth;
   scene: SceneReadRecord | null;
   loreForced: JudgeCallRecord | null;
-  /** v2.4 plan 07 T24: this chat's judge spend, monotonic and exempt from rollback. */
+  /** This chat's judge spend, monotonic and exempt from rollback. */
   judgeMeter: JudgeMeterView;
-  /** v2.4 plan 05 T12: what the last loud generation's scans activated, and books a foreign filter hid. */
+  /** What the last loud generation's scans activated, and books a foreign filter hid. */
   loreEvidence?: LoreEvidenceView;
-  /** v2.4 plan 05 T13 spike (S5, author only): the last gated scan, per gated entry; null unless scan gating is active. */
+  /** Spike (author only): the last gated scan, per gated entry; null unless scan gating is active. */
   scanGate?: ScanGateView | null;
-  /** v2.5 plan 01: lorebook gating mode, ledger summary and drift (install-wide). */
+  /** Lorebook gating mode, ledger summary and drift (install-wide). */
   wiGating?: WiGatingStatus | null;
-  /** v2.4 plan 06 (X20, author only): the sampler overlay this checkpoint put on its replies, or null. */
+  /** The sampler overlay this checkpoint put on its replies, or null. */
   samplerOverlay?: SamplerOverlayView | null;
   // The story's authored curator allowlist, so the review panel can say what is in scope without
   // reading the story record itself.
@@ -411,10 +414,10 @@ export interface RuntimeSnapshot {
     expected: number | null;
     hint: SteeringHint | null;
   };
-  /** v2.3 plan 07 (C4): the agency policy in effect for the active checkpoint, defaults included, so
+  /** The agency policy in effect for the active checkpoint, defaults included, so
    *  the drawer's author view can show what steering is being told to respect. */
   agency: AgencyPolicy;
-  /** v2.3 plan 07 (C4): the player has refused the prepared route twice over, and the author is owed
+  /** The player has refused the prepared route twice over, and the author is owed
    *  a move. Null when play is moving normally. */
   agencyRecovery: AgencyRecovery | null;
   pipeline: PipelineStatus;
@@ -423,20 +426,20 @@ export interface RuntimeSnapshot {
   lastRollback: RollbackNotice | null;
   rollbackUnavailable: RollbackUnavailable | null;
   ledger: LedgerView[];
-  /** v2.4 plan 08 T19c: each memory row's fate and each tier's trim, from the last injection (author view, in memory only). */
+  /** Each memory row's fate and each tier's trim, from the last injection (author view, in memory only). */
   memoryInjection: MemoryInjectionView | null;
   driver: DriverContext | null;
   activeNudge: string | null;
   payloadCaptures: PayloadCapture[];
-  /** v2.3 plan 09 (author view): what the next reply will receive, one row per injected block. */
+  /** What the next reply will receive, one row per injected block. */
   nextTurn: NextTurnContributor[];
-  /** v2.4 plan 08 T19b: other extensions' blocks beside ours, read-only and never persisted. */
+  /** Other extensions' blocks beside ours, read-only and never persisted. */
   nextTurnForeign: NextTurnForeignRow[];
-  /** v2.4 plan 08 T19a: the story blocks' tokens as a share of the main API's prompt budget. */
+  /** The story blocks' tokens as a share of the main API's prompt budget. */
   nextTurnCost: NextTurnCost;
-  /** v2.4 plan 08 T19d: which cited messages still read as a boundary fingerprinted them. */
+  /** Which cited messages still read as a boundary fingerprinted them. */
   chatJump: ChatJumpIndex;
-  /** v2.4 plan 08 T18: which profile each family of passes asks, and whether it answers. */
+  /** Which profile each family of passes asks, and whether it answers. */
   roleRoutes?: RoleRouteView[];
   modelCalls?: ModelCallRow[];
   nextTurnBuckets?: PromptBucketState;

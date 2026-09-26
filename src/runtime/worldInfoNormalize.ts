@@ -5,7 +5,7 @@ import type { NormalizedFrom } from "./settingsStore";
 import { gatedIndex, type BookEntries } from "./worldInfoLedger";
 import { bookKey } from "./worldInfoMatch";
 
-// v2.5 plan 01 A. Makes "off" the FILE's resting state for every gated entry of every library story, so ST's
+// A. Makes "off" the FILE's resting state for every gated entry of every library story, so ST's
 // editor, a disabled extension and a no-story chat all see it off. Incremental: an entry the ledger holds is
 // never re-read unless `recheck` names it (the author's re-normalise), so a second run writes nothing and a
 // grown gated set normalises only what is new. Only a confirmed write, or a read showing the entry already

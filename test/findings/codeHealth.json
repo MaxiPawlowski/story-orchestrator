@@ -1,0 +1,44 @@
+{
+  "$comment": "v2.5 plan 03 D0. Ratchet lists for the code-health guards (src/runtime/codeHealth.guard.test.ts), measured by test/support/codeHealthScan.ts against the predeclared rules in docs/plans/v2.5/03-code-health.md (Predeclared). Every list equals the measured offenders: a new offender fails, and so does a listed entry that no longer offends. Lists only shrink. s2 must be empty before the manager/coordinator constants are lowered to budgets.manager/budgets.coordinator; 'closed' flips true when every list is empty except the allowlists (duplicateBodyAllowlist, nonNullAllowlist).",
+  "closed": false,
+  "budgets": {
+    "manager": 700,
+    "coordinator": 560,
+    "file": 600,
+    "fnLines": 150,
+    "fnBranches": 40,
+    "fnNesting": 5,
+    "lineChars": 200
+  },
+  "s2": [],
+  "s3": [],
+  "s4": {
+    "lines": [],
+    "branches": [],
+    "nesting": []
+  },
+  "s5": {},
+  "s6": [],
+  "s7": [],
+  "q3t": [],
+  "s8": {
+    "helpers": [],
+    "withholding": {},
+    "fnv": [
+      "src/judge/loreRelevanceCalibration.ts"
+    ],
+    "popupCasts": 1,
+    "duplicates": [],
+    "dead": [],
+    "duplicateBodyAllowlist": []
+  },
+  "t1": {
+    "unknownCasts": {},
+    "nonNull": {},
+    "nonNullAllowlist": []
+  },
+  "t3": {},
+  "e1": {},
+  "d1": [],
+  "q1t": {}
+}

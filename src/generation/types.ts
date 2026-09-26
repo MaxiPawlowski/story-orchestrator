@@ -1,4 +1,6 @@
-import type { BlackboardSnapshot, GateNode, NormalizedTransition, PrimitiveValue, ScaffoldingBeat, ScaffoldingDelta, ScaffoldingOutcome, TensionLevel } from "@engine/index";
+import type {
+  GateNode, NormalizedTransition, PrimitiveValue, ScaffoldingBeat, ScaffoldingDelta, ScaffoldingOutcome, TensionLevel,
+} from "@engine/index";
 
 export type ExpansionStatus = "idle" | "queued" | "generating" | "cached" | "stale" | "needs_review" | "failed" | "validated" | "inserted";
 
@@ -28,7 +30,7 @@ export interface PlannedExpansionInput {
 }
 
 export interface GeneratedBeat extends ScaffoldingBeat {
-  /** v2.3 plan 07: the beat's index in the response it was parsed from. Never renumbered. */
+  /** The beat's index in the response it was parsed from. Never renumbered. */
   id: string;
   objective: string;
   guidance: string;
@@ -37,7 +39,7 @@ export interface GeneratedBeat extends ScaffoldingBeat {
 }
 
 export interface GeneratedOutcome extends ScaffoldingOutcome {
-  /** v2.3 plan 07 (R9): stable `<beatId>:<outcomeIndex>` at parse, preserved through the cache, so a
+  /** Stable `<beatId>:<outcomeIndex>` at parse, preserved through the cache, so a
    *  transition and its gate can be attributed back to the outcome that produced them. */
   id: string;
   label: string;
@@ -58,7 +60,7 @@ export interface CriticVerdict {
   judge?: { contradicts: number; advances: number; newCharacter: number; shape: number | null };
 }
 
-// v2.2 plan 07: what a variant expansion did, for the author card and the gate record.
+// What a variant expansion did, for the author card and the gate record.
 export interface VariantRecord {
   generated: number;
   survivors: number;
@@ -70,10 +72,10 @@ export interface VariantRecord {
 }
 
 /**
- * v2.3 plan 07: the contract a cached chain was built under. Bumped when the shape of a beat or the
+ * The contract a cached chain was built under. Bumped when the shape of a beat or the
  * meaning of its outcomes changes, because a cache does not survive that change — `mergeExpansions`
  * read `outcomes[0]` before this revision, so a chain from that era has no outcome ids and would keep
- * the single-route behaviour R9 removed.
+ * the single-route behaviour removed.
  */
 export const EXPANSION_CONTRACT = 2;
 
@@ -111,4 +113,3 @@ export interface RevalidationResult {
   issues: string[];
 }
 
-export type ExpansionStoryState = Pick<BlackboardSnapshot, "values" | "versions">;

@@ -1,4 +1,4 @@
-// v2.1 plan 07. A curator proposes; it never writes. Everything here is data: the runtime turns an
+// A curator proposes; it never writes. Everything here is data: the runtime turns an
 // accepted proposal into World Info writes at the next boundary, and nothing in this module can
 // reach the blackboard or the memory tiers (spec addendum §Stagecraft).
 export const CURATOR_MAX_OPS = 4;
@@ -30,7 +30,7 @@ export type WiCuratorOp =
   | (WiCuratorTarget & { kind: "patch"; anchor: string; replace: string });
 
 /**
- * v2.3 plan 05. One broken fact, with the record it came from — so the author's review card can say
+ * One broken fact, with the record it came from — so the author's review card can say
  * which message this truth was read from, at what confidence, and whether another store disagrees.
  * Declared structurally, like the envelope above, because the stagecraft core is pure.
  */
@@ -41,7 +41,7 @@ export interface WardenFactSource {
   conflictingValue?: string;
 }
 
-// v2.2 plan 05: the continuity warden's one-turn note. It never reaches a lorebook: applyAccepted
+// The continuity warden's one-turn note. It never reaches a lorebook: applyAccepted
 // skips it, and only the generation-start path injects it, for one loud generation.
 export const WARDEN_NOTE_FAMILIES = ["continuity", "agency", "house-rule"] as const;
 export type WardenNoteFamily = (typeof WARDEN_NOTE_FAMILIES)[number];
@@ -88,22 +88,22 @@ export interface CuratorOpRecord {
   op: CuratorOp;
   status: CuratorOpStatus;
   message?: string;
-  // What the entry held before this op ran — read AT THE WRITE EDGE (v2.3 plan 04, R2) — and what
+  // What the entry held before this op ran — read AT THE WRITE EDGE — and what
   // the write made it. `after` is the compare-and-set basis: if the entry no longer holds it,
   // something else edited the book and the revert refuses rather than overwriting that.
   before?: { content: string; disabled: boolean; uid?: number };
   after?: { content: string; disabled: boolean };
   /** The host target, by file id and entry uid, never the display name. */
   target?: { lorebookFileId: string; uid?: number };
-  /** Write-ahead marker (v2.3 plan 04/06). Persisted before the host call, with the message id the
-   *  apply ran at; `StagecraftCoordinator.reconcileWriteAhead` settles it on hydrate (v2.5 plan 02 C10). */
+  /** Write-ahead marker (06). Persisted before the host call, with the message id the
+   * Apply ran at; `StagecraftCoordinator.reconcileWriteAhead` settles it on hydrate. */
   writeAhead?: { status: "pending"; at: string; messageId?: number };
   fuzzy?: { anchor: string; span: string; score: number };
 }
 
 // A pass that never ran and a pass that found nothing are different answers, and a caller (or an
 // author watching the ring) has to be able to tell them apart — conflating them made a live gate
-// read "the curator proposed nothing" when it had in fact never been asked (v2.1 plan 07).
+// read "the curator proposed nothing" when it had in fact never been asked.
 export type CuratorSkipReason = "disabled" | "no-scope" | "empty-scope" | "in-flight";
 
 export interface CuratorPassOutcome {
@@ -111,7 +111,7 @@ export interface CuratorPassOutcome {
   skipped?: CuratorSkipReason;
   record: CuratorProposalRecord | null;
   /**
-   * v2.3 plan 03 (R1): the pass ran, but the chat, story or story version it belongs to changed
+   * The pass ran, but the chat, story or story version it belongs to changed
    * while the model was answering, so its result was thrown away rather than written into whatever
    * is open now. Names which part of the world moved.
    */
@@ -132,7 +132,7 @@ export interface CuratorPassAudit {
 }
 
 /**
- * v2.3 plan 05. The same envelope every derived record carries (`@memory/provenance`), declared
+ * The same envelope every derived record carries (`@memory/provenance`), declared
  * structurally because the stagecraft core is pure and may not import the memory layer.
  */
 export interface CuratorProvenance {
@@ -157,7 +157,7 @@ export interface CuratorProposalRecord {
   mode: StagecraftAcceptMode;
   ops: CuratorOpRecord[];
   dropped: string[];
-  /** v2.3 plan 05. A proposal is a claim about the story too: which pass made it, over which reply
+  /** A proposal is a claim about the story too: which pass made it, over which reply
    *  or boundary, at what confidence. */
   provenance?: CuratorProvenance;
   appliedAt?: string;

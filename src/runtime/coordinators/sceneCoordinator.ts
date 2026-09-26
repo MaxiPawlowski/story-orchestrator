@@ -20,7 +20,7 @@ export interface SceneCoordinatorDeps {
   applied?: () => string | null;
   journal?: (summary: string, note: string) => void;
   withheldFields?: () => ReadonlySet<string>;
-  // v2.3 plan 03 (C1, the "scene" surface). Optional: an unwired caller never lapses.
+  // Optional: an unwired caller never lapses.
   ownership: RunOwnership;
   now?: () => number;
 }
@@ -40,7 +40,7 @@ interface SceneFlight {
   result: Promise<JudgeResult>;
 }
 
-// v2.2 plan 03. Reads and injects; it never writes the spine: the one thing it causes is a P0
+// Reads and injects; it never writes the spine: the one thing it causes is a
 // shared read, which the LLM still has to confirm (union with the regex's text-pattern hits).
 export class SceneCoordinator {
   private injected: string | null = null;
@@ -80,7 +80,7 @@ export class SceneCoordinator {
     };
   }
 
-  /** v2.3 plan 09: the author asked for a fresh read from the next-turn preview. Same path as a
+  /** The author asked for a fresh read from the next-turn preview. Same path as a
    *  boundary, with the reason recorded so the call ring shows who asked for it. */
   async rerun() {
     const state = this.deps.getState();
@@ -99,19 +99,19 @@ export class SceneCoordinator {
     const input = judge && this.active() ? this.input(families) : null;
     if (!judge || !input || !input.window.length) return null;
     const request = buildSceneReadRequest(input);
-    // C1, the "scene" surface. The existing `getLastMessageId() !== context.messageId` check below
+    // The "scene" surface. The existing `getLastMessageId() !== context.messageId` check below
     // only asks whether the chat moved ON; it passes unchanged across a chat switch or a story
-    // swap that happens to land on the same message index — which is the v2.1 plan 08 shape, and
+    // swap that happens to land on the same message index — which is the shape, and
     // it was reachable here.
     const run = beginRun(this.deps.ownership, { from: input.window.length ? context.messageId - input.window.length + 1 : context.messageId, to: context.messageId });
     const key = JSON.stringify(request);
     const joined = this.flight?.key === key && this.flight.run.stillOwns() ? this.flight : null;
     const result = await (joined ?? this.ask(judge, request, input, key, run)).result;
-    // C2: a read that does not answer used to return here silently, leaving the previous record
+    // A read that does not answer used to return here silently, leaving the previous record
     // live and injected. A miss is recorded on the record itself, so the tracker can say it is no
     // longer confirmed instead of presenting a stale place as current.
     if (!result.answers) {
-      // v2.3 plan 03 §Abort and cleanup: the FAILURE path is a write too, and it was running
+      // And cleanup: the FAILURE path is a write too, and it was running
       // unguarded. A read that started in chat A and came back empty after the world moved aged
       // whichever scene record is current now — so a dead backend in one chat marked another
       // chat's tracker unconfirmed, and two such misses withheld a scene that was never asked

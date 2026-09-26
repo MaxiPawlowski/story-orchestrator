@@ -931,6 +931,21 @@ export function recoveryControlFindings(controls: Array<{ selector: string; text
     .map((needle) => ({ tab: 'recovery', needle: `${control.selector} label carries "${needle}"` })));
 }
 
+export const RAW_ERROR_MARKERS: Array<[string, RegExp]> = [
+  ['error class', /\b(?:Type|Reference|Syntax|Range|Aggregate|DOM)Error\b|\bAbortError\b/],
+  ['error prefix', /\bError: /],
+  ['stack frame', /\bat [\w.$<>]+ \((?:[a-z]+:|\/|[A-Z]:\\)/],
+  ['property access failure', /Cannot read propert(?:y|ies) of|is not a function|is not defined/],
+  ['unrendered value', /\[object Object\]|\bundefined\b|\bNaN\b/],
+  ['HTTP status', /\b(?:status|HTTP) [45]\d\d\b/],
+];
+
+export function errorStateFindings(texts: Array<{ tab: string; surface: string; text: string }>) {
+  return texts.flatMap(({ tab, surface, text }) => RAW_ERROR_MARKERS
+    .filter(([, pattern]) => pattern.test(text))
+    .map(([name, pattern]) => ({ tab, needle: `${surface} shows raw error text (${name}): "${(text.match(pattern)?.[0] ?? '').slice(0, 40)}"` })));
+}
+
 // Surfaces a player can reach without turning anything on: the drawer (every tab it offers), the HUD
 // strip above the composer, and the settings panel — which is `both`, so it may carry display
 // toggles and Restart, but never a steering control.
@@ -953,6 +968,7 @@ export async function assertPlayerClean(page) {
   if (authorOnlyTabs.length) findings.push({ tab: authorOnlyTabs.join(', '), needle: 'author-only tab offered in player mode' });
   const sweep = [];
   const recoveryControls = [];
+  const errorTexts = [];
   const collect = ({ surfaces, selectors }) => {
     const found = [];
     for (const surface of surfaces) {
@@ -976,8 +992,14 @@ export async function assertPlayerClean(page) {
     }
     const recovery = await evaluateInST(page, collect, { surfaces: PLAYER_SURFACES, selectors: PLAYER_RECOVERY_CONTROLS });
     for (const control of recovery ?? []) recoveryControls.push({ tab, ...control });
+    const surfaceTexts = await evaluateInST(page, (surfaces) => surfaces.map((surface) => ({
+      surface,
+      text: (document.querySelector(surface) as HTMLElement | null)?.innerText ?? '',
+    })), PLAYER_SURFACES);
+    errorTexts.push(...(surfaceTexts ?? []).map((entry) => ({ tab, ...entry })));
   }
   findings.push(...recoveryControlFindings(recoveryControls));
+  findings.push(...errorStateFindings(errorTexts));
   // Leave the drawer where a player would: on the narrative view, not on the last tab we walked.
   if (tabs.includes('Overview')) await switchDrawerTab(page, 'Overview');
   return { ok: findings.length === 0, tabs, surfaces: PLAYER_SURFACES, selectorsChecked: PLAYER_FORBIDDEN_SELECTORS.length, findings, sweep, recoveryControls };
@@ -1022,7 +1044,7 @@ studio-tab <Graph|Story|Qualities|Checkpoints|Transitions|Roster|Diagnostics>: s
 studio-save [keep|restart|cancel]: click Save and answer the invalidation popup if one appears.
 drawer-tab <Overview|Memory|Blackboard|Scheduler|Payload>: switch the drawer tab.
 pipeline: print the pipeline state (snapshot + status line + HUD chip).
-assert-player-clean: walk the player-mode drawer and fail on anything the spoiler checklist forbids.
+assert-player-clean: walk the player-mode drawer and fail on anything the spoiler checklist forbids, or on raw error text on a player surface.
 wizard: print the wizard state (stage, pending questions, provisioning cards, created assets).
 open-wizard: open the Studio on the Wizard tab for the story this chat plays.
 new-story-wizard: click "New story (wizard)" in the settings panel (fresh draft).

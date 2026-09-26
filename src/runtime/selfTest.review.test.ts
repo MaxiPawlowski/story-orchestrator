@@ -11,9 +11,10 @@ jest.mock("@services/STAPI", () => ({
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null, getContext: () => ({ chat: [] }), sendConnectionProfileRequest: jest.fn() }));
-jest.mock("@extraction/client", () => ({
-  callExtractionModel: jest.fn(async (_prompt: string, options: { debugResponse?: string }) => options.debugResponse ?? ""),
-}));
+jest.mock("@extraction/client", () => {
+  const callExtractionModel = jest.fn(async (_prompt: string, options: { debugResponse?: string | null }) => options.debugResponse ?? "");
+  return { callExtractionModel, routedModel: () => async (prompt: string, ask: { debugResponse?: string | null }) => ({ text: await callExtractionModel(prompt, ask), finish: "stop" }) };
+});
 
 const goodCore = [
   'DELTA location value="tunnel" evidence="She leads the way into the tunnel"',

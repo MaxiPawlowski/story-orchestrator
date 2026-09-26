@@ -10,7 +10,7 @@ jest.mock("@services/STAPI", () => ({
 import { buildMemoryInjection, buildMemoryInjectionBlocks, memoryExtensionKey, type InjectionOptions } from "./inject";
 import type { MemoryEntry, MemoryTier } from "./types";
 
-const entry = (overrides: Partial<MemoryEntry>): MemoryEntry => ({
+const entry = (overrides: Partial<MemoryEntry>) => ({
   id: overrides.id ?? `id-${Math.random()}`,
   tier: "facts",
   text: "text",
@@ -24,7 +24,7 @@ const entry = (overrides: Partial<MemoryEntry>): MemoryEntry => ({
   createdAt: 0,
   recallCount: 0,
   ...overrides,
-});
+}) as MemoryEntry;
 
 const bigBudget: Record<MemoryTier, number> = { facts: 100000, session_details: 100000, short_term: 100000, scene_history: 100000 };
 const opts = (tokenBudgets: Record<MemoryTier, number> = bigBudget): InjectionOptions => ({

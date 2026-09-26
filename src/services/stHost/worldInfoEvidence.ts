@@ -1,5 +1,6 @@
 import { getContext } from "./context";
 import type { HostEntriesLoaded, HostScannableEntry } from "./hostTypes";
+import { log } from "@utils/log";
 
 export type { HostEntriesLoaded } from "./hostTypes";
 
@@ -20,7 +21,7 @@ export interface WorldInfoScanObservers {
 }
 
 export interface WorldInfoScanObservation {
-  /** Re-places the first/last observers; listener order is decided only at call time (05-H11). */
+  /** Re-places the first/last observers; listener order is decided only at call time. */
   reassert: () => void;
   /** Whether this host can order listeners at all; without it first/last mean nothing. */
   ordered: boolean;
@@ -34,9 +35,9 @@ const isEntriesLoaded = (value: unknown): value is HostEntriesLoaded =>
 
 export const loadedEntries = (payload: HostEntriesLoaded): HostScannableEntry[] => LOADED_ARRAYS.flatMap((key) => payload[key]);
 
-// v2.4 plan 05 T12. Read-only: nothing here writes, so there is no WriteResult. WORLD_INFO_ACTIVATED
-// fires only for a non-dry scan that activated something (05-H1); WORLDINFO_ENTRIES_LOADED carries
-// the per-call arrays before ST sorts them (05-H2), so a first and a last observer see what every
+// Read-only: nothing here writes, so there is no WriteResult. WORLD_INFO_ACTIVATED
+// fires only for a non-dry scan that activated something; WORLDINFO_ENTRIES_LOADED carries
+// the per-call arrays before ST sorts them, so a first and a last observer see what every
 // other listener did to them in between.
 export function observeWorldInfoScans(observers: WorldInfoScanObservers): WorldInfoScanObservation {
   const context = getContext();
@@ -55,8 +56,8 @@ export function observeWorldInfoScans(observers: WorldInfoScanObservers): WorldI
   }
   const reassert = () => {
     if (!loadedEvent || !ordered) return;
-    if (observers.loadedFirst) source.makeFirst!(loadedEvent, onFirst);
-    if (observers.loadedLast) source.makeLast!(loadedEvent, onLast);
+    if (observers.loadedFirst) source.makeFirst?.(loadedEvent, onFirst);
+    if (observers.loadedLast) source.makeLast?.(loadedEvent, onLast);
   };
   if (loadedEvent && ordered) {
     if (observers.loadedFirst) placed.push([loadedEvent, onFirst]);
@@ -69,7 +70,7 @@ export function observeWorldInfoScans(observers: WorldInfoScanObservers): WorldI
         if (typeof source.off === "function") source.off(event, listener);
         else source.removeListener?.(event, listener);
       } catch (error) {
-        console.warn("[Story Orchestrator] a world info observer failed to detach", error);
+        log.warn("a world info observer failed to detach", error);
       }
     }
   };

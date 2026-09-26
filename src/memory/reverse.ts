@@ -5,7 +5,7 @@ import { dropByMessageId, hashMemoryText, stripLinksAfter } from "./stores";
 import { rollbackArcs } from "./arcs";
 import type { ArcEntry, MemoryEntry, MemoryStoreState } from "./types";
 
-// v2.3 plan 04. Everything a rollback means for memory, in one pure function: the rows a mutation
+// Everything a rollback means for memory, in one pure function: the rows a mutation
 // invalidated, the derived artifacts built from them, and the three stores that keep their own
 // version history. It lives here rather than in the coordinator because it spans five stores and the
 // coordinator has a line budget — and because a generic constraint keeps it honest about the shape

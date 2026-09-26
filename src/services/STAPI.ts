@@ -37,10 +37,17 @@ export {
   getMessageTimeStamp,
 } from "@services/stHost/characters";
 export { executeSlashCommands } from "@services/stHost/slashCommands";
-export { observeNextSave, observeNextSettingsSave, saveOpenChat, installSaveWatcher, readServerBoundary, readServerExtensionSettings, saveWatcherStats, boundaryInBlob, SAVE_OBSERVE_MS, type SaveObservation } from "@services/stHost/persistence";
+export {
+  observeNextSave, observeNextSettingsSave, saveOpenChat, installSaveWatcher, readServerBoundary,
+  readServerExtensionSettings, saveWatcherStats, boundaryInBlob, SAVE_OBSERVE_MS, type SaveObservation,
+} from "@services/stHost/persistence";
 export { applyCharacterAN, clearCharacterAN } from "@services/stHost/authorNotes";
 export { setStoryExtensionPrompt, clearStoryExtensionPrompt } from "@services/stHost/extensionPrompts";
-export { getWorldInfoSettings, enableWIEntry, disableWIEntry, upsertWIEntry, readWIEntry, readWIEntryAt, restoreWIEntryAt, updateWIEntryByUid, createLorebook, deleteLorebook, ensureLorebook, bindChatLorebook, unbindChatLorebook, activateGlobalLorebook, loadLorebook, lorebookExists, listAllLorebooks, lorebookFileId } from "@services/stHost/worldInfo";
+export {
+  getWorldInfoSettings, enableWIEntry, disableWIEntry, upsertWIEntry, readWIEntry, readWIEntryAt, restoreWIEntryAt,
+  updateWIEntryByUid, createLorebook, deleteLorebook, ensureLorebook, bindChatLorebook, unbindChatLorebook,
+  activateGlobalLorebook, loadLorebook, lorebookExists, listAllLorebooks, lorebookFileId,
+} from "@services/stHost/worldInfo";
 export type { ChatLorebookBinding, Lorebook, LoreEntry, WIUpsertResult, WIEntrySnapshot, WIEntryTarget } from "@services/stHost/worldInfo";
 export { currentChatOwner, probeChatFile } from "@services/stHost/chatFiles";
 export type { ChatOwner, ChatPresence } from "@services/stHost/chatFiles";
@@ -68,7 +75,7 @@ export { getSelectedConnectionProfileId, listConnectionProfiles, profileExists, 
 export type { ModelFailureKind, ModelFinish, ModelReply, ModelRequestOptions, ModelSamplers } from "@services/stHost/modelReply";
 export type { ConnectionProfileSummary } from "@services/stHost/connectionProfiles";
 export { countTokens, countTokensBatch } from "@services/stHost/tokenizer";
-export { readProfileContextLimit } from "@services/stHost/contextLimit";
+export { readProfileContextLimit, readProfilePresetName } from "@services/stHost/contextLimit";
 export { vectorInsert, vectorQuery, vectorPurge, DEFAULT_VECTOR_SOURCE } from "@services/stHost/vectors";
 export { judgeStatus, judgeTransport, writeJudgeSecret, JUDGE_PLUGIN_BASE, JUDGE_PLUGIN_ID, JUDGE_SECRET_KEY, type JudgeStatus } from "@services/stHost/judge";
 export type { VectorItem, VectorMatch } from "@services/stHost/vectors";

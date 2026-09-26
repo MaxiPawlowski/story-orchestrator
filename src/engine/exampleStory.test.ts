@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { parseStoryV2, parseStoryV2OrThrow } from "./validate";
 import { isValidationErrorList, type StoryV2 } from "./schema";
-import { runReplay, type ReplayStep } from "./replay";
+import { runReplay, type ReplayStep } from "../../test/support/replay";
 import { runDiagnostics } from "../studio/diagnostics";
 import { deriveScope } from "../extraction/scope";
 

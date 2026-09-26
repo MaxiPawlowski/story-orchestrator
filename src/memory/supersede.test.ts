@@ -2,7 +2,7 @@ import { createMemoryState } from "./stores";
 import { clearContradicted, markContradicted, parseSupersessionVerdicts } from "./supersede";
 import type { MemoryEntry } from "./types";
 
-const entry = (overrides: Partial<MemoryEntry>): MemoryEntry => ({
+const entry = (overrides: Partial<MemoryEntry>) => ({
   id: overrides.id ?? `id-${Math.random()}`,
   tier: "facts",
   text: "text",
@@ -16,7 +16,7 @@ const entry = (overrides: Partial<MemoryEntry>): MemoryEntry => ({
   createdAt: 0,
   recallCount: 0,
   ...overrides,
-});
+}) as MemoryEntry;
 
 describe("markContradicted / clearContradicted", () => {
   it("marks the existing side of each uncertain pair", () => {

@@ -2,7 +2,7 @@ import type { NormalizedStoryV2 } from "@engine/index";
 import { releasePlan, worldInfoPlan } from "./worldInfoGates";
 import { bookKey, entryComment } from "./worldInfoMatch";
 
-// v2.4 plan 05 T13 SPIKE (behind `worldInfo.gatingMode: "scan"`, default "file", never flipped by a
+// SPIKE (behind `worldInfo.gatingMode: "scan"`, default "file", never flipped by a
 // plan). The file path writes checkpoint world info into shared lorebook files; this computes the
 // same end state as a per-scan VIEW instead: every gated entry of every library story is off unless
 // the story this chat plays, replayed along its path, switches it on.
@@ -68,7 +68,7 @@ export interface ScanGateRow {
 
 const disableOf = (entry: ScanEntry): boolean | null => (Object.prototype.hasOwnProperty.call(entry, "disable") ? entry.disable === true : null);
 
-// Off -> `disable = true`, but never by adding a key the copy lacks (05-H5: the timed-effects hash).
+// Off -> `disable = true`, but never by adding a key the copy lacks (the timed-effects hash).
 // On -> `disable = false` only when the copy still holds the file's resting value (normalised: off);
 // a disable some other listener set on an entry that rests ON is left alone (compare-and-set).
 function gateEntry(entry: ScanEntry, on: boolean, restsOff: boolean, stats: ScanGateStats) {
@@ -89,7 +89,7 @@ function gateEntry(entry: ScanEntry, on: boolean, restsOff: boolean, stats: Scan
   }
 }
 
-// Applied to the ENTRIES_LOADED copies (05-H2/H3), so every write here is scan-local. The book is
+// Applied to the ENTRIES_LOADED copies, so every write here is scan-local. The book is
 // indexed once per scan, and each gated comment takes its FIRST entry, as the file path does.
 export function applyScanGate(arrays: ScanEntry[][], gate: ScanGate, restsOff: (lorebook: string, comment: string) => boolean, rows?: ScanGateRow[]): ScanGateStats {
   const stats = emptyScanGateStats();

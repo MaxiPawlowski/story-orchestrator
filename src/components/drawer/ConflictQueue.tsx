@@ -4,7 +4,7 @@ import type { RuntimeManager } from "@runtime/runtimeManager";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { MessageCitation } from "./MessageCitation";
 
-// v2.3 plan 05 (C3). Two stores can disagree about the same thing, and until the author decides, both
+// Two stores can disagree about the same thing, and until the author decides, both
 // rows are held out of every prompt. This is where the decision is made: keep one side, lock a fact
 // as canon, re-read the span the claims came from, or dismiss the pair and let both steer again.
 // Author-only — a player never sees the machinery, let alone a claim the story has not settled.
@@ -13,7 +13,7 @@ import { MessageCitation } from "./MessageCitation";
 const byNewest = (left: ConflictPair, right: ConflictPair) => right.detectedAt.localeCompare(left.detectedAt);
 
 // Where a side came from, in the same words the Memory tab uses (`originLabel`); a side with no
-// message (`messageId -1`) must not print as "message -1" (2026-09-22).
+// message (`messageId -1`) must not print as "message -1".
 const originText = (provenance: Provenance | undefined, messageId: number | undefined, confidence: number | undefined) => {
   const hasMessage = messageId !== undefined && messageId >= 0;
   const sure = confidence === undefined ? "" : `${Math.round(confidence * 100)}% sure`;
@@ -49,7 +49,8 @@ const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
       {refused && (
         <div data-so="decision-refused" data-so-outcome={refused.externallyChanged.length ? "externally-changed" : "put-back"} className="opacity-90">
           Nothing changed: the decision was not written to this chat. Try again.
-          {refused.externallyChanged.length > 0 && <span data-so="decision-externally-changed"> {refused.externallyChanged.length} row(s) changed elsewhere while it was saving and were left as they are: {refused.externallyChanged.join(", ")}.</span>}
+          {refused.externallyChanged.length > 0 && <span data-so="decision-externally-changed"> {refused.externallyChanged.length} row(s) changed elsewhere while it was saving and
+            were left as they are: {refused.externallyChanged.join(", ")}.</span>}
         </div>
       )}
       {conflicts.map((pair) => (
@@ -59,15 +60,39 @@ const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
               <div className="flex-1">
                 <div>{side.store === "memory" ? "Fact" : side.store === "scene" ? "Scene" : "Ledger"}: {side.label}</div>
                 {side.standing && <div data-so="conflict-standing" className="opacity-60">Established: still steers replies while you decide.</div>}
-                <div data-so="conflict-origin" className="opacity-60" title={side.provenance ? describeProvenance(side) : "this row came from before envelopes were recorded"}>{originText(side.provenance, side.messageId, side.confidence)}</div>
+                <div
+                  data-so="conflict-origin"
+                  className="opacity-60"
+                  title={side.provenance ? describeProvenance(side) : "this row came from before envelopes were recorded"}
+                >{originText(side.provenance, side.messageId, side.confidence)}</div>
               </div>
-              <button className="menu_button" data-so="conflict-keep" title="Keep this side and retire the other" onClick={() => void act(pair.key, () => manager.memoryActions.resolveMemoryConflict(pair.key, side.id))}>Keep this</button>
-              {side.store === "memory" && <button className="menu_button" data-so="conflict-lock" title="Keep it as canon: no extraction or consolidation may retire it" onClick={() => void act(pair.key, () => manager.memoryActions.lockAsCanon(pair.key, side.id))}>Lock as canon</button>}
+              <button
+                className="menu_button"
+                data-so="conflict-keep"
+                title="Keep this side and retire the other"
+                onClick={() => void act(pair.key, () => manager.memoryActions.resolveMemoryConflict(pair.key, side.id))}
+              >Keep this</button>
+              {side.store === "memory" && <button
+                className="menu_button"
+                data-so="conflict-lock"
+                title="Keep it as canon: no extraction or consolidation may retire it"
+                onClick={() => void act(pair.key, () => manager.memoryActions.lockAsCanon(pair.key, side.id))}
+              >Lock as canon</button>}
             </div>
           ))}
           <div className="flex gap-2 mt-1">
-            <button className="menu_button" data-so="conflict-reread" title="Read the messages these claims came from again" onClick={() => void act(pair.key, () => manager.memoryActions.rereadConflictWindow(pair.key))}>Re-read the window</button>
-            <button className="menu_button" data-so="conflict-dismiss" title="Live with the disagreement: both sides steer replies again and this pair stops being queued" onClick={() => void act(pair.key, () => manager.memoryActions.dismissMemoryConflict(pair.key))}>Dismiss</button>
+            <button
+              className="menu_button"
+              data-so="conflict-reread"
+              title="Read the messages these claims came from again"
+              onClick={() => void act(pair.key, () => manager.memoryActions.rereadConflictWindow(pair.key))}
+            >Re-read the window</button>
+            <button
+              className="menu_button"
+              data-so="conflict-dismiss"
+              title="Live with the disagreement: both sides steer replies again and this pair stops being queued"
+              onClick={() => void act(pair.key, () => manager.memoryActions.dismissMemoryConflict(pair.key))}
+            >Dismiss</button>
           </div>
         </div>
       ))}
@@ -86,7 +111,10 @@ const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
           rolled-back `[hiding]` fact unrecoverable and the promise in `activeEpistemic` a comment. */}
       {quarantinedEpistemic.map((entry) => (
         <div key={entry.id} data-so="quarantined" data-so-kind="epistemic" className="mt-1">
-          <span className="opacity-60">{entry.provenance?.validity === "conflicted" ? "Conflicted" : "Source removed"}: {entry.subject} {entry.hiddenFrom ? `hides from ${entry.hiddenFrom}` : entry.tag === "knows" ? "knows" : entry.tag} {entry.content}</span>
+          <span className="opacity-60">
+            {entry.provenance?.validity === "conflicted" ? "Conflicted" : "Source removed"}: {entry.subject}{" "}
+            {entry.hiddenFrom ? `hides from ${entry.hiddenFrom}` : entry.tag === "knows" ? "knows" : entry.tag} {entry.content}
+          </span>
           <div className="opacity-50" title={describeProvenance(entry)}>{originText(entry.provenance, entry.provenance?.messageId === -1 ? undefined : entry.provenance?.messageId, undefined)}</div>
           <div className="flex gap-2">
             <button className="menu_button" data-so="reconfirm" onClick={() => void act(entry.id, () => manager.memoryActions.reconfirmMemoryEntry(entry.id))}>Reconfirm — keep it as mine</button>

@@ -18,7 +18,11 @@ export const nearestKey = (key: string, known: readonly string[]): string | null
   const typed = folded(key);
   const ranked = known
     .map((candidate) => ({ candidate, target: folded(candidate) }))
-    .map(({ candidate, target }) => ({ candidate, distance: typed.includes(target) || target.includes(typed) ? 0 : levenshtein(typed, target), limit: Math.ceil(Math.max(typed.length, target.length) / 2) }))
+    .map(({ candidate, target }) => ({
+      candidate,
+      distance: typed.includes(target) || target.includes(typed) ? 0 : levenshtein(typed, target),
+      limit: Math.ceil(Math.max(typed.length, target.length) / 2),
+    }))
     .filter(({ distance, limit }) => distance <= limit)
     .sort((left, right) => left.distance - right.distance);
   return ranked[0]?.candidate ?? null;

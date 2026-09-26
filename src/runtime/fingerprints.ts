@@ -1,10 +1,10 @@
 import { fnv1a, stableStringify } from "./hash";
 
-// v2.4 plan 02 T3. What each consumed message said when the boundary that consumed it was saved, so a
+// What each consumed message said when the boundary that consumed it was saved, so a
 // message that changed with no event (a third-party rewrite, a branch cut short, an editor move that
 // names only one of the rows it swapped) is found at the next boundary, hydrate or same-chat reload.
-// `swipe_id` is not hashed (deleting a lower swipe decrements it with `mes` unchanged, H7), nor
-// `is_system` (hiding is not deleting, D5), nor a user row's `name` (`/persona-sync` renames them, H8).
+// `swipe_id` is not hashed (deleting a lower swipe decrements it with `mes` unchanged), nor
+// `is_system` (hiding is not deleting), nor a user row's `name` (`/persona-sync` renames them).
 // hashes[i] is message `from + i`; `null` or absent is unknown, never a mismatch.
 
 export interface MessageFingerprints {

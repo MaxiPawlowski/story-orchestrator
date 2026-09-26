@@ -3,6 +3,7 @@ import { renderSharedReadPrompt } from "./contract";
 import { buildFixtureRun } from "./fixtureRun";
 import { parseSharedReadResponse, stripChannelNoise } from "./parse";
 import { deriveFullScope, deriveScope } from "./scope";
+import type { SharedReadWindow } from "./types";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
@@ -263,7 +264,7 @@ describe("shared read contract", () => {
       storyTitle: story.title,
       activeCheckpointId: "start",
       qualities,
-      window: { from: 4, to: 5, messages: transcriptFixture },
+      window: { from: 4, to: 5, messages: transcriptFixture as SharedReadWindow["messages"] },
       canon: "Anchor start: Find the key.",
     });
     expect(prompt).toContain("Closed vocabulary");

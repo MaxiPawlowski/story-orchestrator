@@ -1,0 +1,132 @@
+import { useState } from "react";
+import { showChoicePopup, showConfirmPopup } from "@services/STAPI";
+import type { RuntimeManager } from "@runtime/index";
+import type { RuntimeSnapshot } from "@runtime/types";
+import { STORY_STATE_RETENTION } from "@runtime/persistence";
+import { exportState } from "@runtime/stateExport";
+import { removalRestore } from "@runtime/worldInfoScanHost";
+import { log } from "@utils/log";
+
+interface StoryGroupProps {
+  snapshot: RuntimeSnapshot;
+  manager: RuntimeManager;
+  busy: boolean;
+  setBusy: (busy: boolean) => void;
+  importOpen: boolean;
+}
+
+const copyState = async () => {
+  await exportState({
+    writeClipboard: (text) => navigator.clipboard.writeText(text),
+    toast: window.toastr ?? {},
+    log: (text) => log.info(text),
+  });
+};
+
+const deletionChoice = async (title: string, storyId: string) => {
+  const question = `Delete "${title}" from the library? Chats already playing it keep their own pinned copy and carry on; new chats can no longer pick it.`;
+  const restore = removalRestore(storyId);
+  if (!restore) return { choice: (await showConfirmPopup(question, { okButton: "Delete", cancelButton: "Keep" })) ? "delete" : null, restore };
+  const entries = `Its ${restore.entries} lorebook ${restore.entries === 1 ? "entry stays" : "entries stay"} off at rest unless you restore ${restore.entries === 1 ? "it" : "them"}.`;
+  const choice = await showChoicePopup(`${question} ${entries}`, {
+    okButton: { id: "delete", label: "Delete" },
+    choices: [{ id: "restore", label: "Delete and restore these lorebook entries" }],
+    cancelButton: "Keep",
+  });
+  return { choice, restore };
+};
+
+export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: StoryGroupProps) => {
+  const [importText, setImportText] = useState("");
+  const identity = snapshot.storyIdentity;
+
+  const whileBusy = async (work: () => Promise<unknown>) => {
+    setBusy(true);
+    await work();
+    setBusy(false);
+  };
+
+  const selectStory = async (id: string) => {
+    if (id) await whileBusy(() => manager.selectStory(id));
+  };
+
+  const importStory = async () => {
+    if (!importText.trim()) return;
+    await whileBusy(async () => {
+      if (await manager.importStory(importText)) setImportText("");
+    });
+  };
+
+  const importFile = async (file: File | undefined) => {
+    if (file) await whileBusy(async () => manager.importStory(await file.text()));
+  };
+
+  const deleteStory = async () => {
+    const current = manager.getSnapshot();
+    const active = current.library.find((story) => story.id === current.storyId);
+    if (!active) return;
+    const { choice, restore } = await deletionChoice(active.title, active.id);
+    if (!choice) return;
+    await whileBusy(async () => {
+      const removed = await manager.removeStory(active.id);
+      if (removed && choice === "restore" && restore) await restore.run();
+    });
+  };
+
+  return (
+    <>
+      <label className="flex flex-col gap-1 text-sm">
+        <span>Story</span>
+        <div className="flex items-center gap-2">
+          <select id="story-library-select" className="flex-1" value={snapshot.storyId ?? ""} disabled={busy} onChange={(event) => void selectStory(event.target.value)}>
+            <option value="">Select a story</option>
+            {snapshot.library.map((story) => <option key={story.id} value={story.id}>{story.title}</option>)}
+          </select>
+          <button
+            id="so-restart-story"
+            className="menu_button fa-solid fa-rotate-left"
+            title="Restart this story in this chat (clears progress and memory for it)"
+            disabled={busy || (!snapshot.storyId && !snapshot.blobUnreadable)}
+            onClick={() => void whileBusy(() => manager.restartStory())}
+          />
+          <button
+            id="so-delete-story"
+            className="menu_button fa-solid fa-trash-can"
+            title="Delete the selected story from the library"
+            disabled={busy || !snapshot.storyId}
+            onClick={() => void deleteStory()}
+          />
+        </div>
+        {snapshot.storyId && (
+          <div id="so-story-identity" className="text-xs opacity-70">
+            Playing your pinned copy{identity.playedVersion ? ` (v${identity.playedVersion})` : ""}.
+            {identity.drifted && identity.libraryVersion ? ` The library has a newer version (v${identity.libraryVersion}); this chat keeps playing what it started with.` : ""}
+          </div>
+        )}
+        {snapshot.blobUnreadable && <div id="so-blob-unreadable" className="text-xs opacity-90">This chat's saved story state was {snapshot.blobUnreadable.notice}.</div>}
+        <div id="so-retention-note" className="text-xs opacity-70 flex items-center gap-2">
+          <span>This chat keeps its progress for the {STORY_STATE_RETENTION} most recent stories; switching to a sixth drops the oldest.</span>
+          <button
+            id="so-export-state"
+            className="menu_button"
+            title="Copy this chat's saved story state to the clipboard, before anything can drop it."
+            onClick={() => void copyState()}
+          >Export state</button>
+        </div>
+      </label>
+      {importOpen && (
+        <label id="so-entry-import" className="flex flex-col gap-1 text-sm">
+          <span>Import story (JSON)</span>
+          <textarea className="text_pole" rows={6} value={importText} onChange={(event) => setImportText(event.target.value)} placeholder="Paste story JSON, or pick a file below" />
+          <input type="file" accept=".json,application/json" disabled={busy} onChange={(event) => { void importFile(event.target.files?.[0]); event.target.value = ""; }} />
+          <button className="menu_button self-start" disabled={busy || !importText.trim()} onClick={() => void importStory()}>Import and Load</button>
+        </label>
+      )}
+      {snapshot.validationErrors.length > 0 && (
+        <div className="text-xs text-red-400">
+          {snapshot.validationErrors.map((error) => <div key={`${error.path}:${error.message}`}>{error.path}: {error.message}</div>)}
+        </div>
+      )}
+    </>
+  );
+};

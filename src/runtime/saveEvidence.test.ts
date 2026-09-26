@@ -16,7 +16,7 @@ const harness = (options: { ok: boolean; status?: number | null; timedOut?: bool
   const deps: SaveEvidenceDeps = {
     health: () => health,
     observe: async () => ({ requested: !options.timedOut, status: options.status ?? (options.ok ? 200 : 500), ok: options.ok, timedOut: options.timedOut ?? false, failed: options.failed ?? false, ...(options.lost ? { lost: options.lost } : {}) }),
-    readBack: () => options.serverHolds,
+    readBack: (() => options.serverHolds) as unknown as SaveEvidenceDeps["readBack"],
     onWrite: (next) => { writes.push(next); health = next; },
     journal: (summary, note) => journaled.push({ summary, note }),
     now: () => at,

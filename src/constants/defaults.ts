@@ -1,6 +1,5 @@
 import { INJECTION_REGISTRY, MEMORY_INJECTION_KEY_PREFIX } from "./injectionRegistry";
 
-export const DEFAULT_INTERVAL_TURNS = 3;
 export const DEFAULT_TENSION_EMA_ALPHA = 0.3;
 export const DEFAULT_PACING_DRIFT_THRESHOLD = 0.3;
 export const PACING_HINT_EXTENSION_KEY = INJECTION_REGISTRY.pacing.key;

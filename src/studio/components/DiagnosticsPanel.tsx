@@ -3,7 +3,7 @@ import type { ValidationError } from "@engine/index";
 import { useDraftStore } from "../draft";
 import type { Diagnostic } from "../diagnostics";
 
-// v2.3 plan 09: the plain consequence first, the technical line second. An author reads the first
+// The plain consequence first, the technical line second. An author reads the first
 // line to decide whether to care and the second to find the thing.
 const DiagnosticRow: React.FC<{ label: string; message: string; path: string; tone: "error" | "warn" | "muted"; consequence?: string }> = ({ label, message, path, tone, consequence }) => (
   <li data-so="diagnostic" data-severity={tone} className={`st-subpanel flex flex-col gap-0.5 p-2 text-sm ${tone === "error" ? "st-alert-error" : ""}`}>

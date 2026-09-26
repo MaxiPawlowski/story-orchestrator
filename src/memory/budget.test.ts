@@ -1,7 +1,7 @@
 import { BLOCK_OVERHEAD_TOKENS, blockTokens, entryTokens, estimateTokens, selectWithinBudget, tierTokenCost } from "./budget";
 import type { MemoryEntry } from "./types";
 
-const entry = (overrides: Partial<MemoryEntry>): MemoryEntry => ({
+const entry = (overrides: Partial<MemoryEntry>) => ({
   id: overrides.id ?? `id-${Math.random()}`,
   tier: "facts",
   text: "text",
@@ -15,7 +15,7 @@ const entry = (overrides: Partial<MemoryEntry>): MemoryEntry => ({
   createdAt: 0,
   recallCount: 0,
   ...overrides,
-});
+}) as MemoryEntry;
 
 describe("token counting", () => {
   it("estimates tokens from length when not precomputed", () => {

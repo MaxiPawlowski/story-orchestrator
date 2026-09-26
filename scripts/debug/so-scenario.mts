@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { fixtureCleanupSteps } from './lib/scenarioCleanup.mts';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PROJECT_ROOT } from './lib/connection.mts';
@@ -1205,6 +1206,12 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
   } finally {
     // A route block is a change to the SHARED page's network, so it is released even when the run
     // failed midway: a save endpoint left blocked would fail every later run's persistence in silence.
+    const cleanupSteps = fixtureCleanupSteps(scenario);
+    if (cleanupSteps.length) {
+      result.fixtureCleanup = await runSteps(page, cleanupSteps, { scenarioDir, importedHashes, guard, label: 'cleanup' })
+        .catch((error) => ({ ok: false, error: error instanceof Error ? error.message : String(error) }));
+      if ((result.fixtureCleanup as { ok?: boolean }).ok === false) result.ok = false;
+    }
     result.releasedRoutes = await releaseBlockedRoutes(page);
     result.extensionSettings = await restoreExtSettings(page).catch((error) => ({ error: error.message }));
     if (sandbox) {

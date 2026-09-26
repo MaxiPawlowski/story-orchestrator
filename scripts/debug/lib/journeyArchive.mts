@@ -8,8 +8,11 @@
 // check's import reaches its first generation step with no story loaded and "passes" over nothing
 // (J11.9/J11.10 seeded 0 of 10). Under `--only` the step engine now refuses such a step instead.
 
+import { createHash } from 'node:crypto';
 import { copyFile, mkdir, readFile, stat } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
+
+export const fixtureSha256 = (bytes: string | Uint8Array): string => createHash('sha256').update(bytes).digest('hex');
 
 export const STORY_BOUND_VERBS = new Set(['send', 'send_generate', 'extract', 'expand']);
 

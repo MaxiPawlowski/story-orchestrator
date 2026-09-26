@@ -14,10 +14,10 @@ export interface MemoryMirrorHost {
   upsertWIEntry: (lorebook: string, comment: string, content: string, keys?: string[]) => Promise<WIUpsertResult>;
   disableWIEntry: (lorebook: string, comments: string | string[]) => Promise<WriteResult<{ changed: boolean }>>;
   bindChatLorebook: (name: string, replaceable?: string[]) => ChatLorebookBinding;
-  // v2.3 plan 03. Optional: without it the chat-id comparison below still runs, so behaviour is
+  // Optional: without it the chat-id comparison below still runs, so behaviour is
   // unchanged for a caller that supplies none.
   ownership: RunOwnership;
-  // v2.4 plan 02 T14: who the adopted book is for, written into it as the `so-owner` marker the reaper
+  // Who the adopted book is for, written into it as the `so-owner` marker the reaper
   // requires. Optional like `ownership`: without it no marker is written, and such a book is never reaped.
   owner?: () => ChatOwner | null;
 }
@@ -54,7 +54,7 @@ export const mirrorComment = (entry: MemoryEntry) => `${COMMENT_PREFIX}${entry.i
 // adopts the book and then travels with the memory state, so renaming the chat keeps the book.
 export const mirrorLorebookName = (title: string, chatId: string) => `${MIRROR_BOOK_PREFIX}${title} - ${chatId}`;
 
-// v2.4 plan 02 T14 (X18): scene rows are no longer mirrored. They were keyless, so inert in the book, and
+// Scene rows are no longer mirrored. They were keyless, so inert in the book, and
 // scene history already reaches the prompt through `memorySceneHistory`; the stale sweep below switches
 // off the ones earlier syncs wrote.
 export const mirroredEntries = (entries: MemoryEntry[]) => entries.filter((entry) =>
@@ -79,7 +79,7 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
   const idle: MemoryMirrorResult = { summary, book: input.book, writes: input.writes, changed: false };
   const chatId = host.getChatId();
   if (!chatId) return idle;
-  // v2.3 plan 03. This function already had an ownership check — the `host.getChatId() !== chatId`
+  // This function already had an ownership check — the `host.getChatId() !== chatId`
   // comparison before the binding below — but it was hand-rolled, so the write-edge census could
   // not see it and it only ever asked about the chat. A STORY SWAP inside the same chat passed it,
   // and the mirror book is per-chat but shared across the stories played in that chat, so the
@@ -102,7 +102,7 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
     : Object.keys(writes).filter((comment) => !liveComments.has(comment));
   if (lapsed()) return null;
   if (stale.length) {
-    // V17: a stale entry is forgotten only once the host has switched it off, so a refused disable
+    // A stale entry is forgotten only once the host has switched it off, so a refused disable
     // is retried on the next sync instead of leaving the entry live and untracked.
     const disabled = await host.disableWIEntry(ensured.name, stale);
     if (disabled.ok) {
@@ -127,8 +127,8 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
     else summary.unchanged += 1;
   }
 
-  // v2.4 plan 02 T14: the adopted book's `so-owner` marker. Keyless, so inert (world-info.js:4892-4907,
-  // 02-H14), and switched off after the write because `upsertWIEntry` re-enables what it writes; the
+  // The adopted book's `so-owner` marker. Keyless, so inert (world-info.js:4892-4907,
+  // ), and switched off after the write because `upsertWIEntry` re-enables what it writes; the
   // hyphen keeps it out of the `so_` stale sweep. A marker that could not be written leaves the book
   // unreapable, never wrongly reapable.
   if (lapsed()) return null;
@@ -138,7 +138,7 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
     if (lapsed()) return null;
     await host.disableWIEntry(ensured.name, OWNER_COMMENT);
   }
-  // V3: checked before EACH host write above, not once after them — a story swap mid-sync used to
+  // Checked before EACH host write above, not once after them — a story swap mid-sync used to
   // let the departing story's rows land in the chat's shared book, and its stale sweep disable the
   // new story's entries. Both halves: the chat comparison, plus story, version and epoch via the token.
   if (lapsed()) return null;

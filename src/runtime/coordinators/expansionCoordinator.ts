@@ -10,21 +10,25 @@ import {
   type SceneReadRecord,
 } from "@judge/index";
 import { numericToLevel } from "@pacing/index";
-import { getPlayerName } from "@services/STAPI";
+import type { PlayerHost } from "../hostPorts";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunGuard, type RunOwnership } from "../runToken";
 import { failureClass } from "@extraction/breaker";
-import { estimateTokens, type ExtraGateSource, type Preflight, type PreflightConfirm } from "@extraction/index";
-import type { ExtractionRuntimeSettings } from "../types";
+import { estimateTokens } from "@extraction/callBudget";
+import type { ExtraGateSource, ModelCall, Preflight, PreflightConfirm } from "@extraction/index";
+import { required } from "@utils/guards";
+import { log } from "@utils/log";
 
-export const expansionKey = (candidate: Pick<StubExpansionCandidate, "sourceCheckpointId" | "stubId" | "targetAnchorId">) => `${candidate.sourceCheckpointId}->${candidate.stubId}->${candidate.targetAnchorId}`;
+export const expansionKey = (
+  candidate: Pick<StubExpansionCandidate, "sourceCheckpointId" | "stubId" | "targetAnchorId">,
+) => `${candidate.sourceCheckpointId}->${candidate.stubId}->${candidate.targetAnchorId}`;
 
 export interface ExpansionCoordinatorDeps {
   getStory: () => NormalizedStoryV2 | null;
   getStoryRaw: () => unknown;
   getState: () => EngineState | null;
   getExpansion: () => ExpansionRuntimeState;
-  getSettings: () => ExtractionRuntimeSettings;
+  model: ModelCall;
   getCanon: () => string;
   getFactTexts: () => string[];
   replaceStory: (story: NormalizedStoryV2) => void;
@@ -35,6 +39,7 @@ export interface ExpansionCoordinatorDeps {
   persist: () => Promise<void>;
   notify: () => void;
   ownership: RunOwnership;
+  hosts: { player: PlayerHost };
 }
 
 // Owns extras.expansion: the generated-beat cache, its LLM generation and the staleness
@@ -77,7 +82,8 @@ export class ExpansionCoordinator {
     try {
       return mergeExpansions(raw, this.entries);
     } catch (error) {
-      this.deps.setStatus(error instanceof Error ? `Expansion merge failed: ${error.message}` : "Expansion merge failed");
+      log.warn("expansion merge failed", error);
+      this.deps.setStatus("Expansion merge failed; the story plays its authored graph");
       return base;
     }
   }
@@ -88,7 +94,7 @@ export class ExpansionCoordinator {
   }
 
   // The ACTIVE generated checkpoint is never staled: splicing it out mid-play freezes boundary
-  // commits (live finding, v2 acceptance run).
+  // commits (live finding acceptance run).
   revalidateInserted() {
     const story = this.deps.getStory();
     const state = this.deps.getState();
@@ -107,7 +113,7 @@ export class ExpansionCoordinator {
   }
 
   private emptyEntry(candidate: StubExpansionCandidate, status: ExpansionCacheEntry["status"]): ExpansionCacheEntry {
-    const state = this.deps.getState()!;
+    const state = required(this.deps.getState(), "engine state");
     return {
       key: expansionKey(candidate),
       status,
@@ -155,14 +161,14 @@ export class ExpansionCoordinator {
     return true;
   }
 
-  // v2.2 plan 07: one stub one hop ahead of where play is heading (plan 03's look-ahead), one
+  // One stub one hop ahead of where play is heading (look-ahead), one
   // pre-generation in flight at most, never in place of the active candidate.
   private scheduleLookahead(story: NormalizedStoryV2, schedule: (reason: string, run: () => Promise<void>) => void) {
     const scene = this.deps.getSceneRead?.() ?? null;
-    // C2: a tracker the judge can no longer confirm must not steer pre-generation either. Its
+    // A tracker the judge can no longer confirm must not steer pre-generation either. Its
     // headingTo describes where play was going when it last answered, which may be minutes stale.
     if (!scene || isSceneStale(scene) || !this.deps.judge?.()?.active("expansionLookahead")) return;
-    // V13 (C4 precedence): the player is refusing this checkpoint's exits, and a heading toward one of
+    // The player is refusing this checkpoint's exits, and a heading toward one of
     // them is the route they refused. Pre-generating it would narrate them arriving there.
     if (this.deps.refusing?.()) return;
     if (Object.values(this.entries).some((entry) => entry.origin === "lookahead" && (entry.status === "queued" || entry.status === "generating"))) return;
@@ -176,26 +182,31 @@ export class ExpansionCoordinator {
     }
   }
 
-  // v2.2 plan 07: the judge as critic and ranker, each its own opt-in. The judge only checks or
+  // The judge as critic and ranker, each its own opt-in. The judge only checks or
   // ranks what the LLM wrote; code checks stay first and binding.
   private expansionJudge(story: NormalizedStoryV2, input: PlannedExpansionInput): ExpansionJudge {
     const judge = this.deps.judge?.() ?? null;
     const target = story.checkpointById[input.candidate.targetAnchorId];
     if (!judge || !target) return {};
-    const cast = [...new Set([...story.roster.map((member) => member.name ?? member.id), getPlayerName()].filter(Boolean))];
+    const cast = [...new Set([...story.roster.map((member) => member.name ?? member.id), this.deps.hosts.player.getPlayerName()].filter(Boolean))];
     const read = async (beats: GeneratedBeat[]) => {
-      const request = buildChainRequest({ facts: input.facts, target: { name: target.name, objective: target.objective }, cast, trajectory: input.tensionTrajectory.map(numericToLevel), beats: beats.map((beat) => ({ objective: beat.objective, guidance: beat.guidance })) });
-      const result = await judge.ask("critic", request, { timeoutMs: CRITIC_TIMEOUT_MS, summarize: (answers) => (answers ? Object.fromEntries(Object.entries(readChain(answers) ?? {}).map(([key, value]) => [key, value ?? "none"])) : {}) });
+      const request = buildChainRequest({ facts: input.facts, target: { name: target.name,
+          objective: target.objective }, cast, trajectory: input.tensionTrajectory.map(numericToLevel),
+          beats: beats.map((beat) => ({ objective: beat.objective, guidance: beat.guidance })) });
+      const result = await judge.ask("critic", request, { timeoutMs: CRITIC_TIMEOUT_MS,
+          summarize: (answers) => (answers ? Object.fromEntries(Object.entries(readChain(answers) ?? {}).map(([key,
+          value]) => [key, value ?? "none"])) : {}) });
       return result.answers ? readChain(result.answers) : null;
     };
     const variants = judge.expansionSettings();
     return {
-      ...(judge.active("expansionCritic") ? { critic: async (beats: GeneratedBeat[]) => { const chain = await read(beats); return chain ? { ...judgeVerdict(chain), raw: "JUDGE", judge: chain } : null; } } : {}),
+      ...(judge.active("expansionCritic") ? { critic: async (beats: GeneratedBeat[]) => { const chain = await read(beats); return chain ? { ...judgeVerdict(chain),
+          raw: "JUDGE", judge: chain } : null; } } : {}),
       ...(variants && variants.variants > 1 ? { variants: { n: variants.variants, temperature: variants.temperature, pick: variants.pick, read } } : {}),
     };
   }
 
-  // v2.3 plan 07. `validated` is a chain the critic passed, waiting for the boundary that makes it
+  // `validated` is a chain the critic passed, waiting for the boundary that makes it
   // part of what this chat is playing; `inserted` is that boundary having happened. The state exists
   // because "review states → inserted" hid the gap the review named, and because a chain staled
   // before its boundary can now be dropped without ever having claimed to be played.
@@ -213,7 +224,7 @@ export class ExpansionCoordinator {
     return changed;
   }
 
-  // v2.3 plan 07: an author action for `stale`/`failed` (the review's "manual and undocumented for
+  // An author action for `stale`/`failed` (the review's "manual and undocumented for
   // players" gap). It re-runs the same candidate without waiting for the queue's arrival rule.
   async regenerate(key: string): Promise<boolean> {
     const entry = this.entries[key];
@@ -222,7 +233,7 @@ export class ExpansionCoordinator {
     if (!entry || !story || !state) return false;
     const candidate = findStubExpansionCandidate(story, entry.sourceCheckpointId);
     if (!candidate || candidate.stubId !== entry.stubId) return false;
-    await this.generate(candidate, globalThis.storyOrchestratorDebugGenerationResponse ?? null);
+    await this.generate(candidate, this.deps.model.planted?.("generation") ?? null);
     return true;
   }
 
@@ -236,13 +247,13 @@ export class ExpansionCoordinator {
       this.deps.notify();
       return false;
     }
-    const response = debugResponse ?? globalThis.storyOrchestratorDebugGenerationResponse ?? null;
+    const response = debugResponse ?? this.deps.model.planted?.("generation") ?? null;
     if (confirm && response === null && !(await confirm(this.preflight(story, state, candidate)))) return false;
     await this.generate(candidate, response);
     return true;
   }
 
-  // v2.4 plan 03 D5: what an author's "generate now" is about to send: every variant, plus the critic.
+  // What an author's "generate now" is about to send: every variant, plus the critic.
   private preflight(story: NormalizedStoryV2, state: EngineState, candidate: StubExpansionCandidate): Preflight {
     const input = planExpansion(story, state.blackboard, candidate, this.deps.getCanon(), this.deps.getFactTexts());
     const requests = (this.expansionJudge(story, input).variants?.n ?? 1) + 1;
@@ -256,7 +267,7 @@ export class ExpansionCoordinator {
     const baseEntry = this.entries[key] ?? this.emptyEntry(candidate, "generating");
     this.entries[key] = { ...baseEntry, status: "generating", attempts: baseEntry.attempts + 1, updatedAt: new Date().toISOString(), lastError: null };
     this.deps.notify();
-    // v2.3 plan 11 §Fault matrix. A generation is a model call that can run for minutes, and every
+    // Matrix. A generation is a model call that can run for minutes, and every
     // write below the await lands in whatever chat is open when it answers. Without this, a chain
     // generated for chat A was filed into chat B's cache and merged into chat B's story — the
     // ownership hole every other async coordinator already closes, and the one this coordinator was
@@ -265,12 +276,17 @@ export class ExpansionCoordinator {
     this.liveJobs.set(key, run);
     let transport: unknown = null;
     try {
-      const state = this.deps.getState()!;
+      const state = required(this.deps.getState(), "engine state");
       const input = planExpansion(story, state.blackboard, candidate, this.deps.getCanon(), this.deps.getFactTexts());
-      const generated = await generateReviewedBeats(story, input, { ...this.deps.getSettings(), role: "authoring", signal: run.signal, debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugGenerationResponse ?? null }, this.expansionJudge(story, input));
+      const generated = await generateReviewedBeats(story, input, this.deps.model, { role: "authoring",
+          pass: "generation", signal: run.signal, debugResponse: debugResponse ?? null }, this.expansionJudge(story,
+          input));
       if (!run.stillOwns()) return;
       if (generated.issues.length || !generated.codeCheck || !generated.codeCheck.ok) {
-        this.entries[key] = { ...this.entries[key], status: "failed", beats: generated.beats, codeCheck: generated.codeCheck, lastError: generated.issues.join("; ") || generated.codeCheck?.issues.join("; ") || "Generation failed", ...(generated.variants ? { variants: generated.variants } : {}), updatedAt: new Date().toISOString() };
+        this.entries[key] = { ...this.entries[key], status: "failed", beats: generated.beats,
+            codeCheck: generated.codeCheck,
+            lastError: generated.issues.join("; ") || generated.codeCheck?.issues.join("; ") || "Generation failed",
+            ...(generated.variants ? { variants: generated.variants } : {}), updatedAt: new Date().toISOString() };
       } else {
         this.entries[key] = {
           ...this.entries[key],

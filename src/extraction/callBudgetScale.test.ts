@@ -1,6 +1,8 @@
+import { profileRoute } from "./modelRoute";
 import { sendConnectionProfileRequest } from "@services/STAPI";
 import { callTimeoutMs, debugCallBudgetScale, TIMEOUT_RETRY_SCALE } from "./callBudget";
-import { callExtractionReply, retryOnTimeout } from "./client";
+import { callExtractionReply } from "./client";
+import { retryOnTimeout } from "./modelError";
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -71,7 +73,7 @@ describe("v2.5 plan 02 (A11 forced-timeout arm): the debug call-budget scale", (
     send.mockResolvedValue({ ok: false, kind: "timeout", message: "signal timed out" });
     const prompt = "x".repeat(4000);
     const first = Math.round(unscaled(256, 1000) * 0.5);
-    await expect(retryOnTimeout((timeoutScale) => callExtractionReply(prompt, { profileId: "artemis", role: "read", maxTokens: 256, timeoutScale })))
+    await expect(retryOnTimeout((timeoutScale) => callExtractionReply(prompt, profileRoute("artemis"), { maxTokens: 256, timeoutScale })))
       .rejects.toThrow(`the memory model did not answer within ${first} ms, nor within ${first * TIMEOUT_RETRY_SCALE} ms on one retry`);
     expect(timeout.mock.calls.map(([ms]) => ms)).toEqual([first, first * TIMEOUT_RETRY_SCALE]);
   });

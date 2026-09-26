@@ -3,7 +3,13 @@ import { expect, fn, userEvent, within } from "@storybook/test";
 import type { RoleRouteView } from "@runtime/roleHealth";
 import { RoleProfilesGroup } from "./RoleProfilesGroup";
 
-const route = (role: RoleRouteView["role"], label: string, state: RoleRouteView["state"] = "fallback", profileId: string | null = "memory", detail = "Same as memory model"): RoleRouteView => ({ role, label, state, profileId, detail });
+const route = (
+  role: RoleRouteView["role"],
+  label: string,
+  state: RoleRouteView["state"] = "fallback",
+  profileId: string | null = "memory",
+  detail = "Same as memory model",
+): RoleRouteView => ({ role, label, state, profileId, detail });
 
 const allFallback: RoleRouteView[] = [
   route("read", "Story reads"),
@@ -64,7 +70,11 @@ export const RoutedAndFailing: Story = {
 };
 
 export const Testing: Story = {
-  args: { assigned: { synthesis: "fast" }, testing: "synthesis", routes: allFallback.map((entry) => (entry.role === "synthesis" ? route("synthesis", "Summaries and canon", "untested", "fast", "Summaries and canon: not tested yet") : entry)) },
+  args: {
+    assigned: { synthesis: "fast" },
+    testing: "synthesis",
+    routes: allFallback.map((entry) => (entry.role === "synthesis" ? route("synthesis", "Summaries and canon", "untested", "fast", "Summaries and canon: not tested yet") : entry)),
+  },
   play: async ({ canvasElement }) => {
     await userEvent.click(within(canvasElement).getByText(/Models per task/));
     await expect(canvasElement.querySelector('[data-role="synthesis"] [data-so="role-profile-test"]')?.textContent).toBe("Testing…");

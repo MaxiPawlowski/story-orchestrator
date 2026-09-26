@@ -1,0 +1,47 @@
+import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
+import { sceneFieldsInConflict } from "@memory/index";
+import { clearStoryExtensionPrompt, getPlayerName, judgeStatus, judgeTransport, readInjectedPromptBlocks, setStoryExtensionPrompt } from "@services/STAPI";
+import { SceneCoordinator } from "../coordinators/sceneCoordinator";
+import { JudgeRuntime } from "../judge";
+import { createTypedJudge } from "../typedRead";
+import { getGlobalSettings } from "../settingsStore";
+import { runtimeManager } from "../runtimeManager";
+import type { Disposers, LiveParts, WindowAccess } from "./types";
+
+export const startJudge = (live: LiveParts, { chatLastId }: WindowAccess) => {
+  const judgeRuntime = new JudgeRuntime({
+    getSettings: () => getGlobalSettings().judge,
+    transport: judgeTransport,
+    status: judgeStatus,
+    record: (record) => runtimeManager.recordJudgeCall(record),
+    context: () => ({ boundary: runtimeManager.getEngineState()?.boundary ?? 0, messageId: chatLastId() }),
+    ownership: runtimeManager.getOwnership(),
+  });
+  globalThis.storyOrchestratorJudge = judgeRuntime;
+  live.typedJudge = createTypedJudge(() => judgeRuntime);
+  runtimeManager.attachJudge(judgeRuntime);
+  return judgeRuntime;
+};
+
+export const startScene = (live: LiveParts, disposers: Disposers, judgeRuntime: JudgeRuntime, { chatLastId, recentWindow }: WindowAccess) => {
+  const tracker = INJECTION_REGISTRY.sceneTracker;
+  const scene = new SceneCoordinator({
+    judge: () => judgeRuntime,
+    getStory: () => runtimeManager.getStory(),
+    getState: () => runtimeManager.getEngineState(),
+    getWindow: recentWindow,
+    getPlayerName,
+    getLastMessageId: chatLastId,
+    getScene: () => runtimeManager.getSceneRead(),
+    ownership: runtimeManager.getOwnership(),
+    setScene: (record) => runtimeManager.recordSceneRead(record),
+    inject: (text) => (text ? setStoryExtensionPrompt(tracker.key, text, tracker.depth) : clearStoryExtensionPrompt(tracker.key)),
+    applied: () => readInjectedPromptBlocks().find((block) => block.key === tracker.key)?.value ?? null,
+    withheldFields: () => sceneFieldsInConflict(runtimeManager.getSnapshot().memory.conflicts),
+    journal: (summary, note) => runtimeManager.noteRecap(summary, note),
+  });
+  live.scene = scene;
+  runtimeManager.attachScene(scene);
+  disposers.push(() => runtimeManager.attachScene(null));
+  disposers.push(runtimeManager.subscribe(() => scene.sync()));
+};

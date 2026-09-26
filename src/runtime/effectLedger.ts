@@ -1,7 +1,7 @@
 import { generateMemoryId } from "@memory/index";
 import { EFFECT_LEDGER_LIMIT, type EffectLedgerRow, type EffectLedgerStatus, type EffectTarget } from "./types";
 
-// v2.3 plan 06. Host effects touch state shared with every other chat: a group's disabled members, a
+// Host effects touch state shared with every other chat: a group's disabled members, a
 // lorebook FILE, the Author's Note, the preset, the background. A chat that changes one therefore
 // owes an account of what it changed and how to put it back — and has to survive being killed
 // between the host call and the save that would have recorded it.
@@ -96,7 +96,7 @@ export function reconcileLedger(rows: EffectLedgerRow[], reads: ReconcileReads):
  * NEWEST write first, and each row is judged against the value the undo chain currently holds — not
  * against one reading taken before the loop. Two rows on one target are a history, and undoing the
  * oldest first leaves the resource at the older write's `before` instead of at the value the chat
- * found: measured live 2026-09-23 on a group's `disabled_members`, where road(disable) →
+ * found: measured live on a group's `disabled_members`, where road(disable) →
  * hall(enable) left Tobias DISABLED after the chat that wrote both was left, i.e. an EVEN number of
  * flips on one target ends at the wrong end. Undoing newest first makes each older row's
  * precondition the value its own successor put back, so the chain lands where the chat started.
@@ -118,7 +118,7 @@ export function restorePlan(rows: EffectLedgerRow[], reads: ReconcileReads): { s
     // A row whose effect is a no-op (`before === after`) needs no restore and cannot be compared.
     if (same(row.before, row.after)) continue;
     const key = targetKey(row.target);
-    const current = running.has(key) ? running.get(key)! : reads.read(row.target);
+    const current = running.has(key) ? running.get(key) ?? null : reads.read(row.target);
     if (current !== null && same(current, row.after)) {
       steps.push({ row, restoreTo: row.before });
       running.set(key, row.before);

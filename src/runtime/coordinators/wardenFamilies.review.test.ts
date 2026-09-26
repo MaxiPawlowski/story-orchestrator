@@ -1,6 +1,6 @@
+import { plantedModel } from "../../../test/support/modelCall";
 import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { defaultJudgeSettings, type JudgeRequest, type JudgeSettings } from "@judge/index";
-import { clearStoryExtensionPrompt, setStoryExtensionPrompt } from "@services/STAPI";
 import { composeWardenNote, type WardenCheckFinding, type WardenCheckInput, type WardenNoteOp } from "@stagecraft/index";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
 import { createStagecraft } from "../extras";
@@ -11,9 +11,9 @@ import { testOwnership } from "../../../test/findings/testOwnership";
 
 const mockChat: Array<Record<string, unknown>> = [];
 
-jest.mock("@services/STAPI", () => ({
-  settingsAreLoaded: () => true,
-  settingsReady: async () => {},
+const stapi = { settingsAreLoaded: () => true, settingsReady: async () => {} };
+
+const host = {
   setStoryExtensionPrompt: jest.fn(),
   clearStoryExtensionPrompt: jest.fn(),
   loadLorebook: jest.fn(),
@@ -25,7 +25,9 @@ jest.mock("@services/STAPI", () => ({
   disableWIEntry: jest.fn(),
   getPlayerName: () => "Max",
   getContext: () => ({ extensionSettings: {}, chat: mockChat }),
-}));
+};
+const { clearStoryExtensionPrompt, setStoryExtensionPrompt } = host;
+
 
 const KEY = "story_orchestrator_continuity";
 const RULES = ["No character uses a gun.", "Magic cannot heal wounds."];
@@ -52,12 +54,12 @@ const harness = (options: { continuity?: boolean; mode?: "auto" | "review" | "of
   let state: StagecraftRuntimeState = { ...createStagecraft(), settings: { curatorEnabled: false, acceptMode: "review", wardenEnabled: options.continuity ?? false, wardenAcceptMode: options.mode ?? "auto" } };
   const inputs: WardenCheckInput[] = [];
   const families = { agency: options.agency ?? false, houseRules: options.houseRules ?? [] };
-  const coordinator = new StagecraftCoordinator({ ownership: testOwnership(),
+  const coordinator = new StagecraftCoordinator({ hosts: { prompt: host, chat: { chatRows: () => host.getContext().chat }, player: host, curator: host } as never, ownership: testOwnership(),
     getStory: () => story(),
     getState: () => engineState,
     getStagecraft: () => state,
     setStagecraft: (next) => { state = next; },
-    getExtractionSettings: () => ({ profileId: "p" } as ExtractionRuntimeSettings),
+    model: plantedModel,
     getCanon: () => "",
     getOpenArcs: () => [],
     warden: {

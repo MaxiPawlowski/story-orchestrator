@@ -8,7 +8,11 @@ interface Token { text: string; start: number; end: number }
 
 const WORD = /[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu;
 
-const tokenize = (value: string): Token[] => [...value.matchAll(WORD)].map((match) => ({ text: match[0].toLowerCase().replace(/['’]/g, ""), start: match.index ?? 0, end: (match.index ?? 0) + match[0].length }));
+const wordTokens = (value: string): Token[] => [...value.matchAll(WORD)].map((match) => ({
+  text: match[0].toLowerCase().replace(/['’]/g, ""),
+  start: match.index ?? 0,
+  end: (match.index ?? 0) + match[0].length,
+}));
 
 export const anchorSimilarity = (left: string, right: string): number => {
   const longest = Math.max(left.length, right.length);
@@ -57,10 +61,10 @@ export interface FuzzySpan {
 export function findSpanFuzzy(content: string, anchor: string): FuzzySpan | null {
   const [head = "", ...rest] = anchor.split(SEPARATORS).map((part) => part.trim()).filter(Boolean);
   const tail = rest.length ? rest[rest.length - 1] : "";
-  const headWords = tokenize(head).map((token) => token.text);
-  const tailWords = tokenize(tail).map((token) => token.text);
+  const headWords = wordTokens(head).map((token) => token.text);
+  const tailWords = wordTokens(tail).map((token) => token.text);
   if (headWords.length < MIN_ANCHOR_WORDS || (tail && tailWords.length < MIN_ANCHOR_WORDS)) return null;
-  const tokens = tokenize(content);
+  const tokens = wordTokens(content);
   const first = bestWindow(tokens, headWords, 0);
   if (!first) return null;
   const last = tail ? bestWindow(tokens, tailWords, first.first) : first;

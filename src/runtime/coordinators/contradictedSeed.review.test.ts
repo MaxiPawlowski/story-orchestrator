@@ -1,3 +1,5 @@
+import { fakeHosts } from "../../../test/support/fakeHosts";
+import { plantedModel } from "../../../test/support/modelCall";
 // v2.4 plan 07, found live (J8.5 on-arm x2, 2026-09-25, test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/).
 //
 // A scripted Courier line ("I crossed the old stone bridge … It held firm under my boots") was read
@@ -17,7 +19,7 @@
 // written by the author) never becomes live on its own. A pin is retention, not truth (v2.3 M5). It is held in the reconciliation queue, the established row
 // keeps steering, and the warden reads only live, non-conflicted rows.
 
-jest.mock("@services/STAPI", () => ({
+const stapi = {
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
@@ -39,9 +41,9 @@ jest.mock("@services/STAPI", () => ({
   setStoryExtensionPrompt: jest.fn(),
   clearStoryExtensionPrompt: jest.fn(),
   MEMORY_INJECTION_KEY_PREFIX: "so-memory-",
-}));
+};
 
-import { parseSharedReadResponse } from "@extraction/index";
+import { parseSharedReadResponse } from "@extraction/parse";
 import { isLive, type ConflictPair, type MemoryEntry, type ParsedMemoryLine } from "@memory/index";
 import { establishedFacts } from "../continuity";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
@@ -114,12 +116,12 @@ function harness() {
   let memory = memoryState();
   const engine = { activeCheckpointId: "cp1", boundary: 0, lastMessageId: 0, blackboard: { values: {}, versions: {} } };
   const extraction = { audits: [] as unknown[], reconciliationEvents: [] as unknown[], judgedReads: [] as unknown[] };
-  const memoryCoordinator = new MemoryCoordinator({
+  const memoryCoordinator = new MemoryCoordinator({ hosts: fakeHosts(stapi),
     getStory: () => story,
     getState: () => engine,
     getMemory: () => memory,
     setMemory: (next: MemoryRuntimeState) => { memory = next; },
-    getExtractionSettings: () => ({ profileId: "p1", enabled: true }),
+    model: plantedModel,
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
     enqueueExtractorDeltas: () => {},
@@ -133,7 +135,7 @@ function harness() {
     getStory: () => story,
     getState: () => engine,
     getExtraction: () => extraction,
-    getSettings: () => ({ profileId: "p1", enabled: true, cadence: 1 }),
+    model: plantedModel,
     memory: memoryCoordinator,
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
@@ -201,7 +203,7 @@ describe("a new claim that contradicts an established fact is held, not stored l
     const env = harness();
     await env.seed("lock");
     await env.read(COURIER_READ);
-    env.coordinator.detectMemoryConflicts();
+    env.coordinator.queue.detectMemoryConflicts();
     expect(isLive(row(env.memory(), SEED)!)).toBe(true);
     expect(env.warden()).toEqual([SEED]);
   });
@@ -211,7 +213,7 @@ describe("a new claim that contradicts an established fact is held, not stored l
     const seed = await env.seed("lock");
     await env.read(COURIER_READ);
     const pair = heldPairs(env.memory()).find((candidate) => candidate.sides.some((side) => side.label === STANDING))!;
-    expect(await env.coordinator.resolveMemoryConflict(pair.key, seed.id, true)).toBe(true);
+    expect(await env.coordinator.queue.resolveMemoryConflict(pair.key, seed.id, true)).toBe(true);
     expect(row(env.memory(), SEED)).toMatchObject({ locked: true, pinned: true });
     expect(row(env.memory(), STANDING)?.supersededBy).toBe(seed.id);
   });

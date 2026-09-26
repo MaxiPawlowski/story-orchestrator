@@ -57,7 +57,19 @@ const sampleSnapshot = (): RuntimeSnapshot => derive(({
     status: "Hydrated Quest for the Sun Ruins",
     extraction: {
       settings: { enabled: true, profileId: "p1", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 1 },
-      audits: [{ id: "a12", reason: "cadence", prompt: "p", rawResponse: "r", scope: ["has_key", "trap_state"], acceptedDeltas: [], rejected: [], window: { from: 0, to: 6 }, createdAt: "t", priority: 1, contractHash: "h" }],
+      audits: [{
+        id: "a12",
+        reason: "cadence",
+        prompt: "p",
+        rawResponse: "r",
+        scope: ["has_key", "trap_state"],
+        acceptedDeltas: [],
+        rejected: [],
+        window: { from: 0, to: 6 },
+        createdAt: "t",
+        priority: 1,
+        contractHash: "h",
+      }],
       reconciliationEvents: [],
       lastReadBoundary: 5,
       scheduler: { queueDepth: 0, inFlight: false, lastError: null },
@@ -65,11 +77,31 @@ const sampleSnapshot = (): RuntimeSnapshot => derive(({
     expansion: { entries: {}, scheduler: { queueDepth: 0, inFlight: false, lastError: null } },
     memory: {
       entries: [
-        { id: "m1", tier: "facts", text: "The sun-key opens the inner sanctum.", type: "fact", importance: 3, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: "e", createdAt: 1, recallCount: 2, pinned: true },
+        {
+          id: "m1",
+          tier: "facts",
+          text: "The sun-key opens the inner sanctum.",
+          type: "fact",
+          importance: 3,
+          expiration: "permanent",
+          entities: [],
+          confidence: 1,
+          activationTriggers: [],
+          evidence: "e",
+          createdAt: 1,
+          recallCount: 2,
+          pinned: true,
+        },
       ],
       excluded: [],
       writeLog: [],
-      settings: { enabled: true, epistemicLedgerCapable: true, injectionDepths: { facts: 4, session_details: 3, short_term: 2, scene_history: 6 }, tierBudgets: { facts: 0, session_details: 0, short_term: 0, scene_history: 0 }, tierTokenBudgets: { facts: 0, session_details: 0, short_term: 0, scene_history: 0 } },
+      settings: {
+        enabled: true,
+        epistemicLedgerCapable: true,
+        injectionDepths: { facts: 4, session_details: 3, short_term: 2, scene_history: 6 },
+        tierBudgets: { facts: 0, session_details: 0, short_term: 0, scene_history: 0 },
+        tierTokenBudgets: { facts: 0, session_details: 0, short_term: 0, scene_history: 0 },
+      },
       backfill: null,
       sceneCount: 2,
       wiWrites: {},
@@ -125,14 +157,90 @@ const sampleSnapshot = (): RuntimeSnapshot => derive(({
       ] },
     ],
     nextTurn: ([
-      { key: "story_orchestrator_continuity", label: "Continuity note", owner: "runtime/coordinators/stagecraftCoordinator", ownerTab: "scheduler", depth: 0, role: 0, characters: 62, target: null, oneShot: true, freshness: "live", fallback: null, preview: "The wards are broken, and the sanctum is unsealed." },
-      { key: "story_orchestrator_scene", label: "Scene so far", owner: "runtime/coordinators/sceneCoordinator", ownerTab: "scheduler", depth: 1, role: 0, characters: 44, target: null, oneShot: false, freshness: "stale", fallback: null, preview: "The inner sanctum, the wards failing at the threshold." },
-      { key: "story_orchestrator_epistemic", label: "What the speaker knows", owner: "memory/inject.applyEpistemicInjection", ownerTab: "memory", depth: 4, role: 0, characters: 51, target: "Arin", oneShot: false, freshness: "live", fallback: "timeout", preview: "[hiding from Arin] the key is a forgery" },
-      { key: "story_orchestrator_memory_facts", label: "Memory — established facts", owner: "memory/inject.applyMemoryInjection", ownerTab: "memory", depth: 4, role: 0, characters: 37, target: null, oneShot: false, freshness: "live", fallback: null, preview: "The sun-key opens the inner sanctum." },
-      { key: "story_orchestrator_pacing", label: "Pacing", owner: "runtime/runtimeManager.applyPacingSteering", ownerTab: "config", depth: 4, role: 0, characters: 36, target: null, oneShot: false, freshness: "live", fallback: null, preview: "Raise the stakes toward the sanctum." },
+      {
+        key: "story_orchestrator_continuity",
+        label: "Continuity note",
+        owner: "runtime/coordinators/stagecraftCoordinator",
+        ownerTab: "scheduler",
+        depth: 0,
+        role: 0,
+        characters: 62,
+        target: null,
+        oneShot: true,
+        freshness: "live",
+        fallback: null,
+        preview: "The wards are broken, and the sanctum is unsealed.",
+      },
+      {
+        key: "story_orchestrator_scene",
+        label: "Scene so far",
+        owner: "runtime/coordinators/sceneCoordinator",
+        ownerTab: "scheduler",
+        depth: 1,
+        role: 0,
+        characters: 44,
+        target: null,
+        oneShot: false,
+        freshness: "stale",
+        fallback: null,
+        preview: "The inner sanctum, the wards failing at the threshold.",
+      },
+      {
+        key: "story_orchestrator_epistemic",
+        label: "What the speaker knows",
+        owner: "memory/inject.applyEpistemicInjection",
+        ownerTab: "memory",
+        depth: 4,
+        role: 0,
+        characters: 51,
+        target: "Arin",
+        oneShot: false,
+        freshness: "live",
+        fallback: "timeout",
+        preview: "[hiding from Arin] the key is a forgery",
+      },
+      {
+        key: "story_orchestrator_memory_facts",
+        label: "Memory — established facts",
+        owner: "memory/inject.applyMemoryInjection",
+        ownerTab: "memory",
+        depth: 4,
+        role: 0,
+        characters: 37,
+        target: null,
+        oneShot: false,
+        freshness: "live",
+        fallback: null,
+        preview: "The sun-key opens the inner sanctum.",
+      },
+      {
+        key: "story_orchestrator_pacing",
+        label: "Pacing",
+        owner: "runtime/runtimeManager.applyPacingSteering",
+        ownerTab: "config",
+        depth: 4,
+        role: 0,
+        characters: 36,
+        target: null,
+        oneShot: false,
+        freshness: "live",
+        fallback: null,
+        preview: "Raise the stakes toward the sanctum.",
+      },
     ] as Array<Record<string, unknown>>).map((row) => ({ tokens: null, tokenSource: null, share: null, position: 1, conditional: false, ...row })),
     nextTurnForeign: [],
-    nextTurnCost: { ownTokens: null, foreignTokens: 0, counting: 5, estimated: false, budget: null, context: null, response: null, budgetUnknown: "the context size has not been read", share: null, lastGenerationBudget: null },
+    nextTurnCost: {
+      ownTokens: null,
+      foreignTokens: 0,
+      counting: 5,
+      estimated: false,
+      budget: null,
+      context: null,
+      response: null,
+      budgetUnknown: "the context size has not been read",
+      share: null,
+      lastGenerationBudget: null,
+    },
   }) as unknown as RuntimeSnapshot);
 
 const previewActions = { clearNote: fn(), rerunScene: fn() };
@@ -163,10 +271,65 @@ const memorySnapshot = (): RuntimeSnapshot => {
   snapshot.memory = {
     ...snapshot.memory,
     entries: [
-      { id: "m1", tier: "facts", text: "The sun-key opens the inner sanctum.", type: "fact", importance: 3, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: "e", createdAt: 1, recallCount: 2, pinned: true },
-      { id: "m2", tier: "facts", text: "The gate is sealed by dawn wards.", type: "fact", importance: 2, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: "e", createdAt: 2, recallCount: 0, supersededBy: "m1" },
-      { id: "m3", tier: "session_details", text: "Arin sprained her wrist on the dunes.", type: "event", importance: 2, expiration: "session", entities: [], confidence: 1, activationTriggers: [], evidence: "e", createdAt: 3, recallCount: 1, contradicted: true },
-      { id: "m4", tier: "scene_history", text: "Crossed the singing dunes at dusk.", type: "scene", importance: 1, expiration: "scene", entities: [], confidence: 1, activationTriggers: [], evidence: "e", createdAt: 4, recallCount: 0 },
+      {
+        id: "m1",
+        tier: "facts",
+        text: "The sun-key opens the inner sanctum.",
+        type: "fact",
+        importance: 3,
+        expiration: "permanent",
+        entities: [],
+        confidence: 1,
+        activationTriggers: [],
+        evidence: "e",
+        createdAt: 1,
+        recallCount: 2,
+        pinned: true,
+      },
+      {
+        id: "m2",
+        tier: "facts",
+        text: "The gate is sealed by dawn wards.",
+        type: "fact",
+        importance: 2,
+        expiration: "permanent",
+        entities: [],
+        confidence: 1,
+        activationTriggers: [],
+        evidence: "e",
+        createdAt: 2,
+        recallCount: 0,
+        supersededBy: "m1",
+      },
+      {
+        id: "m3",
+        tier: "session_details",
+        text: "Arin sprained her wrist on the dunes.",
+        type: "event",
+        importance: 2,
+        expiration: "session",
+        entities: [],
+        confidence: 1,
+        activationTriggers: [],
+        evidence: "e",
+        createdAt: 3,
+        recallCount: 1,
+        contradicted: true,
+      },
+      {
+        id: "m4",
+        tier: "scene_history",
+        text: "Crossed the singing dunes at dusk.",
+        type: "scene",
+        importance: 1,
+        expiration: "scene",
+        entities: [],
+        confidence: 1,
+        activationTriggers: [],
+        evidence: "e",
+        createdAt: 4,
+        recallCount: 0,
+      },
     ],
     arcs: [
       { id: "a1", status: "open", text: "The missing sun-heart's true owner", createdAt: 1 },
@@ -202,7 +365,8 @@ const crowdedSnapshot = (): RuntimeSnapshot => {
       id: `x${index}`,
       tier: tiers[index % tiers.length],
       text: index === 3
-        ? "The Ponticius family's heraldry — a sun bisected by a spear, quartered with the dunes of the eastern reach — is copied on the inner lintel of every waystation between Wendhope and the sanctum."
+        ? "The Ponticius family's heraldry — a sun bisected by a spear, quartered with the dunes of the eastern reach — is copied on the inner lintel of every waystation " +
+          "between Wendhope and the sanctum."
         : `Established fact ${index} about the sun-key and the wardens.`,
       type: "fact",
       importance: index % 5,
@@ -220,7 +384,14 @@ const crowdedSnapshot = (): RuntimeSnapshot => {
 };
 
 const emptySnapshot = (): RuntimeSnapshot => {
-  const snapshot = sampleSnapshot() as unknown as { blackboard: Record<string, unknown>; blackboardMeta: Record<string, unknown>; payloadCaptures: unknown[]; nextTurn: unknown[]; convergence: unknown[]; extraction: { audits: unknown[] } };
+  const snapshot = sampleSnapshot() as unknown as {
+    blackboard: Record<string, unknown>;
+    blackboardMeta: Record<string, unknown>;
+    payloadCaptures: unknown[];
+    nextTurn: unknown[];
+    convergence: unknown[];
+    extraction: { audits: unknown[] };
+  };
   snapshot.blackboard = {};
   snapshot.blackboardMeta = {};
   snapshot.payloadCaptures = [];
@@ -313,7 +484,21 @@ const heldClaimSnapshot = (authorView: boolean): RuntimeSnapshot => {
   snapshot.ui = { ...snapshot.ui, authorView };
   snapshot.memory.entries = [
     ...snapshot.memory.entries,
-    { id: "held", tier: "facts", text: "The sun-key is a forgery.", type: "fact", importance: 3, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: "e", createdAt: 9, recallCount: 0, provenance: { source: "extractor", messageId: 9, boundary: 6, pass: "shared-read", validity: "conflicted" } },
+    {
+      id: "held",
+      tier: "facts",
+      text: "The sun-key is a forgery.",
+      type: "fact",
+      importance: 3,
+      expiration: "permanent",
+      entities: [],
+      confidence: 1,
+      activationTriggers: [],
+      evidence: "e",
+      createdAt: 9,
+      recallCount: 0,
+      provenance: { source: "extractor", messageId: 9, boundary: 6, pass: "shared-read", validity: "conflicted" },
+    },
   ];
   return derive(snapshot as unknown as RuntimeSnapshot);
 };
@@ -447,7 +632,26 @@ const notStoredSnapshot = (authorView: boolean): RuntimeSnapshot => {
   const snapshot = memorySnapshot() as unknown as { memory: Record<string, unknown>; ui: Record<string, unknown> };
   snapshot.memory = {
     ...snapshot.memory,
-    verifyDrops: [{ entry: { id: "d1", tier: "facts", text: "Arin killed the sphinx.", type: "fact", importance: 2, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: "e", createdAt: 5, recallCount: 0, messageId: 4 }, p: 0.04, at: "2026-09-19T00:00:00.000Z", model: "jev-1.13.0" }],
+    verifyDrops: [{
+      entry: {
+        id: "d1",
+        tier: "facts",
+        text: "Arin killed the sphinx.",
+        type: "fact",
+        importance: 2,
+        expiration: "permanent",
+        entities: [],
+        confidence: 1,
+        activationTriggers: [],
+        evidence: "e",
+        createdAt: 5,
+        recallCount: 0,
+        messageId: 4,
+      },
+      p: 0.04,
+      at: "2026-09-19T00:00:00.000Z",
+      model: "jev-1.13.0",
+    }],
   };
   snapshot.ui = { ...snapshot.ui, authorView };
   return derive(snapshot as unknown as RuntimeSnapshot);
@@ -509,7 +713,17 @@ const sceneSnapshot = (authorView: boolean): RuntimeSnapshot => {
 export const PayloadLoreForced: Story = {
   render: () => {
     const snapshot = sceneSnapshot(true) as unknown as Record<string, unknown>;
-    snapshot.loreForced = { at: "2026-09-19T00:00:00.000Z", boundary: 6, messageId: 9, use: "lore", model: "jev-1.13.0", latencyMs: 912, stateChars: 900, questionCount: 64, p: { trigger: "MESSAGE_SENT", "NPC - Ellie": 0.91, "Lore - Adventurer Rank": 0.84 } };
+    snapshot.loreForced = {
+      at: "2026-09-19T00:00:00.000Z",
+      boundary: 6,
+      messageId: 9,
+      use: "lore",
+      model: "jev-1.13.0",
+      latencyMs: 912,
+      stateChars: 900,
+      questionCount: 64,
+      p: { trigger: "MESSAGE_SENT", "NPC - Ellie": 0.91, "Lore - Adventurer Rank": 0.84 },
+    };
     return (
       <div style={{ maxWidth: 360 }}>
         <DrawerTabs snapshot={snapshot as unknown as RuntimeSnapshot} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
@@ -572,7 +786,26 @@ export const PayloadLoreFired: Story = {
 export const PayloadScanGate: Story = {
   render: () => {
     const snapshot = sceneSnapshot(true) as unknown as Record<string, unknown>;
-    snapshot.loreEvidence = { hiddenBooks: [], last: { chatId: "chat-1", epoch: 1, revision: 0, type: "normal", openedAt: "2026-09-24T00:00:00.000Z", closedAt: "2026-09-24T00:00:05.000Z", rendered: true, lastMessageId: 9, forced: [], landed: [], lost: [], constantMissed: [], scanCount: 1, nestedScans: 0, fired: [{ world: "SO-T13 Xentar", uid: 9, comment: "CP1 - Mission", constant: true, key0: null, origin: "gated" }] } };
+    snapshot.loreEvidence = {
+      hiddenBooks: [],
+      last: {
+        chatId: "chat-1",
+        epoch: 1,
+        revision: 0,
+        type: "normal",
+        openedAt: "2026-09-24T00:00:00.000Z",
+        closedAt: "2026-09-24T00:00:05.000Z",
+        rendered: true,
+        lastMessageId: 9,
+        forced: [],
+        landed: [],
+        lost: [],
+        constantMissed: [],
+        scanCount: 1,
+        nestedScans: 0,
+        fired: [{ world: "SO-T13 Xentar", uid: 9, comment: "CP1 - Mission", constant: true, key0: null, origin: "gated" }],
+      },
+    };
     snapshot.scanGate = {
       chatId: "chat-1",
       owner: "story",
@@ -599,7 +832,17 @@ export const PayloadScanGate: Story = {
 export const PayloadSamplerOverlay: Story = {
   render: () => {
     const snapshot = sceneSnapshot(true) as unknown as Record<string, unknown>;
-    snapshot.samplerOverlay = { chatId: "chat-1", checkpointId: "cp1", name: "Artemis Cool", api: "chat", values: { temperature: 0.55, top_p: 0.9 }, unknown: ["openai_max_tokens"], applied: 2, lastApplied: ["temperature"], lastSkipped: ["top_p"] };
+    snapshot.samplerOverlay = {
+      chatId: "chat-1",
+      checkpointId: "cp1",
+      name: "Artemis Cool",
+      api: "chat",
+      values: { temperature: 0.55, top_p: 0.9 },
+      unknown: ["openai_max_tokens"],
+      applied: 2,
+      lastApplied: ["temperature"],
+      lastSkipped: ["top_p"],
+    };
     return (
       <div style={{ maxWidth: 360 }}>
         <DrawerTabs snapshot={snapshot as unknown as RuntimeSnapshot} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
@@ -766,7 +1009,11 @@ const preparingManager = memorizeManagerFor();
 export const MemorizePreparing: Story = {
   render: () => (
     <div style={{ maxWidth: 360 }}>
-      <DrawerTabs snapshot={backfillSnapshot({ running: true, processed: 0, total: 4, lastError: null, preparing: true })} manager={preparingManager} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      <DrawerTabs
+        snapshot={backfillSnapshot({ running: true, processed: 0, total: 4, lastError: null, preparing: true })}
+        manager={preparingManager}
+        driver={{ context: null, activeNudge: null, controller: {} as never }}
+      />
     </div>
   ),
   play: async ({ canvasElement }) => {
@@ -788,7 +1035,11 @@ export const MemorizePreparing: Story = {
 export const PlayerStopsMemorizing: Story = {
   render: () => (
     <div style={{ maxWidth: 360 }}>
-      <DrawerTabs snapshot={backfillSnapshot({ running: true, processed: 1, total: 4, lastError: null })} manager={memorizeManager} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      <DrawerTabs
+        snapshot={backfillSnapshot({ running: true, processed: 1, total: 4, lastError: null })}
+        manager={memorizeManager}
+        driver={{ context: null, activeNudge: null, controller: {} as never }}
+      />
     </div>
   ),
   play: async ({ canvasElement }) => {
@@ -806,7 +1057,11 @@ export const PlayerStopsMemorizing: Story = {
 export const MemorizeStopped: Story = {
   render: () => (
     <div style={{ maxWidth: 360 }}>
-      <DrawerTabs snapshot={backfillSnapshot({ running: false, processed: 1, total: 4, lastError: null, stoppedNote: "Stopped after 1 of 3 parts. What was read is kept; the whole-chat pass did not run." })} manager={stoppedManager} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      <DrawerTabs
+        snapshot={backfillSnapshot({ running: false, processed: 1, total: 4, lastError: null, stoppedNote: "Stopped after 1 of 3 parts. What was read is kept; the whole-chat pass did not run." })}
+        manager={stoppedManager}
+        driver={{ context: null, activeNudge: null, controller: {} as never }}
+      />
     </div>
   ),
   play: async ({ canvasElement }) => {
@@ -828,7 +1083,11 @@ export const MemorizeStopped: Story = {
 export const MemorizeFailed: Story = {
   render: () => (
     <div style={{ maxWidth: 360 }}>
-      <DrawerTabs snapshot={backfillSnapshot({ running: false, processed: 1, total: 4, lastError: "Response not OK" })} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      <DrawerTabs
+        snapshot={backfillSnapshot({ running: false, processed: 1, total: 4, lastError: "Response not OK" })}
+        manager={fakeManager()}
+        driver={{ context: null, activeNudge: null, controller: {} as never }}
+      />
     </div>
   ),
   play: async ({ canvasElement }) => {
@@ -901,7 +1160,10 @@ export const FooterWithoutARepairStep: Story = {
 
 const catchingUpSnapshot = (): RuntimeSnapshot => {
   const snapshot = playerSnapshot() as unknown as { extraction: Record<string, unknown> };
-  snapshot.extraction = { ...snapshot.extraction, reconciliationEvents: [{ id: "r1", boundary: 6, checkpointId: "gate", targetedKeys: ["has_key"], scheduledAt: "t", resolvedAt: null, evidence: [] }] };
+  snapshot.extraction = {
+    ...snapshot.extraction,
+    reconciliationEvents: [{ id: "r1", boundary: 6, checkpointId: "gate", targetedKeys: ["has_key"], scheduledAt: "t", resolvedAt: null, evidence: [] }],
+  };
   return derive(snapshot as unknown as RuntimeSnapshot);
 };
 
@@ -1034,7 +1296,10 @@ const refusalSnapshot = (canGenerate: boolean): RuntimeSnapshot => ({
   ...sampleSnapshot(),
   agencyRecovery: { checkpointId: "gate", checkpointName: "The Ruined Gate", turns: 2, alternate: "camp", alternateName: "Camp", canGenerate },
 });
-const refusalManager = () => ({ ...fakeManager(), runExpansionNow: fn(), activateCheckpoint: fn() }) as unknown as RuntimeManager & { runExpansionNow: ReturnType<typeof fn>; activateCheckpoint: ReturnType<typeof fn> };
+const refusalManager = () => ({ ...fakeManager(), runExpansionNow: fn(), activateCheckpoint: fn() }) as unknown as RuntimeManager & {
+  runExpansionNow: ReturnType<typeof fn>;
+  activateCheckpoint: ReturnType<typeof fn>;
+};
 const authoredExitManager = refusalManager();
 const stubManager = refusalManager();
 
@@ -1119,7 +1384,23 @@ const FATE_ROWS = [
 
 const fateSnapshot = (authorView: boolean): RuntimeSnapshot => {
   const snapshot = memorySnapshot() as unknown as { memory: Record<string, unknown>; ui: Record<string, unknown>; memoryInjection: unknown };
-  snapshot.memory = { ...snapshot.memory, entries: FATE_ROWS.map(([id, , text], index) => ({ id, tier: "facts", text, type: "fact", importance: 2, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: "e", createdAt: index, recallCount: 0 })) };
+  snapshot.memory = {
+    ...snapshot.memory,
+    entries: FATE_ROWS.map(([id, , text], index) => ({
+      id,
+      tier: "facts",
+      text,
+      type: "fact",
+      importance: 2,
+      expiration: "permanent",
+      entities: [],
+      confidence: 1,
+      activationTriggers: [],
+      evidence: "e",
+      createdAt: index,
+      recallCount: 0,
+    })),
+  };
   snapshot.memoryInjection = { fates: Object.fromEntries(FATE_ROWS.map(([id, fate]) => [id, fate])), trim: {} };
   snapshot.ui = { ...snapshot.ui, authorView };
   return derive(snapshot as unknown as RuntimeSnapshot);
@@ -1156,7 +1437,24 @@ export const PlayerNeverSeesMemoryFates: Story = {
 
 const citedSnapshot = (authorView: boolean): RuntimeSnapshot => {
   const snapshot = memorySnapshot() as unknown as { memory: Record<string, unknown>; ui: Record<string, unknown>; chatJump: unknown };
-  snapshot.memory = { ...snapshot.memory, entries: [{ id: "cited", tier: "facts", text: "The ferryman owes the player a crossing.", type: "fact", importance: 2, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: "e", createdAt: 1, recallCount: 0, provenance: { source: "extractor", messageId: 5, boundary: 3, pass: "shared-read", validity: "live" } }] };
+  snapshot.memory = {
+    ...snapshot.memory,
+    entries: [{
+      id: "cited",
+      tier: "facts",
+      text: "The ferryman owes the player a crossing.",
+      type: "fact",
+      importance: 2,
+      expiration: "permanent",
+      entities: [],
+      confidence: 1,
+      activationTriggers: [],
+      evidence: "e",
+      createdAt: 1,
+      recallCount: 0,
+      provenance: { source: "extractor", messageId: 5, boundary: 3, pass: "shared-read", validity: "live" },
+    }],
+  };
   snapshot.chatJump = { chatLength: 9, known: { from: 0, to: 8 }, changed: [5] };
   snapshot.ui = { ...snapshot.ui, authorView };
   return derive(snapshot as unknown as RuntimeSnapshot);

@@ -140,14 +140,14 @@ describe("lorebook grants (R8)", () => {
   });
 
   it("records a durable grant keyed by story and file id, and revokes it", () => {
-    const session = { key: "s", stage: "provisioning", history: [], questions: [], applied: [], seed: "", updatedAt: "" } as WizardSessionState;
+    const session = { key: "s", stage: "provisioning", history: [], questions: [], applied: [], seed: "", updatedAt: "" } as Partial<WizardSessionState> as WizardSessionState;
     const granted = recordGrant(session, "adolion", "Adolion World", true, "2026-09-21T00:00:00.000Z");
     expect(granted.grants).toEqual([{ storyId: "adolion", lorebookFileId: "Adolion World", at: "2026-09-21T00:00:00.000Z", confirmed: true }]);
     expect(recordGrant(granted, "adolion", "Adolion World", false).grants).toEqual([]);
   });
 
   it("sanitises the file id a grant addresses", () => {
-    const session = { key: "s", stage: "provisioning", history: [], questions: [], applied: [], seed: "", updatedAt: "" } as WizardSessionState;
+    const session = { key: "s", stage: "provisioning", history: [], questions: [], applied: [], seed: "", updatedAt: "" } as Partial<WizardSessionState> as WizardSessionState;
     const granted = recordGrant(session, "adolion", "Adolion: House Nightriver", true, "2026-09-21T00:00:00.000Z");
     expect(granted.grants?.[0].lorebookFileId).toBe("Adolion House Nightriver");
   });

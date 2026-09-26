@@ -1,4 +1,5 @@
-import type { Core, ElementDefinition, LayoutOptions } from "cytoscape";
+import type { Core, ElementDefinition, ShapedLayoutOptions } from "cytoscape";
+import { log } from "@utils/log";
 
 export type LayoutName = "breadthfirst" | "grid" | "cose" | "dagre";
 
@@ -127,23 +128,23 @@ export const createGraphStyles = (themeColors: GraphThemeColors) => ([
 export const runGraphLayout = (cy: Core, name: LayoutName, dagreReady: boolean): void => {
   if (cy.elements().length === 0) return;
   const layoutName = name === "dagre" && !dagreReady ? "breadthfirst" : name;
-  const options = { name: layoutName, nodeDimensionsIncludeLabels: true, spacingFactor: 1.2, padding: 24 } as unknown as LayoutOptions;
+  const options: ShapedLayoutOptions = { name: layoutName, nodeDimensionsIncludeLabels: true, spacingFactor: 1.2, padding: 24 };
   try {
     const layout = cy.layout(options);
     if (layout && typeof layout.run === "function") layout.run();
     else cy.layout({ name: "grid" }).run();
   } catch (err) {
-    console.warn("[Story - GraphPanel] Primary layout failed, falling back to grid", err);
+    log.warn("graph panel: Primary layout failed, falling back to grid", err);
     try {
       cy.layout({ name: "grid" }).run();
     } catch (fallbackErr) {
-      console.warn("[Story - GraphPanel] Grid layout fallback also failed", fallbackErr);
+      log.warn("graph panel: Grid layout fallback also failed", fallbackErr);
     }
   }
   try {
     cy.fit(undefined, 32);
   } catch (err) {
-    console.warn("[Story - GraphPanel] Failed to fit cytoscape view", err);
+    log.warn("graph panel: Failed to fit cytoscape view", err);
   }
 };
 
@@ -152,7 +153,7 @@ export const resizeAndFitGraph = (cy: Core): void => {
     cy.resize();
     cy.fit(undefined, 32);
   } catch (err) {
-    console.warn("[Story - GraphPanel] Failed to resize/fit cytoscape", err);
+    log.warn("graph panel: Failed to resize/fit cytoscape", err);
   }
 };
 

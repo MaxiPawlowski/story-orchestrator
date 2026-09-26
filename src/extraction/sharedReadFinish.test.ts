@@ -1,5 +1,7 @@
 import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
-import { callExtractionReply, ModelCallError } from "@extraction/client";
+import { callExtractionReply } from "@extraction/client";
+import { ModelCallError } from "@extraction/modelError";
+import { viaReply } from "../../test/support/modelCall";
 import { runSharedRead } from "@extraction/sharedRead";
 
 jest.mock("@services/STAPI", () => ({
@@ -42,7 +44,8 @@ const read = async (...replies: Array<{ text: string; finish: "stop" | "length" 
     reason: "finish",
     scope: [{ quality: s.qualityByKey.crossed, key: "crossed", hints: [] }] as never,
     window: { from: 0, to: 0, messages: [{ speaker: "User", text: "crossed", id: 0 }] } as never,
-    client: { profileId: "p1" },
+    model: viaReply(callExtractionReply),
+    ask: { role: "read", pass: "read" },
   });
 };
 

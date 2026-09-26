@@ -1,5 +1,6 @@
 import { abortReasonName } from "@utils/signals";
 import type { HostModelRequestCustom } from "./hostTypes";
+import { isRecord } from "@utils/guards";
 
 export type ModelFinish = "stop" | "length" | "unknown";
 export type ModelFailureKind = "lapsed" | "timeout" | "transport" | "config";
@@ -46,15 +47,16 @@ const CONFIG_MESSAGES: RegExp[] = [
   /^No memory LLM profile selected$/,
 ];
 
-const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
-
 const messageOf = (error: unknown): string => (error instanceof Error ? error.message : typeof error === "string" ? error : "");
 const nameOf = (error: unknown): string => (typeof error === "object" && error !== null && "name" in error && typeof error.name === "string" ? error.name : "");
 const isConfigMessage = (message: string) => CONFIG_MESSAGES.some((pattern) => pattern.test(message));
 
 export function classifyHostFailure(error: unknown, signal?: AbortSignal | null): { kind: ModelFailureKind; message: string } {
   const aborted = abortReasonName(signal);
-  if (aborted) return { kind: aborted === "TimeoutError" ? "timeout" : "lapsed", message: messageOf(signal?.reason) || (aborted === "TimeoutError" ? "the memory model did not answer in time" : "the request was cancelled") };
+  if (aborted) return {
+    kind: aborted === "TimeoutError" ? "timeout" : "lapsed",
+    message: messageOf(signal?.reason) || (aborted === "TimeoutError" ? "the memory model did not answer in time" : "the request was cancelled"),
+  };
   const message = messageOf(error);
   if (message !== WRAPPED_MESSAGE || !(error instanceof Error)) return { kind: "config", message: message || "the memory model request was refused before it was sent" };
   const cause: unknown = error.cause;

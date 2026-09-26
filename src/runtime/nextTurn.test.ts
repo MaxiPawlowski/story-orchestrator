@@ -42,13 +42,13 @@ describe("next-turn preview (v2.3 plan 09)", () => {
     const key = INJECTION_REGISTRY.sceneTracker.key;
     expect(buildNextTurnPreview([block(key, 1)], facts())[0].freshness).toBe("unknown");
     const read = { at: new Date().toISOString(), boundary: 3, messageId: 5, facts: { location: "hall", time: "dusk", present: ["Dalan"] }, confidence: 1 };
-    const live = read as Parameters<typeof buildNextTurnPreview>[1]["scene"];
+    const live = read as unknown as Parameters<typeof buildNextTurnPreview>[1]["scene"];
     expect(buildNextTurnPreview([block(key, 1)], facts({ scene: live }))[0].freshness).toBe("live");
     // Staleness is consecutive failed confirmations (SCENE_STALE_AFTER), never age: an old read the
     // tracker has not contradicted is still asserted, and the preview must use the same rule.
-    const aged = { ...read, at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() } as Parameters<typeof buildNextTurnPreview>[1]["scene"];
+    const aged = { ...read, at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() } as unknown as Parameters<typeof buildNextTurnPreview>[1]["scene"];
     expect(buildNextTurnPreview([block(key, 1)], facts({ scene: aged }))[0].freshness).toBe("live");
-    const failing = { ...read, freshness: { failures: SCENE_STALE_AFTER, lastConfirmedAt: read.at } } as Parameters<typeof buildNextTurnPreview>[1]["scene"];
+    const failing = { ...read, freshness: { failures: SCENE_STALE_AFTER, lastConfirmedAt: read.at } } as unknown as Parameters<typeof buildNextTurnPreview>[1]["scene"];
     expect(buildNextTurnPreview([block(key, 1)], facts({ scene: failing }))[0].freshness).toBe("stale");
     expect(buildNextTurnPreview([block(key, 1)], facts({ scene: failing, sceneFallback: "timeout" }))[0].fallback).toBe("timeout");
   });

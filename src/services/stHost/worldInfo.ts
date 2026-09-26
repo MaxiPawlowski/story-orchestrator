@@ -6,6 +6,7 @@ import type { HostWorldInfoSettings } from "./hostTypes";
 import { worldInfoModule } from "./modules";
 import { executeSlashCommands } from "./slashCommands";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
+import { log } from "@utils/log";
 
 export { lorebookFileId };
 
@@ -51,7 +52,7 @@ export async function loadLorebook(name: string): Promise<Lorebook | null> {
   return (await loadExisting(name))?.data ?? null;
 }
 
-// V17: ST's `_save` posts `/api/worldinfo/edit` and never reads the answer (world-info.js:4151), so a
+// ST's `_save` posts `/api/worldinfo/edit` and never reads the answer (world-info.js:4151), so a
 // refused save resolves exactly like a kept one. The server's own copy is the evidence; `null` means
 // the read itself could not answer, which is not evidence of a lost write.
 export async function readServerLorebook(name: string): Promise<Lorebook | null> {
@@ -93,14 +94,14 @@ async function setWIEntryDisabledState(lorebook: string, comments: string | stri
 
   const book = await loadExisting(lorebook);
   if (!book) {
-    console.warn("[Story WI] lorebook does not exist", { lorebook });
+    log.warn("world info: lorebook does not exist", { lorebook });
     return couldNot(`there is no lorebook "${lorebook}"`);
   }
 
   const matched = findMatchedLoreEntries(book.data, commentList);
   for (const comment of commentList) {
     if (!matched.some((entry) => entry.comment === comment)) {
-      console.warn("[Story WI] no matching world info entry found", { lorebook, comment });
+      log.warn("world info: no matching world info entry found", { lorebook, comment });
     }
   }
   if (!matched.length) return couldNot(`"${commentList.join("\", \"")}" is not in "${lorebook}"`);
@@ -170,7 +171,7 @@ export async function createLorebook(name: string): Promise<WriteResult<{ name: 
   return activated.ok ? wrote({ name: ensured.name, created: ensured.created }) : couldNot(activated.reason);
 }
 
-// v2.4 plan 02 T14. Exact listed name only: `deleteWorldInfo` (world-info.js:4346) answers false for an
+// Exact listed name only: `deleteWorldInfo` (world-info.js:4346) answers false for an
 // unlisted name and refreshes `world_names` itself on success, so the list is the evidence. The cache
 // is evicted here too, because a failed delete leaves whatever `loadWorldInfo` fetched.
 export async function deleteLorebook(name: string): Promise<WriteResult<{ name: string }>> {
@@ -180,7 +181,7 @@ export async function deleteLorebook(name: string): Promise<WriteResult<{ name: 
     deleted = await worldInfoModule.deleteWorldInfo(name);
   } catch (error) {
     deleted = false;
-    console.warn("[Story WI] lorebook delete failed", { name, error });
+    log.warn("world info: lorebook delete failed", { name, error });
   }
   worldInfoModule.worldInfoCache.delete(name);
   if (!deleted) return couldNot(`"${name}" could not be deleted`);
@@ -207,7 +208,7 @@ export function bindChatLorebook(name: string, replaceable: string[] = []): Chat
   return "bound";
 }
 
-// v2.4 plan 02 §5: a branch carries its parent's chat lorebook slot (H1), so an unadopted branch would
+// A branch carries its parent's chat lorebook slot, so an unadopted branch would
 // fire the parent's story memory. ST's own unbind (world-info.js:5980-5983) deletes the key, clears the
 // button state and saves; this does the same, and only when the slot names exactly `name`.
 export async function unbindChatLorebook(name: string): Promise<WriteResult<{ name: string }>> {
@@ -235,7 +236,7 @@ const isGloballySelected = (lorebook: string) => listSelectedLorebooks().some((e
 // The globally active books, read from the array `/world state=on` actually writes
 // (world-info.js:66/5799). `world_info.globalSelect` is only a mirror, assigned inside a *debounced*
 // save (world-info.js:83) — reading it right after activating a book returns the previous state, and
-// after deleting one it keeps a name that no longer exists. Both bit us live (v2.1 plan 07).
+// after deleting one it keeps a name that no longer exists. Both bit us live.
 export function listSelectedLorebooks(): string[] {
   const live = worldInfoModule.selected_world_info;
   const source = Array.isArray(live) ? live : listGlobalSelect();
@@ -250,7 +251,7 @@ export async function upsertWIEntry(lorebook: string, comment: string, content: 
   if (!comment) return "failed";
   const book = await loadExisting(lorebook);
   if (!book) {
-    console.warn("[Story WI] lorebook does not exist", { lorebook });
+    log.warn("world info: lorebook does not exist", { lorebook });
     return "failed";
   }
   const { name, data } = book;
@@ -285,18 +286,31 @@ export async function readWIEntry(lorebook: string, comment: string): Promise<WI
   if (!book) return null;
   const entry = Object.values(book.data.entries).find((candidate) => candidate.comment?.trim() === comment);
   if (!entry) return null;
-  return { content: String(entry.content ?? ""), keys: Array.isArray(entry.key) ? entry.key : [], constant: Boolean(entry.constant), disabled: Boolean(entry.disable), uid: typeof entry.uid === "number" ? entry.uid : undefined };
+  return {
+    content: String(entry.content ?? ""),
+    keys: Array.isArray(entry.key) ? entry.key : [],
+    constant: Boolean(entry.constant),
+    disabled: Boolean(entry.disable),
+    uid: typeof entry.uid === "number" ? entry.uid : undefined,
+  };
 }
 
 export interface WIEntryTarget { lorebookFileId: string; uid: number }
 
-// V10: a curator revert addresses the entry it wrote by the book's file id and the entry's uid, so an
+// A curator revert addresses the entry it wrote by the book's file id and the entry's uid, so an
 // entry the author renamed afterwards is still the one restored. `comment` rides along so the caller
 // can re-check the name against the story's write scope.
 export async function readWIEntryAt(target: WIEntryTarget): Promise<(WIEntrySnapshot & { comment: string }) | null> {
   const entry = (await loadExisting(target.lorebookFileId))?.data.entries[target.uid];
   if (!entry) return null;
-  return { comment: String(entry.comment ?? "").trim(), content: String(entry.content ?? ""), keys: Array.isArray(entry.key) ? entry.key : [], constant: Boolean(entry.constant), disabled: Boolean(entry.disable), uid: target.uid };
+  return {
+    comment: String(entry.comment ?? "").trim(),
+    content: String(entry.content ?? ""),
+    keys: Array.isArray(entry.key) ? entry.key : [],
+    constant: Boolean(entry.constant),
+    disabled: Boolean(entry.disable),
+    uid: target.uid,
+  };
 }
 
 export async function updateWIEntryByUid(target: WIEntryTarget, patch: { content?: string; disabled?: boolean }): Promise<WriteResult<{ confirmed: boolean }>> {

@@ -13,8 +13,11 @@ export const debugCallBudgetScale = (kind?: string): number => {
   return typeof target === "string" && target !== "" && target !== kind ? 1 : scale;
 };
 
+const unscaledTimeoutMs = (maxTokens: number, inputTokens: number): number =>
+  CALL_TIMEOUT_BASE_MS + Math.max(0, Math.ceil(maxTokens)) * CALL_TIMEOUT_MS_PER_TOKEN + Math.max(0, Math.ceil(inputTokens)) * CALL_TIMEOUT_MS_PER_INPUT_TOKEN;
+
 export const callTimeoutMs = (maxTokens: number, inputTokens = 0, kind?: string): number =>
-  Math.round((CALL_TIMEOUT_BASE_MS + Math.max(0, Math.ceil(maxTokens)) * CALL_TIMEOUT_MS_PER_TOKEN + Math.max(0, Math.ceil(inputTokens)) * CALL_TIMEOUT_MS_PER_INPUT_TOKEN) * debugCallBudgetScale(kind));
+  Math.round(unscaledTimeoutMs(maxTokens, inputTokens) * debugCallBudgetScale(kind));
 
 export type PassFamily = "sharedRead" | "sceneSummary" | "shortTerm" | "arcSummary" | "canon" | "epistemic" | "ledger" | "curator";
 

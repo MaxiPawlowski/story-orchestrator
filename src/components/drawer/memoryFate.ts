@@ -17,5 +17,6 @@ export function trimText(view: MemoryInjectionView | null, tier: MemoryTier): st
   const trim = view?.trim[tier];
   if (!trim) return null;
   const held = trim.filtered ? ` · ${trim.filtered} held out before the budget` : "";
-  return `${trim.injected} of ${trim.candidates} rows · ${trim.tokensUsed} of ${trim.budget} budget tokens · ${trim.dropped} trimmed${held} · this session's largest ${trim.highWater} (budget tokens are host counts where stored, else chars/4)`;
+  return `${trim.injected} of ${trim.candidates} rows · ${trim.tokensUsed} of ${trim.budget} budget tokens · ${trim.dropped} trimmed${held} · this session's largest ` +
+    `${trim.highWater} (budget tokens are host counts where stored, else chars/4)`;
 }

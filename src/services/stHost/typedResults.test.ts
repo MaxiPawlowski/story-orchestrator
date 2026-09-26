@@ -82,7 +82,7 @@ function bareFunctions(program: ts.Program, fileNames: string[]): Array<{ file: 
       const signature = checker.getSignatureFromDeclaration(node);
       if (!signature) continue;
       const returned = checker.getReturnTypeOfSignature(signature);
-      const awaited = checker.getAwaitedType(returned) ?? returned;
+      const awaited = (checker as ts.TypeChecker & { getAwaitedType(type: ts.Type): ts.Type | undefined }).getAwaitedType(returned) ?? returned;
       const parts = awaited.isUnion() ? awaited.types : [awaited];
       if (parts.every((part) => (part.flags & BARE) !== 0)) found.push({ file: fileName.split(/[\\/]/).pop() ?? fileName, name, type: checker.typeToString(returned) });
     }

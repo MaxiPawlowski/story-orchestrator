@@ -1,10 +1,10 @@
 import { ServedRequests } from "./saveEvidence";
 import type { StoryLibraryRecord } from "./types";
 
-// v2.4 plan 02 §7 (T8). A library write is `saveSettingsDebounced()`, and ST's `saveSettings` swallows
-// its own failure (H15), so "the Studio saved" was never evidence the server holds the record. What
+// A library write is `saveSettingsDebounced()`, and ST's `saveSettings` swallows
+// its own failure, so "the Studio saved" was never evidence the server holds the record. What
 // is: a settings save answered 2xx after the write, and the server's own `v2Stories` holding this
-// record (or a later save of it), read back once per save burst because the read is heavy (H16).
+// record (or a later save of it), read back once per save burst because the read is heavy.
 
 export interface SettingsSaveObservation {
   requested: boolean;
@@ -47,14 +47,14 @@ export function missingFromServer(stored: unknown[] | null, record: Pick<StoryLi
 
 const entryWithId = (stored: unknown[], id: string) => stored.find((entry): entry is { updatedAt?: unknown } => Boolean(entry) && typeof entry === "object" && (entry as { id?: unknown }).id === id);
 
-/** v2.4 E3: a removal is held once the server no longer holds the record, or holds a save of it made since. */
+/** A removal is held once the server no longer holds the record, or holds a save of it made since. */
 export function stillHeldByServer(stored: unknown[] | null, removal: { id: string; at: string }): string | null {
   if (stored === null) return UNREADABLE;
   const held = entryWithId(stored, removal.id);
   return !held || stampOf(held.updatedAt) > stampOf(removal.at) ? null : "the server's library still holds it";
 }
 
-/** v2.4 E3: the same evidence for any install-wide write: the observed settings save, then what the
+/** The same evidence for any install-wide write: the observed settings save, then what the
  *  server's copy holds, read once per burst. `missing` answers null when the server holds the write. */
 export function createSettingsWriteEvidence<T, S = unknown[]>(deps: SettingsWriteDeps<S>, missing: (stored: S | null, write: T) => string | null): (write: T) => Promise<LibrarySaveEvidence> {
   let lastBurst: { burst: number; read: Promise<S | null> } | null = null;
@@ -81,7 +81,7 @@ export interface SettingsWrite {
 
 const settingsWriteListeners = new Set<(write: SettingsWrite) => void>();
 
-/** v2.4 E3: the runtime hears every library and settings-store write. v2.5 plan 01: the lorebook gating listens
+/** The runtime hears every library and settings-store write. the lorebook gating listens
  *  too (a library save can grow a gated set), so a second listener joins the journal's instead of replacing it. */
 export function onSettingsWrite(listener: (write: SettingsWrite) => void): () => void {
   settingsWriteListeners.add(listener);
@@ -119,7 +119,13 @@ export function scopeToOpenChat(read: () => OpenChat | null): WriteChatScope {
 
 /** The reason goes to the journal of the chat the write was made from, and only while that chat is still
  *  open. A settings request that refused several writes is one row, journaled by the first of them. */
-export async function journalSettingsWrite(summary: string, label: string, evidence: Promise<LibrarySaveEvidence>, chat: WriteChatScope, journal: (summary: string, note: string) => void): Promise<LibrarySaveEvidence> {
+export async function journalSettingsWrite(
+  summary: string,
+  label: string,
+  evidence: Promise<LibrarySaveEvidence>,
+  chat: WriteChatScope,
+  journal: (summary: string, note: string) => void,
+): Promise<LibrarySaveEvidence> {
   const outcome = await evidence;
   if (outcome.confirmed || !chat.stillOpen() || !journaledRequests.claim(outcome.request)) return outcome;
   journal(summary, `${label}: ${outcome.reason}`);

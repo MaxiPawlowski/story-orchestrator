@@ -6,7 +6,7 @@ import { Blackboard } from "./blackboard";
 import { progressQualityForAnchor } from "./convergence";
 import { StoryEngine } from "./engine";
 import { evaluateGate, renderGateText } from "./gates";
-import { runReplay } from "./replay";
+import { runReplay } from "../../test/support/replay";
 import type { GateNode } from "./schema";
 import { selectFiring } from "./transitions";
 import { parseStoryV2, parseStoryV2OrThrow } from "./validate";
@@ -358,7 +358,7 @@ describe("story engine", () => {
     withRollback.commitBoundary({ lastMessageId: 0, chatLength: 1 });
     withRollback.enqueue(entry("door_open", true, 1, 1));
     withRollback.commitBoundary({ lastMessageId: 1, chatLength: 2 });
-    withRollback.rollbackTo(withRollback.boundaryBeforeMessage(1));
+    withRollback.rollbackTo(withRollback.boundaryBeforeMessage(1) as number);
 
     const neverApplied = new StoryEngine({ now: () => 0 });
     neverApplied.loadStory(story);

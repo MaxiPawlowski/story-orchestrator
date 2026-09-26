@@ -3,7 +3,7 @@ import type { HostCharacter } from "./hostTypes";
 
 // Provisioning writes to the user's real install, so every call here goes through an endpoint ST
 // itself uses, with ST's own request headers, and finishes by reloading ST's caches. Verified host
-// facts (see docs/plans/v2/00-implementation-overview.md §Verified ST host facts):
+// facts (see docs/plans 00-implementation-overview.md §Verified ST host facts):
 //   - POST /api/characters/create, JSON body, returns the avatar filename as text
 //     (public/scripts/slash-commands.js:5237, public/scripts/welcome-screen.js:869;
 //      server: src/endpoints/characters.js:1024 — `if (!request.file)` writes the default avatar)

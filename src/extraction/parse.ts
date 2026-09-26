@@ -1,4 +1,4 @@
-import { TENSION_CURRENT_KEY, type NormalizedStoryV2, type PrimitiveValue, type Quality } from "@engine/index";
+import { qualityAccepts, TENSION_CURRENT_KEY, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
 import { parseArcLine, parseEpistemicLine, parseLedgerLine, parseMemoryLine, parseSceneBreakLine } from "@memory/parse";
 import { isTensionLevel, levelToNumeric } from "@pacing/index";
 import type { ParsedSharedRead } from "./types";
@@ -73,14 +73,6 @@ export function stripChannelNoise(raw: string): string {
   return lines.join("\n").trim();
 }
 
-export const qualityAccepts = (quality: Pick<Quality, "type" | "values">, value: PrimitiveValue) => {
-  if (quality.type === "bool") return typeof value === "boolean";
-  if (quality.type === "string") return typeof value === "string";
-  if (quality.type === "enum") return typeof value === "string" && Boolean(quality.values?.includes(value));
-  if (quality.type === "float") return typeof value === "number" && Number.isFinite(value);
-  return typeof value === "number" && Number.isInteger(value);
-};
-
 const parseBareWord = (raw: string): string | undefined => {
   const word = raw.match(/^'([^']*)'$/)?.[1] ?? raw;
   return bareWordPattern.test(word) ? word : undefined;
@@ -110,7 +102,7 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
         result.rejected.push({ line, reason: "unknown quality" });
         continue;
       }
-      // v2.3 plan 02 (R5). The delta's origin is the parser's to state, never the story's to lend:
+      // The delta's origin is the parser's to state, never the story's to lend:
       // copying the declared source onto a model line made a code-owned quality look extractor-written
       // and walked past the blackboard's own source check.
       if (quality.source !== "extractor") {

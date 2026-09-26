@@ -8,7 +8,11 @@ const tensionToNumeric: Record<string, number> = { calm: 0, stirring: 0.25, tens
 
 export function isStubCheckpoint(story: NormalizedStoryV2, checkpointId: string): boolean {
   const checkpoint = story.checkpointById[checkpointId];
-  return Boolean(checkpoint && checkpoint.type === "intermediate" && !checkpoint.state_snapshot && !checkpoint.guidance && !checkpoint.effects && story.reachableByCheckpoint[checkpointId]?.some((id) => story.checkpointById[id]?.type === "anchor"));
+  return Boolean(
+    checkpoint && checkpoint.type === "intermediate" && !checkpoint.state_snapshot && !checkpoint.guidance && !checkpoint.effects && story.reachableByCheckpoint[checkpointId]?.some(
+      (id) => story.checkpointById[id]?.type === "anchor",
+    ),
+  );
 }
 
 export function findFirstReachableAnchor(story: NormalizedStoryV2, checkpointId: string): string | null {
@@ -41,7 +45,7 @@ export function planExpansion(
   facts: string[],
 ): PlannedExpansionInput {
   const target = story.checkpointById[candidate.targetAnchorId];
-  // L4 (2026-09-23): a chain is entered only through the transition into its stub, so what that gate pins
+  // A chain is entered only through the transition into its stub, so what that gate pins
   // holds on entry. Planning from the blackboard alone asked the model to re-set it, and the code check
   // then failed chains that did not (`key_found does not bridge`, four of six real generations).
   const deltas = computeStateDelta({ values: { ...blackboard.values, ...gatePins(candidate.transition.gate) }, versions: {}, latched: {} }, target.state_snapshot, story);

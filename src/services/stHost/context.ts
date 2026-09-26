@@ -10,11 +10,11 @@ type MacrosHost = { MacrosParser: { registerMacro: (key: string, value: HostMacr
 const hostGlobal = globalThis as { SillyTavern?: { getContext?: () => unknown } };
 const macrosHost = await importSTModule<MacrosHost>("/scripts/macros.js");
 
-// v2.5 plan 11 C2: `globalThis.SillyTavern` exists on every supported host (script.js:292, ST 1.18.0).
+// `globalThis.SillyTavern` exists on every supported host (script.js:292, ST 1.18.0).
 export const getContext = (): StoryOrchestratorHostContext => hostGlobal.SillyTavern?.getContext?.() as StoryOrchestratorHostContext;
 
 /**
- * v2.3 plan 06 (F2). `extension_settings` is not ours to read until ST has loaded it: before
+ * `extension_settings` is not ours to read until ST has loaded it: before
  * `EXTENSION_SETTINGS_LOADED` (`script.js:8025` — the event name is `extension_settings_loaded`,
  * `events.js:28`) the object holds only whatever the page started with, so a settings read takes
  * those for real values — and a read that writes its sanitized result back would STAMP them over the

@@ -9,6 +9,7 @@ import {
 import { quoteSlashArg } from "@utils/string";
 import type { WriteResult } from "@utils/writeResult";
 import { executeSlashCommands } from "./slashCommands";
+import { log } from "@utils/log";
 
 type ANPosition = "after" | "chat" | "before";
 type ANRole = "system" | "user" | "assistant";
@@ -19,7 +20,7 @@ const AN_TEXT_FIELD = "#extension_floating_prompt";
 function clearNoteText(): boolean {
   const field = globalThis.document?.querySelector<HTMLTextAreaElement>(AN_TEXT_FIELD);
   if (!field) {
-    console.warn("[Story A/N] author's note field not found; note text left as is");
+    log.warn("author's note: author's note field not found; note text left as is");
     return false;
   }
   field.value = "";
@@ -36,7 +37,7 @@ export async function applyCharacterAN(
   const interval = opts?.interval ?? AUTHOR_NOTE_DEFAULT_INTERVAL;
   const role = opts?.role ?? AUTHOR_NOTE_DEFAULT_ROLE;
 
-  console.log("[Story A/N slash] applying", {
+  log.debug("author's note: applying", {
     role,
     position,
     depth,

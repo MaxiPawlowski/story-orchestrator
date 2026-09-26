@@ -1,10 +1,10 @@
 import type { NormalizedStoryV2 } from "@engine/index";
 import { applyScanGate, emptyScanGateStats, restsOffIn, scanGatePlan, type NormalizedLedger, type ScanEntry, type ScanGate, type ScanGateRow, type ScanGateStats } from "./scanGatePlan";
 
-// v2.4 plan 05 T13 spike (host-free). Which gate a scan gets. The scan belongs to the loaded story
+// Spike (host-free). Which gate a scan gets. The scan belongs to the loaded story
 // only when the chat SillyTavern is scanning for is the chat that story was loaded into and its
 // requirements hold; anything else (another chat, ST's CHAT_CHANGED pre-cache that runs before our
-// hydrate (05-H9), not-ready requirements, no story) is "no story": every library gated entry off.
+// hydrate, not-ready requirements, no story) is "no story": every library gated entry off.
 export interface ScanGateSources {
   chatId: () => string | null;
   ownedChat: () => string | null;

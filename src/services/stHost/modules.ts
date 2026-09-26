@@ -1,6 +1,12 @@
-import type { BackgroundsHostModule, ExtensionsSharedHostModule, GroupChatsHostModule, LogitBiasHostModule, RossModsHostModule, ScriptHostModule, TextgenSettingsHostModule, WorldInfoHostModule } from "./hostTypes";
+import type {
+  BackgroundsHostModule, ExtensionsSharedHostModule, GroupChatsHostModule, LogitBiasHostModule, RossModsHostModule,
+  ScriptHostModule, TextgenSettingsHostModule, WorldInfoHostModule,
+} from "./hostTypes";
 
-export type { BackgroundsHostModule, ExtensionsSharedHostModule, GroupChatsHostModule, LogitBiasHostModule, RossModsHostModule, ScriptHostModule, TextgenSettingsHostModule, WorldInfoHostModule } from "./hostTypes";
+export type {
+  BackgroundsHostModule, ExtensionsSharedHostModule, GroupChatsHostModule, LogitBiasHostModule, RossModsHostModule,
+  ScriptHostModule, TextgenSettingsHostModule, WorldInfoHostModule,
+} from "./hostTypes";
 
 export function importSTModule<T>(path: string): Promise<T> {
   return import(/* webpackIgnore: true */ path);

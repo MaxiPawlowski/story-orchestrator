@@ -1,4 +1,5 @@
 import { getContext, type StoryOrchestratorHostContext } from "./context";
+import { log } from "@utils/log";
 
 type SlashCommandHostResult = Awaited<ReturnType<StoryOrchestratorHostContext["executeSlashCommandsWithOptions"]>>;
 
@@ -27,12 +28,12 @@ async function runSlash(cmd: string, silent = true) {
       parserFlags: PARSER_FLAGS,
     });
     if (result?.isError) {
-      console.warn("[Story A/N slash] error:", cmd, result?.errorMessage);
+      log.warn("slash command error:", cmd, result?.errorMessage);
       return false;
     }
     return true;
   } catch (err) {
-    console.warn("[Story A/N slash] threw:", cmd, err);
+    log.warn("slash command threw:", cmd, err);
     return false;
   } finally {
     if (silent && window?.toastr) {
@@ -61,7 +62,7 @@ export async function executeSlashCommands(
       }
     }
   } catch (error) {
-    console.warn("[Story Slash] failed to execute commands", error);
+    log.warn("slash: failed to execute commands", error);
   }
 
   return allOk;

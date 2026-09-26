@@ -1,4 +1,4 @@
-import type { BlackboardDelta, EngineState, GateNode, NormalizedStoryV2, PrimitiveValue, Quality, TensionLevel } from "@engine/index";
+import type { BlackboardDelta, EngineState, GateNode, NormalizedStoryV2, Quality, TensionLevel } from "@engine/index";
 import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine, SceneBreakSignal } from "@memory/index";
 import type { ContextLimit } from "./inputBudget";
 import type { WindowForm } from "./windowHygiene";
@@ -33,6 +33,8 @@ export interface ChatMessageWindowEntry {
   isUser: boolean;
 }
 
+export type ChatWindowReader = (from: number, to?: number) => SharedReadWindow;
+
 export interface SharedReadWindow {
   from: number;
   to: number;
@@ -61,7 +63,7 @@ export interface ParsedDelta {
   messageId?: number;
 }
 
-// v2.2 plan 06: what the judged typed read hands back. `answered` are the hinted qualities it
+// What the judged typed read hands back. `answered` are the hinted qualities it
 // settled over the floor (with or without a change); the LLM read never asks about those.
 export interface JudgedTypedRead {
   deltas: ParsedDelta[];
@@ -145,6 +147,3 @@ export interface ReconciliationEvent {
   evidence: string[];
 }
 
-export type ValueParser = (quality: Quality, raw: string) => PrimitiveValue | undefined;
-
-export type StoryForExtraction = Pick<NormalizedStoryV2, "title" | "checkpointById" | "outgoingByCheckpoint" | "reachableByCheckpoint" | "qualityByKey">;

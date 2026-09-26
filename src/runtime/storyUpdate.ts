@@ -41,7 +41,7 @@ export interface StoryUpdateDescription {
 }
 
 // Author-facing, not player-facing: this popup only ever appears because the author just saved an
-// edit from this chat. v2.3 plan 02 (R7): it returns a description, not markup — the title of an
+// edit from this chat.: it returns a description, not markup — the title of an
 // imported story and a diff message are both text somebody else wrote, and the host assigns popup
 // content to innerHTML (popup.js:534).
 export const describeStoryUpdate = (title: string, diff: StoryDiffResult, from: number | null, to: number | null): StoryUpdateDescription => ({
@@ -59,7 +59,7 @@ export const renderStoryUpdate = (description: StoryUpdateDescription, doc: Docu
   const heading = doc.createElement("h3");
   heading.append(doc.createTextNode(`“${description.title}” changed under this chat${versionLabel(description.from, description.to)}`));
   root.append(heading);
-  // v2.3 plan 09: one save vocabulary. "Saved to the library" and "applied to this chat" are two
+  // One save vocabulary. "Saved to the library" and "applied to this chat" are two
   // different events with different owners, and this popup is where they are most easily confused.
   para("Your edit is already saved to the library. What is left to decide is whether this chat takes it:");
   const list = doc.createElement("ul");
@@ -69,7 +69,8 @@ export const renderStoryUpdate = (description: StoryUpdateDescription, doc: Docu
   if (description.keptCount) para(description.keptCount === 1
     ? "1 other change is applied to this chat as it stands."
     : `${description.keptCount} other changes are applied to this chat as they stand.`);
-  para("Keep playing applies the edit and drops only what no longer fits. Restart story applies it and clears this chat's progress. Cancel applies nothing — this chat keeps playing the version it started with. Either way the library keeps your edit.");
+  para("Keep playing applies the edit and drops only what no longer fits. Restart story applies it and clears this chat's progress. Cancel applies nothing — this chat keeps " +
+    "playing the version it started with. Either way the library keeps your edit.");
   return root;
 };
 

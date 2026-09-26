@@ -50,7 +50,12 @@ export const RoleProfilesGroup = ({ routes, assigned, profiles, testing, onAssig
               </label>
               {route.state !== "fallback" && (
                 <div className="flex flex-wrap items-center gap-2 text-xs">
-                  <button data-so="role-profile-test" className="menu_button" disabled={testing !== null || route.state === "missing"} onClick={() => onTest(route.role)}>{testing === route.role ? "Testing…" : "Test"}</button>
+                  <button
+                    data-so="role-profile-test"
+                    className="menu_button"
+                    disabled={testing !== null || route.state === "missing"}
+                    onClick={() => onTest(route.role)}
+                  >{testing === route.role ? "Testing…" : "Test"}</button>
                   <span data-so="role-profile-state" className={state.tone}>{state.text}</span>
                   {route.state !== "untested" && route.state !== "ok" && <span className="min-w-0 opacity-80">{route.detail}</span>}
                 </div>

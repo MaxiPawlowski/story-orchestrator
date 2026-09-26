@@ -13,6 +13,7 @@ import { activeEpistemic, createMemoryState, dropByMessageId, provenance, sceneC
 import type { SceneReadRecord } from "@judge/index";
 import { ABSENT, boundValuesFor, detectMemoryConflicts, diffStore, discardMemoryRow, dismissMemoryConflict, getConflicts, reconfirmMemoryEntry, rereadConflictWindow, resolveMemoryConflict, storeDroppedEntry, type DecisionRefusal, type MemoryQueueDeps } from "./memoryQueue";
 import type { MemoryRuntimeState } from "./types";
+import type { RunGuard } from "./runToken";
 
 // v2.3 plan 05 (C3). The reconciliation queue's side of the author conversation: what a decision does
 // to the stores, what it does to the canon, and where "re-read the window" actually reads.
@@ -35,7 +36,7 @@ const entry = (overrides: Partial<MemoryEntry> = {}): MemoryEntry => ({
   ...overrides,
 });
 
-const state = (patch: Partial<MemoryRuntimeState> = {}): MemoryRuntimeState => ({
+const state = (patch: Partial<MemoryRuntimeState> = {}) => ({
   entries: [],
   excluded: [],
   writeLog: [],
@@ -56,7 +57,7 @@ const state = (patch: Partial<MemoryRuntimeState> = {}): MemoryRuntimeState => (
   pinnedOverflow: 0,
   updatedAt: "t",
   ...patch,
-});
+}) as Partial<MemoryRuntimeState> as MemoryRuntimeState;
 
 const scene = (): SceneReadRecord => ({
   at: "t",
@@ -91,7 +92,7 @@ const memoryConflict = () => [
     { store: "memory" as const, id: "m1", label: "Mara's condition is steady", messageId: 3 },
     { store: "ledger" as const, id: "l1", label: "Mara condition = injured", messageId: 7 },
   ] },
-];
+] as MemoryRuntimeState["conflicts"];
 
 describe("the blackboard's envelope for a bound value (v2.3 plan 05)", () => {
   const binding = { qualityKey: "mara_hp", entity: "Mara", field: "hp" };
@@ -226,7 +227,7 @@ describe("a decision the chat never stored (v2.3 plan 05)", () => {
   // whatever happened — a `catch` around it is unreachable for the failure it names. The plan-06 save
   // evidence is the signal that is, which is why every decision below reads it and puts itself back.
   const conflicted = () => ({ ...entry(), provenance: { ...entry().provenance!, validity: "conflicted" as const } });
-  const neverWritten = () => async () => true;
+  const neverWritten = () => (async () => true) as unknown as () => boolean;
   const quarantined = () => ({ ...entry(), provenance: { ...entry().provenance!, validity: "source-removed" as const } });
 
   it("puts a resolution back, and answers false, when the save resolved but did not land", async () => {
@@ -361,7 +362,7 @@ describe("the author's other memory decisions", () => {
 });
 
 describe("the scene read joins the queue (v2.3 plan 05)", () => {
-  const ledgerRow = (field: string, value: string): LedgerEntry => ({ id: `l-${field}`, entity: "The party", entityType: "group", field, value, createdAt: 5, messageId: 5 });
+  const ledgerRow = (field: string, value: string) => ({ id: `l-${field}`, entity: "The party", entityType: "group", field, value, createdAt: 5, messageId: 5 }) as LedgerEntry;
 
   it("queues a scene read the ledger disagrees with, and marks only the ledger row", () => {
     const h = harness({ memory: state({ ledger: [ledgerRow("location", "the guild hall")] }), scene: scene() });
@@ -455,7 +456,7 @@ describe("seed D: a lost decision is put back per row, compare-and-set (v2.4 pla
     const h = harness({ memory: state({ entries: [quarantined()], verifyDrops: [] }), unsaved: lost });
     const seen = refusals(h);
     let owned = true;
-    h.deps.run = () => ({ stillOwns: () => owned, lapsed: () => (owned ? null : "chat"), lapsedDetail: () => (owned ? null : "chat: another chat is open") });
+    h.deps.run = () => ({ stillOwns: () => owned, lapsed: () => (owned ? null : "chat"), lapsedDetail: () => (owned ? null : "chat: another chat is open") }) as Partial<RunGuard> as RunGuard;
     const otherChat = state({ entries: [entry({ id: "b1", text: "Chat B's own fact" })] });
     h.deps.save = async () => { h.deps.patch(otherChat); owned = false; };
     expect(await discardMemoryRow(h.deps, "m1")).toBe(false);

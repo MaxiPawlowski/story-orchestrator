@@ -48,10 +48,18 @@ const PromptBucketsLine = ({ state }: { state: PromptBucketState | undefined }) 
     <div data-so="next-turn-buckets" data-state={state.matches ? "matches" : "mismatch"} className="opacity-80">
       {promptBucketsText(state)}
       {state.oursExceedsHistory && (
-        <div data-so="next-turn-buckets-tokenizers" className="text-yellow-300">Story Orchestrator&apos;s count is larger than ST&apos;s chat history: the two counts come from different tokenizers, so read ours as an estimate.</div>
+        <div data-so="next-turn-buckets-tokenizers" className="text-yellow-300">
+          Story Orchestrator&apos;s count is larger than ST&apos;s chat history: the two counts come from different tokenizers, so read ours as an estimate.
+        </div>
       )}
     </div>
   );
+};
+
+const TrimNote = ({ injection, rowKey }: { injection: RuntimeSnapshot["memoryInjection"]; rowKey: string }) => {
+  const tier = tierOfKey(rowKey);
+  const text = tier ? trimText(injection, tier) : null;
+  return text ? <div data-so="next-turn-trim" className="opacity-60">{text}</div> : null;
 };
 
 export const NextTurnPanel = ({ snapshot, actions, onOpenOwner }: { snapshot: RuntimeSnapshot; actions: NextTurnActions; onOpenOwner: (tab: NextTurnOwnerTab) => void }) => {
@@ -79,9 +87,7 @@ export const NextTurnPanel = ({ snapshot, actions, onOpenOwner }: { snapshot: Ru
           </div>
           <div className="opacity-60">{row.owner}</div>
           <div className="whitespace-pre-wrap opacity-80">{row.preview}</div>
-          {tierOfKey(row.key) && trimText(snapshot.memoryInjection, tierOfKey(row.key)!) && (
-            <div data-so="next-turn-trim" className="opacity-60">{trimText(snapshot.memoryInjection, tierOfKey(row.key)!)}</div>
-          )}
+          <TrimNote injection={snapshot.memoryInjection} rowKey={row.key} />
           <div className="flex flex-wrap items-center gap-2 pt-1">
             {row.oneShot && (
               <button data-so="next-turn-clear" className="menu_button text-xs" onClick={() => actions.clearNote()}>Clear the note</button>

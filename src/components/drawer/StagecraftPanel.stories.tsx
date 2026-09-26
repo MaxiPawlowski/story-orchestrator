@@ -27,7 +27,14 @@ const proposal = (ops: CuratorOpRecord[], mode: StagecraftAcceptMode = "review")
   dropped: ['rewrite: "Sanctum floor" is not an entry this story owns'],
 });
 
-const snapshot = (options: { curatorEnabled?: boolean; acceptMode?: StagecraftAcceptMode; wardenEnabled?: boolean; scope?: string[]; proposals?: CuratorProposalRecord[]; lastError?: string | null } = {}): RuntimeSnapshot => ({
+const snapshot = (options: {
+  curatorEnabled?: boolean;
+  acceptMode?: StagecraftAcceptMode;
+  wardenEnabled?: boolean;
+  scope?: string[];
+  proposals?: CuratorProposalRecord[];
+  lastError?: string | null;
+} = {}): RuntimeSnapshot => ({
   stagecraft: {
     settings: { curatorEnabled: options.curatorEnabled ?? true, acceptMode: options.acceptMode ?? "review", wardenEnabled: options.wardenEnabled ?? false, wardenAcceptMode: "review" },
     proposals: options.proposals ?? [],
@@ -184,7 +191,12 @@ const wardenNote = (status: CuratorOpRecord["status"], message?: string): Curato
       // v2.3 plan 05: the fact list travels as records, so the card can cite the message a truth was
       // read from and hand the author the control that takes them there.
       sources: [
-        { id: "m4", text: "The bridge fell in the flood.", provenance: { source: "judge", messageId: 4, boundary: 2, pass: "shared-read", confidence: 0.9, validity: "live" }, conflictingValue: "The bridge is intact (ledger)" },
+        {
+          id: "m4",
+          text: "The bridge fell in the flood.",
+          provenance: { source: "judge", messageId: 4, boundary: 2, pass: "shared-read", confidence: 0.9, validity: "live" },
+          conflictingValue: "The bridge is intact (ledger)",
+        },
         { id: "bound:Mira:hp", text: "Mira hp = 5", provenance: { source: "blackboard", messageId: -1, boundary: 0, pass: "blackboard", validity: "live" } },
       ],
     },
@@ -247,8 +259,21 @@ const familiesNote: CuratorProposalRecord = {
   summary: "Guard's reply writes the player's own part; breaks a house rule",
   mode: "review",
   ops: [
-    { op: { kind: "note", family: "agency", text: "Agency: Max's own words and decisions are theirs to write: do not narrate Max acting, accepting, agreeing or refusing.", facts: [], replyMessageId: 9, score: 3.41 }, status: "pending" },
-    { op: { kind: "note", family: "house-rule", text: 'House rule: "No character uses a gun." — keep the next reply within it.', facts: [], rules: ["No character uses a gun."], replyMessageId: 9 }, status: "pending" },
+    {
+      op: {
+        kind: "note",
+        family: "agency",
+        text: "Agency: Max's own words and decisions are theirs to write: do not narrate Max acting, accepting, agreeing or refusing.",
+        facts: [],
+        replyMessageId: 9,
+        score: 3.41,
+      },
+      status: "pending",
+    },
+    {
+      op: { kind: "note", family: "house-rule", text: 'House rule: "No character uses a gun." — keep the next reply within it.', facts: [], rules: ["No character uses a gun."], replyMessageId: 9 },
+      status: "pending",
+    },
   ],
   dropped: [],
 };

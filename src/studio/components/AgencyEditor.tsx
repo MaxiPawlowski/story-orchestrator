@@ -7,7 +7,7 @@ export interface AgencyEditorProps {
   onChange(next: Partial<AgencyPolicy> | undefined): void;
 }
 
-// v2.3 plan 07 (C4). The policy is optional in the record and DEFAULTED in the runtime, so the editor
+// The policy is optional in the record and DEFAULTED in the runtime, so the editor
 // shows the defaults the story is actually playing under rather than empty boxes: an author who leaves
 // this alone is not opting out, and one who changes it sees exactly what changes.
 export function AgencyEditor({ policy, checkpoints, onChange }: AgencyEditorProps) {

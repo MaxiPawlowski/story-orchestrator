@@ -8,7 +8,7 @@ import type { ExtractionRuntimeState } from "./types";
 export type PipelineState = "working" | "reading" | "stalled-rechecking" | "idle" | "not-configured" | "error";
 
 /**
- * v2.3 plan 09. What the player can actually do about the state, in their own words — or nothing.
+ * What the player can actually do about the state, in their own words — or nothing.
  * The state sentence says what the machine is doing; this says whether the player is being asked for
  * something. Queue depth, retries and error text stay in `detail`, which is author-grade.
  */
@@ -34,10 +34,8 @@ export const TRANSPORT_PLAYER_TEXT = "The memory model is not answering — the 
 
 export const pipelineAction = (status: PipelineStatus): string | null => (status.nextAction ? PIPELINE_ACTION_COPY[status.nextAction] : null);
 
-export const PIPELINE_LIVE_STATES: PipelineState[] = ["working", "reading", "stalled-rechecking"];
-
 /**
- * v2.3 plan 07: a generated draft is in flight. It is the one thing the machine does that the player
+ * A generated draft is in flight. It is the one thing the machine does that the player
  * cannot see in the chat yet, and the plan's wording for it is "preparing the road ahead" — said only
  * while it is true, never as a permanent line about the future.
  */
@@ -71,7 +69,13 @@ function pipelineProblem(extraction: ExtractionRuntimeState, health: ExtractionH
     return { state: "not-configured", text: "Nothing is following the story yet — choose a memory model in the extension settings.", detail: null, needsSetup: true, nextAction: "repair" };
   }
   if (health?.kind === "config") {
-    return { state: "not-configured", text: "Nothing is following the story — the memory model it used cannot be reached. Choose one in the extension settings.", detail: health.detail, needsSetup: true, nextAction: "repair" };
+    return {
+      state: "not-configured",
+      text: "Nothing is following the story — the memory model it used cannot be reached. Choose one in the extension settings.",
+      detail: health.detail,
+      needsSetup: true,
+      nextAction: "repair",
+    };
   }
   if (health?.kind === "transport") {
     return { state: "stalled-rechecking", text: TRANSPORT_PLAYER_TEXT, detail: health.detail, needsSetup: false, nextAction: "retry", retryable: true };

@@ -250,6 +250,9 @@ export async function capturePage(page) {
         lorebooksSelected,
         lorebookCount: (ctx.getWorldInfoNames?.() ?? []).length,
         characterCount: (ctx.characters ?? []).length,
+        groupChats: (ctx.groups ?? [])
+          .flatMap((entry: any) => (Array.isArray(entry?.chats) ? entry.chats : []).map((chat: unknown) => `${entry?.id ?? '?'}/${String(chat)}`))
+          .sort(),
       },
     };
   });
@@ -359,6 +362,7 @@ const ALLOW_ALIASES: Record<string, string> = {
   wizardSessions: 'inventory.wizardSessions',
   lorebooksSelected: 'inventory.lorebooksSelected',
   disabledMembers: 'group.disabledMembers',
+  groupChats: 'inventory.groupChats',
 };
 
 export interface AllowEntry {

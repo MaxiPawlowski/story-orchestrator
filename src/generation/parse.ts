@@ -1,24 +1,9 @@
-import { GATE_OPERATORS, TENSION_LEVELS, type GateNode, type GateOperator, type NormalizedStoryV2, type PrimitiveValue, type Quality, type ScaffoldingDelta } from "@engine/index";
+import { GATE_OPERATORS, qualityAccepts, TENSION_LEVELS, type GateNode, type GateOperator, type NormalizedStoryV2, type PrimitiveValue, type Quality, type ScaffoldingDelta } from "@engine/index";
 import type { CriticVerdict, GeneratedBeat, GeneratedOutcome } from "./types";
+import { isRecord } from "@utils/guards";
+import { normalizeJsonText } from "@utils/json";
 
-const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 const isPrimitive = (value: unknown): value is PrimitiveValue => typeof value === "string" || typeof value === "number" || typeof value === "boolean";
-
-const normalizeJsonText = (raw: string) => {
-  const trimmed = raw.trim();
-  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
-  if (fenced) return fenced[1].trim();
-  const embedded = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-  return embedded ? embedded[1].trim() : trimmed;
-};
-
-const valueMatches = (quality: Quality, value: PrimitiveValue) => {
-  if (quality.type === "bool") return typeof value === "boolean";
-  if (quality.type === "string") return typeof value === "string";
-  if (quality.type === "enum") return typeof value === "string" && Boolean(quality.values?.includes(value));
-  if (quality.type === "float") return typeof value === "number" && Number.isFinite(value);
-  return typeof value === "number" && Number.isInteger(value);
-};
 
 const coerceValue = (quality: Quality | undefined, value: PrimitiveValue): PrimitiveValue => {
   if (!quality || typeof value !== "string") return value;
@@ -36,7 +21,9 @@ const readGate = (value: unknown, story: NormalizedStoryV2, path: string, issues
     if (typeof value.q !== "string" || !story.qualityByKey[value.q]) issues.push(`${path}.q: unknown quality`);
     if (typeof value.op !== "string" || !(GATE_OPERATORS as readonly string[]).includes(value.op)) issues.push(`${path}.op: invalid operator`);
     if (!isPrimitive(value.v) && !(Array.isArray(value.v) && value.v.every(isPrimitive))) issues.push(`${path}.v: invalid value`);
-    if (typeof value.q !== "string" || typeof value.op !== "string" || !(GATE_OPERATORS as readonly string[]).includes(value.op) || (!isPrimitive(value.v) && !(Array.isArray(value.v) && value.v.every(isPrimitive)))) return null;
+    if (typeof value.q !== "string" || typeof value.op !== "string" || !(GATE_OPERATORS as readonly string[]).includes(value.op) || (!isPrimitive(value.v) && !(Array.isArray(value.v) && value.v.every(
+      isPrimitive,
+    )))) return null;
     const quality = story.qualityByKey[value.q];
     const v = Array.isArray(value.v) ? value.v.map((entry) => coerceValue(quality, entry as PrimitiveValue)) : coerceValue(quality, value.v as PrimitiveValue);
     return { q: value.q, op: value.op as GateOperator, v };
@@ -65,7 +52,7 @@ const readDeltas = (value: unknown, story: NormalizedStoryV2, path: string, issu
     }
     const quality = story.qualityByKey[entry.q];
     const v = coerceValue(quality, entry.v);
-    if (!quality || !valueMatches(quality, v)) {
+    if (!quality || !qualityAccepts(quality, v)) {
       issues.push(`${entryPath}: invalid delta value`);
       return null;
     }
@@ -115,7 +102,13 @@ export function parseGeneratedBeats(raw: string, story: NormalizedStoryV2): { be
     if (!tension) issues.push(`${path}.tension_target: invalid`);
     if (!Array.isArray(entry.outcomes) || !entry.outcomes.length) issues.push(`${path}.outcomes: required`);
     const beatId = String(index);
-    const outcomes = Array.isArray(entry.outcomes) ? entry.outcomes.map((outcome, outcomeIndex) => readOutcome(outcome, story, `${path}.outcomes.${outcomeIndex}`, issues, `${beatId}:${outcomeIndex}`)).filter((outcome): outcome is GeneratedOutcome => Boolean(outcome)) : [];
+    const outcomes = Array.isArray(entry.outcomes) ? entry.outcomes.map((outcome, outcomeIndex) => readOutcome(
+      outcome,
+      story,
+      `${path}.outcomes.${outcomeIndex}`,
+      issues,
+      `${beatId}:${outcomeIndex}`,
+    )).filter((outcome): outcome is GeneratedOutcome => Boolean(outcome)) : [];
     if (!objective || !guidance || !tension || !outcomes.length) return null;
     return { id: beatId, objective, guidance, tension_target: tension, outcomes };
   }).filter((entry): entry is GeneratedBeat => Boolean(entry));

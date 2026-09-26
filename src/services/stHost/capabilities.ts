@@ -6,7 +6,7 @@ import { listSlashCommands } from "./selectors";
 import { getHostVersion, macroEngineInUse } from "./version";
 import { installScanGating, probeScanGating } from "./worldInfoScan";
 
-// v2.3 plan 06. Every seam this extension reaches through has a way of being missing, and the ways
+// Every seam this extension reaches through has a way of being missing, and the ways
 // differ: a build with no MacrosParser, a route this ST version never mounted, a plugin nobody
 // installed. Until now each consumer found out by failing, which reported a missing capability as a
 // story defect — the shape of every trap in this project's history. A probe answers the question
@@ -34,7 +34,7 @@ type Probe = () => Promise<{ state: CapabilityState; detail: string }> | { state
 const present = (detail: string) => ({ state: "present" as const, detail });
 const absent = (detail: string) => ({ state: "absent" as const, detail });
 
-// V17: the probe used to look for `getContext().MacrosParser`, which real ST never exposes (st-context.js
+// The probe used to look for `getContext().MacrosParser`, which real ST never exposes (st-context.js
 // hands out `registerMacro`, bound), so it read `absent` on every working install. It now asks the
 // module `registerHostMacro` registers through.
 const macrosProbe: Probe = () =>
@@ -46,7 +46,8 @@ const macroArgsProbe: Probe = () => {
   if (!hostArgMacrosAvailable()) return absent(`this build has no macros.register, so {{story_quality::key}} is never registered; ${QUALITY_ARG_FALLBACK}`);
   const engine = macroEngineInUse();
   if (engine === "new") return present("macros.register; SillyTavern substitutes with the new macro engine");
-  return absent(`SillyTavern does not substitute with the new macro engine (${engine === "unknown" ? "setting unreadable" : "switched off"}), so {{story_quality::key}} stays literal; ${QUALITY_ARG_FALLBACK}`);
+  return absent(`SillyTavern does not substitute with the new macro engine (${engine === "unknown" ? "setting unreadable" : "switched off"}), so {{story_quality::key}} stays ` +
+    `literal; ${QUALITY_ARG_FALLBACK}`);
 };
 
 const slashCommandsProbe: Probe = () => {
@@ -55,11 +56,12 @@ const slashCommandsProbe: Probe = () => {
   return missing.length ? absent(`no /${missing.join(", /")} command: the effects that use ${missing.length > 1 ? "them" : "it"} cannot run`) : present(`${REQUIRED_COMMANDS.length} commands`);
 };
 
-// v2.3 plan 08. `background_settings` is the live export `/bg` switches (backgrounds.js:108) — the
+// `background_settings` is the live export `/bg` switches (backgrounds.js:108) — the
 // module either loaded or it did not, and a checkpoint's `effects.background` needs it.
 const backgroundsProbe: Probe = () => {
   const settings = backgroundsModule?.background_settings;
-  return settings && typeof settings === "object" ? present(`background is "${String((settings as { name?: unknown }).name ?? "")}"`) : absent("scripts/backgrounds.js exposed no background_settings, so a checkpoint's background effect cannot switch anything");
+  return settings && typeof settings === "object" ? present(`background is "${String((settings as { name?: unknown }).name ?? "")}"`) : absent("scripts/backgrounds.js exposed " +
+    "no background_settings, so a checkpoint's background effect cannot switch anything");
 };
 
 // `/api/vector/list` is a pure read of saved hashes (src/endpoints/vectors.js:530) — it loads no
@@ -68,7 +70,7 @@ const vectorsProbe: Probe = async () => {
   const headers = (getContext() as unknown as { getRequestHeaders: () => Record<string, string> }).getRequestHeaders();
   const response = await fetch("/api/vector/list", { method: "POST", headers, body: JSON.stringify({ collectionId: "so-capability-probe", source: "transformers" }) });
   if (response.status === 404 || response.status === 405) return absent("this build has no /api/vector routes, so memory consolidation falls back to keyword overlap");
-  // V17: any other non-OK status is this attempt failing, not the install lacking the feature, so it
+  // Any other non-OK status is this attempt failing, not the install lacking the feature, so it
   // throws: the caller reports `error` and does not cache it.
   if (!response.ok) throw new Error(`the vectors API answered ${String(response.status)}`);
   return present("vectors API");
@@ -80,15 +82,16 @@ const judgeProbe: Probe = async () => {
   return status.configured ? present(`plugin ${status.pluginVersion ?? "?"}, ${status.model ?? "model unknown"}`) : absent("the judge plugin is installed but holds no key");
 };
 
-// v2.4 plan 08 (08-H3): the next-turn preview states its blocks as a share of the main API's prompt budget.
+// The next-turn preview states its blocks as a share of the main API's prompt budget.
 // A build that cannot say it shows "budget unknown", never a guessed number.
 const contextBudgetProbe: Probe = () => {
   const budget = readPromptBudget();
-  return budget.ok ? present(`${budget.prompt} prompt tokens (context ${budget.context} - reply ${budget.response})`) : absent(`${budget.reason}, so the next-turn preview shows no share of the context`);
+  return budget.ok ? present(`${budget.prompt} prompt tokens (context ${budget.context} - reply ` +
+    `${budget.response})`) : absent(`${budget.reason}, so the next-turn preview shows no share of the context`);
 };
 
-// v2.5 plan 01 C: per-chat lorebook gating needs a WORLDINFO_ENTRIES_LOADED listener placed last that sees each
-// scan's per-call copies (05-H2/H3/H11). A no-op handler is installed, one probe scan is run, and it is removed.
+// C: per-chat lorebook gating needs a WORLDINFO_ENTRIES_LOADED listener placed last that sees each
+// scan's per-call copies. A no-op handler is installed, one probe scan is run, and it is removed.
 const wiScanGatingProbe: Probe = async () => {
   const handle = installScanGating(() => undefined);
   try {
@@ -100,7 +103,16 @@ const wiScanGatingProbe: Probe = async () => {
   }
 };
 
-const PROBES: Record<CapabilityId, Probe> = { macros: macrosProbe, macroArgs: macroArgsProbe, slashCommands: slashCommandsProbe, backgrounds: backgroundsProbe, vectors: vectorsProbe, judge: judgeProbe, contextBudget: contextBudgetProbe, wiScanGating: wiScanGatingProbe };
+const PROBES: Record<CapabilityId, Probe> = {
+  macros: macrosProbe,
+  macroArgs: macroArgsProbe,
+  slashCommands: slashCommandsProbe,
+  backgrounds: backgroundsProbe,
+  vectors: vectorsProbe,
+  judge: judgeProbe,
+  contextBudget: contextBudgetProbe,
+  wiScanGating: wiScanGatingProbe,
+};
 
 export const CAPABILITY_IDS = Object.keys(PROBES) as CapabilityId[];
 

@@ -88,3 +88,15 @@ test('every journey declares the extraction it runs at, and nothing else (§E)',
     'setup.extraction.profile must be "inherit"',
   ]);
 });
+
+test('A25: a refused import that still wrote a record is removed, because the restore is the pre-run library', () => {
+  const before = { trusted: true, records: [story('user-story', 1, 'h-user')] };
+  const plan = planLibraryRestore(before, [...before.records, story('refused-import', 1, 'h-refused')]);
+  assert.deepEqual(plan.next, before.records);
+  assert.deepEqual(plan.removed, ['refused-import@1 (h-refused)']);
+});
+
+test('A25 control: an unreadable library before the run removes nothing, so no user story is at risk', () => {
+  const current = [story('user-story', 1, 'h-user'), story('refused-import', 1, 'h-refused')];
+  assert.deepEqual(planLibraryRestore({ trusted: false, records: [] }, current).next, current);
+});

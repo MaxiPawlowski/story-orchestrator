@@ -4,7 +4,7 @@ import type { MemoryEntry } from "./types";
 import { DEFAULT_DEDUP_THRESHOLDS as DEFAULTS } from "./consolidate";
 
 let seq = 0;
-const entry = (overrides: Partial<MemoryEntry>): MemoryEntry => ({
+const entry = (overrides: Partial<MemoryEntry>) => ({
   id: overrides.id ?? `id-${(seq += 1)}`,
   tier: "facts",
   text: "text",
@@ -18,7 +18,7 @@ const entry = (overrides: Partial<MemoryEntry>): MemoryEntry => ({
   createdAt: 0,
   recallCount: 0,
   ...overrides,
-});
+}) as MemoryEntry;
 
 const run = (entries: MemoryEntry[]) => consolidateTier(entries, buildJaccardMatchSets(entries));
 
@@ -76,7 +76,7 @@ describe("applyConsolidation", () => {
       supersededPairs: [{ loserId: "old", winnerId: "a" }],
       confirmedIds: ["a"],
       uncertain: [],
-    });
+    }, undefined as never);
     expect(next.entries.map((e) => e.id)).toEqual(["a", "old"]);
     expect(next.entries.find((e) => e.id === "old")?.supersededBy).toBe("a");
     expect(next.entries.find((e) => e.id === "a")?.recallCount).toBe(1);

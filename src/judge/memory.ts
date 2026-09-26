@@ -34,7 +34,10 @@ export type VerifyVerdict = { action: "keep" } | { action: "downweight"; confide
 export function buildVerifyRequest(input: VerifyInput): JudgeRequest {
   return {
     state: { story: { title: input.storyTitle, cast: input.cast }, transcript: input.transcript },
-    questions: Object.fromEntries(input.lines.map((line, index) => [`line:${index}`, noul(`Is this note supported by \`transcript\`: "${line}"? Use \`story\` only as background for names and places.`, { ...VERIFY_CRITERIA })])),
+    questions: Object.fromEntries(input.lines.map((line, index) => [
+      `line:${index}`,
+      noul(`Is this note supported by \`transcript\`: "${line}"? Use \`story\` only as background for names and places.`, { ...VERIFY_CRITERIA }),
+    ])),
   };
 }
 

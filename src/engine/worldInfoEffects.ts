@@ -1,3 +1,4 @@
+import { isRecord } from "@utils/guards";
 export interface WorldInfoRef {
   lorebook: string;
   comments: string[];
@@ -5,7 +6,6 @@ export interface WorldInfoRef {
 
 export type GatedWorldInfo = Map<string, Set<string>>;
 
-const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 const readStrings = (value: unknown): string[] => (Array.isArray(value) ? value : [value])
   .filter((entry): entry is string => typeof entry === "string")
   .map((entry) => entry.trim())

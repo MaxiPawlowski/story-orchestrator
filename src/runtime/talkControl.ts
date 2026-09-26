@@ -1,16 +1,21 @@
 import type { RosterMember, TalkControl } from "@engine/index";
 import type { JudgeDirectorDecision, JudgeDirectorInput } from "@judge/index";
-import { buildCandidates, chooseByRules, directorEnabled, directorInstruction, findCandidate, narrowByMention, parseDirectorResponse, renderDirectorPrompt, type DirectorWindowMessage, type TalkCandidate, type TalkDecisionSource } from "@talk/index";
+import {
+  buildCandidates, chooseByRules, directorEnabled, directorInstruction, findCandidate, narrowByMention,
+  parseDirectorResponse, renderDirectorPrompt, type DirectorWindowMessage, type TalkCandidate, type TalkDecisionSource,
+} from "@talk/index";
 import { timeoutAbortReason } from "@utils/signals";
 import { beginRun, type MessageWindow, type RunGuard, type RunOwnership } from "./runToken";
 import type { TalkDecisionAudit } from "./types";
+import { WITHHOLDING_TYPES } from "./generationLifecycle";
+import { log } from "@utils/log";
 
 export const DIRECTOR_TIMEOUT_MS = 20000;
 export const DIRECTOR_MAX_TOKENS = 96;
 export const DIRECTOR_WINDOW_MESSAGES = 8;
 
 const LOUD_INTERCEPT_TYPE = "normal";
-const QUIET_WRAPPER_TYPES = new Set(["quiet", "swipe", "continue", "impersonate"]);
+const QUIET_WRAPPER_TYPES = new Set([...WITHHOLDING_TYPES, "swipe", "continue"]);
 
 export interface TalkCheckpointInfo {
   id: string;
@@ -236,7 +241,8 @@ export class TalkController {
       if (verdict.kind === "silence") return { kind: "silence", source: "judge", judge };
       const candidate = candidates.find((entry) => entry.rosterId === verdict.rosterId);
       return candidate ? { kind: "member", rosterId: candidate.rosterId, name: candidate.name, source: "judge", judge } : null;
-    } catch {
+    } catch (error) {
+      log.warn("speaker direction: the judge failed, so the rules pick stands", error);
       return null;
     }
   }
@@ -257,13 +263,18 @@ export class TalkController {
     });
     const controller = new AbortController();
     try {
-      const raw = await withTimeout(this.host.callDirector(prompt, controller.signal), DIRECTOR_TIMEOUT_MS, () => controller.abort(timeoutAbortReason(`the director did not answer within ${DIRECTOR_TIMEOUT_MS} ms`)));
+      const raw = await withTimeout(
+        this.host.callDirector(prompt, controller.signal),
+        DIRECTOR_TIMEOUT_MS,
+        () => controller.abort(timeoutAbortReason(`the director did not answer within ${DIRECTOR_TIMEOUT_MS} ms`)),
+      );
       const verdict = parseDirectorResponse(raw, pool, allowSilence);
       if (!verdict) return null;
       if (verdict.rosterId === null) return { kind: "silence", source: "director" };
       const candidate = pool.find((entry) => entry.rosterId === verdict.rosterId);
       return candidate ? { kind: "member", rosterId: candidate.rosterId, name: candidate.name, source: "director" } : null;
-    } catch {
+    } catch (error) {
+      log.warn("speaker direction: the director failed, so the rules pick stands", error);
       return null;
     }
   }

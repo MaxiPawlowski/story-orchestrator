@@ -1,6 +1,6 @@
 # Plan 03 — Code health and budget headroom
 
-**Status: DRAFT 2026-09-25 — awaits user approval.** Depends on plan 11 (legacy removal runs first: it deletes read
+**Status: CODE ITEMS DONE 2026-09-26, live gates pending (see Gate record (code items)); not accepted.** Drafted 2026-09-25. Depends on plan 11 (legacy removal runs first: it deletes read
 branches and narrows the types every item here touches). Plans 04 and 06 wait on this plan's coordinator lines; plan 12's
 bundle budget (F1) is measured after its extractions; plan 13 (harness routing) builds on the model-call seam it types.
 Verified against master `e7626d7` on 2026-09-25. **Step 0 re-measures everything below on the post-11 tree** (v2.4 rule 1).
@@ -75,6 +75,98 @@ the audit (master `1b4e642`) or the overview.
 
 Plan 11's measured savings are small: `liftLegacyChatSettings` leaves the manager (`:44,542`, H9) and the legacy pin
 prompt leaves `memoryCoordinator` (`:341-342`, H11). Neither reaches S2 by itself.
+
+### Step 0 re-measure (post-11/01/02 tree, master `06ea92d`, 2026-09-26)
+
+Measured by `test/support/codeHealth.ts` (TS-API scanner, committed with step 1; the architecture formula, 120-char
+effective width) over prod `src/**/*.ts(x)` minus `*.test.*`, `*.stories.*`, `__mocks__`. Δ = vs the table above.
+
+| Claim | Now | Δ |
+|---|---|---|
+| Manager | **740 / 740** | — (plan 11 H9 saving spent by plan 01/02) |
+| `memoryCoordinator` / `extractionCoordinator` / `stagecraftCoordinator` | **618** / **604** / **616** of 620 | −1 / 0 / **+15** (plan 02 C10 reconcile) |
+| other coordinators | expansion 325, copilot 263, scene 223, pacing 124 | +1 / −1 / 0 / 0 |
+| Prod files over 600 | 7: `DrawerTabs.tsx` 948, `engine/validate.ts` 849, `index.tsx` 783, manager 740, memory 618, stagecraft 616, extraction 604 | DrawerTabs −24, validate +19, index +23 |
+| Prod totals | 326 files, 38 501 raw, 41 543 eff | +6 files |
+| Lines > 200 / > 300; max | **394** / 50; 1 291 (`runtime/judge.ts:1`) | −3 / 0 |
+| Functions > 150 lines | **14**: `SettingsPanel` 357, `startRuntime` 286, `StudioCopilot` 279, `createWiGating` 220 (new, plan 01), `GraphPanel` 208, `runDiagnostics` 204, `QualityEditor` 201, `StoryEditor` 181, `CheckpointEditor` 168, `MemoryTab` 162, `readOp` 160, `StudioModal` 160, `diffStories` 152, `registerSlashCommands` 152 | +1 |
+| Branches > 40 | `readOp` 87, `parseStoryV2` 44 | — |
+| Nesting > 5 | `applyGeneration` 7, `consolidateTier` 6, `consolidateTierJudged` 6 (the metric counts an `else if` as one level deeper, as the AST nests it) | — |
+| Coordinators with a value import of `@services/STAPI` | 6 of 7 (all but scene) | — |
+| Tests: `jest.mock` files / STAPI mocks / under `coordinators/` | 146 / 127 / 20 | +7 / +6 / +1 |
+| Import cycle | 1 SCC: `engine/index.ts`, `engine/replay.ts`, `pacing/{guidance,index,shapes,steering,tension}.ts` | — |
+| Test-only module in the entry graph | `engine/replay.ts` | — |
+| Dead exports (exported, the name appears nowhere else in `src/`, `scripts/`, `test/`) | **31** (24 values, 7 types): the audit's 10 plus 21 left by plan 11's deletions and missed by the audit's method | +21 |
+| `isRecord` copies | 15 (`persistenceMigration.ts` gone) | −1 |
+| Withholding set | 3 sets (`generationLifecycle.ts:22`, `samplerOverlay.ts:27`, `worldInfoEvidenceHost.ts:8`) + 2 inline checks (`stagecraftCoordinator.ts:541`, `runtimeManager.ts:615`); superset `talkControl.ts:13` | +1 inline |
+| FNV-1a | 5 bodies: `runtime/hash.ts:10`, `extraction/contract.ts:62`, `extraction/sharedRead.ts:93`, `memory/stores.ts:18`, `judge/loreRelevanceCalibration.ts:57` | audit said 2 |
+| `as unknown as` outside `stHost/` | **7** sites / 7 files (`graphPanelUtils.ts:130`, `judge/settings.ts:110`, `extras.ts:269`, `persistence.ts:103`, `roleSelfTest.ts:108`, `ProvisioningCard.tsx:66`, `fakeDocument.ts:36`) | −2 (plan 11) |
+| Non-null `!` / `console.*` / bare `catch {` | 43 / 45 (11 prefixes; `console.log` `stHost/authorNotes.ts:39`) / 33 | 0 / −2 / 0 |
+| Wall clock / real sleeps | `windowHygiene.test.ts:196-198`; 900 ms ×2 `scheduler.test.ts:276,301`, 1 200 ms ×3 `schedulerClear.review.test.ts:122,135,145` | — |
+| `notify()` sites / `useRuntimeSnapshot` roots | 47 / 4 (`index.tsx:124,175,551,636`) | +2 / — |
+| Machine gates on `06ea92d` | typecheck 0, typecheck:test 0, lint 0, jest **275 suites / 3 975 tests** green, test:debug 313/315 (1 fail needs `dist/manifest.json`, green after a build) | — |
+
+**D3 estimates re-read.** Every coordinator must reach 560 and the manager 700: memory −58, extraction −44, stagecraft −56,
+manager −40 is the floor; the ≥ 60 headroom reservation makes it −118 / −104 / −116 / −100.
+
+## Predeclared (D0, committed before measuring)
+
+Written from the plan text before any of these were measured. Each item is fixed here; the measured lists that follow
+(`test/findings/codeHealth.json`, `test/findings/errorCopy.json`) are read against it, never the reverse.
+
+**S4 metric.** As §D0, with nesting counted literally: every `if` (including an `else if`, which the AST nests under its
+`if`), loop, `switch` and `try` adds one level; nested function-like nodes are excluded from both counts and measured on
+their own. Names: declarations by name, class members as `Class.member`, an arrow by its variable or property, an
+anonymous callback as `<enclosing>>callback`. Offender key = `file#name`.
+
+**S8 helper allowlist, canonical homes, scanner scope.**
+
+| Name(s) | Home | Detected by |
+|---|---|---|
+| `isRecord` | `src/utils/guards.ts` | a declaration of that name anywhere else |
+| `WITHHOLDING_TYPES` (quiet/impersonate) | `src/runtime/generationLifecycle.ts` | a `Set`/array literal holding exactly `"quiet"` and `"impersonate"` anywhere else, or a `=== "quiet"` / `=== "impersonate"` comparison outside the home and `stHost/` (ST's own generation types, `stHost/generation.ts`, are host facts, not our set) |
+| `tokenize`, `jaccard` | `src/memory/similarity.ts` | a declaration of that name anywhere else |
+| `truncate` | `src/utils/string.ts` | a declaration of that name anywhere else |
+| FNV-1a | `src/runtime/hash.ts` | the offset basis `2166136261` / `0x811c9dc5` anywhere else |
+| popup context cast | `src/services/stHost/popup.ts` (one helper) | `as unknown as` inside `popup.ts` more than once |
+
+Scope: prod files (the S3 set). Duplicate bodies: every function-like node with ≥ 3 statements; normalised text = the
+body's statements printed by the TS printer with comments removed and whitespace collapsed. Two or more with the same text
+fail unless their `file#name` pair is in `duplicateBodyAllowlist` (empty at declaration). `talkControl`'s superset is
+allowed by name only if it is built from `WITHHOLDING_TYPES`. Dead-export allowlist: exported types of
+`src/engine/schema.ts` only (the public format).
+
+**T1.** The `!` allowlist starts empty; an entry needs `file#name`, a count and a reason, ≤ 5 entries total (Q3 default:
+aim for 0). `as unknown as` outside `src/services/stHost/**` has no allowlist.
+
+**T3 citation pattern** (comment lines in prod `src/**` and in `tsconfig.json`; string contents are not comments):
+```
+/\bplan\s*\d{1,2}\b|\bv\d\.\d\b|\b(?:V|S|T|L|C|H|A|D|E|F|M|P|Q|R|U|X|AE|PR|J)\d{1,3}[a-z]?\b|\b\d{2}-H\d+\b|\b20\d\d-\d\d-\d\d\b/i
+```
+A matching line passes only if (a) every match on it sits inside a host-fact citation, i.e. an ST source path with a line
+(`/[\w./-]+\.(?:js|mjs|cjs):\d+(?:[-–]\d+)?/`, e.g. `script.js:1590`), or (b) it is inside a JSDoc block attached to an
+exported declaration in `src/services/stHost/**`. Other comments carry no rule here (Q1 default: "why" comments without an
+id stay).
+
+**E2 error-copy inventory.** Schema as §D0. Rows are extracted by AST from prod, keyed `file#enclosing-function` +
+normalised template text (no line numbers), and are:
+1. every string or template literal passed as the first argument to a toast (`toastr.*`, an injected `toast(...)`) or
+   popup seam (`showConfirmPopup`, `showChoicePopup`, `showTextPopup`);
+2. every template literal, anywhere, that interpolates `.message`, `String(<x>)` of a caught value, or an identifier
+   named `error`, `err`, `e`, `cause` or `reason`;
+3. every bare `catch {` and every `.catch(() => <constant>)`.
+
+`surface`: **player** = toasts, popups, the settings panel, the drawer's player tabs, the HUD, `pipeline.text`, `/story`;
+**author** = author view, Studio, `pipeline.detail`, journal, `/cp`; **console** = logger only. Pass: no row with
+`rawError: true` and `surface: player`; every row of kind 3 has `silentCatch` `logs` or `probe`; a row absent from the
+file fails the jest guard, and so does a stale row.
+
+**Q1t parallel-load recipe.** From the extension root, 3 times back to back:
+```
+npx concurrently -n A,B,C,BUILD "npm test" "npm test" "npm test" "npm run build"
+```
+Record per run: exit code, each jest's `Tests:` line, timing failures (a test that fails on time and passes alone); and
+once: `node -v`, CPU model and `os.cpus().length`, `os.freemem()`. Pass = 9/9 jest runs green, 0 timing failures.
 
 ## Host facts
 
@@ -347,3 +439,215 @@ Machine gates: `typecheck`, `typecheck:test`, `lint`, `test`, `test:debug`, `deb
 3. T1: allow the ≤ 5 `!` allowlist, or require 0?
 4. Q3t: test support in `test/support/` (outside jest's `src/*` roots, needs a `roots` change) or `src/**/testing/`?
 5. AE-04 structural check: accept "not built" if the marker map yields any false positive, or hand-review each?
+
+## Gate record (code items)
+
+2026-09-26, branch `worktree-agent-a9c5f1b41d85d15fc`. Step 0 measured on `06ea92d`; master merged twice (`0ae7107`: plans
+01/02/07, no conflicts, 4 new long lines and 3 silent-catch rows absorbed in `bb5b4b2`; `af57f96`: docs only). Every
+step below landed green on the machine gates before its commit. **Nothing live was run** (the brief forbids lanes and
+main ST), so the plan's live gates are listed as pending at the end and this plan is **not accepted**.
+
+### Budgets (effective lines, 120 chars per started line)
+
+| File | Step 0 (`06ea92d`) | After master merge (`bb5b4b2`) | Final | Budget | Headroom |
+|---|---|---|---|---|---|
+| `runtime/runtimeManager.ts` | 739 (constant 740) | 634 | 548 (+ `managerDelegates.ts` 119) | 700 | 152 |
+| `coordinators/memoryCoordinator.ts` | 618 | 498 | 500 | 560 | 60 |
+| `coordinators/extractionCoordinator.ts` | 604 | 473 | 480 | 560 | 80 |
+| `coordinators/stagecraftCoordinator.ts` | 616 | 444 | 450 | 560 | 110 |
+| `coordinators/expansionCoordinator.ts` | — | ~325 | 332 | 560 | 228 |
+| `coordinators/copilotCoordinator.ts` | — | 262 | 262 | 560 | 298 |
+| `coordinators/sceneCoordinator.ts` | — | 223 | 223 | 560 | 337 |
+| `coordinators/pacingCoordinator.ts` | — | 126 | 126 | 560 | 434 |
+
+`MANAGER_LINE_BUDGET` 740 → 700 and `COORDINATOR_LINE_BUDGET` 620 → 560 (`ddbee01`), now also pinned by the code-health
+guard (a re-raised constant fails, mutant M1). Largest prod file: `extraction/scheduler.ts` 551 (< 600). The later
+growth after the merge (manager +14, coordinators +2 to +7) comes from the S5 wrap and D8. The manager and
+coordinators were re-wrapped with hanging comma breaks (`004a895`), so the one-element-per-line list style only
+applies elsewhere.
+
+### Ratchets (`test/findings/codeHealth.json`)
+
+S2, S3, S4 (lines, branches and nesting), S5, S6, S7, Q3t, T1 (unknownCasts and nonNull), T3, E1, D1 and Q1t are all
+empty. S8 has helpers, withholding, duplicates and dead empty and `popupCasts` 1 (the one allowed cast in
+`stHost/popup.ts`). S8 `fnv` holds **one entry**, `judge/loreRelevanceCalibration.ts` `requestKey`. It returns a number
+that keys the recorded lore golden, and judge purity forbids `@runtime/hash`, so removing it would mean moving the
+predeclared D0 home after measuring. It stays listed, so `closed` stays **false**. `test/findings/errorCopy.json` has 69
+rows, 0 failing, and `closed: true`.
+
+### Machine gates (final tree, merge `1ee38d0` + the F2 property and S2 pin)
+
+`bash .debug/p03gates.sh final build` ran `npm run typecheck`, `npm run typecheck:test`, `npm run lint`,
+`npm run debug:typecheck`, `npx jest --runInBand`, `npm run build` (with `ST_PUBLIC` set, because the default path
+resolves wrong in a nested worktree), `npm run test:release` and `npm run test:debug`:
+
+| Gate | Result |
+|---|---|
+| typecheck / typecheck:test / lint / debug:typecheck | exit 0 / 0 / 0 / 0 |
+| jest | 293 suites passed + 1 skipped (`gateReplay.records`, which skips itself with no archive), 4087 tests passed + 1 skipped |
+| build | bundle `1dde57a16f85`, source `7bdf950668fe`, ST 1.19.0 |
+| test:release | 37 pass / 0 fail |
+| test:debug | 334 pass / 0 fail |
+| Storybook | 37 suites / 261 tests. `storybook build` then `test-storybook --index-json` via `.debug/sb.sh`; `test-storybook:ci` fails in a nested worktree, as the plan 11 record documents |
+
+`typecheck:test` now covers `src/**/*.test.ts(x)`. The widening found **123** errors in 56 files, not the recorded 18,
+because the test corpus grew. All are fixed with no runtime value changed (`1ee171d`); the full list is under
+Deviations.
+
+**Q1t load recipe** (`npx concurrently -n A,B,C,BUILD "npm test" "npm test" "npm test" "npm run build"`, 3 times back
+to back): node v22.22.0, Intel i9-9900 @ 3.10 GHz, 16 logical CPUs, 7.9 GB free of 31.9 GB. Runs 1, 2 and 3 each
+exited 0, and all 9 jest runs were `1 skipped, 4086 passed, 4087 total`. 0 timing failures. **Pass.** The recipe ran
+before the last test addition, which added 1 test.
+
+**Mutations** (`test/findings/mutations/v25-03.txt`): **17 of 17 killed**, covering S2, S6, Q3t/S7, S8, D1, D3
+(CanonSynthesis token check), E2 (raw error text, planted silent catch), E1, E4 (macro unregister, registry globals),
+F2 (no `touch`), F3 (no invalidation), Q1t (900 ms sleep), T3, S5 and T1. Baseline and restored runs were both
+110/110.
+
+**Negative controls added this segment:**
+- eslint `max-len` 200: planted 201-char line errors, a 200-char line passes.
+- `no-non-null-assertion` and `no-explicit-any`: a planted `!` and a planted `any` error.
+- `no-console`: fails outside `utils/log.ts` and passes inside it.
+- Mount registry: the no-dispose control keeps its listener, timer and globals live.
+- `stopRuntime`: control holds macros and globals, mutants killed.
+- Snapshot cache: the no-`touch` control and the memo-equals-fresh sequence property.
+- Context limit cache: the no-invalidate control.
+- Q1t: a per-chunk cleaner exceeds the bound; advancing 100 ms instead of 1200 fails the fake-timer tests.
+- A25: tracking only the reported hash leaves the record behind.
+- A27: the fixture's own steps never remove the book.
+- A28: identical chat lists produce no difference.
+- A29: lines that arrived at different times get different stamps.
+- Judge settle: with no judge call, the meter is read after one quiet window.
+- E2 sweep: a raw `TypeError`, a stack frame, `NaN` or `[object Object]` on a player surface is a finding.
+
+### What was built (per item)
+
+- **D4.**
+  - Studio UI splits (`5b47882`): S4 lines are empty.
+  - S5 wrap tool (`.debug/wrap.cjs`, TS AST: list breaks, split string/template/JSX-text literals, precedence-safe
+    parens, JSX attribute strings only without `\`/`&`): 384 edits plus 7 by hand, including two regex alternations split
+    into `.some()` entries (equivalent).
+  - eslint `max-len: [error, 200]`.
+- **D6.**
+  - T1 (`6d56990`): 0 `as unknown as` outside stHost. 43 non-null assertions became 0, via local narrowing, type-guard
+    filters, `Reflect`, and `required()` where the `!` would have thrown. The ≤ 5 allowlist was not needed.
+  - T2: lint takes `src` whole; `no-explicit-any`, `no-non-null-assertion` and `no-console` are errors.
+  - T3 (`38956e3`): 618 citation lines stripped of their ids with the prose kept; host `file:line` citations and stHost
+    JSDoc untouched.
+  - `typecheck:test` widened (`1ee171d`).
+- **D7** (`20bcd39`).
+  - E1: `utils/log.ts`. `debug` is off unless `process.env.NODE_ENV === "development"` (webpack inlines it) or
+    `localStorage["story-orchestrator:debug"] === "on"`. All 45 console calls moved; `authorNotes` apply logging is now
+    `debug`.
+  - E2: the 8 fail rows fixed. Logged catches in cues, vector purge, both talkControl fallbacks, Studio download and the
+    warden check. Neutral copy plus a log for the expansion-merge status and the context-limit reason. `so-ui
+    assert-player-clean` gains an error-state sweep over every player surface on every tab.
+  - E4: `utils/mountRegistry.ts`. `index.tsx` routes its 4 roots, created elements, navbar listener (via the disposer
+    `bindNavbarDrawerToggle` now returns), `DOMContentLoaded`, mount-retry timers and 3 globals through it.
+    `stopExtension` is exposed as `globalThis.storyOrchestratorStop` for the live cycle. `stopRuntime` now unregisters
+    every macro `registerRuntimeMacros` registered and deletes every runtime `storyOrchestrator*` global.
+- **D8** (`f9804c7`).
+  - F2: `SnapshotCache`, invalidated by `notify()`, `persist()` and `touch()` (`recordJudgeCall`).
+  - F3: `contextLimitCache` keyed by (profile, preset name), invalidated on `PRESET_CHANGED`,
+    `CONNECTION_PROFILE_UPDATED` and Capabilities Recheck.
+- **D9** (`4a169d3`).
+  - Q1t: structural bound. Replace/split/match/test calls per message are equal for 1 KB and 8 KB and ≤ 17, the
+    red-first measurement. `exec` is excluded because `replace` drives it once per match. The 5 sleeps moved to fake
+    timers.
+  - so-journey `fileSha256`, plus a judge-request settle before the meter read.
+  - A25, A27 (so-scenario runs a fixture-level `cleanup: {steps}` in its `finally`), A28 (`inventory.groupChats`), A29.
+- **AE-04: not built.** Measured with a shape→marker map over the cited test bodies, 42 of 96 covered/partial cells fail
+  (the injection usually lives in helpers outside the cited body), and 1 of 3 pre-fix citations (`judgeRing|aborted`
+  at `9178162^`) passes. It fails both admission conditions (`.debug/ae04.py`).
+- **D10: not triggered.** The plan 11 record says I1/I2 were finished there and not moved.
+
+### Answers to the unresolved questions
+
+1. T3: comments without an id stay; only ids and dates were stripped.
+2. T4: **blocked**. The extension shares ST's `node_modules`. Upgrading `@types/react` to 19, moving to eslint 9 flat
+   config, removing `yaml` and running `npm audit --omit=dev` would mutate the shared tree, which this plan is not
+   allowed to do. This is a deferral for the user, and T2 was not loosened.
+3. T1: 0, no allowlist.
+4. Q3t: `test/support/`, with the jest `roots` change (D5).
+5. AE-04: not built, because the false positives are measured.
+
+### Deviations
+
+- **D1.** `resolveRoute` lives in `passProfiles`.
+- **D3.**
+  - Coordinators construct their own delegated units.
+  - The manager's 67 one-line delegates moved to an abstract `CoordinatorDelegates` base (`managerDelegates.ts`).
+- **D4.**
+  - The S3 guard is the every-prod-file ratchet.
+  - New settings groups and tabs have no `.stories.tsx` of their own; they are covered through their parents' stories.
+  - StudioCopilot and GraphPanel hook extraction reorders effect declarations; behaviour is unchanged and Storybook is
+    green.
+  - The S5 wrap also covers the 51 long lines in `.stories.tsx` files, because `max-len` applies to the whole lint
+    scope.
+- **D5.**
+  - `studio/stories/fixtures.ts` was not moved.
+  - `src/services/__mocks__` was already absent.
+  - The judge FNV copy is kept (see Ratchets).
+  - `src/types/cytoscape-dagre.d.ts` was deleted. It was in no tsconfig, and linting `src` whole made it a parse error;
+    `citations-known.json` lists the removal.
+- **E2.** The inventory excludes JSX text. The context-limit reason no longer carries the host's message, and
+  `contextLimit.test` asserts the new contract: the message goes to the log.
+- **D7** landed as one commit, because E1/E2/E4 share files (`consolidationMatches`, `errorCopy.json`, `index.tsx`).
+- **F2 is inverted from the plan's shape.** `getSnapshot()` stays fresh for its 38 internal callers, several of which
+  read right after a mutation and before any notify (e.g. the load path hands it to `applyCheckpoint`). React roots and
+  macros read `getCachedSnapshot()`. The plan's `getSnapshot({fresh: true})` is therefore unnecessary.
+- **Tests.** Test-only casts from the `typecheck:test` fix:
+  - `undefined as never` in `consolidate.test.ts:79`: `applyConsolidation` gained a required `at` that the test never
+    passed.
+  - `as unknown as` in pacingCoordinator, stagecraftCoordinator ×3, journal, memoryQueue, nextTurn ×3, repair,
+    saveEvidence and storyUpdate tests.
+  - Duplicate keys resolved to the value that already ran (boundaryWork, sceneCoordinator).
+- **Scripts.** Three new scripts carry explanatory comments, matching `scripts/debug` convention. T3 scopes only `src/`.
+
+### Live pending (not run; each needs a lane, real LLM, ×2, `--strict`, run-header diff = 0 undeclared)
+
+| Gate | Command / recipe |
+|---|---|
+| J1, J5, J7, J8, J9, J10 ×2 | `st-lanes.mts batch --lanes 1,2 --repeat 2 --strict J1 J5 J7 J8 J9 J10`; records under `test/journeys/records/v2.5-plan03/` |
+| MemorizeBacklog | `so-scenario run test/scenarios/live-v24-03-memorize.json --sandbox --group <id>` ×2 |
+| Boundaries and rollback through the new wiring | `so-turn-types-check.mts` and `so-mutation-check.mts` ×2 |
+| E4 disable/enable cycle ×2 | ST disable, then enable, **or** `globalThis.storyOrchestratorStop()` + reload. Between: 0 roots (`#so-drawer`, `#so-hud-root`, `#so-studio-root`, settings root absent), 0 `storyOrchestrator*` globals, `{{story_title}}` unresolved. Then one real turn after re-enable |
+| E2 sweep live | `so-ui.mts assert-player-clean` in player mode on a chat with a failed pass (backend down); must read clean |
+| F2/F3 live | the macro still resolves after a boundary (`{{story_current_checkpoint}}` in a sent prompt); the Capabilities memory-model line follows a preset edit (`PRESET_CHANGED`) and Recheck |
+| Harness rows (plan 10 H-b to H-f) | A25 `v24-02-settings-save-swallowed.json` and `v24-02-unrecognized-blob.json` leave `inventory.v2Stories` unchanged; A27 `live-v24-05-forced-pick.json` leaves `lorebookCount`/`lorebooksSelected` unchanged; A28 a run-header diff shows `inventory.groupChats`; A29 an `st-lanes run` log carries per-line stamps; H-f a journey record carries `fileSha256`; judge settle `cleanup.judgeSettle.settled: true` on a J8 judge-on run |
+| Reply-path cost p95 | plan 10's live probe (rule 11); the jest side is now structural |
+
+After every build on a lane: `node scripts/debug/st-session.mts reload`.
+
+### Merge of master `c743bedd` (2026-09-26)
+
+Conflicts resolved keeping both sides:
+- `stHost/persistence.ts`: master's C2 `switchRefusal` (refuses a late-bound save of ours whatever its rows), `ChatSaveTarget`, and the `storyOrchestratorSaveRefusals` ring are taken as-is. Plan 03 only strips the citation prefix from the comments.
+- `worldInfoGating.ts`: master's G5 `fallBack`/`settle` moved into the `WiGatingRuntime` class (`private fellBack`, `this.fallBack()` when the capability is not present, and `deactivate` clears it). The ownership census row for `WiGatingRuntime.syncOnce` says so.
+- `runtime/index.ts`: `readGatingModeWith(...)` is registered as the first disposer of `startRuntime`, before `startScheduler`.
+- C1 (`guardHostStream` in `EffectsApplier.speak`) and C7 (the transition note before the onEnter effects in `commitBoundary`) auto-merged into the refactored files. Both are verified present.
+- Debug harness: master's H1 exact library restore (`lib/librarySnapshot.mts`, `planLibraryRestore`) replaces `removableStories`. A25 is subsumed by H1: restoring the pre-run library removes a refused import's record without tracking its hash. Plan 03's `addedStoryHashes` and its per-step library diff are therefore dropped. The A25 test and its control are restated over `planLibraryRestore`. `fixtureSha256` and `trackJudgeRequests` stay in so-journey.
+
+Gates after the merge:
+
+| Gate | Result |
+|---|---|
+| typecheck, typecheck:test, lint, debug:typecheck | exit 0 |
+| jest | 296 suites, 4111 tests pass |
+| build (`ST_PUBLIC` set) | exit 0 |
+| test:release | 37 pass, 0 fail |
+| test:debug | 343 pass, 0 fail |
+| Storybook (`--index-json`) | 37 suites, 261 tests pass |
+
+Budgets (effective lines) are unchanged:
+
+| File | Lines | Budget |
+|---|---|---|
+| runtimeManager | 548 | 700 |
+| memoryCoordinator | 500 | 560 |
+| extractionCoordinator | 480 | 560 |
+| stagecraftCoordinator | 450 | 560 |
+| expansionCoordinator | 332 | 560 |
+| copilotCoordinator | 262 | 560 |
+| sceneCoordinator | 223 | 560 |
+| pacingCoordinator | 126 | 560 |

@@ -1,3 +1,4 @@
+import { plantedModel } from "../../test/support/modelCall";
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
@@ -9,6 +10,7 @@ import { join } from "node:path";
 import type { StoryV2 } from "@engine/index";
 import { runAuthoringStage, runDriverReport, runDriverSuggest } from "./authoring";
 import type { DriverContext } from "./types";
+import type { ProvisioningEnvironment } from "@wizard/types";
 
 const readGolden = (name: string): string => readFileSync(join(process.cwd(), "test/goldens", name), "utf8");
 
@@ -29,7 +31,7 @@ describe("runAuthoringStage", () => {
   it("returns an ok proposal for a valid debug response and skips repair", async () => {
     const result = await runAuthoringStage(
       { draft: baseDraft(), stage: "qualities", message: "", history: [] },
-      { profileId: null, debugResponse: readGolden("copilot-qualities.response.txt") },
+      plantedModel, { role: "authoring", pass: "copilot", debugResponse: readGolden("copilot-qualities.response.txt") },
     );
     expect(result.status).toBe("ok");
     expect(result.proposal.ops).toHaveLength(2);
@@ -40,7 +42,7 @@ describe("runAuthoringStage", () => {
   it("marks a proposal failed and records a repair attempt when invalid", async () => {
     const result = await runAuthoringStage(
       { draft: baseDraft(), stage: "transitions", message: "", history: [] },
-      { profileId: null, debugResponse: readGolden("copilot-invalid.response.txt") },
+      plantedModel, { role: "authoring", pass: "copilot", debugResponse: readGolden("copilot-invalid.response.txt") },
     );
     expect(result.status).toBe("failed");
     expect(result.issues.length).toBeGreaterThan(0);
@@ -56,7 +58,7 @@ describe("runAuthoringStage", () => {
         { kind: "addQuality", quality: { key: "alarm", type: "bool", source: "extractor", rubric: "Is the alarm tripped?" } },
       ],
     });
-    const result = await runAuthoringStage({ draft: baseDraft(), stage: "checkpoints", message: "", history: [] }, { profileId: null, debugResponse: response });
+    const result = await runAuthoringStage({ draft: baseDraft(), stage: "checkpoints", message: "", history: [] }, plantedModel, { role: "authoring", pass: "copilot", debugResponse: response });
     expect(result.status).toBe("failed");
     expect(result.issues).toEqual(expect.arrayContaining([
       "ops.1: addTransition is not allowed in the checkpoints stage; the transitions stage allows it",
@@ -67,9 +69,12 @@ describe("runAuthoringStage", () => {
 
   it("fails a provisioning proposal carrying a draft op, even though draft validation is skipped there", async () => {
     const result = await runAuthoringStage(
-      { draft: baseDraft(), stage: "provisioning", message: "", history: [], environment: { characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [] } },
       {
-        profileId: null,
+        draft: baseDraft(), stage: "provisioning", message: "", history: [],
+        environment: { characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [] } as Partial<ProvisioningEnvironment> as ProvisioningEnvironment,
+      },
+      plantedModel, {
+        role: "authoring", pass: "copilot",
         debugResponse: JSON.stringify({
           summary: "",
           ops: [
@@ -86,7 +91,7 @@ describe("runAuthoringStage", () => {
   it("control: a checkpoints proposal of checkpoint ops only stays ok without a repair pass", async () => {
     const result = await runAuthoringStage(
       { draft: baseDraft(), stage: "checkpoints", message: "", history: [] },
-      { profileId: null, debugResponse: readGolden("copilot-checkpoints.response.txt") },
+      plantedModel, { role: "authoring", pass: "copilot", debugResponse: readGolden("copilot-checkpoints.response.txt") },
     );
     expect(result.status).toBe("ok");
     expect(result.issues).toEqual([]);
@@ -95,7 +100,7 @@ describe("runAuthoringStage", () => {
 
   it("a checkpoints proposal adding an intermediate is ok on the first answer, carrying the transitions stage's deferred note", async () => {
     const response = JSON.stringify({ summary: "", ops: [{ kind: "addCheckpoint", checkpoint: { id: "lobby", name: "Lobby", objective: "Crack the lobby door.", type: "intermediate" } }] });
-    const result = await runAuthoringStage({ draft: baseDraft(), stage: "checkpoints", message: "", history: [] }, { profileId: null, debugResponse: response });
+    const result = await runAuthoringStage({ draft: baseDraft(), stage: "checkpoints", message: "", history: [] }, plantedModel, { role: "authoring", pass: "copilot", debugResponse: response });
     expect(result.status).toBe("ok");
     expect(result.issues).toEqual([]);
     expect(result.deferred).toEqual(["checkpoints.2: intermediate checkpoint 'lobby' has no route to an anchor yet; the transitions stage must connect it"]);
@@ -105,7 +110,7 @@ describe("runAuthoringStage", () => {
   it("control: a transitions proposal that leaves that intermediate unconnected fails, and carries no deferred note", async () => {
     const draft: StoryV2 = { ...baseDraft(), checkpoints: [...baseDraft().checkpoints, { id: "lobby", name: "Lobby", objective: "Crack the lobby door.", type: "intermediate" }] };
     const response = JSON.stringify({ summary: "", ops: [{ kind: "addTransition", transition: { from: "start", to: "vault", priority: 1, gate: { q: "has_key", op: "==", v: true } } }] });
-    const result = await runAuthoringStage({ draft, stage: "transitions", message: "", history: [] }, { profileId: null, debugResponse: response });
+    const result = await runAuthoringStage({ draft, stage: "transitions", message: "", history: [] }, plantedModel, { role: "authoring", pass: "copilot", debugResponse: response });
     expect(result.status).toBe("failed");
     expect(result.issues).toEqual(["checkpoints.2: intermediate checkpoint has no reachable anchor beyond it"]);
     expect(result.deferred).toBeUndefined();
@@ -115,7 +120,7 @@ describe("runAuthoringStage", () => {
   it("returns the interview instead of a proposal, without spending a repair pass", async () => {
     const result = await runAuthoringStage(
       { draft: baseDraft(), stage: "qualities", message: "a heist, but make it strange", history: [] },
-      { profileId: null, debugResponse: JSON.stringify({ summary: "Two calls to make.", questions: [{ id: "tone", text: "Comic or grim?", options: ["comic", "grim"] }] }) },
+      plantedModel, { role: "authoring", pass: "copilot", debugResponse: JSON.stringify({ summary: "Two calls to make.", questions: [{ id: "tone", text: "Comic or grim?", options: ["comic", "grim"] }] }) },
     );
     expect(result.status).toBe("questions");
     expect(result.questions).toHaveLength(1);
@@ -130,9 +135,9 @@ describe("runAuthoringStage", () => {
         stage: "provisioning",
         message: "",
         history: [],
-        environment: { characterNames: ["Arin"], lorebookNames: [], groupNames: [], storyLorebooks: [] },
+        environment: { characterNames: ["Arin"], lorebookNames: [], groupNames: [], storyLorebooks: [] } as Partial<ProvisioningEnvironment> as ProvisioningEnvironment,
       },
-      { profileId: null, debugResponse: JSON.stringify({ summary: "", ops: [{ kind: "createCharacterCard", name: "Arin", description: "A guide." }] }) },
+      plantedModel, { role: "authoring", pass: "copilot", debugResponse: JSON.stringify({ summary: "", ops: [{ kind: "createCharacterCard", name: "Arin", description: "A guide." }] }) },
     );
     expect(result.status).toBe("failed");
     expect(result.issues.join(" ")).toContain("never edits yours");
@@ -146,10 +151,10 @@ describe("runAuthoringStage", () => {
         stage: "provisioning",
         message: "",
         history: [],
-        environment: { characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [] },
+        environment: { characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [] } as Partial<ProvisioningEnvironment> as ProvisioningEnvironment,
       },
-      {
-        profileId: null,
+      plantedModel, {
+        role: "authoring", pass: "copilot",
         debugResponse: JSON.stringify({
           summary: "Two steps.",
           ops: [
@@ -177,15 +182,15 @@ describe("driver passes", () => {
   };
 
   it("parses driver suggestions", async () => {
-    const suggestions = await runDriverSuggest(context, {
-      profileId: null,
+    const suggestions = await runDriverSuggest(context, plantedModel, {
+      role: "authoring", pass: "copilot",
       debugResponse: JSON.stringify({ suggestions: [{ title: "Find the key", rationale: "has_key is false" }] }),
     });
     expect(suggestions).toEqual([{ title: "Find the key", rationale: "has_key is false" }]);
   });
 
   it("returns trimmed report prose", async () => {
-    const report = await runDriverReport(context, { profileId: null, debugResponse: "  The crew is close to the vault.  " });
+    const report = await runDriverReport(context, plantedModel, { role: "authoring", pass: "copilot", debugResponse: "  The crew is close to the vault.  " });
     expect(report).toBe("The crew is close to the vault.");
   });
 });

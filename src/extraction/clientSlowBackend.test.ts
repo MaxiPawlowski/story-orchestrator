@@ -1,7 +1,10 @@
+import { profileRoute } from "./modelRoute";
 import { sendConnectionProfileRequest } from "@services/STAPI";
 import { PROBE_TIMEOUT_MS } from "./breaker";
 import { TIMEOUT_RETRY_SCALE } from "./callBudget";
-import { callExtractionReply, ModelCallError, probeModel, retryOnTimeout, setAnsweredObserver, type CallAnswered } from "./client";
+import { callExtractionReply, probeModel } from "./client";
+import { setAnsweredObserver, type CallAnswered } from "./reply";
+import { ModelCallError, retryOnTimeout } from "./modelError";
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -41,7 +44,7 @@ describe("A6: every call that answered is reported, so the breaker can see a liv
 
   it("an answered call reports its profile and how long it took", async () => {
     send.mockResolvedValueOnce({ ok: true, text: "NO_DELTA", finish: "stop" });
-    await callExtractionReply("prompt", { profileId: "artemis", role: "read" });
+    await callExtractionReply("prompt", profileRoute("artemis"));
     expect(seen).toHaveLength(1);
     expect(seen[0].profileId).toBe("artemis");
     expect(Number.isFinite(seen[0].ms) && seen[0].ms >= 0).toBe(true);
@@ -49,23 +52,23 @@ describe("A6: every call that answered is reported, so the breaker can see a liv
 
   it("control: a failed call, and a debug response, report nothing", async () => {
     send.mockResolvedValueOnce(timedOutReply);
-    await callExtractionReply("prompt", { profileId: "artemis", role: "read" }).catch(() => undefined);
+    await callExtractionReply("prompt", profileRoute("artemis")).catch(() => undefined);
     send.mockResolvedValueOnce({ ok: false, kind: "transport", message: "API request failed" });
-    await callExtractionReply("prompt", { profileId: "artemis", role: "read" }).catch(() => undefined);
-    await callExtractionReply("prompt", { profileId: "artemis", role: "read", debugResponse: "NO_DELTA" });
+    await callExtractionReply("prompt", profileRoute("artemis")).catch(() => undefined);
+    await callExtractionReply("prompt", profileRoute("artemis"), { debugResponse: "NO_DELTA" });
     expect(seen).toEqual([]);
   });
 
   it("control: a disposed observer hears nothing", async () => {
     dispose();
     send.mockResolvedValueOnce({ ok: true, text: "NO_DELTA", finish: "stop" });
-    await callExtractionReply("prompt", { profileId: "artemis", role: "read" });
+    await callExtractionReply("prompt", profileRoute("artemis"));
     expect(seen).toEqual([]);
   });
 });
 
 describe("A11: a timed-out call is retried once with a larger budget, and then given up honestly", () => {
-  const ask = (scale: number) => callExtractionReply("x".repeat(400000), { profileId: "artemis", role: "read", maxTokens: 512, timeoutScale: scale });
+  const ask = (scale: number) => callExtractionReply("x".repeat(400000), profileRoute("artemis"), { maxTokens: 512, timeoutScale: scale });
   const base = 30000 + 512 * 50 + 100000 * 2;
 
   it("timeoutScale multiplies the call's own budget", async () => {

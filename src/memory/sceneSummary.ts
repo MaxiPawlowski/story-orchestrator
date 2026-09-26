@@ -39,11 +39,11 @@ const fitOptions = async (budget: RequestBudget, input: number, overheadPrompt: 
 const windowOf = (parts: BudgetMessage[]) => ({ from: parts[0]?.messageId ?? 0, to: parts[parts.length - 1]?.messageId ?? 0, messages: parts });
 
 export function sceneRangeFrom(derived: readonly DerivedRecord[], to: number, storyStart: number): number {
-  const ends = derived.filter((record) => record.kind === "scene_summary" && record.range).map((record) => record.range!.to + 1);
+  const ends = derived.flatMap((record) => (record.kind === "scene_summary" && record.range ? [record.range.to + 1] : []));
   return Math.max(0, Math.min(Math.max(storyStart, ...ends), to));
 }
 
-// v2.4 plan 03 D5. A scene is summarized whole: map each chunk that fits, then reduce the chunk
+// A scene is summarized whole: map each chunk that fits, then reduce the chunk
 // summaries (again, if they do not fit either). Chunk summaries are intermediates and are never
 // returned. A refused chunk yields no summary rather than one that silently skips part of the scene.
 export async function summarizeScene(run: SceneSummaryRun): Promise<SceneSummaryOutcome | null> {

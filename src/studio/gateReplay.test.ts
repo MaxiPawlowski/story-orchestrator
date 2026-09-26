@@ -125,7 +125,7 @@ describe("v2.5 plan 07 A3: the replay source the Studio is handed", () => {
 
   it("the quality signature changes only with what a replay cannot replay: key, type, values, latching, monotonic", () => {
     const base = qualitySignature(story.qualities);
-    expect(qualitySignature([{ ...story.qualities[0], rubric: "Other words" }])).toBe(base);
+    expect(qualitySignature([{ ...story.qualities[0], rubric: "Other words" } as (typeof story.qualities)[number]])).toBe(base);
     expect(qualitySignature([{ ...story.qualities[0], monotonic: true }])).not.toBe(base);
     expect(qualitySignature([{ ...story.qualities[0], type: "float" as const }])).not.toBe(base);
   });

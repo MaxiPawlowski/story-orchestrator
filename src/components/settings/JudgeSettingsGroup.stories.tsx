@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import { defaultJudgeSettings, JUDGE_USE_KEYS, type JudgeSettings } from "@judge/index";
 import { JudgeSettingsGroup } from "./JudgeSettingsGroup";
+import { required } from "@utils/guards";
 
 const settings = (patch: Partial<JudgeSettings> = {}, uses: Partial<JudgeSettings["uses"]> = {}): JudgeSettings => {
   const base = defaultJudgeSettings();
@@ -46,7 +47,18 @@ export const OnlyBuiltUsesAreListed: Story = {
   args: { settings: settings({ enabled: true }) },
   play: async ({ args, canvasElement }) => {
     const rows = [...canvasElement.querySelectorAll<HTMLInputElement>("[id^=so-judge-use-]")];
-    await expect(rows.map((row) => row.id)).toEqual(["so-judge-use-director", "so-judge-use-memory-verify", "so-judge-use-memory-pairs", "so-judge-use-scene-trigger", "so-judge-use-scene-tracker", "so-judge-use-lookahead", "so-judge-use-lore-select", "so-judge-use-typed-extraction", "so-judge-use-stall-check", "so-judge-use-curator-filter"]);
+    await expect(rows.map((row) => row.id)).toEqual([
+      "so-judge-use-director",
+      "so-judge-use-memory-verify",
+      "so-judge-use-memory-pairs",
+      "so-judge-use-scene-trigger",
+      "so-judge-use-scene-tracker",
+      "so-judge-use-lookahead",
+      "so-judge-use-lore-select",
+      "so-judge-use-typed-extraction",
+      "so-judge-use-stall-check",
+      "so-judge-use-curator-filter",
+    ]);
     await expect(JUDGE_USE_KEYS.length).toBeGreaterThan(rows.length);
     await userEvent.click(rows[1]);
     await expect(args.onChange).toHaveBeenCalledWith({ uses: { memoryVerify: true } });
@@ -107,7 +119,7 @@ export const AuthorExpansionControls: Story = {
     await expect(ids).toEqual(expect.arrayContaining(["so-judge-use-expansion-critic", "so-judge-use-expansion-lookahead"]));
     const pick = canvasElement.querySelector<HTMLSelectElement>("#so-judge-expansion-pick");
     await expect(pick?.disabled).toBe(true);
-    await userEvent.selectOptions(canvasElement.querySelector<HTMLSelectElement>("#so-judge-expansion-variants")!, "2");
+    await userEvent.selectOptions(required(canvasElement.querySelector<HTMLSelectElement>("#so-judge-expansion-variants"), "variants select"), "2");
     await expect(args.onChange).toHaveBeenCalledWith({ expansion: { variants: 2 } });
   },
 };

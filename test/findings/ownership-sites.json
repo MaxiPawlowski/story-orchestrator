@@ -57,15 +57,15 @@
       "status": "checked",
       "note": "v2.3 plan 03: TWO model calls with a store written in between, so the check sits after each call rather than once at the end — the epistemic signals are applied before the ledger prompt is even sent. Both stores and the injection update are refused when the world moved."
     },
-    "src/runtime/coordinators/extractionCoordinator.ts#ExtractionCoordinator.runMemorizeBacklog": {
+    "src/runtime/memorizeBacklog.ts#MemorizeBacklog.runMemorizeBacklog": {
       "status": "checked",
       "note": "v2.3 replan V3 (2026-09-23): mints one read over the whole chat before the first await, asks it before every window, passes it into applyAudit (which refuses a lapsed read before any write), and asks again before the final read, the boundary commit and the error record. It used to read the NEXT chat's windows into memory after a switch. v2.4 plan 03 D4 (2026-09-24): the loop moved to memorizeWindows and the exit to endBacklog, so every ending passes through one write. The read it hands on is the chat token AND the backlog's own Stop controller (cancelMemorizeBacklog), checked between windows. Its only write after the await is clearing its own in-memory `backlogStop` handle. v2.4 plan 03 D5 wiring (2026-09-24): the read is minted BEFORE the plan's token count (an await), and the preflight popup is another await before anything is sent; the plan is refused when the read lapsed during either. The model calls now carry anySignal([Stop, read.signal]), so Stop and a mutation inside the whole-chat window cancel the request in flight (budgetWiring.review.test.ts)."
     },
-    "src/runtime/coordinators/extractionCoordinator.ts#ExtractionCoordinator.endBacklog": {
+    "src/runtime/memorizeBacklog.ts#MemorizeBacklog.endBacklog": {
       "status": "checked",
       "note": "v2.4 plan 03 D4 (2026-09-24): the backlog's one exit. Reads read.lapsed() BEFORE its only write: an epoch/chat/story lapse writes nothing (the backfill it would clear belongs to another chat, whose hydrate resets running itself); a same-chat lapse (window: an edit or swipe inside the whole-chat read; version: a hot-swapped story) and a player Stop write running:false with a reason. This is what closes the same-chat wedge, where every early return left running:true until reload."
     },
-    "src/runtime/coordinators/extractionCoordinator.ts#ExtractionCoordinator.memorizeWindows": {
+    "src/runtime/memorizeBacklog.ts#MemorizeBacklog.memorizeWindows": {
       "status": "checked",
       "note": "v2.4 plan 03 D4 (2026-09-24): the V3 window loop, moved out of runMemorizeBacklog unchanged. The ReadOwnership it is handed combines the whole-chat token with the Stop controller, and it is asked before every window, after every applyAudit (which refuses a lapsed read before any write), before the final read and before the boundary commit. A stopped run therefore writes nothing further, and the windows already applied stay (memory-only, acceptedDeltas: []). Live-found fix (2026-09-24): the scene passes a window's audit triggers are collected, not scheduled, and run one at a time after that window (runSceneWork, asked before each pass); each pass keeps its own guard and is censused where it is defined. v2.4 acceptance A11 (2026-09-25): each window read and the whole-chat read go through retryOnTimeout, one more ask at twice the budget after a timeout. The retry is another await INSIDE the read, before the same applyAudit and stillOwns checks, so no write moved past a check; a Stop or chat switch during the first ask is a lapse, which is never retried."
     },
@@ -109,11 +109,7 @@
       "status": "checked",
       "note": "v2.3 replan V8 (2026-09-23): after the edit is saved it awaits the exact token count (M7 promised the refresh; nothing ran it), then checks run.stillOwns() before storing the count on the row, and only on the row that still holds the edited text."
     },
-    "src/runtime/coordinators/memoryCoordinator.ts#MemoryCoordinator.reconfirmMemoryEntry": {
-      "status": "delegate",
-      "note": "v2.3 plan 05 (C3): the author restates a quarantined fact, so the row becomes their claim instead of a read of a message that is gone. Its write now lives in the queue module (memoryQueue.commitDecision) and awaits MemoryCoordinator.save through the queue deps, which awaits ChatSave.persist (through the manager's persist delegate), where the check lives."
-    },
-    "src/runtime/coordinators/memoryCoordinator.ts#MemoryCoordinator.regenerateCanon": {
+    "src/runtime/canonSynthesis.ts#CanonSynthesis.regenerateCanon": {
       "status": "checked",
       "note": "v2.3 plan 03: checked before the canon write. Its finally is deliberately UNGUARDED — canonInFlight is the run own bookkeeping, and leaving it set because the world moved would wedge canon regeneration for the session."
     },
@@ -173,10 +169,6 @@
       "status": "delegate",
       "note": "v2.3 plan 03: its only recognised write is the awaited MemoryCoordinator.save, which awaits ChatSave.persist (through the manager's persist delegate) and that is where the check lives. Not everything with an await owes a check of its own: the in-memory patch and the injection update both run before the first await, so minting here would compare a token against the world it was just minted from and prove nothing."
     },
-    "src/runtime/coordinators/memoryCoordinator.ts#MemoryCoordinator.storeDroppedEntry": {
-      "status": "delegate",
-      "note": "v2.3 plan 05: the write moved to the queue module with the other author overrides (see memoryQueue.commitDecision, which carries the caveat). This method one host-facing write awaits MemoryCoordinator.save (the queue deps save), which awaits ChatSave.persist (through the manager's persist delegate), where the chat check lives; the queue holds no token of its own because an author-named row has no window to mint one from."
-    },
     "src/runtime/coordinators/memoryCoordinator.ts#MemoryCoordinator.syncWorldInfo": {
       "status": "delegate",
       "note": "awaits syncMemoryMirror, which owns the check: it returns null when the world moved, and this function only patches extras when the result is non-null."
@@ -193,7 +185,7 @@
       "status": "delegate",
       "note": "v2.3 plan 03: its only recognised write is the awaited StagecraftCoordinator.save, which awaits ChatSave.persist (through the manager's persist delegate) and that is where the check lives. The in-memory op update runs before the first await."
     },
-    "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.markWriteAhead": {
+    "src/runtime/curatorWriter.ts#CuratorWriter.markWriteAhead": {
       "status": "local",
       "note": "v2.3 plan 04: the write-ahead record itself, persisted before the host call. It only replaces the in-memory proposal list through updateOps and awaits the same save the caller already owns; it starts no work of its own and mints no token, because its only caller, `writeOp` (through `beforeHostWrite`), checks the run immediately before calling it, after the write-edge read (AE-01)."
     },
@@ -201,11 +193,11 @@
       "status": "local",
       "note": "pushes into a function-local array it returns; the caller owns the write"
     },
-    "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.reconcileWriteAhead": {
+    "src/runtime/curatorWriter.ts#CuratorWriter.reconcileWriteAhead": {
       "status": "checked",
       "note": "v2.5 plan 02 C10 (2026-09-25): the hydrate reconcile of the curator write-ahead marker. A RunGuard minted before the first read and checked after each uid-addressed read (the only await); a lapse returns zero counts before the proposal patch or the journal line, so a reload superseded mid-reconcile settles nothing into the chat that replaced it (stagecraftWriteAhead.test.ts, switch-during-read case). It never writes the host: a landed write is recorded applied, an unlanded one goes back to accepted for the next boundary's fresh read."
     },
-    "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.revertAppliedSince": {
+    "src/runtime/curatorWriter.ts#CuratorWriter.revertAppliedSince": {
       "status": "checked",
       "note": "v2.3 plan 03 + AE-01 (2026-09-25): a RunGuard minted before the settle and checked at three places: at the top of each op, immediately after the compare-and-set read (before `restoreBefore`, the host write), and once more before the proposal patch. So a rollback that outlives its chat neither restores pre-write content into a shared lorebook nor settles records, journals or saves in the chat that replaced it. Before AE-01 the only check preceded the read, and the patch after the loop was unchecked. v2.5 plan 11 (H16, re-read per rule 13): an op without a recorded uid is refused before any await, and `restoreBefore` is now the single uid-addressed host write (no write follows its await, so it left the census)."
     },
@@ -225,7 +217,7 @@
       "status": "delegate",
       "note": "v2.3 plan 03: its only recognised write is the awaited StagecraftCoordinator.save, which awaits ChatSave.persist (through the manager's persist delegate) and that is where the check lives. The in-memory op update runs before the first await."
     },
-    "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.writeOp": {
+    "src/runtime/curatorWriter.ts#CuratorWriter.writeOp": {
       "status": "checked",
       "note": "AE-01 (2026-09-25): was `partial` on \"its caller checks the token before every call\", the census blind spot, since that check preceded both awaits in here. The RunGuard is now threaded in and checked immediately after the write-edge read (before `beforeHostWrite`, the write-ahead record) and immediately after the write-ahead save (before `updateWIEntryByUid`, its one host write). A lapse returns `lapsed` and records nothing: after a switch, state and save both resolve to the chat that replaced this one. A lapse after the write-ahead save leaves the departed chat's op `accepted` with its pending marker, the same row a crash before the host call leaves; nothing reconciles that marker on hydrate, and the op's next boundary in its own chat re-reads the entry and writes it (stagecraftCoordinator.test.ts, AE-01 block)."
     },
@@ -321,7 +313,7 @@
       "status": "checked",
       "note": "v2.3 replan V3 (2026-09-23): mints before the engine moves and stops after applyCheckpoint if the world moved, instead of stamping status, steering and injection onto whatever loaded meanwhile."
     },
-    "src/runtime/runtimeManager.ts#RuntimeManager.applyExtractionAudit": {
+    "src/runtime/managerDelegates.ts#CoordinatorDelegates.applyExtractionAudit": {
       "status": "delegate",
       "note": "awaits ExtractionCoordinator.applyAudit, which owns the check"
     },
@@ -345,19 +337,19 @@
       "status": "checked",
       "note": "v2.3 plan 03, moved out of ChatSave.persist by V26 (the manager keeps a one-line delegate): the chokepoint. A runtime hydrated for another chat declines to write, so every coordinator save() is covered by one check. Reproduction in persistOwnership.review.test.ts."
     },
-    "src/runtime/runtimeManager.ts#RuntimeManager.removeArc": {
+    "src/runtime/managerDelegates.ts#CoordinatorDelegates.removeArc": {
       "status": "delegate",
       "note": "awaits MemoryCoordinator.removeArc, which owns the check"
     },
-    "src/runtime/runtimeManager.ts#RuntimeManager.removeEpistemicEntry": {
+    "src/runtime/managerDelegates.ts#CoordinatorDelegates.removeEpistemicEntry": {
       "status": "delegate",
       "note": "awaits MemoryCoordinator.removeEpistemicEntry, which owns the check"
     },
-    "src/runtime/runtimeManager.ts#RuntimeManager.removeLedgerEntry": {
+    "src/runtime/managerDelegates.ts#CoordinatorDelegates.removeLedgerEntry": {
       "status": "delegate",
       "note": "awaits MemoryCoordinator.removeLedgerEntry, which owns the check"
     },
-    "src/runtime/runtimeManager.ts#RuntimeManager.rollbackDeps.reapplyCheckpoint": {
+    "src/runtime/runtimeManager.ts#RuntimeManager.reapplyCheckpoint": {
       "status": "delegate",
       "note": "v2.3 replan V3 (2026-09-23): awaits EffectsApplier.applyCheckpoint, which checks before each host write. Residual stated: applyCheckpoint mints AFTER restoreFor's await, so a switch during the restore is judged against the new world; a chat switch runs its own leave-restore and hydrate, which rebuild whatever this wrote."
     },
@@ -369,23 +361,23 @@
       "status": "checked",
       "note": "v2.3 replan V3 (2026-09-23): mints after invalidateRuns and stops if a newer load or clear overtook the exit restore — it used to wipe the new story's fresh extras and release ITS gated lore (keep=null). The release is checked per write and asked again after."
     },
-    "src/runtime/runtimeManager.ts#RuntimeManager.setArcPinned": {
+    "src/runtime/managerDelegates.ts#CoordinatorDelegates.setArcPinned": {
       "status": "delegate",
       "note": "awaits MemoryCoordinator.setArcPinned, which owns the check"
     },
-    "src/runtime/runtimeManager.ts#RuntimeManager.setCuratorOpDecision": {
+    "src/runtime/managerDelegates.ts#CoordinatorDelegates.setCuratorOpDecision": {
       "status": "delegate",
       "note": "awaits StagecraftCoordinator.setOpDecision, which owns the check"
     },
-    "src/runtime/runtimeManager.ts#RuntimeManager.setEpistemicPinned": {
+    "src/runtime/managerDelegates.ts#CoordinatorDelegates.setEpistemicPinned": {
       "status": "delegate",
       "note": "awaits MemoryCoordinator.setEpistemicPinned, which owns the check"
     },
-    "src/runtime/runtimeManager.ts#RuntimeManager.setLedgerPinned": {
+    "src/runtime/managerDelegates.ts#CoordinatorDelegates.setLedgerPinned": {
       "status": "delegate",
       "note": "awaits MemoryCoordinator.setLedgerPinned, which owns the check"
     },
-    "src/runtime/runtimeManager.ts#RuntimeManager.setMemoryPinned": {
+    "src/runtime/managerDelegates.ts#CoordinatorDelegates.setMemoryPinned": {
       "status": "delegate",
       "note": "awaits MemoryCoordinator.setMemoryPinned, which owns the check"
     },
@@ -405,11 +397,11 @@
       "status": "local",
       "note": "pushes into a function-local results array; the self-test writes no chat state by design"
     },
-    "src/runtime/slashCommands.ts#registerSlashCommands.callback[cp]": {
+    "src/runtime/slashCommands.ts#cpCommand": {
       "status": "delegate",
       "note": "v2.3 replan V3 (2026-09-23): awaits RuntimeManager.activateCheckpoint (or setQuality -> commitBoundary); each branch is one awaited manager call and a return, which the census reads in text order."
     },
-    "src/runtime/slashCommands.ts#registerSlashCommands.callback[so-mem]": {
+    "src/runtime/slashCommands.ts#memCommand": {
       "status": "partial",
       "note": "v2.3 replan V3 (2026-09-23): COVERED: each branch awaits exactly one manager call and returns (the census reads the branches in text order); pin/exclude act on the open chat from the author's own command. NOT COVERED: the manager's memory setters are synchronous and take no token, so a command typed during a chat switch applies to the chat that is open."
     },
@@ -465,27 +457,35 @@
       "status": "delegate",
       "note": "v2.5 plan 01 C (2026-09-25): leaving scan mode applies the open chat's state through the file path. It awaits applyWorldInfo twice (release, then the path), handing it the caller's run (worldInfoScanHost mints it from the manager's ownership, because the path belongs to the open chat); applyWorldInfo checks before each write."
     },
-    "src/runtime/worldInfoGating.ts#createWiGating.normalize": {
+    "src/runtime/worldInfoGating.ts#previewOf": {
+      "status": "local",
+      "note": "v2.5 plan 03 D4 (2026-09-26): requestScan's confirm preview, extracted. After each awaited book read it pushes onto its own local array and returns it; nothing is persisted, chat-scoped or shared, and requestScan re-checks its run after the confirm before any write."
+    },
+    "src/runtime/worldInfoGating.ts#WiGatingRuntime.serial>then": {
+      "status": "local",
+      "note": "v2.5 plan 03 D4 (2026-09-26): the gating's busy flag, set around each serialised unit. It was a closure variable before the class and so invisible to the census; it is the gating object's own in-memory state, published to the settings panel and never persisted or chat-scoped."
+    },
+    "src/runtime/worldInfoGating.ts#WiGatingRuntime.normalize": {
       "status": "checked",
       "note": "v2.5 plan 01 A (2026-09-25): awaits normalizeGatedEntries (which checks the same run before each book write) and then re-checks before writing the ledger and provenance. Its run is the gating's own lifetime (`lifetime`, bumped by dispose), not a chat: every write it makes is install-wide (lorebook files, the ledger, the mode, the active flag), so a chat switch must not leave half a gated set normalised; stopping the runtime does stop it. A stopped run leaves a confirmed file write outside the ledger; the next run records it through the already-off branch (W4). worldInfoGating.test.ts \"stopping the gating mid-normalisation stops before the next write, records nothing and never activates\" (control: \"control: an unstopped run normalises both books\")."
     },
-    "src/runtime/worldInfoGating.ts#createWiGating.renormalize>serial": {
+    "src/runtime/worldInfoGating.ts#WiGatingRuntime.renormalize>serial": {
       "status": "checked",
       "note": "v2.5 plan 01 B (2026-09-25): the Repair action. Awaits normalize (checked) and re-checks the lifetime run before re-verifying and clearing the missing-key list, which is the controller's own in-memory state. Its run is the gating's own lifetime (`lifetime`, bumped by dispose), not a chat: every write it makes is install-wide (lorebook files, the ledger, the mode, the active flag), so a chat switch must not leave half a gated set normalised; stopping the runtime does stop it."
     },
-    "src/runtime/worldInfoGating.ts#createWiGating.requestScan": {
+    "src/runtime/worldInfoGating.ts#WiGatingRuntime.requestScan": {
       "status": "checked",
       "note": "v2.5 plan 01 A/C (2026-09-26): reads each book for the preview (pushes into a local array), awaits the author's confirm, and re-checks its run before writing the mode. A cancelled confirm writes nothing (worldInfoGating.test.ts \"the confirm gates the first write: cancelling leaves file mode and writes nothing\"). Its run is the gating's mode-blind lifetime (`alive`, bumped by dispose), because it runs while the mode is still file. Every later write (normalise, verify, restore, re-normalise) takes `lifetime`, which also lapses when the mode leaves scan (mutation M12 in test/findings/mutations/v25-01.txt)."
     },
-    "src/runtime/worldInfoGating.ts#createWiGating.syncOnce": {
+    "src/runtime/worldInfoGating.ts#WiGatingRuntime.syncOnce": {
       "status": "checked",
-      "note": "v2.5 plan 01 W2 (2026-09-25): probe, verify, normalise, then activate. Re-checks the lifetime run after the probe and before activating, so a stopped gating never activates the scan view. Its run is the gating's own lifetime (`lifetime`, bumped by dispose), not a chat: every write it makes is install-wide (lorebook files, the ledger, the mode, the active flag), so a chat switch must not leave half a gated set normalised; stopping the runtime does stop it."
+      "note": "v2.5 plan 01 W2 (2026-09-25): probe, verify, normalise, then activate. Re-checks the lifetime run after the probe and before activating, so a stopped gating never activates the scan view. Its run is the gating's own lifetime (`lifetime`, bumped by dispose), not a chat: every write it makes is install-wide (lorebook files, the ledger, the mode, the active flag), so a chat switch must not leave half a gated set normalised; stopping the runtime does stop it. v2.5 plan 02 G5 (merged into the class form by plan 03): a capability that is not present takes `fallBack`, which settles the files-held flag once and replays the file path (its own write, no later write of this function); `deactivate` clears both."
     },
-    "src/runtime/worldInfoGating.ts#createWiGating.verify": {
+    "src/runtime/worldInfoGating.ts#WiGatingRuntime.verify": {
       "status": "checked",
       "note": "v2.5 plan 01 B (2026-09-25): awaits verifyLedger (read-only) and re-checks the lifetime run before it replaces the controller's verdict and journals newly drifted entries. Its run is the gating's own lifetime (`lifetime`, bumped by dispose), not a chat: every write it makes is install-wide (lorebook files, the ledger, the mode, the active flag), so a chat switch must not leave half a gated set normalised; stopping the runtime does stop it."
     },
-    "src/runtime/worldInfoGating.ts#createWiGating.restore>serial": {
+    "src/runtime/worldInfoGating.ts#WiGatingRuntime.restore>serial": {
       "status": "checked",
       "note": "v2.5 plan 01 E (2026-09-26): the removal dialog's restore. Checks the gating's lifetime run before each book's enable and again before dropping the restored entries from the ledger and provenance, so a stopped gating writes nothing (worldInfoGating.test.ts \"a stopped gating restores nothing\"; control \"offers only entries that were on before normalisation, and restores them only when asked\"). Install-wide work, so its run is the gating's lifetime, not a chat."
     }

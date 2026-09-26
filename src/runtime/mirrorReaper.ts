@@ -3,8 +3,8 @@ import { lorebookFileId } from "@utils/string";
 import type { WriteResult } from "@utils/writeResult";
 import { beginRun, mintToken, tokenMatches, type RunContext, type RunGuard, type RunOwnership } from "./runToken";
 
-// v2.4 plan 02 T14. A deleted chat leaves its per-chat mirror book behind (`memoryMirror.ts`). The reap is
-// destructive and driven by an event ST emits even when nothing was deleted (02-H11), so nothing here
+// A deleted chat leaves its per-chat mirror book behind (`memoryMirror.ts`). The reap is
+// destructive and driven by an event ST emits even when nothing was deleted, so nothing here
 // deletes on a name or an event alone: the book has to carry our in-book marker naming that chat, the
 // chat file has to be confirmed gone, and the player has to say yes. Anything short of that is a
 // session Repair row, never a delete.

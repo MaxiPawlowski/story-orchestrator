@@ -2,6 +2,7 @@ import type { JudgeRequest, JudgeResponse, JudgeTransport } from "@judge/index";
 import { getContext } from "./context";
 import { importSTModule } from "./modules";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
+import { isRecord } from "@utils/guards";
 
 export const JUDGE_PLUGIN_ID = "story-orchestrator-judge";
 export const JUDGE_PLUGIN_BASE = `/api/plugins/${JUDGE_PLUGIN_ID}`;
@@ -21,8 +22,6 @@ interface SecretsHostModule {
 }
 
 const headers = (): Record<string, string> => (getContext() as unknown as { getRequestHeaders: () => Record<string, string> }).getRequestHeaders();
-
-const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 
 export async function judgeStatus(): Promise<JudgeStatus | null> {
   try {
@@ -44,7 +43,7 @@ export async function judgeStatus(): Promise<JudgeStatus | null> {
 export const judgeTransport: JudgeTransport = async (request: JudgeRequest, options) => {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), options.timeoutMs);
-  // v2.3 plan 03: the caller's epoch signal aborts the same controller, so a story load, restart or
+  // The caller's epoch signal aborts the same controller, so a story load, restart or
   // chat change cancels the request in flight instead of paying for an answer nobody will use.
   const onEpochAbort = () => controller.abort();
   options.signal?.addEventListener("abort", onEpochAbort);

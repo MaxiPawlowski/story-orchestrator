@@ -32,13 +32,13 @@ export function mergeExpansions(rawStory: unknown, entries: Record<string, Expan
       });
     });
     transitions.push({ ...sourceTransition, to: generatedId(entry, 0), priority: sourceTransition.priority + 0.001 });
-    // v2.3 plan 07 (R9). The threshold is what the WORST route through this chain can accumulate: a
+    // The threshold is what the WORST route through this chain can accumulate: a
     // player who takes an outcome carrying less progress must still be able to enter the anchor, or
     // the omitted route stalls, which is the defect. Taking outcome[0]'s amount made the threshold
     // whatever the first outcome happened to carry.
     const worstPerBeat = entry.beats.slice(0, -1).map((beat) => Math.min(...beat.outcomes.map((outcome) => outcome.progress?.amount ?? 0)));
     const threshold = chainThresholdFor(target, worstPerBeat.reduce((sum, amount) => sum + amount, 0));
-    // V13: a worst route that carries no progress makes the threshold 0, and `progress >= 0` is NOT
+    // A worst route that carries no progress makes the threshold 0, and `progress >= 0` is NOT
     // vacuous — an unset progress quality compares false (gates.ts), so that route stalled at its
     // final beat for good. The critic already marks such a chain needs-review; merged anyway, its
     // zero route enters on its own outcome gate.

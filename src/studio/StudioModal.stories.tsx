@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { fn, within, userEvent, expect, waitFor } from "@storybook/test";
 import StudioModal from "./StudioModal";
 import { seedDraft, seedEmptyDraft, sampleStory } from "./stories/fixtures";
+import { required } from "@utils/guards";
 
 const meta: Meta<typeof StudioModal> = {
   title: "Studio/StudioModal",
@@ -94,7 +95,7 @@ export const TabsAreOneTabStopAndTheKeyboardMovesThem: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement.ownerDocument.body);
     const tabs = await tablist(canvas);
-    const selected = tabs.find((entry) => entry.getAttribute("aria-selected") === "true")!;
+    const selected = required(tabs.find((entry) => entry.getAttribute("aria-selected") === "true"), "selected tab");
     selected.focus();
     await expect(selected).toHaveFocus();
     await expect(selected).toHaveAttribute("tabindex", "0");

@@ -1,5 +1,5 @@
-// v2.3 plan 10 (A). Ranking metrics for lore selection, defined before the comparison run so the
-// numbers cannot be chosen to fit the answer. `recall`/`precision` (the v2.2 pair) say whether the
+// Ranking metrics for lore selection, defined before the comparison run so the
+// numbers cannot be chosen to fit the answer. `recall`/`precision` (the pair) say whether the
 // right entries came back at all; these say whether the ORDER was any good, which is what a Score
 // over described relevance levels is supposed to improve — and the tie rate says how much of today's
 // order is decided by insertion order rather than by the model.

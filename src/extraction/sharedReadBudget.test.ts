@@ -1,11 +1,12 @@
 import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
 import { callExtractionReply } from "@extraction/client";
+import { viaReply } from "../../test/support/modelCall";
 import { estimateTokens } from "@extraction/callBudget";
 import { runSharedRead } from "@extraction/sharedRead";
 import { createTokenMeter, type RequestBudget } from "@extraction/tokenMeter";
 import { defaultContextLimit } from "@extraction/inputBudget";
 import { ExtractionScheduler, type SchedulerHost } from "@extraction/scheduler";
-import type { SharedReadAudit } from "@extraction/types";
+import type { SharedReadAudit, SharedReadWindow } from "@extraction/types";
 
 const mockChat: Array<{ name: string; mes: string; is_user: boolean }> = [];
 
@@ -30,7 +31,8 @@ const story = () => parseStoryV2OrThrow({
   roster: [],
 });
 
-const message = (index: number, text = `Message ${index} walks the long road along the river, `.repeat(4)) => ({ index, messageId: index, speaker: index % 2 ? "Mira" : "User", text });
+const message = (index: number, text = `Message ${index} walks the long road along the river, `.repeat(4)) =>
+  ({ index, messageId: index, speaker: index % 2 ? "Mira" : "User", text }) as SharedReadWindow["messages"][number];
 
 const chat = (length: number) => ({ from: 0, to: length - 1, messages: Array.from({ length }, (_, index) => message(index)) });
 
@@ -50,7 +52,8 @@ async function read(window: ReturnType<typeof chat>, requestBudget: RequestBudge
     reason,
     scope: [{ quality: s.qualityByKey.crossed, key: "crossed", hints: [] }] as never,
     window,
-    client: { profileId: "p1", ...(requestBudget ? { budget: requestBudget } : {}) },
+    model: viaReply(callExtractionReply),
+    ask: { role: "read", pass: "read", ...(requestBudget ? { budget: requestBudget } : {}) },
   });
   const sent = mock.mock.calls.map((call) => call[0] as string);
   return { result, sent };
@@ -144,6 +147,7 @@ describe("v2.4 plan 03 D5: the scheduler's reads carry the budget from their set
       getStory: () => s,
       getEngineState: () => ({ ...engine.serialize(), lastMessageId: 299 }),
       getExtractionSettings: () => ({ enabled: true, profileId: "p1", cadence: 1, reconciliationMultiplier: 2, stabilityLag: 0, budget: budget(4096) }),
+      model: viaReply(callExtractionReply),
       getFacts: () => [],
       getFiredTransitions: () => [],
       getExpansionGateSources: () => [],

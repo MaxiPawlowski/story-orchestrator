@@ -4,7 +4,7 @@ import { useDraftStore } from "../draft";
 import { addRosterMember, nextId, removeRosterMember, updateRosterMember } from "../mutations";
 
 // The roster is what every cast-facing picker offers: talk_control speakers and lead, npc_replies
-// members, cast_changes. Studio-born stories used to render those pickers empty (finding U7).
+// members, cast_changes. Studio-born stories used to render those pickers empty (finding).
 const RosterEditor: React.FC<{ memberNames?: string[] }> = ({ memberNames = [] }) => {
   const roster = useDraftStore((state) => state.draft.roster);
   const directed = useDraftStore((state) => state.draft.checkpoints.some((checkpoint) => Boolean(checkpoint.talk_control)));
@@ -14,8 +14,13 @@ const RosterEditor: React.FC<{ memberNames?: string[] }> = ({ memberNames = [] }
   return (
     <div data-so="roster" className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" className="st-button primary" onClick={() => mutate((current) => addRosterMember(current, { id: nextId(current.roster.map((member) => member.id), "member") }))}>+ Member</button>
-        <span className="text-xs st-muted">Roster <HelpTooltip title="The cast this story directs. The id is how effects and gates refer to a member; the name must match the character card in the group so speaker direction can resolve it." /></span>
+        <button
+          type="button"
+          className="st-button primary"
+          onClick={() => mutate((current) => addRosterMember(current, { id: nextId(current.roster.map((member) => member.id), "member") }))}
+        >+ Member</button>
+        <span className="text-xs st-muted">Roster <HelpTooltip title={"The cast this story directs. The id is how effects and gates refer to a member; the name must match the " +
+          "character card in the group so speaker direction can resolve it."} /></span>
       </div>
       {directed && roster.length > 0 && withoutRole.length > 0 && (
         <div data-so="roster-roles-hint" className="text-xs st-muted">
@@ -49,7 +54,8 @@ const RosterEditor: React.FC<{ memberNames?: string[] }> = ({ memberNames = [] }
                 />
               </label>
               <label className="flex basis-full flex-col gap-1 text-sm">
-                <span className="text-xs st-muted">Role <HelpTooltip title="One line on what this character does in the story, e.g. 'the guild quartermaster who pays for the relic'. The judgment model's speaker direction uses it, and only runs when every candidate has one." /></span>
+                <span className="text-xs st-muted">Role <HelpTooltip title={"One line on what this character does in the story, e.g. 'the guild quartermaster who pays for the " +
+                  "relic'. The judgment model's speaker direction uses it, and only runs when every candidate has one."} /></span>
                 <input
                   className="text_pole st-input"
                   aria-label={`Member ${index + 1} role`}

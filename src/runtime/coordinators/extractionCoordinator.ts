@@ -1,40 +1,43 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
-import {
-  callExtractionModel, createTokenMeter, defaultContextLimit, deriveFullScope, deriveScope, getChatWindow, getLastMessageText, isLapse,
-  maxTokensFor, maxTokensForInput, planBacklog, preflightNeeded, reconciliationKeySet, reconciliationTargets, retryOnTimeout, runSharedRead, withJudgeCalls,
-  sharedReadOverhead, sharedReadWindow, stripChannelNoise, type ExtraGateSource, type ExtractionClientOptions, type ParsedDelta,
-  type ParsedFact, type PreflightConfirm, type ReadOwnership, type ReconciliationPlan, type RequestBudget, type RunSharedReadOptions,
-  type PassRole, type SchedulerJob, type SharedReadAudit, type SharedReadWindow,
+import { maxTokensFor, maxTokensForInput } from "@extraction/callBudget";
+import { defaultContextLimit } from "@extraction/inputBudget";
+import { isLapse } from "@extraction/modelError";
+import { askText } from "@extraction/modelRoute";
+import { stripChannelNoise } from "@extraction/parse";
+import { reconciliationKeySet, reconciliationTargets, type ReconciliationPlan } from "@extraction/reconcile";
+import { deriveScope } from "@extraction/scope";
+import { runSharedRead, sharedReadWindow } from "@extraction/sharedRead";
+import { createTokenMeter } from "@extraction/tokenMeter";
+import type {
+  ExtraGateSource, ModelCall, ParsedDelta, ParsedFact, ReadOwnership, RequestBudget, PassRole, SchedulerJob,
+  SharedReadAudit,
 } from "@extraction/index";
 import {
   buildEpistemicPassPrompt, buildLedgerPassPrompt, buildShortTermSummaryPrompt, detectSceneBreakHeuristic, fitShortTerm,
   generateMemoryId, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, provenance, summarizeScene, type ArcEntry,
   type MemoryEntry, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine,
 } from "@memory/index";
-import { anySignal } from "@utils/signals";
-import { getActiveGroup, getContext } from "@services/STAPI";
 import { SHORT_TERM_COMPACTION_MESSAGES } from "@constants/defaults";
 import { enabledCharacterNames } from "../roster";
 import type { MemoryCoordinator } from "./memoryCoordinator";
 import {
-  JUDGED_READ_LIMIT, type ExtractionRuntimeSettings, type ExtractionRuntimeState, type JudgedReadRecord,
+  JUDGED_READ_LIMIT, type ExtractionRuntimeState, type JudgedReadRecord,
   type VerifyDrop,
 } from "../types";
 import { createTypedJudge } from "../typedRead";
 import type { JudgeRuntime } from "../judge";
-import { beginRun, type RunGuard, type RunOwnership, type RunToken } from "../runToken";
+import { beginRun, type RunOwnership, type RunToken } from "../runToken";
+import type { ChatHost, RosterHost } from "../hostPorts";
+import { MemorizeBacklog } from "../memorizeBacklog";
 import {
   buildStallRequest, buildVerifyRequest, readVerify, stallVerdict, STALL_TIMEOUT_MS, verifyVerdict,
   VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS,
 } from "@judge/index";
+import { log } from "@utils/log";
 
 export const TYPED_READ_WINDOW = 3;
-export const BACKLOG_STOPPED_BY_EDIT = "Stopped: the chat changed while memorizing";
-export const BACKLOG_STOPPED_BY_UPDATE = "Stopped: the story was updated while memorizing";
-export const backlogStoppedByPlayer = (processed: number, windows: number) =>
-  `Stopped after ${Math.min(processed, windows)} of ${windows} parts. What was read is kept; the whole-chat pass did not run.`;
 
-// v2.2 plan 06: judged extraction off the LLM lanes. `judged()` answers synchronously whether it took
+// Judged extraction off the LLM lanes. `judged()` answers synchronously whether it took
 // the work; the judge call itself is fire-and-forget.
 export type JudgedExtractionWork =
   | { kind: "typed"; boundary: number; messageId: number }
@@ -44,7 +47,7 @@ export interface ExtractionCoordinatorDeps {
   getStory: () => NormalizedStoryV2 | null;
   getState: () => EngineState | null;
   getExtraction: () => ExtractionRuntimeState;
-  getSettings: () => ExtractionRuntimeSettings;
+  model: ModelCall;
   memory: MemoryCoordinator;
   getFiredTransitions: () => NormalizedTransition[];
   getExpansionGateSources: () => ExtraGateSource[];
@@ -58,9 +61,8 @@ export interface ExtractionCoordinatorDeps {
   requestBudget?: (role: PassRole) => RequestBudget;
   persist: () => Promise<void>;
   notify: () => void;
-  // v2.3 plan 03. Optional so the conversion can land one coordinator at a time: an unwired
-  // caller never lapses, and the write-edge census is what tracks real coverage.
   ownership: RunOwnership;
+  hosts: { chat: ChatHost; roster: RosterHost };
 }
 
 // Owns extras.extraction and every off-path read: the shared-read audit pipeline, the
@@ -68,9 +70,16 @@ export interface ExtractionCoordinatorDeps {
 // are delegated to the memory coordinator — this class never touches extras.memory directly.
 export class ExtractionCoordinator {
   private sceneDetectCursor: { location: string | null; cast: string | null; world: RunToken | null } | null = null;
-  private backlogStop: AbortController | null = null;
+  readonly backlog: MemorizeBacklog;
 
-  constructor(private readonly deps: ExtractionCoordinatorDeps) {}
+  constructor(private readonly deps: ExtractionCoordinatorDeps) {
+    this.backlog = new MemorizeBacklog({
+      getStory: () => deps.getStory(), getState: () => deps.getState(), memory: () => deps.memory, model: () => deps.model,
+      ownership: () => deps.ownership, chat: () => deps.hosts.chat, judge: () => deps.judge?.() ?? null,
+      firedTransitions: () => deps.getFiredTransitions(), applyAudit: (...args) => this.applyAudit(...args),
+      commitBoundary: () => deps.commitBoundary(), budget: () => this.budget(), save: () => this.save(), setStatus: (status) => deps.setStatus(status),
+    });
+  }
 
   private get state(): ExtractionRuntimeState {
     return this.deps.getExtraction();
@@ -85,7 +94,7 @@ export class ExtractionCoordinator {
     return this.deps.requestBudget?.(role) ?? { contextLimit: defaultContextLimit("no request budget is wired"), meter: createTokenMeter() };
   }
 
-  // v2.3 plan 05: every row this pass writes says where it came from, so a consumer can tell a
+  // Every row this pass writes says where it came from, so a consumer can tell a
   // live claim from one whose source message has since been edited away.
   private provenanceFor(window: { to: number }, pass = "shared-read") {
     return provenance({ source: "extractor", messageId: window.to, boundary: this.deps.getState()?.boundary ?? 0, pass });
@@ -104,7 +113,9 @@ export class ExtractionCoordinator {
 
   recordReconciliation(descriptor: { checkpointId: string; boundary: number; targetedKeys: string[] }) {
     const id = `${descriptor.boundary}:${descriptor.targetedKeys.join(",")}`;
-    const event = { id, boundary: descriptor.boundary, checkpointId: descriptor.checkpointId, targetedKeys: descriptor.targetedKeys, scheduledAt: new Date().toISOString(), resolvedAt: null, evidence: [] };
+    const event = { id, boundary: descriptor.boundary, checkpointId: descriptor.checkpointId,
+        targetedKeys: descriptor.targetedKeys, scheduledAt: new Date().toISOString(), resolvedAt: null,
+        evidence: [] };
     this.state.reconciliationEvents = [...this.state.reconciliationEvents, event].slice(-50);
     void this.save();
   }
@@ -113,7 +124,7 @@ export class ExtractionCoordinator {
     this.markReconciliation(reconciliationTargets(audit.reason), audit.acceptedDeltas.map((entry) => `${entry.delta.q}=${String(entry.delta.v)} (${entry.evidence})`), true);
   }
 
-  // v2.3 plan 02 (R6). A read resolves the request it was scheduled for, matched on its targeted
+  // A read resolves the request it was scheduled for, matched on its targeted
   // keys. Resolving the first *unresolved* event let an ordinary cadence read close a stall it was
   // never about — and left the request that did produce the answer open, which is the stall signal
   // the player sees. No match means no resolution.
@@ -130,7 +141,7 @@ export class ExtractionCoordinator {
     const judge = this.deps.judge?.() ?? null;
     if (work.kind === "typed") {
       if (!judge?.active("typedExtraction")) return false;
-      void this.runTypedRead(work.boundary, work.messageId).catch((error) => console.warn("[Story Orchestrator] judged typed read failed", error));
+      void this.runTypedRead(work.boundary, work.messageId).catch((error) => log.warn("judged typed read failed", error));
       return true;
     }
     if (!judge?.active("stallCheck") || !work.plan.leaves.length) return false;
@@ -150,13 +161,16 @@ export class ExtractionCoordinator {
     if (!story || !state) return;
     const hinted = deriveScope(story, state.activeCheckpointId, state.blackboard, this.deps.getExpansionGateSources()).filter((entry) => entry.quality.read_as && entry.quality.source === "extractor");
     if (!hinted.length) return;
-    const window = getChatWindow(Math.max(0, messageId - TYPED_READ_WINDOW + 1), messageId);
-    // C1, the "typed" surface: a judged read whose deltas go into the blackboard apply queue.
+    const window = this.deps.hosts.chat.chatWindow(Math.max(0, messageId - TYPED_READ_WINDOW + 1), messageId);
+    // The "typed" surface: a judged read whose deltas go into the blackboard apply queue.
     const typedRun = beginRun(this.deps.ownership, { from: window.from, to: window.to });
     const read = await createTypedJudge(() => this.deps.judge?.() ?? null)({ story, state, qualities: hinted.map((entry) => entry.quality), window });
-    if (!read || !typedRun.stillOwns() || this.deps.getState()?.lastMessageId !== state.lastMessageId || (getContext().chat?.length ?? 0) - 1 !== messageId) return;
+    if (!read || !typedRun.stillOwns() || this.deps.getState()?.lastMessageId !== state.lastMessageId || this.deps.hosts.chat.chatRows().length - 1 !== messageId) return;
     if (read.deltas.length) this.deps.enqueueExtractorDeltas(read.deltas, { from: window.from, to: window.to }, `judge:typed@${boundary}`);
-    this.recordJudgedRead({ at: new Date().toISOString(), boundary, kind: "typed", window: { from: window.from, to: window.to }, answered: read.answered, deltas: read.deltas.map((entry) => ({ q: entry.delta.q, v: entry.delta.v, confidence: entry.judge ?? 0 })), model: read.model, ...(read.fallback ? { fallback: read.fallback } : {}) });
+    this.recordJudgedRead({ at: new Date().toISOString(), boundary, kind: "typed", window: { from: window.from,
+        to: window.to }, answered: read.answered, deltas: read.deltas.map((entry) => ({ q: entry.delta.q,
+        v: entry.delta.v, confidence: entry.judge ?? 0 })), model: read.model,
+        ...(read.fallback ? { fallback: read.fallback } : {}) });
     await this.save();
   }
 
@@ -169,10 +183,16 @@ export class ExtractionCoordinator {
     // it — the apply queue, the reconciliation log, the judged-read ring — belongs to that chat.
     const run = beginRun(this.deps.ownership, { from: plan.window.from, to: plan.window.to });
     const window = plan.window.messages.map((message) => ({ id: message.index, speaker: message.speaker, text: message.text }));
-    const result = await judge.ask("stall", buildStallRequest(plan.leaves, window), { timeoutMs: STALL_TIMEOUT_MS, summarize: (answers) => Object.fromEntries(plan.leaves.map((leaf, index) => [`${leaf.q}${leaf.op}${JSON.stringify(leaf.v)}`, (answers?.[`leaf:${index}`] as { noul?: number } | undefined)?.noul ?? "none"])) });
+    const result = await judge.ask("stall", buildStallRequest(plan.leaves, window), { timeoutMs: STALL_TIMEOUT_MS,
+        summarize: (answers) => Object.fromEntries(plan.leaves.map((leaf,
+        index) => [`${leaf.q}${leaf.op}${JSON.stringify(leaf.v)}`,
+        (answers?.[`leaf:${index}`] as { noul?: number } | undefined)?.noul ?? "none"])) });
     if (!run.stillOwns()) return false;
     const verdict = stallVerdict(result.answers, plan.leaves);
-    const record = { at: new Date().toISOString(), boundary: plan.descriptor.boundary, kind: "stall" as const, window: { from: plan.window.from, to: plan.window.to }, answered: result.answers ? plan.leaves.map((leaf) => leaf.q) : [], model: result.model, ...(result.fallback ? { fallback: result.fallback } : {}) };
+    const record = { at: new Date().toISOString(), boundary: plan.descriptor.boundary, kind: "stall" as const,
+        window: { from: plan.window.from, to: plan.window.to },
+        answered: result.answers ? plan.leaves.map((leaf) => leaf.q) : [], model: result.model,
+        ...(result.fallback ? { fallback: result.fallback } : {}) };
     if (verdict.kind === "direct") {
       const deltas: ParsedDelta[] = verdict.deltas.map((entry) => ({ delta: { q: entry.q, v: entry.v, source: "extractor" }, evidence: `judge:reconcile p=${entry.p}`, judge: entry.p }));
       this.deps.enqueueExtractorDeltas(deltas, { from: plan.window.from, to: plan.window.to }, `judge:stall@${plan.descriptor.boundary}`);
@@ -190,15 +210,22 @@ export class ExtractionCoordinator {
     this.state.scheduler = snapshot;
   }
 
-  async applyAudit(audit: SharedReadAudit, facts: ParsedFact[], memoryLines: ParsedMemoryLine[] = [], arcSignals: ParsedArcSignal[] = [], epistemicSignals: ParsedEpistemicSignal[] = [], ledgerSignals: ParsedLedgerSignal[] = [], read: ReadOwnership | null = null, sceneWork?: SchedulerJob[]) {
+  async applyAudit(audit: SharedReadAudit, facts: ParsedFact[], memoryLines: ParsedMemoryLine[] = [],
+      arcSignals: ParsedArcSignal[] = [], epistemicSignals: ParsedEpistemicSignal[] = [],
+      ledgerSignals: ParsedLedgerSignal[] = [], read: ReadOwnership | null = null, sceneWork?: SchedulerJob[]) {
     if (!this.deps.getStory()) return;
     if (read && !read.stillOwns()) return;
     const boundary = this.deps.getState()?.boundary ?? 0;
     this.deps.enqueueExtractorDeltas(audit.acceptedDeltas, audit.window, audit.id);
     const memory = this.deps.memory;
     const newMemoryEntries: MemoryEntry[] = [
-      ...facts.map((fact) => this.newEntry({ provenance: this.provenanceFor(audit.window), tier: "facts", text: fact.text, type: "fact", importance: fact.importance, expiration: "permanent", entities: [], evidence: fact.evidence, messageId: audit.window.to })),
-      ...memoryLines.map((line) => this.newEntry({ provenance: this.provenanceFor(audit.window), tier: line.tier, text: line.text, type: line.type, importance: line.importance, expiration: line.expiration, entities: line.entities, evidence: line.evidence, characterId: line.characterId, messageId: audit.window.to })),
+      ...facts.map((fact) => this.newEntry({ provenance: this.provenanceFor(audit.window), tier: "facts",
+          text: fact.text, type: "fact", importance: fact.importance, expiration: "permanent", entities: [],
+          evidence: fact.evidence, messageId: audit.window.to })),
+      ...memoryLines.map((line) => this.newEntry({ provenance: this.provenanceFor(audit.window), tier: line.tier,
+          text: line.text, type: line.type, importance: line.importance, expiration: line.expiration,
+          entities: line.entities, evidence: line.evidence, characterId: line.characterId,
+          messageId: audit.window.to })),
     ];
     const memoryEnabled = memory.enabled;
     // The main extraction write path. `verifyEntries` is a judge pass, so it can be slow, and
@@ -227,13 +254,13 @@ export class ExtractionCoordinator {
     if (memoryEnabled && audit.sceneBreak) this.deps.emitSceneBreak(audit, sceneWork);
   }
 
-  // v2.2 plan 02: check each new FACT/MEMORY line against the read's own window before it is stored.
+  // Check each new FACT/MEMORY line against the read's own window before it is stored.
   // Deltas and arc/epistemic/ledger signals never wait on this; a judge failure stores every line.
   private async verifyEntries(entries: MemoryEntry[], window: { from: number; to: number }): Promise<{ kept: MemoryEntry[]; dropped: VerifyDrop[] }> {
     const judge = this.deps.judge?.() ?? null;
     const story = this.deps.getStory();
     if (!entries.length || !story || !judge?.active("memoryVerify")) return { kept: entries, dropped: [] };
-    const transcript = getChatWindow(window.from, window.to).messages.map((message) => ({ id: `msg_${message.index}`, speaker: message.speaker, text: message.text }));
+    const transcript = this.deps.hosts.chat.chatWindow(window.from, window.to).messages.map((message) => ({ id: `msg_${message.index}`, speaker: message.speaker, text: message.text }));
     const cast = story.roster.map((member) => member.name ?? member.id);
     const kept: MemoryEntry[] = [];
     const dropped: VerifyDrop[] = [];
@@ -257,15 +284,15 @@ export class ExtractionCoordinator {
   // came from. Without one a manual read means "read the transcript as it is now": the engine's state
   // lags the chat by design (the boundary for a just-posted message lands on the next flush), and a
   // read taken from that state had an EMPTY window, so the evidence rule rejected every delta it
-  // produced (found live 2026-09-21: three corpus scenarios read nothing and failed five steps later).
+  // produced (found live three corpus scenarios read nothing and failed five steps later).
   async runNow(debugResponse?: string, reason = "manual", window?: { from: number; to: number }) {
     const story = this.deps.getStory();
     const state = this.deps.getState();
     if (!story || !state) return false;
     const memory = this.deps.memory;
-    const chatLength = Array.isArray(getContext().chat) ? getContext().chat.length : 0;
+    const chatLength = this.deps.hosts.chat.chatRows().length;
     const readState = chatLength - 1 > state.lastMessageId ? { ...state, lastMessageId: chatLength - 1, chatLength } : state;
-    const readWindow = sharedReadWindow({ state: readState, priority: 0, ...(window && window.from >= 0 ? { window: getChatWindow(window.from, window.to) } : {}) });
+    const readWindow = sharedReadWindow({ state: readState, priority: 0, ...(window && window.from >= 0 ? { window: this.deps.hosts.chat.chatWindow(window.from, window.to) } : {}) });
     const read = beginRun(this.deps.ownership, { from: readWindow.from, to: readWindow.to });
     const result = await runSharedRead({
       story,
@@ -279,7 +306,8 @@ export class ExtractionCoordinator {
       openArcs: memory.getOpenArcs(),
       epistemicLedgerCapable: memory.capable,
       entities: memory.getEntities(),
-      client: { ...this.deps.getSettings(), role: "read", budget: this.budget(), signal: read.signal, debugResponse: debugResponse ?? globalThis.storyOrchestratorDebugExtractionResponse ?? null },
+      model: this.deps.model,
+      ask: { role: "read", pass: "read", budget: this.budget(), signal: read.signal, debugResponse: debugResponse ?? null },
     }).catch((error: unknown) => { if (isLapse(error)) return null; throw error; }).finally(() => read.release());
     if (!result) return false;
     await this.applyAudit(result.audit, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, read);
@@ -293,11 +321,11 @@ export class ExtractionCoordinator {
   detectSceneBreak() {
     const story = this.deps.getStory();
     if (!story || !this.deps.memory.enabled) return null;
-    const text = getLastMessageText();
+    const text = this.deps.hosts.chat.lastMessageText();
     if (!text) return null;
     const location = this.deps.getState()?.blackboard.values.location;
     const locationValue = typeof location === "string" ? location : null;
-    const group = getActiveGroup();
+    const group = this.deps.hosts.roster.getActiveGroup();
     const cast = group ? group.members.filter((member) => !(group.disabled_members ?? []).includes(member)).sort().join(",") : null;
 
     const ownership = this.deps.ownership;
@@ -313,22 +341,23 @@ export class ExtractionCoordinator {
   async runSceneBreakPass(audit: SharedReadAudit) {
     const memory = this.deps.memory;
     if (!this.deps.getStory() || !audit.sceneBreak || !memory.enabled) return;
-    // v2.4 plan 03 D5: the whole scene since the previous summary, not only the read that detected the
+    // The whole scene since the previous summary, not only the read that detected the
     // break. The summary describes exactly that span, so an edit inside it makes the summary a
     // description of messages that no longer exist. A reply appended after it is fine.
     const range = { from: memory.sceneStart(audit.window.to), to: audit.window.to };
     const run = beginRun(this.deps.ownership, range);
-    const scene = getChatWindow(range.from, range.to);
+    const scene = this.deps.hosts.chat.chatWindow(range.from, range.to);
     const outcome = await summarizeScene({
       messages: scene.messages, budget: this.budget("synthesis"), stillOwns: () => run.stillOwns(),
-      summarize: async (prompt, maxTokens) => stripChannelNoise(await callExtractionModel(prompt, {
-        profileId: this.deps.getSettings().profileId, role: "synthesis", maxTokens, signal: run.signal, refuseIncomplete: true,
-        debugResponse: globalThis.storyOrchestratorDebugSceneSummaryResponse ?? null,
+      summarize: async (prompt, maxTokens) => stripChannelNoise(await askText(this.deps.model, prompt, {
+        role: "synthesis", pass: "sceneSummary", maxTokens, signal: run.signal, refuseIncomplete: true,
       })),
     });
     if (!outcome || !run.stillOwns()) return;
     const evidence = scene.messages.filter((message) => message.messageId >= audit.window.from).map((message) => `${message.speaker}: ${message.text}`).join("\n") || "(empty)";
-    const entry = this.newEntry({ provenance: this.provenanceFor(range, "scene-summary"), tier: "scene_history", text: outcome.summary, type: "scene", importance: 2, expiration: "permanent", entities: [], evidence, messageId: range.to });
+    const entry = this.newEntry({ provenance: this.provenanceFor(range, "scene-summary"), tier: "scene_history",
+        text: outcome.summary, type: "scene", importance: 2, expiration: "permanent", entities: [], evidence,
+        messageId: range.to });
     const sceneOccurrence = await memory.addSceneSummary(entry, range);
     if (sceneOccurrence === null) return;
     memory.updateInjection();
@@ -345,9 +374,9 @@ export class ExtractionCoordinator {
   async runShortTermCompaction() {
     const memory = this.deps.memory;
     if (!this.deps.getStory() || !memory.enabled) return;
-    const lastId = (Array.isArray(getContext().chat) ? getContext().chat.length : 0) - 1;
+    const lastId = this.deps.hosts.chat.chatRows().length - 1;
     if (!this.shouldCompactShortTerm(lastId)) return;
-    const window = getChatWindow(memory.shortTermSummaryEnd + 1, lastId);
+    const window = this.deps.hosts.chat.chatWindow(memory.shortTermSummaryEnd + 1, lastId);
     if (!window.messages.length) return;
     const previous = memory.shortTermEntry();
     if (previous?.pinned) return;
@@ -355,14 +384,14 @@ export class ExtractionCoordinator {
     // — it overwrites the live summary with one describing another chat or an edited window.
     const run = beginRun(this.deps.ownership, { from: window.from, to: window.to });
     const fit = await fitShortTerm(window.messages, previous?.text ?? null, this.budget("synthesis"));
-    const summary = stripChannelNoise(await callExtractionModel(buildShortTermSummaryPrompt(previous?.text ?? null, fit.text), {
-      profileId: this.deps.getSettings().profileId, role: "synthesis",
-      maxTokens: maxTokensFor("shortTerm", fit.tokens), signal: run.signal, refuseIncomplete: true,
-      debugResponse: globalThis.storyOrchestratorDebugShortTermResponse ?? null,
+    const summary = stripChannelNoise(await askText(this.deps.model, buildShortTermSummaryPrompt(previous?.text ?? null, fit.text), {
+      role: "synthesis", pass: "shortTerm", maxTokens: maxTokensFor("shortTerm", fit.tokens), signal: run.signal, refuseIncomplete: true,
     }));
     if (!summary || !run.stillOwns()) return;
     const span = { from: fit.from, to: window.to };
-    const entry = this.newEntry({ provenance: this.provenanceFor(span, "short-term-compaction"), tier: "short_term", text: summary, type: "scene", importance: 2, expiration: "session", entities: [], evidence: fit.text, messageId: span.to });
+    const entry = this.newEntry({ provenance: this.provenanceFor(span, "short-term-compaction"), tier: "short_term",
+        text: summary, type: "scene", importance: 2, expiration: "session", entities: [], evidence: fit.text,
+        messageId: span.to });
     await memory.replaceShortTerm(entry, span);
     memory.updateInjection();
     await this.save();
@@ -372,8 +401,7 @@ export class ExtractionCoordinator {
     const story = this.deps.getStory();
     const memory = this.deps.memory;
     if (!story || !audit.sceneBreak || !memory.capable) return false;
-    const settings = this.deps.getSettings();
-    const window = getChatWindow(audit.window.from, audit.window.to);
+    const window = this.deps.hosts.chat.chatWindow(audit.window.from, audit.window.to);
     const sceneText = window.messages.map((message) => `${message.speaker}: ${message.text}`).join("\n") || "(empty)";
 
     // Two model calls and two stores, with a write in between: the epistemic signals are applied
@@ -381,11 +409,10 @@ export class ExtractionCoordinator {
     // written in a chat that had already been replaced.
     const run = beginRun(this.deps.ownership, { from: audit.window.from, to: audit.window.to });
     const existing = memory.activeEpistemic();
-    const epistemicResponse = await callExtractionModel(buildEpistemicPassPrompt(sceneText, enabledCharacterNames(story), existing.map((entry) => ({ tag: entry.tag, subject: entry.subject, content: entry.content, hiddenFrom: entry.hiddenFrom }))), {
-      profileId: settings.profileId, role: "read",
-      maxTokens: maxTokensForInput("epistemic", sceneText), signal: run.signal,
-      debugResponse: globalThis.storyOrchestratorDebugEpistemicResponse ?? null,
-    });
+    const epistemicPrompt = buildEpistemicPassPrompt(sceneText, enabledCharacterNames(story, this.deps.hosts.roster),
+        existing.map((entry) => ({ tag: entry.tag, subject: entry.subject, content: entry.content,
+        hiddenFrom: entry.hiddenFrom })));
+    const epistemicResponse = await askText(this.deps.model, epistemicPrompt, { role: "read", pass: "epistemic", maxTokens: maxTokensForInput("epistemic", sceneText), signal: run.signal });
     if (!run.stillOwns()) return false;
     const epistemicSignals: ParsedEpistemicSignal[] = [];
     const retireIndices = new Set<number>();
@@ -399,10 +426,8 @@ export class ExtractionCoordinator {
     const retireIds = [...retireIndices].map((index) => existing[index - 1]?.id).filter((id): id is string => Boolean(id));
     memory.applyEpistemic(epistemicSignals, audit.window.to, retireIds);
 
-    const ledgerResponse = await callExtractionModel(buildLedgerPassPrompt(sceneText, memory.ledgerEntityList()), {
-      profileId: settings.profileId, role: "read",
-      maxTokens: maxTokensForInput("ledger", sceneText), signal: run.signal,
-      debugResponse: globalThis.storyOrchestratorDebugLedgerResponse ?? null,
+    const ledgerResponse = await askText(this.deps.model, buildLedgerPassPrompt(sceneText, memory.ledgerEntityList()), {
+      role: "read", pass: "ledger", maxTokens: maxTokensForInput("ledger", sceneText), signal: run.signal,
     });
     if (!run.stillOwns()) return false;
     const ledgerSignals: ParsedLedgerSignal[] = [];
@@ -411,116 +436,5 @@ export class ExtractionCoordinator {
     memory.updateInjection();
     await this.save();
     return epistemicSignals.length > 0 || ledgerSignals.length > 0 || retireIds.length > 0;
-  }
-
-  // Full-scope re-read of an existing chat, window by window, then one whole-chat pass that is
-  // allowed to move the blackboard. Progress is surfaced through the memory backfill state.
-  // v2.4 plan 03 D5: the windows are packed to the request budget (`windowSize` only caps their
-  // message count), the whole-chat pass is tail-fit, and a caller that passes `confirm` is asked
-  // before anything is sent when the run is large. Automatic and debug callers pass none.
-  async runMemorizeBacklog(windowSize?: number, confirm?: PreflightConfirm): Promise<boolean> {
-    const story = this.deps.getStory();
-    const memory = this.deps.memory;
-    if (!story || !memory.enabled || memory.backfill?.running || this.backlogStop) return false;
-    const length = Array.isArray(getContext().chat) ? getContext().chat.length : 0;
-    // V3: the backlog reads the whole chat window by window for minutes; a chat switch in between
-    // used to read the NEXT chat's windows into memory this pass still believed was its own.
-    const read = beginRun(this.deps.ownership, { from: 0, to: Math.max(0, length - 1) });
-    const stop = new AbortController();
-    this.backlogStop = stop;
-    const owned: ReadOwnership = {
-      stillOwns: () => !stop.signal.aborted && read.stillOwns(),
-      lapsedDetail: () => (stop.signal.aborted ? "stopped" : read.lapsedDetail()),
-      signal: anySignal([stop.signal, read.signal]),
-    };
-    const budget = this.budget();
-    let windows: SharedReadWindow[] | null = null;
-    let completed = false;
-    let failure: string | null = null;
-    try {
-      const messages = getChatWindow(0, length - 1).messages;
-      const overhead = sharedReadOverhead(this.backlogRead(story, "memorize:window", { from: 0, to: -1, messages: [] }, { profileId: null, role: "read" }));
-      const estimate = confirm ? await planBacklog(messages, overhead, { contextLimit: budget.contextLimit, meter: createTokenMeter() }, windowSize) : null;
-      const preflight = estimate ? withJudgeCalls(estimate.preflight, this.deps.judge?.()?.active("memoryVerify") === true) : null;
-      if (!read.stillOwns() || (confirm && preflight && preflightNeeded(preflight, budget.contextLimit) && !(await confirm(preflight)))) return false;
-      windows = [];
-      memory.setBackfill({ running: true, processed: 0, total: (estimate?.windows.length ?? 0) + 1, lastError: null, preparing: true });
-      await this.save();
-      const plan = await planBacklog(messages, overhead, budget, windowSize);
-      windows = plan.windows;
-      if (owned.stillOwns()) {
-        memory.setBackfill({ running: true, processed: 0, total: windows.length + 1, lastError: null });
-        await this.save();
-      }
-      completed = await this.memorizeWindows(story, windows, length, owned, budget);
-    } catch (error) {
-      failure = error instanceof Error ? error.message : "Memorize backlog failed";
-    } finally {
-      if (this.backlogStop === stop) this.backlogStop = null;
-      read.release();
-    }
-    return windows || failure ? this.endBacklog(read, stop.signal, { completed, failure, windows: windows?.length ?? 0 }) : false;
-  }
-
-  cancelMemorizeBacklog(): boolean {
-    if (!this.backlogStop || this.backlogStop.signal.aborted) return false;
-    this.backlogStop.abort();
-    return true;
-  }
-
-  private backlogRead(story: NormalizedStoryV2, reason: "memorize:window" | "memorize:full", window: SharedReadWindow, client: ExtractionClientOptions): RunSharedReadOptions {
-    const memory = this.deps.memory;
-    const state = this.deps.getState()!;
-    const windowed = reason === "memorize:window" ? { openArcs: memory.getOpenArcs(), epistemicLedgerCapable: memory.capable, entities: memory.getEntities() } : {};
-    return { story, state, priority: 0, reason, window, scope: deriveFullScope(story, state.blackboard), firedTransitions: this.deps.getFiredTransitions(), facts: memory.getFacts(), ...windowed, client: { ...client, budgetKind: reason } };
-  }
-
-  private async memorizeWindows(story: NormalizedStoryV2, windows: SharedReadWindow[], length: number, read: ReadOwnership, budget: RequestBudget): Promise<boolean> {
-    const memory = this.deps.memory;
-    const client = { ...this.deps.getSettings(), role: "read" as const, budget, signal: read.signal, debugResponse: globalThis.storyOrchestratorDebugExtractionResponse ?? null };
-    const sceneWork: SchedulerJob[] = [];
-    for (const window of windows) {
-      if (!read.stillOwns()) return false;
-      const result = await retryOnTimeout((timeoutScale) => runSharedRead(this.backlogRead(story, "memorize:window", window, { ...client, timeoutScale })));
-      await this.applyAudit({ ...result.audit, acceptedDeltas: [] }, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, read, sceneWork);
-      await this.runSceneWork(sceneWork, read);
-      if (!read.stillOwns()) return false;
-      const progress = memory.backfill!;
-      memory.setBackfill({ ...progress, processed: progress.processed + 1 });
-      await this.save();
-    }
-
-    if (!read.stillOwns()) return false;
-    const fullResult = await retryOnTimeout((timeoutScale) => runSharedRead(this.backlogRead(story, "memorize:full", getChatWindow(0, Math.max(0, length - 1)), { ...client, timeoutScale })));
-    await this.applyAudit(fullResult.audit, [], [], [], [], [], read, sceneWork);
-    await this.runSceneWork(sceneWork, read);
-    if (!read.stillOwns()) return false;
-    await this.deps.commitBoundary();
-    return true;
-  }
-
-  private async runSceneWork(jobs: SchedulerJob[], read: ReadOwnership) {
-    for (const job of jobs.splice(0)) {
-      if (!read.stillOwns()) return;
-      await job.run?.().catch((error: unknown) => { if (!isLapse(error)) console.warn(`[Story Orchestrator] ${job.reason} during the memorize backlog failed`, error); });
-    }
-  }
-
-  // A player's own Stop is not a failure, so it is a note, never `lastError`.
-  private async endBacklog(read: RunGuard, stop: AbortSignal, run: { completed: boolean; failure: string | null; windows: number }): Promise<boolean> {
-    const lapse = read.lapsed();
-    if (lapse && lapse !== "window" && lapse !== "version") return false;
-    const memory = this.deps.memory;
-    const total = run.windows + 1;
-    const processed = run.completed ? total : memory.backfill?.processed ?? 0;
-    const stopped = !run.completed && !lapse && stop.aborted;
-    const lastError = run.completed || stopped ? null
-      : lapse === "window" ? BACKLOG_STOPPED_BY_EDIT
-        : lapse === "version" ? BACKLOG_STOPPED_BY_UPDATE
-          : run.failure ?? "Memorize backlog failed";
-    memory.setBackfill({ running: false, processed, total, lastError, ...(stopped ? { stoppedNote: backlogStoppedByPlayer(processed, run.windows) } : {}) });
-    this.deps.setStatus(run.completed ? "Memorize backlog complete" : stopped ? "Memorize backlog stopped" : "Memorize backlog failed");
-    await this.save();
-    return run.completed;
   }
 }

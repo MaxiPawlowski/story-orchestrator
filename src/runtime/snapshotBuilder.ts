@@ -1,4 +1,4 @@
-import { agencyFor, type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type ValidationError } from "@engine/index";
+import { agencyFor, type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type StoryEngine, type ValidationError } from "@engine/index";
 import type { DriverContext } from "@copilot/index";
 import { sceneFieldsInConflict, type LedgerView, type MemoryInjectionView } from "@memory/index";
 import { curatorLorebooks } from "@stagecraft/index";
@@ -24,11 +24,18 @@ import { buildModelCalls } from "./modelCalls";
 import { readChatIdentity } from "./chatIdentity";
 import type { ExtensionPromptBlocks } from "@services/STAPI";
 import type { ExtractionHealth } from "@extraction/index";
+import type { CopilotCoordinator } from "./coordinators/copilotCoordinator";
+import type { MemoryCoordinator } from "./coordinators/memoryCoordinator";
+import type { PacingCoordinator } from "./coordinators/pacingCoordinator";
 import type { LoadedStory, PayloadCapture, RuntimeExtras, RuntimeSnapshot } from "./types";
 
 // The single composed model the UI subscribes to. Everything a rendering component needs lives
 // here — read-models the coordinators own (ledger, driver, nudge) are handed in rather than
 // pulled by the component, so one subscription is the whole contract (finding I2).
+const readerFields = (reader: { reader: "judge" | "llm"; confidence?: number } | undefined) => (reader
+  ? { reader: reader.reader, ...(reader.confidence !== undefined ? { confidence: reader.confidence } : {}) }
+  : {});
+
 export interface SnapshotSources {
   loaded: LoadedStory | null;
   state: EngineState | null;
@@ -47,14 +54,53 @@ export interface SnapshotSources {
   driver: DriverContext | null;
   activeNudge: string | null;
   payloadCaptures: PayloadCapture[];
-  /** v2.3 plan 09 / v2.4 plan 08: every extension prompt ST holds right now, ours and other extensions'. */
+  /** Every extension prompt ST holds right now, ours and other extensions'. */
   promptBlocks: ExtensionPromptBlocks;
-  /** The open chat: V13 counts the player's own lines in it (a refusal counts turns, not replies), and
-   *  v2.4 plan 08 T19d reads its messages against the stored fingerprints for "changed since". */
+  /** The open chat: counts the player's own lines in it (a refusal counts turns, not replies), and
+   * Reads its messages against the stored fingerprints for "changed since". */
   chat: readonly unknown[];
   fingerprints: MessageFingerprints | null;
   extractionHealth?: ExtractionHealth | null;
 }
+
+export interface SnapshotPort {
+  loaded: LoadedStory | null;
+  engine: StoryEngine;
+  extras: RuntimeExtras;
+  validationErrors: ValidationError[];
+  status: string;
+  notices: { lastRollback: RollbackNotice | null; rollbackUnavailable: RollbackUnavailable | null };
+  memory: MemoryCoordinator;
+  pacing: PacingCoordinator;
+  copilot: CopilotCoordinator;
+  payloadCaptures: PayloadCapture[];
+  extractionHealth: ExtractionHealth | null;
+  fingerprints: MessageFingerprints | null;
+  promptBlocks: ExtensionPromptBlocks;
+  chat: readonly unknown[];
+}
+
+export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
+  loaded: port.loaded,
+  state: port.loaded ? port.engine.serialize() : null,
+  extras: port.extras,
+  validationErrors: port.validationErrors,
+  status: port.status,
+  pendingWrites: port.loaded ? port.engine.pendingWrites : [],
+  boundaryLog: port.loaded ? port.engine.stateLog : [],
+  expectedTension: port.loaded ? port.pacing.expectedTension() : null,
+  openThreads: port.memory.getOpenArcs(),
+  canon: port.memory.canon.getCanonProse(),
+  ...port.notices,
+  ...port.memory.injector.readModels(),
+  driver: port.copilot.getDriverContext(),
+  activeNudge: port.copilot.getActiveNudge(),
+  payloadCaptures: port.payloadCaptures,
+  extractionHealth: port.extractionHealth,
+  promptBlocks: port.promptBlocks,
+  chat: port.chat,
+  fingerprints: port.fingerprints,
+});
 
 export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot {
   const { loaded, state, extras } = sources;
@@ -80,7 +126,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
   const agencyRecovery: AgencyRecovery | null = agencyRecoveryOf(story, state, sources.boundaryLog, extras.extraction.audits, playerTurnIds(sources.chat));
   const extractionHealth = sources.extractionHealth ?? null;
   const pipeline = derivePipelineStatus(extras.extraction, { generating: expansionInFlight(extras.expansion) }, extractionHealth);
-  // v2.3 plan 09: what the next reply will carry, in ST's own assembly order. The private block is
+  // What the next reply will carry, in ST's own assembly order. The private block is
   // attributed to the member the last talk decision drafted — in a group that is who ST will swap it
   // for — and the scene block reports the tracker's own staleness and last fallback.
   const lastDecision = extras.talk.decisions[extras.talk.decisions.length - 1] ?? null;
@@ -109,7 +155,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     sceneLocation: confirmedSceneFacts(extras.judge.scene, sceneFieldsInConflict(extras.memory.conflicts))?.location ?? null,
     // Only when a place WAS known: a tracker that has never answered has nothing to be unsure of.
     sceneUnconfirmed: isSceneStale(extras.judge.scene) && Boolean(extras.judge.scene?.facts.location),
-    // v2.3 plan 06: a write this chat believes it made and the server has not confirmed. Player
+    // A write this chat believes it made and the server has not confirmed. Player
     // wording, because the player is the one who would lose the story.
     saveNotice: hasUnsavedChanges(extras.saveHealth) ? SAVE_PLAYER_TEXT : null,
     agencyNotice: agencyRecovery ? REFUSAL_PLAYER_TEXT : null,
@@ -138,7 +184,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
       latched: state?.blackboard.latched[key] ?? false,
       source: story?.qualityByKey[key]?.source ?? "unknown",
       evidence: evidenceByKey.get(key),
-      ...(readerByKey.get(key) ? { reader: readerByKey.get(key)!.reader, ...(readerByKey.get(key)!.confidence !== undefined ? { confidence: readerByKey.get(key)!.confidence } : {}) } : {}),
+      ...readerFields(readerByKey.get(key)),
     }])),
     checkpoints: story?.checkpoints.map((checkpoint) => ({
       id: checkpoint.id,
@@ -159,7 +205,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     ui: extras.ui,
     talk: extras.talk,
     stagecraft: extras.stagecraft,
-    // v2.3 plan 06: what this chat changed in shared host state, and whether it could be put back.
+    // What this chat changed in shared host state, and whether it could be put back.
     effects: extras.effects,
     saveHealth: extras.saveHealth,
     scene: extras.judge.scene,
