@@ -18,10 +18,12 @@ beforeEach(() => {
   send.mockReset();
   timeout = jest.spyOn(AbortSignal, "timeout");
   delete globalThis.storyOrchestratorDebugCallBudgetScale;
+  delete globalThis.storyOrchestratorDebugCallBudgetTarget;
 });
 afterEach(() => {
   timeout.mockRestore();
   delete globalThis.storyOrchestratorDebugCallBudgetScale;
+  delete globalThis.storyOrchestratorDebugCallBudgetTarget;
 });
 
 describe("v2.5 plan 02 (A11 forced-timeout arm): the debug call-budget scale", () => {
@@ -46,6 +48,24 @@ describe("v2.5 plan 02 (A11 forced-timeout arm): the debug call-budget scale", (
       expect(debugCallBudgetScale()).toBe(1);
       expect(callTimeoutMs(512)).toBe(unscaled(512));
     }
+  });
+
+  it("a target names the one pass kind the scale reaches; every other kind, and a call naming none, keeps its budget", () => {
+    globalThis.storyOrchestratorDebugCallBudgetScale = 0.5;
+    globalThis.storyOrchestratorDebugCallBudgetTarget = "memorize:full";
+    expect(callTimeoutMs(512, 88000, "memorize:full")).toBe(Math.round(unscaled(512, 88000) * 0.5));
+    expect(callTimeoutMs(512, 88000, "memorize:window")).toBe(unscaled(512, 88000));
+    expect(callTimeoutMs(512, 88000)).toBe(unscaled(512, 88000));
+    delete globalThis.storyOrchestratorDebugCallBudgetTarget;
+    expect(callTimeoutMs(512, 88000, "memorize:window")).toBe(Math.round(unscaled(512, 88000) * 0.5));
+  });
+
+  it("a target without a scale, or an empty target, is inert", () => {
+    globalThis.storyOrchestratorDebugCallBudgetTarget = "memorize:full";
+    expect(callTimeoutMs(512, 88000, "memorize:full")).toBe(unscaled(512, 88000));
+    globalThis.storyOrchestratorDebugCallBudgetScale = 0.5;
+    globalThis.storyOrchestratorDebugCallBudgetTarget = "";
+    expect(callTimeoutMs(512, 88000, "memorize:window")).toBe(Math.round(unscaled(512, 88000) * 0.5));
   });
 
   it("a scaled call times out at the scaled budget and its one retry gets twice that", async () => {

@@ -1,0 +1,203 @@
+{
+  "probe": "p02b",
+  "started": "2026-09-26T14:32:51.425Z",
+  "finished": "2026-09-26T14:33:28.753Z",
+  "node": "v22.22.0",
+  "data": {
+    "note": "CLAUDE.md fallback only: no AGENTS.md anywhere, so opencode's AGENTS.md-first rule cannot shadow the CLAUDE.md canaries",
+    "runsPerArm": 3,
+    "arms": {
+      "iso": {
+        "runs": [
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 5419,
+            "spawnMs": 12,
+            "spawnError": null,
+            "text": "CANARY",
+            "inputTokens": 157,
+            "cacheRead": 0,
+            "outputTokens": 8,
+            "totalIn": 157,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInReply": [],
+            "stderrHead": "",
+            "leakedSources": []
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 6496,
+            "spawnMs": 9,
+            "spawnError": null,
+            "text": "CANARY",
+            "inputTokens": 159,
+            "cacheRead": 0,
+            "outputTokens": 8,
+            "totalIn": 159,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInReply": [],
+            "stderrHead": "",
+            "leakedSources": []
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 7089,
+            "spawnMs": 16,
+            "spawnError": null,
+            "text": "CANARY",
+            "inputTokens": 159,
+            "cacheRead": 0,
+            "outputTokens": 8,
+            "totalIn": 159,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInReply": [],
+            "stderrHead": "",
+            "leakedSources": []
+          }
+        ],
+        "totalIn": [
+          157,
+          159,
+          159
+        ],
+        "leaked": []
+      },
+      "noQuietEnv": {
+        "runs": [
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 5321,
+            "spawnMs": 7,
+            "spawnError": null,
+            "text": "CANARY-3F9CA5CF-HOMECLAUDEMD\nCANARY-3F9CA5CF-CWDCLAUDE\nCANARY",
+            "inputTokens": 282,
+            "cacheRead": 0,
+            "outputTokens": 37,
+            "totalIn": 282,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInReply": [
+              "CANARY-3F9CA5CF-CWDCLAUDE",
+              "CANARY-3F9CA5CF-HOMECLAUDEMD"
+            ],
+            "stderrHead": "",
+            "leakedSources": [
+              "cwdClaude",
+              "homeClaude"
+            ]
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 6116,
+            "spawnMs": 8,
+            "spawnError": null,
+            "text": "CANARY-7FCE48FF-HOMECLAUDEMD\nCANARY-7FCE48FF-CWDCLAUDE",
+            "inputTokens": 281,
+            "cacheRead": 0,
+            "outputTokens": 34,
+            "totalIn": 281,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInReply": [
+              "CANARY-7FCE48FF-CWDCLAUDE",
+              "CANARY-7FCE48FF-HOMECLAUDEMD"
+            ],
+            "stderrHead": "",
+            "leakedSources": [
+              "cwdClaude",
+              "homeClaude"
+            ]
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 6833,
+            "spawnMs": 9,
+            "spawnError": null,
+            "text": "CANARY-93AB7C14-HOMECLAUDEMD\nCANARY-93AB7C14-CWDCLAUDE\nCANARY",
+            "inputTokens": 280,
+            "cacheRead": 0,
+            "outputTokens": 35,
+            "totalIn": 280,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInReply": [
+              "CANARY-93AB7C14-CWDCLAUDE",
+              "CANARY-93AB7C14-HOMECLAUDEMD"
+            ],
+            "stderrHead": "",
+            "leakedSources": [
+              "cwdClaude",
+              "homeClaude"
+            ]
+          }
+        ],
+        "totalIn": [
+          282,
+          281,
+          280
+        ],
+        "leaked": [
+          "cwdClaude",
+          "homeClaude"
+        ]
+      }
+    }
+  }
+}

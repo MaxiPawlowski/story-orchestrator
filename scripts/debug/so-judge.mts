@@ -6,7 +6,9 @@ import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { calibrationOk, type ModelVerdict } from './lib/calibrationVerdict.mts';
-import { costInputOf, costReport, costReportAcross, filterJudgeCalls, rescoreRates, withEstablished } from './lib/judgeHarness.mts';
+import { eventsFromJsonl, eventsFromRecord, timeoutReport, dedupe, type TimeoutEvent } from './lib/judgeTimeouts.mts';
+import { blindSample, replyEffectVerdict, runFromRescore } from './lib/replyEffect.mts';
+import { armSummary, costInputOf, costReport, costReportAcross, filterJudgeCalls, rescoreRates, withEstablished } from './lib/judgeHarness.mts';
 import { classifyProbe, limitProbeCases, probeRequest, requestChars, JEV_USD_PER_MTOK_INPUT, type ProbeResult } from './lib/limitProbe.mts';
 
 const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
@@ -37,6 +39,19 @@ const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
                                       Every figure is over the METERED records; a record with no meter (a check that set the judge
                                       itself) is listed with its ring totals under unmeteredRing and enters nothing else.
                                       Reads every *.json with a cleanup block; writes .debug/so-judge-cost-report.json
+  timeouts --records <dir|file,...>   v2.5 plan 06 J2, offline: the warden and scene timeout tables and the plan's predeclared close.
+                                      Reads journey records (cleanup ring + J11.25 outcome) and journal-follow *.jsonl streams (every chat),
+                                      walking directories. Warden: <= 1 timeout per 50 calls over >= 100 calls, else 'unmeasured (n = N)';
+                                      each timeout says whether another warden call on the same message was in flight (the A8 shape);
+                                      p99 of successful calls only past 100 of them. Scene: 0 bursts, <= 1 timeout per 20 calls,
+                                      J11.25 green x2. Writes .debug/so-judge-timeouts.json; exit 0 only when both close
+  reply-effect --rescores <on1.json,on2.json,off1.json,off2.json>
+                                      v2.5 plan 06 J3, offline: the verdict over four so-judge rescore outputs, one record each
+                                      (rescore each arm's record on its own). >= 20 answered replies per run; an off run under 0.2
+                                      is VOID; 'reduces' only when both on runs sit <= pooled off - 0.15. Exit 0 only on 'reduces'
+  blind-sample --records <r1,r2,...> [--n 10] [--seed <s>]
+                                      v2.5 plan 06 J3: n replies per arm with the arm hidden, for the human rubric; writes the sheet
+                                      and its key as separate .debug files (score the sheet before opening the key)
   limit-probe [--send]                T25: the documented token limit, probed. Without --send prints the plan and its cost; with it,
                                       six calls through the plugin (< $0.01), then refuses / truncates / answers past the limit and
                                       chars per token by language; writes .debug/so-judge-limit-probe.json
@@ -247,6 +262,40 @@ async function limitProbe(page: any, send: boolean) {
   return { ok: verdict.conclusive };
 }
 
+async function walk(path: string): Promise<string[]> {
+  if (/\.jsonl?$/.test(path)) return [path];
+  const entries = await readdir(path, { withFileTypes: true });
+  const nested = await Promise.all(entries.map((entry) => (entry.isDirectory() ? walk(join(path, entry.name)) : Promise.resolve(/\.jsonl?$/.test(entry.name) ? [join(path, entry.name)] : []))));
+  return nested.flat();
+}
+
+export async function readTimeoutSources(spec: string) {
+  const files = (await Promise.all(spec.split(',').map((entry) => entry.trim()).filter(Boolean).map(walk))).flat();
+  const events: TimeoutEvent[] = [];
+  const records: unknown[] = [];
+  const used: string[] = [];
+  for (const file of files) {
+    const text = await readFile(file, 'utf-8');
+    if (file.endsWith('.jsonl')) {
+      const own = eventsFromJsonl(text);
+      if (own.length) used.push(file);
+      events.push(...own);
+      continue;
+    }
+    let record;
+    try {
+      record = JSON.parse(text);
+    } catch {
+      continue;
+    }
+    if (!record || typeof record !== 'object' || !Array.isArray(record.results) || !record.cleanup) continue;
+    used.push(file);
+    records.push(record);
+    events.push(...eventsFromRecord(record));
+  }
+  return { files: used, events: dedupe(events), records };
+}
+
 export async function readCostRecords(spec: string) {
   const files: string[] = [];
   for (const path of spec.split(',').map((entry) => entry.trim()).filter(Boolean)) {
@@ -267,6 +316,40 @@ if (process.argv[1] === fileURLToPath(import.meta.url) && process.argv[2] === 'c
   console.log(JSON.stringify(report, null, 2));
   await writeJSON(report, 'so-judge-cost-report');
   process.exit(report.metered > 0 ? 0 : 1);
+} else if (process.argv[1] === fileURLToPath(import.meta.url) && process.argv[2] === 'reply-effect') {
+  if (!process.argv.includes('--rescores')) {
+    console.log(USAGE);
+    process.exit(1);
+  }
+  const files = argValue('--rescores', '').split(',').map((entry) => entry.trim()).filter(Boolean);
+  const runs = await Promise.all(files.map(async (file) => runFromRescore(JSON.parse(await readFile(file, 'utf-8')), file)));
+  const verdict = replyEffectVerdict(runs);
+  console.log(JSON.stringify({ runs, ...verdict }, null, 2));
+  await writeJSON({ runs, ...verdict }, 'so-judge-reply-effect');
+  process.exit(verdict.verdict === 'reduces' ? 0 : 1);
+} else if (process.argv[1] === fileURLToPath(import.meta.url) && process.argv[2] === 'blind-sample') {
+  if (!process.argv.includes('--records')) {
+    console.log(USAGE);
+    process.exit(1);
+  }
+  const records = await readRecords(argValue('--records', ''));
+  const rows = records.flatMap(({ file, record }) => armSummary(record, file).rows
+    .filter((row) => row.reply?.text?.trim() && typeof row.playerMessage === 'string')
+    .map((row) => ({ id: row.id, arm: armSummary(record, file).label, file, text: row.reply!.text! })));
+  const sample = blindSample(rows, Number(argValue('--n', '10')), argValue('--seed', 'plan06-j3'));
+  await writeJSON({ instructions: 'Mark defect true/false per row BEFORE opening the key file.', sheet: sample.sheet }, 'so-judge-blind-sheet');
+  await writeJSON({ key: sample.key }, 'so-judge-blind-key');
+  console.log(JSON.stringify({ rows: rows.length, sampled: sample.sheet.length }, null, 2));
+  process.exit(sample.sheet.length ? 0 : 1);
+} else if (process.argv[1] === fileURLToPath(import.meta.url) && process.argv[2] === 'timeouts') {
+  if (!process.argv.includes('--records')) {
+    console.log(USAGE);
+    process.exit(1);
+  }
+  const report = timeoutReport(await readTimeoutSources(argValue('--records', '')));
+  console.log(JSON.stringify({ files: report.files.length, records: report.records, warden: { calls: report.warden.calls, timeouts: report.warden.timeouts.length, wardenLoreCalls: report.warden.wardenLoreCalls, close: report.warden.close }, scene: { calls: report.scene.calls, timeouts: report.scene.timeouts.length, bursts: report.scene.bursts.length, close: report.scene.close } }, null, 2));
+  await writeJSON(report, 'so-judge-timeouts');
+  process.exit(report.warden.close.closed && report.scene.close.closed ? 0 : 1);
 } else if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [command, arg] = process.argv.slice(2);
   if (!command || hasHelpFlag() || !['status', 'ask', 'calibrate', 'calls', 'cost', 'rescore', 'limit-probe'].includes(command) || (command === 'ask' && !arg) || (command === 'rescore' && !process.argv.includes('--records'))) {

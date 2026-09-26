@@ -199,6 +199,10 @@
         { "record": "J12/seriesB-run2/record.json", "fixture": "f3761d4dcef8127d05492554a0fead30e3e8509eebefd26793a847421b60c9f0", "outcome": "pass 5/5" },
         { "record": "J12/seriesB-run3/record.json", "fixture": "f3761d4dcef8127d05492554a0fead30e3e8509eebefd26793a847421b60c9f0", "outcome": "pass 5/5" }
       ]
+    },
+    "J13": {
+      "title": "reply-effect",
+      "notRun": "added by v2.5 plan 06 J3 (2026-09-26) after this attestation was written; it never ran on the attested bundle and attests nothing here. Its runs belong to the v2.5 acceptance matrix (plan 10)"
     }
   },
   "rows": {
@@ -226,6 +230,7 @@
     "H": { "verdict": "not run", "summary": "player and author sessions not held; journey human rows J0.4, J1.8/9, J2.10/11, J3.9-13, J4.5/6, J5.7, J6.5, J7.9/10, J8.4, J9.6/7, J10.9/10 unscored; human/scores.json does not exist", "records": [] }
   },
   "notGreen": [
+    "J13 (v2.5 plan 06 J3 reply-effect journey) was added after this attestation and never ran on the attested bundle",
     "human sessions (player, author) not held: every journey human row is unscored, no run used --require-human-record, and the rule-7 and D6/T22 decisions stay waiting",
     "R1 P0' matched replay not runnable: v2.3 L1 was never recorded",
     "J1 runs 1 and 3 failed J1.7 (instrument race on the transition note); the fixture fix restarted the series and runs 4-5 are green",
