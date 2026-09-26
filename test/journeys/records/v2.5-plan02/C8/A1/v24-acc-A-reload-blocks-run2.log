@@ -1,0 +1,82 @@
+== v24-acc-A-reload-blocks-run2 start 2026-09-26T05:48:49Z fixtureSha256=ca703bb5d75276d451c6018a769e7ccf54a985a12594db464fa7336918f06bb8
+open-group exit=0
+header capture exit=0 served=0f4332fac075
+1/8 eval ok 6ms
+2/8 import_story ok 287ms
+3/8 eval ok 22ms
+3/8 eval -> {"chatId":"2026-09-26@02h48m59s652ms","blocksBefore":{"story_orchestrator_guidance":166},"guidanceHead":"Objective: Get ready to open the vault. This objective is world pressure: the wo"}
+4/8 eval ok 1718ms
+4/8 eval -> {"sameChat":true,"epochBefore":32,"epochAfter":32,"storyId":"v24-01-delete-decode","blocksAfterReload":{"story_orchestrator_guidance":166}}
+5/8 eval ok 516ms
+5/8 eval -> {"blocksAfterAGenerationClose":{"story_orchestrator_guidance":166}}
+6/8 slash ok 16932ms
+7/8 wait ok 1527ms
+8/8 eval ok 5ms
+8/8 eval -> {"guidanceHead":"Objective: Get ready to open the vault. This objective is wo","blocksBefore":["story_orchestrator_guidance"],"blocksAfterReload":["story_orchestrator_guidance"],"blocksAfterClose":["story_orchestrator_guidance"],"realRequests":1,"requestsCarryingGuidance":1}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-26T05-49-27-128Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 8,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-26@02h48m59s652ms",
+    "owned": [
+      "2026-09-26@02h48m59s652ms"
+    ],
+    "deleted": [
+      "2026-09-26@02h48m59s652ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1531,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-26@02h48m59s652ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}
+scenario exit=0 2026-09-26T05:49:27Z
+header diff exit=0 blocking=0

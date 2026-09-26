@@ -1,0 +1,121 @@
+{
+  "file": "test/scenarios/v24-acc-A-reload-blocks.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 1,
+      "key": "import_story",
+      "ok": true,
+      "ms": 287
+    },
+    {
+      "index": 2,
+      "key": "eval",
+      "ok": true,
+      "ms": 22
+    },
+    {
+      "index": 3,
+      "key": "eval",
+      "ok": true,
+      "ms": 1718
+    },
+    {
+      "index": 4,
+      "key": "eval",
+      "ok": true,
+      "ms": 516
+    },
+    {
+      "index": 5,
+      "key": "slash",
+      "ok": true,
+      "ms": 16932
+    },
+    {
+      "index": 6,
+      "key": "wait",
+      "ok": true,
+      "ms": 1527
+    },
+    {
+      "index": 7,
+      "key": "eval",
+      "ok": true,
+      "ms": 5
+    }
+  ],
+  "ok": true,
+  "error": null,
+  "retries": [],
+  "firstAttempt": "pass",
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-26@02h48m59s652ms",
+    "owned": [
+      "2026-09-26@02h48m59s652ms"
+    ],
+    "deleted": [
+      "2026-09-26@02h48m59s652ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1531,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-26@02h48m59s652ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

@@ -1,0 +1,97 @@
+1/18 import_story ok 284ms
+2/18 eval ok 20ms
+2/18 eval -> {"healed":null,"profile":"Story Orchestrator Memory RunPod","apiUrl":"http://127.0.0.1:18080","cadence":99,"authorView":false}
+3/18 eval ok 14ms
+3/18 eval -> {"forcedArm":{"scale":0.359,"control":false},"fullPassBudgetAt400kChars":91760}
+4/18 eval ok 2019ms
+4/18 eval -> {"seeded":330,"before":1,"length":331,"chars":455438,"estTokens":113860,"storyId":"live-v24-03"}
+5/18 ui ok 42ms
+6/18 ui ok 109ms
+7/18 eval ok 1809ms
+7/18 eval -> {"preflight":"3 requests, about 206,128 tokens to Story Orchestrator Memory RunPod. Send them?","confirmMs":118,"planningMs":257,"backfill":{"running":true,"processed":0,"total":3,"lastError":null,"preparing":true}}
+8/18 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the backlog ended before one window was applied and another was in flight: {"running":false,"processed":0,"total":3,"lastError":"the memory model did not answer within 92064 ms, nor within 184128 ms on one retry"}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:353)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-26T05-35-20-642Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-26T05-35-26-709Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 8,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-313db404"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugCallBudgetScale"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-26@02h29m23s356ms",
+    "owned": [
+      "2026-09-26@02h29m23s356ms"
+    ],
+    "deleted": [
+      "2026-09-26@02h29m23s356ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1531,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-26@02h29m23s356ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 99,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

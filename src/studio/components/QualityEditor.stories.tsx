@@ -25,6 +25,16 @@ export const Populated: Story = {
   },
 };
 
+export const MacroHelp: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: /^trust/ }));
+    const help = canvasElement.querySelector('[data-so="quality-macro-help"]');
+    await expect(help?.textContent).toContain("{{story_quality_trust}} works everywhere");
+    await expect(help?.textContent).toContain("{{story_quality::trust}} needs SillyTavern's new macro engine");
+  },
+};
+
 export const AddAndRename: Story = {
   beforeEach: () => {
     seedEmptyDraft();

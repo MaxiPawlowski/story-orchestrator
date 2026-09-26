@@ -1,0 +1,19 @@
+v2.5 plan 07 (author tools, code items), mutations 2026-09-26 on the plan-07 branch. Each mutant was applied alone as an exact-text replacement by .debug/mutate07.py (asserted to match exactly once), the plan-07 suites were run (gateReplay unit + property, evaluatedBlackboard, modelCalls, promptBuckets, promptBucketsParse, qualityMacros, macros, macroEngine, capabilities, journal), and the file was restored byte for byte. The plan's mutants are M1/M2 (replay on `before` / raw `after.blackboard` instead of `evaluated`), M4 (drop atSource), M8 (register on the old engine, read as macroArgs present), M11 (infer an LLM route) and M12 (count a depth block as its own bucket). The rest cover checks added while building. M1 re-run alone with scripts/mutate.mjs: 4 failed (the property, the unchanged-gate case, the edited-threshold case, the priority case), mutation exit 1.
+
+Baseline: Tests:       88 passed, 88 total (exit 0)
+- M1 replay evaluates on `before` (the pre-drain state) instead of `evaluated` (src/studio/gateReplay.ts): KILLED, 4 failed, 84 passed, 88 total
+- M2 replay evaluates on raw after.blackboard (post-progress) instead of `evaluated` (src/studio/gateReplay.ts): KILLED, 1 failed, 87 passed, 88 total
+- M3 engine records `evaluated` after the progress effect (src/engine/engine.ts): KILLED, 3 failed, 85 passed, 88 total
+- M4 atSource dropped (every boundary counts as the source) (src/studio/gateReplay.ts): KILLED, 2 failed, 86 passed, 88 total
+- M5 priority order reversed among the source's edges (src/studio/gateReplay.ts): KILLED, 2 failed, 86 passed, 88 total
+- M6 a manual activation does not end the counterfactual (src/studio/gateReplay.ts): KILLED, 1 failed, 87 passed, 88 total
+- M7 an undeclared quality is evaluated as false instead of unknown (src/studio/gateReplay.ts): KILLED, 1 failed, 87 passed, 88 total
+- M8 macroArgs reads present on the old engine (register on the legacy engine) (src/services/stHost/capabilities.ts): KILLED, 1 failed, 87 passed, 88 total
+- M9 the arg macro registers non-strict (src/services/stHost/macroEngine.ts): KILLED, 1 failed, 87 passed, 88 total
+- M10 an undeclared key reads (unset) instead of naming it (src/runtime/qualityMacros.ts): KILLED, 2 failed, 86 passed, 88 total
+- M11 an LLM route is inferred (from the configured route) instead of 'not recorded' (src/runtime/modelCalls.ts): KILLED, 1 failed, 87 passed, 88 total
+- M12 SO's depth-block count is summed as its own bucket (src/runtime/promptBuckets.ts): KILLED, 4 failed, 84 passed, 88 total
+- M13 the sum check always reads as matching (src/runtime/promptBuckets.ts): KILLED, 1 failed, 87 passed, 88 total
+- M14 Text Completion is not refused (buckets read on any main API) (src/services/stHost/promptBucketsParse.ts): KILLED, 1 failed, 87 passed, 88 total
+- M15 a judge call with no model is given a route (src/runtime/modelCalls.ts): KILLED, 3 failed, 85 passed, 88 total
+Restored: Tests:       88 passed, 88 total (exit 0)

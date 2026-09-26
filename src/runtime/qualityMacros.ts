@@ -22,6 +22,13 @@ export const renderQualityValue = (values: Record<string, unknown>, key: string)
   return value === undefined || value === null ? "(unset)" : String(value);
 };
 
+export const QUALITY_ARG_MACRO = "story_quality";
+
+export const renderQualityArg = (story: QualitySource | null, values: Record<string, unknown>, rawKey: string): string => {
+  const key = String(rawKey ?? "").trim();
+  return story?.qualities.some((quality) => quality.key === key) ? renderQualityValue(values, key) : `(no quality "${key}")`;
+};
+
 export interface QualityMacroHost {
   register(name: string, read: () => string): void;
   unregister(name: string): void;

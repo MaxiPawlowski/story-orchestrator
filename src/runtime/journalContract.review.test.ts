@@ -68,7 +68,7 @@ describe("V20e: the journal contract", () => {
 
   it("links a read to the boundary that applied it, and names the one that was discarded", () => {
     const boundary: BoundaryLogEntry = {
-      at: Date.parse(at(5)), boundary: 4, source: "gate", fired: null, context: { lastMessageId: 2, chatLength: 3 },
+      at: Date.parse(at(5)), boundary: 4, source: "gate", fired: null, evaluated: {}, context: { lastMessageId: 2, chatLength: 3 },
       before: { activeCheckpointId: "cp1" } as BoundaryLogEntry["before"], after: { activeCheckpointId: "cp1" } as BoundaryLogEntry["after"],
       queue: {
         applied: [{ source: "extractor", origin: "audit-new", blackboardVersionSum: 0, deltas: [{ q: "door_open", v: true }], outcomes: [] }],
@@ -86,7 +86,7 @@ describe("V20e: the journal contract", () => {
 
   it("journals a boundary that applied nothing instead of omitting it", () => {
     const quiet: BoundaryLogEntry = {
-      at: Date.parse(at(3)), boundary: 2, source: "gate", fired: null, context: { lastMessageId: 1, chatLength: 2 },
+      at: Date.parse(at(3)), boundary: 2, source: "gate", fired: null, evaluated: {}, context: { lastMessageId: 1, chatLength: 2 },
       before: { activeCheckpointId: "cp1" } as BoundaryLogEntry["before"], after: { activeCheckpointId: "cp1" } as BoundaryLogEntry["after"],
       queue: { applied: [], discarded: [] },
     };

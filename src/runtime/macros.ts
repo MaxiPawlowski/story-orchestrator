@@ -2,7 +2,7 @@ import { MEMORY_TIERS, sceneFieldsInConflict } from "@memory/index";
 import { confirmedSceneFacts } from "@judge/index";
 import { getPlayerName, registerHostMacro, unregisterHostMacro } from "@services/STAPI";
 import { renderBlackboardMemo } from "./blackboardMemo";
-import { createQualityMacroSync, QUALITY_MACRO_PREFIX } from "./qualityMacros";
+import { createQualityMacroSync, QUALITY_ARG_MACRO, QUALITY_MACRO_PREFIX, renderQualityArg } from "./qualityMacros";
 import type { RuntimeManager } from "./runtimeManager";
 
 const renderCurrentCheckpoint = (manager: RuntimeManager): string => {
@@ -61,6 +61,10 @@ export function registerRuntimeMacros(manager: RuntimeManager): () => void {
     journal: (summary, detail) => manager.noteRecap(summary, detail),
     values: () => manager.getEngineState()?.blackboard.values ?? {},
   });
+  registerHostMacro(QUALITY_ARG_MACRO, {
+    unnamedArgs: [{ name: "key", description: "the quality key, as authored" }],
+    handler: ([key]) => renderQualityArg(manager.getStory(), manager.getEngineState()?.blackboard.values ?? {}, key),
+  }, "Story Orchestrator v2 quality by key (new macro engine only; {{story_quality_<key>}} works everywhere)");
   const sync = () => {
     syncRoleMacros(manager);
     syncQualityMacros(manager.getStory());
@@ -70,5 +74,6 @@ export function registerRuntimeMacros(manager: RuntimeManager): () => void {
   return () => {
     unsubscribe();
     syncQualityMacros(null);
+    unregisterHostMacro(QUALITY_ARG_MACRO);
   };
 }

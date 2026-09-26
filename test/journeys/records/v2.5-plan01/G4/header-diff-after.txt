@@ -1,0 +1,32 @@
+DIFF chat.chatId  null -> "2026-09-26@02h25m56s040ms"
+ok   chat.chatLength  3 -> 1  (allowed by progress)
+DIFF chat.groupId  null -> "1759606632088"
+DIFF group.members  +Arin.png +DM Narrator.png +Luke.png +Ponticius.png
+DIFF group.name  null -> "Group: Arin, DM Narrator"
+ok   story.activeCheckpointId  null -> "start"  (allowed by progress)
+ok   story.boundary  null -> 0  (allowed by progress)
+DIFF story.contentHash  null -> "v2-781000ed"
+DIFF story.id  null -> "so-v25-c2c1"
+DIFF story.playedVersion  null -> 1
+DIFF story.title  null -> "SO-V25-C2C1 save race and NPC switch"
+{
+  "baseline": "test/journeys/records/v2.5-plan01/G4/header-before.json",
+  "label": "g4-after",
+  "allow": [],
+  "differences": 11,
+  "progress": 3,
+  "blocking": 8,
+  "blockingPaths": [
+    "chat.chatId",
+    "chat.groupId",
+    "group.members",
+    "group.name",
+    "story.contentHash",
+    "story.id",
+    "story.playedVersion",
+    "story.title"
+  ],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\1\\debug\\run-header-g4-after.json",
+  "ok": false
+}

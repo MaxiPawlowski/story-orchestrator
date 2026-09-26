@@ -1,0 +1,90 @@
+
+=== J7 long-haul ===
+Full sun-ruins play-through to the finale on the real model: every anchor reached, convergence honoured, success-criteria hooks recorded. Expensive — run at plan 01 (baseline) and plan 07/08 (acceptance) only.
+
+extraction before this run: {"enabled":true,"cadence":3,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","profiles":{}}
+Global config snapshot: C:\dev\so-lanes\3\debug\so-journey-config-snapshot.json
+extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+--- J7.1 cp1 → cp2: the player approaches the job board Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.
+J7.1 1/12 import_story ok 1098ms
+J7.1 2/12 ui ok 265ms
+J7.1 3/12 eval ok 12ms
+J7.1 4/12 expect ok 62ms
+J7.1 5/12 send_generate ok 30270ms
+J7.1 6/12 wait ok 1545ms
+J7.1 7/12 send_generate ok 52191ms
+J7.1 8/12 send_generate ok 84094ms
+J7.1 9/12 wait ok 121456ms
+J7.1 10/12 send_generate ok 46453ms
+J7.1 11/12 wait ok 53770ms
+J7.1 12/12 wait ok 90ms
+--- J7.2 cp2 → cp3: the party accepts the Sun Ruins mission Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.
+J7.2 1/6 send_generate ok 29037ms
+J7.2 2/6 send_generate ok 9822ms
+J7.2 3/6 wait ok 39658ms
+J7.2 4/6 send_generate ok 103290ms
+J7.2 5/6 wait ok 83719ms
+J7.2 6/6 wait ok 82ms
+--- J7.3 cp3 → cp-4a: the player agrees to bring Luke along Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.
+J7.3 1/6 send_generate ok 135873ms
+J7.3 2/6 send_generate ok 3169ms
+J7.3 3/6 wait ok 100961ms
+J7.3 4/6 send_generate ok 53923ms
+J7.3 5/6 wait ok 85802ms
+J7.3 6/6 wait ok 114ms
+--- J7.4 cp-4a → cp-4a1: the sphinx riddle is answered correctly Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.
+J7.4 1/6 send_generate ok 81149ms
+J7.4 2/6 send_generate ok 60327ms
+J7.4 3/6 wait ok 49646ms
+J7.4 4/6 send_generate ok 72525ms
+J7.4 5/6 wait ok 27188ms
+J7.4 6/6 wait ok 111ms
+--- J7.5 cp-4a1 → cp-5: the party enters the inner chamber, and convergence progress is recorded Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.
+J7.5 1/7 send_generate ok 44908ms
+J7.5 2/7 send_generate ok 184213ms
+J7.5 3/7 wait ok 75203ms
+J7.5 4/7 send_generate ok 40492ms
+J7.5 5/7 wait ok 5251ms
+J7.5 6/7 wait ok 131ms
+J7.5 7/7 eval ok 5ms
+--- J7.6 cp-5 → cp-6: the artifact is secured and the party returns to the guild Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.
+J7.6 1/8 send_generate ok 41890ms
+J7.6 2/8 wait ok 1522ms
+J7.6 3/8 send_generate ok 43567ms
+J7.6 4/8 send_generate ok 93182ms
+J7.6 5/8 wait ok 154397ms
+J7.6 6/8 send_generate ok 79227ms
+J7.6 7/8 wait ok 5233ms
+J7.6 8/8 wait ok 147ms
+--- J7.7 every anchor was visited and none was skipped
+J7.7 1/1 eval ok 5ms
+--- J7.8 the long session left a coherent journal and memory behind
+J7.8 1/1 eval ok 6ms
+Restored global config from C:\dev\so-lanes\3\debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions","schema"],"saved":{"status":200},"preservedStories":["sun-ruins"],"preservedSessions":[]}
+
+PASS         J7.1     cp1 → cp2: the player approaches the job board Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.
+PASS         J7.2     cp2 → cp3: the party accepts the Sun Ruins mission Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.
+PASS         J7.3     cp3 → cp-4a: the player agrees to bring Luke along Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.
+PASS         J7.4     cp-4a → cp-4a1: the sphinx riddle is answered correctly Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.
+PASS         J7.5     cp-4a1 → cp-5: the party enters the inner chamber, and convergence progress is recorded Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.
+PASS         J7.6     cp-5 → cp-6: the artifact is secured and the party returns to the guild Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.
+PASS         J7.7     every anchor was visited and none was skipped
+PASS         J7.8     the long session left a coherent journal and memory behind
+SKIP         J7.9      — human check — operator scores it
+SKIP         J7.10     — human check — operator scores it
+
+J7
+automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped
+human:     0 scored, 2 unscored
+cleanup:   clean
+first try: 8 of 8 passing check(s) needed no retry
+
+--- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+[J7.9] (—) Over the whole play-through, did the story feel authored — arriving where it was meant to — or did it feel like it was dragging you along rails?
+      anchors: 1 = pure rails · 3 = authored but visible machinery · 5 = felt like a GM running my choices
+[J7.10] (—) Did the finale land, given what actually happened in your run?
+      anchors: 1 = disconnected from my choices · 3 = generic ending · 5 = paid off my run specifically
+[free] What would make you stop using this?
+
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-26T07-01-36-979Z_journey-J7.json
+Matrix: C:\dev\so-lanes\3\debug\journey-J7.md

@@ -1,0 +1,28 @@
+{
+  "ok": true,
+  "value": {
+    "soLoaded": true,
+    "chat": null,
+    "active": true,
+    "drift": [],
+    "diskDisable": true,
+    "repair": null,
+    "renorm": false,
+    "journal": [
+      {
+        "at": "2026-09-26T05:12:22.415Z",
+        "boundary": 0,
+        "messageId": -1,
+        "kind": "status",
+        "summary": "No story loaded"
+      },
+      {
+        "at": "2026-09-26T05:12:22.419Z",
+        "boundary": 0,
+        "messageId": -1,
+        "kind": "status",
+        "summary": "No story selected for this chat"
+      }
+    ]
+  }
+}

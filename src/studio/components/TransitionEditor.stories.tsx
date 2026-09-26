@@ -24,6 +24,13 @@ export const Populated: Story = {
   },
 };
 
+export const GateReplayWithoutAChat: Story = {
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('[data-so="gate-replay"]')?.getAttribute("data-state")).toBe("unavailable");
+    await expect(within(canvasElement).getByText(/Open the Studio from a chat that plays this story/)).toBeInTheDocument();
+  },
+};
+
 export const EditPriority: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

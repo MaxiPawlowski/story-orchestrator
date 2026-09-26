@@ -13,6 +13,8 @@ import StoryEditor from "./components/StoryEditor";
 import StudioGraph from "./components/StudioGraph";
 import StudioCopilot, { type WizardHost } from "./components/StudioCopilot";
 import StudioToolbar, { type StudioSaveHandler } from "./components/StudioToolbar";
+import { GateReplayContext } from "./replayContext";
+import type { GateReplaySource } from "./gateReplay";
 
 export type StudioTab = "graph" | "story" | "qualities" | "checkpoints" | "transitions" | "roster" | "diagnostics" | "copilot";
 
@@ -20,6 +22,7 @@ export interface StudioOpenIntent {
   tab?: StudioTab;
   stage?: CopilotStage;
   missing?: { personas?: string[]; members?: string[]; lorebooks?: string[] };
+  fromChat?: boolean;
 }
 
 const BASE_TABS: Array<{ id: StudioTab; label: string }> = [
@@ -56,9 +59,10 @@ type Props = {
   hostOptions?: StudioHostOptions;
   wizardHost?: WizardHost;
   intent?: StudioOpenIntent;
+  replay?: GateReplaySource | null;
 };
 
-const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopilotStage, onSaved, hostOptions, wizardHost, intent }) => {
+const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopilotStage, onSaved, hostOptions, wizardHost, intent, replay = null }) => {
   const [tab, setTab] = useState<StudioTab>(intent?.tab ?? "graph");
   const options = useMemo(() => hostOptions ?? readHostOptions(), [hostOptions]);
   const idLocked = useDraftStore((state) => state.sourceHash !== null);
@@ -205,7 +209,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
         </div>
 
         <div id="so-studio-tabpanel" className="flex-1 overflow-auto p-3" role="tabpanel" tabIndex={-1} aria-labelledby={`so-studio-tab-${activeTab}`}>
-          {renderTab()}
+          <GateReplayContext.Provider value={replay}>{renderTab()}</GateReplayContext.Provider>
         </div>
 
         <div className="st-panel-header flex flex-wrap items-center gap-2 border-t px-3 py-2">

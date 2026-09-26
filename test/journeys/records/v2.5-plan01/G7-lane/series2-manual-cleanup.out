@@ -1,0 +1,27 @@
+{
+  "ok": true,
+  "value": {
+    "removed": [],
+    "books": {
+      "restored": 3,
+      "identical": {
+        "Adolion Academy Checkpoints": true,
+        "Adolion - Aegis City Noble Life": true,
+        "Adolion Adventurer Checkpoints": true
+      }
+    },
+    "wi": {
+      "gatingMode": "file",
+      "normalized": {},
+      "normalizedFrom": {}
+    },
+    "lib": [
+      "adolion-academy",
+      "adolion-adventurer",
+      "so-j9-wizard",
+      "so-j9-fixme"
+    ],
+    "sessionBooks": false
+  }
+}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-26T05-38-14-849Z_st-eval.json

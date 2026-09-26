@@ -1,0 +1,35 @@
+{
+  "_note": "v2.5 plan 07 A5 live gate, the form without plan 13 H4 (LANE ONLY, x2 consecutive). Run: node scripts/debug/so-scenario.mts run test/scenarios/live-v25-07-a5-calls.json --sandbox --group <lane group id>, then node scripts/debug/so-ui.mts model-calls (author view) and node scripts/debug/so-journal.mts export --kind judge. A real turn produces a real shared read; its row in snapshot.modelCalls reads no route (the UI says 'route not recorded'), and every judge row that has a model names judge:typesafe:<model>. Once H4 lands this fixture is replaced by the routed form (plan 07 live gate A5).",
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((name) => name.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; return { ok: true };"
+    },
+    {
+      "import_story": {
+        "file": "./live-v24-08.story.json"
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I check the gate and count my coins.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const rows = globalThis.storyOrchestratorRuntime.getSnapshot().modelCalls ?? []; const reads = rows.filter((row) => row.kind === 'llm' && row.role.startsWith('read:')); if (!reads.length) throw new Error(`no shared-read row after a real turn: ${JSON.stringify(rows)}`); const routed = rows.filter((row) => row.kind === 'llm' && row.route !== null); if (routed.length) throw new Error(`an LLM row carries a route nothing recorded: ${JSON.stringify(routed)}`); const judges = rows.filter((row) => row.kind === 'judge'); const bad = judges.filter((row) => (row.route !== null ? !row.route.startsWith('judge:typesafe:') : !row.result.startsWith('fallback'))); if (bad.length) throw new Error(`judge rows with a wrong route: ${JSON.stringify(bad)}`); return { reads: reads.length, judges: judges.length };",
+      "log": true
+    },
+    {
+      "eval": "const events = globalThis.storyOrchestratorRuntime.getSessionJournal().filter((event) => event.kind === 'judge'); const missing = events.filter((event) => !('route' in (event.detail ?? {}))); if (missing.length) throw new Error(`judge journal events without a route field: ${missing.length}`); return { judgeEvents: events.length };",
+      "log": true
+    }
+  ]
+}

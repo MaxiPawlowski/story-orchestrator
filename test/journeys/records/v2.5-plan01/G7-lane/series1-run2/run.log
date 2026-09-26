@@ -1,0 +1,68 @@
+1/17 inject_script ok 7ms
+2/17 inject_script ok 6ms
+3/17 inject_script ok 6ms
+4/17 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: not fresh (mode scan); run this fixture's cleanup first
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:455)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:859)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-26T05-23-56-114Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-26T05-24-01-992Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 4,
+  "cleanup": {
+    "removedStoryHashes": [],
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-26@02h23m55s799ms",
+    "owned": [
+      "2026-09-26@02h23m55s799ms"
+    ],
+    "deleted": [
+      "2026-09-26@02h23m55s799ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1529,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-26@02h23m55s799ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import type { SillyTavernContext } from "./hostTypes";
 import { importSTModule } from "./modules";
+import { argMacroSeam, type HostArgMacro } from "./macroEngine";
 
 export type StoryOrchestratorHostContext = SillyTavernContext;
 
@@ -46,11 +47,25 @@ export const noteHostSettingsLoaded = (): void => markLoaded();
 /** V17: the seam `registerHostMacro` actually registers through, so the capability probe asks it. */
 export const hostMacrosAvailable = (): boolean => typeof macrosHost?.MacrosParser?.registerMacro === "function";
 
-export const registerHostMacro = (key: string, value: HostMacroValue, description?: string): void =>
-  macrosHost.MacrosParser.registerMacro(key, value, description);
+const argMacros = argMacroSeam(() => getContext());
 
-export const unregisterHostMacro = (key: string): void =>
+export const hostArgMacrosAvailable = (): boolean => argMacros.available();
+
+export const registerHostMacro = (key: string, value: HostMacroValue | HostArgMacro, description?: string): void => {
+  if (typeof value === "object") {
+    argMacros.register(key, value, description);
+    return;
+  }
+  macrosHost.MacrosParser.registerMacro(key, value, description);
+};
+
+export const unregisterHostMacro = (key: string): void => {
+  if (argMacros.owns(key)) {
+    argMacros.unregister(key);
+    return;
+  }
   macrosHost.MacrosParser.unregisterMacro(key);
+};
 
 export const getPlayerName = (): string => {
   const context = getContext() as unknown as { name1?: string };

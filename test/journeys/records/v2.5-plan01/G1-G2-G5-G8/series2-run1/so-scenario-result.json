@@ -1,0 +1,238 @@
+{
+  "file": "test/scenarios/live-v25-01-real-books.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "inject_script",
+      "ok": true,
+      "ms": 17
+    },
+    {
+      "index": 1,
+      "key": "inject_script",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 2,
+      "key": "eval",
+      "ok": true,
+      "ms": 21
+    },
+    {
+      "index": 3,
+      "key": "eval",
+      "ok": true,
+      "ms": 51
+    },
+    {
+      "index": 4,
+      "key": "eval",
+      "ok": true,
+      "ms": 1945
+    },
+    {
+      "index": 5,
+      "key": "eval",
+      "ok": true,
+      "ms": 1706
+    },
+    {
+      "index": 6,
+      "key": "eval",
+      "ok": true,
+      "ms": 2676
+    },
+    {
+      "index": 7,
+      "key": "wait",
+      "ok": true,
+      "ms": 3755
+    },
+    {
+      "index": 8,
+      "key": "solo_chat",
+      "ok": true,
+      "ms": 1914
+    },
+    {
+      "index": 9,
+      "key": "eval",
+      "ok": true,
+      "ms": 81
+    },
+    {
+      "index": 10,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 290032
+    },
+    {
+      "index": 11,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 24138
+    },
+    {
+      "index": 12,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 24567
+    },
+    {
+      "index": 13,
+      "key": "eval",
+      "ok": true,
+      "ms": 19
+    },
+    {
+      "index": 14,
+      "key": "wait",
+      "ok": true,
+      "ms": 3163
+    },
+    {
+      "index": 15,
+      "key": "solo_chat",
+      "ok": true,
+      "ms": 187
+    },
+    {
+      "index": 16,
+      "key": "eval",
+      "ok": true,
+      "ms": 611
+    },
+    {
+      "index": 17,
+      "key": "eval",
+      "ok": true,
+      "ms": 2254
+    },
+    {
+      "index": 18,
+      "key": "eval",
+      "ok": true,
+      "ms": 106
+    },
+    {
+      "index": 19,
+      "key": "wait",
+      "ok": true,
+      "ms": 3134
+    },
+    {
+      "index": 20,
+      "key": "reload",
+      "ok": true,
+      "ms": 7017
+    },
+    {
+      "index": 21,
+      "key": "inject_script",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 22,
+      "key": "inject_script",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 23,
+      "key": "eval",
+      "ok": false,
+      "ms": 60057,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: Error: timed out waiting for the drifted entry in the start-up verify\n    at Object.waitFor (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:124:51)\n    at async eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:445)\n    at async <anonymous>:316:30"
+    }
+  ],
+  "ok": false,
+  "error": "Evaluation failed in SillyTavern page: page.evaluate: Error: timed out waiting for the drifted entry in the start-up verify\n    at Object.waitFor (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:124:51)\n    at async eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:445)\n    at async <anonymous>:316:30",
+  "retries": [],
+  "firstAttempt": "fail",
+  "cleanup": {
+    "removedStoryHashes": [],
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [
+        "Arin - 2026-09-26@04h13m05s598ms"
+      ],
+      "leaked": [],
+      "results": [
+        {
+          "chatId": "Arin - 2026-09-26@04h13m05s598ms",
+          "gone": true
+        }
+      ]
+    },
+    "activeEntity": {
+      "captured": true,
+      "before": {
+        "character": null,
+        "group": "1759606632088"
+      },
+      "found": {
+        "character": "Arin.png",
+        "group": null
+      },
+      "after": {
+        "character": null,
+        "group": "1759606632088"
+      },
+      "restored": true,
+      "saved": {
+        "status": 200
+      }
+    },
+    "sandboxChatId": "2026-09-26@04h12m54s275ms",
+    "owned": [
+      "2026-09-26@04h12m54s275ms"
+    ],
+    "deleted": [
+      "2026-09-26@04h12m54s275ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1536,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-26@04h12m54s275ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

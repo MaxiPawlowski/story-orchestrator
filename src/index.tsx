@@ -18,7 +18,7 @@ import { isArcTemplateName } from "@pacing/index";
 import { DEFAULT_MAX_TOKENS, inputBudget } from "@extraction/index";
 import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
 import { startRuntime } from "@runtime/index";
-import { STORY_STATE_RETENTION } from "@runtime/persistence";
+import { loadPersistedRuntime, STORY_STATE_RETENTION } from "@runtime/persistence";
 import { branchFromOldest, continueFromBranch } from "@runtime/chatIdentity";
 import { exportState } from "@runtime/stateExport";
 import { removalRestore, wiGating } from "@runtime/worldInfoScanHost";
@@ -33,6 +33,7 @@ import HudStrip from "./components/drawer/HudStrip";
 import BranchNotice from "./components/drawer/BranchNotice";
 import HelpTooltip from "./components/studio/HelpTooltip";
 import { setDiagnosticsContext, useDraftStore, type StoryDraft } from "./studio/draft";
+import { buildReplaySource, type GateReplaySource } from "./studio/gateReplay";
 import "./styles.css";
 
 // v2.3 plan 08: the version the settings panel reports is the one this bundle was built from.
@@ -117,6 +118,12 @@ const applySavedStory = async (record: StoryLibraryRecord): Promise<string | nul
   return outcome.reason ? `this chat kept its version — ${outcome.reason}` : null;
 };
 
+const readReplaySource = (): GateReplaySource | null => {
+  const storyId = manager.getSnapshot().storyId;
+  const source = buildReplaySource(storyId, manager.getStory(), storyId ? loadPersistedRuntime(storyId)?.engineHistory ?? null : null);
+  return source ? { ...source, jump: (messageId) => void jumpFromDrawer(messageId) } : null;
+};
+
 const StudioHost = () => {
   const open = useSyncExternalStore(
     (listener) => { studioListeners.add(listener); return () => { studioListeners.delete(listener); }; },
@@ -132,6 +139,7 @@ const StudioHost = () => {
       onSaved={applySavedStory}
       wizardHost={wizardHost}
       intent={studioIntent}
+      replay={studioIntent?.fromChat ? readReplaySource() : null}
     />
   );
 };
@@ -573,7 +581,7 @@ const DrawerPanel = () => {
           manager={manager}
           driver={{ context: snapshot.driver, activeNudge: snapshot.activeNudge, controller: driverController }}
           onOpenSettings={openStorySettings}
-          onEditStory={() => void openStudio()}
+          onEditStory={() => void openStudio({ fromChat: true })}
           onFixWithWizard={() => void openWizardForRequirements()}
           onOpenRepair={openRepairStep}
           onNewStory={() => void openWizard()}

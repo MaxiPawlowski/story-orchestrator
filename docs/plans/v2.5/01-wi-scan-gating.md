@@ -304,3 +304,47 @@ Records go to `test/journeys/records/v2.5-plan01/live-<bundle12>/`.
 
 - **Invariant 14** (`.claude/rules/architecture.md`, "Checkpoint `world_info` is rebuilt from the chat's path"): replace the closing parenthesis "(v2.4 plan 05: a scan-time alternative exists only as a spike …)" with: *"Checkpoint `world_info` is a per-scan view derived from the chat's path; gated entries rest off in their files (normalised once, behind the author's confirm, `worldInfo.normalized` + `normalizedFrom`, verified against the files at start-up and on every library change); the file path (path replay + release) is the capability fallback and the `file` mode, and is the default until the author switches."*
 - `.claude/rules/architecture.md` tree line for `scanGatePlan.ts / … / worldInfoMode.ts` becomes "v2.5 plan 01: per-chat lorebook gating (`worldInfoGating.ts` controller, `worldInfoLedger.ts` verify/restore, `worldInfoNormalize.ts` normaliser, `worldInfoScanHost.ts` wiring)". The components/settings line adds `WorldInfoGatingGroup`. The capabilities bullet in gotchas adds `wiScanGating`.
+
+## Gate record (live, bundle 0f4332fac075)
+
+2026-09-26. Lanes only: lane 3 ran G1/G2/G3/G5/G7/G8, and lane 1 ran G4. Each lane was prepared the same way: `restore-config`, `st-session reload`, served bundle `0f4332fac075` confirmed by `so-run-header` (`bundle.served.sha256`), `open-group 1759606632088`, `/profile Artemis RunPod RP` with a real PONG. `src`/`dist` untouched. Fixture sha256s: `test/journeys/records/v2.5-plan01/fixture-sha256.txt` (lane 3), `test/journeys/records/v2.5-plan01/G4/fixtures.sha256` (lane 1); identical bytes on every run. Records live under `test/journeys/records/v2.5-plan01/<gate>/`, not the `live-<bundle12>/` the plan named (deviation, path only).
+
+### Verdicts
+
+| Gate | Verdict | Runs | Record |
+|---|---|---|---|
+| G1 (a/b) | **NOT GREEN.** The G1 assertions passed in both attempts (93 matched, 0 wrong, `missingKey` 0; scan view 0 wrong, ring 3 slots / 0 leaks). The vehicle then went red at G5 (step 23), so no ×2 run of the fixture completed | series1-run1 red at step 23; series1-run2 refused the lane (run 1 skipped its cleanup and left scan mode), so it is not an attempt; series2-run1 red at step 23 | `test/journeys/records/v2.5-plan01/G1-G2-G5-G8/` |
+| G1 (c) | pass, 1 manual run (×2 not met). All 343 ledger entries were off with SO disabled, so the check was not vacuous | 1 | `test/journeys/records/v2.5-plan01/G1c-G5-disabled/run1/` (`03-G1c-check.json`) |
+| G2 | **NOT GREEN** (same vehicle). Its assertions passed in both attempts: 93 of 93 flipped, non-gated entries unchanged, 0 edits on the second run | as G1 (a/b) | `test/journeys/records/v2.5-plan01/G1-G2-G5-G8/` |
+| G3 | **GREEN ×2**, strict. J7 in scan mode: 8 pass / 0 fail each run (2830 s, 2151 s), all passes on the first attempt, `drift`/`missingKey` 0, the four gated books identical before and after. J7.9/J7.10 are human rows and stay unscored | 2 | `test/journeys/records/v2.5-plan01/G3/` |
+| G4 | **GREEN.** J3 scan: series 1 run 1 red at J3.2 (see below), run 2 green; series 2 runs 1 and 2 green on the first attempt. That is three consecutive greens and a complete ×2 series. J7 file ×1: 8 pass, clean | J3 4, J7 1 | `test/journeys/records/v2.5-plan01/G4/` |
+| G5 | **RED: product defect P01-L1.** "Timed out waiting for the drifted entry in the start-up verify". No Repair row after a reload, in 3 of 3 attempts (two series plus the manual re-enable). The extension-disabled half passed ×1: the hand-enabled entry was the only one on. The "re-normalise clears it" half is vacuous, because the start-up release had already switched the entry off | 2 fixture attempts + 1 manual | `test/journeys/records/v2.5-plan01/G1-G2-G5-G8/series1-g5-reload-probe.json`, `test/journeys/records/v2.5-plan01/G1c-G5-disabled/run1/` |
+| G6 | dropped (v2.4 E9) | — | — |
+| G7 | **NOT GREEN: clean-host half pending.** Lane half GREEN ×2 (series 3: `fired:true`, `hashMatches:true`, books restored identical, header diff clean). In series 1 and 2 the G7 check passed all 4 times, but the post-verdict `wait schedulerIdle` timed out on backend congestion (llama `n_tokens_max 88563` from another lane; one `send_generate` took 298 s), so those series do not count | lane: 2 counted, 4 discounted | `test/journeys/records/v2.5-plan01/G7-lane/` |
+| G8 | **NOT GREEN** (same vehicle). Measurements met the floor: p95 2.0 ms / max 3.8 ms (series 1), p95 3.7 ms (series 2), over 50 scans | as G1 (a/b) | `test/journeys/records/v2.5-plan01/G1-G2-G5-G8/` |
+
+### Defects found (not fixed)
+
+- **P01-L1: in scan mode, the file path writes real lorebooks at page start, before the gating activates.** A drifted entry is erased before the start-up verify reads it, and every scan-mode page start rewrites real books. This is the plan-01 goal violation, and the "hydrate before activation" risk from the code record, now observed.
+  - Trace (`series1-g5-reload-probe.json`): +4680 ms after reload, `/api/worldinfo/edit` wrote the drifted entry `disable:true` (`chatId:null`, `active:false`), stack `clearStory` → `releaseWorldInfo` → `saveWorldInfo`. The gating showed `busy:true` at +4966 ms and went `active` at +5488 ms.
+  - Cause: `src/runtime/effectsApplier.ts:291-292` skips the release only when `scanGatingActive()` is true. `src/runtime/worldInfoScanHost.ts:73` sets it false at start, and `src/runtime/worldInfoGating.ts:171-175` sets it true only after verify and normalise. So `releaseGatedWorldInfo` (`src/runtime/storySelection.ts:34-35`) writes every library story's gated set at start. `src/runtime/effectsApplier.ts:241` (apply) has the same window: a story chat hydrated before activation writes its path, which later reads as false drift.
+  - Effects: G5's start-up Repair row can never appear after a reload, and a hand-enabled entry is silently switched off, against design B ("reads only; the write needs the click").
+  - Direction: guard both file writes on `gatingMode === "scan"`, not only on `active`. Red first: a jest case in which a release or apply between start and activation writes nothing in scan mode. Mutant: the old `active`-only guard.
+- **Harness, G3:** `restoreConfig` resets the ledger while the books stay normalised. Run 2 therefore re-recorded 93 entries through the already-off branch, and their `wasOn` provenance is lost after a J7 scan run. No damage on the lane, but a removal restore after such a run cannot offer those entries.
+- **Observation, G7:** after the switch the sticky record renews (start 2→5, end 5→8) instead of carrying the original window, so "fired" may be a keyword re-fire. The predeclared criterion (fired AND hash match) is met and was not retuned.
+- **Timing, G4:** J3.2 series 1 run 1 did not see the "Accept the Mission" note within 15 s. cp2's onEnter DM Narrator llm reply is awaited before the note (plan 02 C7), on a shared backend at about 4.3 tok/s. This is not scan-related.
+
+### Pending
+
+- G1 (a/b), G2, G5, G8: re-run the fixture ×2 on a build that fixes P01-L1. G5's re-normalise half needs that build to mean anything.
+- G1 (c) and the G5 extension-disabled half: a second manual run (×2).
+- **G7 clean host** at each README-claimed ST version (overview V10). Not run.
+- Mutant controls: none owed for the live gates. P01-L1 is observed on the shipped bundle, and its fix owes a red jest case plus a mutant (above).
+- Machine gates on a fix build, then `st-session.mts reload` on the lane before the re-run.
+- Lane state at hand-off: lane 3 in file mode, empty ledger, library as seeded, no SO-V25/SO-T13 assets, and every closing header diff clean apart from `settings.schema null → 1` (plan 11's stamp). Lane 1 is left on a plan 02 C1 sandbox chat (see plan 02's record).
+
+### Sign-off condition
+
+- **Plan 02 C2: met.** 0 of 10 predeclared attempts reproduced the save race (recorded non-reproduction), and the one late save observed was attributed with its stack (plan 02, "C2 attribution").
+- **G1–G8: not met.** G1 (a/b), G2, G5 and G8 are not green (P01-L1), and G7's clean-host half has not run.
+- **Plan 01 is therefore NOT signed off**, and the invariant-14 rewording ("Proposed, not applied" above) is **left unapplied**: step 6 applies it only when G1–G8 pass. `.claude/rules/architecture.md` is unchanged.

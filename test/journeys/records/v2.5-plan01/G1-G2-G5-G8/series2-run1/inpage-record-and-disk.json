@@ -1,0 +1,96 @@
+{
+  "ok": true,
+  "value": {
+    "record": {
+      "books": [
+        "Adolion Academy Checkpoints",
+        "Adolion - Aegis City Noble Life",
+        "Adolion Adventurer Checkpoints"
+      ],
+      "library": [
+        "adolion-academy@11",
+        "adolion-adventurer@9",
+        "so-j9-wizard@1",
+        "so-j9-fixme@1"
+      ],
+      "chats": {
+        "group": {
+          "groupId": "1759606632088",
+          "chatId": "2026-09-26@04h12m54s275ms"
+        }
+      },
+      "startedAt": "2026-09-26T07:12:54.651Z",
+      "adversarialOn": 93,
+      "G2first": {
+        "activation": {
+          "active": true,
+          "capability": {
+            "state": "present",
+            "detail": "the handler ran on a probe scan"
+          }
+        },
+        "edits": 3,
+        "present": 93,
+        "diff": {
+          "gatedOff": 93,
+          "gatedNotOff": [],
+          "gatedOtherKeysChanged": [],
+          "nonGatedChanged": [],
+          "entriesAdded": [],
+          "entriesRemoved": []
+        },
+        "missingFromLedger": [],
+        "status": {
+          "active": true,
+          "ledger": {
+            "books": 3,
+            "entries": 93
+          },
+          "drift": 0,
+          "missingKey": 0
+        }
+      },
+      "G2second": {
+        "edits": 0
+      },
+      "G1b": {
+        "check": {
+          "label": "G1 (b) the other story chat",
+          "gated": 93,
+          "matched": 93,
+          "wrong": [],
+          "unseen": []
+        },
+        "missingKey": []
+      },
+      "G1a": {
+        "check": {
+          "label": "G1 (a) no-story chat",
+          "gated": 93,
+          "matched": 93,
+          "wrong": [],
+          "unseen": []
+        }
+      },
+      "G1aBefore": 0,
+      "G1aRing": {
+        "slots": 3,
+        "leaked": [],
+        "missingKey": []
+      },
+      "G8": {
+        "scans": 50,
+        "p95": 3.699999988079071,
+        "max": 4.300000011920929,
+        "gatedEntries": 343
+      },
+      "G5": {
+        "book": "Adolion Academy Checkpoints",
+        "comment": "CP nightriver-house - Scene"
+      }
+    },
+    "diskDisableNow": true,
+    "drift": [],
+    "journalLore": []
+  }
+}

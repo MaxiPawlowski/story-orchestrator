@@ -91,3 +91,33 @@ describe("registerRuntimeMacros: per-quality macros (v2.4 plan 08 R15)", () => {
     expect(mockRegistry.has("story_quality_has_key")).toBe(false);
   });
 });
+
+describe("registerRuntimeMacros: {{story_quality::<key>}} (v2.5 plan 07 A2)", () => {
+  beforeEach(() => mockRegistry.clear());
+
+  it("registers one positional-argument macro that reads the live blackboard of the playing story", () => {
+    const values: Record<string, unknown> = { has_key: true };
+    const manager = {
+      ...makeManager([]),
+      getStory: () => ({ roster: [], qualities: [{ key: "has_key" }, { key: "trap_state" }] }) as unknown as NormalizedStoryV2,
+      getEngineState: () => ({ blackboard: { values } }),
+      noteRecap: () => {},
+    } as unknown as RuntimeManager;
+    registerRuntimeMacros(manager);
+    const macro = mockRegistry.get("story_quality") as unknown as { unnamedArgs: Array<{ name: string }>; handler: (args: string[]) => string };
+    expect(macro.unnamedArgs.map((arg) => arg.name)).toEqual(["key"]);
+    expect(macro.handler(["has_key"])).toBe("true");
+    expect(macro.handler(["trap_state"])).toBe("(unset)");
+    expect(macro.handler(["gold"])).toBe("(no quality \"gold\")");
+    values.has_key = false;
+    expect(macro.handler(["has_key"])).toBe("false");
+  });
+
+  it("drops the argument macro when the runtime stops", () => {
+    const manager = { ...makeManager([]), getEngineState: () => null, noteRecap: () => {} } as unknown as RuntimeManager;
+    const dispose = registerRuntimeMacros(manager);
+    expect(mockRegistry.has("story_quality")).toBe(true);
+    dispose();
+    expect(mockRegistry.has("story_quality")).toBe(false);
+  });
+});

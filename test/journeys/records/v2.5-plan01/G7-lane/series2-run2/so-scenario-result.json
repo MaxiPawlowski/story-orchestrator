@@ -1,0 +1,162 @@
+{
+  "file": "test/scenarios/live-v25-01-g7-sticky.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "inject_script",
+      "ok": true,
+      "ms": 14
+    },
+    {
+      "index": 1,
+      "key": "inject_script",
+      "ok": true,
+      "ms": 12
+    },
+    {
+      "index": 2,
+      "key": "inject_script",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 3,
+      "key": "eval",
+      "ok": true,
+      "ms": 209
+    },
+    {
+      "index": 4,
+      "key": "import_story",
+      "ok": true,
+      "ms": 381
+    },
+    {
+      "index": 5,
+      "key": "eval",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 6,
+      "key": "ui",
+      "ok": true,
+      "ms": 244
+    },
+    {
+      "index": 7,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 8,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 41960
+    },
+    {
+      "index": 9,
+      "key": "eval",
+      "ok": true,
+      "ms": 15
+    },
+    {
+      "index": 10,
+      "key": "wait",
+      "ok": true,
+      "ms": 3149
+    },
+    {
+      "index": 11,
+      "key": "eval",
+      "ok": true,
+      "ms": 333
+    },
+    {
+      "index": 12,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 56213
+    },
+    {
+      "index": 13,
+      "key": "eval",
+      "ok": true,
+      "ms": 17
+    },
+    {
+      "index": 14,
+      "key": "wait",
+      "ok": false,
+      "ms": 240123,
+      "error": "Timed out waiting for the extraction scheduler to drain: {\"queueDepth\":1,\"inFlight\":false,\"lastError\":null,\"heavyQueueDepth\":0,\"heavyInFlight\":false,\"lastHeavyError\":null}"
+    }
+  ],
+  "ok": false,
+  "error": "Timed out waiting for the extraction scheduler to drain: {\"queueDepth\":1,\"inFlight\":false,\"lastError\":null,\"heavyQueueDepth\":0,\"heavyInFlight\":false,\"lastHeavyError\":null}",
+  "retries": [],
+  "firstAttempt": "fail",
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-f7c61ac5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-26@02h28m56s479ms",
+    "owned": [
+      "2026-09-26@02h28m56s479ms"
+    ],
+    "deleted": [
+      "2026-09-26@02h28m56s479ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1534,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-26@02h28m56s479ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

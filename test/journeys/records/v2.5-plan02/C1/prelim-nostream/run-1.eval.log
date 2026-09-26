@@ -1,0 +1,157 @@
+{
+  "ok": true,
+  "value": {
+    "discriminates": true,
+    "before": {
+      "B": "2026-09-26@02h11m30s492ms",
+      "lsim": null,
+      "fired": {},
+      "bPage": 1,
+      "bDisk": {
+        "http": 200,
+        "integrity": "2d775288-c1fb-4e41-82b7-b43a503aa921",
+        "messages": 1,
+        "names": [
+          "Arin"
+        ],
+        "last": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowin",
+        "blob": {
+          "lsim": null,
+          "fired": {},
+          "active": "start"
+        }
+      },
+      "soloDisk": {
+        "http": 200,
+        "integrity": "718ae40c-28ea-460d-84c9-707c2337e250",
+        "messages": 0,
+        "names": [],
+        "last": "",
+        "blob": null
+      },
+      "streamingSetting": true,
+      "mainApi": "textgenerationwebui"
+    },
+    "atSwitch": {
+      "stillGenerating": true,
+      "outcomeSettled": false,
+      "streamedChars": 396,
+      "streamingMesName": "Arin",
+      "pageChatLen": 1,
+      "msGenToSwitch": 0,
+      "saving": false
+    },
+    "afterSwitch": {
+      "t": 197,
+      "goError": false,
+      "openChat": "Ponticius - 2025-10-27 @11h 06m 58s 578ms",
+      "generating": true,
+      "pageChatLen": 0
+    },
+    "triggerResolved": {
+      "settled": true,
+      "msAfterSwitch": 1198,
+      "value": false,
+      "error": null
+    },
+    "after": {
+      "groupId": null,
+      "soloPageLen": 0,
+      "soloPageNames": [],
+      "soloPageLast": "",
+      "exBlsim": null,
+      "exBfired": {
+        "speak:onEnter:DM Narrator:0": 1
+      },
+      "bDisk": {
+        "http": 200,
+        "integrity": "2d775288-c1fb-4e41-82b7-b43a503aa921",
+        "messages": 1,
+        "names": [
+          "Arin"
+        ],
+        "last": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowin",
+        "blob": {
+          "lsim": null,
+          "fired": {},
+          "active": "start"
+        }
+      },
+      "soloDisk": {
+        "http": 200,
+        "integrity": "718ae40c-28ea-460d-84c9-707c2337e250",
+        "messages": 0,
+        "names": [],
+        "last": "",
+        "blob": null
+      },
+      "dialog": null
+    },
+    "events": [
+      {
+        "ev": "GENERATION_STARTED",
+        "t": 1790399513819,
+        "chatId": "2026-09-26@02h11m30s492ms",
+        "groupId": "1759606632088",
+        "gen": false,
+        "arg": "normal",
+        "chatLen": 1
+      },
+      {
+        "ev": "GENERATION_STARTED",
+        "t": 1790399513826,
+        "chatId": "2026-09-26@02h11m30s492ms",
+        "groupId": "1759606632088",
+        "gen": true,
+        "arg": "normal",
+        "chatLen": 1
+      },
+      {
+        "ev": "GENERATION_ENDED",
+        "t": 1790399514092,
+        "chatId": "Ponticius - 2025-10-27 @11h 06m 58s 578ms",
+        "groupId": null,
+        "gen": true,
+        "arg": "0",
+        "chatLen": 0
+      },
+      {
+        "ev": "GENERATION_STOPPED",
+        "t": 1790399514102,
+        "chatId": "Ponticius - 2025-10-27 @11h 06m 58s 578ms",
+        "groupId": null,
+        "gen": true,
+        "arg": null,
+        "chatLen": 0
+      },
+      {
+        "ev": "CHAT_CHANGED",
+        "t": 1790399514112,
+        "chatId": "Ponticius - 2025-10-27 @11h 06m 58s 578ms",
+        "groupId": null,
+        "gen": true,
+        "arg": "Ponticius - 2025-10-27 @11h 06m 58s 578ms",
+        "chatLen": 0
+      },
+      {
+        "ev": "GROUP_WRAPPER_FINISHED",
+        "t": 1790399515111,
+        "chatId": null,
+        "groupId": null,
+        "gen": false,
+        "arg": null,
+        "chatLen": 0
+      },
+      {
+        "ev": "GENERATION_ENDED",
+        "t": 1790399515111,
+        "chatId": null,
+        "groupId": null,
+        "gen": false,
+        "arg": "0",
+        "chatLen": 0
+      }
+    ]
+  }
+}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-26T05-12-09-343Z_st-eval.json

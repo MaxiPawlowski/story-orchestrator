@@ -1,0 +1,5430 @@
+{
+  "result": {
+    "file": "test/scenarios/live-v25-01-g7-sticky.json",
+    "steps": [
+      {
+        "index": 0,
+        "key": "inject_script",
+        "ok": true,
+        "ms": 14
+      },
+      {
+        "index": 1,
+        "key": "inject_script",
+        "ok": true,
+        "ms": 12
+      },
+      {
+        "index": 2,
+        "key": "inject_script",
+        "ok": true,
+        "ms": 6
+      },
+      {
+        "index": 3,
+        "key": "eval",
+        "ok": true,
+        "ms": 209
+      },
+      {
+        "index": 4,
+        "key": "import_story",
+        "ok": true,
+        "ms": 381
+      },
+      {
+        "index": 5,
+        "key": "eval",
+        "ok": true,
+        "ms": 7
+      },
+      {
+        "index": 6,
+        "key": "ui",
+        "ok": true,
+        "ms": 244
+      },
+      {
+        "index": 7,
+        "key": "eval",
+        "ok": true,
+        "ms": 6
+      },
+      {
+        "index": 8,
+        "key": "send_generate",
+        "ok": true,
+        "ms": 41960
+      },
+      {
+        "index": 9,
+        "key": "eval",
+        "ok": true,
+        "ms": 15
+      },
+      {
+        "index": 10,
+        "key": "wait",
+        "ok": true,
+        "ms": 3149
+      },
+      {
+        "index": 11,
+        "key": "eval",
+        "ok": true,
+        "ms": 333
+      },
+      {
+        "index": 12,
+        "key": "send_generate",
+        "ok": true,
+        "ms": 56213
+      },
+      {
+        "index": 13,
+        "key": "eval",
+        "ok": true,
+        "ms": 17
+      },
+      {
+        "index": 14,
+        "key": "wait",
+        "ok": false,
+        "ms": 240123,
+        "error": "Timed out waiting for the extraction scheduler to drain: {\"queueDepth\":1,\"inFlight\":false,\"lastError\":null,\"heavyQueueDepth\":0,\"heavyInFlight\":false,\"lastHeavyError\":null}"
+      }
+    ],
+    "ok": false,
+    "error": "Timed out waiting for the extraction scheduler to drain: {\"queueDepth\":1,\"inFlight\":false,\"lastError\":null,\"heavyQueueDepth\":0,\"heavyInFlight\":false,\"lastHeavyError\":null}",
+    "retries": [],
+    "firstAttempt": "fail",
+    "cleanup": null
+  },
+  "state": {
+    "chatId": "2026-09-26@02h28m56s479ms",
+    "groupId": "1759606632088",
+    "group": {
+      "id": "1759606632088",
+      "name": "Group: Arin, DM Narrator",
+      "disabledMembers": [],
+      "members": [
+        {
+          "avatar": "Luke.png",
+          "name": "Luke"
+        },
+        {
+          "avatar": "Ponticius.png",
+          "name": "Ponticius"
+        },
+        {
+          "avatar": "Arin.png",
+          "name": "Arin"
+        },
+        {
+          "avatar": "DM Narrator.png",
+          "name": "DM Narrator"
+        }
+      ]
+    },
+    "version": 5,
+    "selectedStoryId": "so-t13-a",
+    "globalSettings": {
+      "extraction": {
+        "enabled": true,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "cadence": 3,
+        "reconciliationMultiplier": 1.5,
+        "stabilityLag": 0
+      },
+      "pacing": {
+        "alpha": 0.3,
+        "hintEnabled": true
+      },
+      "display": {
+        "announceTransitions": true,
+        "hudEnabled": true
+      },
+      "copilot": {
+        "enabled": true
+      },
+      "memory": {
+        "enabled": true,
+        "epistemicLedgerCapable": true,
+        "injectionDepths": {
+          "facts": 4,
+          "session_details": 3,
+          "short_term": 2,
+          "scene_history": 6
+        },
+        "tierBudgets": {
+          "facts": 50,
+          "session_details": 40,
+          "short_term": 10,
+          "scene_history": 30
+        },
+        "tierTokenBudgets": {
+          "facts": 800,
+          "session_details": 600,
+          "short_term": 300,
+          "scene_history": 500
+        }
+      },
+      "talk": {
+        "enabled": true
+      },
+      "stagecraft": {
+        "curatorEnabled": true,
+        "acceptMode": "review",
+        "wardenEnabled": false,
+        "wardenAcceptMode": "review"
+      },
+      "judge": {
+        "enabled": false,
+        "model": "jev-1.13.0",
+        "timeoutMs": 1500,
+        "uses": {
+          "director": false,
+          "memoryVerify": false,
+          "memoryPairs": false,
+          "sceneTrigger": false,
+          "sceneTracker": false,
+          "lookahead": false,
+          "loreSelect": false,
+          "curatorFilter": false,
+          "typedExtraction": false,
+          "stallCheck": false,
+          "expansionCritic": false,
+          "expansionLookahead": false,
+          "agencyCheck": false,
+          "houseRules": false
+        },
+        "expansion": {
+          "variants": 1,
+          "temperature": 0.7,
+          "pick": "code"
+        }
+      },
+      "worldInfo": {
+        "gatingMode": "scan",
+        "normalized": {
+          "Adolion Academy Checkpoints": [
+            "CP nightriver-house - Scene",
+            "Nightriver - The Seal",
+            "Cast - The Household",
+            "CP fathers-summons - Scene",
+            "CP whispers - Scene",
+            "Nightriver - The Conspiracy",
+            "CP the-duel - Scene",
+            "CP night-of-knives - Scene",
+            "Nightriver - The Rite",
+            "CP confront-father - Scene",
+            "CP follow-the-trail - Scene",
+            "CP the-sealed-crypt - Scene",
+            "CP house-in-daylight - Scene"
+          ],
+          "Adolion - Aegis City Noble Life": [
+            "Aegis Academy",
+            "Aegis Academy Classes",
+            "Amthir Draxford",
+            "Ashleigh Delarise",
+            "Ashton Delarise",
+            "Bianca Kelevaran",
+            "Blake Tallaboros",
+            "Bryne the Knight",
+            "Cecilia Sheridan",
+            "Cedric Sheridan",
+            "Celenora Rennetoa",
+            "Chester Thornwick",
+            "Clarissa Nevarron",
+            "Delarise Family",
+            "Dion Thornwick",
+            "Eriana Valtara",
+            "General Leevon",
+            "Golden Age",
+            "Irian Elthorien",
+            "Isidora Frolovan - Nightriver General",
+            "Kane Winstonehl",
+            "Lady Hana Nightriver",
+            "Lady Noellavi",
+            "Leila Rainshadow",
+            "Lord Javon Nightriver",
+            "Lord Tibalt",
+            "Lucia Bruchelle",
+            "Mira Thornwick",
+            "Natalia Nightriver",
+            "Nendira Draxford",
+            "Nicolai Nevarron",
+            "Reiner Dalmead",
+            "Rhea Allstadt",
+            "Ronan the Knight",
+            "Sheridan Family",
+            "Shiya Mordred",
+            "Succession Crisis",
+            "Suzusa Calenor",
+            "Tahlia Winstonehl",
+            "Tatoshi Calenor",
+            "The 8 Great Houses of the Darran Kingdom",
+            "The Bertoanal Family",
+            "The Bruchelle's",
+            "The Calenor's",
+            "The Draxford's",
+            "The Elthorien's",
+            "The Nightriver's",
+            "The Silent Whisperers",
+            "The Thornwicks",
+            "The Valtara's",
+            "The Winstonehl's",
+            "The Witch King",
+            "Thornwick Mansion",
+            "Tlaloc Valencius",
+            "Trial by Combat",
+            "Vellere Elthorien",
+            "War with the Zegallan Empire",
+            "Welden Nightriver"
+          ],
+          "Adolion Adventurer Checkpoints": [
+            "CP guild-hall - Scene",
+            "Cast - The Party",
+            "CP road-to-wendhope - Scene",
+            "CP at-the-walls - Scene",
+            "Wendhope - Defenders",
+            "CP first-night - Scene",
+            "Wendhope - The Screechers",
+            "CP what-wendhope-knows - Scene",
+            "Wendhope - Clues",
+            "CP into-needlehaven - Scene",
+            "Wendhope - The Truth",
+            "CP the-lord-spirit - Scene",
+            "CP after-the-fog - Scene",
+            "CP driftmere - Scene",
+            "Driftmere - The Town",
+            "CP the-first-descent - Scene",
+            "Driftmere Mines - The Dungeon",
+            "CP the-changed-deep - Scene",
+            "CP the-sealed-wall - Scene",
+            "Driftmere - The Truth",
+            "CP the-devourer - Scene",
+            "CP what-filwern-left - Scene"
+          ],
+          "SO-T13 Xentar": [
+            "CP1 - Mission",
+            "CP1 - Scenario",
+            "CP2 - Mission",
+            "CP2 - Scenario",
+            "CP3 - Luke",
+            "CP4 - Scenario",
+            "CP4 - Sphinx",
+            "CP4 - Sphinx's Riddle"
+          ]
+        },
+        "normalizedFrom": {
+          "Adolion Academy Checkpoints": [
+            {
+              "comment": "CP nightriver-house - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "Nightriver - The Seal",
+              "wasOn": false
+            },
+            {
+              "comment": "Cast - The Household",
+              "wasOn": false
+            },
+            {
+              "comment": "CP fathers-summons - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "CP whispers - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "Nightriver - The Conspiracy",
+              "wasOn": false
+            },
+            {
+              "comment": "CP the-duel - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "CP night-of-knives - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "Nightriver - The Rite",
+              "wasOn": false
+            },
+            {
+              "comment": "CP confront-father - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "CP follow-the-trail - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "CP the-sealed-crypt - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "CP house-in-daylight - Scene",
+              "wasOn": false
+            }
+          ],
+          "Adolion - Aegis City Noble Life": [
+            {
+              "comment": "Aegis Academy",
+              "wasOn": false
+            },
+            {
+              "comment": "Aegis Academy Classes",
+              "wasOn": false
+            },
+            {
+              "comment": "Amthir Draxford",
+              "wasOn": false
+            },
+            {
+              "comment": "Ashleigh Delarise",
+              "wasOn": false
+            },
+            {
+              "comment": "Ashton Delarise",
+              "wasOn": false
+            },
+            {
+              "comment": "Bianca Kelevaran",
+              "wasOn": false
+            },
+            {
+              "comment": "Blake Tallaboros",
+              "wasOn": false
+            },
+            {
+              "comment": "Bryne the Knight",
+              "wasOn": false
+            },
+            {
+              "comment": "Cecilia Sheridan",
+              "wasOn": false
+            },
+            {
+              "comment": "Cedric Sheridan",
+              "wasOn": false
+            },
+            {
+              "comment": "Celenora Rennetoa",
+              "wasOn": false
+            },
+            {
+              "comment": "Chester Thornwick",
+              "wasOn": false
+            },
+            {
+              "comment": "Clarissa Nevarron",
+              "wasOn": false
+            },
+            {
+              "comment": "Delarise Family",
+              "wasOn": false
+            },
+            {
+              "comment": "Dion Thornwick",
+              "wasOn": false
+            },
+            {
+              "comment": "Eriana Valtara",
+              "wasOn": false
+            },
+            {
+              "comment": "General Leevon",
+              "wasOn": false
+            },
+            {
+              "comment": "Golden Age",
+              "wasOn": false
+            },
+            {
+              "comment": "Irian Elthorien",
+              "wasOn": false
+            },
+            {
+              "comment": "Isidora Frolovan - Nightriver General",
+              "wasOn": false
+            },
+            {
+              "comment": "Kane Winstonehl",
+              "wasOn": false
+            },
+            {
+              "comment": "Lady Hana Nightriver",
+              "wasOn": false
+            },
+            {
+              "comment": "Lady Noellavi",
+              "wasOn": false
+            },
+            {
+              "comment": "Leila Rainshadow",
+              "wasOn": false
+            },
+            {
+              "comment": "Lord Javon Nightriver",
+              "wasOn": false
+            },
+            {
+              "comment": "Lord Tibalt",
+              "wasOn": false
+            },
+            {
+              "comment": "Lucia Bruchelle",
+              "wasOn": false
+            },
+            {
+              "comment": "Mira Thornwick",
+              "wasOn": false
+            },
+            {
+              "comment": "Natalia Nightriver",
+              "wasOn": false
+            },
+            {
+              "comment": "Nendira Draxford",
+              "wasOn": false
+            },
+            {
+              "comment": "Nicolai Nevarron",
+              "wasOn": false
+            },
+            {
+              "comment": "Reiner Dalmead",
+              "wasOn": false
+            },
+            {
+              "comment": "Rhea Allstadt",
+              "wasOn": false
+            },
+            {
+              "comment": "Ronan the Knight",
+              "wasOn": false
+            },
+            {
+              "comment": "Sheridan Family",
+              "wasOn": false
+            },
+            {
+              "comment": "Shiya Mordred",
+              "wasOn": false
+            },
+            {
+              "comment": "Succession Crisis",
+              "wasOn": false
+            },
+            {
+              "comment": "Suzusa Calenor",
+              "wasOn": false
+            },
+            {
+              "comment": "Tahlia Winstonehl",
+              "wasOn": false
+            },
+            {
+              "comment": "Tatoshi Calenor",
+              "wasOn": false
+            },
+            {
+              "comment": "The 8 Great Houses of the Darran Kingdom",
+              "wasOn": false
+            },
+            {
+              "comment": "The Bertoanal Family",
+              "wasOn": false
+            },
+            {
+              "comment": "The Bruchelle's",
+              "wasOn": false
+            },
+            {
+              "comment": "The Calenor's",
+              "wasOn": false
+            },
+            {
+              "comment": "The Draxford's",
+              "wasOn": false
+            },
+            {
+              "comment": "The Elthorien's",
+              "wasOn": false
+            },
+            {
+              "comment": "The Nightriver's",
+              "wasOn": false
+            },
+            {
+              "comment": "The Silent Whisperers",
+              "wasOn": false
+            },
+            {
+              "comment": "The Thornwicks",
+              "wasOn": false
+            },
+            {
+              "comment": "The Valtara's",
+              "wasOn": false
+            },
+            {
+              "comment": "The Winstonehl's",
+              "wasOn": false
+            },
+            {
+              "comment": "The Witch King",
+              "wasOn": false
+            },
+            {
+              "comment": "Thornwick Mansion",
+              "wasOn": false
+            },
+            {
+              "comment": "Tlaloc Valencius",
+              "wasOn": false
+            },
+            {
+              "comment": "Trial by Combat",
+              "wasOn": false
+            },
+            {
+              "comment": "Vellere Elthorien",
+              "wasOn": false
+            },
+            {
+              "comment": "War with the Zegallan Empire",
+              "wasOn": false
+            },
+            {
+              "comment": "Welden Nightriver",
+              "wasOn": false
+            }
+          ],
+          "Adolion Adventurer Checkpoints": [
+            {
+              "comment": "CP guild-hall - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "Cast - The Party",
+              "wasOn": false
+            },
+            {
+              "comment": "CP road-to-wendhope - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "CP at-the-walls - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "Wendhope - Defenders",
+              "wasOn": false
+            },
+            {
+              "comment": "CP first-night - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "Wendhope - The Screechers",
+              "wasOn": false
+            },
+            {
+              "comment": "CP what-wendhope-knows - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "Wendhope - Clues",
+              "wasOn": false
+            },
+            {
+              "comment": "CP into-needlehaven - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "Wendhope - The Truth",
+              "wasOn": false
+            },
+            {
+              "comment": "CP the-lord-spirit - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "CP after-the-fog - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "CP driftmere - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "Driftmere - The Town",
+              "wasOn": false
+            },
+            {
+              "comment": "CP the-first-descent - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "Driftmere Mines - The Dungeon",
+              "wasOn": false
+            },
+            {
+              "comment": "CP the-changed-deep - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "CP the-sealed-wall - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "Driftmere - The Truth",
+              "wasOn": false
+            },
+            {
+              "comment": "CP the-devourer - Scene",
+              "wasOn": false
+            },
+            {
+              "comment": "CP what-filwern-left - Scene",
+              "wasOn": false
+            }
+          ],
+          "SO-T13 Xentar": [
+            {
+              "comment": "CP1 - Mission",
+              "wasOn": true
+            },
+            {
+              "comment": "CP1 - Scenario",
+              "wasOn": true
+            },
+            {
+              "comment": "CP2 - Mission",
+              "wasOn": false
+            },
+            {
+              "comment": "CP2 - Scenario",
+              "wasOn": false
+            },
+            {
+              "comment": "CP3 - Luke",
+              "wasOn": false
+            },
+            {
+              "comment": "CP4 - Scenario",
+              "wasOn": false
+            },
+            {
+              "comment": "CP4 - Sphinx",
+              "wasOn": false
+            },
+            {
+              "comment": "CP4 - Sphinx's Riddle",
+              "wasOn": false
+            }
+          ]
+        }
+      }
+    },
+    "libraryIds": [
+      {
+        "id": "adolion-academy",
+        "version": 11,
+        "hash": "v2-0edc606a",
+        "title": "Adolion: House Nightriver"
+      },
+      {
+        "id": "adolion-adventurer",
+        "version": 9,
+        "hash": "v2-3557661b",
+        "title": "Adolion: The Adventurer's Road"
+      },
+      {
+        "id": "so-j9-wizard",
+        "version": 1,
+        "hash": "v2-053e9295",
+        "title": "SO-J9 Courier Run"
+      },
+      {
+        "id": "so-j9-fixme",
+        "version": 1,
+        "hash": "v2-8e85086b",
+        "title": "SO-J9 Unrunnable Story"
+      },
+      {
+        "id": "so-t13-a",
+        "version": 1,
+        "hash": "v2-f7c61ac5",
+        "title": "SO-T13 A"
+      }
+    ],
+    "storyCount": 1,
+    "state": {
+      "storyId": "so-t13-a",
+      "storyHash": "v2-f7c61ac5",
+      "playedVersion": 1,
+      "pinned": true,
+      "storyTitle": "SO-T13 A",
+      "activeCheckpointId": "cp1",
+      "boundary": 3,
+      "checkpointStartedBoundary": 0,
+      "visitedAnchors": [
+        "cp1"
+      ],
+      "blackboard": {},
+      "versions": {},
+      "latched": {},
+      "requirements": {
+        "ready": true,
+        "missingPersonas": [],
+        "missingMembers": [],
+        "missingLorebooks": []
+      },
+      "firedNpcReplies": {},
+      "lastSessionAt": "2026-09-26T05:34:35.332Z",
+      "extraction": {
+        "settings": null,
+        "scheduler": {
+          "queueDepth": 1,
+          "inFlight": false,
+          "lastError": null,
+          "heavyQueueDepth": 0,
+          "heavyInFlight": false,
+          "lastHeavyError": null
+        },
+        "lastReadBoundary": 0,
+        "factCount": 0,
+        "auditCount": 0,
+        "lastAudit": null,
+        "reconciliationEvents": [],
+        "reconciliationEventCount": 0
+      },
+      "expansion": {
+        "scheduler": {
+          "queueDepth": 0,
+          "inFlight": false,
+          "lastError": null
+        },
+        "entries": {},
+        "entryCount": 0
+      },
+      "memory": {
+        "tierCounts": {
+          "facts": 0,
+          "session_details": 0,
+          "short_term": 0,
+          "scene_history": 0
+        },
+        "entryCount": 0,
+        "excludedCount": 0,
+        "pinnedCount": 0,
+        "supersededCount": 0,
+        "foldedCount": 0,
+        "contradictedCount": 0,
+        "tierTokens": {
+          "facts": 0,
+          "session_details": 0,
+          "short_term": 0,
+          "scene_history": 0
+        },
+        "wiWriteCount": 0,
+        "sceneCount": 0,
+        "openArcCount": 0,
+        "resolvedArcCount": 0,
+        "arcSummaryCount": 0,
+        "canonPresent": false,
+        "canonHash": null,
+        "epistemicCount": 0,
+        "hidingCount": 0,
+        "ledgerCount": 0,
+        "epistemicLedgerCapable": null,
+        "backfill": null,
+        "settings": null
+      },
+      "stagecraft": {
+        "proposals": [],
+        "proposalCount": 0,
+        "appliedOpCount": 0,
+        "lastRunBoundary": -1,
+        "lastError": null
+      },
+      "pacing": {
+        "shapeOverride": null
+      },
+      "tension": {
+        "levels": [],
+        "smoothed": null
+      },
+      "updatedAt": "2026-09-26T05:30:37.837Z"
+    },
+    "liveSnapshot": {
+      "ready": true,
+      "storyId": "so-t13-a",
+      "storyHash": "v2-f7c61ac5",
+      "storyIdentity": {
+        "id": "so-t13-a",
+        "playedVersion": 1,
+        "libraryVersion": 1,
+        "pinned": true,
+        "drifted": false
+      },
+      "blobUnreadable": null,
+      "orphanedLorebooks": [],
+      "chatIdentity": null,
+      "storyTitle": "SO-T13 A",
+      "storyDescription": "Humanity's last survivors shelter in the ruined city of Xentar as its magical wards fail. The Adventurers Guild sends a team to recover the legendary Sun's Heart Artifact from the perilous Sun Ruins, past ancient traps and a riddling sphinx.",
+      "activeCheckpointId": "cp1",
+      "activeCheckpointName": "Investigate the Job Board",
+      "activeObjective": "Get close to the guild's job board to see available missions.",
+      "boundary": 3,
+      "blackboard": {},
+      "blackboardMeta": {},
+      "checkpoints": [
+        {
+          "id": "cp1",
+          "name": "Investigate the Job Board",
+          "objective": "Get close to the guild's job board to see available missions.",
+          "active": true,
+          "visited": true
+        },
+        {
+          "id": "cp2",
+          "name": "Accept the Mission",
+          "objective": "Pick up the Sun Ruins mission from the board.",
+          "active": false,
+          "visited": false
+        },
+        {
+          "id": "cp3",
+          "name": "Departure Preparations",
+          "objective": "Decide whether to take Luke along before departing for the Sun Ruins.",
+          "active": false,
+          "visited": false
+        },
+        {
+          "id": "cp-4a",
+          "name": "Travel with Luke",
+          "objective": "Reach the Sun Ruins with Luke and face the sphinx's riddle.",
+          "active": false,
+          "visited": false
+        },
+        {
+          "id": "cp-4b",
+          "name": "Travel Alone",
+          "objective": "Reach the Sun Ruins with only your companion and face the sphinx's riddle.",
+          "active": false,
+          "visited": false
+        },
+        {
+          "id": "cp-4a1",
+          "name": "Riddle Solved",
+          "objective": "Enter the chamber and approach the artifact.",
+          "active": false,
+          "visited": false
+        },
+        {
+          "id": "cp-4a2",
+          "name": "Riddle Failed",
+          "objective": "Enter the chamber and approach the artifact despite the loss.",
+          "active": false,
+          "visited": false
+        },
+        {
+          "id": "cp-5",
+          "name": "Find the Artifact",
+          "objective": "Recover the Sun's Heart Artifact from the inner chamber.",
+          "active": false,
+          "visited": false
+        },
+        {
+          "id": "cp-6",
+          "name": "Return to the Guild",
+          "objective": "Deliver the artifact to the Guild Master and claim your reward.",
+          "active": false,
+          "visited": false
+        }
+      ],
+      "requirements": {
+        "ready": true,
+        "missingPersonas": [],
+        "missingMembers": [],
+        "missingLorebooks": []
+      },
+      "validationErrors": [],
+      "library": [
+        {
+          "id": "adolion-academy",
+          "version": 11,
+          "hash": "v2-0edc606a",
+          "title": "Adolion: House Nightriver",
+          "description": "Play an heir of House Nightriver in Aegis City, whose bloodline carries the seals that keep the Witch King asleep. Arc 1, The Return of the Witch King: your father forces you into a deadly duel and your siblings into ruinous marriages, and someone in the house wants the seals broken. Make your persona a Nightriver heir with a spark of seal-born magic.",
+          "raw": {
+            "format": 2,
+            "id": "adolion-academy",
+            "version": 11,
+            "title": "Adolion: House Nightriver",
+            "description": "Play an heir of House Nightriver in Aegis City, whose bloodline carries the seals that keep the Witch King asleep. Arc 1, The Return of the Witch King: your father forces you into a deadly duel and your siblings into ruinous marriages, and someone in the house wants the seals broken. Make your persona a Nightriver heir with a spark of seal-born magic.",
+            "arc_template": "three_act",
+            "qualities": [
+              {
+                "key": "path",
+                "type": "enum",
+                "values": [
+                  "witch_king"
+                ],
+                "source": "extractor",
+                "rubric": "Which arc has the household committed to? Answer witch_king once the player, or the household on the player's behalf, commits to the Witch King thread. Until they actually commit, say nothing about this quality at all.",
+                "latching": true
+              },
+              {
+                "key": "summons_heard",
+                "type": "bool",
+                "source": "extractor",
+                "latching": true,
+                "scope_hint": {
+                  "from": "fathers-summons"
+                },
+                "rubric": "Has Lord Javon told the heir they must duel General Leevon?"
+              },
+              {
+                "key": "evidence",
+                "type": "int",
+                "source": "extractor",
+                "monotonic": true,
+                "scope_hint": {
+                  "from": "whispers"
+                },
+                "rubric": "How many separate clues has the heir found that the Trial by Combat and the marriages are part of a plot against the Nightriver bloodline (0 to 3)? Count things like Javon asking for the second's place rather than being offered it, Leevon's debt to House Valtara, the venom bought near the Academy, Valtara seals on the betrothal papers, or the Duchess's night visits."
+              },
+              {
+                "key": "duel_begun",
+                "type": "bool",
+                "source": "extractor",
+                "latching": true,
+                "scope_hint": {
+                  "from": "whispers"
+                },
+                "rubric": "Has the Trial by Combat begun, with the heir and General Leevon facing each other on the field?"
+              },
+              {
+                "key": "duel_outcome",
+                "type": "enum",
+                "values": [
+                  "pending",
+                  "won",
+                  "survived"
+                ],
+                "source": "extractor",
+                "scope_hint": {
+                  "from": "the-duel",
+                  "until": "night-of-knives"
+                },
+                "rubric": "How did the Trial by Combat against General Leevon end? won if the heir defeated him or had the trial voided in their favour; survived if the heir lived through it any other way (yielded, interrupted, spared, the fight stopped); pending if it has not ended."
+              },
+              {
+                "key": "ambush_survived",
+                "type": "bool",
+                "source": "extractor",
+                "latching": true,
+                "scope_hint": {
+                  "from": "night-of-knives"
+                },
+                "rubric": "Have the heir and Natalia lived through the night attack by assassins on the Nightriver house?"
+              },
+              {
+                "key": "approach",
+                "type": "enum",
+                "values": [
+                  "undecided",
+                  "confront",
+                  "trail"
+                ],
+                "source": "extractor",
+                "scope_hint": {
+                  "from": "night-of-knives",
+                  "until": "the-sealed-crypt"
+                },
+                "rubric": "After the attack, what is the heir's plan? confront if they go to face Lord Javon directly; trail if they follow the assassins' trail to whoever sent them; otherwise undecided."
+              },
+              {
+                "key": "javon_exposed",
+                "type": "bool",
+                "source": "extractor",
+                "latching": true,
+                "scope_hint": {
+                  "from": "night-of-knives"
+                },
+                "rubric": "Has the heir learned for certain that Lord Javon is working with Duchess Eriana Valtara to free the Witch King?"
+              },
+              {
+                "key": "ritual_stopped",
+                "type": "bool",
+                "source": "extractor",
+                "latching": true,
+                "scope_hint": {
+                  "from": "the-sealed-crypt"
+                },
+                "rubric": "Has the rite to break the Nightriver seals been stopped?"
+              }
+            ],
+            "checkpoints": [
+              {
+                "id": "nightriver-house",
+                "name": "Home to Nightriver",
+                "objective": "Settle back into the Nightriver Estate and find out what is wrong at home.",
+                "type": "anchor",
+                "start": true,
+                "tension_target": "calm",
+                "target_turn_length": 6,
+                "guidance": "Opening of the season in Aegis City. Natalia is quietly miserable about her betrothal, Shiya is sharp-tongued and busy, Ronan stands guard and says little. Court gossip about the succession and the Delarise snub is background colour. Let the player pick up the thread about Father.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Natalia",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Shiya",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Ronan",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[Scene: the Nightriver Estate outside Aegis City at the start of the Academy season. Elegant, cold and full of things left unsaid. Let {{story_player_name}} explore family tensions at their own pace.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Academy Checkpoints",
+                        "comments": [
+                          "CP nightriver-house - Scene",
+                          "Nightriver - The Seal",
+                          "Cast - The Household"
+                        ]
+                      },
+                      {
+                        "lorebook": "Adolion - Aegis City Noble Life",
+                        "comments": [
+                          "Aegis Academy",
+                          "Aegis Academy Classes",
+                          "Amthir Draxford",
+                          "Ashleigh Delarise",
+                          "Ashton Delarise",
+                          "Bianca Kelevaran",
+                          "Blake Tallaboros",
+                          "Bryne the Knight",
+                          "Cecilia Sheridan",
+                          "Cedric Sheridan",
+                          "Celenora Rennetoa",
+                          "Chester Thornwick",
+                          "Clarissa Nevarron",
+                          "Delarise Family",
+                          "Dion Thornwick",
+                          "Eriana Valtara",
+                          "General Leevon",
+                          "Golden Age",
+                          "Irian Elthorien",
+                          "Isidora Frolovan - Nightriver General",
+                          "Kane Winstonehl",
+                          "Lady Hana Nightriver",
+                          "Lady Noellavi",
+                          "Leila Rainshadow",
+                          "Lord Javon Nightriver",
+                          "Lord Tibalt",
+                          "Lucia Bruchelle",
+                          "Mira Thornwick",
+                          "Natalia Nightriver",
+                          "Nendira Draxford",
+                          "Nicolai Nevarron",
+                          "Reiner Dalmead",
+                          "Rhea Allstadt",
+                          "Ronan the Knight",
+                          "Sheridan Family",
+                          "Shiya Mordred",
+                          "Succession Crisis",
+                          "Suzusa Calenor",
+                          "Tahlia Winstonehl",
+                          "Tatoshi Calenor",
+                          "The 8 Great Houses of the Darran Kingdom",
+                          "The Bertoanal Family",
+                          "The Bruchelle's",
+                          "The Calenor's",
+                          "The Draxford's",
+                          "The Elthorien's",
+                          "The Nightriver's",
+                          "The Silent Whisperers",
+                          "The Thornwicks",
+                          "The Valtara's",
+                          "The Winstonehl's",
+                          "The Witch King",
+                          "Thornwick Mansion",
+                          "Tlaloc Valencius",
+                          "Trial by Combat",
+                          "Vellere Elthorien",
+                          "War with the Zegallan Empire",
+                          "Welden Nightriver"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "fathers-summons",
+                "name": "Father's Summons",
+                "objective": "Answer Lord Javon's summons and hear what he demands.",
+                "type": "anchor",
+                "tension_target": "stirring",
+                "target_turn_length": 4,
+                "guidance": "Lord Javon receives the heir in his study, cold and immovable. General Polis Leevon, awaiting sentence for feeding the Zegallan army troop movements, has demanded Trial by Combat, and Javon has offered a Nightriver to stand as the Crown's second. That Nightriver is the heir. Three days. He frames it as duty and as proof of the bloodline, and will not hear refusal, because refusing a second's place shames the house in open court. He is plausible, even proud; nothing gives him away yet.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Natalia",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Ronan",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[Lord Javon Nightriver, voiced by the narrator, summons {{story_player_name}}. Cold, controlled, absolute. He announces that they will stand as the Crown's second against General Leevon in a Trial by Combat in three days.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Academy Checkpoints",
+                        "comments": [
+                          "CP nightriver-house - Scene"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Academy Checkpoints",
+                        "comments": [
+                          "CP fathers-summons - Scene"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "whispers",
+                "name": "Whispers in the Halls",
+                "objective": "Find out why the duel was arranged and who benefits from it.",
+                "type": "intermediate",
+                "tension_target": "stirring",
+                "target_turn_length": 6,
+                "guidance": "Investigation across the house and the Academy. Clues: the duel's rules were changed to allow killing blows; Natalia's betrothal papers carry a Valtara witness seal; Shiya has seen Duchess Eriana Valtara arrive by the servants' door at night. Hand out clues for good questions, not for free.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Natalia",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Shiya",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Ronan",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[Intrigue. Reward {{story_player_name}}'s questions with concrete clues. Allies know pieces, not the whole.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Academy Checkpoints",
+                        "comments": [
+                          "CP fathers-summons - Scene"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Academy Checkpoints",
+                        "comments": [
+                          "CP whispers - Scene",
+                          "Nightriver - The Conspiracy"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "the-duel",
+                "name": "Trial by Combat",
+                "objective": "Survive the Trial by Combat against General Leevon.",
+                "type": "anchor",
+                "tension_target": "critical",
+                "target_turn_length": 5,
+                "guidance": "A Trial by Combat before the Academy and the court, so it is lawful to kill and Boher is held to bless the winner. Leevon is a giant with a dragon-bone lance and lightning like an archmage, and he is fighting for his life and his name, which is exactly why Javon chose him. The heir cannot win this straight. What the heir learned is the way through: the lance is envenomed, which voids the trial, and proving that in front of the court beats him without a killing blow. The heir must live, but how is theirs to earn.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Ronan",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Natalia",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[Trial by Combat. Tight, physical, genuinely outmatched. The crowd and the court watch; Lord Javon watches without expression. Reward what {{story_player_name}} found out beforehand.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Academy Checkpoints",
+                        "comments": [
+                          "CP whispers - Scene"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Academy Checkpoints",
+                        "comments": [
+                          "CP the-duel - Scene"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "night-of-knives",
+                "name": "The Night of Knives",
+                "objective": "Protect Natalia and yourself when assassins strike the estate.",
+                "type": "anchor",
+                "tension_target": "critical",
+                "target_turn_length": 6,
+                "guidance": "The night after the duel, masked killers come through the servants' passages. Shiya fights, Ronan guards the heir, Natalia is the real target. A captured or dead assassin carries a token that leads toward Eriana and Father.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Shiya",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Ronan",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Natalia",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[Night attack on the Nightriver Estate. Fast, dark, close quarters. Protecting Natalia matters. Leave a trail to follow.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Academy Checkpoints",
+                        "comments": [
+                          "CP the-duel - Scene"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Academy Checkpoints",
+                        "comments": [
+                          "CP night-of-knives - Scene",
+                          "Nightriver - The Rite"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "confront-father",
+                "name": "Father and Heir",
+                "objective": "Face Lord Javon and force the truth out of him.",
+                "type": "intermediate",
+                "tension_target": "tense",
+                "target_turn_length": 5,
+                "guidance": "A confrontation in Javon's study. He justifies everything as strengthening the house until the evidence breaks him, then drops the mask: he means to free the Witch King with Eriana, and the rite is tonight. He escapes to the crypt.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Natalia",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Ronan",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[Confrontation with Lord Javon. Let the heir's evidence decide how much he gives away before he flees.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Academy Checkpoints",
+                        "comments": [
+                          "CP night-of-knives - Scene"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Academy Checkpoints",
+                        "comments": [
+                          "CP confront-father - Scene"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "follow-the-trail",
+                "name": "The Trail of Ash",
+                "objective": "Follow the assassins' trail to the people who sent them.",
+                "type": "intermediate",
+                "tension_target": "tense",
+                "target_turn_length": 5,
+                "guidance": "The token leads through the Valtara townhouse's music hall to a hidden stair into the old Nightriver crypt beneath the estate chapel. The heir overhears Javon and Eriana preparing the rite and learns the truth.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Shiya",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Ronan",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[Stealth and discovery. Let the heir overhear Lord Javon and Duchess Eriana before they are seen.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Academy Checkpoints",
+                        "comments": [
+                          "CP night-of-knives - Scene"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Academy Checkpoints",
+                        "comments": [
+                          "CP follow-the-trail - Scene"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "the-sealed-crypt",
+                "name": "Beneath the Seal",
+                "objective": "Stop the rite that would break the Nightriver seals.",
+                "type": "anchor",
+                "tension_target": "peak",
+                "target_turn_length": 6,
+                "guidance": "The climax in the Nightriver crypt, where the seal's anchor stone hums under the dead. Eriana plays the rite; Javon needs his children's blood on the stone. Something vast stirs below. The heir's own seal-born magic can hold or break the moment. Javon's fate is the heir's choice.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Shiya",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Ronan",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Natalia",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[Climax. Magic, blood and old stone. Give {{story_player_name}}'s seal-born power a decisive role.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Academy Checkpoints",
+                        "comments": [
+                          "CP confront-father - Scene",
+                          "CP follow-the-trail - Scene"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Academy Checkpoints",
+                        "comments": [
+                          "CP the-sealed-crypt - Scene"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "house-in-daylight",
+                "name": "A House in Daylight",
+                "objective": "Deal with the aftermath and decide what House Nightriver becomes.",
+                "type": "anchor",
+                "tension_target": "calm",
+                "target_turn_length": 6,
+                "guidance": "Aftermath. Lady Hana returns to a changed house; Natalia's betrothal can be broken; the court is watching. The succession crisis is the next storm on the horizon.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Natalia",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Shiya",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Ronan",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[Resolution. Quiet, earned moments with each ally. Consequences at court. Hint at the succession crisis to come.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Academy Checkpoints",
+                        "comments": [
+                          "CP the-sealed-crypt - Scene",
+                          "Nightriver - The Conspiracy",
+                          "Nightriver - The Rite"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Academy Checkpoints",
+                        "comments": [
+                          "CP house-in-daylight - Scene"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "transitions": [
+              {
+                "from": "nightriver-house",
+                "to": "fathers-summons",
+                "priority": 1,
+                "gate": {
+                  "q": "path",
+                  "op": "==",
+                  "v": "witch_king"
+                },
+                "extractor_trigger": "\\b(father|javon|duel|leevon|betroth|marriage|seal|witch king)\\b",
+                "extraction_hint": "Set path to witch_king once the heir starts digging into Father, the duel, the marriages or the seals."
+              },
+              {
+                "from": "fathers-summons",
+                "to": "whispers",
+                "priority": 1,
+                "gate": {
+                  "q": "summons_heard",
+                  "op": "==",
+                  "v": true
+                },
+                "extractor_trigger": "\\b(duel|leevon|general)\\b",
+                "extraction_hint": "Set summons_heard once Javon has announced the duel with General Leevon."
+              },
+              {
+                "from": "whispers",
+                "to": "the-duel",
+                "priority": 1,
+                "gate": {
+                  "any": [
+                    {
+                      "q": "evidence",
+                      "op": ">=",
+                      "v": 2
+                    },
+                    {
+                      "q": "duel_begun",
+                      "op": "==",
+                      "v": true
+                    }
+                  ]
+                },
+                "extractor_trigger": "\b(rules|seal|valtara|eriana|papers|servants'? door|clue|proof|duel|leevon|field)\b",
+                "extraction_hint": "Count each distinct clue about the plot; set duel_begun once the duel with Leevon starts."
+              },
+              {
+                "from": "the-duel",
+                "to": "night-of-knives",
+                "priority": 1,
+                "gate": {
+                  "q": "duel_outcome",
+                  "op": "in",
+                  "v": [
+                    "won",
+                    "survived"
+                  ]
+                },
+                "extractor_trigger": "\\b(yield|win|won|defeat|disarm|fall|stop|end|spare|poison)\\b",
+                "extraction_hint": "Set duel_outcome once the duel ends and the heir is alive."
+              },
+              {
+                "from": "night-of-knives",
+                "to": "confront-father",
+                "priority": 2,
+                "gate": {
+                  "all": [
+                    {
+                      "q": "ambush_survived",
+                      "op": "==",
+                      "v": true
+                    },
+                    {
+                      "q": "approach",
+                      "op": "==",
+                      "v": "confront"
+                    }
+                  ]
+                },
+                "extractor_trigger": "\\b(confront|face|go to|demand)\\b.*\\b(father|javon|study)\\b",
+                "extraction_hint": "Set approach to confront when the heir goes to face Lord Javon."
+              },
+              {
+                "from": "night-of-knives",
+                "to": "follow-the-trail",
+                "priority": 1,
+                "gate": {
+                  "all": [
+                    {
+                      "q": "ambush_survived",
+                      "op": "==",
+                      "v": true
+                    },
+                    {
+                      "q": "approach",
+                      "op": "==",
+                      "v": "trail"
+                    }
+                  ]
+                },
+                "extractor_trigger": "\\b(follow|track|trail|token|search)\\b",
+                "extraction_hint": "Set approach to trail when the heir follows the assassins' trail."
+              },
+              {
+                "from": "confront-father",
+                "to": "the-sealed-crypt",
+                "priority": 1,
+                "gate": {
+                  "q": "javon_exposed",
+                  "op": "==",
+                  "v": true
+                },
+                "extractor_trigger": "\\b(witch king|rite|ritual|eriana|crypt|seal)\\b",
+                "extraction_hint": "Set javon_exposed once the heir knows Javon works with Eriana to free the Witch King."
+              },
+              {
+                "from": "follow-the-trail",
+                "to": "the-sealed-crypt",
+                "priority": 1,
+                "gate": {
+                  "q": "javon_exposed",
+                  "op": "==",
+                  "v": true
+                },
+                "extractor_trigger": "\\b(witch king|rite|ritual|eriana|crypt|seal|javon)\\b",
+                "extraction_hint": "Set javon_exposed once the heir knows Javon works with Eriana to free the Witch King."
+              },
+              {
+                "from": "the-sealed-crypt",
+                "to": "house-in-daylight",
+                "priority": 1,
+                "gate": {
+                  "q": "ritual_stopped",
+                  "op": "==",
+                  "v": true
+                },
+                "extractor_trigger": "\\b(stop|break|shatter|disrupt|end|seal holds|silence)\\b",
+                "extraction_hint": "Set ritual_stopped once the rite is broken and the seal holds."
+              }
+            ],
+            "roster": [
+              {
+                "id": "dm",
+                "name": "Adolion Narrator"
+              },
+              {
+                "id": "sister",
+                "name": "Natalia"
+              },
+              {
+                "id": "maid",
+                "name": "Shiya"
+              },
+              {
+                "id": "knight",
+                "name": "Ronan"
+              }
+            ],
+            "arc_bridges": [
+              {
+                "arcMatch": "witch king",
+                "anchor": "house-in-daylight",
+                "amount": 1
+              },
+              {
+                "arcMatch": "nightriver seal",
+                "anchor": "house-in-daylight",
+                "amount": 1
+              }
+            ],
+            "requirements": {
+              "members": [
+                "Adolion Narrator",
+                "Natalia",
+                "Shiya",
+                "Ronan"
+              ],
+              "lorebooks": [
+                "Adolion World",
+                "Adolion Academy Checkpoints",
+                "Adolion - Aegis City Noble Life",
+                "Adolion Chronicle"
+              ]
+            },
+            "stagecraft": {
+              "lorebooks": [
+                "Adolion Chronicle"
+              ]
+            }
+          },
+          "importedAt": "2026-09-20T09:47:01.555Z",
+          "updatedAt": "2026-09-20T09:47:01.555Z"
+        },
+        {
+          "id": "adolion-adventurer",
+          "version": 9,
+          "hash": "v2-3557661b",
+          "title": "Adolion: The Adventurer's Road",
+          "description": "A new adventuring party out of Aegis City takes the Wendhope posting, finds a frontier village under nightly siege by something out of the forest, and - once it has earned the rank - goes down the Driftmere Mines after whatever silenced a god.",
+          "raw": {
+            "format": 2,
+            "id": "adolion-adventurer",
+            "version": 9,
+            "title": "Adolion: The Adventurer's Road",
+            "description": "A new adventuring party out of Aegis City takes the Wendhope posting, finds a frontier village under nightly siege by something out of the forest, and - once it has earned the rank - goes down the Driftmere Mines after whatever silenced a god.",
+            "arc_template": "rising",
+            "qualities": [
+              {
+                "key": "path",
+                "type": "enum",
+                "values": [
+                  "wendhope"
+                ],
+                "source": "extractor",
+                "latching": true,
+                "rubric": "Which posting has the party committed to? Answer wendhope once the player, or the party on the player's behalf, takes the D-rank Investigate Wendhope job. Until they actually commit, say nothing about this quality at all."
+              },
+              {
+                "key": "reached_walls",
+                "type": "bool",
+                "source": "extractor",
+                "latching": true,
+                "scope_hint": {
+                  "from": "road-to-wendhope"
+                },
+                "rubric": "Has the party come within sight of Wendhope's walls and been challenged by its archers?"
+              },
+              {
+                "key": "inside_wendhope",
+                "type": "bool",
+                "source": "extractor",
+                "latching": true,
+                "scope_hint": {
+                  "from": "at-the-walls"
+                },
+                "rubric": "Have the defenders let the party through the gate into Wendhope?"
+              },
+              {
+                "key": "survived_first_night",
+                "type": "bool",
+                "source": "extractor",
+                "latching": true,
+                "scope_hint": {
+                  "from": "first-night"
+                },
+                "rubric": "Has the party held the wall through a Screecher assault until the fog withdrew at dawn?"
+              },
+              {
+                "key": "evidence",
+                "type": "int",
+                "source": "extractor",
+                "monotonic": true,
+                "scope_hint": {
+                  "from": "at-the-walls"
+                },
+                "ledger_binding": {
+                  "entity": "The Party",
+                  "field": "clues found"
+                },
+                "rubric": "How many distinct clues about the Screechers has the party actually learned in play? Count each once: the fog comes only at night and only from Needlehaven; killed Screechers leave white flowers; villagers recognise faces among them; the weapons lead and the bodies follow; every runner sent was swallowed by the fog; Ol' Nan's song about the Lord Spirit."
+              },
+              {
+                "key": "knows_spirit",
+                "type": "bool",
+                "source": "extractor",
+                "latching": true,
+                "scope_hint": {
+                  "from": "at-the-walls"
+                },
+                "rubric": "Does the party know there is a Lord Spirit of Needlehaven behind this, whether from Ol' Nan's song or by working it out?"
+              },
+              {
+                "key": "in_needlehaven",
+                "type": "bool",
+                "source": "extractor",
+                "latching": true,
+                "scope_hint": {
+                  "from": "what-wendhope-knows"
+                },
+                "rubric": "Has the party entered Needlehaven forest?"
+              },
+              {
+                "key": "spirit_outcome",
+                "type": "enum",
+                "values": [
+                  "destroyed",
+                  "appeased"
+                ],
+                "source": "extractor",
+                "latching": true,
+                "scope_hint": {
+                  "from": "the-lord-spirit"
+                },
+                "rubric": "How did the party end it? destroyed if they cut or burned the Lord Spirit's heartwood; appeased if they closed the cut and gave back what was taken so it could sleep. Until it is actually ended, say nothing about this quality at all."
+              },
+              {
+                "key": "next_job",
+                "type": "enum",
+                "values": [
+                  "god_eater"
+                ],
+                "source": "extractor",
+                "latching": true,
+                "scope_hint": {
+                  "from": "after-the-fog"
+                },
+                "rubric": "Has the party taken the Driftmere expedition, the posting about the mines where the god of mining fell silent? Answer god_eater if they accept it. Until they do, say nothing about this quality at all."
+              },
+              {
+                "key": "entered_mines",
+                "type": "bool",
+                "source": "extractor",
+                "latching": true,
+                "scope_hint": {
+                  "from": "driftmere"
+                },
+                "rubric": "Has the party gone down into the Driftmere Mines?"
+              },
+              {
+                "key": "descent",
+                "type": "int",
+                "source": "extractor",
+                "monotonic": true,
+                "scope_hint": {
+                  "from": "the-first-descent"
+                },
+                "ledger_binding": {
+                  "entity": "The Party",
+                  "field": "mine floors cleared"
+                },
+                "rubric": "How many floors of the Driftmere Mines has the party got past so far, whether by fighting the Floor Boss, solving it, bargaining with it or slipping around it?"
+              },
+              {
+                "key": "knows_devourer",
+                "type": "bool",
+                "source": "extractor",
+                "latching": true,
+                "scope_hint": {
+                  "from": "the-first-descent"
+                },
+                "rubric": "Does the party know that something the monsters call the Devourer waits at the bottom and that the floors are holding the line until its ascension?"
+              },
+              {
+                "key": "past_the_seal",
+                "type": "bool",
+                "source": "extractor",
+                "latching": true,
+                "scope_hint": {
+                  "from": "the-sealed-wall"
+                },
+                "rubric": "Has the party got through Filwern's sealed wall on the bottom floor?"
+              },
+              {
+                "key": "devourer_outcome",
+                "type": "enum",
+                "values": [
+                  "slain",
+                  "resealed"
+                ],
+                "source": "extractor",
+                "latching": true,
+                "scope_hint": {
+                  "from": "the-devourer"
+                },
+                "rubric": "How did the party end the Devourer? slain if they killed it; resealed if they restored Filwern's wards instead, at the cost of the mine. Until it is actually ended, say nothing about this quality at all."
+              }
+            ],
+            "checkpoints": [
+              {
+                "id": "guild-hall",
+                "name": "The Guild Hall",
+                "objective": "Take a posting and form a party.",
+                "type": "anchor",
+                "tension_target": "calm",
+                "target_turn_length": 5,
+                "guidance": "Busy, loud and safe. Let the player look over the board and talk to people. Tobias will walk anyone through the Wendhope posting and is honest that it reads like a collapsed shaft. If the player will not choose, have Tobias press the Sheridan money and have Belle lose patience and commit the party for them.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Tobias",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Belle",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Dalan",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[Scene: the Adventurer's Guild hall in Aegis City, busy and loud. Tobias works the quest counter; Belle and Dalan are both looking for a party. Keep it light and let {{story_player_name}} lead.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP guild-hall - Scene",
+                          "Cast - The Party"
+                        ]
+                      }
+                    ]
+                  },
+                  "cast_changes": {
+                    "enable": [
+                      "Tobias",
+                      "Belle",
+                      "Dalan"
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "road-to-wendhope",
+                "name": "The Road North",
+                "objective": "Travel to Wendhope and notice what the road is missing.",
+                "type": "anchor",
+                "tension_target": "stirring",
+                "target_turn_length": 4,
+                "guidance": "Two days of road. Let {{story_role_companion_a}} and {{story_role_companion_b}} talk with {{story_player_name}}. The wrongness is an absence, not a threat: abandoned carriages with cargo still strapped on, no bandits, no traffic at all. Do not show fog or Screechers yet.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Belle",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Dalan",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[The party travels north to Wendhope. Let the companions talk on the road, and build unease from what is missing rather than from danger.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP guild-hall - Scene"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP road-to-wendhope - Scene"
+                        ]
+                      }
+                    ]
+                  },
+                  "cast_changes": {
+                    "disable": [
+                      "Tobias"
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "at-the-walls",
+                "name": "Hold, Wendhope Is Closed",
+                "objective": "Get inside Wendhope before sundown.",
+                "type": "anchor",
+                "tension_target": "tense",
+                "target_turn_length": 5,
+                "guidance": "Grod and two wounded archers refuse the gate with arrows nocked. They are exhausted and afraid, not hostile, and they mention signs the party never passed. Sundown is the clock: say so, and mean it. The Guild seal, the Sheridan contract, offered supplies, healing for the wounded or simply refusing to leave will all work. Halena arrives if it drags.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Belle",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Dalan",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[Wendhope's gate is shut and the archers on the parapet will not open it. Sundown is a real deadline. Let {{story_player_name}} find the way in.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP road-to-wendhope - Scene"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP at-the-walls - Scene",
+                          "Wendhope - Defenders"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "first-night",
+                "name": "The Red Fog",
+                "objective": "Hold the wall until dawn.",
+                "type": "anchor",
+                "tension_target": "critical",
+                "target_turn_length": 6,
+                "guidance": "The fog comes first, red and thick, out of Needlehaven and around the whole village. Then the screeching. Make the Screechers frightening through what they ignore: pain, wounds, missing limbs. Give each party member a moment. Show one fall and bubble away, and leave white flowers on the ground where it did. At dawn the fog withdraws into the trees.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Belle",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Dalan",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[Night assault on Wendhope's wall. Fast, vivid, genuinely dangerous. End on dawn and the fog pulling back into Needlehaven.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP at-the-walls - Scene"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP first-night - Scene",
+                          "Wendhope - The Screechers"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "what-wendhope-knows",
+                "name": "What Wendhope Knows",
+                "objective": "Work out what is coming out of that forest.",
+                "type": "anchor",
+                "tension_target": "stirring",
+                "target_turn_length": 8,
+                "guidance": "The investigation scene, and the slow one. Duggy is defensive about the mine, Halena counts arrows out loud, Qinne is drowning and will overshare if handled gently. Ol' Nan sings about the Lord Spirit of Needlehaven for anyone who sits with her. Give up roughly one clue per scene of real effort and never hand over the answer. Keep the supply clock audible: food, arrows, and how many nights are left.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Belle",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Dalan",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[Daylight in Wendhope. This is an investigation: let {{story_player_name}} ask, search and sit with people. One clue per real effort, never the whole answer.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP first-night - Scene"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP what-wendhope-knows - Scene",
+                          "Wendhope - Clues"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "into-needlehaven",
+                "name": "Into Needlehaven",
+                "objective": "Follow the trail into the forest while the sun is up.",
+                "type": "anchor",
+                "tension_target": "tense",
+                "target_turn_length": 6,
+                "guidance": "Daylight is the only safety and it is running out; say how long is left. White flowers mark where Screechers fell and there are more of them the deeper the party goes. The mine road is the obvious way; the hunting trails are the quiet one. Alabaster shows in the trees before it shows in anything that moves.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Belle",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Dalan",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[Needlehaven by daylight. The forest is quiet and wrong, and the light is a clock. Reward reading the ground.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP what-wendhope-knows - Scene"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP into-needlehaven - Scene",
+                          "Wendhope - The Truth"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "the-lord-spirit",
+                "name": "The Lord Spirit of Needlehaven",
+                "objective": "End it, one way or the other.",
+                "type": "anchor",
+                "tension_target": "peak",
+                "target_turn_length": 7,
+                "guidance": "The Spirit is enormous, alabaster heartwood grown through cut stone, and it is in pain. The taken stand around it, still held. Make both roads real: cutting the heartwood works and kills Needlehaven with it, and so does closing the cut and giving back what was taken, which costs Wendhope the mine it lives on. Do not let it be free. Whatever the party chooses, the held bodies go down and leave flowers.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Belle",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Dalan",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[The confrontation. Both endings are real and both cost something. Make the party choose rather than stumble.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP into-needlehaven - Scene"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP the-lord-spirit - Scene"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "after-the-fog",
+                "name": "After the Fog",
+                "objective": "Take the reward and the reckoning back to Aegis City.",
+                "type": "anchor",
+                "tension_target": "calm",
+                "target_turn_length": 5,
+                "guidance": "Quiet. Wendhope counts survivors and buries the returned. Duggy is either ruined or grateful depending on which way it went, and Qinne needs to hear that she did enough. In Aegis City, Tobias pays the Sheridan money and says plainly that this was not a D-rank job and the Guildmaster will want to hear it.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Tobias",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Belle",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Dalan",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[Aftermath, then Aegis City. Let the cost land before the reward does. Once it has, Tobias can put the Driftmere expedition in front of a party that has now earned it.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP the-lord-spirit - Scene"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP after-the-fog - Scene"
+                        ]
+                      }
+                    ]
+                  },
+                  "cast_changes": {
+                    "enable": [
+                      "Tobias"
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "driftmere",
+                "name": "Driftmere",
+                "objective": "Learn what happened to the mines before going down them.",
+                "type": "anchor",
+                "tension_target": "stirring",
+                "target_turn_length": 6,
+                "guidance": "A town with nothing to do and no income. Baroness Serenola is competent, candid and worried, and she will tell the party everything she knows, which is not enough. The Minotaur's Tusk holds the one survivor of the returned expedition, who insists the tunnels moved. Let the party hear that offerings to Filwern crumble to dust before they hear any theory about why.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Belle",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Dalan",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[Driftmere, before the descent. Give the party the town, the Baroness and the survivor's account. The mine can wait a scene.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP after-the-fog - Scene"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP driftmere - Scene",
+                          "Driftmere - The Town"
+                        ]
+                      }
+                    ]
+                  },
+                  "cast_changes": {
+                    "disable": [
+                      "Tobias"
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "the-first-descent",
+                "name": "The First Descent",
+                "objective": "Get down a floor and understand what you are in.",
+                "type": "anchor",
+                "tension_target": "tense",
+                "target_turn_length": 6,
+                "guidance": "Sell the wrongness geometrically: a mapped tunnel opening into a hall it cannot fit inside. The first Floor Boss should be beatable and should clearly be the smallest of them. Let the party find the first carving.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Belle",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Dalan",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[The first floors. Make the changed layout the horror, not the monsters. End on the way further down.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP driftmere - Scene"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP the-first-descent - Scene",
+                          "Driftmere Mines - The Dungeon"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "the-changed-deep",
+                "name": "The Changed Deep",
+                "objective": "Go deep enough to learn what the floors are guarding.",
+                "type": "anchor",
+                "tension_target": "critical",
+                "target_turn_length": 9,
+                "guidance": "This is the long middle and it should feel like a descent, not a corridor. Give each floor one clear identity and one Floor Boss that owns it, and vary what beats them: force, a puzzle, a bargain, avoiding them entirely. Traps are constant on the clever floors. Let the carvings and the intelligent monsters give up the word ascension, then a name.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Belle",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Dalan",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[Floor by floor. One identity and one master per floor, and a different way through each time. Feed the ascension in piece by piece.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP the-first-descent - Scene"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP the-changed-deep - Scene"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "the-sealed-wall",
+                "name": "The Sealed Wall",
+                "objective": "Decide how to get past Filwern's seals.",
+                "type": "anchor",
+                "tension_target": "critical",
+                "target_turn_length": 6,
+                "guidance": "The seals are old dwarven divine work and the crack in them is the mine's fault. This is the last place to turn back and the party should feel that. Breaking through is easy and wrong; working out what the wards are for takes reading, and Filwern will answer if anyone thinks to make an offering here rather than break something.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Belle",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Dalan",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[The seals. Make going through deliberate, and make the party understand what they are opening before they open it.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP the-changed-deep - Scene"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP the-sealed-wall - Scene",
+                          "Driftmere - The Truth"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "the-devourer",
+                "name": "The God-Eater",
+                "objective": "Stop the ascension.",
+                "type": "anchor",
+                "tension_target": "peak",
+                "target_turn_length": 8,
+                "guidance": "It is enormous, half-finished with a god, and it does not hurry. Keep both endings live: killing it frees what is left of Filwern and reopens the mine, and restoring the seal instead costs Driftmere the workings forever but leaves the god whole. Make the party choose while it is still fighting them.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Belle",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Dalan",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[The confrontation. Two real endings, chosen under pressure, both of them expensive.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP the-sealed-wall - Scene"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP the-devourer - Scene"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "what-filwern-left",
+                "name": "What Filwern Left",
+                "objective": "Tell Driftmere what it costs.",
+                "type": "anchor",
+                "tension_target": "calm",
+                "target_turn_length": 5,
+                "guidance": "Quiet and consequential. Whether the mine reopens decides what happens to this town, and Serenola will say so plainly either way. Let the party hear what the Nightrivers make of the report.",
+                "talk_control": {
+                  "lead": "Adolion Narrator",
+                  "speakers": [
+                    {
+                      "member": "Adolion Narrator",
+                      "weight": 2
+                    },
+                    {
+                      "member": "Belle",
+                      "weight": 1
+                    },
+                    {
+                      "member": "Dalan",
+                      "weight": 1
+                    }
+                  ],
+                  "no_repeat": false,
+                  "allow_silence": false,
+                  "director": {
+                    "instruction": "Pick Adolion Narrator whenever the player acts, moves, investigates, or the world must respond (events, danger, characters outside the group). Pick a group member only when the player addresses them or their reaction is the point of the moment."
+                  }
+                },
+                "effects": {
+                  "author_note": {
+                    "text": "[Aftermath in Driftmere. The town's future is the scene, not the monster.]",
+                    "position": "chat",
+                    "depth": 4,
+                    "interval": 2,
+                    "role": "system"
+                  },
+                  "world_info": {
+                    "disable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP the-devourer - Scene"
+                        ]
+                      }
+                    ],
+                    "enable": [
+                      {
+                        "lorebook": "Adolion Adventurer Checkpoints",
+                        "comments": [
+                          "CP what-filwern-left - Scene"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "transitions": [
+              {
+                "from": "guild-hall",
+                "to": "road-to-wendhope",
+                "priority": 1,
+                "gate": {
+                  "q": "path",
+                  "op": "==",
+                  "v": "wendhope"
+                },
+                "extractor_trigger": "\\b(take|accept|sign|grab|choose|go|head)\\b.*\\b(wendhope|mining village|posting|quest|job)\\b",
+                "extraction_hint": "Set path to wendhope once the party commits to the Investigate Wendhope posting."
+              },
+              {
+                "from": "road-to-wendhope",
+                "to": "at-the-walls",
+                "priority": 1,
+                "gate": {
+                  "q": "reached_walls",
+                  "op": "==",
+                  "v": true
+                },
+                "extractor_trigger": "\\b(wall|walls|gate|parapet|archer|hold)\\b|\\bwendhope\\b",
+                "extraction_hint": "Set reached_walls true once Wendhope's walls are in sight and the archers challenge the party."
+              },
+              {
+                "from": "at-the-walls",
+                "to": "first-night",
+                "priority": 1,
+                "gate": {
+                  "q": "inside_wendhope",
+                  "op": "==",
+                  "v": true
+                },
+                "extractor_trigger": "\\b(open|let|inside|through|enter|gate|admit)\\b",
+                "extraction_hint": "Set inside_wendhope true once the defenders actually let the party in."
+              },
+              {
+                "from": "first-night",
+                "to": "what-wendhope-knows",
+                "priority": 1,
+                "gate": {
+                  "q": "survived_first_night",
+                  "op": "==",
+                  "v": true
+                },
+                "extractor_trigger": "\\b(dawn|sunrise|morning|withdraw|thin|receded?)\\b",
+                "extraction_hint": "Set survived_first_night true once the assault is over and the fog has pulled back at dawn."
+              },
+              {
+                "from": "what-wendhope-knows",
+                "to": "into-needlehaven",
+                "priority": 1,
+                "gate": {
+                  "q": "in_needlehaven",
+                  "op": "==",
+                  "v": true
+                },
+                "extractor_trigger": "\\b(needlehaven|forest|trees|treeline|trail|mine road)\\b",
+                "extraction_hint": "Set in_needlehaven true once the party goes into Needlehaven forest."
+              },
+              {
+                "from": "into-needlehaven",
+                "to": "the-lord-spirit",
+                "priority": 1,
+                "gate": {
+                  "all": [
+                    {
+                      "q": "evidence",
+                      "op": ">=",
+                      "v": 3
+                    },
+                    {
+                      "q": "knows_spirit",
+                      "op": "==",
+                      "v": true
+                    }
+                  ]
+                },
+                "extractor_trigger": "\\b(spirit|heartwood|roots?|alabaster|heart|clearing|cut)\\b",
+                "extraction_hint": "Count each distinct clue in evidence, and set knows_spirit true once the party knows a Lord Spirit of Needlehaven is behind it."
+              },
+              {
+                "from": "the-lord-spirit",
+                "to": "after-the-fog",
+                "priority": 1,
+                "gate": {
+                  "any": [
+                    {
+                      "q": "spirit_outcome",
+                      "op": "==",
+                      "v": "destroyed"
+                    },
+                    {
+                      "q": "spirit_outcome",
+                      "op": "==",
+                      "v": "appeased"
+                    }
+                  ]
+                },
+                "extractor_trigger": "\\b(destroy|cut|burn|shatter|kill|seal|close|return|give back|sleep|appease)\\b",
+                "extraction_hint": "Set spirit_outcome to destroyed or appeased once the party has actually ended it."
+              },
+              {
+                "from": "after-the-fog",
+                "to": "driftmere",
+                "priority": 1,
+                "gate": {
+                  "q": "next_job",
+                  "op": "==",
+                  "v": "god_eater"
+                },
+                "extractor_trigger": "\\b(driftmere|expedition|filwern|mines?)\\b",
+                "extraction_hint": "Set next_job to god_eater once the party takes the Driftmere expedition."
+              },
+              {
+                "from": "driftmere",
+                "to": "the-first-descent",
+                "priority": 1,
+                "gate": {
+                  "q": "entered_mines",
+                  "op": "==",
+                  "v": true
+                },
+                "extractor_trigger": "\\b(descend|lift|down|shaft|mine|entrance)\\b",
+                "extraction_hint": "Set entered_mines true once the party goes down into the Driftmere Mines."
+              },
+              {
+                "from": "the-first-descent",
+                "to": "the-changed-deep",
+                "priority": 1,
+                "gate": {
+                  "q": "descent",
+                  "op": ">=",
+                  "v": 1
+                },
+                "extractor_trigger": "\\b(floor|boss|deeper|descend|down)\\b",
+                "extraction_hint": "Count floors of the Driftmere Mines the party has got past in descent."
+              },
+              {
+                "from": "the-changed-deep",
+                "to": "the-sealed-wall",
+                "priority": 1,
+                "gate": {
+                  "all": [
+                    {
+                      "q": "descent",
+                      "op": ">=",
+                      "v": 4
+                    },
+                    {
+                      "q": "knows_devourer",
+                      "op": "==",
+                      "v": true
+                    }
+                  ]
+                },
+                "extractor_trigger": "\\b(seal|sealed|ward|wall|bottom|devourer|ascension)\\b",
+                "extraction_hint": "Count floors in descent, and set knows_devourer true once the party knows the Devourer and the ascension are what the floors are guarding."
+              },
+              {
+                "from": "the-sealed-wall",
+                "to": "the-devourer",
+                "priority": 1,
+                "gate": {
+                  "q": "past_the_seal",
+                  "op": "==",
+                  "v": true
+                },
+                "extractor_trigger": "\\b(break|breach|open|through|past|unseal|offering)\\b",
+                "extraction_hint": "Set past_the_seal true once the party is through the sealed wall."
+              },
+              {
+                "from": "the-devourer",
+                "to": "what-filwern-left",
+                "priority": 1,
+                "gate": {
+                  "any": [
+                    {
+                      "q": "devourer_outcome",
+                      "op": "==",
+                      "v": "slain"
+                    },
+                    {
+                      "q": "devourer_outcome",
+                      "op": "==",
+                      "v": "resealed"
+                    }
+                  ]
+                },
+                "extractor_trigger": "\\b(kill|slay|destroy|seal|reseal|ward|restore|end)\\b",
+                "extraction_hint": "Set devourer_outcome to slain or resealed once the party has actually ended it."
+              }
+            ],
+            "roster": [
+              {
+                "id": "dm",
+                "name": "Adolion Narrator"
+              },
+              {
+                "id": "guild_rep",
+                "name": "Tobias"
+              },
+              {
+                "id": "companion_a",
+                "name": "Belle"
+              },
+              {
+                "id": "companion_b",
+                "name": "Dalan"
+              }
+            ],
+            "arc_bridges": [
+              {
+                "arcMatch": "wendhope",
+                "anchor": "after-the-fog",
+                "amount": 1
+              },
+              {
+                "arcMatch": "needlehaven",
+                "anchor": "after-the-fog",
+                "amount": 1
+              },
+              {
+                "arcMatch": "screecher",
+                "anchor": "after-the-fog",
+                "amount": 1
+              },
+              {
+                "arcMatch": "driftmere",
+                "anchor": "what-filwern-left",
+                "amount": 1
+              },
+              {
+                "arcMatch": "devourer",
+                "anchor": "what-filwern-left",
+                "amount": 1
+              },
+              {
+                "arcMatch": "filwern",
+                "anchor": "what-filwern-left",
+                "amount": 1
+              }
+            ],
+            "stagecraft": {
+              "lorebooks": [
+                "Adolion Chronicle"
+              ]
+            },
+            "requirements": {
+              "members": [
+                "Adolion Narrator",
+                "Tobias",
+                "Belle",
+                "Dalan"
+              ],
+              "lorebooks": [
+                "Adolion World",
+                "Adolion Adventurer Checkpoints",
+                "Adolion Chronicle"
+              ]
+            }
+          },
+          "importedAt": "2026-09-20T12:20:32.162Z",
+          "updatedAt": "2026-09-20T12:20:32.162Z"
+        },
+        {
+          "id": "so-j9-wizard",
+          "version": 1,
+          "hash": "v2-053e9295",
+          "title": "SO-J9 Courier Run",
+          "description": "Journey J9 wizard fixture: a two-anchor story whose only unmet requirement is a lorebook the wizard can create.",
+          "raw": {
+            "format": 2,
+            "id": "so-j9-wizard",
+            "version": 1,
+            "title": "SO-J9 Courier Run",
+            "description": "Journey J9 wizard fixture: a two-anchor story whose only unmet requirement is a lorebook the wizard can create.",
+            "requirements": {
+              "lorebooks": [
+                "SO-J9 Lore"
+              ]
+            },
+            "qualities": [
+              {
+                "key": "reached_bridge",
+                "type": "bool",
+                "source": "extractor",
+                "rubric": "Has the courier reached or climbed onto the broken bridge?"
+              }
+            ],
+            "checkpoints": [
+              {
+                "id": "wharf",
+                "name": "The Drowned Wharf",
+                "objective": "Set out from the wharf across the flooded city.",
+                "type": "anchor",
+                "start": true,
+                "tension_target": "calm"
+              },
+              {
+                "id": "bridge",
+                "name": "The Broken Bridge",
+                "objective": "Cross where the water runs fastest.",
+                "type": "anchor",
+                "tension_target": "tense",
+                "convergence_threshold": 1
+              }
+            ],
+            "transitions": [
+              {
+                "from": "wharf",
+                "to": "bridge",
+                "gate": {
+                  "q": "reached_bridge",
+                  "op": "==",
+                  "v": true
+                },
+                "priority": 0,
+                "effects": {
+                  "progress": {
+                    "anchor": "bridge",
+                    "amount": 1
+                  }
+                }
+              }
+            ],
+            "roster": []
+          },
+          "importedAt": "2026-09-21T18:50:08.091Z",
+          "updatedAt": "2026-09-21T19:10:22.325Z"
+        },
+        {
+          "id": "so-j9-fixme",
+          "version": 1,
+          "hash": "v2-8e85086b",
+          "title": "SO-J9 Unrunnable Story",
+          "description": "Journey J9 fixture for 'Fix with wizard': it requires a lorebook no check ever creates, so the unmet state is stable whatever order the checks run in.",
+          "raw": {
+            "format": 2,
+            "id": "so-j9-fixme",
+            "version": 1,
+            "title": "SO-J9 Unrunnable Story",
+            "description": "Journey J9 fixture for 'Fix with wizard': it requires a lorebook no check ever creates, so the unmet state is stable whatever order the checks run in.",
+            "requirements": {
+              "lorebooks": [
+                "SO-J9 Missing Lore"
+              ]
+            },
+            "qualities": [
+              {
+                "key": "gate_open",
+                "type": "bool",
+                "source": "extractor",
+                "rubric": "Is the gate open?"
+              }
+            ],
+            "checkpoints": [
+              {
+                "id": "outside",
+                "name": "Outside the Gate",
+                "objective": "Find a way in.",
+                "type": "anchor",
+                "start": true
+              },
+              {
+                "id": "inside",
+                "name": "Inside",
+                "objective": "Go through.",
+                "type": "anchor",
+                "convergence_threshold": 1
+              }
+            ],
+            "transitions": [
+              {
+                "from": "outside",
+                "to": "inside",
+                "gate": {
+                  "q": "gate_open",
+                  "op": "==",
+                  "v": true
+                },
+                "priority": 0,
+                "effects": {
+                  "progress": {
+                    "anchor": "inside",
+                    "amount": 1
+                  }
+                }
+              }
+            ],
+            "roster": []
+          },
+          "importedAt": "2026-09-21T18:50:31.822Z",
+          "updatedAt": "2026-09-21T18:50:31.822Z"
+        },
+        {
+          "id": "so-t13-a",
+          "version": 1,
+          "hash": "v2-f7c61ac5",
+          "title": "SO-T13 A",
+          "description": "Humanity's last survivors shelter in the ruined city of Xentar as its magical wards fail. The Adventurers Guild sends a team to recover the legendary Sun's Heart Artifact from the perilous Sun Ruins, past ancient traps and a riddling sphinx.",
+          "raw": {
+            "format": 2,
+            "id": "so-t13-a",
+            "version": 1,
+            "title": "SO-T13 A",
+            "description": "Humanity's last survivors shelter in the ruined city of Xentar as its magical wards fail. The Adventurers Guild sends a team to recover the legendary Sun's Heart Artifact from the perilous Sun Ruins, past ancient traps and a riddling sphinx.",
+            "arc_template": "rising",
+            "qualities": [
+              {
+                "key": "approached_board",
+                "type": "bool",
+                "source": "extractor",
+                "latching": true,
+                "rubric": "Did the player move close to or examine the guild job board?"
+              },
+              {
+                "key": "mission_accepted",
+                "type": "bool",
+                "source": "extractor",
+                "latching": true,
+                "rubric": "Did the party accept the Sun Ruins mission from the board?"
+              },
+              {
+                "key": "luke_decision",
+                "type": "enum",
+                "values": [
+                  "undecided",
+                  "accepted",
+                  "declined"
+                ],
+                "source": "extractor",
+                "rubric": "Has the player decided whether to bring Luke along? accepted if they agree, declined if they refuse, otherwise undecided."
+              },
+              {
+                "key": "riddle_answer",
+                "type": "enum",
+                "values": [
+                  "unanswered",
+                  "moon",
+                  "wrong"
+                ],
+                "source": "extractor",
+                "scope_hint": {
+                  "from": "cp3",
+                  "until": "cp-5"
+                },
+                "rubric": "What answer was given to the sphinx's riddle? moon if the correct answer 'the moon' was spoken, wrong if an incorrect answer was given, otherwise unanswered."
+              },
+              {
+                "key": "luke_alive",
+                "type": "bool",
+                "source": "extractor",
+                "rubric": "Is Luke still alive?"
+              },
+              {
+                "key": "chamber_entered",
+                "type": "bool",
+                "source": "extractor",
+                "latching": true,
+                "rubric": "Has the party entered the inner chamber where the artifact rests?"
+              },
+              {
+                "key": "artifact_secured",
+                "type": "bool",
+                "source": "extractor",
+                "latching": true,
+                "rubric": "Has the party secured the Sun's Heart Artifact?"
+              },
+              {
+                "key": "reward_claimed",
+                "type": "bool",
+                "source": "extractor",
+                "latching": true,
+                "rubric": "Has the party returned to the guild and claimed their reward?"
+              },
+              {
+                "key": "guardian_respect",
+                "type": "int",
+                "source": "extractor",
+                "ledger_binding": {
+                  "entity": "Sphinx",
+                  "field": "respect"
+                },
+                "rubric": "How much does the sphinx guardian respect the party, from 0 (contempt) to 5 (deep respect)?"
+              }
+            ],
+            "checkpoints": [
+              {
+                "id": "cp1",
+                "name": "Investigate the Job Board",
+                "objective": "Get close to the guild's job board to see available missions.",
+                "type": "anchor",
+                "start": true,
+                "tension_target": "calm",
+                "guidance": "A relaxed guild-hall opening. Let the player wander toward the job board at their own pace.",
+                "target_turn_length": 3,
+                "effects": {
+                  "world_info": {
+                    "enable": [
+                      {
+                        "lorebook": "SO-T13 Xentar",
+                        "comments": [
+                          "CP1 - Mission",
+                          "CP1 - Scenario"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "cp2",
+                "name": "Accept the Mission",
+                "objective": "Pick up the Sun Ruins mission from the board.",
+                "type": "anchor",
+                "tension_target": "stirring",
+                "target_turn_length": 3,
+                "effects": {
+                  "world_info": {
+                    "enable": [
+                      {
+                        "lorebook": "SO-T13 Xentar",
+                        "comments": [
+                          "CP2 - Mission",
+                          "CP2 - Scenario"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "cp3",
+                "name": "Departure Preparations",
+                "objective": "Decide whether to take Luke along before departing for the Sun Ruins.",
+                "type": "anchor",
+                "tension_target": "stirring",
+                "target_turn_length": 3,
+                "effects": {
+                  "world_info": {
+                    "enable": [
+                      {
+                        "lorebook": "SO-T13 Xentar",
+                        "comments": [
+                          "CP3 - Luke"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "cp-4a",
+                "name": "Travel with Luke",
+                "objective": "Reach the Sun Ruins with Luke and face the sphinx's riddle.",
+                "type": "intermediate",
+                "tension_target": "tense",
+                "state_snapshot": {
+                  "luke_alive": true
+                },
+                "guidance": "The sphinx blocks the only way in. It can be passed by answering its riddle — or by earning its deep respect.",
+                "effects": {
+                  "world_info": {
+                    "enable": [
+                      {
+                        "lorebook": "SO-T13 Xentar",
+                        "comments": [
+                          "CP4 - Scenario",
+                          "CP4 - Sphinx",
+                          "CP4 - Sphinx's Riddle"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "cp-4b",
+                "name": "Travel Alone",
+                "objective": "Reach the Sun Ruins with only your companion and face the sphinx's riddle.",
+                "type": "intermediate",
+                "tension_target": "tense",
+                "effects": {
+                  "world_info": {
+                    "enable": [
+                      {
+                        "lorebook": "SO-T13 Xentar",
+                        "comments": [
+                          "CP4 - Scenario",
+                          "CP4 - Sphinx",
+                          "CP4 - Sphinx's Riddle"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "cp-4a1",
+                "name": "Riddle Solved",
+                "objective": "Enter the chamber and approach the artifact.",
+                "type": "intermediate",
+                "tension_target": "tense"
+              },
+              {
+                "id": "cp-4a2",
+                "name": "Riddle Failed",
+                "objective": "Enter the chamber and approach the artifact despite the loss.",
+                "type": "intermediate",
+                "tension_target": "critical",
+                "state_snapshot": {
+                  "luke_alive": false
+                },
+                "guidance": "Luke paid for the wrong answer. Grief hangs over the party, but the chamber lies open ahead."
+              },
+              {
+                "id": "cp-5",
+                "name": "Find the Artifact",
+                "objective": "Recover the Sun's Heart Artifact from the inner chamber.",
+                "type": "anchor",
+                "tension_target": "critical",
+                "target_turn_length": 3
+              },
+              {
+                "id": "cp-6",
+                "name": "Return to the Guild",
+                "objective": "Deliver the artifact to the Guild Master and claim your reward.",
+                "type": "anchor",
+                "tension_target": "peak",
+                "target_turn_length": 3,
+                "convergence_threshold": 1,
+                "state_snapshot": {
+                  "reward_claimed": true
+                }
+              }
+            ],
+            "transitions": [
+              {
+                "from": "cp1",
+                "to": "cp2",
+                "priority": 1,
+                "gate": {
+                  "q": "approached_board",
+                  "op": "==",
+                  "v": true
+                },
+                "extractor_trigger": "\\b(get close|approach|move closer|examine|investigate|look at|read)\\b.*\\b(board|posting|mission)\\b",
+                "extraction_hint": "Watch for the player moving toward or reading the job board."
+              },
+              {
+                "from": "cp2",
+                "to": "cp3",
+                "priority": 1,
+                "gate": {
+                  "q": "mission_accepted",
+                  "op": "==",
+                  "v": true
+                },
+                "extractor_trigger": "\\b(accept|take|pick up|choose|claim)\\b.*\\b(mission|quest|job|task)\\b",
+                "extraction_hint": "Watch for the player accepting the Sun Ruins mission."
+              },
+              {
+                "from": "cp3",
+                "to": "cp-4a",
+                "priority": 2,
+                "gate": {
+                  "q": "luke_decision",
+                  "op": "==",
+                  "v": "accepted"
+                },
+                "extractor_trigger": "\\b(agree|allow|let|take|bring|include)\\b.*\\b(luke|young adventurer|new companion)\\b",
+                "extraction_hint": "Set luke_decision to accepted when the player agrees to bring Luke."
+              },
+              {
+                "from": "cp3",
+                "to": "cp-4b",
+                "priority": 1,
+                "gate": {
+                  "q": "luke_decision",
+                  "op": "==",
+                  "v": "declined"
+                },
+                "extractor_trigger": "\\b(decline|refuse|deny|leave|go without)\\b.*\\b(luke|young adventurer|new companion)\\b",
+                "extraction_hint": "Set luke_decision to declined when the player refuses to bring Luke."
+              },
+              {
+                "from": "cp-4a",
+                "to": "cp-4a1",
+                "priority": 2,
+                "gate": {
+                  "any": [
+                    {
+                      "q": "riddle_answer",
+                      "op": "==",
+                      "v": "moon"
+                    },
+                    {
+                      "q": "guardian_respect",
+                      "op": ">=",
+                      "v": 4
+                    }
+                  ]
+                },
+                "extractor_trigger": "\\b(the moon|moon)\\b",
+                "extraction_hint": "Set riddle_answer to moon only if the correct answer 'the moon' is spoken. Track guardian_respect if the party impresses the sphinx."
+              },
+              {
+                "from": "cp-4a",
+                "to": "cp-4a2",
+                "priority": 1,
+                "gate": {
+                  "q": "riddle_answer",
+                  "op": "==",
+                  "v": "wrong"
+                },
+                "extraction_hint": "Set riddle_answer to wrong if an incorrect answer is given to the sphinx.",
+                "extractor_trigger": "\b(wrong|incorrect|fail(s|ed|ure)?)\b"
+              },
+              {
+                "from": "cp-4b",
+                "to": "cp-5",
+                "priority": 1,
+                "gate": {
+                  "q": "riddle_answer",
+                  "op": "==",
+                  "v": "moon"
+                },
+                "effects": {
+                  "progress": {
+                    "anchor": "cp-6",
+                    "amount": 1
+                  }
+                },
+                "extractor_trigger": "\\b(the moon|moon)\\b"
+              },
+              {
+                "from": "cp-4a1",
+                "to": "cp-5",
+                "priority": 1,
+                "gate": {
+                  "q": "chamber_entered",
+                  "op": "==",
+                  "v": true
+                },
+                "effects": {
+                  "progress": {
+                    "anchor": "cp-6",
+                    "amount": 1
+                  }
+                },
+                "extractor_trigger": "\\b(investigate|approach|examine|enter|inspect|study)\\b.*\\b(chamber|room|hall|space)\\b"
+              },
+              {
+                "from": "cp-4a2",
+                "to": "cp-5",
+                "priority": 1,
+                "gate": {
+                  "q": "chamber_entered",
+                  "op": "==",
+                  "v": true
+                },
+                "effects": {
+                  "progress": {
+                    "anchor": "cp-6",
+                    "amount": 1
+                  }
+                },
+                "extractor_trigger": "\\b(investigate|approach|examine|enter|inspect|study)\\b.*\\b(chamber|room|hall|space)\\b"
+              },
+              {
+                "from": "cp-5",
+                "to": "cp-6",
+                "priority": 1,
+                "gate": {
+                  "all": [
+                    {
+                      "q": "artifact_secured",
+                      "op": "==",
+                      "v": true
+                    },
+                    {
+                      "q": "progress_toward_cp-6",
+                      "op": ">=",
+                      "v": 1
+                    }
+                  ]
+                },
+                "extractor_trigger": "\\b(return|go back|head back|depart|travel back)\\b.*\\b(guild|xentar)\\b",
+                "extraction_hint": "Watch for the party securing the artifact and setting out for the guild."
+              }
+            ],
+            "roster": [
+              {
+                "id": "dm",
+                "name": "DM Narrator"
+              },
+              {
+                "id": "companion",
+                "name": "Arin"
+              },
+              {
+                "id": "guild_master",
+                "name": "Ponticius"
+              },
+              {
+                "id": "little_brother",
+                "name": "Luke"
+              }
+            ],
+            "arc_bridges": [
+              {
+                "arcMatch": "sun's heart",
+                "anchor": "cp-6",
+                "amount": 1
+              },
+              {
+                "arcMatch": "missing brother",
+                "anchor": "cp-6",
+                "amount": 1
+              }
+            ],
+            "requirements": {
+              "lorebooks": [
+                "SO-T13 Xentar"
+              ]
+            }
+          },
+          "importedAt": "2026-09-26T05:28:57.138Z",
+          "updatedAt": "2026-09-26T05:28:57.138Z"
+        }
+      ],
+      "status": "Following Investigate the Job Board",
+      "extraction": {
+        "settings": {
+          "enabled": true,
+          "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "cadence": 3,
+          "reconciliationMultiplier": 1.5,
+          "stabilityLag": 0
+        },
+        "audits": [],
+        "reconciliationEvents": [],
+        "lastReadBoundary": 0,
+        "scheduler": {
+          "queueDepth": 1,
+          "inFlight": false,
+          "lastError": null,
+          "heavyQueueDepth": 0,
+          "heavyInFlight": false,
+          "lastHeavyError": null
+        },
+        "judgedReads": []
+      },
+      "expansion": {
+        "entries": {},
+        "scheduler": {
+          "queueDepth": 0,
+          "inFlight": false,
+          "lastError": null
+        }
+      },
+      "memory": {
+        "entries": [],
+        "excluded": [],
+        "writeLog": [],
+        "settings": {
+          "enabled": true,
+          "epistemicLedgerCapable": true,
+          "injectionDepths": {
+            "facts": 4,
+            "session_details": 3,
+            "short_term": 2,
+            "scene_history": 6
+          },
+          "tierBudgets": {
+            "facts": 50,
+            "session_details": 40,
+            "short_term": 10,
+            "scene_history": 30
+          },
+          "tierTokenBudgets": {
+            "facts": 800,
+            "session_details": 600,
+            "short_term": 300,
+            "scene_history": 500
+          }
+        },
+        "backfill": null,
+        "sceneCount": 0,
+        "shortTermSummaryEnd": -1,
+        "wiWrites": {},
+        "wiBook": null,
+        "arcs": [],
+        "epistemic": [],
+        "ledger": [],
+        "canon": null,
+        "verifyDrops": [],
+        "derived": [],
+        "conflicts": [],
+        "resolvedConflicts": [],
+        "pinnedOverflow": 0,
+        "storyStart": 0,
+        "updatedAt": "2026-09-26T05:28:57.140Z"
+      },
+      "pacing": {
+        "alpha": 0.3,
+        "hintEnabled": true,
+        "shapeOverride": null
+      },
+      "copilot": {
+        "enabled": true
+      },
+      "ui": {
+        "authorView": false,
+        "announceTransitions": true,
+        "hudEnabled": true
+      },
+      "talk": {
+        "enabled": true,
+        "decisions": []
+      },
+      "stagecraft": {
+        "settings": {
+          "curatorEnabled": true,
+          "acceptMode": "review",
+          "wardenEnabled": false,
+          "wardenAcceptMode": "review"
+        },
+        "proposals": [],
+        "lastPass": null,
+        "lastRunBoundary": -1,
+        "lastError": null
+      },
+      "effects": {
+        "ledger": [],
+        "cast": []
+      },
+      "saveHealth": {
+        "lastAppliedBoundary": 3,
+        "pendingBoundary": null,
+        "lastOutcome": "applied",
+        "consecutiveFailures": 0,
+        "lastReason": null,
+        "lastFailureAt": null
+      },
+      "scene": null,
+      "loreForced": null,
+      "judgeMeter": {
+        "calls": 0,
+        "cachedCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "cost": 0,
+        "lastAnsweredModel": null
+      },
+      "loreEvidence": {
+        "last": {
+          "chatId": "2026-09-26@02h28m56s479ms",
+          "epoch": 13,
+          "revision": 0,
+          "type": "normal",
+          "openedAt": "2026-09-26T05:30:16.823Z",
+          "closedAt": "2026-09-26T05:30:37.484Z",
+          "rendered": true,
+          "lastMessageId": 5,
+          "forced": [],
+          "landed": [],
+          "lost": [],
+          "constantMissed": [],
+          "fired": [
+            {
+              "world": "SO-T13 Xentar",
+              "uid": 4,
+              "comment": "General - Artifacts",
+              "constant": false,
+              "key0": "artifact",
+              "origin": "other"
+            },
+            {
+              "world": "SO-T13 Xentar",
+              "uid": 12,
+              "comment": "General - Magic",
+              "constant": false,
+              "key0": "magic",
+              "origin": "other"
+            },
+            {
+              "world": "SO-T13 Xentar",
+              "uid": 5,
+              "comment": "CP1 - Scenario",
+              "constant": true,
+              "key0": null,
+              "origin": "gated"
+            },
+            {
+              "world": "Adolion World",
+              "uid": 0,
+              "comment": "World - Primer",
+              "constant": true,
+              "key0": null,
+              "origin": "other"
+            },
+            {
+              "world": "SO-T13 Xentar",
+              "uid": 21,
+              "comment": "General - Sun’s Heart Artifact",
+              "constant": false,
+              "key0": "artifact",
+              "origin": "other"
+            },
+            {
+              "world": "SO-T13 Xentar",
+              "uid": 6,
+              "comment": "Races - Humans",
+              "constant": false,
+              "key0": "humans",
+              "origin": "other"
+            },
+            {
+              "world": "SO-T13 Xentar",
+              "uid": 14,
+              "comment": "General - Barriers (city wards)",
+              "constant": false,
+              "key0": "barriers",
+              "origin": "other"
+            }
+          ],
+          "scanCount": 1,
+          "nestedScans": 0
+        },
+        "hiddenBooks": []
+      },
+      "scanGate": {
+        "chatId": "2026-09-26@02h28m56s479ms",
+        "owner": "story",
+        "rows": [
+          {
+            "lorebook": "Adolion Academy Checkpoints",
+            "comment": "CP nightriver-house - Scene",
+            "uid": 2,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion Academy Checkpoints",
+            "comment": "Nightriver - The Seal",
+            "uid": 1,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion Academy Checkpoints",
+            "comment": "Cast - The Household",
+            "uid": 0,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion Academy Checkpoints",
+            "comment": "CP fathers-summons - Scene",
+            "uid": 3,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion Academy Checkpoints",
+            "comment": "CP whispers - Scene",
+            "uid": 4,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion Academy Checkpoints",
+            "comment": "Nightriver - The Conspiracy",
+            "uid": 5,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion Academy Checkpoints",
+            "comment": "CP the-duel - Scene",
+            "uid": 6,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion Academy Checkpoints",
+            "comment": "CP night-of-knives - Scene",
+            "uid": 7,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion Academy Checkpoints",
+            "comment": "Nightriver - The Rite",
+            "uid": 8,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion Academy Checkpoints",
+            "comment": "CP confront-father - Scene",
+            "uid": 9,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion Academy Checkpoints",
+            "comment": "CP follow-the-trail - Scene",
+            "uid": 10,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion Academy Checkpoints",
+            "comment": "CP the-sealed-crypt - Scene",
+            "uid": 11,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion Academy Checkpoints",
+            "comment": "CP house-in-daylight - Scene",
+            "uid": 12,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Aegis Academy",
+            "uid": 0,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Aegis Academy Classes",
+            "uid": 1,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Amthir Draxford",
+            "uid": 2,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Ashleigh Delarise",
+            "uid": 3,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Ashton Delarise",
+            "uid": 4,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Bianca Kelevaran",
+            "uid": 5,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Blake Tallaboros",
+            "uid": 6,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Bryne the Knight",
+            "uid": 7,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Cecilia Sheridan",
+            "uid": 8,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Cedric Sheridan",
+            "uid": 9,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Celenora Rennetoa",
+            "uid": 10,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Chester Thornwick",
+            "uid": 11,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Clarissa Nevarron",
+            "uid": 12,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Delarise Family",
+            "uid": 13,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Dion Thornwick",
+            "uid": 14,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Eriana Valtara",
+            "uid": 15,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "General Leevon",
+            "uid": 16,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Golden Age",
+            "uid": 17,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Irian Elthorien",
+            "uid": 18,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Isidora Frolovan - Nightriver General",
+            "uid": 19,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Kane Winstonehl",
+            "uid": 20,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Lady Hana Nightriver",
+            "uid": 21,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Lady Noellavi",
+            "uid": 22,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Leila Rainshadow",
+            "uid": 23,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Lord Javon Nightriver",
+            "uid": 24,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Lord Tibalt",
+            "uid": 25,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Lucia Bruchelle",
+            "uid": 26,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Mira Thornwick",
+            "uid": 27,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Natalia Nightriver",
+            "uid": 28,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Nendira Draxford",
+            "uid": 29,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Nicolai Nevarron",
+            "uid": 30,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Reiner Dalmead",
+            "uid": 31,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Rhea Allstadt",
+            "uid": 32,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Ronan the Knight",
+            "uid": 33,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Sheridan Family",
+            "uid": 34,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Shiya Mordred",
+            "uid": 35,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Succession Crisis",
+            "uid": 36,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Suzusa Calenor",
+            "uid": 37,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Tahlia Winstonehl",
+            "uid": 38,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Tatoshi Calenor",
+            "uid": 39,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "The 8 Great Houses of the Darran Kingdom",
+            "uid": 40,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "The Bertoanal Family",
+            "uid": 41,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "The Bruchelle's",
+            "uid": 42,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "The Calenor's",
+            "uid": 43,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "The Draxford's",
+            "uid": 44,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "The Elthorien's",
+            "uid": 45,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "The Nightriver's",
+            "uid": 46,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "The Silent Whisperers",
+            "uid": 47,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "The Thornwicks",
+            "uid": 48,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "The Valtara's",
+            "uid": 49,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "The Winstonehl's",
+            "uid": 50,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "The Witch King",
+            "uid": 51,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Thornwick Mansion",
+            "uid": 52,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Tlaloc Valencius",
+            "uid": 53,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Trial by Combat",
+            "uid": 54,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Vellere Elthorien",
+            "uid": 55,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "War with the Zegallan Empire",
+            "uid": 56,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion - Aegis City Noble Life",
+            "comment": "Welden Nightriver",
+            "uid": 57,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: House Nightriver"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "CP guild-hall - Scene",
+            "uid": 8,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "Cast - The Party",
+            "uid": 0,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "CP road-to-wendhope - Scene",
+            "uid": 9,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "CP at-the-walls - Scene",
+            "uid": 10,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "Wendhope - Defenders",
+            "uid": 1,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "CP first-night - Scene",
+            "uid": 11,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "Wendhope - The Screechers",
+            "uid": 2,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "CP what-wendhope-knows - Scene",
+            "uid": 12,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "Wendhope - Clues",
+            "uid": 3,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "CP into-needlehaven - Scene",
+            "uid": 13,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "Wendhope - The Truth",
+            "uid": 4,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "CP the-lord-spirit - Scene",
+            "uid": 14,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "CP after-the-fog - Scene",
+            "uid": 15,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "CP driftmere - Scene",
+            "uid": 16,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "Driftmere - The Town",
+            "uid": 5,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "CP the-first-descent - Scene",
+            "uid": 17,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "Driftmere Mines - The Dungeon",
+            "uid": 6,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "CP the-changed-deep - Scene",
+            "uid": 18,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "CP the-sealed-wall - Scene",
+            "uid": 19,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "Driftmere - The Truth",
+            "uid": 7,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "CP the-devourer - Scene",
+            "uid": 20,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "Adolion Adventurer Checkpoints",
+            "comment": "CP what-filwern-left - Scene",
+            "uid": 21,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "Adolion: The Adventurer's Road"
+            ]
+          },
+          {
+            "lorebook": "SO-T13 Xentar",
+            "comment": "CP2 - Mission",
+            "uid": 17,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "SO-T13 A"
+            ]
+          },
+          {
+            "lorebook": "SO-T13 Xentar",
+            "comment": "CP2 - Scenario",
+            "uid": 10,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "SO-T13 A"
+            ]
+          },
+          {
+            "lorebook": "SO-T13 Xentar",
+            "comment": "CP3 - Luke",
+            "uid": 11,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "SO-T13 A"
+            ]
+          },
+          {
+            "lorebook": "SO-T13 Xentar",
+            "comment": "CP4 - Scenario",
+            "uid": 19,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "SO-T13 A"
+            ]
+          },
+          {
+            "lorebook": "SO-T13 Xentar",
+            "comment": "CP4 - Sphinx",
+            "uid": 18,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "SO-T13 A"
+            ]
+          },
+          {
+            "lorebook": "SO-T13 Xentar",
+            "comment": "CP4 - Sphinx's Riddle",
+            "uid": 20,
+            "on": false,
+            "fileDisabled": true,
+            "effectiveDisabled": true,
+            "gatedBy": [
+              "SO-T13 A"
+            ]
+          },
+          {
+            "lorebook": "SO-T13 Xentar",
+            "comment": "CP1 - Mission",
+            "uid": 9,
+            "on": true,
+            "fileDisabled": true,
+            "effectiveDisabled": false,
+            "gatedBy": [
+              "SO-T13 A"
+            ]
+          },
+          {
+            "lorebook": "SO-T13 Xentar",
+            "comment": "CP1 - Scenario",
+            "uid": 5,
+            "on": true,
+            "fileDisabled": true,
+            "effectiveDisabled": false,
+            "gatedBy": [
+              "SO-T13 A"
+            ]
+          }
+        ]
+      },
+      "wiGating": {
+        "mode": "scan",
+        "active": true,
+        "capability": {
+          "state": "present",
+          "detail": "the handler ran on a probe scan"
+        },
+        "ledger": {
+          "books": 4,
+          "entries": 101
+        },
+        "drift": [],
+        "missingKey": [],
+        "missing": [],
+        "unreadable": [],
+        "busy": false
+      },
+      "samplerOverlay": null,
+      "stagecraftScope": [],
+      "pendingDeltas": [],
+      "convergence": [
+        {
+          "anchorId": "cp1",
+          "anchorName": "Investigate the Job Board",
+          "progress": 0,
+          "threshold": 1,
+          "reached": false,
+          "visited": true
+        },
+        {
+          "anchorId": "cp2",
+          "anchorName": "Accept the Mission",
+          "progress": 0,
+          "threshold": 1,
+          "reached": false,
+          "visited": false
+        },
+        {
+          "anchorId": "cp3",
+          "anchorName": "Departure Preparations",
+          "progress": 0,
+          "threshold": 1,
+          "reached": false,
+          "visited": false
+        },
+        {
+          "anchorId": "cp-5",
+          "anchorName": "Find the Artifact",
+          "progress": 0,
+          "threshold": 1,
+          "reached": false,
+          "visited": false
+        },
+        {
+          "anchorId": "cp-6",
+          "anchorName": "Return to the Guild",
+          "progress": 0,
+          "threshold": 1,
+          "reached": false,
+          "visited": false
+        }
+      ],
+      "tension": {
+        "level": null,
+        "smoothed": null,
+        "expected": 0,
+        "hint": null
+      },
+      "agency": {
+        "protect_player_choice": true,
+        "never_narrate_player_action": true,
+        "objective_kind": "world_pressure",
+        "player_attempts_only": false
+      },
+      "agencyRecovery": null,
+      "pipeline": {
+        "state": "stalled-rechecking",
+        "text": "The memory model is not answering — the story will catch up when it does.",
+        "detail": "the memory model did not answer a probe within 31812 ms",
+        "needsSetup": false,
+        "nextAction": "retry",
+        "retryable": true
+      },
+      "extractionHealth": {
+        "kind": "transport",
+        "detail": "the memory model did not answer a probe within 31812 ms",
+        "since": 1790400823497,
+        "nextProbeAt": 1790400875319,
+        "probing": true
+      },
+      "narrative": {
+        "title": "SO-T13 A",
+        "sections": [
+          {
+            "id": "now",
+            "label": "Where you are",
+            "lines": [
+              "Investigate the Job Board",
+              "Get close to the guild's job board to see available missions."
+            ]
+          },
+          {
+            "id": "status",
+            "label": "Status",
+            "lines": [
+              "The memory model is not answering — the story will catch up when it does."
+            ]
+          }
+        ],
+        "text": "Where you are\n  Investigate the Job Board\n  Get close to the guild's job board to see available missions.\n\nStatus\n  The memory model is not answering — the story will catch up when it does."
+      },
+      "lastRollback": null,
+      "rollbackUnavailable": null,
+      "ledger": [],
+      "memoryInjection": {
+        "fates": {},
+        "trim": {
+          "facts": {
+            "candidates": 0,
+            "injected": 0,
+            "dropped": 0,
+            "tokensUsed": 0,
+            "budget": 800,
+            "hostCounted": 0,
+            "filtered": 0,
+            "highWater": 60
+          },
+          "session_details": {
+            "candidates": 0,
+            "injected": 0,
+            "dropped": 0,
+            "tokensUsed": 0,
+            "budget": 600,
+            "hostCounted": 0,
+            "filtered": 0,
+            "highWater": 37
+          },
+          "short_term": {
+            "candidates": 0,
+            "injected": 0,
+            "dropped": 0,
+            "tokensUsed": 0,
+            "budget": 300,
+            "hostCounted": 0,
+            "filtered": 0,
+            "highWater": 0
+          },
+          "scene_history": {
+            "candidates": 0,
+            "injected": 0,
+            "dropped": 0,
+            "tokensUsed": 0,
+            "budget": 500,
+            "hostCounted": 0,
+            "filtered": 0,
+            "highWater": 0
+          }
+        }
+      },
+      "driver": {
+        "title": "SO-T13 A",
+        "activeCheckpointId": "cp1",
+        "activeObjective": "Get close to the guild's job board to see available missions.",
+        "ownNote": false,
+        "objectiveLine": true,
+        "unmetGates": [
+          "approached_board == true → cp2"
+        ],
+        "upcomingAnchors": [
+          {
+            "id": "cp1",
+            "name": "Investigate the Job Board",
+            "progress": 0,
+            "threshold": 1
+          },
+          {
+            "id": "cp2",
+            "name": "Accept the Mission",
+            "progress": 0,
+            "threshold": 1
+          },
+          {
+            "id": "cp3",
+            "name": "Departure Preparations",
+            "progress": 0,
+            "threshold": 1
+          },
+          {
+            "id": "cp-5",
+            "name": "Find the Artifact",
+            "progress": 0,
+            "threshold": 1
+          },
+          {
+            "id": "cp-6",
+            "name": "Return to the Guild",
+            "progress": 0,
+            "threshold": 1
+          }
+        ],
+        "blackboard": {},
+        "canon": "Anchor cp1: Get close to the guild's job board to see available missions.",
+        "recentChat": "\"They're talking 'bout the barriers,\" *Ponticius remarks from his post behind the counter, his eyes never leaving the room's occupants.* \"A couple of the wards are flickering. One of the scouts reported the west side's gone thin as old parchment.\"\n*He doesn't make it a sound; his voice just carries over the din, cutting through the noise like a knife. The room goes quiet, and the few adventurers closest to the counter shift their weight, their eyes moving toward the Guild Master.*\n\"Which means those beasts outside are starting to notice. They're getting bolder. Some of the smaller settlements on the fringes have been hit, people are having to pull back and consolidate.\"\n*His words are flat, devoid of any dramatification. He just states the facts as they come, and the adventurers-all grown men and women hardened by their own struggles for survival-absorb the information with a heavy silence.*\n\"The board's still got some work for you, though. There's still a few that'll keep the food on the table, and some that'll get us closer to figuring out something about this mess.\"\n*He gives a small shrug, his expression unreadable as he doesn't linger on the topic, turning his attention back to the Guildhall's business.*\n\"And you've all seen the board, I've got got quests for those brave enough enough to take them, so get on with it.\""
+      },
+      "activeNudge": null,
+      "payloadCaptures": [
+        {
+          "at": "2026-09-26T05:29:44.809Z",
+          "boundary": 1,
+          "reason": "generation",
+          "blocks": [
+            {
+              "key": "story_orchestrator_guidance",
+              "depth": 4,
+              "role": 0,
+              "value": "Scene direction: A relaxed guild-hall opening. Let the player wander toward the job board at their own pace.\nObjective: Get close to the guild's job board to see available missions. This objective is world pressure: the world presses, answers and escalates on its own, without requiring the player to comply."
+            }
+          ]
+        },
+        {
+          "at": "2026-09-26T05:28:59.367Z",
+          "boundary": 0,
+          "reason": "generation",
+          "blocks": [
+            {
+              "key": "story_orchestrator_guidance",
+              "depth": 4,
+              "role": 0,
+              "value": "Scene direction: A relaxed guild-hall opening. Let the player wander toward the job board at their own pace.\nObjective: Get close to the guild's job board to see available missions. This objective is world pressure: the world presses, answers and escalates on its own, without requiring the player to comply."
+            }
+          ]
+        }
+      ],
+      "nextTurn": [
+        {
+          "key": "story_orchestrator_guidance",
+          "label": "Checkpoint guidance",
+          "owner": "runtime/coordinators/pacingCoordinator",
+          "ownerTab": "config",
+          "depth": 4,
+          "role": 0,
+          "characters": 308,
+          "tokens": 65,
+          "tokenSource": "host",
+          "share": 0.0006652747072791288,
+          "position": 1,
+          "conditional": false,
+          "target": null,
+          "oneShot": false,
+          "freshness": "live",
+          "fallback": null,
+          "preview": "Scene direction: A relaxed guild-hall opening. Let the player wander toward the job board at their own pace. Objective: Get close to the guild's job board to see available missions. This objective is world pressure: the world presses, answ…"
+        }
+      ],
+      "chatJump": {
+        "chatLength": 6,
+        "known": {
+          "from": 0,
+          "to": 5
+        },
+        "changed": []
+      },
+      "nextTurnForeign": [
+        {
+          "key": "2_floating_prompt",
+          "label": "2_floating_prompt",
+          "position": 1,
+          "positionLabel": "in chat",
+          "depth": 4,
+          "role": 0,
+          "conditional": false,
+          "tokens": 11,
+          "tokenSource": "host",
+          "share": 0.00011258495046262179,
+          "firstLine": "[Narrate succinctly. Gate solutions. Encourage exploration.]"
+        }
+      ],
+      "nextTurnCost": {
+        "ownTokens": 65,
+        "foreignTokens": 11,
+        "counting": 0,
+        "estimated": false,
+        "budget": 97704,
+        "context": 98304,
+        "response": 600,
+        "budgetUnknown": null,
+        "share": 0.0006652747072791288,
+        "lastGenerationBudget": 97704
+      },
+      "roleRoutes": [
+        {
+          "role": "read",
+          "label": "Story reads",
+          "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "state": "fallback",
+          "detail": "Same as memory model"
+        },
+        {
+          "role": "synthesis",
+          "label": "Summaries and canon",
+          "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "state": "fallback",
+          "detail": "Same as memory model"
+        },
+        {
+          "role": "authoring",
+          "label": "Wizard and road ahead",
+          "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "state": "fallback",
+          "detail": "Same as memory model"
+        },
+        {
+          "role": "director",
+          "label": "Speaker direction",
+          "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "state": "fallback",
+          "detail": "Same as memory model"
+        },
+        {
+          "role": "curator",
+          "label": "World Info curator",
+          "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "state": "fallback",
+          "detail": "Same as memory model"
+        }
+      ]
+    },
+    "activeNudge": null,
+    "possibleTransitions": [
+      "→ Accept the Mission when approached_board == true"
+    ],
+    "lastStoryUpdate": null,
+    "copilotNudgePrompt": null,
+    "pacingPrompt": null,
+    "memoryPrompts": {
+      "facts": null,
+      "session_details": null,
+      "short_term": null,
+      "scene_history": null
+    },
+    "payloadEntries": [
+      {
+        "source": "current",
+        "member": null,
+        "capturedAt": null,
+        "blocks": [
+          {
+            "key": "story_orchestrator_guidance",
+            "value": "Scene direction: A relaxed guild-hall opening. Let the player wander toward the job board at their own pace.\nObjective: Get close to the guild's job board to see available missions. This objective is world pressure: the world presses, answers and escalates on its own, without requiring the player to comply."
+          }
+        ],
+        "body": null
+      },
+      {
+        "source": "capture",
+        "member": null,
+        "capturedAt": "2026-09-26T05:29:44.809Z",
+        "blocks": [
+          {
+            "key": "story_orchestrator_guidance",
+            "value": "Scene direction: A relaxed guild-hall opening. Let the player wander toward the job board at their own pace.\nObjective: Get close to the guild's job board to see available missions. This objective is world pressure: the world presses, answers and escalates on its own, without requiring the player to comply."
+          }
+        ],
+        "body": null
+      },
+      {
+        "source": "capture",
+        "member": null,
+        "capturedAt": "2026-09-26T05:28:59.367Z",
+        "blocks": [
+          {
+            "key": "story_orchestrator_guidance",
+            "value": "Scene direction: A relaxed guild-hall opening. Let the player wander toward the job board at their own pace.\nObjective: Get close to the guild's job board to see available missions. This objective is world pressure: the world presses, answers and escalates on its own, without requiring the player to comply."
+          }
+        ],
+        "body": null
+      }
+    ],
+    "background": {
+      "name": "landscape postapoc.jpg",
+      "locked": false
+    },
+    "_note": "State is from chatMetadata.story_orchestrator for the current chat."
+  }
+}

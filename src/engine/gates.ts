@@ -14,7 +14,9 @@ const compareLeaf = (leaf: GateLeaf, current: PrimitiveValue | undefined): boole
   return false;
 };
 
-export const evaluateGate = (gate: GateNode, blackboard: Blackboard): boolean => {
+export type GateReader = Pick<Blackboard, "get">;
+
+export const evaluateGate = (gate: GateNode, blackboard: GateReader): boolean => {
   if ("q" in gate) return compareLeaf(gate, blackboard.get(gate.q));
   if ("all" in gate) return gate.all.every((entry) => evaluateGate(entry, blackboard));
   if ("any" in gate) return gate.any.some((entry) => evaluateGate(entry, blackboard));

@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { readFile, rm, mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { followSessionJournal } from './so-journal.mts';
+import { followSessionJournal, renderMarkdown } from './so-journal.mts';
 
 // The page closure runs against `SillyTavern.getContext()` and `globalThis.storyOrchestratorRuntime`.
 // A fake page just calls it in this process, so the globals below are the whole ST surface it uses.
@@ -247,4 +247,17 @@ test('two accepted deltas for the same quality in one read are both recorded', a
   const deltas = (await runTail([() => {}])).filter((line) => line.kind === 'delta');
   assert.equal(deltas.length, 2, 'distinct evidence for the same delta must not be collapsed');
   assert.notEqual(deltas[0].detail.evidence, deltas[1].detail.evidence);
+});
+
+test('v2.5 plan 07 A5: the markdown export names the route of a judge call and a dash where none was recorded', () => {
+  const md = renderMarkdown({
+    chatId: 'c1', storyTitle: 'S', activeCheckpoint: null, boundary: 2,
+    events: [
+      { at: '2026-09-26T00:00:01Z', kind: 'judge', boundary: 1, messageId: 3, summary: 'judge scene in 250 ms', detail: { route: 'judge:typesafe:jev-1.13.0' } },
+      { at: '2026-09-26T00:00:02Z', kind: 'extraction', boundary: 1, messageId: 4, summary: 'read' },
+    ],
+  });
+  assert.match(md, /\| # \| at \| kind \| boundary \| msg \| route \| summary \|/);
+  assert.match(md, /\| judge \| 1 \| 3 \| judge:typesafe:jev-1\.13\.0 \| judge scene in 250 ms \|/);
+  assert.match(md, /\| extraction \| 1 \| 4 \| — \| read \|/);
 });

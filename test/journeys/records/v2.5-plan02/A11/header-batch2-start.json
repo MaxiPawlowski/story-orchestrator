@@ -1,0 +1,207 @@
+{
+  "label": "v25-p02-A11-b2-start",
+  "capturedAt": "2026-09-26T07:11:32.345Z",
+  "build": {
+    "head": "06ea92df640b366d7e2b849f08da20e3a1522fc3",
+    "dirty": true,
+    "manifest": {
+      "version": "2.4.0",
+      "commit": null,
+      "sourceSha256": "3588f5f42d269269e462b3e091a4830edf0f912fe9250c9e0eedd98275cbaa78",
+      "sourceFiles": 333,
+      "bundleSha256": "0f4332fac07586877ce17b111c03270a2a1960539f8a936c3cb2cecf41938f9f",
+      "bundleBytes": 1846783,
+      "hostVersion": "1.19.0",
+      "builtAt": "2026-09-26T04:58:40.040Z",
+      "fileSha256": "7ad7ff3d101e08c4"
+    }
+  },
+  "warnings": [],
+  "settings": {
+    "schema": 1
+  },
+  "bundle": {
+    "served": {
+      "http": 200,
+      "sha256": "0f4332fac07586877ce17b111c03270a2a1960539f8a936c3cb2cecf41938f9f",
+      "bytes": 1846783
+    }
+  },
+  "host": {
+    "stVersion": "1.19.0 (7c3994196)",
+    "mainApi": "textgenerationwebui",
+    "onlineStatus": "/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "macroEngine": "experimental"
+  },
+  "profiles": {
+    "selected": "Artemis RunPod RP [llamacpp]",
+    "extraction": "Story Orchestrator Memory RunPod [llamacpp]",
+    "urls": [
+      "Artemis RunPod RP [llamacpp] -> http://127.0.0.1:18080",
+      "Artemis RunPod [llamacpp] -> http://127.0.0.1:18080",
+      "Image Director [llamacpp] -> http://127.0.0.1:18080",
+      "Story Orchestrator Memory Local [generic] -> http://127.0.0.1:1235",
+      "Story Orchestrator Memory RunPod [llamacpp] -> http://127.0.0.1:18080"
+    ]
+  },
+  "judge": {
+    "pluginHttp": null,
+    "pluginConfigured": null,
+    "enabled": false,
+    "model": "jev-1.13.0",
+    "timeoutMs": 1500,
+    "uses": {
+      "director": false,
+      "memoryVerify": false,
+      "memoryPairs": false,
+      "sceneTrigger": false,
+      "sceneTracker": false,
+      "lookahead": false,
+      "loreSelect": false,
+      "curatorFilter": false,
+      "typedExtraction": false,
+      "stallCheck": false,
+      "expansionCritic": false,
+      "expansionLookahead": false,
+      "agencyCheck": false,
+      "houseRules": false
+    },
+    "expansion": {
+      "variants": 1,
+      "temperature": 0.7,
+      "pick": "code"
+    }
+  },
+  "stagecraft": {
+    "curatorEnabled": true,
+    "acceptMode": "review",
+    "wardenEnabled": false,
+    "wardenAcceptMode": "review"
+  },
+  "extraction": {
+    "enabled": true,
+    "cadence": 3,
+    "stabilityLag": 0,
+    "reconciliationMultiplier": 1.5,
+    "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+    "profiles": {}
+  },
+  "display": {
+    "announceTransitions": true,
+    "hudEnabled": true,
+    "talkEnabled": true
+  },
+  "chat": {
+    "groupId": "1759606632088",
+    "chatId": "2026-09-20@07h06m38s396ms",
+    "chatLength": 0,
+    "authorView": false
+  },
+  "story": {
+    "id": null,
+    "title": null,
+    "playedVersion": null,
+    "contentHash": null,
+    "activeCheckpointId": null,
+    "boundary": null
+  },
+  "group": {
+    "name": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin.png",
+      "DM Narrator.png",
+      "Luke.png",
+      "Ponticius.png"
+    ],
+    "disabledMembers": []
+  },
+  "inventory": {
+    "v2Stories": [
+      "adolion-academy@11",
+      "adolion-adventurer@9",
+      "live-v24-01-t10@1",
+      "so-j9-fixme@1",
+      "so-j9-wizard@1",
+      "sun-ruins@2",
+      "v24-01-delete-decode-2@1"
+    ],
+    "wizardSessions": [
+      "0",
+      "1"
+    ],
+    "debugGlobals": [],
+    "lorebooksSelected": [
+      "Adolion - Aegis City Noble Life",
+      "Adolion Academy Checkpoints",
+      "Adolion Adventurer Checkpoints",
+      "Adolion Chronicle",
+      "Adolion World"
+    ],
+    "lorebookCount": 21,
+    "characterCount": 25
+  },
+  "sampler": {
+    "api": "textgenerationwebui",
+    "preset": "Artemis v1.1 RP",
+    "temp": 1,
+    "top_p": 1
+  },
+  "thirdParty": {
+    "disabledExtensions": [
+      "attachments",
+      "caption",
+      "expressions",
+      "gallery",
+      "third-party/Extension-Idle",
+      "third-party/Extension-Live2d",
+      "third-party/Extension-Mermaid",
+      "third-party/Extension-Objective",
+      "third-party/Extension-ReactTemplate",
+      "third-party/Extension-TopInfoBar",
+      "third-party/Prome-VN-Extension",
+      "third-party/SillyTavern-BotBrowser",
+      "third-party/SillyTavern-Chub-Search",
+      "third-party/SillyTavern-Lore-Variables",
+      "third-party/SillyTavern-MemoryBooks",
+      "third-party/SillyTavern-MoonlitEchoesTheme",
+      "third-party/SillyTavern-Presence",
+      "third-party/SillyTavern-Timelines",
+      "third-party/SillyTavern-Tracker",
+      "third-party/qvink_memory",
+      "third-party/sillytavern-actions",
+      "third-party/st-extension-example",
+      "third-party/st-group-utils",
+      "translate",
+      "tts"
+    ],
+    "installed": [
+      "third-party/Extension-Idle",
+      "third-party/Extension-Mermaid",
+      "third-party/Extension-Objective",
+      "third-party/Extension-PromptInspector",
+      "third-party/Extension-ReactTemplate",
+      "third-party/Extension-TopInfoBar",
+      "third-party/Prome-VN-Extension",
+      "third-party/SillyTavern-BotBrowser",
+      "third-party/SillyTavern-Chub-Search",
+      "third-party/SillyTavern-Lore-Variables",
+      "third-party/SillyTavern-MemoryBooks",
+      "third-party/SillyTavern-MoonlitEchoesTheme",
+      "third-party/SillyTavern-Presence",
+      "third-party/SillyTavern-Tracker",
+      "third-party/qvink_memory",
+      "third-party/sillytavern-actions",
+      "third-party/st-group-utils",
+      "third-party/st-image-director",
+      "third-party/st-stepped-thinking",
+      "third-party/story-orchestrator"
+    ],
+    "watched": {
+      "st-stepped-thinking": {
+        "is_enabled": false,
+        "mode": "embedded",
+        "is_shutdown": false
+      }
+    }
+  }
+}

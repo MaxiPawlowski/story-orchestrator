@@ -94,6 +94,17 @@ describe("buildSessionJournal", () => {
     expect(events[0]).toMatchObject({ kind: "judge", messageId: 9, detail: { model: "jev-1.13.0", questions: 6, p: { who: "Arin", whoConfidence: 0.9 } } });
   });
 
+  it("v2.5 plan 07 A5: a judge event names the route that answered, and none when no model did", () => {
+    const events = buildSessionJournal({
+      records: [], boundaryLog: [], audits: [], reconciliationEvents: [], payloadCaptures: [], talkDecisions: [],
+      judgeCalls: [
+        { at: at(1), boundary: 1, messageId: 9, use: "scene", model: "jev-1.13.0", latencyMs: 255, stateChars: 900, questionCount: 6 },
+        { at: at(2), boundary: 2, messageId: 11, use: "scene", model: null, latencyMs: 0, stateChars: 0, questionCount: 0, fallback: "unavailable" },
+      ],
+    });
+    expect(events.map((event) => event.detail?.route)).toEqual(["judge:typesafe:jev-1.13.0", null]);
+  });
+
   it("carries the flag note", () => {
     expect(journal.find((event) => event.kind === "flag")?.detail?.note).toBe("felt railroaded");
   });

@@ -1,0 +1,27 @@
+{
+  "ok": true,
+  "value": {
+    "removed": [],
+    "books": {
+      "restored": 3,
+      "identical": {
+        "Adolion Academy Checkpoints": true,
+        "Adolion - Aegis City Noble Life": true,
+        "Adolion Adventurer Checkpoints": true
+      }
+    },
+    "wi": {
+      "gatingMode": "file",
+      "normalized": {},
+      "normalizedFrom": {}
+    },
+    "lib": [
+      "adolion-academy",
+      "adolion-adventurer",
+      "so-j9-wizard",
+      "so-j9-fixme"
+    ],
+    "sessionBooks": false,
+    "chat": "2026-09-20@07h06m38s396ms"
+  }
+}

@@ -31,6 +31,7 @@ import { startLoreEvidence } from "./worldInfoEvidenceHost";
 import { startSamplerOverlay } from "./samplerOverlayHost";
 import { startScanGating } from "./worldInfoScanHost";
 import { promptCost } from "./promptCost";
+import { attachPromptBuckets } from "./promptBucketsHost";
 import { roleHealth } from "./roleHealth";
 
 let started = false;
@@ -277,6 +278,7 @@ export function startRuntime() {
   const generation = new GenerationLifecycle(isTurnMessageType);
   runtimeDisposers.push(generationWatch.attach(() => generation.snapshot().openedCount));
   runtimeDisposers.push(roleHealth.attach({ settings: () => runtimeManager.getExtractionSettings(), exists: profileExists, health: (id) => scheduler?.profileHealth(id) ?? null, notify: () => runtimeManager.notify() }));
+  runtimeDisposers.push(attachPromptBuckets(() => runtimeManager.notify()));
   runtimeDisposers.push(promptCost.attach({ count: countTokens, budget: readPromptBudget, notify: () => runtimeManager.notify(), busy: () => generation.snapshot().outermost !== null }));
   runtimeDisposers.push(runtimeManager.subscribe(() => {
     const blocks = readExtensionPromptBlocks();

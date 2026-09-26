@@ -1,4 +1,4 @@
-import { createQualityMacroSync, QUALITY_MACRO_PREFIX, qualityMacroPlan, renderQualityValue } from "./qualityMacros";
+import { createQualityMacroSync, QUALITY_MACRO_PREFIX, qualityMacroPlan, renderQualityArg, renderQualityValue } from "./qualityMacros";
 
 const story = (keys: string[]) => ({ qualities: keys.map((key) => ({ key })) });
 
@@ -55,5 +55,30 @@ describe("per-quality macros {{story_quality_<key>}} (v2.4 plan 08 R15)", () => 
     sync(story(["ok_key", "Not-Ok"]));
     sync(story(["ok_key", "Not-Ok"]));
     expect(journal).toEqual([["quality macro skipped", "{{story_quality_Not-Ok}} is not registered: a macro key must be lowercase letters, digits and _"]]);
+  });
+});
+
+describe("{{story_quality::<key>}} (v2.5 plan 07 A2)", () => {
+  const declared = { qualities: [{ key: "gold" }, { key: "place" }, { key: "has_key" }] };
+
+  it("reads the blackboard value of a declared quality, and (unset) when it holds none", () => {
+    expect(renderQualityArg(declared, { gold: 3, place: "gate" }, "gold")).toBe("3");
+    expect(renderQualityArg(declared, { gold: 3, place: "gate" }, "place")).toBe("gate");
+    expect(renderQualityArg(declared, { gold: 3 }, "has_key")).toBe("(unset)");
+  });
+
+  it("names a key the story does not declare instead of reading (unset)", () => {
+    expect(renderQualityArg(declared, { stray: 1 }, "stray")).toBe("(no quality \"stray\")");
+    expect(renderQualityArg(null, {}, "gold")).toBe("(no quality \"gold\")");
+  });
+
+  it("trims the argument the way an author types it", () => {
+    expect(renderQualityArg(declared, { gold: 3 }, " gold ")).toBe("3");
+  });
+
+  it("never mutates the blackboard it reads", () => {
+    const values = Object.freeze({ gold: 3 }) as Record<string, unknown>;
+    expect(() => renderQualityArg(declared, values, "gold")).not.toThrow();
+    expect(values).toEqual({ gold: 3 });
   });
 });
