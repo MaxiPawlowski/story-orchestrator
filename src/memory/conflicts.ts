@@ -59,8 +59,6 @@ export function sceneConflictValues(record: { messageId: number; provenance?: Pr
   });
 }
 
-export const memoryConflictKey = (entry: MemoryEntry) => `memory:${entry.id}`;
-export const ledgerConflictKey = (entry: LedgerEntry) => `ledger:${ledgerKey(entry.entity, entry.field)}`;
 export const sceneConflictKey = (field: string) => `scene:${field.trim().toLowerCase()}`;
 
 export const sceneFieldsInConflict = (conflicts: ReadonlyArray<{ sides: ReadonlyArray<{ store: string; id: string }> }> | undefined): Set<string> =>

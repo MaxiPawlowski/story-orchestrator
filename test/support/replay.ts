@@ -1,8 +1,8 @@
-import { expectedTension, levelToNumeric, updateEma } from "@pacing/index";
-import type { ApplyQueueEntry } from "./applyQueue";
-import { StoryEngine } from "./engine";
-import { TENSION_CURRENT_KEY, type ArcTemplate, type TensionLevel } from "./schema";
-import { parseStoryV2OrThrow } from "./validate";
+import { expectedTension, levelToNumeric, updateEma } from "../../src/pacing/index";
+import type { ApplyQueueEntry } from "../../src/engine/applyQueue";
+import { StoryEngine } from "../../src/engine/engine";
+import { TENSION_CURRENT_KEY, type ArcTemplate, type TensionLevel } from "../../src/engine/schema";
+import { parseStoryV2OrThrow } from "../../src/engine/validate";
 
 export type ReplayStep =
   | { type: "write"; entry: ApplyQueueEntry }

@@ -47,4 +47,3 @@ export function memoryActions(deps: MemoryActionDeps) {
   };
 }
 
-export type MemoryActions = ReturnType<typeof memoryActions>;

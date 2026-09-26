@@ -17,8 +17,6 @@ export interface LoreCalibrationFixture {
   rows: LoreCalibrationCase[];
 }
 
-export const LORE_CALIBRATION_FLOORS = { recall: 0.8, precision: 0.7 } as const;
-
 // Pools keep one copy of each book in the fixture; a case carries only its pool's name.
 export const resolveLoreCases = (fixture: LoreCalibrationFixture): LoreCalibrationCase[] =>
   fixture.rows.map((row) => ({ ...row, candidates: row.candidates ?? fixture.pools[row.pool] ?? [] }));

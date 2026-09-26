@@ -165,20 +165,8 @@
     "src/wizard/provisioning.ts": 3
   },
   "s6": [],
-  "s7": [
-    [
-      "src/engine/index.ts",
-      "src/engine/replay.ts",
-      "src/pacing/guidance.ts",
-      "src/pacing/index.ts",
-      "src/pacing/shapes.ts",
-      "src/pacing/steering.ts",
-      "src/pacing/tension.ts"
-    ]
-  ],
-  "q3t": [
-    "src/engine/replay.ts"
-  ],
+  "s7": [],
+  "q3t": [],
   "s8": {
     "helpers": [
       "src/copilot/parse.ts#isRecord",
@@ -244,39 +232,7 @@
         "src/memory/ledger.ts#rollbackLedger>callback"
       ]
     ],
-    "dead": [
-      "src/constants/defaults.ts#DEFAULT_INTERVAL_TURNS",
-      "src/extraction/types.ts#StoryForExtraction",
-      "src/extraction/types.ts#ValueParser",
-      "src/generation/types.ts#ExpansionStoryState",
-      "src/judge/expansionCalibration.ts#CHAIN_SHAPE_LEVEL_COUNT",
-      "src/judge/loreCalibration.ts#LORE_CALIBRATION_FLOORS",
-      "src/judge/loreScore.ts#LORE_SCORE_LEVELS",
-      "src/judge/questions.ts#stateRef",
-      "src/judge/questions.ts#withNoMatch",
-      "src/judge/sceneCalibration.ts#sceneFamilyOf",
-      "src/memory/conflicts.ts#ledgerConflictKey",
-      "src/memory/conflicts.ts#memoryConflictKey",
-      "src/memory/inject.ts#clearLedgerInjection",
-      "src/memory/ledger.ts#ledgerVersions",
-      "src/memory/provenance.ts#PROVENANCE_SOURCE_LIST",
-      "src/memory/provenance.ts#PROVENANCE_VALIDITY_LIST",
-      "src/memory/similarity.ts#cosineSimilarity",
-      "src/memory/types.ts#FactEntryType",
-      "src/memory/types.ts#SessionEntryType",
-      "src/runtime/continuity.ts#establishedFactTexts",
-      "src/runtime/memoryActions.ts#MemoryActions",
-      "src/runtime/pipeline.ts#PIPELINE_LIVE_STATES",
-      "src/studio/mutations.ts#setCheckpointTalkControl",
-      "src/talk/types.ts#TalkDecision",
-      "src/utils/dataHelpers.ts#cloneStructured",
-      "src/utils/dataHelpers.ts#isNonArrayObject",
-      "src/utils/dataHelpers.ts#trimStringRecord",
-      "src/utils/string.ts#normalizeName",
-      "src/utils/writeResult.ts#describeFailure",
-      "src/wizard/interview.ts#allDeferred",
-      "src/wizard/interview.ts#recordApplied"
-    ],
+    "dead": [],
     "duplicateBodyAllowlist": []
   },
   "t1": {
@@ -286,8 +242,7 @@
       "src/runtime/extras.ts": 1,
       "src/runtime/persistence.ts": 1,
       "src/runtime/roleSelfTest.ts": 1,
-      "src/studio/components/ProvisioningCard.tsx": 1,
-      "src/utils/fakeDocument.ts": 1
+      "src/studio/components/ProvisioningCard.tsx": 1
     },
     "nonNull": {
       "src/components/drawer/DrawerTabs.tsx": 8,

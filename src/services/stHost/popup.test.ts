@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { fakeDocument, type FakeDocument } from "@utils/fakeDocument";
+import { fakeDocument, type FakeDocument } from "../../../test/support/fakeDocument";
 
 const calls: Array<{ content: unknown }> = [];
 jest.mock("./context", () => ({

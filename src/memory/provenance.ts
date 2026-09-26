@@ -9,8 +9,6 @@ export type ProvenanceSource = typeof PROVENANCE_SOURCES[number];
 export const VALIDITIES = ["live", "superseded", "source-removed", "conflicted", "quarantined"] as const;
 export type Validity = typeof VALIDITIES[number];
 
-export const PROVENANCE_SOURCE_LIST = PROVENANCE_SOURCES;
-export const PROVENANCE_VALIDITY_LIST = VALIDITIES;
 export const PROVENANCE_STORES = ["memory", "ledger", "epistemic", "scene", "blackboard"] as const;
 export type ProvenanceStore = typeof PROVENANCE_STORES[number];
 

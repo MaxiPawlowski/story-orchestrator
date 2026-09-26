@@ -4,11 +4,7 @@ export const MEMORY_TIERS = ["facts", "session_details", "short_term", "scene_hi
 export type MemoryTier = typeof MEMORY_TIERS[number];
 
 export const FACT_ENTRY_TYPES = ["fact", "relationship", "preference", "event"] as const;
-export type FactEntryType = typeof FACT_ENTRY_TYPES[number];
-
 export const SESSION_ENTRY_TYPES = ["scene", "revelation", "development", "detail"] as const;
-export type SessionEntryType = typeof SESSION_ENTRY_TYPES[number];
-
 export const MEMORY_ENTRY_TYPES = [...FACT_ENTRY_TYPES, ...SESSION_ENTRY_TYPES] as const;
 export type MemoryEntryType = typeof MEMORY_ENTRY_TYPES[number];
 

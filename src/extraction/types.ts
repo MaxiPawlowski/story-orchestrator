@@ -1,4 +1,4 @@
-import type { BlackboardDelta, EngineState, GateNode, NormalizedStoryV2, PrimitiveValue, Quality, TensionLevel } from "@engine/index";
+import type { BlackboardDelta, EngineState, GateNode, NormalizedStoryV2, Quality, TensionLevel } from "@engine/index";
 import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine, SceneBreakSignal } from "@memory/index";
 import type { ContextLimit } from "./inputBudget";
 import type { WindowForm } from "./windowHygiene";
@@ -147,6 +147,3 @@ export interface ReconciliationEvent {
   evidence: string[];
 }
 
-export type ValueParser = (quality: Quality, raw: string) => PrimitiveValue | undefined;
-
-export type StoryForExtraction = Pick<NormalizedStoryV2, "title" | "checkpointById" | "outgoingByCheckpoint" | "reachableByCheckpoint" | "qualityByKey">;

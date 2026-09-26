@@ -34,8 +34,6 @@ export const TRANSPORT_PLAYER_TEXT = "The memory model is not answering — the 
 
 export const pipelineAction = (status: PipelineStatus): string | null => (status.nextAction ? PIPELINE_ACTION_COPY[status.nextAction] : null);
 
-export const PIPELINE_LIVE_STATES: PipelineState[] = ["working", "reading", "stalled-rechecking"];
-
 /**
  * v2.3 plan 07: a generated draft is in flight. It is the one thing the machine does that the player
  * cannot see in the chat yet, and the plan's wording for it is "preparing the road ahead" — said only

@@ -136,10 +136,6 @@ export function applyLedgerInjection(prompt: PromptSink, block: string, depth: n
   else prompt.clearStoryExtensionPrompt(LEDGER_INJECTION_KEY);
 }
 
-export function clearLedgerInjection(prompt: PromptSink) {
-  prompt.clearStoryExtensionPrompt(LEDGER_INJECTION_KEY);
-}
-
 export function clearAllMemoryInjection(prompt: PromptSink) {
   MEMORY_TIERS.forEach((tier) => prompt.clearStoryExtensionPrompt(memoryExtensionKey(tier)));
   prompt.clearStoryExtensionPrompt(EPISTEMIC_INJECTION_KEY);

@@ -81,12 +81,6 @@ export function removeLedger(entries: LedgerEntry[], id: string): LedgerEntry[] 
   return entries.filter((entry) => ledgerKey(entry.entity, entry.field) !== key);
 }
 
-/** The whole chain for one key, oldest first — what `buildLedgerView` collapses to one row. */
-export function ledgerVersions(entries: LedgerEntry[], entity: string, field: string): LedgerEntry[] {
-  const key = ledgerKey(entity, field);
-  return entries.filter((entry) => ledgerKey(entry.entity, entry.field) === key);
-}
-
 export function rollbackLedger(entries: LedgerEntry[], messageId: number): LedgerEntry[] {
   return entries.flatMap((entry): LedgerEntry[] => {
     const sourced = typeof entry.messageId === "number" && entry.messageId >= messageId;

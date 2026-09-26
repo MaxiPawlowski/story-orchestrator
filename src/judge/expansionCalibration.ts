@@ -1,4 +1,4 @@
-import { buildChainRequest, CHAIN_SHAPE_LEVELS, judgeVerdict, pickChain, readChain, type ChainInput, type ChainRead } from "./expansion";
+import { buildChainRequest, judgeVerdict, pickChain, readChain, type ChainInput, type ChainRead } from "./expansion";
 import { CRITIC_ADVANCES_MIN, CRITIC_CONTRADICTS_MAX, CRITIC_NEW_CHARACTER_MAX } from "./policy";
 import type { JudgeSelfTestReport, JudgeSelfTestRow } from "./selfTest";
 import type { JudgeRequest, JudgeResult } from "./types";
@@ -66,4 +66,3 @@ export async function runVariantCalibration(ask: (request: JudgeRequest) => Prom
   })));
 }
 
-export const CHAIN_SHAPE_LEVEL_COUNT = CHAIN_SHAPE_LEVELS.length;

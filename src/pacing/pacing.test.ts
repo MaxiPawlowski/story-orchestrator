@@ -1,5 +1,5 @@
 import * as pacingStory from "../../test/fixtures/pacing.story.json";
-import { runReplay, type ReplayStep } from "@engine/replay";
+import { runReplay, type ReplayStep } from "../../test/support/replay";
 import { expectedTension } from "./shapes";
 import { getSteeringHint, getTensionTrajectory } from "./steering";
 import { DEFAULT_AGENCY, type AgencyPolicy } from "@engine/index";

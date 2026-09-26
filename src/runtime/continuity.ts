@@ -19,8 +19,6 @@ export interface EstablishedFact {
 
 export type WardenCheck = (input: WardenInput) => Promise<WardenFinding[] | null>;
 
-const factTexts = (facts: EstablishedFact[]) => facts.map((fact) => fact.text);
-
 // v2.2 plan 05: what the warden holds a reply to. The ledger's bound rows come first (the blackboard
 // alone writes them), then live facts, pinned ones first.
 export function establishedFacts(
@@ -53,8 +51,6 @@ export function establishedFacts(
   }
   return facts;
 }
-
-export const establishedFactTexts = (facts: EstablishedFact[]) => factTexts(facts);
 
 // The warden's own switch is `stagecraft.wardenEnabled`; the judge's master switch still gates
 // every call, so nothing is sent while the judgment model is off. v2.4 plan 07: one call asks every

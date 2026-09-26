@@ -1,4 +1,6 @@
-import type { BlackboardSnapshot, GateNode, NormalizedTransition, PrimitiveValue, ScaffoldingBeat, ScaffoldingDelta, ScaffoldingOutcome, TensionLevel } from "@engine/index";
+import type {
+  GateNode, NormalizedTransition, PrimitiveValue, ScaffoldingBeat, ScaffoldingDelta, ScaffoldingOutcome, TensionLevel,
+} from "@engine/index";
 
 export type ExpansionStatus = "idle" | "queued" | "generating" | "cached" | "stale" | "needs_review" | "failed" | "validated" | "inserted";
 
@@ -111,4 +113,3 @@ export interface RevalidationResult {
   issues: string[];
 }
 
-export type ExpansionStoryState = Pick<BlackboardSnapshot, "values" | "versions">;

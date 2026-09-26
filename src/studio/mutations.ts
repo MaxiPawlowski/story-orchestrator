@@ -1,18 +1,6 @@
 import type {
-  ArcBridge,
-  ArcTemplate,
-  Checkpoint,
-  CheckpointEffects,
-  GateNode,
-  PrimitiveValue,
-  Quality,
-  RosterMember,
-  StoryRequirements,
-  StoryLoreSelect,
-  StorySceneRead,
-  StoryStagecraft,
-  TalkControl,
-  Transition,
+  ArcBridge, ArcTemplate, Checkpoint, CheckpointEffects, GateNode, PrimitiveValue, Quality, RosterMember,
+  StoryRequirements, StoryLoreSelect, StorySceneRead, StoryStagecraft, Transition,
 } from "@engine/index";
 import type { StoryDraft } from "./draft";
 
@@ -74,9 +62,6 @@ export const setCheckpointSnapshot = (draft: StoryDraft, id: string, snapshot: R
 
 export const setCheckpointEffects = (draft: StoryDraft, id: string, effects: CheckpointEffects): StoryDraft =>
   updateCheckpoint(draft, id, { effects });
-
-export const setCheckpointTalkControl = (draft: StoryDraft, id: string, talkControl: TalkControl | undefined): StoryDraft =>
-  updateCheckpoint(draft, id, { talk_control: talkControl });
 
 export const newTransition = (from: string, to: string): Transition => ({ from, to, gate: { all: [] }, priority: 0 });
 

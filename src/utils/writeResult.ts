@@ -13,6 +13,3 @@ export const wrote = <T extends object>(detail: T = {} as T): WriteResult<T> => 
 
 export const couldNot = (reason: string): WriteResult<never> => ({ ok: false, reason });
 
-export function describeFailure(result: { ok: false; reason: string } | { ok: true }): string | null {
-  return result.ok ? null : result.reason;
-}

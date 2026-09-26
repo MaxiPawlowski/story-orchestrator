@@ -1,6 +1,6 @@
 import { LORE_CHUNK, LORE_CONTENT_CHARS } from "./policy";
 import { score, scoreAnswer } from "./questions";
-import { RELEVANCE_LEVELS, type LoreRelevance } from "./loreRanking";
+import { type LoreRelevance } from "./loreRanking";
 import type { LoreEntry, LoreScene } from "./lore";
 import type { JudgeAnswer, JudgeRequest } from "./types";
 
@@ -67,4 +67,3 @@ export function readLoreScores(answers: Record<string, JudgeAnswer>, entries: Lo
   });
 }
 
-export const LORE_SCORE_LEVELS: readonly LoreRelevance[] = RELEVANCE_LEVELS;

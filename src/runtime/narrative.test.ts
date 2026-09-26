@@ -1,5 +1,5 @@
 import { buildNarrativeStatus, renderNarrativeNode, type NarrativeInput } from "./narrative";
-import { fakeDocument } from "@utils/fakeDocument";
+import { fakeDocument } from "../../test/support/fakeDocument";
 import { derivePipelineStatus } from "./pipeline";
 import type { ExtractionRuntimeState } from "./types";
 

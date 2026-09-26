@@ -1,6 +1,6 @@
 import { HEADING_P, PRESENT_P, SCENE_TRIGGER } from "./policy";
 import { buildSceneReadRequest, readScene, type SceneReadInput } from "./scene";
-import { judgeFamilyOf, judgeFamilyScores, type JudgeSelfTestReport, type JudgeSelfTestRow } from "./selfTest";
+import { judgeFamilyScores, type JudgeSelfTestReport, type JudgeSelfTestRow } from "./selfTest";
 import type { JudgeRequest, JudgeResult } from "./types";
 
 export interface SceneCalibrationCase {
@@ -23,9 +23,6 @@ const median = (values: number[]): number | null => {
   const sorted = [...values].sort((left, right) => left - right);
   return sorted[Math.floor((sorted.length - 1) / 2)];
 };
-
-// Row ids are `<case>.<family>[:<item>]`, so a report can be read per family against its Phase A floor.
-export const sceneFamilyOf = (rowId: string): SceneFamilyKey => judgeFamilyOf(rowId) as SceneFamilyKey;
 
 export async function runSceneCalibration(ask: (request: JudgeRequest) => Promise<JudgeResult>, cases: SceneCalibrationCase[]): Promise<JudgeSelfTestReport> {
   const perCase = await Promise.all(cases.map(async (entry) => {

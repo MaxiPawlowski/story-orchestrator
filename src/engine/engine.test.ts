@@ -6,7 +6,7 @@ import { Blackboard } from "./blackboard";
 import { progressQualityForAnchor } from "./convergence";
 import { StoryEngine } from "./engine";
 import { evaluateGate, renderGateText } from "./gates";
-import { runReplay } from "./replay";
+import { runReplay } from "../../test/support/replay";
 import type { GateNode } from "./schema";
 import { selectFiring } from "./transitions";
 import { parseStoryV2, parseStoryV2OrThrow } from "./validate";

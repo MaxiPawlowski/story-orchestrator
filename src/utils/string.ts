@@ -1,13 +1,3 @@
-export interface NormalizeNameOptions {
-  stripExtension?: boolean;
-}
-
-export function normalizeName(value: string | null | undefined, options?: NormalizeNameOptions): string {
-  const normalized = (value ?? "").normalize("NFKC").trim().toLowerCase();
-  if (!normalized) return "";
-  return options?.stripExtension ? normalized.replace(/\.\w+$/, "") : normalized;
-}
-
 // Encodes for ST's STRICT_ESCAPING parser mode, which `stHost/slashCommands.ts` pins on every run:
 // inside quotes only `"` is a delimiter, and backslashes collapse in pairs only right before one
 // (SlashCommandParser.js:583-624, 1235-1245). Braces are escaped so macros reach the command as

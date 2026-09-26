@@ -6,10 +6,6 @@ export const choice = (instructions: string, criteria: Record<string, JudgeOptio
 
 export const score = (instructions: string, levels: string[]): JudgeScoreQuestion => ({ type: "score", instructions, criteria: levels });
 
-export const withNoMatch = (criteria: Record<string, JudgeOption>, key: string, description: string): Record<string, JudgeOption> => ({ ...criteria, [key]: description });
-
-export const stateRef = (path: string) => `\`${path}\``;
-
 export function estimateJudgeTokens(request: JudgeRequest): number {
   const longest = Math.max(0, ...Object.values(request.questions ?? {}).map((question) => JSON.stringify(question).length));
   return Math.ceil((JSON.stringify(request.state ?? {}).length + longest) / JUDGE_CHARS_PER_TOKEN);
