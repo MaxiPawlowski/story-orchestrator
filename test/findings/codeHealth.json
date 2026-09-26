@@ -12,7 +12,6 @@
   },
   "s2": [],
   "s3": [
-    "src/engine/validate.ts",
     "src/runtime/runtimeManager.ts"
   ],
   "s4": {
@@ -31,8 +30,7 @@
       "src/studio/diagnostics.ts#runDiagnostics"
     ],
     "branches": [
-      "src/copilot/parse.ts#readOp",
-      "src/engine/validate.ts#parseStoryV2"
+      "src/copilot/parse.ts#readOp"
     ],
     "nesting": [
       "src/memory/consolidate.ts#consolidateTier",
@@ -65,7 +63,7 @@
     "src/engine/engine.ts": 1,
     "src/engine/schema.ts": 1,
     "src/engine/storyDiff.ts": 5,
-    "src/engine/validate.ts": 3,
+    "src/engine/validate/qualities.ts": 2,
     "src/extraction/contract.ts": 1,
     "src/extraction/preflight.ts": 1,
     "src/extraction/reconcile.ts": 2,
@@ -241,7 +239,9 @@
     "src/engine/qualityRead.ts": 1,
     "src/engine/schema.ts": 9,
     "src/engine/storyDiff.ts": 1,
-    "src/engine/validate.ts": 3,
+    "src/engine/validate/checkpoints.ts": 1,
+    "src/engine/validate/common.ts": 1,
+    "src/engine/validate/qualities.ts": 1,
     "src/extraction/backlogPlan.ts": 1,
     "src/extraction/breaker.ts": 1,
     "src/extraction/evidence.ts": 3,
