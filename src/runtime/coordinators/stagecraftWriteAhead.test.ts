@@ -1,15 +1,14 @@
 import { textModel } from "../../../test/support/modelCall";
 import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
-import { readWIEntryAt, restoreWIEntryAt, updateWIEntryByUid } from "@services/STAPI";
 import type { CuratorOpRecord, CuratorProposalRecord } from "@stagecraft/index";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
 import { createStagecraft } from "../extras";
 import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
 import type { ExtractionRuntimeSettings, StagecraftRuntimeState } from "../types";
 
-jest.mock("@services/STAPI", () => ({
-  settingsAreLoaded: () => true,
-  settingsReady: async () => {},
+jest.mock("@services/STAPI", () => ({ settingsAreLoaded: () => true, settingsReady: async () => {} }));
+
+const host = {
   setStoryExtensionPrompt: jest.fn(),
   clearStoryExtensionPrompt: jest.fn(),
   loadLorebook: jest.fn(),
@@ -19,7 +18,9 @@ jest.mock("@services/STAPI", () => ({
   updateWIEntryByUid: jest.fn(),
   upsertWIEntry: jest.fn(),
   getContext: () => ({ extensionSettings: {}, chat: [] }),
-}));
+};
+const { readWIEntryAt, restoreWIEntryAt, updateWIEntryByUid } = host;
+
 
 const callExtractionModel = jest.fn(async (..._args: unknown[]): Promise<string> => "NONE");
 
@@ -62,7 +63,7 @@ const harness = (record: CuratorProposalRecord) => {
   const journal: string[] = [];
   let chatId = "chat-a";
   const context = (): RunContext => ({ chatId, storyId: "write-ahead-fixture", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null });
-  const coordinator = new StagecraftCoordinator({
+  const coordinator = new StagecraftCoordinator({ hosts: { prompt: host, chat: { chatRows: () => host.getContext().chat }, player: { getPlayerName: () => "Max" }, curator: host } as never,
     getStory: () => story(),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 12, lastMessageId: 24, blackboard: { values: {}, versions: {}, latched: {} } } as unknown as EngineState),
     getStagecraft: () => state,

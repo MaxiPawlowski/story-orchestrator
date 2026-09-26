@@ -7,6 +7,7 @@ import { RunOwner } from "../runOwner";
 import { ExpansionCoordinator } from "./expansionCoordinator";
 import { MemoryCoordinator } from "./memoryCoordinator";
 import { StagecraftCoordinator } from "./stagecraftCoordinator";
+import { coordinatorHosts } from "../coordinatorHosts";
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -137,7 +138,7 @@ function curatorHarness() {
   engine.loadStory(curatorStory());
   let state = createStagecraft();
   state.settings = { ...state.settings, curatorEnabled: true, acceptMode: "review" };
-  const coordinator = new StagecraftCoordinator({
+  const coordinator = new StagecraftCoordinator({ hosts: coordinatorHosts,
     getStory: curatorStory,
     getState: () => ({ ...engine.serialize(), boundary: 10, lastMessageId: 10 }),
     getStagecraft: () => state,

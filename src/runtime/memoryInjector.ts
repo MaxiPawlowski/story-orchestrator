@@ -12,6 +12,8 @@ import { buildScoreContext } from "./scoreContext";
 import { activeSpeakerId, enabledCharacterIds, enabledCharacterNames, namesForRosterId, rosterIdForName, rosterMemberName } from "./roster";
 import type { MemoryRuntimeState } from "./types";
 
+const prompt = { setStoryExtensionPrompt, clearStoryExtensionPrompt };
+
 export interface MemoryInjectorDeps {
   getStory: () => NormalizedStoryV2 | null;
   getState: () => EngineState | null;
@@ -64,7 +66,7 @@ export class MemoryInjector {
   update() {
     const story = this.deps.getStory();
     if (!story || !this.deps.enabled()) {
-      clearAllMemoryInjection();
+      clearAllMemoryInjection(prompt);
       this.stagedPrivate.clear();
       this.lastInjection = null;
       if (this.state.pinnedOverflow) this.deps.setPinnedOverflow(0);
@@ -72,7 +74,7 @@ export class MemoryInjector {
     }
     const options = this.options();
     const speaker = activeSpeakerId(story);
-    const injection = applyMemoryInjection(this.state.entries, speaker, this.state.settings.injectionDepths, options);
+    const injection = applyMemoryInjection(prompt, this.state.entries, speaker, this.state.settings.injectionDepths, options);
     this.lastInjection = memoryInjectionView(injection, this.highWater);
     const pinnedOverflow = pinnedOverflowOf(injection.fates);
     if (pinnedOverflow !== this.state.pinnedOverflow) this.deps.setPinnedOverflow(pinnedOverflow);
@@ -80,7 +82,7 @@ export class MemoryInjector {
     const state = this.deps.getState();
     const values = state?.blackboard.values ?? {};
     const versions = state?.blackboard.versions ?? {};
-    applyLedgerInjection(renderLedgerBlock(buildLedgerView(this.state.ledger, this.deps.ledgerBindings(), values, versions)), LEDGER_INJECTION_DEPTH);
+    applyLedgerInjection(prompt, renderLedgerBlock(buildLedgerView(this.state.ledger, this.deps.ledgerBindings(), values, versions)), LEDGER_INJECTION_DEPTH);
 
     this.stagedPrivate.clear();
     if (this.deps.capable()) {
@@ -92,14 +94,14 @@ export class MemoryInjector {
       // A group has no speaker between drafts: whatever holds the prompt at rest (impersonate, quiet
       // generations, other extensions) must not carry the last drafted member's private knowledge.
       const speakerBlock = getActiveGroup() ? "" : speaker ? (this.stagedPrivate.get(speaker)?.epistemic ?? "") : renderSoloEpistemicBlock(this.state.epistemic, enabledCharacterNames(story));
-      applyEpistemicInjection(speakerBlock, EPISTEMIC_INJECTION_DEPTH);
+      applyEpistemicInjection(prompt, speakerBlock, EPISTEMIC_INJECTION_DEPTH);
     } else {
-      clearEpistemicInjection();
+      clearEpistemicInjection(prompt);
     }
   }
 
   private setPrivateBlocks(facts: string, epistemic: string) {
-    applyEpistemicInjection(epistemic, EPISTEMIC_INJECTION_DEPTH);
+    applyEpistemicInjection(prompt, epistemic, EPISTEMIC_INJECTION_DEPTH);
     const factsKey = memoryExtensionKey("facts");
     if (facts) setStoryExtensionPrompt(factsKey, facts, this.state.settings.injectionDepths.facts);
     else clearStoryExtensionPrompt(factsKey);
@@ -108,7 +110,7 @@ export class MemoryInjector {
   // Impersonate writes as the player and quiet generations serve other tools, even when ST drafted
   // a member for them: neither may read a character's private knowledge.
   withholdPrivateKnowledge() {
-    clearEpistemicInjection();
+    clearEpistemicInjection(prompt);
   }
 
   onMemberDrafted(chId: number | [number]) {

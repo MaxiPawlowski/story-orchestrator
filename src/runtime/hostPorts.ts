@@ -5,6 +5,9 @@ export type ProvisioningHost = Pick<typeof Stapi,
   "activateGlobalLorebook" | "createCharacterCard" | "createGroup" | "createLorebook" | "getAllCharacterNames" | "listAllLorebooks" |
   "listGlobalLorebooks" | "listGroupNames" | "readWIEntry" | "upsertWIEntry">;
 
+export type CuratorWiHost = Pick<typeof Stapi,
+  "readWIEntry" | "readWIEntryAt" | "restoreWIEntryAt" | "updateWIEntryByUid" | "loadLorebook">;
+
 export type PlayerHost = Pick<typeof Stapi, "getPlayerName">;
 
 export type PromptHost = Pick<typeof Stapi, "setStoryExtensionPrompt" | "clearStoryExtensionPrompt">;

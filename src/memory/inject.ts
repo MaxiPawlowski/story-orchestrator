@@ -1,11 +1,15 @@
 import { EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_KEY, MEMORY_INJECTION_KEY_PREFIX } from "@constants/defaults";
-import { clearStoryExtensionPrompt, setStoryExtensionPrompt } from "@services/STAPI";
 import { blockTokens, selectWithinBudget } from "./budget";
 import { isLive } from "./provenance";
 import { scoreEntry, type ScoreContext } from "./score";
 import { MEMORY_TIERS, type MemoryEntry, type MemoryTier } from "./types";
 
 export const INJECTION_DIVERSITY_FLOOR = 1;
+
+export interface PromptSink {
+  setStoryExtensionPrompt: (key: string, text: string, depth: number) => unknown;
+  clearStoryExtensionPrompt: (key: string) => unknown;
+}
 
 export interface InjectionOptions {
   tokenBudgets: Record<MemoryTier, number>;
@@ -106,38 +110,38 @@ export function buildMemoryInjectionBlocks(entries: MemoryEntry[], activeSpeaker
   return buildMemoryInjection(entries, activeSpeakerId, options).blocks;
 }
 
-export function applyMemoryInjection(entries: MemoryEntry[], activeSpeakerId: string | null, depths: Record<MemoryTier, number>, options: InjectionOptions): TierInjection {
+export function applyMemoryInjection(prompt: PromptSink, entries: MemoryEntry[], activeSpeakerId: string | null, depths: Record<MemoryTier, number>, options: InjectionOptions): TierInjection {
   const injection = buildMemoryInjection(entries, activeSpeakerId, options);
   const { blocks } = injection;
   MEMORY_TIERS.forEach((tier) => {
     const text = blocks[tier];
     const key = memoryExtensionKey(tier);
-    if (text) setStoryExtensionPrompt(key, text, depths[tier]);
-    else clearStoryExtensionPrompt(key);
+    if (text) prompt.setStoryExtensionPrompt(key, text, depths[tier]);
+    else prompt.clearStoryExtensionPrompt(key);
   });
   return injection;
 }
 
-export function applyEpistemicInjection(block: string, depth: number) {
-  if (block) setStoryExtensionPrompt(EPISTEMIC_INJECTION_KEY, block, depth);
-  else clearStoryExtensionPrompt(EPISTEMIC_INJECTION_KEY);
+export function applyEpistemicInjection(prompt: PromptSink, block: string, depth: number) {
+  if (block) prompt.setStoryExtensionPrompt(EPISTEMIC_INJECTION_KEY, block, depth);
+  else prompt.clearStoryExtensionPrompt(EPISTEMIC_INJECTION_KEY);
 }
 
-export function clearEpistemicInjection() {
-  clearStoryExtensionPrompt(EPISTEMIC_INJECTION_KEY);
+export function clearEpistemicInjection(prompt: PromptSink) {
+  prompt.clearStoryExtensionPrompt(EPISTEMIC_INJECTION_KEY);
 }
 
-export function applyLedgerInjection(block: string, depth: number) {
-  if (block) setStoryExtensionPrompt(LEDGER_INJECTION_KEY, block, depth);
-  else clearStoryExtensionPrompt(LEDGER_INJECTION_KEY);
+export function applyLedgerInjection(prompt: PromptSink, block: string, depth: number) {
+  if (block) prompt.setStoryExtensionPrompt(LEDGER_INJECTION_KEY, block, depth);
+  else prompt.clearStoryExtensionPrompt(LEDGER_INJECTION_KEY);
 }
 
-export function clearLedgerInjection() {
-  clearStoryExtensionPrompt(LEDGER_INJECTION_KEY);
+export function clearLedgerInjection(prompt: PromptSink) {
+  prompt.clearStoryExtensionPrompt(LEDGER_INJECTION_KEY);
 }
 
-export function clearAllMemoryInjection() {
-  MEMORY_TIERS.forEach((tier) => clearStoryExtensionPrompt(memoryExtensionKey(tier)));
-  clearStoryExtensionPrompt(EPISTEMIC_INJECTION_KEY);
-  clearStoryExtensionPrompt(LEDGER_INJECTION_KEY);
+export function clearAllMemoryInjection(prompt: PromptSink) {
+  MEMORY_TIERS.forEach((tier) => prompt.clearStoryExtensionPrompt(memoryExtensionKey(tier)));
+  prompt.clearStoryExtensionPrompt(EPISTEMIC_INJECTION_KEY);
+  prompt.clearStoryExtensionPrompt(LEDGER_INJECTION_KEY);
 }

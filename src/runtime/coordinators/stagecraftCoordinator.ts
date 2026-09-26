@@ -44,10 +44,8 @@ import {
 } from "@stagecraft/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { beginRun, type RunGuard, type RunOwnership, type RunToken } from "../runToken";
-import {
-  clearStoryExtensionPrompt, getContext, getPlayerName, loadLorebook, readWIEntry, readWIEntryAt,
-  restoreWIEntryAt, setStoryExtensionPrompt, updateWIEntryByUid, type WIEntryTarget,
-} from "@services/STAPI";
+import type { WIEntryTarget } from "@services/STAPI";
+import type { ChatHost, CuratorWiHost, PlayerHost, PromptHost } from "../hostPorts";
 import { lorebookFileId } from "@utils/string";
 import type { StagecraftRuntimeState } from "../types";
 import type { EstablishedFact } from "../continuity";
@@ -79,6 +77,7 @@ export interface StagecraftCoordinatorDeps {
   // not the one the work belongs to. The token is minted before the awaits and checked at the
   // write edge. Optional so an existing caller keeps today's behaviour until it supplies one.
   ownership: RunOwnership;
+  hosts: { prompt: PromptHost; chat: Pick<ChatHost, "chatRows">; player: PlayerHost; curator: CuratorWiHost };
 }
 
 const uniqueRecordId = (base: string, records: CuratorProposalRecord[]): string => {
@@ -92,17 +91,14 @@ const acceptedOps = (record: CuratorProposalRecord) => record.ops.filter((entry)
 
 // The reply the warden reads is the one at its own id, never "the last message": by the time the
 // judge answers, the player may already have written.
-const readReply = (messageId: number): { speaker: string; text: string } | null => {
-  const chat = getContext().chat;
-  const raw = Array.isArray(chat) ? (chat[messageId] as { name?: unknown } | undefined) : undefined;
+const readReply = (chat: unknown[], messageId: number): { speaker: string; text: string } | null => {
+  const raw = chat[messageId] as { name?: unknown } | undefined;
   const message = cleanWindowMessage(raw);
   if (!message.keep || message.isUser) return null;
   return { speaker: typeof raw?.name === "string" && raw.name ? raw.name : "Narrator", text: message.text };
 };
 
-const readPlayerLine = (replyMessageId: number): string | null => {
-  const chat = getContext().chat;
-  if (!Array.isArray(chat)) return null;
+const readPlayerLine = (chat: unknown[], replyMessageId: number): string | null => {
   for (let index = Math.min(replyMessageId, chat.length) - 1; index >= 0; index -= 1) {
     const message = cleanWindowMessage(chat[index]);
     if (message.keep && message.isUser) return message.text;
@@ -172,7 +168,7 @@ export class StagecraftCoordinator {
     const story = this.deps.getStory();
     const views: CuratorEntryView[] = [];
     for (const lorebook of curatorLorebooks(story)) {
-      const loaded = await loadLorebook(lorebook);
+      const loaded = await this.deps.hosts.curator.loadLorebook(lorebook);
       if (!loaded?.entries) continue;
       views.push(...entriesForScope(lorebook, Object.values(loaded.entries)).filter((view) => !isCheckpointGated(story, view.lorebook, view.comment)));
     }
@@ -348,7 +344,7 @@ export class StagecraftCoordinator {
     // v2.3 plan 04 (R2): the before-image is read at the write edge. v2.4 plan 06 T17.2: by uid, and
     // an entry that is gone is a failed op, never a created one.
     const fileId = lorebookFileId(op.lorebook);
-    const live = op.uid !== undefined ? await readWIEntryAt({ lorebookFileId: fileId, uid: op.uid }) : await readWIEntry(op.lorebook, op.comment);
+    const live = op.uid !== undefined ? await this.deps.hosts.curator.readWIEntryAt({ lorebookFileId: fileId, uid: op.uid }) : await this.deps.hosts.curator.readWIEntry(op.lorebook, op.comment);
     if (run.lapsed()) return { ok: false, record: entry, lapsed: true };
     const uid = op.uid ?? live?.uid;
     if (!live || uid === undefined) return { ok: false, record: { ...entry, status: "failed", message: `"${op.comment}" is no longer in ${op.lorebook}` } };
@@ -362,7 +358,7 @@ export class StagecraftCoordinator {
     await beforeHostWrite(pending);
     if (run.lapsed()) return { ok: false, record: pending, lapsed: true };
     try {
-      const written = await updateWIEntryByUid({ lorebookFileId: fileId, uid }, after);
+      const written = await this.deps.hosts.curator.updateWIEntryByUid({ lorebookFileId: fileId, uid }, after);
       if (!written.ok) return { ok: false, record: { ...pending, status: "failed", message: written.reason, writeAhead: undefined } };
       return { ok: true, record: { ...pending, status: "applied", message: preview.message, writeAhead: undefined } };
     } catch (error) {
@@ -377,7 +373,7 @@ export class StagecraftCoordinator {
     const live = new Map<string, WriteAheadLive | null>();
     for (const { key, entry } of pending) {
       const at = uidTarget(entry);
-      live.set(key, at ? await readWIEntryAt(at) : null);
+      live.set(key, at ? await this.deps.hosts.curator.readWIEntryAt(at) : null);
       if (run.lapsed()) return noWriteAheads();
     }
     const { proposals, counts } = settleWriteAheads(this.state.proposals, live, new Date().toISOString());
@@ -415,7 +411,7 @@ export class StagecraftCoordinator {
         // else edited the book after us and putting our before-image back would silently undo them.
         const at = uidTarget(entry);
         if (!at) { ops.unshift({ ...entry, status: "revert-failed", message: `"${entry.op.comment}" was recorded without a uid; not reverted` }); continue; }
-        const current = await readWIEntryAt(at);
+        const current = await this.deps.hosts.curator.readWIEntryAt(at);
         if (run.lapsed()) { ops.unshift(entry); continue; }
         if (current?.comment !== undefined && current.comment !== entry.op.comment && !isCuratorWritable(story, entry.op.lorebook, current.comment)) {
           ops.unshift({ ...entry, status: "externally-edited", message: `"${entry.op.comment}" is now "${current.comment}", which the curator may not write, so it was left alone` });
@@ -446,7 +442,7 @@ export class StagecraftCoordinator {
   private async restoreBefore(entry: CuratorOpRecord, at: WIEntryTarget): Promise<boolean> {
     if (!entry.before || isNoteOp(entry.op)) return false;
     try {
-      return (await restoreWIEntryAt(at, entry.before)).ok;
+      return (await this.deps.hosts.curator.restoreWIEntryAt(at, entry.before)).ok;
     } catch {
       return false;
     }
@@ -472,7 +468,7 @@ export class StagecraftCoordinator {
     if (!warden || !state || settings.wardenAcceptMode === "off") return false;
     const families = this.activeFamilies();
     if (!anyWardenFamily(families)) return false;
-    const reply = readReply(replyMessageId);
+    const reply = readReply(this.deps.hosts.chat.chatRows(), replyMessageId);
     if (!reply) return false;
     const lapsed = this.settleNotes((op, status) => op.replyMessageId < replyMessageId && status !== "applied", "lapsed") + this.withdrawRemovedRules();
     if (this.busy(this.wardenHold)) {
@@ -484,13 +480,13 @@ export class StagecraftCoordinator {
     this.wardenHold = hold;
     try {
       const established = families.continuity ? warden.facts() : [];
-      const playerLine = families.agency ? readPlayerLine(replyMessageId) : null;
-      const input: WardenCheckInput = { reply, facts: established.map((fact) => fact.text), agency: playerLine !== null ? { player: getPlayerName(), message: playerLine } : null, houseRules: families.houseRules };
+      const playerLine = families.agency ? readPlayerLine(this.deps.hosts.chat.chatRows(), replyMessageId) : null;
+      const input: WardenCheckInput = { reply, facts: established.map((fact) => fact.text), agency: playerLine !== null ? { player: this.deps.hosts.player.getPlayerName(), message: playerLine } : null, houseRules: families.houseRules };
       const asks = input.facts.length > 0 || input.agency !== null || input.houseRules.length > 0;
       const findings = asks ? await warden.check(input).catch(() => null) : null;
       const owned = token ? this.deps.ownership.check(token) : undefined;
       if (owned && owned.ok === false) return false;
-      if (!findings?.length || readReply(replyMessageId)?.text !== reply.text) {
+      if (!findings?.length || readReply(this.deps.hosts.chat.chatRows(), replyMessageId)?.text !== reply.text) {
         if (lapsed) await this.save();
         return false;
       }
@@ -544,7 +540,7 @@ export class StagecraftCoordinator {
     const carried = newestCarriedNote(this.state.proposals, active);
     if (!carried) return;
     const ops = carried.indices.map((index) => carried.record.ops[index].op).filter(isNoteOp);
-    setStoryExtensionPrompt(INJECTION_REGISTRY.continuityNote.key, composeWardenNote(ops), INJECTION_REGISTRY.continuityNote.depth);
+    this.deps.hosts.prompt.setStoryExtensionPrompt(INJECTION_REGISTRY.continuityNote.key, composeWardenNote(ops), INJECTION_REGISTRY.continuityNote.depth);
     this.noteActive = true;
     this.carriedNote = { recordId: carried.record.id, indices: carried.indices };
     this.deps.journal(...wardenNoteJournal(ops));
@@ -566,7 +562,7 @@ export class StagecraftCoordinator {
   clearContinuityNote() {
     this.carriedNote = null;
     if (!this.noteActive) return;
-    clearStoryExtensionPrompt(INJECTION_REGISTRY.continuityNote.key);
+    this.deps.hosts.prompt.clearStoryExtensionPrompt(INJECTION_REGISTRY.continuityNote.key);
     this.noteActive = false;
   }
 }

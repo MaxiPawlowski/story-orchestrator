@@ -1,6 +1,5 @@
 import { textModel } from "../../../test/support/modelCall";
 import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
-import { clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, loadLorebook, readWIEntry, readWIEntryAt, restoreWIEntryAt, setStoryExtensionPrompt, updateWIEntryByUid, upsertWIEntry } from "@services/STAPI";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
 import { createStagecraft, sanitizeStagecraft } from "../extras";
 import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
@@ -8,11 +7,9 @@ import type { ExtractionRuntimeSettings, RuntimeExtras, StagecraftRuntimeState }
 
 const mockChat: Array<Record<string, unknown>> = [];
 
-jest.mock("@services/STAPI", () => ({
-  settingsAreLoaded: () => true,
-  settingsReady: async () => {},
-  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readServerBoundary: async () => null,
+jest.mock("@services/STAPI", () => ({ settingsAreLoaded: () => true, settingsReady: async () => {} }));
+
+const host = {
   setStoryExtensionPrompt: jest.fn(),
   clearStoryExtensionPrompt: jest.fn(),
   loadLorebook: jest.fn(),
@@ -25,7 +22,9 @@ jest.mock("@services/STAPI", () => ({
   enableWIEntry: jest.fn(async () => ({ ok: true, changed: true })),
   disableWIEntry: jest.fn(async () => ({ ok: true, changed: true })),
   getContext: () => ({ extensionSettings: {}, saveSettingsDebounced: () => undefined, chat: mockChat }),
-}));
+};
+const { clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, loadLorebook, readWIEntry, readWIEntryAt, restoreWIEntryAt, setStoryExtensionPrompt, updateWIEntryByUid, upsertWIEntry } = host;
+
 
 const callExtractionModel = jest.fn(async (..._args: unknown[]): Promise<string> => "NONE");
 
@@ -80,7 +79,7 @@ const harness = (options: { story?: NormalizedStoryV2 | null; state?: EngineStat
   let chatId = "chat-a";
   const context = (): RunContext => ({ chatId, storyId: "coordinator-fixture", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null });
   const ownership = options.owned === false ? undefined : { mint: () => mintToken(context()), check: (token: RunToken) => tokenMatches(context(), token) };
-  const coordinator = new StagecraftCoordinator({
+  const coordinator = new StagecraftCoordinator({ hosts: { prompt: host, chat: { chatRows: () => host.getContext().chat }, player: { getPlayerName: () => "Max" }, curator: host } as never,
     getStory: () => (options.story === undefined ? story() : options.story),
     getState: () => options.state ?? engineState(),
     getStagecraft: () => state,

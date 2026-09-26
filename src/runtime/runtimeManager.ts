@@ -240,7 +240,7 @@ export class RuntimeManager {
       this.extras = createExtras();
       this.pacing.clearPending();
       this.pacing.updateSteering();
-      clearAllMemoryInjection();
+      clearAllMemoryInjection(coordinatorHosts.prompt);
       this.status = status;
       this.notify();
       await releaseGatedWorldInfo(this.effects, previous, null, run);
