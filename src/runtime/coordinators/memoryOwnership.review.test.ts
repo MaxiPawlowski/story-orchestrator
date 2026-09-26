@@ -124,7 +124,7 @@ function harness(arcCount: number, presummarised = 0) {
     markCanonStale: () => { if (memoryState.canon) memoryState.canon = { ...memoryState.canon, stale: true }; },
     switchChat: () => { current = { ...current, chatId: "chat-b", sessionEpoch: 2 }; },
     mutateAt: (messageId: number) => { current = { ...current, windowRevision: current.windowRevision + 1, lowestMutatedMessageId: messageId }; },
-    inFlight: () => (coordinator as unknown as { canonInFlight: boolean }).canonInFlight,
+    inFlight: () => (coordinator.canon as unknown as { inFlight: boolean }).inFlight,
     entries: () => (memoryState.entries as Array<{ text: string }>).map((entry) => entry.text),
     shortTerm: () => (memoryState.entries as Array<{ tier: string; text: string }>).find((entry) => entry.tier === "short_term")?.text,
     shortTermEnd: () => memoryState.shortTermSummaryEnd,
@@ -253,7 +253,7 @@ control("canon is not overwritten by a result from another chat", async () => {
   // case returns before reaching the model and asserts nothing.
   const h = harness(1, 1);
   modelGate.onCall = () => h.switchChat();
-  await h.coordinator.regenerateCanon(true);
+  await h.coordinator.canon.regenerateCanon(true);
   expect(modelGate.arcCalls()).toBe(0);
   expect(h.canon()).toBeNull();
 });
@@ -263,32 +263,32 @@ control("canon is not overwritten by a result from another chat", async () => {
 // the player's "story so far" empty for good after a resolution the canon could not notice.
 control("a stale canon is rebuilt even when its inputs hash the same", async () => {
   const h = harness(1, 1);
-  expect(await h.coordinator.regenerateCanon(true)).toBe(true);
+  expect(await h.coordinator.canon.regenerateCanon(true)).toBe(true);
   const calls = modelGate.calls;
   h.markCanonStale();
-  expect(await h.coordinator.regenerateCanon()).toBe(true);
+  expect(await h.coordinator.canon.regenerateCanon()).toBe(true);
   expect(modelGate.calls).toBe(calls + 1);
   expect(h.canon()?.stale).toBe(false);
 });
 
 control("a canon whose inputs have not changed and which is not stale is left alone", async () => {
   const h = harness(1, 1);
-  expect(await h.coordinator.regenerateCanon(true)).toBe(true);
+  expect(await h.coordinator.canon.regenerateCanon(true)).toBe(true);
   const calls = modelGate.calls;
-  expect(await h.coordinator.regenerateCanon()).toBe(false);
+  expect(await h.coordinator.canon.regenerateCanon()).toBe(false);
   expect(modelGate.calls).toBe(calls);
 });
 
 control("canon IS written when the chat has not moved", async () => {
   const h = harness(1, 1);
-  await h.coordinator.regenerateCanon(true);
+  await h.coordinator.canon.regenerateCanon(true);
   expect(h.canon()).not.toBeNull();
 });
 
 control("the in-flight flag is released even when the world moved", async () => {
   const h = harness(1, 1);
   modelGate.onCall = () => h.switchChat();
-  await h.coordinator.regenerateCanon(true);
+  await h.coordinator.canon.regenerateCanon(true);
   expect(h.inFlight()).toBe(false);
 });
 

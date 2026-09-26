@@ -124,7 +124,7 @@ export class RuntimeManager {
     ...this.view,
     getStoryRaw: () => this.loaded?.record.raw,
     getExpansion: () => this.extras.expansion,
-    getCanon: () => this.memory.getCanon(),
+    getCanon: () => this.memory.canon.getCanon(),
     getFactTexts: () => this.memory.getFacts().map((fact) => fact.text),
     replaceStory: (story) => this.replaceStory(story),
     judge: () => this.judge,
@@ -175,7 +175,7 @@ export class RuntimeManager {
     ...this.view,
     getStagecraft: () => this.extras.stagecraft,
     setStagecraft: (next) => { this.extras.stagecraft = next; },
-    getCanon: () => this.memory.getCanon(),
+    getCanon: () => this.memory.canon.getCanon(),
     getOpenArcs: () => this.memory.getOpenArcs(),
     filterEntries: createCuratorFilter(() => this.judge),
     warden: createWarden(() => this.judge, this.view, {
@@ -188,7 +188,7 @@ export class RuntimeManager {
   private readonly copilot: CopilotCoordinator = new CopilotCoordinator({
     ...this.view,
     getSettings: () => this.extras.copilot,
-    getCanon: () => this.memory.getCanon(),
+    getCanon: () => this.memory.canon.getCanon(),
     ...this.lifecycle,
     wizardSession: (key) => loadWizardSession(key),
     saveWizardSession: (session) => saveWizardSession(session),
@@ -464,10 +464,10 @@ export class RuntimeManager {
   async memorizeChat(): Promise<boolean> { return this.extraction.runMemorizeBacklog(undefined, confirmPreflight); }
   cancelMemorizeBacklog(): boolean { return this.extraction.cancelMemorizeBacklog(); }
   async setMemoryPinned(id: string, pinned: boolean) { await this.memory.setMemoryPinned(id, pinned); }
-  async excludeMemoryEntry(id: string) { await this.memory.excludeMemoryEntry(id); }
+  async excludeMemoryEntry(id: string) { await this.memory.queue.excludeMemoryEntry(id); }
   async restoreMemoryEntry(entry: MemoryEntry) { await this.memory.restoreMemoryEntry(entry); }
   async editMemoryEntry(id: string, text: string) { await this.memory.editMemoryEntry(id, text); }
-  async storeDroppedMemory(id: string) { return this.memory.storeDroppedEntry(id); }
+  async storeDroppedMemory(id: string) { return this.memory.queue.storeDroppedEntry(id); }
   attachJudge(judge: JudgeRuntime) { this.judge = judge; }
   // v2.3 plan 09: the next-turn preview's controls. The scene coordinator lives in runtime/index.ts.
   private sceneRunner: { rerun(): Promise<unknown> } | null = null;
@@ -479,10 +479,10 @@ export class RuntimeManager {
   getEntities(): string[] { return this.memory.getEntities(); }
   async setArcPinned(id: string, pinned: boolean) { await this.memory.setArcPinned(id, pinned); }
   async removeArc(id: string) { await this.memory.removeArc(id); }
-  getCanon(): string { return this.memory.getCanon(); }
+  getCanon(): string { return this.memory.canon.getCanon(); }
   getPossibleTransitions(): string[] { return buildPossibleTransitions(this.loaded?.story ?? null, this.loaded ? this.engine.serialize() : null); }
   private rejectQuality(reason: string): false { this.status = reason; this.notify(); return false; }
-  async regenerateCanon(force = false): Promise<boolean> { return this.memory.regenerateCanon(force); }
+  async regenerateCanon(force = false): Promise<boolean> { return this.memory.canon.regenerateCanon(force); }
   scheduleExpansionForActive(schedule: (reason: string, run: () => Promise<void>) => void) { return this.expansion.scheduleForActive(schedule); }
   async runExpansionNow(debugResponse?: string, confirm = false) { return this.expansion.runNow(debugResponse, confirm ? (preflight) => confirmPreflight(preflight, "authoring") : undefined); }
   /** v2.3 plan 07: the boundary promotion and the author's regenerate, in one surface. */
@@ -509,7 +509,7 @@ export class RuntimeManager {
       boundaryLog: this.loaded ? this.engine.stateLog : [],
       expectedTension: this.loaded ? this.pacing.expectedTension() : null,
       openThreads: this.memory.getOpenArcs(),
-      canon: this.memory.getCanonProse(),
+      canon: this.memory.canon.getCanonProse(),
       ...this.notices,
       ...this.memory.injector.readModels(),
       driver: this.copilot.getDriverContext(),

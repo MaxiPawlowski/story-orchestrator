@@ -111,12 +111,12 @@ describe("a truncated summary is not stored, at each summary site", () => {
 
   it("canon", async () => {
     const control = memoryHarness(true);
-    await control.coordinator.regenerateCanon(true);
+    await control.coordinator.canon.regenerateCanon(true);
     expect(control.canon()).toBe("They crossed the river at dusk.");
 
     reply.finish = "length";
     const truncated = memoryHarness(true);
-    await truncated.coordinator.regenerateCanon(true);
+    await truncated.coordinator.canon.regenerateCanon(true);
     expect(truncated.canon()).toBeNull();
   });
 });

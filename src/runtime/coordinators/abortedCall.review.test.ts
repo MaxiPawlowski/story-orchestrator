@@ -166,7 +166,7 @@ describe("v2.4 plan 03 fault matrix: a pass aborted mid-call", () => {
   it("memory: a canon rebuild aborted by a chat switch cancels its request and writes nothing", async () => {
     const h = memoryHarness(true);
     model.onCall = () => h.switchChat();
-    await expect(h.coordinator.regenerateCanon(true)).resolves.toBe(false);
+    await expect(h.coordinator.canon.regenerateCanon(true)).resolves.toBe(false);
     expect(model.signals[0]?.aborted).toBe(true);
     expect(h.canon()).toBeNull();
   });

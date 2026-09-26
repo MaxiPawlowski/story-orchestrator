@@ -20,14 +20,14 @@ export interface MemoryActionDeps {
 /** The manager's side of the conversation: every action is the coordinator's, one to one. */
 export function memoryDelegates(memory: MemoryCoordinator): MemoryActionDeps {
   return {
-    getConflicts: () => memory.getConflicts(),
-    resolveMemoryConflict: (key, keepId, lock) => memory.resolveMemoryConflict(key, keepId, lock),
-    dismissMemoryConflict: (key) => memory.dismissMemoryConflict(key),
+    getConflicts: () => memory.queue.getConflicts(),
+    resolveMemoryConflict: (key, keepId, lock) => memory.queue.resolveMemoryConflict(key, keepId, lock),
+    dismissMemoryConflict: (key) => memory.queue.dismissMemoryConflict(key),
     setMemoryLocked: (id, locked) => memory.setMemoryLocked(id, locked),
-    reconfirmMemoryEntry: (id) => memory.reconfirmMemoryEntry(id),
-    rereadConflictWindow: (key) => memory.rereadConflictWindow(key),
-    discardQuarantined: (id) => memory.excludeMemoryEntry(id),
-    lastRefusal: () => memory.lastDecisionRefusal(),
+    reconfirmMemoryEntry: (id) => memory.queue.reconfirmMemoryEntry(id),
+    rereadConflictWindow: (key) => memory.queue.rereadConflictWindow(key),
+    discardQuarantined: (id) => memory.queue.excludeMemoryEntry(id),
+    lastRefusal: () => memory.queue.lastDecisionRefusal(),
   };
 }
 

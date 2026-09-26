@@ -203,7 +203,7 @@ describe("a new claim that contradicts an established fact is held, not stored l
     const env = harness();
     await env.seed("lock");
     await env.read(COURIER_READ);
-    env.coordinator.detectMemoryConflicts();
+    env.coordinator.queue.detectMemoryConflicts();
     expect(isLive(row(env.memory(), SEED)!)).toBe(true);
     expect(env.warden()).toEqual([SEED]);
   });
@@ -213,7 +213,7 @@ describe("a new claim that contradicts an established fact is held, not stored l
     const seed = await env.seed("lock");
     await env.read(COURIER_READ);
     const pair = heldPairs(env.memory()).find((candidate) => candidate.sides.some((side) => side.label === STANDING))!;
-    expect(await env.coordinator.resolveMemoryConflict(pair.key, seed.id, true)).toBe(true);
+    expect(await env.coordinator.queue.resolveMemoryConflict(pair.key, seed.id, true)).toBe(true);
     expect(row(env.memory(), SEED)).toMatchObject({ locked: true, pinned: true });
     expect(row(env.memory(), STANDING)?.supersededBy).toBe(seed.id);
   });

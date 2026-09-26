@@ -1,50 +1,36 @@
-import {
-  progressQualityForAnchor, type BlackboardDelta, type EngineState, type NormalizedStoryV2, type NormalizedTransition,
-} from "@engine/index";
+import { progressQualityForAnchor, type BlackboardDelta, type EngineState, type NormalizedStoryV2, type NormalizedTransition } from "@engine/index";
 import { maxTokensForInput } from "@extraction/callBudget";
-import { getCanonLite } from "@extraction/canonLite";
-import { lapseAsEmpty } from "@extraction/modelError";
 import { askText } from "@extraction/modelRoute";
 import { stripChannelNoise } from "@extraction/parse";
 import { deriveScope } from "@extraction/scope";
 import { runSharedRead } from "@extraction/sharedRead";
 import type { ExtraGateSource, ModelCall, ParsedDelta, ParsedFact, SharedReadWindow } from "@extraction/index";
 import {
-  activeEpistemic, addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicSignals, applyLedgerSignals, ARC_OPEN_INJECT_LIMIT,
-  buildArcSummaryPrompt, buildBoundKeySet, buildCanonSummaryPrompt, canonHistory, canonInputHash, capAllTiers, capEpistemic, capLedger, highImportanceFacts, isLive, ledgerBindings,
-  ledgerEntityList, storyEntities, disappearingEntries, recordDerived, reverseMemoryState, dropCommonKnowledge,
-  capOpenArcs, capResolvedArcs, CONSOLIDATION_MIN_GROUP,
-  consolidateTier, DEFAULT_DEDUP_THRESHOLDS, editEntryText, expireScoped, matchArcBridges,
-  openArcTexts, removeArc, removeEpistemic, removeLedger, resolvedArcs, restoreEntry, setArcPinned, setLocked, setArcSummary, setEpistemicPinned,
-  setLedgerPinned, setPinned, type ArcEntry, type ConflictPair, type DerivedRecord, type EpistemicEntry,
-  type LedgerBinding, type LedgerView, type MemoryEntry, type MemoryTier, type ParsedArcSignal,
-  type ParsedEpistemicSignal, type ParsedLedgerSignal, type UncertainPair, consolidateTierJudged,
-  clearContradicted, sceneRangeFrom,
+  activeEpistemic, addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicSignals, applyLedgerSignals,
+  ARC_OPEN_INJECT_LIMIT, buildArcSummaryPrompt, buildBoundKeySet, capAllTiers, capEpistemic, capLedger,
+  highImportanceFacts, isLive, ledgerBindings, ledgerEntityList, storyEntities, disappearingEntries, recordDerived,
+  reverseMemoryState, dropCommonKnowledge, capOpenArcs, capResolvedArcs, CONSOLIDATION_MIN_GROUP, consolidateTier,
+  DEFAULT_DEDUP_THRESHOLDS, editEntryText, expireScoped, matchArcBridges, openArcTexts, removeArc, removeEpistemic,
+  removeLedger, restoreEntry, setArcPinned, setLocked, setArcSummary, setEpistemicPinned, setLedgerPinned, setPinned,
+  type ArcEntry, type DerivedRecord, type EpistemicEntry, type LedgerBinding, type LedgerView, type MemoryEntry,
+  type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type UncertainPair,
+  consolidateTierJudged, clearContradicted, sceneRangeFrom,
 } from "@memory/index";
-import type { SceneReadRecord } from "@judge/index";
+import { PAIR_JACCARD_FLOOR, type SceneReadRecord } from "@judge/index";
 import type { Provenance } from "@memory/provenance";
 import { sceneConflictValues } from "@memory/conflicts";
-
 import { emptyMirrorSummary, syncMemoryMirror, type MemoryMirrorSummary } from "../memoryMirror";
 import { MemoryInjector } from "../memoryInjector";
+import { CanonSynthesis } from "../canonSynthesis";
 import { buildMatchSets, judgePairRelations } from "../consolidationMatches";
-import {
-  boundProvenance, boundValuesFor, detectMemoryConflicts, discardMemoryRow, dismissMemoryConflict, findHeldContradictions, getConflicts, holdMemoryContradictions,
-  reconfirmMemoryEntry, rereadConflictWindow, resolveMemoryConflict, settleUncertain, storeDroppedEntry, type DecisionRefusal, type MemoryQueueDeps,
-} from "../memoryQueue";
+import { boundProvenance, boundValuesFor, MemoryQueue } from "../memoryQueue";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunOwnership } from "../runToken";
 import type { MemoryHosts } from "../hostPorts";
 import { playerTurnIds } from "../agencyRecovery";
 import { computeEntryTokens, tokensFor } from "../entryTokens";
-import { PAIR_JACCARD_FLOOR } from "@judge/index";
-import {
-  enabledCharacterNames, rosterMemberName,
-} from "../roster";
-import {
-  VERIFY_DROP_LIMIT, type CanonSource, type MemoryBackfillState,
-  type MemoryRuntimeState, type VerifyDrop,
-} from "../types";
+import { enabledCharacterNames, rosterMemberName } from "../roster";
+import { VERIFY_DROP_LIMIT, type MemoryBackfillState, type MemoryRuntimeState, type VerifyDrop } from "../types";
 
 export interface MemoryCoordinatorDeps {
   getStory: () => NormalizedStoryV2 | null;
@@ -85,11 +71,29 @@ export class MemoryCoordinator {
     setPinnedOverflow: (count) => this.patch({ pinnedOverflow: count }),
     hosts: () => this.deps.hosts,
   });
+  readonly canon = new CanonSynthesis({
+    getStory: () => this.deps.getStory(), getState: () => this.deps.getState(), memory: () => this.state,
+    patch: (next) => this.patch(next), record: (input) => this.record(input), save: () => this.save(),
+    model: () => this.deps.model, ownership: () => this.deps.ownership, enabled: () => this.enabled,
+    firedTransitions: () => this.deps.getFiredTransitions(), facts: () => this.getFacts(),
+  });
   private consolidationInFlight = false;
-  private canonInFlight = false;
-  private decisionRefusal: DecisionRefusal | null = null;
+  readonly queue: MemoryQueue;
 
-  constructor(private readonly deps: MemoryCoordinatorDeps) {}
+  constructor(private readonly deps: MemoryCoordinatorDeps) {
+    const board = () => this.deps.getState()?.blackboard;
+    this.queue = new MemoryQueue({
+      getMemory: () => this.state, patch: (next, touch) => this.patch(next, touch), boundaryStamp: () => this.boundaryStamp(),
+      boundValues: () => boundValuesFor(this.ledgerBindings(), board()?.values ?? {}, board()?.versions ?? {}),
+      sceneValues: () => sceneConflictValues(this.deps.getScene?.()), lastMessageId: () => this.deps.getState()?.lastMessageId ?? -1,
+      updateInjection: () => this.updateInjection(), unsaved: () => this.deps.unsaved?.() ?? false, save: () => this.save(),
+      // A decided disagreement changes what a canon synthesis would have been built from, so the text
+      // derived from the losing claim stops being read until the next pass replaces it.
+      invalidateCanon: () => { if (this.state.canon && !this.state.canon.stale) this.patch({ canon: { ...this.state.canon, stale: true } }, false); },
+      ...(deps.rereadWindow ? { reread: (window: { from: number; to: number }, reason: string) => deps.rereadWindow!(window, reason) } : {}),
+      run: () => beginRun(this.deps.ownership), matchSets: (group) => buildMatchSets(this.deps.hosts.vectors, group),
+    });
+  }
 
   private get state(): MemoryRuntimeState {
     return this.deps.getMemory();
@@ -140,10 +144,6 @@ export class MemoryCoordinator {
     return this.state.entries.filter((entry) => isLive(entry)).filter((entry) => entry.tier === "facts").map((entry) => ({ text: entry.text, evidence: entry.evidence, importance: entry.importance, boundary: entry.createdAt, messageId: entry.messageId }));
   }
 
-  private highImportanceFacts(limit: number): MemoryEntry[] {
-    return highImportanceFacts(this.state.entries, limit);
-  }
-
   // --- tiers -------------------------------------------------------------
 
   async applyEntries(entries: MemoryEntry[], window: { from: number; to: number }) {
@@ -151,11 +151,11 @@ export class MemoryCoordinator {
     // The token count is a host call, so this write is an await past the caller's own check.
     const run = beginRun(this.deps.ownership, window);
     await computeEntryTokens(this.deps.hosts.tokens, entries);
-    const held = await findHeldContradictions(this.queueDeps(), entries);
+    const held = await this.queue.findHeld(entries);
     if (!run.stillOwns()) return;
     const written = addMemoryEntries(this.state, entries, window);
     this.patch(capAllTiers(written.state, this.state.settings.tierBudgets));
-    holdMemoryContradictions(this.queueDeps(), held);
+    this.queue.hold(held);
   }
 
   async addSceneSummary(entry: MemoryEntry, window: { from: number; to: number }): Promise<number | null> {
@@ -205,8 +205,6 @@ export class MemoryCoordinator {
 
   /** M6. Lock freezes the story's truth: no pass may retire it, and a contradiction is queued. */
   async setMemoryLocked(id: string, locked: boolean) { await this.commit(() => setLocked(this.state, id, locked, new Date().toISOString(), this.boundaryStamp())); }
-
-  excludeMemoryEntry(id: string): Promise<boolean> { return discardMemoryRow(this.queueDeps(), id); }
 
   async restoreMemoryEntry(entry: MemoryEntry) { await this.commit(() => restoreEntry(this.state, entry)); }
 
@@ -269,7 +267,7 @@ export class MemoryCoordinator {
   async runArcSummaryPass(arcIds: string[]): Promise<boolean> {
     if (!this.deps.getStory() || !this.enabled || !arcIds.length) return false;
     const sceneSummaries = this.state.entries.filter((entry) => entry.tier === "scene_history").slice(-5).map((entry, index) => `Scene ${index + 1}: ${entry.text}`).join("\n");
-    const memories = this.highImportanceFacts(20).map((entry) => `[${entry.type}] ${entry.text}`).join("\n");
+    const memories = highImportanceFacts(this.state.entries, 20).map((entry) => `[${entry.type}] ${entry.text}`).join("\n");
     // One await and one write PER ARC, which is why the guard is a handle rather than a wrapper:
     // the check belongs inside the loop, immediately before each write, not around the whole pass.
     // Without it a five-arc pass that outlives a chat switch writes the remaining four into the
@@ -289,42 +287,11 @@ export class MemoryCoordinator {
       changed = true;
     }
     if (changed) {
-      await this.regenerateCanon();
+      await this.canon.regenerateCanon();
       await this.save();
     }
     return changed;
   }
-
-  // --- reconciliation queue (v2.3 plan 05, C3) -------------------------------------------
-
-  private queueDeps(): MemoryQueueDeps {
-    return {
-      getMemory: () => this.state,
-      patch: (next, touch) => this.patch(next, touch),
-      boundValues: () => boundValuesFor(this.ledgerBindings(), this.deps.getState()?.blackboard?.values ?? {}, this.deps.getState()?.blackboard?.versions ?? {}),
-      sceneValues: () => sceneConflictValues(this.deps.getScene?.()),
-      boundaryStamp: () => this.boundaryStamp(),
-      lastMessageId: () => this.deps.getState()?.lastMessageId ?? -1,
-      updateInjection: () => this.updateInjection(),
-      // A decided disagreement changes what a canon synthesis would have been built from, so the text
-      // derived from the losing claim stops being read until the next pass replaces it.
-      invalidateCanon: () => { if (this.state.canon && !this.state.canon.stale) this.patch({ canon: { ...this.state.canon, stale: true } }, false); },
-      ...(this.deps.rereadWindow ? { reread: (window: { from: number; to: number }, reason: string) => this.deps.rereadWindow!(window, reason) } : {}),
-      unsaved: () => this.deps.unsaved?.() ?? false,
-      save: () => this.save(),
-      run: () => beginRun(this.deps.ownership),
-      refused: (refusal) => { this.decisionRefusal = refusal; },
-      matchSets: (group) => buildMatchSets(this.deps.hosts.vectors, group),
-    };
-  }
-
-  lastDecisionRefusal(): DecisionRefusal | null { return this.decisionRefusal; }
-
-  detectMemoryConflicts(): ConflictPair[] { return detectMemoryConflicts(this.queueDeps()); }
-  getConflicts(): ConflictPair[] { return getConflicts(this.queueDeps()); }
-  resolveMemoryConflict(key: string, keepId: string, lock = false): Promise<boolean> { return resolveMemoryConflict(this.queueDeps(), key, keepId, lock); }
-  dismissMemoryConflict(key: string): Promise<boolean> { return dismissMemoryConflict(this.queueDeps(), key); }
-  rereadConflictWindow(key: string): Promise<boolean> { return rereadConflictWindow(this.queueDeps(), key); }
 
   // Everything a rollback means for memory, in @memory/reverse: the rows a mutation invalidated, the
   // artifacts derived from them, and the three stores that keep their own version history.
@@ -334,85 +301,11 @@ export class MemoryCoordinator {
 
   recordVerifyDrops(drops: VerifyDrop[]) { if (drops.length) this.patch({ verifyDrops: [...this.state.verifyDrops, ...drops].slice(-VERIFY_DROP_LIMIT) }, false); }
 
-  /** A quarantined row the author restates: their claim now, not a read of a message that is gone. */
-  async reconfirmMemoryEntry(id: string) { return await reconfirmMemoryEntry(this.queueDeps(), id, new Date().toISOString()); }
-
-  /** Rows an older chat pinned carry no envelope: the author is asked once per chat what a pin means. */
-
-  /** The author overrules the judge's drop. One of the queue's own decisions (see memoryQueue). */
-  async storeDroppedEntry(entryId: string) { return await storeDroppedEntry(this.queueDeps(), entryId, new Date().toISOString()); }
-
-  // --- canon -------------------------------------------------------------
-
-  getCanon(): string {
-    const canon = this.state.canon;
-    if (canon?.text && !canon.stale) return canon.text;
-    const story = this.deps.getStory();
-    const state = this.deps.getState();
-    if (!story || !state) return "";
-    return getCanonLite(story, state.visitedAnchors, this.deps.getFiredTransitions(), this.getFacts());
-  }
-
-  /** v2.3 plan 05: a decided conflict or a rollback was built from a claim this text still asserts.
-   *  The text is kept (an author can read it) but its readers stop treating it as current. */
-  canonStale(): boolean { return this.state.canon?.stale === true; }
-
   /** The blackboard's envelope for every bound quality, keyed the way a bound conflict side is named
    *  (`entity|field`), so a consumer reading a bound row can cite the blackboard as its source. */
   boundProvenance(): Record<string, Provenance> {
     const board = this.deps.getState()?.blackboard;
     return boundProvenance(boundValuesFor(this.ledgerBindings(), board?.values ?? {}, board?.versions ?? {}));
-  }
-
-  // Canon-lite is prompt scaffolding ("Anchor cp1: …", "Gate a -> b"): fine for the memory model,
-  // never for the player, which takes the synthesized prose or nothing.
-  getCanonProse(): string { return this.canonStale() ? "" : canonHistory(this.state.canon?.text ?? ""); }
-
-  async regenerateCanon(force = false): Promise<boolean> {
-    const story = this.deps.getStory();
-    if (!story || !this.enabled || this.canonInFlight) return false;
-    const arcSummaries = resolvedArcs(this.state.arcs).map((arc) => arc.summary).filter((summary): summary is string => Boolean(summary));
-    if (!arcSummaries.length) return false;
-    const facts = this.highImportanceFacts(30).map((entry) => entry.text);
-    const active = story.checkpointById[this.deps.getState()?.activeCheckpointId ?? ""];
-    const checkpoint = active ? { id: active.id, name: active.name, objective: active.objective } : null;
-    const inputHash = canonInputHash(arcSummaries, facts, checkpoint);
-    // Stale rebuilds even when the hash matches: the validity change it saw is invisible to the hash.
-    if (!force && !this.state.canon?.stale && this.state.canon?.inputHash === inputHash) return false;
-    // No window: the canon is synthesised from arc summaries and facts, not from a span of the
-    // transcript, so an ordinary edit must not discard it. Chat, story, version and epoch still do.
-    const run = beginRun(this.deps.ownership);
-    this.canonInFlight = true;
-    try {
-      const prompt = buildCanonSummaryPrompt(story.title, arcSummaries, facts, checkpoint);
-      const ask = { role: "synthesis", pass: "canon", maxTokens: maxTokensForInput("canon", prompt), signal: run.signal, refuseIncomplete: true } as const;
-      const text = await askText(this.deps.model, prompt, ask).catch(lapseAsEmpty);
-      const trimmed = stripChannelNoise(text);
-      if (!trimmed || !run.stillOwns()) return false;
-      const arcs = resolvedArcs(this.state.arcs);
-      const sourceFacts = this.highImportanceFacts(30);
-      const sources: CanonSource[] = [...sourceFacts.map((entry) => ({ store: "memory" as const, id: entry.id, ...(entry.provenance ? { provenance: entry.provenance } : {}) })), ...arcs.map((arc) => ({ store: "memory" as const, id: arc.id }))];
-      this.record({ kind: "canon", inputs: sources.map((source) => source.id) });
-      this.patch({
-        canon: {
-          text: trimmed,
-          inputHash,
-          updatedAt: new Date().toISOString(),
-          stale: false,
-          // The prose cannot carry envelopes sentence by sentence, so what a reader can check is what
-          // it was built from — recorded as it was at the moment of synthesis.
-          sources: sources,
-        },
-      });
-      await this.save();
-      return true;
-    } finally {
-      // Deliberately NOT guarded. This flag is this runtime's own in-flight bookkeeping, not
-      // chat state; leaving it set because the world moved would wedge canon regeneration for
-      // the rest of the session. A `finally` that releases something the run itself took is the
-      // one kind of post-await write that must always run.
-      this.canonInFlight = false;
-    }
   }
 
   // --- epistemic / ledger ------------------------------------------------
@@ -501,11 +394,11 @@ export class MemoryCoordinator {
         summary.superseded += result.supersededPairs.length;
         summary.confirmed += result.confirmedIds.length;
       }
-      settleUncertain(this.queueDeps(), summary.uncertain);
+      this.queue.settle(summary.uncertain);
       // A pair the walk could not decide is a candidate for the queue; the queue itself compares the
       // stores, which is what makes a conflict a conflict. Its RESULT decides whether there is
       // anything to save — a queued pair is a store change like any other.
-      const queued = this.detectMemoryConflicts();
+      const queued = this.queue.detectMemoryConflicts();
       if (summary.dropped || summary.superseded || summary.confirmed || summary.uncertain.length || queued.length) {
         this.updateInjection();
         await this.save();
@@ -514,7 +407,7 @@ export class MemoryCoordinator {
         await this.runSupersessionBridge(this.state.entries.filter((entry) => supersededWinnerIds.has(entry.id)));
       }
       await this.syncWorldInfo();
-      await this.regenerateCanon();
+      await this.canon.regenerateCanon();
       return summary;
     } finally {
       this.consolidationInFlight = false;

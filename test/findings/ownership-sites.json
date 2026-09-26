@@ -109,11 +109,7 @@
       "status": "checked",
       "note": "v2.3 replan V8 (2026-09-23): after the edit is saved it awaits the exact token count (M7 promised the refresh; nothing ran it), then checks run.stillOwns() before storing the count on the row, and only on the row that still holds the edited text."
     },
-    "src/runtime/coordinators/memoryCoordinator.ts#MemoryCoordinator.reconfirmMemoryEntry": {
-      "status": "delegate",
-      "note": "v2.3 plan 05 (C3): the author restates a quarantined fact, so the row becomes their claim instead of a read of a message that is gone. Its write now lives in the queue module (memoryQueue.commitDecision) and awaits MemoryCoordinator.save through the queue deps, which awaits ChatSave.persist (through the manager's persist delegate), where the check lives."
-    },
-    "src/runtime/coordinators/memoryCoordinator.ts#MemoryCoordinator.regenerateCanon": {
+    "src/runtime/canonSynthesis.ts#CanonSynthesis.regenerateCanon": {
       "status": "checked",
       "note": "v2.3 plan 03: checked before the canon write. Its finally is deliberately UNGUARDED — canonInFlight is the run own bookkeeping, and leaving it set because the world moved would wedge canon regeneration for the session."
     },
@@ -172,10 +168,6 @@
     "src/runtime/coordinators/memoryCoordinator.ts#MemoryCoordinator.setMemoryPinned": {
       "status": "delegate",
       "note": "v2.3 plan 03: its only recognised write is the awaited MemoryCoordinator.save, which awaits ChatSave.persist (through the manager's persist delegate) and that is where the check lives. Not everything with an await owes a check of its own: the in-memory patch and the injection update both run before the first await, so minting here would compare a token against the world it was just minted from and prove nothing."
-    },
-    "src/runtime/coordinators/memoryCoordinator.ts#MemoryCoordinator.storeDroppedEntry": {
-      "status": "delegate",
-      "note": "v2.3 plan 05: the write moved to the queue module with the other author overrides (see memoryQueue.commitDecision, which carries the caveat). This method one host-facing write awaits MemoryCoordinator.save (the queue deps save), which awaits ChatSave.persist (through the manager's persist delegate), where the chat check lives; the queue holds no token of its own because an author-named row has no window to mint one from."
     },
     "src/runtime/coordinators/memoryCoordinator.ts#MemoryCoordinator.syncWorldInfo": {
       "status": "delegate",

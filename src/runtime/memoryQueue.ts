@@ -376,3 +376,27 @@ export async function discardMemoryRow(deps: MemoryQueueDeps, id: string): Promi
   if (state.ledger.some((row) => row.id === id)) return commitDecision(deps, { ledger: removeLedger(state.ledger, id) }, ["ledger"]);
   return false;
 }
+
+export class MemoryQueue {
+  private refusal: DecisionRefusal | null = null;
+  private readonly deps: MemoryQueueDeps;
+
+  constructor(deps: Omit<MemoryQueueDeps, "refused">) {
+    this.deps = { ...deps, refused: (refusal) => { this.refusal = refusal; } };
+  }
+
+  lastDecisionRefusal(): DecisionRefusal | null { return this.refusal; }
+  detectMemoryConflicts(): ConflictPair[] { return detectMemoryConflicts(this.deps); }
+  getConflicts(): ConflictPair[] { return getConflicts(this.deps); }
+  resolveMemoryConflict(key: string, keepId: string, lock = false): Promise<boolean> { return resolveMemoryConflict(this.deps, key, keepId, lock); }
+  dismissMemoryConflict(key: string): Promise<boolean> { return dismissMemoryConflict(this.deps, key); }
+  rereadConflictWindow(key: string): Promise<boolean> { return rereadConflictWindow(this.deps, key); }
+  /** A quarantined row the author restates: their claim now, not a read of a message that is gone. */
+  reconfirmMemoryEntry(id: string): Promise<boolean> { return reconfirmMemoryEntry(this.deps, id, new Date().toISOString()); }
+  /** The author overrules the judge's drop. One of the queue's own decisions. */
+  storeDroppedEntry(entryId: string): Promise<boolean> { return storeDroppedEntry(this.deps, entryId, new Date().toISOString()); }
+  excludeMemoryEntry(id: string): Promise<boolean> { return discardMemoryRow(this.deps, id); }
+  findHeld(candidates: MemoryEntry[]): Promise<HeldContradiction[]> { return findHeldContradictions(this.deps, candidates); }
+  hold(held: HeldContradiction[]): ConflictPair[] { return holdMemoryContradictions(this.deps, held); }
+  settle(uncertain: UncertainPair[]): void { settleUncertain(this.deps, uncertain); }
+}
