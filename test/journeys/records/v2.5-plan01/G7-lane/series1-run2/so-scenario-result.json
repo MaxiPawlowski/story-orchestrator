@@ -1,0 +1,91 @@
+{
+  "file": "test/scenarios/live-v25-01-g7-sticky.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "inject_script",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 1,
+      "key": "inject_script",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 2,
+      "key": "inject_script",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 3,
+      "key": "eval",
+      "ok": false,
+      "ms": 4,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: Error: not fresh (mode scan); run this fixture's cleanup first\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:455)\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:859)\n    at eval (eval at evaluate (:290:30), <anonymous>:3:12)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+    }
+  ],
+  "ok": false,
+  "error": "Evaluation failed in SillyTavern page: page.evaluate: Error: not fresh (mode scan); run this fixture's cleanup first\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:455)\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:859)\n    at eval (eval at evaluate (:290:30), <anonymous>:3:12)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+  "retries": [],
+  "firstAttempt": "fail",
+  "cleanup": {
+    "removedStoryHashes": [],
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-26@02h23m55s799ms",
+    "owned": [
+      "2026-09-26@02h23m55s799ms"
+    ],
+    "deleted": [
+      "2026-09-26@02h23m55s799ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1529,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-26@02h23m55s799ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

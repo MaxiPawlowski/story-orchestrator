@@ -1,0 +1,78 @@
+== v24-pf-AE04-lore-cancel-run2 start 2026-09-26T06:09:23Z fixtureSha256=3ab3258ad368ad1bd41fe0ff7ff7156123643b9e06256178483c91a995bd4d24
+open-group exit=0
+header capture exit=0 served=0f4332fac075
+1/8 import_story ok 277ms
+2/8 eval ok 219ms
+2/8 eval -> {"book":"ready","entries":4}
+3/8 send ok 1687ms
+4/8 eval ok 163ms
+4/8 eval -> {"loreSelect":true,"timeoutMs":1500,"plugin":"1.0.0","model":"jev-1.13.0"}
+5/8 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the held judge call was not ended by the lore timeout, so no unanswered call was measured: {"trail":[{"label":"held past the lore timeout","lastId":1,"result":{"cached":false,"picks":["Vault combination"]},"asked":1,"requests":0,"calls":[{"fallback":null,"cached":true,"latencyMs":0}],"forced":[["Vault combination"]]}],"net":[]}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:4072)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-26T06-09-36-398Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-26T06-09-42-394Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 5,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-02ea7214"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-26@03h09m32s867ms",
+    "owned": [
+      "2026-09-26@03h09m32s867ms"
+    ],
+    "deleted": [
+      "2026-09-26@03h09m32s867ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1533,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-26@03h09m32s867ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": true,
+      "ok": true
+    }
+  }
+}
+scenario exit=1 2026-09-26T06:09:42Z
+header diff exit=1 blocking=2

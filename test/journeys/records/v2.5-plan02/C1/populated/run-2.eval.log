@@ -1,0 +1,213 @@
+{
+  "ok": true,
+  "value": {
+    "discriminates": true,
+    "before": {
+      "B": "2026-09-26@02h25m56s040ms",
+      "lsim": null,
+      "fired": {},
+      "bPage": 1,
+      "bDisk": {
+        "http": 200,
+        "integrity": "1d80427a-c58c-471e-9bfc-5dc22487376c",
+        "messages": 1,
+        "names": [
+          "Arin"
+        ],
+        "mes": [
+          "Arin leans against a cracked pillar near the Adventurer’s Gu"
+        ],
+        "last": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowin",
+        "blob": {
+          "lsim": null,
+          "fired": {},
+          "active": "start"
+        }
+      },
+      "soloDisk": {
+        "http": 200,
+        "integrity": "2e938775-0853-4c56-910a-fb75856163f9",
+        "messages": 3,
+        "names": [
+          "Max",
+          "Max",
+          "Max"
+        ],
+        "mes": [
+          "POP-0 I stand at the gate.",
+          "POP-1 I look at the sky.",
+          "POP-2 I wait for the caravan."
+        ],
+        "last": "POP-2 I wait for the caravan.",
+        "blob": null
+      },
+      "streamingSetting": true,
+      "mainApi": "textgenerationwebui"
+    },
+    "atSwitch": {
+      "stillGenerating": true,
+      "outcomeSettled": false,
+      "streamedChars": 31,
+      "streamTokens": 11,
+      "streamingMesName": "DM Narrator",
+      "pageChatLen": 2,
+      "msGenToSwitch": 2458,
+      "saving": false
+    },
+    "afterSwitch": {
+      "t": 76,
+      "goError": false,
+      "goThrew": null,
+      "chid": "17",
+      "openChat": "Ponticius - 2026-09-26@02h19m52s832ms",
+      "generating": false,
+      "pageChatLen": 3
+    },
+    "triggerResolved": {
+      "settled": true,
+      "msAfterSwitch": 187,
+      "value": false,
+      "error": null
+    },
+    "after": {
+      "openChat": null,
+      "characterId": null,
+      "groupId": null,
+      "soloPageLen": 3,
+      "soloPageNames": [
+        "Max",
+        "Max",
+        "Max"
+      ],
+      "soloPageMes": [
+        "POP-0 I stand at the gate.",
+        "*The guildhall is alive with the usual evening chatter",
+        "POP-2 I wait for the caravan."
+      ],
+      "soloPageLast": "POP-2 I wait for the caravan.",
+      "exBlsim": null,
+      "exBfired": {
+        "speak:onEnter:DM Narrator:0": 1
+      },
+      "bDisk": {
+        "http": 200,
+        "integrity": "1d80427a-c58c-471e-9bfc-5dc22487376c",
+        "messages": 1,
+        "names": [
+          "Arin"
+        ],
+        "mes": [
+          "Arin leans against a cracked pillar near the Adventurer’s Gu"
+        ],
+        "last": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowin",
+        "blob": {
+          "lsim": null,
+          "fired": {},
+          "active": "start"
+        }
+      },
+      "soloDisk": {
+        "http": 200,
+        "integrity": "2e938775-0853-4c56-910a-fb75856163f9",
+        "messages": 3,
+        "names": [
+          "Max",
+          "Max",
+          "Max"
+        ],
+        "mes": [
+          "POP-0 I stand at the gate.",
+          "*The guildhall is alive with the usual evening chatter",
+          "POP-2 I wait for the caravan."
+        ],
+        "last": "POP-2 I wait for the caravan.",
+        "blob": null
+      },
+      "dialog": null
+    },
+    "events": [
+      {
+        "ev": "GENERATION_STARTED",
+        "t": 1790400375245,
+        "chatId": "2026-09-26@02h25m56s040ms",
+        "groupId": "1759606632088",
+        "gen": false,
+        "arg": "normal",
+        "chatLen": 1
+      },
+      {
+        "ev": "GENERATION_STARTED",
+        "t": 1790400375250,
+        "chatId": "2026-09-26@02h25m56s040ms",
+        "groupId": "1759606632088",
+        "gen": true,
+        "arg": "normal",
+        "chatLen": 1
+      },
+      {
+        "ev": "STREAM_TOKEN_RECEIVED",
+        "t": 1790400377456,
+        "chatId": "2026-09-26@02h25m56s040ms",
+        "groupId": "1759606632088",
+        "gen": true,
+        "arg": " *",
+        "chatLen": 2
+      },
+      {
+        "ev": "GENERATION_ENDED",
+        "t": 1790400377851,
+        "chatId": "Ponticius - 2026-09-26@02h19m52s832ms",
+        "groupId": null,
+        "gen": true,
+        "arg": "3",
+        "chatLen": 3
+      },
+      {
+        "ev": "GENERATION_STOPPED",
+        "t": 1790400377858,
+        "chatId": "Ponticius - 2026-09-26@02h19m52s832ms",
+        "groupId": null,
+        "gen": false,
+        "arg": null,
+        "chatLen": 3
+      },
+      {
+        "ev": "MESSAGE_RECEIVED",
+        "t": 1790400377860,
+        "chatId": "Ponticius - 2026-09-26@02h19m52s832ms",
+        "groupId": null,
+        "gen": false,
+        "arg": "1",
+        "chatLen": 3
+      },
+      {
+        "ev": "CHARACTER_MESSAGE_RENDERED",
+        "t": 1790400377860,
+        "chatId": "Ponticius - 2026-09-26@02h19m52s832ms",
+        "groupId": null,
+        "gen": false,
+        "arg": "1",
+        "chatLen": 3
+      },
+      {
+        "ev": "CHAT_CHANGED",
+        "t": 1790400377872,
+        "chatId": "Ponticius - 2026-09-26@02h19m52s832ms",
+        "groupId": null,
+        "gen": false,
+        "arg": "Ponticius - 2026-09-26@02h19m52s832ms",
+        "chatLen": 3
+      },
+      {
+        "ev": "GROUP_WRAPPER_FINISHED",
+        "t": 1790400377985,
+        "chatId": null,
+        "groupId": null,
+        "gen": false,
+        "arg": null,
+        "chatLen": 3
+      }
+    ]
+  }
+}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-26T05-26-32-239Z_st-eval.json

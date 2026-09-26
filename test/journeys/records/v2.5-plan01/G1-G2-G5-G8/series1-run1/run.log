@@ -1,0 +1,123 @@
+1/28 inject_script ok 7ms
+2/28 inject_script ok 6ms
+3/28 eval ok 20ms
+3/28 eval -> {"saved":3,"books":["Adolion Academy Checkpoints","Adolion - Aegis City Noble Life","Adolion Adventurer Checkpoints"],"library":["adolion-academy@11","adolion-adventurer@9","so-j9-wizard@1","so-j9-fixme@1"],"gatedEntries":93}
+4/28 eval ok 69ms
+4/28 eval -> {"switchedOnFirst":93}
+5/28 eval ok 1817ms
+5/28 eval -> {"activation":{"active":true,"capability":{"state":"present","detail":"the handler ran on a probe scan"}},"edits":3,"present":93,"diff":{"gatedOff":93,"gatedNotOff":[],"gatedOtherKeysChanged":[],"nonGatedChanged":[],"entriesAdded":[],"entriesRemoved":[]},"missingFromLedger":[],"status":{"active":true,"ledger":{"books":3,"entries":93},"drift":0,"missingKey":0}}
+6/28 eval ok 1531ms
+6/28 eval -> {"edits":0}
+7/28 eval ok 2296ms
+7/28 eval -> {"check":{"label":"G1 (b) the other story chat","gated":93,"matched":93,"wrong":[],"unseen":[]},"missingKey":[]}
+8/28 wait ok 3160ms
+9/28 solo_chat ok 583ms
+10/28 eval ok 16ms
+10/28 eval -> {"check":{"label":"G1 (a) no-story chat","gated":93,"matched":93,"wrong":[],"unseen":[]}}
+11/28 send_generate ok 13356ms
+12/28 send_generate ok 13804ms
+13/28 send_generate ok 14835ms
+14/28 eval ok 10ms
+14/28 eval -> {"slots":3,"leaked":[],"missingKey":[]}
+15/28 wait ok 3145ms
+16/28 solo_chat ok 198ms
+17/28 eval ok 604ms
+17/28 eval -> {"bulk":500,"gatedBulk":250,"saved":true}
+18/28 eval ok 1864ms
+18/28 eval -> {"scans":50,"p95":2,"max":3.7999999821186066,"gatedEntries":343}
+19/28 eval ok 23ms
+19/28 eval -> {"book":"Adolion Academy Checkpoints","comment":"CP nightriver-house - Scene"}
+20/28 wait ok 3107ms
+21/28 reload ok 5787ms
+22/28 inject_script ok 7ms
+23/28 inject_script ok 7ms
+24/28 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: timed out waiting for the drifted entry in the start-up verify
+    at Object.waitFor (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:124:51)
+    at async eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:445)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-26T05-05-35-301Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-26T05-05-41-282Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 24,
+  "cleanup": {
+    "removedStoryHashes": [],
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [
+        "Arin - 2026-09-26@02h03m37s733ms"
+      ],
+      "leaked": [],
+      "results": [
+        {
+          "chatId": "Arin - 2026-09-26@02h03m37s733ms",
+          "gone": true
+        }
+      ]
+    },
+    "activeEntity": {
+      "captured": true,
+      "before": {
+        "character": null,
+        "group": "1759606632088"
+      },
+      "found": {
+        "character": "Arin.png",
+        "group": null
+      },
+      "after": {
+        "character": null,
+        "group": "1759606632088"
+      },
+      "restored": true,
+      "saved": {
+        "status": 200
+      }
+    },
+    "sandboxChatId": "2026-09-26@02h03m28s419ms",
+    "owned": [
+      "2026-09-26@02h03m28s419ms"
+    ],
+    "deleted": [
+      "2026-09-26@02h03m28s419ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1543,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-26@02h03m28s419ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

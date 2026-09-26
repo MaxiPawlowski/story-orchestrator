@@ -1,0 +1,14 @@
+{
+  "baseline": "test/journeys/records/v2.5-plan02/C8/A2/header-v24-pf-A2-nudge-leftover-run1-start.json",
+  "label": "diff-end",
+  "allow": [
+    "build.head"
+  ],
+  "differences": 0,
+  "progress": 0,
+  "blocking": 0,
+  "blockingPaths": [],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\2\\debug\\run-header-diff-end.json",
+  "ok": true
+}

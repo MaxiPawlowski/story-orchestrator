@@ -1,0 +1,78 @@
+== v24-acc-A-extprompt-cache-run1 start 2026-09-26T05:51:13Z fixtureSha256=82ce1ab0e37fc188bd8c1048308fe6380676a6c26f79de89538da69bbed26f0a
+open-group exit=0
+header capture exit=0 served=0f4332fac075
+1/5 eval ok 5ms
+2/5 import_story ok 279ms
+3/5 eval ok 15ms
+3/5 eval -> {"set":"Nudge: acceptance cache probe 1790401883234","injected":"Nudge: acceptance cache probe 1790401883234","blocksBefore":{"story_orchestrator_guidance":166,"story_copilot_nudge":43}}
+4/5 eval ok 1697ms
+4/5 eval -> {"activeNudge":"Nudge: acceptance cache probe 1790401883234","injected":"Nudge: acceptance cache probe 1790401883234","blocksAfter":{"story_copilot_nudge":43,"story_orchestrator_guidance":166}}
+5/5 eval ok 28ms
+5/5 eval -> {"afterReload":{"activeNudge":"Nudge: acceptance cache probe 1790401883234","injected":"Nudge: acceptance cache probe 1790401883234","blocksAfter":{"story_copilot_nudge":43,"story_orchestrator_guidance":166}},"resetSameText":{"activeNudge":"Nudge: acceptance cache probe 1790401883234","injected":"Nudge: acceptance cache probe 1790401883234"},"control":{"setDifferentText":"Nudge: acceptance cache probe 1790401883234 (changed)","injected":"Nudge: acceptance cache probe 1790401883234 (changed)"}}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-26T05-51-31-008Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 5,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-26@02h51m22s701ms",
+    "owned": [
+      "2026-09-26@02h51m22s701ms"
+    ],
+    "deleted": [
+      "2026-09-26@02h51m22s701ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1529,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-26@02h51m22s701ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}
+scenario exit=0 2026-09-26T05:51:31Z
+header diff exit=0 blocking=0

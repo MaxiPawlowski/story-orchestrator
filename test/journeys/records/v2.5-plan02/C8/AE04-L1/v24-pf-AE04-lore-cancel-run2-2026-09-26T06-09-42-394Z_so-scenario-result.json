@@ -1,0 +1,102 @@
+{
+  "file": "test/scenarios/v24-pf-AE04-lore-cancel.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "import_story",
+      "ok": true,
+      "ms": 277
+    },
+    {
+      "index": 1,
+      "key": "eval",
+      "ok": true,
+      "ms": 219
+    },
+    {
+      "index": 2,
+      "key": "send",
+      "ok": true,
+      "ms": 1687
+    },
+    {
+      "index": 3,
+      "key": "eval",
+      "ok": true,
+      "ms": 163
+    },
+    {
+      "index": 4,
+      "key": "eval",
+      "ok": false,
+      "ms": 874,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: Error: the held judge call was not ended by the lore timeout, so no unanswered call was measured: {\"trail\":[{\"label\":\"held past the lore timeout\",\"lastId\":1,\"result\":{\"cached\":false,\"picks\":[\"Vault combination\"]},\"asked\":1,\"requests\":0,\"calls\":[{\"fallback\":null,\"cached\":true,\"latencyMs\":0}],\"forced\":[[\"Vault combination\"]]}],\"net\":[]}\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:4072)\n    at async <anonymous>:316:30"
+    }
+  ],
+  "ok": false,
+  "error": "Evaluation failed in SillyTavern page: page.evaluate: Error: the held judge call was not ended by the lore timeout, so no unanswered call was measured: {\"trail\":[{\"label\":\"held past the lore timeout\",\"lastId\":1,\"result\":{\"cached\":false,\"picks\":[\"Vault combination\"]},\"asked\":1,\"requests\":0,\"calls\":[{\"fallback\":null,\"cached\":true,\"latencyMs\":0}],\"forced\":[[\"Vault combination\"]]}],\"net\":[]}\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:4072)\n    at async <anonymous>:316:30",
+  "retries": [],
+  "firstAttempt": "fail",
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-02ea7214"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-26@03h09m32s867ms",
+    "owned": [
+      "2026-09-26@03h09m32s867ms"
+    ],
+    "deleted": [
+      "2026-09-26@03h09m32s867ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1533,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-26@03h09m32s867ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": true,
+      "ok": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

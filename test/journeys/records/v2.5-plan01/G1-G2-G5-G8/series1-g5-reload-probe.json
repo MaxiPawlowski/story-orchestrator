@@ -1,0 +1,718 @@
+[
+ {
+  "t": 24,
+  "setOn": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "mode": "scan"
+  },
+  "disk": false
+ },
+ {
+  "t": 3037,
+  "beforeReload": false
+ },
+ {
+  "t": 3940,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": null,
+   "drift": null,
+   "busy": null,
+   "repair": null
+  },
+  "disk": false
+ },
+ {
+  "t": 4450,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": null,
+   "drift": null,
+   "busy": null,
+   "repair": null
+  },
+  "disk": false
+ },
+ {
+  "t": 4680,
+  "console": "__G5__ {\"edit\":\"Adolion Academy Checkpoints\",\"disable\":true,\"chatId\":null,\"active\":false,\"stack\":\"Error\\n    at fetch (<anonymous>:11:241)\\n    at _save (http://127.0.0.1:8103/scripts/world-info.js:4155:11)\\n    at Object.saveWorldInfo (http://127.0.0.1:8103/scripts/world-info.js:4186:22)\\n    at b (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:918848)\\n    at D (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:919755)\\n    at async B (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:607131)\\n    at async R.releaseWorldInfo (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:611908)\\n    at async u (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:813855)\\n    at async Object.clearStory (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:752392)\\n    at async d (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:814168)\"}"
+ },
+ {
+  "t": 4966,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": false,
+   "drift": [],
+   "busy": true,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 5488,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 6011,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 6527,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 7042,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 7557,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 8073,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 8586,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 9104,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 9620,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 10138,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 10658,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 11178,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 11697,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 12214,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 12734,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 13248,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 13761,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 14276,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 14792,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 15313,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 15823,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 16344,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 16864,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 17380,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 17892,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 18410,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 18923,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 19438,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 19954,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 20470,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 20985,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 21502,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 22019,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 22533,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 23047,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 23564,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 24080,
+  "s": {
+   "chatId": null,
+   "story": null,
+   "active": true,
+   "drift": [],
+   "busy": false,
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 24702,
+  "afterOpen": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "story": null,
+   "active": true,
+   "drift": [],
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 25219,
+  "afterOpen": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "story": null,
+   "active": true,
+   "drift": [],
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 25734,
+  "afterOpen": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "story": null,
+   "active": true,
+   "drift": [],
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 26254,
+  "afterOpen": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "story": null,
+   "active": true,
+   "drift": [],
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 26773,
+  "afterOpen": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "story": null,
+   "active": true,
+   "drift": [],
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 27294,
+  "afterOpen": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "story": null,
+   "active": true,
+   "drift": [],
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 27814,
+  "afterOpen": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "story": null,
+   "active": true,
+   "drift": [],
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 28334,
+  "afterOpen": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "story": null,
+   "active": true,
+   "drift": [],
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 28855,
+  "afterOpen": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "story": null,
+   "active": true,
+   "drift": [],
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 29371,
+  "afterOpen": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "story": null,
+   "active": true,
+   "drift": [],
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 29886,
+  "afterOpen": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "story": null,
+   "active": true,
+   "drift": [],
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 30399,
+  "afterOpen": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "story": null,
+   "active": true,
+   "drift": [],
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 30915,
+  "afterOpen": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "story": null,
+   "active": true,
+   "drift": [],
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 31431,
+  "afterOpen": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "story": null,
+   "active": true,
+   "drift": [],
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 31948,
+  "afterOpen": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "story": null,
+   "active": true,
+   "drift": [],
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 32463,
+  "afterOpen": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "story": null,
+   "active": true,
+   "drift": [],
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 32982,
+  "afterOpen": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "story": null,
+   "active": true,
+   "drift": [],
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 33499,
+  "afterOpen": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "story": null,
+   "active": true,
+   "drift": [],
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 34013,
+  "afterOpen": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "story": null,
+   "active": true,
+   "drift": [],
+   "repair": null
+  },
+  "disk": true
+ },
+ {
+  "t": 34529,
+  "afterOpen": {
+   "chatId": "2026-09-20@07h06m38s396ms",
+   "story": null,
+   "active": true,
+   "drift": [],
+   "repair": null
+  },
+  "disk": true
+ }
+]

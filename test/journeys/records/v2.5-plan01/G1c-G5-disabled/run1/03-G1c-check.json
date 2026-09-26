@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "value": {
+    "chat": "Arin - 2025-10-27@04h58m22s",
+    "character": "Arin",
+    "groupId": null,
+    "soLoaded": false,
+    "ledgerSize": 343,
+    "ledgerEntriesInSortedEntries": 343,
+    "sortedTotal": 863,
+    "enabledTotal": 519,
+    "leaked": [],
+    "chatStoryMeta": false
+  }
+}

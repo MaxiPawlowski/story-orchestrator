@@ -1,0 +1,79 @@
+import { chromium } from 'playwright';
+
+const cdp = `http://127.0.0.1:${process.env.ST_DEBUG_CDP_PORT}`;
+const BOOK = process.env.G5_BOOK ?? 'Adolion Academy Checkpoints';
+const COMMENT = process.env.G5_COMMENT ?? 'CP nightriver-house - Scene';
+const openGroup = process.env.G5_OPEN_GROUP ?? '';
+const browser = await chromium.connectOverCDP(cdp);
+const context = browser.contexts()[0];
+const page = context.pages()[0];
+const log: unknown[] = [];
+const t0 = Date.now();
+const at = () => Date.now() - t0;
+page.on('console', (msg) => {
+  const text = msg.text();
+  if (/__G5__/.test(text)) log.push({ t: at(), console: text.slice(0, 4000) });
+});
+await page.addInitScript(({ book, comment }) => {
+  const original = window.fetch;
+  (window as any).fetch = async function (input: any, init: any) {
+    const url = typeof input === 'string' ? input : input?.url;
+    if (String(url).includes('/api/worldinfo/edit')) {
+      try {
+        const body = JSON.parse(init?.body ?? '{}');
+        if (String(body.name) === book) {
+          const hit = Object.values(body.data?.entries ?? {}).find((e: any) => String(e.comment ?? '').trim() === comment) as any;
+          console.log('__G5__ ' + JSON.stringify({ edit: body.name, disable: hit?.disable, chatId: (window as any).SillyTavern?.getContext?.()?.chatId ?? null, active: (window as any).storyOrchestratorScanGating?.active?.() ?? null, stack: new Error().stack }));
+        }
+      } catch (e) { console.log('__G5__ parse ' + e); }
+    }
+    return original.apply(this, [input, init]);
+  };
+}, { book: BOOK, comment: COMMENT });
+
+const onDisk = () => page.evaluate(async ({ book, comment }) => {
+  const r = await fetch('/api/worldinfo/get', { method: 'POST', headers: (window as any).SillyTavern.getContext().getRequestHeaders(), body: JSON.stringify({ name: book }), cache: 'no-cache' });
+  const b = await r.json();
+  return (Object.values(b.entries) as any[]).find((e) => String(e.comment ?? '').trim() === comment)?.disable ?? null;
+}, { book: BOOK, comment: COMMENT });
+
+const setOn = await page.evaluate(async ({ book, comment }) => {
+  const ctx = (window as any).SillyTavern.getContext();
+  const r = await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: book }), cache: 'no-cache' });
+  const data = await r.json();
+  for (const e of Object.values(data.entries) as any[]) if (String(e.comment ?? '').trim() === comment) e.disable = false;
+  await ctx.saveWorldInfo(book, data, true);
+  (await import('/scripts/world-info.js' as any)).worldInfoCache.delete(book);
+  return { chatId: ctx.chatId ?? null, mode: (window as any).storyOrchestratorRuntime.getGlobalSettings().worldInfo.gatingMode };
+}, { book: BOOK, comment: COMMENT });
+log.push({ t: at(), setOn, disk: await onDisk() });
+await page.waitForTimeout(3000);
+log.push({ t: at(), beforeReload: await onDisk() });
+
+const client = await context.newCDPSession(page);
+await client.send('Network.setCacheDisabled' as never, { cacheDisabled: true } as never);
+await page.reload({ waitUntil: 'domcontentloaded' });
+for (let i = 0; i < 40; i += 1) {
+  await page.waitForTimeout(500);
+  const s = await page.evaluate(() => {
+    const rt = (window as any).storyOrchestratorRuntime;
+    const g = rt?.getSnapshot?.().wiGating;
+    return { chatId: (window as any).SillyTavern?.getContext?.()?.chatId ?? null, story: rt?.getSnapshot?.().storyId ?? null, active: (window as any).storyOrchestratorScanGating?.active?.() ?? null, drift: g?.drift ?? null, busy: g?.busy ?? null, repair: document.querySelector('[data-so="repair-step"]')?.textContent ?? null };
+  }).catch((e) => ({ err: String(e) }));
+  log.push({ t: at(), s, disk: await onDisk().catch(() => 'n/a') });
+}
+if (openGroup) {
+  await page.evaluate(async (id) => { await (await import('/scripts/group-chats.js' as any)).openGroupById(id); }, openGroup);
+  for (let i = 0; i < 20; i += 1) {
+    await page.waitForTimeout(500);
+    const s = await page.evaluate(() => {
+      const rt = (window as any).storyOrchestratorRuntime;
+      const g = rt?.getSnapshot?.().wiGating;
+      return { chatId: (window as any).SillyTavern?.getContext?.()?.chatId ?? null, story: rt?.getSnapshot?.().storyId ?? null, active: (window as any).storyOrchestratorScanGating?.active?.() ?? null, drift: g?.drift ?? null, repair: document.querySelector('[data-so="repair-step"]')?.textContent ?? null };
+    }).catch((e) => ({ err: String(e) }));
+    log.push({ t: at(), afterOpen: s, disk: await onDisk().catch(() => 'n/a') });
+  }
+}
+await client.detach().catch(() => undefined);
+console.log(JSON.stringify(log, null, 1));
+await browser.close().catch(() => undefined);

@@ -1,0 +1,87 @@
+1/17 inject_script ok 20ms
+2/17 inject_script ok 21ms
+3/17 inject_script ok 22ms
+4/17 eval ok 200ms
+4/17 eval -> {"realBooksSaved":3,"setup":{"book":"SO-T13 Xentar","sticky":"CP1 - Scenario = 3","vectorized":["CP4 - Sphinx","CP2 - Scenario"]}}
+5/17 import_story ok 291ms
+6/17 eval ok 6ms
+6/17 eval -> {"A":{"groupId":"1759606632088","chatId":"2026-09-26@04h06m25s189ms"},"path":["cp1"]}
+7/17 ui ok 189ms
+8/17 eval ok 5ms
+8/17 eval -> {"before":0}
+9/17 send_generate ok 35346ms
+10/17 eval ok 15ms
+10/17 eval -> {"fired":["Places - Xentar","Places - Guild of Adventurers","CP1 - Scenario","Places - Continent (macro backdrop)","General - Sun’s Heart Artifact","General - Artifacts","General - Magic","General - Barriers (city wards)","Races - Humans"],"probe":{"label":"G7 file: after the first real turn at cp1","mode":"file","chatLength":4,"scanHash":4021784051273102,"scanDisable":false,"sticky":{"hash":4021784051273102,"start":2,"end":5,"protected":false},"hashMatches":true}}
+11/17 wait ok 3145ms
+12/17 eval ok 307ms
+12/17 eval -> {"activation":{"active":true,"capability":{"state":"present","detail":"the handler ran on a probe scan"}},"probe":{"label":"G7 scan: after the confirmed switch (no reload), before a turn","mode":"scan","chatLength":4,"scanHash":4021784051273102,"scanDisable":false,"sticky":{"hash":4021784051273102,"start":2,"end":5,"protected":false},"hashMatches":true}}
+13/17 send_generate ok 31084ms
+14/17 eval ok 202ms
+14/17 eval -> {"fired":true,"hashMatches":true,"probe":{"label":"G7 scan: after the first real turn in scan mode","mode":"scan","chatLength":6,"scanHash":4021784051273102,"scanDisable":false,"sticky":{"hash":4021784051273102,"start":5,"end":8,"protected":false},"hashMatches":true}}
+15/17 wait ok 28333ms
+16/17 eval ok 2638ms
+16/17 eval -> {"books":{"restored":3,"identical":{"Adolion Academy Checkpoints":true,"Adolion - Aegis City Noble Life":true,"Adolion Adventurer Checkpoints":true}},"record":{"chats":{"A":{"groupId":"1759606632088","chatId":"2026-09-26@04h06m25s189ms"}},"startedAt":"2026-09-26T07:06:25.676Z","S9":[{"label":"G7 file: after the first real turn at cp1","mode":"file","chatLength":4,"scanHash":4021784051273102,"scanDisable":false,"sticky":{"hash":4021784051273102,"start":2,"end":5,"protected":false},"hashMatches":true},{"label":"G7 scan: after the confirmed switch (no reload), before a turn","mode":"scan","chatLength":4,"scanHash":4021784051273102,"scanDisable":false,"sticky":{"hash":4021784051273102,"start":2,"end":5,"protected":false},"hashMatches":true},{"label":"G7 scan: after the first real turn in scan 
+17/17 assets ok 371ms
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-26T07-08-13-492Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 17,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-f7c61ac5"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-26@04h06m25s189ms",
+    "owned": [
+      "2026-09-26@04h06m25s189ms"
+    ],
+    "deleted": [
+      "2026-09-26@04h06m25s189ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1526,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-26@04h06m25s189ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

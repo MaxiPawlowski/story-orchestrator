@@ -1,0 +1,161 @@
+{
+  "ok": true,
+  "value": {
+    "discriminates": true,
+    "before": {
+      "B": "2026-09-26@02h14m30s374ms",
+      "lsim": null,
+      "fired": {},
+      "bPage": 1,
+      "bDisk": {
+        "http": 200,
+        "integrity": "5ea91b34-6c07-4c1c-867a-37f20e899801",
+        "messages": 1,
+        "names": [
+          "Arin"
+        ],
+        "last": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowin",
+        "blob": {
+          "lsim": null,
+          "fired": {},
+          "active": "start"
+        }
+      },
+      "soloDisk": {
+        "http": 200,
+        "integrity": "718ae40c-28ea-460d-84c9-707c2337e250",
+        "messages": 0,
+        "names": [],
+        "last": "",
+        "blob": null
+      },
+      "streamingSetting": true,
+      "mainApi": "textgenerationwebui"
+    },
+    "atSwitch": {
+      "stillGenerating": true,
+      "outcomeSettled": false,
+      "streamedChars": 33,
+      "streamTokens": 8,
+      "streamingMesName": "DM Narrator",
+      "pageChatLen": 2,
+      "msGenToSwitch": 34594,
+      "saving": false
+    },
+    "afterSwitch": {
+      "t": 30225,
+      "goError": false,
+      "goThrew": null,
+      "chid": null,
+      "generating": false,
+      "pageChatLen": 0
+    },
+    "triggerResolved": {
+      "settled": true,
+      "msAfterSwitch": 210,
+      "value": false,
+      "error": null
+    },
+    "after": {
+      "openChat": null,
+      "characterId": null,
+      "groupId": null,
+      "soloPageLen": 0,
+      "soloPageNames": [],
+      "soloPageLast": "",
+      "exBlsim": null,
+      "exBfired": {
+        "speak:onEnter:DM Narrator:0": 1
+      },
+      "bDisk": {
+        "http": 200,
+        "integrity": "5ea91b34-6c07-4c1c-867a-37f20e899801",
+        "messages": 1,
+        "names": [
+          "Arin"
+        ],
+        "last": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowin",
+        "blob": {
+          "lsim": null,
+          "fired": {},
+          "active": "start"
+        }
+      },
+      "soloDisk": {
+        "http": 200,
+        "integrity": "718ae40c-28ea-460d-84c9-707c2337e250",
+        "messages": 0,
+        "names": [],
+        "last": "",
+        "blob": null
+      },
+      "dialog": null
+    },
+    "events": [
+      {
+        "ev": "GENERATION_STARTED",
+        "t": 1790399689640,
+        "chatId": "2026-09-26@02h14m30s374ms",
+        "groupId": "1759606632088",
+        "gen": false,
+        "arg": "normal",
+        "chatLen": 1
+      },
+      {
+        "ev": "GENERATION_STARTED",
+        "t": 1790399689648,
+        "chatId": "2026-09-26@02h14m30s374ms",
+        "groupId": "1759606632088",
+        "gen": true,
+        "arg": "normal",
+        "chatLen": 1
+      },
+      {
+        "ev": "STREAM_TOKEN_RECEIVED",
+        "t": 1790399700729,
+        "chatId": "2026-09-26@02h14m30s374ms",
+        "groupId": "1759606632088",
+        "gen": true,
+        "arg": " \"",
+        "chatLen": 2
+      },
+      {
+        "ev": "GENERATION_ENDED",
+        "t": 1790399724525,
+        "chatId": "Ponticius - 2025-10-27 @11h 06m 58s 578ms",
+        "groupId": null,
+        "gen": true,
+        "arg": "0",
+        "chatLen": 0
+      },
+      {
+        "ev": "GENERATION_STOPPED",
+        "t": 1790399724536,
+        "chatId": "Ponticius - 2025-10-27 @11h 06m 58s 578ms",
+        "groupId": null,
+        "gen": false,
+        "arg": null,
+        "chatLen": 0
+      },
+      {
+        "ev": "GROUP_WRAPPER_FINISHED",
+        "t": 1790399724538,
+        "chatId": null,
+        "groupId": null,
+        "gen": false,
+        "arg": null,
+        "chatLen": 0
+      },
+      {
+        "ev": "CHAT_CHANGED",
+        "t": 1790399724553,
+        "chatId": null,
+        "groupId": null,
+        "gen": false,
+        "arg": "Ponticius - 2025-10-27 @11h 06m 58s 578ms",
+        "chatLen": 0
+      }
+    ]
+  }
+}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-26T05-16-08-697Z_st-eval.json

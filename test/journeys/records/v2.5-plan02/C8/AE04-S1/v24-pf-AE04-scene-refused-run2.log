@@ -1,0 +1,79 @@
+== v24-pf-AE04-scene-refused-run2 start 2026-09-26T06:10:13Z fixtureSha256=f9c6af66a0a44438395429f4b501b67491615181384cb9c9b5ac9e65aa675c02
+open-group exit=0
+header capture exit=0 served=0f4332fac075
+1/7 import_story ok 281ms
+2/7 send ok 1653ms
+3/7 eval ok 178ms
+3/7 eval -> {"sceneTracker":true,"plugin":"1.0.0","model":"jev-1.13.0"}
+4/7 send ok 1686ms
+5/7 eval ok 21ms
+5/7 eval -> {"block":"[Scene: guild hall. Present: Arin.]","messageId":2,"model":"jev-1.13.0","calls":[{"at":"2026-09-26T06:10:27.769Z","boundary":0,"messageId":2,"use":"scene","model":"jev-1.13.0","latencyMs":0,"stateChars":1221,"questionCount":4,"cached":true,"p":{}}]}
+6/7 eval ok 26ms
+6/7 eval -> {"removal":{"writeAttempts":4,"block":"[Scene: guild hall. Present: Arin.]","injected":"[Scene: guild hall. Present: Arin.]","journal":[{"summary":"The scene tracker could not be removed from the prompt","detail":"{\"note\":\"this build exposes no setExtensionPrompt, so the block cannot be cleared. Retried on the next update.\"}"}]},"removalLanded":{"block":"","injected":null,"journal":[{"summary":"The scene tracker could not be removed from the prompt","detail":"{\"note\":\"this build exposes no setExtensionPrompt, so the block cannot be cleared. Retried on the next update.\"}"}]},"addition":{"writeAttempts":4,"block":"","injected":null,"journal":[{"summary":"The scene tracker could not be removed from the prompt","detail":"{\"note\":\"this build exposes no setExtensionPrompt, so the bloc
+7/7 eval ok 18ms
+7/7 eval -> {"restored":true,"enabled":false,"sceneTracker":false,"block":""}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-26T06-10-33-788Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 7,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-f7976edd"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-26@03h10m23s503ms",
+    "owned": [
+      "2026-09-26@03h10m23s503ms"
+    ],
+    "deleted": [
+      "2026-09-26@03h10m23s503ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1533,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-26@03h10m23s503ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}
+scenario exit=0 2026-09-26T06:10:33Z
+header diff exit=0 blocking=0

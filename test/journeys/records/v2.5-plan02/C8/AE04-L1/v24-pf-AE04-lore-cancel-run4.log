@@ -1,0 +1,84 @@
+== v24-pf-AE04-lore-cancel-run4 start 2026-09-26T06:15:54Z fixtureSha256=3ab3258ad368ad1bd41fe0ff7ff7156123643b9e06256178483c91a995bd4d24
+reload exit=0
+profile exit=0
+open-group exit=0
+header capture exit=0 served=0f4332fac075
+1/8 import_story ok 285ms
+2/8 eval ok 229ms
+2/8 eval -> {"book":"ready","entries":4}
+3/8 send ok 1668ms
+4/8 eval ok 102ms
+4/8 eval -> {"loreSelect":true,"timeoutMs":1500,"plugin":"1.0.0","model":"jev-1.13.0"}
+5/8 eval ok 2767ms
+5/8 eval -> {"case":"unanswered (timeout)","unanswered":{"fallback":"timeout","heldMs":1516},"reasked":{"asked":1,"requests":1,"picks":["Vault combination"],"fallback":[null]},"answeredPicks":["Vault combination"],"trail":[{"label":"held past the lore timeout","lastId":1,"result":{"cached":false,"picks":[]},"asked":1,"requests":1,"calls":[{"fallback":"timeout","cached":false,"latencyMs":1516}],"forced":[]},{"label":"same message, after the unanswered call","lastId":1,"result":{"cached":false,"picks":["Vault combination"]},"asked":1,"requests":1,"calls":[{"fallback":null,"cached":false,"latencyMs":393}],"forced":[["Vault combination"]]},{"label":"control: same message after an answered call","lastId":1,"result":{"cached":true,"picks":["Vault combination"]},"asked":0,"requests":0,"calls":[],"forced":[["
+6/8 send ok 1659ms
+7/8 eval ok 569ms
+7/8 eval -> {"case":"lapsed (epoch moved)","epoch":[5,6],"lapsed":{"heldMs":61,"result":null},"reasked":{"asked":1,"requests":1,"picks":["Vault combination"],"fallback":[null]},"answeredPicks":["Vault combination"],"trail":[{"label":"held until the epoch moved","lastId":2,"result":null,"asked":0,"requests":1,"calls":[],"forced":[]},{"label":"same chat, story and message after the lapse","lastId":2,"result":{"cached":false,"picks":["Vault combination"]},"asked":1,"requests":1,"calls":[{"fallback":null,"cached":false,"latencyMs":216}],"forced":[["Vault combination"]]},{"label":"control: same message after an answered call","lastId":2,"result":{"cached":true,"picks":["Vault combination"]},"asked":0,"requests":0,"calls":[],"forced":[["Vault combination"]]}],"net":[{"n":1,"fault":"lapse","at":1790403382736
+8/8 eval ok 3ms
+8/8 eval -> {"restored":true,"enabled":false,"loreSelect":false}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-26T06-16-29-198Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 8,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-02ea7214"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-26@03h16m15s659ms",
+    "owned": [
+      "2026-09-26@03h16m15s659ms"
+    ],
+    "deleted": [
+      "2026-09-26@03h16m15s659ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1536,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-26@03h16m15s659ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}
+scenario exit=0 2026-09-26T06:16:29Z
+assets remove exit=0
+header diff exit=0 blocking=0

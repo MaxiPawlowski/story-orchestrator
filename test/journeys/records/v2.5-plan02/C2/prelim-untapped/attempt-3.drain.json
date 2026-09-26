@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "saves": 3,
+  "metadataCalls": 3,
+  "flags": [
+    {
+      "seq": 14,
+      "kind": "posted-elsewhere",
+      "detail": "saveMetadata was asked in \"2026-09-26@02h04m03s354ms\" (seq 13); the next save wrote \"Ponticius - 2025-10-27 @11h 06m 58s 578ms\" (0 rows)"
+    }
+  ]
+}

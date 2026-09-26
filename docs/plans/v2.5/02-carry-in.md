@@ -248,3 +248,83 @@ Group `1759606632088` is the lane group the v2.4 fixtures use. Re-check it exist
   debug globals to dev builds (V11).
 - **C5 and C11–C13 were not taken.** Their condition, a v2.4 plan 09 deferral with a user sign-off, is not recorded.
 - **C6 and C8 are live only.**
+
+## Gate record (live, bundle 0f4332fac075)
+
+2026-09-26. Lanes only: lane 1 ran C1 and C2, and lane 2 ran A11, A6, C7 and C8. Each lane was prepared the same way: `restore-config`, `st-session reload`, served bundle `0f4332fac075` confirmed by `so-run-header`, `open-group 1759606632088` (`ctx.groupId` checked), `/profile Artemis RunPod RP` with a real PONG. `src`/`dist` untouched. Records live under `test/journeys/records/v2.5-plan02/` (`<rec>` below). C8 is archived under `<rec>/C8/`, not the `postfreeze/` the C8 row named (deviation, path only).
+
+### Verdicts
+
+| Gate | Verdict | Runs | Record |
+|---|---|---|---|
+| A11 forced arm | **NOT GREEN, 0 of 5.** All five runs failed at step 8/18: `the memory model did not answer within 92064 ms, nor within 184128 ms on one retry`. That is the **first window** (~88k tokens), not the whole-chat pass the arm targets. Scale 0.359 came from the base run (window passes 112.8 s / 15.8 s, whole chat 127.0 s), so the window had only 1.63× headroom. Run 3 shared the backend (3 requests in flight, 542 tok/s against 791). Run 5 had it alone and still ran both asks to their budgets (+160,770 prompt tokens over +277 s). Read as calibration on the shared backend, not a product defect. The scale was not retuned | base + 5 (batch 1 runs 1–2, diagnostic run 3, batch 2 runs 4–5) | `<rec>/A11/` (`base.log`, `scale.json`, `fixture-sha.txt`, `metrics-*.tsv`, `backend-waits.log`) |
+| A6 slow arm | **GREEN ×2.** Answer latency 13,400 / 13,853 ms (> 10 s), closed by `probe (backoff) succeeded`. Player-clean passed, "Try again" was clickable, the profile URL was restored to :18080, header blocking 0 | 2 | `<rec>/A6/` |
+| C1 step 0 | **Measured: the reply lands in the next chat when that chat is long enough.** Empty next chat: 2 runs, no landing. In run 1 the stop fired; in run 2 the stream errored on the emptied `chat[1]` and `/go` threw. Populated next chat: 2 of 2 landed. The partial narrator reply overwrote message #1 of the solo chat on disk (`run-{1,2}.solo-after.jsonl`) | 2 + 2 counted; prelims set aside with stated harness reasons | `<rec>/C1/`, `<rec>/C1/populated/` |
+| C1 step 2 (stop) | **NOT EFFECTIVE LIVE.** 2 of 2 populated runs landed with the stop in place. See D1 | as above | `<rec>/C1/populated/` |
+| C2 steps 2–3 | **Not reproduced, 0 of 10** (foreign-integrity shape). No popup, no wedge, every save 200. Attribution below. No guard built | 10 counted (3 untapped prelims archived, not counted) | `<rec>/C2/` |
+| C7 | **RED ×2, as expected.** `C7: the transition note came after the reply it announces`. Reply at index 1, note at index 2, lag about 22 s (run 1) and 15 s (run 2) | 2 | `<rec>/C7/` |
+| C8 A1 | GREEN ×2: `v24-acc-A-reload-blocks` (run 1 header blocking 1 = H1 below), `-control`, `-extprompt-cache` | 2 each | `<rec>/C8/A1/runs.jsonl` |
+| C8 I7 | GREEN ×2 | 2 | `<rec>/C8/I7/runs.jsonl` |
+| C8 A2 | GREEN ×2: `v24-acc-I3` and `v24-pf-A2-nudge-leftover`. The post-nudge `activeNudge` and `story_copilot_nudge` both read null | 2 each | `<rec>/C8/A2/runs.jsonl` |
+| C8 AE-03 | GREEN ×2 (`live-v24-08-fates-jump`) | 2 | `<rec>/C8/AE-03/runs.jsonl` |
+| C8 AE-01 | GREEN ×2: `v24-pf-curator-switch` and `v24-pf-curator-same-chat` | 2 each | `<rec>/C8/AE-01/runs.jsonl` |
+| C8 AE04-L1 | GREEN ×2 on runs 3–4. Runs 1–2 are invalid (H2 below) | 4, 2 counted | `<rec>/C8/AE04-L1/runs.jsonl` |
+| C8 AE04-S1 | GREEN ×2, asset cleanup clean | 2 | `<rec>/C8/AE04-S1/runs.jsonl` |
+| C10 | deterministic only (code record) | — | — |
+
+After the AE04 runs, the judge is back at defaults (`enabled` false, every use off). The C8 driver is `<rec>/C8/run-c8.sh`, and each row's `runs.jsonl` carries the fixture sha256 per run.
+
+### Defects found (not fixed)
+
+- **D1 (data loss; ST streaming, started by our effect). An in-flight llm NPC `/trigger` reply overwrites a message in the chat the player switches to, and saves it.**
+  - Recorder stack: `saveChat` ← `StreamingProcessor.onFinishStreaming` (`script.js:3815`) ← `Generate` (`:5440`) ← `generateGroupWrapper` (`group-chats.js:1063`) ← our `/trigger` (`src/runtime/effectsApplier.ts:139`).
+  - Our stop (`src/runtime/effectsApplier.ts:373-377` → `src/services/stHost/generation.ts:9-15`) fires on the epoch bump from `clearStory` → `invalidateRuns` (`src/runtime/runtimeManager.ts:238`), that is, inside the `CHAT_CHANGED` dispatch, after ST has already swapped `chat`.
+  - `stopGeneration` marks the stream finished (`script.js:3847-3850`), and `onFinishStreaming` then writes `chat[messageId]` of the now-open chat (`:3679-3685`) and saves it.
+  - From the code (not measured): without the stop, a long enough next chat takes the full reply at the natural finish, and a shorter one ends the stream with a TypeError (as in run 2). So landing depends on the next chat's length, not on the stop.
+- **D2 (ST host):** `/go` during a group generation leaves no chat open, or throws. `/go` has no `is_group_generating` guard (`slash-commands.js:5110-5115`). The wrapper's `setCharacterId(undefined)` (`group-chats.js:1080`) left no chat selected in 4 of 5 runs, and in run 2 `/go` threw at `script.js:7684`, so `CHAT_CHANGED` never fired.
+- **C7 (known, rule-7):** `src/runtime/runtimeManager.ts:275` `applyActive("activate")` awaits the onEnter `fireNpcReplies` at `src/runtime/effectsApplier.ts:270`. Only then does `src/runtime/runtimeManager.ts:289` `announceTransition` post the note.
+- **C2 observation (ours, latent):** the settings write persists un-awaited (`src/runtime/settingsControl.ts:58`). That save binds late to the next chat and is caught only because it is empty (`src/services/stHost/persistence.ts:92-96`).
+- **Harness H1 (S12 shape, lane copy only):** sandbox cleanup deleted a library story that already existed under the same id. `v24-acc-A-reload-blocks` imports `v24-01-delete.story.json`, whose id `v24-01-delete-decode` was already in lane 2's library. Cleanup removed hash `v2-de4f955d`, so `v24-01-delete-decode@1` is gone from lane 2. It was not restored. The harness must spare a same-id story that existed before the run.
+- **Harness H2:** the C8 runner did not reload between AE04-L1 runs. Run 2's judge answer was a page-cache hit (`cached:true, latencyMs:0`, the known gotcha), and the header was diffed before the marker lorebook was removed. The runner was fixed (reload + profile per run, assets removed before the diff), not the fixture, and runs 3–4 re-ran.
+- **Recorder limitation (C2):** our save watcher re-wraps `fetch` on every persist and ends up outermost, so `so-save-recorder` cannot see a save the watcher refuses. The attempt script added an outer tap. Its `posted-elsewhere` flag fired on all 10 attempts, so it is noisy.
+- **Observation:** `settings.schema` null → 1 first appeared during the A11 base run. This is the product stamping the schema on a settings save, and is benign. Session header diff: `<rec>/header-session-end-diff.log`.
+
+### C1 step 2: keep or remove (the rule in §Deviations)
+
+The rule removes the stop only if step 0 shows ST never lets the reply land in the next chat. Step 0 shows it lands (populated, 2 of 2), so the removal condition is **not met and the stop is KEPT**. It is not proven dormant. It is also **not a fix**: 2 of 2 replies landed with it in place, because it fires after ST swaps `chat`. Consequences:
+- step 2 does not close C1;
+- the fault-matrix `effects|aborted` "covered" is not supported live (`test/findings/faultMatrix.json`, owed back to `partial` by the next C1 build item, not edited in a records commit);
+- C1 stays open on D1.
+
+A fix has to act before the swap (for example, stop or detach the stream before the switch commits, or refuse the finish-streaming write into a chat other than the trigger's). It starts from the populated fixture, red first.
+
+### C2 attribution
+
+- **Spike shape (a non-empty save under another chat's name, with a foreign integrity): not reproduced, 0 of 10**, with the harness waits removed and the recorder plus an outer tap armed. The row closes as "not reproduced" for that shape. The harness waits stay in place.
+- **The one late save observed is ours**, in 10 of 10 attempts. The stack is `setUiSettings` → `settingsControl.refresh` (`src/runtime/settingsControl.ts:58`) → `persist` → `saveAndObserve`, then ST's `saveMetadata` → `saveChatConditional` → `saveChat`. It posted 97–105 ms after the ask, under the solo chat's name, after `getChat` had loaded the solo header. It therefore carried the solo chat's own integrity (`718ae40c…`) and 0 rows, and `switchRefusal` (`persistence.ts:92-96`) refused it every time.
+- Step 3's integrity-mismatch guard would not have fired, because the integrity matched. The evidence points instead at refusing any chat save of ours that was armed for another chat, whatever its row count. **Not built.** That is the plan owner's call, and it starts from a red fixture: a solo chat **with** messages, where this same late save would pass and our group persist would be lost. That case was not tested.
+
+### Pending
+
+- **Mutant controls (each needs a mutant build):**
+  - A11 with `TIMEOUT_RETRY_SCALE = 1` + `so-v25-a11-control`;
+  - A6 with a fixed 10 s `probeTimeoutMs` + `so-v25-a6-control`;
+  - C1 with no stop (whether the reply lands without the stop: full length in a long chat, nothing in a short one).
+- **A11:** re-run base, then the arm ×2, in an exclusive backend window with llama-server logs captured. Whether llama cancels the aborted first ask is still unknown.
+- **C1:** the D1 fix (above) and its live ×2. Host facts owed as new rows (v2.5 host facts):
+  - `/trigger await=true` resolves on stop (about 190–210 ms after the switch);
+  - our stop emits `GENERATION_STOPPED` inside the `CHAT_CHANGED` dispatch;
+  - `onFinishStreaming` writes into whichever chat is open;
+  - `/go` has no group-generating guard.
+
+  Whether T6 sees our `GENERATION_STOPPED` is not observable without a debug handle.
+- **C2:** the populated-solo case, and the guard decision above.
+- **C7:** the rule-7 change: a player session, or a user decision before the freeze, or a v2.6 seed.
+- C5 and C11–C13: not taken (no v2.4 plan 09 deferral with sign-off). C4 `03-H18`: not confirmed on this batch.
+- **Lane residue (lane copies only):**
+  - lane 1 keeps these C1/C2 sandbox group chats: `2026-09-26@02h04m03s354ms`, `02h11m30s492ms`, `02h13m06s245ms`, `02h14m30s374ms`, `02h16m43s530ms`, `02h20m18s909ms`, `02h22m00s975ms`, `02h25m00s518ms`, `02h25m56s040ms`. They were not deleted, to avoid reap popups. Their pinned `so-v25-c2c1` copies remain; the story itself was removed from the library;
+  - lane 1's solo chat `Ponticius - 2026-09-26@02h19m52s832ms` was left overwritten by the last C1 run. The original is backed up at `C:\dev\so-lanes\1\c2-backup\`;
+  - lane 2 lost `v24-01-delete-decode@1` (H1).
+
+  Re-seed both lanes (`st-lanes seed <n> --fresh`) before the next batch.
+- localStorage: `so-v25-a11-scale` removed. The read-back shows no `so-v25-*` keys and no `storyOrchestratorDebug*` globals (`<rec>/localstorage-cleanup.log`).

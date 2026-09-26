@@ -1,0 +1,24 @@
+{
+  "lanes": [
+    1
+  ],
+  "items": [
+    "J7"
+  ],
+  "repeat": 1,
+  "strict": true,
+  "results": [
+    {
+      "item": "J7",
+      "lane": 1,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-26T05-40-47-293Z-J7-run1.log",
+      "ms": 3811532,
+      "automated": "automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\1\\debug\\2026-09-26T06-44-18-797Z_journey-J7.json",
+      "failures": []
+    }
+  ]
+}

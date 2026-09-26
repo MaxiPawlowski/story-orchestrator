@@ -1,0 +1,23 @@
+DONE v24-acc-A-reload-blocks-run1 scenario=0 diff=1 blocking=1
+DONE v24-acc-A-reload-blocks-run2 scenario=0 diff=0 blocking=0
+DONE v24-acc-A-reload-blocks-control-run1 scenario=0 diff=0 blocking=0
+DONE v24-acc-A-reload-blocks-control-run2 scenario=0 diff=0 blocking=0
+DONE v24-acc-A-extprompt-cache-run1 scenario=0 diff=0 blocking=0
+DONE v24-acc-A-extprompt-cache-run2 scenario=0 diff=0 blocking=0
+DONE v24-acc-I7-run1 scenario=0 diff=0 blocking=0
+DONE v24-acc-I7-run2 scenario=0 diff=0 blocking=0
+DONE v24-acc-I3-run1 scenario=0 diff=0 blocking=0
+DONE v24-acc-I3-run2 scenario=0 diff=0 blocking=0
+DONE v24-pf-A2-nudge-leftover-run1 scenario=0 diff=0 blocking=0
+DONE v24-pf-A2-nudge-leftover-run2 scenario=0 diff=0 blocking=0
+DONE live-v24-08-fates-jump-run1 scenario=0 diff=0 blocking=0
+DONE live-v24-08-fates-jump-run2 scenario=0 diff=0 blocking=0
+DONE v24-pf-curator-switch-run1 scenario=0 diff=0 blocking=0
+DONE v24-pf-curator-switch-run2 scenario=0 diff=0 blocking=0
+DONE v24-pf-curator-same-chat-run1 scenario=0 diff=0 blocking=0
+DONE v24-pf-curator-same-chat-run2 scenario=0 diff=0 blocking=0
+DONE v24-pf-AE04-lore-cancel-run1 scenario=0 diff=1 blocking=2
+DONE v24-pf-AE04-lore-cancel-run2 scenario=1 diff=1 blocking=2
+DONE v24-pf-AE04-scene-refused-run1 scenario=0 diff=0 blocking=0
+DONE v24-pf-AE04-scene-refused-run2 scenario=0 diff=0 blocking=0
+C8-ALL-DONE
