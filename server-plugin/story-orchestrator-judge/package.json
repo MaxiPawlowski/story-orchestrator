@@ -1,6 +1,6 @@
 {
   "name": "story-orchestrator-judge",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "SillyTavern server plugin: server-side proxy from Story Orchestrator to the TypeSafe System One API, so the API key never reaches the page.",
   "type": "module",
   "main": "index.mjs",
