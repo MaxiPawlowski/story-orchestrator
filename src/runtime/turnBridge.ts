@@ -31,6 +31,10 @@ const continueStamp = (messageId: number): string => {
   return `len${typeof message?.mes === "string" ? message.mes.length : 0}`;
 };
 
+export type MutationKind = "swipe" | "edit" | "delete" | "update";
+
+export type MutationSeam = (kind: MutationKind, messageId: number) => (() => Promise<void>) | null;
+
 interface PendingBoundary {
   run: RunGuard;
   messageId: number | null;
@@ -51,6 +55,7 @@ export class TurnBridge {
   private loadedChat: LoadedChat | null = null;
   private flushTimer: ReturnType<typeof setTimeout> | null = null;
   private unsubscribe: (() => void) | null = null;
+  private seam: MutationSeam | null = null;
 
   constructor(private readonly manager: RuntimeManager, private readonly save: ChatSave | null = null) {}
 
@@ -77,6 +82,10 @@ export class TurnBridge {
     this.unsubscribe?.();
     this.unsubscribe = null;
     this.reset();
+  }
+
+  setMutationSeam(seam: MutationSeam | null) {
+    this.seam = seam;
   }
 
   /** A load made outside CHAT_CHANGED (the page's first) names the chat it loaded. */
@@ -201,7 +210,7 @@ export class TurnBridge {
     if (restampRenamedChat(renamed?.oldFileName, renamed?.newFileName)) await this.manager.loadSelectedFromChat();
   }
 
-  private async onMutation(value: unknown, kind: "swipe" | "edit" | "delete" | "update") {
+  private async onMutation(value: unknown, kind: MutationKind) {
     const messageId = hostMessageId(value);
     if (messageId === null) {
       this.turnKeys.clear();
@@ -219,6 +228,8 @@ export class TurnBridge {
       if (decoded ? keyed >= from : keyed >= from && keyed <= messageId) this.turnKeys.delete(key);
     }
     const journal = decoded ? describeDecode(decoded, messageId) : from < messageId ? movedJournal(from, messageId) : null;
+    const replaced = journal ? null : this.seam?.(kind, messageId) ?? null;
+    if (replaced) return replaced();
     await (journal ? this.manager.rollbackFromMessage(from, journal) : this.manager.rollbackFromMessage(from));
   }
 

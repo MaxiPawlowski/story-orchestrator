@@ -1,6 +1,6 @@
 # v2.5 plan 09 — SP2 spike report: re-commit after a rewrite of the newest reply
 
-**Verdict: pending.** Conditions and fixtures committed before any code or run (rule 1). Nothing below is a result yet.
+**Verdict: pending live legs (R1, R4, R5). R2 and R3 PASS (jest, once).** Conditions and fixtures were committed before any code or run (rule 1, `06384bb5`).
 
 ## Predeclared conditions (verbatim from `09-research-spikes.md` §SP2; never retuned)
 
@@ -63,10 +63,56 @@ J6 runs ×2 with the flag on in the same series.
 
 ## Results
 
+Jest legs ran once (rule 1) on the code commit that follows the conditions commit `06384bb5`:
+`npx jest src/runtime/spikes/recommitEdit.review.test.ts`. The live legs have not run (no lanes in this build step).
+
 | # | Measured | Result |
 |---|---|---|
-| R1 | pending (live) | pending |
-| R2 | pending | pending |
-| R3 | pending | pending |
-| R4 | pending (live) | pending |
-| R5 | pending (live) | pending |
+| R1 | pending (live, ×2, flag off) | pending |
+| R2 | **800/800** cuts equal (seeds 1–4 × 200). 240 of them had a transition fire at the edited reply's own boundary, and all 240 took step 2 (re-enqueue + re-commit); the other 560 were no-op rollbacks, step 3 only. Not vacuous: 4065 live memory rows compared over the 800 replays, 796 of 800 with blackboard values. Controls: flag off (today's rollback alone) is unequal at seed 1 cut 0; the spike without step 2 is unequal at seed 1 cut 9 | **PASS** |
+| R3 | (a) older reply: 0 cycles, 0 reads; control: a mutant without the newest-reply check runs a cycle. (b) two texts, settled between: 2 cycles, 1 read each, the last boundary at the edited id carries each text; boundaries at the edited id per edit 1 then 2 (the second edit's rollback applied, so step 2 re-made the reply's boundary). (c) editor pair: 1 cycle, 1 read (the `MESSAGE_UPDATED` cycle found the text already committed). (d) recast-style `go` then `go key`, `MESSAGE_EDITED` only, back to back: 1 cycle, 1 read, the one boundary at the edited id carries `go key`. (e) no-op edit: 0 (the bridge's fingerprint check never hands it over). (f) flag off: 0. Swipe and delete are never taken | **PASS** |
+| R4 | pending (live, ×2, flag on; + J6 ×2 flag on) | pending |
+| R5 | pending (live: reads between edit and next send, flag on minus flag off). Jest shape, for reference only: step 3 is exactly one read per settled text; the applied-rollback path keeps today's priority-0 re-read | pending |
+
+**Verdict so far:** R2 and R3 PASS, so no deterministic condition fails the spike; the code stays behind its flag. The worth review
+(rule 8) waits for R1, R4 and R5.
+
+## What the spike changes (and what it leaves in prod)
+
+- Dev-only, on plan 12 D3's list (`src/runtime/devOnly.guard.test.ts`; control: a planted static `./spikes` import from
+  `runtime/index.ts` fails): `src/runtime/spikes/recommitEdit.ts` (the cycle), `src/runtime/spikes/index.ts` (install,
+  `globalThis.storyOrchestratorSpikes.recommitEdit.stats()`). Loaded by `if (__SO_DEV__) import("./spikes")` in
+  `runtime/index.ts`, installed only while the runtime is started.
+- In the prod graph, and removed with the spike on FAIL/defer/drop: the install-wide flag (`settingsModel.ts`
+  `spikes.recommitEdit`, sanitized to `true` only for a literal `true`, merged in `setGlobalSettings`), the bridge seam
+  (`TurnBridge.setMutationSeam`; a seam is asked only for a swipe/edit/update whose rollback starts at the named message;
+  prod never sets one), and `RuntimeManager.writes.requeue`. Prod main entry 1 174 809 B (was 1 174 410, +399 B; budget
+  1 250 000). The run header records `spikes.*`.
+- Ownership census: `RecommitEdit.cycle` is `checked` (run minted before the rollback, re-checked after it and after the
+  re-commit). No player-facing control (rule 7); judge untouched.
+- Found on the way (a fact about today's rollback, not the spike): an edit of the newest reply rolls back a transition
+  that fired at that reply's own boundary, also when every write that boundary applied was read before the reply, and
+  `rollbackTo` flushes those writes; the next request is then a checkpoint behind until the priority-0 re-read lands and
+  another boundary commits. Step 2 is what closes it in R2 (the no-requeue control fails at seed 1 cut 9).
+
+## Live legs (pending): exact commands
+
+One series on one lane, dev build, real LLM, run header around the batch, `--strict`. `<n>` = the lane; the group is the
+T10/T1 sandbox group (Arin + Ponticius). Records go to `test/journeys/records/v2.5-plan09/sp2/live-<bundle12>/`.
+
+```bash
+npm run build:dev && npm run serve:dev
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/st-session.mts reload
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-run-header.mts capture --label v25-09-sp2-start
+# R1 + R5 control arm (flag off), then R4 + R5 spike arm (flag on): each x2 back to back on the one lane
+node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict --group 1759606632088 test/scenarios/live-v25-09-sp2-r1.json test/scenarios/live-v25-09-sp2-r4.json
+# R4's J6 x2 with the flag on
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/st-eval.mts "const s = ctx.extensionSettings['story-orchestrator'].settings; s.spikes = { ...(s.spikes ?? {}), recommitEdit: true }; ctx.saveSettingsDebounced(); return rt.getGlobalSettings().spikes;"
+node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict J6
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/st-eval.mts "const s = ctx.extensionSettings['story-orchestrator'].settings; s.spikes = { ...(s.spikes ?? {}), recommitEdit: false }; ctx.saveSettingsDebounced(); return rt.getGlobalSettings().spikes;"
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-run-header.mts diff <debug-dir>/run-header-v25-09-sp2-start.json
+```
+
+Scoring: R1 = both R1 runs pass (the request after the edit carries `[SO-SP2-HALL]` only). R4 = both R4 runs pass (editor
+leg `[SO-SP2-VAULT]` only, recast leg `[SO-SP2-OPEN]` only) and J6 green ×2. R5 = per edit, reads logged by the R4 run
+minus reads logged by the R1 run (the `READS` step's `reads` array), ≤ 1, with the `read` role's profile from the run header; the recast leg's reads are recorded, not scored.

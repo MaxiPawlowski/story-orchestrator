@@ -8,6 +8,8 @@ const DEV_ONLY = [
   "src/stagecraft/createCandidate.ts",
   "src/judge/calibration.ts",
   "src/judge/selfTestCases.ts",
+  "src/runtime/spikes/index.ts",
+  "src/runtime/spikes/recommitEdit.ts",
 ];
 const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
 const LAZY_USER_FEATURES = ["src/judge/selfTest.ts", "src/runtime/selfTest.ts", "src/runtime/roleSelfTest.ts", "src/extraction/fixtureRun.ts"];
@@ -39,6 +41,13 @@ describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", 
     const planted = join(SRC, "index.tsx");
     const read = (path: string) => (path === planted ? 'import { registerLiveSuite } from "./runtime/liveSuite";\nregisterLiveSuite();\n' : require("fs").readFileSync(path, "utf8"));
     expect(staticReach(files, read).filter(isDevOnly)).toContain("src/runtime/liveSuite.ts");
+  });
+
+  it("control: a planted static import of a plan 09 spike module from the runtime fails", () => {
+    const runtime = join(SRC, "runtime", "index.ts");
+    const fs = require("fs") as typeof import("fs");
+    const read = (path: string) => (path === runtime ? `import { installSpikes } from "./spikes";\nvoid installSpikes;\n${fs.readFileSync(path, "utf8")}` : fs.readFileSync(path, "utf8"));
+    expect(staticReach(files, read).filter(isDevOnly)).toEqual(expect.arrayContaining(["src/runtime/spikes/index.ts", "src/runtime/spikes/recommitEdit.ts"]));
   });
 
   it("control: re-exporting the calibrations from the judge barrel again fails", () => {
