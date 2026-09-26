@@ -24,7 +24,7 @@ import { ModelCallError } from "./modelError";
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 5));
 
-const makeHost = (settings: Partial<SchedulerSettings> = {}): SchedulerHost => ({
+const makeHost = (settings: Partial<SchedulerSettings> = {}) => ({
   getStory: () => ({}) as unknown as NormalizedStoryV2,
   getEngineState: () => ({}) as unknown as EngineState,
   getExtractionSettings: () => ({ enabled: true, profileId: null, cadence: 1, reconciliationMultiplier: 2, stabilityLag: 1, ...settings }),
@@ -34,7 +34,7 @@ const makeHost = (settings: Partial<SchedulerSettings> = {}): SchedulerHost => (
   getOpenArcs: () => [],
   applyExtractionAudit: async () => undefined,
   onSchedulerChange: () => undefined,
-});
+}) as Partial<SchedulerHost> as SchedulerHost;
 
 describe("ExtractionScheduler reply-path isolation", () => {
   it("does not block the caller while a heavy job runs", async () => {

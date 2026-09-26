@@ -32,7 +32,7 @@ const outcome = (index: number, kind: "quiet" | "heard" | "blocked", amount: num
   id: `0:${index}`,
   label: kind,
   gate: kind === "quiet" ? { q: "guard_aware", op: "==", v: false } : kind === "heard" ? { q: "guard_aware", op: "==", v: true } : { q: "approach", op: "==", v: "blocked" },
-  deltas: kind === "safe"
+  deltas: (kind as string) === "safe"
     ? [{ q: "approach", v: "safe" }]
     // Every route has to reach the anchor's snapshot, so each one sets what the anchor needs.
     : [{ q: "key_found", v: true }, { q: "approach", v: "safe" }],
@@ -55,7 +55,7 @@ const chain = (random: () => number, beatCount: number): GeneratedBeat[] =>
     };
   });
 
-const entry = (beats: GeneratedBeat[]): ExpansionCacheEntry => ({
+const entry = (beats: GeneratedBeat[]) => ({
   key: "start->fork_stub->finish",
   status: "validated",
   contract: 2,
@@ -72,7 +72,7 @@ const entry = (beats: GeneratedBeat[]): ExpansionCacheEntry => ({
   lastError: null,
   attempts: 1,
   updatedAt: "2026-09-22T00:00:00.000Z",
-});
+}) as Partial<ExpansionCacheEntry> as ExpansionCacheEntry;
 
 /** Every route through a chain as the progress it accumulates and the outcome it took per beat. */
 const routes = (beats: GeneratedBeat[]) => {

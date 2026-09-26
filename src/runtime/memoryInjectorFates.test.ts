@@ -11,9 +11,9 @@ const hosts = {
   injection: { getCharacterNameById: () => null, readInjectedPromptBlocks: () => [] },
 } as unknown as InjectorHosts;
 
-const entry = (id: string, text: string, patch: Partial<MemoryEntry> = {}): MemoryEntry => ({
+const entry = (id: string, text: string, patch: Partial<MemoryEntry> = {}) => ({
   id, tier: "facts", text, type: "fact", importance: 2, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: "e", createdAt: 1, recallCount: 0, ...patch,
-});
+}) as MemoryEntry;
 
 const harness = (entries: MemoryEntry[]) => {
   const memory = {

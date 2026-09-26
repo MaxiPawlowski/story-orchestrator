@@ -6,7 +6,7 @@ import { getChatWindow } from "./chatWindow";
 import { planReconciliation } from "./reconcile";
 import { ExtractionScheduler, type SchedulerHost } from "./scheduler";
 import { runSharedRead } from "./sharedRead";
-import type { TypedJudge } from "./types";
+import type { SharedReadWindow, TypedJudge } from "./types";
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -17,7 +17,7 @@ jest.mock("@services/STAPI", () => ({
 const raw = JSON.parse(fs.readFileSync(path.join(process.cwd(), "test/fixtures/extractor.story.json"), "utf8")) as { qualities: Array<Record<string, unknown>> };
 const story = parseStoryV2OrThrow({ ...raw, qualities: raw.qualities.map((quality) => (quality.key === "player_has_key" ? { ...quality, read_as: "choice" } : quality)) });
 const state = { activeCheckpointId: "start", boundary: 3, lastMessageId: 2, blackboard: { values: {}, versions: {}, latched: {} }, visitedAnchors: [] } as unknown as EngineState;
-const window = { from: 0, to: 2, messages: [{ index: 0, messageId: 0, speaker: "Mara", text: "The key is under the mat." }, { index: 1, messageId: 1, speaker: "Max", text: "I pick up the brass key." }, { index: 2, messageId: 2, speaker: "Mara", text: "Now the vault." }] };
+const window = { from: 0, to: 2, messages: [{ index: 0, messageId: 0, speaker: "Mara", text: "The key is under the mat." }, { index: 1, messageId: 1, speaker: "Max", text: "I pick up the brass key." }, { index: 2, messageId: 2, speaker: "Mara", text: "Now the vault." }] } as SharedReadWindow;
 
 describe("judged typed read inside the shared read (v2.2 plan 06)", () => {
   // The evidence has to be a span of the window (plan 02's R6 screening), so both lines quote it.

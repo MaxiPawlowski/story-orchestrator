@@ -10,6 +10,7 @@ import { join } from "node:path";
 import type { StoryV2 } from "@engine/index";
 import { runAuthoringStage, runDriverReport, runDriverSuggest } from "./authoring";
 import type { DriverContext } from "./types";
+import type { ProvisioningEnvironment } from "@wizard/types";
 
 const readGolden = (name: string): string => readFileSync(join(process.cwd(), "test/goldens", name), "utf8");
 
@@ -68,7 +69,10 @@ describe("runAuthoringStage", () => {
 
   it("fails a provisioning proposal carrying a draft op, even though draft validation is skipped there", async () => {
     const result = await runAuthoringStage(
-      { draft: baseDraft(), stage: "provisioning", message: "", history: [], environment: { characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [] } },
+      {
+        draft: baseDraft(), stage: "provisioning", message: "", history: [],
+        environment: { characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [] } as Partial<ProvisioningEnvironment> as ProvisioningEnvironment,
+      },
       plantedModel, {
         role: "authoring", pass: "copilot",
         debugResponse: JSON.stringify({
@@ -131,7 +135,7 @@ describe("runAuthoringStage", () => {
         stage: "provisioning",
         message: "",
         history: [],
-        environment: { characterNames: ["Arin"], lorebookNames: [], groupNames: [], storyLorebooks: [] },
+        environment: { characterNames: ["Arin"], lorebookNames: [], groupNames: [], storyLorebooks: [] } as Partial<ProvisioningEnvironment> as ProvisioningEnvironment,
       },
       plantedModel, { role: "authoring", pass: "copilot", debugResponse: JSON.stringify({ summary: "", ops: [{ kind: "createCharacterCard", name: "Arin", description: "A guide." }] }) },
     );
@@ -147,7 +151,7 @@ describe("runAuthoringStage", () => {
         stage: "provisioning",
         message: "",
         history: [],
-        environment: { characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [] },
+        environment: { characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [] } as Partial<ProvisioningEnvironment> as ProvisioningEnvironment,
       },
       plantedModel, {
         role: "authoring", pass: "copilot",

@@ -1,9 +1,9 @@
 import { plantedModel } from "../../test/support/modelCall";
 import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
-import type { ExpansionCacheEntry, ExpansionRuntimeState } from "@generation/index";
+import type { ExpansionCacheEntry, ExpansionRuntimeState, GeneratedBeat } from "@generation/index";
 import { defaultJudgeSettings, type JudgeSettings, type SceneReadRecord } from "@judge/index";
 import { ExpansionCoordinator } from "./coordinators/expansionCoordinator";
-import { JudgeRuntime } from "./judge";
+import { JudgeRuntime, type JudgeRuntimeDeps } from "./judge";
 import { testOwnership } from "../../test/findings/testOwnership";
 
 const gate = { q: "done", op: "==", v: true };
@@ -34,7 +34,7 @@ const scene = (p: number, hops = 1): SceneReadRecord => ({ at: "2026-09-19T00:00
 
 const setup = (options: { lookahead?: boolean; scene?: SceneReadRecord | null; entries?: Record<string, ExpansionCacheEntry>; refusing?: boolean } = {}) => {
   const settings: JudgeSettings = { ...defaultJudgeSettings(), enabled: true, uses: { ...defaultJudgeSettings().uses, lookahead: true, expansionLookahead: options.lookahead ?? true } };
-  const judge = new JudgeRuntime({ getSettings: () => settings, transport: jest.fn(), status: async () => ({ configured: true }), record: () => undefined, context: () => ({ boundary: 0, messageId: 0 }) });
+  const judge = new JudgeRuntime({ getSettings: () => settings, transport: jest.fn(), status: async () => ({ configured: true }), record: () => undefined, context: () => ({ boundary: 0, messageId: 0 }) } as Partial<JudgeRuntimeDeps> as JudgeRuntimeDeps);
   const expansion: ExpansionRuntimeState = { entries: { ...(options.entries ?? {}) }, scheduler: { queueDepth: 0, inFlight: false, lastError: null } };
   const scheduled: string[] = [];
   const replaced: unknown[] = [];
@@ -58,9 +58,9 @@ const setup = (options: { lookahead?: boolean; scene?: SceneReadRecord | null; e
   return { coordinator, expansion, scheduled, replaced, persisted: () => persisted, schedule: (reason: string) => { scheduled.push(reason); } };
 };
 
-const entry = (key: string, patch: Partial<ExpansionCacheEntry>): ExpansionCacheEntry => ({
+const entry = (key: string, patch: Partial<ExpansionCacheEntry>) => ({
   key, status: "inserted", sourceCheckpointId: key.split("->")[0], stubId: key.split("->")[1], targetAnchorId: key.split("->")[2], basis: {}, blackboardVersionSum: 0, beats: [], needsReview: false, verdicts: [], codeCheck: null, insertedCheckpointIds: [], lastError: null, attempts: 1, updatedAt: "", ...patch,
-});
+}) as Partial<ExpansionCacheEntry> as ExpansionCacheEntry;
 
 describe("look-ahead pre-generation (v2.2 plan 07)", () => {
   it("queues the active stub, then one stub one hop ahead where play is heading", () => {
@@ -118,7 +118,7 @@ describe("V13: the boundary promotes a validated chain", () => {
   const beats = [
     { id: "0", objective: "Cross the bridge", guidance: "g", tension_target: "tense" as const, outcomes: [{ id: "0:0", label: "go", gate, deltas: [], progress: { anchor: "b", amount: 1 } }] },
     { id: "1", objective: "Reach the gate", guidance: "g", tension_target: "tense" as const, outcomes: [{ id: "1:0", label: "arrive", gate, deltas: [] }] },
-  ];
+  ] as GeneratedBeat[];
 
   it("promotes only validated entries, rebuilds the merged story, and awaits the persist", async () => {
     const env = setup({ lookahead: false, entries: { "a->s0->b": entry("a->s0->b", { status: "validated", contract: 2, beats }), "b->s1->c": entry("b->s1->c", { status: "needs_review", contract: 2, beats: [] }) } });

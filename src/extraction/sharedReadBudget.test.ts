@@ -6,7 +6,7 @@ import { runSharedRead } from "@extraction/sharedRead";
 import { createTokenMeter, type RequestBudget } from "@extraction/tokenMeter";
 import { defaultContextLimit } from "@extraction/inputBudget";
 import { ExtractionScheduler, type SchedulerHost } from "@extraction/scheduler";
-import type { SharedReadAudit } from "@extraction/types";
+import type { SharedReadAudit, SharedReadWindow } from "@extraction/types";
 
 const mockChat: Array<{ name: string; mes: string; is_user: boolean }> = [];
 
@@ -31,7 +31,8 @@ const story = () => parseStoryV2OrThrow({
   roster: [],
 });
 
-const message = (index: number, text = `Message ${index} walks the long road along the river, `.repeat(4)) => ({ index, messageId: index, speaker: index % 2 ? "Mira" : "User", text });
+const message = (index: number, text = `Message ${index} walks the long road along the river, `.repeat(4)) =>
+  ({ index, messageId: index, speaker: index % 2 ? "Mira" : "User", text }) as SharedReadWindow["messages"][number];
 
 const chat = (length: number) => ({ from: 0, to: length - 1, messages: Array.from({ length }, (_, index) => message(index)) });
 

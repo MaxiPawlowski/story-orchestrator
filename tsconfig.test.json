@@ -6,7 +6,8 @@
     "noEmit": true
   },
   "include": [
-    "src/**/*.review.test.ts",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
     "src/runtime/findingsLedger.test.ts",
     "src/engine/independentStory.test.ts",
     "src/**/*.guard.test.ts",

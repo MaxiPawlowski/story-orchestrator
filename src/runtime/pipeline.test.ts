@@ -1,14 +1,15 @@
-import type { ExpansionRuntimeState, ExtractionRuntimeState } from "./types";
+import type { ExpansionRuntimeState } from "@generation/index";
+import type { ExtractionRuntimeState } from "./types";
 import { derivePipelineStatus, expansionInFlight, pipelineAction, PIPELINE_ACTION_COPY, TRANSPORT_PLAYER_TEXT } from "./pipeline";
 
-const state = (overrides: Partial<ExtractionRuntimeState> = {}): ExtractionRuntimeState => ({
+const state = (overrides: Partial<ExtractionRuntimeState> = {}) => ({
   settings: { enabled: true, profileId: "p1", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 },
   audits: [],
   reconciliationEvents: [],
   lastReadBoundary: 0,
   scheduler: { queueDepth: 0, inFlight: false, lastError: null },
   ...overrides,
-});
+}) as Partial<ExtractionRuntimeState> as ExtractionRuntimeState;
 
 const pending = { id: "1", boundary: 4, checkpointId: "cp1", targetedKeys: ["has_key"], scheduledAt: "t", resolvedAt: null, evidence: [] };
 

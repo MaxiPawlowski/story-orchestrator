@@ -25,7 +25,7 @@ describe("nextRepairStep", () => {
     const step = nextRepairStep(snapshotWith({
       extraction: { settings: { enabled: false, profileId: null } },
       requirements: { ready: false, missingPersonas: [], missingMembers: ["Belle"], missingLorebooks: [] },
-    } as Partial<RuntimeSnapshot>));
+    } as unknown as Partial<RuntimeSnapshot>));
     expect(step).toEqual({
       area: "memory-model",
       consequence: "The story will not advance on its own until this is set.",

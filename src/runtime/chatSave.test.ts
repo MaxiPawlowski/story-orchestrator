@@ -6,7 +6,7 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => globalThis.__chatSaveTest.context,
 }));
 
-import { ChatSave } from "./chatSave";
+import { ChatSave, type ChatSaveDeps } from "./chatSave";
 import { createExtras } from "./extras";
 import { getGlobalSettings } from "./settingsStore";
 import type { RunOwner } from "./runOwner";
@@ -48,7 +48,7 @@ function harness(options: { loaded?: LoadedStory | null; owns?: boolean } = {}) 
     owner,
     journal: (summary, note, persistNow) => { journal.push({ summary, persistNow }); notes.push(note); },
     recap: () => {},
-  });
+  } as Partial<ChatSaveDeps> as ChatSaveDeps);
   return { save, extras, journal, notes, world, saves: () => saves };
 }
 

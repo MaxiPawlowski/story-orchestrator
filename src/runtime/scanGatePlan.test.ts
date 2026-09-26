@@ -190,7 +190,7 @@ describe("scanGateView (S5)", () => {
     noteScanGate({ chatId: "chat-a", owner: "story", rows: [] });
     expect(scanGateView()).toBeNull();
     setScanGatingActive(true);
-    noteScanGate({ chatId: "chat-a", owner: "story", rows: [{ lorebook: "Ruins", comment: "On", uid: 1, fileDisabled: true, effectiveDisabled: false }] });
+    noteScanGate({ chatId: "chat-a", owner: "story", rows: [{ lorebook: "Ruins", comment: "On", uid: 1, fileDisabled: true, effectiveDisabled: false } as ScanGateRow] });
     expect(scanGateView()?.rows).toHaveLength(1);
     setScanGatingActive(false);
     expect(scanGateView()).toBeNull();

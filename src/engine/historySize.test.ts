@@ -14,7 +14,7 @@ function fullHorizon(boundaries: number) {
   const story = sunRuins();
   const engine = new StoryEngine({ now: () => 0 });
   engine.loadStory(story);
-  const extractor = story.qualities.filter((quality) => quality.source === "extractor" && (quality.type === "int" || quality.type === "number"));
+  const extractor = story.qualities.filter((quality) => quality.source === "extractor" && (quality.type === "int" || (quality.type as string) === "number"));
   for (let i = 0; i < boundaries; i += 1) {
     const quality = extractor[i % Math.max(1, extractor.length)];
     engine.enqueue({ source: "extractor", blackboardVersionSum: i, turnRange: { from: i, to: i }, deltas: quality ? [{ q: quality.key, v: i % 5, source: "extractor" }] : [] });

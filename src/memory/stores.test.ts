@@ -1,7 +1,7 @@
 import { addMemoryEntries, capTier, createMemoryState, dropByMessageId, editEntryText, excludeEntry, expireScoped, hashMemoryText, setPinned } from "./stores";
 import type { MemoryEntry } from "./types";
 
-const entry = (overrides: Partial<MemoryEntry> = {}): MemoryEntry => ({
+const entry = (overrides: Partial<MemoryEntry> = {}) => ({
   id: overrides.id ?? `id-${Math.random()}`,
   tier: "facts",
   text: "Mara trusts the player.",
@@ -16,7 +16,7 @@ const entry = (overrides: Partial<MemoryEntry> = {}): MemoryEntry => ({
   messageId: 5,
   recallCount: 0,
   ...overrides,
-});
+}) as MemoryEntry;
 
 describe("memory stores", () => {
   it("adds entries and returns them as accepted", () => {

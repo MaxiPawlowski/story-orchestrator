@@ -51,7 +51,7 @@ const fakeHost = (options: { chatId?: string | null; books?: Record<string, Fake
 };
 
 let seq = 0;
-const memory = (patch: Partial<MemoryEntry> = {}): MemoryEntry => ({
+const memory = (patch: Partial<MemoryEntry> = {}) => ({
   id: `m${++seq}`,
   tier: "session_details",
   text: `Arin owes Max a favour (${seq}).`,
@@ -65,7 +65,7 @@ const memory = (patch: Partial<MemoryEntry> = {}): MemoryEntry => ({
   createdAt: 1,
   recallCount: 0,
   ...patch,
-});
+}) as MemoryEntry;
 
 const input = (entries: MemoryEntry[], patch: Partial<MemoryMirrorInput> = {}): MemoryMirrorInput => ({ title: "Crossing", entries, writes: {}, book: null, ...patch });
 const bookA = mirrorLorebookName("Crossing", "chat-a");

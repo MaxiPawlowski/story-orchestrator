@@ -8,7 +8,7 @@ import { activeSpeakerId } from "./roster";
 import type { RosterHost } from "./hostPorts";
 
 const host: RosterHost = {
-  getActiveGroup: () => ({ disabled_members: [] }),
+  getActiveGroup: () => ({ disabled_members: [] }) as Partial<NonNullable<ReturnType<RosterHost["getActiveGroup"]>>> as NonNullable<ReturnType<RosterHost["getActiveGroup"]>>,
   resolveGroupMemberId: (name: string) => (["Arin", "DM Narrator", "Luke", "Ponticius"].includes(name) ? `${name}.png` : null),
   chatRows: () => mockChat.rows,
   systemUserName: "SillyTavern System",

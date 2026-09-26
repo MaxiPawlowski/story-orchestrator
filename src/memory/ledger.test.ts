@@ -79,9 +79,9 @@ describe("applyLedgerSignals", () => {
 
 describe("buildLedgerView", () => {
   const bindings: LedgerBinding[] = [{ entity: "Kael", field: "location", qualityKey: "kael_location" }];
-  const entries: LedgerEntry[] = [
+  const entries = [
     { id: "a", entity: "Kael", entityType: "character", field: "mood", value: "grim", createdAt: 3 },
-  ];
+  ] as LedgerEntry[];
 
   it("mirrors bound fields from the blackboard and merges unbound entries", () => {
     const view = buildLedgerView(entries, bindings, { kael_location: "courtyard" }, { kael_location: 4 });
@@ -90,7 +90,7 @@ describe("buildLedgerView", () => {
   });
 
   it("omits bound rows with no blackboard value and never double-counts a shadowed entry", () => {
-    const shadowed: LedgerEntry[] = [{ id: "b", entity: "Kael", entityType: "character", field: "location", value: "stale", createdAt: 1 }];
+    const shadowed = [{ id: "b", entity: "Kael", entityType: "character", field: "location", value: "stale", createdAt: 1 }] as LedgerEntry[];
     const view = buildLedgerView(shadowed, bindings, {}, {});
     expect(view).toHaveLength(0);
   });
@@ -142,7 +142,7 @@ describe("ledger rendering + maintenance", () => {
     expect(buildLedgerView(pinnedRolled, [], {}, {})).toEqual([]);
     expect(removeLedger(entries, entries[0].id)).toHaveLength(0);
     expect(ledgerKey("Kael", "Location")).toBe("kael|location");
-    const many: LedgerEntry[] = Array.from({ length: 5 }, (_, i) => ({ id: `x${i}`, entity: `E${i}`, entityType: "character", field: "f", value: "v", createdAt: i }));
+    const many = Array.from({ length: 5 }, (_, i) => ({ id: `x${i}`, entity: `E${i}`, entityType: "character", field: "f", value: "v", createdAt: i })) as LedgerEntry[];
     expect(capLedger(many, 3)).toHaveLength(3);
   });
 });

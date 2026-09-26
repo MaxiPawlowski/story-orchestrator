@@ -23,12 +23,14 @@ const story = parseStoryV2OrThrow({
   roster: [],
 });
 
-const beat = (gateValue: boolean): GeneratedBeat => ({
+const beat = (gateValue: boolean) => ({
   objective: "o",
   guidance: "g",
   tension_target: "tense",
-  outcomes: [{ label: "branch", gate: { all: [{ q: "key_found", op: "==", v: gateValue }] }, deltas: [{ q: "key_found", v: true }], progress: { anchor: "finish", amount: 1 } }],
-});
+  outcomes: [
+    { label: "branch", gate: { all: [{ q: "key_found", op: "==", v: gateValue }] }, deltas: [{ q: "key_found", v: true }], progress: { anchor: "finish", amount: 1 } } as GeneratedBeat["outcomes"][0],
+  ],
+}) as GeneratedBeat;
 
 const input = (latched: Record<string, PrimitiveValue>): PlannedExpansionInput => ({
   candidate: { sourceCheckpointId: "start", stubId: "start", targetAnchorId: "finish", transition: story.outgoingByCheckpoint.start[0] },

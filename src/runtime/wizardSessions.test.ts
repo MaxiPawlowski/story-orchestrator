@@ -13,7 +13,7 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ extensionSettings: settings, saveSettingsDebounced: () => { host.saves += 1; } }),
 }));
 
-const session = (patch: Partial<WizardSessionState> = {}): WizardSessionState => ({
+const session = (patch: Partial<WizardSessionState> = {}) => ({
   key: "sun-ruins",
   stage: "provisioning",
   history: [],
@@ -22,7 +22,7 @@ const session = (patch: Partial<WizardSessionState> = {}): WizardSessionState =>
   seed: "",
   updatedAt: "",
   ...patch,
-});
+}) as WizardSessionState;
 
 beforeEach(() => { delete settings["story-orchestrator"]; });
 

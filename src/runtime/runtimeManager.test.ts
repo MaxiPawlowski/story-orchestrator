@@ -15,7 +15,7 @@ const mockSwitchEntries = (lorebook: string, comments: string | string[], enable
 };
 const mockPopupCloses = { count: 0 };
 const mockContext = {
-  chat: [] as Array<{ mes: string }>,
+  chat: [] as Array<{ mes: string; name?: string; is_user?: boolean }>,
   chatId: "chat-a" as string | undefined,
   chatMetadata: {} as Record<string, unknown>,
   extensionSettings: {} as Record<string, Record<string, unknown>>,
@@ -235,8 +235,8 @@ describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
   const block = () => mockExtensionPrompts.story_orchestrator_guidance;
 
   it("v2.4 plan 06 T16a: adds the objective line where a checkpoint authors no note, and not where it does", async () => {
-    const story = { ...guided(WANDER), objective_block: undefined } as Record<string, unknown> & ReturnType<typeof guided>;
-    story.checkpoints[1] = { ...story.checkpoints[1], effects: { author_note: "The sphinx speaks in riddles." } } as typeof story.checkpoints[1];
+    const story = { ...guided(WANDER), objective_block: undefined } as Record<string, unknown> & Omit<ReturnType<typeof guided>, "objective_block">;
+    story.checkpoints[1] = { ...story.checkpoints[1], effects: { author_note: "The sphinx speaks in riddles." } } as typeof story.checkpoints[1] & { effects: unknown };
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(story));
     expect(block()?.value).toBe(`Scene direction: ${WANDER}\nObjective: Start. ${objectiveClause("world_pressure")}`);
@@ -259,8 +259,8 @@ describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
 
   it("carries the opt-in attempts clause in the block while its checkpoint is active, alone when there is no guidance (v2.4 plan 04)", async () => {
     const story = guided(WANDER);
-    story.checkpoints[0] = { ...story.checkpoints[0], agency: { player_attempts_only: true } } as typeof story.checkpoints[0];
-    story.checkpoints[2] = { ...story.checkpoints[2], agency: { player_attempts_only: true } } as typeof story.checkpoints[2];
+    story.checkpoints[0] = { ...story.checkpoints[0], agency: { player_attempts_only: true } } as typeof story.checkpoints[0] & { agency: unknown };
+    story.checkpoints[2] = { ...story.checkpoints[2], agency: { player_attempts_only: true } } as typeof story.checkpoints[2] & { agency: unknown };
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(story));
     expect(block()).toEqual({ value: `Scene direction: ${WANDER}\n${PLAYER_ATTEMPTS_CLAUSE}`, depth: 4 });
@@ -1145,7 +1145,7 @@ describe("RuntimeManager copilot seam", () => {
   it("returns an ok proposal for a valid debug response", async () => {
     const manager = new RuntimeManager();
     const debugResponse = JSON.stringify({ summary: "q", ops: [{ kind: "addQuality", quality: { key: "trust", type: "int", source: "extractor", rubric: "How much trust?" } }] });
-    const result = await manager.runCopilotStage({ draft: copilotDraft, stage: "qualities", message: "", history: [] }, debugResponse);
+    const result = await manager.runCopilotStage({ draft: copilotDraft as Parameters<RuntimeManager["runCopilotStage"]>[0]["draft"], stage: "qualities", message: "", history: [] }, debugResponse);
     expect(result.status).toBe("ok");
     expect(result.proposal.ops).toHaveLength(1);
     expect(result.preview.errors).toEqual([]);

@@ -36,7 +36,7 @@ const harness = (stored: WizardSessionState | null) => {
   return { coordinator, session: () => session };
 };
 
-const base = (patch: Partial<WizardSessionState>): WizardSessionState => ({ key: "owned", stage: "provisioning", history: [], questions: [], applied: [], seed: "", updatedAt: "", ...patch });
+const base = (patch: Partial<WizardSessionState>) => ({ key: "owned", stage: "provisioning", history: [], questions: [], applied: [], seed: "", updatedAt: "", ...patch }) as WizardSessionState;
 const write = (lorebook: string): ProvisioningOp => ({ kind: "upsertLorebookEntry", lorebook, comment: "Entry", content: "Text", keys: [] });
 
 beforeEach(() => jest.clearAllMocks());

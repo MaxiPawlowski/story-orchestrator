@@ -2,7 +2,8 @@ import * as branchingStory from "../../test/fixtures/branching.story.json";
 import { progressQualityForAnchor } from "./convergence";
 import { StoryEngine } from "./engine";
 import { parseStoryV2OrThrow } from "./validate";
-import type { ApplyQueueEntry, PrimitiveValue } from "./schema";
+import type { ApplyQueueEntry } from "./applyQueue";
+import type { PrimitiveValue } from "./schema";
 
 const mulberry32 = (seed: number) => {
   let state = seed >>> 0;
@@ -66,10 +67,10 @@ const randomQueueEntry = (random: () => number): ApplyQueueEntry => {
   const source = SOURCES[Math.floor(random() * SOURCES.length)];
   const value = randomValue(key, random);
   return {
-    source,
+    source: source as ApplyQueueEntry["source"],
     blackboardVersionSum: 0,
     turnRange: { from: Math.floor(random() * 3), to: Math.floor(random() * 3) },
-    deltas: [{ q: key, v: value, source }],
+    deltas: [{ q: key, v: value, source: source as ApplyQueueEntry["deltas"][number]["source"] }],
   };
 };
 

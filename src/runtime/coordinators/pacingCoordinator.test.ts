@@ -23,7 +23,7 @@ function harness(loaded: NormalizedStoryV2 | null) {
   const prompt: PromptHost = {
     setStoryExtensionPrompt: (key: string) => { calls.push(`set:${key}`); },
     clearStoryExtensionPrompt: (key: string) => { calls.push(`clear:${key}`); },
-  } as PromptHost;
+  } as unknown as PromptHost;
   let tension = { levels: [], smoothed: null } as { levels: never[]; smoothed: number | null };
   const pacing = new PacingCoordinator({
     getStory: () => loaded,

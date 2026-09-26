@@ -9,7 +9,7 @@ const pipeline = (overrides: Partial<ExtractionRuntimeState["settings"]> = {}) =
   reconciliationEvents: [],
   lastReadBoundary: 0,
   scheduler: { queueDepth: 0, inFlight: false, lastError: null },
-});
+} as Partial<ExtractionRuntimeState> as ExtractionRuntimeState);
 
 const input = (overrides: Partial<NarrativeInput> = {}): NarrativeInput => ({
   storyTitle: "Quest for the Sun Ruins",

@@ -39,7 +39,7 @@ const decided = () => withOverride(entry(), "reconciled", "2026-09-25T00:00:00.0
 const seed = (overrides: Partial<MemoryEntry> = {}) => entry({ id: "seed", provenance: decided(), ...overrides });
 const claim = (overrides: Partial<MemoryEntry> = {}) => entry({ id: "claim", text: STANDING, createdAt: 1, messageId: 4, provenance: provenance({ source: "extractor", messageId: 4, boundary: 1, pass: "shared-read" }), ...overrides });
 
-const state = (entries: MemoryEntry[]): MemoryRuntimeState => ({
+const state = (entries: MemoryEntry[]) => ({
   entries,
   excluded: [],
   writeLog: [],
@@ -59,7 +59,7 @@ const state = (entries: MemoryEntry[]): MemoryRuntimeState => ({
   resolvedConflicts: [],
   pinnedOverflow: 0,
   updatedAt: "t",
-});
+}) as Partial<MemoryRuntimeState> as MemoryRuntimeState;
 
 function harness(entries: MemoryEntry[], matchSets?: MemoryQueueDeps["matchSets"]) {
   let memory = state(entries);

@@ -27,7 +27,6 @@ const manager = {
   getStory: () => null,
   getEngineState: () => null,
   getExtractionSettings: () => ({ reconciliationMultiplier: 1.5 }),
-  recordReconciliation: jest.fn(),
   scheduleExpansionForActive: jest.fn(),
   detectSceneBreak: () => null,
   shouldCompactShortTerm: () => false,
