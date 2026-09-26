@@ -27,7 +27,10 @@ export const Clean: Story = {
 export const InheritsAuthorNote: Story = {
   beforeEach: () => {
     const story = sampleStory();
-    story.checkpoints = story.checkpoints.map((checkpoint, index) => (index === 0 ? { ...checkpoint, effects: { ...checkpoint.effects, author_note: "Keep the ruins quiet and watchful." } } : checkpoint));
+    story.checkpoints = story.checkpoints.map((checkpoint, index) => (index === 0 ? {
+      ...checkpoint,
+      effects: { ...checkpoint.effects, author_note: "Keep the ruins quiet and watchful." },
+    } : checkpoint));
     seedDraft(story);
   },
   play: async ({ canvasElement }) => {

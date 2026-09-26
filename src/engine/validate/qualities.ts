@@ -28,7 +28,15 @@ const readEvidenceFrom = (value: Record<string, unknown>, source: Quality["sourc
 };
 
 // v2.2 plan 06: `read_as` + `criteria`. A hint that cannot work is an error, never a silent no-op.
-const readQualityRead = (value: Record<string, unknown>, type: Quality["type"], source: Quality["source"], rubric: string, values: string[] | undefined, path: string, errors: ValidationError[]): Pick<Quality, "read_as" | "criteria"> => {
+const readQualityRead = (
+  value: Record<string, unknown>,
+  type: Quality["type"],
+  source: Quality["source"],
+  rubric: string,
+  values: string[] | undefined,
+  path: string,
+  errors: ValidationError[],
+): Pick<Quality, "read_as" | "criteria"> => {
   if (value.read_as === undefined) {
     if (value.criteria !== undefined) addError(errors, `${path}.criteria`, "criteria need a read_as hint");
     return {};
@@ -41,7 +49,11 @@ const readQualityRead = (value: Record<string, unknown>, type: Quality["type"], 
   if (source !== "extractor") addError(errors, `${path}.read_as`, "only extractor qualities can be read by the judge");
   if (!READ_AS_TYPES[readAs].includes(type)) addError(errors, `${path}.read_as`, `read_as ${readAs} does not fit a ${type} quality`);
   if (value.criteria === undefined) {
-    if (readAs === "rating" && !ratingLevels({ rubric })) addError(errors, `${path}.criteria`, "a rating needs criteria.levels or a rubric that reads \"from N (low) to M (high)\", for example \"from 1 (barely) to 5 (completely)\"");
+    if (readAs === "rating" && !ratingLevels({ rubric })) addError(
+      errors,
+      `${path}.criteria`,
+      "a rating needs criteria.levels or a rubric that reads \"from N (low) to M (high)\", for example \"from 1 (barely) to 5 (completely)\"",
+    );
     return { read_as: readAs };
   }
   if (!isRecord(value.criteria)) {

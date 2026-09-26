@@ -19,7 +19,18 @@ interface Props {
 
 const ACTION_LABEL: Record<string, string> = { add: "add", update: "change", remove: "remove" };
 
-const ProposalReview: React.FC<Props> = ({ result, acceptedIndices, onAccept, onAcceptAll, onDismiss, environment, provisioningBusy = null, provisioningResults = {}, entryPreviews = {}, onProvision }) => {
+const ProposalReview: React.FC<Props> = ({
+  result,
+  acceptedIndices,
+  onAccept,
+  onAcceptAll,
+  onDismiss,
+  environment,
+  provisioningBusy = null,
+  provisioningResults = {},
+  entryPreviews = {},
+  onProvision,
+}) => {
   if (result.status === "failed") {
     return (
       <section className="st-subpanel flex flex-col gap-2 p-2" aria-label="Copilot proposal">

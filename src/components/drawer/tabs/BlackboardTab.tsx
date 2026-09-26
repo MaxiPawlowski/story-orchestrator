@@ -1,5 +1,11 @@
 import type { RuntimeSnapshot } from "@runtime/types";
 
+const readerLabel = (meta: RuntimeSnapshot["blackboardMeta"][string] | undefined) => {
+  if (!meta?.reader) return "";
+  const confidence = meta.confidence !== undefined ? ` ${Math.round((meta.confidence ?? 0) * 100)}%` : "";
+  return ` · ${meta.reader}${confidence}`;
+};
+
 export const BlackboardTab = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
   <div>
     <div className="font-medium mb-1">Blackboard</div>
@@ -13,7 +19,11 @@ export const BlackboardTab = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
             <tr key={key}>
               <td>{key}</td>
               <td>{String(value)}</td>
-              <td title={snapshot.blackboardMeta[key]?.evidence ?? ""}>{snapshot.blackboardMeta[key]?.source}{snapshot.blackboardMeta[key]?.reader ? ` · ${snapshot.blackboardMeta[key]?.reader}${snapshot.blackboardMeta[key]?.confidence !== undefined ? ` ${Math.round((snapshot.blackboardMeta[key]?.confidence ?? 0) * 100)}%` : ""}` : ""}{snapshot.blackboardMeta[key]?.latched ? " (locked)" : ""}</td>
+              <td title={snapshot.blackboardMeta[key]?.evidence ?? ""}>
+                {snapshot.blackboardMeta[key]?.source}
+                {readerLabel(snapshot.blackboardMeta[key])}
+                {snapshot.blackboardMeta[key]?.latched ? " (locked)" : ""}
+              </td>
             </tr>
           ))}
         </tbody>

@@ -63,7 +63,10 @@ export interface SillyTavernContext {
   eventSource: SillyTavernEventSource;
   eventTypes: { PRESET_CHANGED: string } & Record<string, string | undefined>;
   textCompletionSettings: HostTextCompletionSettings;
-  executeSlashCommandsWithOptions: (command: string, options?: { handleParserErrors?: boolean; handleExecutionErrors?: boolean; parserFlags?: Record<number, boolean> }) => Promise<HostSlashCommandResult | undefined>;
+  executeSlashCommandsWithOptions: (
+    command: string,
+    options?: { handleParserErrors?: boolean; handleExecutionErrors?: boolean; parserFlags?: Record<number, boolean> },
+  ) => Promise<HostSlashCommandResult | undefined>;
   loadWorldInfo: (name: string) => Promise<unknown>;
   name1: string;
   characterId?: number | string;
@@ -208,7 +211,13 @@ export interface HostModelRequestCustom {
 export interface ExtensionsSharedHostModule {
   ConnectionManagerRequestService: {
     getSupportedProfiles: () => Array<Record<string, unknown>>;
-    sendRequest: (profileId: string, prompt: string | Array<{ role: string; content: string }>, maxTokens: number, custom?: HostModelRequestCustom, overridePayload?: Record<string, unknown>) => Promise<unknown>;
+    sendRequest: (
+      profileId: string,
+      prompt: string | Array<{ role: string; content: string }>,
+      maxTokens: number,
+      custom?: HostModelRequestCustom,
+      overridePayload?: Record<string, unknown>,
+    ) => Promise<unknown>;
   };
   [key: string]: unknown;
 }

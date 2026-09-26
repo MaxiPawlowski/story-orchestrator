@@ -11,8 +11,13 @@ const LoreForced = ({ record }: { record: RuntimeSnapshot["loreForced"] | undefi
   return (
     <div data-so="lore-forced">
       <div className="font-medium opacity-100">Lore forced this turn</div>
-      <div className="opacity-70"><MessageCitation messageId={record.messageId} /> · {String(record.p?.trigger ?? "")} · {record.fallback ? `fell back (${record.fallback})` : `${record.latencyMs} ms`}</div>
-      {picks.length === 0 ? <div className="opacity-60">Nothing over the floor; ST's keyword scan ran as usual.</div> : picks.map(([title, p]) => <div key={title}>{title} <span className="opacity-60">{typeof p === "number" ? `${Math.round(p * 100)}%` : p}</span></div>)}
+      <div className="opacity-70"><MessageCitation
+        messageId={record.messageId}
+      /> · {String(record.p?.trigger ?? "")} · {record.fallback ? `fell back (${record.fallback})` : `${record.latencyMs} ms`}</div>
+      {picks.length === 0 ? <div className="opacity-60">Nothing over the floor; ST's keyword scan ran as usual.</div> : picks.map(([
+        title,
+        p,
+      ]) => <div key={title}>{title} <span className="opacity-60">{typeof p === "number" ? `${Math.round(p * 100)}%` : p}</span></div>)}
     </div>
   );
 };
@@ -29,7 +34,9 @@ const LoreFired = ({ evidence }: { evidence: RuntimeSnapshot["loreEvidence"] }) 
         <div className="opacity-60">No reply has been generated since this chat opened.</div>
       ) : (
         <>
-          <div className="opacity-70">{last.rendered ? "reply rendered" : "no reply"} · {last.scanCount} scan{last.scanCount === 1 ? "" : "s"}{last.nestedScans ? ` (${last.nestedScans} inside a quiet run)` : ""}</div>
+          <div
+            className="opacity-70"
+          >{last.rendered ? "reply rendered" : "no reply"} · {last.scanCount} scan{last.scanCount === 1 ? "" : "s"}{last.nestedScans ? ` (${last.nestedScans} inside a quiet run)` : ""}</div>
           {last.fired.length === 0 ? (
             <div className="opacity-60">Nothing fired. ST reports nothing for a scan that activates nothing.</div>
           ) : last.fired.map((entry) => (
@@ -39,8 +46,14 @@ const LoreFired = ({ evidence }: { evidence: RuntimeSnapshot["loreEvidence"] }) 
               {entry.origin !== "other" && <span className="st-pill px-1 text-[10px]">{entry.origin}</span>}
             </div>
           ))}
-          {last.lost.length > 0 && <div data-so="lore-lost" className="text-yellow-300">Forced but never reached the reply: {last.lost.map((entry) => entry.comment || `${entry.world} #${entry.uid}`).join(", ")}</div>}
-          {last.constantMissed.length > 0 && <div data-so="lore-constant-missed" className="text-yellow-300">Constant and enabled for this chat, but did not fire: {last.constantMissed.map((entry) => entry.comment).join(", ")}</div>}
+          {last.lost.length > 0 && <div
+            data-so="lore-lost"
+            className="text-yellow-300"
+          >Forced but never reached the reply: {last.lost.map((entry) => entry.comment || `${entry.world} #${entry.uid}`).join(", ")}</div>}
+          {last.constantMissed.length > 0 && <div
+            data-so="lore-constant-missed"
+            className="text-yellow-300"
+          >Constant and enabled for this chat, but did not fire: {last.constantMissed.map((entry) => entry.comment).join(", ")}</div>}
         </>
       )}
     </div>
@@ -64,7 +77,11 @@ const ScanGateTable = ({ view, evidence }: { view: RuntimeSnapshot["scanGate"]; 
       ) : view.rows.map((row) => (
         <div key={`${row.lorebook}.${row.uid}`} data-so="scan-gate-row" data-effective={flagText(row.effectiveDisabled)} className="flex flex-wrap items-center gap-2">
           <span>{row.comment}</span>
-          <span className="opacity-60">{row.lorebook}{row.gatedBy?.length ? ` · gated by ${row.gatedBy.join(", ")}` : ""} · file {flagText(row.fileDisabled)} · this chat {flagText(row.effectiveDisabled)}{firedRow(row.lorebook, row.uid) ? " · fired" : ""}</span>
+          <span className="opacity-60">{row.lorebook}{row.gatedBy?.length ? ` · gated by ${row.gatedBy.join(", ")}` : ""} · file {flagText(row.fileDisabled)} · this
+            chat {flagText(row.effectiveDisabled)}{firedRow(
+            row.lorebook,
+            row.uid,
+          ) ? " · fired" : ""}</span>
         </div>
       ))}
     </div>

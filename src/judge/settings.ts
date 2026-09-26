@@ -153,23 +153,87 @@ export interface JudgeUseCopy {
 }
 
 export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
-  director: { label: "Speaker direction", description: "Picks who speaks next in a group chat when the checkpoint has talk control. Needs a one-line role for every character in the pool; otherwise the usual director decides.", sends: "the last 8 messages, character names and roles, the scene name and goal" },
-  memoryVerify: { label: "Check memory before storing", description: "Drops notes the story never showed and down-weights doubtful ones.", sends: "the read's messages, the candidate notes, story title and cast names" },
+  director: {
+    label: "Speaker direction",
+    description: "Picks who speaks next in a group chat when the checkpoint has talk control. Needs a one-line role for every character in the pool; otherwise the usual director decides.",
+    sends: "the last 8 messages, character names and roles, the scene name and goal",
+  },
+  memoryVerify: {
+    label: "Check memory before storing",
+    description: "Drops notes the story never showed and down-weights doubtful ones.",
+    sends: "the read's messages, the candidate notes, story title and cast names",
+  },
   memoryPairs: { label: "Merge related notes", description: "Decides whether two similar notes are a duplicate, an update, or both true.", sends: "two memory notes per question" },
-  sceneTrigger: { label: "Notice scene changes", description: "Asks for the scene read on the turn a scene changes, next to today's keyword check.", sends: "the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name" },
-  sceneTracker: { label: "Scene tracker", description: "Keeps location, time and who is present, and adds them to the prompt.", sends: "the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name, the story's locations" },
-  lookahead: { label: "Heading toward (author view)", description: "Shows which upcoming checkpoints play is moving toward.", sends: "the last 8 messages and the names and goals of the next checkpoints" },
-  loreSelect: { label: "Lore selection", description: "Adds the lore entries that matter to the next reply, even without their keywords.", sends: "the last 8 messages, the checkpoint name and goal, and the title and text of each entry in the story's lore-select books" },
+  sceneTrigger: {
+    label: "Notice scene changes",
+    description: "Asks for the scene read on the turn a scene changes, next to today's keyword check.",
+    sends: "the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name",
+  },
+  sceneTracker: {
+    label: "Scene tracker",
+    description: "Keeps location, time and who is present, and adds them to the prompt.",
+    sends: "the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name, the story's locations",
+  },
+  lookahead: {
+    label: "Heading toward (author view)",
+    description: "Shows which upcoming checkpoints play is moving toward.",
+    sends: "the last 8 messages and the names and goals of the next checkpoints",
+  },
+  loreSelect: {
+    label: "Lore selection",
+    description: "Adds the lore entries that matter to the next reply, even without their keywords.",
+    sends: "the last 8 messages, the checkpoint name and goal, and the title and text of each entry in the story's lore-select books",
+  },
   curatorFilter: { label: "Curator focus", description: "Shows the World Info curator only the entries the story may have overtaken.", sends: "the story so far and the story's lore entries" },
-  typedExtraction: { label: "Every-turn story reads", description: "Reads qualities the author marked for it on every turn, so gates fire sooner; the rest stay with the story model.", sends: "the last 3 messages (or the read's window), the story title and checkpoint, and each marked quality's description, values and numbers or names found in the messages" },
-  stallCheck: { label: "Stall check", description: "Checks a stalled gate before spending a full re-read; writes only what the messages clearly show.", sends: "the messages since the checkpoint began and the unmet conditions' descriptions and values" },
-  expansionCritic: { label: "Expansion review", description: "Reviews generated story beats instead of a second model call; the code checks still run first.", sends: "up to 40 established facts, the target checkpoint's name and goal, cast names with your persona, the tension trajectory and the generated beats" },
-  expansionLookahead: { label: "Prepare ahead", description: "Writes the generated beats one checkpoint ahead, where play is heading, before the story gets there.", sends: "nothing beyond Heading toward and the expansion itself (reviewed by Expansion review when that is on)" },
-  agencyCheck: { label: "Agency check (warden)", description: "After a character reply, asks whether it wrote what only you do, say or decide; when it did, the next reply's prompt carries one line leaving your part to you. Uses the continuity warden's review or auto mode.", sends: "the character reply, your latest message and your persona name" },
-  houseRules: { label: "House rules (warden)", description: "After a character reply, checks it against the story's house rules; a broken rule is named in the next reply's prompt. Uses the continuity warden's review or auto mode.", sends: "the character reply and the story's house rules" },
+  typedExtraction: {
+    label: "Every-turn story reads",
+    description: "Reads qualities the author marked for it on every turn, so gates fire sooner; the rest stay with the story model.",
+    sends: "the last 3 messages (or the read's window), the story title and checkpoint, and each marked quality's description, values and numbers or names found in the messages",
+  },
+  stallCheck: {
+    label: "Stall check",
+    description: "Checks a stalled gate before spending a full re-read; writes only what the messages clearly show.",
+    sends: "the messages since the checkpoint began and the unmet conditions' descriptions and values",
+  },
+  expansionCritic: {
+    label: "Expansion review",
+    description: "Reviews generated story beats instead of a second model call; the code checks still run first.",
+    sends: "up to 40 established facts, the target checkpoint's name and goal, cast names with your persona, the tension trajectory and the generated beats",
+  },
+  expansionLookahead: {
+    label: "Prepare ahead",
+    description: "Writes the generated beats one checkpoint ahead, where play is heading, before the story gets there.",
+    sends: "nothing beyond Heading toward and the expansion itself (reviewed by Expansion review when that is on)",
+  },
+  agencyCheck: {
+    label: "Agency check (warden)",
+    description: "After a character reply, asks whether it wrote what only you do, say or decide; when it did, the next reply's prompt carries one line leaving your part to " +
+      "you. Uses the continuity warden's review or auto mode.",
+    sends: "the character reply, your latest message and your persona name",
+  },
+  houseRules: {
+    label: "House rules (warden)",
+    description: "After a character reply, checks it against the story's house rules; a broken rule is named in the next reply's prompt. Uses the continuity warden's review or auto mode.",
+    sends: "the character reply and the story's house rules",
+  },
 };
 
-export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = ["director", "memoryVerify", "memoryPairs", "sceneTrigger", "sceneTracker", "lookahead", "loreSelect", "typedExtraction", "stallCheck", "expansionCritic", "expansionLookahead", "curatorFilter", "agencyCheck", "houseRules"];
+export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = [
+  "director",
+  "memoryVerify",
+  "memoryPairs",
+  "sceneTrigger",
+  "sceneTracker",
+  "lookahead",
+  "loreSelect",
+  "typedExtraction",
+  "stallCheck",
+  "expansionCritic",
+  "expansionLookahead",
+  "curatorFilter",
+  "agencyCheck",
+  "houseRules",
+];
 
 // v2.2 plan 07: steering-grade usages, listed only in author view.
 export const AUTHOR_JUDGE_USES: readonly JudgeUseKey[] = ["expansionCritic", "expansionLookahead", "agencyCheck", "houseRules"];

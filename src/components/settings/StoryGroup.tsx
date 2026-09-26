@@ -88,7 +88,13 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
             disabled={busy || (!snapshot.storyId && !snapshot.blobUnreadable)}
             onClick={() => void whileBusy(() => manager.restartStory())}
           />
-          <button id="so-delete-story" className="menu_button fa-solid fa-trash-can" title="Delete the selected story from the library" disabled={busy || !snapshot.storyId} onClick={() => void deleteStory()} />
+          <button
+            id="so-delete-story"
+            className="menu_button fa-solid fa-trash-can"
+            title="Delete the selected story from the library"
+            disabled={busy || !snapshot.storyId}
+            onClick={() => void deleteStory()}
+          />
         </div>
         {snapshot.storyId && (
           <div id="so-story-identity" className="text-xs opacity-70">
@@ -99,7 +105,12 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
         {snapshot.blobUnreadable && <div id="so-blob-unreadable" className="text-xs opacity-90">This chat's saved story state was {snapshot.blobUnreadable.notice}.</div>}
         <div id="so-retention-note" className="text-xs opacity-70 flex items-center gap-2">
           <span>This chat keeps its progress for the {STORY_STATE_RETENTION} most recent stories; switching to a sixth drops the oldest.</span>
-          <button id="so-export-state" className="menu_button" title="Copy this chat's saved story state to the clipboard, before anything can drop it." onClick={() => void copyState()}>Export state</button>
+          <button
+            id="so-export-state"
+            className="menu_button"
+            title="Copy this chat's saved story state to the clipboard, before anything can drop it."
+            onClick={() => void copyState()}
+          >Export state</button>
         </div>
       </label>
       {importOpen && (

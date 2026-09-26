@@ -80,7 +80,14 @@ export async function runMemoryVerifyCalibration(ask: (request: JudgeRequest) =>
     const scores = result.answers ? readVerify(result.answers, group.length) : group.map(() => null);
     return group.map((entry, index) => {
       const dropped = verifyVerdict(scores[index]).action === "drop";
-      return { id: entry.id, right: entry.supported ? !dropped : dropped, picked: scores[index] === null ? null : `p=${scores[index]}`, latencyMs: result.latencyMs, model: result.model, ...(result.fallback ? { fallback: result.fallback } : {}) };
+      return {
+        id: entry.id,
+        right: entry.supported ? !dropped : dropped,
+        picked: scores[index] === null ? null : `p=${scores[index]}`,
+        latencyMs: result.latencyMs,
+        model: result.model,
+        ...(result.fallback ? { fallback: result.fallback } : {})
+      };
     });
   }))).flat();
   return summarize(rows);
@@ -93,7 +100,15 @@ export async function runMemoryPairsCalibration(ask: (request: JudgeRequest) => 
     const result = await ask(buildPairRequest(entry.older, entry.newer));
     const read = result.answers ? readPair(result.answers) : null;
     const decision = pairDecision(read);
-    return { id: entry.id, right: decision !== null && pairAction(decision) === pairAction(entry.label), picked: decision ?? (read ? `undecided ${read.relation}@${read.confidence}` : null), detail: read ? `${read.relation}@${read.confidence} same=${read.sameThing}` : null, latencyMs: result.latencyMs, model: result.model, ...(result.fallback ? { fallback: result.fallback } : {}) };
+    return {
+      id: entry.id,
+      right: decision !== null && pairAction(decision) === pairAction(entry.label),
+      picked: decision ?? (read ? `undecided ${read.relation}@${read.confidence}` : null),
+      detail: read ? `${read.relation}@${read.confidence} same=${read.sameThing}` : null,
+      latencyMs: result.latencyMs,
+      model: result.model,
+      ...(result.fallback ? { fallback: result.fallback } : {})
+    };
   }));
   return summarize(rows);
 }

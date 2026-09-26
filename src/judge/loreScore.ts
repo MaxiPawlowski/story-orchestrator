@@ -37,7 +37,10 @@ export function buildLoreScoreRequests(candidates: LoreEntry[], scene: LoreScene
     entries,
     request: {
       state: sceneState,
-      questions: Object.fromEntries(entries.map((entry, index) => [`e:${index}`, score(`How relevant are the specific facts in this lore entry to the next reply in \`transcript\`? Entry "${entry.comment}": ${clip(entry.content)}`, [...LORE_RELEVANCE_SCALE])])),
+      questions: Object.fromEntries(entries.map((entry, index) => [
+        `e:${index}`,
+        score(`How relevant are the specific facts in this lore entry to the next reply in \`transcript\`? Entry "${entry.comment}": ${clip(entry.content)}`, [...LORE_RELEVANCE_SCALE]),
+      ])),
     },
   }));
 }

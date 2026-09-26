@@ -40,23 +40,50 @@ const ArcBridgesPanel: React.FC = () => {
         <div key={index} className="flex flex-wrap items-end gap-2">
           <label className="flex min-w-[9rem] flex-1 flex-col gap-1 text-xs st-muted">
             <span>Arc keyword</span>
-            <input className="text_pole st-input w-full min-w-0" aria-label={`Arc match ${index + 1}`} placeholder="e.g. missing brother" value={bridge.arcMatch} onChange={(event) => update(index, { arcMatch: event.target.value })} />
+            <input
+              className="text_pole st-input w-full min-w-0"
+              aria-label={`Arc match ${index + 1}`}
+              placeholder="e.g. missing brother"
+              value={bridge.arcMatch}
+              onChange={(event) => update(index, { arcMatch: event.target.value })}
+            />
           </label>
           <label className="flex min-w-0 max-w-full flex-col gap-1 text-xs st-muted">
             <span>Toward anchor</span>
-            <select className="text_pole st-input w-full max-w-full" aria-label={`Arc bridge anchor ${index + 1}`} value={bridge.anchor} onChange={(event) => update(index, { anchor: event.target.value })}>
+            <select
+              className="text_pole st-input w-full max-w-full"
+              aria-label={`Arc bridge anchor ${index + 1}`}
+              value={bridge.anchor}
+              onChange={(event) => update(index, { anchor: event.target.value })}
+            >
               <option value="" disabled>anchor…</option>
               {anchors.map((anchor) => <option key={anchor.id} value={anchor.id}>{anchor.name}</option>)}
             </select>
           </label>
           <label className="flex flex-col gap-1 text-xs st-muted">
             <span>Progress</span>
-            <input type="number" className="text_pole st-input w-24" aria-label={`Arc bridge amount ${index + 1}`} value={bridge.amount} onChange={(event) => update(index, { amount: optionalFloat(event.target.value) ?? 0 })} />
+            <input
+              type="number"
+              className="text_pole st-input w-24"
+              aria-label={`Arc bridge amount ${index + 1}`}
+              value={bridge.amount}
+              onChange={(event) => update(index, { amount: optionalFloat(event.target.value) ?? 0 })}
+            />
           </label>
-          <button type="button" className="st-button danger" aria-label={`Remove arc bridge ${index + 1}`} onClick={() => mutate((current) => setArcBridges(current, bridges.filter((_, entryIndex) => entryIndex !== index)))}>×</button>
+          <button
+            type="button"
+            className="st-button danger"
+            aria-label={`Remove arc bridge ${index + 1}`}
+            onClick={() => mutate((current) => setArcBridges(current, bridges.filter((_, entryIndex) => entryIndex !== index)))}
+          >×</button>
         </div>
       ))}
-      <button type="button" className="st-button secondary self-start" onClick={() => mutate((current) => setArcBridges(current, [...bridges, { arcMatch: "", anchor: anchors[0]?.id ?? "", amount: 1 }]))} disabled={anchors.length === 0}>+ Arc bridge</button>
+      <button
+        type="button"
+        className="st-button secondary self-start"
+        onClick={() => mutate((current) => setArcBridges(current, [...bridges, { arcMatch: "", anchor: anchors[0]?.id ?? "", amount: 1 }]))}
+        disabled={anchors.length === 0}
+      >+ Arc bridge</button>
     </div>
   );
 };
@@ -175,7 +202,8 @@ const CheckpointDeleteRow = ({ confirming, touchingTransitions, onDelete }: { co
 <div className="flex items-center gap-2 border-t st-divider pt-3">
   <button type="button" className="st-button danger" onClick={onDelete}>Delete checkpoint</button>
   {confirming ? (
-    <span className="text-xs st-text-error">{touchingTransitions > 0 ? `Also removes ${touchingTransitions} connected transition${touchingTransitions === 1 ? "" : "s"} — ` : ""}click Delete again to confirm.</span>
+    <span className="text-xs st-text-error">{touchingTransitions > 0 ? `Also removes ${touchingTransitions} connected ` +
+      `transition${touchingTransitions === 1 ? "" : "s"} — ` : ""}click Delete again to confirm.</span>
   ) : null}
 </div>
 );

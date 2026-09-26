@@ -56,7 +56,10 @@ const sanitizeWorldInfoSettings = (value: unknown): WorldInfoSettings => {
   if (!isRecord(value)) return defaultWorldInfoSettings();
   const normalized = isRecord(value.normalized)
     ? Object.fromEntries(Object.entries(value.normalized)
-      .map(([book, comments]): [string, string[]] => [book, Array.isArray(comments) ? [...new Set(comments.filter((comment): comment is string => typeof comment === "string" && comment.trim().length > 0))] : []])
+      .map(([book, comments]): [string, string[]] => [
+        book,
+        Array.isArray(comments) ? [...new Set(comments.filter((comment): comment is string => typeof comment === "string" && comment.trim().length > 0))] : [],
+      ])
       .filter(([, comments]) => comments.length > 0))
     : {};
   return { gatingMode: value.gatingMode === "scan" ? "scan" : "file", normalized, normalizedFrom: sanitizeProvenance(value.normalizedFrom) };
@@ -110,7 +113,9 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       enabled: typeof extraction.enabled === "boolean" ? extraction.enabled : defaults.extraction.enabled,
       profileId: typeof extraction.profileId === "string" && extraction.profileId ? extraction.profileId : null,
       cadence: typeof extraction.cadence === "number" && extraction.cadence >= 1 ? extraction.cadence : defaults.extraction.cadence,
-      reconciliationMultiplier: typeof extraction.reconciliationMultiplier === "number" && extraction.reconciliationMultiplier >= 1 ? extraction.reconciliationMultiplier : defaults.extraction.reconciliationMultiplier,
+      reconciliationMultiplier: typeof extraction.reconciliationMultiplier === "number" && extraction.reconciliationMultiplier >= 1
+        ? extraction.reconciliationMultiplier
+        : defaults.extraction.reconciliationMultiplier,
       stabilityLag: typeof extraction.stabilityLag === "number" && extraction.stabilityLag >= 0 ? extraction.stabilityLag : defaults.extraction.stabilityLag,
       ...(profiles ? { profiles } : {}),
     },

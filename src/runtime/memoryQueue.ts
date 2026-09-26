@@ -52,7 +52,11 @@ export function boundProvenance(values: Record<string, { entity: string; field: 
  *  value for its (entity, field), so a ledger version that disagrees is a real conflict. The
  *  envelope is the blackboard's own — quality key as its input, the value's version as its
  *  revision — so a bound row's validity follows the blackboard rather than a message. */
-export function boundValuesFor(bindings: LedgerBinding[], values: Record<string, unknown>, versions: Record<string, number> = {}): Record<string, { entity: string; field: string; value: string; provenance?: Provenance }> {
+export function boundValuesFor(
+  bindings: LedgerBinding[],
+  values: Record<string, unknown>,
+  versions: Record<string, number> = {},
+): Record<string, { entity: string; field: string; value: string; provenance?: Provenance }> {
   const bound: Record<string, { entity: string; field: string; value: string; provenance?: Provenance }> = {};
   for (const binding of bindings) {
     const value = values[binding.qualityKey];
@@ -61,7 +65,14 @@ export function boundValuesFor(bindings: LedgerBinding[], values: Record<string,
       entity: binding.entity,
       field: binding.field,
       value: String(value),
-      provenance: provenance({ source: "blackboard", messageId: -1, boundary: 0, pass: "blackboard", sourceRevision: versions[binding.qualityKey], inputs: [{ store: "blackboard", id: binding.qualityKey }] }),
+      provenance: provenance({
+        source: "blackboard",
+        messageId: -1,
+        boundary: 0,
+        pass: "blackboard",
+        sourceRevision: versions[binding.qualityKey],
+        inputs: [{ store: "blackboard", id: binding.qualityKey }],
+      }),
     };
   }
   return bound;
@@ -369,7 +380,10 @@ export async function discardMemoryRow(deps: MemoryQueueDeps, id: string): Promi
   const entry = state.entries.find((candidate) => candidate.id === id);
   if (entry) {
     const excluded = excludeEntry(state, id);
-    const derived = recordDerived(state.derived, { boundary: deps.boundaryStamp(), messageId: deps.lastMessageId?.() ?? -1, kind: "exclusion", inputs: [id], removed: [entry], hash: hashMemoryText(entry.text) });
+    const derived = recordDerived(
+      state.derived,
+      { boundary: deps.boundaryStamp(), messageId: deps.lastMessageId?.() ?? -1, kind: "exclusion", inputs: [id], removed: [entry], hash: hashMemoryText(entry.text) },
+    );
     return commitDecision(deps, { entries: excluded.entries, excluded: excluded.excluded, derived }, ["entries", "excluded", "derived"]);
   }
   if (state.epistemic.some((row) => row.id === id)) return commitDecision(deps, { epistemic: removeEpistemic(state.epistemic, id) }, ["epistemic"]);

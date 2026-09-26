@@ -53,7 +53,10 @@ const isConfigMessage = (message: string) => CONFIG_MESSAGES.some((pattern) => p
 
 export function classifyHostFailure(error: unknown, signal?: AbortSignal | null): { kind: ModelFailureKind; message: string } {
   const aborted = abortReasonName(signal);
-  if (aborted) return { kind: aborted === "TimeoutError" ? "timeout" : "lapsed", message: messageOf(signal?.reason) || (aborted === "TimeoutError" ? "the memory model did not answer in time" : "the request was cancelled") };
+  if (aborted) return {
+    kind: aborted === "TimeoutError" ? "timeout" : "lapsed",
+    message: messageOf(signal?.reason) || (aborted === "TimeoutError" ? "the memory model did not answer in time" : "the request was cancelled"),
+  };
   const message = messageOf(error);
   if (message !== WRAPPED_MESSAGE || !(error instanceof Error)) return { kind: "config", message: message || "the memory model request was refused before it was sent" };
   const cause: unknown = error.cause;

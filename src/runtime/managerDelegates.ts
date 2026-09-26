@@ -20,7 +20,10 @@ type WiredCoordinators = ReturnType<typeof wireCoordinators>;
 export abstract class CoordinatorDelegates {
   protected abstract readonly co: WiredCoordinators;
 
-  async runCopilotStage(input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[]; environment?: ProvisioningEnvironment }, debugResponse?: string): Promise<ProposalResult> { return this.co.copilot.runStage(input, debugResponse); }
+  async runCopilotStage(
+    input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[]; environment?: ProvisioningEnvironment },
+    debugResponse?: string,
+  ): Promise<ProposalResult> { return this.co.copilot.runStage(input, debugResponse); }
   getProvisioningEnvironment(draft?: StoryV2): ProvisioningEnvironment { return this.co.copilot.getProvisioningEnvironment(draft); }
   async applyProvisioning(op: ProvisioningOp, draft?: StoryV2): Promise<ProvisioningResult> { return this.co.copilot.applyProvisioning(op, draft); }
   async readProvisioningEntry(lorebook: string, comment: string): Promise<WIEntrySnapshot | null> { return this.co.copilot.readProvisioningEntry(lorebook, comment); }
@@ -38,7 +41,15 @@ export abstract class CoordinatorDelegates {
   getExpansionGateSources(): ExtraGateSource[] { return this.co.expansion.getGateSources(); }
   recordReconciliation(descriptor: { checkpointId: string; boundary: number; targetedKeys: string[] }) { this.co.extraction.recordReconciliation(descriptor); }
   judgedExtraction(work: JudgedExtractionWork): boolean { return this.co.extraction.judged(work); }
-  async applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memoryLines: ParsedMemoryLine[] = [], arcSignals: ParsedArcSignal[] = [], epistemicSignals: ParsedEpistemicSignal[] = [], ledgerSignals: ParsedLedgerSignal[] = [], read: ReadOwnership | null = null) { await this.co.extraction.applyAudit(audit, facts, memoryLines, arcSignals, epistemicSignals, ledgerSignals, read); }
+  async applyExtractionAudit(
+    audit: SharedReadAudit,
+    facts: ParsedFact[],
+    memoryLines: ParsedMemoryLine[] = [],
+    arcSignals: ParsedArcSignal[] = [],
+    epistemicSignals: ParsedEpistemicSignal[] = [],
+    ledgerSignals: ParsedLedgerSignal[] = [],
+    read: ReadOwnership | null = null,
+  ) { await this.co.extraction.applyAudit(audit, facts, memoryLines, arcSignals, epistemicSignals, ledgerSignals, read); }
   async runArcSummaryPass(arcIds: string[]): Promise<boolean> { return this.co.memory.runArcSummaryPass(arcIds); }
   detectSceneBreak() { return this.co.extraction.detectSceneBreak(); }
   async runSceneBreakPass(audit: SharedReadAudit) { await this.co.extraction.runSceneBreakPass(audit); }

@@ -229,11 +229,19 @@ export const describeOp = (op: ProposalOp): OpDescription => {
     case "removeRosterMember":
       return { action: "remove", entity: `member:${op.id}`, label: `Remove roster member "${op.id}"` };
     case "setArcTemplate":
-      return { action: "update", entity: "story.arc_template", label: op.template ? `Set dramatic shape to ${typeof op.template === "string" ? op.template : "a custom curve"}` : "Clear the dramatic shape" };
+      return {
+        action: "update",
+        entity: "story.arc_template",
+        label: op.template ? `Set dramatic shape to ${typeof op.template === "string" ? op.template : "a custom curve"}` : "Clear the dramatic shape",
+      };
     case "setArcBridges":
       return { action: "update", entity: "story.arc_bridges", label: `Set ${op.bridges.length} thread bridge(s)` };
     case "setRequirements":
-      return { action: "update", entity: "story.requirements", label: `Require ${[...(op.requirements.personas ?? []), ...(op.requirements.members ?? []), ...(op.requirements.lorebooks ?? [])].join(", ") || "nothing"}` };
+      return {
+        action: "update",
+        entity: "story.requirements",
+        label: `Require ${[...(op.requirements.personas ?? []), ...(op.requirements.members ?? []), ...(op.requirements.lorebooks ?? [])].join(", ") || "nothing"}`,
+      };
     case "setStagecraft":
       return { action: "update", entity: "story.stagecraft", label: op.stagecraft.lorebooks.length ? `Let the curator edit ${op.stagecraft.lorebooks.join(", ")}` : "Give the curator no lorebooks" };
     case "setLoreSelect":

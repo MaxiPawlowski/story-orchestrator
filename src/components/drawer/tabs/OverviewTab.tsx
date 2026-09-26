@@ -25,7 +25,12 @@ const AuthorRequirements = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSn
         </div>
       ))}
       {provisionable && onFixWithWizard && (
-        <button id="so-fix-with-wizard" className="menu_button self-start" title="Open the wizard on the provisioning step, pre-filled with what this story is missing." onClick={onFixWithWizard}>Fix with wizard</button>
+        <button
+          id="so-fix-with-wizard"
+          className="menu_button self-start"
+          title="Open the wizard on the provisioning step, pre-filled with what this story is missing."
+          onClick={onFixWithWizard}
+        >Fix with wizard</button>
       )}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2"><StatusDot ok={ready} /><span>Extraction</span></div>
@@ -48,7 +53,13 @@ const HistoryFloor = ({ snapshot, onBranchFromOldest }: { snapshot: RuntimeSnaps
     <div id="so-history-floor" className="text-xs opacity-80">
       <div className="font-medium opacity-100">History floor</div>
       <div>Oldest restorable point: boundary {oldest.boundary}, message {oldest.messageId}</div>
-      <button id="so-branch-from-oldest" type="button" className="menu_button" disabled={oldest.messageId < 0} onClick={() => onBranchFromOldest(oldest.messageId)}>Branch from the oldest restorable point</button>
+      <button
+        id="so-branch-from-oldest"
+        type="button"
+        className="menu_button"
+        disabled={oldest.messageId < 0}
+        onClick={() => onBranchFromOldest(oldest.messageId)}
+      >Branch from the oldest restorable point</button>
     </div>
   );
 };
@@ -97,7 +108,16 @@ const AuthorOverview = ({ snapshot, onFixWithWizard, onBranchFromOldest }: { sna
   </div>
 );
 
-export const OverviewTab = ({ snapshot, authorView, onOpenSettings, onFixWithWizard, onReread, onRestart, onRetry, onBranchFromOldest }: { snapshot: RuntimeSnapshot; authorView: boolean; onOpenSettings?: () => void; onFixWithWizard?: () => void; onReread?: () => void; onRestart?: () => void; onRetry?: () => void; onBranchFromOldest?: (messageId: number) => void }) => (
+export const OverviewTab = ({ snapshot, authorView, onOpenSettings, onFixWithWizard, onReread, onRestart, onRetry, onBranchFromOldest }: {
+  snapshot: RuntimeSnapshot;
+  authorView: boolean;
+  onOpenSettings?: () => void;
+  onFixWithWizard?: () => void;
+  onReread?: () => void;
+  onRestart?: () => void;
+  onRetry?: () => void;
+  onBranchFromOldest?: (messageId: number) => void;
+}) => (
   <div className="flex flex-col gap-3">
     <PlayerOverview snapshot={snapshot} onOpenSettings={onOpenSettings} onReread={onReread} onRestart={onRestart} onRetry={onRetry} />
     {authorView && <AuthorOverview snapshot={snapshot} onFixWithWizard={onFixWithWizard} onBranchFromOldest={onBranchFromOldest} />}

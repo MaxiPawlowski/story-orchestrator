@@ -27,14 +27,31 @@ export async function runSceneCalibration(ask: (request: JudgeRequest) => Promis
     const rows: JudgeSelfTestRow[] = [];
     if (entry.labels.sceneBreak !== undefined) {
       const p = read.sceneBreak?.p ?? null;
-      rows.push({ id: `${entry.id}.${entry.labels.sceneBreak ? "break" : "nobreak"}`, right: p !== null && p >= SCENE_TRIGGER === entry.labels.sceneBreak, picked: p === null ? null : `p=${p} ${read.sceneBreak?.type ?? ""}`.trim(), ...base });
+      rows.push({
+        id: `${entry.id}.${entry.labels.sceneBreak ? "break" : "nobreak"}`,
+        right: p !== null && p >= SCENE_TRIGGER === entry.labels.sceneBreak,
+        picked: p === null ? null : `p=${p} ${read.sceneBreak?.type ?? ""}`.trim(),
+        ...base
+      });
     }
     Object.entries(entry.labels.present ?? {}).forEach(([rosterId, label]) => {
       const p = read.present?.[rosterId] ?? null;
       rows.push({ id: `${entry.id}.present:${rosterId}`, right: p !== null && p >= PRESENT_P === label, picked: p === null ? null : `p=${p}`, ...base });
     });
-    if (entry.labels.location !== undefined) rows.push({ id: `${entry.id}.location`, right: read.location?.value === entry.labels.location, picked: read.location ? `${read.location.value}@${read.location.confidence}` : null, detail: `label ${entry.labels.location}`, ...base });
-    if (entry.labels.time !== undefined) rows.push({ id: `${entry.id}.time`, right: read.time?.value === entry.labels.time, picked: read.time ? `${read.time.value}@${read.time.confidence}` : null, detail: `label ${entry.labels.time}`, ...base });
+    if (entry.labels.location !== undefined) rows.push({
+      id: `${entry.id}.location`,
+      right: read.location?.value === entry.labels.location,
+      picked: read.location ? `${read.location.value}@${read.location.confidence}` : null,
+      detail: `label ${entry.labels.location}`,
+      ...base
+    });
+    if (entry.labels.time !== undefined) rows.push({
+      id: `${entry.id}.time`,
+      right: read.time?.value === entry.labels.time,
+      picked: read.time ? `${read.time.value}@${read.time.confidence}` : null,
+      detail: `label ${entry.labels.time}`,
+      ...base
+    });
     Object.entries(entry.labels.heading ?? {}).forEach(([checkpointId, label]) => {
       const p = read.headingTo?.[checkpointId] ?? null;
       rows.push({ id: `${entry.id}.heading:${checkpointId}`, right: p !== null && p >= HEADING_P === label, picked: p === null ? null : `p=${p}`, ...base });

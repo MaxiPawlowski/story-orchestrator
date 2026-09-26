@@ -43,7 +43,8 @@ const chatNow = (): unknown[] => (Array.isArray(getContext().chat) ? getContext(
 
 const driftNote = (messageId: number, chatLength: number, last: number): string => (messageId === chatLength && chatLength < last + 1
   ? `the chat ends at message ${chatLength - 1} while the story had read up to message ${last} (a branch, or messages removed while the story was not listening); stepped back from ${messageId}`
-  : `message ${messageId} no longer says what it said when the story read it, and no event announced the change (another extension rewrote it, or a move named only one of the rows it swapped); stepped back from ${messageId}`);
+  : `message ${messageId} no longer says what it said when the story read it, and no event announced the change (another extension rewrote it, or a move named only one of the ` +
+    `rows it swapped); stepped back from ${messageId}`);
 
 // V26: the one place a run's state is written into the open chat, split out of RuntimeManager. Every
 // coordinator save() ends in `persist`; `landed` answers whether the last one actually reached disk.
@@ -70,7 +71,17 @@ export class ChatSave {
     // v2.3 plan 05. Losing a story's state is a fact about this chat, not a later surprise.
     // v2.4 plan 02 T3: the fingerprints land in the same write as the boundary they describe.
     const fingerprints = this.fingerprints.capture(chatNow(), engine.history.from.messageId, engine.state.lastMessageId);
-    const record = { storyId: loaded.record.id, storyTitle: loaded.story.title, pinnedStory: loaded.record.raw, playedVersion: loaded.record.version, contentHashAtLoad: loaded.record.hash, engineState: engine.state, engineHistory: engine.history, extras: stripGlobalSettings(extras), ...(fingerprints ? { fingerprints } : {}) };
+    const record = {
+      storyId: loaded.record.id,
+      storyTitle: loaded.story.title,
+      pinnedStory: loaded.record.raw,
+      playedVersion: loaded.record.version,
+      contentHashAtLoad: loaded.record.hash,
+      engineState: engine.state,
+      engineHistory: engine.history,
+      extras: stripGlobalSettings(extras),
+      ...(fingerprints ? { fingerprints } : {})
+    };
     const evicted = savePersistedRuntime(record);
     const notice = evictedStoryNotice(evicted, (id) => listStoryRecords().find((record) => record.id === id)?.title ?? null);
     if (notice) this.deps.recap(notice.summary, notice.detail);

@@ -162,7 +162,10 @@ export const setSceneRead = (draft: StoryDraft, sceneRead: StorySceneRead): Stor
 export const setLoreSelect = (draft: StoryDraft, loreSelect: StoryLoreSelect): StoryDraft => {
   const { lore_select: _dropped, ...rest } = draft;
   if (!loreSelect.lorebooks.length) return rest;
-  return { ...rest, lore_select: { lorebooks: loreSelect.lorebooks, ...(loreSelect.top_k !== undefined ? { top_k: loreSelect.top_k } : {}), ...(loreSelect.min_p !== undefined ? { min_p: loreSelect.min_p } : {}) } };
+  return {
+    ...rest,
+    lore_select: { lorebooks: loreSelect.lorebooks, ...(loreSelect.top_k !== undefined ? { top_k: loreSelect.top_k } : {}), ...(loreSelect.min_p !== undefined ? { min_p: loreSelect.min_p } : {}) },
+  };
 };
 
 // v2.4 plan 07 T23: kept as typed so a rule can be written word by word; validation trims and caps it.

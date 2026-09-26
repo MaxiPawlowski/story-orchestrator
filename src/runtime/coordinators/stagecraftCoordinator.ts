@@ -183,7 +183,15 @@ export class StagecraftCoordinator {
       this.patch({
         lastRunBoundary: state.boundary,
         lastError: null,
-        lastPass: { at: new Date().toISOString(), reason, prompt, rawResponse: response, proposed: plan.records.length, dropped: plan.dropped, ...(shown.length < entries.length ? { focus: { shown: shown.length, total: entries.length } } : {}) },
+        lastPass: {
+          at: new Date().toISOString(),
+          reason,
+          prompt,
+          rawResponse: response,
+          proposed: plan.records.length,
+          dropped: plan.dropped,
+          ...(shown.length < entries.length ? { focus: { shown: shown.length, total: entries.length } } : {})
+        },
       });
       if (!plan.records.length && !plan.dropped.length) {
         await this.save();
@@ -204,7 +212,14 @@ export class StagecraftCoordinator {
         // "off" never leaves the ring at all.
         ops: plan.records.map((entry) => (mode === "auto" ? { ...entry, status: "accepted" as const } : entry)),
         dropped: plan.dropped,
-        provenance: { source: "curator", messageId: state.lastMessageId, boundary: state.boundary, pass: `wi-curator:${reason}`, inputs: shown.map((entry) => ({ store: "memory" as const, id: `${entry.lorebook}#${entry.comment}` })), validity: "live" },
+        provenance: {
+          source: "curator",
+          messageId: state.lastMessageId,
+          boundary: state.boundary,
+          pass: `wi-curator:${reason}`,
+          inputs: shown.map((entry) => ({ store: "memory" as const, id: `${entry.lorebook}#${entry.comment}` })),
+          validity: "live",
+        },
       };
       this.patch({ proposals: capProposalRing([...this.state.proposals, record]) });
       this.deps.journal(`World Info curator proposed ${record.ops.length} change(s) at ${checkpoint?.name ?? state.activeCheckpointId}`, record.summary);
@@ -330,7 +345,12 @@ export class StagecraftCoordinator {
     try {
       const established = families.continuity ? warden.facts() : [];
       const playerLine = families.agency ? readPlayerLine(this.deps.hosts.chat.chatRows(), replyMessageId) : null;
-      const input: WardenCheckInput = { reply, facts: established.map((fact) => fact.text), agency: playerLine !== null ? { player: this.deps.hosts.player.getPlayerName(), message: playerLine } : null, houseRules: families.houseRules };
+      const input: WardenCheckInput = {
+        reply,
+        facts: established.map((fact) => fact.text),
+        agency: playerLine !== null ? { player: this.deps.hosts.player.getPlayerName(), message: playerLine } : null,
+        houseRules: families.houseRules,
+      };
       const asks = input.facts.length > 0 || input.agency !== null || input.houseRules.length > 0;
       const findings = asks ? await warden.check(input).catch(() => null) : null;
       const owned = token ? this.deps.ownership.check(token) : undefined;
@@ -351,7 +371,14 @@ export class StagecraftCoordinator {
         mode: settings.wardenAcceptMode,
         ops: wardenNoteOps(findings, established, replyMessageId, settings.wardenAcceptMode),
         dropped: [],
-        provenance: { source: "curator", messageId: replyMessageId, boundary: state.boundary, pass: "continuity-warden", inputs: [{ store: "memory" as const, id: `reply:${replyMessageId}` }], validity: "live" },
+        provenance: {
+          source: "curator",
+          messageId: replyMessageId,
+          boundary: state.boundary,
+          pass: "continuity-warden",
+          inputs: [{ store: "memory" as const, id: `reply:${replyMessageId}` }],
+          validity: "live",
+        },
       };
       this.patch({ proposals: capProposalRing([...this.state.proposals, record]) });
       this.deps.journal(...wardenFlagJournal(reply.speaker, findings));

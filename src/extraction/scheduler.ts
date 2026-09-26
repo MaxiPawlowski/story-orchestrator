@@ -60,7 +60,15 @@ export interface SchedulerHost {
   getEpistemicLedgerCapable?(): boolean;
   getEntities?(): string[];
   judgeTyped?(): TypedJudge | null;
-  applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memory: ParsedMemoryLine[], arcs: ParsedArcSignal[], epistemic?: ParsedEpistemicSignal[], ledger?: ParsedLedgerSignal[], read?: ReadOwnership | null): Promise<void>;
+  applyExtractionAudit(
+    audit: SharedReadAudit,
+    facts: ParsedFact[],
+    memory: ParsedMemoryLine[],
+    arcs: ParsedArcSignal[],
+    epistemic?: ParsedEpistemicSignal[],
+    ledger?: ParsedLedgerSignal[],
+    read?: ReadOwnership | null,
+  ): Promise<void>;
   beginRead?(window: { from: number; to: number }): ReadOwnership;
   onSchedulerChange(): void;
   noteLapse?(reason: string, detail: string): void;
@@ -185,7 +193,10 @@ export class ExtractionScheduler {
   private mergeReread(job: SchedulerJob): boolean {
     const incoming = job.window;
     if (job.priority !== 0 || !incoming) return false;
-    const existing = this.queue.find((entry) => entry.priority === 0 && entry.window && overlaps(entry.window, incoming) && (entry.reason === REREAD_LAPSED_REASON || job.reason === REREAD_LAPSED_REASON));
+    const existing = this.queue.find((entry) => entry.priority === 0 && entry.window && overlaps(
+      entry.window,
+      incoming,
+    ) && (entry.reason === REREAD_LAPSED_REASON || job.reason === REREAD_LAPSED_REASON));
     if (!existing?.window) return false;
     existing.window = getChatWindow(Math.min(existing.window.from, incoming.from), Math.max(existing.window.to, incoming.to));
     if (existing.reason === REREAD_LAPSED_REASON) existing.reason = job.reason;
@@ -403,7 +414,14 @@ export class ExtractionScheduler {
   }
 
   getSnapshot() {
-    return { queueDepth: this.queue.length, inFlight: this.inFlight, lastError: this.lastError, heavyQueueDepth: this.heavyQueue.length, heavyInFlight: this.heavyInFlight, lastHeavyError: this.lastHeavyError };
+    return {
+      queueDepth: this.queue.length,
+      inFlight: this.inFlight,
+      lastError: this.lastError,
+      heavyQueueDepth: this.heavyQueue.length,
+      heavyInFlight: this.heavyInFlight,
+      lastHeavyError: this.lastHeavyError,
+    };
   }
 
   private rereadIfMutated(read: LapsedRead, startedEpoch: number) {
@@ -436,7 +454,23 @@ export class ExtractionScheduler {
         const ownership = this.host.beginRead?.({ from: window.from, to: window.to }) ?? null;
         read = ownership ? { ownership, window: { from: window.from, to: window.to } } : null;
         const ask = { role: "read" as const, pass: "read" as const, ...(settings.budget ? { budget: settings.budget } : {}), ...(ownership?.signal ? { signal: ownership.signal } : {}) };
-        const result = await this.runWithRetries(() => runSharedRead({ story, state, priority, reason: job.reason, window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), extraGateSources: this.host.getExpansionGateSources(), openArcs: this.host.getOpenArcs(), epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false, entities: this.host.getEntities?.() ?? [], judgeTyped: this.host.judgeTyped?.() ?? null, model: this.host.model, ask }));
+        const result = await this.runWithRetries(() => runSharedRead({
+          story,
+          state,
+          priority,
+          reason: job.reason,
+          window,
+          stabilityLag: settings.stabilityLag,
+          firedTransitions: this.host.getFiredTransitions(),
+          facts: this.host.getFacts(),
+          extraGateSources: this.host.getExpansionGateSources(),
+          openArcs: this.host.getOpenArcs(),
+          epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false,
+          entities: this.host.getEntities?.() ?? [],
+          judgeTyped: this.host.judgeTyped?.() ?? null,
+          model: this.host.model,
+          ask,
+        }));
         await this.host.applyExtractionAudit(result.audit, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, ownership);
         if (read) this.rereadIfMutated(read, startedEpoch);
       }

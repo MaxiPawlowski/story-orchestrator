@@ -50,7 +50,12 @@ export interface SceneConflictValue {
 
 /** What a stored scene read claims, in the same shape a ledger row or a blackboard value is. Fields
  *  the read did not answer are simply absent — an unanswered question is not a disagreement. */
-export function sceneConflictValues(record: { messageId: number; provenance?: Provenance; location?: { value: string; confidence: number }; time?: { value: string; confidence: number } } | null | undefined): SceneConflictValue[] {
+export function sceneConflictValues(record: {
+  messageId: number;
+  provenance?: Provenance;
+  location?: { value: string; confidence: number };
+  time?: { value: string; confidence: number };
+} | null | undefined): SceneConflictValue[] {
   if (!record) return [];
   return (["location", "time"] as const).flatMap((field) => {
     const read = record[field];
@@ -107,7 +112,38 @@ const mentions = (text: string, token: string) => text.toLowerCase().includes(to
 // (`jaccardSimilarity`), so the queue's candidate search uses the same shape: token overlap over the
 // words long enough to carry meaning. It is deliberately generous — a pair it over-includes is
 // decided by `claimsDifferentValue`, while a pair it under-includes is a disagreement nobody sees.
-const stopWords = new Set(["the", "and", "with", "that", "this", "from", "into", "over", "under", "her", "his", "its", "their", "they", "she", "him", "was", "were", "has", "had", "have", "not", "but", "for", "are", "been", "than", "then", "when", "while"]);
+const stopWords = new Set([
+  "the",
+  "and",
+  "with",
+  "that",
+  "this",
+  "from",
+  "into",
+  "over",
+  "under",
+  "her",
+  "his",
+  "its",
+  "their",
+  "they",
+  "she",
+  "him",
+  "was",
+  "were",
+  "has",
+  "had",
+  "have",
+  "not",
+  "but",
+  "for",
+  "are",
+  "been",
+  "than",
+  "then",
+  "when",
+  "while",
+]);
 const contentTokens = (text: string) => [...new Set(text.toLowerCase().split(/[^a-z0-9]+/).filter((token) => token.length > 3 && !stopWords.has(token)))];
 
 function sameTopic(fact: MemoryEntry, row: LedgerEntry, bound?: { field: string; value: string }): boolean {
@@ -157,7 +193,12 @@ export function detectConflicts(
       key,
       sides: [
         sideOf(row, "ledger", `${row.entity} ${row.field} = ${row.value} (ledger)`),
-        { store: "ledger", id: `bound:${row.entity}:${row.field}`, label: `${bound.entity} ${bound.field} = ${bound.value} (blackboard)`, ...(bound.provenance ? { provenance: bound.provenance } : {}) },
+        {
+          store: "ledger",
+          id: `bound:${row.entity}:${row.field}`,
+          label: `${bound.entity} ${bound.field} = ${bound.value} (blackboard)`,
+          ...(bound.provenance ? { provenance: bound.provenance } : {})
+        },
       ],
     });
   }
@@ -185,11 +226,37 @@ export function detectConflicts(
     const key = sceneConflictKey(read.field);
     if (already.has(key)) continue;
     if (row && normalizeValue(row.value) !== normalizeValue(read.value)) {
-      push({ key, sides: [sideOf(row, "ledger", `${row.entity} ${row.field} = ${row.value} (ledger)`), { store: "scene", id: `scene:${read.field}`, label: `scene ${read.field} = ${read.value}`, ...(read.messageId === undefined ? {} : { messageId: read.messageId }), ...(read.confidence === undefined ? {} : { confidence: read.confidence }), ...(read.provenance ? { provenance: read.provenance } : {}) }] });
+      push({
+        key,
+        sides: [
+          sideOf(row, "ledger", `${row.entity} ${row.field} = ${row.value} (ledger)`),
+          {
+            store: "scene",
+            id: `scene:${read.field}`,
+            label: `scene ${read.field} = ${read.value}`,
+            ...(read.messageId === undefined ? {} : { messageId: read.messageId }),
+            ...(read.confidence === undefined ? {} : { confidence: read.confidence }),
+            ...(read.provenance ? { provenance: read.provenance } : {})
+          },
+        ],
+      });
       continue;
     }
     if (bound && normalizeValue(bound.value) !== normalizeValue(read.value)) {
-      push({ key, sides: [{ store: "ledger", id: `bound:${bound.entity}:${bound.field}`, label: `${bound.entity} ${bound.field} = ${bound.value} (blackboard)` }, { store: "scene", id: `scene:${read.field}`, label: `scene ${read.field} = ${read.value}`, ...(read.messageId === undefined ? {} : { messageId: read.messageId }), ...(read.confidence === undefined ? {} : { confidence: read.confidence }), ...(read.provenance ? { provenance: read.provenance } : {}) }] });
+      push({
+        key,
+        sides: [
+          { store: "ledger", id: `bound:${bound.entity}:${bound.field}`, label: `${bound.entity} ${bound.field} = ${bound.value} (blackboard)` },
+          {
+            store: "scene",
+            id: `scene:${read.field}`,
+            label: `scene ${read.field} = ${read.value}`,
+            ...(read.messageId === undefined ? {} : { messageId: read.messageId }),
+            ...(read.confidence === undefined ? {} : { confidence: read.confidence }),
+            ...(read.provenance ? { provenance: read.provenance } : {})
+          },
+        ],
+      });
     }
   }
   return pairs;
@@ -278,7 +345,12 @@ export interface ConflictResolution {
  *  later pass can see that a human decided this. */
 export function resolveConflict(entries: MemoryEntry[], resolution: ConflictResolution): MemoryEntry[] {
   return entries.map((entry) => {
-    if (entry.id === resolution.keep) return { ...entry, ...withOverride(entry, "reconciled", resolution.at, resolution.boundary), contradicted: false, ...(resolution.lock ? { locked: true, pinned: true } : {}) };
+    if (entry.id === resolution.keep) return {
+      ...entry,
+      ...withOverride(entry, "reconciled", resolution.at, resolution.boundary),
+      contradicted: false,
+      ...(resolution.lock ? { locked: true, pinned: true } : {})
+    };
     if (entry.id === resolution.drop) return { ...entry, supersededBy: resolution.keep, ...withOverride(entry, "reconciled", resolution.at, resolution.boundary) };
     return entry;
   });

@@ -56,7 +56,9 @@ const NOTHING_TO_RESTORE = new Set<EffectTarget["kind"]>(["preset"]);
 
 export const OVERLAY_UNSUPPORTED_REASON = "a checkpoint preset applies on Text Completion and Chat Completion connections only; this connection uses another API";
 
-const readStrings = (value: unknown): string[] => Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0) : typeof value === "string" && value.trim() ? [value] : [];
+const readStrings = (value: unknown): string[] => Array.isArray(value) ? value.filter(
+  (entry): entry is string => typeof entry === "string" && entry.trim().length > 0,
+) : typeof value === "string" && value.trim() ? [value] : [];
 
 const readNpcReplies = (effects: CheckpointEffects | undefined): NpcReplyEffect[] => {
   const value = effects?.npc_replies;
@@ -243,7 +245,11 @@ export class EffectsApplier {
     const effects: CheckpointEffects = checkpoint.effects ?? {};
     if (!run.stillOwns()) return;
     const note = effects.author_note === undefined ? null : authorNoteText(effects.author_note, snapshot);
-    if (note !== null) await this.withLedger(extras, { effect: "author_note", target: { kind: "an" }, before: this.reads().read({ kind: "an" }), after: { text: note }, ...scope }, () => applyAuthorNote(effects.author_note, note));
+    if (note !== null) await this.withLedger(
+      extras,
+      { effect: "author_note", target: { kind: "an" }, before: this.reads().read({ kind: "an" }), after: { text: note }, ...scope },
+      () => applyAuthorNote(effects.author_note, note),
+    );
     // The check goes before EVERY host write, not once per group of them: the Author Note above is
     // itself a host write, so the preset below it is the second one since the last check.
     if (!run.stillOwns()) return;
@@ -251,7 +257,11 @@ export class EffectsApplier {
     if (effects.preset !== undefined) {
       const api = samplerApi();
       const preset = resolvePreset(effects.preset, story, api);
-      await this.withLedger(extras, { effect: "preset", target: { kind: "preset", name: preset.name, api: api ?? "none" }, before: null, after: { name: preset.name }, ...scope }, async () => this.armOverlay(preset, api, checkpoint.id));
+      await this.withLedger(
+        extras,
+        { effect: "preset", target: { kind: "preset", name: preset.name, api: api ?? "none" }, before: null, after: { name: preset.name }, ...scope },
+        async () => this.armOverlay(preset, api, checkpoint.id),
+      );
     }
     if (!run.stillOwns()) return;
     if (mode === "hydrate") await this.applyCastMirror(extras, scope, run);
@@ -264,7 +274,11 @@ export class EffectsApplier {
     if (!run.stillOwns()) return;
     if (effects.background) {
       const name = effects.background.name;
-      await this.withLedger(extras, { effect: "background", target: { kind: "background" }, before: this.reads().read({ kind: "background" }), after: { name }, ...scope }, () => applyBackground(name));
+      await this.withLedger(
+        extras,
+        { effect: "background", target: { kind: "background" }, before: this.reads().read({ kind: "background" }), after: { name }, ...scope },
+        () => applyBackground(name),
+      );
     }
     if (!run.stillOwns()) return;
     if (mode === "activate") await this.fireNpcReplies(checkpoint, extras, "onEnter");
@@ -299,7 +313,10 @@ export class EffectsApplier {
   private async applyCastChanges(value: unknown, extras: RuntimeExtras, scope: { checkpointId: string | null; boundary: number; messageId: number }, run: RunGuard) {
     if (!isRecord(value)) return;
     const group = getActiveGroup();
-    const changes: Array<[string, boolean]> = [...readStrings(value.disable).map((name): [string, boolean] => [name, true]), ...readStrings(value.enable).map((name): [string, boolean] => [name, false])];
+    const changes: Array<[string, boolean]> = [
+      ...readStrings(value.disable).map((name): [string, boolean] => [name, true]),
+      ...readStrings(value.enable).map((name): [string, boolean] => [name, false])
+    ];
     for (const [identifier, disabled] of changes) {
       // Inside the loop, like `fireNpcReplies`: one member is one await, and a two-member change
       // that stops half-way must not disable the second member on another chat's group.
@@ -323,7 +340,11 @@ export class EffectsApplier {
       if (!run.stillOwns()) return;
       const before = castFlag(group, member);
       if (before.disabled === disabled) continue;
-      await this.withLedger(extras, { ...scope, effect: "cast", target: { kind: "cast", group: String(group.id ?? ""), member }, before, after: { disabled } }, async () => setGroupMembersDisabled(disabled ? [] : [member], disabled ? [member] : []));
+      await this.withLedger(
+        extras,
+        { ...scope, effect: "cast", target: { kind: "cast", group: String(group.id ?? ""), member }, before, after: { disabled } },
+        async () => setGroupMembersDisabled(disabled ? [] : [member], disabled ? [member] : []),
+      );
     }
   }
 

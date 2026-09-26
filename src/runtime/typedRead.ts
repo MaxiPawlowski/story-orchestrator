@@ -14,6 +14,11 @@ export const createTypedJudge = (getJudge: () => JudgeRuntime | null): TypedJudg
   const result = await judge.ask("typed", plan.request, { timeoutMs: TYPED_TIMEOUT_MS });
   if (!result.answers) return { deltas: [], answered: [], model: result.model, confidences: {}, ...(result.fallback ? { fallback: result.fallback } : {}) };
   const read = readTypedDeltas(result.answers, plan, qualities, messages);
-  const deltas: ParsedDelta[] = read.deltas.map((delta) => ({ delta: { q: delta.q, v: delta.v, source: "extractor" }, evidence: delta.evidence, judge: delta.confidence, ...(delta.messageId !== undefined ? { messageId: delta.messageId } : {}) }));
+  const deltas: ParsedDelta[] = read.deltas.map((delta) => ({
+    delta: { q: delta.q, v: delta.v, source: "extractor" },
+    evidence: delta.evidence,
+    judge: delta.confidence,
+    ...(delta.messageId !== undefined ? { messageId: delta.messageId } : {})
+  }));
   return { deltas, answered: read.answered, model: result.model, confidences: Object.fromEntries(read.deltas.map((delta) => [delta.q, delta.confidence])) };
 };

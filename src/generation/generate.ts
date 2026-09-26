@@ -40,7 +40,11 @@ async function generateChecked(story: NormalizedStoryV2, input: PlannedExpansion
   if (generated.issues.length) return { ...generated, codeCheck: null };
   const initialCheck = runCodeChecks(story, input, generated.beats);
   if (initialCheck.ok || isPlanted(model, ask)) return { ...generated, codeCheck: initialCheck };
-  const repairRaw = await askText(model, `${renderGenerationPrompt(story, input)}\n\nPrevious JSON failed hard code checks: ${initialCheck.issues.join("; ")}\nReturn corrected exact JSON only.`, { ...ask, maxTokens: 2048 });
+  const repairRaw = await askText(
+    model,
+    `${renderGenerationPrompt(story, input)}\n\nPrevious JSON failed hard code checks: ${initialCheck.issues.join("; ")}\nReturn corrected exact JSON only.`,
+    { ...ask, maxTokens: 2048 },
+  );
   const repaired = parseGeneratedBeats(repairRaw, story);
   if (repaired.issues.length) return { ...generated, codeCheck: initialCheck };
   return { beats: repaired.beats, raw: repairRaw, issues: [], codeCheck: runCodeChecks(story, input, repaired.beats) };
@@ -70,7 +74,15 @@ async function generateVariants(story: NormalizedStoryV2, input: PlannedExpansio
     runs.push({ checked: await generateChecked(story, input, model, { ...ask, temperature: variants.temperature }), ms: Date.now() - started });
   }
   const survivors = runs.map((run, index) => ({ index, checked: run.checked })).filter((run) => !run.checked.issues.length && run.checked.codeCheck?.ok);
-  const record = (patch: Partial<VariantRecord>): VariantRecord => ({ generated: variants.n, survivors: survivors.length, scores: [], picked: null, picker: "code", timesMs: runs.map((run) => run.ms), ...patch });
+  const record = (patch: Partial<VariantRecord>): VariantRecord => ({
+    generated: variants.n,
+    survivors: survivors.length,
+    scores: [],
+    picked: null,
+    picker: "code",
+    timesMs: runs.map((run) => run.ms),
+    ...patch
+  });
   if (!survivors.length) return { ...checkFailure((runs.find((run) => !run.checked.issues.length) ?? runs[0]).checked), variants: record({}) };
 
   const reads = await Promise.all(survivors.map((run) => variants.read(run.checked.beats).catch(() => null)));
@@ -90,11 +102,18 @@ async function generateVariants(story: NormalizedStoryV2, input: PlannedExpansio
   let chosen = codePick;
   let picker: VariantRecord["picker"] = "code";
   let pickFallback: VariantRecord["pickFallback"];
-  const passing = reads.map((read, index) => ({ read, index })).filter((entry) => entry.read && judgeVerdict(entry.read).pass).sort((left, right) => chainScore(right.read!) - chainScore(left.read!) || left.index - right.index);
+  const passing = reads.map((read, index) => ({
+    read,
+    index,
+  })).filter((entry) => entry.read && judgeVerdict(entry.read).pass).sort((left, right) => chainScore(right.read!) - chainScore(left.read!) || left.index - right.index);
   if (variants.pick === "llm" && passing.length >= 2) {
     const target = story.checkpointById[input.candidate.targetAnchorId];
     const pair: [number, number] = [passing[0].index, passing[1].index];
-    const raw = await askText(model, buildPickPrompt({ name: target?.name ?? input.candidate.targetAnchorId, objective: target?.objective ?? "" }, [survivors[pair[0]].checked.beats, survivors[pair[1]].checked.beats]), { ...ask, pass: "critic", maxTokens: 64 }).catch(() => "");
+    const raw = await askText(
+      model,
+      buildPickPrompt({ name: target?.name ?? input.candidate.targetAnchorId, objective: target?.objective ?? "" }, [survivors[pair[0]].checked.beats, survivors[pair[1]].checked.beats]),
+      { ...ask, pass: "critic", maxTokens: 64 },
+    ).catch(() => "");
     const answer = parsePick(stripReasoningBlocks(raw));
     if (answer === null) pickFallback = "llm";
     else {

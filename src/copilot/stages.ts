@@ -4,7 +4,19 @@ export const STAGE_OPS: Record<CopilotStage, readonly ProposalOpKind[]> = {
   qualities: ["setStoryField", "addQuality", "updateQuality", "removeQuality"],
   checkpoints: ["addCheckpoint", "updateCheckpoint", "setStartCheckpoint", "setCheckpointSnapshot"],
   transitions: ["addTransition", "updateTransition", "setTransitionGate"],
-  effects: ["setCheckpointEffects", "addRosterMember", "updateRosterMember", "removeRosterMember", "setRequirements", "setStagecraft", "setSceneRead", "setLoreSelect", "setArcTemplate", "setArcBridges", "setStoryField"],
+  effects: [
+    "setCheckpointEffects",
+    "addRosterMember",
+    "updateRosterMember",
+    "removeRosterMember",
+    "setRequirements",
+    "setStagecraft",
+    "setSceneRead",
+    "setLoreSelect",
+    "setArcTemplate",
+    "setArcBridges",
+    "setStoryField",
+  ],
   provisioning: ["createCharacterCard", "createStoryLorebook", "upsertLorebookEntry", "createGroup"],
 };
 

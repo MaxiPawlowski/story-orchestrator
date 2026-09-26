@@ -41,7 +41,13 @@ const filteredFate = (entry: MemoryEntry, tier: MemoryTier, activeSpeakerId: str
   return null;
 };
 
-function selectTierEntries(entries: MemoryEntry[], tier: MemoryTier, activeSpeakerId: string | null, options: InjectionOptions, fates: Record<string, MemoryFate>): { entries: MemoryEntry[]; pinnedOverflow: number; trim: TierTrim } {
+function selectTierEntries(
+  entries: MemoryEntry[],
+  tier: MemoryTier,
+  activeSpeakerId: string | null,
+  options: InjectionOptions,
+  fates: Record<string, MemoryFate>,
+): { entries: MemoryEntry[]; pinnedOverflow: number; trim: TierTrim } {
   const inTier = entries.filter((entry) => entry.tier === tier);
   const candidates = inTier.filter((entry) => {
     const fate = filteredFate(entry, tier, activeSpeakerId);

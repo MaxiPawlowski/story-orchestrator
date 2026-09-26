@@ -36,6 +36,7 @@
       "argsIgnorePattern": "^_",
       "varsIgnorePattern": "^_"
     }],
+    "max-len": ["error", { "code": 200 }],
     "no-console": "off",
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off",

@@ -6,7 +6,8 @@ export function renderArcContractSection(openArcs: string[] = []): string {
     : [];
   return [
     ...existing,
-    "Track story arcs: open narrative threads still in motion — unresolved conflicts, unfulfilled promises, active goals, open mysteries, unplayed tensions. Report the few that matter most, not every loose detail.",
+    "Track story arcs: open narrative threads still in motion — unresolved conflicts, unfulfilled promises, active goals, open mysteries, unplayed tensions. Report the few " +
+      "that matter most, not every loose detail.",
     "Not arcs: tactical/logistical details, single-scene contingencies, or facts about events that already happened and are over.",
     "Output arc lines in exactly these formats:",
     "[arc] <a NEW unresolved thread introduced in this window, not already listed above>",
@@ -91,7 +92,8 @@ export function buildEpistemicPassPrompt(sceneText: string, participants: string
           const label = entry.tag === "hiding" && entry.hiddenFrom ? `[hiding] ${entry.subject} from ${entry.hiddenFrom} | ${entry.content}` : `[${entry.tag}] ${entry.subject} | ${entry.content}`;
           return `[${index + 1}] ${label}`;
         }),
-        "After your new entries, output [retire] <number> for each existing entry that this scene explicitly supersedes, contradicts, or resolves. Only retire on an explicit change — never on inference.",
+        "After your new entries, output [retire] <number> for each existing entry that this scene explicitly supersedes, contradicts, or resolves. Only retire on an explicit " +
+          "change — never on inference.",
         "",
       ]
     : [];
@@ -107,7 +109,8 @@ export function buildEpistemicPassPrompt(sceneText: string, participants: string
     "Rules:",
     "- Only record what the scene establishes — do not infer beyond what is shown.",
     "- Use each character's name exactly as it appears. One character and one fact per line. No duplicates.",
-    "- ASYMMETRY ONLY: record knowledge only where the characters differ. Never record what every character present directly saw, heard or was told together (the setting, shared events, things said to the whole group).",
+    "- ASYMMETRY ONLY: record knowledge only where the characters differ. Never record what every character present directly saw, heard or was told together (the setting, " +
+      "shared events, things said to the whole group).",
     "- WITNESS: if the scene states that only some of the characters present observed something, you MUST output a [knows] line for each of them.",
     "- DECEPTION: when a character makes a false statement, write [hiding] for the liar; if a listener accepts it unchallenged, also write [believes] for them with the false content.",
     "- KNOWS vs SUSPECTS: a character explicitly told a fact [knows] it; reserve [suspects] for a feeling without direct information.",

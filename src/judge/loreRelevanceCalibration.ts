@@ -104,8 +104,16 @@ export async function runLoreRelevanceCalibration(
     ]);
     const noulScored = noulResults.flatMap(({ chunk, result }) => (result.answers ? readLore(result.answers, chunk.entries).map((pick) => ({ entry: pick.entry, score: pick.p })) : []));
     const scoreScored = scoreResults.flatMap(({ chunk, result }) => (result.answers ? readLoreScores(result.answers, chunk.entries).map((pick) => ({ entry: pick.entry, score: pick.level })) : []));
-    const exchanges: LoreRelevanceExchange[] = [...noulResults.map(({ chunk, result }) => ({ arm: "noul" as const, chunk, result })), ...scoreResults.map(({ chunk, result }) => ({ arm: "score" as const, chunk, result }))]
-      .flatMap(({ arm, chunk, result }) => (result.answers ? [{ arm, key: requestKey(chunk.request.state, chunk.request.questions), questionCount: Object.keys(chunk.request.questions).length, answers: slimAnswers(result.answers) }] : []));
+    const exchanges: LoreRelevanceExchange[] = [
+      ...noulResults.map(({ chunk, result }) => ({ arm: "noul" as const, chunk, result })),
+      ...scoreResults.map(({ chunk, result }) => ({ arm: "score" as const, chunk, result }))
+    ]
+      .flatMap(({ arm, chunk, result }) => (result.answers ? [{
+        arm,
+        key: requestKey(chunk.request.state, chunk.request.questions),
+        questionCount: Object.keys(chunk.request.questions).length,
+        answers: slimAnswers(result.answers),
+      }] : []));
     const considered = candidates.map(loreKey);
     const labels = entry.labels ?? {};
     const model = [...noulResults, ...scoreResults].find(({ result }) => result.model)?.result.model ?? null;

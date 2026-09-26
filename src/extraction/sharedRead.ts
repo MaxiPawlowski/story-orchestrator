@@ -141,7 +141,12 @@ export async function fitReadWindow(window: SharedReadWindow, overheadPrompt: st
     const tokens = window.messages.reduce((sum, message) => sum + meter.count(message.text) + perMessage, promptOverhead);
     return { window, record: { ...base, tokens, overBudget: fit.reason }, trimmedFrom: null, truncated: [] };
   }
-  return { window: { from: fit.from, to: fit.to, messages: fit.messages, ...(window.form ? { form: window.form } : {}) }, record: { ...base, tokens: promptOverhead + fit.tokens }, trimmedFrom: fit.trimmedFrom, truncated: fit.truncated };
+  return {
+    window: { from: fit.from, to: fit.to, messages: fit.messages, ...(window.form ? { form: window.form } : {}) },
+    record: { ...base, tokens: promptOverhead + fit.tokens },
+    trimmedFrom: fit.trimmedFrom,
+    truncated: fit.truncated,
+  };
 }
 
 export async function runSharedRead(options: RunSharedReadOptions): Promise<SharedReadResult> {
@@ -153,7 +158,12 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
   // judge was never asked. The read still falls back to the LLM; the audit says why.
   const failure: { message?: string } = {};
   const judged: JudgedTypedRead | null = options.judgeTyped && hinted.length
-    ? await options.judgeTyped({ story: options.story, state: options.state, qualities: hinted.map((entry) => entry.quality), window }).catch((error: unknown) => { failure.message = error instanceof Error ? error.message : String(error); return null; })
+    ? await options.judgeTyped({
+      story: options.story,
+      state: options.state,
+      qualities: hinted.map((entry) => entry.quality),
+      window,
+    }).catch((error: unknown) => { failure.message = error instanceof Error ? error.message : String(error); return null; })
     : null;
   const answered = new Set(judged?.answered ?? []);
   const residual = scope.filter((entry) => !answered.has(entry.key));

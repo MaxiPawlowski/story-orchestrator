@@ -46,7 +46,8 @@ const macroArgsProbe: Probe = () => {
   if (!hostArgMacrosAvailable()) return absent(`this build has no macros.register, so {{story_quality::key}} is never registered; ${QUALITY_ARG_FALLBACK}`);
   const engine = macroEngineInUse();
   if (engine === "new") return present("macros.register; SillyTavern substitutes with the new macro engine");
-  return absent(`SillyTavern does not substitute with the new macro engine (${engine === "unknown" ? "setting unreadable" : "switched off"}), so {{story_quality::key}} stays literal; ${QUALITY_ARG_FALLBACK}`);
+  return absent(`SillyTavern does not substitute with the new macro engine (${engine === "unknown" ? "setting unreadable" : "switched off"}), so {{story_quality::key}} stays ` +
+    `literal; ${QUALITY_ARG_FALLBACK}`);
 };
 
 const slashCommandsProbe: Probe = () => {
@@ -59,7 +60,8 @@ const slashCommandsProbe: Probe = () => {
 // module either loaded or it did not, and a checkpoint's `effects.background` needs it.
 const backgroundsProbe: Probe = () => {
   const settings = backgroundsModule?.background_settings;
-  return settings && typeof settings === "object" ? present(`background is "${String((settings as { name?: unknown }).name ?? "")}"`) : absent("scripts/backgrounds.js exposed no background_settings, so a checkpoint's background effect cannot switch anything");
+  return settings && typeof settings === "object" ? present(`background is "${String((settings as { name?: unknown }).name ?? "")}"`) : absent("scripts/backgrounds.js exposed " +
+    "no background_settings, so a checkpoint's background effect cannot switch anything");
 };
 
 // `/api/vector/list` is a pure read of saved hashes (src/endpoints/vectors.js:530) — it loads no
@@ -84,7 +86,8 @@ const judgeProbe: Probe = async () => {
 // A build that cannot say it shows "budget unknown", never a guessed number.
 const contextBudgetProbe: Probe = () => {
   const budget = readPromptBudget();
-  return budget.ok ? present(`${budget.prompt} prompt tokens (context ${budget.context} - reply ${budget.response})`) : absent(`${budget.reason}, so the next-turn preview shows no share of the context`);
+  return budget.ok ? present(`${budget.prompt} prompt tokens (context ${budget.context} - reply ` +
+    `${budget.response})`) : absent(`${budget.reason}, so the next-turn preview shows no share of the context`);
 };
 
 // v2.5 plan 01 C: per-chat lorebook gating needs a WORLDINFO_ENTRIES_LOADED listener placed last that sees each

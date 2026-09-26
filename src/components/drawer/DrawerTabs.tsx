@@ -53,7 +53,13 @@ const FlagControl = ({ manager }: { manager: RuntimeManager }) => {
     window.toastr?.info?.("Moment flagged in the session journal.", "Story Orchestrator");
   };
 
-  if (!open) return <button id="so-flag-moment" className="menu_button opacity-60" title="Flag this moment — it lands in the session journal for review" aria-label="Flag this moment" onClick={() => setOpen(true)}>⚑</button>;
+  if (!open) return <button
+    id="so-flag-moment"
+    className="menu_button opacity-60"
+    title="Flag this moment — it lands in the session journal for review"
+    aria-label="Flag this moment"
+    onClick={() => setOpen(true)}
+  >⚑</button>;
   return (
     <div className="flex items-center gap-1 flex-1">
       <input
@@ -76,7 +82,13 @@ const FlagControl = ({ manager }: { manager: RuntimeManager }) => {
 // v2.3 plan 09 / V19: the drawer footer carries the same four tasks as the settings panel. Continue is
 // the drawer itself; Repair appears only while a step is missing and lands on the panel's own Repair
 // row, so there is still one control per task.
-const StoryControls = ({ snapshot, manager, onEditStory, onOpenRepair, onNewStory }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; onEditStory?: () => void; onOpenRepair?: () => void; onNewStory?: () => void }) => {
+const StoryControls = ({ snapshot, manager, onEditStory, onOpenRepair, onNewStory }: {
+  snapshot: RuntimeSnapshot;
+  manager: RuntimeManager;
+  onEditStory?: () => void;
+  onOpenRepair?: () => void;
+  onNewStory?: () => void;
+}) => {
   const repair = nextRepairStep(snapshot);
   return (
   <div id="so-drawer-entry-points" className="flex flex-wrap items-center gap-2 border-t border-solid border-white/10 pt-2">
@@ -89,9 +101,19 @@ const StoryControls = ({ snapshot, manager, onEditStory, onOpenRepair, onNewStor
     {snapshot.ui.authorView && onEditStory && (
       <button id="so-edit-story" className="menu_button" title="Open this story in the Checkpoint Studio. Saving there offers to update this chat." onClick={onEditStory}>Edit story</button>
     )}
-    <button id="so-restart-story-drawer" className="menu_button opacity-80" title="Start this story over in this chat. Messages stay; progress and story memory are cleared." onClick={() => void manager.restartStory()}>Restart story</button>
+    <button
+      id="so-restart-story-drawer"
+      className="menu_button opacity-80"
+      title="Start this story over in this chat. Messages stay; progress and story memory are cleared."
+      onClick={() => void manager.restartStory()}
+    >Restart story</button>
     {snapshot.ui.authorView && snapshot.storyIdentity.drifted && (
-      <button id="so-update-story" className="menu_button" title="Take the newer version from the library into this chat." onClick={() => void manager.applyStoryUpdate()}>Update to v{snapshot.storyIdentity.libraryVersion}</button>
+      <button
+        id="so-update-story"
+        className="menu_button"
+        title="Take the newer version from the library into this chat."
+        onClick={() => void manager.applyStoryUpdate()}
+      >Update to v{snapshot.storyIdentity.libraryVersion}</button>
     )}
   </div>
   );
@@ -130,7 +152,16 @@ export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditSt
         <FlagControl manager={manager} />
       </div>
       <div role="tabpanel">
-        {activeTab === "overview" && <OverviewTab snapshot={snapshot} authorView={authorView} onOpenSettings={onOpenSettings} onFixWithWizard={onFixWithWizard} onReread={() => void manager.runExtractionNow(undefined, "recovery")} onRestart={() => void manager.restartStory()} onRetry={() => void manager.retryExtraction()} onBranchFromOldest={onBranchFromOldest} />}
+        {activeTab === "overview" && <OverviewTab
+          snapshot={snapshot}
+          authorView={authorView}
+          onOpenSettings={onOpenSettings}
+          onFixWithWizard={onFixWithWizard}
+          onReread={() => void manager.runExtractionNow(undefined, "recovery")}
+          onRestart={() => void manager.restartStory()}
+          onRetry={() => void manager.retryExtraction()}
+          onBranchFromOldest={onBranchFromOldest}
+        />}
         {activeTab === "blackboard" && <BlackboardTab snapshot={snapshot} />}
         {activeTab === "memory" && <MemoryTab snapshot={snapshot} manager={manager} authorView={authorView} focusFact={focusFact} />}
         {activeTab === "scheduler" && <SchedulerTab snapshot={snapshot} manager={manager} onOpenFact={openFact} />}

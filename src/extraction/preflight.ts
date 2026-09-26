@@ -18,4 +18,5 @@ export const preflightNeeded = (preflight: Preflight, contextLimit: ContextLimit
   preflight.requests > PREFLIGHT_MAX_REQUESTS || preflight.tokens > contextLimit.value * PREFLIGHT_LIMIT_SHARE;
 
 export const preflightMessage = (preflight: Preflight, profile: string): string =>
-  `${preflight.requests} ${preflight.requests === 1 ? "request" : "requests"}, about ${Math.round(preflight.tokens).toLocaleString("en-US")} tokens to ${profile}${preflight.judgeCalls ? `, and about ${preflight.judgeCalls} judge ${preflight.judgeCalls === 1 ? "call" : "calls"} to TypeSafe` : ""}. Send them?`;
+  `${preflight.requests} ${preflight.requests === 1 ? "request" : "requests"}, about ${Math.round(preflight.tokens).toLocaleString("en-US")} tokens to ` +
+    `${profile}${preflight.judgeCalls ? `, and about ${preflight.judgeCalls} judge ${preflight.judgeCalls === 1 ? "call" : "calls"} to TypeSafe` : ""}. Send them?`;

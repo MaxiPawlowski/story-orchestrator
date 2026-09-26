@@ -7,7 +7,11 @@ import { sanitizeJournalRecords } from "./journal";
 import { defaultExtractionSettings, defaultMemorySettings, defaultStagecraftSettings, type ChatOverrides, type GlobalSettings } from "./settingsModel";
 import { EFFECT_LEDGER_LIMIT, JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
 import { createSaveHealth } from "./saveHealth";
-import type { CopilotRuntimeSettings, EffectLedgerRow, EffectsRuntimeState, ExtractionRuntimeState, MemoryMirrorBook, MemoryRuntimeState, PacingSettings, RuntimeExtras, SaveHealth, StagecraftRuntimeState, TalkRuntimeState, UiRuntimeSettings } from "./types";
+import type {
+  CopilotRuntimeSettings, EffectLedgerRow, EffectsRuntimeState, ExtractionRuntimeState, MemoryMirrorBook,
+  MemoryRuntimeState, PacingSettings, RuntimeExtras, SaveHealth, StagecraftRuntimeState, TalkRuntimeState,
+  UiRuntimeSettings,
+} from "./types";
 import { defaultTension, sanitizeTension } from "./tensionState";
 
 export const TALK_DECISION_LIMIT = 10;
@@ -87,8 +91,12 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
       epistemic,
       ledger,
       canon: existing.canon && typeof existing.canon === "object" ? existing.canon : null,
-      verifyDrops: Array.isArray(existing.verifyDrops) ? existing.verifyDrops.filter((drop) => drop && typeof drop === "object" && drop.entry && typeof drop.p === "number").slice(-VERIFY_DROP_LIMIT) : [],
-      derived: Array.isArray(existing.derived) ? existing.derived.filter((record) => record && typeof record === "object" && typeof record.id === "string" && Array.isArray(record.inputs) && typeof record.messageId === "number").slice(-DERIVED_LIMIT) : [],
+      verifyDrops: Array.isArray(existing.verifyDrops) ? existing.verifyDrops.filter(
+        (drop) => drop && typeof drop === "object" && drop.entry && typeof drop.p === "number",
+      ).slice(-VERIFY_DROP_LIMIT) : [],
+      derived: Array.isArray(existing.derived) ? existing.derived.filter(
+        (record) => record && typeof record === "object" && typeof record.id === "string" && Array.isArray(record.inputs) && typeof record.messageId === "number",
+      ).slice(-DERIVED_LIMIT) : [],
       conflicts: Array.isArray(existing.conflicts) ? existing.conflicts.filter((pair) => Boolean(pair) && typeof pair.key === "string" && Array.isArray(pair.sides)).slice(-CONFLICT_LIMIT) : [],
       resolvedConflicts: Array.isArray(existing.resolvedConflicts) ? existing.resolvedConflicts.filter((key) => typeof key === "string").slice(-CONFLICT_LIMIT) : [],
       pinnedOverflow: typeof existing.pinnedOverflow === "number" ? existing.pinnedOverflow : 0,
@@ -108,7 +116,9 @@ export const sanitizeStagecraft = (value: RuntimeExtras | undefined): Stagecraft
   if (!existing) return createStagecraft();
   return {
     settings: defaultStagecraftSettings(),
-    proposals: Array.isArray(existing.proposals) ? capProposalRing(existing.proposals.filter((entry) => Boolean(entry) && Array.isArray(entry.ops)).filter((entry) => entry.curator === "warden" || entry.curator === "wi")) : [],
+    proposals: Array.isArray(existing.proposals) ? capProposalRing(
+      existing.proposals.filter((entry) => Boolean(entry) && Array.isArray(entry.ops)).filter((entry) => entry.curator === "warden" || entry.curator === "wi"),
+    ) : [],
     lastPass: existing.lastPass && typeof existing.lastPass === "object" ? existing.lastPass : null,
     lastRunBoundary: typeof existing.lastRunBoundary === "number" ? existing.lastRunBoundary : -1,
     lastError: typeof existing.lastError === "string" ? existing.lastError : null,
@@ -255,13 +265,24 @@ export const applyGlobalSettings = (extras: RuntimeExtras, global: GlobalSetting
 // §Configuration homes) - install-wide settings are stripped on the way out.
 export const stripGlobalSettings = (extras: RuntimeExtras): RuntimeExtras => ({
   ...extras,
-  extraction: { audits: extras.extraction.audits, reconciliationEvents: extras.extraction.reconciliationEvents, lastReadBoundary: extras.extraction.lastReadBoundary, scheduler: extras.extraction.scheduler, judgedReads: extras.extraction.judgedReads } as RuntimeExtras["extraction"],
+  extraction: {
+    audits: extras.extraction.audits,
+    reconciliationEvents: extras.extraction.reconciliationEvents,
+    lastReadBoundary: extras.extraction.lastReadBoundary,
+    scheduler: extras.extraction.scheduler,
+    judgedReads: extras.extraction.judgedReads,
+  } as RuntimeExtras["extraction"],
   pacing: { shapeOverride: extras.pacing.shapeOverride } as RuntimeExtras["pacing"],
   copilot: {} as RuntimeExtras["copilot"],
   ui: { authorView: extras.ui.authorView } as RuntimeExtras["ui"],
   memory: { ...extras.memory, settings: undefined } as unknown as RuntimeExtras["memory"],
   talk: { enabled: extras.talk.enabled, decisions: extras.talk.decisions },
-  stagecraft: { proposals: extras.stagecraft.proposals, lastPass: extras.stagecraft.lastPass, lastRunBoundary: extras.stagecraft.lastRunBoundary, lastError: extras.stagecraft.lastError } as RuntimeExtras["stagecraft"],
+  stagecraft: {
+    proposals: extras.stagecraft.proposals,
+    lastPass: extras.stagecraft.lastPass,
+    lastRunBoundary: extras.stagecraft.lastRunBoundary,
+    lastError: extras.stagecraft.lastError,
+  } as RuntimeExtras["stagecraft"],
 });
 
 export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => GlobalSettings): RuntimeExtras => {

@@ -14,9 +14,12 @@ interface GroupProps {
 
 const isAcceptMode = (value: string): value is StagecraftAcceptMode => (STAGECRAFT_ACCEPT_MODES as readonly string[]).includes(value);
 
-const CURATOR_HELP = "A background agent that reads what has happened and proposes changes to the story's own lorebook — switching entries on or off, correcting text the story has overtaken. It only ever touches the lorebooks the story lists for it, it proposes rather than writes, and it can never change story progress or memory.";
-const WARDEN_HELP = "After each character reply, the judgment model checks it against the story's established facts. When the reply breaks one, a note restating that fact goes into the next reply's prompt, once. Needs the judgment model switched on. Sends: the reply text, up to 40 established facts and the ledger's tracked values.";
-const TALK_HELP = "Let checkpoints with talk control decide who speaks next in group chats: name mentions win, then the LLM director, then weighted rules. Swipes, quiet passes, and explicit /trigger are never affected.";
+const CURATOR_HELP = "A background agent that reads what has happened and proposes changes to the story's own lorebook — switching entries on or off, correcting text the story " +
+  "has overtaken. It only ever touches the lorebooks the story lists for it, it proposes rather than writes, and it can never change story progress or memory.";
+const WARDEN_HELP = "After each character reply, the judgment model checks it against the story's established facts. When the reply breaks one, a note restating that fact goes " +
+  "into the next reply's prompt, once. Needs the judgment model switched on. Sends: the reply text, up to 40 established facts and the ledger's tracked values.";
+const TALK_HELP = "Let checkpoints with talk control decide who speaks next in group chats: name mentions win, then the LLM director, then weighted rules. Swipes, quiet " +
+  "passes, and explicit /trigger are never affected.";
 
 export const DisplayGroup = ({ snapshot, manager }: GroupProps) => (
   <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
@@ -128,7 +131,8 @@ export const PacingGroup = ({ snapshot, manager }: GroupProps) => (
     </label>
     <div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
       <label className="flex flex-col gap-1">
-        <span>Smoothing α <span className="opacity-60">(install-wide)</span> <HelpTooltip title="How quickly the measured tension follows the latest scene. Higher = jumpier, lower = smoother." /></span>
+        <span>Smoothing α <span className="opacity-60">(install-wide)</span> <HelpTooltip title={"How quickly the measured tension follows the latest scene. Higher = jumpier, " +
+          "lower = smoother."} /></span>
         <input
           type="number"
           min={0}

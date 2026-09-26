@@ -43,7 +43,12 @@ export const replyVia = (transport: ModelTransport): RouteReply => async (prompt
     signal: anySignal([options.signal, AbortSignal.timeout(timeoutMs)]),
     samplers: { temperature: options.temperature ?? 0.1, top_p: 0.9 },
   });
-  if (!reply.ok) throw new ModelCallError(reply.kind, reply.kind === "timeout" ? `the memory model did not answer within ${timeoutMs} ms` : reply.message, profileId, reply.kind === "timeout" ? timeoutMs : null);
+  if (!reply.ok) throw new ModelCallError(
+    reply.kind,
+    reply.kind === "timeout" ? `the memory model did not answer within ${timeoutMs} ms` : reply.message,
+    profileId,
+    reply.kind === "timeout" ? timeoutMs : null,
+  );
   answeredObserver?.({ profileId, ms: Date.now() - startedAt });
   return { text: stripReasoningBlocks(reply.text), finish: reply.finish };
 };

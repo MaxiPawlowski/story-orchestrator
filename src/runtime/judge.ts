@@ -1,4 +1,17 @@
-import { askJudge, modelVerdict, runWardenRescore, WARDEN_RESCORE_USES, type WardenRescoreUse, type WardenRescoreRow, runAgencyCalibration, type AgencyCase, runHouseRuleCalibration, type HouseRuleCase, runCombinedContinuityCalibration, isCombinedCase, type CombinedContinuityCase, type RescoreResult, buildDirectorRequest, runJudgeDirectorSelfTest, runMemoryPairsCalibration, runMemoryVerifyCalibration, runSceneCalibration, type SceneCalibrationCase, runLoreCalibration, type LoreCalibrationCase, runLoreRelevanceCalibration, type LoreRelevanceReport, runCuratorFilterCalibration, type CuratorFilterCase, runContinuityCalibration, type ContinuityCase, runBackgroundCalibration, type BackgroundCase, runTypedCalibration, type TypedCase, runStallCalibration, type StallCase, runCriticCalibration, type CriticCase, runVariantCalibration, type VariantStub, type MemoryPairCase, type MemoryVerifyCase, type JudgeSelfTestCase, type JudgeSelfTestReport, decideDirector, directorJudgeEligible, directorRecordP, judgeUseActive, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord, type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeRequest, type JudgeResponse, type JudgeResult, type JudgeSettings, type JudgeTransport, type JudgeUseKey } from "@judge/index";
+import {
+  askJudge, modelVerdict, runWardenRescore, WARDEN_RESCORE_USES, type WardenRescoreUse, type WardenRescoreRow,
+  runAgencyCalibration, type AgencyCase, runHouseRuleCalibration, type HouseRuleCase, runCombinedContinuityCalibration,
+  isCombinedCase, type CombinedContinuityCase, type RescoreResult, buildDirectorRequest, runJudgeDirectorSelfTest,
+  runMemoryPairsCalibration, runMemoryVerifyCalibration, runSceneCalibration, type SceneCalibrationCase,
+  runLoreCalibration, type LoreCalibrationCase, runLoreRelevanceCalibration, type LoreRelevanceReport,
+  runCuratorFilterCalibration, type CuratorFilterCase, runContinuityCalibration, type ContinuityCase,
+  runBackgroundCalibration, type BackgroundCase, runTypedCalibration, type TypedCase, runStallCalibration,
+  type StallCase, runCriticCalibration, type CriticCase, runVariantCalibration, type VariantStub, type MemoryPairCase,
+  type MemoryVerifyCase, type JudgeSelfTestCase, type JudgeSelfTestReport, decideDirector, directorJudgeEligible,
+  directorRecordP, judgeUseActive, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord,
+  type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeRequest, type JudgeResponse,
+  type JudgeResult, type JudgeSettings, type JudgeTransport, type JudgeUseKey,
+} from "@judge/index";
 import type { RunOwnership } from "./runToken";
 
 export interface JudgeStatusLike {
@@ -87,7 +100,10 @@ export class JudgeRuntime {
     if (use === "scene") return runSceneCalibration(ask, cases as SceneCalibrationCase[]);
     if (use === "lore") return runLoreCalibration(ask, cases as LoreCalibrationCase[]);
     if (use === "curator-filter") return runCuratorFilterCalibration(ask, cases as CuratorFilterCase[]);
-    if (use === "continuity") return (cases as CombinedContinuityCase[]).some(isCombinedCase) ? runCombinedContinuityCalibration(ask, cases as CombinedContinuityCase[]) : runContinuityCalibration(ask, cases as ContinuityCase[]);
+    if (use === "continuity") return (cases as CombinedContinuityCase[]).some(isCombinedCase) ? runCombinedContinuityCalibration(
+      ask,
+      cases as CombinedContinuityCase[],
+    ) : runContinuityCalibration(ask, cases as ContinuityCase[]);
     if (use === "agency") return runAgencyCalibration(ask, cases as AgencyCase[]);
     if (use === "house-rules") return runHouseRuleCalibration(ask, cases as HouseRuleCase[]);
     if (use === "typed") return runTypedCalibration(ask, cases as TypedCase[]);
@@ -134,7 +150,15 @@ export class JudgeRuntime {
     if (!(await this.available())) {
       const owned = token ? this.deps.ownership.check(token) : undefined;
       if (!owned || owned.ok) this.recordFallback(use, "unavailable", request, asked);
-      return { answers: null, model: null, latencyMs: 0, stateChars: JSON.stringify(request.state).length, questionCount: Object.keys(request.questions).length, fallback: "unavailable", cached: false };
+      return {
+        answers: null,
+        model: null,
+        latencyMs: 0,
+        stateChars: JSON.stringify(request.state).length,
+        questionCount: Object.keys(request.questions).length,
+        fallback: "unavailable",
+        cached: false,
+      };
     }
     const result = await askJudge(this.deps.transport, { ...request, model: settings.model }, {
       timeoutMs: options.timeoutMs ?? settings.timeoutMs,

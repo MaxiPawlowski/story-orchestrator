@@ -25,7 +25,14 @@ export interface StallCase {
 
 const toReport = (perCase: Array<{ rows: JudgeSelfTestRow[]; model: string | null; latencyMs: number }>): JudgeSelfTestReport => {
   const rows = perCase.flatMap((entry) => entry.rows);
-  return { ranAt: new Date().toISOString(), model: perCase.find((entry) => entry.model)?.model ?? null, total: rows.length, right: rows.filter((row) => row.right).length, p50LatencyMs: median(perCase.map((entry) => entry.latencyMs)), rows };
+  return {
+    ranAt: new Date().toISOString(),
+    model: perCase.find((entry) => entry.model)?.model ?? null,
+    total: rows.length,
+    right: rows.filter((row) => row.right).length,
+    p50LatencyMs: median(perCase.map((entry) => entry.latencyMs)),
+    rows,
+  };
 };
 
 // The spike's scoring (lib/story.mts valueMatches): a bool is false until shown true, floats match
@@ -56,7 +63,16 @@ export async function runTypedCalibration(ask: (request: JudgeRequest) => Promis
       const answered = read.answered.includes(key);
       const value = delta ? delta.v : entry.prior[key];
       const coverage = { id: `${entry.id}.coverage:${key}`, right: answered, picked: delta ? `${JSON.stringify(delta.v)}@${delta.confidence}` : answered ? "not shown" : "under floor", ...base };
-      return answered ? [coverage, { id: `${entry.id}.answered:${key}`, right: typedValueMatches(quality, value, entry.acceptable[key] ?? null), picked: JSON.stringify(value ?? null), detail: JSON.stringify(entry.acceptable[key]), ...base }] : [coverage];
+      return answered ? [
+        coverage,
+        {
+          id: `${entry.id}.answered:${key}`,
+          right: typedValueMatches(quality, value, entry.acceptable[key] ?? null),
+          picked: JSON.stringify(value ?? null),
+          detail: JSON.stringify(entry.acceptable[key]),
+          ...base
+        },
+      ] : [coverage];
     });
     return { rows, model: result.model, latencyMs: result.latencyMs };
   })));

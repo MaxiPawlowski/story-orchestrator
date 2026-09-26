@@ -1,4 +1,7 @@
-import { authorsOwnNote, gatedWorldInfo, progressQualityForAnchor, ratingLevels, storyWarnings, TENSION_CURRENT_KEY, type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type StoryV2, type ValidationError } from "@engine/index";
+import {
+  authorsOwnNote, gatedWorldInfo, progressQualityForAnchor, ratingLevels, storyWarnings, TENSION_CURRENT_KEY,
+  type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type StoryV2, type ValidationError,
+} from "@engine/index";
 import { directorEnabled } from "@talk/index";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
@@ -147,7 +150,12 @@ const checkGates = (run: DiagnosticRun) => {
       }
       const ordered = [">=", "<=", ">", "<"].includes(leaf.op);
       if (ordered && quality.type !== "int" && quality.type !== "float") push("op-type-mismatch", "blocking", path, `'${leaf.op}' needs a numeric quality but '${quality.key}' is ${quality.type}`);
-      if (leaf.op === "in" && quality.type !== "enum" && quality.type !== "string") push("op-type-mismatch", "blocking", path, `'in' needs an enum or string quality but '${quality.key}' is ${quality.type}`);
+      if (leaf.op === "in" && quality.type !== "enum" && quality.type !== "string") push(
+        "op-type-mismatch",
+        "blocking",
+        path,
+        `'in' needs an enum or string quality but '${quality.key}' is ${quality.type}`,
+      );
       if (leaf.op === "in" && !Array.isArray(leaf.v)) push("op-type-mismatch", "blocking", path, `'in' needs an array value on '${quality.key}'`);
       if (leaf.op !== "in" && Array.isArray(leaf.v)) push("op-type-mismatch", "blocking", path, `only 'in' takes an array value on '${quality.key}'`);
       if (quality.type === "enum") {
@@ -203,7 +211,12 @@ const checkQualitiesInScope = (run: DiagnosticRun) => {
   draft.qualities.forEach((quality, index) => {
     if (quality.source !== "extractor" || quality.key === TENSION_CURRENT_KEY) return;
     if (!referencedKeys.has(quality.key)) {
-      push("quality-never-in-scope", "warning", `qualities.${index}`, `'${quality.key}' appears in no gate or state_snapshot — it never enters extraction scope, so the extractor is never asked about it`);
+      push(
+        "quality-never-in-scope",
+        "warning",
+        `qualities.${index}`,
+        `'${quality.key}' appears in no gate or state_snapshot — it never enters extraction scope, so the extractor is never asked about it`,
+      );
     }
   });
 };
@@ -239,7 +252,12 @@ const checkTalkAndAgency = (run: DiagnosticRun) => {
           push("talk-member-unknown", "warning", `${path}.lead`, `lead '${control.lead}' is not a roster member`);
         } else if (control.speakers?.length) {
           const speakerIds = new Set(control.speakers.map((speaker) => resolveRosterRef(speaker.member)).filter(Boolean));
-          if (!speakerIds.has(leadId)) push("talk-lead-outside-speakers", "warning", `${path}.lead`, `lead '${control.lead}' is not in the speakers list; it still joins the candidates at weight 1, so list it to set its weight`);
+          if (!speakerIds.has(leadId)) push(
+            "talk-lead-outside-speakers",
+            "warning",
+            `${path}.lead`,
+            `lead '${control.lead}' is not in the speakers list; it still joins the candidates at weight 1, so list it to set its weight`,
+          );
         }
       }
       if (control.allow_silence && !directorEnabled(control)) {
@@ -256,8 +274,18 @@ const checkTalkAndAgency = (run: DiagnosticRun) => {
     // alternate as absent. Say so here, where the author can fix it.
     const alternate = checkpoint.agency?.alternate;
     if (alternate) {
-      if (!draft.checkpoints.some((entry) => entry.id === alternate)) push("agency-alternate-unknown", "warning", `checkpoints.${index}.agency.alternate`, `alternate '${alternate}' is not a checkpoint of this story`);
-      else if (alternate === checkpoint.id) push("agency-alternate-is-self", "warning", `checkpoints.${index}.agency.alternate`, `alternate '${alternate}' is this checkpoint, so the recovery would re-enter the route the player refused`);
+      if (!draft.checkpoints.some((entry) => entry.id === alternate)) push(
+        "agency-alternate-unknown",
+        "warning",
+        `checkpoints.${index}.agency.alternate`,
+        `alternate '${alternate}' is not a checkpoint of this story`,
+      );
+      else if (alternate === checkpoint.id) push(
+        "agency-alternate-is-self",
+        "warning",
+        `checkpoints.${index}.agency.alternate`,
+        `alternate '${alternate}' is this checkpoint, so the recovery would re-enter the route the player refused`,
+      );
     }
   });
 };
@@ -267,7 +295,12 @@ const checkThresholds = (run: DiagnosticRun) => {
   draft.checkpoints.forEach((checkpoint, index) => {
     if (checkpoint.type !== "anchor" || typeof checkpoint.convergence_threshold !== "number") return;
     const available = draft.transitions.reduce((sum, transition) => sum + (transition.effects?.progress?.anchor === checkpoint.id ? transition.effects.progress.amount ?? 0 : 0), 0);
-    if (available < checkpoint.convergence_threshold) push("threshold-unsatisfiable", "warning", `checkpoints.${index}`, `anchor '${checkpoint.id}' threshold ${checkpoint.convergence_threshold} exceeds total available progress ${available}`);
+    if (available < checkpoint.convergence_threshold) push(
+      "threshold-unsatisfiable",
+      "warning",
+      `checkpoints.${index}`,
+      `anchor '${checkpoint.id}' threshold ${checkpoint.convergence_threshold} exceeds total available progress ${available}`,
+    );
   });
 };
 
@@ -279,7 +312,13 @@ const checkRatingScales = (run: DiagnosticRun) => {
   // from this text alone.
   draft.qualities.forEach((quality, index) => {
     if (quality.read_as !== "rating" || ratingLevels(quality)) return;
-    push("quality-rating-no-scale", "blocking", `qualities.${index}`, `'${quality.key}' is read as a rating, so its scale has to be readable: either criteria.levels, or a rubric of the form rubric: "from 1 (barely) to 5 (completely)". As written the judge has no levels to score against and the quality is never read.`);
+    push(
+      "quality-rating-no-scale",
+      "blocking",
+      `qualities.${index}`,
+      `'${quality.key}' is read as a rating, so its scale has to be readable: either criteria.levels, or a rubric of the form rubric: "from 1 (barely) to 5 (completely)". As ` +
+        `written the judge has no levels to score against and the quality is never read.`,
+    );
   });
 };
 
@@ -289,7 +328,12 @@ const checkOutcomeEvidence = (run: DiagnosticRun) => {
   draft.transitions.filter((transition) => checkpointById.get(transition.to)?.type === "anchor").forEach((transition) => walkLeaves(transition.gate, (leaf) => anchorLeaves.add(leaf.q)));
   draft.qualities.forEach((quality, index) => {
     if (quality.source !== "extractor" || (quality.type !== "bool" && quality.type !== "enum") || quality.evidence_from !== undefined || !anchorLeaves.has(quality.key)) return;
-    push("quality-outcome-player-evidence", "info", `qualities.${index}`, `'${quality.key}' gates the way into an anchor, and a line the player wrote can prove it; set evidence_from to world if only the world should, or to any to keep it`);
+    push(
+      "quality-outcome-player-evidence",
+      "info",
+      `qualities.${index}`,
+      `'${quality.key}' gates the way into an anchor, and a line the player wrote can prove it; set evidence_from to world if only the world should, or to any to keep it`,
+    );
   });
 };
 
@@ -312,7 +356,12 @@ const checkInheritedNotes = (run: DiagnosticRun) => {
     }
     if (!notes.size) return;
     const objective = draft.objective_block === "off" ? "the objective line is not added (objective_block is off)" : "the objective line is added";
-    push("checkpoint-inherits-author-note", "info", `checkpoints.${index}.effects.author_note`, `'${checkpoint.id}' plays under the note of ${[...notes].map((name) => `"${name}"`).join(" or ")}; ${objective}`);
+    push(
+      "checkpoint-inherits-author-note",
+      "info",
+      `checkpoints.${index}.effects.author_note`,
+      `'${checkpoint.id}' plays under the note of ${[...notes].map((name) => `"${name}"`).join(" or ")}; ${objective}`,
+    );
   });
 };
 
@@ -330,13 +379,23 @@ const checkJudgeHints = (run: DiagnosticRun) => {
     if (!quality.read_as) return;
     const criteria = quality.criteria && !("levels" in quality.criteria) ? (quality.criteria as Record<string, string | { what: string; not_for?: string }>) : null;
     if (quality.read_as === "choice" && quality.type === "enum" && !criteria && (quality.values ?? []).every((value) => !/\s/.test(value.trim()))) {
-      push("quality-hint-no-criteria", "info", `qualities.${index}`, `'${quality.key}' is read by the judge from single-word options with no description; the plain form works, but a line per option ("means…") removes ambiguity`);
+      push(
+        "quality-hint-no-criteria",
+        "info",
+        `qualities.${index}`,
+        `'${quality.key}' is read by the judge from single-word options with no description; the plain form works, but a line per option ("means…") removes ambiguity`,
+      );
     }
     if (quality.latching) push("quality-hint-latching-note", "info", `qualities.${index}`, `'${quality.key}' latches, so the judge writes it only at confidence 0.9 or more (0.8 otherwise)`);
     Object.entries(criteria ?? {}).forEach(([option, criterion]) => {
       const notFor = typeof criterion === "string" ? "" : criterion.not_for ?? "";
       if (quality.type === "enum" && notFor && namesOption(notFor, option)) {
-        push("quality-criteria-self-exclusion", "warning", `qualities.${index}.criteria.${option}`, `the "not for" on '${option}' names '${option}' itself; "not for" lists what should NOT count as this option, so it probably belongs on another option`);
+        push(
+          "quality-criteria-self-exclusion",
+          "warning",
+          `qualities.${index}.criteria.${option}`,
+          `the "not for" on '${option}' names '${option}' itself; "not for" lists what should NOT count as this option, so it probably belongs on another option`,
+        );
       }
     });
   });
@@ -346,7 +405,12 @@ const checkLoreSelect = (run: DiagnosticRun) => {
   const { draft, push } = run;
   const required = new Set((draft.requirements?.lorebooks ?? []).map((name) => name.trim().toLowerCase()));
   (draft.lore_select?.lorebooks ?? []).forEach((name, index) => {
-    if (name.trim() && !required.has(name.trim().toLowerCase())) push("lore-select-inactive", "warning", `lore_select.lorebooks.${index}`, `'${name}' is not a required lorebook, so it may not be active; lore-select only reaches books ST is scanning. Add it under Requirements`);
+    if (name.trim() && !required.has(name.trim().toLowerCase())) push(
+      "lore-select-inactive",
+      "warning",
+      `lore_select.lorebooks.${index}`,
+      `'${name}' is not a required lorebook, so it may not be active; lore-select only reaches books ST is scanning. Add it under Requirements`,
+    );
   });
 };
 
@@ -361,7 +425,12 @@ const checkSceneLocation = (run: DiagnosticRun) => {
   const { draft, push } = run;
   const locationIndex = draft.qualities.findIndex((quality) => quality.key === "location");
   if (locationIndex >= 0 && draft.qualities[locationIndex].type === "string" && !draft.scene_read?.locations?.length) {
-    push("scene-read-location-empty", "warning", `qualities.${locationIndex}`, "'location' is free text, so the scene tracker can never say where the scene is: the judge only picks from a list. Make it an enum, or list places under Scene read");
+    push(
+      "scene-read-location-empty",
+      "warning",
+      `qualities.${locationIndex}`,
+      "'location' is free text, so the scene tracker can never say where the scene is: the judge only picks from a list. Make it an enum, or list places under Scene read",
+    );
   }
 };
 
@@ -371,12 +440,35 @@ const checkWorldInfoGating = (run: DiagnosticRun) => {
     const books = [...gatedWorldInfo([draft])].filter(([, comments]) => comments.size > 0);
     if (books.length) {
       const counts = books.map(([lorebook, comments]) => `${comments.size} lorebook ${comments.size === 1 ? "entry" : "entries"} in ${lorebook}`).join(", ");
-      push("world-info-rests-off", "info", "checkpoints", `Per-chat lorebook gating is on: ${counts} rest off in their files, and SillyTavern's lorebook editor shows them off. Story Orchestrator switches them on per chat along the story's path; with the extension off they stay off`);
+      push(
+        "world-info-rests-off",
+        "info",
+        "checkpoints",
+        `Per-chat lorebook gating is on: ${counts} rest off in their files, and SillyTavern's lorebook editor shows them off. Story Orchestrator switches them on per chat ` +
+          `along the story's path; with the extension off they stay off`,
+      );
     }
   }
 };
 
-const DIAGNOSTIC_CHECKS = [checkGates, checkAnchorsReachable, checkLatchingSnapshots, checkQualitiesInScope, checkStubs, checkTalkAndAgency, checkThresholds, checkRatingScales, checkOutcomeEvidence, checkInheritedNotes, checkLatchingPlaceholders, checkJudgeHints, checkLoreSelect, checkHouseRules, checkSceneLocation, checkWorldInfoGating];
+const DIAGNOSTIC_CHECKS = [
+  checkGates,
+  checkAnchorsReachable,
+  checkLatchingSnapshots,
+  checkQualitiesInScope,
+  checkStubs,
+  checkTalkAndAgency,
+  checkThresholds,
+  checkRatingScales,
+  checkOutcomeEvidence,
+  checkInheritedNotes,
+  checkLatchingPlaceholders,
+  checkJudgeHints,
+  checkLoreSelect,
+  checkHouseRules,
+  checkSceneLocation,
+  checkWorldInfoGating,
+];
 
 export const runDiagnostics = (draft: StoryV2, context: DiagnosticsContext = {}): Diagnostic[] => {
   const diagnostics: Diagnostic[] = [];

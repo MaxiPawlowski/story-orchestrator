@@ -119,7 +119,13 @@ export function scopeToOpenChat(read: () => OpenChat | null): WriteChatScope {
 
 /** The reason goes to the journal of the chat the write was made from, and only while that chat is still
  *  open. A settings request that refused several writes is one row, journaled by the first of them. */
-export async function journalSettingsWrite(summary: string, label: string, evidence: Promise<LibrarySaveEvidence>, chat: WriteChatScope, journal: (summary: string, note: string) => void): Promise<LibrarySaveEvidence> {
+export async function journalSettingsWrite(
+  summary: string,
+  label: string,
+  evidence: Promise<LibrarySaveEvidence>,
+  chat: WriteChatScope,
+  journal: (summary: string, note: string) => void,
+): Promise<LibrarySaveEvidence> {
   const outcome = await evidence;
   if (outcome.confirmed || !chat.stillOpen() || !journaledRequests.claim(outcome.request)) return outcome;
   journal(summary, `${label}: ${outcome.reason}`);

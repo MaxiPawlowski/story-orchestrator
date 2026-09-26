@@ -17,7 +17,9 @@ import { failureClass } from "@extraction/breaker";
 import { estimateTokens } from "@extraction/callBudget";
 import type { ExtraGateSource, ModelCall, Preflight, PreflightConfirm } from "@extraction/index";
 
-export const expansionKey = (candidate: Pick<StubExpansionCandidate, "sourceCheckpointId" | "stubId" | "targetAnchorId">) => `${candidate.sourceCheckpointId}->${candidate.stubId}->${candidate.targetAnchorId}`;
+export const expansionKey = (
+  candidate: Pick<StubExpansionCandidate, "sourceCheckpointId" | "stubId" | "targetAnchorId">,
+) => `${candidate.sourceCheckpointId}->${candidate.stubId}->${candidate.targetAnchorId}`;
 
 export interface ExpansionCoordinatorDeps {
   getStory: () => NormalizedStoryV2 | null;
@@ -185,13 +187,26 @@ export class ExpansionCoordinator {
     if (!judge || !target) return {};
     const cast = [...new Set([...story.roster.map((member) => member.name ?? member.id), this.deps.hosts.player.getPlayerName()].filter(Boolean))];
     const read = async (beats: GeneratedBeat[]) => {
-      const request = buildChainRequest({ facts: input.facts, target: { name: target.name, objective: target.objective }, cast, trajectory: input.tensionTrajectory.map(numericToLevel), beats: beats.map((beat) => ({ objective: beat.objective, guidance: beat.guidance })) });
-      const result = await judge.ask("critic", request, { timeoutMs: CRITIC_TIMEOUT_MS, summarize: (answers) => (answers ? Object.fromEntries(Object.entries(readChain(answers) ?? {}).map(([key, value]) => [key, value ?? "none"])) : {}) });
+      const request = buildChainRequest({
+        facts: input.facts,
+        target: { name: target.name, objective: target.objective },
+        cast,
+        trajectory: input.tensionTrajectory.map(numericToLevel),
+        beats: beats.map((beat) => ({ objective: beat.objective, guidance: beat.guidance })),
+      });
+      const result = await judge.ask(
+        "critic",
+        request,
+        { timeoutMs: CRITIC_TIMEOUT_MS, summarize: (answers) => (answers ? Object.fromEntries(Object.entries(readChain(answers) ?? {}).map(([key, value]) => [key, value ?? "none"])) : {}) },
+      );
       return result.answers ? readChain(result.answers) : null;
     };
     const variants = judge.expansionSettings();
     return {
-      ...(judge.active("expansionCritic") ? { critic: async (beats: GeneratedBeat[]) => { const chain = await read(beats); return chain ? { ...judgeVerdict(chain), raw: "JUDGE", judge: chain } : null; } } : {}),
+      ...(judge.active("expansionCritic") ? { critic: async (beats: GeneratedBeat[]) => {
+        const chain = await read(beats);
+        return chain ? { ...judgeVerdict(chain), raw: "JUDGE", judge: chain } : null;
+      } } : {}),
       ...(variants && variants.variants > 1 ? { variants: { n: variants.variants, temperature: variants.temperature, pick: variants.pick, read } } : {}),
     };
   }
@@ -268,10 +283,24 @@ export class ExpansionCoordinator {
     try {
       const state = this.deps.getState()!;
       const input = planExpansion(story, state.blackboard, candidate, this.deps.getCanon(), this.deps.getFactTexts());
-      const generated = await generateReviewedBeats(story, input, this.deps.model, { role: "authoring", pass: "generation", signal: run.signal, debugResponse: debugResponse ?? null }, this.expansionJudge(story, input));
+      const generated = await generateReviewedBeats(
+        story,
+        input,
+        this.deps.model,
+        { role: "authoring", pass: "generation", signal: run.signal, debugResponse: debugResponse ?? null },
+        this.expansionJudge(story, input),
+      );
       if (!run.stillOwns()) return;
       if (generated.issues.length || !generated.codeCheck || !generated.codeCheck.ok) {
-        this.entries[key] = { ...this.entries[key], status: "failed", beats: generated.beats, codeCheck: generated.codeCheck, lastError: generated.issues.join("; ") || generated.codeCheck?.issues.join("; ") || "Generation failed", ...(generated.variants ? { variants: generated.variants } : {}), updatedAt: new Date().toISOString() };
+        this.entries[key] = {
+          ...this.entries[key],
+          status: "failed",
+          beats: generated.beats,
+          codeCheck: generated.codeCheck,
+          lastError: generated.issues.join("; ") || generated.codeCheck?.issues.join("; ") || "Generation failed",
+          ...(generated.variants ? { variants: generated.variants } : {}),
+          updatedAt: new Date().toISOString(),
+        };
       } else {
         this.entries[key] = {
           ...this.entries[key],

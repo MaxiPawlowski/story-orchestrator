@@ -56,7 +56,11 @@ export function backgroundCandidates(names: string[], description: string): stri
   if (usable.length <= BACKGROUND_MAX_OPTIONS) return usable;
   const scene = tokens(description);
   const overlap = (name: string) => [...tokens(name)].filter((token) => scene.has(token)).length;
-  return usable.map((name, index) => ({ name, index, score: overlap(name) })).sort((left, right) => right.score - left.score || left.index - right.index).slice(0, BACKGROUND_MAX_OPTIONS).map((entry) => entry.name);
+  return usable.map((name, index) => ({
+    name,
+    index,
+    score: overlap(name),
+  })).sort((left, right) => right.score - left.score || left.index - right.index).slice(0, BACKGROUND_MAX_OPTIONS).map((entry) => entry.name);
 }
 
 export const BACKGROUND_NONE = "none";

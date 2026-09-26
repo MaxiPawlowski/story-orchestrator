@@ -282,7 +282,15 @@ export class StoryEngine {
     this.boundaryLog.push({ at: this.host.now(), boundary: this.boundary, before, after, fired: null, source: "manual", context: normalizedContext, queue, evaluated: null });
     if (this.boundaryLog.length > 200) this.boundaryLog.shift();
     this.recordSnapshot();
-    return { boundary: this.boundary, queue, fired: null, effects: checkpoint.effects ?? null, activeCheckpointId: this.activeCheckpointId, context: normalizedContext, previousLastMessageId: before.lastMessageId };
+    return {
+      boundary: this.boundary,
+      queue,
+      fired: null,
+      effects: checkpoint.effects ?? null,
+      activeCheckpointId: this.activeCheckpointId,
+      context: normalizedContext,
+      previousLastMessageId: before.lastMessageId,
+    };
   }
 
   // `null` is not "boundary 0": it is "the state before this message is no longer retained", which

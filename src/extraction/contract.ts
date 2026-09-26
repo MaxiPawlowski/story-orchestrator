@@ -18,7 +18,8 @@ const renderType = (contract: SharedReadContract) => contract.qualities.map(({ q
   const hintText = hints.length ? ` Hints: ${hints.join(" | ")}` : "";
   if (quality.key === TENSION_CURRENT_KEY) {
     return [
-      `- ${TENSION_CURRENT_KEY}: type=level; Rate the current tension — pick the highest level whose description is met, not the average mood; write value as one quoted level, cite the strongest signal.${hintText}`,
+      `- ${TENSION_CURRENT_KEY}: type=level; Rate the current tension — pick the highest level whose description is met, not the average mood; write value as one quoted level, ` +
+        `cite the strongest signal.${hintText}`,
       ...TENSION_LEVELS.map((level) => `  ${level}: ${TENSION_SCALE[level]}`),
     ].join("\n");
   }

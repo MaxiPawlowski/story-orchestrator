@@ -69,7 +69,13 @@ function pipelineProblem(extraction: ExtractionRuntimeState, health: ExtractionH
     return { state: "not-configured", text: "Nothing is following the story yet — choose a memory model in the extension settings.", detail: null, needsSetup: true, nextAction: "repair" };
   }
   if (health?.kind === "config") {
-    return { state: "not-configured", text: "Nothing is following the story — the memory model it used cannot be reached. Choose one in the extension settings.", detail: health.detail, needsSetup: true, nextAction: "repair" };
+    return {
+      state: "not-configured",
+      text: "Nothing is following the story — the memory model it used cannot be reached. Choose one in the extension settings.",
+      detail: health.detail,
+      needsSetup: true,
+      nextAction: "repair",
+    };
   }
   if (health?.kind === "transport") {
     return { state: "stalled-rechecking", text: TRANSPORT_PLAYER_TEXT, detail: health.detail, needsSetup: false, nextAction: "retry", retryable: true };

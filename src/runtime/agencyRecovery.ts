@@ -63,7 +63,13 @@ export const playerTurnIds = (chat: readonly unknown[]): number[] =>
     return entry?.is_user && !entry.is_system ? [index] : [];
   });
 
-export const agencyRecovery = (story: NormalizedStoryV2 | null, state: EngineState | null, log: BoundaryLogEntry[], audits: SharedReadAudit[] = [], playerTurns: number[] = []): AgencyRecovery | null => {
+export const agencyRecovery = (
+  story: NormalizedStoryV2 | null,
+  state: EngineState | null,
+  log: BoundaryLogEntry[],
+  audits: SharedReadAudit[] = [],
+  playerTurns: number[] = [],
+): AgencyRecovery | null => {
   if (!story || !state) return null;
   const activeId = state.activeCheckpointId;
   const exits = story.outgoingByCheckpoint[activeId] ?? [];

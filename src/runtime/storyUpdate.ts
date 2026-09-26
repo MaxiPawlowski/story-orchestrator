@@ -69,7 +69,8 @@ export const renderStoryUpdate = (description: StoryUpdateDescription, doc: Docu
   if (description.keptCount) para(description.keptCount === 1
     ? "1 other change is applied to this chat as it stands."
     : `${description.keptCount} other changes are applied to this chat as they stand.`);
-  para("Keep playing applies the edit and drops only what no longer fits. Restart story applies it and clears this chat's progress. Cancel applies nothing — this chat keeps playing the version it started with. Either way the library keeps your edit.");
+  para("Keep playing applies the edit and drops only what no longer fits. Restart story applies it and clears this chat's progress. Cancel applies nothing — this chat keeps " +
+    "playing the version it started with. Either way the library keeps your edit.");
   return root;
 };
 

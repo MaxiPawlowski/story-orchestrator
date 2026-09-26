@@ -64,7 +64,13 @@ const startWatches = () => {
   runtimeDisposers.push(() => requirementsWatch.stop());
   runtimeDisposers.push(startMirrorReaper(() => runtimeManager.notify()));
   runtimeDisposers.push(onChatWrite((write) => void runtimeManager.chatSave.recordWrite(write)));
-  const journalInstallWrite = (save: SettingsWrite) => void journalSettingsWrite(save.summary, save.label, save.evidence, scopeToOpenChat(currentChat), (summary, note) => runtimeManager.noteRecap(summary, note));
+  const journalInstallWrite = (save: SettingsWrite) => void journalSettingsWrite(
+    save.summary,
+    save.label,
+    save.evidence,
+    scopeToOpenChat(currentChat),
+    (summary, note) => runtimeManager.noteRecap(summary, note),
+  );
   runtimeDisposers.push(onWizardSessionSave(journalInstallWrite));
   runtimeDisposers.push(onSettingsWrite(journalInstallWrite));
 };

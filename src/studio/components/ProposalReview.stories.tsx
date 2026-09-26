@@ -15,7 +15,16 @@ const okProposal = parseProposal(JSON.stringify({
 const okResult: ProposalResult = {
   stage: "qualities",
   proposal: okProposal,
-  preview: { errors: [], diagnostics: [{ code: "threshold-unsatisfiable", severity: "warning", path: "checkpoints.2", message: "cache threshold 2 exceeds available progress 0", consequence: DIAGNOSTIC_CONSEQUENCES["threshold-unsatisfiable"] }] },
+  preview: {
+    errors: [],
+    diagnostics: [{
+      code: "threshold-unsatisfiable",
+      severity: "warning",
+      path: "checkpoints.2",
+      message: "cache threshold 2 exceeds available progress 0",
+      consequence: DIAGNOSTIC_CONSEQUENCES["threshold-unsatisfiable"],
+    }],
+  },
   status: "ok",
   issues: [],
   questions: [],

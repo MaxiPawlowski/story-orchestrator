@@ -1,6 +1,9 @@
 import { isValidationErrorList, storyWarnings, type NormalizedStoryV2, type ValidationError } from "@engine/index";
 import { showConfirmPopup } from "@services/STAPI";
-import { adoptChatState, blobMismatch, describeMismatch, dropPersistedRuntime, getSelectedStoryId, loadPersistedRuntime, replaceUnreadableBlob, UNREADABLE_NOTICE, unreadableStored } from "./persistence";
+import {
+  adoptChatState, blobMismatch, describeMismatch, dropPersistedRuntime, getSelectedStoryId, loadPersistedRuntime,
+  replaceUnreadableBlob, UNREADABLE_NOTICE, unreadableStored,
+} from "./persistence";
 import { findStoryRecord, listStoryRecords, loadPinnedStory, loadStoryRecord, removeStoryRecord, saveStoryRecord } from "./storyLibrary";
 import type { RunGuard } from "./runToken";
 import type { LoadedStory, PersistedStoryRuntime } from "./types";
@@ -84,7 +87,10 @@ export async function selectStory(deps: StorySelectionDeps, id: string, chosen =
     const found = unreadableStored();
     if (found) {
       refusedSelection = { chat: found.openChat, storyId: id };
-      deps.setStatus(`Story not selected: this chat's saved story state was ${UNREADABLE_NOTICE}`, `blob-unreadable: selecting '${id}' refused, ${describeMismatch(found)}; the stored state was left untouched`);
+      deps.setStatus(
+        `Story not selected: this chat's saved story state was ${UNREADABLE_NOTICE}`,
+        `blob-unreadable: selecting '${id}' refused, ${describeMismatch(found)}; the stored state was left untouched`,
+      );
     }
     return false;
   }

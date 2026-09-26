@@ -8,7 +8,11 @@ interface Token { text: string; start: number; end: number }
 
 const WORD = /[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu;
 
-const wordTokens = (value: string): Token[] => [...value.matchAll(WORD)].map((match) => ({ text: match[0].toLowerCase().replace(/['’]/g, ""), start: match.index ?? 0, end: (match.index ?? 0) + match[0].length }));
+const wordTokens = (value: string): Token[] => [...value.matchAll(WORD)].map((match) => ({
+  text: match[0].toLowerCase().replace(/['’]/g, ""),
+  start: match.index ?? 0,
+  end: (match.index ?? 0) + match[0].length,
+}));
 
 export const anchorSimilarity = (left: string, right: string): number => {
   const longest = Math.max(left.length, right.length);

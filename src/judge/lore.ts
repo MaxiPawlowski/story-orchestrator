@@ -61,7 +61,10 @@ export function buildLoreRequests(candidates: LoreEntry[], scene: LoreScene): Ar
       // Content stays inline: measured 2026-09-21, moving the entry into a state field and
       // referencing it dropped lore recall to 67-74% against a 0.8 floor (verify notes and
       // continuity facts, which are short, held in state at 98-100%).
-      questions: Object.fromEntries(entries.map((entry, index) => [`e:${index}`, noul(`Does the next reply in \`transcript\` need the specific facts in this lore entry? Entry "${entry.comment}": ${clip(entry.content)}`, { ...LORE_QUESTION_CRITERIA })])),
+      questions: Object.fromEntries(entries.map((entry, index) => [
+        `e:${index}`,
+        noul(`Does the next reply in \`transcript\` need the specific facts in this lore entry? Entry "${entry.comment}": ${clip(entry.content)}`, { ...LORE_QUESTION_CRITERIA }),
+      ])),
     },
   }));
 }

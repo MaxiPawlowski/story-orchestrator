@@ -65,7 +65,10 @@ const StoryIdentitySection = ({ draft, mutate, idLocked }: { draft: Draft; mutat
   return (
     <div className="st-subpanel flex flex-col gap-3 p-3">
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field label="Story id" hint="The stable identity of this story. Chats key their progress by it, so it is fixed once the story is in the library — editing the title afterwards never forks a new record.">
+        <Field
+          label="Story id"
+          hint="The stable identity of this story. Chats key their progress by it, so it is fixed once the story is in the library — editing the title afterwards never forks a new record."
+        >
           <div className="flex items-center gap-2">
             <input
               className="text_pole st-input flex-1"
@@ -124,9 +127,30 @@ const RequirementsSection = ({ draft, mutate, personaNames, memberNames, loreboo
   return (
     <div data-so="requirements" className="st-subpanel flex flex-col gap-3 p-3">
       <div className="text-sm font-medium">Requirements <span className="st-muted font-normal">— what the chat must have before the story runs</span></div>
-      <RequirementList label="Persona" hint="The user persona this story is written for. A mismatch shows the player a 'this story still needs' notice instead of silently misfiring." values={requirements.personas ?? []} options={personaNames} listId="so-req-personas" onChange={(personas) => patchRequirements({ personas })} />
-      <RequirementList label="Cast member" hint="Characters that must be in the group. Names must match the character cards." values={requirements.members ?? []} options={memberNames} listId="so-req-members" onChange={(members) => patchRequirements({ members })} />
-      <RequirementList label="Lorebook" hint="Global lorebooks that must be active — the world_info effects assume their entries exist." values={requirements.lorebooks ?? []} options={lorebookNames} listId="so-req-lorebooks" onChange={(lorebooks) => patchRequirements({ lorebooks })} />
+      <RequirementList
+        label="Persona"
+        hint="The user persona this story is written for. A mismatch shows the player a 'this story still needs' notice instead of silently misfiring."
+        values={requirements.personas ?? []}
+        options={personaNames}
+        listId="so-req-personas"
+        onChange={(personas) => patchRequirements({ personas })}
+      />
+      <RequirementList
+        label="Cast member"
+        hint="Characters that must be in the group. Names must match the character cards."
+        values={requirements.members ?? []}
+        options={memberNames}
+        listId="so-req-members"
+        onChange={(members) => patchRequirements({ members })}
+      />
+      <RequirementList
+        label="Lorebook"
+        hint="Global lorebooks that must be active — the world_info effects assume their entries exist."
+        values={requirements.lorebooks ?? []}
+        options={lorebookNames}
+        listId="so-req-lorebooks"
+        onChange={(lorebooks) => patchRequirements({ lorebooks })}
+      />
     </div>
   );
 };
@@ -150,7 +174,8 @@ const LoreSelectSection = ({ draft, mutate, lorebookNames }: { draft: Draft; mut
     <div className="text-sm font-medium">Lore-select <span className="st-muted font-normal">— lorebooks the judge may pick entries from each turn</span></div>
     <RequirementList
       label="Lore-select lorebook"
-      hint="When the player's install turns lore-select on, each generation asks the judge which entries of these books the next reply needs, and forces the top few for that one generation. It never edits a book. Entry titles and text are sent to the judgment service. List only books this story requires: an inactive book is never scanned."
+      hint={"When the player's install turns lore-select on, each generation asks the judge which entries of these books the next reply needs, and forces the top few for that " +
+        "one generation. It never edits a book. Entry titles and text are sent to the judgment service. List only books this story requires: an inactive book is never scanned."}
       values={draft.lore_select?.lorebooks ?? []}
       options={lorebookNames}
       listId="so-lore-select-lorebooks"
@@ -158,7 +183,8 @@ const LoreSelectSection = ({ draft, mutate, lorebookNames }: { draft: Draft; mut
     />
     {draft.lore_select ? (
       <label className="flex items-center gap-2 text-sm">
-        <span className="text-xs st-muted">Entries forced per turn<HelpTooltip title="1 to 12, default 4. Forced entries still compete for ST's World Info budget; give an entry probability 100 if it must survive." /></span>
+        <span className="text-xs st-muted">Entries forced per turn<HelpTooltip title={"1 to 12, default 4. Forced entries still compete for ST's World Info budget; give an " +
+          "entry probability 100 if it must survive."} /></span>
         <input
           className="text_pole st-input w-20"
           type="number"
@@ -167,7 +193,10 @@ const LoreSelectSection = ({ draft, mutate, lorebookNames }: { draft: Draft; mut
           aria-label="Entries forced per turn"
           value={draft.lore_select.top_k ?? ""}
           placeholder="4"
-          onChange={(event) => mutate((current) => setLoreSelect(current, { ...(current.lore_select ?? { lorebooks: [] }), top_k: event.target.value === "" ? undefined : Number(event.target.value) }))}
+          onChange={(event) => mutate((current) => setLoreSelect(
+            current,
+            { ...(current.lore_select ?? { lorebooks: [] }), top_k: event.target.value === "" ? undefined : Number(event.target.value) },
+          ))}
         />
       </label>
     ) : null}
@@ -179,7 +208,8 @@ const HouseRulesSection = ({ draft, mutate }: { draft: Draft; mutate: Mutate }) 
     <div className="text-sm font-medium">House rules <span className="st-muted font-normal">— what every character reply is held to</span></div>
     <RequirementList
       label="House rule"
-      hint="Sent to the judgment model with each character reply, only when House rules is on. One demand per rule, stated so a reply either keeps it or breaks it; a broken rule is named in the next reply's prompt."
+      hint={"Sent to the judgment model with each character reply, only when House rules is on. One demand per rule, stated so a reply either keeps it or breaks it; a broken " +
+        "rule is named in the next reply's prompt."}
       values={draft.house_rules ?? []}
       options={[]}
       listId="so-house-rules"
@@ -196,7 +226,8 @@ const SceneReadSection = ({ draft, mutate }: { draft: Draft; mutate: Mutate }) =
       <div className="text-sm font-medium">Scene read <span className="st-muted font-normal">— places and times the scene tracker may pick from</span></div>
       <RequirementList
         label="Place"
-        hint="The judge can only pick a place from this list; it never invents one. Empty uses the values of an enum quality keyed 'location', and with neither the tracker never says where the scene is."
+        hint={"The judge can only pick a place from this list; it never invents one. Empty uses the values of an enum quality keyed 'location', and with neither the tracker " +
+          "never says where the scene is."}
         values={draft.scene_read?.locations ?? []}
         options={locationOptions}
         listId="so-scene-read-locations"
@@ -233,18 +264,35 @@ const ArcBridgesSection = ({ draft, mutate }: { draft: Draft; mutate: Mutate }) 
         <div key={index} className="flex flex-wrap items-end gap-2">
           <label className="flex flex-1 flex-col gap-1 text-sm">
             <span className="text-xs st-muted">Thread keyword</span>
-            <input className="text_pole st-input" aria-label={`Bridge ${index + 1} keyword`} value={bridge.arcMatch} onChange={(event) => mutate((current) => updateArcBridge(current, index, { arcMatch: event.target.value }))} />
+            <input
+              className="text_pole st-input"
+              aria-label={`Bridge ${index + 1} keyword`}
+              value={bridge.arcMatch}
+              onChange={(event) => mutate((current) => updateArcBridge(current, index, { arcMatch: event.target.value }))}
+            />
           </label>
           <label className="flex flex-col gap-1 text-sm">
             <span className="text-xs st-muted">Anchor</span>
-            <select className="text_pole st-input" aria-label={`Bridge ${index + 1} anchor`} value={bridge.anchor} onChange={(event) => mutate((current) => updateArcBridge(current, index, { anchor: event.target.value }))}>
+            <select
+              className="text_pole st-input"
+              aria-label={`Bridge ${index + 1} anchor`}
+              value={bridge.anchor}
+              onChange={(event) => mutate((current) => updateArcBridge(current, index, { anchor: event.target.value }))}
+            >
               <option value="" disabled>anchor…</option>
               {anchors.map((anchor) => <option key={anchor.id} value={anchor.id}>{anchor.name}</option>)}
             </select>
           </label>
           <label className="flex flex-col gap-1 text-sm">
             <span className="text-xs st-muted">Progress</span>
-            <input type="number" step={0.5} className="text_pole st-input w-24" aria-label={`Bridge ${index + 1} amount`} value={bridge.amount} onChange={(event) => mutate((current) => updateArcBridge(current, index, { amount: Number(event.target.value) || 0 }))} />
+            <input
+              type="number"
+              step={0.5}
+              className="text_pole st-input w-24"
+              aria-label={`Bridge ${index + 1} amount`}
+              value={bridge.amount}
+              onChange={(event) => mutate((current) => updateArcBridge(current, index, { amount: Number(event.target.value) || 0 }))}
+            />
           </label>
           <button type="button" className="st-button danger" aria-label={`Remove bridge ${index + 1}`} onClick={() => mutate((current) => removeArcBridge(current, index))}>×</button>
         </div>

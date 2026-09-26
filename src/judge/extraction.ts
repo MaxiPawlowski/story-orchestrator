@@ -41,7 +41,11 @@ export interface TypedDelta {
 const msgKey = (message: TypedWindowMessage) => `msg_${message.id}`;
 
 const criterionText = (criterion: string | QualityCriterion): JudgeOption =>
-  typeof criterion === "string" ? criterion : { what: criterion.what, ...(criterion.not_for ? { not_for: criterion.not_for } : {}), ...(criterion.examples?.length ? { examples: criterion.examples } : {}) };
+  typeof criterion === "string" ? criterion : {
+    what: criterion.what,
+    ...(criterion.not_for ? { not_for: criterion.not_for } : {}),
+    ...(criterion.examples?.length ? { examples: criterion.examples } : {})
+  };
 
 const choiceCriteria = (quality: Quality): Record<string, JudgeOption> => {
   const authored = quality.criteria && !("levels" in quality.criteria) ? quality.criteria as Record<string, string | QualityCriterion> : {};
@@ -110,7 +114,12 @@ export function buildTypedPlan(qualities: Quality[], window: TypedWindowMessage[
       const numeric = quality.type === "int" || quality.type === "float";
       const found = numeric
         ? findNumbers(texts).map((mention) => ({ label: `"${mention.raw}" in ${mention.messageId}`, snippet: mention.snippet, value: mention.value as PrimitiveValue, messageKey: mention.messageId }))
-        : findStringCandidates(texts).map((candidate) => ({ label: `"${candidate.raw}" in ${candidate.messageId}`, snippet: candidate.snippet, value: candidate.raw as PrimitiveValue, messageKey: candidate.messageId }));
+        : findStringCandidates(texts).map((candidate) => ({
+          label: `"${candidate.raw}" in ${candidate.messageId}`,
+          snippet: candidate.snippet,
+          value: candidate.raw as PrimitiveValue,
+          messageKey: candidate.messageId,
+        }));
       const options = new Map<string, { snippet: string; value: PrimitiveValue; messageKey: string }>();
       for (const item of found.slice(0, MAX_CANDIDATES)) {
         let label = item.label;
@@ -118,7 +127,8 @@ export function buildTypedPlan(qualities: Quality[], window: TypedWindowMessage[
         options.set(label, { snippet: item.snippet, value: item.value, messageKey: item.messageKey });
       }
       if (!options.size) continue;
-      plan.request.questions[id] = choice(`${quality.rubric}\nWhich ${numeric ? "number mention" : "span"} in \`transcript\` gives this value as it stands at the end of the transcript? Pick "none" if no mention gives it.`, {
+      plan.request.questions[id] = choice(`${quality.rubric}\nWhich ${numeric ? "number mention" : "span"} in \`transcript\` gives this value as it stands at the end of the ` +
+        `transcript? Pick "none" if no mention gives it.`, {
         ...Object.fromEntries([...options].map(([label, item]) => [label, item.snippet])),
         [TYPED_NONE]: numeric ? "No number in the transcript gives this value" : "No span in the transcript gives this value",
       });
@@ -133,7 +143,10 @@ export function buildTypedPlan(qualities: Quality[], window: TypedWindowMessage[
     // separate evidence choice because its value comes from a score rather than from a Choice.
     if (window.length >= 2 && quality.read_as === "rating") {
       const evidenceId = `evidence:${quality.key}`;
-      plan.request.questions[evidenceId] = choice(`Which message in \`transcript\` shows the answer to this question: ${quality.rubric}`, Object.fromEntries(window.map((message) => [msgKey(message), null])));
+      plan.request.questions[evidenceId] = choice(
+        `Which message in \`transcript\` shows the answer to this question: ${quality.rubric}`,
+        Object.fromEntries(window.map((message) => [msgKey(message), null])),
+      );
       plan.decoders[plan.decoders.length - 1].evidenceId = evidenceId;
     }
   }

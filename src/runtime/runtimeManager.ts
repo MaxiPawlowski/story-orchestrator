@@ -101,7 +101,12 @@ export class RuntimeManager extends CoordinatorDelegates {
       swapStory: (loaded, state, reanchored) => this.swapStory(loaded, state, reanchored), restart: () => this.restartStory(true),
       journal: (outcome) => {
         this.lastStoryUpdate = outcome;
-        this.journal.record("story", `story updated v${outcome.fromVersion} → v${outcome.toVersion} (${outcome.classification}${outcome.choice ? `, ${outcome.choice}` : ""})`, this.journalContext(), outcome.reason);
+        this.journal.record(
+          "story",
+          `story updated v${outcome.fromVersion} → v${outcome.toVersion} (${outcome.classification}${outcome.choice ? `, ${outcome.choice}` : ""})`,
+          this.journalContext(),
+          outcome.reason,
+        );
         this.extras.journal = this.journal.getRecords();
       },
     },
@@ -117,7 +122,16 @@ export class RuntimeManager extends CoordinatorDelegates {
 
   constructor() {
     super();
-    this.effects = new EffectsApplier(this.owner.ownership, { reads: { read: readEffectTarget }, restore: restoreEffectTarget, persist: () => this.persist(), unsaved: () => hasUnsavedChanges(this.extras.saveHealth), journal: (summary, note) => this.noteRecap(summary, note ?? "") });
+    this.effects = new EffectsApplier(
+      this.owner.ownership,
+      {
+        reads: { read: readEffectTarget },
+        restore: restoreEffectTarget,
+        persist: () => this.persist(),
+        unsaved: () => hasUnsavedChanges(this.extras.saveHealth),
+        journal: (summary, note) => this.noteRecap(summary, note ?? ""),
+      },
+    );
   }
 
   subscribe(listener: () => void) { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; }
@@ -131,7 +145,14 @@ export class RuntimeManager extends CoordinatorDelegates {
 
   getSessionJournal(): JournalEvent[] {
     const { extraction, talk, judge } = this.extras;
-    return this.journal.build({ boundaryLog: this.loaded ? this.engine.stateLog : [], audits: extraction.audits, reconciliationEvents: extraction.reconciliationEvents, talkDecisions: talk.decisions, judgeCalls: judge.calls, pending: this.loaded ? this.engine.pendingWrites : [] });
+    return this.journal.build({
+      boundaryLog: this.loaded ? this.engine.stateLog : [],
+      audits: extraction.audits,
+      reconciliationEvents: extraction.reconciliationEvents,
+      talkDecisions: talk.decisions,
+      judgeCalls: judge.calls,
+      pending: this.loaded ? this.engine.pendingWrites : [],
+    });
   }
   getExtractionAudits() { return this.extras.extraction.audits; }
   async flagMoment(note = "") {
@@ -279,7 +300,13 @@ export class RuntimeManager extends CoordinatorDelegates {
     notes.forEach((note) => this.noteRecap(note, ""));
   }
 
-  private readonly settingsControl = new SettingsControl({ extras: () => this.extras, updateSteering: () => this.pacing.updateSteering(), updateInjection: () => this.memory.updateInjection(), clearNudge: () => this.clearCopilotNudge(), ...this.lifecycle });
+  private readonly settingsControl = new SettingsControl({
+    extras: () => this.extras,
+    updateSteering: () => this.pacing.updateSteering(),
+    updateInjection: () => this.memory.updateInjection(),
+    clearNudge: () => this.clearCopilotNudge(),
+    ...this.lifecycle
+  });
   setExtractionSettings(settings: Partial<ExtractionRuntimeSettings>) { this.settingsControl.extraction(settings); }
   setPacingSettings(settings: Partial<PacingSettings>) { this.settingsControl.pacing(settings); }
   setMemorySettings(settings: Partial<MemoryRuntimeSettings>) { this.settingsControl.memory(settings); }
@@ -323,7 +350,12 @@ export class RuntimeManager extends CoordinatorDelegates {
   reapplyPromptBlocks() { this.copilot.reapplyNudge(); if (!this.loaded) return; this.memory.updateInjection(); this.pacing.updateSteering(); }
   getFiredTransitions(): NormalizedTransition[] { return this.engine.stateLog.map((entry) => entry.fired).filter((transition): transition is NormalizedTransition => Boolean(transition)); }
 
-  setSchedulerSnapshot(snapshot: ExtractionRuntimeState["scheduler"]) { this.extraction.setSchedulerSnapshot(snapshot); this.expansion.setSchedulerSnapshot(snapshot); void this.persist(); this.notify(); }
+  setSchedulerSnapshot(snapshot: ExtractionRuntimeState["scheduler"]) {
+    this.extraction.setSchedulerSnapshot(snapshot);
+    this.expansion.setSchedulerSnapshot(snapshot);
+    void this.persist();
+    this.notify();
+  }
 
   private scheduler: ExtractionScheduler | null = null;
   attachScheduler(scheduler: ExtractionScheduler | null) { this.scheduler = scheduler; }
@@ -333,7 +365,14 @@ export class RuntimeManager extends CoordinatorDelegates {
     if (!acceptedDeltas.length) return;
     const tensionLevels = this.pacing.applyExtractorTension(acceptedDeltas);
     const versions = this.engine.serialize().blackboard.versions;
-    this.engine.enqueue({ source: "extractor", origin, blackboardVersionSum: Object.values(versions).reduce((sum, version) => sum + version, 0), turnRange: window, deltas: acceptedDeltas.map((entry) => entry.delta), ...(tensionLevels.length ? { tensionLevels } : {}) });
+    this.engine.enqueue({
+      source: "extractor",
+      origin,
+      blackboardVersionSum: Object.values(versions).reduce((sum, version) => sum + version, 0),
+      turnRange: window,
+      deltas: acceptedDeltas.map((entry) => entry.delta),
+      ...(tensionLevels.length ? { tensionLevels } : {})
+    });
   }
 
   attachJudge(judge: JudgeRuntime) { this.judge = judge; }
@@ -453,9 +492,20 @@ export class RuntimeManager extends CoordinatorDelegates {
 
   setStagecraftSettings(settings: Partial<StagecraftSettings>) { this.settingsControl.stagecraft(settings); }
 
-  private getBoundaryContext(at?: number): BoundaryContext { const chat = Array.isArray(getContext().chat) ? getContext().chat : []; const last = at === undefined ? chat.length - 1 : Math.min(at, chat.length - 1); return { lastMessageId: last, chatLength: last + 1 }; }
+  private getBoundaryContext(at?: number): BoundaryContext {
+    const chat = Array.isArray(getContext().chat) ? getContext().chat : [];
+    const last = at === undefined ? chat.length - 1 : Math.min(at, chat.length - 1);
+    return { lastMessageId: last, chatLength: last + 1 };
+  }
 
-  private applyActive(mode: "activate" | "hydrate") { return this.effects.applyCheckpoint(this.loaded!.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), mode, this.engine.checkpointPath); }
+  private applyActive(mode: "activate" | "hydrate") { return this.effects.applyCheckpoint(
+    this.loaded!.story,
+    this.engine.activeCheckpoint,
+    this.extras,
+    this.getSnapshot(),
+    mode,
+    this.engine.checkpointPath,
+  ); }
   private refreshRequirements() {
     this.extras.requirements = evaluateRequirements(this.loaded?.story ?? null);
     this.extras.updatedAt = new Date().toISOString();

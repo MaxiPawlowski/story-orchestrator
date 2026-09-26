@@ -8,7 +8,10 @@ import { truncate } from "@utils/string";
 export function buildWiCuratorPrompt(scope: CuratorScope): string {
   const entries = scope.entries.length
     ? scope.entries.map((entry) => [
-        `- ${[entryRef(entry, scope.entries), `"${entry.comment}"`].filter(Boolean).join(" ")} (${entry.lorebook})${entry.disabled ? " [currently off]" : ""}${contentShownInPart(entry.content) ? " [shown in part — patch only]" : ""}`,
+        `- ${[
+          entryRef(entry, scope.entries),
+          `"${entry.comment}"`,
+        ].filter(Boolean).join(" ")} (${entry.lorebook})${entry.disabled ? " [currently off]" : ""}${contentShownInPart(entry.content) ? " [shown in part — patch only]" : ""}`,
         `  keys: ${entry.keys.join(", ") || "(none)"}`,
         `  content: ${truncate(collapseContent(entry.content), CURATOR_SHOWN_CONTENT) || "(empty)"}`,
       ].join("\n")).join("\n")

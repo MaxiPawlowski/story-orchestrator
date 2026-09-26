@@ -26,7 +26,14 @@ export async function askWarden(ask: Ask, input: WardenInput): Promise<WardenAsk
 
 const report = (perCase: Array<{ rows: JudgeSelfTestRow[]; model: string | null; latencyMs: number }>): JudgeSelfTestReport => {
   const rows = perCase.flatMap((entry) => entry.rows);
-  return { ranAt: new Date().toISOString(), model: perCase.find((entry) => entry.model)?.model ?? null, total: rows.length, right: rows.filter((row) => row.right).length, p50LatencyMs: median(perCase.map((entry) => entry.latencyMs)), rows };
+  return {
+    ranAt: new Date().toISOString(),
+    model: perCase.find((entry) => entry.model)?.model ?? null,
+    total: rows.length,
+    right: rows.filter((row) => row.right).length,
+    p50LatencyMs: median(perCase.map((entry) => entry.latencyMs)),
+    rows,
+  };
 };
 
 export interface AgencyCase {
@@ -41,7 +48,12 @@ export interface AgencyCase {
   source?: string;
 }
 
-export const agencyInput = (entry: Pick<AgencyCase, "player" | "playerMessage" | "reply">): WardenInput => ({ reply: entry.reply, facts: [], agency: { player: entry.player, message: entry.playerMessage }, houseRules: [] });
+export const agencyInput = (entry: Pick<AgencyCase, "player" | "playerMessage" | "reply">): WardenInput => ({
+  reply: entry.reply,
+  facts: [],
+  agency: { player: entry.player, message: entry.playerMessage },
+  houseRules: [],
+});
 
 // Rows: `<case>.writes` (flagged over AGENCY_SCORE) or `<case>.clean` (not flagged), read raw.
 export async function runAgencyCalibration(ask: Ask, cases: AgencyCase[]): Promise<JudgeSelfTestReport> {

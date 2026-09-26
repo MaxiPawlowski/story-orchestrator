@@ -161,7 +161,12 @@ const diffQualities = (ctx: DiffContext) => {
       ctx.drop(quality.key);
       push("invalidating", "quality-enum-narrowed-live", path, `“${quality.key}” no longer allows “${String(value)}”, which this chat holds.`);
     }
-    if (!sameValue(quality.evidence_from, after.evidence_from)) push("compatible", "quality-evidence-changed", `${path}.evidence_from`, `Which lines can prove “${quality.key}” changed; it applies from the next read, and values already held stay.`);
+    if (!sameValue(quality.evidence_from, after.evidence_from)) push(
+      "compatible",
+      "quality-evidence-changed",
+      `${path}.evidence_from`,
+      `Which lines can prove “${quality.key}” changed; it applies from the next read, and values already held stay.`,
+    );
     if (!ctx.droppedQualityKeys.has(quality.key) && ctx.live(quality.key)) {
       if (!quality.latching && after.latching) push("compatible", "quality-latch-enabled-live", path, `“${quality.key}” now locks once set; the value this chat holds locks on its next write.`);
       if (quality.latching && !after.latching && ctx.latched[quality.key]) {
@@ -197,7 +202,12 @@ const diffCheckpoints = (ctx: DiffContext) => {
 
   previous.checkpoints.forEach((checkpoint) => {
     const after = next.checkpointById[checkpoint.id];
-    if (after && !sameValue(checkpoint.agency, after.agency)) push("compatible", "checkpoint-agency-changed", `checkpoints.${checkpoint.id}.agency`, `How “${checkpoint.name}” treats the player's choices changed; it applies from the next turn.`);
+    if (after && !sameValue(checkpoint.agency, after.agency)) push(
+      "compatible",
+      "checkpoint-agency-changed",
+      `checkpoints.${checkpoint.id}.agency`,
+      `How “${checkpoint.name}” treats the player's choices changed; it applies from the next turn.`,
+    );
   });
 
   next.checkpoints.filter((checkpoint) => !previous.checkpointById[checkpoint.id]).forEach((checkpoint) => {
@@ -209,10 +219,20 @@ const diffStart = (ctx: DiffContext) => {
   const { previous, next, push } = ctx;
   if (previous.startCheckpointId !== next.startCheckpointId) {
     if (ctx.played) {
-      push("compatible", "start-changed", "checkpoints", `The story now starts at “${next.checkpointById[next.startCheckpointId]?.name ?? next.startCheckpointId}”; this chat is already past the opening.`);
+      push(
+        "compatible",
+        "start-changed",
+        "checkpoints",
+        `The story now starts at “${next.checkpointById[next.startCheckpointId]?.name ?? next.startCheckpointId}”; this chat is already past the opening.`,
+      );
     } else {
       ctx.reanchorTo = ctx.reanchorTo ?? next.startCheckpointId;
-      push("invalidating", "start-changed-unplayed", "checkpoints", `The story now opens at “${next.checkpointById[next.startCheckpointId]?.name ?? next.startCheckpointId}”, and this chat has not moved past the old opening yet.`);
+      push(
+        "invalidating",
+        "start-changed-unplayed",
+        "checkpoints",
+        `The story now opens at “${next.checkpointById[next.startCheckpointId]?.name ?? next.startCheckpointId}”, and this chat has not moved past the old opening yet.`,
+      );
     }
   }
 };
@@ -244,7 +264,12 @@ const diffTransitions = (ctx: DiffContext) => {
   });
   nextTransitions.forEach((transition, key) => {
     if (previousTransitions.has(key)) return;
-    push("compatible", "transition-added", `transitions.${key}`, `A new way ${next.checkpointById[transition.from]?.name ?? transition.from} → ${next.checkpointById[transition.to]?.name ?? transition.to}.`);
+    push(
+      "compatible",
+      "transition-added",
+      `transitions.${key}`,
+      `A new way ${next.checkpointById[transition.from]?.name ?? transition.from} → ${next.checkpointById[transition.to]?.name ?? transition.to}.`,
+    );
   });
 };
 

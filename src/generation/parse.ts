@@ -21,7 +21,9 @@ const readGate = (value: unknown, story: NormalizedStoryV2, path: string, issues
     if (typeof value.q !== "string" || !story.qualityByKey[value.q]) issues.push(`${path}.q: unknown quality`);
     if (typeof value.op !== "string" || !(GATE_OPERATORS as readonly string[]).includes(value.op)) issues.push(`${path}.op: invalid operator`);
     if (!isPrimitive(value.v) && !(Array.isArray(value.v) && value.v.every(isPrimitive))) issues.push(`${path}.v: invalid value`);
-    if (typeof value.q !== "string" || typeof value.op !== "string" || !(GATE_OPERATORS as readonly string[]).includes(value.op) || (!isPrimitive(value.v) && !(Array.isArray(value.v) && value.v.every(isPrimitive)))) return null;
+    if (typeof value.q !== "string" || typeof value.op !== "string" || !(GATE_OPERATORS as readonly string[]).includes(value.op) || (!isPrimitive(value.v) && !(Array.isArray(value.v) && value.v.every(
+      isPrimitive,
+    )))) return null;
     const quality = story.qualityByKey[value.q];
     const v = Array.isArray(value.v) ? value.v.map((entry) => coerceValue(quality, entry as PrimitiveValue)) : coerceValue(quality, value.v as PrimitiveValue);
     return { q: value.q, op: value.op as GateOperator, v };
@@ -100,7 +102,13 @@ export function parseGeneratedBeats(raw: string, story: NormalizedStoryV2): { be
     if (!tension) issues.push(`${path}.tension_target: invalid`);
     if (!Array.isArray(entry.outcomes) || !entry.outcomes.length) issues.push(`${path}.outcomes: required`);
     const beatId = String(index);
-    const outcomes = Array.isArray(entry.outcomes) ? entry.outcomes.map((outcome, outcomeIndex) => readOutcome(outcome, story, `${path}.outcomes.${outcomeIndex}`, issues, `${beatId}:${outcomeIndex}`)).filter((outcome): outcome is GeneratedOutcome => Boolean(outcome)) : [];
+    const outcomes = Array.isArray(entry.outcomes) ? entry.outcomes.map((outcome, outcomeIndex) => readOutcome(
+      outcome,
+      story,
+      `${path}.outcomes.${outcomeIndex}`,
+      issues,
+      `${beatId}:${outcomeIndex}`,
+    )).filter((outcome): outcome is GeneratedOutcome => Boolean(outcome)) : [];
     if (!objective || !guidance || !tension || !outcomes.length) return null;
     return { id: beatId, objective, guidance, tension_target: tension, outcomes };
   }).filter((entry): entry is GeneratedBeat => Boolean(entry));

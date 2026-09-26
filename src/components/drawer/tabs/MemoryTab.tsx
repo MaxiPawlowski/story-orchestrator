@@ -41,7 +41,11 @@ const MemoryControls = ({ snapshot, manager, authorView }: { snapshot: RuntimeSn
         </>
       )}
       <div className="flex items-center gap-2 mt-1">
-        <button className="menu_button" disabled={snapshot.memory.backfill?.running} onClick={() => void manager.memorizeChat()}>{snapshot.memory.backfill?.running && snapshot.memory.backfill.preparing ? "Preparing…" : "Memorize chat"}</button>
+        <button
+          className="menu_button"
+          disabled={snapshot.memory.backfill?.running}
+          onClick={() => void manager.memorizeChat()}
+        >{snapshot.memory.backfill?.running && snapshot.memory.backfill.preparing ? "Preparing…" : "Memorize chat"}</button>
         {snapshot.memory.backfill?.running && <button id="so-memorize-stop" className="menu_button" onClick={() => manager.cancelMemorizeBacklog()}>Stop</button>}
         <span className="opacity-60">Read the whole chat history into memory.</span>
       </div>
@@ -79,10 +83,17 @@ const MemoryRow = ({ entry, snapshot, manager, authorView, editing, draftText, o
       </div>
     ) : (
       <>
-        <div title={entry.evidence} className={entry.supersededBy || entry.foldedInto ? "opacity-40 line-through" : ""}>{entry.text}{entry.pinned ? " 📌" : ""}{entry.characterId ? ` (${entry.characterId})` : ""}</div>
+        <div
+          title={entry.evidence}
+          className={entry.supersededBy || entry.foldedInto ? "opacity-40 line-through" : ""}
+        >{entry.text}{entry.pinned ? " 📌" : ""}{entry.characterId ? ` (${entry.characterId})` : ""}</div>
         <div className="flex gap-2 opacity-80 flex-wrap">
           {entry.provenance?.override && <span data-so="kept-by-you" title={describeProvenance(entry)}>kept by you</span>}
-          {entry.provenance && entry.provenance.validity !== "live" && <span data-so="quarantine-badge" className="text-amber-300" title={describeProvenance(entry)}>{entry.provenance.validity === "source-removed" ? "source removed" : entry.provenance.validity}</span>}
+          {entry.provenance && entry.provenance.validity !== "live" && <span
+            data-so="quarantine-badge"
+            className="text-amber-300"
+            title={describeProvenance(entry)}
+          >{entry.provenance.validity === "source-removed" ? "source removed" : entry.provenance.validity}</span>}
           {authorView && entry.locked && <span data-so="locked" title="No extraction or consolidation may retire this row">🔒 locked</span>}
           {authorView && <span>importance {entry.importance} · {entry.expiration}</span>}
           {authorView && entry.supersededBy && <span title={`superseded by ${entry.supersededBy}`}>⤳ superseded</span>}
@@ -91,9 +102,17 @@ const MemoryRow = ({ entry, snapshot, manager, authorView, editing, draftText, o
           {authorView && entry.recallCount > 0 && <span>recall {entry.recallCount}</span>}
           {authorView && <span data-so="memory-origin" title={originTitle(entry)}>{originLabel(entry.provenance)}</span>}
           {authorView && <MessageCitation messageId={entry.provenance?.messageId} />}
-          {authorView && snapshot.memoryInjection?.fates[entry.id] && <span data-so="memory-fate" data-fate={snapshot.memoryInjection.fates[entry.id]}>{FATE_LABELS[snapshot.memoryInjection.fates[entry.id]]}</span>}
+          {authorView && snapshot.memoryInjection?.fates[entry.id] && <span
+            data-so="memory-fate"
+            data-fate={snapshot.memoryInjection.fates[entry.id]}
+          >{FATE_LABELS[snapshot.memoryInjection.fates[entry.id]]}</span>}
           <button className="menu_button" onClick={() => void manager.setMemoryPinned(entry.id, !entry.pinned)}>{entry.pinned ? "Unpin" : "Pin"}</button>
-          {authorView && <button className="menu_button" data-so="memory-lock" title="Lock: freeze this as the story's truth. No extraction or consolidation may retire it, and a contradicting claim goes to the queue you decide." onClick={() => void manager.memoryActions.setMemoryLocked(entry.id, !entry.locked)}>{entry.locked ? "Unlock" : "Lock"}</button>}
+          {authorView && <button
+            className="menu_button"
+            data-so="memory-lock"
+            title="Lock: freeze this as the story's truth. No extraction or consolidation may retire it, and a contradicting claim goes to the queue you decide."
+            onClick={() => void manager.memoryActions.setMemoryLocked(entry.id, !entry.locked)}
+          >{entry.locked ? "Unlock" : "Lock"}</button>}
           <button className="menu_button" onClick={onEdit}>Edit</button>
           <button className="menu_button" onClick={onExclude}>Exclude</button>
         </div>
@@ -180,7 +199,14 @@ export const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapsh
           </label>
           <div className="flex flex-wrap items-center gap-1">
             {MEMORY_TIERS.map((tier) => (
-              <button key={tier} data-so="memory-tier-filter" data-tier={tier} aria-pressed={!hiddenTiers.includes(tier)} className={`st-pill px-1 text-[10px] ${hiddenTiers.includes(tier) ? "opacity-50" : ""}`} onClick={() => toggleTier(tier)}>{MEMORY_TIER_LABELS[tier]}</button>
+              <button
+                key={tier}
+                data-so="memory-tier-filter"
+                data-tier={tier}
+                aria-pressed={!hiddenTiers.includes(tier)}
+                className={`st-pill px-1 text-[10px] ${hiddenTiers.includes(tier) ? "opacity-50" : ""}`}
+                onClick={() => toggleTier(tier)}
+              >{MEMORY_TIER_LABELS[tier]}</button>
             ))}
             <span id="so-memory-count" className="opacity-60">{`Showing ${shown.length} of ${visible.length}`}</span>
           </div>

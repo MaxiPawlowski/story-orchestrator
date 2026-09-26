@@ -43,7 +43,10 @@ const readServerLibrary = async (): Promise<unknown[] | null> => {
   return root === null ? null : Array.isArray(root[SETTINGS_KEY]) ? (root[SETTINGS_KEY] as unknown[]) : [];
 };
 
-const observeLibraryWrite = <T>(missing: (stored: unknown[] | null, write: T) => string | null) => createSettingsWriteEvidence<T>({ observe: () => observeNextSettingsSave(), readBack: readServerLibrary }, missing);
+const observeLibraryWrite = <T>(missing: (stored: unknown[] | null, write: T) => string | null) => createSettingsWriteEvidence<T>(
+  { observe: () => observeNextSettingsSave(), readBack: readServerLibrary },
+  missing,
+);
 
 const confirmRecord = observeLibraryWrite(missingFromServer);
 const confirmRemoval = observeLibraryWrite(stillHeldByServer);

@@ -34,7 +34,12 @@ export function classifyChatChange(input: ChatChangeInput): ChatChange {
   const { openChat, claimedChat, loadedIntegrity, currentIntegrity, storyId, engineBoundary, storedBoundary } = input;
   if (!openChat || openChat !== claimedChat || !loadedIntegrity || loadedIntegrity !== currentIntegrity || !storyId || engineBoundary === null) return { kind: "switch" };
   if (storedBoundary !== engineBoundary) {
-    return { kind: "diverged", chatId: openChat, detail: `chat ${openChat} was reloaded with its own id and integrity, but the copy ST loaded holds boundary ${storedBoundary ?? "none"} while this run is at ${engineBoundary} (another tab wrote it, or a save did not land); reloaded from that copy` };
+    return {
+      kind: "diverged",
+      chatId: openChat,
+      detail: `chat ${openChat} was reloaded with its own id and integrity, but the copy ST loaded holds boundary ${storedBoundary ?? "none"} while this run is at ` +
+        `${engineBoundary} (another tab wrote it, or a save did not land); reloaded from that copy`,
+    };
   }
   return { kind: "same-chat" };
 }
@@ -153,7 +158,10 @@ export async function continueFromBranch(deps: ContinueBranchDeps): Promise<bool
   if (identity?.snapshot.kind !== "branch" || !identity.storyId || !branch) return false;
   if (!adoptChatState()) return false;
   if (!(await deps.selectStory(identity.storyId))) return false;
-  if (currentChat()?.chatId === branch.chatId) deps.note("branch continued", `this chat is a branch of ${identity.snapshot.parentChat}; it took that chat's story state and stepped back to where the branch ends`);
+  if (currentChat()?.chatId === branch.chatId) deps.note(
+    "branch continued",
+    `this chat is a branch of ${identity.snapshot.parentChat}; it took that chat's story state and stepped back to where the branch ends`,
+  );
   return true;
 }
 

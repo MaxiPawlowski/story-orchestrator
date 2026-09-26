@@ -38,7 +38,8 @@ export interface RollbackUnavailable {
 }
 
 export const rollbackUnavailableText = (notice: RollbackUnavailable): string =>
-  `That edit reaches back further than this chat can rewind, so the story has not moved: you are still at ${notice.checkpointName}. What was learned from the changed messages has been dropped. Re-read from ${notice.checkpointName} to rebuild it, or restart the story to play the new text from the beginning.`;
+  `That edit reaches back further than this chat can rewind, so the story has not moved: you are still at ${notice.checkpointName}. What was learned from the changed messages ` +
+    `has been dropped. Re-read from ${notice.checkpointName} to rebuild it, or restart the story to play the new text from the beginning.`;
 
 // v2.4 plan 02 §5 (D3): a branch holds the story state it was cut from, and nothing adopts it on its own.
 // Checkpoint names only, one sentence, one way forward.

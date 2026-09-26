@@ -1,4 +1,8 @@
-import { EPISTEMIC_TAGS, MEMORY_ENTRY_TYPES, MEMORY_EXPIRATIONS, SCENE_BREAK_REASONS, TIER_FOR_ENTRY_TYPE, type EpistemicTag, type MemoryEntryType, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine, type SceneBreakSignal } from "./types";
+import {
+  EPISTEMIC_TAGS, MEMORY_ENTRY_TYPES, MEMORY_EXPIRATIONS, SCENE_BREAK_REASONS, TIER_FOR_ENTRY_TYPE, type EpistemicTag,
+  type MemoryEntryType, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal,
+  type ParsedMemoryLine, type SceneBreakSignal,
+} from "./types";
 
 const isMemoryEntryType = (value: string): value is MemoryEntryType => (MEMORY_ENTRY_TYPES as readonly string[]).includes(value);
 

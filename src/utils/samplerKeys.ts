@@ -48,7 +48,20 @@ const CHAT_KEYS: Record<string, string[]> = {
   repetition_penalty_openai: ["repetition_penalty"],
 };
 
-export const SAMPLER_OVERLAY_NEVER: ReadonlySet<string> = new Set(["messages", "prompt", "stop", "stopping_strings", "model", "chat_completion_source", "type", "stream", "max_tokens", "max_new_tokens", "api_type", "api_server"]);
+export const SAMPLER_OVERLAY_NEVER: ReadonlySet<string> = new Set([
+  "messages",
+  "prompt",
+  "stop",
+  "stopping_strings",
+  "model",
+  "chat_completion_source",
+  "type",
+  "stream",
+  "max_tokens",
+  "max_new_tokens",
+  "api_type",
+  "api_server",
+]);
 
 export function resolveSamplerOverlay(settings: Record<string, unknown>, api: SamplerApi): { values: SamplerValues; unknown: string[] } {
   const table = api === "textgen" ? TEXTGEN_KEYS : CHAT_KEYS;

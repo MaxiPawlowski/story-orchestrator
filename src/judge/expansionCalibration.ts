@@ -20,7 +20,14 @@ export interface VariantStub {
 
 const toReport = (perCase: Array<{ rows: JudgeSelfTestRow[]; model: string | null; latencyMs: number }>): JudgeSelfTestReport => {
   const rows = perCase.flatMap((entry) => entry.rows);
-  return { ranAt: new Date().toISOString(), model: perCase.find((entry) => entry.model)?.model ?? null, total: rows.length, right: rows.filter((row) => row.right).length, p50LatencyMs: median(perCase.map((entry) => entry.latencyMs)), rows };
+  return {
+    ranAt: new Date().toISOString(),
+    model: perCase.find((entry) => entry.model)?.model ?? null,
+    total: rows.length,
+    right: rows.filter((row) => row.right).length,
+    p50LatencyMs: median(perCase.map((entry) => entry.latencyMs)),
+    rows,
+  };
 };
 
 const describe = (read: ChainRead | null) => (read ? `c=${read.contradicts} a=${read.advances} n=${read.newCharacter}${read.shape === null ? "" : ` s=${read.shape}`}` : null);
@@ -54,8 +61,18 @@ export async function runVariantCalibration(ask: (request: JudgeRequest) => Prom
     const contradicting = stub.chains.findIndex((chain) => chain.label === "contradicts");
     const latencyMs = Math.max(0, ...results.map((result) => result.latencyMs));
     const rows: JudgeSelfTestRow[] = [
-      { id: `${stub.id}.pick`, right: picked !== null && stub.chains[picked].label === "clean", picked: picked === null ? "none passed" : `${stub.chains[picked].label} (${describe(reads[picked])})`, latencyMs },
-      ...(contradicting >= 0 ? [{ id: `${stub.id}.rejected`, right: reads[contradicting] !== null && !judgeVerdict(reads[contradicting]!).pass, picked: describe(reads[contradicting]), latencyMs }] : []),
+      {
+        id: `${stub.id}.pick`,
+        right: picked !== null && stub.chains[picked].label === "clean",
+        picked: picked === null ? "none passed" : `${stub.chains[picked].label} (${describe(reads[picked])})`,
+        latencyMs,
+      },
+      ...(contradicting >= 0 ? [{
+        id: `${stub.id}.rejected`,
+        right: reads[contradicting] !== null && !judgeVerdict(reads[contradicting]!).pass,
+        picked: describe(reads[contradicting]),
+        latencyMs,
+      }] : []),
     ];
     return { rows, model: results.find((result) => result.model)?.model ?? null, latencyMs };
   })));

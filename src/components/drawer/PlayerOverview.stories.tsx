@@ -16,7 +16,14 @@ const extraction = (overrides: Partial<ExtractionRuntimeState> = {}): Extraction
   ...overrides,
 });
 
-const snapshot = (options: { extraction?: ExtractionRuntimeState; threads?: string[]; pending?: number; missingMembers?: string[]; canon?: string; health?: ExtractionHealth } = {}): RuntimeSnapshot => {
+const snapshot = (options: {
+  extraction?: ExtractionRuntimeState;
+  threads?: string[];
+  pending?: number;
+  missingMembers?: string[];
+  canon?: string;
+  health?: ExtractionHealth;
+} = {}): RuntimeSnapshot => {
   const pipeline = derivePipelineStatus(options.extraction ?? extraction(), undefined, options.health ?? null);
   return {
     requirements: { ready: !options.missingMembers?.length, missingPersonas: [], missingMembers: options.missingMembers ?? [], missingLorebooks: [] },
@@ -82,7 +89,15 @@ export const LongCanonAndManyThreads: Story = {
 };
 
 export const CatchingUp: Story = {
-  args: { snapshot: snapshot({ extraction: extraction({ reconciliationEvents: [{ id: "r1", boundary: 6, checkpointId: "gate", targetedKeys: ["has_key"], scheduledAt: "t", resolvedAt: null, evidence: [] }] }) }) },
+  args: { snapshot: snapshot({ extraction: extraction({ reconciliationEvents: [{
+    id: "r1",
+    boundary: 6,
+    checkpointId: "gate",
+    targetedKeys: ["has_key"],
+    scheduledAt: "t",
+    resolvedAt: null,
+    evidence: [],
+  }] }) }) },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText(/re-checking recent scenes/)).toBeInTheDocument();
@@ -94,7 +109,10 @@ export const CatchingUp: Story = {
 export const ModelNotAnswering: Story = {
   args: {
     onRetry: fn(),
-    snapshot: snapshot({ extraction: extraction({ scheduler: { queueDepth: 1, inFlight: false, lastError: null } }), health: { kind: "transport", detail: "API request failed: Response not OK", since: 1, nextProbeAt: 5001, probing: false } }),
+    snapshot: snapshot({
+      extraction: extraction({ scheduler: { queueDepth: 1, inFlight: false, lastError: null } }),
+      health: { kind: "transport", detail: "API request failed: Response not OK", since: 1, nextProbeAt: 5001, probing: false },
+    }),
   },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);

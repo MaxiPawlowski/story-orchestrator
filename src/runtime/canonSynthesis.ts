@@ -70,7 +70,10 @@ export class CanonSynthesis {
       const current = this.deps.memory();
       const arcs = resolvedArcs(current.arcs);
       const sourceFacts = highImportanceFacts(current.entries, 30);
-      const sources: CanonSource[] = [...sourceFacts.map((entry) => ({ store: "memory" as const, id: entry.id, ...(entry.provenance ? { provenance: entry.provenance } : {}) })), ...arcs.map((arc) => ({ store: "memory" as const, id: arc.id }))];
+      const sources: CanonSource[] = [
+        ...sourceFacts.map((entry) => ({ store: "memory" as const, id: entry.id, ...(entry.provenance ? { provenance: entry.provenance } : {}) })),
+        ...arcs.map((arc) => ({ store: "memory" as const, id: arc.id }))
+      ];
       this.deps.record({ kind: "canon", inputs: sources.map((source) => source.id) });
       // The prose cannot carry envelopes sentence by sentence, so what a reader can check is what
       // it was built from — recorded as it was at the moment of synthesis.

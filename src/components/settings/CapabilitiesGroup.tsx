@@ -26,7 +26,8 @@ export interface MemoryModelLimit {
 const tokens = (value: number) => value.toLocaleString("en-US");
 
 export const describeMemoryModelLimit = (limit: MemoryModelLimit) =>
-  `Memory model context: ${tokens(limit.value)} tokens ${limit.source === "preset" ? "(from its preset)" : `(default${limit.reason ? `: ${limit.reason}` : ""})`} · up to ${tokens(limit.inputBudget)} per read`;
+  `Memory model context: ${tokens(limit.value)} tokens ${limit.source === "preset" ? "(from its preset)" : `(default${limit.reason ? `: ${limit.reason}` : ""})`} · up to ` +
+    `${tokens(limit.inputBudget)} per read`;
 
 export function CapabilitiesGroup({ reports, facts = null, extensionVersion = "", memoryModel = null, onRefresh, onCopy }: CapabilitiesGroupProps) {
   const checking = reports === "checking";

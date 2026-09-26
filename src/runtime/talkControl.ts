@@ -1,6 +1,9 @@
 import type { RosterMember, TalkControl } from "@engine/index";
 import type { JudgeDirectorDecision, JudgeDirectorInput } from "@judge/index";
-import { buildCandidates, chooseByRules, directorEnabled, directorInstruction, findCandidate, narrowByMention, parseDirectorResponse, renderDirectorPrompt, type DirectorWindowMessage, type TalkCandidate, type TalkDecisionSource } from "@talk/index";
+import {
+  buildCandidates, chooseByRules, directorEnabled, directorInstruction, findCandidate, narrowByMention,
+  parseDirectorResponse, renderDirectorPrompt, type DirectorWindowMessage, type TalkCandidate, type TalkDecisionSource,
+} from "@talk/index";
 import { timeoutAbortReason } from "@utils/signals";
 import { beginRun, type MessageWindow, type RunGuard, type RunOwnership } from "./runToken";
 import type { TalkDecisionAudit } from "./types";
@@ -258,7 +261,11 @@ export class TalkController {
     });
     const controller = new AbortController();
     try {
-      const raw = await withTimeout(this.host.callDirector(prompt, controller.signal), DIRECTOR_TIMEOUT_MS, () => controller.abort(timeoutAbortReason(`the director did not answer within ${DIRECTOR_TIMEOUT_MS} ms`)));
+      const raw = await withTimeout(
+        this.host.callDirector(prompt, controller.signal),
+        DIRECTOR_TIMEOUT_MS,
+        () => controller.abort(timeoutAbortReason(`the director did not answer within ${DIRECTOR_TIMEOUT_MS} ms`)),
+      );
       const verdict = parseDirectorResponse(raw, pool, allowSilence);
       if (!verdict) return null;
       if (verdict.rosterId === null) return { kind: "silence", source: "director" };

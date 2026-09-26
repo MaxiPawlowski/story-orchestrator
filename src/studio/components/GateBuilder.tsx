@@ -21,7 +21,12 @@ const StringListInput: React.FC<{ values: string[]; onChange: (next: string[]) =
   </div>
 );
 
-const GateValueInput: React.FC<{ quality?: Quality; op: GateOperator; value: PrimitiveValue | PrimitiveValue[]; onChange: (value: PrimitiveValue | PrimitiveValue[]) => void }> = ({ quality, op, value, onChange }) => {
+const GateValueInput: React.FC<{
+  quality?: Quality;
+  op: GateOperator;
+  value: PrimitiveValue | PrimitiveValue[];
+  onChange: (value: PrimitiveValue | PrimitiveValue[]) => void;
+}> = ({ quality, op, value, onChange }) => {
   if (!quality) return <span className="text-xs st-text-error">select a quality</span>;
   if (op === "in") {
     const list = Array.isArray(value) ? value.map(String) : [];

@@ -112,7 +112,15 @@ export class ExtractionCoordinator {
 
   recordReconciliation(descriptor: { checkpointId: string; boundary: number; targetedKeys: string[] }) {
     const id = `${descriptor.boundary}:${descriptor.targetedKeys.join(",")}`;
-    const event = { id, boundary: descriptor.boundary, checkpointId: descriptor.checkpointId, targetedKeys: descriptor.targetedKeys, scheduledAt: new Date().toISOString(), resolvedAt: null, evidence: [] };
+    const event = {
+      id,
+      boundary: descriptor.boundary,
+      checkpointId: descriptor.checkpointId,
+      targetedKeys: descriptor.targetedKeys,
+      scheduledAt: new Date().toISOString(),
+      resolvedAt: null,
+      evidence: [],
+    };
     this.state.reconciliationEvents = [...this.state.reconciliationEvents, event].slice(-50);
     void this.save();
   }
@@ -164,7 +172,16 @@ export class ExtractionCoordinator {
     const read = await createTypedJudge(() => this.deps.judge?.() ?? null)({ story, state, qualities: hinted.map((entry) => entry.quality), window });
     if (!read || !typedRun.stillOwns() || this.deps.getState()?.lastMessageId !== state.lastMessageId || this.deps.hosts.chat.chatRows().length - 1 !== messageId) return;
     if (read.deltas.length) this.deps.enqueueExtractorDeltas(read.deltas, { from: window.from, to: window.to }, `judge:typed@${boundary}`);
-    this.recordJudgedRead({ at: new Date().toISOString(), boundary, kind: "typed", window: { from: window.from, to: window.to }, answered: read.answered, deltas: read.deltas.map((entry) => ({ q: entry.delta.q, v: entry.delta.v, confidence: entry.judge ?? 0 })), model: read.model, ...(read.fallback ? { fallback: read.fallback } : {}) });
+    this.recordJudgedRead({
+      at: new Date().toISOString(),
+      boundary,
+      kind: "typed",
+      window: { from: window.from, to: window.to },
+      answered: read.answered,
+      deltas: read.deltas.map((entry) => ({ q: entry.delta.q, v: entry.delta.v, confidence: entry.judge ?? 0 })),
+      model: read.model,
+      ...(read.fallback ? { fallback: read.fallback } : {})
+    });
     await this.save();
   }
 
@@ -177,10 +194,28 @@ export class ExtractionCoordinator {
     // it — the apply queue, the reconciliation log, the judged-read ring — belongs to that chat.
     const run = beginRun(this.deps.ownership, { from: plan.window.from, to: plan.window.to });
     const window = plan.window.messages.map((message) => ({ id: message.index, speaker: message.speaker, text: message.text }));
-    const result = await judge.ask("stall", buildStallRequest(plan.leaves, window), { timeoutMs: STALL_TIMEOUT_MS, summarize: (answers) => Object.fromEntries(plan.leaves.map((leaf, index) => [`${leaf.q}${leaf.op}${JSON.stringify(leaf.v)}`, (answers?.[`leaf:${index}`] as { noul?: number } | undefined)?.noul ?? "none"])) });
+    const result = await judge.ask(
+      "stall",
+      buildStallRequest(plan.leaves, window),
+      {
+        timeoutMs: STALL_TIMEOUT_MS,
+        summarize: (answers) => Object.fromEntries(plan.leaves.map((leaf, index) => [
+          `${leaf.q}${leaf.op}${JSON.stringify(leaf.v)}`,
+          (answers?.[`leaf:${index}`] as { noul?: number } | undefined)?.noul ?? "none",
+        ])),
+      },
+    );
     if (!run.stillOwns()) return false;
     const verdict = stallVerdict(result.answers, plan.leaves);
-    const record = { at: new Date().toISOString(), boundary: plan.descriptor.boundary, kind: "stall" as const, window: { from: plan.window.from, to: plan.window.to }, answered: result.answers ? plan.leaves.map((leaf) => leaf.q) : [], model: result.model, ...(result.fallback ? { fallback: result.fallback } : {}) };
+    const record = {
+      at: new Date().toISOString(),
+      boundary: plan.descriptor.boundary,
+      kind: "stall" as const,
+      window: { from: plan.window.from, to: plan.window.to },
+      answered: result.answers ? plan.leaves.map((leaf) => leaf.q) : [],
+      model: result.model,
+      ...(result.fallback ? { fallback: result.fallback } : {})
+    };
     if (verdict.kind === "direct") {
       const deltas: ParsedDelta[] = verdict.deltas.map((entry) => ({ delta: { q: entry.q, v: entry.v, source: "extractor" }, evidence: `judge:reconcile p=${entry.p}`, judge: entry.p }));
       this.deps.enqueueExtractorDeltas(deltas, { from: plan.window.from, to: plan.window.to }, `judge:stall@${plan.descriptor.boundary}`);
@@ -198,15 +233,45 @@ export class ExtractionCoordinator {
     this.state.scheduler = snapshot;
   }
 
-  async applyAudit(audit: SharedReadAudit, facts: ParsedFact[], memoryLines: ParsedMemoryLine[] = [], arcSignals: ParsedArcSignal[] = [], epistemicSignals: ParsedEpistemicSignal[] = [], ledgerSignals: ParsedLedgerSignal[] = [], read: ReadOwnership | null = null, sceneWork?: SchedulerJob[]) {
+  async applyAudit(
+    audit: SharedReadAudit,
+    facts: ParsedFact[],
+    memoryLines: ParsedMemoryLine[] = [],
+    arcSignals: ParsedArcSignal[] = [],
+    epistemicSignals: ParsedEpistemicSignal[] = [],
+    ledgerSignals: ParsedLedgerSignal[] = [],
+    read: ReadOwnership | null = null,
+    sceneWork?: SchedulerJob[],
+  ) {
     if (!this.deps.getStory()) return;
     if (read && !read.stillOwns()) return;
     const boundary = this.deps.getState()?.boundary ?? 0;
     this.deps.enqueueExtractorDeltas(audit.acceptedDeltas, audit.window, audit.id);
     const memory = this.deps.memory;
     const newMemoryEntries: MemoryEntry[] = [
-      ...facts.map((fact) => this.newEntry({ provenance: this.provenanceFor(audit.window), tier: "facts", text: fact.text, type: "fact", importance: fact.importance, expiration: "permanent", entities: [], evidence: fact.evidence, messageId: audit.window.to })),
-      ...memoryLines.map((line) => this.newEntry({ provenance: this.provenanceFor(audit.window), tier: line.tier, text: line.text, type: line.type, importance: line.importance, expiration: line.expiration, entities: line.entities, evidence: line.evidence, characterId: line.characterId, messageId: audit.window.to })),
+      ...facts.map((fact) => this.newEntry({
+        provenance: this.provenanceFor(audit.window),
+        tier: "facts",
+        text: fact.text,
+        type: "fact",
+        importance: fact.importance,
+        expiration: "permanent",
+        entities: [],
+        evidence: fact.evidence,
+        messageId: audit.window.to,
+      })),
+      ...memoryLines.map((line) => this.newEntry({
+        provenance: this.provenanceFor(audit.window),
+        tier: line.tier,
+        text: line.text,
+        type: line.type,
+        importance: line.importance,
+        expiration: line.expiration,
+        entities: line.entities,
+        evidence: line.evidence,
+        characterId: line.characterId,
+        messageId: audit.window.to,
+      })),
     ];
     const memoryEnabled = memory.enabled;
     // The main extraction write path. `verifyEntries` is a judge pass, so it can be slow, and
@@ -336,7 +401,17 @@ export class ExtractionCoordinator {
     });
     if (!outcome || !run.stillOwns()) return;
     const evidence = scene.messages.filter((message) => message.messageId >= audit.window.from).map((message) => `${message.speaker}: ${message.text}`).join("\n") || "(empty)";
-    const entry = this.newEntry({ provenance: this.provenanceFor(range, "scene-summary"), tier: "scene_history", text: outcome.summary, type: "scene", importance: 2, expiration: "permanent", entities: [], evidence, messageId: range.to });
+    const entry = this.newEntry({
+      provenance: this.provenanceFor(range, "scene-summary"),
+      tier: "scene_history",
+      text: outcome.summary,
+      type: "scene",
+      importance: 2,
+      expiration: "permanent",
+      entities: [],
+      evidence,
+      messageId: range.to,
+    });
     const sceneOccurrence = await memory.addSceneSummary(entry, range);
     if (sceneOccurrence === null) return;
     memory.updateInjection();
@@ -368,7 +443,17 @@ export class ExtractionCoordinator {
     }));
     if (!summary || !run.stillOwns()) return;
     const span = { from: fit.from, to: window.to };
-    const entry = this.newEntry({ provenance: this.provenanceFor(span, "short-term-compaction"), tier: "short_term", text: summary, type: "scene", importance: 2, expiration: "session", entities: [], evidence: fit.text, messageId: span.to });
+    const entry = this.newEntry({
+      provenance: this.provenanceFor(span, "short-term-compaction"),
+      tier: "short_term",
+      text: summary,
+      type: "scene",
+      importance: 2,
+      expiration: "session",
+      entities: [],
+      evidence: fit.text,
+      messageId: span.to,
+    });
     await memory.replaceShortTerm(entry, span);
     memory.updateInjection();
     await this.save();
@@ -386,7 +471,11 @@ export class ExtractionCoordinator {
     // written in a chat that had already been replaced.
     const run = beginRun(this.deps.ownership, { from: audit.window.from, to: audit.window.to });
     const existing = memory.activeEpistemic();
-    const epistemicPrompt = buildEpistemicPassPrompt(sceneText, enabledCharacterNames(story, this.deps.hosts.roster), existing.map((entry) => ({ tag: entry.tag, subject: entry.subject, content: entry.content, hiddenFrom: entry.hiddenFrom })));
+    const epistemicPrompt = buildEpistemicPassPrompt(
+      sceneText,
+      enabledCharacterNames(story, this.deps.hosts.roster),
+      existing.map((entry) => ({ tag: entry.tag, subject: entry.subject, content: entry.content, hiddenFrom: entry.hiddenFrom })),
+    );
     const epistemicResponse = await askText(this.deps.model, epistemicPrompt, { role: "read", pass: "epistemic", maxTokens: maxTokensForInput("epistemic", sceneText), signal: run.signal });
     if (!run.stillOwns()) return false;
     const epistemicSignals: ParsedEpistemicSignal[] = [];

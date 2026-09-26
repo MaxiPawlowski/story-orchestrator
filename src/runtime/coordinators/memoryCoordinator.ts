@@ -141,7 +141,13 @@ export class MemoryCoordinator {
   }
 
   getFacts(): ParsedFact[] {
-    return this.state.entries.filter((entry) => isLive(entry)).filter((entry) => entry.tier === "facts").map((entry) => ({ text: entry.text, evidence: entry.evidence, importance: entry.importance, boundary: entry.createdAt, messageId: entry.messageId }));
+    return this.state.entries.filter((entry) => isLive(entry)).filter((entry) => entry.tier === "facts").map((entry) => ({
+      text: entry.text,
+      evidence: entry.evidence,
+      importance: entry.importance,
+      boundary: entry.createdAt,
+      messageId: entry.messageId,
+    }));
   }
 
   // --- tiers -------------------------------------------------------------
@@ -177,7 +183,14 @@ export class MemoryCoordinator {
     if (!run.stillOwns()) return;
     const entries = [...this.state.entries.filter((candidate) => candidate.tier !== "short_term"), entry];
     const replaced = this.state.entries.filter((candidate) => candidate.tier === "short_term");
-    this.record({ kind: "short_term", inputs: replaced.map((candidate) => candidate.id), outputId: entry.id, range: window, removed: disappearingEntries(this.state.entries, entries), messageId: window.to });
+    this.record({
+      kind: "short_term",
+      inputs: replaced.map((candidate) => candidate.id),
+      outputId: entry.id,
+      range: window,
+      removed: disappearingEntries(this.state.entries, entries),
+      messageId: window.to,
+    });
     this.patch({ entries, shortTermSummaryEnd: window.to });
   }
 

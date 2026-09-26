@@ -71,9 +71,16 @@ export function decodeDelete(before: readonly string[] | null, afterChat: readon
 export function describeDecode(decode: DeleteDecode, postLength: number): DecodeJournal | null {
   if (decode.basis === "exact") return null;
   if (decode.basis === "ambiguous") {
-    return { summary: "message delete decoded ambiguously", note: `${decode.count} message(s) removed; repeated messages allow more than one start, so the story steps back from the earliest (${decode.start}); chat length now ${postLength}` };
+    return {
+      summary: "message delete decoded ambiguously",
+      note: `${decode.count} message(s) removed; repeated messages allow more than one start, so the story steps back from the earliest (${decode.start}); chat length now ${postLength}`,
+    };
   }
-  return { summary: "message delete not decoded", note: `the chat before the delete is unknown or no longer lines up with it (no snapshot, a length that did not shrink, or a change no event announced); stepped back from the post-delete length ${postLength}, which is right only for a tail delete` };
+  return {
+    summary: "message delete not decoded",
+    note: `the chat before the delete is unknown or no longer lines up with it (no snapshot, a length that did not shrink, or a change no event announced); stepped back from ` +
+      `the post-delete length ${postLength}, which is right only for a tail delete`,
+  };
 }
 
 export class ChatIdentity {

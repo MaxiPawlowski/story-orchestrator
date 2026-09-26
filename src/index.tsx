@@ -160,7 +160,10 @@ const SettingsRoot = () => <SettingsPanel snapshot={useRuntimeSnapshot()} manage
 // written (plan 04 unresolved question, resolved yes).
 const toggleAuthorView = async (next: boolean) => {
   if (next) {
-    const ok = await showConfirmPopup("Author view shows gates, upcoming checkpoints and what characters are hiding. That will spoil this story for you as a player. Show it anyway?", { okButton: "Show author view", cancelButton: "Keep playing" });
+    const ok = await showConfirmPopup(
+      "Author view shows gates, upcoming checkpoints and what characters are hiding. That will spoil this story for you as a player. Show it anyway?",
+      { okButton: "Show author view", cancelButton: "Keep playing" },
+    );
     if (!ok) return;
   }
   manager.setUiSettings({ authorView: next });

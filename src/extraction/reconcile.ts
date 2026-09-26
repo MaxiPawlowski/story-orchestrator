@@ -34,7 +34,14 @@ const gateMatches = (gate: GateNode, values: Record<string, unknown>): boolean =
   return !gateMatches(gate.not, values);
 };
 
-type ReconcileState = { activeCheckpointId: string; boundary: number; checkpointStartedBoundary: number; checkpointStartedMessageId: number; lastMessageId: number; blackboard: { values: Record<string, unknown> } };
+type ReconcileState = {
+  activeCheckpointId: string;
+  boundary: number;
+  checkpointStartedBoundary: number;
+  checkpointStartedMessageId: number;
+  lastMessageId: number;
+  blackboard: { values: Record<string, unknown> };
+};
 
 export interface ReconciliationPlan {
   descriptor: ReconciliationDescriptor;
@@ -46,7 +53,17 @@ export interface ReconciliationPlan {
 const collectUnmetLeaves = (gate: GateNode, story: NormalizedStoryV2, values: Record<string, unknown>, out: ReconciliationPlan["leaves"]) => {
   if ("q" in gate) {
     const quality = story.qualityByKey[gate.q];
-    if (quality?.source === "extractor" && !compareLeaf(gate, values[gate.q]) && !out.some((leaf) => leaf.q === gate.q && JSON.stringify(leaf.v) === JSON.stringify(gate.v) && leaf.op === gate.op)) out.push({ q: gate.q, rubric: quality.rubric, type: quality.type, op: gate.op, v: gate.v, ...(quality.evidence_from === "world" ? { world: true } : {}) });
+    if (quality?.source === "extractor" && !compareLeaf(
+      gate,
+      values[gate.q],
+    ) && !out.some((leaf) => leaf.q === gate.q && JSON.stringify(leaf.v) === JSON.stringify(gate.v) && leaf.op === gate.op)) out.push({
+      q: gate.q,
+      rubric: quality.rubric,
+      type: quality.type,
+      op: gate.op,
+      v: gate.v,
+      ...(quality.evidence_from === "world" ? { world: true } : {})
+    });
     return;
   }
   if ("all" in gate) gate.all.forEach((entry) => collectUnmetLeaves(entry, story, values, out));

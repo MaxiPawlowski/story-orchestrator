@@ -105,7 +105,14 @@ const characterFiltered = (value: unknown): boolean => {
 
 export function toLoadedCopy(entry: ScanInput): LoadedCopy | null {
   const scanned = toScanned(entry);
-  return scanned ? { world: scanned.world, uid: scanned.uid, comment: scanned.comment, constant: scanned.constant, disable: entry.disable === true, filtered: characterFiltered(entry.characterFilter) } : null;
+  return scanned ? {
+    world: scanned.world,
+    uid: scanned.uid,
+    comment: scanned.comment,
+    constant: scanned.constant,
+    disable: entry.disable === true,
+    filtered: characterFiltered(entry.characterFilter),
+  } : null;
 }
 
 const refKey = (ref: { world: string; uid: number }) => `${ref.world.toLowerCase()}\u0000${ref.uid}`;
@@ -259,10 +266,20 @@ export class LoreEvidence {
       const outcome = forcedOutcome(slot.forced, fired);
       slot.landed = outcome.landed;
       slot.lost = outcome.lost;
-      if (outcome.lost.length) flags.push({ kind: "lore-force-lost", summary: `lore-force-lost: ${outcome.lost.length} of ${slot.forced.length} forced pick(s) did not reach the reply`, detail: summarize(outcome.lost), lost: outcome.lost });
+      if (outcome.lost.length) flags.push({
+        kind: "lore-force-lost",
+        summary: `lore-force-lost: ${outcome.lost.length} of ${slot.forced.length} forced pick(s) did not reach the reply`,
+        detail: summarize(outcome.lost),
+        lost: outcome.lost,
+      });
       if (input.story) {
         slot.constantMissed = constantMisses(input.story, input.path, loaded, fired);
-        if (slot.constantMissed.length) flags.push({ kind: "lore-constant-missed", summary: `lore-constant-missed: ${slot.constantMissed.length} constant gated entr${slot.constantMissed.length === 1 ? "y" : "ies"} enabled for this chat did not fire`, detail: summarize(slot.constantMissed), missed: slot.constantMissed });
+        if (slot.constantMissed.length) flags.push({
+          kind: "lore-constant-missed",
+          summary: `lore-constant-missed: ${slot.constantMissed.length} constant gated entr${slot.constantMissed.length === 1 ? "y" : "ies"} enabled for this chat did not fire`,
+          detail: summarize(slot.constantMissed),
+          missed: slot.constantMissed,
+        });
       }
       this.tallyMirror(input.mirrorBook, loaded, fired);
     }
@@ -298,7 +315,11 @@ export class LoreEvidence {
   // observed loud generations held it enabled in the scan view, and how many of those fired it. This
   // tally is never rolled back — it measures the scanner, not the story.
   mirrorRates(): Array<{ comment: string; eligible: number; fired: number; rate: number }> {
-    return [...this.mirror].map(([comment, tally]) => ({ comment, ...tally, rate: tally.eligible ? tally.fired / tally.eligible : 0 })).sort((left, right) => left.comment.localeCompare(right.comment));
+    return [...this.mirror].map(([comment, tally]) => ({
+      comment,
+      ...tally,
+      rate: tally.eligible ? tally.fired / tally.eligible : 0,
+    })).sort((left, right) => left.comment.localeCompare(right.comment));
   }
 
   resetMirrorTally() {

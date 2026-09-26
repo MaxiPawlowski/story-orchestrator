@@ -54,7 +54,10 @@ export class AwayRecapController {
     this.pending = show ? { recap: buildAwayRecap(narrative, now - Date.parse(priorSessionAt as string)), chatId } : null;
     // The journal records the decision, not just the outcome: "no recap" and "a recap nobody saw"
     // are different answers, and only the machine can tell them apart (v2.3 plan 03, S3).
-    this.note(`away recap ${show ? "queued" : "not due"}`, `chat ${chatId || "(unnamed)"}, last seen ${priorSessionAt ?? "never"}, gap ${priorSessionAt ? `${Math.round((now - Date.parse(priorSessionAt)) / 3600000)}h` : "n/a"}`);
+    this.note(
+      `away recap ${show ? "queued" : "not due"}`,
+      `chat ${chatId || "(unnamed)"}, last seen ${priorSessionAt ?? "never"}, gap ${priorSessionAt ? `${Math.round((now - Date.parse(priorSessionAt)) / 3600000)}h` : "n/a"}`,
+    );
   }
 
   get(): AwayRecap | null { return this.pending?.recap ?? null; }

@@ -8,7 +8,11 @@ const tensionToNumeric: Record<string, number> = { calm: 0, stirring: 0.25, tens
 
 export function isStubCheckpoint(story: NormalizedStoryV2, checkpointId: string): boolean {
   const checkpoint = story.checkpointById[checkpointId];
-  return Boolean(checkpoint && checkpoint.type === "intermediate" && !checkpoint.state_snapshot && !checkpoint.guidance && !checkpoint.effects && story.reachableByCheckpoint[checkpointId]?.some((id) => story.checkpointById[id]?.type === "anchor"));
+  return Boolean(
+    checkpoint && checkpoint.type === "intermediate" && !checkpoint.state_snapshot && !checkpoint.guidance && !checkpoint.effects && story.reachableByCheckpoint[checkpointId]?.some(
+      (id) => story.checkpointById[id]?.type === "anchor",
+    ),
+  );
 }
 
 export function findFirstReachableAnchor(story: NormalizedStoryV2, checkpointId: string): string | null {

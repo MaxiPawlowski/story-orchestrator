@@ -62,14 +62,27 @@ export class LoreSelector {
     const scannable = await this.deps.getEntries();
     const books = [...new Set(scannable.map((entry) => entry.world))].filter((world) => scope.lorebooks.some((name) => sameBook(name, world)));
     const byKey = new Map(scannable.map((entry) => [`${entry.world}.${entry.uid}`, entry]));
-    const candidates = loreCandidates(scannable.map((entry): LoreEntry => ({ world: entry.world, uid: entry.uid, comment: String(entry.comment ?? ""), content: String(entry.content ?? ""), ...(entry.disable ? { disable: true } : {}), ...(entry.constant ? { constant: true } : {}) })), books);
+    const candidates = loreCandidates(
+      scannable.map((entry): LoreEntry => ({
+        world: entry.world,
+        uid: entry.uid,
+        comment: String(entry.comment ?? ""),
+        content: String(entry.content ?? ""),
+        ...(entry.disable ? { disable: true } : {}),
+        ...(entry.constant ? { constant: true } : {})
+      })),
+      books,
+    );
     if (!candidates.length) return null;
     const pickScope = { ...(scope.top_k !== undefined ? { topK: scope.top_k } : {}), ...(scope.min_p !== undefined ? { minP: scope.min_p } : {}) };
     const chunks = buildLoreRequests(candidates, { checkpointName: checkpoint.name, objective: checkpoint.objective, window: this.deps.getWindow() });
     const answered = await Promise.all(chunks.map(async (chunk) => {
       const result = await judge.ask("lore", chunk.request, {
         timeoutMs: LORE_TIMEOUT_MS,
-        summarize: (answers): Record<string, number | string> => ({ trigger, ...Object.fromEntries((answers ? pickLore(readLore(answers, chunk.entries), pickScope) : []).map((pick) => [pick.entry.comment || `${pick.entry.world}.${pick.entry.uid}`, pick.p])) }),
+        summarize: (answers): Record<string, number | string> => ({
+          trigger,
+          ...Object.fromEntries((answers ? pickLore(readLore(answers, chunk.entries), pickScope) : []).map((pick) => [pick.entry.comment || `${pick.entry.world}.${pick.entry.uid}`, pick.p]))
+        }),
       });
       return result.answers ? readLore(result.answers, chunk.entries) : null;
     }));

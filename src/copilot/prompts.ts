@@ -7,8 +7,10 @@ export type WizardEnvironmentView = ProvisioningEnvironment;
 
 const SCHEMA_SUMMARY = [
   "Format-2 story vocabulary:",
-  `- quality: { key, type: ${QUALITY_TYPES.join("|")}, source: ${QUALITY_SOURCES.join("|")}, rubric, values?[] (enum only), latching?, monotonic? }. rubric MUST be a yes/no or short-answer question an extractor answers from the prose.`,
-  `- checkpoint: { id, name, objective, type: anchor|intermediate, start?, state_snapshot?{ quality: value }, tension_target?: ${TENSION_LEVELS.join("|")}, convergence_threshold? (anchors), guidance? }`,
+  `- quality: { key, type: ${QUALITY_TYPES.join("|")}, source: ${QUALITY_SOURCES.join("|")}, rubric, values?[] (enum only), latching?, monotonic? }. rubric MUST be a yes/no or ` +
+    `short-answer question an extractor answers from the prose.`,
+  `- checkpoint: { id, name, objective, type: anchor|intermediate, start?, state_snapshot?{ quality: value }, tension_target?: ${TENSION_LEVELS.join("|")}, ` +
+    `convergence_threshold? (anchors), guidance? }`,
   "- transition: { from, to, gate, priority, effects?{ progress:{ anchor, amount } }, extractor_trigger?, extraction_hint? }",
   `- gate leaf: { "q": quality_key, "op": ${GATE_OPERATORS.join("|")}, "v": literal }; compose with { "all":[...] }, { "any":[...] }, { "not": gate }. Only "in" takes an array value.`,
   "Never invent quality keys inside a gate — declare the quality first.",
@@ -46,7 +48,8 @@ const OP_GRAMMAR = [
 
 const PROVISIONING_GRAMMAR = [
   "Provisioning ops create the SillyTavern assets this story needs. They never modify anything that already exists:",
-  '  { "kind": "createCharacterCard", "name": string, "description": string, "role"?: string, "personality"?: string, "scenario"?: string, "first_mes"?: string, "mes_example"?: string, "tags"?: string[] }',
+  '  { "kind": "createCharacterCard", "name": string, "description": string, "role"?: string, "personality"?: string, "scenario"?: string, "first_mes"?: string, ' +
+    '"mes_example"?: string, "tags"?: string[] }',
   '  { "kind": "createStoryLorebook", "name": string }',
   '  { "kind": "upsertLorebookEntry", "lorebook": string, "comment": string, "keys": string[], "content": string, "constant"?: boolean }',
   '  { "kind": "createGroup", "name": string, "members": string[] }',
@@ -59,18 +62,29 @@ const PROVISIONING_GRAMMAR = [
 // The interview (spec addendum §Story wizard). The failure mode this fixes is inventing specifics on
 // a thin premise, so asking is only allowed when the answer actually changes the proposal.
 const INTERVIEW_PROTOCOL = [
-  'Instead of proposing, you MAY interview the author first: { "summary": string, "questions": [{ "id": string, "text": string, "why"?: string, "options"?: string[] }] } with at most 3 questions and no "ops" key.',
+  'Instead of proposing, you MAY interview the author first: { "summary": string, "questions": [{ "id": string, "text": string, "why"?: string, "options"?: string[] }] } with ' +
+    'at most 3 questions and no "ops" key.',
   "Ask only when the premise genuinely underdetermines this stage and a wrong guess would be wasted work. If you can proceed on reasonable defaults, propose instead of asking.",
-  "Offer concrete `options` where a small set of choices covers the space. The author may answer any question with \"you decide\" — then proceed under your own defaults and say in the summary which ones you picked.",
+  "Offer concrete `options` where a small set of choices covers the space. The author may answer any question with \"you decide\" — then proceed under your own defaults and " +
+    "say in the summary which ones you picked.",
   "Never ask the same question twice; the conversation above already contains every answer you were given.",
 ].join("\n");
 
 const STAGE_INSTRUCTIONS: Record<CopilotStage, string> = {
-  qualities: `Stage QUALITIES: propose the quality set that measures this story's dramatic state. Every quality needs a rubric question. Prefer extractor source unless the value is purely code-driven. An extractor quality whose answer is plainly visible in the text may carry read_as ("choice" for bool/enum, "stated" for a number or name the text states, "rating" for a described scale) so a judge can read it every turn; leave read_as out when the answer needs inference. ${stageOnlyEmitLine("qualities")}`,
-  checkpoints: `Stage CHECKPOINTS: propose anchor and intermediate checkpoints with objectives, tension targets, and state_snapshots for pivotal or latching qualities. Keep exactly one start checkpoint. ${stageOnlyEmitLine("checkpoints")}`,
-  transitions: `Stage TRANSITIONS: wire checkpoints toward their anchors with transitions, each carrying a gate over declared qualities and a progress effect toward the target anchor so the convergence threshold is reachable. ${stageOnlyEmitLine("transitions")}`,
-  effects: `Stage EFFECTS/CAST: propose checkpoint effects (author_note, world_info, cast_changes, background — a background filename that suits the scene), the roster this story directs (each member with a one-line role: what they do in this story), what the chat must provide before it can run (requirements), which lorebooks the background curator may edit (stagecraft — the story's own books only), the places the story happens in (sceneRead.locations — short names the scene tracker can pick from), which of the story's own lorebooks lore-select may pick entries from each turn (loreSelect.lorebooks), the dramatic shape, and any thread bridges. ${stageOnlyEmitLine("effects")}`,
-  provisioning: `Stage PROVISIONING: this story's requirements name people, lore and a group that may not exist on this install yet. Propose the create steps that close exactly that gap — one card per cast member the story directs (each with a one-line "role": what they do in this story), the story's own lorebook plus the entries the story leans on, and the group that plays it. ${stageOnlyEmitLine("provisioning")} Propose nothing for assets the environment below already lists.`,
+  qualities: `Stage QUALITIES: propose the quality set that measures this story's dramatic state. Every quality needs a rubric question. Prefer extractor source unless the ` +
+    `value is purely code-driven. An extractor quality whose answer is plainly visible in the text may carry read_as ("choice" for bool/enum, "stated" for a number or name the ` +
+      `text states, "rating" for a described scale) so a judge can read it every turn; leave read_as out when the answer needs inference. ${stageOnlyEmitLine("qualities")}`,
+  checkpoints: `Stage CHECKPOINTS: propose anchor and intermediate checkpoints with objectives, tension targets, and state_snapshots for pivotal or latching qualities. Keep ` +
+    `exactly one start checkpoint. ${stageOnlyEmitLine("checkpoints")}`,
+  transitions: `Stage TRANSITIONS: wire checkpoints toward their anchors with transitions, each carrying a gate over declared qualities and a progress effect toward the target ` +
+    `anchor so the convergence threshold is reachable. ${stageOnlyEmitLine("transitions")}`,
+  effects: `Stage EFFECTS/CAST: propose checkpoint effects (author_note, world_info, cast_changes, background — a background filename that suits the scene), the roster this ` +
+    `story directs (each member with a one-line role: what they do in this story), what the chat must provide before it can run (requirements), which lorebooks the background ` +
+      `curator may edit (stagecraft — the story's own books only), the places the story happens in (sceneRead.locations — short names the scene tracker can pick from), which ` +
+        `of the story's own lorebooks lore-select may pick entries from each turn (loreSelect.lorebooks), the dramatic shape, and any thread bridges. ${stageOnlyEmitLine("effects")}`,
+  provisioning: `Stage PROVISIONING: this story's requirements name people, lore and a group that may not exist on this install yet. Propose the create steps that close ` +
+    `exactly that gap — one card per cast member the story directs (each with a one-line "role": what they do in this story), the story's own lorebook plus the entries the ` +
+      `story leans on, and the group that plays it. ${stageOnlyEmitLine("provisioning")} Propose nothing for assets the environment below already lists.`,
 };
 
 const renderEnvironment = (environment?: WizardEnvironmentView): string => {
@@ -118,7 +132,8 @@ const renderBlackboard = (context: DriverContext): string => {
 
 export const renderSuggestPrompt = (context: DriverContext): string =>
   [
-    "You are an in-play story driver. Suggest 2-3 concrete next developments that move toward the active objective and the unmet gate conditions. Cite the blackboard values each suggestion relies on.",
+    "You are an in-play story driver. Suggest 2-3 concrete next developments that move toward the active objective and the unmet gate conditions. Cite the blackboard values " +
+      "each suggestion relies on.",
     `Active checkpoint: ${context.activeCheckpointId ?? "(none)"} — ${context.activeObjective || "(no objective)"}`,
     `Unmet gate conditions:\n${context.unmetGates.length ? context.unmetGates.join("\n") : "(none)"}`,
     `Upcoming anchors:\n${renderAnchors(context)}`,
@@ -130,7 +145,8 @@ export const renderSuggestPrompt = (context: DriverContext): string =>
 
 export const renderReportPrompt = (context: DriverContext): string =>
   [
-    "You are an in-play story driver. Write a concise world-progression report: where the story stands, what is resolved, what remains open, and momentum toward the next anchor. Ground every claim in the state below.",
+    "You are an in-play story driver. Write a concise world-progression report: where the story stands, what is resolved, what remains open, and momentum toward the next " +
+      "anchor. Ground every claim in the state below.",
     `Active checkpoint: ${context.activeCheckpointId ?? "(none)"} — ${context.activeObjective || "(no objective)"}`,
     `Upcoming anchors:\n${renderAnchors(context)}`,
     `Blackboard:\n${renderBlackboard(context)}`,

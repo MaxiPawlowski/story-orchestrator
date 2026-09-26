@@ -315,7 +315,10 @@ export const storyWarnings = (story: Pick<StoryV2, "qualities">): ValidationErro
   story.qualities.flatMap((quality, index) => {
     const placeholders = placeholderEnumValues(quality);
     return placeholders.length
-      ? [{ path: `qualities.${index}.values`, message: `'${quality.key}' latches, so the first read decides and will not change; ${placeholders.join(", ")} cannot mean "not set yet" — the unset state is the absence of a value` }]
+      ? [{
+        path: `qualities.${index}.values`,
+        message: `'${quality.key}' latches, so the first read decides and will not change; ${placeholders.join(", ")} cannot mean "not set yet" — the unset state is the absence of a value`,
+      }]
       : [];
   });
 

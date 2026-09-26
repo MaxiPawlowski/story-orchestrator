@@ -50,7 +50,12 @@ const StringListInput: React.FC<{ label: string; values: string[]; onChange: (ne
   <div className="flex flex-col gap-1">
     {values.map((value, index) => (
       <div key={index} className="flex items-center gap-2">
-        <input className="text_pole st-input" aria-label={`${label} ${index + 1}`} value={value} onChange={(event) => onChange(values.map((entry, entryIndex) => (entryIndex === index ? event.target.value : entry)))} />
+        <input
+          className="text_pole st-input"
+          aria-label={`${label} ${index + 1}`}
+          value={value}
+          onChange={(event) => onChange(values.map((entry, entryIndex) => (entryIndex === index ? event.target.value : entry)))}
+        />
         <button type="button" className="st-button danger" aria-label={`Remove ${label} ${index + 1}`} onClick={() => onChange(values.filter((_, entryIndex) => entryIndex !== index))}>×</button>
       </div>
     ))}
@@ -64,8 +69,19 @@ const WorldInfoList: React.FC<{ title: string; entries: WorldInfoEntry[]; onChan
     {entries.map((entry, index) => (
       <div key={index} className="st-subpanel flex flex-col gap-2 p-2">
         <div className="flex items-center gap-2">
-          <input className="text_pole st-input flex-1" aria-label={`${title} lorebook ${index + 1}`} placeholder="lorebook" value={entry.lorebook} onChange={(event) => onChange(entries.map((item, itemIndex) => (itemIndex === index ? { ...item, lorebook: event.target.value } : item)))} />
-          <button type="button" className="st-button danger" aria-label={`Remove ${title} entry ${index + 1}`} onClick={() => onChange(entries.filter((_, itemIndex) => itemIndex !== index))}>×</button>
+          <input
+            className="text_pole st-input flex-1"
+            aria-label={`${title} lorebook ${index + 1}`}
+            placeholder="lorebook"
+            value={entry.lorebook}
+            onChange={(event) => onChange(entries.map((item, itemIndex) => (itemIndex === index ? { ...item, lorebook: event.target.value } : item)))}
+          />
+          <button
+            type="button"
+            className="st-button danger"
+            aria-label={`Remove ${title} entry ${index + 1}`}
+            onClick={() => onChange(entries.filter((_, itemIndex) => itemIndex !== index))}
+          >×</button>
         </div>
         <StringListInput label="comment" values={entry.comments} onChange={(comments) => onChange(entries.map((item, itemIndex) => (itemIndex === index ? { ...item, comments } : item)))} />
       </div>
@@ -81,7 +97,12 @@ const NpcRepliesEditor: React.FC<{ replies: NpcReplyEffect[]; roster: RosterMemb
       {replies.map((reply, index) => (
         <div key={index} className="st-subpanel flex flex-col gap-2 p-2">
           <div className="flex flex-wrap items-center gap-2">
-            <select aria-label="Reply trigger" className="text_pole st-input" value={reply.trigger} onChange={(event) => update(index, { trigger: event.target.value as NpcReplyTrigger, ...(event.target.value === "afterSpeak" ? {} : { after_member: undefined }) })}>
+            <select
+              aria-label="Reply trigger"
+              className="text_pole st-input"
+              value={reply.trigger}
+              onChange={(event) => update(index, { trigger: event.target.value as NpcReplyTrigger, ...(event.target.value === "afterSpeak" ? {} : { after_member: undefined }) })}
+            >
               {NPC_REPLY_TRIGGERS.map((trigger) => <option key={trigger} value={trigger}>{trigger}</option>)}
             </select>
             <select aria-label="Reply kind" className="text_pole st-input" value={reply.kind} onChange={(event) => update(index, { kind: event.target.value as NpcReplyKind })}>
@@ -89,7 +110,12 @@ const NpcRepliesEditor: React.FC<{ replies: NpcReplyEffect[]; roster: RosterMemb
             </select>
             <input className="text_pole st-input" aria-label="Reply member" placeholder="member" value={reply.member} onChange={(event) => update(index, { member: event.target.value })} />
             <label className="flex items-center gap-1 text-xs st-muted">
-              <input type="checkbox" aria-label={`Reply ${index + 1} enabled`} checked={reply.enabled !== false} onChange={(event) => update(index, { enabled: event.target.checked ? undefined : false })} />
+              <input
+                type="checkbox"
+                aria-label={`Reply ${index + 1} enabled`}
+                checked={reply.enabled !== false}
+                onChange={(event) => update(index, { enabled: event.target.checked ? undefined : false })}
+              />
               enabled
             </label>
             <button type="button" className="st-button danger" aria-label={`Remove reply ${index + 1}`} onClick={() => onChange(replies.filter((_, entryIndex) => entryIndex !== index))}>×</button>
@@ -97,16 +123,33 @@ const NpcRepliesEditor: React.FC<{ replies: NpcReplyEffect[]; roster: RosterMemb
           {reply.trigger === "afterSpeak" ? (
             <label className="flex items-center gap-2 text-xs st-muted">
               only after
-              <select aria-label="Reply after member" className="text_pole st-input" value={reply.after_member ?? ""} onChange={(event) => update(index, { after_member: event.target.value || undefined })}>
+              <select
+                aria-label="Reply after member"
+                className="text_pole st-input"
+                value={reply.after_member ?? ""}
+                onChange={(event) => update(index, { after_member: event.target.value || undefined })}
+              >
                 <option value="">any speaker</option>
                 {roster.map((member) => <option key={member.id} value={member.name ?? member.id}>{member.name ?? member.id}</option>)}
               </select>
             </label>
           ) : null}
           {reply.kind === "scripted" ? (
-            <textarea className="text_pole st-input min-h-[3rem]" aria-label="Reply text" placeholder="text" value={reply.text ?? ""} onChange={(event) => update(index, { text: event.target.value })} />
+            <textarea
+              className="text_pole st-input min-h-[3rem]"
+              aria-label="Reply text"
+              placeholder="text"
+              value={reply.text ?? ""}
+              onChange={(event) => update(index, { text: event.target.value })}
+            />
           ) : (
-            <textarea className="text_pole st-input min-h-[3rem]" aria-label="Reply instruction" placeholder="instruction" value={reply.instruction ?? ""} onChange={(event) => update(index, { instruction: event.target.value })} />
+            <textarea
+              className="text_pole st-input min-h-[3rem]"
+              aria-label="Reply instruction"
+              placeholder="instruction"
+              value={reply.instruction ?? ""}
+              onChange={(event) => update(index, { instruction: event.target.value })}
+            />
           )}
         </div>
       ))}
@@ -115,7 +158,12 @@ const NpcRepliesEditor: React.FC<{ replies: NpcReplyEffect[]; roster: RosterMemb
   );
 };
 
-const EffectsEditor: React.FC<{ effects: CheckpointEffects; roster: RosterMember[]; backgroundNames?: string[]; onChange: (next: CheckpointEffects) => void }> = ({ effects, roster, backgroundNames = [], onChange }) => {
+const EffectsEditor: React.FC<{
+  effects: CheckpointEffects;
+  roster: RosterMember[];
+  backgroundNames?: string[];
+  onChange: (next: CheckpointEffects) => void;
+}> = ({ effects, roster, backgroundNames = [], onChange }) => {
   const emit = (next: CheckpointEffects) => {
     const cleaned: CheckpointEffects = { ...next };
     (Object.keys(cleaned) as Array<keyof CheckpointEffects>).forEach((key) => {
@@ -137,9 +185,18 @@ const EffectsEditor: React.FC<{ effects: CheckpointEffects; roster: RosterMember
       <Section title="Author note" enabled={authorNote !== null} onToggle={(on) => emit({ ...effects, author_note: on ? { text: "" } : undefined })}>
         {authorNote ? (
           <>
-            <textarea className="text_pole st-input min-h-[3rem]" aria-label="Author note text" value={authorNote.text} onChange={(event) => emit({ ...effects, author_note: { ...authorNote.rest, text: event.target.value, ...(authorNote.inject ? { inject_blackboard: true } : {}) } })} />
+            <textarea
+              className="text_pole st-input min-h-[3rem]"
+              aria-label="Author note text"
+              value={authorNote.text}
+              onChange={(event) => emit({ ...effects, author_note: { ...authorNote.rest, text: event.target.value, ...(authorNote.inject ? { inject_blackboard: true } : {}) } })}
+            />
             <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={authorNote.inject} onChange={(event) => emit({ ...effects, author_note: { ...authorNote.rest, text: authorNote.text, ...(event.target.checked ? { inject_blackboard: true } : {}) } })} />
+              <input
+                type="checkbox"
+                checked={authorNote.inject}
+                onChange={(event) => emit({ ...effects, author_note: { ...authorNote.rest, text: authorNote.text, ...(event.target.checked ? { inject_blackboard: true } : {}) } })}
+              />
               Inject blackboard
             </label>
           </>
@@ -151,10 +208,18 @@ const EffectsEditor: React.FC<{ effects: CheckpointEffects; roster: RosterMember
           <span className="text-xs st-muted">Preset name</span>
           <input className="text_pole st-input" value={presetName ?? ""} onChange={(event) => emit({ ...effects, preset: event.target.value })} />
         </label>
-        <p data-so="preset-overlay-note" className="text-xs st-muted">Applies this preset's samplers to this checkpoint's replies only; your selected preset is untouched. The name must match a preset of the connection's API exactly.</p>
+        <p
+          data-so="preset-overlay-note"
+          className="text-xs st-muted"
+        >Applies this preset's samplers to this checkpoint's replies only; your selected preset is untouched. The name must match a preset of the connection's API exactly.</p>
       </Section>
 
-      <Section title="Background" help="Switches the SillyTavern background when the story enters this checkpoint. Partial filenames match, and re-entering or reloading re-applies the same background without side effects." enabled={effects.background !== undefined} onToggle={(on) => emit({ ...effects, background: on ? { name: backgroundNames[0] ?? "" } : undefined })}>
+      <Section
+        title="Background"
+        help="Switches the SillyTavern background when the story enters this checkpoint. Partial filenames match, and re-entering or reloading re-applies the same background without side effects."
+        enabled={effects.background !== undefined}
+        onToggle={(on) => emit({ ...effects, background: on ? { name: backgroundNames[0] ?? "" } : undefined })}
+      >
         <label className="flex flex-col gap-1 text-sm">
           <span className="text-xs st-muted">Background file</span>
           <input
@@ -182,7 +247,13 @@ const EffectsEditor: React.FC<{ effects: CheckpointEffects; roster: RosterMember
         <WorldInfoList title="disable" entries={readWorldInfoEntries(worldInfo?.disable)} onChange={(disable) => emit({ ...effects, world_info: { ...worldInfo, disable } })} />
       </Section>
 
-      <Section title="NPC replies" help="Forces a group member to reply when the checkpoint is entered or after someone speaks: scripted posts a fixed line, generated triggers a real reply. 'Only after' restricts afterSpeak replies to one speaker; unchecking Enabled keeps the entry but skips it." enabled={Array.isArray(effects.npc_replies) && effects.npc_replies.length > 0} onToggle={(on) => emit({ ...effects, npc_replies: on ? [{ trigger: "onEnter", member: "", kind: "scripted" }] : undefined })}>
+      <Section
+        title="NPC replies"
+        help={"Forces a group member to reply when the checkpoint is entered or after someone speaks: scripted posts a fixed line, generated triggers a real reply. 'Only after' " +
+          "restricts afterSpeak replies to one speaker; unchecking Enabled keeps the entry but skips it."}
+        enabled={Array.isArray(effects.npc_replies) && effects.npc_replies.length > 0}
+        onToggle={(on) => emit({ ...effects, npc_replies: on ? [{ trigger: "onEnter", member: "", kind: "scripted" }] : undefined })}
+      >
         <NpcRepliesEditor replies={effects.npc_replies ?? []} roster={roster} onChange={(npc_replies) => emit({ ...effects, npc_replies })} />
       </Section>
     </div>

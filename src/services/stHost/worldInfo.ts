@@ -285,7 +285,13 @@ export async function readWIEntry(lorebook: string, comment: string): Promise<WI
   if (!book) return null;
   const entry = Object.values(book.data.entries).find((candidate) => candidate.comment?.trim() === comment);
   if (!entry) return null;
-  return { content: String(entry.content ?? ""), keys: Array.isArray(entry.key) ? entry.key : [], constant: Boolean(entry.constant), disabled: Boolean(entry.disable), uid: typeof entry.uid === "number" ? entry.uid : undefined };
+  return {
+    content: String(entry.content ?? ""),
+    keys: Array.isArray(entry.key) ? entry.key : [],
+    constant: Boolean(entry.constant),
+    disabled: Boolean(entry.disable),
+    uid: typeof entry.uid === "number" ? entry.uid : undefined,
+  };
 }
 
 export interface WIEntryTarget { lorebookFileId: string; uid: number }
@@ -296,7 +302,14 @@ export interface WIEntryTarget { lorebookFileId: string; uid: number }
 export async function readWIEntryAt(target: WIEntryTarget): Promise<(WIEntrySnapshot & { comment: string }) | null> {
   const entry = (await loadExisting(target.lorebookFileId))?.data.entries[target.uid];
   if (!entry) return null;
-  return { comment: String(entry.comment ?? "").trim(), content: String(entry.content ?? ""), keys: Array.isArray(entry.key) ? entry.key : [], constant: Boolean(entry.constant), disabled: Boolean(entry.disable), uid: target.uid };
+  return {
+    comment: String(entry.comment ?? "").trim(),
+    content: String(entry.content ?? ""),
+    keys: Array.isArray(entry.key) ? entry.key : [],
+    constant: Boolean(entry.constant),
+    disabled: Boolean(entry.disable),
+    uid: target.uid,
+  };
 }
 
 export async function updateWIEntryByUid(target: WIEntryTarget, patch: { content?: string; disabled?: boolean }): Promise<WriteResult<{ confirmed: boolean }>> {

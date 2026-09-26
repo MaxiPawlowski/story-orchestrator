@@ -1,4 +1,7 @@
-import { backgroundCandidates, backgroundDecision, BACKGROUND_NONE, buildBackgroundRequest, buildContinuityRequest, continuityNote, readBackground, sceneDescription, type SceneDescriptionInput } from "./curators";
+import {
+  backgroundCandidates, backgroundDecision, BACKGROUND_NONE, buildBackgroundRequest, buildContinuityRequest,
+  continuityNote, readBackground, sceneDescription, type SceneDescriptionInput,
+} from "./curators";
 import { CONTINUITY_P } from "./policy";
 import { noulAnswer } from "./questions";
 import type { JudgeSelfTestReport, JudgeSelfTestRow } from "./selfTest";
@@ -24,7 +27,14 @@ export interface BackgroundCase {
 
 const report = (perCase: Array<{ rows: JudgeSelfTestRow[]; model: string | null; latencyMs: number }>): JudgeSelfTestReport => {
   const rows = perCase.flatMap((entry) => entry.rows);
-  return { ranAt: new Date().toISOString(), model: perCase.find((entry) => entry.model)?.model ?? null, total: rows.length, right: rows.filter((row) => row.right).length, p50LatencyMs: median(perCase.map((entry) => entry.latencyMs)), rows };
+  return {
+    ranAt: new Date().toISOString(),
+    model: perCase.find((entry) => entry.model)?.model ?? null,
+    total: rows.length,
+    right: rows.filter((row) => row.right).length,
+    p50LatencyMs: median(perCase.map((entry) => entry.latencyMs)),
+    rows,
+  };
 };
 
 // Rows: `<case>.reply` (a note appears exactly when the reply broke a fact), `<case>.broken:<i>`
@@ -104,7 +114,14 @@ export async function runBackgroundCalibration(ask: (request: JudgeRequest) => P
     const decision = backgroundDecision(read, entry.current ?? null);
     const none = entry.acceptable.includes(BACKGROUND_NONE);
     const right = none ? decision === null : decision !== null && entry.acceptable.includes(decision);
-    const rows: JudgeSelfTestRow[] = [{ id: `${entry.id}.${none ? "none" : "pick"}`, right, picked: read ? `${read.name}@${read.confidence}` : null, detail: entry.acceptable.join(" | "), latencyMs: result.latencyMs, ...(result.fallback ? { fallback: result.fallback } : {}) }];
+    const rows: JudgeSelfTestRow[] = [{
+      id: `${entry.id}.${none ? "none" : "pick"}`,
+      right,
+      picked: read ? `${read.name}@${read.confidence}` : null,
+      detail: entry.acceptable.join(" | "),
+      latencyMs: result.latencyMs,
+      ...(result.fallback ? { fallback: result.fallback } : {})
+    }];
     return { rows, model: result.model, latencyMs: result.latencyMs };
   })));
 }

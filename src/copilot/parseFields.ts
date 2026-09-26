@@ -117,7 +117,19 @@ export const readQuality = (value: unknown, path: string, issues: string[]): Qua
     return null;
   }
   const patch = readQualityPatch(value);
-  return { key: value.key, type: patch.type ?? "string", source: patch.source ?? "extractor", rubric: patch.rubric ?? "", ...(patch.values ? { values: patch.values } : {}), ...(patch.latching !== undefined ? { latching: patch.latching } : {}), ...(patch.monotonic !== undefined ? { monotonic: patch.monotonic } : {}), ...(patch.scope_hint ? { scope_hint: patch.scope_hint } : {}), ...(patch.ledger_binding ? { ledger_binding: patch.ledger_binding } : {}), ...(patch.read_as ? { read_as: patch.read_as } : {}), ...(patch.read_as && patch.criteria ? { criteria: patch.criteria } : {}) };
+  return {
+    key: value.key,
+    type: patch.type ?? "string",
+    source: patch.source ?? "extractor",
+    rubric: patch.rubric ?? "",
+    ...(patch.values ? { values: patch.values } : {}),
+    ...(patch.latching !== undefined ? { latching: patch.latching } : {}),
+    ...(patch.monotonic !== undefined ? { monotonic: patch.monotonic } : {}),
+    ...(patch.scope_hint ? { scope_hint: patch.scope_hint } : {}),
+    ...(patch.ledger_binding ? { ledger_binding: patch.ledger_binding } : {}),
+    ...(patch.read_as ? { read_as: patch.read_as } : {}),
+    ...(patch.read_as && patch.criteria ? { criteria: patch.criteria } : {})
+  };
 };
 
 const readNpcReplies = (value: unknown, path: string, issues: string[]): NpcReplyEffect[] | undefined => {
@@ -194,7 +206,19 @@ export const readCheckpoint = (value: unknown, path: string, issues: string[]): 
     return null;
   }
   const patch = readCheckpointPatch(value, path, issues);
-  return { id: value.id, name: patch.name ?? value.id, objective: patch.objective ?? "", type: patch.type ?? "intermediate", ...(patch.start !== undefined ? { start: patch.start } : {}), ...(patch.guidance !== undefined ? { guidance: patch.guidance } : {}), ...(patch.target_turn_length !== undefined ? { target_turn_length: patch.target_turn_length } : {}), ...(patch.convergence_threshold !== undefined ? { convergence_threshold: patch.convergence_threshold } : {}), ...(patch.tension_target ? { tension_target: patch.tension_target } : {}), ...(patch.state_snapshot ? { state_snapshot: patch.state_snapshot } : {}), ...(patch.effects ? { effects: patch.effects } : {}) };
+  return {
+    id: value.id,
+    name: patch.name ?? value.id,
+    objective: patch.objective ?? "",
+    type: patch.type ?? "intermediate",
+    ...(patch.start !== undefined ? { start: patch.start } : {}),
+    ...(patch.guidance !== undefined ? { guidance: patch.guidance } : {}),
+    ...(patch.target_turn_length !== undefined ? { target_turn_length: patch.target_turn_length } : {}),
+    ...(patch.convergence_threshold !== undefined ? { convergence_threshold: patch.convergence_threshold } : {}),
+    ...(patch.tension_target ? { tension_target: patch.tension_target } : {}),
+    ...(patch.state_snapshot ? { state_snapshot: patch.state_snapshot } : {}),
+    ...(patch.effects ? { effects: patch.effects } : {})
+  };
 };
 
 const readTransitionEffects = (value: unknown, path: string, issues: string[]): TransitionEffects | undefined => {
@@ -233,7 +257,15 @@ export const readTransition = (value: unknown, path: string, issues: string[]): 
     return null;
   }
   const patch = readTransitionPatch(value, path, issues);
-  return { from: value.from, to: value.to, gate: patch.gate ?? { all: [] }, priority: patch.priority ?? 0, ...(patch.effects ? { effects: patch.effects } : {}), ...(patch.extractor_trigger ? { extractor_trigger: patch.extractor_trigger } : {}), ...(patch.extraction_hint ? { extraction_hint: patch.extraction_hint } : {}) };
+  return {
+    from: value.from,
+    to: value.to,
+    gate: patch.gate ?? { all: [] },
+    priority: patch.priority ?? 0,
+    ...(patch.effects ? { effects: patch.effects } : {}),
+    ...(patch.extractor_trigger ? { extractor_trigger: patch.extractor_trigger } : {}),
+    ...(patch.extraction_hint ? { extraction_hint: patch.extraction_hint } : {})
+  };
 };
 
 export const readTransitionRef = (value: unknown, path: string, issues: string[]): TransitionRef | null => {

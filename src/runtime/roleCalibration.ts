@@ -222,17 +222,37 @@ function sliceOf(role: CalibrationRole, records: RoleCaseRecord[]): SliceSummary
   const scores = records.map((record) => record.score);
   if (role === "director") {
     const director = scores as DirectorScore[];
-    return { cases: records.length, metrics: { correct: metric(count(director, (score) => score.correct), director.length, floor("correct")), answerCorrect: metric(count(director, (score) => score.answerCorrect), director.length, null) } };
+    return {
+      cases: records.length,
+      metrics: {
+        correct: metric(count(director, (score) => score.correct), director.length, floor("correct")),
+        answerCorrect: metric(count(director, (score) => score.answerCorrect), director.length, null),
+      },
+    };
   }
   if (role === "curator") {
     const curator = scores as CuratorScore[];
     const opLines = curator.reduce((sum, score) => sum + score.opLines, 0);
     const survived = curator.reduce((sum, score) => sum + score.survived, 0);
-    return { cases: records.length, metrics: { validity: metric(count(curator, (score) => score.valid), curator.length, floor("validity")), opShape: metric(survived, opLines, floor("opShape")), decision: metric(count(curator, (score) => score.decision), curator.length, floor("decision")) } };
+    return {
+      cases: records.length,
+      metrics: {
+        validity: metric(count(curator, (score) => score.valid), curator.length, floor("validity")),
+        opShape: metric(survived, opLines, floor("opShape")),
+        decision: metric(count(curator, (score) => score.decision), curator.length, floor("decision")),
+      },
+    };
   }
   if (role === "authoring") {
     const authoring = scores as AuthoringScore[];
-    return { cases: records.length, metrics: { validity: metric(count(authoring, (score) => score.valid), authoring.length, floor("validity")), opShape: metric(count(authoring, (score) => score.shape), authoring.length, floor("opShape")), firstTry: metric(count(authoring, (score) => score.valid && !score.repaired), authoring.length, null) } };
+    return {
+      cases: records.length,
+      metrics: {
+        validity: metric(count(authoring, (score) => score.valid), authoring.length, floor("validity")),
+        opShape: metric(count(authoring, (score) => score.shape), authoring.length, floor("opShape")),
+        firstTry: metric(count(authoring, (score) => score.valid && !score.repaired), authoring.length, null),
+      },
+    };
   }
   const synthesis = scores as SynthesisScore[];
   return { cases: records.length, metrics: { validity: metric(count(synthesis, (score) => score.valid), synthesis.length, null) } };

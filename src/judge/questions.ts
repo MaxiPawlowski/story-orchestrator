@@ -1,4 +1,8 @@
-import { JUDGE_CHARS_PER_TOKEN, JUDGE_MAX_CHOICE_OPTIONS, JUDGE_MAX_ESTIMATED_TOKENS, JUDGE_MAX_REQUEST_CHARS, type JudgeAnswer, type JudgeChoiceAnswer, type JudgeChoiceQuestion, type JudgeNoulQuestion, type JudgeOption, type JudgeRequest, type JudgeScoreAnswer, type JudgeScoreQuestion } from "./types";
+import {
+  JUDGE_CHARS_PER_TOKEN, JUDGE_MAX_CHOICE_OPTIONS, JUDGE_MAX_ESTIMATED_TOKENS, JUDGE_MAX_REQUEST_CHARS,
+  type JudgeAnswer, type JudgeChoiceAnswer, type JudgeChoiceQuestion, type JudgeNoulQuestion, type JudgeOption,
+  type JudgeRequest, type JudgeScoreAnswer, type JudgeScoreQuestion,
+} from "./types";
 
 export const noul = (instructions: string, criteria?: { true: string; false: string }): JudgeNoulQuestion => (criteria ? { type: "noul", instructions, criteria } : { type: "noul", instructions });
 

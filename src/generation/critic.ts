@@ -38,7 +38,10 @@ export function runCodeChecks(story: NormalizedStoryV2, input: PlannedExpansionI
   // differs), so the simulation starts it there; the chain breaks it only by writing another value.
   const planned = new Set(input.deltas.map((delta) => delta.q));
   const satisfied = Object.entries(target.state_snapshot ?? {}).filter(([key]) => !planned.has(key) && story.qualityByKey[key]);
-  const start = { ...Object.fromEntries(satisfied), ...Object.fromEntries(input.deltas.map((delta) => [delta.q, delta.current]).filter((entry): entry is [string, PrimitiveValue] => entry[1] !== undefined)) };
+  const start = {
+    ...Object.fromEntries(satisfied),
+    ...Object.fromEntries(input.deltas.map((delta) => [delta.q, delta.current]).filter((entry): entry is [string, PrimitiveValue] => entry[1] !== undefined))
+  };
   let progressTotal = 0;
   beats.forEach((beat, index) => {
     const isFinal = index === beats.length - 1;

@@ -82,7 +82,12 @@ const DriverPanel: React.FC<Props> = ({ context, checkpoints, activeNudge, contr
       {authorView && agency && (
         <div data-so="agency-policy" className="opacity-80">
           <div className="font-medium opacity-100">Agency</div>
-          <div>{agency.objective_kind === "player_action" ? "Needs the player's own act" : "World pressure"}{agency.protect_player_choice ? " · choices protected" : " · choices not protected"}{agency.never_narrate_player_action ? " · never narrates the player" : ""}{agency.alternate ? ` · alternate: ${agency.alternate}` : ""}</div>
+          <div>
+            {agency.objective_kind === "player_action" ? "Needs the player's own act" : "World pressure"}
+            {agency.protect_player_choice ? " · choices protected" : " · choices not protected"}
+            {agency.never_narrate_player_action ? " · never narrates the player" : ""}
+            {agency.alternate ? ` · alternate: ${agency.alternate}` : ""}
+          </div>
         </div>
       )}
       {authorView && context.unmetGates.length > 0 && (

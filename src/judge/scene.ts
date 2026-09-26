@@ -236,8 +236,17 @@ export function toSceneRecord(read: SceneAnswers, input: SceneReadInput, meta: {
     ...(read.sceneBreak ? { sceneBreak: { ...read.sceneBreak, triggered: sceneBreakTriggered(read) } } : {}),
     ...(read.location ? { location: read.location } : {}),
     ...(read.time ? { time: read.time } : {}),
-    ...(read.present ? { present: input.cast.filter((member) => member.rosterId in read.present!).map((member) => ({ id: member.rosterId, name: member.name, p: read.present![member.rosterId] })) } : {}),
-    ...(read.headingTo ? { headingTo: reachable.filter((entry) => entry.id in read.headingTo!).map((entry) => ({ id: entry.id, name: entry.name, p: read.headingTo![entry.id], hops: entry.hops ?? 1 })) } : {}),
+    ...(read.present ? { present: input.cast.filter((member) => member.rosterId in read.present!).map((member) => ({
+      id: member.rosterId,
+      name: member.name,
+      p: read.present![member.rosterId],
+    })) } : {}),
+    ...(read.headingTo ? { headingTo: reachable.filter((entry) => entry.id in read.headingTo!).map((entry) => ({
+      id: entry.id,
+      name: entry.name,
+      p: read.headingTo![entry.id],
+      hops: entry.hops ?? 1,
+    })) } : {}),
     facts: { ...facts, headingTo: facts.headingTo.map((id) => reachable.find((entry) => entry.id === id)?.name ?? id) },
   };
 }

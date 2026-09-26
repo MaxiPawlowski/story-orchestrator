@@ -46,7 +46,8 @@ const TalkControlEditor: React.FC<{ control: TalkControl | undefined; roster: Ro
       <label className="flex items-center gap-2 text-sm font-medium">
         <input type="checkbox" checked={control !== undefined} onChange={(event) => onChange(event.target.checked ? {} : undefined)} />
         Talk control
-        <HelpTooltip title="When set, this checkpoint takes over who speaks next in the group: name mentions win, then the optional LLM director, then weighted rules. Swipes, quiet passes, and explicit /trigger are never intercepted." />
+        <HelpTooltip title={"When set, this checkpoint takes over who speaks next in the group: name mentions win, then the optional LLM director, then weighted rules. Swipes, " +
+          "quiet passes, and explicit /trigger are never intercepted."} />
       </label>
       {control ? (
         <div className="flex flex-col gap-2 pl-6">
@@ -65,7 +66,11 @@ const TalkControlEditor: React.FC<{ control: TalkControl | undefined; roster: Ro
                 }}
               />
             ))}
-            <button type="button" className="st-button secondary self-start" onClick={() => emit({ ...control, speakers: [...speakers, { member: roster[0] ? memberLabel(roster[0]) : "" }] })}>+ Speaker</button>
+            <button
+              type="button"
+              className="st-button secondary self-start"
+              onClick={() => emit({ ...control, speakers: [...speakers, { member: roster[0] ? memberLabel(roster[0]) : "" }] })}
+            >+ Speaker</button>
           </div>
           <label className="flex flex-col gap-1 text-sm">
             <span className="text-xs st-muted">Lead speaker</span>
@@ -79,7 +84,11 @@ const TalkControlEditor: React.FC<{ control: TalkControl | undefined; roster: Ro
             Avoid repeating the previous speaker
           </label>
           <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={hasDirector} onChange={(event) => emit({ ...control, director: event.target.checked ? true : undefined, allow_silence: event.target.checked ? control.allow_silence : undefined })} />
+            <input
+              type="checkbox"
+              checked={hasDirector}
+              onChange={(event) => emit({ ...control, director: event.target.checked ? true : undefined, allow_silence: event.target.checked ? control.allow_silence : undefined })}
+            />
             LLM director picks the speaker
           </label>
           {hasDirector ? (

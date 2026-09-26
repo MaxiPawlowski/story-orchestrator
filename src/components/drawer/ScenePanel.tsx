@@ -12,7 +12,8 @@ const ScenePanel = ({ scene }: { scene: SceneReadRecord | null | undefined }) =>
     <div data-so="scene-read" className="text-xs opacity-80">
       <div className="font-medium opacity-100">Scene read</div>
       <div><MessageCitation messageId={scene.messageId} /> · boundary {scene.boundary}{scene.model ? ` · ${scene.model}` : ""}</div>
-      {scene.sceneBreak && <div>Scene change: {pct(scene.sceneBreak.p)}{scene.sceneBreak.type && scene.sceneBreak.type !== "none" ? ` (${scene.sceneBreak.type})` : ""}{scene.sceneBreak.triggered ? " · read asked" : ""}</div>}
+      {scene.sceneBreak && <div>Scene
+        change: {pct(scene.sceneBreak.p)}{scene.sceneBreak.type && scene.sceneBreak.type !== "none" ? ` (${scene.sceneBreak.type})` : ""}{scene.sceneBreak.triggered ? " · read asked" : ""}</div>}
       {scene.location && <div>Location: {scene.location.value} ({pct(scene.location.confidence)}){scene.facts.location ? "" : " · below floor"}</div>}
       {scene.time && <div>Time: {scene.time.value} ({pct(scene.time.confidence)}){scene.facts.time ? "" : " · below floor"}</div>}
       {scene.present && scene.present.length > 0 && <div>Present: {scene.present.map((member) => `${member.name} ${pct(member.p)}`).join(" · ")}</div>}

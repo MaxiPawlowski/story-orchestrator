@@ -70,7 +70,10 @@ export const SchedulerTab = ({ snapshot, manager, onOpenFact }: { snapshot: Runt
           <div className="opacity-100">Judged reads</div>
           {[...(snapshot.extraction.judgedReads ?? [])].reverse().slice(0, 5).map((read) => (
             <div key={`${read.at}-${read.kind}`}>
-              judge:{read.kind} · boundary {read.boundary} · {read.deltas.length ? read.deltas.map((delta) => `${delta.q}=${String(delta.v)} (${Math.round(delta.confidence * 100)}%)`).join(", ") : read.note ?? "no change"}{read.fallback ? ` · fell back (${read.fallback})` : ""}
+              judge:{read.kind} ·
+                boundary {read.boundary} · {read.deltas.length ? read.deltas.map(
+                  (delta) => `${delta.q}=${String(delta.v)} (${Math.round(delta.confidence * 100)}%)`,
+                ).join(", ") : read.note ?? "no change"}{read.fallback ? ` · fell back (${read.fallback})` : ""}
             </div>
           ))}
         </div>
@@ -83,7 +86,11 @@ export const SchedulerTab = ({ snapshot, manager, onOpenFact }: { snapshot: Runt
         <div>The player&apos;s last {snapshot.agencyRecovery.turns} turns were read, and nothing in them moved an exit of {snapshot.agencyRecovery.checkpointName}.</div>
         <div className="flex flex-wrap items-center gap-2 pt-1">
           {snapshot.agencyRecovery.alternate && (
-            <button className="menu_button text-xs" data-so="agency-take-alternate" onClick={() => void manager.activateCheckpoint(snapshot.agencyRecovery!.alternate!)}>Take {snapshot.agencyRecovery.alternateName}</button>
+            <button
+              className="menu_button text-xs"
+              data-so="agency-take-alternate"
+              onClick={() => void manager.activateCheckpoint(snapshot.agencyRecovery!.alternate!)}
+            >Take {snapshot.agencyRecovery.alternateName}</button>
           )}
           {snapshot.agencyRecovery.canGenerate && (
             <button className="menu_button text-xs" data-so="agency-generate-road" onClick={() => void manager.runExpansionNow(undefined, true)}>Generate the road ahead</button>
@@ -97,11 +104,15 @@ export const SchedulerTab = ({ snapshot, manager, onOpenFact }: { snapshot: Runt
       {snapshot.expansion.scheduler.lastError && <div className="text-red-300">{snapshot.expansion.scheduler.lastError}</div>}
       {Object.values(snapshot.expansion.entries).map((entry) => (
         <div key={entry.key} className="border-t border-solid border-white/10 mt-1 pt-1">
-          <div>{entry.stubId} → {entry.targetAnchorId}: {entry.status}{entry.needsReview ? " review" : ""}{entry.origin === "lookahead" ? ` · prepared ahead (${Math.round((entry.headingP ?? 0) * 100)}%)` : ""}</div>
+          <div>{entry.stubId} → {entry.targetAnchorId}: {entry.status}{entry.needsReview ? " review" : ""}{entry.origin === "lookahead" ? ` · prepared ahead (${Math.round(
+            (entry.headingP ?? 0) * 100,
+          )}%)` : ""}</div>
           {(entry.verdicts.at(-1)?.judge || entry.variants) && (
             <div data-so="expansion-judge" className="opacity-80">
-              {entry.verdicts.at(-1)?.judge ? `judge: contradicts ${Math.round(entry.verdicts.at(-1)!.judge!.contradicts * 100)}% · advances ${Math.round(entry.verdicts.at(-1)!.judge!.advances * 100)}% · new character ${Math.round(entry.verdicts.at(-1)!.judge!.newCharacter * 100)}%` : ""}
-              {entry.variants ? ` · ${entry.variants.generated} written, ${entry.variants.survivors} passed code checks, picked #${(entry.variants.picked ?? -1) + 1} by ${entry.variants.picker}${entry.variants.pickFallback ? ` (${entry.variants.pickFallback} fell back)` : ""}` : ""}
+              {entry.verdicts.at(-1)?.judge ? `judge: contradicts ${Math.round(entry.verdicts.at(-1)!.judge!.contradicts * 100)}% · advances ` +
+                `${Math.round(entry.verdicts.at(-1)!.judge!.advances * 100)}% · new character ${Math.round(entry.verdicts.at(-1)!.judge!.newCharacter * 100)}%` : ""}
+              {entry.variants ? ` · ${entry.variants.generated} written, ${entry.variants.survivors} passed code checks, picked #${(entry.variants.picked ?? -1) + 1} by ` +
+                `${entry.variants.picker}${entry.variants.pickFallback ? ` (${entry.variants.pickFallback} fell back)` : ""}` : ""}
             </div>
           )}
           <div>{entry.beats.length} beats{entry.lastError ? ` — ${entry.lastError}` : ""}</div>

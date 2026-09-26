@@ -130,7 +130,12 @@ export function setPinned(state: MemoryStoreState, id: string, pinned: boolean):
 export function setLocked(state: MemoryStoreState, id: string, locked: boolean, at: string, boundary: number): MemoryStoreState {
   return {
     ...state,
-    entries: state.entries.map((entry) => (entry.id === id ? { ...entry, locked, pinned: locked || entry.pinned, ...(locked ? withOverride(entry, "lock", at, boundary) : clearOverride(entry)) } : entry)),
+    entries: state.entries.map((entry) => (entry.id === id ? {
+      ...entry,
+      locked,
+      pinned: locked || entry.pinned,
+      ...(locked ? withOverride(entry, "lock", at, boundary) : clearOverride(entry))
+    } : entry)),
   };
 }
 
