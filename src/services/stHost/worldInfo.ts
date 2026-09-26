@@ -6,6 +6,7 @@ import type { HostWorldInfoSettings } from "./hostTypes";
 import { worldInfoModule } from "./modules";
 import { executeSlashCommands } from "./slashCommands";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
+import { log } from "@utils/log";
 
 export { lorebookFileId };
 
@@ -93,14 +94,14 @@ async function setWIEntryDisabledState(lorebook: string, comments: string | stri
 
   const book = await loadExisting(lorebook);
   if (!book) {
-    console.warn("[Story WI] lorebook does not exist", { lorebook });
+    log.warn("world info: lorebook does not exist", { lorebook });
     return couldNot(`there is no lorebook "${lorebook}"`);
   }
 
   const matched = findMatchedLoreEntries(book.data, commentList);
   for (const comment of commentList) {
     if (!matched.some((entry) => entry.comment === comment)) {
-      console.warn("[Story WI] no matching world info entry found", { lorebook, comment });
+      log.warn("world info: no matching world info entry found", { lorebook, comment });
     }
   }
   if (!matched.length) return couldNot(`"${commentList.join("\", \"")}" is not in "${lorebook}"`);
@@ -180,7 +181,7 @@ export async function deleteLorebook(name: string): Promise<WriteResult<{ name: 
     deleted = await worldInfoModule.deleteWorldInfo(name);
   } catch (error) {
     deleted = false;
-    console.warn("[Story WI] lorebook delete failed", { name, error });
+    log.warn("world info: lorebook delete failed", { name, error });
   }
   worldInfoModule.worldInfoCache.delete(name);
   if (!deleted) return couldNot(`"${name}" could not be deleted`);
@@ -250,7 +251,7 @@ export async function upsertWIEntry(lorebook: string, comment: string, content: 
   if (!comment) return "failed";
   const book = await loadExisting(lorebook);
   if (!book) {
-    console.warn("[Story WI] lorebook does not exist", { lorebook });
+    log.warn("world info: lorebook does not exist", { lorebook });
     return "failed";
   }
   const { name, data } = book;

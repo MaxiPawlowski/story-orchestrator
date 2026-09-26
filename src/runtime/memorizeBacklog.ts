@@ -16,6 +16,7 @@ import type { ChatHost } from "./hostPorts";
 import type { JudgeRuntime } from "./judge";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { required } from "@utils/guards";
+import { log } from "@utils/log";
 
 export const BACKLOG_STOPPED_BY_EDIT = "Stopped: the chat changed while memorizing";
 export const BACKLOG_STOPPED_BY_UPDATE = "Stopped: the story was updated while memorizing";
@@ -139,7 +140,7 @@ export class MemorizeBacklog {
   private async runSceneWork(jobs: SchedulerJob[], read: ReadOwnership) {
     for (const job of jobs.splice(0)) {
       if (!read.stillOwns()) return;
-      await job.run?.().catch((error: unknown) => { if (!isLapse(error)) console.warn(`[Story Orchestrator] ${job.reason} during the memorize backlog failed`, error); });
+      await job.run?.().catch((error: unknown) => { if (!isLapse(error)) log.warn(`${job.reason} during the memorize backlog failed`, error); });
     }
   }
 

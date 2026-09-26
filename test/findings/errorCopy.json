@@ -1,6 +1,6 @@
 {
   "$comment": "v2.5 plan 03 E2. Rows are extracted by test/support/codeHealth.ts errorCopySites (kinds: 1 toast/popup literal, 2 template interpolating an error, 3 bare catch or constant .catch). Reviewed by hand: surface, rawError, silentCatch, verdict, reason. Pass = no rawError on a player surface; every kind-3 row logs or is a probe. 'closed' flips true when no row fails.",
-  "closed": false,
+  "closed": true,
   "rows": [
     {
       "site": "src/components/drawer/tabs/MemoryTab.tsx#excludeWithUndo",
@@ -91,16 +91,6 @@
       "silentCatch": null,
       "verdict": "pass",
       "reason": "our validator's message"
-    },
-    {
-      "site": "src/extraction/cues.ts#scheduleForcedCues",
-      "kind": 3,
-      "template": "catch {} #1",
-      "surface": "console",
-      "rawError": false,
-      "silentCatch": null,
-      "verdict": "fail",
-      "reason": "an authored extractor_trigger that is not a regex is skipped without a word"
     },
     {
       "site": "src/extraction/parse.ts#parseJsonLiteral",
@@ -233,16 +223,6 @@
       "reason": "constant popup copy"
     },
     {
-      "site": "src/runtime/consolidationMatches.ts#buildMatchSets",
-      "kind": 3,
-      "template": "catch {} #1",
-      "surface": "console",
-      "rawError": false,
-      "silentCatch": null,
-      "verdict": "fail",
-      "reason": "vector purge failure is dropped without a word"
-    },
-    {
       "site": "src/runtime/coordinators/copilotCoordinator.ts#safe",
       "kind": 3,
       "template": "catch {} #1",
@@ -251,16 +231,6 @@
       "silentCatch": "probe",
       "verdict": "pass",
       "reason": "host list read falls back to an empty list"
-    },
-    {
-      "site": "src/runtime/coordinators/expansionCoordinator.ts#ExpansionCoordinator.mergedStoryOrBase",
-      "kind": 2,
-      "template": "`Expansion merge failed: ${error.message}`",
-      "surface": "player",
-      "rawError": true,
-      "silentCatch": null,
-      "verdict": "fail",
-      "reason": "error.message reaches snapshot.status, shown in the settings panel"
     },
     {
       "site": "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.applyAccepted",
@@ -291,16 +261,6 @@
       "silentCatch": null,
       "verdict": "pass",
       "reason": "a pass-reason key, not an error"
-    },
-    {
-      "site": "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.runWardenPass",
-      "kind": 3,
-      "template": ".catch(() => null)",
-      "surface": "console",
-      "rawError": false,
-      "silentCatch": null,
-      "verdict": "fail",
-      "reason": "warden call failure is dropped without a word"
     },
     {
       "site": "src/runtime/effectsApplier.ts#EffectsApplier.restoreEffects",
@@ -393,26 +353,6 @@
       "reason": "our validator's message in the Studio save result"
     },
     {
-      "site": "src/runtime/talkControl.ts#TalkController.runDirector",
-      "kind": 3,
-      "template": "catch {} #1",
-      "surface": "console",
-      "rawError": false,
-      "silentCatch": null,
-      "verdict": "fail",
-      "reason": "director/judge failure falls back to the rules pick without a word"
-    },
-    {
-      "site": "src/runtime/talkControl.ts#TalkController.runJudge",
-      "kind": 3,
-      "template": "catch {} #1",
-      "surface": "console",
-      "rawError": false,
-      "silentCatch": null,
-      "verdict": "fail",
-      "reason": "director/judge failure falls back to the rules pick without a word"
-    },
-    {
       "site": "src/runtime/worldInfoGating.ts#WiGatingRuntime.normalize",
       "kind": 1,
       "template": "`Story lorebook entries now rest off: ${refText(flipped)}`",
@@ -483,16 +423,6 @@
       "reason": "host read probe answers a neutral value the caller reads"
     },
     {
-      "site": "src/services/stHost/contextLimit.ts#readProfileContextLimit",
-      "kind": 2,
-      "template": "`the preset could not be read (${error instanceof Error ? error.message : String(error)})`",
-      "surface": "player",
-      "rawError": true,
-      "silentCatch": null,
-      "verdict": "fail",
-      "reason": "error.message reaches the settings panel's memory-model line"
-    },
-    {
       "site": "src/services/stHost/groups.ts#readServerGroup",
       "kind": 3,
       "template": "catch {} #1",
@@ -561,6 +491,26 @@
       "silentCatch": "probe",
       "verdict": "pass",
       "reason": "host read probe answers a neutral value the caller reads"
+    },
+    {
+      "site": "src/utils/log.ts#devBuild",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "build-mode probe: a bundle without a process global reads as not a development build, so debug stays off"
+    },
+    {
+      "site": "src/utils/log.ts#optedIn",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "opt-in probe: a storage that refuses to be read reads as no opt-in, so debug stays off"
     },
     {
       "site": "src/services/stHost/version.ts#macroEngineInUse",
@@ -651,16 +601,6 @@
       "silentCatch": "probe",
       "verdict": "pass",
       "reason": "clipboard failure becomes the visible not-copied state"
-    },
-    {
-      "site": "src/studio/components/StudioToolbar.tsx#download",
-      "kind": 3,
-      "template": "catch {} #1",
-      "surface": "author",
-      "rawError": false,
-      "silentCatch": null,
-      "verdict": "fail",
-      "reason": "a failed download is dropped without a word"
     },
     {
       "site": "src/studio/components/StudioToolbar.tsx#handleFile",

@@ -33,6 +33,7 @@ import {
   buildStallRequest, buildVerifyRequest, readVerify, stallVerdict, STALL_TIMEOUT_MS, verifyVerdict,
   VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS,
 } from "@judge/index";
+import { log } from "@utils/log";
 
 export const TYPED_READ_WINDOW = 3;
 
@@ -140,7 +141,7 @@ export class ExtractionCoordinator {
     const judge = this.deps.judge?.() ?? null;
     if (work.kind === "typed") {
       if (!judge?.active("typedExtraction")) return false;
-      void this.runTypedRead(work.boundary, work.messageId).catch((error) => console.warn("[Story Orchestrator] judged typed read failed", error));
+      void this.runTypedRead(work.boundary, work.messageId).catch((error) => log.warn("judged typed read failed", error));
       return true;
     }
     if (!judge?.active("stallCheck") || !work.plan.leaves.length) return false;

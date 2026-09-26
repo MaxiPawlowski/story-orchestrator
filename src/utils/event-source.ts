@@ -1,3 +1,5 @@
+import { log } from "./log";
+
 export type EventHandler = (...args: unknown[]) => void;
 
 export type EventSourceLike = Pick<SillyTavernEventSource, "on"> & {
@@ -18,7 +20,7 @@ const wrapCleanup = (eventName: string, cleanup: () => void) => {
     try {
       cleanup();
     } catch (err) {
-      console.warn("[Story - subscribeToEventSource] unsubscribe failed", eventName, err);
+      log.warn("event source: unsubscribe failed", eventName, err);
     }
   };
 };
@@ -52,7 +54,7 @@ export function subscribeToEventSource({
     const onResult = source.on(eventName, handler);
     return resolveUnsubscribe(source, eventName, handler, onResult);
   } catch (err) {
-    console.warn("[Story - subscribeToEventSource] subscribe failed", eventName, err);
+    log.warn("event source: subscribe failed", eventName, err);
   }
 
   return NOOP;

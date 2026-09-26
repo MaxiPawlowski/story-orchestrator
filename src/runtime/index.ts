@@ -19,6 +19,7 @@ import { startLore } from "./wiring/lore";
 import { startTalk } from "./wiring/talk";
 import { attachGenerationObservers, subscribeGenerationEvents } from "./wiring/generation";
 import type { Disposers, LiveParts, WindowAccess } from "./wiring/types";
+import { log } from "@utils/log";
 
 let started = false;
 let bridge: TurnBridge | null = null;
@@ -37,7 +38,7 @@ const registerSlashCommandsWhenReady = (attempt = 0) => {
   try {
     slashRegistered = registerSlashCommands(runtimeManager);
   } catch (error) {
-    console.warn("[Story Orchestrator] slash command registration failed", error);
+    log.warn("slash command registration failed", error);
   }
   if (!slashRegistered && attempt < 100) window.setTimeout(() => registerSlashCommandsWhenReady(attempt + 1), 100);
 };
@@ -49,7 +50,7 @@ const registerHostSurfaces = () => {
   try {
     runtimeDisposers.push(registerRuntimeMacros(runtimeManager));
   } catch (error) {
-    console.warn("[Story Orchestrator] host macros unavailable; {{story_*}} will not resolve", error);
+    log.warn("host macros unavailable; {{story_*}} will not resolve", error);
   }
   registerLiveSuite(runtimeManager);
   window.setTimeout(() => registerSlashCommandsWhenReady(), 0);
@@ -83,6 +84,11 @@ const windowAccess = (): WindowAccess => {
   };
   return { chatLastId, recentWindow };
 };
+
+export const RUNTIME_GLOBALS = [
+  "storyOrchestratorScheduler", "storyOrchestratorLoreEvidence", "storyOrchestratorLore", "storyOrchestratorJudge",
+  "storyOrchestratorLiveSuite", "storyOrchestratorScanGating",
+] as const;
 
 export function startRuntime() {
   if (started) return runtimeManager;
@@ -122,15 +128,15 @@ export function stopRuntime() {
     try {
       dispose();
     } catch (error) {
-      console.warn("[Story Orchestrator] a runtime subscription failed to dispose", error);
+      log.warn("a runtime subscription failed to dispose", error);
     }
   }
   live.scheduler = null;
   live.talk = null;
   live.scene = null;
+  live.typedJudge = null;
   globalThis.talkControlInterceptor = () => undefined;
-  globalThis.storyOrchestratorScheduler = undefined;
-  globalThis.storyOrchestratorLoreEvidence = undefined;
+  for (const name of RUNTIME_GLOBALS) Reflect.deleteProperty(globalThis, name);
   started = false;
 }
 

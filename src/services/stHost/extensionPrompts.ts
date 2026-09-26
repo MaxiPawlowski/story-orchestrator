@@ -1,6 +1,7 @@
 import { getContext } from "./context";
 import type { HostExtensionPrompt } from "./hostTypes";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
+import { log } from "@utils/log";
 
 const EXTENSION_PROMPT_IN_CHAT = 1;
 const EXTENSION_PROMPT_ROLE_SYSTEM = 0;
@@ -32,7 +33,7 @@ const holdsText = (key: string): boolean => {
 const resolveSetExtensionPrompt = (): SetExtensionPromptFn | null => {
   const context = getContext() as unknown as { setExtensionPrompt?: SetExtensionPromptFn };
   if (typeof context.setExtensionPrompt !== "function") {
-    console.warn("[Story pacing] host context has no setExtensionPrompt; steering hint suppressed");
+    log.warn("pacing: host context has no setExtensionPrompt; steering hint suppressed");
     return null;
   }
   return context.setExtensionPrompt.bind(context);

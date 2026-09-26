@@ -4,6 +4,7 @@ import { hashStory } from "./hash";
 import { createSettingsWriteEvidence, missingFromServer, recordSettingsWrite, stillHeldByServer, type LibrarySaveEvidence } from "./librarySave";
 import { SETTINGS_ROOT_KEY, settingsRoot, writableSettingsRoot } from "./settingsRoot";
 import type { LoadedStory, StoryLibraryRecord, RuntimeSnapshot } from "./types";
+import { log } from "@utils/log";
 
 const SETTINGS_KEY = "v2Stories";
 
@@ -19,7 +20,7 @@ const stampedAt = (record: StoryLibraryRecord) => Date.parse(record.updatedAt ??
 
 let lastLibraryWarning = "";
 const warnOnce = (message: string) => {
-  if (message !== lastLibraryWarning) console.warn(`[Story Orchestrator] ${message}`);
+  if (message !== lastLibraryWarning) log.warn(`${message}`);
   lastLibraryWarning = message;
 };
 

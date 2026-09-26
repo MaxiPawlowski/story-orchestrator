@@ -6,6 +6,7 @@ import {
 import type { Provenance, Provenanced } from "@memory/provenance";
 import type { RunGuard } from "./runToken";
 import type { MemoryRuntimeState } from "./types";
+import { log } from "@utils/log";
 
 // The reconciliation queue: what two stores disagree about, held until the author
 // decides. It lives here rather than in the memory coordinator for the same reason the rollback
@@ -189,7 +190,7 @@ async function commitDecision(deps: MemoryQueueDeps, next: Partial<MemoryRuntime
     deps.refused?.({ putBack: [], externallyChanged: [], lapsed: run.lapsedDetail() });
     return false;
   }
-  console.warn("[Story Orchestrator] the author's decision did not reach the chat's stored state; putting it back", failure ?? "");
+  log.warn("the author's decision did not reach the chat's stored state; putting it back", failure ?? "");
   const current = deps.getMemory();
   const results = restores.map((restore) => putBack(restore, current));
   const patch = Object.fromEntries(results.flatMap((result) => (result.patch ? [result.patch] : []))) as Partial<MemoryRuntimeState>;

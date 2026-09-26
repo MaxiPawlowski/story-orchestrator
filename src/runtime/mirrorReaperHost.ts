@@ -1,5 +1,6 @@
 import { deleteLorebook, listAllLorebooks, probeChatFile, readWIEntry, showConfirmPopup, subscribeToHostEvents } from "@services/STAPI";
 import { lifetimeOwnership, MirrorReaper, orphanRegistry, OWNER_COMMENT } from "./mirrorReaper";
+import { log } from "@utils/log";
 
 // The reaper's host wiring, kept out of `mirrorReaper.ts` so the decision stays
 // importable in jest. ST's `emit` awaits every listener in turn (lib/eventemitter.js:146), so the
@@ -22,7 +23,7 @@ export function startMirrorReaper(notify: () => void): () => void {
   });
   const onDeleted = (chatId: unknown) => {
     if (typeof chatId !== "string") return;
-    reaper.onChatDeleted(chatId).catch((error) => console.warn("[Story Orchestrator] mirror reap failed", error));
+    reaper.onChatDeleted(chatId).catch((error) => log.warn("mirror reap failed", error));
   };
   const unsubscribe = subscribeToHostEvents([
     { eventName: "CHAT_DELETED", handler: onDeleted },

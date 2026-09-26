@@ -17,6 +17,7 @@ import { failureClass } from "@extraction/breaker";
 import { estimateTokens } from "@extraction/callBudget";
 import type { ExtraGateSource, ModelCall, Preflight, PreflightConfirm } from "@extraction/index";
 import { required } from "@utils/guards";
+import { log } from "@utils/log";
 
 export const expansionKey = (
   candidate: Pick<StubExpansionCandidate, "sourceCheckpointId" | "stubId" | "targetAnchorId">,
@@ -81,7 +82,8 @@ export class ExpansionCoordinator {
     try {
       return mergeExpansions(raw, this.entries);
     } catch (error) {
-      this.deps.setStatus(error instanceof Error ? `Expansion merge failed: ${error.message}` : "Expansion merge failed");
+      log.warn("expansion merge failed", error);
+      this.deps.setStatus("Expansion merge failed; the story plays its authored graph");
       return base;
     }
   }

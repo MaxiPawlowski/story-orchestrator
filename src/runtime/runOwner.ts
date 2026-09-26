@@ -1,5 +1,6 @@
 import { anySignal } from "@utils/signals";
 import { mintToken, tokenMatches, type LiveRun, type MessageWindow, type RunContext, type RunOwnership, type RunToken } from "./runToken";
+import { log } from "@utils/log";
 
 const LIVE_RUN_LIMIT = 32;
 
@@ -113,7 +114,7 @@ export class RunOwner {
       try {
         listener();
       } catch (error) {
-        console.warn("[Story Orchestrator] an epoch listener failed", error);
+        log.warn("an epoch listener failed", error);
       }
     }
   }

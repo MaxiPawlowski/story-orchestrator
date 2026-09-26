@@ -5,6 +5,7 @@ import type { RuntimeSnapshot } from "@runtime/types";
 import { STORY_STATE_RETENTION } from "@runtime/persistence";
 import { exportState } from "@runtime/stateExport";
 import { removalRestore } from "@runtime/worldInfoScanHost";
+import { log } from "@utils/log";
 
 interface StoryGroupProps {
   snapshot: RuntimeSnapshot;
@@ -18,7 +19,7 @@ const copyState = async () => {
   await exportState({
     writeClipboard: (text) => navigator.clipboard.writeText(text),
     toast: window.toastr ?? {},
-    log: (text) => console.info(text),
+    log: (text) => log.info(text),
   });
 };
 

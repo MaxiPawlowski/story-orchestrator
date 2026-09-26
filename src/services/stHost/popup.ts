@@ -1,4 +1,5 @@
 import { getContext } from "./context";
+import { log } from "@utils/log";
 
 interface PopupHost {
   callGenericPopup?: (content: string | HTMLElement, type: number, inputValue?: string, popupOptions?: Record<string, unknown>) => Promise<unknown>;
@@ -87,7 +88,7 @@ export interface TextPopupHandle {
 export function showTextPopup(content: PopupContent, options: TextPopupOptions = {}): TextPopupHandle {
   const context = popupHost();
   if (typeof context?.callGenericPopup !== "function") {
-    console.warn("[Story Orchestrator] host has no callGenericPopup; popup suppressed");
+    log.warn("host has no callGenericPopup; popup suppressed");
     return { close: () => undefined };
   }
   const type = context.POPUP_TYPE?.TEXT ?? 1;

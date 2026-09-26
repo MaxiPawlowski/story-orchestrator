@@ -11,6 +11,7 @@ import {
   syncGraphElements,
   type StoryGraphDraft,
 } from "./graphPanelUtils";
+import { log } from "@utils/log";
 
 type Props = {
   draft: StoryGraphDraft;
@@ -85,12 +86,12 @@ const useCytoscape = (containerRef: ContainerRef, onSelect: (id: string) => void
           cy?.off("mouseover", "edge", handleEdgeOver);
           cy?.off("mouseout", "edge", handleEdgeOut);
         } catch (err) {
-          console.warn("[Story - GraphPanel] Failed to remove tap handler", err);
+          log.warn("graph panel: Failed to remove tap handler", err);
         }
         try {
           cy?.destroy();
         } catch (err) {
-          console.warn("[Story - GraphPanel] Failed to destroy cytoscape instance", err);
+          log.warn("graph panel: Failed to destroy cytoscape instance", err);
         }
         cyRef.current = null;
         cy = null;
@@ -157,7 +158,7 @@ const useDagre = () => {
         }
       })
       .catch((err) => {
-        console.warn("[Story - GraphPanel] Failed to load cytoscape-dagre", err);
+        log.warn("graph panel: Failed to load cytoscape-dagre", err);
         setDagreReady(false);
       });
     return () => { cancelled = true; };

@@ -1,6 +1,7 @@
 import type { HostScannableEntry } from "./hostTypes";
 import { getScannableEntries } from "./worldInfoActivate";
 import { LOADED_ARRAYS, observeWorldInfoScans } from "./worldInfoEvidence";
+import { log } from "@utils/log";
 
 export interface ScanGatingHandle {
   reassert: () => void;
@@ -20,7 +21,7 @@ export function installScanGating(apply: (arrays: HostScannableEntry[][]) => voi
       try {
         apply(LOADED_ARRAYS.map((key) => payload[key]));
       } catch (error) {
-        console.warn("[Story Orchestrator] scan-time world info gating failed for this scan", error);
+        log.warn("scan-time world info gating failed for this scan", error);
       }
     },
   });

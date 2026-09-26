@@ -2,6 +2,7 @@ import { defaultContextLimit, usableContextLimit, type ContextLimit } from "@ext
 import { getContext } from "./context";
 import type { HostConnectApiMap } from "./hostTypes";
 import { isRecord } from "@utils/guards";
+import { log } from "@utils/log";
 
 const PRESET_CONTEXT_KEY: Record<string, string> = {
   textgenerationwebui: "max_length",
@@ -38,6 +39,7 @@ export function readProfileContextLimit(profileId: string | null | undefined): C
     if (!presets || typeof presets.getCompletionPresetByName !== "function") return defaultContextLimit(`no preset manager for ${selected}`);
     return contextLimitFromPreset(selected, presetName, presets.getCompletionPresetByName(presetName));
   } catch (error) {
-    return defaultContextLimit(`the preset could not be read (${error instanceof Error ? error.message : String(error)})`);
+    log.warn("the memory model's preset could not be read", error);
+    return defaultContextLimit("the preset could not be read");
   }
 }

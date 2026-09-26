@@ -8,6 +8,7 @@ import { timeoutAbortReason } from "@utils/signals";
 import { beginRun, type MessageWindow, type RunGuard, type RunOwnership } from "./runToken";
 import type { TalkDecisionAudit } from "./types";
 import { WITHHOLDING_TYPES } from "./generationLifecycle";
+import { log } from "@utils/log";
 
 export const DIRECTOR_TIMEOUT_MS = 20000;
 export const DIRECTOR_MAX_TOKENS = 96;
@@ -240,7 +241,8 @@ export class TalkController {
       if (verdict.kind === "silence") return { kind: "silence", source: "judge", judge };
       const candidate = candidates.find((entry) => entry.rosterId === verdict.rosterId);
       return candidate ? { kind: "member", rosterId: candidate.rosterId, name: candidate.name, source: "judge", judge } : null;
-    } catch {
+    } catch (error) {
+      log.warn("speaker direction: the judge failed, so the rules pick stands", error);
       return null;
     }
   }
@@ -271,7 +273,8 @@ export class TalkController {
       if (verdict.rosterId === null) return { kind: "silence", source: "director" };
       const candidate = pool.find((entry) => entry.rosterId === verdict.rosterId);
       return candidate ? { kind: "member", rosterId: candidate.rosterId, name: candidate.name, source: "director" } : null;
-    } catch {
+    } catch (error) {
+      log.warn("speaker direction: the director failed, so the rules pick stands", error);
       return null;
     }
   }

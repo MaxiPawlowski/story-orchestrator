@@ -2,6 +2,7 @@ import { buildJaccardMatchSets, candidatePairs, DEFAULT_DEDUP_THRESHOLDS, type D
 import { buildPairRequest, pairDecision, PAIR_CONCURRENCY, PAIR_MAX_PER_PASS, PAIR_TIMEOUT_MS, readPair, type JudgePairRelation } from "@judge/index";
 import type { JudgeRuntime } from "./judge";
 import type { VectorHost } from "./hostPorts";
+import { log } from "@utils/log";
 
 // Candidate generation for consolidation: ST vectors when available, Jaccard otherwise. Moved out of
 // the memory coordinator so the judged path fits its line budget.
@@ -35,13 +36,13 @@ export async function buildMatchSets(host: VectorHost, group: MemoryEntry[], thr
     }
     return { dup, sameTopic };
   } catch (error) {
-    console.warn("[Story memory] vector consolidation unavailable, using keyword overlap", error);
+    log.warn("memory: vector consolidation unavailable, using keyword overlap", error);
     return buildJaccardMatchSets(group, thresholds);
   } finally {
     try {
       await host.vectorPurge(collectionId);
-    } catch {
-      /* best effort */
+    } catch (error) {
+      log.warn("memory: the temporary vector collection could not be purged", error);
     }
   }
 }

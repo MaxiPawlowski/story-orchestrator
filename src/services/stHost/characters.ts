@@ -1,6 +1,7 @@
 import { getContext } from "./context";
 import type { HostCharacter } from "./hostTypes";
 import { rossModsModule } from "./modules";
+import { log } from "@utils/log";
 
 export type StoryOrchestratorCharacter = HostCharacter;
 
@@ -33,7 +34,7 @@ export function getAllCharacterNames(): string[] {
       .filter((name): name is string => typeof name === "string" && name.trim().length > 0)
       .map((name) => name.trim());
   } catch (err) {
-    console.warn("[Story - STAPI] Failed to get character names", err);
+    log.warn("Failed to get character names", err);
     return [];
   }
 }

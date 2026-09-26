@@ -8,6 +8,7 @@ import FeedbackAlert from "@components/studio/FeedbackAlert";
 import { useDraftStore } from "../draft";
 import { exportDraft, importDraft } from "../io";
 import { slugifyStoryId } from "@engine/index";
+import { log } from "@utils/log";
 
 type Feedback = { type: "success" | "error"; message: string } | null;
 
@@ -24,8 +25,8 @@ const download = (filename: string, text: string) => {
     anchor.download = filename;
     anchor.click();
     URL.revokeObjectURL(url);
-  } catch {
-    /* download unavailable in this environment */
+  } catch (error) {
+    log.warn("studio: the story file could not be downloaded here", error);
   }
 };
 

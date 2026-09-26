@@ -1,6 +1,7 @@
 import { getContext, saveOpenChat, type SaveObservation } from "@services/STAPI";
 import type { PersistedStoryRuntime, StoryOrchestratorMetadataBlob } from "./types";
 import { isRecord } from "@utils/guards";
+import { log } from "@utils/log";
 
 const METADATA_KEY = "story_orchestrator";
 
@@ -105,7 +106,7 @@ const storedBlob = (): StoryOrchestratorMetadataBlob | null => {
 const noteMismatch = (next: BlobMismatch) => {
   if (JSON.stringify(mismatch) !== JSON.stringify(next)) {
     const tag = next.kind === "foreign" ? "blob-chat-mismatch" : "blob-unreadable";
-    console.warn(`[Story Orchestrator] ${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`);
+    log.warn(`${tag}: chat_metadata holds state ${describeMismatch(next)} while ${String(next.openChat)} is open; left untouched, read as no story selected`);
   }
   mismatch = next;
 };
@@ -151,7 +152,7 @@ const ownBlob = (write: string): StoryOrchestratorMetadataBlob | null => {
   const blob = getMetadataBlob();
   if (openChatId() === null) return null;
   if (!mismatch) return blob;
-  console.warn(`[Story Orchestrator] ${write} refused: this chat's metadata holds state ${describeMismatch(mismatch)}`);
+  log.warn(`${write} refused: this chat's metadata holds state ${describeMismatch(mismatch)}`);
   return null;
 };
 

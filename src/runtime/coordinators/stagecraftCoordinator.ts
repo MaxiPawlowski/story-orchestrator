@@ -18,6 +18,7 @@ import type { StagecraftRuntimeState } from "../types";
 import type { EstablishedFact } from "../continuity";
 import { CuratorWriter } from "../curatorWriter";
 import { withholds } from "../generationLifecycle";
+import { log } from "@utils/log";
 
 // One curator pass every few boundaries at most: the reply path never waits for it, and a story that
 // moves fast should not fund a model call per turn.
@@ -338,7 +339,10 @@ export class StagecraftCoordinator {
           agency: playerLine !== null ? { player: this.deps.hosts.player.getPlayerName(),
           message: playerLine } : null, houseRules: families.houseRules };
       const asks = input.facts.length > 0 || input.agency !== null || input.houseRules.length > 0;
-      const findings = asks ? await warden.check(input).catch(() => null) : null;
+      const findings = asks ? await warden.check(input).catch((error: unknown) => {
+        log.warn("continuity warden: the check failed", error);
+        return null;
+      }) : null;
       const owned = token ? this.deps.ownership.check(token) : undefined;
       if (owned && owned.ok === false) return false;
       if (!findings?.length || readReply(this.deps.hosts.chat.chatRows(), replyMessageId)?.text !== reply.text) {

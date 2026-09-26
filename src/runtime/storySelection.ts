@@ -7,6 +7,7 @@ import {
 import { findStoryRecord, listStoryRecords, loadPinnedStory, loadStoryRecord, removeStoryRecord, saveStoryRecord } from "./storyLibrary";
 import type { RunGuard } from "./runToken";
 import type { LoadedStory, PersistedStoryRuntime } from "./types";
+import { log } from "@utils/log";
 
 // Which story this chat plays and where that copy comes from (spec addendum §Story identity). Split
 // out of the manager so the lifecycle rules live next to the library and the
@@ -35,7 +36,7 @@ export async function releaseGatedWorldInfo(
   run?: RunGuard,
 ): Promise<void> {
   const owners = [...listStoryRecords().map((record) => record.raw), ...(previous ? [previous] : [])];
-  await effects.releaseWorldInfo(owners, keep, run).catch((error) => console.warn("[Story Orchestrator] could not release checkpoint world info", error));
+  await effects.releaseWorldInfo(owners, keep, run).catch((error) => log.warn("could not release checkpoint world info", error));
 }
 
 let refusedSelection: { chat: string | null; storyId: string } | null = null;
@@ -102,7 +103,7 @@ export async function selectStory(deps: StorySelectionDeps, id: string, chosen =
       await deps.loadStory(pinned, "hydrate", persisted);
       return true;
     }
-    console.warn(`[Story Orchestrator] pinned copy of '${persisted.storyId}' did not parse; falling back to the library`, pinned);
+    log.warn(`pinned copy of '${persisted.storyId}' did not parse; falling back to the library`, pinned);
   }
   if (!record) {
     deps.fail([{ path: "story", message: `Unknown story '${id}'` }], "Story not found");

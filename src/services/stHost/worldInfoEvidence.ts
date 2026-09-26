@@ -1,5 +1,6 @@
 import { getContext } from "./context";
 import type { HostEntriesLoaded, HostScannableEntry } from "./hostTypes";
+import { log } from "@utils/log";
 
 export type { HostEntriesLoaded } from "./hostTypes";
 
@@ -69,7 +70,7 @@ export function observeWorldInfoScans(observers: WorldInfoScanObservers): WorldI
         if (typeof source.off === "function") source.off(event, listener);
         else source.removeListener?.(event, listener);
       } catch (error) {
-        console.warn("[Story Orchestrator] a world info observer failed to detach", error);
+        log.warn("a world info observer failed to detach", error);
       }
     }
   };

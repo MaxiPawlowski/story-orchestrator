@@ -13,6 +13,7 @@ import type {
   UiRuntimeSettings,
 } from "./types";
 import { defaultTension, sanitizeTension } from "./tensionState";
+import { log } from "@utils/log";
 
 export const TALK_DECISION_LIMIT = 10;
 
@@ -76,7 +77,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
     const entries = enveloped<MemoryRuntimeState["entries"][number]>(existing.entries, "memory", dropped);
     const epistemic = enveloped<MemoryRuntimeState["epistemic"][number]>(existing.epistemic, "epistemic", dropped);
     const ledger = enveloped<MemoryRuntimeState["ledger"][number]>(existing.ledger, "ledger", dropped);
-    if (dropped.length) console.warn(`[Story Orchestrator] dropped stored rows without a provenance envelope: ${dropped.join(", ")}`);
+    if (dropped.length) log.warn(`dropped stored rows without a provenance envelope: ${dropped.join(", ")}`);
     return {
       entries,
       excluded: Array.isArray(existing.excluded) ? existing.excluded : [],
@@ -181,7 +182,7 @@ const withGlobalSettings = (extras: RuntimeExtras, read: () => GlobalSettings): 
   try {
     return applyGlobalSettings(extras, read(), NO_CHAT_OVERRIDES);
   } catch (error) {
-    console.warn("[Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults", error);
+    log.warn("install-wide settings are not readable yet; extras start at their defaults", error);
     return extras;
   }
 };

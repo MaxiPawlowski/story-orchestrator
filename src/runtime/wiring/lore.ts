@@ -8,6 +8,7 @@ import { startLoreEvidence } from "../worldInfoEvidenceHost";
 import { startSamplerOverlay } from "../samplerOverlayHost";
 import { startScanGating } from "../worldInfoScanHost";
 import type { Disposers, WindowAccess } from "./types";
+import { log } from "@utils/log";
 
 const chatId = () => getContext().chatId ?? null;
 
@@ -68,7 +69,7 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
   let awaitsIntercept = false;
   const select = (trigger: "MESSAGE_SENT" | "GENERATION_STARTED") => lore.select(trigger)
     .then((selection) => { if (selection) loreWatch.forced(selection.picks); })
-    .catch((error) => console.warn("[Story Orchestrator] lore-select failed", error));
+    .catch((error) => log.warn("lore-select failed", error));
   const onGenerationStarted = async (type: string | undefined, params: Record<string, unknown> | undefined, dryRun: boolean | undefined) => {
     awaitsMessage = false;
     if (dryRun || isQuietType(type) || params?.quiet_prompt) return;

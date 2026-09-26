@@ -2,6 +2,7 @@ import type { BoundaryResult } from "@engine/index";
 import { getChatWindow, planReconciliation, scheduleForcedCues, type ExtractionScheduler } from "@extraction/index";
 import type { SceneCoordinator } from "./coordinators/sceneCoordinator";
 import type { RuntimeManager } from "./runtimeManager";
+import { log } from "@utils/log";
 
 export const CONSOLIDATION_CADENCE = 10;
 
@@ -103,7 +104,7 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
         messageId: result.context.lastMessageId,
         heuristicFired: Boolean(sceneHeuristicFired),
         scheduleRead: (reason) => scheduler.schedule({ priority: 0, reason }),
-      }).catch((error) => console.warn("[Story Orchestrator] scene read failed", error));
+      }).catch((error) => log.warn("scene read failed", error));
     },
   },
   {
@@ -112,7 +113,7 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     id: "continuity-warden",
     order: 57,
     run: ({ result, manager }) => {
-      void manager.runWardenPass(result.context.lastMessageId).catch((error) => console.warn("[Story Orchestrator] continuity warden failed", error));
+      void manager.runWardenPass(result.context.lastMessageId).catch((error) => log.warn("continuity warden failed", error));
     },
   },
   {
@@ -151,7 +152,7 @@ export function runBoundaryWork(context: BoundaryWorkContext) {
     try {
       item.run(context);
     } catch (error) {
-      console.warn(`[Story Orchestrator] boundary work '${item.id}' failed`, error);
+      log.warn(`boundary work '${item.id}' failed`, error);
     }
   }
 }

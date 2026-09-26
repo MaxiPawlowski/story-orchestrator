@@ -1,11 +1,11 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
-import ReactDOM from "react-dom/client";
 import { bindNavbarDrawerToggle, readProfileContextLimit, showConfirmPopup, toggleNavbarDrawer } from "@services/STAPI";
 import packageJson from "../package.json";
 import { getGlobalSettings } from "@runtime/settingsStore";
 import SettingsPanel, { type SettingsHost } from "./components/settings/SettingsPanel";
 import { DEFAULT_MAX_TOKENS, inputBudget } from "@extraction/index";
-import { startRuntime } from "@runtime/index";
+import { startRuntime, stopRuntime } from "@runtime/index";
+import { createMountRegistry } from "@utils/mountRegistry";
 import { loadPersistedRuntime } from "@runtime/persistence";
 import { branchFromOldest, continueFromBranch } from "@runtime/chatIdentity";
 import { jumpToMessage } from "@runtime/messageJumpHost";
@@ -24,17 +24,16 @@ import "./styles.css";
 const EXTENSION_VERSION = String(packageJson.version ?? "unknown");
 
 const manager = startRuntime();
+const ui = createMountRegistry();
 
 const memoryModelLimit = (profileId: string | null) => {
   const limit = readProfileContextLimit(profileId);
   return { ...limit, inputBudget: inputBudget(limit, DEFAULT_MAX_TOKENS).input };
 };
 
-if (typeof globalThis !== "undefined") {
-  globalThis.storyOrchestratorRuntime = manager;
-  globalThis.storyOrchestratorStudioDraft = useDraftStore;
-  globalThis.storyOrchestratorStudioTabs = STUDIO_TAB_IDS;
-}
+ui.global("storyOrchestratorRuntime", manager);
+ui.global("storyOrchestratorStudioDraft", useDraftStore);
+ui.global("storyOrchestratorStudioTabs", STUDIO_TAB_IDS);
 
 // One Studio for the whole extension: the settings panel and the drawer's author view are separate
 // React roots, so the modal lives in its own root with a module-level open flag both can flip.
@@ -269,7 +268,7 @@ const HudMount = () => {
 const mountTopBarDrawer = () => {
   const holder = document.getElementById("top-settings-holder");
   if (!holder || document.getElementById("so-drawer")) return Boolean(holder);
-  const drawer = document.createElement("div");
+  const drawer = ui.element(document.createElement("div"));
   drawer.id = "so-drawer";
   drawer.className = "drawer";
   const toggle = document.createElement("div");
@@ -286,36 +285,36 @@ const mountTopBarDrawer = () => {
   const rightNav = document.getElementById("rightNavHolder");
   if (rightNav && rightNav.parentElement === holder) holder.insertBefore(drawer, rightNav);
   else holder.appendChild(drawer);
-  bindNavbarDrawerToggle(toggle);
-  ReactDOM.createRoot(content).render(<DrawerPanel />);
+  ui.add(bindNavbarDrawerToggle(toggle));
+  ui.root(content, <DrawerPanel />);
   return true;
 };
 
 const mountHud = () => {
   const formSheld = document.getElementById("form_sheld");
   if (!formSheld || document.getElementById("so-hud-root")) return Boolean(formSheld);
-  const hudRoot = document.createElement("div");
+  const hudRoot = ui.element(document.createElement("div"));
   hudRoot.id = "so-hud-root";
   formSheld.insertBefore(hudRoot, formSheld.firstChild);
-  ReactDOM.createRoot(hudRoot).render(<HudMount />);
+  ui.root(hudRoot, <HudMount />);
   return true;
 };
 
 const mountStudioHost = () => {
   if (document.getElementById("so-studio-root")) return true;
-  const root = document.createElement("div");
+  const root = ui.element(document.createElement("div"));
   root.id = "so-studio-root";
   document.body.appendChild(root);
-  ReactDOM.createRoot(root).render(<StudioHost />);
+  ui.root(root, <StudioHost />);
   return true;
 };
 
 const mount = (attempt = 0) => {
   const settingsRootContainer = document.getElementById("extensions_settings");
   if (settingsRootContainer && !document.getElementById("story-orchestrator-settings")) {
-    const settingsRootElement = document.createElement("div");
+    const settingsRootElement = ui.element(document.createElement("div"));
     settingsRootContainer.appendChild(settingsRootElement);
-    ReactDOM.createRoot(settingsRootElement).render(<SettingsRoot />);
+    ui.root(settingsRootElement, <SettingsRoot />);
   }
 
   const drawerMounted = mountTopBarDrawer();
@@ -323,12 +322,20 @@ const mount = (attempt = 0) => {
   mountStudioHost();
 
   if ((!settingsRootContainer || !drawerMounted || !hudMounted) && attempt < 50) {
-    window.setTimeout(() => mount(attempt + 1), 100);
+    ui.timeout(() => mount(attempt + 1), 100);
   }
 };
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => mount(), { once: true });
+  ui.listen(document, "DOMContentLoaded", () => mount(), { once: true });
 } else {
-  window.setTimeout(mount, 0);
+  ui.timeout(() => mount(), 0);
 }
+
+const stopExtension = () => {
+  setStudioOpen(false);
+  ui.dispose();
+  stopRuntime();
+};
+
+ui.global("storyOrchestratorStop", stopExtension);
