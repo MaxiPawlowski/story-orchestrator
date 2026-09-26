@@ -79,8 +79,17 @@ const holdsQuote = (message: string, quote: string): boolean => {
   return fragments.length > 0 && holdsSpan(message, fragments);
 };
 
+const QUOTE_ESCAPE = /\\(["'\\nrt])/g;
+
+const unescapeQuote = (evidence: string): string => evidence.replace(QUOTE_ESCAPE, (_escape, char: string) => ("nrt".includes(char) ? " " : char));
+
+const sourcesOf = (evidence: string, messages: readonly EvidenceMessage[]): number[] =>
+  messages.filter((message) => holdsQuote(message.text, quoteFor(evidence, message))).map((message) => message.messageId);
+
 export function evidenceSources(evidence: string, messages: readonly EvidenceMessage[]): number[] {
-  return messages.filter((message) => holdsQuote(message.text, quoteFor(evidence, message))).map((message) => message.messageId);
+  const sources = sourcesOf(evidence, messages);
+  const unescaped = unescapeQuote(evidence);
+  return sources.length || unescaped === evidence ? sources : sourcesOf(unescaped, messages);
 }
 
 export function evidenceInWindow(evidence: string, messages: string[]): boolean {
