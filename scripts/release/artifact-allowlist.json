@@ -14,6 +14,6 @@
     "server-plugin/story-orchestrator-harness/package.json"
   ],
   "dirs": ["examples"],
-  "never": ["docs/", "test/", "scripts/", "src/", ".claude/", ".debug/", "dist-dev/", "vendor/", "stories/", "node_modules/", "release/"],
+  "never": ["docs/", "test/", "scripts/", "src/", ".claude/", ".debug/", "dist-dev/", "vendor/", "stories/", "node_modules/", "release/", ".github/", ".storybook/", ".build/"],
   "neverPatterns": ["\\.map$", "\\.test\\.", "^opencode\\.json$", "^\\.mcp\\.json$"]
 }

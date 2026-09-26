@@ -1,0 +1,68 @@
+name: ci
+
+on:
+  push:
+    branches: [master]
+    tags: ["v*"]
+
+env:
+  ST_REPO: https://github.com/SillyTavern/SillyTavern.git
+  ST_REF: 7c3994196
+  EXT: SillyTavern/public/scripts/extensions/third-party/story-orchestrator
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SillyTavern at the pinned host revision
+        run: git clone --quiet "$ST_REPO" SillyTavern && git -C SillyTavern checkout --quiet "$ST_REF"
+      - uses: actions/checkout@v4
+        with:
+          path: ${{ env.EXT }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: npm ci
+        working-directory: ${{ env.EXT }}
+        run: npm ci --no-audit --no-fund
+      - name: playwright chromium
+        working-directory: ${{ env.EXT }}
+        run: npx playwright install --with-deps chromium
+      - name: typecheck
+        working-directory: ${{ env.EXT }}
+        run: npm run typecheck
+      - name: typecheck:test
+        working-directory: ${{ env.EXT }}
+        run: npm run typecheck:test
+      - name: lint
+        working-directory: ${{ env.EXT }}
+        run: npm run lint
+      - name: test
+        working-directory: ${{ env.EXT }}
+        run: npm test
+      - name: build
+        working-directory: ${{ env.EXT }}
+        run: npm run build
+      - name: build:dev
+        working-directory: ${{ env.EXT }}
+        run: npm run build:dev
+      - name: test:release
+        working-directory: ${{ env.EXT }}
+        run: npm run test:release
+      - name: test:release --release (tags)
+        if: startsWith(github.ref, 'refs/tags/v')
+        working-directory: ${{ env.EXT }}
+        run: npm run test:release --release
+      - name: test:plugin
+        working-directory: ${{ env.EXT }}
+        run: npm run test:plugin
+      - name: test:debug
+        working-directory: ${{ env.EXT }}
+        run: npm run test:debug
+      - name: debug:typecheck
+        working-directory: ${{ env.EXT }}
+        run: npm run debug:typecheck
+      - name: test-storybook:ci
+        working-directory: ${{ env.EXT }}
+        run: npm run test-storybook:ci
