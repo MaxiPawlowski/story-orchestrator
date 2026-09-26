@@ -1,0 +1,31 @@
+{
+  "ok": true,
+  "value": {
+    "todayChats": [],
+    "nChats": 60,
+    "disabled": [],
+    "chatId": "2026-09-24@04h05m33s739ms",
+    "judge": false,
+    "anyUse": false,
+    "cadence": 3,
+    "acceptMode": "review",
+    "debugGlobals": [],
+    "v2": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14"
+    ]
+  }
+}

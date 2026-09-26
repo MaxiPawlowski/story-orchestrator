@@ -1,0 +1,98 @@
+== v24-pf-curator-switch-run1 start 2026-09-25T20:32:58Z
+open-group exit=0
+header capture exit=0 served=ca25e4a632ed
+1/14 import_story ok 275ms
+2/14 eval ok 202ms
+2/14 eval -> {"mode":"switch","a":"2026-09-25@17h33m09s004ms","group":"1759606632088","restoreTo":{"curatorEnabled":true,"acceptMode":"review","wardenEnabled":false,"wardenAcceptMode":"review"},"stagecraft":{"curatorEnabled":true,"acceptMode":"auto","wardenEnabled":false,"wardenAcceptMode":"review"}}
+3/14 ui ok 305ms
+4/14 copilot ok 138ms
+5/14 expect ok 62ms
+6/14 stagecraft FAIL Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the memory model did not answer within 50320 ms
+    at D (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:197354)
+    at async C (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:198013)
+    at async F.runCuratorPass (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:585230)
+    at async eval (eval at evaluate (:290:30), <anonymous>:2:21)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T20-34-00-792Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T20-34-07-013Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 6,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-e0e7583a"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@17h33m09s004ms",
+    "owned": [
+      "2026-09-25@17h33m09s004ms"
+    ],
+    "deleted": [
+      "2026-09-25@17h33m09s004ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1537,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@17h33m09s004ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": true,
+      "ok": true
+    }
+  }
+}
+scenario exit=1 2026-09-25T20:34:07Z
+header diff exit=1 blocking=2

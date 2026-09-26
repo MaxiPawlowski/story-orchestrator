@@ -1,0 +1,77 @@
+1/7 import_story ok 263ms
+2/7 send ok 1679ms
+3/7 eval ok 194ms
+3/7 eval -> {"sceneTracker":true,"plugin":"1.0.0","model":"jev-1.13.0"}
+4/7 send ok 1680ms
+5/7 eval ok 661ms
+5/7 eval -> {"block":"[Scene: guild hall. Present: Arin.]","messageId":2,"model":"jev-1.13.0","calls":[{"at":"2026-09-25T23:20:43.713Z","boundary":0,"messageId":2,"use":"scene","model":"jev-1.13.0","latencyMs":644,"stateChars":1221,"questionCount":4,"inputTokens":1001,"outputTokens":170,"p":{}}]}
+6/7 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: DEFECT (AE04-S1): the refused removal must be journaled exactly once with the host's reason: {"writeAttempts":4,"block":"[Scene: guild hall. Present: Arin.]","injected":"[Scene: guild hall. Present: Arin.]","journal":[{"summary":"The scene tracker could not be removed from the prompt","detail":{"note":"this build exposes no setExtensionPrompt, so the block cannot be cleared. Retried on the next update."}}]}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:2339)
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:4513)
+    at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+    at UtilityScript.evaluate (<anonymous>:292:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T23-20-43-792Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-25T23-20-49-694Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 6,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-f7976edd"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@20h20m38s863ms",
+    "owned": [
+      "2026-09-25@20h20m38s863ms"
+    ],
+    "deleted": [
+      "2026-09-25@20h20m38s863ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1519,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@20h20m38s863ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": true,
+      "ok": true
+    }
+  }
+}

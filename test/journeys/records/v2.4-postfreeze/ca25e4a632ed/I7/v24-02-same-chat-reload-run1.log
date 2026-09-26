@@ -1,0 +1,90 @@
+== v24-02-same-chat-reload-run1 start 2026-09-25T20:06:11Z
+open-group exit=0
+header capture exit=0 served=ca25e4a632ed
+1/15 eval ok 7ms
+1/15 eval -> {"greetingsCleared":1}
+2/15 eval ok 7ms
+3/15 import_story ok 277ms
+4/15 eval ok 10ms
+5/15 send ok 1777ms
+6/15 extract ok 874ms
+7/15 send ok 1653ms
+8/15 extract ok 875ms
+9/15 eval ok 8ms
+9/15 eval -> {"epoch":6,"chatId":"2026-09-25@17h06m21s857ms","integrity":"a2930979-4ea7-4eea-b874-4c28acbc1d09","boundary":2}
+10/15 record_state ok 11ms
+10/15 record_state -> {"as":"before-reload","boundary":2,"active":"start","rows":{"memory":2,"epistemic":0,"ledger":0}}
+11/15 eval ok 249ms
+11/15 eval -> {"chatChanged":["2026-09-25@17h06m21s857ms"],"integrity":"a2930979-4ea7-4eea-b874-4c28acbc1d09","sameIntegrity":true}
+12/15 wait ok 1538ms
+13/15 expect ok 6ms
+14/15 expect ok 21ms
+15/15 eval ok 7ms
+15/15 eval -> {"epoch":6}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T20-06-35-348Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 15,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@17h06m21s857ms",
+    "owned": [
+      "2026-09-25@17h06m21s857ms"
+    ],
+    "deleted": [
+      "2026-09-25@17h06m21s857ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1537,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@17h06m21s857ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}
+scenario exit=0 2026-09-25T20:06:35Z
+header diff exit=0 blocking=0

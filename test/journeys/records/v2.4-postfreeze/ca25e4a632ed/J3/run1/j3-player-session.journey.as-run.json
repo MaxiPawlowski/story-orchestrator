@@ -1,0 +1,350 @@
+{
+  "id": "J3",
+  "title": "player-session",
+  "objective": "A real play session on the shipped example: transitions announced, memory recalled, nothing the player should not see, and the session journal correlates it all.",
+  "setup": {
+    "newChat": true,
+    "resetChatState": true,
+    "snapshotGlobalConfig": true,
+    "activateLorebooks": [
+      "Xentar Checkpoints"
+    ],
+    "group": "1759606632088",
+    "extraction": {
+      "cadence": 1,
+      "stabilityLag": 0,
+      "profile": "inherit"
+    }
+  },
+  "cleanup": {
+    "restoreConfig": true,
+    "deleteChat": true,
+    "enableMembers": [
+      "DM Narrator",
+      "Arin",
+      "Ponticius",
+      "Luke"
+    ]
+  },
+  "capabilities": {
+    "narrative-status": "typeof globalThis.storyOrchestratorRuntime?.getNarrativeStatus === 'function'",
+    "stall-signal": "typeof globalThis.storyOrchestratorRuntime?.getSnapshot?.().pipeline?.state === 'string'",
+    "epistemic-present": "(globalThis.storyOrchestratorRuntime?.getEpistemic?.() ?? []).length > 0"
+  },
+  "checks": [
+    {
+      "id": "J3.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the story loads and the first real transition fires from play alone",
+      "steps": [
+        {
+          "import_story": {
+            "file": "../../examples/sun-ruins/quest-for-the-sun-ruins.json"
+          }
+        },
+        {
+          "ui": {
+            "action": "select-profile"
+          }
+        },
+        {
+          "eval": "globalThis.storyOrchestratorRuntime.setExtractionSettings({ cadence: 2 }); const s = globalThis.storyOrchestratorRuntime.getSnapshot().extraction.settings; if (!s.enabled || !s.profileId) throw new Error(`extraction not configured after import: ${JSON.stringify(s)}`); return s;"
+        },
+        {
+          "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); return true;"
+        },
+        {
+          "expect": {
+            "activeCheckpoint": "cp1",
+            "requirementsReady": true
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I shoulder past the morning drinkers and get close to the job board.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "idle": true,
+            "timeoutMs": 180000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I read the brightest posting aloud: the Sun Ruins job. \"Arin, look at this one.\"",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I trace the seal on the Sun Ruins posting with a finger, still standing at the board.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "checkpointNot": "cp1",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "expect": {
+            "activeCheckpointIn": [
+              "cp2",
+              "cp3",
+              "cp-4a",
+              "cp-4b"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "J3.2",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the checkpoint change is announced in the chat itself",
+      "steps": [
+        {
+          "expect_ui": {
+            "selector": "#chat",
+            "contains": [
+              "Accept the Mission"
+            ],
+            "timeoutMs": 15000
+          }
+        }
+      ]
+    },
+    {
+      "id": "J3.3",
+      "mode": "auto",
+      "findings": [
+        "U3"
+      ],
+      "goal": "in player mode the drawer shows no author-only internals",
+      "steps": [
+        {
+          "ui": {
+            "action": "open-drawer"
+          }
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        },
+        {
+          "ui": {
+            "action": "drawer-tab",
+            "label": "Memory"
+          }
+        },
+        {
+          "expect_ui": {
+            "selector": "#drawer-manager",
+            "notContains": [
+              "Epistemic map",
+              "State ledger",
+              "hiding from",
+              "Steering:",
+              "blackboard",
+              "Convergence",
+              "Unmet gates",
+              "Advance to"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "J3.4",
+      "mode": "auto",
+      "findings": [
+        "U8"
+      ],
+      "goal": "player surfaces speak the story's language, not the implementation's",
+      "steps": [
+        {
+          "ui": {
+            "action": "drawer-tab",
+            "label": "Overview"
+          }
+        },
+        {
+          "expect_ui": {
+            "selector": "#drawer-manager",
+            "notContains": [
+              "Boundary ",
+              "boundary ",
+              "cp1",
+              "cp2",
+              "auditCount",
+              "extractor",
+              "Audits recorded"
+            ]
+          }
+        },
+        {
+          "expect_ui": {
+            "selector": "#drawer-manager",
+            "contains": [
+              "Where you are"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "J3.5",
+      "mode": "auto",
+      "findings": [
+        "U4"
+      ],
+      "goal": "one composed narrative 'where am I' surface exists",
+      "requires": [
+        "narrative-status"
+      ],
+      "steps": [
+        {
+          "eval": "const status = globalThis.storyOrchestratorRuntime.getNarrativeStatus(); if (!status?.text) throw new Error('empty narrative status'); const ids = status.sections.map((s) => s.id); if (!ids.includes('now') || !ids.includes('status')) throw new Error('narrative missing sections: ' + ids.join(',')); return { ids, text: status.text.slice(0, 200) };"
+        },
+        {
+          "expect_ui": {
+            "selector": "#so-player-overview",
+            "contains": [
+              "Where you are"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "J3.6",
+      "mode": "auto",
+      "findings": [
+        "U5"
+      ],
+      "goal": "a stalled pipeline is visibly distinct from a slow one, and the signal clears when the re-check lands",
+      "requires": [
+        "stall-signal"
+      ],
+      "steps": [
+        {
+          "ui": {
+            "action": "drawer-tab",
+            "label": "Overview"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); const state = rt.getEngineState(); rt.recordReconciliation({ checkpointId: snap.activeCheckpointId, boundary: state.boundary, targetedKeys: ['stall-probe'] }); return rt.getSnapshot().pipeline;"
+        },
+        {
+          "expect_ui": {
+            "selector": "#so-stall-signal",
+            "contains": [
+              "re-checking"
+            ]
+          }
+        },
+        {
+          "eval": "await globalThis.storyOrchestratorRuntime.runExtractionNow(undefined, 'reconcile:stall-probe'); const pipeline = globalThis.storyOrchestratorRuntime.getSnapshot().pipeline; if (pipeline.state === 'stalled-rechecking') throw new Error('stall signal did not clear after the re-check landed'); return pipeline;"
+        },
+        {
+          "eval": "if (document.querySelector('#so-stall-signal')) throw new Error('stall signal still on screen: ' + document.querySelector('#so-stall-signal').textContent); return true;"
+        }
+      ]
+    },
+    {
+      "id": "J3.7",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the session produced memory and injected it into the next generation",
+      "steps": [
+        {
+          "wait": {
+            "memoryEntries": 1,
+            "timeoutMs": 180000
+          }
+        },
+        {
+          "wait": {
+            "memoryEntries": 1,
+            "memoryTier": "facts",
+            "timeoutMs": 180000
+          }
+        },
+        {
+          "expect": {
+            "memoryInjection": {
+              "facts": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "J3.8",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the session journal correlates extraction, transition, payload and flag on one timeline",
+      "steps": [
+        {
+          "ui": {
+            "action": "flag",
+            "note": "journey J3 checkpoint"
+          }
+        },
+        {
+          "eval": "const kinds = new Set(globalThis.storyOrchestratorRuntime.getSessionJournal().map((e) => e.kind)); const missing = ['extraction', 'transition', 'payload', 'flag'].filter((k) => !kinds.has(k)); if (missing.length) throw new Error(`journal missing kinds: ${missing.join(', ')} (have ${[...kinds].join(', ')})`); return [...kinds];"
+        }
+      ]
+    },
+    {
+      "id": "J3.9",
+      "mode": "human",
+      "findings": [
+        "U4"
+      ],
+      "prompt": "During the session, did you always know where the story was and what it wanted from you?",
+      "anchors": "1 = lost most of the time · 3 = had to open the drawer to be sure · 5 = always obvious from play"
+    },
+    {
+      "id": "J3.10",
+      "mode": "human",
+      "findings": [
+        "U3"
+      ],
+      "prompt": "Did anything you saw spoil what was coming, or reveal what a character was supposed to be hiding?",
+      "anchors": "1 = major spoilers · 3 = one small leak · 5 = nothing leaked"
+    },
+    {
+      "id": "J3.11",
+      "mode": "human",
+      "findings": [
+        "U8"
+      ],
+      "prompt": "Did the on-screen wording sound like the game, or like the machine running it?",
+      "anchors": "1 = debug output · 3 = mixed · 5 = all in-world"
+    },
+    {
+      "id": "J3.12",
+      "mode": "human",
+      "findings": [
+        "U5"
+      ],
+      "prompt": "When the story did not move on a turn, could you tell whether it was stuck, thinking, or waiting for you?",
+      "anchors": "1 = indistinguishable · 3 = guessed right eventually · 5 = always clear"
+    },
+    {
+      "id": "J3.13",
+      "mode": "human",
+      "findings": [],
+      "prompt": "Pacing: did the story push when it should have pushed and breathe when it should have breathed?",
+      "anchors": "1 = fought me constantly · 3 = acceptable · 5 = felt directed"
+    }
+  ]
+}

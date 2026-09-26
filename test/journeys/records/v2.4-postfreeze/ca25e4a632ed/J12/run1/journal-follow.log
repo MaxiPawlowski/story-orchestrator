@@ -1,0 +1,108 @@
+Following the session journal → C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\test\journeys\records\v2.4-postfreeze\ca25e4a632ed\J12\run1\journal-follow.jsonl every 1000 ms. Ctrl-C to stop.
+2026-09-26T00:58:39.095Z session      chat 2026-09-20@09h17m25s990ms · story none · at — (boundary 0, 0 messages)
+2026-09-26T00:41:04.480Z story        away recap not due
+2026-09-26T00:41:04.809Z status       Started SO-J11 Lore
+2026-09-26T00:41:27.831Z status       Following The Briefing
+2026-09-26T00:41:32.996Z story        away recap not due
+2026-09-26T00:41:33.461Z status       Continuing SO-J11 Lore
+2026-09-26T00:42:08.718Z status       Following The Briefing
+2026-09-26T00:42:11.528Z status       Following The Briefing
+2026-09-26T00:42:11.531Z story        away recap not due
+2026-09-26T00:42:18.803Z story        away recap not due
+2026-09-26T00:42:19.149Z status       Continuing SO-J11 Lore
+2026-09-26T00:42:55.487Z status       Following The Briefing
+2026-09-26T00:54:09.469Z status       Following The Watchtower
+2026-09-26T00:54:09.476Z story        away recap not due
+2026-09-26T00:54:09.940Z status       Continuing SO-J11 Lore
+2026-09-26T00:54:11.180Z story        settings save not confirmed
+2026-09-26T00:54:23.371Z status       No story selected for this chat
+2026-09-26T00:58:40.128Z session      chat 2026-09-25@21h58m39s962ms · story none · at — (boundary 0, 0 messages)
+2026-09-26T00:41:04.480Z story        away recap not due
+2026-09-26T00:41:04.809Z status       Started SO-J11 Lore
+2026-09-26T00:41:27.831Z status       Following The Briefing
+2026-09-26T00:41:32.996Z story        away recap not due
+2026-09-26T00:41:33.461Z status       Continuing SO-J11 Lore
+2026-09-26T00:42:08.718Z status       Following The Briefing
+2026-09-26T00:42:11.528Z status       Following The Briefing
+2026-09-26T00:42:11.531Z story        away recap not due
+2026-09-26T00:42:18.803Z story        away recap not due
+2026-09-26T00:42:19.149Z status       Continuing SO-J11 Lore
+2026-09-26T00:42:55.487Z status       Following The Briefing
+2026-09-26T00:54:09.469Z status       Following The Watchtower
+2026-09-26T00:54:09.476Z story        away recap not due
+2026-09-26T00:54:09.940Z status       Continuing SO-J11 Lore
+2026-09-26T00:54:11.180Z story        settings save not confirmed
+2026-09-26T00:54:23.371Z status       No story selected for this chat
+2026-09-26T00:58:41.141Z session      chat 2026-09-25@21h58m39s962ms · story adolion-adventurer · at The Guild Hall (boundary 0, 0 messages)
+2026-09-26T00:58:40.717Z story        away recap not due
+2026-09-26T00:58:40.927Z status       Started Adolion: The Adventurer's Road
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:44.148Z payload      1 story blocks injected (generation)
+2026-09-26T00:58:44.303Z talk         Tobias speaks (mention)
+2026-09-26T00:58:54.676Z boundary     boundary 1: nothing applied (gate)
+2026-09-26T00:58:54.792Z status       Following The Guild Hall
+2026-09-26T00:58:59.079Z payload      1 story blocks injected (generation)
+2026-09-26T00:59:01.155Z talk         Belle speaks (director)
+2026-09-26T00:59:14.530Z boundary     boundary 2: nothing applied (gate)
+2026-09-26T00:59:19.192Z payload      1 story blocks injected (generation)
+2026-09-26T00:59:21.466Z talk         Adolion Narrator speaks (director)
+2026-09-26T00:59:37.077Z boundary     boundary 3: nothing applied (gate)
+2026-09-26T01:00:03.138Z delta        queued path=wendhope for the next boundary
+2026-09-26T01:00:04.152Z delta        queued path=wendhope for the next boundary
+2026-09-26T01:00:02.901Z extraction   read cadence msgs 0-5 → 1 accepted, 1 rejected
+2026-09-26T01:00:02.901Z delta        path = wendhope
+2026-09-26T01:00:02.901Z delta        queued path=wendhope for the next boundary
+2026-09-26T01:00:02.901Z audit        audit cadence msgs 0-5 scope [path, tension_current] → 1 accepted, 1 rejected
+2026-09-26T01:00:12.997Z stagecraft   World Info curator proposed 2 change(s) at The Guild Hall
+2026-09-26T01:00:18.327Z delta        queued path=wendhope for the next boundary
+2026-09-26T01:00:18.044Z extraction   read cue:guild-hall->road-to-wendhope msgs 0-5 → 1 accepted, 1 rejected
+2026-09-26T01:00:18.044Z delta        path = wendhope
+2026-09-26T01:00:18.044Z delta        queued path=wendhope for the next boundary
+2026-09-26T01:00:18.044Z audit        audit cue:guild-hall->road-to-wendhope msgs 0-5 scope [path, tension_current] → 1 accepted, 1 rejected
+2026-09-26T01:00:51.776Z payload      5 story blocks injected (generation)
+2026-09-26T01:00:54.132Z talk         Adolion Narrator speaks (director)
+2026-09-26T01:01:06.266Z payload      6 story blocks injected (generation)
+2026-09-26T01:01:07.098Z boundary     applied path=wendhope; discarded path=wendhope (superseded)
+2026-09-26T01:01:07.098Z transition   guild-hall → road-to-wendhope
+2026-09-26T01:01:08.388Z status       Moved into The Road North
+2026-09-26T01:01:22.581Z extraction   read scene:cast msgs 0-7 → 0 accepted, 1 rejected
+2026-09-26T01:01:22.581Z audit        audit scene:cast msgs 0-7 scope [reached_walls, tension_current] → 0 accepted, 1 rejected
+2026-09-26T01:01:28.422Z session      chat 2026-09-20@09h17m25s990ms · story none · at — (boundary 0, 0 messages)
+2026-09-26T00:58:40.717Z story        away recap not due
+2026-09-26T00:58:40.927Z status       Started Adolion: The Adventurer's Road
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:40.931Z story        quality macro skipped
+2026-09-26T00:58:44.148Z payload      1 story blocks injected (generation)
+2026-09-26T00:58:54.792Z status       Following The Guild Hall
+2026-09-26T00:58:59.079Z payload      1 story blocks injected (generation)
+2026-09-26T00:59:19.192Z payload      1 story blocks injected (generation)
+2026-09-26T01:00:12.997Z stagecraft   World Info curator proposed 2 change(s) at The Guild Hall
+2026-09-26T01:00:51.776Z payload      5 story blocks injected (generation)
+2026-09-26T01:01:06.266Z payload      6 story blocks injected (generation)
+2026-09-26T01:01:08.388Z status       Moved into The Road North
+2026-09-26T01:01:28.174Z story        restored 1 host change(s)
+2026-09-26T01:01:28.179Z story        2 host change(s) were edited outside this story and left alone
+2026-09-26T01:01:28.180Z status       No story selected for this chat

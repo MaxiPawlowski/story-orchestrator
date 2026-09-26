@@ -1,0 +1,4 @@
+DELTA stance=wary evidence="The guard's hand drifts to his sword; he eyes the party warily."
+DELTA tension_current="stirring" evidence="The guard's hand drifts to his sword; he eyes the party warily."
+MEMORY type=scene importance=2 expiration=scene text="The guard is wary of the party and has his hand on his sword." evidence="The guard's hand drifts to his sword; he eyes the party warily."
+SCENE_NONE

@@ -1,0 +1,9 @@
+DELTA crew_morale value=8 evidence="Cheers rise across the crew."
+DELTA signal_strength value=0.9 evidence="signal strength at nine-tenths."
+DELTA tension_current value="calm" evidence="Cheers rise across the crew."
+
+MEMORY type=event importance=2 expiration=session text="Dee successfully lit the beacon to nine-tenths signal strength, boosting crew morale." evidence="Dee feeds the beacon fire until it roars, signal strength at nine-tenths. Cheers rise across the crew."
+
+SCENE_NONE
+
+[arc] The crew's response to the signal and what happens next now that the beacon is lit

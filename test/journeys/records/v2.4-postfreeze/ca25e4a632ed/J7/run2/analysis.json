@@ -1,0 +1,489 @@
+{
+ "run": "run2",
+ "audits": 26,
+ "rejectedByReason": {
+  "evidence not in window": 28
+ },
+ "rejectedByQualityReason": {
+  "chamber_entered | evidence not in window": 2,
+  "luke_decision | evidence not in window": 2,
+  "reward_claimed | evidence not in window": 3,
+  "tension_current | evidence not in window": 21
+ },
+ "acceptedCounts": {
+  "approached_board": 2,
+  "tension_current": 4,
+  "mission_accepted": 3,
+  "luke_decision": 2,
+  "riddle_answer": 3,
+  "artifact_secured": 1,
+  "chamber_entered": 1
+ },
+ "mission_accepted": [
+  {
+   "at": "2026-09-25T23:17:40.092Z",
+   "v": false,
+   "evidence": "So, you two got the guts to take this quest, or are you just staring at the board like the children-who-want-cookies-at-a-market-stand?"
+  },
+  {
+   "at": "2026-09-25T23:19:18.300Z",
+   "v": true,
+   "evidence": "[8] Max: 'This one — the Sun Ruins job.' I stay at the board, pointing at the notice."
+  },
+  {
+   "at": "2026-09-25T23:19:53.235Z",
+   "v": true,
+   "evidence": "[8] Max: 'This one — the Sun Ruins job.' I stay at the board, pointing at the notice."
+  }
+ ],
+ "luke_decision": [
+  {
+   "at": "2026-09-25T23:25:45.037Z",
+   "v": "accepted",
+   "evidence": "I agree to bring Luke on the expedition."
+  },
+  {
+   "at": "2026-09-25T23:26:17.812Z",
+   "v": "accepted",
+   "evidence": "I agree to bring Luke on the expedition."
+  }
+ ],
+ "tension_current_values": [
+  0.25,
+  0.175,
+  0.25,
+  0.39999999999999997
+ ],
+ "acceptedWithLabelledEvidence": 6,
+ "rejectedDetail": [
+  {
+   "at": "2026-09-25T23:15:57.416Z",
+   "window": {
+    "from": 0,
+    "to": 2
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current=\"calm\" evidence=\"The air inside the Guildhall is thick with the scent of ale, sweat and old leather. Smoke from the hearth curls lazily toward the timber rafters, and the low murmur of conversation fills the room like a constant hum.\""
+  },
+  {
+   "at": "2026-09-25T23:16:13.890Z",
+   "window": {
+    "from": 0,
+    "to": 2
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current=\"calm\" evidence=\"The air inside the Guildhall is thick with the scent of ale, sweat and old leather. Smoke from the hearth curls lazily toward the timber rafters, and the low murmur of conversation fills the room like a constant hum.\""
+  },
+  {
+   "at": "2026-09-25T23:17:40.092Z",
+   "window": {
+    "from": 0,
+    "to": 7
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current=value=\"stirring\" evidence=\"The air inside the Guildhall is thick with the scent of ale, sweat and old leather. Smoke from the hearth curls lazily toward the timber rafters, and the low murmur of conversation fills the room like a constant hum.\""
+  },
+  {
+   "at": "2026-09-25T23:18:09.643Z",
+   "window": {
+    "from": 0,
+    "to": 7
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current=\"stirring\" evidence=\"The parchment feels cool under your finger, and the seal itself seems to be made of a material that isn't quite paper or wax—something older, and perhaps more magical in nature.\""
+  },
+  {
+   "at": "2026-09-25T23:19:53.235Z",
+   "window": {
+    "from": 4,
+    "to": 11
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current='stirring' evidence=\"[4] Arin: 'This one just feels… different.' [5] DM Narrator: 'The Sun Ruins are no joke—many adventurers have gone there and never returned.'\""
+  },
+  {
+   "at": "2026-09-25T23:22:11.965Z",
+   "window": {
+    "from": 6,
+    "to": 13
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA luke_decision=undecided evidence=\"Decide whether to take Luke along before departing for the Sun Ruins.\""
+  },
+  {
+   "at": "2026-09-25T23:22:11.965Z",
+   "window": {
+    "from": 6,
+    "to": 13
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current='tense' evidence=\"His voice drops to a low whisper. 'And the Sun's Heart? It ain't some trinket for the council's collection. They say it can power the magical barriers that keep Xentar standing. If the wards fail, the whole city's open to whatever's waiting out there.'\""
+  },
+  {
+   "at": "2026-09-25T23:22:44.360Z",
+   "window": {
+    "from": 12,
+    "to": 14
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current=value=\"tense\" evidence=\"Arin's face has gone pale, his jaw set. 'T-the barriers?' He repeats the word, and you can see his fingers clenching into a fists, the leather of his glove creaking.\""
+  },
+  {
+   "at": "2026-09-25T23:24:34.092Z",
+   "window": {
+    "from": 15,
+    "to": 19
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA luke_decision=undecided evidence=\"Decide whether to take Luke along before departing for the Sun Ruins.\""
+  },
+  {
+   "at": "2026-09-25T23:25:45.037Z",
+   "window": {
+    "from": 20,
+    "to": 22
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current='stirring' evidence=\"Luke's eyes dart around the crowded tavern, wide and frantic, taking in the familiar faces of seasoned adventurers with a mixture of desperation and awe.\""
+  },
+  {
+   "at": "2026-09-25T23:27:04.826Z",
+   "window": {
+    "from": 23,
+    "to": 25
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current=value=\"stirring\" evidence=\"The way to the Sun Ruins lies ahead, past the last standing buildings of Xentar, where the wild and the ruin begin to bleed into one another. The road is uneven, marked by the old stone paths of a city that's seen better days, and you can feel the wei"
+  },
+  {
+   "at": "2026-09-25T23:29:17.165Z",
+   "window": {
+    "from": 26,
+    "to": 29
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current=value=\"tense\" evidence=\"The threat is clear, and the tension in the courtyard is palpable. Arin and Luke exchange a glance, their faces etched with uncertainty.\""
+  },
+  {
+   "at": "2026-09-25T23:31:31.695Z",
+   "window": {
+    "from": 24,
+    "to": 31
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current=value=\"tense\" evidence=\"The threat is clear, and the tension in the courtyard is palpable. Arin and Luke exchange a glance, their faces etched with uncertainty.\""
+  },
+  {
+   "at": "2026-09-25T23:32:10.924Z",
+   "window": {
+    "from": 26,
+    "to": 33
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current='tense' evidence=\"[29] DM Narrator: ...The threat is clear, and the tension in the courtyard is palpable.\""
+  },
+  {
+   "at": "2026-09-25T23:36:09.698Z",
+   "window": {
+    "from": 34,
+    "to": 38
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current=\"tense\" evidence=\"The chamber feels both wondrous and dangerous, a testament to a lost age of power and knowledge that now lies buried and forgotten.\""
+  },
+  {
+   "at": "2026-09-25T23:37:00.208Z",
+   "window": {
+    "from": 32,
+    "to": 39
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current=value=\"tense\" evidence=\"The anticipation hangs in the air, thick and suffocating, as the young man stands there, his breath coming in quick, shallow gasps.\""
+  },
+  {
+   "at": "2026-09-25T23:37:00.208Z",
+   "window": {
+    "from": 32,
+    "to": 39
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA chamber_entered=value=true evidence=\"The stone archway looms above as you step through, the transition marked by a sudden drop in temperature that makes your breath mist in the air.\""
+  },
+  {
+   "at": "2026-09-25T23:37:19.234Z",
+   "window": {
+    "from": 39,
+    "to": 41
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current=\"tense\" evidence=\"The chamber feels both fascinating and dangerous, and as you delve deeper, the feeling that someone or something is watching you intensifies.\""
+  },
+  {
+   "at": "2026-09-25T23:37:19.234Z",
+   "window": {
+    "from": 39,
+    "to": 41
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA chamber_entered=true evidence=\"Luke's eyes are wide as he steps into the chamber\""
+  },
+  {
+   "at": "2026-09-25T23:44:41.258Z",
+   "window": {
+    "from": 42,
+    "to": 45
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current=value=\"tense\" evidence=\"The clicking sound has gone silent, but the tension in the air remains thick and heavy.\""
+  },
+  {
+   "at": "2026-09-25T23:51:24.051Z",
+   "window": {
+    "from": 36,
+    "to": 47
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current='tense' evidence=\"The chamber is filled with a renewed sense of danger, and you can tell that by taking the Sun's Heart, you've awakened something that has been slumbering in the heart of the ruins.\""
+  },
+  {
+   "at": "2026-09-25T23:52:42.787Z",
+   "window": {
+    "from": 42,
+    "to": 49
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current=\"critical\" evidence=\"The chamber is filled with a renewed sense of danger, and you can tell that by taking the Sun's Heart, you've awakened something that has been slumbering in the heart of the ruins. ... you can now hear a new sound—a low, guttural growl echoing through the c"
+  },
+  {
+   "at": "2026-09-25T23:55:14.555Z",
+   "window": {
+    "from": 45,
+    "to": 52
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA reward_claimed=false evidence=\"And when you reach the guildhall, and you enter the tavern, and you see the faces of the other adventurers, and you feel the weight of the artifact in your pack.\""
+  },
+  {
+   "at": "2026-09-25T23:55:14.555Z",
+   "window": {
+    "from": 45,
+    "to": 52
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current='tense' evidence=\"The chamber is filled with a renewed sense of danger, and you can tell that by taking the Sun's Heart, you've awakened something that has been slumbering in the heart of the ruins.\""
+  },
+  {
+   "at": "2026-09-25T23:55:59.142Z",
+   "window": {
+    "from": 46,
+    "to": 53
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA reward_claimed=false evidence=\"[53] Arin: ... 'Where's Ponticius?' He asks, and his tone is clear and unwavering, as if he's demanding an answer that he deserves. [53] DM Narrator: 'He's in the back, lad. Doing some business.'\""
+  },
+  {
+   "at": "2026-09-25T23:55:59.142Z",
+   "window": {
+    "from": 46,
+    "to": 53
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current='tense' evidence=\"[47] DM Narrator: 'The chamber is filled with a renewed sense of danger, and you can tell that by taking the Sun's Heart, you've awakened something that has been slumbering in the heart of the ruins.' [47] DM Narrator: 'The shadows seem to tighten around you, "
+  },
+  {
+   "at": "2026-09-25T23:56:28.264Z",
+   "window": {
+    "from": 54,
+    "to": 57
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA reward_claimed=false evidence=\"Ponticius: 'The artifact.' He gestures toward your pack with a curt motion of his hand. 'Bring it. Let's see what you've got.'\""
+  },
+  {
+   "at": "2026-09-25T23:56:28.264Z",
+   "window": {
+    "from": 54,
+    "to": 57
+   },
+   "reason": "evidence not in window",
+   "line": "DELTA tension_current='tense' evidence=\"The question hangs in the air between you, the weight of it pressing down on the young man who still clings to his oversized short sword as if it were a lifeline. The tavern around you is hushed now, the other adventurers sensing the gravity of the moment.\""
+  }
+ ],
+ "healthEvents": [],
+ "breakerTrips": [],
+ "transitions": [
+  {
+   "at": "2026-09-25T23:16:07.243Z",
+   "summary": "cp1 → cp2"
+  },
+  {
+   "at": "2026-09-25T23:21:11.608Z",
+   "summary": "cp2 → cp3"
+  },
+  {
+   "at": "2026-09-25T23:26:32.917Z",
+   "summary": "cp3 → cp-4a"
+  },
+  {
+   "at": "2026-09-25T23:33:50.782Z",
+   "summary": "cp-4a → cp-4a1"
+  },
+  {
+   "at": "2026-09-25T23:51:58.569Z",
+   "summary": "cp-4a1 → cp-5"
+  },
+  {
+   "at": "2026-09-25T23:53:39.145Z",
+   "summary": "cp-5 → cp-6"
+  }
+ ],
+ "sceneReads": [
+  {
+   "at": "2026-09-25T23:16:13.890Z",
+   "reason": "scene:divider",
+   "sceneBreak": {
+    "at": 1,
+    "reason": "location"
+   },
+   "window": {
+    "from": 0,
+    "to": 2
+   }
+  },
+  {
+   "at": "2026-09-25T23:17:06.290Z",
+   "reason": "scene:cast",
+   "sceneBreak": null,
+   "window": {
+    "from": 0,
+    "to": 4
+   }
+  },
+  {
+   "at": "2026-09-25T23:17:40.092Z",
+   "reason": "cadence",
+   "sceneBreak": {
+    "at": 2,
+    "reason": "location"
+   },
+   "window": {
+    "from": 0,
+    "to": 7
+   }
+  },
+  {
+   "at": "2026-09-25T23:19:53.235Z",
+   "reason": "scene:time_skip",
+   "sceneBreak": null,
+   "window": {
+    "from": 4,
+    "to": 11
+   }
+  },
+  {
+   "at": "2026-09-25T23:22:11.965Z",
+   "reason": "scene:cast",
+   "sceneBreak": null,
+   "window": {
+    "from": 6,
+    "to": 13
+   }
+  },
+  {
+   "at": "2026-09-25T23:27:04.826Z",
+   "reason": "cadence",
+   "sceneBreak": {
+    "at": 25,
+    "reason": "location"
+   },
+   "window": {
+    "from": 23,
+    "to": 25
+   }
+  },
+  {
+   "at": "2026-09-25T23:29:17.165Z",
+   "reason": "cadence",
+   "sceneBreak": {
+    "at": 29,
+    "reason": "location"
+   },
+   "window": {
+    "from": 26,
+    "to": 29
+   }
+  },
+  {
+   "at": "2026-09-25T23:31:31.695Z",
+   "reason": "cue:cp-4a->cp-4a1",
+   "sceneBreak": {
+    "at": 25,
+    "reason": "location"
+   },
+   "window": {
+    "from": 24,
+    "to": 31
+   }
+  },
+  {
+   "at": "2026-09-25T23:32:10.924Z",
+   "reason": "cue:cp-4a->cp-4a1",
+   "sceneBreak": {
+    "at": 29,
+    "reason": "location"
+   },
+   "window": {
+    "from": 26,
+    "to": 33
+   }
+  },
+  {
+   "at": "2026-09-25T23:36:09.698Z",
+   "reason": "cadence",
+   "sceneBreak": {
+    "at": 37,
+    "reason": "location"
+   },
+   "window": {
+    "from": 34,
+    "to": 38
+   }
+  },
+  {
+   "at": "2026-09-25T23:37:00.208Z",
+   "reason": "cue:cp-4a1->cp-5",
+   "sceneBreak": {
+    "at": 37,
+    "reason": "location"
+   },
+   "window": {
+    "from": 32,
+    "to": 39
+   }
+  },
+  {
+   "at": "2026-09-25T23:55:14.555Z",
+   "reason": "scene:cast",
+   "sceneBreak": {
+    "at": 51,
+    "reason": "location"
+   },
+   "window": {
+    "from": 45,
+    "to": 52
+   }
+  },
+  {
+   "at": "2026-09-25T23:55:59.142Z",
+   "reason": "cadence",
+   "sceneBreak": {
+    "at": 51,
+    "reason": "location"
+   },
+   "window": {
+    "from": 46,
+    "to": 53
+   }
+  }
+ ]
+}

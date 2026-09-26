@@ -1,0 +1,80 @@
+{
+  "name": "v24-pf-AE04-scene-refused",
+  "objective": "v2.4 post-freeze AE04-S1 live gate (commit 70b8eed, src/runtime/coordinators/sceneCoordinator.ts sync(): `injected` is set only on an ok WriteResult, a refusal is journaled once per text via deps.journal -> runtimeManager.noteRecap (src/runtime/index.ts)). A REAL scene read (judge plugin, sceneTracker on) injects the tracker block story_orchestrator_scene. Then, synchronously and inside a finally, SillyTavern.getContext is proxied so setExtensionPrompt reads undefined: the host path stHost/extensionPrompts.ts then answers couldNot. Removal: recordSceneRead(null) + 3 syncs -> the block is still held, the coordinator's `injected` is still the held text (not recorded as applied), every sync retried the write (>= 3 setExtensionPrompt lookups), and the journal holds exactly ONE 'The scene tracker could not be removed from the prompt' record carrying the host reason. Proxy removed: one sync lands the removal and adds no journal record. Addition: recordSceneRead(record) + 3 syncs under the proxy -> no block, `injected` null, retried, exactly one more record 'The scene tracker was not added to the prompt'; proxy removed, the block comes back and the journal stays at 2. Frozen 4ebe1db set `injected` before the write, ignored its result and had no journal dep: it fails the `injected`, the retry and the journal assertions. judge.enabled + uses.sceneTracker are switched on install-wide after asserting they start off and put back by the last step (which also asserts the block is gone once the tracker is off); the runner's restoreJudgeConfig restores them again; diff a run header around the run.",
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "id": "v24-pf-ae04-scene",
+        "version": 1,
+        "title": "SO-PF-AE04 Scene Story",
+        "description": "v2.4 post-freeze AE04-S1: a refused scene tracker write is reported as refused and journaled once.",
+        "qualities": [
+          {
+            "key": "location",
+            "type": "enum",
+            "values": [
+              "guild hall",
+              "town gate",
+              "desert road"
+            ],
+            "source": "extractor",
+            "rubric": "Where is the scene taking place?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "brief",
+            "name": "The Briefing",
+            "objective": "Ponticius briefs the party on the Sun Ruins job.",
+            "type": "anchor",
+            "start": true
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "companion",
+            "name": "Arin",
+            "role": "The player's companion, a sharp-tongued swordswoman who travels with the party"
+          },
+          {
+            "id": "guild_master",
+            "name": "Ponticius",
+            "role": "The gruff guild master who runs the job board, hands out contracts and pays rewards"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "Ponticius"
+          ]
+        }
+      }
+    },
+    {
+      "send": "Arin, stay close. We are in the guild hall, and Ponticius has the Sun Ruins contract on the job board."
+    },
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; const judge = root.settings.judge; if (judge.enabled || judge.uses.sceneTracker || judge.uses.sceneTrigger || judge.uses.lookahead) throw new Error(`the judge must start off (install default) so its restore can be verified: ${JSON.stringify(judge)}`); globalThis.__ae04scene = { before: JSON.parse(JSON.stringify(judge)) }; root.settings.judge = { ...judge, enabled: true, uses: { ...judge.uses, sceneTracker: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const status = await fetch('/api/plugins/story-orchestrator-judge/status', { headers: SillyTavern.getContext().getRequestHeaders() }).then((response) => (response.ok ? response.json() : null)).catch(() => null); if (!status?.configured) throw new Error(`the judge plugin is not configured on this install, so nothing can be measured: ${JSON.stringify(status)}`); const scene = globalThis.storyOrchestratorRuntime.sceneRunner; if (!scene || typeof scene.sync !== 'function') throw new Error('no scene coordinator attached to the runtime'); if (!scene.families().tracker) throw new Error('sceneTracker is not active after switching it on'); return { sceneTracker: true, plugin: status.pluginVersion ?? 'configured', model: status.model };",
+      "log": true
+    },
+    {
+      "send": "Ponticius, read us the contract. We leave for the town gate at first light."
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const key = 'story_orchestrator_scene'; const block = () => SillyTavern.getContext().extensionPrompts?.[key]?.value ?? ''; await rt.previewActions.rerunScene(); const read = rt.getSceneRead(); const calls = (rt.extras?.judge?.calls ?? []).filter((call) => call.use === 'scene').slice(-1); if (!block()) throw new Error(`the real scene read injected no tracker block (nothing to refuse yet): ${JSON.stringify({ read: read ? { location: read.location, facts: read.facts } : null, calls })}`); globalThis.__ae04scene.record = read; globalThis.__ae04scene.block = block(); return { block: block(), messageId: read?.messageId, model: read?.model, calls };",
+      "log": true,
+      "attempts": 3,
+      "retryBack": 1
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const scene = rt.sceneRunner; const key = 'story_orchestrator_scene'; const block = () => SillyTavern.getContext().extensionPrompts?.[key]?.value ?? ''; const held = globalThis.__ae04scene?.block; const record = globalThis.__ae04scene?.record; if (!held || !record || block() !== held) throw new Error(`the tracker block from the real read is not held, so there is nothing to refuse: ${JSON.stringify({ held, now: block() })}`); const trackerEvents = () => rt.getSessionJournal().filter((event) => typeof event.summary === 'string' && event.summary.startsWith('The scene tracker')).map((event) => ({ summary: event.summary, detail: JSON.stringify(event.detail ?? event.note ?? null) })); const base = trackerEvents().length; if (base !== 0) throw new Error(`tracker refusal records exist before any refusal: ${JSON.stringify(trackerEvents())}`); const host = globalThis.SillyTavern; const realGetContext = host.getContext; let reads = 0; const refuse = () => { host.getContext = function (...args) { const context = realGetContext.apply(this, args); return new Proxy(context, { get(target, prop, receiver) { if (prop === 'setExtensionPrompt') { reads += 1; return undefined; } return Reflect.get(target, prop, receiver); } }); }; }; const out = {}; refuse(); try { reads = 0; rt.recordSceneRead(null); scene.sync(); scene.sync(); scene.sync(); out.removal = { writeAttempts: reads, block: block(), injected: scene.injected, journal: trackerEvents() }; } finally { host.getContext = realGetContext; } if (out.removal.block !== held) throw new Error(`the host held no setExtensionPrompt, yet the block changed: ${JSON.stringify(out.removal)}`); if (out.removal.injected !== held) throw new Error(`DEFECT (AE04-S1): the refused removal was recorded as applied (injected = ${JSON.stringify(out.removal.injected)}): ${JSON.stringify(out.removal)}`); if (out.removal.writeAttempts < 3) throw new Error(`DEFECT (AE04-S1): the refused removal was not retried on later syncs (${out.removal.writeAttempts} write attempt(s) over 1 notify + 3 syncs): ${JSON.stringify(out.removal)}`); if (out.removal.journal.length !== 1 || out.removal.journal[0].summary !== 'The scene tracker could not be removed from the prompt' || !String(out.removal.journal[0].detail).includes('cannot be cleared')) throw new Error(`DEFECT (AE04-S1): the refused removal must be journaled exactly once with the host's reason: ${JSON.stringify(out.removal)}`); reads = 0; scene.sync(); out.removalLanded = { block: block(), injected: scene.injected, journal: trackerEvents() }; if (out.removalLanded.block !== '' || out.removalLanded.injected !== null) throw new Error(`once setExtensionPrompt is back the removal must land: ${JSON.stringify(out.removalLanded)}`); if (out.removalLanded.journal.length !== 1) throw new Error(`DEFECT (AE04-S1): the removal that landed was journaled again: ${JSON.stringify(out.removalLanded)}`); refuse(); try { reads = 0; rt.recordSceneRead(record); scene.sync(); scene.sync(); scene.sync(); out.addition = { writeAttempts: reads, block: block(), injected: scene.injected, journal: trackerEvents() }; } finally { host.getContext = realGetContext; } if (out.addition.block !== '') throw new Error(`the host held no setExtensionPrompt, yet a block appeared: ${JSON.stringify(out.addition)}`); if (out.addition.injected !== null) throw new Error(`DEFECT (AE04-S1): the refused addition was recorded as applied: ${JSON.stringify(out.addition)}`); if (out.addition.writeAttempts < 3) throw new Error(`DEFECT (AE04-S1): the refused addition was not retried on later syncs: ${JSON.stringify(out.addition)}`); const added = out.addition.journal.slice(1); if (added.length !== 1 || added[0].summary !== 'The scene tracker was not added to the prompt' || !String(added[0].detail).includes('never reaches a prompt')) throw new Error(`DEFECT (AE04-S1): the refused addition must be journaled exactly once with the host's reason: ${JSON.stringify(out.addition)}`); scene.sync(); scene.sync(); out.additionLanded = { block: block(), injected: scene.injected, journal: trackerEvents() }; if (out.additionLanded.block !== held || out.additionLanded.injected !== held) throw new Error(`once setExtensionPrompt is back the tracker must be injected again: ${JSON.stringify(out.additionLanded)}`); if (out.additionLanded.journal.length !== 2) throw new Error(`DEFECT (AE04-S1): a landed write was journaled, or a refusal twice: ${JSON.stringify(out.additionLanded)}`); return out;",
+      "log": true
+    },
+    {
+      "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; const before = globalThis.__ae04scene?.before; if (!before) throw new Error('no judge snapshot to restore'); root.settings.judge = JSON.parse(JSON.stringify(before)); globalThis.storyOrchestratorJudge.invalidateStatus(); if (JSON.stringify(root.settings.judge) !== JSON.stringify(before)) throw new Error('judge settings differ from the snapshot after restore'); const scene = globalThis.storyOrchestratorRuntime.sceneRunner; scene.sync(); if (scene.families().tracker) throw new Error('sceneTracker still active after restore'); const left = SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; if (left) throw new Error(`the tracker block outlived the judge being switched off: ${left}`); return { restored: true, enabled: root.settings.judge.enabled, sceneTracker: root.settings.judge.uses.sceneTracker, block: left };",
+      "log": true
+    }
+  ]
+}

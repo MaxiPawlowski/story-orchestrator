@@ -1,0 +1,14 @@
+{
+  "baseline": "test/journeys/records/v2.4-postfreeze/ca25e4a632ed/AE04-L1/v24-pf-AE04-lore-cancel-run1-header-start.json",
+  "label": "pf-AE04-L1-v24-pf-AE04-lore-cancel-run1-end",
+  "allow": [
+    "build.head"
+  ],
+  "differences": 0,
+  "progress": 0,
+  "blocking": 0,
+  "blockingPaths": [],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\3\\debug\\run-header-pf-AE04-L1-v24-pf-AE04-lore-cancel-run1-end.json",
+  "ok": true
+}

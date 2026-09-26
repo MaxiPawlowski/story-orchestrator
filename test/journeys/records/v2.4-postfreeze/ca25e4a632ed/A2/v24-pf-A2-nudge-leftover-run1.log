@@ -1,0 +1,76 @@
+== v24-pf-A2-nudge-leftover-run1 start 2026-09-25T20:09:12Z
+open-group exit=0
+header capture exit=0 served=ca25e4a632ed
+1/4 eval ok 6ms
+2/4 import_story ok 348ms
+3/4 eval ok 321ms
+3/4 eval -> {"chatId":"2026-09-25@17h09m26s475ms","held":"Nudge: the A2 leftover probe. Let the next reply mention the lantern smoke.","injectedLength":75,"snapshotActiveNudge":"Nudge: the A2 leftover probe. Let the next reply mention the lantern smoke."}
+4/4 eval ok 2256ms
+4/4 eval -> {"sameChat":true,"held":"Nudge: the A2 leftover probe. Let the next reply mention the lantern smoke.","injectedLength":75,"snapshotActiveNudge":"Nudge: the A2 leftover probe. Let the next reply mention the lantern smoke.","leftSetForCleanup":true}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T20-09-36-064Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 4,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@17h09m26s475ms",
+    "owned": [
+      "2026-09-25@17h09m26s475ms"
+    ],
+    "deleted": [
+      "2026-09-25@17h09m26s475ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1522,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@17h09m26s475ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}
+scenario exit=0 2026-09-25T20:09:36Z
+header diff exit=0 blocking=0

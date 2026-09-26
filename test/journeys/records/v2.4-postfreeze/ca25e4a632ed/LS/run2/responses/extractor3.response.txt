@@ -1,0 +1,8 @@
+DELTA rats_seen=3 evidence="Three rats scurry from the light."
+DELTA tension_current="stirring" evidence="Three rats scurry from the light."
+DELTA torch_lit=true evidence="Bo strikes flint against the wall and the torch catches."
+
+MEMORY type=detail importance=2 expiration=session text="Bo lit the torch in the cellar." evidence="Bo strikes flint against the wall and the torch catches."
+MEMORY type=detail importance=1 expiration=scene text="Three rats were spotted when the light was lit." evidence="Three rats scurry from the light."
+
+SCENE_NONE

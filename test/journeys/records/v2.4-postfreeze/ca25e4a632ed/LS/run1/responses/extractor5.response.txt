@@ -1,0 +1,4 @@
+DELTA torch_lit=true evidence="Bram strikes flint and the torch flares to life."
+DELTA tension_current="calm" evidence="Warm light fills the corridor."
+MEMORY type=detail importance=1 expiration=scene text="Bram lit a torch in the corridor." evidence="Bram strikes flint and the torch flares to life. Warm light fills the corridor."
+SCENE_NONE

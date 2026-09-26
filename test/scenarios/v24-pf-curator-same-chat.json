@@ -1,0 +1,110 @@
+{
+  "name": "v24-pf-curator-same-chat",
+  "objective": "v2.4 post-freeze AE-01 same-chat control for v24-pf-curator-switch: the same real curator op and the same holds (write-edge read, write-ahead save, revert compare-and-set read) with NO chat switch. The boundary apply writes exactly once with before = original while a concurrent applyCuratorProposals writes nothing; the held revert restores the original exactly once and settles the op. Proves the holds themselves do not suppress a write, so the switch run's zero writes are the ownership check.",
+  "steps": [
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-pf-curator-same",
+        "version": 1,
+        "title": "SO-PF Curator Same Chat",
+        "description": "v2.4 post-freeze AE-01 live gate: a curator op held at the write edge while the chat moves.",
+        "stagecraft": {
+          "lorebooks": [
+            "SO-PF Lore"
+          ]
+        },
+        "qualities": [
+          {
+            "key": "bridge_down",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the rope bridge over the gorge collapsed?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "gorge",
+            "name": "The Gorge",
+            "objective": "Cross the gorge.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "far-side",
+            "name": "The Far Side",
+            "objective": "The rope bridge has snapped and fallen into the gorge behind you; there is no way back across. Find another way home.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "id": "to-far-side",
+            "from": "gorge",
+            "to": "far-side",
+            "priority": 0,
+            "gate": {
+              "q": "bridge_down",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": []
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; if (!ctx.groupId || !ctx.chatId) throw new Error('needs a group chat'); for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; if (typeof globalThis.__soPFRestore === 'function') globalThis.__soPFRestore(); const gc = await import('/scripts/group-chats.js'); const wi = await import('/scripts/world-info.js'); const script = await import('/script.js'); const N = globalThis.__soPF = { mode: 'same', book: 'SO-PF Lore', storyId: 'so-pf-curator-same', group: ctx.groupId, a: ctx.chatId, dm: '1703932647585', edits: [], log: [], hold: null, b: null }; if (rt.getSnapshot().storyId !== N.storyId) throw new Error('the imported story is not selected: ' + rt.getSnapshot().storyId); if (N.mode === 'switch' && !gc.groups.find((g) => g.id === N.dm)) throw new Error('the switch target group ' + N.dm + ' is not on this install'); const origGetContext = SillyTavern.getContext; const origFetch = window.fetch; N.orig = () => origGetContext.call(SillyTavern); N.sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); N.settleSave = async () => { const until = Date.now() + 30000; let quiet = Date.now(); while (Date.now() < until) { if (script.isChatSaving) quiet = Date.now(); else if (Date.now() - quiet >= 1500) return true; await N.sleep(100); } return false; }; N.entry = (data) => { const found = data?.entries?.[N.uid]; return found ? { comment: String(found.comment ?? ''), content: String(found.content ?? ''), disabled: Boolean(found.disable) } : null; }; N.server = async () => { const response = await origFetch('/api/worldinfo/get', { method: 'POST', headers: N.orig().getRequestHeaders(), body: JSON.stringify({ name: N.book }), cache: 'no-cache' }); return N.entry(await response.json()); }; N.evicted = async () => { wi.worldInfoCache.delete(N.book); return N.entry(await N.orig().loadWorldInfo(N.book)); }; N.same = (x, y) => Boolean(x && y && x.content === y.content && Boolean(x.disabled) === Boolean(y.disabled)); N.record = () => rt.getStagecraftState().proposals.find((candidate) => candidate.id === N.recordId) ?? null; N.opRec = () => N.record()?.ops?.[N.index] ?? null; N.curatorLines = () => (rt.extras?.journal ?? []).filter((line) => /World Info curator (applied|changes rolled back)/.test(JSON.stringify(line))).length; N.gate = async (kind, name, call) => { const hold = N.hold; if (hold && !hold.triggered && hold.kind === kind && (kind === 'save' || name === N.book)) { const limit = Error.stackTraceLimit; Error.stackTraceLimit = 80; const stack = String(new Error().stack); Error.stackTraceLimit = limit; if (stack.includes(hold.needle)) { hold.triggered = Date.now(); hold.chat = N.orig().chatId; hold.stack = stack.split('\\n').slice(1, 12).map((frame) => frame.trim()).join(' | '); await new Promise((resolve) => { hold.release = resolve; }); hold.released = Date.now(); } } return call(); }; N.arm = (kind, needle) => { N.hold = { kind, needle, triggered: 0, release: null }; return N.hold; }; N.waitHeld = async (ms) => { const until = Date.now() + ms; while (Date.now() < until && !N.hold?.triggered) await N.sleep(50); return Boolean(N.hold?.triggered); }; N.release = () => { const hold = N.hold; N.hold = null; if (hold?.release) hold.release(); return hold ? { kind: hold.kind, needle: hold.needle, heldMs: hold.triggered ? Date.now() - hold.triggered : 0, chat: hold.chat ?? null, stack: hold.stack ?? null } : null; }; SillyTavern.getContext = function () { const context = origGetContext.apply(this, arguments); return new Proxy(context, { get(target, key) { if (key === 'loadWorldInfo' && N.hold?.kind === 'read') return (...args) => N.gate('read', args[0], () => target.loadWorldInfo(...args)); if (key === 'saveMetadata' && N.hold?.kind === 'save') return (...args) => N.gate('save', null, () => target.saveMetadata(...args)); return Reflect.get(target, key); } }); }; window.fetch = function (input, init) { try { const url = typeof input === 'string' ? input : input?.url ?? ''; if (url.includes('/api/worldinfo/edit') && typeof init?.body === 'string' && JSON.parse(init.body)?.name === N.book) N.edits.push({ at: Date.now(), chat: N.orig().chatId ?? null }); } catch (error) { N.fetchWrapError = String(error); } return origFetch.apply(this, arguments); }; globalThis.__soPFRestore = () => { SillyTavern.getContext = origGetContext; window.fetch = origFetch; delete globalThis.__soPFRestore; }; N.stamp = () => { const d = new Date(); const p = (n, w = 2) => String(n).padStart(w, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + '@' + p(d.getHours()) + 'h' + p(d.getMinutes()) + 'm' + p(d.getSeconds()) + 's' + p(d.getMilliseconds(), 3) + 'ms'; }; N.disk = async (id) => { const response = await origFetch('/api/chats/group/get', { method: 'POST', headers: N.orig().getRequestHeaders(), body: JSON.stringify({ id }) }); const rows = await response.json().catch(() => null); const list = Array.isArray(rows) ? rows : []; const header = list[0] && Object.hasOwn(list[0], 'chat_metadata') ? list[0] : null; const blob = header?.chat_metadata?.story_orchestrator ?? null; const stories = Object.entries(blob?.stories ?? {}).map(([key, entry]) => ({ key, proposals: entry?.extras?.stagecraft?.proposals?.length ?? 0, curatorJournal: JSON.stringify(entry?.extras?.journal ?? []).match(/World Info curator/g)?.length ?? 0 })); return { http: response.status, rows: list.length, hasBlob: Boolean(blob), blob: blob ? { chatId: blob.chatId ?? null, selectedStoryId: blob.selectedStoryId ?? null, stories } : null }; }; N.goB = async () => { if (!(await N.settleSave())) throw new Error('a chat save never finished before the switch'); const dm = gc.groups.find((g) => g.id === N.dm); if (!N.b) { N.dmPrev = { chat_id: dm.chat_id, date_last_chat: dm.date_last_chat }; N.b = N.stamp(); dm.chats.push(N.b); } dm.chat_id = N.b; const opened = await gc.openGroupById(N.dm); const until = Date.now() + 30000; while (Date.now() < until && (N.orig().groupId !== N.dm || N.orig().chatId !== N.b || rt.getSnapshot().storyId)) await N.sleep(100); if (N.orig().chatId !== N.b) throw new Error('the switch to ' + N.b + ' did not land (openGroupById ' + opened + ', now ' + N.orig().chatId + ')'); await N.sleep(1500); return { opened, hydrated: !rt.getSnapshot().storyId }; }; N.goA = async () => { if (!(await N.settleSave())) throw new Error('a chat save never finished before returning to chat A'); const opened = await gc.openGroupById(N.group); const until = Date.now() + 30000; while (Date.now() < until && (N.orig().chatId !== N.a || rt.getSnapshot().storyId !== N.storyId)) await N.sleep(100); if (N.orig().chatId !== N.a) throw new Error('could not return to chat A: ' + N.orig().chatId); if (rt.getSnapshot().storyId !== N.storyId) throw new Error('chat A did not rehydrate its story'); await N.sleep(2000); await N.settleSave(); return opened; }; N.dropB = async () => { if (!N.b) return null; if (N.orig().chatId === N.b) throw new Error('refusing to delete chat B while it is open'); await N.settleSave(); const dm = gc.groups.find((g) => g.id === N.dm); await gc.deleteGroupChat(N.dm, N.b, { jumpToNewChat: false }); dm.chat_id = N.dmPrev.chat_id; dm.date_last_chat = N.dmPrev.date_last_chat; await gc.editGroup(N.dm, true, false); await N.sleep(2500); const all = await (await origFetch('/api/groups/all', { method: 'POST', headers: N.orig().getRequestHeaders(), body: '{}' })).json(); const server = all.find((g) => g.id === N.dm); const file = await N.disk(N.b); const out = { b: N.b, listed: Boolean(server?.chats?.includes(N.b)), chatIdRestored: server?.chat_id === N.dmPrev.chat_id, fileRows: file.rows }; N.b = null; N.dropped = [...(N.dropped ?? []), out]; if (out.listed || out.fileRows || !out.chatIdRestored) throw new Error('chat B was not cleaned up: ' + JSON.stringify(out)); return out; }; N.bView = async () => ({ chat: N.orig().chatId, storyId: rt.getSnapshot().storyId ?? null, proposals: (rt.getStagecraftState()?.proposals ?? []).length, curatorJournal: N.curatorLines(), disk: await N.disk(N.b) }); N.cut = async (id) => { const c = N.orig(); const removed = c.chat.slice(id).map((message) => message.name); c.chat.length = id; if (c.chatMetadata) c.chatMetadata.tainted = true; document.querySelectorAll('.mes[mesid]').forEach((element) => { if (Number(element.getAttribute('mesid')) >= id) element.remove(); }); await c.saveChat?.(); N.deleting = c.eventSource.emit(c.eventTypes.MESSAGE_DELETED, id); return { removed, length: c.chat.length }; }; N.sendas = async (text) => { const result = await N.orig().executeSlashCommandsWithOptions('/sendas name=\"DM Narrator\" ' + text); if (result?.isError) throw new Error('/sendas failed: ' + result.errorMessage); return N.orig().chat.length - 1; }; rt.setExtractionSettings({ cadence: 50 }); N.settings = { ...rt.getStagecraftState().settings }; const lorebook = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: N.book }, { requirements: { lorebooks: [] } }); if (!lorebook.ok && !lorebook.message.includes('already exists')) throw new Error('could not create the story lorebook: ' + lorebook.message); const entries = [{ comment: 'The rope bridge', keys: ['bridge', 'gorge'], content: 'A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.' }, { comment: 'The ferryman', keys: ['ferry', 'ferryman'], content: 'A ferryman works the river below the gorge, but only at low water.' }]; for (const entry of entries) { const result = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook: N.book, comment: entry.comment, keys: entry.keys, content: entry.content }, { requirements: { lorebooks: [N.book] } }); if (!result.ok) throw new Error('entry ' + entry.comment + ': ' + result.message); } rt.setStagecraftSettings({ curatorEnabled: true, acceptMode: 'auto' }); return { mode: N.mode, a: N.a, group: N.group, restoreTo: N.settings, stagecraft: rt.getStagecraftState().settings };",
+      "log": 800
+    },
+    {
+      "ui": {
+        "action": "select-profile"
+      }
+    },
+    {
+      "copilot": {
+        "action": "advance",
+        "id": "far-side"
+      }
+    },
+    {
+      "expect": {
+        "activeCheckpoint": "far-side"
+      }
+    },
+    {
+      "stagecraft": {
+        "action": "curate",
+        "reason": "pf-ae01",
+        "expectProposal": true,
+        "expectOps": 1,
+        "attempts": 3
+      },
+      "attempts": 2,
+      "log": 600
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const N = globalThis.__soPF; const state = rt.getStagecraftState(); if (state.settings.acceptMode !== 'auto') throw new Error('the curator is not in auto mode: ' + JSON.stringify(state.settings)); const data = await (await fetch('/api/worldinfo/get', { method: 'POST', headers: SillyTavern.getContext().getRequestHeaders(), body: JSON.stringify({ name: N.book }), cache: 'no-cache' })).json(); const changes = (entry) => { const live = data.entries?.[entry.op.uid]; if (!live || entry.op.lorebook !== N.book) return false; if (entry.op.kind === 'disable') return !live.disable; if (entry.op.kind === 'enable') return Boolean(live.disable); if (entry.op.kind === 'rewrite') return String(entry.op.text).trim() !== String(live.content).trim(); return entry.op.kind === 'patch'; }; const rank = { disable: 0, rewrite: 1, enable: 2, patch: 3 }; const candidates = state.proposals.filter((record) => record.curator !== 'warden').flatMap((record) => record.ops.map((entry, index) => ({ id: record.id, index, entry }))).filter(({ entry }) => entry.status === 'accepted' && typeof entry.op.uid === 'number' && changes(entry)).sort((x, y) => rank[x.entry.op.kind] - rank[y.entry.op.kind]); if (!candidates.length) throw new Error('the auto-mode pass left no accepted op that would change the book: ' + JSON.stringify(state.proposals.map((record) => record.ops.map((entry) => ({ kind: entry.op.kind, comment: entry.op.comment, uid: entry.op.uid, status: entry.status }))))); N.recordId = candidates[0].id; N.index = candidates[0].index; N.uid = candidates[0].entry.op.uid; N.op = candidates[0].entry.op; let rejected = 0; for (const record of rt.getStagecraftState().proposals) { for (let index = 0; index < record.ops.length; index += 1) { if (record.ops[index].status === 'accepted' && !(record.id === N.recordId && index === N.index)) { await rt.setCuratorOpDecision(record.id, index, 'rejected'); rejected += 1; } } } const accepted = rt.getStagecraftState().proposals.flatMap((record) => record.ops).filter((entry) => entry.status === 'accepted').length; if (accepted !== 1 || N.opRec()?.status !== 'accepted') throw new Error('expected exactly the chosen op accepted, got ' + accepted); N.original = await N.server(); if (!N.original) throw new Error('the op entry ' + N.uid + ' is not in the server file'); await N.settleSave(); return { op: N.op, rejectedOthers: rejected, original: N.original, raw: String(state.lastPass?.rawResponse ?? '').slice(0, 300) };",
+      "log": 1200
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const N = globalThis.__soPF; if (N.orig().chatId !== N.a) throw new Error('the boundary phase must run in chat A'); if (N.opRec()?.status !== 'accepted') throw new Error('the op is not accepted before the boundary: ' + JSON.stringify(N.opRec())); if (!N.same(await N.server(), N.original)) throw new Error('the entry is not at its original before the boundary'); const edits0 = N.edits.length; const boundary0 = rt.getEngineState().boundary; const lines0 = N.curatorLines(); await N.settleSave(); N.arm('read', 'writeOp'); const result = { phase: 'boundary-apply' }; result.messageId = await N.sendas('The far side of the gorge is quiet now; the wind has dropped and the torn ropes hang still.'); if (!(await N.waitHeld(90000))) { N.release(); throw new Error('the boundary never reached the write-edge read: ' + JSON.stringify({ boundary0, boundary: rt.getEngineState().boundary, op: N.opRec() })); } const second = {}; const secondRun = rt.applyCuratorProposals().then((value) => { second.value = value; }, (error) => { second.error = String(error?.message ?? error); }); await N.sleep(500); result.readHold = N.release(); N.arm('save', 'markWriteAhead'); result.saveHeld = await N.waitHeld(20000); result.saveHold = N.release(); const until = Date.now() + 60000; while (Date.now() < until && !['applied', 'failed'].includes(N.opRec()?.status)) await N.sleep(200); await secondRun; await N.sleep(3000); await N.settleSave(); const op = N.opRec(); const record = N.record(); Object.assign(result, { second, boundary0, boundary: rt.getEngineState().boundary, status: op?.status ?? null, message: op?.message ?? null, before: op?.before ?? null, after: op?.after ?? null, recordMessageId: record?.messageId ?? null, edits: N.edits.slice(edits0), server: await N.server(), cached: await N.evicted(), curatorLinesAdded: N.curatorLines() - lines0 }); N.log.push(result); if (op?.status !== 'applied') throw new Error('the op did not apply at the boundary: ' + JSON.stringify(result)); if (!result.saveHeld) throw new Error('the write-ahead save was not seen after the read: ' + JSON.stringify(result)); if (second.error || second.value !== 0) throw new Error('the concurrent apply did not write nothing: ' + JSON.stringify(result)); if (result.edits.length !== 1) throw new Error('expected exactly one /api/worldinfo/edit, got ' + result.edits.length + ': ' + JSON.stringify(result)); if (!N.same(op.before, N.original) || op.before.uid !== N.uid) throw new Error('the before-image is not the original entry: ' + JSON.stringify(result)); if (N.same(op.after, N.original)) throw new Error('the applied op did not change the entry, so the lapse checks are vacuous: ' + JSON.stringify(result)); if (!N.same(result.server, op.after) || !N.same(result.cached, op.after)) throw new Error('the server file does not hold the applied change: ' + JSON.stringify(result)); if (!(result.boundary > boundary0)) throw new Error('no boundary was committed: ' + JSON.stringify(result)); if (result.curatorLinesAdded < 1) throw new Error('chat A journaled no curator application: ' + JSON.stringify(result)); N.after = op.after; N.m = record.messageId; return result;",
+      "log": 3000
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const N = globalThis.__soPF; if (N.orig().chatId !== N.a) throw new Error('the revert control must run in chat A'); if (N.opRec()?.status !== 'applied') throw new Error('the op is not applied before the revert: ' + JSON.stringify(N.opRec())); if (!N.same(await N.server(), N.after)) throw new Error('the server does not hold the applied change before the revert'); const edits0 = N.edits.length; await N.settleSave(); N.arm('read', 'revertAppliedSince'); const result = { phase: 'revert-same-chat', m: N.m }; result.cut = await N.cut(N.m); if (!(await N.waitHeld(30000))) { N.release(); throw new Error('the revert compare-and-set read was never reached: ' + JSON.stringify({ result, op: N.opRec() })); } await N.settleSave(); await N.sleep(1000); result.hold = N.release(); result.rollbackSettled = await Promise.race([rt.rollbackSettled().then(() => true), N.sleep(60000).then(() => false)]); await N.sleep(3000); await N.settleSave(); Object.assign(result, { op: N.opRec(), edits: N.edits.slice(edits0), server: await N.server(), cached: await N.evicted(), journal: (rt.extras?.journal ?? []).filter((line) => /curator/.test(JSON.stringify(line))).slice(-3) }); N.log.push(result); if (result.op && result.op.status === 'applied') throw new Error('the same-chat revert did not settle the op: ' + JSON.stringify(result)); if (result.edits.length !== 1) throw new Error('expected exactly one restore write, got ' + result.edits.length + ': ' + JSON.stringify(result)); if (!N.same(result.server, N.original) || !N.same(result.cached, N.original)) throw new Error('the entry was not restored to the original: ' + JSON.stringify(result)); if (!result.journal.some((line) => /rolled back \\(1\\)/.test(JSON.stringify(line)))) throw new Error('chat A journaled no single revert: ' + JSON.stringify(result)); return result;",
+      "log": 3000
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const N = globalThis.__soPF; const out = {}; if (N?.b && N.orig().chatId !== N.b) out.dropB = await N.dropB(); if (N?.settings) rt.setStagecraftSettings(N.settings); out.stagecraft = rt.getStagecraftState().settings; if (typeof globalThis.__soPFRestore === 'function') globalThis.__soPFRestore(); out.wrappersRestored = typeof globalThis.__soPFRestore !== 'function'; out.dropped = N?.dropped ?? []; out.phases = (N?.log ?? []).map((entry) => ({ phase: entry.phase, edits: entry.edits?.length ?? null })); if (N?.settings && (out.stagecraft.curatorEnabled !== N.settings.curatorEnabled || out.stagecraft.acceptMode !== N.settings.acceptMode)) throw new Error('stagecraft settings were not restored: ' + JSON.stringify(out)); return out;",
+      "log": 1500
+    },
+    {
+      "assets": {
+        "action": "remove",
+        "marker": "SO-PF"
+      }
+    }
+  ]
+}

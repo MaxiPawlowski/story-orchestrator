@@ -1,0 +1,4 @@
+AE04-S1 v24-pf-AE04-scene-refused-run1 code=1 diff=0 "blocking":0 assets=0 served=ca25e4a632ed sha256=fec33969c7b59b934a37775bd1b9f0a2fb7678394ac83413d7f3924df8ab47b8 2026-09-25T23:20:22Z 2026-09-25T23:20:56Z
+run1 note: FAILED on a fixture defect, not the product: the journal event's detail is an object {note: "..."}, and the assertion stringified it as [object Object]; the product journaled exactly once with the host reason (see run1-run.log). Fixture fixed (detail JSON-stringified); x2 series restarted from run2.
+AE04-S1 v24-pf-AE04-scene-refused-run2 code=0 diff=0 "blocking":0 assets=0 served=ca25e4a632ed sha256=f9c6af66a0a44438395429f4b501b67491615181384cb9c9b5ac9e65aa675c02 2026-09-25T23:21:13Z 2026-09-25T23:21:48Z
+AE04-S1 v24-pf-AE04-scene-refused-run3 code=0 diff=0 "blocking":0 assets=0 served=ca25e4a632ed sha256=f9c6af66a0a44438395429f4b501b67491615181384cb9c9b5ac9e65aa675c02 2026-09-25T23:21:49Z 2026-09-25T23:22:23Z

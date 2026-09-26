@@ -1,0 +1,14 @@
+{
+  "baseline": "test/journeys/records/v2.4-postfreeze/ca25e4a632ed/P03/live-v24-03-breaker-run1-header-start.json",
+  "label": "pf-P03-live-v24-03-breaker-run1-end",
+  "allow": [
+    "build.head"
+  ],
+  "differences": 0,
+  "progress": 0,
+  "blocking": 0,
+  "blockingPaths": [],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\3\\debug\\run-header-pf-P03-live-v24-03-breaker-run1-end.json",
+  "ok": true
+}

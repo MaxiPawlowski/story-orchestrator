@@ -1,0 +1,143 @@
+{
+  "file": "test/scenarios/v24-pf-curator-switch.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "import_story",
+      "ok": true,
+      "ms": 282
+    },
+    {
+      "index": 1,
+      "key": "eval",
+      "ok": true,
+      "ms": 227
+    },
+    {
+      "index": 2,
+      "key": "ui",
+      "ok": true,
+      "ms": 277
+    },
+    {
+      "index": 3,
+      "key": "copilot",
+      "ok": true,
+      "ms": 487
+    },
+    {
+      "index": 4,
+      "key": "expect",
+      "ok": true,
+      "ms": 59
+    },
+    {
+      "index": 5,
+      "key": "stagecraft",
+      "ok": true,
+      "ms": 6781
+    },
+    {
+      "index": 6,
+      "key": "eval",
+      "ok": true,
+      "ms": 1572
+    },
+    {
+      "index": 7,
+      "key": "eval",
+      "ok": true,
+      "ms": 17687
+    },
+    {
+      "index": 8,
+      "key": "eval",
+      "ok": false,
+      "ms": 17722,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: Error: chat B gained curator state: {\"phase\":\"writeahead-switch\",\"switched\":{\"opened\":true,\"hydrated\":true},\"bBefore\":{\"chat\":\"2026-09-25@18h06m00s046ms\",\"storyId\":null,\"proposals\":0,\"curatorJournal\":0,\"disk\":{\"http\":200,\"rows\":2,\"hasBlob\":false}},\"hold\":{\"kind\":\"save\",\"needle\":\"markWriteAhead\",\"heldMs\":3711,\"chat\":\"2026-09-25@18h05m30s789ms\",\"stack\":\"at N.gate (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:2670) | at Proxy.eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:3902) | at C.saveAndObserve (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:514213) | at C.persist (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:513838) | at G.persist (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:768828) | at Object.persist (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:747513) | at F.save (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:583435) | at F.markWriteAhead (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:587980) | at http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:588614 | at F.writeOp (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:590606) | at async F.applyInTurn (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:588574)\"},\"bAfter\":{\"chat\":\"2026-09-25@18h06m00s046ms\",\"storyId\":null,\"proposals\":0,\"curatorJournal\":0,\"disk\":{\"http\":200,\"rows\":2,\"hasBlob\":true}},\"outcome\":{\"value\":0},\"edits\":[],\"server\":{\"comment\":\"The rope bridge\",\"content\":\"A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.\",\"disabled\":false},\"cached\":{\"comment\":\"The rope bridge\",\"content\":\"A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.\",\"disabled\":false},\"back\":true,\"dropB\":{\"b\":\"2026-09-25@18h06m00s046ms\",\"listed\":false,\"chatIdRestored\":true,\"fileRows\":0},\"aAfter\":{\"status\":\"accepted\",\"writeAhead\":null,\"curatorLinesAdded\":0,\"server\":{\"comment\":\"The rope bridge\",\"content\":\"A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.\",\"disabled\":false}}}\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:2102)\n    at async <anonymous>:316:30"
+    }
+  ],
+  "ok": false,
+  "error": "Evaluation failed in SillyTavern page: page.evaluate: Error: chat B gained curator state: {\"phase\":\"writeahead-switch\",\"switched\":{\"opened\":true,\"hydrated\":true},\"bBefore\":{\"chat\":\"2026-09-25@18h06m00s046ms\",\"storyId\":null,\"proposals\":0,\"curatorJournal\":0,\"disk\":{\"http\":200,\"rows\":2,\"hasBlob\":false}},\"hold\":{\"kind\":\"save\",\"needle\":\"markWriteAhead\",\"heldMs\":3711,\"chat\":\"2026-09-25@18h05m30s789ms\",\"stack\":\"at N.gate (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:2670) | at Proxy.eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:3902) | at C.saveAndObserve (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:514213) | at C.persist (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:513838) | at G.persist (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:768828) | at Object.persist (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:747513) | at F.save (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:583435) | at F.markWriteAhead (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:587980) | at http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:588614 | at F.writeOp (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:590606) | at async F.applyInTurn (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:588574)\"},\"bAfter\":{\"chat\":\"2026-09-25@18h06m00s046ms\",\"storyId\":null,\"proposals\":0,\"curatorJournal\":0,\"disk\":{\"http\":200,\"rows\":2,\"hasBlob\":true}},\"outcome\":{\"value\":0},\"edits\":[],\"server\":{\"comment\":\"The rope bridge\",\"content\":\"A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.\",\"disabled\":false},\"cached\":{\"comment\":\"The rope bridge\",\"content\":\"A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.\",\"disabled\":false},\"back\":true,\"dropB\":{\"b\":\"2026-09-25@18h06m00s046ms\",\"listed\":false,\"chatIdRestored\":true,\"fileRows\":0},\"aAfter\":{\"status\":\"accepted\",\"writeAhead\":null,\"curatorLinesAdded\":0,\"server\":{\"comment\":\"The rope bridge\",\"content\":\"A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.\",\"disabled\":false}}}\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:2102)\n    at async <anonymous>:316:30",
+  "retries": [],
+  "firstAttempt": "fail",
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-e0e7583a"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@18h05m30s789ms",
+    "owned": [
+      "2026-09-25@18h05m30s789ms"
+    ],
+    "deleted": [
+      "2026-09-25@18h05m30s789ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1546,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@18h05m30s789ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": true,
+      "ok": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

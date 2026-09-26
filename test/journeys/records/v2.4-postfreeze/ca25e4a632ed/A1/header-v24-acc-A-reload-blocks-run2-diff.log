@@ -1,0 +1,14 @@
+{
+  "baseline": "test/journeys/records/v2.4-postfreeze/ca25e4a632ed/A1/header-v24-acc-A-reload-blocks-run2-start.json",
+  "label": "diff-end",
+  "allow": [
+    "build.head"
+  ],
+  "differences": 0,
+  "progress": 0,
+  "blocking": 0,
+  "blockingPaths": [],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\1\\debug\\run-header-diff-end.json",
+  "ok": true
+}

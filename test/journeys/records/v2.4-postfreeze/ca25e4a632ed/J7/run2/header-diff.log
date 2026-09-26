@@ -1,0 +1,15 @@
+ok   build.head  "e7626d737c290c02aa4d3bcbf2ef86920bac7cca" -> "c56e1f8d92c6d6dedde8e77a9420a878ad95eb6d"  (allowed by build.head)
+{
+  "baseline": "test/journeys/records/v2.4-postfreeze/ca25e4a632ed/J7/run2/header-start.json",
+  "label": "diff-end",
+  "allow": [
+    "build.head"
+  ],
+  "differences": 1,
+  "progress": 0,
+  "blocking": 0,
+  "blockingPaths": [],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\2\\debug\\run-header-diff-end.json",
+  "ok": true
+}

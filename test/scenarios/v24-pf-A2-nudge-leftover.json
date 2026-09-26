@@ -1,0 +1,21 @@
+{
+  "_note": "Post-freeze live check for A2 (b30b8ac, 2026-09-25): the one-turn copilot nudge belongs to the chat it was set in. v24-acc-I3.json clears its nudge in its own control step, so a post-cleanup read after it is vacuous. This fixture sets a nudge in the sandbox chat, proves it is held and injected, proves a same-chat reload (reloadCurrentChat -> ST clearChat) re-injects it, and ENDS WITH THE NUDGE STILL SET. The sandbox cleanup then deletes the chat and moves the page to another chat of the group; the caller asserts afterwards (st-eval) that snapshot.activeNudge, getActiveNudge() and extensionPrompts.story_copilot_nudge are all empty there. Before A2 the nudge survived that switch (interop/foreign-emitter/v24-acc-I3-run3.log). Run: node scripts/debug/so-scenario.mts run test/scenarios/v24-pf-A2-nudge-leftover.json --sandbox --group 1759606632088, then read .debug/pf-a2-post.js.",
+  "steps": [
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "import_story": {
+        "file": "v24-01-delete.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); rt.setExtractionSettings({ cadence: 0 }); rt.clearCopilotNudge(); rt.setCopilotNudge('Nudge: the A2 leftover probe. Let the next reply mention the lantern smoke.', 1); await new Promise((r) => setTimeout(r, 300)); const held = rt.getActiveNudge(); const injected = String(SillyTavern.getContext().extensionPrompts?.story_copilot_nudge?.value ?? ''); if (!held) throw new Error('the nudge did not stick, so the post-cleanup read would measure nothing'); if (!injected.includes('A2 leftover probe')) throw new Error(`setting the nudge injected no story_copilot_nudge block: ${JSON.stringify(Object.keys(SillyTavern.getContext().extensionPrompts ?? {}))}`); globalThis.__pfA2 = { chatId: ctx.chatId }; return { chatId: ctx.chatId, held, injectedLength: injected.length, snapshotActiveNudge: rt.getSnapshot().activeNudge ?? null };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const probe = globalThis.__pfA2; await SillyTavern.getContext().reloadCurrentChat(); for (let i = 0; i < 100 && !rt.getSnapshot().storyId; i += 1) await new Promise((r) => setTimeout(r, 100)); await new Promise((r) => setTimeout(r, 1500)); const ctx = SillyTavern.getContext(); if (ctx.chatId !== probe.chatId) throw new Error(`the reload moved the page to ${ctx.chatId}`); const held = rt.getActiveNudge(); const injected = String(ctx.extensionPrompts?.story_copilot_nudge?.value ?? ''); if (!held) throw new Error('a same-chat reload dropped the nudge from the coordinator'); if (!injected.includes('A2 leftover probe')) throw new Error(`a same-chat reload left the nudge un-injected (ST clearChat wiped it and nothing re-applied it): ${JSON.stringify(Object.keys(ctx.extensionPrompts ?? {}))}`); return { sameChat: true, held, injectedLength: injected.length, snapshotActiveNudge: rt.getSnapshot().activeNudge ?? null, leftSetForCleanup: true };",
+      "log": true
+    }
+  ]
+}

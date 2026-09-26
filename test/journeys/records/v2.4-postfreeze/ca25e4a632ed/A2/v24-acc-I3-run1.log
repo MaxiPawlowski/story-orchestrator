@@ -1,0 +1,92 @@
+== v24-acc-I3-run1 start 2026-09-25T20:07:35Z
+open-group exit=0
+header capture exit=0 served=ca25e4a632ed
+1/17 import_story ok 323ms
+2/17 ui ok 227ms
+3/17 eval ok 20ms
+3/17 eval -> {"cadence":0,"capable":true}
+4/17 send ok 2050ms
+5/17 wait ok 1532ms
+6/17 extract ok 1028ms
+7/17 eval ok 6ms
+7/17 eval -> {"chid":5,"planted":"t6-probe-note","scope":"warden switched on in the in-memory settings view only; nothing install-wide is written"}
+8/17 inject_script ok 7ms
+9/17 emit_generation ok 21ms
+10/17 eval ok 14ms
+10/17 eval -> {"drafted":5,"staged":true}
+11/17 eval ok 17ms
+11/17 eval -> {"nudge":"Nudge: the I3 probe nudge. Let the next reply mention the rain on the guild roof.","injectedAs":["story_copilot_nudge"]}
+12/17 eval ok 12ms
+12/17 eval -> {"keys":["story_orchestrator_guidance","story_orchestrator_continuity","story_orchestrator_epistemic","story_copilot_nudge"]}
+13/17 eval ok 1727ms
+13/17 eval -> {"emitted":["GENERATION_STARTED","GENERATION_ENDED"],"answered":true,"unchanged":4}
+14/17 eval ok 8ms
+14/17 eval -> {"emitted":["GENERATION_STARTED(dryRun)"],"unchanged":4}
+15/17 emit_generation ok 9ms
+16/17 eval ok 25ms
+16/17 eval -> {"block":"kept","note":"kept","nudge":"kept"}
+17/17 eval ok 13ms
+17/17 eval -> {"control":"the ST-shaped close cleared the nudge"}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T20-07-59-605Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 17,
+  "cleanup": {
+    "removedStoryHashes": [],
+    "keptPreExistingStories": [
+      "v2-ea8a94f1"
+    ],
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@17h07m46s303ms",
+    "owned": [
+      "2026-09-25@17h07m46s303ms"
+    ],
+    "deleted": [
+      "2026-09-25@17h07m46s303ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1515,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@17h07m46s303ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}
+scenario exit=0 2026-09-25T20:07:59Z
+header diff exit=0 blocking=0

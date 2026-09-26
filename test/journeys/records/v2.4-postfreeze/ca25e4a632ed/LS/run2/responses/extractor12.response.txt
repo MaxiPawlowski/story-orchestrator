@@ -1,0 +1,5 @@
+DELTA pact_sealed=true evidence="The witch presses her palm to his and the pact is sealed in smoke."
+DELTA tension_current="calm" evidence="The witch presses her palm to his and the pact is sealed in smoke."
+MEMORY type=event importance=3 expiration=permanent text="The witch and the protagonist sealed a pact." evidence="The witch presses her palm to his and the pact is sealed in smoke."
+SCENE_NONE
+[arc] The consequences and terms of the sealed pact with the witch

@@ -1,0 +1,4 @@
+{"row":"A1","fixture":"test/scenarios/v24-acc-A-reload-blocks.json","run":1,"code":0,"headerCapture":0,"served":"ca25e4a632ed","headerDiffCode":0,"blocking":0,"began":"2026-09-25T20:00:31Z","ended":"2026-09-25T20:01:26Z"}
+{"row":"A1","fixture":"test/scenarios/v24-acc-A-reload-blocks.json","run":2,"code":0,"headerCapture":0,"served":"ca25e4a632ed","headerDiffCode":0,"blocking":0,"began":"2026-09-25T20:01:36Z","ended":"2026-09-25T20:02:25Z"}
+{"row":"A1","fixture":"test/scenarios/v24-acc-A-reload-blocks-control.json","run":1,"code":0,"headerCapture":0,"served":"ca25e4a632ed","headerDiffCode":0,"blocking":0,"began":"2026-09-25T20:02:25Z","ended":"2026-09-25T20:03:13Z"}
+{"row":"A1","fixture":"test/scenarios/v24-acc-A-reload-blocks-control.json","run":2,"code":0,"headerCapture":0,"served":"ca25e4a632ed","headerDiffCode":0,"blocking":0,"began":"2026-09-25T20:03:14Z","ended":"2026-09-25T20:04:02Z"}

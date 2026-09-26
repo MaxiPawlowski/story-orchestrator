@@ -1,0 +1,172 @@
+{
+  "file": "test/scenarios/live-v24-08-fates-jump.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "eval",
+      "ok": true,
+      "ms": 29
+    },
+    {
+      "index": 1,
+      "key": "import_story",
+      "ok": true,
+      "ms": 350
+    },
+    {
+      "index": 2,
+      "key": "eval",
+      "ok": true,
+      "ms": 11
+    },
+    {
+      "index": 3,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 27356
+    },
+    {
+      "index": 4,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 24466
+    },
+    {
+      "index": 5,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 36160
+    },
+    {
+      "index": 6,
+      "key": "wait",
+      "ok": true,
+      "ms": 8218
+    },
+    {
+      "index": 7,
+      "key": "eval",
+      "ok": true,
+      "ms": 29
+    },
+    {
+      "index": 8,
+      "key": "ui",
+      "ok": true,
+      "ms": 929
+    },
+    {
+      "index": 9,
+      "key": "inject_script",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 10,
+      "key": "eval",
+      "ok": true,
+      "ms": 9
+    },
+    {
+      "index": 11,
+      "key": "ui",
+      "ok": true,
+      "ms": 1574
+    },
+    {
+      "index": 12,
+      "key": "eval",
+      "ok": true,
+      "ms": 137
+    },
+    {
+      "index": 13,
+      "key": "ui",
+      "ok": true,
+      "ms": 1738
+    }
+  ],
+  "ok": true,
+  "error": null,
+  "retries": [],
+  "firstAttempt": "pass",
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-783f9c3c"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@17h10m42s388ms",
+    "owned": [
+      "2026-09-25@17h10m42s388ms"
+    ],
+    "deleted": [
+      "2026-09-25@17h10m42s388ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1532,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@17h10m42s388ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

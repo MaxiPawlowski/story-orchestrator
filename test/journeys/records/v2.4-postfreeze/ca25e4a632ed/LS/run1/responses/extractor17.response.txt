@@ -1,0 +1,4 @@
+DELTA password="nightingale" evidence="the password tonight is \"nightingale\""
+DELTA tension_current="calm" evidence="The sentry leans in"
+MEMORY type=detail importance=2 expiration=session text="The password for tonight is 'nightingale'." evidence="the password tonight is \"nightingale\""
+SCENE_NONE

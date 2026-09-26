@@ -1,0 +1,15 @@
+19:59:24 {"from":0,"to":2} asIs=[] starsStripped=[2] The crowd parts slightly, the scent of roasted meat and stale ale wash
+19:59:41 {"from":0,"to":2} asIs=[] starsStripped=[2] The crowd parts slightly, the scent of roasted meat and stale ale wash
+20:00:19 {"from":0,"to":4} asIs=[] starsStripped=[2] The crowd parts slightly, the scent of roasted meat and stale ale wash
+20:00:51 {"from":0,"to":7} asIs=[] starsStripped=[5] The Guild Master steps out from a shadowed alcove near the board, his 
+20:01:21 {"from":0,"to":7} asIs=[] starsStripped=[5] The Guild Master steps out from a shadowed alcove near the board, his 
+20:07:03 {"from":15,"to":19} asIs=[] starsStripped=[] Decide whether to take Luke along before departing for the Sun Ruins.
+20:07:03 {"from":15,"to":19} asIs=[] starsStripped=[19] Arin nods slowly, his gaze sweeping across the guild hall’s reception 
+20:22:23 {"from":24,"to":31} asIs=[] starsStripped=[31] Arin’s hand rests on his bow as he surveys the chamber, his green eyes
+21:02:32 {"from":32,"to":39} asIs=[] starsStripped=[39] The Sun’s Heart core on the central pedestal hums with a steady, low e
+21:02:32 {"from":32,"to":39} asIs=[] starsStripped=[39] The underground chamber stretches before you, carved from a single pie
+21:02:32 {"from":32,"to":39} asIs=[] starsStripped=[39] The humming of the machinery grows slightly louder, its vibrations int
+21:05:13 {"from":23,"to":33} asIs=[] starsStripped=[31] Beyond the archway, the burial district opens before you—a vast underg
+21:05:13 {"from":23,"to":33} asIs=[] starsStripped=[31] Arin’s hand rests on his bow as he surveys the chamber, his green eyes
+21:08:50 {"from":34,"to":49} asIs=[] starsStripped=[49] Ponticius watches the three of you emerge from the shadows of the door
+21:08:50 {"from":34,"to":49} asIs=[] starsStripped=[49] Ponticius watches the three of you emerge from the shadows of the door

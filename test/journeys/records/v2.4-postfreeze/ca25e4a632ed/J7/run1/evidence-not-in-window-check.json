@@ -1,0 +1,182 @@
+[
+ {
+  "at": "2026-09-25T19:59:24.516Z",
+  "window": {
+   "from": 0,
+   "to": 2
+  },
+  "q": "DELTA tension_current=\"calm\" evidence=\"The crowd parts slightly, the scent of ro",
+  "inPromptVerbatim": true,
+  "inPromptNormalized": true,
+  "inPromptLabelStripped": true,
+  "quote": "The crowd parts slightly, the scent of roasted meat and stale ale washing over you as you step into the dimly lit reception area."
+ },
+ {
+  "at": "2026-09-25T19:59:41.328Z",
+  "window": {
+   "from": 0,
+   "to": 2
+  },
+  "q": "DELTA tension_current=\"calm\" evidence=\"The crowd parts slightly, the scent of ro",
+  "inPromptVerbatim": true,
+  "inPromptNormalized": true,
+  "inPromptLabelStripped": true,
+  "quote": "The crowd parts slightly, the scent of roasted meat and stale ale washing over you as you step into the dimly lit reception area."
+ },
+ {
+  "at": "2026-09-25T20:00:19.288Z",
+  "window": {
+   "from": 0,
+   "to": 4
+  },
+  "q": "DELTA tension_current value=\"calm\" evidence=\"The crowd parts slightly, the scent",
+  "inPromptVerbatim": true,
+  "inPromptNormalized": true,
+  "inPromptLabelStripped": true,
+  "quote": "The crowd parts slightly, the scent of roasted meat and stale ale washing over you as you step into the dimly lit reception area."
+ },
+ {
+  "at": "2026-09-25T20:00:51.342Z",
+  "window": {
+   "from": 0,
+   "to": 7
+  },
+  "q": "DELTA tension_current=\"stirring\" evidence=\"The Guild Master steps out from a sha",
+  "inPromptVerbatim": true,
+  "inPromptNormalized": true,
+  "inPromptLabelStripped": true,
+  "quote": "The Guild Master steps out from a shadowed alcove near the board, his presence commanding and unexpected."
+ },
+ {
+  "at": "2026-09-25T20:01:21.274Z",
+  "window": {
+   "from": 0,
+   "to": 7
+  },
+  "q": "DELTA tension_current=\"stirring\" evidence=\"The Guild Master steps out from a sha",
+  "inPromptVerbatim": true,
+  "inPromptNormalized": true,
+  "inPromptLabelStripped": true,
+  "quote": "The Guild Master steps out from a shadowed alcove near the board, his presence commanding and unexpected."
+ },
+ {
+  "at": "2026-09-25T20:07:03.518Z",
+  "window": {
+   "from": 15,
+   "to": 19
+  },
+  "q": "DELTA luke_decision value=\"undecided\" evidence=\"Decide whether to take Luke alon",
+  "inPromptVerbatim": true,
+  "inPromptNormalized": true,
+  "inPromptLabelStripped": true,
+  "quote": "Decide whether to take Luke along before departing for the Sun Ruins."
+ },
+ {
+  "at": "2026-09-25T20:07:03.518Z",
+  "window": {
+   "from": 15,
+   "to": 19
+  },
+  "q": "DELTA tension_current value=\"calm\" evidence=\"Arin nods slowly, his gaze sweeping",
+  "inPromptVerbatim": true,
+  "inPromptNormalized": true,
+  "inPromptLabelStripped": true,
+  "quote": "Arin nods slowly, his gaze sweeping across the guild hall’s reception area, the sound of voices and clink of mugs fading into the background."
+ },
+ {
+  "at": "2026-09-25T20:22:23.989Z",
+  "window": {
+   "from": 24,
+   "to": 31
+  },
+  "q": "DELTA tension_current value=\"tense\" evidence=\"Arin’s hand rests on his bow as he",
+  "inPromptVerbatim": false,
+  "inPromptNormalized": false,
+  "inPromptLabelStripped": false,
+  "quote": "Arin’s hand rests on his bow as he surveys the chamber, his green eyes sharp and focused. 'Stay sharp. Sphinxes are one thing, but burial grounds usually have something less talkative waiting in the s"
+ },
+ {
+  "at": "2026-09-25T21:02:32.418Z",
+  "window": {
+   "from": 32,
+   "to": 39
+  },
+  "q": "DELTA artifact_secured=false evidence=\"The Sun’s Heart core on the central pedes",
+  "inPromptVerbatim": true,
+  "inPromptNormalized": true,
+  "inPromptLabelStripped": true,
+  "quote": "The Sun’s Heart core on the central pedestal hums with a steady, low energy, its light pulsing in rhythm with the machinery"
+ },
+ {
+  "at": "2026-09-25T21:02:32.418Z",
+  "window": {
+   "from": 32,
+   "to": 39
+  },
+  "q": "DELTA chamber_entered=true evidence=\"The underground chamber stretches before yo",
+  "inPromptVerbatim": true,
+  "inPromptNormalized": true,
+  "inPromptLabelStripped": true,
+  "quote": "The underground chamber stretches before you, carved from a single piece of smooth white stone that glows faintly in the dim light."
+ },
+ {
+  "at": "2026-09-25T21:02:32.418Z",
+  "window": {
+   "from": 32,
+   "to": 39
+  },
+  "q": "DELTA tension_current='stirring' evidence=\"The humming of the machinery grows sl",
+  "inPromptVerbatim": true,
+  "inPromptNormalized": true,
+  "inPromptLabelStripped": true,
+  "quote": "The humming of the machinery grows slightly louder, its vibrations intensifying as Arin speaks, and for a moment the chamber seems to pulse with energy, as if it’s reacting to your presence."
+ },
+ {
+  "at": "2026-09-25T21:05:13.317Z",
+  "window": {
+   "from": 23,
+   "to": 33
+  },
+  "q": "DELTA chamber_entered=true evidence=\"Beyond the archway, the burial district ope",
+  "inPromptVerbatim": true,
+  "inPromptNormalized": true,
+  "inPromptLabelStripped": true,
+  "quote": "Beyond the archway, the burial district opens before you—a vast underground chamber carved from smooth white stone"
+ },
+ {
+  "at": "2026-09-25T21:05:13.317Z",
+  "window": {
+   "from": 23,
+   "to": 33
+  },
+  "q": "DELTA tension_current=\"tense\" evidence=\"Arin’s hand rests on his bow as he surve",
+  "inPromptVerbatim": false,
+  "inPromptNormalized": false,
+  "inPromptLabelStripped": false,
+  "quote": "Arin’s hand rests on his bow as he surveys the chamber, his green eyes sharp and focused. “Stay sharp. Sphinxes are one thing, but burial grounds usually have something less talkative waiting in the s"
+ },
+ {
+  "at": "2026-09-25T21:08:50.837Z",
+  "window": {
+   "from": 34,
+   "to": 49
+  },
+  "q": "DELTA reward_claimed=false evidence=\"Ponticius watches the three of you emerge f",
+  "inPromptVerbatim": false,
+  "inPromptNormalized": false,
+  "inPromptLabelStripped": false,
+  "quote": "Ponticius watches the three of you emerge from the shadows of the doorway, his keen eyes immediately focusing on the bulge in Max's pack. 'You’re back,' he says"
+ },
+ {
+  "at": "2026-09-25T21:08:50.837Z",
+  "window": {
+   "from": 34,
+   "to": 49
+  },
+  "q": "DELTA tension_current='stirring' evidence=\"Ponticius watches the three of you em",
+  "inPromptVerbatim": false,
+  "inPromptNormalized": false,
+  "inPromptLabelStripped": false,
+  "quote": "Ponticius watches the three of you emerge from the shadows of the doorway, his keen eyes immediately focusing on the bulge in Max's pack. 'You’re back,' he says"
+ }
+]

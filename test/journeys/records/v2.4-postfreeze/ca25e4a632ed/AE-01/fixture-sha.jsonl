@@ -1,0 +1,5 @@
+{"row":"AE-01","run":5,"fixture":"test/scenarios/v24-pf-curator-switch.json","sha256":"496867976994c7bcf54f06e9f38fc250775376aec24adfe12b715dec2ed0a020","basis":"inferred: file mtime 2026-09-25T21:12:10.9Z precedes run5 began 21:12:31Z; no later modification"}
+{"row":"AE-01","run":6,"fixture":"test/scenarios/v24-pf-curator-switch.json","sha256":"496867976994c7bcf54f06e9f38fc250775376aec24adfe12b715dec2ed0a020","at":"2026-09-25T23:15:03Z"}
+{"row":"AE-01","run":7,"fixture":"test/scenarios/v24-pf-curator-switch.json","sha256":"496867976994c7bcf54f06e9f38fc250775376aec24adfe12b715dec2ed0a020","at":"2026-09-25T23:16:43Z"}
+{"row":"AE-01","run":1,"fixture":"test/scenarios/v24-pf-curator-same-chat.json","sha256":"071019980bce05e974bb4c48ea84b592fa28da3e4c9b84ff03a26121502361af","at":"2026-09-25T23:18:21Z"}
+{"row":"AE-01","run":2,"fixture":"test/scenarios/v24-pf-curator-same-chat.json","sha256":"071019980bce05e974bb4c48ea84b592fa28da3e4c9b84ff03a26121502361af","at":"2026-09-25T23:19:03Z"}

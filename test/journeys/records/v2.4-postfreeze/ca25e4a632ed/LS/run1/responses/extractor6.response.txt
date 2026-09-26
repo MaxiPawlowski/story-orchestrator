@@ -1,0 +1,4 @@
+DELTA supplies=3 evidence="The quartermaster counts three ration packs left in the crate."
+DELTA tension_current="calm" evidence="The quartermaster counts three ration packs left in the crate."
+MEMORY type=detail importance=2 expiration=session text="Three ration packs remain in the crate." evidence="The quartermaster counts three ration packs left in the crate."
+SCENE_NONE

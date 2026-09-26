@@ -1,0 +1,76 @@
+{
+ "director": {
+  "calls": 24,
+  "timeouts": 2,
+  "fallbacks": {
+   "timeout": 2
+  },
+  "answered_p50": 278,
+  "answered_p90": 315,
+  "answered_max": 404
+ },
+ "memoryVerify": {
+  "calls": 12,
+  "timeouts": 0,
+  "fallbacks": {},
+  "answered_p50": 291,
+  "answered_p90": 333,
+  "answered_max": 347
+ },
+ "memoryPairs": {
+  "calls": 20,
+  "timeouts": 0,
+  "fallbacks": {},
+  "answered_p50": 285,
+  "answered_p90": 320,
+  "answered_max": 341
+ },
+ "scene": {
+  "calls": 28,
+  "timeouts": 0,
+  "fallbacks": {},
+  "answered_p50": 286,
+  "answered_p90": 412,
+  "answered_max": 447
+ },
+ "lore": {
+  "calls": 4,
+  "timeouts": 0,
+  "fallbacks": {},
+  "answered_p50": 324,
+  "answered_p90": 325,
+  "answered_max": 325
+ },
+ "typed": {
+  "calls": 9,
+  "timeouts": 0,
+  "fallbacks": {},
+  "answered_p50": 288,
+  "answered_p90": 313,
+  "answered_max": 313
+ },
+ "stall": {
+  "calls": 4,
+  "timeouts": 0,
+  "fallbacks": {},
+  "answered_p50": 346,
+  "answered_p90": 347,
+  "answered_max": 347
+ },
+ "curatorFilter": {
+  "calls": 2,
+  "timeouts": 0,
+  "fallbacks": {},
+  "answered_p50": 293,
+  "answered_p90": 293,
+  "answered_max": 293
+ },
+ "critic": {
+  "calls": 2,
+  "timeouts": 0,
+  "fallbacks": {},
+  "answered_p50": 335,
+  "answered_p90": 335,
+  "answered_max": 335
+ }
+}

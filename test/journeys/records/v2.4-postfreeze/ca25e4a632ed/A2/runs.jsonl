@@ -1,0 +1,4 @@
+{"row":"A2","fixture":"test/scenarios/v24-acc-I3.json","run":1,"code":0,"headerCapture":0,"served":"ca25e4a632ed","headerDiffCode":0,"blocking":0,"began":"2026-09-25T20:07:35Z","ended":"2026-09-25T20:08:02Z"}
+{"row":"A2","fixture":"test/scenarios/v24-acc-I3.json","run":2,"code":0,"headerCapture":0,"served":"ca25e4a632ed","headerDiffCode":0,"blocking":0,"began":"2026-09-25T20:08:05Z","ended":"2026-09-25T20:08:33Z"}
+{"row":"A2","fixture":"test/scenarios/v24-pf-A2-nudge-leftover.json","run":1,"code":0,"headerCapture":0,"served":"ca25e4a632ed","headerDiffCode":0,"blocking":0,"began":"2026-09-25T20:09:12Z","ended":"2026-09-25T20:09:41Z"}
+{"row":"A2","fixture":"test/scenarios/v24-pf-A2-nudge-leftover.json","run":2,"code":0,"headerCapture":0,"served":"ca25e4a632ed","headerDiffCode":0,"blocking":0,"began":"2026-09-25T20:09:45Z","ended":"2026-09-25T20:10:12Z"}

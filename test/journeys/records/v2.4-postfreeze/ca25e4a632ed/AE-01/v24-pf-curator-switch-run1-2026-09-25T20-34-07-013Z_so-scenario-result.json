@@ -1,0 +1,125 @@
+{
+  "file": "test/scenarios/v24-pf-curator-switch.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "import_story",
+      "ok": true,
+      "ms": 275
+    },
+    {
+      "index": 1,
+      "key": "eval",
+      "ok": true,
+      "ms": 202
+    },
+    {
+      "index": 2,
+      "key": "ui",
+      "ok": true,
+      "ms": 305
+    },
+    {
+      "index": 3,
+      "key": "copilot",
+      "ok": true,
+      "ms": 138
+    },
+    {
+      "index": 4,
+      "key": "expect",
+      "ok": true,
+      "ms": 62
+    },
+    {
+      "index": 5,
+      "key": "stagecraft",
+      "ok": false,
+      "ms": 50476,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the memory model did not answer within 50320 ms\n    at D (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:197354)\n    at async C (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:198013)\n    at async F.runCuratorPass (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:585230)\n    at async eval (eval at evaluate (:290:30), <anonymous>:2:21)\n    at async <anonymous>:316:30"
+    }
+  ],
+  "ok": false,
+  "error": "Evaluation failed in SillyTavern page: page.evaluate: ModelCallError: the memory model did not answer within 50320 ms\n    at D (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:197354)\n    at async C (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:198013)\n    at async F.runCuratorPass (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:585230)\n    at async eval (eval at evaluate (:290:30), <anonymous>:2:21)\n    at async <anonymous>:316:30",
+  "retries": [],
+  "firstAttempt": "fail",
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-e0e7583a"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@17h33m09s004ms",
+    "owned": [
+      "2026-09-25@17h33m09s004ms"
+    ],
+    "deleted": [
+      "2026-09-25@17h33m09s004ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1537,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@17h33m09s004ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": true,
+      "ok": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

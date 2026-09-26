@@ -1,0 +1,101 @@
+== v24-pf-curator-switch-run3 start 2026-09-25T21:05:20Z
+open-group exit=0
+header capture exit=0 served=ca25e4a632ed
+1/14 import_story ok 282ms
+2/14 eval ok 227ms
+2/14 eval -> {"mode":"switch","a":"2026-09-25@18h05m30s789ms","group":"1759606632088","restoreTo":{"curatorEnabled":true,"acceptMode":"review","wardenEnabled":false,"wardenAcceptMode":"review"},"stagecraft":{"curatorEnabled":true,"acceptMode":"auto","wardenEnabled":false,"wardenAcceptMode":"review"}}
+3/14 ui ok 277ms
+4/14 copilot ok 487ms
+5/14 expect ok 59ms
+6/14 stagecraft ok 6781ms
+6/14 stagecraft -> {"ran":true,"record":{"id":"wi-1-0","curator":"wi","at":"2026-09-25T21:05:39.063Z","boundary":1,"messageId":0,"checkpointId":"far-side","reason":"pf-ae01","summary":"The bridge has collapsed, making it no longer accessible, while the ferryman becomes a potential alternative route.","mode":"auto","ops":[{"op":{"kind":"disable","lorebook":"SO-PF Lore","comment":"The rope bridge","uid":0},"status":"accepted","message":"Switch \"The rope bridge\" off","before":{"content":"A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.","disabled":false,
+7/14 eval ok 1572ms
+7/14 eval -> {"op":{"kind":"disable","lorebook":"SO-PF Lore","comment":"The rope bridge","uid":0},"rejectedOthers":0,"original":{"comment":"The rope bridge","content":"A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.","disabled":false},"raw":"[disable] #0 \"The rope bridge\"\n[enable] #1 \"The ferryman\"\n[why] The bridge has collapsed, making it no longer accessible, while the ferryman becomes a potential alternative route."}
+8/14 eval ok 17687ms
+8/14 eval -> {"phase":"read-switch","switched":{"opened":true,"hydrated":true},"bBefore":{"chat":"2026-09-25@18h05m42s372ms","storyId":null,"proposals":0,"curatorJournal":0,"disk":{"http":200,"rows":2,"hasBlob":false}},"hold":{"kind":"read","needle":"writeOp","heldMs":3761,"chat":"2026-09-25@18h05m30s789ms","stack":"at N.gate (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:2670) | at Proxy.eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:3765) | at g (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:907581) | at _ (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:913370) | at F.writeOp (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:589509) | at F.applyInTurn (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:588585) | at http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:588072"},"bAfter":{"chat":"2026-09-25@18h05m42s372ms","storyId":null,"proposals":0,"curatorJournal":0,"disk":{"http":200,"rows":2,"hasBlob":false}},"outcome":{"value":0},"edits":[],"server":{"comment":"The rope bridge","content":"A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.","disabled":false},"cached":{"comment":"The rope bridge","content":"A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.","disabled":false},"back":true,"dropB":{"b":"2026-09-25@18h05m42s372ms","listed":false,"chatIdRestored":true,"fileRows":0},"aAfter":{"status":"accepted","writeAhead":null,"curatorLinesAdded":0,"server":{"comment":"The rope bridge","content":"A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.","disabled":false}}}
+9/14 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: chat B gained curator state: {"phase":"writeahead-switch","switched":{"opened":true,"hydrated":true},"bBefore":{"chat":"2026-09-25@18h06m00s046ms","storyId":null,"proposals":0,"curatorJournal":0,"disk":{"http":200,"rows":2,"hasBlob":false}},"hold":{"kind":"save","needle":"markWriteAhead","heldMs":3711,"chat":"2026-09-25@18h05m30s789ms","stack":"at N.gate (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:2670) | at Proxy.eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:3902) | at C.saveAndObserve (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:514213) | at C.persist (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:513838) | at G.persist (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:768828) | at Object.persist (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:747513) | at F.save (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:583435) | at F.markWriteAhead (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:587980) | at http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:588614 | at F.writeOp (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:590606) | at async F.applyInTurn (http://127.0.0.1:8101/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:588574)"},"bAfter":{"chat":"2026-09-25@18h06m00s046ms","storyId":null,"proposals":0,"curatorJournal":0,"disk":{"http":200,"rows":2,"hasBlob":true}},"outcome":{"value":0},"edits":[],"server":{"comment":"The rope bridge","content":"A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.","disabled":false},"cached":{"comment":"The rope bridge","content":"A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.","disabled":false},"back":true,"dropB":{"b":"2026-09-25@18h06m00s046ms","listed":false,"chatIdRestored":true,"fileRows":0},"aAfter":{"status":"accepted","writeAhead":null,"curatorLinesAdded":0,"server":{"comment":"The rope bridge","content":"A rope bridge spans the gorge, its ropes new and taut. It is the only way across, and it holds a laden mule.","disabled":false}}}
+    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:2102)
+    at async <anonymous>:316:30
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T21-06-16-234Z_so-scenario-failure.json
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T21-06-22-333Z_so-scenario-result.json
+{
+  "ok": false,
+  "steps": 9,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-e0e7583a"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@18h05m30s789ms",
+    "owned": [
+      "2026-09-25@18h05m30s789ms"
+    ],
+    "deleted": [
+      "2026-09-25@18h05m30s789ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1546,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@18h05m30s789ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 50,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "judge": {
+      "restored": true,
+      "ok": true
+    }
+  }
+}
+scenario exit=1 2026-09-25T21:06:22Z
+header diff exit=1 blocking=2

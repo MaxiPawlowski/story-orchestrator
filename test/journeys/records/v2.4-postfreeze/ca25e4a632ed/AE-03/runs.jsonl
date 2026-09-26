@@ -1,0 +1,2 @@
+{"row":"AE-03","fixture":"test/scenarios/live-v24-08-fates-jump.json","run":1,"code":0,"headerCapture":0,"served":"ca25e4a632ed","headerDiffCode":0,"blocking":0,"began":"2026-09-25T20:10:29Z","ended":"2026-09-25T20:12:34Z"}
+{"row":"AE-03","fixture":"test/scenarios/live-v24-08-fates-jump.json","run":2,"code":0,"headerCapture":0,"served":"ca25e4a632ed","headerDiffCode":0,"blocking":0,"began":"2026-09-25T20:12:34Z","ended":"2026-09-25T20:15:25Z"}

@@ -1,0 +1,4 @@
+{"row":"I7","fixture":"test/scenarios/v24-acc-I7.json","run":1,"code":0,"headerCapture":0,"served":"ca25e4a632ed","headerDiffCode":0,"blocking":0,"began":"2026-09-25T20:04:09Z","ended":"2026-09-25T20:05:10Z"}
+{"row":"I7","fixture":"test/scenarios/v24-acc-I7.json","run":2,"code":0,"headerCapture":0,"served":"ca25e4a632ed","headerDiffCode":0,"blocking":0,"began":"2026-09-25T20:05:10Z","ended":"2026-09-25T20:06:11Z"}
+{"row":"I7","fixture":"test/scenarios/v24-02-same-chat-reload.json","run":1,"code":0,"headerCapture":0,"served":"ca25e4a632ed","headerDiffCode":0,"blocking":0,"began":"2026-09-25T20:06:11Z","ended":"2026-09-25T20:06:38Z"}
+{"row":"I7","fixture":"test/scenarios/v24-02-same-chat-reload.json","run":2,"code":0,"headerCapture":0,"served":"ca25e4a632ed","headerDiffCode":0,"blocking":0,"began":"2026-09-25T20:06:39Z","ended":"2026-09-25T20:07:06Z"}

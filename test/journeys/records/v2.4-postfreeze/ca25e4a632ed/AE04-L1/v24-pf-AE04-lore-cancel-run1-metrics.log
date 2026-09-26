@@ -1,0 +1,16 @@
+=== 2026-09-25T23:22:54Z
+llamacpp:prompt_tokens_total 91557
+llamacpp:prompt_tokens_cached_total 4845
+llamacpp:prompt_seconds_total 73.6111
+llamacpp:tokens_predicted_total 10397
+llamacpp:tokens_predicted_seconds_total 557.932
+llamacpp:n_decode_total 6667
+llamacpp:n_tokens_max 6249
+llamacpp:spec_decode_num_draft_tokens_total 0
+llamacpp:spec_decode_num_accepted_tokens_total 0
+llamacpp:spec_decode_num_drafts_total 0
+llamacpp:prompt_tokens_seconds 1299.01
+llamacpp:predicted_tokens_seconds 13.6991
+llamacpp:requests_processing 3
+llamacpp:requests_deferred 0
+llamacpp:n_busy_slots_per_decode 1.60912

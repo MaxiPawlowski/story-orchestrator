@@ -1,0 +1,5 @@
+DELTA gate_breached value=true evidence="The battering ram splinters the gate at last."
+DELTA tension_current value="critical" evidence="The battering ram splinters the gate at last."
+MEMORY type=event importance=3 expiration=session text="The battering ram has splintered the gate." evidence="The battering ram splinters the gate at last."
+SCENE_NONE
+[arc] The consequences of the gate being breached

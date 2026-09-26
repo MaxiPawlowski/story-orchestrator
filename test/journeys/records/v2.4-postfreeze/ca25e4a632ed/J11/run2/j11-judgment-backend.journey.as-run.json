@@ -1,0 +1,1060 @@
+{
+  "id": "J11",
+  "title": "judgment-backend",
+  "objective": "The judgment model behind the ST server plugin: reachable with a key, off by default, deciding speaker direction when opted in, falling back to today's chain on a timeout, recorded in its own ring, and never leaking the key.",
+  "setup": {
+    "newChat": true,
+    "resetChatState": true,
+    "snapshotGlobalConfig": true,
+    "resetJudge": true,
+    "group": "1759606632088",
+    "extraction": {
+      "cadence": 1,
+      "stabilityLag": 0,
+      "profile": "inherit"
+    }
+  },
+  "cleanup": {
+    "restoreConfig": true,
+    "deleteChat": true,
+    "removeCreatedAssets": "SO-J11"
+  },
+  "capabilities": {
+    "judge-runtime": "typeof globalThis.storyOrchestratorJudge?.director === 'function' && typeof globalThis.storyOrchestratorRuntime?.recordJudgeCall === 'function'",
+    "judge-plugin": "fetch('/api/plugins/story-orchestrator-judge/status', { headers: SillyTavern.getContext().getRequestHeaders() }).then((response) => (response.ok ? response.json() : null)).then((body) => body?.configured === true).catch(() => false)"
+  },
+  "checks": [
+    {
+      "id": "J11.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the server plugin answers /status with a configured key, and reports where the key came from without the key itself",
+      "requires": [
+        "judge-runtime"
+      ],
+      "steps": [
+        {
+          "eval": "const headers = SillyTavern.getContext().getRequestHeaders(); const response = await fetch('/api/plugins/story-orchestrator-judge/status', { headers }).catch(() => null); if (!response) throw new Error('no response from the judge plugin route'); if (response.status === 404) throw new Error('judge plugin not loaded: install it with npm run plugin:install and start ST with enableServerPlugins: true'); const body = await response.json(); globalThis.__soJ11PluginStatus = body; if (!body.configured) throw new Error(`plugin loaded but no key: ${JSON.stringify(body)}`); if (JSON.stringify(body).length > 200) throw new Error('status body unexpectedly large'); return body;"
+        }
+      ]
+    },
+    {
+      "id": "J11.2",
+      "mode": "auto",
+      "findings": [],
+      "goal": "judge off (the default): a real group turn is decided by today's chain and nothing reaches the plugin",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
+        {
+          "ui": {
+            "action": "select-profile"
+          }
+        },
+        {
+          "eval": "const settings = globalThis.storyOrchestratorRuntime.getGlobalSettings().judge; if (settings.enabled || Object.values(settings.uses).some(Boolean)) throw new Error(`judge not off by default: ${JSON.stringify(settings)}`); globalThis.storyOrchestratorRuntime.setTalkDirectionEnabled(true); globalThis.__soJ11PluginCalls = 0; if (!globalThis.__soJ11FetchWrapped) { const original = globalThis.fetch; globalThis.fetch = (input, init) => { if (String(input?.url ?? input).includes('/api/plugins/story-orchestrator-judge/systemone')) globalThis.__soJ11PluginCalls += 1; return original(input, init); }; globalThis.__soJ11FetchWrapped = true; } return settings;"
+        },
+        {
+          "send_generate": {
+            "text": "I lean on the counter and ask what this job actually pays.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "talkDecisions": 1,
+            "timeoutMs": 240000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const decision = rt.getTalkState().decisions.at(-1); if (!['mention', 'director', 'rules', 'fallback'].includes(decision.source)) throw new Error(`judge off but source was ${decision.source}`); if (globalThis.__soJ11PluginCalls !== 0) throw new Error(`${globalThis.__soJ11PluginCalls} plugin calls with the judge off`); const ring = rt.getSessionJournal().filter((event) => event.kind === 'judge'); if (ring.length) throw new Error(`judge ring not empty: ${JSON.stringify(ring)}`); return decision;"
+        }
+      ]
+    },
+    {
+      "id": "J11.3",
+      "mode": "auto",
+      "findings": [],
+      "goal": "judge on with speaker direction opted in: the judge decides the turn inside its budget, records the answering model in its own ring, and adds nothing to the persisted journal",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "dependsOn": [
+        "J11.2"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
+        {
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, director: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); globalThis.__soJ11JournalBefore = SillyTavern.getContext().chatMetadata.story_orchestrator?.stories?.[SillyTavern.getContext().chatMetadata.story_orchestrator.selectedStoryId]?.extras?.journal?.length ?? 0; return globalThis.storyOrchestratorRuntime.getGlobalSettings().judge;"
+        },
+        {
+          "send_generate": {
+            "text": "I turn to the old man behind the job board: what is the pay for the Sun Ruins?",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "talkDecisions": 2,
+            "timeoutMs": 240000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const decision = rt.getTalkState().decisions.at(-1); if (decision.source !== 'judge') throw new Error(`expected a judge decision, got ${JSON.stringify(decision)}`); if (decision.latencyMs > 1500) throw new Error(`judge decision took ${decision.latencyMs} ms`); const calls = rt.getSessionJournal().filter((event) => event.kind === 'judge'); const last = calls.at(-1); if (!last || !String(last.detail?.model ?? '').startsWith('jev-')) throw new Error(`no judge record with a model: ${JSON.stringify(calls)}`); if (globalThis.__soJ11PluginCalls < 1) throw new Error('the judge decided without a plugin call'); const meta = SillyTavern.getContext().chatMetadata.story_orchestrator; const journal = meta.stories[meta.selectedStoryId].extras.journal ?? []; if (journal.some((record) => record.kind === 'judge')) throw new Error('judge rows leaked into the persisted journal'); return { decision, record: last, pluginCalls: globalThis.__soJ11PluginCalls };"
+        }
+      ]
+    },
+    {
+      "id": "J11.4",
+      "mode": "auto",
+      "findings": [],
+      "goal": "a 1 ms judge budget falls back to today's chain, records the fallback, and the turn still gets a reply",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "dependsOn": [
+        "J11.2",
+        "J11.3"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
+        {
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, timeoutMs: 1 }; globalThis.__soJ11ChatBefore = SillyTavern.getContext().chat.length; return root.settings.judge.timeoutMs;"
+        },
+        {
+          "send_generate": {
+            "text": "Arin, you have been quiet. What do you make of the sphinx story?",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "talkDecisions": 3,
+            "timeoutMs": 240000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const decision = rt.getTalkState().decisions.at(-1); if (decision.source === 'judge') throw new Error('a 1 ms budget still produced a judge decision'); const last = rt.getSessionJournal().filter((event) => event.kind === 'judge').at(-1); if (!last?.summary.includes('fell back (timeout)')) throw new Error(`no timeout fallback recorded: ${JSON.stringify(last)}`); if (SillyTavern.getContext().chat.length <= globalThis.__soJ11ChatBefore + 1) throw new Error('no reply after the fallback'); return { decision, record: last };"
+        }
+      ]
+    },
+    {
+      "id": "J11.5",
+      "mode": "auto",
+      "findings": [
+        "U3"
+      ],
+      "goal": "player mode shows nothing judge-internal: no probabilities, no judge sources, no steering controls",
+      "requires": [
+        "judge-runtime"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
+        {
+          "ui": {
+            "action": "open-drawer"
+          }
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
+      ]
+    },
+    {
+      "id": "J11.6",
+      "mode": "auto",
+      "findings": [],
+      "goal": "judge settings set through the settings panel survive a reload, and the key appears nowhere in extension settings or chat metadata",
+      "requires": [
+        "judge-runtime"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
+        {
+          "ui": {
+            "action": "open-settings"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const waitFor = async (test, ms = 6000) => { const end = Date.now() + ms; while (Date.now() < end) { const value = test(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 150)); } return null; }; if (!Boolean(document.querySelector('#rm_extensions_block')?.offsetParent)) throw new Error('the extensions panel is not open'); const turnOn = async (id, read) => { for (let attempt = 0; attempt < 4; attempt += 1) { if (read()) return true; const row = await waitFor(() => { const node = document.querySelector(id); return node && !node.disabled ? node : null; }); if (!row) throw new Error(`${id} never became clickable`); (row.closest('label') ?? row).click(); if (await waitFor(() => read(), 2000)) return true; } return false; }; if (!await turnOn('#so-judge-enabled', () => rt.getGlobalSettings().judge.enabled === true)) throw new Error('the judge master switch would not turn on'); if (!await turnOn('#so-judge-use-director', () => rt.getGlobalSettings().judge.uses.director === true)) throw new Error('the director row would not turn on'); const now = rt.getGlobalSettings().judge; ctx.saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); return { enabled: now.enabled, director: now.uses.director };",
+          "log": true
+        },
+        {
+          "reload": {
+            "timeoutMs": 90000
+          }
+        },
+        {
+          "eval": "const settings = globalThis.storyOrchestratorRuntime.getGlobalSettings().judge; if (!settings.enabled || !settings.uses.director) throw new Error(`judge settings lost on reload: ${JSON.stringify(settings)}`); const ctx = SillyTavern.getContext(); const dump = JSON.stringify(ctx.extensionSettings['story-orchestrator']) + JSON.stringify(ctx.chatMetadata ?? {}); if (/typesafe_api_key|TYPESAFE_API_KEY|Bearer /.test(dump)) throw new Error('a key reference leaked into settings or chat metadata'); const suspicious = [...dump.matchAll(/\"[^\"]*(?:key|secret|token)[^\"]*\"\\s*:\\s*\"([^\"]{24,})\"/gi)].map((match) => match[0].slice(0, 40)); if (suspicious.length) throw new Error(`long secret-like values stored: ${suspicious.join(' | ')}`); return { settings };"
+        }
+      ]
+    },
+    {
+      "id": "J11.7",
+      "mode": "auto",
+      "findings": [],
+      "goal": "memoryVerify on (opt-in): a real read's memory lines are judged against the transcript before they are stored; every read with lines leaves a memoryVerify record, stored confidences follow policy Only entries a SHARED READ produced are counted: scene summaries and short-term compaction are their own passes, which memoryVerify does not cover by design (L2 2026-09-23: a scene summary, then mis-stamped as shared-read, failed this check).",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
+        {
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, memoryVerify: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); globalThis.__soJ11Mem = { judgeCalls: rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge memoryVerify')).length, entryIds: snap.memory.entries.map((entry) => entry.id), drops: snap.memory.verifyDrops.length }; return globalThis.__soJ11Mem.entryIds.length;"
+        },
+        {
+          "send_generate": {
+            "text": "I slide my silver signet ring across the counter as a deposit. Ponticius, write it down: we take the Sun Ruins job for 250 crowns, and Luke stays here.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "extract": {
+            "reason": "j11.7"
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const base = globalThis.__soJ11Mem; const snap = rt.getSnapshot(); const fresh = snap.memory.entries.filter((entry) => !base.entryIds.includes(entry.id)); const added = fresh.filter((entry) => (entry.provenance?.pass ?? 'shared-read') === 'shared-read'); const otherPasses = fresh.filter((entry) => !added.includes(entry)).map((entry) => `${entry.tier}:${entry.provenance?.pass}`); const drops = snap.memory.verifyDrops.slice(base.drops); const calls = rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge memoryVerify')).slice(base.judgeCalls); const lines = added.length + drops.length; if (!lines) return { branch: 'the read produced no memory lines this time; nothing to verify', calls: calls.length }; if (!calls.length) throw new Error(`${lines} new memory lines from a read but no memoryVerify record (other passes set aside: ${JSON.stringify(otherPasses)})`); if (calls.every((event) => event.summary.includes('fell back'))) throw new Error(`every memoryVerify call fell back: ${calls.map((event) => event.summary).join(' | ')}`); const bad = added.filter((entry) => typeof entry.confidence === 'number' && (entry.confidence > 1 || entry.confidence < 0.2)); if (bad.length) throw new Error(`stored confidence outside policy: ${JSON.stringify(bad.map((entry) => [entry.text, entry.confidence]))}`); const badDrops = drops.filter((drop) => !(drop.p < 0.2) || drop.model !== 'jev-1.13.0'); if (badDrops.length) throw new Error(`drop outside policy: ${JSON.stringify(badDrops)}`); return { branch: drops.length ? 'some lines dropped as unsupported' : 'every line supported', stored: added.map((entry) => [entry.text, entry.confidence ?? 1]), drops: drops.map((drop) => [drop.entry.text, drop.p]), calls: calls.map((event) => event.summary) };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.8",
+      "mode": "auto",
+      "findings": [],
+      "goal": "a scripted reply that contradicts itself, then a real read: an unsupported line lands in verifyDrops (author-visible, restorable), or the model wrote only supported lines; the check logs which branch ran Only entries a SHARED READ produced are counted: scene summaries and short-term compaction are their own passes, which memoryVerify does not cover by design (L2 2026-09-23: a scene summary, then mis-stamped as shared-read, failed this check).",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "dependsOn": [
+        "J11.7"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); globalThis.__soJ11Mem = { judgeCalls: rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge memoryVerify')).length, entryIds: snap.memory.entries.map((entry) => entry.id), drops: snap.memory.verifyDrops.length }; return globalThis.__soJ11Mem.entryIds.length;"
+        },
+        {
+          "slash": "/sendas name=\"Ponticius\" raw=false \"Two hundred and fifty crowns, half up front. Though, mind you, I never offered you any job, and there is no Sun Ruins contract on this board.\""
+        },
+        {
+          "extract": {
+            "reason": "j11.8"
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const base = globalThis.__soJ11Mem; const snap = rt.getSnapshot(); const fresh = snap.memory.entries.filter((entry) => !base.entryIds.includes(entry.id)); const added = fresh.filter((entry) => (entry.provenance?.pass ?? 'shared-read') === 'shared-read'); const otherPasses = fresh.filter((entry) => !added.includes(entry)).map((entry) => `${entry.tier}:${entry.provenance?.pass}`); const drops = snap.memory.verifyDrops.slice(base.drops); const calls = rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge memoryVerify')).slice(base.judgeCalls); const lines = added.length + drops.length; if (!lines) return { branch: 'the read produced no memory lines this time; nothing to verify', calls: calls.length }; if (!calls.length) throw new Error(`${lines} new memory lines from a read but no memoryVerify record (other passes set aside: ${JSON.stringify(otherPasses)})`); if (calls.every((event) => event.summary.includes('fell back'))) throw new Error(`every memoryVerify call fell back: ${calls.map((event) => event.summary).join(' | ')}`); const bad = added.filter((entry) => typeof entry.confidence === 'number' && (entry.confidence > 1 || entry.confidence < 0.2)); if (bad.length) throw new Error(`stored confidence outside policy: ${JSON.stringify(bad.map((entry) => [entry.text, entry.confidence]))}`); const badDrops = drops.filter((drop) => !(drop.p < 0.2) || drop.model !== 'jev-1.13.0'); if (badDrops.length) throw new Error(`drop outside policy: ${JSON.stringify(badDrops)}`); return { branch: drops.length ? `dropped ${drops.length}: ${drops.map((drop) => `${drop.entry.text} (p=${drop.p})`).join(' | ')}` : 'model wrote only supported lines', stored: added.map((entry) => [entry.text, entry.confidence ?? 1]) };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.9",
+      "mode": "auto",
+      "findings": [],
+      "goal": "memoryPairs on (opt-in): seeded labelled pairs are consolidated by the judge; a duplicate is dropped, an update supersedes, and a pair about two different things (same owner or place) is never superseded or dropped",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
+        {
+          "ui": {
+            "action": "select-profile"
+          }
+        },
+        {
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, memoryVerify: false, memoryPairs: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const rt = globalThis.storyOrchestratorRuntime; const at = SillyTavern.getContext().chat.length - 1; const seed = [[\"M01\", \"Arin carries a curved blade she took from a pirate captain.\", \"Arin's sword is a curved blade taken from a pirate captain.\"], [\"M07\", \"The payoffs to the harbor police come from Maeve.\", \"The payoffs to the harbor police trace back to the dockmaster, not Maeve.\"], [\"M08\", \"Tommy Sayer is hiding at the safehouse on Pier Street.\", \"Tommy Sayer's brother is hiding at the safehouse on Pier Street.\"], [\"P21\", \"Mira's lantern burns whale oil.\", \"Mira's stove burns whale oil.\"], [\"P31\", \"El libro de cuentas apareció en Pike Street.\", \"Encontraron el libro de cuentas en la lavandería de Pike Street.\"]]; const lines = seed.flatMap(([id, older, newer]) => [older, newer].map((text) => ({ tier: 'facts', type: 'fact', importance: 2, expiration: 'permanent', entities: [], characterId: 'j11-on', text, evidence: `J11 seed ${id}` }))); await rt.applyExtractionAudit({ id: 'j11-seed-j11-on', createdAt: new Date().toISOString(), priority: 0, reason: 'j11-seed', contractHash: 'j11', scope: [], window: { from: at, to: at }, prompt: '', rawResponse: '', acceptedDeltas: [], rejected: [] }, [], lines); const count = rt.getSnapshot().memory.entries.filter((entry) => entry.characterId === 'j11-on').length; if (count !== 10) throw new Error(`seeded ${count} of 10 into j11-on`); const pairCallsBefore = rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge memoryPairs')).length; const summary = await rt.runConsolidation(); const after = rt.getSnapshot().memory.entries.filter((entry) => entry.characterId === 'j11-on'); const state = (text) => { const entry = after.find((item) => item.text === text); return !entry ? 'gone' : entry.supersededBy ? 'superseded' : entry.foldedInto ? 'folded' : entry.contradicted ? 'contradicted' : 'kept'; }; const pairs = Object.fromEntries(seed.map(([id, older, newer]) => [id, [state(older), state(newer)]])); const pairCalls = rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge memoryPairs')).slice(pairCallsBefore); if (!pairCalls.length) throw new Error('memoryPairs on but no memoryPairs record'); if (pairCalls.every((event) => event.summary.includes('fell back'))) throw new Error(`every pair call fell back: ${pairCalls[0].summary}`); if (!['gone', 'folded'].includes(pairs.M01[1])) throw new Error(`M01 duplicate not dropped: ${JSON.stringify(pairs.M01)}`); if (pairs.M07[0] !== 'superseded') throw new Error(`M07 update did not supersede the older note: ${JSON.stringify(pairs.M07)}`); const harmed = ['M08', 'P21'].filter((id) => pairs[id].some((value) => ['gone', 'superseded', 'folded'].includes(value))); if (harmed.length) throw new Error(`a note about something else was removed: ${JSON.stringify(Object.fromEntries(harmed.map((id) => [id, pairs[id]])))}`); const p31 = pairs.P31.includes('gone') ? 'P31 decided duplicate over the confidence floor' : pairs.P31.includes('contradicted') ? 'P31 under the floor: the heuristic flag held' : 'P31 kept (not a candidate, or judged distinct)'; globalThis.__soJ11OnPairs = pairs; return { pairs, p31, summary, pairCalls: pairCalls.length };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.10",
+      "mode": "auto",
+      "findings": [],
+      "goal": "memoryPairs off: the same seed consolidates by today's heuristic alone, with no memoryPairs call",
+      "requires": [
+        "judge-runtime"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
+        {
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, memoryPairs: false } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const rt = globalThis.storyOrchestratorRuntime; const at = SillyTavern.getContext().chat.length - 1; const seed = [[\"M01\", \"Arin carries a curved blade she took from a pirate captain.\", \"Arin's sword is a curved blade taken from a pirate captain.\"], [\"M07\", \"The payoffs to the harbor police come from Maeve.\", \"The payoffs to the harbor police trace back to the dockmaster, not Maeve.\"], [\"M08\", \"Tommy Sayer is hiding at the safehouse on Pier Street.\", \"Tommy Sayer's brother is hiding at the safehouse on Pier Street.\"], [\"P21\", \"Mira's lantern burns whale oil.\", \"Mira's stove burns whale oil.\"], [\"P31\", \"El libro de cuentas apareció en Pike Street.\", \"Encontraron el libro de cuentas en la lavandería de Pike Street.\"]]; const lines = seed.flatMap(([id, older, newer]) => [older, newer].map((text) => ({ tier: 'facts', type: 'fact', importance: 2, expiration: 'permanent', entities: [], characterId: 'j11-off', text, evidence: `J11 seed ${id}` }))); await rt.applyExtractionAudit({ id: 'j11-seed-j11-off', createdAt: new Date().toISOString(), priority: 0, reason: 'j11-seed', contractHash: 'j11', scope: [], window: { from: at, to: at }, prompt: '', rawResponse: '', acceptedDeltas: [], rejected: [] }, [], lines); const count = rt.getSnapshot().memory.entries.filter((entry) => entry.characterId === 'j11-off').length; if (count !== 10) throw new Error(`seeded ${count} of 10 into j11-off`); const pairCallsBefore = rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge memoryPairs')).length; const summary = await rt.runConsolidation(); const after = rt.getSnapshot().memory.entries.filter((entry) => entry.characterId === 'j11-off'); const state = (text) => { const entry = after.find((item) => item.text === text); return !entry ? 'gone' : entry.supersededBy ? 'superseded' : entry.foldedInto ? 'folded' : entry.contradicted ? 'contradicted' : 'kept'; }; const pairs = Object.fromEntries(seed.map(([id, older, newer]) => [id, [state(older), state(newer)]])); const pairCalls = rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge memoryPairs')).slice(pairCallsBefore); if (pairCalls.length) throw new Error(`${pairCalls.length} memoryPairs calls with the use off`); const differs = Object.keys(pairs).filter((id) => JSON.stringify(pairs[id]) !== JSON.stringify(globalThis.__soJ11OnPairs?.[id])); return { pairs, summary, differsFromJudged: differs };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.11",
+      "mode": "auto",
+      "findings": [],
+      "goal": "sceneTrigger + sceneTracker opted in, real play: one `scene` record per boundary, and the stored read belongs to the newest message",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
+        {
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, memoryVerify: false, memoryPairs: false, sceneTrigger: true, sceneTracker: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; globalThis.__soJ11Scene = { calls: sceneCalls().length, boundary: rt.getEngineState().boundary }; return globalThis.__soJ11Scene;"
+        },
+        {
+          "send_generate": {
+            "text": "Arin, stay close. We head for the town gate at first light, and Luke stays in the guild hall.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const read = await until(() => { const scene = rt.getSceneRead(); return scene && scene.messageId === lastId() ? scene : null; }, 20000); if (!read) throw new Error(`no scene read for message ${lastId()}: ${JSON.stringify(rt.getSceneRead())}`); const boundaries = rt.getEngineState().boundary - globalThis.__soJ11Scene.boundary; const calls = sceneCalls().slice(globalThis.__soJ11Scene.calls); if (calls.length !== boundaries) throw new Error(`${calls.length} scene records for ${boundaries} boundaries`); if (calls.every((event) => event.summary.includes('fell back'))) throw new Error(`every scene read fell back: ${calls[0]?.summary}`); return { boundaries, calls: calls.map((event) => event.summary), facts: read.facts, break: read.sceneBreak, location: read.location, time: read.time };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.12",
+      "mode": "auto",
+      "findings": [],
+      "goal": "a scripted time skip the regex misses (held-out SH01, judged 0.82-0.85 off-page) schedules the P0 `scene:judge` read on that boundary, and the LLM read runs",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "dependsOn": [
+        "J11.11"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; globalThis.__soJ11Audits = rt.getSnapshot().extraction.audits.length; return globalThis.__soJ11Audits;"
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"Three days of sand and wind later, the ruins finally rise out of the haze.\""
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const read = await until(() => { const scene = rt.getSceneRead(); return scene && scene.messageId === lastId() ? scene : null; }, 20000); if (!read) throw new Error('no scene read for the time-skip message'); if (!read.sceneBreak?.triggered) return { branch: `the judge did not trigger this time (p=${read.sceneBreak?.p}); the cadence read still confirms, as today`, read: read.sceneBreak }; const audit = await until(() => rt.getSnapshot().extraction.audits.slice(globalThis.__soJ11Audits).find((entry) => entry.reason === 'scene:judge'), 240000); if (!audit) throw new Error(`triggered at p=${read.sceneBreak.p} but no scene:judge read ran: ${JSON.stringify(rt.getSnapshot().extraction.audits.slice(globalThis.__soJ11Audits).map((entry) => entry.reason))}`); if (audit.window.to < read.messageId) throw new Error(`the scene:judge read stopped at ${audit.window.to}, before the break at ${read.messageId}`); return { branch: 'judge triggered the read', p: read.sceneBreak.p, type: read.sceneBreak.type, sceneBreak: audit.sceneBreak ?? null };",
+          "log": true
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 300000
+          }
+        }
+      ]
+    },
+    {
+      "id": "J11.13",
+      "mode": "auto",
+      "findings": [],
+      "goal": "the tracker block is in the prompt ST actually sends on the next generation, with only over-floor fields",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const c = SillyTavern.getContext(); if (globalThis.__soJ11PromptHandler) c.eventSource.removeListener(c.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ11PromptHandler); globalThis.__soJ11Prompts = []; globalThis.__soJ11PromptHandler = (data, dryRun) => { if (!dryRun) globalThis.__soJ11Prompts.push(JSON.stringify(data ?? null)); }; c.eventSource.on(c.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ11PromptHandler); globalThis.__soJ11Block = block(); globalThis.__soJ11Facts = rt.getSceneRead()?.facts ?? null; return { block: globalThis.__soJ11Block, facts: globalThis.__soJ11Facts };"
+        },
+        {
+          "send_generate": {
+            "text": "I check the water skins and ask Arin how far the gate is.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const c = SillyTavern.getContext(); c.eventSource.removeListener(c.eventTypes.GENERATE_AFTER_DATA, globalThis.__soJ11PromptHandler); delete globalThis.__soJ11PromptHandler; const prompts = globalThis.__soJ11Prompts ?? []; const expected = globalThis.__soJ11Block; const facts = globalThis.__soJ11Facts; if (!prompts.length) throw new Error('no main-generation prompt was captured'); if (!expected) { if (prompts.some((body) => body.includes('[Scene:') || body.includes('Present:'))) throw new Error('no over-floor field, yet a scene block reached the prompt'); return { branch: 'no over-floor field: no block, and none sent', facts }; } const probe = JSON.stringify(expected).slice(1, -1); const hits = prompts.filter((body) => body.includes(probe)).length; if (hits !== prompts.length) throw new Error(`the tracker block is missing from ${prompts.length - hits} of ${prompts.length} prompt(s): ${expected}`); const shown = [facts.location, facts.time, ...facts.present].filter(Boolean); const extra = shown.filter((value) => !expected.includes(value)); if (extra.length) throw new Error(`over-floor fields missing from the block: ${extra.join(', ')}`); return { block: expected, prompts: prompts.length };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.14",
+      "mode": "auto",
+      "findings": [],
+      "goal": "deleting the message a scene read belongs to clears the read and the block; the next boundary builds them again",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
+        {
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, memoryVerify: false, memoryPairs: false, sceneTrigger: true, sceneTracker: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; globalThis.__soJ11Scene = { calls: sceneCalls().length, boundary: rt.getEngineState().boundary }; return globalThis.__soJ11Scene;"
+        },
+        {
+          "send_generate": {
+            "text": "Arin, stay close. We head for the town gate at first light, and Luke stays in the guild hall.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const read = await until(() => { const scene = rt.getSceneRead(); return scene && scene.messageId === lastId() ? scene : null; }, 20000); if (!read) throw new Error('no fresh scene read to roll back'); globalThis.__soJ11Rolled = read.messageId; return { messageId: read.messageId, block: block() };"
+        },
+        {
+          "delete": {
+            "messageId": "last"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const cleared = await until(() => rt.getSceneRead() === null && !block() ? true : null, 10000); if (!cleared) throw new Error(`rollback past message ${globalThis.__soJ11Rolled} left the scene read or block: ${JSON.stringify(rt.getSceneRead())} / ${block()}`); return { cleared: true };"
+        },
+        {
+          "send_generate": {
+            "text": "I shoulder my pack. Let's move.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const read = await until(() => { const scene = rt.getSceneRead(); return scene && scene.messageId === lastId() ? scene : null; }, 20000); if (!read) throw new Error('no scene read after the rollback'); return { rebuilt: read.messageId, block: block() || null };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.15",
+      "mode": "auto",
+      "findings": [],
+      "goal": "with cadence pinned high so no cadence read can mask it, every scene usage off: no scene read, no judge call; then trigger on + a blackboard `location` change away from the location the previous boundary recorded with no text cue: the heuristic's deterministic read still runs, and the judge adds no second one",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j11-judge.story.json"
+          }
+        },
+        {
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, memoryVerify: false, memoryPairs: false, sceneTrigger: false, sceneTracker: false, lookahead: false } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ enabled: true, cadence: 50, reconciliationMultiplier: 1.5 }); /* pin cadence: at cadence 1 every boundary already reads, so the scene-triggered read is folded into it and this check can never see scene:location (2026-09-20) */ const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; globalThis.__soJ11Off = sceneCalls().length; return globalThis.__soJ11Off"
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; await rt.setQuality('location', 'town gate'); return { seeded: rt.getSnapshot().blackboard.location ?? null };"
+        },
+        {
+          "send_generate": {
+            "text": "We rest a moment in the shade.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const extra = sceneCalls().length - globalThis.__soJ11Off; if (extra) throw new Error(`${extra} scene calls with every scene usage off`); if (rt.getSceneRead()) throw new Error('a scene read is still stored with every usage off'); if (block()) throw new Error('the tracker block is still injected with every usage off'); return { sceneCalls: 0 };"
+        },
+        {
+          "eval": "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, memoryVerify: false, memoryPairs: false, sceneTrigger: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ enabled: true, cadence: 50, reconciliationMultiplier: 1.5 }); /* pin cadence: at cadence 1 every boundary already reads, so the scene-triggered read is folded into it and this check can never see scene:location (2026-09-20) */ const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; globalThis.__soJ11Audits = rt.getSnapshot().extraction.audits.length; await rt.setQuality('location', 'desert road'); return rt.getSnapshot().status;"
+        },
+        {
+          "send_generate": {
+            "text": "I nod and say nothing.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const lastId = () => SillyTavern.getContext().chat.length - 1; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const sceneCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge scene')); const block = () => SillyTavern.getContext().extensionPrompts?.story_orchestrator_scene?.value ?? ''; const reasons = rt.getSnapshot().extraction.audits.slice(globalThis.__soJ11Audits).map((entry) => entry.reason); if (!reasons.some((reason) => reason === 'scene:location')) throw new Error(`the location-quality change scheduled no scene:location read: ${JSON.stringify(reasons)}`); const judged = reasons.filter((reason) => reason === 'scene:judge').length; return { reasons, judgeAddedReads: judged, note: judged ? 'the judge also triggered on a later boundary of this step' : 'union held: no second read' };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.16",
+      "mode": "auto",
+      "findings": [],
+      "goal": "lore-select opted in: a player question whose answer lives in an entry whose keys never appear gets that entry forced into every generation of the turn; the first pick is made at MESSAGE_SENT, later group members pick again at GENERATION_STARTED",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const loreCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge lore')); const made = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-J11 Lore' }, { requirements: { lorebooks: [] } }); if (!made.ok && !made.message.includes('already exists')) throw new Error(`could not create SO-J11 Lore: ${made.message}`); const entries = [{\"comment\": \"Trade route 1\", \"keys\": [\"zqx-route-1\"], \"content\": \"The market town of Hallow Ford trades salt for amber with Silt Harbor every spring, over the old north road.\"}, {\"comment\": \"Trade route 2\", \"keys\": [\"zqx-route-2\"], \"content\": \"The market town of Brine Cross trades wool for rope with Greywick every summer, over the old east road.\"}, {\"comment\": \"Trade route 3\", \"keys\": [\"zqx-route-3\"], \"content\": \"The market town of Ashvale trades tin for cider with Tallow Reach every autumn, over the old south road.\"}, {\"comment\": \"Trade route 4\", \"keys\": [\"zqx-route-4\"], \"content\": \"The market town of Kettle Mere trades amber for slate with Hallow Ford every winter, over the old west road.\"}, {\"comment\": \"Trade route 5\", \"keys\": [\"zqx-route-5\"], \"content\": \"The market town of Dunmarrow trades rope for wax with Brine Cross every spring, over the old north road.\"}, {\"comment\": \"Trade route 6\", \"keys\": [\"zqx-route-6\"], \"content\": \"The market town of Silt Harbor trades cider for salt with Ashvale every summer, over the old east road.\"}, {\"comment\": \"Trade route 7\", \"keys\": [\"zqx-route-7\"], \"content\": \"The market town of Greywick trades slate for wool with Kettle Mere every autumn, over the old south road.\"}, {\"comment\": \"Trade route 8\", \"keys\": [\"zqx-route-8\"], \"content\": \"The market town of Tallow Reach trades wax for tin with Dunmarrow every winter, over the old west road.\"}, {\"comment\": \"Trade route 9\", \"keys\": [\"zqx-route-9\"], \"content\": \"The market town of Hallow Ford trades salt for amber with Silt Harbor every spring, over the old north road.\"}, {\"comment\": \"Trade route 10\", \"keys\": [\"zqx-route-10\"], \"content\": \"The market town of Brine Cross trades wool for rope with Greywick every summer, over the old east road.\"}, {\"comment\": \"Trade route 11\", \"keys\": [\"zqx-route-11\"], \"content\": \"The market town of Ashvale trades tin for cider with Tallow Reach every autumn, over the old south road.\"}, {\"comment\": \"Trade route 12\", \"keys\": [\"zqx-route-12\"], \"content\": \"The market town of Kettle Mere trades amber for slate with Hallow Ford every winter, over the old west road.\"}, {\"comment\": \"Trade route 13\", \"keys\": [\"zqx-route-13\"], \"content\": \"The market town of Dunmarrow trades rope for wax with Brine Cross every spring, over the old north road.\"}, {\"comment\": \"Trade route 14\", \"keys\": [\"zqx-route-14\"], \"content\": \"The market town of Silt Harbor trades cider for salt with Ashvale every summer, over the old east road.\"}, {\"comment\": \"Trade route 15\", \"keys\": [\"zqx-route-15\"], \"content\": \"The market town of Greywick trades slate for wool with Kettle Mere every autumn, over the old south road.\"}, {\"comment\": \"Trade route 16\", \"keys\": [\"zqx-route-16\"], \"content\": \"The market town of Tallow Reach trades wax for tin with Dunmarrow every winter, over the old west road.\"}, {\"comment\": \"Trade route 17\", \"keys\": [\"zqx-route-17\"], \"content\": \"The market town of Hallow Ford trades salt for amber with Silt Harbor every spring, over the old north road.\"}, {\"comment\": \"Trade route 18\", \"keys\": [\"zqx-route-18\"], \"content\": \"The market town of Brine Cross trades wool for rope with Greywick every summer, over the old east road.\"}, {\"comment\": \"Trade route 19\", \"keys\": [\"zqx-route-19\"], \"content\": \"The market town of Ashvale trades tin for cider with Tallow Reach every autumn, over the old south road.\"}, {\"comment\": \"Back room password\", \"keys\": [\"zqx-pass\"], \"content\": \"The password to the guild's back room is \\\"amber heron\\\". Ponticius changes it every winter and tells only members in good standing.\"}, {\"comment\": \"Trade route 20\", \"keys\": [\"zqx-route-20\"], \"content\": \"The market town of Kettle Mere trades amber for slate with Hallow Ford every winter, over the old west road.\"}, {\"comment\": \"Trade route 21\", \"keys\": [\"zqx-route-21\"], \"content\": \"The market town of Dunmarrow trades rope for wax with Brine Cross every spring, over the old north road.\"}, {\"comment\": \"Trade route 22\", \"keys\": [\"zqx-route-22\"], \"content\": \"The market town of Silt Harbor trades cider for salt with Ashvale every summer, over the old east road.\"}, {\"comment\": \"Trade route 23\", \"keys\": [\"zqx-route-23\"], \"content\": \"The market town of Greywick trades slate for wool with Kettle Mere every autumn, over the old south road.\"}, {\"comment\": \"Trade route 24\", \"keys\": [\"zqx-route-24\"], \"content\": \"The market town of Tallow Reach trades wax for tin with Dunmarrow every winter, over the old west road.\"}, {\"comment\": \"Trade route 25\", \"keys\": [\"zqx-route-25\"], \"content\": \"The market town of Hallow Ford trades salt for amber with Silt Harbor every spring, over the old north road.\"}, {\"comment\": \"Trade route 26\", \"keys\": [\"zqx-route-26\"], \"content\": \"The market town of Brine Cross trades wool for rope with Greywick every summer, over the old east road.\"}, {\"comment\": \"Trade route 27\", \"keys\": [\"zqx-route-27\"], \"content\": \"The market town of Ashvale trades tin for cider with Tallow Reach every autumn, over the old south road.\"}, {\"comment\": \"Trade route 28\", \"keys\": [\"zqx-route-28\"], \"content\": \"The market town of Kettle Mere trades amber for slate with Hallow Ford every winter, over the old west road.\"}, {\"comment\": \"Trade route 29\", \"keys\": [\"zqx-route-29\"], \"content\": \"The market town of Dunmarrow trades rope for wax with Brine Cross every spring, over the old north road.\"}, {\"comment\": \"Trade route 30\", \"keys\": [\"zqx-route-30\"], \"content\": \"The market town of Silt Harbor trades cider for salt with Ashvale every summer, over the old east road.\"}, {\"comment\": \"Trade route 31\", \"keys\": [\"zqx-route-31\"], \"content\": \"The market town of Greywick trades slate for wool with Kettle Mere every autumn, over the old south road.\"}, {\"comment\": \"Trade route 32\", \"keys\": [\"zqx-route-32\"], \"content\": \"The market town of Tallow Reach trades wax for tin with Dunmarrow every winter, over the old west road.\"}, {\"comment\": \"Trade route 33\", \"keys\": [\"zqx-route-33\"], \"content\": \"The market town of Hallow Ford trades salt for amber with Silt Harbor every spring, over the old north road.\"}, {\"comment\": \"Trade route 34\", \"keys\": [\"zqx-route-34\"], \"content\": \"The market town of Brine Cross trades wool for rope with Greywick every summer, over the old east road.\"}, {\"comment\": \"Trade route 35\", \"keys\": [\"zqx-route-35\"], \"content\": \"The market town of Ashvale trades tin for cider with Tallow Reach every autumn, over the old south road.\"}, {\"comment\": \"Trade route 36\", \"keys\": [\"zqx-route-36\"], \"content\": \"The market town of Kettle Mere trades amber for slate with Hallow Ford every winter, over the old west road.\"}, {\"comment\": \"Trade route 37\", \"keys\": [\"zqx-route-37\"], \"content\": \"The market town of Dunmarrow trades rope for wax with Brine Cross every spring, over the old north road.\"}, {\"comment\": \"Trade route 38\", \"keys\": [\"zqx-route-38\"], \"content\": \"The market town of Silt Harbor trades cider for salt with Ashvale every summer, over the old east road.\"}, {\"comment\": \"Vault combination\", \"keys\": [\"zqx-vault\"], \"content\": \"The guild vault opens with the combination seven-two-nine. Only Ponticius knows it.\"}]; for (const entry of entries) { const result = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook: 'SO-J11 Lore', comment: entry.comment, keys: entry.keys, content: entry.content }, { requirements: { lorebooks: ['SO-J11 Lore'] } }); if (!result.ok) throw new Error(`entry ${entry.comment}: ${result.message}`); } const found = await ctx.executeSlashCommandsWithOptions('/findentry file=\"SO-J11 Lore\" field=comment Vault combination', { handleParserErrors: false }); const uid = String(found?.pipe ?? '').trim(); if (!uid) throw new Error('could not find the vault entry to switch off'); await ctx.executeSlashCommandsWithOptions(`/setentryfield file=\"SO-J11 Lore\" uid=${uid} field=disable 1`, { handleParserErrors: false }); return { entries: entries.length, vaultUid: uid };"
+        },
+        {
+          "import_story": {
+            "file": "./j11-lore.story.json"
+          }
+        },
+        {
+          "expect": {
+            "storyId": "so-j11-lore",
+            "requirementsReady": true
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const loreCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge lore')); const root = ctx.extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, sceneTrigger: false, sceneTracker: false, lookahead: false, loreSelect: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); if (globalThis.__soJ11Lore?.off) globalThis.__soJ11Lore.off(); const prompts = []; const activated = []; const onPrompt = (data, dryRun) => { if (!dryRun) prompts.push(JSON.stringify(data ?? null)); }; const onActivated = (entries) => { activated.push((entries ?? []).map((entry) => entry.comment)); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, onPrompt); ctx.eventSource.on(ctx.eventTypes.WORLD_INFO_ACTIVATED, onActivated); globalThis.__soJ11Lore = { prompts, activated, calls: loreCalls().length, off: () => { ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, onPrompt); ctx.eventSource.removeListener(ctx.eventTypes.WORLD_INFO_ACTIVATED, onActivated); } }; return { armed: true, calls: globalThis.__soJ11Lore.calls };"
+        },
+        {
+          "send_generate": {
+            "text": "Ponticius, I've paid my dues. What's the word that gets me into the back room?",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "idle": true,
+            "timeoutMs": 240000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const loreCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge lore')); const probe = globalThis.__soJ11Lore; probe.off(); const calls = loreCalls().slice(probe.calls); const inPrompt = (text) => probe.prompts.filter((body) => body.includes(text)).length; const activatedWith = (title) => probe.activated.filter((list) => list.includes(title)).length; if (!probe.prompts.length) throw new Error('no main-generation prompt was captured'); if (!calls.length) throw new Error('lore-select made no judge call this turn'); const first = calls[0]; if (!first.summary.includes('lore') || first.detail?.p?.trigger !== 'MESSAGE_SENT') throw new Error(`the first pick was not made at MESSAGE_SENT: ${JSON.stringify(first)}`); if (calls.every((event) => event.summary.includes('fell back'))) throw new Error(`every lore call fell back: ${first.summary}`); if (!('Back room password' in (first.detail?.p ?? {}))) throw new Error(`the password entry was not picked: ${JSON.stringify(first.detail?.p)}`); const missing = probe.activated.filter((list) => !list.includes('Back room password')).length; if (missing) throw new Error(`the password entry was not activated in ${missing} of ${probe.activated.length} scans`); const later = calls.slice(1).map((event) => event.detail?.p?.trigger); if (later.some((trigger) => trigger !== 'GENERATION_STARTED')) throw new Error(`a later pick used ${JSON.stringify(later)}`); return { prompts: probe.prompts.length, scans: probe.activated.length, picks: calls.map((event) => event.detail?.p), withPassword: inPrompt('amber heron') };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.17",
+      "mode": "auto",
+      "findings": [],
+      "goal": "an entry switched off in its book (as checkpoint gating does) is never asked about or forced, whatever the question",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j11-lore.story.json"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const loreCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge lore')); if (globalThis.__soJ11Lore?.off) globalThis.__soJ11Lore.off(); const prompts = []; const activated = []; const onPrompt = (data, dryRun) => { if (!dryRun) prompts.push(JSON.stringify(data ?? null)); }; const onActivated = (entries) => { activated.push((entries ?? []).map((entry) => entry.comment)); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, onPrompt); ctx.eventSource.on(ctx.eventTypes.WORLD_INFO_ACTIVATED, onActivated); globalThis.__soJ11Lore = { prompts, activated, calls: loreCalls().length, off: () => { ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, onPrompt); ctx.eventSource.removeListener(ctx.eventTypes.WORLD_INFO_ACTIVATED, onActivated); } }; return { armed: true };"
+        },
+        {
+          "send_generate": {
+            "text": "And the strongbox behind the desk, how does it open? Give me the numbers.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "idle": true,
+            "timeoutMs": 240000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const loreCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge lore')); const probe = globalThis.__soJ11Lore; probe.off(); const calls = loreCalls().slice(probe.calls); const inPrompt = (text) => probe.prompts.filter((body) => body.includes(text)).length; const activatedWith = (title) => probe.activated.filter((list) => list.includes(title)).length; if (activatedWith('Vault combination')) throw new Error('the switched-off vault entry was activated'); if (calls.some((event) => 'Vault combination' in (event.detail?.p ?? {}))) throw new Error('the switched-off vault entry was picked'); if (inPrompt('seven-two-nine')) throw new Error('the switched-off combination reached the prompt'); return { calls: calls.length, scans: probe.activated.length };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.18",
+      "mode": "auto",
+      "findings": [],
+      "goal": "a dry run (prompt itemization) and a quiet generation make no lore judge call",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j11-lore.story.json"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const loreCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge lore')); const before = loreCalls().length; await ctx.generate('normal', {}, true); await ctx.executeSlashCommandsWithOptions('/gen Say only the word ready.', { handleParserErrors: false }); const extra = loreCalls().length - before; if (extra) throw new Error(`${extra} lore calls for a dry run and a quiet generation`); return { loreCalls: 0 };"
+        }
+      ]
+    },
+    {
+      "id": "J11.19",
+      "mode": "auto",
+      "findings": [],
+      "goal": "lore-select off: nothing is forced, so the keywordless password entry stays out of the scan, and no lore call is made",
+      "requires": [
+        "judge-runtime"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j11-lore.story.json"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const loreCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge lore')); const root = ctx.extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...root.settings.judge.uses, sceneTrigger: false, sceneTracker: false, lookahead: false, loreSelect: false } }; globalThis.storyOrchestratorJudge.invalidateStatus(); if (globalThis.__soJ11Lore?.off) globalThis.__soJ11Lore.off(); const prompts = []; const activated = []; const onPrompt = (data, dryRun) => { if (!dryRun) prompts.push(JSON.stringify(data ?? null)); }; const onActivated = (entries) => { activated.push((entries ?? []).map((entry) => entry.comment)); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, onPrompt); ctx.eventSource.on(ctx.eventTypes.WORLD_INFO_ACTIVATED, onActivated); globalThis.__soJ11Lore = { prompts, activated, calls: loreCalls().length, off: () => { ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, onPrompt); ctx.eventSource.removeListener(ctx.eventTypes.WORLD_INFO_ACTIVATED, onActivated); } }; return { armed: true };"
+        },
+        {
+          "send_generate": {
+            "text": "Remind me, what's the word for the back room again?",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "idle": true,
+            "timeoutMs": 240000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const loreCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge lore')); const probe = globalThis.__soJ11Lore; probe.off(); const calls = loreCalls().slice(probe.calls); const inPrompt = (text) => probe.prompts.filter((body) => body.includes(text)).length; const activatedWith = (title) => probe.activated.filter((list) => list.includes(title)).length; if (calls.length) throw new Error(`${calls.length} lore calls with lore-select off`); if (activatedWith('Back room password')) throw new Error('the password entry activated with lore-select off: its keys never appear, so only a force could have done it'); return { scans: probe.activated.length, loreCalls: 0 };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.20",
+      "mode": "auto",
+      "findings": [],
+      "goal": "typed extraction opted in, cadence 50 (no LLM read for fifty boundaries): the player takes the key, the judge reads the hinted gate quality on that boundary, and the transition fires at the next boundary, long before any cadence read",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const root = ctx.extensionSettings['story-orchestrator']; rt.setExtractionSettings({ enabled: true, cadence: 50, reconciliationMultiplier: 1.5 }); root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, false])), typedExtraction: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); return root.settings.judge.uses;"
+        },
+        {
+          "import_story": {
+            "file": "./j11-typed.story.json"
+          }
+        },
+        {
+          "expect": {
+            "storyId": "so-j11-typed",
+            "activeCheckpoint": "hall"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; globalThis.__soJ11Typed = { reads: rt.getSnapshot().extraction.judgedReads.length, audits: rt.getSnapshot().extraction.audits.length, boundary: rt.getEngineState().boundary }; return globalThis.__soJ11Typed;"
+        },
+        {
+          "send_generate": {
+            "text": "I lift the mat, take the brass key and close my fist around it.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const read = await until(() => rt.getSnapshot().extraction.judgedReads.slice(globalThis.__soJ11Typed.reads).find((entry) => entry.deltas.some((delta) => delta.q === 'has_key' && delta.v === true)), 30000); if (!read) throw new Error(`no judged has_key=true: ${JSON.stringify(rt.getSnapshot().extraction.judgedReads.slice(globalThis.__soJ11Typed.reads))}`); globalThis.__soJ11Typed.read = read; return read;",
+          "log": true
+        },
+        {
+          "send_generate": {
+            "text": "Key in hand, I walk to the vault door.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const snap = rt.getSnapshot(); const state = rt.getEngineState(); if (snap.activeCheckpointId !== 'vault') throw new Error(`still at ${snap.activeCheckpointId}: the judged delta did not fire the gate`); if (state.boundary >= 50) throw new Error(`reached boundary ${state.boundary}; the cadence read may have fired it`); const llmReads = snap.extraction.audits.slice(globalThis.__soJ11Typed.audits).filter((audit) => audit.acceptedDeltas.some((entry) => entry.delta.q === 'has_key' && entry.judge === undefined)); if (llmReads.length) throw new Error(`an LLM read also wrote has_key: ${llmReads.map((audit) => audit.reason).join(', ')}`); if (snap.blackboardMeta.has_key?.reader !== 'judge') throw new Error(`has_key's last reader is ${snap.blackboardMeta.has_key?.reader}`); return { transitionedAt: state.boundary, judgedAt: globalThis.__soJ11Typed.read.boundary, confidence: snap.blackboardMeta.has_key.confidence };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.21",
+      "mode": "auto",
+      "findings": [],
+      "goal": "cadence 1 with typed extraction on: whatever the judge settles (on the read itself or on the boundary's own typed read) is left out of every LLM prompt, and a quality it did not settle stays in the scope",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j11-typed.story.json"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const root = ctx.extensionSettings['story-orchestrator']; rt.setExtractionSettings({ enabled: true, cadence: 1, reconciliationMultiplier: 1.5 }); root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, false])), typedExtraction: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); globalThis.__soJ11Audits = rt.getSnapshot().extraction.audits.length; return root.settings.extraction.cadence;"
+        },
+        {
+          "send_generate": {
+            "text": "The guard squints at us. I can't tell if he's bored or about to call for help.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snapshot = rt.getSnapshot(); const audits = snapshot.extraction.audits.slice(globalThis.__soJ11Audits); const ring = (snapshot.extraction.judgedReads ?? []).filter((entry) => entry.kind === 'typed'); const settled = new Set([...audits.flatMap((audit) => audit.judged?.keys ?? []), ...ring.flatMap((entry) => entry.answered ?? [])]); if (!settled.size) throw new Error(`the judge settled nothing: ${JSON.stringify({ audits: audits.length, ring: ring.map((entry) => ({ answered: entry.answered, fallback: entry.fallback ?? null })) })}`); const problems = audits.flatMap((audit) => (audit.judged?.keys ?? []).filter((key) => audit.scope.includes(key) || audit.prompt.includes(key)).map((key) => `${audit.reason}: judged ${key} still in the LLM scope`)); const cadence = audits.filter((audit) => audit.reason === 'cadence'); if (cadence.length && !settled.has('guard_mood') && rt.getSnapshot().blackboardMeta.guard_mood?.latched !== true && !cadence.some((audit) => audit.scope.includes('guard_mood'))) problems.push('unsettled guard_mood left every cadence scope'); if (problems.length) throw new Error(problems.join(' | ')); return { audits: audits.length, cadence: cadence.length, settled: [...settled], judgedAudits: audits.filter((audit) => audit.judged).length, ringFallbacks: ring.filter((entry) => entry.fallback).length };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.22",
+      "mode": "auto",
+      "findings": [],
+      "goal": "a latching hinted quality is written by the judge only at confidence 0.9 or more (0.8 + 0.1)",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j11-typed.story.json"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const snap = rt.getSnapshot(); const judged = [...snap.extraction.judgedReads.flatMap((read) => read.deltas), ...snap.extraction.audits.flatMap((audit) => audit.acceptedDeltas.filter((entry) => entry.judge !== undefined).map((entry) => ({ q: entry.delta.q, v: entry.delta.v, confidence: entry.judge })))].filter((delta) => delta.q === 'guard_mood'); const low = judged.filter((delta) => delta.confidence < 0.9); if (low.length) throw new Error(`latching guard_mood written under 0.9: ${JSON.stringify(low)}`); return { branch: judged.length ? `${judged.length} judged guard_mood writes, all >= 0.9` : 'the judge never settled guard_mood (the LLM read covered it)', judged };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.23",
+      "mode": "auto",
+      "findings": [],
+      "goal": "stall check opted in, reads off (cadence 50): a lever pulled six turns ago is written straight from the stall check with no LLM re-read; then a door nobody opens stays a genuine stall with the player's stall signal still showing",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const root = ctx.extensionSettings['story-orchestrator']; rt.setExtractionSettings({ enabled: true, cadence: 50, reconciliationMultiplier: 1.5 }); root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, false])), stallCheck: true } }; globalThis.storyOrchestratorJudge.invalidateStatus(); return root.settings.judge.uses;"
+        },
+        {
+          "import_story": {
+            "file": "./j11-stall.story.json"
+          }
+        },
+        {
+          "expect": {
+            "storyId": "so-j11-stall",
+            "activeCheckpoint": "gate"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; globalThis.__soJ11Stall = { audits: rt.getSnapshot().extraction.audits.length, reads: rt.getSnapshot().extraction.judgedReads.length }; return globalThis.__soJ11Stall;"
+        },
+        {
+          "slash": "/sendas name=\"Arin\" raw=false \"I grab the iron lever beside the gate and haul it all the way down. It locks with a clunk.\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (1)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (2)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (3)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (4)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (5)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (6)\""
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const direct = await until(() => rt.getSnapshot().extraction.judgedReads.slice(globalThis.__soJ11Stall.reads).find((read) => read.kind === 'stall' && read.note === 'direct'), 30000); if (!direct) throw new Error(`no direct stall write: ${JSON.stringify(rt.getSnapshot().extraction.judgedReads.slice(globalThis.__soJ11Stall.reads))}`); return direct;",
+          "log": true
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The gate groans.\""
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const snap = rt.getSnapshot(); if (snap.activeCheckpointId !== 'door') throw new Error(`still at ${snap.activeCheckpointId}`); const rereads = snap.extraction.audits.slice(globalThis.__soJ11Stall.audits).filter((audit) => audit.reason.startsWith('reconcile:')); if (rereads.length) throw new Error(`an LLM reconcile read ran: ${rereads.map((audit) => audit.reason).join(', ')}`); const event = snap.extraction.reconciliationEvents.find((entry) => entry.checkpointId === 'gate'); if (!event?.resolvedAt || !event.evidence.some((line) => line.includes('judge:reconcile'))) throw new Error(`gate stall not resolved by the judge: ${JSON.stringify(event)}`); globalThis.__soJ11Stall.reads = snap.extraction.judgedReads.length; return { event };",
+          "log": true
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (1)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (2)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (3)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (4)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (5)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (6)\""
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (7)\""
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const genuine = await until(() => rt.getSnapshot().extraction.judgedReads.slice(globalThis.__soJ11Stall.reads).find((read) => read.kind === 'stall'), 30000); if (!genuine) throw new Error('no stall check on the door'); const snap = rt.getSnapshot(); const event = snap.extraction.reconciliationEvents.filter((entry) => entry.checkpointId === 'door').at(-1); if (genuine.note?.startsWith('nothing shown')) { if (event?.resolvedAt) throw new Error('a genuine stall was resolved'); if (snap.extraction.audits.slice(globalThis.__soJ11Stall.audits).some((audit) => audit.reason.startsWith('reconcile:door'))) throw new Error('a genuine stall still spent an LLM re-read'); } return { branch: genuine.note, event };",
+          "log": true
+        },
+        {
+          "ui": {
+            "action": "open-drawer"
+          }
+        },
+        {
+          "eval": "const stalled = globalThis.storyOrchestratorRuntime.getSnapshot().extraction.reconciliationEvents.some((entry) => entry.checkpointId === 'door' && !entry.resolvedAt); const signal = document.querySelector('#so-stall-signal'); if (stalled && !signal) throw new Error('an open stall with no #so-stall-signal'); return { stalled, signal: Boolean(signal) };"
+        }
+      ]
+    },
+    {
+      "id": "J11.24",
+      "mode": "auto",
+      "findings": [],
+      "goal": "typed extraction and the stall check off: reads carry no judged step and no judge-sourced delta, and nothing lands in the judged-read ring",
+      "requires": [
+        "judge-runtime"
+      ],
+      "steps": [
+        {
+          "import_story": {
+            "file": "./j11-stall.story.json"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const root = ctx.extensionSettings['story-orchestrator']; rt.setExtractionSettings({ enabled: true, cadence: 1, reconciliationMultiplier: 1.5 }); root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, false])), director: false } }; globalThis.storyOrchestratorJudge.invalidateStatus(); globalThis.__soJ11Off = { audits: rt.getSnapshot().extraction.audits.length, reads: rt.getSnapshot().extraction.judgedReads.length }; return root.settings.judge.uses;"
+        },
+        {
+          "send_generate": {
+            "text": "I wait by the door and listen.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const snap = rt.getSnapshot(); const audits = snap.extraction.audits.slice(globalThis.__soJ11Off.audits); if (!audits.length) throw new Error('no read ran at cadence 1'); const judged = audits.filter((audit) => audit.judged || audit.acceptedDeltas.some((entry) => entry.judge !== undefined)); if (judged.length) throw new Error(`judge output in ${judged.length} reads with the usages off`); if (snap.extraction.judgedReads.length !== globalThis.__soJ11Off.reads) throw new Error('the judged-read ring grew with the usages off'); return { reads: audits.map((audit) => audit.reason) };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.25",
+      "mode": "auto",
+      "findings": [],
+      "goal": "prepare-ahead with two variants: once the scene read says play is heading for the watchtower, the next boundary queues the tower's stub before the tower is reached; on arrival the prepared chain is used, or (stale / failed) re-queued and expanded anyway; the entry shows two generations and one pick After the approach turns the check lets the off-path passes settle and plays one neutral turn: the look-ahead is boundary work, and the judge's scene read that names the heading can land after the last boundary, so without a next boundary nothing reads it (L2 2026-09-24, from this check's own diagnostics: heading tower p 0.95 read at 07:00:53, after boundary 3, entries empty, active road). Revised 2026-09-25 (v2.4 plan 09 acceptance, lane 2): the scene judge fell back (timeout) on boundaries 2-4 and named the heading only on boundary 5, the last one, so no boundary followed it; the check now waits for a scene read that names the tower (or the stub already queued) and then plays one more neutral turn, so the boundary the claim is about exists.",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; rt.setExtractionSettings({ enabled: true, cadence: 50, reconciliationMultiplier: 1.5 }); const root = ctx.extensionSettings['story-orchestrator']; root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 1500, uses: { ...Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, false])), sceneTrigger: true, sceneTracker: true, lookahead: true, expansionLookahead: true, expansionCritic: true }, expansion: { variants: 2, temperature: 0.7, pick: 'code' } }; globalThis.storyOrchestratorJudge.invalidateStatus(); return root.settings.judge;"
+        },
+        {
+          "import_story": {
+            "file": "./j11-expand.story.json"
+          }
+        },
+        {
+          "expect": {
+            "storyId": "so-j11-expand",
+            "activeCheckpoint": "road"
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We shoulder our packs and head up the ridge road toward the old watchtower; its silhouette is already visible against the sky.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 2500,
+            "timeoutMs": 180000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We keep to the ridge road, eyes on the tower.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "We pause on the ridge to catch our breath before the last stretch.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const aheadEntry = () => Object.values(rt.getSnapshot().expansion.entries).find((entry) => entry.stubId === 'tower_stub'); const headingNamed = () => { const scene = rt.getSceneRead(); const tower = (scene?.headingTo ?? []).find((h) => h.id === 'tower'); return tower ? { tower, at: scene.at ?? scene.updatedAt ?? null } : null; }; const seen = await until(() => aheadEntry() ? { queuedAlready: true } : headingNamed(), 120000); if (!seen) { const scene = rt.getSceneRead(); const recent = rt.getSessionJournal().slice(-12).map((event) => `${event.kind}: ${event.summary}`); throw new Error(`no scene read named the tower after the approach turns; heading ${JSON.stringify(scene?.headingTo ?? null)}; recent ${JSON.stringify(recent)}`); } return { ...seen, boundary: rt.getSnapshot().boundary, active: rt.getSnapshot().activeCheckpointId };",
+          "log": true
+        },
+        {
+          "send_generate": {
+            "text": "We stand a moment longer on the ridge, the tower still ahead of us.",
+            "timeoutMs": 300000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const aheadEntry = () => Object.values(rt.getSnapshot().expansion.entries).find((entry) => entry.stubId === 'tower_stub'); const queued = await until(() => aheadEntry(), 60000); const scene = rt.getSceneRead(); if (!queued) { const snap = rt.getSnapshot(); const entries = Object.values(snap.expansion.entries).map((entry) => ({ stub: entry.stubId, origin: entry.origin, status: entry.status })); const recent = rt.getSessionJournal().slice(-12).map((event) => `${event.kind}: ${event.summary}`); throw new Error(`nothing prepared ahead; heading: ${JSON.stringify(scene?.headingTo ?? null)}; scene read at ${scene?.at ?? scene?.updatedAt ?? 'n/a'}; active ${snap.activeCheckpointId}; entries ${JSON.stringify(entries)}; agency ${JSON.stringify(snap.agency ?? null)}; recent ${JSON.stringify(recent)}`); } if (rt.getSnapshot().activeCheckpointId !== 'road') { const wrote = (rt.getSnapshot().extraction.audits ?? []).flatMap((audit) => (audit.acceptedDeltas ?? []).filter((entry) => entry.delta?.q === 'reached_tower').map((entry) => ({ reason: audit.reason, window: audit.window, evidence: entry.evidence }))); throw new Error(`the tower was reached during the approach turns, so the stub was queued as ${queued.origin}, not ahead of arrival; the reads that wrote reached_tower: ${JSON.stringify(wrote)}`); } if (queued.origin !== 'lookahead') throw new Error(`the tower stub was queued as ${queued.origin} while play was still on the road`); return { key: queued.key, status: queued.status, headingP: queued.headingP };",
+          "log": true
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const aheadEntry = () => Object.values(rt.getSnapshot().expansion.entries).find((entry) => entry.stubId === 'tower_stub'); const done = await until(() => ['validated', 'inserted', 'needs_review', 'failed', 'stale'].includes(aheadEntry()?.status) ? aheadEntry() : null, 480000); if (!done) throw new Error(`the prepared expansion never finished: ${JSON.stringify(aheadEntry())}`); globalThis.__soJ11Ahead = { status: done.status, attempts: done.attempts }; return { status: done.status, variants: done.variants ?? null, verdict: done.verdicts?.at(-1)?.raw ?? null };",
+          "log": true
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; await rt.setQuality('reached_tower', 'true'); return rt.getSnapshot().status;"
+        },
+        {
+          "slash": "/sendas name=\"DM Narrator\" raw=false \"The party climbs the last switchback and steps into the watchtower's shadow.\""
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 500)); } return null; }; const aheadEntry = () => Object.values(rt.getSnapshot().expansion.entries).find((entry) => entry.stubId === 'tower_stub'); if (rt.getSnapshot().activeCheckpointId !== 'tower') throw new Error(`not at the tower: ${rt.getSnapshot().activeCheckpointId}`); const before = globalThis.__soJ11Ahead; const after = await until(() => { const entry = aheadEntry(); return entry && !['queued', 'generating'].includes(entry.status) ? entry : null; }, 480000); if (!after) throw new Error('the tower stub never settled after arrival'); const branch = ['validated', 'inserted'].includes(before.status) && after.origin === 'lookahead' ? 'used the prepared chain' : after.origin === 'active' && after.attempts > before.attempts ? `re-queued after ${before.status} and expanded again (${after.status})` : `left as ${after.status} (origin ${after.origin})`; if (branch.startsWith('left as') && ['stale', 'failed'].includes(before.status)) throw new Error(`a ${before.status} prepared chain blocked arrival: ${branch}`); const variants = after.variants ?? null; if (variants && (variants.generated !== 2 || variants.picked === undefined)) throw new Error(`variant record: ${JSON.stringify(variants)}`); const critic = rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge critic')); if (!critic.length) throw new Error('no critic judge call recorded'); return { branch, status: after.status, variants, criticCalls: critic.length };",
+          "log": true
+        }
+      ]
+    },
+    {
+      "id": "J11.26",
+      "mode": "auto",
+      "findings": [],
+      "goal": "curator focus: with 40 entries in the curator's scope, the pre-filter asks once and the curator's prompt holds only what it kept (plus switched-off entries); with it off the prompt holds all 40 and no filter call is made",
+      "requires": [
+        "judge-runtime",
+        "judge-plugin"
+      ],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const loreCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge lore')); const made = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-J11 Lore' }, { requirements: { lorebooks: [] } }); if (!made.ok && !made.message.includes('already exists')) throw new Error(`could not create SO-J11 Lore: ${made.message}`); const entries = [{\"comment\": \"Trade route 1\", \"keys\": [\"zqx-route-1\"], \"content\": \"The market town of Hallow Ford trades salt for amber with Silt Harbor every spring, over the old north road.\"}, {\"comment\": \"Trade route 2\", \"keys\": [\"zqx-route-2\"], \"content\": \"The market town of Brine Cross trades wool for rope with Greywick every summer, over the old east road.\"}, {\"comment\": \"Trade route 3\", \"keys\": [\"zqx-route-3\"], \"content\": \"The market town of Ashvale trades tin for cider with Tallow Reach every autumn, over the old south road.\"}, {\"comment\": \"Trade route 4\", \"keys\": [\"zqx-route-4\"], \"content\": \"The market town of Kettle Mere trades amber for slate with Hallow Ford every winter, over the old west road.\"}, {\"comment\": \"Trade route 5\", \"keys\": [\"zqx-route-5\"], \"content\": \"The market town of Dunmarrow trades rope for wax with Brine Cross every spring, over the old north road.\"}, {\"comment\": \"Trade route 6\", \"keys\": [\"zqx-route-6\"], \"content\": \"The market town of Silt Harbor trades cider for salt with Ashvale every summer, over the old east road.\"}, {\"comment\": \"Trade route 7\", \"keys\": [\"zqx-route-7\"], \"content\": \"The market town of Greywick trades slate for wool with Kettle Mere every autumn, over the old south road.\"}, {\"comment\": \"Trade route 8\", \"keys\": [\"zqx-route-8\"], \"content\": \"The market town of Tallow Reach trades wax for tin with Dunmarrow every winter, over the old west road.\"}, {\"comment\": \"Trade route 9\", \"keys\": [\"zqx-route-9\"], \"content\": \"The market town of Hallow Ford trades salt for amber with Silt Harbor every spring, over the old north road.\"}, {\"comment\": \"Trade route 10\", \"keys\": [\"zqx-route-10\"], \"content\": \"The market town of Brine Cross trades wool for rope with Greywick every summer, over the old east road.\"}, {\"comment\": \"Trade route 11\", \"keys\": [\"zqx-route-11\"], \"content\": \"The market town of Ashvale trades tin for cider with Tallow Reach every autumn, over the old south road.\"}, {\"comment\": \"Trade route 12\", \"keys\": [\"zqx-route-12\"], \"content\": \"The market town of Kettle Mere trades amber for slate with Hallow Ford every winter, over the old west road.\"}, {\"comment\": \"Trade route 13\", \"keys\": [\"zqx-route-13\"], \"content\": \"The market town of Dunmarrow trades rope for wax with Brine Cross every spring, over the old north road.\"}, {\"comment\": \"Trade route 14\", \"keys\": [\"zqx-route-14\"], \"content\": \"The market town of Silt Harbor trades cider for salt with Ashvale every summer, over the old east road.\"}, {\"comment\": \"Trade route 15\", \"keys\": [\"zqx-route-15\"], \"content\": \"The market town of Greywick trades slate for wool with Kettle Mere every autumn, over the old south road.\"}, {\"comment\": \"Trade route 16\", \"keys\": [\"zqx-route-16\"], \"content\": \"The market town of Tallow Reach trades wax for tin with Dunmarrow every winter, over the old west road.\"}, {\"comment\": \"Trade route 17\", \"keys\": [\"zqx-route-17\"], \"content\": \"The market town of Hallow Ford trades salt for amber with Silt Harbor every spring, over the old north road.\"}, {\"comment\": \"Trade route 18\", \"keys\": [\"zqx-route-18\"], \"content\": \"The market town of Brine Cross trades wool for rope with Greywick every summer, over the old east road.\"}, {\"comment\": \"Trade route 19\", \"keys\": [\"zqx-route-19\"], \"content\": \"The market town of Ashvale trades tin for cider with Tallow Reach every autumn, over the old south road.\"}, {\"comment\": \"Back room password\", \"keys\": [\"zqx-pass\"], \"content\": \"The password to the guild's back room is \\\"amber heron\\\". Ponticius changes it every winter and tells only members in good standing.\"}, {\"comment\": \"Trade route 20\", \"keys\": [\"zqx-route-20\"], \"content\": \"The market town of Kettle Mere trades amber for slate with Hallow Ford every winter, over the old west road.\"}, {\"comment\": \"Trade route 21\", \"keys\": [\"zqx-route-21\"], \"content\": \"The market town of Dunmarrow trades rope for wax with Brine Cross every spring, over the old north road.\"}, {\"comment\": \"Trade route 22\", \"keys\": [\"zqx-route-22\"], \"content\": \"The market town of Silt Harbor trades cider for salt with Ashvale every summer, over the old east road.\"}, {\"comment\": \"Trade route 23\", \"keys\": [\"zqx-route-23\"], \"content\": \"The market town of Greywick trades slate for wool with Kettle Mere every autumn, over the old south road.\"}, {\"comment\": \"Trade route 24\", \"keys\": [\"zqx-route-24\"], \"content\": \"The market town of Tallow Reach trades wax for tin with Dunmarrow every winter, over the old west road.\"}, {\"comment\": \"Trade route 25\", \"keys\": [\"zqx-route-25\"], \"content\": \"The market town of Hallow Ford trades salt for amber with Silt Harbor every spring, over the old north road.\"}, {\"comment\": \"Trade route 26\", \"keys\": [\"zqx-route-26\"], \"content\": \"The market town of Brine Cross trades wool for rope with Greywick every summer, over the old east road.\"}, {\"comment\": \"Trade route 27\", \"keys\": [\"zqx-route-27\"], \"content\": \"The market town of Ashvale trades tin for cider with Tallow Reach every autumn, over the old south road.\"}, {\"comment\": \"Trade route 28\", \"keys\": [\"zqx-route-28\"], \"content\": \"The market town of Kettle Mere trades amber for slate with Hallow Ford every winter, over the old west road.\"}, {\"comment\": \"Trade route 29\", \"keys\": [\"zqx-route-29\"], \"content\": \"The market town of Dunmarrow trades rope for wax with Brine Cross every spring, over the old north road.\"}, {\"comment\": \"Trade route 30\", \"keys\": [\"zqx-route-30\"], \"content\": \"The market town of Silt Harbor trades cider for salt with Ashvale every summer, over the old east road.\"}, {\"comment\": \"Trade route 31\", \"keys\": [\"zqx-route-31\"], \"content\": \"The market town of Greywick trades slate for wool with Kettle Mere every autumn, over the old south road.\"}, {\"comment\": \"Trade route 32\", \"keys\": [\"zqx-route-32\"], \"content\": \"The market town of Tallow Reach trades wax for tin with Dunmarrow every winter, over the old west road.\"}, {\"comment\": \"Trade route 33\", \"keys\": [\"zqx-route-33\"], \"content\": \"The market town of Hallow Ford trades salt for amber with Silt Harbor every spring, over the old north road.\"}, {\"comment\": \"Trade route 34\", \"keys\": [\"zqx-route-34\"], \"content\": \"The market town of Brine Cross trades wool for rope with Greywick every summer, over the old east road.\"}, {\"comment\": \"Trade route 35\", \"keys\": [\"zqx-route-35\"], \"content\": \"The market town of Ashvale trades tin for cider with Tallow Reach every autumn, over the old south road.\"}, {\"comment\": \"Trade route 36\", \"keys\": [\"zqx-route-36\"], \"content\": \"The market town of Kettle Mere trades amber for slate with Hallow Ford every winter, over the old west road.\"}, {\"comment\": \"Trade route 37\", \"keys\": [\"zqx-route-37\"], \"content\": \"The market town of Dunmarrow trades rope for wax with Brine Cross every spring, over the old north road.\"}, {\"comment\": \"Trade route 38\", \"keys\": [\"zqx-route-38\"], \"content\": \"The market town of Silt Harbor trades cider for salt with Ashvale every summer, over the old east road.\"}, {\"comment\": \"Vault combination\", \"keys\": [\"zqx-vault\"], \"content\": \"The guild vault opens with the combination seven-two-nine. Only Ponticius knows it.\"}]; for (const entry of entries) { const result = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook: 'SO-J11 Lore', comment: entry.comment, keys: entry.keys, content: entry.content }, { requirements: { lorebooks: ['SO-J11 Lore'] } }); if (!result.ok) throw new Error(`entry ${entry.comment}: ${result.message}`); } const found = await ctx.executeSlashCommandsWithOptions('/findentry file=\"SO-J11 Lore\" field=comment Vault combination', { handleParserErrors: false }); const uid = String(found?.pipe ?? '').trim(); if (!uid) throw new Error('could not find the vault entry to switch off'); await ctx.executeSlashCommandsWithOptions(`/setentryfield file=\"SO-J11 Lore\" uid=${uid} field=disable 1`, { handleParserErrors: false }); return { entries: entries.length, vaultUid: uid };"
+        },
+        {
+          "import_story": {
+            "file": "./j11-lore.story.json"
+          }
+        },
+        {
+          "expect": {
+            "storyId": "so-j11-lore",
+            "requirementsReady": true
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const filterCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge curatorFilter')); const judgeWith = (on) => { root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 20000, uses: { ...Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, false])), curatorFilter: on } }; globalThis.storyOrchestratorJudge.invalidateStatus(); }; rt.setStagecraftSettings({ curatorEnabled: true, acceptMode: 'review' }); judgeWith(false); const before = filterCalls().length; const off = await rt.runWiCuratorPass('j11-focus-off'); const pass = rt.getStagecraftState().lastPass; if (!off.ran || !pass) throw new Error(`the curator did not run: ${JSON.stringify(off)}`); if (filterCalls().length !== before) throw new Error('a filter call was made with the usage off'); if (pass.focus) throw new Error(`narrowed with the usage off: ${JSON.stringify(pass.focus)}`); const shownOff = (pass.prompt.match(/Trade route \\d+/g) ?? []).length; globalThis.__soJ11Focus = { shownOff }; return { shownOff, proposed: pass.proposed };",
+          "log": true
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; const filterCalls = () => rt.getSessionJournal().filter((event) => event.kind === 'judge' && event.summary.startsWith('judge curatorFilter')); const judgeWith = (on) => { root.settings.judge = { ...root.settings.judge, enabled: true, timeoutMs: 20000, uses: { ...Object.fromEntries(Object.keys(root.settings.judge.uses).map((key) => [key, false])), curatorFilter: on } }; globalThis.storyOrchestratorJudge.invalidateStatus(); }; judgeWith(true); const before = filterCalls().length; const on = await rt.runWiCuratorPass('j11-focus-on'); const pass = rt.getStagecraftState().lastPass; if (!on.ran || !pass) throw new Error(`the curator did not run: ${JSON.stringify(on)}`); const calls = filterCalls().slice(before); if (calls.length !== 1) throw new Error(`expected one filter call, got ${calls.length}`); if (calls[0].summary.includes('fell back')) return { branch: 'judge fell back: every entry shown', summary: calls[0].summary, focus: pass.focus ?? null }; if (!pass.focus || pass.focus.shown >= pass.focus.total) throw new Error(`nothing narrowed: ${JSON.stringify(pass.focus ?? null)}`); const shownOn = (pass.prompt.match(/Trade route \\d+/g) ?? []).length; if (shownOn >= globalThis.__soJ11Focus.shownOff) throw new Error(`prompt not narrowed: ${shownOn} vs ${globalThis.__soJ11Focus.shownOff}`); const ops = (rt.getStagecraftState().proposals.at(-1)?.ops ?? []).map((entry) => entry.op.comment); const hidden = ops.filter((comment) => !pass.prompt.includes(comment)); if (hidden.length) throw new Error(`the curator proposed an entry it was not shown: ${hidden}`); rt.setStagecraftSettings({ curatorEnabled: false }); return { branch: 'narrowed', focus: pass.focus, shownOn, shownOff: globalThis.__soJ11Focus.shownOff, ops };",
+          "log": true
+        }
+      ]
+    }
+  ]
+}

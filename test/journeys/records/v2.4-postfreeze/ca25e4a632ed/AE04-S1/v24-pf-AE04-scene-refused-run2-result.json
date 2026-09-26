@@ -1,0 +1,113 @@
+{
+  "file": "test/scenarios/v24-pf-AE04-scene-refused.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "import_story",
+      "ok": true,
+      "ms": 260
+    },
+    {
+      "index": 1,
+      "key": "send",
+      "ok": true,
+      "ms": 1670
+    },
+    {
+      "index": 2,
+      "key": "eval",
+      "ok": true,
+      "ms": 89
+    },
+    {
+      "index": 3,
+      "key": "send",
+      "ok": true,
+      "ms": 1665
+    },
+    {
+      "index": 4,
+      "key": "eval",
+      "ok": true,
+      "ms": 336
+    },
+    {
+      "index": 5,
+      "key": "eval",
+      "ok": true,
+      "ms": 16
+    },
+    {
+      "index": 6,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    }
+  ],
+  "ok": true,
+  "error": null,
+  "retries": [],
+  "firstAttempt": "pass",
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-f7976edd"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@20h21m31s093ms",
+    "owned": [
+      "2026-09-25@20h21m31s093ms"
+    ],
+    "deleted": [
+      "2026-09-25@20h21m31s093ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1527,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@20h21m31s093ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

@@ -1,0 +1,121 @@
+== v24-acc-I7-run1 start 2026-09-25T20:04:09Z
+open-group exit=0
+header capture exit=0 served=ca25e4a632ed
+1/35 eval ok 7ms
+1/35 eval -> {"greetingsCleared":1}
+2/35 eval ok 4ms
+3/35 import_story ok 306ms
+4/35 eval ok 12ms
+5/35 send ok 1665ms
+6/35 extract ok 1050ms
+7/35 send ok 1666ms
+8/35 extract ok 904ms
+9/35 eval ok 8ms
+9/35 eval -> {"boundary":2,"lastMessageId":1}
+10/35 record_state ok 10ms
+10/35 record_state -> {"as":"after-line-1","boundary":2,"active":"start","rows":{"memory":2,"epistemic":0,"ledger":0}}
+11/35 send ok 1675ms
+12/35 extract ok 1159ms
+13/35 eval ok 127ms
+13/35 eval -> {"boundary":3,"lastMessageId":2,"fingerprints":{"v":1,"from":0,"hashes":["1a194891","bcf47722","01ab0142"]}}
+14/35 record_state ok 8ms
+14/35 record_state -> {"as":"before-plain-reload","boundary":3,"active":"start","rows":{"memory":3,"epistemic":0,"ledger":0}}
+15/35 eval ok 5ms
+16/35 reload ok 9275ms
+16/35 reload -> {"chatId":"2026-09-25@17h04m20s843ms","ready":true}
+17/35 eval ok 6ms
+17/35 eval -> {"arm":"plain reload","chatId":"2026-09-25@17h04m20s843ms","boundary":3,"lastMessageId":2,"lastOutcome":null}
+18/35 wait ok 1518ms
+19/35 expect ok 7ms
+20/35 expect ok 21ms
+21/35 eval ok 144ms
+21/35 eval -> {"rewritten":2,"before":"I unroll the map on the table.","after":"I leave the map rolled up and study the iron chest instead."}
+22/35 reload ok 8035ms
+22/35 reload -> {"chatId":"2026-09-25@17h04m20s843ms","ready":true}
+23/35 eval ok 9ms
+23/35 eval -> {"arm":"silent rewrite","chatId":"2026-09-25@17h04m20s843ms","boundary":2,"lastMessageId":1,"lastOutcome":{"seq":1,"result":"applied","fromMessage":2,"at":"2026-09-25T20:04:46.641Z"},"journal":["delta: lit_lamp = true","boundary: applied lit_lamp=true","story: away recap not due","story: away recap not due","story: eventless change at message 2","status: Stepped back to Start"]}
+24/35 wait ok 1526ms
+25/35 expect ok 5ms
+26/35 expect ok 7ms
+27/35 eval ok 6ms
+27/35 eval -> {"boundary":2,"lastMessageId":1,"fingerprints":{"v":1,"from":0,"hashes":["1a194891","bcf47722"]}}
+28/35 record_state ok 6ms
+28/35 record_state -> {"as":"before-legacy","boundary":2,"active":"start","rows":{"memory":2,"epistemic":0,"ledger":0}}
+29/35 eval ok 139ms
+29/35 eval -> {"rewritten":1,"before":"I light the oil lamp by the door.","after":"I leave the lamp dark and feel along the wall.","fingerprintsOnDisk":null}
+30/35 reload ok 8429ms
+30/35 reload -> {"chatId":"2026-09-25@17h04m20s843ms","ready":true}
+31/35 eval ok 8ms
+31/35 eval -> {"arm":"legacy boundary","chatId":"2026-09-25@17h04m20s843ms","boundary":2,"lastMessageId":1,"lastOutcome":null}
+32/35 wait ok 1545ms
+33/35 expect ok 5ms
+34/35 expect ok 8ms
+35/35 eval ok 6ms
+35/35 eval -> {"rebaselined":{"v":1,"from":0,"hashes":["1a194891","0e622db2"]},"drift":null}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-25T20-05-06-584Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 35,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-de4f955d"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [
+      "storyOrchestratorDebugExtractionResponse"
+    ],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@17h04m20s843ms",
+    "owned": [
+      "2026-09-25@17h04m20s843ms"
+    ],
+    "deleted": [
+      "2026-09-25@17h04m20s843ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1560,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@17h04m20s843ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-24@04h05m33s739ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}
+scenario exit=0 2026-09-25T20:05:06Z
+header diff exit=0 blocking=0

@@ -1,0 +1,108 @@
+{
+  "file": "test/scenarios/v24-pf-AE04-scene-refused.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "import_story",
+      "ok": true,
+      "ms": 263
+    },
+    {
+      "index": 1,
+      "key": "send",
+      "ok": true,
+      "ms": 1679
+    },
+    {
+      "index": 2,
+      "key": "eval",
+      "ok": true,
+      "ms": 194
+    },
+    {
+      "index": 3,
+      "key": "send",
+      "ok": true,
+      "ms": 1680
+    },
+    {
+      "index": 4,
+      "key": "eval",
+      "ok": true,
+      "ms": 661
+    },
+    {
+      "index": 5,
+      "key": "eval",
+      "ok": false,
+      "ms": 14,
+      "error": "Evaluation failed in SillyTavern page: page.evaluate: Error: DEFECT (AE04-S1): the refused removal must be journaled exactly once with the host's reason: {\"writeAttempts\":4,\"block\":\"[Scene: guild hall. Present: Arin.]\",\"injected\":\"[Scene: guild hall. Present: Arin.]\",\"journal\":[{\"summary\":\"The scene tracker could not be removed from the prompt\",\"detail\":{\"note\":\"this build exposes no setExtensionPrompt, so the block cannot be cleared. Retried on the next update.\"}}]}\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:2339)\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:4513)\n    at eval (eval at evaluate (:290:30), <anonymous>:3:12)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+    }
+  ],
+  "ok": false,
+  "error": "Evaluation failed in SillyTavern page: page.evaluate: Error: DEFECT (AE04-S1): the refused removal must be journaled exactly once with the host's reason: {\"writeAttempts\":4,\"block\":\"[Scene: guild hall. Present: Arin.]\",\"injected\":\"[Scene: guild hall. Present: Arin.]\",\"journal\":[{\"summary\":\"The scene tracker could not be removed from the prompt\",\"detail\":{\"note\":\"this build exposes no setExtensionPrompt, so the block cannot be cleared. Retried on the next update.\"}}]}\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:2339)\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:4513)\n    at eval (eval at evaluate (:290:30), <anonymous>:3:12)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+  "retries": [],
+  "firstAttempt": "fail",
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-f7976edd"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-25@20h20m38s863ms",
+    "owned": [
+      "2026-09-25@20h20m38s863ms"
+    ],
+    "deleted": [
+      "2026-09-25@20h20m38s863ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1519,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-25@20h20m38s863ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": true,
+      "ok": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

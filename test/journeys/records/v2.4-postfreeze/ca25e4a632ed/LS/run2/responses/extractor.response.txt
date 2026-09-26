@@ -1,0 +1,7 @@
+DELTA player_has_key value=true evidence="I lift the brass key from the hook"
+DELTA mara_trust value=3 evidence="Mara nods, her trust in Max rising to three out of five"
+DELTA tension_current value="calm" evidence="I lift the brass key from the hook and show it to Mara"
+MEMORY type=detail importance=2 expiration=permanent character="Max" text="Max obtained the brass key from the hook" evidence="I lift the brass key from the hook"
+MEMORY type=development importance=2 expiration=permanent character="Mara" text="Mara's trust in Max increased to 3/5" evidence="Mara nods, her trust in Max rising to three out of five"
+SCENE_NONE
+[resolved] Find the key

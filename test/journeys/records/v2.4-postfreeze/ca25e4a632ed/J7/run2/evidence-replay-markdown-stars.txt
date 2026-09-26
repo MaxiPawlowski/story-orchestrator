@@ -1,0 +1,28 @@
+23:15:57 {"from":0,"to":2} asIs=[] starsStripped=[2] The air inside the Guildhall is thick with the scent of ale, sweat and
+23:16:13 {"from":0,"to":2} asIs=[] starsStripped=[2] The air inside the Guildhall is thick with the scent of ale, sweat and
+23:17:40 {"from":0,"to":7} asIs=[] starsStripped=[2] The air inside the Guildhall is thick with the scent of ale, sweat and
+23:18:09 {"from":0,"to":7} asIs=[] starsStripped=[5] The parchment feels cool under your finger, and the seal itself seems 
+23:19:53 {"from":4,"to":11} asIs=[] starsStripped=[] [4] Arin: 'This one just feels… different.' [5] DM Narrator: 'The Sun 
+23:22:11 {"from":6,"to":13} asIs=[] starsStripped=[] Decide whether to take Luke along before departing for the Sun Ruins.
+23:22:11 {"from":6,"to":13} asIs=[] starsStripped=[13] His voice drops to a low whisper. 'And the Sun's Heart? It ain't some 
+23:22:44 {"from":12,"to":14} asIs=[] starsStripped=[14] Arin's face has gone pale, his jaw set. 'T-the barriers?' He repeats t
+23:24:34 {"from":15,"to":19} asIs=[] starsStripped=[] Decide whether to take Luke along before departing for the Sun Ruins.
+23:25:45 {"from":20,"to":22} asIs=[] starsStripped=[20] Luke's eyes dart around the crowded tavern, wide and frantic, taking i
+23:27:04 {"from":23,"to":25} asIs=[] starsStripped=[25] The way to the Sun Ruins lies ahead, past the last standing buildings 
+23:29:17 {"from":26,"to":29} asIs=[] starsStripped=[29] The threat is clear, and the tension in the courtyard is palpable. Ari
+23:31:31 {"from":24,"to":31} asIs=[] starsStripped=[29] The threat is clear, and the tension in the courtyard is palpable. Ari
+23:32:10 {"from":26,"to":33} asIs=[] starsStripped=[29] [29] DM Narrator: ...The threat is clear, and the tension in the court
+23:36:09 {"from":34,"to":38} asIs=[] starsStripped=[38] The chamber feels both wondrous and dangerous, a testament to a lost a
+23:37:00 {"from":32,"to":39} asIs=[] starsStripped=[33] The anticipation hangs in the air, thick and suffocating, as the young
+23:37:00 {"from":32,"to":39} asIs=[] starsStripped=[38] The stone archway looms above as you step through, the transition mark
+23:37:19 {"from":39,"to":41} asIs=[] starsStripped=[41] The chamber feels both fascinating and dangerous, and as you delve dee
+23:37:19 {"from":39,"to":41} asIs=[] starsStripped=[39] Luke's eyes are wide as he steps into the chamber
+23:44:41 {"from":42,"to":45} asIs=[] starsStripped=[45] The clicking sound has gone silent, but the tension in the air remains
+23:51:24 {"from":36,"to":47} asIs=[] starsStripped=[47] The chamber is filled with a renewed sense of danger, and you can tell
+23:52:42 {"from":42,"to":49} asIs=[] starsStripped=[47] The chamber is filled with a renewed sense of danger, and you can tell
+23:55:14 {"from":45,"to":52} asIs=[] starsStripped=[52] And when you reach the guildhall, and you enter the tavern, and you se
+23:55:14 {"from":45,"to":52} asIs=[] starsStripped=[47] The chamber is filled with a renewed sense of danger, and you can tell
+23:55:59 {"from":46,"to":53} asIs=[] starsStripped=[] [53] Arin: ... 'Where's Ponticius?' He asks, and his tone is clear and
+23:55:59 {"from":46,"to":53} asIs=[] starsStripped=[] [47] DM Narrator: 'The chamber is filled with a renewed sense of dange
+23:56:28 {"from":54,"to":57} asIs=[] starsStripped=[54] Ponticius: 'The artifact.' He gestures toward your pack with a curt mo
+23:56:28 {"from":54,"to":57} asIs=[] starsStripped=[54] The question hangs in the air between you, the weight of it pressing d

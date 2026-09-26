@@ -1,0 +1,64 @@
+start 2026-09-26T01:09:42Z lane 2 args: 
+bundle.served=ca25e4a632ed50355aebc8e11f19eff3df2b5d3e3691bb49d19d1f6b740ca8b5
+
+=== J12 unaided-schedule ===
+The configuration every real install runs and no journey covered: the shipped default cadence, three real player turns, no runExtractionNow and no /cp — an extraction read must fire on its own, its deltas must carry evidence quoting what the player wrote, and the checkpoint it opens must apply its effects.
+
+extraction before this run: {"enabled":true,"cadence":3,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","profiles":{}}
+Global config snapshot: C:\dev\so-lanes\2\debug\so-journey-config-snapshot.json
+extraction declared by the journey: cadence 3, stabilityLag 0, profile inherit
+--- J12.1 the SHIPPED default cadence is in effect (3), extraction is on, a profile is set, and nothing has read yet — so the read J12.3 observes cannot be a leftover from an earlier check or an earlier run
+J12.1 1/1 eval ok 6ms
+J12.1 1/1 eval -> {"cadence":3,"enabled":true,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","audits":0}
+--- J12.2 the story is selected and its requirements are GREEN — the guard v2.3 plan 04 added, because a journey that never established its lorebooks gets silent no-op latches instead of a failure, and the symptom then surfaces 300 s later as a checkpoint that never arrives
+J12.2 1/5 eval ok 4ms
+J12.2 2/5 select_story ok 542ms
+J12.2 3/5 wait ok 1532ms
+J12.2 4/5 eval ok 4ms
+J12.2 4/5 eval -> {"ready":true,"checkpoint":"guild-hall"}
+J12.2 5/5 expect ok 40ms
+--- J12.3 three real turns at the shipped cadence produce an extraction read with NO help (any reason but manual/trigger/runNow), it accepts deltas, and every such read's window holds the player's own lines. Rewritten 2026-09-23 (L2) from the audit tail: the check demanded the reason `cadence`, but a scene or cue read that fires first is just as unaided and resets the cadence counter, so in 3 of 3 real runs the schedule fired as `scene:cast` / `cue:*` and the read labelled `cadence` never came due. Whether a read reached the latest player message is reported, not asserted, for the same reason.
+J12.3 1/10 send_generate ok 28193ms
+J12.3 2/10 wait ok 1530ms
+J12.3 3/10 send_generate ok 25258ms
+J12.3 4/10 wait ok 1542ms
+J12.3 5/10 send_generate ok 43574ms
+J12.3 6/10 wait ok 1533ms
+J12.3 7/10 wait ok 58ms
+J12.3 8/10 eval ok 9ms
+J12.3 8/10 eval -> {"reason":"cue:guild-hall->road-to-wendhope","window":{"from":0,"to":3},"boundary":null,"lastPlayerIndex":4,"accepted":1,"rejected":1}
+J12.3 9/10 eval ok 5ms
+J12.3 9/10 eval -> {"reads":[{"reason":"cue:guild-hall->road-to-wendhope","window":{"from":0,"to":3},"accepted":1}],"reachedLastPlayer":false,"lastPlayerIndex":4}
+J12.3 10/10 expect ok 45ms
+--- J12.4 an accepted delta's EVIDENCE is a verbatim quote (at least 12 characters, quotes and whitespace normalized) of one of the player's own lines inside the read's window. Rewritten 2026-09-23 (L2): the token-overlap form excluded `cross`/`guild`/`counter` as generic, and a real run whose evidence was exactly the player's line "I cross the guild hall to the quest counter" failed on it. A verbatim quote is the stronger claim, and the one the extraction contract states.
+J12.4 1/1 eval ok 5ms
+J12.4 1/1 eval -> {"quoted":[{"q":"path","evidence":"The Wendhope posting. Tell me what it actually pays and who has already turned it down.","quotesPlayer":true}],"measured":[{"reason":"cue:guild-hall->road-to-wendhope","window":{"from":0,"to":3},"evidence":[{"q":"path","evidence":"The Wendhope posting. Tell me what it actually pays and who has already turned it down.","quotesPlayer":true}]}]}
+--- J12.5 the checkpoint the read opened applied its effects — an owned ledger row per effect, `applied` — and the boundary log names the transition that fired. This is the leg the MODEL decides, so it is its own check: a model that will not commit costs this check, not the journey's point (J12.3/J12.4). Revised 2026-09-25 (v2.4 plan 09 acceptance, lane 2): an accepted delta applies at the NEXT boundary, and at cadence 3 the cadence read fires on the third turn's boundary, so in two runs the model had accepted path=wendhope and the check reported that it had not; the check now lets the scheduler settle and plays one more real turn before it reads the checkpoint, and it names an accepted-but-unapplied path separately
+J12.5 1/8 wait ok 71375ms
+J12.5 2/8 send_generate ok 33928ms
+J12.5 3/8 wait ok 1536ms
+J12.5 4/8 wait ok 49889ms
+J12.5 5/8 eval ok 6ms
+J12.5 5/8 eval -> {"rows":3,"applied":3,"byCheckpoint":{"guild-hall":["author_note"],"road-to-wendhope":["author_note","cast"]},"statuses":["author_note:applied","author_note:applied","cast:applied"]}
+J12.5 6/8 eval ok 5ms
+J12.5 7/8 eval ok 6ms
+J12.5 7/8 eval -> {"active":"road-to-wendhope","fired":null,"noteHasGuildHallScene":false,"note":"[The party travels north to Wendhope. Let the companions talk on the road, and build unease from what is missing rather "}
+J12.5 8/8 expect_ui ok 5ms
+Restored global config from C:\dev\so-lanes\2\debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"],"saved":{"status":200},"preservedStories":[],"preservedSessions":[]}
+
+PASS         J12.1    the SHIPPED default cadence is in effect (3), extraction is on, a profile is set, and nothing has read yet — so the read J12.3 observes cannot be a leftover from an earlier check or an earlier run
+PASS         J12.2    the story is selected and its requirements are GREEN — the guard v2.3 plan 04 added, because a journey that never established its lorebooks gets silent no-op latches instead of a failure, and the symptom then surfaces 300 s later as a checkpoint that never arrives
+PASS         J12.3    three real turns at the shipped cadence produce an extraction read with NO help (any reason but manual/trigger/runNow), it accepts deltas, and every such read's window holds the player's own lines. Rewritten 2026-09-23 (L2) from the audit tail: the check demanded the reason `cadence`, but a scene or cue read that fires first is just as unaided and resets the cadence counter, so in 3 of 3 real runs the schedule fired as `scene:cast` / `cue:*` and the read labelled `cadence` never came due. Whether a read reached the latest player message is reported, not asserted, for the same reason.
+PASS         J12.4    an accepted delta's EVIDENCE is a verbatim quote (at least 12 characters, quotes and whitespace normalized) of one of the player's own lines inside the read's window. Rewritten 2026-09-23 (L2): the token-overlap form excluded `cross`/`guild`/`counter` as generic, and a real run whose evidence was exactly the player's line "I cross the guild hall to the quest counter" failed on it. A verbatim quote is the stronger claim, and the one the extraction contract states.
+PASS         J12.5    the checkpoint the read opened applied its effects — an owned ledger row per effect, `applied` — and the boundary log names the transition that fired. This is the leg the MODEL decides, so it is its own check: a model that will not commit costs this check, not the journey's point (J12.3/J12.4). Revised 2026-09-25 (v2.4 plan 09 acceptance, lane 2): an accepted delta applies at the NEXT boundary, and at cadence 3 the cadence read fires on the third turn's boundary, so in two runs the model had accepted path=wendhope and the check reported that it had not; the check now lets the scheduler settle and plays one more real turn before it reads the checkpoint, and it names an accepted-but-unapplied path separately
+
+J12
+automated: 5 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped
+human:     0 scored, 0 unscored
+cleanup:   clean
+first try: 5 of 5 passing check(s) needed no retry
+
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-26T01-14-23-854Z_journey-J12.json
+Matrix: C:\dev\so-lanes\2\debug\journey-J12.md
+journey exit=0 2026-09-26T01:14:23Z
+header diff exit=0

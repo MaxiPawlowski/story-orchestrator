@@ -1,0 +1,16 @@
+Fri Sep 25 20:35:10 UTC 2026
+llamacpp:prompt_tokens_total 1.01178e+07
+llamacpp:prompt_tokens_cached_total 626232
+llamacpp:prompt_seconds_total 12249.8
+llamacpp:tokens_predicted_total 532305
+llamacpp:tokens_predicted_seconds_total 42382
+llamacpp:n_decode_total 338361
+llamacpp:n_tokens_max 89534
+llamacpp:spec_decode_num_draft_tokens_total 0
+llamacpp:spec_decode_num_accepted_tokens_total 0
+llamacpp:spec_decode_num_drafts_total 0
+llamacpp:prompt_tokens_seconds 0
+llamacpp:predicted_tokens_seconds 1.09561
+llamacpp:requests_processing 2
+llamacpp:requests_deferred 0
+llamacpp:n_busy_slots_per_decode 1.60216

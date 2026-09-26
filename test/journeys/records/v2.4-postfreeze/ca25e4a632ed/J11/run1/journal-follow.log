@@ -1,0 +1,474 @@
+Following the session journal → C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\test\journeys\records\v2.4-postfreeze\ca25e4a632ed\J11\run1\journal-follow.jsonl every 1000 ms. Ctrl-C to stop.
+2026-09-26T00:00:49.326Z session      chat 2026-09-24@05h22m36s897ms · story none · at — (boundary 0, 0 messages)
+2026-09-25T23:15:16.205Z story        away recap not due
+2026-09-25T23:15:16.422Z status       Started Quest for the Sun Ruins
+2026-09-25T23:15:16.428Z story        quality macro skipped
+2026-09-25T23:15:16.428Z story        quality macro skipped
+2026-09-25T23:15:38.164Z status       Following Investigate the Job Board
+2026-09-25T23:16:40.373Z status       Moved into Accept the Mission
+2026-09-25T23:17:11.130Z status       Following Accept the Mission
+2026-09-25T23:21:27.035Z status       Moved into Departure Preparations
+2026-09-25T23:21:27.375Z status       Following Departure Preparations
+2026-09-25T23:26:33.570Z status       Moved into Travel with Luke
+2026-09-25T23:26:33.920Z status       Following Travel with Luke
+2026-09-25T23:33:51.475Z status       Moved into Riddle Solved
+2026-09-25T23:35:49.827Z status       Following Riddle Solved
+2026-09-25T23:51:59.377Z status       Moved into Find the Artifact
+2026-09-25T23:52:02.049Z payload      7 story blocks injected (generation)
+2026-09-25T23:52:51.334Z payload      7 story blocks injected (generation)
+2026-09-25T23:53:40.201Z payload      6 story blocks injected (generation)
+2026-09-25T23:54:28.153Z status       Moved into Return to the Guild
+2026-09-25T23:54:28.572Z status       Following Return to the Guild
+2026-09-25T23:54:29.349Z payload      6 story blocks injected (generation)
+2026-09-25T23:54:31.297Z payload      7 story blocks injected (generation)
+2026-09-25T23:57:26.104Z story        restored 6 host change(s)
+2026-09-25T23:57:26.108Z story        7 host change(s) were edited outside this story and left alone
+2026-09-25T23:57:26.109Z status       No story selected for this chat
+2026-09-26T00:00:50.386Z session      chat 2026-09-25@21h00m50s254ms · story none · at — (boundary 0, 1 messages)
+2026-09-25T23:15:16.205Z story        away recap not due
+2026-09-25T23:15:16.422Z status       Started Quest for the Sun Ruins
+2026-09-25T23:15:16.428Z story        quality macro skipped
+2026-09-25T23:15:16.428Z story        quality macro skipped
+2026-09-25T23:15:38.164Z status       Following Investigate the Job Board
+2026-09-25T23:16:40.373Z status       Moved into Accept the Mission
+2026-09-25T23:17:11.130Z status       Following Accept the Mission
+2026-09-25T23:21:27.035Z status       Moved into Departure Preparations
+2026-09-25T23:21:27.375Z status       Following Departure Preparations
+2026-09-25T23:26:33.570Z status       Moved into Travel with Luke
+2026-09-25T23:26:33.920Z status       Following Travel with Luke
+2026-09-25T23:33:51.475Z status       Moved into Riddle Solved
+2026-09-25T23:35:49.827Z status       Following Riddle Solved
+2026-09-25T23:51:59.377Z status       Moved into Find the Artifact
+2026-09-25T23:52:02.049Z payload      7 story blocks injected (generation)
+2026-09-25T23:52:51.334Z payload      7 story blocks injected (generation)
+2026-09-25T23:53:40.201Z payload      6 story blocks injected (generation)
+2026-09-25T23:54:28.153Z status       Moved into Return to the Guild
+2026-09-25T23:54:28.572Z status       Following Return to the Guild
+2026-09-25T23:54:29.349Z payload      6 story blocks injected (generation)
+2026-09-25T23:54:31.297Z payload      7 story blocks injected (generation)
+2026-09-25T23:57:26.104Z story        restored 6 host change(s)
+2026-09-25T23:57:26.108Z story        7 host change(s) were edited outside this story and left alone
+2026-09-25T23:57:26.109Z status       No story selected for this chat
+2026-09-26T00:00:51.406Z session      chat 2026-09-25@21h00m50s254ms · story journey-j11-judge · at The Briefing (boundary 0, 1 messages)
+2026-09-26T00:00:50.669Z story        away recap not due
+2026-09-26T00:00:50.892Z status       Started Journey J11 — Judgment Backend
+2026-09-26T00:00:52.816Z payload      1 story blocks injected (generation)
+2026-09-26T00:00:52.985Z talk         Ponticius speaks (rules)
+2026-09-26T00:01:04.741Z boundary     boundary 1: nothing applied (gate)
+2026-09-26T00:01:04.862Z status       Following The Briefing
+2026-09-26T00:01:06.179Z story        away recap not due
+2026-09-26T00:01:06.706Z status       Continuing Journey J11 — Judgment Backend
+2026-09-26T00:01:08.343Z payload      1 story blocks injected (generation)
+2026-09-26T00:01:08.925Z judge        judge director in 404 ms
+2026-09-26T00:01:08.926Z talk         Ponticius speaks (judge)
+2026-09-26T00:01:21.752Z boundary     boundary 2: nothing applied (gate)
+2026-09-26T00:01:21.870Z status       Following The Briefing
+2026-09-26T00:01:23.188Z status       Following The Briefing
+2026-09-26T00:01:23.191Z story        away recap not due
+2026-09-26T00:01:24.009Z status       Continuing Journey J11 — Judgment Backend
+2026-09-26T00:01:25.648Z payload      1 story blocks injected (generation)
+2026-09-26T00:01:25.807Z judge        judge director fell back (timeout) in 10 ms
+2026-09-26T00:01:25.808Z talk         Arin speaks (mention)
+2026-09-26T00:01:41.336Z boundary     boundary 3: nothing applied (gate)
+2026-09-26T00:01:41.459Z status       Following The Briefing
+2026-09-26T00:01:42.549Z status       Following The Briefing
+2026-09-26T00:01:42.553Z story        away recap not due
+2026-09-26T00:01:44.013Z story        away recap not due
+2026-09-26T00:01:44.338Z status       Continuing Journey J11 — Judgment Backend
+2026-09-26T00:01:49.484Z session      chat null · story none · at — (boundary 0, 0 messages)
+2026-09-26T00:01:48.701Z status       No story loaded
+2026-09-26T00:01:48.702Z status       No story selected for this chat
+2026-09-26T00:01:50.491Z session      chat 2026-09-25@21h00m50s254ms · story journey-j11-judge · at The Briefing (boundary 3, 7 messages)
+2026-09-26T00:01:50.338Z story        away recap not due
+2026-09-26T00:01:50.554Z status       Continuing Journey J11 — Judgment Backend
+2026-09-26T00:01:52.923Z story        away recap not due
+2026-09-26T00:01:53.240Z status       Continuing Journey J11 — Judgment Backend
+2026-09-26T00:01:54.890Z payload      1 story blocks injected (generation)
+2026-09-26T00:01:55.316Z talk         Ponticius speaks (judge)
+2026-09-26T00:01:55.316Z judge        judge director in 280 ms
+2026-09-26T00:02:19.222Z boundary     boundary 4: nothing applied (gate)
+2026-09-26T00:02:19.343Z status       Following The Briefing
+2026-09-26T00:02:41.936Z judge        judge memoryVerify in 333 ms
+2026-09-26T00:02:42.065Z delta        queued tension_current=0.25 for the next boundary
+2026-09-26T00:02:43.078Z delta        queued tension_current=0.25 for the next boundary
+2026-09-26T00:02:41.602Z extraction   read cadence msgs 1-8 → 1 accepted, 0 rejected
+2026-09-26T00:02:41.602Z delta        tension_current = 0.25
+2026-09-26T00:02:41.602Z delta        queued tension_current=0.25 for the next boundary
+2026-09-26T00:02:41.602Z audit        audit cadence msgs 1-8 scope [tension_current] → 1 accepted, 0 rejected
+2026-09-26T00:03:03.366Z delta        queued tension_current=0.25 for the next boundary
+2026-09-26T00:03:03.210Z extraction   read j11.7 msgs 1-8 → 1 accepted, 0 rejected
+2026-09-26T00:03:03.210Z delta        tension_current = 0.25
+2026-09-26T00:03:03.525Z judge        judge memoryVerify in 310 ms
+2026-09-26T00:03:04.243Z boundary     applied tension_current=0.25; discarded tension_current=0.25 (superseded)
+2026-09-26T00:03:03.210Z audit        audit j11.7 msgs 1-8 scope [tension_current] → 1 accepted, 0 rejected
+2026-09-26T00:03:17.119Z extraction   read cadence msgs 1-8 → 1 accepted, 0 rejected
+2026-09-26T00:03:17.119Z delta        tension_current = 0.25
+2026-09-26T00:03:17.119Z delta        queued tension_current=0.25 for the next boundary
+2026-09-26T00:03:17.120Z judge        judge memoryVerify in 0 ms
+2026-09-26T00:03:17.119Z audit        audit cadence msgs 1-8 scope [tension_current] → 1 accepted, 0 rejected
+2026-09-26T00:03:22.640Z story        away recap not due
+2026-09-26T00:03:22.963Z status       Continuing Journey J11 — Judgment Backend
+2026-09-26T00:03:23.136Z boundary     boundary 6: nothing applied (gate)
+2026-09-26T00:03:23.147Z payload      4 story blocks injected (generation)
+2026-09-26T00:03:23.295Z status       Following The Briefing
+2026-09-26T00:04:00.585Z extraction   read j11.8 msgs 2-9 → 0 accepted, 0 rejected
+2026-09-26T00:04:00.871Z judge        judge memoryVerify in 286 ms
+2026-09-26T00:04:00.585Z audit        audit j11.8 msgs 2-9 scope [tension_current] → 0 accepted, 0 rejected
+2026-09-26T00:04:01.395Z boundary     boundary 7: nothing applied (gate)
+2026-09-26T00:04:02.664Z extraction   read cadence msgs 2-9 → 1 accepted, 0 rejected
+2026-09-26T00:04:02.664Z delta        tension_current = 0.25
+2026-09-26T00:04:02.664Z delta        queued tension_current=0.25 for the next boundary
+2026-09-26T00:04:02.908Z judge        judge memoryVerify in 242 ms
+2026-09-26T00:04:02.664Z audit        audit cadence msgs 2-9 scope [tension_current] → 1 accepted, 0 rejected
+2026-09-26T00:04:29.916Z extraction   read cadence msgs 2-9 → 1 accepted, 0 rejected
+2026-09-26T00:04:29.916Z delta        tension_current = 0.25
+2026-09-26T00:04:29.916Z delta        queued tension_current=0.25 for the next boundary
+2026-09-26T00:04:30.268Z judge        judge memoryVerify in 347 ms
+2026-09-26T00:04:29.916Z audit        audit cadence msgs 2-9 scope [tension_current] → 1 accepted, 0 rejected
+2026-09-26T00:04:36.145Z story        away recap not due
+2026-09-26T00:04:36.470Z status       Continuing Journey J11 — Judgment Backend
+2026-09-26T00:04:36.705Z extraction   read j11-seed msgs 9-9 → 0 accepted, 0 rejected
+2026-09-26T00:04:36.705Z audit        audit j11-seed msgs 9-9 scope [] → 0 accepted, 0 rejected
+2026-09-26T00:04:44.504Z judge        judge memoryPairs in 268 ms
+2026-09-26T00:04:44.508Z judge        judge memoryPairs in 263 ms
+2026-09-26T00:04:44.516Z judge        judge memoryPairs in 278 ms
+2026-09-26T00:04:44.528Z judge        judge memoryPairs in 294 ms
+2026-09-26T00:04:44.550Z judge        judge memoryPairs in 303 ms
+2026-09-26T00:04:50.946Z judge        judge memoryPairs in 267 ms
+2026-09-26T00:04:50.966Z judge        judge memoryPairs in 287 ms
+2026-09-26T00:04:50.980Z judge        judge memoryPairs in 302 ms
+2026-09-26T00:04:50.994Z judge        judge memoryPairs in 315 ms
+2026-09-26T00:04:50.998Z judge        judge memoryPairs in 320 ms
+2026-09-26T00:05:01.948Z story        away recap not due
+2026-09-26T00:05:02.277Z status       Continuing Journey J11 — Judgment Backend
+2026-09-26T00:05:02.327Z extraction   read j11-seed msgs 9-9 → 0 accepted, 0 rejected
+2026-09-26T00:05:02.327Z audit        audit j11-seed msgs 9-9 scope [] → 0 accepted, 0 rejected
+2026-09-26T00:05:07.847Z story        away recap not due
+2026-09-26T00:05:08.173Z status       Continuing Journey J11 — Judgment Backend
+2026-09-26T00:05:09.833Z payload      5 story blocks injected (generation)
+2026-09-26T00:05:09.872Z payload      6 story blocks injected (generation)
+2026-09-26T00:05:10.342Z talk         Arin speaks (judge)
+2026-09-26T00:05:10.342Z judge        judge director in 305 ms
+2026-09-26T00:05:26.985Z payload      5 story blocks injected (generation)
+2026-09-26T00:05:28.830Z payload      6 story blocks injected (generation)
+2026-09-26T00:05:30.911Z boundary     boundary 8: nothing applied (gate)
+2026-09-26T00:05:31.039Z status       Following The Briefing
+2026-09-26T00:05:31.379Z judge        judge scene in 322 ms
+2026-09-26T00:05:32.670Z status       Following The Briefing
+2026-09-26T00:05:32.679Z story        away recap not due
+2026-09-26T00:05:33.104Z status       Continuing Journey J11 — Judgment Backend
+2026-09-26T00:05:33.312Z boundary     boundary 9: nothing applied (gate)
+2026-09-26T00:05:33.431Z status       Following The Briefing
+2026-09-26T00:05:33.688Z judge        judge scene in 245 ms
+2026-09-26T00:05:51.312Z extraction   read cadence msgs 5-12 → 0 accepted, 1 rejected
+2026-09-26T00:05:51.312Z audit        audit cadence msgs 5-12 scope [tension_current] → 0 accepted, 1 rejected
+2026-09-26T00:06:10.470Z extraction   read scene:judge msgs 5-12 → 0 accepted, 1 rejected
+2026-09-26T00:06:10.470Z audit        audit scene:judge msgs 5-12 scope [tension_current] → 0 accepted, 1 rejected
+2026-09-26T00:06:58.009Z story        away recap not due
+2026-09-26T00:06:58.341Z status       Continuing Journey J11 — Judgment Backend
+2026-09-26T00:07:00.003Z payload      6 story blocks injected (generation)
+2026-09-26T00:07:00.030Z payload      7 story blocks injected (generation)
+2026-09-26T00:07:00.472Z talk         Arin speaks (judge)
+2026-09-26T00:07:00.472Z judge        judge director in 271 ms
+2026-09-26T00:07:15.611Z payload      7 story blocks injected (generation)
+2026-09-26T00:07:16.959Z payload      6 story blocks injected (generation)
+2026-09-26T00:07:18.591Z boundary     boundary 10: nothing applied (gate)
+2026-09-26T00:07:18.731Z status       Following The Briefing
+2026-09-26T00:07:19.953Z story        away recap not due
+2026-09-26T00:07:20.370Z status       Continuing Journey J11 — Judgment Backend
+2026-09-26T00:07:22.425Z payload      6 story blocks injected (generation)
+2026-09-26T00:07:22.451Z payload      7 story blocks injected (generation)
+2026-09-26T00:07:22.873Z talk         Arin speaks (judge)
+2026-09-26T00:07:22.873Z judge        judge director in 248 ms
+2026-09-26T00:07:39.452Z payload      6 story blocks injected (generation)
+2026-09-26T00:07:40.716Z payload      7 story blocks injected (generation)
+2026-09-26T00:07:44.320Z boundary     boundary 11: nothing applied (gate)
+2026-09-26T00:07:44.463Z status       Following The Briefing
+2026-09-26T00:07:44.761Z judge        judge scene in 284 ms
+2026-09-26T00:07:46.013Z story        extraction read lapsed: cadence
+2026-09-26T00:07:47.640Z payload      6 story blocks injected (generation)
+2026-09-26T00:07:48.110Z judge        judge director in 295 ms
+2026-09-26T00:07:48.111Z talk         Arin speaks (judge)
+2026-09-26T00:07:48.345Z payload      7 story blocks injected (generation)
+2026-09-26T00:07:59.942Z extraction   read reread:lapsed msgs 9-15 → 1 accepted, 0 rejected
+2026-09-26T00:07:59.942Z delta        tension_current = 0.175
+2026-09-26T00:07:59.942Z delta        queued tension_current=0.175 for the next boundary
+2026-09-26T00:07:59.942Z audit        audit reread:lapsed msgs 9-15 scope [tension_current] → 1 accepted, 0 rejected
+2026-09-26T00:08:10.190Z boundary     applied tension_current=0.175
+2026-09-26T00:08:10.594Z judge        judge scene in 261 ms
+2026-09-26T00:08:11.688Z status       Following The Briefing
+2026-09-26T00:08:11.699Z story        away recap not due
+2026-09-26T00:08:12.082Z status       Continuing Journey J11 — Judgment Backend
+2026-09-26T00:08:12.422Z boundary     applied location=town gate
+2026-09-26T00:08:12.554Z status       Following The Briefing
+2026-09-26T00:08:14.167Z payload      7 story blocks injected (generation)
+2026-09-26T00:08:14.190Z payload      8 story blocks injected (generation)
+2026-09-26T00:08:14.625Z talk         Arin speaks (judge)
+2026-09-26T00:08:14.625Z judge        judge director in 263 ms
+2026-09-26T00:08:32.560Z payload      8 story blocks injected (generation)
+2026-09-26T00:08:34.132Z payload      7 story blocks injected (generation)
+2026-09-26T00:08:37.136Z boundary     boundary 14: nothing applied (gate)
+2026-09-26T00:08:44.320Z boundary     applied location=desert road
+2026-09-26T00:08:44.884Z judge        judge scene in 275 ms
+2026-09-26T00:08:46.219Z payload      7 story blocks injected (generation)
+2026-09-26T00:08:46.256Z payload      8 story blocks injected (generation)
+2026-09-26T00:08:46.749Z talk         Arin speaks (judge)
+2026-09-26T00:08:46.749Z judge        judge director in 315 ms
+2026-09-26T00:09:06.481Z payload      7 story blocks injected (generation)
+2026-09-26T00:09:07.925Z boundary     boundary 16: nothing applied (gate)
+2026-09-26T00:09:07.668Z extraction   read scene:location msgs 12-19 → 0 accepted, 1 rejected
+2026-09-26T00:09:09.149Z judge        judge scene in 286 ms
+2026-09-26T00:09:07.668Z audit        audit scene:location msgs 12-19 scope [tension_current] → 0 accepted, 1 rejected
+2026-09-26T00:09:37.490Z session      chat 2026-09-25@21h00m50s254ms · story so-j11-lore · at The Briefing (boundary 0, 22 messages)
+2026-09-26T00:09:36.992Z story        away recap not due
+2026-09-26T00:09:37.328Z status       Started SO-J11 Lore
+2026-09-26T00:09:39.043Z payload      1 story blocks injected (generation)
+2026-09-26T00:09:39.564Z judge        judge lore in 324 ms
+2026-09-26T00:09:39.833Z talk         Ponticius speaks (judge)
+2026-09-26T00:09:39.833Z judge        judge director in 259 ms
+2026-09-26T00:09:59.219Z boundary     boundary 1: nothing applied (gate)
+2026-09-26T00:10:00.599Z status       Following The Briefing
+2026-09-26T00:10:02.496Z status       Following The Briefing
+2026-09-26T00:10:02.498Z story        away recap not due
+2026-09-26T00:10:02.935Z status       Continuing SO-J11 Lore
+2026-09-26T00:10:04.626Z payload      1 story blocks injected (generation)
+2026-09-26T00:10:05.148Z judge        judge lore in 314 ms
+2026-09-26T00:10:05.400Z talk         Ponticius speaks (judge)
+2026-09-26T00:10:05.400Z judge        judge director in 245 ms
+2026-09-26T00:10:32.236Z boundary     boundary 2: nothing applied (gate)
+2026-09-26T00:10:32.380Z status       Following The Briefing
+2026-09-26T00:10:35.201Z status       Following The Briefing
+2026-09-26T00:10:35.205Z story        away recap not due
+2026-09-26T00:10:35.648Z status       Continuing SO-J11 Lore
+2026-09-26T00:10:37.081Z payload      0 story blocks injected (generation)
+2026-09-26T00:10:43.166Z story        away recap not due
+2026-09-26T00:10:43.510Z status       Continuing SO-J11 Lore
+2026-09-26T00:10:45.156Z payload      1 story blocks injected (generation)
+2026-09-26T00:10:45.632Z talk         Ponticius speaks (judge)
+2026-09-26T00:10:45.632Z judge        judge director in 279 ms
+2026-09-26T00:11:02.722Z payload      0 story blocks injected (generation)
+2026-09-26T00:11:20.305Z boundary     boundary 3: nothing applied (gate)
+2026-09-26T00:11:20.460Z status       Following The Briefing
+2026-09-26T00:11:24.786Z session      chat 2026-09-25@21h00m50s254ms · story so-j11-typed · at The Hall (boundary 0, 28 messages)
+2026-09-26T00:11:23.762Z status       Following The Briefing
+2026-09-26T00:11:23.768Z story        away recap not due
+2026-09-26T00:11:24.200Z status       Started SO-J11 Typed
+2026-09-26T00:11:24.875Z story        settings save not confirmed
+2026-09-26T00:11:25.884Z payload      1 story blocks injected (generation)
+2026-09-26T00:11:48.805Z boundary     boundary 1: nothing applied (gate)
+2026-09-26T00:11:48.946Z status       Following The Hall
+2026-09-26T00:11:49.249Z judge        judge typed in 276 ms
+2026-09-26T00:11:49.890Z delta        queued has_key=true for the next boundary
+2026-09-26T00:11:50.900Z delta        queued has_key=true for the next boundary
+2026-09-26T00:11:51.826Z payload      1 story blocks injected (generation)
+2026-09-26T00:11:51.905Z delta        queued has_key=true for the next boundary
+2026-09-26T00:11:52.918Z delta        queued has_key=true for the next boundary
+2026-09-26T00:11:53.926Z delta        queued has_key=true for the next boundary
+2026-09-26T00:11:54.942Z delta        queued has_key=true for the next boundary
+2026-09-26T00:11:55.962Z delta        queued has_key=true for the next boundary
+2026-09-26T00:11:56.968Z delta        queued has_key=true for the next boundary
+2026-09-26T00:11:57.977Z delta        queued has_key=true for the next boundary
+2026-09-26T00:11:58.989Z delta        queued has_key=true for the next boundary
+2026-09-26T00:11:59.996Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:01.008Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:02.014Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:03.030Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:04.049Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:05.056Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:06.066Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:07.081Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:08.093Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:09.109Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:10.124Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:11.138Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:12.156Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:13.168Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:14.174Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:15.193Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:15.520Z payload      2 story blocks injected (generation)
+2026-09-26T00:12:16.208Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:17.215Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:18.234Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:19.248Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:20.261Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:21.277Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:22.291Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:23.303Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:24.311Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:25.327Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:26.342Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:27.354Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:28.367Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:29.379Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:30.391Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:31.403Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:32.421Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:33.438Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:34.449Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:35.460Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:36.468Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:37.475Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:38.491Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:39.510Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:40.519Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:41.533Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:42.538Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:43.545Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:44.553Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:45.557Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:46.562Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:47.571Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:48.581Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:49.598Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:50.613Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:51.627Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:52.635Z delta        queued has_key=true for the next boundary
+2026-09-26T00:12:52.838Z boundary     applied has_key=true
+2026-09-26T00:12:52.838Z transition   hall → vault
+2026-09-26T00:12:53.130Z status       Moved into The Vault
+2026-09-26T00:12:53.155Z boundary     boundary 3: nothing applied (gate)
+2026-09-26T00:12:53.293Z status       Following The Vault
+2026-09-26T00:12:53.302Z boundary     boundary 4: nothing applied (gate)
+2026-09-26T00:12:53.493Z judge        judge typed in 313 ms
+2026-09-26T00:12:53.589Z judge        judge typed in 288 ms
+2026-09-26T00:12:54.199Z story        away recap not due
+2026-09-26T00:12:57.710Z status       Continuing SO-J11 Typed
+2026-09-26T00:12:59.437Z payload      2 story blocks injected (generation)
+2026-09-26T00:13:32.991Z payload      1 story blocks injected (generation)
+2026-09-26T00:13:47.743Z boundary     boundary 5: nothing applied (gate)
+2026-09-26T00:13:47.902Z status       Following The Vault
+2026-09-26T00:13:47.920Z boundary     boundary 6: nothing applied (gate)
+2026-09-26T00:13:49.872Z judge        judge typed in 289 ms
+2026-09-26T00:14:17.617Z delta        queued guard_mood=suspicious, has_key=true for the next boundary
+2026-09-26T00:14:16.919Z extraction   read cadence msgs 29-36 → 2 accepted, 1 rejected
+2026-09-26T00:14:16.919Z delta        guard_mood = suspicious
+2026-09-26T00:14:16.919Z delta        has_key = true
+2026-09-26T00:14:16.919Z delta        queued guard_mood=suspicious, has_key=true for the next boundary
+2026-09-26T00:14:16.919Z audit        audit cadence msgs 29-36 scope [guard_mood, has_key, tension_current] → 2 accepted, 1 rejected
+2026-09-26T00:14:19.339Z judge        judge typed in 306 ms
+2026-09-26T00:14:25.941Z extraction   read cadence msgs 37-37 → 1 accepted, 1 rejected
+2026-09-26T00:14:25.941Z delta        guard_mood = suspicious
+2026-09-26T00:14:25.941Z delta        queued guard_mood=suspicious for the next boundary
+2026-09-26T00:14:25.941Z audit        audit cadence msgs 37-37 scope [guard_mood, tension_current] → 1 accepted, 1 rejected
+2026-09-26T00:14:55.125Z session      chat 2026-09-25@21h00m50s254ms · story so-j11-stall · at The Gate (boundary 0, 38 messages)
+2026-09-26T00:14:54.871Z story        away recap not due
+2026-09-26T00:14:55.207Z status       Started SO-J11 Stall
+2026-09-26T00:14:55.467Z boundary     boundary 1: nothing applied (gate)
+2026-09-26T00:14:55.610Z status       Following The Gate
+2026-09-26T00:14:56.017Z story        settings save not confirmed
+2026-09-26T00:14:57.261Z boundary     boundary 2: nothing applied (gate)
+2026-09-26T00:14:59.031Z boundary     boundary 3: nothing applied (gate)
+2026-09-26T00:15:00.799Z boundary     boundary 4: nothing applied (gate)
+2026-09-26T00:15:02.665Z boundary     boundary 5: nothing applied (gate)
+2026-09-26T00:15:04.495Z boundary     boundary 6: nothing applied (gate)
+2026-09-26T00:15:04.637Z reconciliation stall re-check queued for lever_pulled
+2026-09-26T00:15:05.012Z reconciliation stall re-check resolved (1 evidence)
+2026-09-26T00:15:05.012Z judge        judge stall in 346 ms
+2026-09-26T00:15:05.241Z delta        queued lever_pulled=true for the next boundary
+2026-09-26T00:15:06.253Z delta        queued lever_pulled=true for the next boundary
+2026-09-26T00:15:06.384Z boundary     applied lever_pulled=true
+2026-09-26T00:15:06.384Z transition   gate → door
+2026-09-26T00:15:06.701Z status       Moved into The Door
+2026-09-26T00:15:08.228Z payload      1 story blocks injected (generation)
+2026-09-26T00:15:08.251Z boundary     boundary 8: nothing applied (gate)
+2026-09-26T00:15:08.606Z status       Following The Door
+2026-09-26T00:15:25.389Z boundary     boundary 9: nothing applied (gate)
+2026-09-26T00:15:27.258Z boundary     boundary 10: nothing applied (gate)
+2026-09-26T00:15:29.026Z boundary     boundary 11: nothing applied (gate)
+2026-09-26T00:15:30.873Z boundary     boundary 12: nothing applied (gate)
+2026-09-26T00:15:32.657Z boundary     boundary 13: nothing applied (gate)
+2026-09-26T00:15:32.794Z reconciliation stall re-check queued for door_open
+2026-09-26T00:15:33.102Z judge        judge stall in 296 ms
+2026-09-26T00:15:34.531Z boundary     boundary 14: nothing applied (gate)
+2026-09-26T00:15:36.324Z boundary     boundary 15: nothing applied (gate)
+2026-09-26T00:15:38.107Z status       Following The Door
+2026-09-26T00:15:38.111Z story        away recap not due
+2026-09-26T00:15:38.563Z status       Continuing SO-J11 Stall
+2026-09-26T00:15:39.741Z story        settings save not confirmed
+2026-09-26T00:15:40.254Z payload      2 story blocks injected (generation)
+2026-09-26T00:15:57.679Z payload      1 story blocks injected (generation)
+2026-09-26T00:16:05.850Z boundary     boundary 16: nothing applied (gate)
+2026-09-26T00:16:06.003Z status       Following The Door
+2026-09-26T00:16:06.018Z reconciliation stall re-check queued for door_open
+2026-09-26T00:16:18.848Z extraction   read cadence msgs 48-55 → 1 accepted, 1 rejected
+2026-09-26T00:16:18.848Z delta        tension_current = 0.5
+2026-09-26T00:16:18.848Z delta        queued tension_current=0.5 for the next boundary
+2026-09-26T00:16:18.848Z audit        audit cadence msgs 48-55 scope [door_open, tension_current] → 1 accepted, 1 rejected
+2026-09-26T00:16:29.474Z extraction   read reconcile:door_open msgs 45-55 → 1 accepted, 1 rejected
+2026-09-26T00:16:29.474Z delta        tension_current = 0.5
+2026-09-26T00:16:29.474Z delta        queued tension_current=0.5 for the next boundary
+2026-09-26T00:16:29.475Z reconciliation stall re-check resolved (1 evidence)
+2026-09-26T00:16:29.474Z audit        audit reconcile:door_open msgs 45-55 scope [door_open, tension_current] → 1 accepted, 1 rejected
+2026-09-26T00:16:41.804Z session      chat 2026-09-25@21h00m50s254ms · story so-j11-expand · at The Road (boundary 0, 56 messages)
+2026-09-26T00:16:41.752Z story        away recap not due
+2026-09-26T00:16:42.203Z status       Started SO-J11 Expand
+2026-09-26T00:16:42.854Z story        settings save not confirmed
+2026-09-26T00:16:43.929Z payload      1 story blocks injected (generation)
+2026-09-26T00:17:39.950Z boundary     boundary 1: nothing applied (gate)
+2026-09-26T00:17:40.101Z status       Following The Road
+2026-09-26T00:17:40.121Z boundary     boundary 2: nothing applied (gate)
+2026-09-26T00:17:40.420Z judge        judge scene in 274 ms
+2026-09-26T00:17:40.484Z boundary     boundary 3: nothing applied (gate)
+2026-09-26T00:17:40.484Z judge        judge scene in 0 ms
+2026-09-26T00:17:43.622Z judge        judge scene in 0 ms
+2026-09-26T00:17:59.686Z payload      3 story blocks injected (generation)
+2026-09-26T00:19:01.010Z boundary     boundary 4: nothing applied (gate)
+2026-09-26T00:19:01.197Z boundary     boundary 5: nothing applied (gate)
+2026-09-26T00:19:01.406Z boundary     boundary 6: nothing applied (gate)
+2026-09-26T00:19:01.605Z reconciliation stall re-check queued for reached_tower
+2026-09-26T00:19:01.632Z judge        judge scene in 412 ms
+2026-09-26T00:19:44.840Z extraction   read reconcile:reached_tower msgs 0-63 → 0 accepted, 0 rejected
+2026-09-26T00:19:46.141Z reconciliation stall re-check resolved (0 evidence)
+2026-09-26T00:19:44.840Z audit        audit reconcile:reached_tower msgs 0-63 scope [approach, key_found, reached_tower, tension_current] → 0 accepted, 0 rejected
+2026-09-26T00:21:20.682Z payload      7 story blocks injected (generation)
+2026-09-26T00:21:45.411Z payload      6 story blocks injected (generation)
+2026-09-26T00:21:57.382Z boundary     boundary 7: nothing applied (gate)
+2026-09-26T00:21:57.880Z judge        judge scene in 294 ms
+2026-09-26T00:22:05.748Z payload      7 story blocks injected (generation)
+2026-09-26T00:22:05.777Z payload      8 story blocks injected (generation)
+2026-09-26T00:22:27.458Z payload      8 story blocks injected (generation)
+2026-09-26T00:22:47.699Z payload      7 story blocks injected (generation)
+2026-09-26T00:23:14.924Z payload      8 story blocks injected (generation)
+2026-09-26T00:23:36.485Z boundary     boundary 8: nothing applied (gate)
+2026-09-26T00:23:36.672Z boundary     boundary 9: nothing applied (gate)
+2026-09-26T00:23:36.837Z reconciliation stall re-check queued for reached_tower
+2026-09-26T00:23:36.864Z boundary     boundary 10: nothing applied (gate)
+2026-09-26T00:23:37.141Z judge        judge scene in 447 ms
+2026-09-26T00:23:37.309Z boundary     boundary 11: nothing applied (gate)
+2026-09-26T00:23:37.309Z judge        judge scene in 0 ms
+2026-09-26T00:23:38.073Z boundary     applied reached_tower=true
+2026-09-26T00:23:38.073Z transition   road → tower
+2026-09-26T00:23:41.477Z status       Following The Watchtower
+2026-09-26T00:23:41.811Z status       Moved into The Watchtower
+2026-09-26T00:23:41.914Z judge        judge scene in 406 ms
+2026-09-26T00:23:42.154Z boundary     boundary 13: nothing applied (gate)
+2026-09-26T00:23:42.173Z judge        judge scene in 337 ms
+2026-09-26T00:23:42.340Z status       Following The Watchtower
+2026-09-26T00:23:42.621Z judge        judge scene in 261 ms
+2026-09-26T00:24:12.825Z extraction   read reconcile:reached_tower msgs 0-68 → 0 accepted, 0 rejected
+2026-09-26T00:24:13.710Z reconciliation stall re-check resolved (0 evidence)
+2026-09-26T00:24:12.825Z audit        audit reconcile:reached_tower msgs 0-68 scope [approach, key_found, reached_tower, tension_current] → 0 accepted, 0 rejected
+2026-09-26T00:25:08.564Z session      chat 2026-09-25@21h00m50s254ms · story so-j11-lore · at The Briefing (boundary 3, 73 messages)
+2026-09-26T00:25:07.943Z status       Following The Watchtower
+2026-09-26T00:25:07.950Z story        away recap not due
+2026-09-26T00:25:08.528Z status       Continuing SO-J11 Lore
+2026-09-26T00:25:09.782Z story        settings save not confirmed
+2026-09-26T00:25:16.124Z judge        judge curatorFilter in 293 ms
+2026-09-26T00:25:21.741Z session      chat 2026-09-24@05h22m36s897ms · story none · at — (boundary 0, 0 messages)
+2026-09-26T00:09:36.992Z story        away recap not due
+2026-09-26T00:09:37.328Z status       Started SO-J11 Lore
+2026-09-26T00:10:00.599Z status       Following The Briefing
+2026-09-26T00:10:02.496Z status       Following The Briefing
+2026-09-26T00:10:02.498Z story        away recap not due
+2026-09-26T00:10:02.935Z status       Continuing SO-J11 Lore
+2026-09-26T00:10:32.380Z status       Following The Briefing
+2026-09-26T00:10:35.201Z status       Following The Briefing
+2026-09-26T00:10:35.205Z story        away recap not due
+2026-09-26T00:10:43.166Z story        away recap not due
+2026-09-26T00:10:43.510Z status       Continuing SO-J11 Lore
+2026-09-26T00:11:20.460Z status       Following The Briefing
+2026-09-26T00:25:07.943Z status       Following The Watchtower
+2026-09-26T00:25:07.950Z story        away recap not due
+2026-09-26T00:25:08.528Z status       Continuing SO-J11 Lore
+2026-09-26T00:25:09.782Z story        settings save not confirmed
+2026-09-26T00:25:21.356Z status       No story selected for this chat

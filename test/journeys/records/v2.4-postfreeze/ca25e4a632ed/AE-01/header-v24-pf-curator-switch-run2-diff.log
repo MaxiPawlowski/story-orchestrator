@@ -1,0 +1,19 @@
+DIFF inventory.lorebookCount  39 -> 40
+DIFF inventory.lorebooksSelected  +SO-PF Lore
+{
+  "baseline": "test/journeys/records/v2.4-postfreeze/ca25e4a632ed/AE-01/header-v24-pf-curator-switch-run2-start.json",
+  "label": "diff-end",
+  "allow": [
+    "build.head"
+  ],
+  "differences": 2,
+  "progress": 0,
+  "blocking": 2,
+  "blockingPaths": [
+    "inventory.lorebookCount",
+    "inventory.lorebooksSelected"
+  ],
+  "warnings": [],
+  "wrote": "C:\\dev\\so-lanes\\1\\debug\\run-header-diff-end.json",
+  "ok": false
+}

@@ -1,0 +1,10 @@
+DELTA gate_opened=true evidence="Sela darts forward, throws the heavy bolt, and hauls the north gate open on silent, greased hinges."
+DELTA tension_current="tense" evidence="If we're seen, the whole watch comes down on us."
+DELTA watch_alerted=false evidence="No cry goes up. The watch suspects nothing as the crew slips through."
+
+MEMORY type=event importance=3 expiration=permanent entity="Sela,Bram" text="Sela and Bram successfully opened the north gate and slipped through without alerting the watch." evidence="Sela darts forward, throws the heavy bolt, and hauls the north gate open on silent, greased hinges. No cry goes up. The watch suspects nothing as the crew slips through."
+MEMORY type=detail importance=2 expiration=session text="The north gate hinges were greased for silent operation." evidence="hauls the north gate open on silent, greased hinges."
+
+SCENE_BREAK at=10 reason=location
+
+[arc] The crew's infiltration of the city and their objective within it
