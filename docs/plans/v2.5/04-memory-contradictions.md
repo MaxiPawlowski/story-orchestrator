@@ -214,3 +214,58 @@ Records: `test/journeys/records/v2.5-plan04/`.
 - **Q3** New keys `contradictionRelease` / `contradictionCatch`, or reuse `memoryPairs` for the write path? Plan proposes new keys.
 - **Q4** Does "a judge probability deciding a state write" cover memory-row dismissals? If yes, J1 annotates only.
 - **Q5** Q1 copy: name the speaker ("Arin claimed …") on the author's queue card — wanted?
+
+## Gate record (code items)
+
+2026-09-26, branch `worktree-wf_aaec966e-c75-1`, master merged at `6aee3865` (v2.5 plan 06 code items, A37/A3/A11; master had
+not moved again at the last gate run). Resumed after a quota cut: the uncommitted `memoryQueue.ts` / `memoryQueueHeld.test.ts` edits
+were mutant restores with no content diff (index refreshed, nothing committed); the `host-facts.md` edit was committed. Nothing run
+live: no lane, no main ST, no pod.
+
+| Item | Commit | As built | Verdict |
+|---|---|---|---|
+| K0 fixture | `32c2aa87` | `test/fixtures/memory/contradictions.json`, 35 rows (21 en / 14 es), frozen 2026-09-26, rows sha `c33d55e5…`; Jaccard bands recomputed in jest; A0 Jaccard column pinned (in-band recall 6/6, below-band 0/13, falseHold 10/12); cosine bracket script `so-contradiction-cosine.mts` | built; cosine column **live pending** |
+| Host facts | `abf91210` | `v2.4/host-facts.md` v25-04-H1..H4 (vectors insert/query/purge, `7c3994196` file:line) | recorded |
+| N1 polarity screen | `6c348fd9` | `memory/polarity.ts`, joined to `establishedBands` only, subject floor `PAIR_JACCARD_FLOOR`; 0 coordinator lines | Jaccard mode **passes** its floor: below-band negation recall 8/8 (es 4/4), in-band 6/6, falseHold A0 + 1 (K35). Vectors mode bounded by text (screen reads no cosine, all Jaccard-band holds kept); its exact column waits for the bracket file |
+| J1 Phase A instrument | `2b8f7f29` | `judge/contradiction.ts`: wordings (a) mapped pair question, (b) explicit `contradicts`; release only on a confident `agrees`, hold on every fallback; floor scorer; 14-row hold-out (5 es) written before any answer; `so-judge calibrate --use contradiction-release` | instrument built; Phase A **live pending** |
+| J1 Phase A runnable | `24504b6c` | resumed-session finding: `calibrate --use contradiction-release` read `test/fixtures/judge/contradiction-release.json`, which does not exist, and would have judged the run by the generic `--min 0.85` instead of the predeclared floors. Now the default fixture is K0 itself, the modes are built from the frozen Jaccard band and each recorded cosine bracket file (`scripts/debug/lib/contradictionRelease.mts`), and `scoreReleasePhaseA` (via `storyOrchestratorJudge.scoreContradictionRelease`) passes a wording only when it clears the floors in every mode; no bracket file = vectors mode unmeasured, exit 1 | instrument complete; Phase A **live pending** |
+| J1 release write | — | not built: Phase A unmeasured, Q3/Q4 open, `resolvedConflicts` choice not stated. Census / fault-matrix rows unchanged (no new await in `applyEntries`); `memory|delayedError`/`memory|aborted` J1 citations wait for the build | **not built** |
+| J2 catch | — | conditional on J1 (b) passing its hold-out | **not built** |
+| O1 | `c33b344a`, `8371cfb5` | jest: K0 as ordinary rows in an 8-row group, Jaccard: 6/6 in-band contradictions soft-marked, 0/13 below, agreeing/distinct in-band marked alike. Live count, offline from the postfreeze J3/J7 ×2 records (`test/journeys/records/v2.5-plan04/o1-live-count/`): 249 rows, 1 ordinary contradicting pair (+1 reversal labelled update); soft marks not recorded in those records | **not observed** (< 3); v2.4 decision (union for established rows only, B4) stands |
+| Q1 copy | — | waits for Q5 | **not built** |
+| Live fixture | `3bddd0e6` | `test/scenarios/live-v25-04-negation.json` (N1, judge off, en+es locked seeds, agreeing control, NOT EXERCISED guards); 4 evals syntax-checked | **live pending** |
+
+Mutations (`test/findings/mutations/v25-04-contradictions.txt`): N1 6/6 killed, J1 Phase A decision 5/5 killed, Phase A verdict 4/4 killed. The J1 key-wiring mutant
+(reads `memoryPairs`) waits for the release write.
+
+Gates after the master merge and the Phase A fix (`24504b6c`):
+
+| Command | Result |
+|---|---|
+| `npm run typecheck` | exit 0 |
+| `npm run typecheck:test` | exit 0 |
+| `npm run lint` | exit 0 |
+| `npm test` | exit 0, 299 suites, 4164 tests; fault matrix 85 covered / 11 partial / 24 n/a / 0 todo (of 120) |
+| `npm run debug:typecheck` | exit 0 |
+| `ST_PUBLIC=C:/dev/SillyTavern-MainBranch/public npm run build` | exit 0, bundle `b4075859fc23`, source `75dc30f6e6fd`, ST 1.19.0 |
+| `ST_ROOT=C:/dev/SillyTavern-MainBranch npm run test:debug` | exit 0, 388/388 (without `ST_ROOT` one host-events case skips) |
+| `ST_PUBLIC=C:/dev/SillyTavern-MainBranch/public npm run test:release` | exit 0, 37/37 |
+| Storybook | not run: no UI touched |
+
+Budgets (effective lines, `architecture.test.ts`): manager 548/700; coordinators ≤ 560: memory 500, extraction 480, stagecraft 450,
+expansion 332, copilot 262, scene 223, pacing 126.
+
+Live pending (per-plan live ×1, batched, rule 14):
+
+1. K0 cosine brackets, once per bundle, lane: `node scripts/debug/so-contradiction-cosine.mts capture --record`, then re-run
+   `npx jest src/memory/contradictions.fixture.test.ts` to score the vectors-present column for A0 and N1.
+2. N1 live: `node scripts/debug/so-scenario.mts run test/scenarios/live-v25-04-negation.json --sandbox --group <id>` (judge off).
+3. J1 Phase A, after item 1 (the vectors mode needs its bracket file): `node scripts/debug/so-judge.mts calibrate --use
+   contradiction-release --record` (K0, tune wording (b) here only), then once `... --fixture contradiction-release-holdout --record`;
+   green = a wording in `passing` (releaseErr ≤ 0.05 and es 0, paraphrase release ≥ 0.6, every mode); latency p90 ≤ 3000 ms from
+   the report rows. Measurement only: judge uses stay off, no install setting changes.
+4. If J1 is built: J8.5 `--judge-uses warden,contradictionRelease` ×2 + off ×1, per the Live gates table.
+
+Open user decisions: Q2 (authored seed as established), Q3 (new `contradictionRelease`/`contradictionCatch` keys vs
+`memoryPairs`), Q4 (does "a judge probability deciding a state write" cover memory-row dismissals), Q5 (speaker name on the
+author queue card), and before any J1 build: whether a judge release writes `resolvedConflicts`.
