@@ -21,6 +21,7 @@ const mockContext = {
 };
 
 jest.mock("@services/STAPI", () => ({
+  readLoreBindings: () => ({ global: [], chat: null, persona: null, characters: [] }),
   getContext: () => mockContext,
   saveOpenChat: async () => { await (mockContext).saveMetadata?.(); return { ok: true as const, chatId: "" }; },
   setStoryExtensionPrompt: () => undefined,

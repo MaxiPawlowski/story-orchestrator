@@ -916,6 +916,8 @@ export const PLAYER_FORBIDDEN_SELECTORS = [
   '[data-so="memory-fate"]', '[data-so="jump-to-message"]',
   // v2.5 plan 07: gate replay, the Calls list, the Chat Completion buckets and the (not built) message inspector.
   '[data-so="gate-replay"]', '[data-so="model-calls"]', '[data-so="model-call"]', '[data-so="next-turn-buckets"]', '.so-inspect', '#so-inspector',
+  // v2.5 plan 08 L2: which binding ST scans each required book through, and the file-mode slot conflict.
+  '[data-so="lore-satisfied-by"]', '[data-so="lore-character-gap"]', '[data-so="mirror-slot-conflict"]',
 ];
 
 // v2.4 plan 03 X17: recovery controls ARE player-visible (pipeline "Try again", backlog "Stop"), so the

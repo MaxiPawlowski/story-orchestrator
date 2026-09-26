@@ -31,6 +31,7 @@ const mockSeam = (): Seam => jest.requireActual<Seam>("@services/stHost/extensio
 jest.mock("@services/stHost/context", () => ({ getContext: () => mockContext }));
 
 jest.mock("@services/STAPI", () => ({
+  readLoreBindings: () => ({ global: [], chat: null, persona: null, characters: [] }),
   getContext: () => mockContext,
   saveOpenChat: async () => { await mockContext.saveMetadata?.(); return { ok: true as const, chatId: "" }; },
   setStoryExtensionPrompt: (key: string, text: string, depth: number) => mockSeam().setStoryExtensionPrompt(key, text, depth),

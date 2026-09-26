@@ -203,3 +203,24 @@ describe("v2.4 plan 08 T18: a routed role that cannot answer is a Repair row", (
     expect(consequences.every((text) => typeof text === "string" && text.length > 0)).toBe(true);
   });
 });
+
+describe("L2: a chat lorebook slot that displaces this chat's memory mirror (file mode)", () => {
+  const conflicted = (wiBook: { name: string; chatId: string } | null) => snapshotWith({
+    requirements: { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [], slotConflict: { book: "My Notes", kind: "user-book" } },
+    memory: { wiBook },
+  } as unknown as Partial<RuntimeSnapshot>);
+
+  it("is a lore step when this chat owns a mirror book the slot keeps out", () => {
+    expect(nextRepairStep(conflicted({ name: "Story Orchestrator - S - c1", chatId: "c1" }))).toEqual({
+      area: "lore",
+      consequence: "This chat's story memory is not reaching the model, because the chat lorebook slot holds another book.",
+      detail: "Chat lorebook: My Notes",
+      targetId: null,
+      provisionable: false,
+    });
+  });
+
+  it("control: with no mirror book yet there is nothing displaced, so no step", () => {
+    expect(nextRepairStep(conflicted(null))).toBeNull();
+  });
+});

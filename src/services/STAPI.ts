@@ -58,12 +58,13 @@ export type { CharacterCardInput } from "@services/stHost/provisioning";
 export {
   listActiveWorldInfoComments,
   listGlobalLorebooks,
+  readLoreBindings,
   listGroupMembers,
   listLorebookComments,
   listPersonas,
   listSlashCommands,
 } from "@services/stHost/selectors";
-export type { HostSlashCommandMeta } from "@services/stHost/selectors";
+export type { HostLoreBindings, HostSlashCommandMeta } from "@services/stHost/selectors";
 export { getActiveGroup, resolveGroupMemberId, setGroupMembersDisabled, setGroupMemberDisabled, readGroupMemberDisabled } from "@services/stHost/groups";
 export { guardHostStream, hostSystemUserName, isHostGenerating, stopHostGeneration, willAddUserMessage } from "@services/stHost/generation";
 export { forceActivateEntries, getScannableEntries, type HostScannableEntry } from "@services/stHost/worldInfoActivate";

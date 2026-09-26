@@ -137,6 +137,16 @@ export function nextRepairStep(snapshot: RuntimeSnapshot): RepairStep | null {
       provisionable: false,
     };
   }
+  const displaced = requirements.slotConflict;
+  if (displaced && snapshot.memory?.wiBook) {
+    return {
+      area: "lore",
+      consequence: "This chat's story memory is not reaching the model, because the chat lorebook slot holds another book.",
+      detail: `Chat lorebook: ${displaced.book}`,
+      targetId: null,
+      provisionable: false,
+    };
+  }
   if (hasUnsavedChanges(snapshot.saveHealth)) {
     return { area: "save", consequence: "Your last turn is not saved on the server yet.", detail: SAVE_PLAYER_TEXT, targetId: null, provisionable: false };
   }

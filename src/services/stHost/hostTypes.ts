@@ -1,6 +1,8 @@
 export interface HostCharacter {
   name?: string;
   avatar?: string;
+  // The card's bound lorebook (world-info.js:4481).
+  data?: { extensions?: { world?: unknown } };
   [key: string]: unknown;
 }
 
@@ -52,7 +54,8 @@ export interface HostSlashCommandResult {
 
 export type HostTextCompletionSettings = { preset?: string } & Record<string, unknown>;
 
-export type HostWorldInfoSettings = { world_info?: { globalSelect?: string[] } } & Record<string, unknown>;
+// charLore: extra character books keyed by avatar file name without its extension (world-info.js:4488-4491).
+export type HostWorldInfoSettings = { world_info?: { globalSelect?: string[]; charLore?: Array<{ name?: unknown; extraBooks?: unknown }> } } & Record<string, unknown>;
 
 export interface SillyTavernContext {
   chat: unknown[];
@@ -80,7 +83,8 @@ export interface SillyTavernContext {
   groups: HostGroup[];
   characters: HostCharacter[];
   worldInfo?: Record<string, HostWorldInfoEntry>;
-  powerUserSettings?: { personas?: Record<string, string> };
+  // persona_description_lorebook: the persona's own book (world-info.js:4566).
+  powerUserSettings?: { personas?: Record<string, string>; persona_description_lorebook?: unknown };
   SlashCommandParser?: { commands?: Record<string, HostSlashCommand> };
   // Exported on every supported host (st-context.js:98 import, :169 export, ST 1.18.0).
   SlashCommandEnumValue: new (value: string, description?: string) => unknown;

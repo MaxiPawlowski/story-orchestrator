@@ -173,6 +173,12 @@ test('v2.5 plan 07: the player-clean sweep forbids the author tools (gate replay
   }
 });
 
+test('v2.5 plan 08 L2: the player-clean sweep forbids the lore-binding rows (the Repair step is the player half)', () => {
+  for (const selector of ['[data-so="lore-satisfied-by"]', '[data-so="lore-character-gap"]', '[data-so="mirror-slot-conflict"]']) {
+    assert.ok(PLAYER_FORBIDDEN_SELECTORS.includes(selector), selector);
+  }
+});
+
 test('v2.5 plan 07 A3: the replay history is the selected story record of the chat blob, pinned story and engine history together', () => {
   const record = { storyId: 's1', pinnedStory: { title: 'S' }, engineHistory: { from: { boundary: 0, messageId: -1 }, base: {}, log: [{ boundary: 1 }] } };
   assert.deepEqual(gateReplayHistoryFrom({ selectedStoryId: 's1', stories: { s1: record, s2: { storyId: 's2' } } }), { storyId: 's1', pinnedStory: record.pinnedStory, engineHistory: record.engineHistory });

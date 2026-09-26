@@ -17,6 +17,7 @@ const mockContext = {
 };
 
 jest.mock("@services/STAPI", () => ({
+  readLoreBindings: () => ({ global: [], chat: null, persona: null, characters: [] }),
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),

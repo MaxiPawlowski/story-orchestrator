@@ -34,7 +34,7 @@ import { SnapshotCache } from "./snapshotCache";
 import { applyStoryUpdate, type StoryUpdateOutcome } from "./storyUpdate";
 import { parseQualityValue } from "./values";
 import { SessionJournal, type JournalEvent, type JournalRecordKind } from "./journal";
-import { evaluateRequirements } from "./requirements";
+import { evaluateRequirements, requirementsOptions } from "./requirements";
 import type { RequirementsHost } from "./requirementsWatch";
 import { loadPersistedRuntime, setSelectedStoryId } from "./persistence";
 import {
@@ -43,7 +43,7 @@ import {
 } from "./storySelection";
 import type {
   CopilotRuntimeSettings, PersistedStoryRuntime, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory,
-  MemoryRuntimeSettings, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, StagecraftSettings,
+  MemoryMirrorBook, MemoryRuntimeSettings, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, StagecraftSettings,
   StoryLibraryRecord, TalkDecisionAudit, TalkRuntimeState, UiRuntimeSettings,
 } from "./types";
 import { withholds } from "./generationLifecycle";
@@ -282,6 +282,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   // What this chat is actually playing, authored form — the Studio edits this, not the library's copy.
   getPlayedStoryRaw(): unknown { return this.loaded?.record.raw ?? null; }
   getEngineState(): EngineState | null { return this.loaded ? this.engine.serialize() : null; }
+  getMirrorBook(): MemoryMirrorBook | null { return this.extras.memory.wiBook; }
   getExtractionSettings(): ExtractionRuntimeSettings { return this.extras.extraction.settings; }
 
   private reconcileEffectLedger() {
@@ -482,7 +483,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   private applyActive(mode: "activate" | "hydrate") { return this.effects.applyCheckpoint(required(this.loaded, "loaded story").story,
       this.engine.activeCheckpoint, this.extras, this.getSnapshot(), mode, this.engine.checkpointPath); }
   private refreshRequirements() {
-    this.extras.requirements = evaluateRequirements(this.loaded?.story ?? null);
+    this.extras.requirements = evaluateRequirements(this.loaded?.story ?? null, requirementsOptions(this.extras.memory.wiBook));
     this.extras.updatedAt = new Date().toISOString();
   }
   readonly requirementsHost: RequirementsHost = { ...this.lifecycle, hydrate: () => this.applyActive("hydrate"), refresh: () => {

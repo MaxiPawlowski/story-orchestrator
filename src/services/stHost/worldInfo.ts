@@ -188,6 +188,12 @@ export async function deleteLorebook(name: string): Promise<WriteResult<{ name: 
   return listAllLorebooks().includes(name) ? couldNot(`"${name}" is still listed after the delete`) : wrote({ name });
 }
 
+// The chat's lorebook slot as ST reads it (world-info.js:4545); "" when unbound.
+export function readChatLorebookSlot(): string {
+  const slot = getContext().chatMetadata?.[worldInfoModule.METADATA_KEY];
+  return typeof slot === "string" ? slot.trim() : "";
+}
+
 export type ChatLorebookBinding = "bound" | "already-bound" | "occupied" | "no-chat";
 
 // The chat's own lorebook slot, scanned for this chat only (world-info.js:4544). A binding to a book

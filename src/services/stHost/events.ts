@@ -39,6 +39,8 @@ export interface HostEventPayloads {
   GROUP_UPDATED: [];
   SETTINGS_UPDATED: [];
   PERSONA_CHANGED: [avatar: string];
+  // Script.js:9902, slash-commands.js:5437.
+  CHARACTER_EDITED: [payload: { detail?: { id?: unknown; character?: unknown } } | undefined];
   CHARACTER_MESSAGE_RENDERED: [messageId: number, messageType?: string];
   PRESET_CHANGED: [payload: { apiId: string; name: string }];
   // Script.js:5318 (main Generate only, dry runs too) and openai.js:3146 (every CC request, awaited before fetch).

@@ -2,7 +2,7 @@ import type { NormalizedStoryV2 } from "@engine/index";
 import { installScanGating, probeScanGating, readLorebookEntries, setLorebookEntriesDisabled, showConfirmPopup, type ScanGatingHandle } from "@services/STAPI";
 import { replayWorldInfoFiles } from "./effectsApplier";
 import { onSettingsWrite } from "./librarySave";
-import { evaluateRequirements } from "./requirements";
+import { evaluateRequirements, requirementsOptions } from "./requirements";
 import { beginRun, type RunOwnership } from "./runToken";
 import type { NormalizedLedger, ScanGateRow, ScanGateStats } from "./scanGatePlan";
 import { getGlobalSettings, setGlobalSettings } from "./settingsStore";
@@ -10,6 +10,7 @@ import { listStoryRecords } from "./storyLibrary";
 import { createWiGating, type CapabilityReading, type NormalizePreviewBook, type WiGating } from "./worldInfoGating";
 import { gatedBy } from "./worldInfoLedger";
 import { noteScanGate, scanGatingActive, setScanGatingActive, setScanGatingSettled, setWiGatingStatus } from "./worldInfoMode";
+import type { MemoryMirrorBook } from "./types";
 import type { NormalizeOutcome } from "./worldInfoNormalize";
 import { ScanGateProvider, type ScanGateChoice } from "./worldInfoScan";
 
@@ -18,6 +19,7 @@ export interface ScanGatingWiring {
   ownedChat: () => string | null;
   story: () => NormalizedStoryV2 | null;
   path: () => string[];
+  mirrorBook: () => MemoryMirrorBook | null;
   ownership: RunOwnership;
   journal: (summary: string, note: string) => void;
   notify: () => void;
@@ -87,7 +89,7 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     ownedChat: deps.ownedChat,
     story: deps.story,
     path: deps.path,
-    ready: () => evaluateRequirements(deps.story()).ready,
+    ready: () => evaluateRequirements(deps.story(), requirementsOptions(null, true)).ready,
     library,
     libraryRevision: () => listStoryRecords().map((record) => `${record.id}@${record.version}:${record.hash}`).join(","),
     ledger: () => ledger,
@@ -125,7 +127,8 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     replayFilePath: async () => {
       const story = deps.story();
       const owned = story && deps.chatId() !== null && deps.chatId() === deps.ownedChat() ? story : null;
-      const refused = await replayWorldInfoFiles(library(), owned, owned && evaluateRequirements(owned).ready ? deps.path() : null, beginRun(deps.ownership));
+      const ready = owned !== null && evaluateRequirements(owned, requirementsOptions(deps.mirrorBook(), false)).ready;
+      const refused = await replayWorldInfoFiles(library(), owned, ready ? deps.path() : null, beginRun(deps.ownership));
       if (refused.length) deps.journal("world_info could not be applied", refused.join("; "));
     },
     confirm: confirmNormalisation,
