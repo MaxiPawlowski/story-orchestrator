@@ -66,16 +66,42 @@ function report(kind: SaveKind, startedAt: number, observation: Omit<SaveObserva
 
 const answered = (status: number) => ({ requested: true, status, ok: status >= 200 && status < 300, timedOut: false, failed: false });
 
+export interface ChatSaveTarget { chatId: string; messages: number; integrity: boolean; slug: string | null }
+
+export interface SaveRefusal { seq: number; at: number; url: string; file: string; rows: number; integrity: string | null; askedFor: string | null; open: string | null; reason: string }
+
+const REFUSAL_RING_CAP = 50;
+const refusals: SaveRefusal[] = [];
+let refusalSeq = 0;
+(globalThis as { storyOrchestratorSaveRefusals?: SaveRefusal[] }).storyOrchestratorSaveRefusals = refusals;
+
+export const saveWatcherRefusals = (): SaveRefusal[] => refusals.slice();
+export const saveWatcherRefusalRing = (): readonly SaveRefusal[] => refusals;
+
+const openChatId = (): string | null => {
+  const chatId = getContext()?.chatId;
+  return typeof chatId === "string" && chatId ? chatId : null;
+};
+
+const armedFor = (startedAt: number) => watching.find((entry) => entry.kind === "chat" && entry.chatId !== null && entry.armedAt < startedAt)?.chatId ?? null;
+
+const recordRefusal = (input: unknown, target: ChatSaveTarget, startedAt: number, reason: string) => {
+  const url = typeof input === "string" ? input : input instanceof URL ? input.href : String((input as { url?: unknown } | undefined)?.url ?? "");
+  refusals.push({ seq: ++refusalSeq, at: Date.now(), url, file: target.chatId, rows: target.messages, integrity: target.slug, askedFor: armedFor(startedAt), open: openChatId(), reason });
+  if (refusals.length > REFUSAL_RING_CAP) refusals.splice(0, refusals.length - REFUSAL_RING_CAP);
+};
+
 // `saveChatConditional` waits at least one 100 ms poll before it
 // reads which chat is open (`utils.js:1934`), and `openGroupChat` clears the chat and repoints
 // `chat_id` before loading the next one (`group-chats.js:2203-2209`). A save asked for in one chat can
 // therefore run inside the switch and write an EMPTY chat under the next chat's name: a new branch lost
-// every message that way. The one shape refused is exactly that: a chat save carrying no messages, for
-// a chat other than the one an armed save of ours was asked for. The same write made by anyone (ST's own
-// save, another extension) carries a header with no `integrity`: `openGroupChat` resets the metadata to
+// every message that way. Refused: a chat save carrying no messages, for a chat other than the one an
+// armed save of ours was asked for; and a save of any length that follows the open
+// chat when that is no longer the chat an armed save of ours was asked for. The same empty write made
+// by anyone (ST's own save, another extension) carries a header with no `integrity`: `openGroupChat` resets the metadata to
 // `{}` before loading, and the server only checks integrity when the header names one
 // (`src/endpoints/chats.js:536`), so nothing else stops it. A chat ST has loaded always has one.
-export const chatSaveTarget = (input: unknown, init: RequestInit | undefined): { chatId: string; messages: number; integrity: boolean } | null => {
+export const chatSaveTarget = (input: unknown, init: RequestInit | undefined): ChatSaveTarget | null => {
   if (saveKindOf(input) !== "chat" || typeof init?.body !== "string") return null;
   try {
     const body = JSON.parse(init.body) as { id?: unknown; file_name?: unknown; chat?: unknown };
@@ -83,17 +109,20 @@ export const chatSaveTarget = (input: unknown, init: RequestInit | undefined): {
     if (!chatId || !Array.isArray(body.chat)) return null;
     const first = body.chat[0] as { chat_metadata?: { integrity?: unknown } } | undefined;
     const header = Boolean(first) && typeof first === "object" && "chat_metadata" in (first as object);
-    return { chatId, messages: body.chat.length - (header ? 1 : 0), integrity: typeof first?.chat_metadata?.integrity === "string" && Boolean(first.chat_metadata.integrity) };
+    const slug = typeof first?.chat_metadata?.integrity === "string" && first.chat_metadata.integrity ? first.chat_metadata.integrity : null;
+    return { chatId, messages: body.chat.length - (header ? 1 : 0), integrity: slug !== null, slug };
   } catch {
     return null;
   }
 };
 
-const switchRefusal = (target: { chatId: string; messages: number; integrity: boolean } | null, startedAt: number) => {
-  if (!target || target.messages > 0) return null;
-  if (!target.integrity) return `an empty save of "${target.chatId}" carried no chat integrity (the metadata a chat switch clears) and was held back`;
-  const armed = watching.find((entry) => entry.kind === "chat" && entry.chatId !== null && entry.armedAt < startedAt);
-  return armed && armed.chatId !== target.chatId ? `the open chat changed before the save ran: an empty save of "${target.chatId}" was held back (asked for "${armed.chatId}")` : null;
+const switchRefusal = (target: ChatSaveTarget | null, startedAt: number) => {
+  if (!target) return null;
+  if (target.messages === 0 && !target.integrity) return `an empty save of "${target.chatId}" carried no chat integrity (the metadata a chat switch clears) and was held back`;
+  const asked = armedFor(startedAt);
+  if (!asked || asked === target.chatId) return null;
+  if (target.messages === 0) return `the open chat changed before the save ran: an empty save of "${target.chatId}" was held back (asked for "${asked}")`;
+  return openChatId() === target.chatId ? `the open chat changed before the save ran: a save of "${target.chatId}" (${target.messages} messages) was held back (asked for "${asked}")` : null;
 };
 
 const refusedAnswer = () => new Response("{}", { status: 200, headers: { "Content-Type": "application/json" } });
@@ -111,8 +140,9 @@ async function observed(original: typeof fetch, input: RequestInfo | URL, init: 
   const kind = saveKindOf(input);
   const target = kind === "chat" ? chatSaveTarget(input, init) : null;
   const refusal = switchRefusal(target, startedAt);
-  if (refusal) {
+  if (refusal && target) {
     stats.refused += 1;
+    recordRefusal(input, target, startedAt, refusal);
     report("chat", startedAt, { requested: false, status: null, ok: false, timedOut: false, failed: false, lost: refusal });
     return refusedAnswer();
   }

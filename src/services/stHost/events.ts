@@ -29,6 +29,7 @@ export interface HostEventPayloads {
   ];
   GENERATION_STOPPED: [];
   GENERATION_ENDED: [];
+  STREAM_TOKEN_RECEIVED: [text: string];
   WORLDINFO_UPDATED: [name: string, data: unknown];
   WORLDINFO_SETTINGS_UPDATED: [];
   // The per-call arrays, emitted inside getSortedEntries before its sort/hash/clone.

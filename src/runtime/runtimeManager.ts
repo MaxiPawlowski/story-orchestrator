@@ -202,6 +202,10 @@ export class RuntimeManager extends CoordinatorDelegates {
     const pendingBridges = this.memory.enqueueArcBridges();
     const result = this.engine.commitBoundary(this.getBoundaryContext(at));
     this.memory.markBridgesApplied(pendingBridges);
+    if (result.fired) {
+      await this.effects.announceTransition(this.engine.activeCheckpoint, this.extras, this.owner.ownsOpenChat());
+      if (!run.stillOwns()) return null;
+    }
     if (result.effects) await this.applyActive("activate");
     else if (this.extras.requirements.ready && this.extras.lastAppliedCheckpointId !== this.engine.activeCheckpoint.id) await this.applyActive("hydrate");
     if (!run.stillOwns()) return null;
@@ -215,10 +219,6 @@ export class RuntimeManager extends CoordinatorDelegates {
     await this.persist();
     if (!run.stillOwns()) return null;
     this.status = result.fired ? `Moved into ${this.engine.activeCheckpoint?.name ?? result.activeCheckpointId}` : `Following ${this.engine.activeCheckpoint?.name ?? "the story"}`;
-    if (result.fired) {
-      await this.effects.announceTransition(this.engine.activeCheckpoint, this.extras, this.owner.ownsOpenChat());
-      if (!run.stillOwns()) return null;
-    }
     this.boundaryListeners.forEach((listener) => listener(result));
     this.notify();
     return result;

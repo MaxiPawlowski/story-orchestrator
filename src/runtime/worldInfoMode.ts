@@ -11,9 +11,24 @@ export interface ScanGateView {
 }
 
 let scanGating = false;
+let scanSettled = false;
+let gatingMode: () => "file" | "scan" = () => "file";
 let lastScan: ScanGateView | null = null;
 
 export const scanGatingActive = (): boolean => scanGating;
+
+export const readGatingModeWith = (read: () => "file" | "scan"): (() => void) => {
+  gatingMode = read;
+  return () => {
+    if (gatingMode === read) gatingMode = () => "file";
+  };
+};
+
+export const setScanGatingSettled = (settled: boolean): void => {
+  scanSettled = settled;
+};
+
+export const worldInfoFilesHeld = (): boolean => scanGating || (!scanSettled && gatingMode() === "scan");
 
 export const setScanGatingActive = (active: boolean): void => {
   scanGating = active;

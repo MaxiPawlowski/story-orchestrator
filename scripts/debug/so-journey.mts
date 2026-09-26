@@ -18,11 +18,12 @@ import { readSessionJournal } from './so-journal.mts';
 import { removeMarkedAssets, snapshotAssets } from './so-assets.mts';
 import { wipeChatMeta } from './so-library.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
+import { captureLibrary, restoreLibrary } from './lib/librarySnapshot.mts';
 import { archiveJourneyRecord, fixtureSha256, unselectedDependencies } from './lib/journeyArchive.mts';
 import { trackJudgeRequests } from './lib/judgeSettle.mts';
 import { applyExtSetting, restoreExtSettings } from './lib/interopVerbs.mts';
 import { cleanupBranchChats, settleReapPrompts, withoutBranchChats } from './lib/identityVerbs.mts';
-import { BLOCKING_DIALOGS, mergeRestore, removableStories, shouldRecoverConfig, validateJourneyExtraction, type DeclaredExtraction, type LibraryCapture } from './lib/configRestore.mts';
+import { BLOCKING_DIALOGS, mergeRestore, shouldRecoverConfig, validateJourneyExtraction, type DeclaredExtraction, type LibraryCapture } from './lib/configRestore.mts';
 import { applyJudgeMode, modeFromSetup, parseJudgeMode, restoreJudgeConfig, wardenNotes, wardenTally, type JudgeMode } from './lib/judgeHarness.mts';
 import { applyWiGating, parseWiGating, restoreWiGating, type WiGatingMode } from './lib/wiGatingHarness.mts';
 
@@ -180,17 +181,6 @@ async function recoverCrashedConfig(page) {
   const recovered = { from: CONFIG_SNAPSHOT, takenAt: snapshot.takenAt ?? null, liveKeysBefore: liveKeys, result };
   console.log(`RECOVERED a crashed run's cleared config from ${CONFIG_SNAPSHOT} (taken ${snapshot.takenAt}); the live root held only [${liveKeys.join(', ')}].`);
   return recovered;
-}
-
-// S6: what the library held before this run. `trusted: false` when the settings could not be read at
-// all — then cleanup removes no story, instead of reading an unread library as an empty one.
-async function captureLibrary(page): Promise<LibraryCapture> {
-  return evaluateInST(page, () => {
-    const settings = SillyTavern.getContext().extensionSettings;
-    if (!settings || typeof settings !== 'object') return { trusted: false, hashes: [] };
-    const records = settings['story-orchestrator']?.v2Stories;
-    return { trusted: true, hashes: Array.isArray(records) ? records.map((record) => record.hash).filter(Boolean) : [] };
-  });
 }
 
 // Capabilities answer "does this build have the feature at all?" and are probed lazily, right
@@ -439,18 +429,10 @@ async function runCleanup(page, journey, { importedHashes, libraryBefore, config
   if (configSnapshot && allowConfig && cleanup.restoreConfig !== false) {
     report.config = await restoreGlobalConfig(page).catch((error) => ({ error: error.message }));
   }
-  const { remove: removable, kept, untrusted } = removableStories(importedHashes, libraryBefore);
-  if (untrusted && importedHashes.length) report.libraryUntrusted = 'the library before this run could not be read, so no imported story was removed';
-  if (cleanup.removeImportedStories !== false && removable.length) {
-    report.stories = await evaluateInST(page, async (hashes) => {
-      const ctx = SillyTavern.getContext();
-      const root = ctx.extensionSettings?.['story-orchestrator'];
-      if (!root || !Array.isArray(root.v2Stories)) return { removed: 0 };
-      root.v2Stories = root.v2Stories.filter((record) => !hashes.includes(record.hash));
-      return { removed: hashes.length };
-    }, removable).then(async (outcome) => ({ ...outcome, saved: await saveSettingsNow(page) })).catch((error) => ({ error: error.message }));
+  if (cleanup.removeImportedStories !== false) {
+    report.importedStoryHashes = [...new Set(importedHashes)];
+    report.library = await restoreLibrary(page, libraryBefore).catch((error) => ({ error: error.message }));
   }
-  if (kept.length && !untrusted) report.keptPreExistingStories = kept;
   if (guard && cleanup.deleteChat !== false) {
     await recordSandboxStory(page, guard);
     report.chat = await deleteSandboxChats(page, withoutBranchChats(guard)).catch((error) => ({ error: error.message }));

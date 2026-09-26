@@ -62,6 +62,7 @@ const harness = (options: { mode?: "file" | "scan"; confirm?: boolean; capabilit
       events.push(`active:${String(next)}`);
     },
     replayFilePath: async () => { events.push("replay"); },
+    settle: (next) => { events.push(`settle:${String(next)}`); },
     confirm: async (preview) => {
       events.push(`confirm:${preview.map((book) => `${book.lorebook}=${book.entries}`).join(",")}`);
       return options.confirm ?? true;
@@ -127,6 +128,32 @@ describe("lorebook gating control (v2.5 plan 01 A/C)", () => {
     expect(h.last().capability).toEqual({ state: "absent", detail: "no makeLast" });
   });
 
+  it("v2.5 P01-L1: in scan mode an absent capability settles on the file path once and replays the open chat's path", async () => {
+    const h = harness({ mode: "scan", capability: "absent" });
+    await h.gating.sync();
+    await h.gating.sync();
+    expect(h.events.filter((event) => event.startsWith("settle") || event === "replay")).toEqual(["settle:true", "replay"]);
+    expect(h.events.filter((event) => event.startsWith("disable") || event.startsWith("enable"))).toEqual([]);
+  });
+
+  it("v2.5 P01-L1: a scan-mode start-up verifies, normalises and activates without ever releasing the file path", async () => {
+    const h = harness({ mode: "scan", ledger: { Ruins: ["CP1"] } });
+    await h.gating.sync();
+    expect(h.active()).toBe(true);
+    expect(h.last().drift).toEqual([{ lorebook: "Ruins", comment: "CP1" }]);
+    expect(h.events.filter((event) => event.startsWith("settle") || event === "replay")).toEqual([]);
+  });
+
+  it("v2.5 P01-L1: a sync that fails in scan mode keeps the file path held, so a failed start never writes around the verify", async () => {
+    const h = harness({ mode: "scan" });
+    const failing = Promise.reject(new Error("the server went away"));
+    failing.catch(() => undefined);
+    h.holdWrites(failing);
+    await h.gating.sync();
+    expect(h.active()).toBe(false);
+    expect(h.events.filter((event) => event.startsWith("settle") || event === "replay")).toEqual([]);
+  });
+
   it("a gated set grown by the author's own save is normalised without a second confirm, with a toast and a journal line", async () => {
     const h = harness();
     await h.gating.requestScan();
@@ -146,7 +173,7 @@ describe("lorebook gating control (v2.5 plan 01 A/C)", () => {
     await h.gating.requestFile();
     expect(h.settings.gatingMode).toBe("file");
     expect(h.active()).toBe(false);
-    expect(h.events.slice(-3)).toEqual(["active:false", "dispose", "replay"]);
+    expect(h.events.slice(-4)).toEqual(["settle:false", "active:false", "dispose", "replay"]);
     expect(h.events.filter((event) => event.startsWith("confirm")).length).toBe(confirms);
   });
 

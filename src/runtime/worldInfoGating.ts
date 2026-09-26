@@ -32,6 +32,7 @@ export interface WiGatingDeps {
   handler: { install: () => void; probe: () => Promise<CapabilityReading>; dispose: () => void };
   setActive: (active: boolean) => void;
   replayFilePath: () => Promise<void>;
+  settle: (settled: boolean) => void;
   confirm: (preview: NormalizePreviewBook[]) => Promise<boolean>;
   toast: (text: string) => void;
   journal: (summary: string, note: string) => void;
@@ -87,6 +88,7 @@ class WiGatingRuntime implements WiGating {
   private disposed = false;
   private busy = false;
   private capability: CapabilityReading | null = null;
+  private fellBack = false;
   private verdict: LedgerVerdict = { drift: [], missing: [], unreadable: [] };
   private missingKey: GatedEntryRef[] = [];
   private readonly journaledDrift = new Set<string>();
@@ -174,7 +176,16 @@ class WiGatingRuntime implements WiGating {
     return outcome;
   };
 
+  private fallBack = async () => {
+    if (this.fellBack) return;
+    this.fellBack = true;
+    this.deps.settle(true);
+    await this.deps.replayFilePath();
+  };
+
   private deactivate = async () => {
+    this.fellBack = false;
+    this.deps.settle(false);
     this.live = false;
     this.deps.setActive(false);
     if (this.installed) this.deps.handler.dispose();
@@ -199,7 +210,7 @@ class WiGatingRuntime implements WiGating {
       if (!run.stillOwns()) return;
       this.capability = reading;
     }
-    if (this.capability?.state !== "present") return;
+    if (this.capability?.state !== "present") return this.fallBack();
     await this.verify();
     await this.normalize(this.live ? "growth" : "initial");
     if (!run.stillOwns() || this.deps.settings().gatingMode !== "scan" || this.live) return;

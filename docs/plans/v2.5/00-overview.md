@@ -62,6 +62,19 @@ version bump), which existed for downgrade safety and are retired by E9. The del
 13. **Touching a function with a `checked` census row re-reads every write after each of its awaits.** Historical example,
     found in C1 and fixed in `644aa05`: a `checked` row with an unchecked write after its await (`src/runtime/effectsApplier.ts`
     `fireNpcReplies`, `test/findings/ownership-sites.json` note). This is the census gotcha (`.claude/rules/gotchas.md`, "A `checked` row …").
+14. **Live-test economy (user decision 2026-09-26; supersedes "×2 per plan gate" in plans 01–09, 11–13).**
+    - **Per-plan live gates run ×1** (a smoke that catches defects early); the **×2 consecutive** requirement is met once, in
+      plan 10's acceptance matrix, which re-runs every row ×2 on the frozen candidate. A per-plan row is recorded
+      `green ×1 (×2 in plan 10)`, never `green ×2`. A plan whose change is risky to real user data (a lorebook or chat write
+      outside the sandbox, e.g. plan 01's normaliser) keeps its own ×2 before merge.
+    - **Batched live runs:** plans merge code-green in groups (next: 03 + the pending C1/C7/G5/C2 fixes + 04/05/06/08), one
+      build, one combined lane batch. A red row is traced to its plan by its fixture; a defect is fixed and re-run ×1.
+    - **Long journeys once per batch:** a J3/J7/J11/J12 run in a batch serves every plan that cites it.
+    - **Mutant/control builds in one window** near the end (each needs its own dist, so the lanes stop for it); until then a
+      control is recorded `control pending (mutant window)`.
+    - **Agents iterate on related tests** (`jest --findRelatedTests`, the touched `node:test` files) and run the full gates
+      before every commit that lands on master and at every merge.
+    - Unchanged: plan 10 is ×2 per row, negative controls, archived records, predeclared floors, the prod-ready rule.
 
 ## Plan sequence
 
@@ -76,7 +89,7 @@ version bump), which existed for downgrade safety and are retired by E9. The del
 | 06 | **Judge: hosts and next uses** | D10 hosted routes (user's call), boundary bundle, tension read, pre-reply Choice, R16 disagreement record, v2.3 plan-10 spikes, "LLM-as-judge via a harness" as a candidate | 03 | J | `06-judge-next.md` |
 | 07 | **Author tools** | per-message inspector (D12), `{{story_quality::<key>}}` (X24), Studio gate replay, CC `promptManager` breakdown, "which route answered" (13's call record) | V1 | U | `07-author-tools.md` |
 | 08 | **Lore on the scan seam** | unbound mirror, bound-book requirements, member-scoped lore, per-tier `scan:true`, lore-select "exclusive", mirror-key measurement, R14 lore contradiction | 01 | W | `08-lore-scan-seam.md` |
-| 09 | **Research spikes** (the user picks) | swipe-back cache, re-commit after rewrite, roster aliases, append-only short_term, story-owned scenario, complication pool (+R13), seeded chance gates, write tiers, witness filter, tool-call policy | per item | S, X | `09-research-spikes.md` |
+| 09 | **Research spikes** (all ten run; a worth review decides include/defer/drop, U3 2026-09-26) | swipe-back cache, re-commit after rewrite, roster aliases, append-only short_term, story-owned scenario, complication pool (+R13), seeded chance gates, write tiers, witness filter, tool-call policy | per item | S, X | `09-research-spikes.md` |
 | 13 | **Harness routing** (new) | each `PassRole` routable to a CLI harness (Claude Code, Codex, opencode/gpt-6) through a second server plugin; typed route, `auth`/`quota` failure kinds, breaker per route, call ring + usage meter, UI + egress copy, Phase 0 isolation spike, Phase A per role × route at the v2.4 plan 08 floors | 0: none; build: 11, 03 | M | `13-harness-routing.md` |
 | 12 | **Release and packaging** | prod-readiness R1–R6, D1–D4, F1, P1–P3, U1–U2, A1, A2, Q2t, E3: release artifact + allowlist, one version, clean `dist/`, debug surface out of the prod bundle, Studio lazy chunk, `.debug/` out of `public/`, user docs, privacy section, CI; both server plugins in the artifact and the security gate | V1 | R | `12-release-packaging.md` |
 | 10 | **Acceptance** | v2.4 plan 09's shape, scan-mode journeys, the production-readiness checklist as a gate table, harness rows H1–H5 | all | — | `10-acceptance.md` |
@@ -252,7 +265,7 @@ Each needs its own measurement before a build. None has one yet.
   long enough to reach a scene-summary sync. The 0.8 median rule stands and is not retuned.
 - **R14 lore contradiction in the warden** (SUMMARY `:271`): needs T12's ring, which is built, plus its own fixture.
 
-### 09 Research spikes (the user picks; each is a spike with predeclared conditions)
+### 09 Research spikes (all ten run, U3 decided 2026-09-26; each is a spike with predeclared conditions, and a PASS gets a worth review: include becomes a build step `<id>.b` under full gates, player surface still waits on HU)
 
 | Candidate | Source | Why a spike, not a build |
 |---|---|---|
@@ -361,7 +374,7 @@ fixes on master are listed with their merge; each still owes its live check on t
 - **U1** Plan 01: approve normalising real library books behind a confirm; the default for installs that never open the
   setting; keep or remove the file path; offer restore on story removal (`01-wi-scan-gating.md` Q1–Q4).
 - **U2** Hosted judge routes (D10): wanted at all? If not, plan 06 covers only the judge-shaped uses.
-- **U3** Which plan-09 spikes, and in what order (the table above)?
+- ~~**U3**~~ **Decided 2026-09-26 (user):** all ten spikes run; the spike's own review decides whether it becomes a feature (`09-research-spikes.md` rule 8).
 - **U4** Human sessions: when? They gate rule-7 surface, the D6/T22 revisit and the over-steer rubric in both v2.4 and v2.5.
 - **U5** ~~C1's one-line ownership check~~ — built as a v2.4 fix (branch `644aa05`), merged after v2.4's plan 06/08 live gates,
   with its own live check ×2. v2.5 plan 02 keeps only the in-flight generation half.
@@ -370,7 +383,7 @@ fixes on master are listed with their merge; each still owes its live check on t
 - **U7** Judge key scope (P2): in multi-user ST, the env and `~/.typesafe` fallbacks are shared by every user. Drop them in
   multi-user installs, or document them as install-wide?
 - **U8** Plan 13: vendor terms for subscription use (Q1), admin-only harness routes (Q2), API-key billing (Q3), splitting
-  `authoring` (Q4), the input cap (Q5), which roles first (Q6) — `13-harness-routing.md` §Unresolved questions.
+  `authoring` (Q4), the input cap (Q5), which roles first (Q6; **decided 2026-09-26: H6 Phase A order accepted**; Q4/Q5 decided in the plan) — `13-harness-routing.md` §Unresolved questions.
 
 - **U9** Plan 12 Q1: move the repo out of `public/` and serve a staged copy. P3 cannot pass while `docs/`, `test/` and `.debug/`
   are served from the working repo (curl 200 on each, 2026-09-25). Reversible.

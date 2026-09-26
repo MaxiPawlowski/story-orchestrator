@@ -328,3 +328,93 @@ A fix has to act before the swap (for example, stop or detach the stream before 
 
   Re-seed both lanes (`st-lanes seed <n> --fresh`) before the next batch.
 - localStorage: `so-v25-a11-scale` removed. The read-back shows no `so-v25-*` keys and no `storyOrchestratorDebug*` globals (`<rec>/localstorage-cleanup.log`).
+
+## Gate record (A11 exclusive backend, bundle c67dcdba7564, 2026-09-26)
+
+- A11 forced arm: **0/2 on an exclusive backend** (lane 2 alone, requests_processing 0 before each run). Same failure as the shared runs: the FIRST window (~88k tokens, 123.5 s cold) is cut at the scaled 100 s budget and its retry misses 200 s.
+- Cause, reproduced directly against llama-server on the pod (no ST, no extension) and through ST's request path with a synthetic prompt: after a DEEP abort (~80k tokens read) an identical retry gets `cache_n` 0 and re-reads at ~424 tok/s (vs 790 cold), 211 s; after a shallow abort (~55k) it reuses the cache and finishes in 56 s. Records: `test/journeys/records/v2.5-plan02/A11-exclusive/` (`llama-abort-probe/`, `diag-run3/`).
+- **Harness defect, not product:** `scripts/debug/lib/timeoutArm.mts` `forcedTimeoutScale` (1) accepts scales where other passes also time out (its lower bound should require every other pass to answer on its FIRST ask), and (2) models the retry as a cold ask. For this chat the arm is infeasible (window 1 needs scale > 0.53, the whole-chat pass < 0.484). Fix: the arm reports `infeasible`, and a fixture whose whole-chat pass is clearly larger than any window (or an arm that scales only the whole-chat pass).
+- **New product defect (A37):** the extension budgets `max_tokens` 512 but with the preset included ST sends `n_predict` = the preset's 1200, and llama obeys `n_predict` (`src/services/stHost/modelReply.ts:123-128`; ST `custom-request.js:411-414`, `textgen-settings.js:1696`). 1,237 lane requests carried max_tokens 512 / n_predict 1200; a 1-token probe got 1,200 back. `callTimeoutMs` under-budgets any reply past 512 tokens.
+
+## Gate record (code, D1/C7 fixes, 2026-09-26)
+
+Built on master `0ae7107` in a worktree. Nothing live ran (no lanes, no main ST). The live re-runs owed are listed per item.
+
+### C1 / D1: the in-flight NPC reply no longer lands in the next chat
+
+**Mechanism: a chat-identity guard on the stream's own write path** (`src/services/stHost/streamGuard.ts`, wired as `guardHostStream` in `stHost/generation.ts`, armed by `EffectsApplier.speak` for every `llm` reply).
+
+Host evidence (ST `7c3994196`):
+- No event fires before the swap. `event_types` has no pre-change event (`events.js:3-111`). Every switch path clears and repoints first and emits `CHAT_CHANGED` only after the next chat is loaded and printed: `getChat` → `chat.splice` (`script.js:7658`) → `loadItemizedPrompts` + `printMessages` → `CHAT_CHANGED` (`:7700`); `/go` → `openChat` sets the character before `reloadCurrentChat` (`slash-commands.js:5110-5115`, `script.js:1710-1723`); `openGroupChat` clears, then repoints `chat_id`, then loads (`group-chats.js:2203-2210`); `openCharacterChat` the same (`script.js:7744-7749`). So anything hooked on `CHAT_CHANGED` runs after the ticks have already been able to write into the loaded chat.
+- ST's switch guards are partial. `selectCharacterById` refuses while a group generates (`script.js:885-887`) and `openGroupById` while `is_send_press || is_group_generating` (`group-chats.js:2029`), but `/go` (`slash-commands.js:5085-5115`), the past-chats list (`bookmarks.js:688-716` → `openGroupChat`/`openCharacterChat`) and the welcome screen (`welcome-screen.js:494,522`) have none. Holding the switch is not ours to do.
+- Every write the stream makes goes through one instance method. Ticks call `this.onProgressStreaming(this.messageId, …)` (`script.js:3896`), which writes `chat[messageId].mes` (`:3679-3685`); the finish calls `onFinishStreaming` → `finalizeIntermediaryMessage` → `this.onProgressStreaming(…, true)` (`:3756`, `:3808-3810`), then `saveChatConditional()` (`:3815`). Generate reaches the finish only when `!isStopped && isFinished` (`:5408`, `:5439`).
+- Why the step-2 stop made it worse: `stopGeneration` → `onStopStreaming` sets `isFinished = true` (`:3847-3850`, `:5607-5610`), so the aborted stream takes the finish path and saves into the chat now open. That is D1's stack exactly.
+- `chat` is one live array mutated in place (`script.js:411`, `:1604`, `:7658`), and `getCurrentChatId()` reads the selected group or character (`:541-547`). In every switch path the chat id changes or the array is cleared before the next chat is loaded, and the load needs a fetch, so a synchronous check at the write sees the move before the next chat's rows exist.
+
+The guard wraps `onProgressStreaming` on each streaming processor seen during the reply (armed on `STREAM_TOKEN_RECEIVED`, `script.js:3895`, and again by `halt()`). A write whose open chat id is not the reply's, or whose `chat[messageId]` is not the object the stream started on, is refused: the stream is marked `isStopped` + `isFinished` and its fetch aborted (`streamingProcessor.abortController`, `:6154-6160`), and the write throws. A tick's throw is caught by `generate()` without `onErrorStreaming` because `isFinished` is set (`:3900-3906`), so no `MESSAGE_RECEIVED` is emitted into the next chat; the finish's throw leaves `onFinishStreaming` before `saveChatConditional`. `release()` calls `activateSendButtons` (`:7075-7080`) only when a stream was halted, because a halted solo Generate never unblocks itself. The normal case is untouched: the check passes and the original method runs.
+
+Step-2 stop: kept only as the fallback where no streaming processor exists (non-streaming requests, or before the request). On lapse, `halt()` stops the live stream through the guard first and returns true, so `stopHostGeneration` is no longer called on a streaming reply (it would force the finish).
+
+Not covered (residual, stated in the fault matrix): a non-streaming response that arrives between the next chat's load and `CHAT_CHANGED` (`saveReply` appends into the open chat, `script.js:5531`); a streaming response whose headers arrive after the switch (`onStartStreaming` pushes its placeholder into the open chat, `:3633`).
+
+Tests (red first): `src/runtime/npcStreamLanding.review.test.ts` drives the real `EffectsApplier` and the real guard against a fake stream that mirrors `script.js:3874-3911` and Generate `:5396-5446`. On the unchanged applier it failed 4 of 5 (mid-stream with a tick after the load, natural finish, before the first token, send button); the control (no switch: lands and saves once) passed. `src/services/stHost/streamGuard.test.ts` (5). Mutants 6/6 killed (`test/findings/mutations/v25-c1-stream-guard.txt`). Fault matrix `effects|aborted` moved from covered to **partial** with the injected-switch citations and the residual above. Census row `EffectsApplier.speak` rewritten.
+
+Live re-run owed (lane, populated next chat, ×2), after `npm run build` and `st-session.mts reload` on the lane:
+1. `node scripts/debug/st-lanes.mts seed 1 --fresh`, then `node scripts/debug/st-lanes.mts run 1 -- scripts/debug/st-session.mts reload`, `node scripts/debug/st-lanes.mts run 1 -- scripts/debug/st-navigation.mts open-group 1759606632088`, `MSYS_NO_PATHCONV=1 node scripts/debug/st-lanes.mts run 1 -- scripts/debug/st-actions.mts slash "/profile Artemis RunPod RP"`.
+2. Pick a Ponticius solo chat with at least 2 messages and name it: `node scripts/debug/st-lanes.mts run 1 -- scripts/debug/st-eval.mts "localStorage.setItem('so-v25-c1-solo','<chat file name>')"`.
+3. `node scripts/debug/st-lanes.mts run 1 -- scripts/debug/st-eval.mts --file test/scenarios/live-v25-c1/setup.js`
+4. `node scripts/debug/st-lanes.mts run 1 -- scripts/debug/st-eval.mts --file test/scenarios/live-v25-c1/switch-populated.js > run-1.json` (the script now returns `verdict {landed, pass}`: the solo chat's rows on disk before vs after). Repeat 3-4 for run 2. Green = `discriminates: true` and `verdict.pass: true` on both runs; 2 of 2 landed on bundle `0f4332fac075`.
+5. Control on a mutant build with the guard's write check removed: expect `verdict.landed: true`.
+6. Clean up: `localStorage.removeItem('so-v25-c1-solo')`, the sandbox group chats and the `so-v25-c2c1` story (`so-library.mts remove "SO-V25-C2C1 save race and NPC switch"`).
+
+### C7: the transition note precedes the reply it announces
+
+Built on the coordinator's instruction (the build item, rule 7 taken as decided). `RuntimeManager.commitBoundary` now posts the note right after the engine commit and its bridge bookkeeping, before `applyActive("activate")` runs the checkpoint effects, whose last step awaits the onEnter NPC reply (`src/runtime/effectsApplier.ts` `fireNpcReplies`). The run check after the announcement stays, so a lapse there now also stops the checkpoint effects. The block moved; the manager's size did not change (budget 740/740, `architecture.test.ts` green).
+
+Behaviour changes, stated: the note also precedes the other checkpoint effects (Author's Note, world info, preset overlay, cast, background) and the boundary's persist, instead of following them. None of these is visible in the transcript except the background. `/comment` emits `MESSAGE_SENT`/`USER_MESSAGE_RENDERED`, not `MESSAGE_RECEIVED` (`slash-commands.js:6143-6152`), so posting it earlier commits no boundary.
+
+Tests (red first): `runtimeManager.test.ts` "v2.5 C7: posts the transition note before the onEnter NPC reply it announces" read `["/trigger", "/comment"]` on the old order and `["/comment", "/trigger"]` now. Two ownership controls encoded the old order and were rewritten to the new one: "a boundary that lapses during persistence stops before observers, after the announcement it already posted" (cited by fault matrix `persistence|afterHostWrite`, citation and note updated) and "a boundary that lapses during announcement stops before checkpoint effects and observers". Census note `RuntimeManager.commitBoundary` updated. `test/scenarios/live-v25-02-c7-note-order.json` `_note` no longer says expected red.
+
+Live re-run owed (lane, ×2, after `npm run build` + `st-session.mts reload` on the lane): `node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --group 1759606632088 test/scenarios/live-v25-02-c7-note-order.json`. Green = both runs pass (noteIndex < replyIndex). Plan 01's G4 note (J3.2 "Accept the Mission" within 15 s) should stop timing out for this reason; re-run J3 in scan mode once to see it.
+
+## Gate record (C2 guard + H1 harness, code)
+
+2026-09-26, worktree on master `0ae7107`. Code only: nothing live, no lane, main ST or `C:\dev\so-lanes` touched. `src` change is local to `src/services/stHost/persistence.ts`.
+
+### C2: late-bound save of ours refused whatever its rows
+
+- **Guard** (`switchRefusal`, `src/services/stHost/persistence.ts`): a chat save is held back when an armed save of ours (an observation armed with a chat id: `persist` via `observeNextSave`, `saveOpenChat`) was asked for chat X, the request names chat Y ≠ X, and Y is the chat ST has open at post time. That is the late-binding signature (`saveChatConditional` reads the open chat after its 100 ms poll). The row count no longer matters. It is recorded like the empty case: `report(...lost)`, so the save evidence reads `lost` and the next persist retries in the right chat. The empty-save rules are unchanged.
+- **ST's own saves are not blocked:** a save with no armed save of ours is sent (control), and a save of a chat that is NOT the open one (ST's `/branch-create` writes the branch file while the parent is open) is sent (existing control `a save of another chat that carries messages is sent`). Residual, by design: the watcher attributes the first chat save after an arm to us (the model since v2.3 plan 06). If ST's own save of the newly opened chat is the first request inside our ~100 ms window, it is held back, and our own late save, posted just after with the same open chat's state, goes out unarmed. No unit case can separate the two; the live re-run below is what measures it.
+- **Refusal ring for the recorder:** every refusal is pushed to `globalThis.storyOrchestratorSaveRefusals` (cap 50, monotonic `seq`: file, rows, integrity slug, `askedFor`, open chat, reason). `so-save-recorder.mts` drains it: when our watcher is outermost (the live case) the refusal becomes its own record (`source: 'watcher'`), ordered before the next event the recorder sees; when the watcher is inner, the recorder marks its own record `refused` instead of recording it twice. Refusals present before `arm` are not imported. `flagSaves` adds a `refused` flag.
+
+| Check | Result |
+|---|---|
+| Red first (ring exported, guard not yet built) | `npx jest src/services/stHost/saveWatcher.test.ts`: 4 failed, 18 passed (the two refusal cases hang on the posted request; the two controls failed on the leftover pending request, since fixed with `sentBy`, which answers what went out) |
+| Green | 22/22 in `saveWatcher.test.ts`, 24/24 with `persistence.test.ts` |
+| Mutant 1: row-count condition reinstated (`if (!target \|\| target.messages > 0) return null;`) | 2 failed, 20 passed: both refusal cases (`Expected: 0, Received: 1` requests sent); every control green. Restored |
+| Mutant 2: open-chat check dropped (refuse any other-chat save while armed) | 1 failed: `control: a save of another chat that carries messages is sent` (the branch-create shape). Restored |
+| Recorder | `node --test scripts/debug/so-save-recorder.test.mts`: 9/9 (3 new: watcher outermost drained from the ring and ordered, watcher inner marked not duplicated, pre-arm refusals not imported) |
+
+### H1 (S12 shape): cleanup restores the library snapshot
+
+- **Shape, both runners.** `so-scenario` (`cleanupScenario`) and `so-journey` (`runCleanup`) captured the library as a list of hashes and removed every hash the run *played*. An import under an id the install already had replaced that record (new hash), and cleanup then removed the replacement, so the id was gone (lane 2's `v24-01-delete-decode@1`). An edited re-import carried a hash cleanup never recorded, so it stayed behind (plan 11 L5). `so-journey` had the identical code path.
+- **Fix.** `scripts/debug/lib/librarySnapshot.mts`: `captureLibrary` copies the whole `v2Stories` list before the run (`{trusted, records}`); `restoreLibrary` plans with the pure `planLibraryRestore` (`lib/configRestore.mts`, keyed by story id, hash when there is none) and writes back exactly the snapshot: pre-existing records as they were, in their old order, and every record not in the snapshot removed. It saves through `saveSettingsNow`, reads the library back and reports `{changed, restored[], removed[], verified}`; a mismatch or a failed save is an `error`, which fails the journey's cleanup gate and the scenario run. An untrusted capture changes nothing (S6, unchanged). `removableStories` is gone; both runners share the new pair.
+- **Decision to note:** the restore is exact, so a story a **peer** session added to the same install during the run is removed too (reported by id in `library.removed`). `mergeRestore`'s S12 peer-keeping still applies to the config restore, but the library restore runs after it. Lanes make installs private, so this only matters on a shared main install.
+
+| Check | Result |
+|---|---|
+| `node --test scripts/debug/lib/configRestore.test.mts` | 10/10 (5 library cases: same-id restored, run-created and edited re-import removed, untouched library not rewritten, deleted pre-existing record comes back in place, untrusted capture changes nothing; the S6 title the findings ledger cites is kept) |
+| `node --test scripts/debug/lib/librarySnapshot.test.mts` (new) | 4/4 against a fake page: the live H1 shape end to end (restored + removed, one save, `settings` untouched), capture is a copy, untouched library writes nothing, untrusted capture restores nothing |
+| Mutant: restore keeps only the current records whose key existed before (the hash-era outcome) | 4 failed (both H1 cases, the in-place restore, the copy case), 10 passed. Restored |
+
+### Machine gates (both commits)
+
+`npm run typecheck` 0 errors · `npm run typecheck:test` 0 errors · `npm run lint` clean · `npm test` 282 suites passed (1 skipped), 4027 tests passed (1 skipped) · `npm run debug:typecheck` 0 errors · `npm run test:debug` 328 tests, 327 pass, 0 fail, 1 skipped (320 pass after the C2 commit). `test:debug` needs a built `dist/manifest.json` (`so-run-header.test.mts` reads it); a fresh worktree has none, so `npm run build` ran first (dist is untracked, nothing served).
+
+### Live re-run owed for C2 (not run here)
+
+The guard is not live-green. Re-run the plan-02 C2 recipe on a **lane**, with a new bundle, ×2 green:
+1. `npm run build`, `st-lanes seed 1 --fresh`, `st-session reload`, `so-run-header capture` (bundle ≠ `0f4332fac075`), `open-group 1759606632088`.
+2. The red fixture the attribution asked for: the solo chat **with messages** (the populated-solo case), not the empty one. `so-save-recorder.mts arm`, then `test/journeys/records/v2.5-plan02/C2/c2-attempt.js` with the setting write (`setUiSettings`) immediately before `/go`.
+3. Pass: the drain shows a `refused` record (`source: 'watcher'`, `askedFor` = the group chat, file = the solo chat, rows > 0); the solo chat's message rows on disk are unchanged before/after; the group chat's `saveHealth` reads `lost` and the next persist in the group chat lands (read-back boundary equal). Also assert no ST save of the solo chat was refused when the setting write is NOT made (control arm, ×2).
+4. Archive under `test/journeys/records/v2.5-plan02/C2-guard/`.

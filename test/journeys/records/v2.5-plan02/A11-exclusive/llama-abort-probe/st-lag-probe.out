@@ -1,0 +1,33 @@
+{
+  "ok": true,
+  "value": [
+    {
+      "label": "tiny",
+      "chars": 24,
+      "pageMs": 6613,
+      "llamaMs": 198,
+      "cache_n": 0,
+      "prompt_n": 7,
+      "err": null
+    },
+    {
+      "label": "A-400k",
+      "chars": 551134,
+      "pageMs": 179376,
+      "llamaMs": 178434,
+      "cache_n": 0,
+      "prompt_n": 88025,
+      "err": null
+    },
+    {
+      "label": "A-400k-again",
+      "chars": 551134,
+      "pageMs": 69739,
+      "llamaMs": 68696,
+      "cache_n": 88024,
+      "prompt_n": 1,
+      "err": null
+    }
+  ]
+}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-26T10-06-55-473Z_st-eval.json

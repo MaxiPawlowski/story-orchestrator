@@ -13,6 +13,7 @@ import {
   setGroupMembersDisabled,
   getActiveGroup,
   getContext,
+  guardHostStream,
   isHostGenerating,
   stopHostGeneration,
 } from "@services/STAPI";
@@ -25,7 +26,7 @@ import { renderBlackboardMemo } from "./blackboardMemo";
 import { appendRow, pendingRow, restorePlan, rowsAfter, setStatus, type EffectWrite } from "./effectLedger";
 import type { EffectLedgerRow, EffectTarget, RuntimeExtras, RuntimeSnapshot } from "./types";
 import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoGates";
-import { scanGatingActive } from "./worldInfoMode";
+import { worldInfoFilesHeld } from "./worldInfoMode";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { generationWatch } from "./generationWatch";
 import { isRecord } from "@utils/guards";
@@ -240,7 +241,7 @@ export class EffectsApplier {
     // completed wrong sequence leaves the other story's cast disabled on a shared group.
     const run = beginRun(this.ownership);
     const scope = { checkpointId: checkpoint.id, boundary: 0, messageId: lastMessageId() };
-    const worldInfoRefused = scanGatingActive() ? [] : await applyWorldInfo(worldInfoPlan(story, path), run);
+    const worldInfoRefused = worldInfoFilesHeld() ? [] : await applyWorldInfo(worldInfoPlan(story, path), run);
     if (worldInfoRefused.length) this.deps.journal?.("world_info effect could not be applied", worldInfoRefused.join("; "));
     const effects: CheckpointEffects = checkpoint.effects ?? {};
     if (!run.stillOwns()) return;
@@ -303,7 +304,7 @@ export class EffectsApplier {
   // Spike: under scan-time gating a chat's world info is a per-scan view, so neither
   // the path replay nor the release writes a file. Default off; the file path is the fallback.
   async releaseWorldInfo(owners: unknown[], keep: unknown | null, run?: RunGuard) {
-    if (scanGatingActive()) return;
+    if (worldInfoFilesHeld()) return;
     const refused = await applyWorldInfo(releasePlan(owners, keep), run);
     if (refused.length) this.deps.journal?.("world_info could not be released", refused.join("; "));
   }
@@ -391,9 +392,12 @@ export class EffectsApplier {
   }
 
   private async speak(reply: NpcReplyEffect) {
-    const lapse = reply.kind === "scripted" ? undefined : this.ownership.signal?.();
+    if (reply.kind === "scripted") return fireReply(reply);
+    const stream = guardHostStream(openChatId());
+    const lapse = this.ownership.signal?.();
     const before = generationWatch.openedCount();
     const stopIfOurs = () => {
+      if (stream.halt()) return;
       if (before !== null && generationWatch.openedCount() === before + 1 && isHostGenerating()) stopHostGeneration();
     };
     lapse?.addEventListener("abort", stopIfOurs, { once: true });
@@ -401,6 +405,7 @@ export class EffectsApplier {
       await fireReply(reply);
     } finally {
       lapse?.removeEventListener("abort", stopIfOurs);
+      stream.release();
     }
   }
 

@@ -128,10 +128,22 @@ export interface HostPresetManager {
   [key: string]: unknown;
 }
 
+export interface HostStreamingProcessor {
+  messageId: number;
+  isStopped: boolean;
+  isFinished: boolean;
+  abortController: AbortController;
+  onProgressStreaming: (messageId: number, text: string, isFinal: boolean) => Promise<void>;
+}
+
 export interface ScriptHostModule {
   setGenerationParamsFromPreset: (preset: Record<string, unknown>) => void;
   isGenerating: () => boolean;
   stopGeneration: () => boolean;
+  streamingProcessor: HostStreamingProcessor | null;
+  chat: unknown[];
+  getCurrentChatId: () => string | undefined;
+  activateSendButtons: () => void;
   doNavbarIconClick: (this: Element) => Promise<void>;
   // script.js:405 — the name ST gives its own group `/sd` posts and tool-call rows.
   systemUserName: string;

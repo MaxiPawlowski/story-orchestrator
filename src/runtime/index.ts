@@ -20,6 +20,8 @@ import { startTalk } from "./wiring/talk";
 import { attachGenerationObservers, subscribeGenerationEvents } from "./wiring/generation";
 import type { Disposers, LiveParts, WindowAccess } from "./wiring/types";
 import { log } from "@utils/log";
+import { readGatingModeWith } from "./worldInfoMode";
+import { getGlobalSettings } from "./settingsStore";
 
 let started = false;
 let bridge: TurnBridge | null = null;
@@ -93,6 +95,7 @@ export const RUNTIME_GLOBALS = [
 export function startRuntime() {
   if (started) return runtimeManager;
   started = true;
+  runtimeDisposers.push(readGatingModeWith(() => getGlobalSettings().worldInfo.gatingMode));
   startScheduler(live, runtimeDisposers);
   registerHostSurfaces();
   startWatches();

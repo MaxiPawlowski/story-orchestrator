@@ -44,29 +44,39 @@ export function mergeRestore(next: Root | null, live: Root | null): { next: Root
 export interface LibraryCapture {
   /** False when the extension settings could not be read at all, so an empty list proves nothing. */
   trusted: boolean;
-  hashes: string[];
+  /** The whole library as it was, record for record: a restore writes these back verbatim. */
+  records: unknown[];
 }
 
-/**
- * S6. Which imported stories cleanup may delete. An untrusted "before" is not "the library was empty":
- * it removes nothing, and says what it kept, because deleting a story the user had is the worse error.
- */
-export function removableStories(imported: string[], before: LibraryCapture | string[] | null | undefined): { remove: string[]; kept: string[]; untrusted: boolean } {
-  const unique = [...new Set(imported)];
-  const capture: LibraryCapture | null = Array.isArray(before) ? { trusted: true, hashes: before } : before ?? null;
-  if (!capture || !capture.trusted) return { remove: [], kept: unique, untrusted: true };
-  const existed = new Set(capture.hashes);
-  return { remove: unique.filter((hash) => !existed.has(hash)), kept: unique.filter((hash) => existed.has(hash)), untrusted: false };
+export interface LibraryRestorePlan {
+  untrusted: boolean;
+  next: unknown[];
+  /** Records the run left that were not in the library before it (`id@version (hash)`). */
+  removed: string[];
+  /** Records that existed before and were changed or removed by the run, put back as they were. */
+  restored: string[];
+  changed: boolean;
 }
 
+const fieldOf = (record: unknown, key: string): unknown => (record && typeof record === 'object' ? (record as Record<string, unknown>)[key] : undefined);
+const libraryKey = (record: unknown): string => idOfStory(record) ?? `hash:${String(fieldOf(record, 'hash') ?? JSON.stringify(record))}`;
+const libraryLabel = (record: unknown): string => `${idOfStory(record) ?? '?'}@${String(fieldOf(record, 'version') ?? '?')} (${String(fieldOf(record, 'hash') ?? 'no hash')})`;
+
 /**
- * A25. What an import step added to the library, whether or not the import reported success: a
- * refused import (`expectFail`) can still leave its record behind, and reports no hash for it.
+ * S12 / v2.5 plan 02 H1. Cleanup puts the library back to the snapshot taken before the run, keyed by
+ * story id: a record that existed is written back exactly as it was (an import under the same id, or an
+ * edited re-import, replaced it), and a record that was not there is removed. Matching by the hash the
+ * run played deleted a same-id story the install already had, and left an edited re-import behind.
+ * An untrusted capture changes nothing.
  */
-export function addedStoryHashes(before: LibraryCapture, after: LibraryCapture): string[] {
-  if (!before.trusted || !after.trusted) return [];
-  const existed = new Set(before.hashes);
-  return [...new Set(after.hashes.filter((hash) => !existed.has(hash)))];
+export function planLibraryRestore(before: LibraryCapture | null | undefined, current: unknown[]): LibraryRestorePlan {
+  if (!before?.trusted) return { untrusted: true, next: current, removed: [], restored: [], changed: false };
+  const was = new Map(before.records.map((record) => [libraryKey(record), record]));
+  const now = new Map(current.map((record) => [libraryKey(record), record]));
+  const removed = current.filter((record) => !was.has(libraryKey(record))).map(libraryLabel);
+  const restored = before.records.filter((record) => JSON.stringify(now.get(libraryKey(record))) !== JSON.stringify(record)).map(libraryLabel);
+  const next = before.records.map((record) => structuredClone(record));
+  return { untrusted: false, next, removed, restored, changed: JSON.stringify(current) !== JSON.stringify(before.records) };
 }
 
 /**

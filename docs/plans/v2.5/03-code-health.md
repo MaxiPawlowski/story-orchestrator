@@ -618,3 +618,36 @@ F2 (no `touch`), F3 (no invalidation), Q1t (900 ms sleep), T3, S5 and T1. Baseli
 | Reply-path cost p95 | plan 10's live probe (rule 11); the jest side is now structural |
 
 After every build on a lane: `node scripts/debug/st-session.mts reload`.
+
+### Merge of master `c743bedd` (2026-09-26)
+
+Conflicts resolved keeping both sides:
+- `stHost/persistence.ts`: master's C2 `switchRefusal` (refuses a late-bound save of ours whatever its rows), `ChatSaveTarget`, and the `storyOrchestratorSaveRefusals` ring are taken as-is. Plan 03 only strips the citation prefix from the comments.
+- `worldInfoGating.ts`: master's G5 `fallBack`/`settle` moved into the `WiGatingRuntime` class (`private fellBack`, `this.fallBack()` when the capability is not present, and `deactivate` clears it). The ownership census row for `WiGatingRuntime.syncOnce` says so.
+- `runtime/index.ts`: `readGatingModeWith(...)` is registered as the first disposer of `startRuntime`, before `startScheduler`.
+- C1 (`guardHostStream` in `EffectsApplier.speak`) and C7 (the transition note before the onEnter effects in `commitBoundary`) auto-merged into the refactored files. Both are verified present.
+- Debug harness: master's H1 exact library restore (`lib/librarySnapshot.mts`, `planLibraryRestore`) replaces `removableStories`. A25 is subsumed by H1: restoring the pre-run library removes a refused import's record without tracking its hash. Plan 03's `addedStoryHashes` and its per-step library diff are therefore dropped. The A25 test and its control are restated over `planLibraryRestore`. `fixtureSha256` and `trackJudgeRequests` stay in so-journey.
+
+Gates after the merge:
+
+| Gate | Result |
+|---|---|
+| typecheck, typecheck:test, lint, debug:typecheck | exit 0 |
+| jest | 296 suites, 4111 tests pass |
+| build (`ST_PUBLIC` set) | exit 0 |
+| test:release | 37 pass, 0 fail |
+| test:debug | 343 pass, 0 fail |
+| Storybook (`--index-json`) | 37 suites, 261 tests pass |
+
+Budgets (effective lines) are unchanged:
+
+| File | Lines | Budget |
+|---|---|---|
+| runtimeManager | 548 | 700 |
+| memoryCoordinator | 500 | 560 |
+| extractionCoordinator | 480 | 560 |
+| stagecraftCoordinator | 450 | 560 |
+| expansionCoordinator | 332 | 560 |
+| copilotCoordinator | 262 | 560 |
+| sceneCoordinator | 223 | 560 |
+| pacingCoordinator | 126 | 560 |

@@ -11,7 +11,9 @@ the file it names, the integrity and row count it carries, what ST had open at p
 groupId, characterId), the answer status, and the stack of the post. Also stack-traces every
 context saveMetadata() call, so a save can be attributed to its caller. drain prints the records and
 flags a save that carries an integrity already seen for ANOTHER file, or that names a file other than
-the chat open when saveMetadata was asked. The recorder lives in the page until disarm or a reload.`;
+the chat open when saveMetadata was asked. Saves our own save watcher held back never reach a wrapper
+below it, so the recorder also drains the watcher's refusal ring (globalThis.storyOrchestratorSaveRefusals)
+and records each one with its reason (flag: refused). The recorder lives in the page until disarm or a reload.`;
 
 export interface SaveRecord {
   seq: number;
@@ -24,6 +26,21 @@ export interface SaveRecord {
   status: number | null;
   error: string | null;
   stack: string;
+  refused: string | null;
+  askedFor?: string | null;
+  source: 'fetch' | 'watcher';
+}
+
+export interface WatcherRefusal {
+  seq: number;
+  at: number;
+  url: string;
+  file: string;
+  rows: number;
+  integrity: string | null;
+  askedFor: string | null;
+  open: string | null;
+  reason: string;
 }
 
 export interface MetadataCall {
@@ -43,14 +60,50 @@ export async function armSaveRecorder(page: Pick<Page, 'evaluate'>) {
     const g = globalThis as any;
     if (g.__soSaveRecorder) return { ok: true, armed: true, already: true };
     Error.stackTraceLimit = 60;
-    const state = { saves: [] as any[], metadataCalls: [] as any[], seq: 0, fetch: g.fetch, getContext: g.SillyTavern.getContext };
+    const ring = (): any[] => (Array.isArray(g.storyOrchestratorSaveRefusals) ? g.storyOrchestratorSaveRefusals : []);
+    const latest = () => ring().reduce((max: number, entry: any) => Math.max(max, Number(entry?.seq) || 0), 0);
+    const state = { saves: [] as any[], metadataCalls: [] as any[], seq: 0, fetch: g.fetch, getContext: g.SillyTavern.getContext, refusalCursor: latest(), sync: () => {} };
     const openNow = () => {
       const ctx = state.getContext.call(g.SillyTavern);
       return { chatId: ctx.chatId ?? null, groupId: ctx.groupId ?? null, characterId: ctx.characterId === undefined || ctx.characterId === null ? null : String(ctx.characterId) };
     };
+    const fresh = () => ring().filter((entry: any) => Number(entry?.seq) > state.refusalCursor).sort((left: any, right: any) => left.seq - right.seq);
+    const fromRefusal = (entry: any) => ({
+      seq: ++state.seq,
+      at: Number(entry.at) || Date.now(),
+      url: String(entry.url ?? ''),
+      file: typeof entry.file === 'string' ? entry.file : null,
+      integrity: typeof entry.integrity === 'string' ? entry.integrity : null,
+      rows: typeof entry.rows === 'number' ? entry.rows : null,
+      open: { chatId: typeof entry.open === 'string' ? entry.open : null, groupId: null, characterId: null },
+      status: null,
+      error: null,
+      stack: '',
+      refused: String(entry.reason ?? 'refused by the save watcher'),
+      askedFor: typeof entry.askedFor === 'string' ? entry.askedFor : null,
+      source: 'watcher',
+    });
+    state.sync = () => {
+      for (const entry of fresh()) {
+        state.saves.push(fromRefusal(entry));
+        state.refusalCursor = entry.seq;
+      }
+    };
+    const claimInnerRefusal = (record: any) => {
+      for (const entry of fresh()) {
+        state.refusalCursor = entry.seq;
+        if (entry.file === record.file && record.refused === null) {
+          record.refused = String(entry.reason ?? 'refused by the save watcher');
+          record.askedFor = typeof entry.askedFor === 'string' ? entry.askedFor : null;
+        } else {
+          state.saves.push(fromRefusal(entry));
+        }
+      }
+    };
     g.fetch = async function (input: any, init: any) {
       const url = typeof input === 'string' ? input : String(input?.url ?? '');
       if (!url.includes('/api/chats/save') && !url.includes('/api/chats/group/save')) return state.fetch.call(this, input, init);
+      state.sync();
       let body: any = null;
       try { body = typeof init?.body === 'string' ? JSON.parse(init.body) : null; } catch { body = null; }
       const header = Array.isArray(body?.chat) ? body.chat[0] : null;
@@ -66,6 +119,8 @@ export async function armSaveRecorder(page: Pick<Page, 'evaluate'>) {
         status: null as number | null,
         error: null as string | null,
         stack: String(new Error('save posted').stack ?? ''),
+        refused: null as string | null,
+        source: 'fetch',
       };
       state.saves.push(record);
       try {
@@ -75,6 +130,8 @@ export async function armSaveRecorder(page: Pick<Page, 'evaluate'>) {
       } catch (error: any) {
         record.error = String(error?.message ?? error);
         throw error;
+      } finally {
+        claimInnerRefusal(record);
       }
     };
     g.SillyTavern.getContext = function () {
@@ -82,6 +139,7 @@ export async function armSaveRecorder(page: Pick<Page, 'evaluate'>) {
       const saveMetadata = ctx.saveMetadata;
       if (typeof saveMetadata !== 'function') return ctx;
       return { ...ctx, saveMetadata: (...args: unknown[]) => {
+        state.sync();
         state.metadataCalls.push({ seq: ++state.seq, at: Date.now(), open: openNow(), stack: String(new Error('saveMetadata asked').stack ?? '') });
         return saveMetadata.apply(ctx, args);
       } };
@@ -95,6 +153,7 @@ export async function readSaveRecorder(page: Pick<Page, 'evaluate'>, take = true
   return evaluateInST(page as Page, (drain: boolean) => {
     const state = (globalThis as any).__soSaveRecorder;
     if (!state) return null;
+    state.sync();
     const out = { saves: state.saves.slice(), metadataCalls: state.metadataCalls.slice() };
     if (drain) { state.saves.length = 0; state.metadataCalls.length = 0; }
     return out;
@@ -115,7 +174,7 @@ export async function disarmSaveRecorder(page: Pick<Page, 'evaluate'>) {
 
 export interface SaveFlag {
   seq: number;
-  kind: 'foreign-integrity' | 'posted-elsewhere';
+  kind: 'foreign-integrity' | 'posted-elsewhere' | 'refused';
   detail: string;
 }
 
@@ -128,6 +187,7 @@ export function flagSaves(state: RecorderState, known: Map<string, string> = new
   for (const event of events) {
     if (event.type === 'ask') { lastAsk = event.call; continue; }
     const save = event.save;
+    if (save.refused) flags.push({ seq: save.seq, kind: 'refused', detail: `our save watcher held back a save of "${save.file}" (${save.rows} rows${save.askedFor ? `, asked for "${save.askedFor}"` : ''}): ${save.refused}` });
     if (save.integrity && save.file) {
       const owner = fileOf.get(save.integrity);
       if (owner && owner !== save.file) flags.push({ seq: save.seq, kind: 'foreign-integrity', detail: `a save of "${save.file}" carried the integrity of "${owner}" (${save.rows} rows, status ${save.status})` });

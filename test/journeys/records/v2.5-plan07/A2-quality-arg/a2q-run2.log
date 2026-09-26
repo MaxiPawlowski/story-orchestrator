@@ -1,0 +1,77 @@
+1/9 eval ok 5ms
+1/9 eval -> {"macroEngine":true}
+2/9 import_story ok 272ms
+3/9 eval ok 5ms
+3/9 eval -> {"unknown":"(no quality \"no_such_key\")"}
+4/9 eval ok 10ms
+4/9 eval -> "[A2: arg={{story_quality::location}} flat={{story_quality_location}}]"
+5/9 slash ok 1673ms
+6/9 send_generate ok 14444ms
+7/9 eval ok 6ms
+7/9 eval -> "[A2: arg=yard flat=yard]"
+8/9 eval ok 7ms
+9/9 eval ok 12ms
+9/9 eval -> {"restoredNote":true}
+Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-26T10-27-17-555Z_so-scenario-result.json
+{
+  "ok": true,
+  "steps": 9,
+  "cleanup": {
+    "removedStoryHashes": [
+      "v2-783f9c3c"
+    ],
+    "saved": {
+      "status": 200
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-26@07h26m54s515ms",
+    "owned": [
+      "2026-09-26@07h26m54s515ms"
+    ],
+    "deleted": [
+      "2026-09-26@07h26m54s515ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1535,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-26@07h26m54s515ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  }
+}

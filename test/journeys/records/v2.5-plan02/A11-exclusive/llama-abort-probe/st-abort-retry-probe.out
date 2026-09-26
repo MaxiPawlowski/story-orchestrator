@@ -1,0 +1,32 @@
+{
+  "ok": true,
+  "value": [
+    {
+      "label": "first-abort-60s",
+      "t0": "2026-09-26T10:10:40.603Z",
+      "pageMs": 60001,
+      "timings": null,
+      "tokens_evaluated": null,
+      "err": "TimeoutError API request failed"
+    },
+    {
+      "label": "retry-same-200s",
+      "t0": "2026-09-26T10:11:40.604Z",
+      "pageMs": 55335,
+      "timings": {
+        "cache_n": 55296,
+        "prompt_n": 32737,
+        "prompt_ms": 53785.571,
+        "prompt_per_token_ms": 1.6429596786510676,
+        "prompt_per_second": 608.6576639671632,
+        "predicted_n": 8,
+        "predicted_ms": 402.469,
+        "predicted_per_token_ms": 57.49557142857143,
+        "predicted_per_second": 17.39264390549334
+      },
+      "tokens_evaluated": 88033,
+      "err": null
+    }
+  ]
+}
+Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-26T10-12-35-954Z_st-eval.json
