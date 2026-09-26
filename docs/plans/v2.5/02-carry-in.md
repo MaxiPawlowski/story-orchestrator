@@ -376,3 +376,45 @@ Behaviour changes, stated: the note also precedes the other checkpoint effects (
 Tests (red first): `runtimeManager.test.ts` "v2.5 C7: posts the transition note before the onEnter NPC reply it announces" read `["/trigger", "/comment"]` on the old order and `["/comment", "/trigger"]` now. Two ownership controls encoded the old order and were rewritten to the new one: "a boundary that lapses during persistence stops before observers, after the announcement it already posted" (cited by fault matrix `persistence|afterHostWrite`, citation and note updated) and "a boundary that lapses during announcement stops before checkpoint effects and observers". Census note `RuntimeManager.commitBoundary` updated. `test/scenarios/live-v25-02-c7-note-order.json` `_note` no longer says expected red.
 
 Live re-run owed (lane, ×2, after `npm run build` + `st-session.mts reload` on the lane): `node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --group 1759606632088 test/scenarios/live-v25-02-c7-note-order.json`. Green = both runs pass (noteIndex < replyIndex). Plan 01's G4 note (J3.2 "Accept the Mission" within 15 s) should stop timing out for this reason; re-run J3 in scan mode once to see it.
+
+## Gate record (C2 guard + H1 harness, code)
+
+2026-09-26, worktree on master `0ae7107`. Code only: nothing live, no lane, main ST or `C:\dev\so-lanes` touched. `src` change is local to `src/services/stHost/persistence.ts`.
+
+### C2: late-bound save of ours refused whatever its rows
+
+- **Guard** (`switchRefusal`, `src/services/stHost/persistence.ts`): a chat save is held back when an armed save of ours (an observation armed with a chat id: `persist` via `observeNextSave`, `saveOpenChat`) was asked for chat X, the request names chat Y ≠ X, and Y is the chat ST has open at post time. That is the late-binding signature (`saveChatConditional` reads the open chat after its 100 ms poll). The row count no longer matters. It is recorded like the empty case: `report(...lost)`, so the save evidence reads `lost` and the next persist retries in the right chat. The empty-save rules are unchanged.
+- **ST's own saves are not blocked:** a save with no armed save of ours is sent (control), and a save of a chat that is NOT the open one (ST's `/branch-create` writes the branch file while the parent is open) is sent (existing control `a save of another chat that carries messages is sent`). Residual, by design: the watcher attributes the first chat save after an arm to us (the model since v2.3 plan 06). If ST's own save of the newly opened chat is the first request inside our ~100 ms window, it is held back, and our own late save, posted just after with the same open chat's state, goes out unarmed. No unit case can separate the two; the live re-run below is what measures it.
+- **Refusal ring for the recorder:** every refusal is pushed to `globalThis.storyOrchestratorSaveRefusals` (cap 50, monotonic `seq`: file, rows, integrity slug, `askedFor`, open chat, reason). `so-save-recorder.mts` drains it: when our watcher is outermost (the live case) the refusal becomes its own record (`source: 'watcher'`), ordered before the next event the recorder sees; when the watcher is inner, the recorder marks its own record `refused` instead of recording it twice. Refusals present before `arm` are not imported. `flagSaves` adds a `refused` flag.
+
+| Check | Result |
+|---|---|
+| Red first (ring exported, guard not yet built) | `npx jest src/services/stHost/saveWatcher.test.ts`: 4 failed, 18 passed (the two refusal cases hang on the posted request; the two controls failed on the leftover pending request, since fixed with `sentBy`, which answers what went out) |
+| Green | 22/22 in `saveWatcher.test.ts`, 24/24 with `persistence.test.ts` |
+| Mutant 1: row-count condition reinstated (`if (!target \|\| target.messages > 0) return null;`) | 2 failed, 20 passed: both refusal cases (`Expected: 0, Received: 1` requests sent); every control green. Restored |
+| Mutant 2: open-chat check dropped (refuse any other-chat save while armed) | 1 failed: `control: a save of another chat that carries messages is sent` (the branch-create shape). Restored |
+| Recorder | `node --test scripts/debug/so-save-recorder.test.mts`: 9/9 (3 new: watcher outermost drained from the ring and ordered, watcher inner marked not duplicated, pre-arm refusals not imported) |
+
+### H1 (S12 shape): cleanup restores the library snapshot
+
+- **Shape, both runners.** `so-scenario` (`cleanupScenario`) and `so-journey` (`runCleanup`) captured the library as a list of hashes and removed every hash the run *played*. An import under an id the install already had replaced that record (new hash), and cleanup then removed the replacement, so the id was gone (lane 2's `v24-01-delete-decode@1`). An edited re-import carried a hash cleanup never recorded, so it stayed behind (plan 11 L5). `so-journey` had the identical code path.
+- **Fix.** `scripts/debug/lib/librarySnapshot.mts`: `captureLibrary` copies the whole `v2Stories` list before the run (`{trusted, records}`); `restoreLibrary` plans with the pure `planLibraryRestore` (`lib/configRestore.mts`, keyed by story id, hash when there is none) and writes back exactly the snapshot: pre-existing records as they were, in their old order, and every record not in the snapshot removed. It saves through `saveSettingsNow`, reads the library back and reports `{changed, restored[], removed[], verified}`; a mismatch or a failed save is an `error`, which fails the journey's cleanup gate and the scenario run. An untrusted capture changes nothing (S6, unchanged). `removableStories` is gone; both runners share the new pair.
+- **Decision to note:** the restore is exact, so a story a **peer** session added to the same install during the run is removed too (reported by id in `library.removed`). `mergeRestore`'s S12 peer-keeping still applies to the config restore, but the library restore runs after it. Lanes make installs private, so this only matters on a shared main install.
+
+| Check | Result |
+|---|---|
+| `node --test scripts/debug/lib/configRestore.test.mts` | 10/10 (5 library cases: same-id restored, run-created and edited re-import removed, untouched library not rewritten, deleted pre-existing record comes back in place, untrusted capture changes nothing; the S6 title the findings ledger cites is kept) |
+| `node --test scripts/debug/lib/librarySnapshot.test.mts` (new) | 4/4 against a fake page: the live H1 shape end to end (restored + removed, one save, `settings` untouched), capture is a copy, untouched library writes nothing, untrusted capture restores nothing |
+| Mutant: restore keeps only the current records whose key existed before (the hash-era outcome) | 4 failed (both H1 cases, the in-place restore, the copy case), 10 passed. Restored |
+
+### Machine gates (both commits)
+
+`npm run typecheck` 0 errors · `npm run typecheck:test` 0 errors · `npm run lint` clean · `npm test` 282 suites passed (1 skipped), 4027 tests passed (1 skipped) · `npm run debug:typecheck` 0 errors · `npm run test:debug` 328 tests, 327 pass, 0 fail, 1 skipped (320 pass after the C2 commit). `test:debug` needs a built `dist/manifest.json` (`so-run-header.test.mts` reads it); a fresh worktree has none, so `npm run build` ran first (dist is untracked, nothing served).
+
+### Live re-run owed for C2 (not run here)
+
+The guard is not live-green. Re-run the plan-02 C2 recipe on a **lane**, with a new bundle, ×2 green:
+1. `npm run build`, `st-lanes seed 1 --fresh`, `st-session reload`, `so-run-header capture` (bundle ≠ `0f4332fac075`), `open-group 1759606632088`.
+2. The red fixture the attribution asked for: the solo chat **with messages** (the populated-solo case), not the empty one. `so-save-recorder.mts arm`, then `test/journeys/records/v2.5-plan02/C2/c2-attempt.js` with the setting write (`setUiSettings`) immediately before `/go`.
+3. Pass: the drain shows a `refused` record (`source: 'watcher'`, `askedFor` = the group chat, file = the solo chat, rows > 0); the solo chat's message rows on disk are unchanged before/after; the group chat's `saveHealth` reads `lost` and the next persist in the group chat lands (read-back boundary equal). Also assert no ST save of the solo chat was refused when the setting write is NOT made (control arm, ×2).
+4. Archive under `test/journeys/records/v2.5-plan02/C2-guard/`.

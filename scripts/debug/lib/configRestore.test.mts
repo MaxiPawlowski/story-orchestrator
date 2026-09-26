@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { blockingDialogFor, mergeRestore, removableStories, shouldRecoverConfig, validateJourneyExtraction } from './configRestore.mts';
+import { blockingDialogFor, mergeRestore, planLibraryRestore, shouldRecoverConfig, validateJourneyExtraction } from './configRestore.mts';
 
 test('a restore keeps a story and a wizard session another session created after the snapshot (S12)', () => {
   const snapshot = { settings: { cadence: 3 }, v2Stories: [{ id: 'mine' }], wizardSessions: [{ key: 'mine' }] };
@@ -17,14 +17,46 @@ test('a restore to "no config" stays a delete', () => {
   assert.equal(mergeRestore(null, { v2Stories: [{ id: 'x' }] }).next, null);
 });
 
-test('only stories this run introduced are removable, against a trusted capture', () => {
-  assert.deepEqual(removableStories(['a', 'b', 'b'], { trusted: true, hashes: ['a'] }), { remove: ['b'], kept: ['a'], untrusted: false });
-  assert.deepEqual(removableStories(['a'], ['a']), { remove: [], kept: ['a'], untrusted: false });
+const story = (id: string, version: number, hash: string) => ({ id, version, hash, raw: { id, version, title: id } });
+
+test('H1: a story that existed under the same id is put back exactly as it was, not deleted with the run\'s import', () => {
+  const mine = story('v24-01-delete-decode', 1, 'v2-original');
+  const before = { trusted: true, records: [story('other', 3, 'v2-other'), mine] };
+  const afterRun = [story('other', 3, 'v2-other'), story('v24-01-delete-decode', 1, 'v2-de4f955d')];
+  const plan = planLibraryRestore(before, afterRun);
+  assert.deepEqual(plan.next, before.records);
+  assert.deepEqual(plan.restored, ['v24-01-delete-decode@1 (v2-original)']);
+  assert.deepEqual(plan.removed, []);
+  assert.equal(plan.changed, true);
+  assert.notEqual(plan.next[1], mine, 'the plan writes copies, never the captured objects');
+});
+
+test('H1: a story the run created is removed, including an edited re-import the played hash no longer names (L5)', () => {
+  const before = { trusted: true, records: [story('other', 3, 'v2-other')] };
+  const afterRun = [story('other', 3, 'v2-other'), story('so-v25-fixture', 2, 'v2-edited')];
+  const plan = planLibraryRestore(before, afterRun);
+  assert.deepEqual(plan.next, before.records);
+  assert.deepEqual(plan.removed, ['so-v25-fixture@2 (v2-edited)']);
+  assert.deepEqual(plan.restored, []);
+});
+
+test('control: a library the run did not touch is not rewritten', () => {
+  const records = [story('a', 1, 'h-a'), story('b', 2, 'h-b')];
+  const plan = planLibraryRestore({ trusted: true, records }, structuredClone(records));
+  assert.deepEqual({ changed: plan.changed, removed: plan.removed, restored: plan.restored }, { changed: false, removed: [], restored: [] });
+});
+
+test('a pre-existing story the run deleted comes back, in its old place', () => {
+  const records = [story('a', 1, 'h-a'), story('b', 2, 'h-b')];
+  const plan = planLibraryRestore({ trusted: true, records }, [story('b', 2, 'h-b')]);
+  assert.deepEqual(plan.next, records);
+  assert.deepEqual(plan.restored, ['a@1 (h-a)']);
 });
 
 test('an untrusted or missing capture removes nothing, and keeps what it cannot account for (S6)', () => {
-  assert.deepEqual(removableStories(['a', 'b'], { trusted: false, hashes: [] }), { remove: [], kept: ['a', 'b'], untrusted: true });
-  assert.deepEqual(removableStories(['a'], null), { remove: [], kept: ['a'], untrusted: true });
+  const current = [story('a', 1, 'h-a')];
+  assert.deepEqual(planLibraryRestore({ trusted: false, records: [] }, current), { untrusted: true, next: current, removed: [], restored: [], changed: false });
+  assert.equal(planLibraryRestore(null, current).untrusted, true);
 });
 
 test('setup recovers a crashed run only from an unrestored snapshot over a cleared root (S7)', () => {
