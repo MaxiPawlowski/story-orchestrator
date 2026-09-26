@@ -4,6 +4,49 @@ Versions are the extension's own `package.json` version, which is also what `man
 settings panel report. A version is "accepted" only when an acceptance run says so; the per-plan Gate
 records under `docs/plans/` are the as-built truth, and this file is the summary a reader starts from.
 
+## 2.4.0
+
+Correct under the host as it really is (plans in `docs/plans/v2.4/`): SillyTavern and other extensions
+change chats in ways 2.3 did not model, so 2.4 closes that gap first. It adds no new autonomous agent.
+
+### Chats that change under the story
+- Hiding a message never rewinds the story; its facts stay and it leaves future reads. Editing, deleting
+  or swiping a message the story already used rolls back exactly what that message fed.
+- A branch opened from a story chat shows a **Continue from here** notice instead of silently taking the
+  parent's run.
+- A save asked for one chat can no longer land an empty copy in the chat you switched to; a save that
+  landed elsewhere is reported as not saved.
+- A chat whose story data this version cannot read is left untouched and offers a confirmed Restart.
+
+### Memory model calls
+- A backend outage pauses reads and resumes them on its own; the story no longer switches extraction off
+  install-wide. A misconfigured or deleted memory profile shows up as a Repair step.
+- Reads are cancelled on rollback, summaries of long scenes are chunked, and a stop control ends a long
+  memorize backlog.
+- Extension-owned and foreign messages are cleaned out of what the memory model reads.
+
+### World Info, steering and stagecraft
+- What World Info actually activated is observed each generation, and a forced pick that did not land
+  is flagged in author view.
+- A checkpoint preset is a per-request sampler setting on Text and Chat Completion; your saved preset
+  is never overwritten.
+- Checkpoints without their own author's note can carry the story objective (`objective_block`).
+- The lorebook curator refuses rewrites it was not shown and ambiguous titles.
+
+### Judge (optional, every use off by default)
+- Each call records its cost, and the settings panel says when a use was never measured on your model.
+- Authored `house_rules` and an agency check ride the continuity warden's note, in author view only.
+
+### Author view
+- The next-turn preview shows tokens and share of context; each memory row shows why it was or was not
+  injected.
+- Optional per-role memory-model profiles (read, synthesis, authoring, director, curator).
+
+### Acceptance status (2.4.0)
+**Not accepted.** Plan 09 ran on the frozen candidate and recorded `PARTIAL`; the post-freeze fixes were
+live-checked separately. `docs/plans/v2.4/09-acceptance.md` and `docs/release/2.4.0/attestation.json`
+are the record.
+
 ## 2.3.0
 
 The repo-review hardening release (plans in `docs/plans/v2.3/`). Machine gates green; the live gate is

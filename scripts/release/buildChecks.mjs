@@ -26,3 +26,19 @@ export const livereloadHits = (text) => (text.match(/livereload/gi) ?? []).lengt
 export const PROD_GLOBAL_ALLOWLIST = [];
 
 export const surfaceNames = (text) => [...new Set(text.match(/storyOrchestrator[A-Z]\w*/g) ?? [])].sort();
+
+export const changelogTopVersion = (text) => /^## +v?(\S+)/m.exec(text)?.[1] ?? null;
+
+export const versionIssues = ({ pkg, loader, build, changelog }) => [
+  ...(loader === pkg ? [] : [`manifest.json version ${loader} != package.json ${pkg}`]),
+  ...(build === undefined || build === pkg ? [] : [`dist/manifest.json extension.version ${build} != package.json ${pkg}`]),
+  ...(changelog === pkg ? [] : [`CHANGELOG.md top heading ${changelog} != package.json ${pkg}`]),
+];
+
+export const releaseMode = (env, tags) => env.npm_config_release === "true" || env.SO_RELEASE === "1" || tags.some((tag) => /^v\d/.test(tag));
+
+export const tagIssues = (tags, version) => {
+  if (tags.includes(`v${version}`)) return [];
+  const carried = tags.filter((tag) => /^v\d/.test(tag));
+  return [`release mode but HEAD carries no tag v${version}${carried.length ? ` (it carries ${carried.join(", ")})` : ""}`];
+};
