@@ -146,3 +146,105 @@ Records under `test/journeys/records/v2.5-plan02/`.
 
 ## Unresolved questions
 None for the user. C1 step 2 and C2 step 3 are decided by their own measurements.
+
+## Gate record (code items)
+
+2026-09-25/26, branch `worktree-agent-ad0b1efb273be242a` (from master `13b76f8`, master merged again at `180bf38` after plan 11
+completed). Code and deterministic proof only: nothing ran live, no lane, main ST or `C:\dev\so-lanes` was touched.
+
+### Done
+
+| Item | Commit | What | Proof |
+|---|---|---|---|
+| C10 | `28c71f7` | `StagecraftCoordinator.reconcileWriteAhead`, called from the manager's hydrate tail (and the run is asked again after it). A pending op is read by uid and settled by the pure `settleWriteAhead` (`src/stagecraft/writeAhead.ts`): holds `after` = **applied** (never re-applied, so a retried `patch` cannot fail on its own output), holds `before` = back to **accepted** (the next boundary writes it from a fresh read), neither = **externally-edited**, gone = **failed**. The marker now carries the apply's `messageId`, so a reconciled write still reverts on rollback | `stagecraftWriteAhead.test.ts` (10, red first: 9 failed, the control passed), `curatorWriteAheadHydrate.review.test.ts` (manager hydrate + control); mutants 6/6 killed, `test/findings/mutations/v25-02-c10-curator-write-ahead.txt`; census row `reconcileWriteAhead` checked |
+| C9 | `43d3845` | The NPC-reply probability roll is journaled before the reply: value, threshold, fired/skipped, reply key | `npcReplyRoll.test.ts` (red first: 2 failed; no-probability control) |
+| C3 | `1016040` | `LoreEvidence.hiddenRuns` keyed by chat | `worldInfoEvidence.test.ts` C3 case + same-chat control; mutants 2/2 killed (the first sweep's M2 survived and the test was strengthened) |
+| A6/A11 arms (review #27/#28) | `4162aff`, `212e8b2` | `storyOrchestratorDebugCallBudgetScale`, read only in `callTimeoutMs`, inert by default, at 1 and on junk. `so-timeout-arm.mts scale <base-run.log>` derives the uniform scale from a base run's measured passes: the whole-chat pass times out, every pass answers on its 2x retry, or it refuses. Fixtures `live-v25-05-memorize-timeout.json` (forced arm, `so-v25-a11-control` marker for the mutant) and `live-v25-05-breaker-slow.json` (an in-page delaying proxy for memory-model calls only, honouring the abort signal, `so-v25-a6-control` marker for the mutant). The base memorize fixture's last step checks the arm marker and is unchanged without it | `callBudgetScale.test.ts` (4, red first), `scripts/debug/lib/timeoutArm.test.mts` (7, including the archived v2.4 run3 log, which gives scale 0.495: whole pass 151 s against 127 s first and 254 s retry). Every eval syntax-checked (`new Function`) and schema-valid (`validateFixture`) |
+| C1 step 2 | `56e831e` | An llm NPC `/trigger` is stopped when its epoch is replaced while it streams, **only** if exactly one outermost generation opened since the trigger started (new T6 `openedCount`, published through `runtime/generationWatch.ts`) and ST still generates. New typed seam `stopHostGeneration` (`script.js:5607`, host-fact row added to v2 00 overview) | `npcTriggerStop.review.test.ts` (6, red first), including "no stop when another generation opened after the trigger's (the player's, in the new chat)"; mutants 5/5 killed (including deleting the "is ours" guard), `test/findings/mutations/v25-02-c1-trigger-stop.txt`; fault matrix `effects\|aborted` moved to **covered**; census row `EffectsApplier.speak` |
+| C2 step 1 | `21b3ca9` | `so-save-recorder.mts arm\|drain [--out]\|disarm`: every chat save (file, integrity, rows, what was open at post time, status, stack) and every context `saveMetadata` (stack, open chat). Drain flags `foreign-integrity` and `posted-elsewhere` | `so-save-recorder.test.mts` (6 against a fake page: the spike shape is flagged, and ordinary saves of two chats flag nothing) |
+| C7 | `f09469f` | Order fixture `live-v25-02-c7-note-order.json`: the transition note must come before the onEnter reply it announces. It is **expected red** on today's build. The change is rule-7 gated and was not built | syntax + schema checked |
+| C4 | `6da13de` | `03-H5` marked confirmed live on 1.19.0 (cites `v2.4/03:1000-1002`). `03-H18` stays open. `01-H10`/`01-H13` stay with V10 Q4 | docs |
+
+### Gates (last full run, on the merged tree)
+
+`npm run typecheck` ok · `npm run typecheck:test` ok · `npm run lint` ok · `npm test` 272 suites / 3922 tests pass ·
+`npm run debug:typecheck` ok · `npm run build` ok · `npm run test:debug` 307 pass / 0 fail (after the recorder: 308 tests,
+1 skipped). The ownership census, fault-matrix guard and architecture budgets are green: manager 740/740, stagecraft coordinator
+616/620. Every item ran typecheck, typecheck:test, lint and full jest before its commit, and the script items also ran
+debug:typecheck and test:debug. `test:release` was not run: no release tooling changed.
+
+### C2: static diagnosis (ST `7c3994196`), no guard built
+
+**The window.** `/go <character>` → `goToCharacterCallback` → `openChat(chid)` (`slash-commands.js:5110-5115`) runs
+`resetSelectedGroup()` (`selected_group = null`, `group-chats.js:611-614`) and `setCharacterId(chid)` synchronously. It then
+waits on `await delay(1)` and the `reloadChatMutex`, and only then calls `clearChat({clearData:true})`. That function awaits
+`saveItemizedPrompts` (`script.js:1600`) before `chat.length = 0` (`:1603`). Unlike `selectCharacterById` (`:900`),
+`openChat` never resets `chat_metadata`. The group's metadata survives until `getChat` assigns the solo file's header
+(`:7656`). `/go` also has no `isChatSaving` / `is_send_press` / `is_group_generating` guard, which `selectCharacterById`
+(`:880-891`) and `openGroupById` (`group-chats.js:2029`) both have.
+
+Any `saveChatConditional` that runs in that window takes the solo branch (`selected_group` is null) and calls `saveChat()`
+(`script.js:7395`). That call builds `file_name = characters[this_chid].chat` (the solo chat) and `chat_metadata` (still the
+group's, **with the group's integrity**). Its body is:
+- **W1**, before `clearChat` empties `chat`: the group's messages, a **non-empty** save. Our `switchRefusal` lets it through
+  (`persistence.ts:92-96` is empty-only).
+- **W2**, after it: an empty save carrying the group's integrity. Our watcher refuses it only when a save of ours was armed
+  for another chat.
+
+The server compares the header integrity with the target file's (`src/endpoints/chats.js:536`). A mismatch gives the
+integrity popup, which is what spike run A recorded. A solo file with no integrity yet would be **overwritten** with the
+group's rows.
+
+**Candidate callers** (unproven, which is why nothing is guarded):
+1. Our `persist` → `saveMetadata` → `saveChatConditional`. It is asked before `/go` and sits in the ≥ 100 ms
+   `waitUntilCondition` poll (`utils.js:1934`), which spans the window. This is the same late-binding shape as the v2.4
+   J10.14 finding.
+2. ST's own `saveChatConditional` from another path. `cancelDebouncedChatSave` runs only inside `clearChat`, after W1.
+
+The resurrected deleted sandbox chat (`v2.4/05:412-413`) is a separate shape: the group-save debounce, gotcha V18.
+
+**Reproduction recipe** (plan step 2, lane only, 10 predeclared attempts):
+1. Seed and start a lane. Use a group chat whose story persists (any sandbox with an imported story), plus a solo character
+   whose chat file already has an integrity.
+2. Run `node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-save-recorder.mts arm`.
+3. Per attempt, from an eval with the harness waits **removed**: trigger a persist (`rt.setUiSettings({})` or `/cp set` on a
+   quality), then **at once** `await ctx.executeSlashCommandsWithOptions('/go <solo character>')`, then go back to the group
+   (`openGroupById`), and repeat.
+4. After each attempt, run `node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-save-recorder.mts drain --out test/journeys/records/v2.5-plan02/C2/attempt-<k>.jsonl`.
+   A `foreign-integrity` flag is a reproduction. Its `stack`, plus whether a `saveMetadata` ask precedes it
+   (`posted-elsewhere`), attributes it: an ask of ours means the caller is ours, no ask means ST's own save.
+5. If the caller is ours, the guard extends `switchRefusal` to refuse a chat save whose integrity is not the target chat's
+   (keep a per-file integrity map from saves and loads) on the `lost` path. If it is ST's, record the host fact and stop.
+   Either way, a popup or a lane wedge is a hard stop: run `taskkill` on the lane's Chrome, then `st-session start`.
+
+### Live pending (nothing below has run)
+
+Group `1759606632088` is the lane group the v2.4 fixtures use. Re-check it exists on the lane first.
+
+| Item | Fixture / tool | Command | Pass |
+|---|---|---|---|
+| A11 forced arm | base: `test/scenarios/live-v24-03-memorize.json`; arm: `test/scenarios/live-v25-05-memorize-timeout.json` | (1) `node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-scenario.mts run test/scenarios/live-v24-03-memorize.json --sandbox --group 1759606632088 > base.log`; (2) `node scripts/debug/so-timeout-arm.mts scale base.log`; (3) `node scripts/debug/st-lanes.mts run <n> -- scripts/debug/st-eval.mts "localStorage.setItem('so-v25-a11-scale','<scale>')"`; (4) `node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict --group 1759606632088 test/scenarios/live-v25-05-memorize-timeout.json` | ×2 green. Control once on a build with `TIMEOUT_RETRY_SCALE = 1`: set `so-v25-a11-control` to `1`, run the arm once, and the fixture passes only if the backlog fails on its budget. Clear both keys afterwards |
+| A6 slow arm | `test/scenarios/live-v25-05-breaker-slow.json` | `node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict --group 1759606632088 test/scenarios/live-v25-05-breaker-slow.json`. Delay defaults to 12 s; override with `localStorage so-v25-a6-delay-ms` | ×2 green; answer latency > 10 s recorded. Control once on a build where `probeTimeoutMs` returns a fixed 10000, with `so-v25-a6-control` set to `1` |
+| C1 step 0 + step 2 | a checkpoint with an onEnter llm reply (`test/scenarios/plan03a-llm-npc-reply.json` shape); record with `so-save-recorder` + `st-payload arm` | switch chats (`/go`) while the reply streams, ×2 on a lane, and record where the reply lands, whether `/trigger await=true` resolves on stop, and whether `GENERATION_STOPPED` reaches the T6 tracker | the host facts owed by C1. If no reply ever lands in the next chat, step 2 stays dormant rather than proven |
+| C2 steps 2–3 | `scripts/debug/so-save-recorder.mts` | recipe above, 10 attempts | attribution with stack; a guard only then, ×2 |
+| C7 | `test/scenarios/live-v25-02-c7-note-order.json` | `node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --group 1759606632088 test/scenarios/live-v25-02-c7-note-order.json` | **expected red** until the rule-7 change; record noteIndex vs replyIndex |
+| C10 | deterministic only | none owed. A live crash-between-writes is not practical | done |
+| C8 | `test/scenarios/v24-acc-A-*.json` + journey rows | as the plan's C8 row, archived under `test/journeys/records/v2.5-plan02/postfreeze/` | ×2 |
+
+### Deviations
+
+- **C1 step 2 was built ahead of its step 0 measurement.** The coordinator asked for it, and the plan says "only if step 0
+  shows a reply landing". The guard is the narrowest one the T6 tracker allows: the tracker closes its outermost on
+  `CHAT_CHANGED`, so "still open" cannot be read after a switch. It uses the new `openedCount` (exactly one outermost since
+  the trigger) together with ST's generating flag. If step 0 shows ST never lets the reply land in the next chat, the stop is
+  dormant code and should be removed rather than kept. The fault-matrix cell is `covered` on the deterministic tests, and its
+  note says the live half is owed.
+- **C10 "reverted" reads as "back to accepted".** An unlanded write returns to `accepted` so the next boundary writes it,
+  rather than taking a new status.
+- **Budgets.** The stagecraft coordinator moved from 594 to 616 of 620 effective lines. The logic went into the pure
+  `writeAhead.ts` to stay under budget, but plans 03 and 08 quoted 601 as their headroom. The manager stayed at 740/740 by
+  renaming one delegate's parameter (`shouldCompactShortTerm(messageId)`). That shortens a line without packing it.
+- **`storyOrchestratorDebugCallBudgetScale` ships in the bundle** (inert by default) until plan 12's dev/prod split moves
+  debug globals to dev builds (V11).
+- **C5 and C11–C13 were not taken.** Their condition, a v2.4 plan 09 deferral with a user sign-off, is not recorded.
+- **C6 and C8 are live only.**
