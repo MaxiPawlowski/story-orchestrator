@@ -24,6 +24,7 @@ import { samplerOverlay } from "./samplerOverlay";
 import type { WriteResult } from "@utils/writeResult";
 import { renderBlackboardMemo } from "./blackboardMemo";
 import { appendRow, pendingRow, restorePlan, rowsAfter, setStatus, type EffectWrite } from "./effectLedger";
+import { effectExtensions, type EffectExtension, type EffectExtensionInput } from "./effectExtensions";
 import type { EffectLedgerRow, EffectTarget, RuntimeExtras, RuntimeSnapshot } from "./types";
 import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoGates";
 import { worldInfoFilesHeld } from "./worldInfoMode";
@@ -52,7 +53,8 @@ export const rollbackCastMirror = (mirror: Array<{ member: string; disabled: boo
 
 // The targets a restore can put back. a preset is a per-request sampler overlay
 // that writes nothing to the host, so it has nothing to restore and is not "left in place" either.
-const RESTORABLE = new Set<EffectTarget["kind"]>(["cast", "an", "background"]);
+const RESTORABLE = new Set<EffectTarget["kind"]>(["cast", "an", "background", "extension"]);
+const CHAT_SCOPED = new Set<EffectTarget["kind"]>(["an", "extension"]);
 const NOTHING_TO_RESTORE = new Set<EffectTarget["kind"]>(["preset"]);
 
 export const OVERLAY_UNSUPPORTED_REASON = "a checkpoint preset applies on Text Completion and Chat Completion connections only; this connection uses another API";
@@ -281,12 +283,30 @@ export class EffectsApplier {
         () => applyBackground(name),
       );
     }
+    for (const extension of effectExtensions()) {
+      if (!run.stillOwns()) return;
+      await this.applyExtension(extension, { story, checkpoint, path, ledger: extras.effects.ledger, mode }, extras, scope);
+    }
     if (!run.stillOwns()) return;
     if (mode === "activate") await this.fireNpcReplies(checkpoint, extras, "onEnter");
     if (!run.stillOwns()) return;
     this.appliedChat = openChatId();
     extras.lastAppliedCheckpointId = checkpoint.id;
     extras.updatedAt = new Date().toISOString();
+  }
+
+  private async applyExtension(extension: EffectExtension, input: EffectExtensionInput, extras: RuntimeExtras, scope: { checkpointId: string | null; boundary: number; messageId: number }) {
+    const { step, notes } = extension.plan(input);
+    for (const note of notes) this.deps.journal?.(note.summary, note.detail);
+    if (!step) return;
+    const write = { ...scope, effect: step.effect, target: { kind: "extension" as const, name: extension.name }, before: step.before, after: step.after };
+    if (step.found !== undefined) {
+      const row = pendingRow({ ...write, at: new Date().toISOString() });
+      extras.effects.ledger = appendRow(extras.effects.ledger, { ...row, status: "externally-changed", found: step.found });
+      this.deps.journal?.(`${step.effect} effect was not applied`, "the chat holds a value this story did not write, so it was left alone");
+      return;
+    }
+    await this.withLedger(extras, write, step.write);
   }
 
   // A checkpoint preset is a sampler overlay on this checkpoint's loud requests. It
@@ -352,7 +372,7 @@ export class EffectsApplier {
   async restoreFor(extras: RuntimeExtras, scope: RestoreScope): Promise<{ reverted: number; refused: number }> {
     const left = this.appliedChat !== null && this.appliedChat !== openChatId();
     if (scope === "leave" && !left) return { reverted: 0, refused: 0 };
-    const chatScoped = (row: EffectLedgerRow) => row.target.kind === "an";
+    const chatScoped = (row: EffectLedgerRow) => CHAT_SCOPED.has(row.target.kind);
     const since = typeof scope === "object" ? new Set(rowsAfter(extras.effects.ledger, scope.since).map((row) => row.id)) : null;
     const rows = extras.effects.ledger.filter((row) => (since ? since.has(row.id) : true) && !(left && chatScoped(row)));
     const outcome = await this.restoreEffects(extras, rows, !left);

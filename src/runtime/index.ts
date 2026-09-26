@@ -54,6 +54,7 @@ const registerHostSurfaces = () => {
     log.warn("host macros unavailable; {{story_*}} will not resolve", error);
   }
   if (__SO_DEV__) void import("./liveSuite").then(({ registerLiveSuite }) => { if (started) registerLiveSuite(runtimeManager); });
+  if (__SO_DEV__) void import("./spikes/sp5ScenarioHost").then(({ registerScenarioSpike }) => { if (started) runtimeDisposers.push(registerScenarioSpike()); });
   window.setTimeout(() => registerSlashCommandsWhenReady(), 0);
   window.setTimeout(() => registerSlashCommandsWhenReady(), 1000);
 };

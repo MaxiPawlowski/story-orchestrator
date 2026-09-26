@@ -53,6 +53,8 @@ src/
     memoryInjector.ts        # v2.3 V26: memory stores -> ST prompt slots + the staged per-member private blocks (MemoryCoordinator delegates)
     memoryQueue.ts           # v2.3 plan 05: the reconciliation queue (source-window re-read, dismiss, atomic Lock as canon)
     effectLedger.ts          # v2.3 plan 06 (pure): the owned-effect ledger — write-ahead pending row, reconcile on hydrate, compare-and-set restore
+    effectExtensions.ts      # v2.5 plan 09: registry of extra checkpoint effects (target kind `extension`, restorable, chat-scoped); empty in prod
+    spikes/                  # v2.5 plan 09 spike modules, __SO_DEV__ dynamic import only, each behind settings root `spikes.<id>` (default off), on the D3 dev-only list: sp5Scenario(+Host) = SP5 story-owned scenario (`effects.scenario` -> chat_metadata.scenario)
     faultMatrix.guard.test.ts # v2.3 plan 11: the fault-matrix census guard (see Invariants)
     storyUpdate.ts           # v2.1 plan 05: library -> running chat (diff, choice popup, swap, re-pin, journal record)
     storySelection.ts        # v2.1 plan 07: which story this chat plays — import/select/restart/remove against the library + pinned copy

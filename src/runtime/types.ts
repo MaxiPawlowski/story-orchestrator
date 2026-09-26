@@ -179,7 +179,8 @@ export type EffectTarget =
   | { kind: "wi"; book: string; uid: number | null; entry: string }
   | { kind: "an" }
   | { kind: "background" }
-  | { kind: "preset"; name: string; api: string };
+  | { kind: "preset"; name: string; api: string }
+  | { kind: "extension"; name: string };
 
 export interface EffectLedgerRow {
   id: string;

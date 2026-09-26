@@ -8,11 +8,13 @@ const DEV_ONLY = [
   "src/stagecraft/createCandidate.ts",
   "src/judge/calibration.ts",
   "src/judge/selfTestCases.ts",
+  "src/services/stHost/chatScenario.ts",
 ];
 const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
+const SPIKE_PATTERN = /^src\/runtime\/spikes\//;
 const LAZY_USER_FEATURES = ["src/judge/selfTest.ts", "src/runtime/selfTest.ts", "src/runtime/roleSelfTest.ts", "src/extraction/fixtureRun.ts"];
 
-const isDevOnly = (path: string) => DEV_ONLY.includes(path) || DEV_ONLY_PATTERN.test(path);
+const isDevOnly = (path: string) => DEV_ONLY.includes(path) || DEV_ONLY_PATTERN.test(path) || SPIKE_PATTERN.test(path);
 const ENTRY = join(SRC, "index.tsx");
 
 const staticReach = (files: string[], read?: (path: string) => string) =>
@@ -33,6 +35,14 @@ describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", 
     const present = new Set(files.map(rel));
     expect(DEV_ONLY.filter((path) => !present.has(path))).toEqual([]);
     expect(files.map(rel).filter((path) => DEV_ONLY_PATTERN.test(path)).length).toBeGreaterThanOrEqual(6);
+    expect(files.map(rel).filter((path) => SPIKE_PATTERN.test(path))).toEqual(expect.arrayContaining(["src/runtime/spikes/sp5Scenario.ts", "src/runtime/spikes/sp5ScenarioHost.ts"]));
+  });
+
+  it("control: a planted static import of a plan-09 spike module from the entry fails", () => {
+    const planted = join(SRC, "index.tsx");
+    const fs = require("fs") as typeof import("fs");
+    const read = (path: string) => (path === planted ? `${fs.readFileSync(path, "utf8")}\nimport { registerScenarioSpike } from "./runtime/spikes/sp5ScenarioHost";\nregisterScenarioSpike();\n` : fs.readFileSync(path, "utf8"));
+    expect(staticReach(files, read).filter(isDevOnly)).toEqual(expect.arrayContaining(["src/runtime/spikes/sp5ScenarioHost.ts", "src/runtime/spikes/sp5Scenario.ts", "src/services/stHost/chatScenario.ts"]));
   });
 
   it("control: a planted static import of the live suite from the entry fails", () => {

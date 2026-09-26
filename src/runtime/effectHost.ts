@@ -1,5 +1,6 @@
 import { applyBackground, applyCharacterAN, clearCharacterAN, getCurrentBackground, setGroupMemberDisabled, readGroupMemberDisabled } from "@services/STAPI";
 import { reconcileLedger } from "./effectLedger";
+import { effectExtension } from "./effectExtensions";
 import { samplerOverlay } from "./samplerOverlay";
 import type { EffectLedgerRow, EffectTarget } from "./types";
 
@@ -35,6 +36,8 @@ export function readEffectTarget(target: EffectTarget): Record<string, unknown> 
     // by the stagecraft revert, which has compare-and-set of its own. Nothing here reads one.
     case "wi":
       return null;
+    case "extension":
+      return effectExtension(target.name)?.read() ?? null;
   }
 }
 
@@ -77,5 +80,9 @@ export async function restoreEffectTarget(row: EffectLedgerRow): Promise<boolean
     case "preset":
     case "wi":
       return false;
+    case "extension": {
+      const extension = effectExtension(row.target.name);
+      return extension ? extension.restore(row.before) : false;
+    }
   }
 }
