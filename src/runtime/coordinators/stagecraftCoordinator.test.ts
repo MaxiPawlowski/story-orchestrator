@@ -7,8 +7,6 @@ import type { ExtractionRuntimeSettings, RuntimeExtras, StagecraftRuntimeState }
 
 const mockChat: Array<Record<string, unknown>> = [];
 
-jest.mock("@services/STAPI", () => ({ settingsAreLoaded: () => true, settingsReady: async () => {} }));
-
 const host = {
   setStoryExtensionPrompt: jest.fn(),
   clearStoryExtensionPrompt: jest.fn(),

@@ -1,4 +1,5 @@
-import { testModel } from "../../../test/support/modelCallHost";
+import { fakeHosts } from "../../../test/support/fakeHosts";
+import { sendModel } from "../../../test/support/modelCall";
 // v2.4 plan 03 D5 wiring (wave 2). The budget modules were pure and unwired; this pins that every
 // pass that sends the transcript to the memory model now sends a bounded request, through the real
 // shared read and the real client, with only the host seam faked.
@@ -10,7 +11,7 @@ const host = {
   hold: null as null | ((signal: AbortSignal | undefined, prompt: string) => Promise<unknown>),
 };
 
-jest.mock("@services/STAPI", () => ({
+const stapi = {
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
@@ -22,7 +23,7 @@ jest.mock("@services/STAPI", () => ({
     if (host.hold) return host.hold(options.signal, prompt);
     return { ok: true, ...host.reply(prompt) };
   },
-}));
+};
 
 import { ExtractionCoordinator } from "./extractionCoordinator";
 import { estimateTokens } from "@extraction/callBudget";
@@ -30,8 +31,7 @@ import { createTokenMeter } from "@extraction/tokenMeter";
 import { inputBudget } from "@extraction/inputBudget";
 import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
 import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
-import { finding, must } from "../../../test/findings/ledger";
-import { coordinatorHosts } from "../coordinatorHosts";
+import { finding, must } from "../../../test/findings/ledger";
 
 const story = parseStoryV2OrThrow({
   format: 2,
@@ -82,11 +82,11 @@ function harness(options: { lastSceneEnd?: number; shortTermEnd?: number; limit?
     replaceShortTerm: async (entry: { text: string }, window: { from: number; to: number }) => { shortTerms.push({ text: entry.text, window }); },
   };
   const extraction = { audits: [] as Audit[], reconciliationEvents: [], judgedReads: [] };
-  const coordinator = new ExtractionCoordinator({ hosts: coordinatorHosts,
+  const coordinator = new ExtractionCoordinator({ hosts: fakeHosts(stapi),
     getStory: () => story,
     getState: () => ({ ...engine.serialize(), lastMessageId: host.chat.length - 1 }),
     getExtraction: () => extraction,
-    model: testModel("p1"),
+    model: sendModel(stapi.sendConnectionProfileRequest as never, "p1"),
     requestBudget: () => ({ contextLimit: { value: options.limit ?? LIMIT, source: "preset" }, meter: createTokenMeter(options.countAsync) }),
     memory,
     getFiredTransitions: () => [],

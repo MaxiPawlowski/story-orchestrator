@@ -12,7 +12,7 @@
 // Owner: plan 06. v2.3 plan 01 §A writes the reproduction; plan 06 flips the row.
 
 import { createExtras, hydrateExtras } from "@runtime/extras";
-import { defaultExtractionSettings } from "@runtime/settingsStore";
+import { defaultExtractionSettings, getGlobalSettings } from "@runtime/settingsStore";
 import { control, finding, must } from "../../test/findings/ledger";
 
 jest.mock("@services/STAPI", () => ({
@@ -36,7 +36,7 @@ jest.mock("@services/STAPI", () => ({
 const storedProfile = "artemis-memory";
 
 control("a chat that hydrates a story sees the install-wide extraction settings", () => {
-  const extras = hydrateExtras(undefined);
+  const extras = hydrateExtras(undefined, getGlobalSettings);
   expect(extras.extraction.settings.profileId).toBe(storedProfile);
   expect(extras.extraction.settings.cadence).toBe(7);
 });
@@ -47,7 +47,7 @@ control("the shipped defaults do not name a profile", () => {
 
 finding("F2", () => {
   // The storyless path: no persisted blob, so `createExtras()` is what the snapshot is built from.
-  const extras = createExtras();
+  const extras = createExtras(getGlobalSettings);
   must(
     extras.extraction.settings.profileId === storedProfile,
     `on a chat with no story the settings view reports profileId=${JSON.stringify(extras.extraction.settings.profileId)} and cadence=${extras.extraction.settings.cadence}, while the install holds ${JSON.stringify(storedProfile)} and cadence 7 — createExtras() fills settings from the defaults and never applies the install-wide settings, so the panel cannot tell "not configured" from "not loaded yet"`,

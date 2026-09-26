@@ -1,4 +1,5 @@
-import { testModel } from "../../../test/support/modelCallHost";
+import { fakeHosts } from "../../../test/support/fakeHosts";
+import { plantedModel } from "../../../test/support/modelCall";
 // v2.3 plan 05 — found by running J5 twice: the first run passed, the second failed.
 //
 // `applyEpistemic` and `applyLedger` wrote their store through `patch()` alone, so the injected
@@ -13,7 +14,7 @@ import { testModel } from "../../../test/support/modelCallHost";
 import { MemoryCoordinator } from "./memoryCoordinator";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
 
-jest.mock("@services/STAPI", () => ({
+const stapi = {
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
@@ -29,10 +30,9 @@ jest.mock("@services/STAPI", () => ({
   disableWIEntry: async () => ({ ok: true, changed: true }),
   setStoryExtensionPrompt: jest.fn(),
   clearStoryExtensionPrompt: jest.fn(),
-}));
+};
 
-import { setStoryExtensionPrompt } from "@services/STAPI";
-import { coordinatorHosts } from "../coordinatorHosts";
+const { setStoryExtensionPrompt } = stapi;
 
 const SECRET = "the job comes from the Duke's steward";
 
@@ -66,12 +66,12 @@ function harness() {
     canon: null,
     updatedAt: "",
   };
-  const coordinator = new MemoryCoordinator({ hosts: coordinatorHosts,
+  const coordinator = new MemoryCoordinator({ hosts: fakeHosts(stapi),
     getStory: () => story,
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5, blackboard: { values: {}, versions: {} } }),
     getMemory: () => memoryState,
     setMemory: (next: typeof memoryState) => { memoryState = next; },
-    model: testModel("p1"),
+    model: plantedModel,
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
     enqueueExtractorDeltas: () => {},

@@ -10,8 +10,6 @@ import type { WardenCheckInput } from "@stagecraft/index";
 import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
 import { control, finding, must } from "../../../test/findings/ledger";
 
-jest.mock("@services/STAPI", () => ({ settingsAreLoaded: () => true, settingsReady: async () => {} }));
-
 const host = {
   loadLorebook: jest.fn(),
   upsertWIEntry: jest.fn(),

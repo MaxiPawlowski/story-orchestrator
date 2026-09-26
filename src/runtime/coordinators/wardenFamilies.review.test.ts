@@ -1,4 +1,4 @@
-import { testModel } from "../../../test/support/modelCallHost";
+import { plantedModel } from "../../../test/support/modelCall";
 import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { defaultJudgeSettings, type JudgeRequest, type JudgeSettings } from "@judge/index";
 import { composeWardenNote, type WardenCheckFinding, type WardenCheckInput, type WardenNoteOp } from "@stagecraft/index";
@@ -11,7 +11,7 @@ import { testOwnership } from "../../../test/findings/testOwnership";
 
 const mockChat: Array<Record<string, unknown>> = [];
 
-jest.mock("@services/STAPI", () => ({ settingsAreLoaded: () => true, settingsReady: async () => {} }));
+const stapi = { settingsAreLoaded: () => true, settingsReady: async () => {} };
 
 const host = {
   setStoryExtensionPrompt: jest.fn(),
@@ -59,7 +59,7 @@ const harness = (options: { continuity?: boolean; mode?: "auto" | "review" | "of
     getState: () => engineState,
     getStagecraft: () => state,
     setStagecraft: (next) => { state = next; },
-    model: testModel("p"),
+    model: plantedModel,
     getCanon: () => "",
     getOpenArcs: () => [],
     warden: {

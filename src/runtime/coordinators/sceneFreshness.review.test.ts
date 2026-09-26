@@ -14,11 +14,11 @@ import { parseStoryV2OrThrow } from "@engine/index";
 import { control, finding, must } from "../../../test/findings/ledger";
 import { testOwnership } from "../../../test/findings/testOwnership";
 
-jest.mock("@services/STAPI", () => ({
+const stapi = {
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readServerBoundary: async () => null, getContext: () => ({ chat: [], extensionSettings: {} }) }));
+  readServerBoundary: async () => null, getContext: () => ({ chat: [], extensionSettings: {} }) };
 
 const story = () => parseStoryV2OrThrow({
   format: 2,

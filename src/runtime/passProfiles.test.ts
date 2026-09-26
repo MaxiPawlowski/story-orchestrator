@@ -55,7 +55,6 @@ const CALL_SITE_ROLES: Record<string, string[]> = {
   "runtime/coordinators/stagecraftCoordinator.ts": ["curator"],
   "runtime/index.ts": ["director"],
   "runtime/liveSuite.ts": ["read", "curator"],
-  "runtime/modelCall.ts": [],
   "runtime/roleCalibration.ts": ["authoring", "curator", "director", "synthesis"],
   "runtime/roleSelfTest.ts": ["authoring", "curator", "director", "synthesis"],
   "runtime/selfTest.ts": ["read"],

@@ -96,6 +96,11 @@ export const measureS6 = (scan: Scan): string[] => {
   return scan.files.filter(isCoordinator).flatMap((path) => H.hostReach(graph, path, isHost).map((hop) => `${H.rel(path)} -> ${hop}`)).sort();
 };
 
+const STAPI_MOCK = /jest\.mock\(\s*["']@services\/STAPI["']/;
+
+export const measureS6t = (scan: Scan): string[] =>
+  scan.tests.filter((path) => /^src\/runtime\/coordinators\//.test(H.rel(path)) && STAPI_MOCK.test(scan.read(path))).map(H.rel).sort();
+
 export const measureS7 = (scan: Scan): string[][] => H.stronglyConnected(H.buildGraph(scan.files, { includeDynamic: false }, scan.read));
 
 export const measureQ3t = (scan: Scan): string[] => {

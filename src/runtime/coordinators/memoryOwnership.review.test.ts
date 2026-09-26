@@ -1,4 +1,5 @@
-import { testModel } from "../../../test/support/modelCallHost";
+import { fakeHosts } from "../../../test/support/fakeHosts";
+import { sendModel } from "../../../test/support/modelCall";
 // v2.3 plan 03: the two memory passes that synthesise from memory rather than from the transcript.
 //
 // `runArcSummaryPass` is the shape that decided the guard's design: one await and one write PER
@@ -14,10 +15,9 @@ import { MemoryCoordinator } from "./memoryCoordinator";
 import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
 import { provenance } from "@memory/index";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
-import { control } from "../../../test/findings/ledger";
-import { coordinatorHosts } from "../coordinatorHosts";
+import { control } from "../../../test/findings/ledger";
 
-jest.mock("@services/STAPI", () => ({
+const stapi = {
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
@@ -34,7 +34,7 @@ jest.mock("@services/STAPI", () => ({
   disableWIEntry: async () => ({ ok: true, changed: true }),
   setStoryExtensionPrompt: () => {},
   clearStoryExtensionPrompt: () => {},
-}));
+};
 
 // The tier writes count tokens through the host tokenizer before they write, so this is the await a
 // test moves the world across. Same shape as modelGate for the same reason: a hook on the Nth call
@@ -100,12 +100,12 @@ function harness(arcCount: number, presummarised = 0) {
     updatedAt: "",
   };
 
-  const coordinator = new MemoryCoordinator({ hosts: coordinatorHosts,
+  const coordinator = new MemoryCoordinator({ hosts: fakeHosts(stapi),
     getStory: () => ({ title: "S", checkpointById: {}, qualityByKey: {}, roster: [], arc_bridges: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5, blackboard: { values: {}, versions: {}, latched: {} } }),
     getMemory: () => memoryState,
     setMemory: (next: typeof memoryState) => { memoryState = next; },
-    model: testModel("p1"),
+    model: sendModel(stapi.sendConnectionProfileRequest as never, "p1"),
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
     enqueueExtractorDeltas: () => {},
@@ -339,12 +339,12 @@ function consolidationHarness(groupSize: number) {
     updatedAt: "",
   };
   const patches: string[] = [];
-  const coordinator = new MemoryCoordinator({ hosts: coordinatorHosts,
+  const coordinator = new MemoryCoordinator({ hosts: fakeHosts(stapi),
     getStory: () => ({ title: "S", checkpointById: {}, qualityByKey: {}, roster: [], arc_bridges: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5 }),
     getMemory: () => memoryState,
     setMemory: (next: typeof memoryState) => { patches.push("patch"); memoryState = next; },
-    model: testModel("p1"),
+    model: sendModel(stapi.sendConnectionProfileRequest as never, "p1"),
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
     enqueueExtractorDeltas: () => {},
@@ -422,12 +422,12 @@ describe("V3: a supersession bridge enqueues only into the story it read for", (
     const story = bridgeStory();
     const engine = new StoryEngine();
     engine.loadStory(story);
-    const coordinator = new MemoryCoordinator({ hosts: coordinatorHosts,
+    const coordinator = new MemoryCoordinator({ hosts: fakeHosts(stapi),
       getStory: () => story,
       getState: () => engine.serialize(),
       getMemory: () => ({ entries: [], settings: { enabled: true } }),
       setMemory: () => {},
-      model: testModel("p1"),
+      model: sendModel(stapi.sendConnectionProfileRequest as never, "p1"),
       getFiredTransitions: () => [],
       getExpansionGateSources: () => [],
       enqueueExtractorDeltas: (deltas: unknown[]) => { enqueued.push(...deltas); },
@@ -462,13 +462,13 @@ describe("V11: the ledger cap is told where the history floor is", () => {
     const at = (id: string, entity: string, messageId: number) => ({ id, entity, entityType: "character", field: "location", value: `${entity}${messageId}`, messageId, boundary: messageId, createdAt: messageId, provenance: { source: "extractor", messageId, boundary: messageId, pass: "ledger", validity: "live" } });
     const filler = Array.from({ length: 236 }, (_, index) => at(`f${index}`, "F", 100 + index));
     let memory = { entries: [], arcs: [], epistemic: [], conflicts: [], resolvedConflicts: [], excluded: [], derived: [], writeLog: [], verifyDrops: [], canon: null, settings: { enabled: true, tierTokenBudgets: { facts: 400, session: 400, short_term: 400, scene_history: 400 } }, ledger: [at("a1", "A", 1), at("b2", "B", 2), at("b3", "B", 3), at("a8", "A", 8), ...filler] } as never as { ledger: Array<{ id: string }> };
-    const coordinator = new MemoryCoordinator({ hosts: coordinatorHosts,
+    const coordinator = new MemoryCoordinator({ hosts: fakeHosts(stapi),
       getStory: () => ({ title: "S", checkpointById: {}, qualityByKey: {}, roster: [], ledger_bindings: [] }),
       getState: () => ({ activeCheckpointId: "cp1", boundary: 400, lastMessageId: 400, blackboard: { values: {}, versions: {}, latched: {} } }),
       historyFloor: () => 5,
       getMemory: () => memory,
       setMemory: (next: typeof memory) => { memory = next; },
-      model: testModel("p1"),
+      model: sendModel(stapi.sendConnectionProfileRequest as never, "p1"),
       getFiredTransitions: () => [],
       getExpansionGateSources: () => [],
       enqueueExtractorDeltas: () => {},

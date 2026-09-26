@@ -1,5 +1,7 @@
 import { profileRoute, type ExtractionReply, type ModelAsk, type ModelCall, type ModelRoute } from "../../src/extraction/modelRoute";
 import { stripReasoningBlocks } from "../../src/extraction/parse";
+import { replyVia, type ModelTransport } from "../../src/extraction/reply";
+import { createModelCallVia } from "../../src/runtime/modelCallCore";
 
 export const plantedModel: ModelCall = async (_prompt, ask) => {
   if (ask.debugResponse === undefined || ask.debugResponse === null) throw new Error(`no planted reply for the ${ask.pass} pass`);
@@ -29,3 +31,6 @@ export const recordingModel = (answer: (prompt: string, ask: ModelAsk) => string
   };
   return Object.assign(model, { calls });
 };
+
+export const sendModel = (send: ModelTransport, profileId: string | null = "p1"): ModelCall =>
+  createModelCallVia(replyVia(send), { settings: () => ({ profileId }), exists: () => true });

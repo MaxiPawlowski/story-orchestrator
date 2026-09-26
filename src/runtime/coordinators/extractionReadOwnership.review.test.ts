@@ -1,12 +1,12 @@
-import { testModel } from "../../../test/support/modelCallHost";
-jest.mock("@services/STAPI", () => ({
+import { plantedModel } from "../../../test/support/modelCall";
+const stapi = {
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
   getContext: () => ({ chat: [], chatId: "chat-a", extensionSettings: {}, chatMetadata: {} }),
   getActiveGroup: () => null,
-}));
+};
 
 import { ExtractionCoordinator } from "./extractionCoordinator";
 import type { ReadOwnership } from "@extraction/index";
@@ -29,7 +29,7 @@ function harness() {
     getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3 }),
     getExtraction: () => extraction,
-    model: testModel("p1"),
+    model: plantedModel,
     memory,
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],

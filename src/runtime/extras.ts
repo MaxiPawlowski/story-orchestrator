@@ -4,7 +4,7 @@ import { DEFAULT_TENSION_EMA_ALPHA } from "@constants/defaults";
 import { capProposalRing } from "@stagecraft/index";
 import { createJudgeRuntime, sanitizeJudgeRuntime } from "@judge/index";
 import { sanitizeJournalRecords } from "./journal";
-import { defaultExtractionSettings, defaultMemorySettings, defaultStagecraftSettings, getGlobalSettings, type ChatOverrides } from "./settingsStore";
+import { defaultExtractionSettings, defaultMemorySettings, defaultStagecraftSettings, type ChatOverrides, type GlobalSettings } from "./settingsModel";
 import { EFFECT_LEDGER_LIMIT, JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
 import { createSaveHealth } from "./saveHealth";
 import type { CopilotRuntimeSettings, EffectLedgerRow, EffectsRuntimeState, ExtractionRuntimeState, MemoryMirrorBook, MemoryRuntimeState, PacingSettings, RuntimeExtras, SaveHealth, StagecraftRuntimeState, TalkRuntimeState, UiRuntimeSettings } from "./types";
@@ -167,16 +167,16 @@ const NO_CHAT_OVERRIDES: ChatOverrides = { authorView: false, shapeOverride: nul
 // standing (the pre-F2 behaviour, and what the store's own `settingsAreLoaded` gate exists for); a
 // host that can answer has already been read by then, so the fallback covers only the window where
 // reading is impossible.
-const withGlobalSettings = (extras: RuntimeExtras): RuntimeExtras => {
+const withGlobalSettings = (extras: RuntimeExtras, read: () => GlobalSettings): RuntimeExtras => {
   try {
-    return applyGlobalSettings(extras, NO_CHAT_OVERRIDES);
+    return applyGlobalSettings(extras, read(), NO_CHAT_OVERRIDES);
   } catch (error) {
     console.warn("[Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults", error);
     return extras;
   }
 };
 
-export const createExtras = (): RuntimeExtras => withGlobalSettings({
+export const createExtras = (read: () => GlobalSettings): RuntimeExtras => withGlobalSettings({
   firedNpcReplies: {},
   requirements: emptyRequirements,
   lastAppliedCheckpointId: null,
@@ -196,7 +196,7 @@ export const createExtras = (): RuntimeExtras => withGlobalSettings({
   journal: [],
   lastSessionAt: null,
   updatedAt: new Date().toISOString(),
-});
+}, read);
 
 const idleScheduler = () => ({ queueDepth: 0, inFlight: false, lastError: null });
 
@@ -240,8 +240,7 @@ export const readChatOverrides = (extras: RuntimeExtras | undefined): ChatOverri
 
 // In memory, extras still carries a full settings view so every reader stays simple; the values
 // come from the install-wide store, with only the per-chat overrides taken from the chat.
-export const applyGlobalSettings = (extras: RuntimeExtras, overrides: ChatOverrides = readChatOverrides(extras)): RuntimeExtras => {
-  const global = getGlobalSettings();
+export const applyGlobalSettings = (extras: RuntimeExtras, global: GlobalSettings, overrides: ChatOverrides = readChatOverrides(extras)): RuntimeExtras => {
   extras.extraction = { ...extras.extraction, settings: { ...global.extraction } };
   extras.pacing = { alpha: global.pacing.alpha, hintEnabled: global.pacing.hintEnabled, shapeOverride: overrides.shapeOverride };
   extras.copilot = { ...global.copilot };
@@ -265,9 +264,9 @@ export const stripGlobalSettings = (extras: RuntimeExtras): RuntimeExtras => ({
   stagecraft: { proposals: extras.stagecraft.proposals, lastPass: extras.stagecraft.lastPass, lastRunBoundary: extras.stagecraft.lastRunBoundary, lastError: extras.stagecraft.lastError } as RuntimeExtras["stagecraft"],
 });
 
-export const hydrateExtras = (persisted: RuntimeExtras | undefined): RuntimeExtras => {
+export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => GlobalSettings): RuntimeExtras => {
   const overrides = readChatOverrides(persisted);
-  const extras = persisted ?? createExtras();
+  const extras = persisted ?? createExtras(read);
   extras.memory = sanitizeMemory(extras);
   extras.extraction = sanitizeExtraction(extras);
   extras.expansion = sanitizeExpansion(extras);
@@ -282,5 +281,5 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined): RuntimeExtr
   extras.judge = sanitizeJudgeRuntime(extras.judge);
   extras.journal = sanitizeJournalRecords(extras.journal);
   extras.lastSelfInjectionMessageId = typeof extras.lastSelfInjectionMessageId === "number" ? extras.lastSelfInjectionMessageId : null;
-  return applyGlobalSettings(extras, overrides);
+  return applyGlobalSettings(extras, read(), overrides);
 };

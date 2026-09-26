@@ -1,4 +1,5 @@
-import { testModel } from "../../../test/support/modelCallHost";
+import { fakeHosts } from "../../../test/support/fakeHosts";
+import { plantedModel } from "../../../test/support/modelCall";
 // v2.4 plan 07, found live (J8.5 on-arm x2, 2026-09-25, test/journeys/records/v2.4-plan07/part1-live-7f1787158bf8/).
 //
 // A scripted Courier line ("I crossed the old stone bridge … It held firm under my boots") was read
@@ -18,7 +19,7 @@ import { testModel } from "../../../test/support/modelCallHost";
 // written by the author) never becomes live on its own. A pin is retention, not truth (v2.3 M5). It is held in the reconciliation queue, the established row
 // keeps steering, and the warden reads only live, non-conflicted rows.
 
-jest.mock("@services/STAPI", () => ({
+const stapi = {
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
@@ -40,16 +41,15 @@ jest.mock("@services/STAPI", () => ({
   setStoryExtensionPrompt: jest.fn(),
   clearStoryExtensionPrompt: jest.fn(),
   MEMORY_INJECTION_KEY_PREFIX: "so-memory-",
-}));
+};
 
-import { parseSharedReadResponse } from "@extraction/index";
+import { parseSharedReadResponse } from "@extraction/parse";
 import { isLive, type ConflictPair, type MemoryEntry, type ParsedMemoryLine } from "@memory/index";
 import { establishedFacts } from "../continuity";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
 import type { MemoryRuntimeState } from "../types";
 import { ExtractionCoordinator } from "./extractionCoordinator";
-import { MemoryCoordinator } from "./memoryCoordinator";
-import { coordinatorHosts } from "../coordinatorHosts";
+import { MemoryCoordinator } from "./memoryCoordinator";
 
 const SEED = "The old stone bridge over the river collapsed in the flood and is gone.";
 const STANDING = "The old stone bridge over the river is still standing and intact.";
@@ -116,12 +116,12 @@ function harness() {
   let memory = memoryState();
   const engine = { activeCheckpointId: "cp1", boundary: 0, lastMessageId: 0, blackboard: { values: {}, versions: {} } };
   const extraction = { audits: [] as unknown[], reconciliationEvents: [] as unknown[], judgedReads: [] as unknown[] };
-  const memoryCoordinator = new MemoryCoordinator({ hosts: coordinatorHosts,
+  const memoryCoordinator = new MemoryCoordinator({ hosts: fakeHosts(stapi),
     getStory: () => story,
     getState: () => engine,
     getMemory: () => memory,
     setMemory: (next: MemoryRuntimeState) => { memory = next; },
-    model: testModel("p1"),
+    model: plantedModel,
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
     enqueueExtractorDeltas: () => {},
@@ -135,7 +135,7 @@ function harness() {
     getStory: () => story,
     getState: () => engine,
     getExtraction: () => extraction,
-    model: testModel("p1"),
+    model: plantedModel,
     memory: memoryCoordinator,
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],

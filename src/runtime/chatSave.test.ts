@@ -8,6 +8,7 @@ jest.mock("@services/STAPI", () => ({
 
 import { ChatSave } from "./chatSave";
 import { createExtras } from "./extras";
+import { getGlobalSettings } from "./settingsStore";
 import type { RunOwner } from "./runOwner";
 import type { RunOwnership, RunToken } from "./runToken";
 import type { SaveObservation } from "./saveEvidence";
@@ -33,7 +34,7 @@ function harness(options: { loaded?: LoadedStory | null; owns?: boolean } = {}) 
     stored: 1,
     context: { chatId: "chat-a", saveMetadata: () => { saves += 1; }, chat: [], chatMetadata: {}, extensionSettings: {} },
   };
-  const extras: RuntimeExtras = createExtras();
+  const extras: RuntimeExtras = createExtras(getGlobalSettings);
   const world = { epoch: 1, extras };
   const ownership: RunOwnership = {
     mint: () => ({ chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: world.epoch, windowRevision: 0, lowestMutatedMessageId: null }) as unknown as RunToken,
@@ -139,7 +140,7 @@ describe("ChatSave.recordWrite (E3)", () => {
     const { save, extras, journal, world } = harness();
     let answer: (observation: SaveObservation) => void = () => {};
     const pending = save.recordWrite({ kind: "drop", chatId: "chat-a", observed: new Promise<SaveObservation>((resolve) => { answer = resolve; }) });
-    const next = createExtras();
+    const next = createExtras(getGlobalSettings);
     world.epoch = 2;
     world.extras = next;
     answer(answered(500));

@@ -1,4 +1,5 @@
-import { testModel } from "../../../test/support/modelCallHost";
+import { fakeHosts } from "../../../test/support/fakeHosts";
+import { plantedModel } from "../../../test/support/modelCall";
 // v2.4 plan 01 T10 (X5, inv 15): `story_epistemic` renders `getEpistemicBlock()`. In a group it used to
 // re-render for `activeSpeakerId`, and after our own transition Note that read null, so the macro merged
 // EVERY member's private knowledge. In a group it now answers the applied block: empty at rest, the
@@ -6,12 +7,11 @@ import { testModel } from "../../../test/support/modelCallHost";
 
 import { MemoryCoordinator } from "./memoryCoordinator";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
-import { EPISTEMIC_INJECTION_KEY } from "@constants/defaults";
-import { coordinatorHosts } from "../coordinatorHosts";
+import { EPISTEMIC_INJECTION_KEY } from "@constants/defaults";
 
 const mockHost: { group: boolean; rows: unknown[]; prompts: Record<string, { value: string; depth: number; role: number }> } = { group: true, rows: [], prompts: {} };
 
-jest.mock("@services/STAPI", () => ({
+const stapi = {
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
@@ -31,7 +31,7 @@ jest.mock("@services/STAPI", () => ({
   clearStoryExtensionPrompt: (key: string) => { delete mockHost.prompts[key]; },
   readInjectedPromptBlocks: () => Object.entries(mockHost.prompts).filter(([, entry]) => entry.value.trim()).map(([key, entry]) => ({ key, ...entry })),
   readExtensionPromptBlocks: () => ({ own: Object.entries(mockHost.prompts).filter(([, entry]) => entry.value.trim()).map(([key, entry]) => ({ key, ...entry, position: 1, hasFilter: false })), foreign: [] }),
-}));
+};
 
 const LUKE_SECRET = "the relic in the chapel is a forgery";
 const ARIN_SECRET = "the north road washed out";
@@ -62,12 +62,12 @@ function harness(roster: Array<{ id: string; name: string }> = story.roster) {
     entries: [], conflicts: [], resolvedConflicts: [], writeLog: [], excluded: [], verifyDrops: [], derived: [],
     sceneCount: 0, shortTermSummaryEnd: 0, arcs: [], epistemic: [], ledger: [], canon: null, updatedAt: "",
   };
-  const coordinator = new MemoryCoordinator({ hosts: coordinatorHosts,
+  const coordinator = new MemoryCoordinator({ hosts: fakeHosts(stapi),
     getStory: () => ({ ...story, roster }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5, blackboard: { values: {}, versions: {} } }),
     getMemory: () => memoryState,
     setMemory: (next: typeof memoryState) => { memoryState = next; },
-    model: testModel("p1"),
+    model: plantedModel,
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
     enqueueExtractorDeltas: () => {},

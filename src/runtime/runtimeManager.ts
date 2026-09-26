@@ -67,7 +67,7 @@ import type {
 export class RuntimeManager {
   private engine = new StoryEngine();
   private loaded: LoadedStory | null = null;
-  private extras: RuntimeExtras = createExtras();
+  private extras: RuntimeExtras = createExtras(getGlobalSettings);
   private judge: JudgeRuntime | null = null;
   private validationErrors: ValidationError[] = [];
   private status = "No story loaded";
@@ -237,7 +237,7 @@ export class RuntimeManager {
       const run = beginRun(this.owner.ownership);
       await this.effects.restoreFor(this.extras, "exit");
       if (!run.stillOwns()) return;
-      this.extras = createExtras();
+      this.extras = createExtras(getGlobalSettings);
       this.pacing.clearPending();
       this.pacing.updateSteering();
       clearAllMemoryInjection(coordinatorHosts.prompt);
@@ -538,7 +538,7 @@ export class RuntimeManager {
     const persisted = mode === "hydrate" ? knownPersisted ?? loadPersistedRuntime(loaded.record.id) : null;
     const priorSessionAt = persisted?.extras?.lastSessionAt ?? null;
     this.invalidateRuns();
-    this.extras = hydrateExtras(persisted?.extras); this.chatSave.fingerprints.load(persisted?.fingerprints);
+    this.extras = hydrateExtras(persisted?.extras, getGlobalSettings); this.chatSave.fingerprints.load(persisted?.fingerprints);
     this.journal.hydrate(this.extras.journal);
     this.reconcileEffectLedger();
     this.loaded = { record: loaded.record, story: this.expansion.mergedStoryOrBase(loaded.record.raw, loaded.story) };

@@ -8,7 +8,8 @@ jest.mock("@services/STAPI", () => ({
 
 import { sendConnectionProfileRequest } from "@services/STAPI";
 import { MODEL_PASSES, type ModelPass } from "@extraction/modelRoute";
-import { createModelCall, debugResponseFor } from "./modelCall";
+import { createModelCall } from "./modelCall";
+import { debugResponseFor } from "./modelCallCore";
 
 const send = sendConnectionProfileRequest as jest.Mock;
 const GLOBALS: Record<ModelPass, string> = {

@@ -1,16 +1,17 @@
-import { testModel } from "../../../test/support/modelCallHost";
+import { fakeHosts } from "../../../test/support/fakeHosts";
+import { plantedModel } from "../../../test/support/modelCall";
 const host = { chat: Array.from({ length: 12 }, (_, index) => ({ name: index % 2 ? "Mira" : "Max", mes: `line ${index}`, is_user: index % 2 === 0 })) };
 const reads: Array<{ reason: string; release: () => void; fail: (error: Error) => void; done?: boolean }> = [];
 const sceneBreakAt = new Set<number>();
 
-jest.mock("@services/STAPI", () => ({
+const stapi = {
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
   getContext: () => ({ chat: host.chat, chatId: "chat-a", extensionSettings: {}, chatMetadata: {} }),
   getActiveGroup: () => null,
-}));
+};
 jest.mock("@extraction/sharedRead", () => {
   const actual = jest.requireActual("@extraction/sharedRead");
   return {
@@ -25,8 +26,7 @@ jest.mock("@extraction/sharedRead", () => {
 });
 
 import { ExtractionCoordinator } from "./extractionCoordinator";
-import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
-import { coordinatorHosts } from "../coordinatorHosts";
+import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
 
 const settle = async () => { for (let i = 0; i < 20; i += 1) await Promise.resolve(); };
 
@@ -53,11 +53,11 @@ function harness(emitSceneBreak: (audit: unknown, collect?: SceneJob[]) => void 
     applyLedger: () => {},
     updateInjection: () => {},
   };
-  const coordinator = new ExtractionCoordinator({ hosts: coordinatorHosts,
+  const coordinator = new ExtractionCoordinator({ hosts: fakeHosts(stapi),
     getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [], qualities: [], checkpoints: [], transitions: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 11, visitedAnchors: [], blackboard: { values: {}, versions: {}, latched: {} } }),
     getExtraction: () => ({ audits: [], reconciliationEvents: [], judgedReads: [] }),
-    model: testModel("p1"),
+    model: plantedModel,
     memory,
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],

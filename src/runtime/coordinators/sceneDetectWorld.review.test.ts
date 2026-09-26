@@ -1,3 +1,4 @@
+import { fakeHosts } from "../../../test/support/fakeHosts";
 // v2.4 acceptance A10 (2026-09-25, J12). The scene-break heuristic compares the cast and location
 // at this boundary with the ones it saw last, and that cursor lived for the page, not the chat. A
 // new chat's first boundary was therefore compared with the previous chat's last one: J12 run1
@@ -8,22 +9,21 @@
 import { ExtractionCoordinator } from "./extractionCoordinator";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
 import { control, finding, must } from "../../../test/findings/ledger";
-import { testOwnership } from "../../../test/findings/testOwnership";
-import { coordinatorHosts } from "../coordinatorHosts";
+import { testOwnership } from "../../../test/findings/testOwnership";
 
 const host: { group: { members: string[]; disabled_members: string[] } | null; chat: Array<{ name: string; mes: string; is_user: boolean }> } = {
   group: null,
   chat: [{ name: "Tobias", mes: "The Wendhope posting pays in silver.", is_user: false }],
 };
 
-jest.mock("@services/STAPI", () => ({
+const stapi = {
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
   getContext: () => ({ chat: host.chat, chatId: "chat-a", extensionSettings: {}, chatMetadata: {} }),
   getActiveGroup: () => host.group,
-}));
+};
 
 const full = { members: ["belle.png", "dalan.png", "tobias.png"], disabled_members: [] };
 const withoutTobias = { members: ["belle.png", "dalan.png", "tobias.png"], disabled_members: ["tobias.png"] };
@@ -35,7 +35,7 @@ function harness(owned = true) {
     check: (token: RunToken) => tokenMatches(current, token),
   };
   let location: string | undefined;
-  const coordinator = new ExtractionCoordinator({ hosts: coordinatorHosts,
+  const coordinator = new ExtractionCoordinator({ hosts: fakeHosts(stapi),
     getStory: () => ({ title: "Adolion", qualityByKey: {}, checkpointById: {}, roster: [] }),
     getState: () => ({ activeCheckpointId: "guild-hall", boundary: 1, blackboard: { values: location === undefined ? {} : { location } } }),
     memory: { enabled: true },

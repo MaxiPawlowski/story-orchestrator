@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { ROOT, SRC, ratchetCounts, ratchetSet, type Ratchet } from "../../test/support/codeHealth";
 import {
-  liveScan, measureD1, measureE1, measureQ1t, measureQ3t, measureS2, measureS3, measureS4, measureS5, measureS6, measureS7, measureS8, measureT1, measureT3,
+  liveScan, measureD1, measureE1, measureQ1t, measureQ3t, measureS2, measureS3, measureS4, measureS5, measureS6, measureS6t, measureS7, measureS8, measureT1, measureT3,
   type CodeHealthSpec, type Scan,
 } from "../../test/support/codeHealthScan";
 
@@ -73,6 +73,14 @@ describe("code health ratchets (v2.5 plan 03 D0)", () => {
       "src/runtime/coordinators/typed.ts": 'import type { Thing } from "@services/STAPI";\nexport type X = Thing;',
     }));
     expect(result).toEqual(["src/runtime/coordinators/planted.ts -> src/runtime/helper.ts"]);
+  });
+
+  it("S6t: no coordinator test mocks @services/STAPI; hosts arrive as fakes", () => {
+    expect(measureS6t(scan)).toEqual([]);
+    expect(measureS6t(planted({
+      "src/runtime/coordinators/planted.test.ts": 'jest.mock("@services/STAPI", () => ({}));',
+      "src/runtime/elsewhere.test.ts": 'jest.mock("@services/STAPI", () => ({}));',
+    }))).toEqual(["src/runtime/coordinators/planted.test.ts"]);
   });
 
   it("S7: import cycles equal the list", () => {

@@ -1,3 +1,4 @@
+import { fakeHosts } from "../../../test/support/fakeHosts";
 import { textModel } from "../../../test/support/modelCall";
 // v2.3 plan 03: converting the memory-writing extraction passes onto `beginRun`.
 //
@@ -11,8 +12,7 @@ import { textModel } from "../../../test/support/modelCall";
 
 import { ExtractionCoordinator } from "./extractionCoordinator";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
-import { control } from "../../../test/findings/ledger";
-import { coordinatorHosts } from "../coordinatorHosts";
+import { control } from "../../../test/findings/ledger";
 
 // Long enough that `shouldCompactShortTerm` is actually satisfied: it needs
 // `lastMessageId - shortTermSummaryEnd >= SHORT_TERM_COMPACTION_MESSAGES` (12). With three
@@ -25,14 +25,14 @@ const chatMessages = Array.from({ length: 14 }, (_, index) => ({
   is_user: index % 2 === 0,
 }));
 
-jest.mock("@services/STAPI", () => ({
+const stapi = {
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
   getContext: () => ({ chat: chatMessagesRef.current, chatId: "chat-a", extensionSettings: {}, chatMetadata: {} }),
   getActiveGroup: () => null,
-}));
+};
 
 const chatMessagesRef = { current: chatMessages as unknown[] };
 
@@ -96,7 +96,7 @@ function harness() {
     updateInjection: () => {},
     syncWorldInfo: async () => {},
   };
-  const coordinator = new ExtractionCoordinator({ hosts: { ...coordinatorHosts, chat: { ...coordinatorHosts.chat, chatWindow } },
+  const coordinator = new ExtractionCoordinator({ hosts: { ...fakeHosts(stapi), chat: { ...fakeHosts(stapi).chat, chatWindow } },
     getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3 }),
     getExtraction: () => extractionState,

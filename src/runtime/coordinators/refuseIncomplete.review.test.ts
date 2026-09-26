@@ -1,11 +1,12 @@
-import { testModel } from "../../../test/support/modelCallHost";
+import { fakeHosts } from "../../../test/support/fakeHosts";
+import { sendModel } from "../../../test/support/modelCall";
 // v2.4 plan 03 D6, per site. `refuseIncomplete` lives in the client, so a site that stops passing it
 // stores a truncated summary and no client test notices. Each case drives the real client through a
 // fake host reply: `finish: "length"` stores nothing at that site, and the control stores the answer.
 
 const reply = { finish: "stop" as "stop" | "length" };
 
-jest.mock("@services/STAPI", () => ({
+const stapi = {
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
@@ -22,12 +23,11 @@ jest.mock("@services/STAPI", () => ({
   disableWIEntry: async () => ({ ok: true, changed: true }),
   setStoryExtensionPrompt: () => {},
   clearStoryExtensionPrompt: () => {},
-}));
+};
 
 import { ExtractionCoordinator } from "./extractionCoordinator";
 import { MemoryCoordinator } from "./memoryCoordinator";
-import { testOwnership } from "../../../test/findings/testOwnership";
-import { coordinatorHosts } from "../coordinatorHosts";
+import { testOwnership } from "../../../test/findings/testOwnership";
 
 function memoryHarness(presummarised: boolean) {
   let memoryState = {
@@ -39,12 +39,12 @@ function memoryHarness(presummarised: boolean) {
     canon: null as { text: string } | null,
     updatedAt: "",
   };
-  const coordinator = new MemoryCoordinator({ hosts: coordinatorHosts, ownership: testOwnership(),
+  const coordinator = new MemoryCoordinator({ hosts: fakeHosts(stapi), ownership: testOwnership(),
     getStory: () => ({ title: "S", checkpointById: {}, qualityByKey: {}, roster: [], arc_bridges: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5, blackboard: { values: {}, versions: {}, latched: {} } }),
     getMemory: () => memoryState,
     setMemory: (next: typeof memoryState) => { memoryState = next; },
-    model: testModel("p1"),
+    model: sendModel(stapi.sendConnectionProfileRequest as never, "p1"),
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
     enqueueExtractorDeltas: () => {},
@@ -58,11 +58,11 @@ function memoryHarness(presummarised: boolean) {
 
 function shortTermHarness() {
   const written: string[] = [];
-  const coordinator = new ExtractionCoordinator({ hosts: coordinatorHosts, ownership: testOwnership(),
+  const coordinator = new ExtractionCoordinator({ hosts: fakeHosts(stapi), ownership: testOwnership(),
     getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3 }),
     getExtraction: () => ({ audits: [], reconciliationEvents: [], judgedReads: [] }),
-    model: testModel("p1"),
+    model: sendModel(stapi.sendConnectionProfileRequest as never, "p1"),
     memory: {
       enabled: true,
       shortTermSummaryEnd: -1,

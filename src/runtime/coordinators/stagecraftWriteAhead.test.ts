@@ -6,8 +6,6 @@ import { createStagecraft } from "../extras";
 import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
 import type { ExtractionRuntimeSettings, StagecraftRuntimeState } from "../types";
 
-jest.mock("@services/STAPI", () => ({ settingsAreLoaded: () => true, settingsReady: async () => {} }));
-
 const host = {
   setStoryExtensionPrompt: jest.fn(),
   clearStoryExtensionPrompt: jest.fn(),

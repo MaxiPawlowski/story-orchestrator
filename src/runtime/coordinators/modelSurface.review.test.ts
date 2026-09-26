@@ -1,4 +1,5 @@
-jest.mock("@services/STAPI", () => ({
+import { fakeHosts } from "../../../test/support/fakeHosts";
+const stapi = {
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
@@ -15,14 +16,13 @@ jest.mock("@services/STAPI", () => ({
   disableWIEntry: async () => ({ ok: true, changed: true }),
   setStoryExtensionPrompt: () => {},
   clearStoryExtensionPrompt: () => {},
-}));
+};
+const { sendConnectionProfileRequest } = stapi;
 
-import { sendConnectionProfileRequest } from "@services/STAPI";
 import { recordingModel } from "../../../test/support/modelCall";
 import { testOwnership } from "../../../test/findings/testOwnership";
 import { ExtractionCoordinator } from "./extractionCoordinator";
 import { MemoryCoordinator } from "./memoryCoordinator";
-import { coordinatorHosts } from "../coordinatorHosts";
 
 const memoryHarness = (model: ReturnType<typeof recordingModel>) => {
   let memoryState = {
@@ -32,7 +32,7 @@ const memoryHarness = (model: ReturnType<typeof recordingModel>) => {
     arcs: [{ id: "arc-0", text: "thread 0", status: "resolved" as const, summary: undefined as string | undefined }],
     epistemic: [], ledger: [], canon: null as { text: string } | null, updatedAt: "",
   };
-  return new MemoryCoordinator({ hosts: coordinatorHosts,
+  return new MemoryCoordinator({ hosts: fakeHosts(stapi),
     ownership: testOwnership(),
     getStory: () => ({ title: "S", checkpointById: {}, qualityByKey: {}, roster: [], arc_bridges: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5, blackboard: { values: {}, versions: {}, latched: {} } }),
@@ -49,7 +49,7 @@ const memoryHarness = (model: ReturnType<typeof recordingModel>) => {
   } as never);
 };
 
-const extractionHarness = (model: ReturnType<typeof recordingModel>) => new ExtractionCoordinator({ hosts: coordinatorHosts,
+const extractionHarness = (model: ReturnType<typeof recordingModel>) => new ExtractionCoordinator({ hosts: fakeHosts(stapi),
   ownership: testOwnership(),
   getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [] }),
   getState: () => ({ activeCheckpointId: "cp1", boundary: 3 }),
