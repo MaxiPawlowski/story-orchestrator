@@ -1,6 +1,27 @@
-import { evaluateGate, type GateNode, type PrimitiveValue } from "@engine/index";
+import { evaluateGate, type GateNode, type PrimitiveValue, type Quality, type Transition } from "@engine/index";
 
 export type ReplayHolds = boolean | "unknown";
+
+export interface GateReplaySource {
+  storyId: string;
+  history: ReplayHistory;
+  declared: string[];
+  qualitySignature: string;
+  jump?: (messageId: number) => void;
+}
+
+type SignedQuality = Pick<Quality, "key" | "type"> & Partial<Pick<Quality, "values" | "latching" | "monotonic">>;
+
+export const qualitySignature = (qualities: readonly SignedQuality[]): string =>
+  JSON.stringify(qualities.map((quality) => [quality.key, quality.type, quality.values ?? [], Boolean(quality.latching), Boolean(quality.monotonic)]));
+
+export function buildReplaySource(storyId: string | null, story: { qualities: readonly SignedQuality[] } | null, history: ReplayHistory | null): GateReplaySource | null {
+  if (!storyId || !story || !history) return null;
+  return { storyId, history, declared: story.qualities.map((quality) => quality.key), qualitySignature: qualitySignature(story.qualities) };
+}
+
+export const draftEdges = (transitions: readonly Pick<Transition, "from" | "to" | "gate" | "priority">[]): ReplayEdge[] =>
+  transitions.map((transition, order) => ({ from: transition.from, to: transition.to, gate: transition.gate, priority: transition.priority, order }));
 
 export interface ReplayEdge {
   from: string;

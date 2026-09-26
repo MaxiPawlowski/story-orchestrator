@@ -3,6 +3,7 @@ import { renderGateText, type Transition } from "@engine/index";
 import { useDraftStore } from "../draft";
 import { addTransition, removeTransition, setTransitionGate, updateTransition } from "../mutations";
 import GateBuilder from "./GateBuilder";
+import GateReplayPanel from "./GateReplayPanel";
 
 const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <label className="flex flex-col gap-1 text-sm">
@@ -92,6 +93,7 @@ const TransitionEditor: React.FC = () => {
             <div className="flex flex-col gap-1">
               <span className="text-xs st-muted">Gate</span>
               <GateBuilder gate={selected.gate} qualities={draft.qualities} onChange={(gate) => mutate((current) => setTransitionGate(current, selectedIndex, gate))} />
+              <GateReplayPanel index={selectedIndex} />
             </div>
 
             <div className="st-subpanel flex flex-col gap-2 p-2">

@@ -1,5 +1,5 @@
 import type { GateNode } from "@engine/index";
-import { replayGate, type ReplayEdge, type ReplayHistory, type ReplayLogEntry } from "./gateReplay";
+import { buildReplaySource, draftEdges, qualitySignature, replayGate, type ReplayEdge, type ReplayHistory, type ReplayLogEntry } from "./gateReplay";
 
 const entry = (boundary: number, at: string, evaluated: Record<string, string | number | boolean> | null, fired: { from: string; to: string } | null = null, source: "gate" | "manual" = "gate"): ReplayLogEntry => ({
   boundary,
@@ -109,5 +109,29 @@ describe("v2.5 plan 07 A3: replayGate over a chat's recorded history", () => {
     const result = replayGate({ edge: edge({ q: "coins", op: ">=", v: 1 }), siblings: [], history: { from: { boundary: 5, messageId: 9 }, log: [entry(5, "a", { coins: 1 }), entry(6, "a", { coins: 1 })] }, declared });
     expect(result.rows.map((row) => row.boundary)).toEqual([6]);
     expect(result.window).toEqual({ fromBoundary: 5, boundaries: 1 });
+  });
+});
+
+describe("v2.5 plan 07 A3: the replay source the Studio is handed", () => {
+  const story = { qualities: [{ key: "coins", type: "int" as const, source: "extractor" as const, rubric: "Coins" }] };
+
+  it("needs a story id, the pinned story and a history; any missing piece means no replay", () => {
+    const logged = history(entry(1, "a", { coins: 1 }));
+    expect(buildReplaySource(null, story, logged)).toBeNull();
+    expect(buildReplaySource("s", null, logged)).toBeNull();
+    expect(buildReplaySource("s", story, null)).toBeNull();
+    expect(buildReplaySource("s", story, logged)).toMatchObject({ storyId: "s", declared: ["coins"] });
+  });
+
+  it("the quality signature changes only with what a replay cannot replay: key, type, values, latching, monotonic", () => {
+    const base = qualitySignature(story.qualities);
+    expect(qualitySignature([{ ...story.qualities[0], rubric: "Other words" }])).toBe(base);
+    expect(qualitySignature([{ ...story.qualities[0], monotonic: true }])).not.toBe(base);
+    expect(qualitySignature([{ ...story.qualities[0], type: "float" as const }])).not.toBe(base);
+  });
+
+  it("numbers a draft's transitions by declaration order", () => {
+    const gate: GateNode = { q: "coins", op: ">=", v: 1 };
+    expect(draftEdges([{ from: "a", to: "b", gate, priority: 2 }, { from: "a", to: "c", gate, priority: 0 }]).map((edge) => [edge.to, edge.order, edge.priority])).toEqual([["b", 0, 2], ["c", 1, 0]]);
   });
 });
