@@ -1,0 +1,23 @@
+{
+  "$comment": "v2.5 plan 11 step 9, D1 predeclared set (docs/plans/v2.5/11-legacy-removal.md, One-time data actions). so-legacy-books.mts move refuses unless the live candidate set equals this list exactly, file and sha256[:12]. A new or changed book is re-declared in the plan table first, then here; never moved on the fly.",
+  "books": [
+    { "file": "Story Orchestrator - Copilot Live Gate.json", "sha12": "48fa736bfd49" },
+    { "file": "Story Orchestrator - Live Extraction Gate Check.json", "sha12": "48fa736bfd49" },
+    { "file": "Story Orchestrator - Live Memory Gate Check.json", "sha12": "48fa736bfd49" },
+    { "file": "Story Orchestrator - Live Pacing Gate Check.json", "sha12": "48fa736bfd49" },
+    { "file": "Story Orchestrator - Memory Foundation Gate Check.json", "sha12": "48fa736bfd49" },
+    { "file": "Story Orchestrator - Talk Control Live Gate.json", "sha12": "48fa736bfd49" },
+    { "file": "Story Orchestrator - Quest for the Sun Ruins.json", "sha12": "e0161223ea0d" },
+    { "file": "Story Orchestrator - Untitled Story.json", "sha12": "eb319e0fa976" },
+    { "file": "Story Orchestrator - Adolion House Nightriver - 2026-09-19@03h33m35s200ms.json", "sha12": "4f3ee4cb8899" },
+    { "file": "Story Orchestrator - Adolion House Nightriver - 2026-09-19@03h57m17s921ms.json", "sha12": "70af74816c6a" },
+    { "file": "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-19@03h21m18s814ms.json", "sha12": "1273384e2a42" },
+    { "file": "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-19@03h31m08s292ms.json", "sha12": "2b62fd1d31cd" },
+    { "file": "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-19@03h43m00s631ms.json", "sha12": "d949a24f6401" },
+    { "file": "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-19@03h48m18s080ms.json", "sha12": "b806e4bc127e" },
+    { "file": "Story Orchestrator - Adolion The Adventurer's Road - 2026-09-20@09h17m25s990ms.json", "sha12": "ccc4ba45bcd7" },
+    { "file": "Story Orchestrator - Authority Enforcement Gate Check - 2026-09-21@15h49m05s268ms.json", "sha12": "ade61ba802ca" },
+    { "file": "Story Orchestrator - Journey J11 — Judgment Backend - 2026-09-20@04h40m32s180ms.json", "sha12": "49420d6e1ae0" },
+    { "file": "Story Orchestrator - Quest for the Sun Ruins - 2026-09-20@07h06m38s396ms.json", "sha12": "fd39143de382" }
+  ]
+}

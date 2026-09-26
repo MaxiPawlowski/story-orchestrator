@@ -6,5 +6,24 @@
     "scripts/debug/lib/assetScope.test.mts": 4,
     "scripts/debug/so-assets.mts": 10
   },
-  "allowlist": []
+  "allowlist": [
+    {
+      "file": "scripts/debug/so-legacy-books.mts",
+      "text": "const TOOL = 'so-legacy-books';",
+      "count": 1,
+      "reason": "v2.5 plan 11 step 9 D1 vehicle: the tool is named for the pre-v5 mirror books it moves out of worlds/ (and its predeclared list file); the name, not a legacy code path"
+    },
+    {
+      "file": "scripts/debug/so-legacy-books.mts",
+      "text": "export const DEFAULT_DECLARED = join(dirname(fileURLToPath(import.meta.url)), 'legacy-books.plan11.json');",
+      "count": 1,
+      "reason": "v2.5 plan 11 step 9 D1 vehicle: the tool is named for the pre-v5 mirror books it moves out of worlds/ (and its predeclared list file); the name, not a legacy code path"
+    },
+    {
+      "file": "scripts/debug/so-legacy-books.test.mts",
+      "text": "} from './so-legacy-books.mts';",
+      "count": 1,
+      "reason": "v2.5 plan 11 step 9 D1 vehicle: the tool is named for the pre-v5 mirror books it moves out of worlds/ (and its predeclared list file); the name, not a legacy code path"
+    }
+  ]
 }
