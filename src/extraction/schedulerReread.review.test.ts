@@ -13,7 +13,7 @@ const chat = { last: 11 };
 
 jest.mock("./sharedRead", () => {
   const actual = jest.requireActual("./sharedRead");
-  const { ModelCallError } = jest.requireActual("./client");
+  const { ModelCallError } = jest.requireActual("./modelError");
   return {
     ...actual,
     runSharedRead: (options: { reason: string; window: { from: number; to: number } }) => new Promise((resolve, reject) => {

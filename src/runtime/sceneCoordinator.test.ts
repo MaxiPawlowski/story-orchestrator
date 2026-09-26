@@ -148,7 +148,7 @@ describe("SceneCoordinator (v2.2 plan 03)", () => {
   it("a story that switches the block off keeps the read but injects nothing", async () => {
     const env = setup({ sceneTracker: true });
     const withoutBlock = { ...story, scene_read: { inject: false } };
-    const scene = new SceneCoordinator({ ownership: testOwnership(), ...(env.scene as unknown as { deps: ConstructorParameters<typeof SceneCoordinator>[0] }).deps, getStory: () => withoutBlock });
+    const scene = new SceneCoordinator({ ...(env.scene as unknown as { deps: ConstructorParameters<typeof SceneCoordinator>[0] }).deps, getStory: () => withoutBlock });
     const record: SceneReadRecord | null = await scene.run({ boundary: 3, messageId: 9, heuristicFired: false, scheduleRead: () => undefined });
     expect(record?.facts.location).toBe("desert road");
     expect(env.injected).toEqual([]);

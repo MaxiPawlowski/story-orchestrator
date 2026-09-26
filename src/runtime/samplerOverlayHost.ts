@@ -19,7 +19,10 @@ export function startSamplerOverlay(deps: SamplerOverlayWiring): () => void {
   const record = (result: ReturnType<SamplerOverlay["apply"]>) => {
     const active = overlay.view();
     if (!result?.first || !active) return;
-    deps.journal(`Sampler overlay "${active.name}" applied to this checkpoint's replies`, [`set ${result.applied.join(", ") || "nothing"}`, result.skipped.length ? `not in this request: ${result.skipped.join(", ")}` : ""].filter(Boolean).join("; "));
+    deps.journal(
+      `Sampler overlay "${active.name}" applied to this checkpoint's replies`,
+      [`set ${result.applied.join(", ") || "nothing"}`, result.skipped.length ? `not in this request: ${result.skipped.join(", ")}` : ""].filter(Boolean).join("; "),
+    );
   };
   return observeSamplerPayloads({
     textgen: (payload, dryRun) => record(overlay.apply(payload, request("textgen", null, dryRun))),

@@ -1,7 +1,8 @@
 import { AWAY_RECAP_MIN_MS, AwayRecapController, buildAwayRecap, shouldShowAwayRecap } from "./awayRecap";
 import { buildNarrativeStatus } from "./narrative";
 import { derivePipelineStatus } from "./pipeline";
-import { fakeDocument } from "@utils/fakeDocument";
+import type { ExtractionRuntimeState } from "./types";
+import { fakeDocument } from "../../test/support/fakeDocument";
 
 const narrative = (overrides: Parameters<typeof buildNarrativeStatus>[0] extends infer T ? Partial<T> : never = {}) => buildNarrativeStatus({
   storyTitle: "Sun Ruins",
@@ -18,7 +19,7 @@ const narrative = (overrides: Parameters<typeof buildNarrativeStatus>[0] extends
     reconciliationEvents: [],
     lastReadBoundary: 0,
     scheduler: { queueDepth: 0, inFlight: false, lastError: null },
-  }),
+  } as Partial<ExtractionRuntimeState> as ExtractionRuntimeState),
   ...overrides,
 });
 

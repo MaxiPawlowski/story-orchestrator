@@ -4,23 +4,22 @@ import { DEFAULT_TENSION_EMA_ALPHA } from "@constants/defaults";
 import { capProposalRing } from "@stagecraft/index";
 import { createJudgeRuntime, sanitizeJudgeRuntime } from "@judge/index";
 import { sanitizeJournalRecords } from "./journal";
-import { defaultExtractionSettings, defaultMemorySettings, defaultStagecraftSettings, getGlobalSettings, type ChatOverrides } from "./settingsStore";
+import { defaultExtractionSettings, defaultMemorySettings, defaultStagecraftSettings, type ChatOverrides, type GlobalSettings } from "./settingsModel";
 import { EFFECT_LEDGER_LIMIT, JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
 import { createSaveHealth } from "./saveHealth";
-import type { CopilotRuntimeSettings, EffectLedgerRow, EffectsRuntimeState, ExtractionRuntimeState, MemoryMirrorBook, MemoryRuntimeState, PacingSettings, RuntimeExtras, SaveHealth, StagecraftRuntimeState, TalkRuntimeState, TensionRuntimeState, UiRuntimeSettings } from "./types";
+import type {
+  CopilotRuntimeSettings, EffectLedgerRow, EffectsRuntimeState, ExtractionRuntimeState, MemoryMirrorBook,
+  MemoryRuntimeState, PacingSettings, RuntimeExtras, SaveHealth, StagecraftRuntimeState, TalkRuntimeState,
+  UiRuntimeSettings,
+} from "./types";
+import { defaultTension, sanitizeTension } from "./tensionState";
+import { log } from "@utils/log";
 
 export const TALK_DECISION_LIMIT = 10;
 
 export const emptyRequirements = { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] };
 
 export const defaultPacingSettings = (): PacingSettings => ({ alpha: DEFAULT_TENSION_EMA_ALPHA, shapeOverride: null, hintEnabled: true });
-
-export const defaultTension = (): TensionRuntimeState => ({ levels: [], smoothed: null });
-
-export const sanitizeTension = (value: TensionRuntimeState | undefined): TensionRuntimeState => ({
-  levels: Array.isArray(value?.levels) ? value.levels.slice(-50) : [],
-  smoothed: typeof value?.smoothed === "number" ? value.smoothed : null,
-});
 
 export const createExtraction = (): ExtractionRuntimeState => ({
   settings: defaultExtractionSettings(),
@@ -57,7 +56,7 @@ export const createMemory = (): MemoryRuntimeState => ({
   updatedAt: new Date().toISOString(),
 });
 
-// v2.5 plan 11: a stored row without a valid envelope is dropped, never dressed with a default one;
+// A stored row without a valid envelope is dropped, never dressed with a default one;
 // the count goes to the console so a dropped row is never silent.
 const enveloped = <T extends { provenance: unknown }>(rows: unknown, store: string, dropped: string[]): T[] => {
   if (!Array.isArray(rows)) return [];
@@ -78,7 +77,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
     const entries = enveloped<MemoryRuntimeState["entries"][number]>(existing.entries, "memory", dropped);
     const epistemic = enveloped<MemoryRuntimeState["epistemic"][number]>(existing.epistemic, "epistemic", dropped);
     const ledger = enveloped<MemoryRuntimeState["ledger"][number]>(existing.ledger, "ledger", dropped);
-    if (dropped.length) console.warn(`[Story Orchestrator] dropped stored rows without a provenance envelope: ${dropped.join(", ")}`);
+    if (dropped.length) log.warn(`dropped stored rows without a provenance envelope: ${dropped.join(", ")}`);
     return {
       entries,
       excluded: Array.isArray(existing.excluded) ? existing.excluded : [],
@@ -93,8 +92,12 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
       epistemic,
       ledger,
       canon: existing.canon && typeof existing.canon === "object" ? existing.canon : null,
-      verifyDrops: Array.isArray(existing.verifyDrops) ? existing.verifyDrops.filter((drop) => drop && typeof drop === "object" && drop.entry && typeof drop.p === "number").slice(-VERIFY_DROP_LIMIT) : [],
-      derived: Array.isArray(existing.derived) ? existing.derived.filter((record) => record && typeof record === "object" && typeof record.id === "string" && Array.isArray(record.inputs) && typeof record.messageId === "number").slice(-DERIVED_LIMIT) : [],
+      verifyDrops: Array.isArray(existing.verifyDrops) ? existing.verifyDrops.filter(
+        (drop) => drop && typeof drop === "object" && drop.entry && typeof drop.p === "number",
+      ).slice(-VERIFY_DROP_LIMIT) : [],
+      derived: Array.isArray(existing.derived) ? existing.derived.filter(
+        (record) => record && typeof record === "object" && typeof record.id === "string" && Array.isArray(record.inputs) && typeof record.messageId === "number",
+      ).slice(-DERIVED_LIMIT) : [],
       conflicts: Array.isArray(existing.conflicts) ? existing.conflicts.filter((pair) => Boolean(pair) && typeof pair.key === "string" && Array.isArray(pair.sides)).slice(-CONFLICT_LIMIT) : [],
       resolvedConflicts: Array.isArray(existing.resolvedConflicts) ? existing.resolvedConflicts.filter((key) => typeof key === "string").slice(-CONFLICT_LIMIT) : [],
       pinnedOverflow: typeof existing.pinnedOverflow === "number" ? existing.pinnedOverflow : 0,
@@ -114,14 +117,16 @@ export const sanitizeStagecraft = (value: RuntimeExtras | undefined): Stagecraft
   if (!existing) return createStagecraft();
   return {
     settings: defaultStagecraftSettings(),
-    proposals: Array.isArray(existing.proposals) ? capProposalRing(existing.proposals.filter((entry) => Boolean(entry) && Array.isArray(entry.ops)).filter((entry) => entry.curator === "warden" || entry.curator === "wi")) : [],
+    proposals: Array.isArray(existing.proposals) ? capProposalRing(
+      existing.proposals.filter((entry) => Boolean(entry) && Array.isArray(entry.ops)).filter((entry) => entry.curator === "warden" || entry.curator === "wi"),
+    ) : [],
     lastPass: existing.lastPass && typeof existing.lastPass === "object" ? existing.lastPass : null,
     lastRunBoundary: typeof existing.lastRunBoundary === "number" ? existing.lastRunBoundary : -1,
     lastError: typeof existing.lastError === "string" ? existing.lastError : null,
   };
 };
 
-// v2.3 plan 06. What this chat's effects did to shared host state. The ledger travels with the chat
+// What this chat's effects did to shared host state. The ledger travels with the chat
 // so a reloaded chat still knows what it changed and can reconcile a write that never reported back.
 export const createEffects = (): EffectsRuntimeState => ({ ledger: [], cast: [] });
 
@@ -164,25 +169,25 @@ export const sanitizeTalk = (value: RuntimeExtras | undefined): TalkRuntimeState
 // `talk.enabled: false`. Both storyless paths (the manager's field initialiser and `clearStory`) build
 // their extras here, so leaving the install-wide settings out of this one made the snapshot report
 // defaults as though they were settings: `profileId: null` on a chat the install had configured, which
-// the panel cannot tell from "not loaded yet" (F2).
+// the panel cannot tell from "not loaded yet".
 const NO_CHAT_OVERRIDES: ChatOverrides = { authorView: false, shapeOverride: null, talkEnabled: null };
 
 // `createExtras()` runs while the RuntimeManager singleton is being constructed, which happens when
 // this module graph is imported — before a test has finished setting up its host mock, and before ST
 // has necessarily finished wiring `getContext()`. A host that cannot answer yet leaves the defaults
-// standing (the pre-F2 behaviour, and what the store's own `settingsAreLoaded` gate exists for); a
+// standing (the pre- behaviour, and what the store's own `settingsAreLoaded` gate exists for); a
 // host that can answer has already been read by then, so the fallback covers only the window where
 // reading is impossible.
-const withGlobalSettings = (extras: RuntimeExtras): RuntimeExtras => {
+const withGlobalSettings = (extras: RuntimeExtras, read: () => GlobalSettings): RuntimeExtras => {
   try {
-    return applyGlobalSettings(extras, NO_CHAT_OVERRIDES);
+    return applyGlobalSettings(extras, read(), NO_CHAT_OVERRIDES);
   } catch (error) {
-    console.warn("[Story Orchestrator] install-wide settings are not readable yet; extras start at their defaults", error);
+    log.warn("install-wide settings are not readable yet; extras start at their defaults", error);
     return extras;
   }
 };
 
-export const createExtras = (): RuntimeExtras => withGlobalSettings({
+export const createExtras = (read: () => GlobalSettings): RuntimeExtras => withGlobalSettings({
   firedNpcReplies: {},
   requirements: emptyRequirements,
   lastAppliedCheckpointId: null,
@@ -202,7 +207,7 @@ export const createExtras = (): RuntimeExtras => withGlobalSettings({
   journal: [],
   lastSessionAt: null,
   updatedAt: new Date().toISOString(),
-});
+}, read);
 
 const idleScheduler = () => ({ queueDepth: 0, inFlight: false, lastError: null });
 
@@ -226,8 +231,8 @@ export const sanitizeExpansion = (value: RuntimeExtras | undefined): ExpansionRu
   const existing = value?.expansion;
   if (!existing) return createExpansion();
   const entries = existing.entries && typeof existing.entries === "object"
-    // v2.3 plan 07. A chain generated under an older contract was read with `outcomes[0]` and its
-    // beats carry no outcome ids, so playing it would keep the single-route behaviour R9 removed.
+    // A chain generated under an older contract was read with `outcomes[0]` and its
+    // beats carry no outcome ids, so playing it would keep the single-route behaviour removed.
     // A cache does not survive the contract that produced it: the entry is dropped, and the stub is
     // re-generated on arrival like any other missing chain.
     ? Object.entries(existing.entries)
@@ -246,8 +251,7 @@ export const readChatOverrides = (extras: RuntimeExtras | undefined): ChatOverri
 
 // In memory, extras still carries a full settings view so every reader stays simple; the values
 // come from the install-wide store, with only the per-chat overrides taken from the chat.
-export const applyGlobalSettings = (extras: RuntimeExtras, overrides: ChatOverrides = readChatOverrides(extras)): RuntimeExtras => {
-  const global = getGlobalSettings();
+export const applyGlobalSettings = (extras: RuntimeExtras, global: GlobalSettings, overrides: ChatOverrides = readChatOverrides(extras)): RuntimeExtras => {
   extras.extraction = { ...extras.extraction, settings: { ...global.extraction } };
   extras.pacing = { alpha: global.pacing.alpha, hintEnabled: global.pacing.hintEnabled, shapeOverride: overrides.shapeOverride };
   extras.copilot = { ...global.copilot };
@@ -260,20 +264,36 @@ export const applyGlobalSettings = (extras: RuntimeExtras, overrides: ChatOverri
 
 // Persisted chat state keeps engine state, rings and the overrides only (spec addendum
 // §Configuration homes) - install-wide settings are stripped on the way out.
+const withoutSettings = (memory: RuntimeExtras["memory"]): RuntimeExtras["memory"] => {
+  const { settings: _settings, ...rest } = memory;
+  return rest as RuntimeExtras["memory"];
+};
+
 export const stripGlobalSettings = (extras: RuntimeExtras): RuntimeExtras => ({
   ...extras,
-  extraction: { audits: extras.extraction.audits, reconciliationEvents: extras.extraction.reconciliationEvents, lastReadBoundary: extras.extraction.lastReadBoundary, scheduler: extras.extraction.scheduler, judgedReads: extras.extraction.judgedReads } as RuntimeExtras["extraction"],
+  extraction: {
+    audits: extras.extraction.audits,
+    reconciliationEvents: extras.extraction.reconciliationEvents,
+    lastReadBoundary: extras.extraction.lastReadBoundary,
+    scheduler: extras.extraction.scheduler,
+    judgedReads: extras.extraction.judgedReads,
+  } as RuntimeExtras["extraction"],
   pacing: { shapeOverride: extras.pacing.shapeOverride } as RuntimeExtras["pacing"],
   copilot: {} as RuntimeExtras["copilot"],
   ui: { authorView: extras.ui.authorView } as RuntimeExtras["ui"],
-  memory: { ...extras.memory, settings: undefined } as unknown as RuntimeExtras["memory"],
+  memory: withoutSettings(extras.memory),
   talk: { enabled: extras.talk.enabled, decisions: extras.talk.decisions },
-  stagecraft: { proposals: extras.stagecraft.proposals, lastPass: extras.stagecraft.lastPass, lastRunBoundary: extras.stagecraft.lastRunBoundary, lastError: extras.stagecraft.lastError } as RuntimeExtras["stagecraft"],
+  stagecraft: {
+    proposals: extras.stagecraft.proposals,
+    lastPass: extras.stagecraft.lastPass,
+    lastRunBoundary: extras.stagecraft.lastRunBoundary,
+    lastError: extras.stagecraft.lastError,
+  } as RuntimeExtras["stagecraft"],
 });
 
-export const hydrateExtras = (persisted: RuntimeExtras | undefined): RuntimeExtras => {
+export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => GlobalSettings): RuntimeExtras => {
   const overrides = readChatOverrides(persisted);
-  const extras = persisted ?? createExtras();
+  const extras = persisted ?? createExtras(read);
   extras.memory = sanitizeMemory(extras);
   extras.extraction = sanitizeExtraction(extras);
   extras.expansion = sanitizeExpansion(extras);
@@ -288,5 +308,5 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined): RuntimeExtr
   extras.judge = sanitizeJudgeRuntime(extras.judge);
   extras.journal = sanitizeJournalRecords(extras.journal);
   extras.lastSelfInjectionMessageId = typeof extras.lastSelfInjectionMessageId === "number" ? extras.lastSelfInjectionMessageId : null;
-  return applyGlobalSettings(extras, overrides);
+  return applyGlobalSettings(extras, read(), overrides);
 };

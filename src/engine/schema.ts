@@ -3,7 +3,7 @@ export const QUALITY_SOURCES = ["code", "extractor"] as const;
 export const EVIDENCE_FROM = ["any", "world"] as const;
 export const GATE_OPERATORS = ["==", "!=", ">=", "<=", ">", "<", "in"] as const;
 export const TENSION_LEVELS = ["calm", "stirring", "tense", "critical", "peak"] as const;
-// v2.3 plan 02 (S1). A latching enum freezes on the first read, so a value meaning "not set yet"
+// A latching enum freezes on the first read, so a value meaning "not set yet"
 // freezes the quality on it forever. The unset state is the absence of a value; listing one of these
 // as an option makes the first read a decision nobody made.
 export const PLACEHOLDER_ENUM_VALUES = ["undecided", "none", "pending", "unset", "tbd"] as const;
@@ -35,7 +35,7 @@ export interface QualityLedgerBinding {
   field: string;
 }
 
-// v2.2 plan 06: how a quality opts in to the judged typed read (never inferred).
+// How a quality opts in to the judged typed read (never inferred).
 export type QualityReadAs = "choice" | "stated" | "rating";
 
 export interface QualityCriterion {
@@ -132,7 +132,7 @@ export interface TalkControl {
   director?: boolean | TalkControlDirector;
 }
 
-// v2.3 plan 07 (C4). Which objectives are the world pressing on the player and which need the
+// Which objectives are the world pressing on the player and which need the
 // player's own act, and whether narration may write the player's decisions. Optional per checkpoint;
 // the DEFAULTS are the policy, not "absent = today's phrasing" (spec addendum §Agency).
 export type ObjectiveKind = "world_pressure" | "player_action";
@@ -222,21 +222,21 @@ export interface ArcBridge {
 }
 
 // What a story needs from the install before it can run. One vocabulary: any other key is a
-// validation error (v2.5 plan 11).
+// validation error.
 export interface StoryRequirements {
   personas?: string[];
   members?: string[];
   lorebooks?: string[];
 }
 
-// The explicit allowlist a background curator may write into (user decision 2026-08-11). No
+// The explicit allowlist a background curator may write into (user decision). No
 // inference from requirements or effects: an absent or empty list means the curator has nothing to
 // write, full stop.
 export interface StoryStagecraft {
   lorebooks: string[];
 }
 
-// v2.2 plan 03: the scene read's vocabulary. The judge can only select, so a location is asked only
+// The scene read's vocabulary. The judge can only select, so a location is asked only
 // when the story lists places (here, or as the values of an enum quality keyed `location`).
 export interface StorySceneRead {
   locations?: string[];
@@ -244,7 +244,7 @@ export interface StorySceneRead {
   inject?: boolean;
 }
 
-// v2.2 plan 04: which lorebooks lore-select may judge and force for one generation. Authored, never
+// Which lorebooks lore-select may judge and force for one generation. Authored, never
 // inferred: entry text leaves the machine.
 export interface StoryLoreSelect {
   lorebooks: string[];
@@ -259,7 +259,7 @@ export const STORY_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,63}$/;
 export const slugifyStoryId = (title: string): string =>
   title.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^[^a-z0-9]+|-+$/g, "").slice(0, 64) || "story";
 
-// v2.4 plan 07 T23: what the narrator is held to, story-level only. Sent to the judge only when
+// What the narrator is held to, story-level only. Sent to the judge only when
 // judge.uses.houseRules is on; absent means no rules (today).
 export const HOUSE_RULES_MAX = 8;
 export const HOUSE_RULE_MAX_CHARS = 240;
@@ -308,14 +308,17 @@ export const placeholderEnumValues = (quality: Pick<Quality, "type" | "latching"
     ? (quality.values ?? []).filter((value) => (PLACEHOLDER_ENUM_VALUES as readonly string[]).includes(value.trim().toLowerCase()))
     : [];
 
-// V18 (S1): what a story may play with but should not ship with. The parser answers a story or its
+// What a story may play with but should not ship with. The parser answers a story or its
 // errors, so the warnings are their own read of the parsed story, shared by the Studio's diagnostic
 // and the import path.
 export const storyWarnings = (story: Pick<StoryV2, "qualities">): ValidationError[] =>
   story.qualities.flatMap((quality, index) => {
     const placeholders = placeholderEnumValues(quality);
     return placeholders.length
-      ? [{ path: `qualities.${index}.values`, message: `'${quality.key}' latches, so the first read decides and will not change; ${placeholders.join(", ")} cannot mean "not set yet" — the unset state is the absence of a value` }]
+      ? [{
+        path: `qualities.${index}.values`,
+        message: `'${quality.key}' latches, so the first read decides and will not change; ${placeholders.join(", ")} cannot mean "not set yet" — the unset state is the absence of a value`,
+      }]
       : [];
   });
 

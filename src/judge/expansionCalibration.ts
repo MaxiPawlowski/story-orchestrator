@@ -1,7 +1,8 @@
-import { buildChainRequest, CHAIN_SHAPE_LEVELS, judgeVerdict, pickChain, readChain, type ChainInput, type ChainRead } from "./expansion";
+import { buildChainRequest, judgeVerdict, pickChain, readChain, type ChainInput, type ChainRead } from "./expansion";
 import { CRITIC_ADVANCES_MIN, CRITIC_CONTRADICTS_MAX, CRITIC_NEW_CHARACTER_MAX } from "./policy";
 import type { JudgeSelfTestReport, JudgeSelfTestRow } from "./selfTest";
 import type { JudgeRequest, JudgeResult } from "./types";
+import { median } from "./stats";
 
 export interface CriticCase {
   id: string;
@@ -17,16 +18,19 @@ export interface VariantStub {
   chains: Array<{ label: "clean" | "contradicts" | "wanders"; beats: ChainInput["beats"] }>;
 }
 
-const median = (values: number[]): number | null => {
-  if (!values.length) return null;
-  const sorted = [...values].sort((left, right) => left - right);
-  return sorted[Math.floor((sorted.length - 1) / 2)];
-};
-
 const toReport = (perCase: Array<{ rows: JudgeSelfTestRow[]; model: string | null; latencyMs: number }>): JudgeSelfTestReport => {
   const rows = perCase.flatMap((entry) => entry.rows);
-  return { ranAt: new Date().toISOString(), model: perCase.find((entry) => entry.model)?.model ?? null, total: rows.length, right: rows.filter((row) => row.right).length, p50LatencyMs: median(perCase.map((entry) => entry.latencyMs)), rows };
+  return {
+    ranAt: new Date().toISOString(),
+    model: perCase.find((entry) => entry.model)?.model ?? null,
+    total: rows.length,
+    right: rows.filter((row) => row.right).length,
+    p50LatencyMs: median(perCase.map((entry) => entry.latencyMs)),
+    rows,
+  };
 };
+
+const rejectedByJudge = (read: ChainRead | null) => read !== null && !judgeVerdict(read).pass;
 
 const describe = (read: ChainRead | null) => (read ? `c=${read.contradicts} a=${read.advances} n=${read.newCharacter}${read.shape === null ? "" : ` s=${read.shape}`}` : null);
 
@@ -59,11 +63,20 @@ export async function runVariantCalibration(ask: (request: JudgeRequest) => Prom
     const contradicting = stub.chains.findIndex((chain) => chain.label === "contradicts");
     const latencyMs = Math.max(0, ...results.map((result) => result.latencyMs));
     const rows: JudgeSelfTestRow[] = [
-      { id: `${stub.id}.pick`, right: picked !== null && stub.chains[picked].label === "clean", picked: picked === null ? "none passed" : `${stub.chains[picked].label} (${describe(reads[picked])})`, latencyMs },
-      ...(contradicting >= 0 ? [{ id: `${stub.id}.rejected`, right: reads[contradicting] !== null && !judgeVerdict(reads[contradicting]!).pass, picked: describe(reads[contradicting]), latencyMs }] : []),
+      {
+        id: `${stub.id}.pick`,
+        right: picked !== null && stub.chains[picked].label === "clean",
+        picked: picked === null ? "none passed" : `${stub.chains[picked].label} (${describe(reads[picked])})`,
+        latencyMs,
+      },
+      ...(contradicting >= 0 ? [{
+        id: `${stub.id}.rejected`,
+        right: rejectedByJudge(reads[contradicting]),
+        picked: describe(reads[contradicting]),
+        latencyMs,
+      }] : []),
     ];
     return { rows, model: results.find((result) => result.model)?.model ?? null, latencyMs };
   })));
 }
 
-export const CHAIN_SHAPE_LEVEL_COUNT = CHAIN_SHAPE_LEVELS.length;

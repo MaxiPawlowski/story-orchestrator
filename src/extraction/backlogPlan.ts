@@ -22,7 +22,7 @@ const byCount = (messages: readonly ChatMessageWindowEntry[], size: number): Sha
   return windows;
 };
 
-// v2.4 plan 03 D5. The memorize windows write memory only, never deltas, so they may be split: each
+// The memorize windows write memory only, never deltas, so they may be split: each
 // is packed to the budget instead of eight messages. The whole-chat pass after them is tail-fit by the
 // shared read itself, so the plan counts it as one request of at most the budget.
 export async function planBacklog(messages: readonly ChatMessageWindowEntry[], overheadPrompt: string, budget: RequestBudget, maxMessages?: number): Promise<BacklogPlan> {

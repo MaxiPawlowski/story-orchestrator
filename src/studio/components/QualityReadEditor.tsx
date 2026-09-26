@@ -26,9 +26,14 @@ const keptCriterion = (criterion: QualityCriterion): string | QualityCriterion |
   return criterion.not_for ? { what: criterion.what, not_for: criterion.not_for } : criterion.what;
 };
 
-// v2.2 plan 06: how the judge reads this quality. Nothing here runs until the install opts in to
+// How the judge reads this quality. Nothing here runs until the install opts in to
 // "Every-turn story reads"; a quality without a hint never reaches the judge.
-const QualityReadEditor: React.FC<{ quality: Quality; storyTitle: string; checkpoint: { name: string; objective: string } | null; onChange: (patch: Partial<Quality>) => void }> = ({ quality, storyTitle, checkpoint, onChange }) => {
+const QualityReadEditor: React.FC<{
+  quality: Quality;
+  storyTitle: string;
+  checkpoint: { name: string; objective: string } | null;
+  onChange: (patch: Partial<Quality>) => void;
+}> = ({ quality, storyTitle, checkpoint, onChange }) => {
   const [preview, setPreview] = useState(false);
   const fitting = (Object.keys(READ_AS_TYPES) as QualityReadAs[]).filter((readAs) => READ_AS_TYPES[readAs].includes(quality.type));
   const choiceCriteria = quality.criteria && !("levels" in quality.criteria) ? (quality.criteria as Record<string, string | QualityCriterion>) : {};
@@ -67,8 +72,20 @@ const QualityReadEditor: React.FC<{ quality: Quality; storyTitle: string; checkp
             return (
               <div key={option} className="grid grid-cols-[6rem_1fr_1fr] items-center gap-2">
                 <span className="truncate text-sm">{option}</span>
-                <input className="text_pole st-input" aria-label={`${option} means`} placeholder="means…" value={criterion.what} onChange={(event) => setCriterion(option, { ...criterion, what: event.target.value })} />
-                <input className="text_pole st-input" aria-label={`${option} not for`} placeholder="not for…" value={criterion.not_for ?? ""} onChange={(event) => setCriterion(option, { ...criterion, not_for: event.target.value })} />
+                <input
+                  className="text_pole st-input"
+                  aria-label={`${option} means`}
+                  placeholder="means…"
+                  value={criterion.what}
+                  onChange={(event) => setCriterion(option, { ...criterion, what: event.target.value })}
+                />
+                <input
+                  className="text_pole st-input"
+                  aria-label={`${option} not for`}
+                  placeholder="not for…"
+                  value={criterion.not_for ?? ""}
+                  onChange={(event) => setCriterion(option, { ...criterion, not_for: event.target.value })}
+                />
               </div>
             );
           })}
@@ -80,12 +97,27 @@ const QualityReadEditor: React.FC<{ quality: Quality; storyTitle: string; checkp
           <span className="text-xs st-muted">Levels, lowest first. Leave empty to use a rubric that reads "from N (low) to M (high)".</span>
           {levels.map((level, index) => (
             <div key={index} className="flex items-center gap-2">
-              <input className="text_pole st-input w-20" type="number" aria-label={`Level ${index + 1} value`} value={level.value} onChange={(event) => setLevels(levels.map((entry, entryIndex) => (entryIndex === index ? { ...entry, value: Number(event.target.value) } : entry)))} />
-              <input className="text_pole st-input flex-1" aria-label={`Level ${index + 1} label`} value={level.label} onChange={(event) => setLevels(levels.map((entry, entryIndex) => (entryIndex === index ? { ...entry, label: event.target.value } : entry)))} />
+              <input
+                className="text_pole st-input w-20"
+                type="number"
+                aria-label={`Level ${index + 1} value`}
+                value={level.value}
+                onChange={(event) => setLevels(levels.map((entry, entryIndex) => (entryIndex === index ? { ...entry, value: Number(event.target.value) } : entry)))}
+              />
+              <input
+                className="text_pole st-input flex-1"
+                aria-label={`Level ${index + 1} label`}
+                value={level.label}
+                onChange={(event) => setLevels(levels.map((entry, entryIndex) => (entryIndex === index ? { ...entry, label: event.target.value } : entry)))}
+              />
               <button type="button" className="st-button danger" aria-label={`Remove level ${index + 1}`} onClick={() => setLevels(levels.filter((_, entryIndex) => entryIndex !== index))}>×</button>
             </div>
           ))}
-          <button type="button" className="st-button secondary self-start" onClick={() => setLevels([...levels, { value: levels.length ? levels[levels.length - 1].value + 1 : 0, label: "" }])}>+ Level</button>
+          <button
+            type="button"
+            className="st-button secondary self-start"
+            onClick={() => setLevels([...levels, { value: levels.length ? levels[levels.length - 1].value + 1 : 0, label: "" }])}
+          >+ Level</button>
         </div>
       ) : null}
 

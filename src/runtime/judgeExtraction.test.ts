@@ -1,5 +1,5 @@
 import { defaultJudgeSettings, type JudgeRequest, type JudgeResponse, type JudgeSettings, type JudgeTransport } from "@judge/index";
-import type { ReconciliationPlan } from "@extraction/index";
+import type { ReconciliationPlan, SharedReadWindow } from "@extraction/index";
 import { JudgeRuntime } from "./judge";
 import { RuntimeManager } from "./runtimeManager";
 import { testOwnership } from "../../test/findings/testOwnership";
@@ -122,7 +122,7 @@ describe("judged stall pre-check (v2.2 plan 06)", () => {
   const plan = (): ReconciliationPlan => ({
     descriptor: { checkpointId: "hall", boundary: 9, targetedKeys: ["has_key"] },
     reason: "reconcile:has_key",
-    window: { from: 0, to: 2, messages: mockContext.chat.map((message, index) => ({ index, messageId: index, speaker: message.name ?? "", text: message.mes })) },
+    window: { from: 0, to: 2, messages: mockContext.chat.map((message, index) => ({ index, messageId: index, speaker: message.name ?? "", text: message.mes })) as SharedReadWindow["messages"] },
     leaves: [{ q: "has_key", rubric: story.qualities[0].rubric, type: "bool", op: "==", v: true }],
   });
   const leafAnswer = (p: number) => (request: JudgeRequest): JudgeResponse => ({ model: "jev-1.13.0", answers: Object.fromEntries(Object.keys(request.questions).map((id) => [id, { type: "noul" as const, noul: p }])) });

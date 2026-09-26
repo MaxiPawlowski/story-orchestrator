@@ -4,6 +4,7 @@ import { hashStory } from "./hash";
 import { createSettingsWriteEvidence, missingFromServer, recordSettingsWrite, stillHeldByServer, type LibrarySaveEvidence } from "./librarySave";
 import { SETTINGS_ROOT_KEY, settingsRoot, writableSettingsRoot } from "./settingsRoot";
 import type { LoadedStory, StoryLibraryRecord, RuntimeSnapshot } from "./types";
+import { log } from "@utils/log";
 
 const SETTINGS_KEY = "v2Stories";
 
@@ -19,11 +20,11 @@ const stampedAt = (record: StoryLibraryRecord) => Date.parse(record.updatedAt ??
 
 let lastLibraryWarning = "";
 const warnOnce = (message: string) => {
-  if (message !== lastLibraryWarning) console.warn(`[Story Orchestrator] ${message}`);
+  if (message !== lastLibraryWarning) log.warn(`${message}`);
   lastLibraryWarning = message;
 };
 
-// v2.5 plan 11: the read is a sanitizer and never writes. A record without an id or version is
+// The read is a sanitizer and never writes. A record without an id or version is
 // dropped with a warning; a duplicate id keeps the newer record.
 const sanitizeRecords = (stored: unknown[]): StoryLibraryRecord[] => {
   const valid = stored.filter(isStoryRecord);
@@ -43,7 +44,10 @@ const readServerLibrary = async (): Promise<unknown[] | null> => {
   return root === null ? null : Array.isArray(root[SETTINGS_KEY]) ? (root[SETTINGS_KEY] as unknown[]) : [];
 };
 
-const observeLibraryWrite = <T>(missing: (stored: unknown[] | null, write: T) => string | null) => createSettingsWriteEvidence<T>({ observe: () => observeNextSettingsSave(), readBack: readServerLibrary }, missing);
+const observeLibraryWrite = <T>(missing: (stored: unknown[] | null, write: T) => string | null) => createSettingsWriteEvidence<T>(
+  { observe: () => observeNextSettingsSave(), readBack: readServerLibrary },
+  missing,
+);
 
 const confirmRecord = observeLibraryWrite(missingFromServer);
 const confirmRemoval = observeLibraryWrite(stillHeldByServer);
@@ -59,7 +63,7 @@ export function findStoryRecord(id: string): StoryLibraryRecord | null {
 }
 
 // A Studio-born draft's first save takes a free id, so it never updates a same-title record it did
-// not come from (finding U2, from the authoring side). An id-less import instead updates its title's record.
+// not come from (finding from the authoring side). An id-less import instead updates its title's record.
 export function availableStoryId(base: string): string {
   const used = new Set(listStoryRecords().map((record) => record.id));
   if (!used.has(base)) return base;
@@ -99,7 +103,7 @@ export function saveStoryRecord(raw: unknown): LoadedStory | RuntimeSnapshot["va
   return { record, story: { ...parsed, id, version } };
 }
 
-/** v2.4 plan 02 §7: whether the server holds what `saveStoryRecord` wrote; the evidence it already armed, or armed now. */
+/** Whether the server holds what `saveStoryRecord` wrote; the evidence it already armed, or armed now. */
 export const confirmLibrarySave = (record: StoryLibraryRecord): Promise<LibrarySaveEvidence> => armedSaves.get(record) ?? confirmRecord(record);
 
 export function removeStoryRecord(id: string): boolean {

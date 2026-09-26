@@ -22,7 +22,7 @@ export function shouldShowAwayRecap(lastSessionAt: string | null, now: number, m
 }
 
 // Returning after a gap shows the standing player composition, not a second one written for the
-// popup (plan 04): same sections, same wording — only the heading knows you were away.
+// popup: same sections, same wording — only the heading knows you were away.
 export function buildAwayRecap(narrative: NarrativeStatus, gapMs: number): AwayRecap {
   const title = `Welcome back — ${narrative.title} (away ${formatGap(gapMs)})`;
   const lines = narrative.sections.map((section) => `${section.label}\n${section.lines.join("\n")}`);
@@ -53,8 +53,11 @@ export class AwayRecapController {
     const show = shouldShowAwayRecap(priorSessionAt, now);
     this.pending = show ? { recap: buildAwayRecap(narrative, now - Date.parse(priorSessionAt as string)), chatId } : null;
     // The journal records the decision, not just the outcome: "no recap" and "a recap nobody saw"
-    // are different answers, and only the machine can tell them apart (v2.3 plan 03, S3).
-    this.note(`away recap ${show ? "queued" : "not due"}`, `chat ${chatId || "(unnamed)"}, last seen ${priorSessionAt ?? "never"}, gap ${priorSessionAt ? `${Math.round((now - Date.parse(priorSessionAt)) / 3600000)}h` : "n/a"}`);
+    // are different answers, and only the machine can tell them apart.
+    this.note(
+      `away recap ${show ? "queued" : "not due"}`,
+      `chat ${chatId || "(unnamed)"}, last seen ${priorSessionAt ?? "never"}, gap ${priorSessionAt ? `${Math.round((now - Date.parse(priorSessionAt)) / 3600000)}h` : "n/a"}`,
+    );
   }
 
   get(): AwayRecap | null { return this.pending?.recap ?? null; }
@@ -74,7 +77,7 @@ export class AwayRecapController {
    *
    * The popup is a host modal, so while it is up the whole document is inert to a pointer. It
    * describes one chat, so once another chat is open it is not merely stale copy — it blocks that
-   * chat outright. Measured 2026-09-21: a recap raised for a House Nightriver chat survived
+   * chat outright. Measured a recap raised for a House Nightriver chat survived
    * `/newchat`, a group switch and a story switch, and `#send_but` hit-tested as `blocked: overlay`
    * behind it in an Adventurer's Road chat with zero messages.
    *

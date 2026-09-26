@@ -1,5 +1,5 @@
 import type { StoryV2 } from "@engine/index";
-import { callExtractionModel, stripChannelNoise, PASS_ROLE_LABELS, type PassRole } from "@extraction/index";
+import { askText, profileRoute, routedModel, stripChannelNoise, PASS_ROLE_LABELS, type PassRole } from "@extraction/index";
 import { runAuthoringStage } from "@copilot/index";
 import { parseDirectorResponse, renderDirectorPrompt } from "@talk/index";
 import { buildWiCuratorPrompt, parseCuratorResponse, type CuratorScope } from "@stagecraft/index";
@@ -114,7 +114,7 @@ const AUTHORING_DRAFT: StoryV2 = {
   checkpoints: [{ id: "camp", name: "Camp", objective: "Get moving.", type: "anchor", start: true }],
   transitions: [],
   roster: [{ id: "guide", name: "Bel" }],
-} as unknown as StoryV2;
+};
 
 const errorText = (error: unknown) => (error instanceof Error ? error.message : String(error));
 
@@ -125,20 +125,20 @@ const runDirector: Run = async (profileId, answer) => {
   for (const [index, entry] of ROLE_DIRECTOR_CASES.entries()) {
     const candidates = entry.input.candidates.map((candidate) => ({ ...candidate, weight: 1 }));
     const prompt = renderDirectorPrompt({ storyTitle: "Model self-test", ...entry.input, candidates });
-    const raw = await callExtractionModel(prompt, { profileId, role: "director", maxTokens: 96, debugResponse: answer(index) });
+    const raw = await askText(routedModel(profileRoute(profileId)), prompt, { role: "director", pass: "director", maxTokens: 96, debugResponse: answer(index) });
     if (parseDirectorResponse(raw, candidates, entry.input.allowSilence)) parsed += 1;
   }
   return { passed: parsed === ROLE_DIRECTOR_CASES.length, detail: `${String(parsed)} of ${String(ROLE_DIRECTOR_CASES.length)} director cases answered a usable SPEAKER line` };
 };
 
 const runCurator: Run = async (profileId, answer) => {
-  const raw = await callExtractionModel(buildWiCuratorPrompt(CURATOR_SCOPE), { profileId, role: "curator", maxTokens: 512, debugResponse: answer(0) });
+  const raw = await askText(routedModel(profileRoute(profileId)), buildWiCuratorPrompt(CURATOR_SCOPE), { role: "curator", pass: "curator", maxTokens: 512, debugResponse: answer(0) });
   const proposal = parseCuratorResponse(raw, CURATOR_SCOPE.entries);
   return { passed: proposal.ops.length > 0, detail: `the curator fixture (the party left camp for the tunnel) gave ${String(proposal.ops.length)} usable op(s)` };
 };
 
 const runSynthesis: Run = async (profileId, answer) => {
-  const raw = await callExtractionModel(buildSceneSummaryPrompt(SCENE_TEXT), { profileId, role: "synthesis", maxTokens: 256, debugResponse: answer(0) });
+  const raw = await askText(routedModel(profileRoute(profileId)), buildSceneSummaryPrompt(SCENE_TEXT), { role: "synthesis", pass: "sceneSummary", maxTokens: 256, debugResponse: answer(0) });
   const summary = stripChannelNoise(raw).trim();
   return { passed: summary.length > 0, detail: summary ? "wrote a scene summary" : "the scene summary came back empty" };
 };
@@ -146,7 +146,8 @@ const runSynthesis: Run = async (profileId, answer) => {
 const runAuthoring: Run = async (profileId, answer) => {
   const result = await runAuthoringStage(
     { draft: AUTHORING_DRAFT, stage: "qualities", message: "Propose one quality for whether the lantern is lit.", history: [] },
-    { profileId, role: "authoring", debugResponse: answer(0) },
+    routedModel(profileRoute(profileId)),
+    { role: "authoring", pass: "copilot", debugResponse: answer(0) },
   );
   const passed = result.status === "ok" || result.status === "questions";
   return { passed, detail: passed ? "returned a valid proposal" : `the proposal was not valid JSON (${result.issues.slice(0, 2).join("; ")})` };

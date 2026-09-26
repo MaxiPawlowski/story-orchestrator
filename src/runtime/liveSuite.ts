@@ -1,4 +1,6 @@
-import { buildFixtureRun, callExtractionModel, parseSharedReadResponse, type ExtractionFixtureSpec } from "@extraction/index";
+import { askText, buildFixtureRun, parseSharedReadResponse, type ExtractionFixtureSpec, type ModelCall } from "@extraction/index";
+import { profileExists } from "@services/STAPI";
+import { createModelCall } from "./modelCall";
 import { buildTypedPlan, readTypedDeltas } from "@judge/index";
 import { buildCreateCandidatePrompt, caseContext, caseScope, scoreCreateSample, type CreateCase, type CreateCaseSample } from "@stagecraft/createCandidate";
 import type { RuntimeManager } from "./runtimeManager";
@@ -10,7 +12,7 @@ export interface LiveFixtureResult {
   deltas: Array<{ q: string; v: unknown; evidence: string; judge?: number }>;
   facts: Array<{ text: string; importance: number }>;
   rejected: Array<{ line: string; reason: string }>;
-  // v2.3 plan 01 §F: the same read already parses these tiers, and the suite scored only plot
+  // The same read already parses these tiers, and the suite scored only plot
   // deltas while reporting the number as live extraction accuracy. They are handed back so a
   // fixture that states an expectation for them can be scored against it.
   memory: Array<{ tier: string; text: string }>;
@@ -20,7 +22,7 @@ export interface LiveFixtureResult {
   judged?: { answered: string[]; answers: unknown; model: string | null; fallback?: string };
 }
 
-// v2.2 plan 06 `so-live-suite --judge`: a fixture's own hint sidecar ({key: {read_as, criteria?}})
+// `so-live-suite --judge`: a fixture's own hint sidecar ({key: {read_as, criteria?}})
 // is merged into its story, the judge reads the hinted qualities first, and the LLM prompt covers
 // only the rest, exactly as runSharedRead splits a cadence read. The call is a probe, so nothing is
 // recorded in the open chat.
@@ -42,10 +44,13 @@ const withHints = (story: unknown, hints: LiveFixtureOptions["hints"]) => {
   return { ...raw, qualities: (raw.qualities ?? []).map((quality) => ({ ...quality, ...(hints[String(quality.key)] ?? {}) })) };
 };
 
+const liveModel = (manager: RuntimeManager): ModelCall => createModelCall({ settings: () => manager.getExtractionSettings(), exists: profileExists, planted: false });
+
 export function registerLiveSuite(manager: RuntimeManager) {
+  const model = liveModel(manager);
   const handle: LiveSuiteHandle = {
     runCuratorCreate: curatorCreateRunner(manager),
-    runRoleCase: (role, entry) => runRoleCase(role, entry, { profileId: manager.getExtractionSettings().profileId }),
+    runRoleCase: (role, entry) => runRoleCase(role, entry, { profileId: manager.getExtractionSettings().profileId, model }),
     summarizeRoleCalibration,
     runFixture: async (spec, options = {}) => {
       const hinted = { ...spec, story: withHints(spec.story, options.hints) };
@@ -67,8 +72,7 @@ export function registerLiveSuite(manager: RuntimeManager) {
       }
       const answered = judged?.answered ?? [];
       const { story, prompt } = answered.length ? buildFixtureRun({ ...hinted, excludeKeys: answered }) : first;
-      const profileId = manager.getExtractionSettings().profileId;
-      const rawResponse = await callExtractionModel(prompt, { profileId, role: "read", maxTokens: 512 });
+      const rawResponse = await askText(model, prompt, { role: "read", pass: "read", maxTokens: 512 });
       const parsed = parseSharedReadResponse(rawResponse, story);
       return {
         prompt,
@@ -87,13 +91,13 @@ export function registerLiveSuite(manager: RuntimeManager) {
   globalThis.storyOrchestratorLiveSuite = handle;
 }
 
-// v2.4 plan 06 F5 Phase A: the create op is measured before it is built. The candidate prompt and
+// Phase A: the create op is measured before it is built. The candidate prompt and
 // the code guards run over the curator's own model (the curator role's routed profile); nothing is written.
 export function curatorCreateRunner(manager: RuntimeManager): LiveSuiteHandle["runCuratorCreate"] {
   return async (entry) => {
     const context = caseContext(entry);
     const prompt = buildCreateCandidatePrompt(caseScope(entry), context);
-    const rawResponse = await callExtractionModel(prompt, { profileId: manager.getExtractionSettings().profileId, role: "curator", maxTokens: 512 });
+    const rawResponse = await askText(liveModel(manager), prompt, { role: "curator", pass: "curator", maxTokens: 512 });
     return { prompt, rawResponse, sample: scoreCreateSample(entry, rawResponse) };
   };
 }

@@ -19,7 +19,8 @@ import { removeMarkedAssets, snapshotAssets } from './so-assets.mts';
 import { wipeChatMeta } from './so-library.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
 import { captureLibrary, restoreLibrary } from './lib/librarySnapshot.mts';
-import { archiveJourneyRecord, unselectedDependencies } from './lib/journeyArchive.mts';
+import { archiveJourneyRecord, fixtureSha256, unselectedDependencies } from './lib/journeyArchive.mts';
+import { trackJudgeRequests } from './lib/judgeSettle.mts';
 import { applyExtSetting, restoreExtSettings } from './lib/interopVerbs.mts';
 import { cleanupBranchChats, settleReapPrompts, withoutBranchChats } from './lib/identityVerbs.mts';
 import { BLOCKING_DIALOGS, mergeRestore, shouldRecoverConfig, validateJourneyExtraction, type DeclaredExtraction, type LibraryCapture } from './lib/configRestore.mts';
@@ -382,9 +383,10 @@ async function applySetup(page, setup, { allowConfig, group = null, judgeMode = 
   return applied;
 }
 
-async function runCleanup(page, journey, { importedHashes, libraryBefore, configSnapshot, guard, keep, allowConfig, assetBaseline, activatedLorebooks, extractionBefore = null, judgeMode = null as Awaited<ReturnType<typeof applyJudgeMode>> | null, wiGating = null as Awaited<ReturnType<typeof applyWiGating>> | null }) {
+async function runCleanup(page, journey, { importedHashes, libraryBefore, configSnapshot, guard, keep, allowConfig, assetBaseline, activatedLorebooks, extractionBefore = null, judgeMode = null as Awaited<ReturnType<typeof applyJudgeMode>> | null, wiGating = null as Awaited<ReturnType<typeof applyWiGating>> | null, judgeRequests = null as ReturnType<typeof trackJudgeRequests> | null }) {
   const cleanup = journey.cleanup ?? {};
   const report: Record<string, unknown> = {};
+  if (judgeRequests) report.judgeSettle = await judgeRequests.settle();
   // The judge call ring lives in the chat's own metadata, so it dies with the chat a few lines
   // below. Plan 08's cost and latency report is built from these records, and the green J11 and J8
   // runs were archived without them (2026-09-20). Captured before anything deletes anything.
@@ -523,6 +525,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
   let releasedRoutes: unknown = null;
   let assetBaseline = null;
   const capabilities = capabilityProbe(page, journey.capabilities);
+  const judgeRequests = trackJudgeRequests(page);
 
   console.log(`\n=== ${journey.id} ${journey.title} ===\n${journey.objective ?? ''}\n`);
 
@@ -577,6 +580,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
       // persistence in silence.
       releasedRoutes = await releaseBlockedRoutes(page);
       setupApplied.cleanup = await runCleanup(page, journey, {
+        judgeRequests,
         importedHashes,
         libraryBefore: (setupApplied as { libraryBefore?: LibraryCapture }).libraryBefore,
         configSnapshot: setupApplied.configSnapshot,
@@ -612,6 +616,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
     id: journey.id,
     title: journey.title,
     file: path,
+    fileSha256: fixtureSha256(await readFile(path)),
     ranAt: new Date().toISOString(),
     strict,
     // A subset run is marked in the record itself, so an archived matrix cannot be mistaken for a
@@ -632,6 +637,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
   await writeFile(resolve(DEBUG_DIR, `journey-${journey.id}.md`), `${renderMatrix(journey, results)}${renderChecklist(results)}`, 'utf-8');
   await writeJSON(record, `journey-${journey.id}`);
   console.log(`Matrix: ${resolve(DEBUG_DIR, `journey-${journey.id}.md`)}`);
+  judgeRequests.dispose();
   return { ok: !failed, record };
 }
 

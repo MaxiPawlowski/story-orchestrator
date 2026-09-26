@@ -47,7 +47,7 @@ const writeSessions = (sessions: WizardSessionState[], write: SessionWrite): Pro
   return evidence;
 };
 
-// Delegated decision (plan 06): the wizard session lives in extension settings, not in the draft
+// Delegated decision: the wizard session lives in extension settings, not in the draft
 // store. Setting up a story is install-level authoring work, and it has to survive a page reload —
 // an interrupted setup that vanishes on refresh is the failure this is for.
 
@@ -69,7 +69,7 @@ export function saveWizardSession(session: WizardSessionUpdate): Promise<Library
   // UI persistence writes ordinary conversation fields after provisioning returns. Grants are
   // written inside the coordinator first; an older UI snapshot must not erase them on its next save.
   // A caller that explicitly includes `grants` owns that field (including `[]` to revoke all).
-  // V18: the book list is the coordinator's; a UI snapshot without one keeps the stored list.
+  // The book list is the coordinator's; a UI snapshot without one keeps the stored list.
   const merged: WizardSessionState = {
     ...session,
     ...(session.grants === undefined && previous?.grants ? { grants: previous.grants } : {}),

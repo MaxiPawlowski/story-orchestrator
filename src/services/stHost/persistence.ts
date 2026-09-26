@@ -2,7 +2,7 @@ import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { getContext } from "./context";
 import { subscribeToHostEvent } from "./events";
 
-// v2.3 plan 06 (save evidence). `saveMetadata` resolves to `saveChatConditional`, which CATCHES every
+// `saveMetadata` resolves to `saveChatConditional`, which CATCHES every
 // save error, logs it and returns normally (`script.js:9412-9440`), so awaiting it proves nothing. The
 // request itself is therefore observed: the chat-save endpoints are wrapped, and the status of the
 // request that follows our persist is what says whether the write reached the server at all.
@@ -21,11 +21,11 @@ export interface SaveObservation {
   /** The request went out and never came back — an aborted route, a dead connection. Distinct from
    *  `timedOut`, which means no request was ever observed. */
   failed: boolean;
-  /** v2.4 plan 02 §7: which request settled this, so every observation one request settled shares one read-back. */
+  /** Which request settled this, so every observation one request settled shares one read-back. */
   burst?: number;
   /** Why this save does not count for the chat it was asked for: held back, or written into another chat. */
   lost?: string;
-  /** v2.4 E3: the tag of the earliest save of ours this request settled (null when that save carried none).
+  /** The tag of the earliest save of ours this request settled (null when that save carried none).
    *  Absent when no request settled it. One request serving several saves is one save, asked for by this one. */
   askedBy?: string | null;
 }
@@ -38,7 +38,7 @@ let watching: Watch[] = [];
 let ours: typeof fetch | null = null;
 let clock = 0;
 const stats = { wraps: 0, reports: 0, refused: 0 };
-// v2.4 plan 02 §7: the init objects our outermost wrapper minted. A wrapper of ours that meets one is
+// The init objects our outermost wrapper minted. A wrapper of ours that meets one is
 // an older wrapper still in the chain (a peer wrapped on top of us and we re-wrapped on top of it),
 // and the request is already being reported.
 const minted = new WeakSet<object>();
@@ -91,12 +91,12 @@ const recordRefusal = (input: unknown, target: ChatSaveTarget, startedAt: number
   if (refusals.length > REFUSAL_RING_CAP) refusals.splice(0, refusals.length - REFUSAL_RING_CAP);
 };
 
-// v2.4 plan 02 (2026-09-24, J10.14). `saveChatConditional` waits at least one 100 ms poll before it
+// `saveChatConditional` waits at least one 100 ms poll before it
 // reads which chat is open (`utils.js:1934`), and `openGroupChat` clears the chat and repoints
 // `chat_id` before loading the next one (`group-chats.js:2203-2209`). A save asked for in one chat can
 // therefore run inside the switch and write an EMPTY chat under the next chat's name: a new branch lost
 // every message that way. Refused: a chat save carrying no messages, for a chat other than the one an
-// armed save of ours was asked for; and (v2.5 plan 02 C2) a save of any length that follows the open
+// armed save of ours was asked for; and a save of any length that follows the open
 // chat when that is no longer the chat an armed save of ours was asked for. The same empty write made
 // by anyone (ST's own save, another extension) carries a header with no `integrity`: `openGroupChat` resets the metadata to
 // `{}` before loading, and the server only checks integrity when the header names one
@@ -131,7 +131,7 @@ const refusedAnswer = () => new Response("{}", { status: 200, headers: { "Conten
  * The request left and threw before any answer. `await original(...)` used to reject straight past the
  * report, so a blocked save route looked like a save that was never attempted — the observation
  * timed out at 8s and the reason read "no save request went out", which is false and sends a reader
- * after a scheduler that did fire (2026-09-22).
+ * after a scheduler that did fire.
  */
 const threw = () => ({ requested: true, status: null, ok: false, timedOut: false, failed: true });
 

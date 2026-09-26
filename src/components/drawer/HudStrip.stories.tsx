@@ -46,7 +46,12 @@ export const CatchingUp: Story = {
 };
 
 export const NeedsSetup: Story = {
-  args: { snapshot: baseSnapshot({ pipeline: { state: "not-configured", text: "Nothing is following the story yet — choose a memory model in the extension settings.", detail: null, needsSetup: true } }) },
+  args: { snapshot: baseSnapshot({ pipeline: {
+    state: "not-configured",
+    text: "Nothing is following the story yet — choose a memory model in the extension settings.",
+    detail: null,
+    needsSetup: true,
+  } }) },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByText("needs setup"));

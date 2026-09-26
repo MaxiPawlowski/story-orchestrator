@@ -1,9 +1,9 @@
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 
-// v2.4 plan 02 §8. Requirements used to be re-read only at commit, activate, load and rollback, so a
+// Requirements used to be re-read only at commit, activate, load and rollback, so a
 // player who switched to the persona a story asks for, enabled the member or selected the lorebook
 // waited a whole turn for the story to notice, and the checkpoint's effects waited with it. The host
-// says when each of those changes: PERSONA_CHANGED (personas.js:166, H18), GROUP_UPDATED and
+// says when each of those changes: PERSONA_CHANGED (personas.js:166), GROUP_UPDATED and
 // WORLDINFO_SETTINGS_UPDATED. A burst of them (a persona switch saves settings and may reload the
 // chat) is one refresh, 250 ms after the last.
 

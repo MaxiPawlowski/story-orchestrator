@@ -1,5 +1,5 @@
 import { buildNarrativeStatus, renderNarrativeNode, type NarrativeInput } from "./narrative";
-import { fakeDocument } from "@utils/fakeDocument";
+import { fakeDocument } from "../../test/support/fakeDocument";
 import { derivePipelineStatus } from "./pipeline";
 import type { ExtractionRuntimeState } from "./types";
 
@@ -9,7 +9,7 @@ const pipeline = (overrides: Partial<ExtractionRuntimeState["settings"]> = {}) =
   reconciliationEvents: [],
   lastReadBoundary: 0,
   scheduler: { queueDepth: 0, inFlight: false, lastError: null },
-});
+} as Partial<ExtractionRuntimeState> as ExtractionRuntimeState);
 
 const input = (overrides: Partial<NarrativeInput> = {}): NarrativeInput => ({
   storyTitle: "Quest for the Sun Ruins",

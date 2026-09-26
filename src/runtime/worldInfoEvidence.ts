@@ -3,7 +3,7 @@ import type { RunContext } from "./runToken";
 import { worldInfoPlan } from "./worldInfoGates";
 import { entryComment, firstMatch, sameLorebook } from "./worldInfoMatch";
 
-// v2.4 plan 05 T12 (host-free). What ST's World Info scans actually activated, per loud generation,
+// What ST's World Info scans actually activated, per loud generation,
 // so "we forced it" and "we enabled it" stop standing in for evidence. The ring is in memory only;
 // the two miss flags it raises are what gets persisted, as journal records.
 export const LORE_EVIDENCE_LIMIT = 20;
@@ -105,7 +105,14 @@ const characterFiltered = (value: unknown): boolean => {
 
 export function toLoadedCopy(entry: ScanInput): LoadedCopy | null {
   const scanned = toScanned(entry);
-  return scanned ? { world: scanned.world, uid: scanned.uid, comment: scanned.comment, constant: scanned.constant, disable: entry.disable === true, filtered: characterFiltered(entry.characterFilter) } : null;
+  return scanned ? {
+    world: scanned.world,
+    uid: scanned.uid,
+    comment: scanned.comment,
+    constant: scanned.constant,
+    disable: entry.disable === true,
+    filtered: characterFiltered(entry.characterFilter),
+  } : null;
 }
 
 const refKey = (ref: { world: string; uid: number }) => `${ref.world.toLowerCase()}\u0000${ref.uid}`;
@@ -116,9 +123,9 @@ export const firedEntries = (scans: LoreScan[], loudOnly = true): ScannedEntry[]
   return [...seen.values()];
 };
 
-// `LoreSelection.landed` / `lost` (plan 05 flag a): a forced pick lands only if a loud scan of the same
+// `LoreSelection.landed` / `lost` (flag a): a forced pick lands only if a loud scan of the same
 // generation activated it. A quiet run nested inside the reply consumes a force as surely as a foreign
-// dry scan wipes it (05-H7), and neither is the reply.
+// dry scan wipes it, and neither is the reply.
 export function forcedOutcome(forced: EntryRef[], fired: ScannedEntry[]): { landed: EntryRef[]; lost: EntryRef[] } {
   const firedKeys = new Set(fired.map(refKey));
   return {
@@ -127,7 +134,7 @@ export function forcedOutcome(forced: EntryRef[], fired: ScannedEntry[]): { land
   };
 }
 
-// Plan 05 flag b: a constant entry the active gated plan switches ON, which the scan view held enabled,
+// Flag b: a constant entry the active gated plan switches ON, which the scan view held enabled,
 // and which still did not fire. Budget or probability are the likely causes; the flag only says it did
 // not land. Keyword-gated entries are never flagged: not firing is their normal state.
 export function constantMisses(story: NormalizedStoryV2, path: string[], loaded: LoadedCopy[], fired: ScannedEntry[]): Array<{ lorebook: string; comment: string }> {
@@ -259,10 +266,20 @@ export class LoreEvidence {
       const outcome = forcedOutcome(slot.forced, fired);
       slot.landed = outcome.landed;
       slot.lost = outcome.lost;
-      if (outcome.lost.length) flags.push({ kind: "lore-force-lost", summary: `lore-force-lost: ${outcome.lost.length} of ${slot.forced.length} forced pick(s) did not reach the reply`, detail: summarize(outcome.lost), lost: outcome.lost });
+      if (outcome.lost.length) flags.push({
+        kind: "lore-force-lost",
+        summary: `lore-force-lost: ${outcome.lost.length} of ${slot.forced.length} forced pick(s) did not reach the reply`,
+        detail: summarize(outcome.lost),
+        lost: outcome.lost,
+      });
       if (input.story) {
         slot.constantMissed = constantMisses(input.story, input.path, loaded, fired);
-        if (slot.constantMissed.length) flags.push({ kind: "lore-constant-missed", summary: `lore-constant-missed: ${slot.constantMissed.length} constant gated entr${slot.constantMissed.length === 1 ? "y" : "ies"} enabled for this chat did not fire`, detail: summarize(slot.constantMissed), missed: slot.constantMissed });
+        if (slot.constantMissed.length) flags.push({
+          kind: "lore-constant-missed",
+          summary: `lore-constant-missed: ${slot.constantMissed.length} constant gated entr${slot.constantMissed.length === 1 ? "y" : "ies"} enabled for this chat did not fire`,
+          detail: summarize(slot.constantMissed),
+          missed: slot.constantMissed,
+        });
       }
       this.tallyMirror(input.mirrorBook, loaded, fired);
     }
@@ -294,11 +311,15 @@ export class LoreEvidence {
     return [...this.hiddenRunsFor(this.host?.chatId() ?? "")].filter(([, runs]) => runs >= HIDDEN_GENERATIONS_FOR_REPAIR).map(([book]) => book).sort();
   }
 
-  // Plan 05 mirror key hygiene, measurement only: per `so_` entry of this chat's mirror book, how many
+  // Mirror key hygiene, measurement only: per `so_` entry of this chat's mirror book, how many
   // observed loud generations held it enabled in the scan view, and how many of those fired it. This
   // tally is never rolled back — it measures the scanner, not the story.
   mirrorRates(): Array<{ comment: string; eligible: number; fired: number; rate: number }> {
-    return [...this.mirror].map(([comment, tally]) => ({ comment, ...tally, rate: tally.eligible ? tally.fired / tally.eligible : 0 })).sort((left, right) => left.comment.localeCompare(right.comment));
+    return [...this.mirror].map(([comment, tally]) => ({
+      comment,
+      ...tally,
+      rate: tally.eligible ? tally.fired / tally.eligible : 0,
+    })).sort((left, right) => left.comment.localeCompare(right.comment));
   }
 
   resetMirrorTally() {

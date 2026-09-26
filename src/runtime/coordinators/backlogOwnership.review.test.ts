@@ -1,17 +1,19 @@
+import { fakeHosts } from "../../../test/support/fakeHosts";
+import { plantedModel } from "../../../test/support/modelCall";
 const host = { chat: Array.from({ length: 12 }, (_, index) => ({ name: index % 2 ? "Mira" : "Max", mes: `line ${index}`, is_user: index % 2 === 0 })) };
 const reads: Array<{ reason: string; release: () => void; fail: (error: Error) => void; done?: boolean }> = [];
 const sceneBreakAt = new Set<number>();
 
-jest.mock("@services/STAPI", () => ({
+const stapi = {
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
   getContext: () => ({ chat: host.chat, chatId: "chat-a", extensionSettings: {}, chatMetadata: {} }),
   getActiveGroup: () => null,
-}));
-jest.mock("@extraction/index", () => {
-  const actual = jest.requireActual("@extraction/index");
+};
+jest.mock("@extraction/sharedRead", () => {
+  const actual = jest.requireActual("@extraction/sharedRead");
   return {
     ...actual,
     runSharedRead: (options: { reason: string; window: { from: number; to: number } }) => new Promise((resolve, reject) => {
@@ -51,11 +53,11 @@ function harness(emitSceneBreak: (audit: unknown, collect?: SceneJob[]) => void 
     applyLedger: () => {},
     updateInjection: () => {},
   };
-  const coordinator = new ExtractionCoordinator({
+  const coordinator = new ExtractionCoordinator({ hosts: fakeHosts(stapi),
     getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [], qualities: [], checkpoints: [], transitions: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 11, visitedAnchors: [], blackboard: { values: {}, versions: {}, latched: {} } }),
     getExtraction: () => ({ audits: [], reconciliationEvents: [], judgedReads: [] }),
-    getSettings: () => ({ profileId: "p1", enabled: true, cadence: 1 }),
+    model: plantedModel,
     memory,
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
@@ -81,7 +83,7 @@ beforeEach(() => { reads.length = 0; sceneBreakAt.clear(); });
 describe("V3: the memorize backlog stops when its chat does", () => {
   it("a switch during the first window stores nothing, reads no further window and commits nothing", async () => {
     const h = harness();
-    const pending = h.coordinator.runMemorizeBacklog(4);
+    const pending = h.coordinator.backlog.runMemorizeBacklog(4);
     await settle();
     h.switchChat();
     reads[0].release();
@@ -93,7 +95,7 @@ describe("V3: the memorize backlog stops when its chat does", () => {
 
   it("a switch between windows keeps what the owned window stored and reads nothing after", async () => {
     const h = harness();
-    const pending = h.coordinator.runMemorizeBacklog(4);
+    const pending = h.coordinator.backlog.runMemorizeBacklog(4);
     await settle();
     reads[0].release();
     await settle();
@@ -108,7 +110,7 @@ describe("V3: the memorize backlog stops when its chat does", () => {
   it("a switch during the progress save between windows starts no further read", async () => {
     const h = harness();
     h.saves.onSave = () => { if (h.backfill()?.processed === 1) h.switchChat(); };
-    const pending = h.coordinator.runMemorizeBacklog(4);
+    const pending = h.coordinator.backlog.runMemorizeBacklog(4);
     await settle();
     reads[0].release();
     expect(await pending).toBe(false);
@@ -117,7 +119,7 @@ describe("V3: the memorize backlog stops when its chat does", () => {
 
   it("a switch during the final full read commits no boundary", async () => {
     const h = harness();
-    const pending = h.coordinator.runMemorizeBacklog(4);
+    const pending = h.coordinator.backlog.runMemorizeBacklog(4);
     for (let index = 0; index < 3; index += 1) {
       await settle();
       reads[index].release();
@@ -131,7 +133,7 @@ describe("V3: the memorize backlog stops when its chat does", () => {
 
   it("control: an unmoved backlog reads every window, the full pass, and commits", async () => {
     const h = harness();
-    const pending = h.coordinator.runMemorizeBacklog(4);
+    const pending = h.coordinator.backlog.runMemorizeBacklog(4);
     for (let index = 0; index < 4; index += 1) {
       await settle();
       reads[index].release();
@@ -146,7 +148,7 @@ describe("V3: the memorize backlog stops when its chat does", () => {
 describe("v2.4 plan 03 D4: the memorize backlog always leaves running when it owns the chat", () => {
   it("a same-chat lapse clears running", async () => {
     const h = harness();
-    const pending = h.coordinator.runMemorizeBacklog(4);
+    const pending = h.coordinator.backlog.runMemorizeBacklog(4);
     await settle();
     h.editMessage(2);
     reads[0].release();
@@ -159,7 +161,7 @@ describe("v2.4 plan 03 D4: the memorize backlog always leaves running when it ow
 
   it("a switch leaves the departed chat's backfill as it was", async () => {
     const h = harness();
-    const pending = h.coordinator.runMemorizeBacklog(4);
+    const pending = h.coordinator.backlog.runMemorizeBacklog(4);
     await settle();
     h.switchChat();
     reads[0].release();
@@ -169,12 +171,12 @@ describe("v2.4 plan 03 D4: the memorize backlog always leaves running when it ow
 
   it("Stop keeps applied windows", async () => {
     const h = harness();
-    expect(h.coordinator.cancelMemorizeBacklog()).toBe(false);
-    const pending = h.coordinator.runMemorizeBacklog(4);
+    expect(h.coordinator.backlog.cancelMemorizeBacklog()).toBe(false);
+    const pending = h.coordinator.backlog.runMemorizeBacklog(4);
     await settle();
     reads[0].release();
     await settle();
-    expect(h.coordinator.cancelMemorizeBacklog()).toBe(true);
+    expect(h.coordinator.backlog.cancelMemorizeBacklog()).toBe(true);
     reads[1].release();
     expect(await pending).toBe(false);
     expect(h.stored).toEqual(["fact 1"]);
@@ -183,18 +185,18 @@ describe("v2.4 plan 03 D4: the memorize backlog always leaves running when it ow
     expect(h.backfill()).toMatchObject({ running: false, processed: 1, total: 4 });
     expect(h.backfill()?.lastError).toBeNull();
     expect(h.backfill()?.stoppedNote).toMatch(/whole-chat pass/);
-    expect(h.coordinator.cancelMemorizeBacklog()).toBe(false);
+    expect(h.coordinator.backlog.cancelMemorizeBacklog()).toBe(false);
   });
 
   it("control: Stop after the run finished changes nothing", async () => {
     const h = harness();
-    const pending = h.coordinator.runMemorizeBacklog(4);
+    const pending = h.coordinator.backlog.runMemorizeBacklog(4);
     for (let index = 0; index < 4; index += 1) {
       await settle();
       reads[index].release();
     }
     expect(await pending).toBe(true);
-    expect(h.coordinator.cancelMemorizeBacklog()).toBe(false);
+    expect(h.coordinator.backlog.cancelMemorizeBacklog()).toBe(false);
     expect(h.backfill()).toMatchObject({ running: false, processed: 4, total: 4, lastError: null });
   });
 });
@@ -204,7 +206,7 @@ describe("v2.4 plan 03 D4: the memorize backlog always leaves running when it ow
 describe("AE-04 memory|delayedError: a backlog window whose read fails after a wait", () => {
   it("records the error, leaves running, keeps the earlier window's facts and saves that state", async () => {
     const h = harness();
-    const pending = h.coordinator.runMemorizeBacklog(4);
+    const pending = h.coordinator.backlog.runMemorizeBacklog(4);
     await settle();
     reads[0].release();
     await settle();
@@ -217,12 +219,12 @@ describe("AE-04 memory|delayedError: a backlog window whose read fails after a w
     expect(h.commits()).toBe(0);
     expect(h.backfill()).toMatchObject({ running: false, processed: 1, total: 4, lastError: "the memory model answered 500" });
     expect(h.saves.count).toBeGreaterThan(savesBefore);
-    expect(h.coordinator.cancelMemorizeBacklog()).toBe(false);
+    expect(h.coordinator.backlog.cancelMemorizeBacklog()).toBe(false);
   });
 
   it("a failure that lands after the chat switched writes no error and stores nothing", async () => {
     const h = harness();
-    const pending = h.coordinator.runMemorizeBacklog(4);
+    const pending = h.coordinator.backlog.runMemorizeBacklog(4);
     await settle();
     h.switchChat();
     reads[0].fail(new Error("the memory model answered 500"));
@@ -233,7 +235,7 @@ describe("AE-04 memory|delayedError: a backlog window whose read fails after a w
 
   it("control: the same held window that answers is stored and the pass goes on to the next window", async () => {
     const h = harness();
-    const pending = h.coordinator.runMemorizeBacklog(4);
+    const pending = h.coordinator.backlog.runMemorizeBacklog(4);
     await settle();
     reads[0].release();
     await settle();
@@ -269,7 +271,7 @@ describe("v2.4 plan 03 live finding: a backlog window's scene passes run before 
   it("at most one model call is in flight from the backlog and its scene passes at any time", async () => {
     sceneBreakAt.add(0);
     const { h, passes, open } = sceneHarness();
-    const pending = h.coordinator.runMemorizeBacklog(4);
+    const pending = h.coordinator.backlog.runMemorizeBacklog(4);
     let widest = 0;
     for (let step = 0; step < 20; step += 1) {
       await settle();
@@ -288,7 +290,7 @@ describe("v2.4 plan 03 live finding: a backlog window's scene passes run before 
   it("a switch during a scene pass runs no further pass and reads no further window", async () => {
     sceneBreakAt.add(0);
     const { h, passes } = sceneHarness();
-    const pending = h.coordinator.runMemorizeBacklog(4);
+    const pending = h.coordinator.backlog.runMemorizeBacklog(4);
     await settle();
     reads[0].release();
     await settle();

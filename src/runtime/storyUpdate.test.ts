@@ -43,7 +43,7 @@ const record = (raw: StoryV2, version: number, hash: string): StoryLibraryRecord
   hash,
   title: raw.title,
   description: raw.description,
-  raw,
+  raw: raw as unknown as Record<string, unknown>,
   importedAt: "2026-08-12T00:00:00.000Z",
   updatedAt: "2026-08-12T00:00:00.000Z",
 });

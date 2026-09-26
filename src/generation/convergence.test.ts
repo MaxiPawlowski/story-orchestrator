@@ -17,12 +17,12 @@ const readJson = (path: string) => JSON.parse(readFileSync(join(root, path), "ut
 
 const driftRaw = readJson("test/fixtures/convergence-drift.story.json");
 
-const beat = (objective: string, tensionTarget: string, gate: object, deltas: object[], progress?: object): GeneratedBeat => ({
+const beat = (objective: string, tensionTarget: string, gate: object, deltas: object[], progress?: object) => ({
   objective,
   guidance: `guidance for ${objective}`,
   tension_target: tensionTarget as GeneratedBeat["tension_target"],
-  outcomes: [{ label: objective, gate: gate as GeneratedBeat["outcomes"][0]["gate"], deltas: deltas as GeneratedBeat["outcomes"][0]["deltas"], ...(progress ? { progress: progress as GeneratedBeat["outcomes"][0]["progress"] } : {}) }],
-});
+  outcomes: [{ label: objective, gate: gate as GeneratedBeat["outcomes"][0]["gate"], deltas: deltas as GeneratedBeat["outcomes"][0]["deltas"], ...(progress ? { progress: progress as GeneratedBeat["outcomes"][0]["progress"] } : {}) } as GeneratedBeat["outcomes"][0]],
+}) as GeneratedBeat;
 
 const bridgeAChain: GeneratedBeat[] = [
   beat("Secure the approach", "tense", { q: "approach", op: "==", v: "safe" }, [{ q: "approach", v: "safe" }], { anchor: "midway", amount: 2 }),
@@ -41,7 +41,7 @@ const entry = (key: string, v: string | number | boolean, from = 1, to = 1) => (
   deltas: [{ q: key, v, source: "extractor" as const }],
 });
 
-const cacheEntry = (stubId: string, sourceId: string, targetId: string, beats: GeneratedBeat[]): ExpansionCacheEntry => ({
+const cacheEntry = (stubId: string, sourceId: string, targetId: string, beats: GeneratedBeat[]) => ({
   key: `${sourceId}->${stubId}->${targetId}`,
   status: "inserted",
   sourceCheckpointId: sourceId,
@@ -57,7 +57,7 @@ const cacheEntry = (stubId: string, sourceId: string, targetId: string, beats: G
   lastError: null,
   attempts: 1,
   updatedAt: "2026-07-05T00:00:00.000Z",
-});
+}) as Partial<ExpansionCacheEntry> as ExpansionCacheEntry;
 
 const mergedDriftStory = (): NormalizedStoryV2 => {
   const entries = {

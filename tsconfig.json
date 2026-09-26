@@ -13,7 +13,7 @@
     "noEmit": true,
     "baseUrl": "./src",
     "resolveJsonModule": true,
-    // v2.3 plan 08. No automatic @types inclusion: TypeScript otherwise pulls in every package it
+    // No automatic @types inclusion: TypeScript otherwise pulls in every package it
     // finds in a node_modules/@types above this one, with no include entry and no way to see it in
     // the project file. A host with @types/toastr installed merged its `Window.toastr` into ours and
     // broke two assignments in stHost/slashCommands.ts (measured: .debug/toastr-repro.mjs). Our own

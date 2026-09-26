@@ -2,6 +2,7 @@ import type { BoundaryResult } from "@engine/index";
 import { getChatWindow, planReconciliation, scheduleForcedCues, type ExtractionScheduler } from "@extraction/index";
 import type { SceneCoordinator } from "./coordinators/sceneCoordinator";
 import type { RuntimeManager } from "./runtimeManager";
+import { log } from "@utils/log";
 
 export const CONSOLIDATION_CADENCE = 10;
 
@@ -36,7 +37,7 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     },
   },
   {
-    // v2.2 plan 06: the judged typed read on every boundary, skipped when this boundary's cadence
+    // The judged typed read on every boundary, skipped when this boundary's cadence
     // read already carries the judged step. Fire-and-forget; the manager says whether it ran.
     id: "typed-read",
     order: 15,
@@ -56,7 +57,7 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     id: "reconciliation",
     order: 30,
     run: ({ manager, scheduler }) => {
-      const plan = planReconciliation(manager.getStory(), manager.getEngineState(), manager.getExtractionSettings().reconciliationMultiplier);
+      const plan = planReconciliation(manager.getStory(), manager.getEngineState(), manager.getExtractionSettings().reconciliationMultiplier, getChatWindow);
       if (!plan) return;
       manager.recordReconciliation(plan.descriptor);
       const reread = () => scheduler.schedule({ priority: 0, reason: plan.reason, window: plan.window });
@@ -71,7 +72,7 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     },
   },
   {
-    // v2.3 plan 07: a chain the critic passed is `validated`, and THIS is the boundary that makes it
+    // A chain the critic passed is `validated`, and THIS is the boundary that makes it
     // part of what the chat is playing (`inserted`). Ordered before `scene-detect` so the checkpoint
     // ids the scene pass reads are the ones already in the graph.
     id: "expansion-commit",
@@ -92,7 +93,7 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     },
   },
   {
-    // v2.2 plan 03: fire-and-forget, never a scheduler job (it would queue behind LLM reads). It
+    // Fire-and-forget, never a scheduler job (it would queue behind LLM reads). It
     // runs after scene-detect so a judged break only adds a read the heuristic did not schedule.
     id: "scene-read",
     order: 55,
@@ -103,16 +104,16 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
         messageId: result.context.lastMessageId,
         heuristicFired: Boolean(sceneHeuristicFired),
         scheduleRead: (reason) => scheduler.schedule({ priority: 0, reason }),
-      }).catch((error) => console.warn("[Story Orchestrator] scene read failed", error));
+      }).catch((error) => log.warn("scene read failed", error));
     },
   },
   {
-    // v2.2 plan 05: fire-and-forget on the judge, never a scheduler job; the warden itself checks
+    // Fire-and-forget on the judge, never a scheduler job; the warden itself checks
     // that the newest message is a character reply and that it is switched on.
     id: "continuity-warden",
     order: 57,
     run: ({ result, manager }) => {
-      void manager.runWardenPass(result.context.lastMessageId).catch((error) => console.warn("[Story Orchestrator] continuity warden failed", error));
+      void manager.runWardenPass(result.context.lastMessageId).catch((error) => log.warn("continuity warden failed", error));
     },
   },
   {
@@ -151,7 +152,7 @@ export function runBoundaryWork(context: BoundaryWorkContext) {
     try {
       item.run(context);
     } catch (error) {
-      console.warn(`[Story Orchestrator] boundary work '${item.id}' failed`, error);
+      log.warn(`boundary work '${item.id}' failed`, error);
     }
   }
 }

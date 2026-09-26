@@ -7,7 +7,7 @@ import { generateMemoryId, type MemoryEntry, type MemoryStoreState } from "./typ
 
 const NAMES = ["Mara", "Kael", "Bran", "Elara", "Doran", "Sela", "Tomas"];
 
-const mk = (text: string, createdAt: number, over: Partial<MemoryEntry> = {}): MemoryEntry => ({
+const mk = (text: string, createdAt: number, over: Partial<MemoryEntry> = {}) => ({
   id: generateMemoryId(),
   tier: "facts",
   text,
@@ -23,7 +23,7 @@ const mk = (text: string, createdAt: number, over: Partial<MemoryEntry> = {}): M
   recallCount: 0,
   tokens: Math.ceil(text.length / 4),
   ...over,
-});
+}) as MemoryEntry;
 
 // Each fact carries a globally unique token. The keyword-overlap fallback cannot
 // disambiguate facts that share a state phrase across subjects (that is exactly what

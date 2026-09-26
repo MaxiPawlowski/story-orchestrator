@@ -1,6 +1,6 @@
 import { execFile, spawn } from 'node:child_process';
 import { cp, mkdir, open, readFile, readdir, rm, writeFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { createWriteStream, existsSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
 import { PROJECT_ROOT } from './lib/connection.mts';
 
@@ -57,15 +57,40 @@ async function isUp(port: number) {
   }
 }
 
-function runNode(args: string[], env: Record<string, string>, logPath?: string): Promise<{ code: number; output: string }> {
+export function createLineStamper(onLine: (line: string) => void, now: () => Date = () => new Date()) {
+  let partial = '';
+  return {
+    push(chunk: string) {
+      const lines = (partial + chunk).split(/\r?\n/);
+      partial = lines.pop() ?? '';
+      for (const line of lines) onLine(`${now().toISOString()} ${line}`);
+    },
+    end() {
+      if (partial) onLine(`${now().toISOString()} ${partial}`);
+      partial = '';
+    },
+  };
+}
+
+function runNode(args: string[], env: Record<string, string>, { logPath, echo = false }: { logPath?: string; echo?: boolean } = {}): Promise<{ code: number; output: string }> {
   return new Promise((done) => {
     const child = spawn(process.execPath, args, { cwd: PROJECT_ROOT, env: { ...process.env, ...env }, windowsHide: true });
+    const log = logPath ? createWriteStream(logPath, { encoding: 'utf-8' }) : null;
+    const emit = (line: string) => {
+      log?.write(`${line}\n`);
+      if (echo) process.stdout.write(`${line}\n`);
+    };
+    const out = createLineStamper(emit);
+    const err = createLineStamper(emit);
     let output = '';
-    child.stdout.on('data', (chunk) => { output += chunk; });
-    child.stderr.on('data', (chunk) => { output += chunk; });
-    child.on('close', async (code) => {
-      if (logPath) await writeFile(logPath, output, 'utf-8');
-      done({ code: code ?? 1, output });
+    child.stdout.on('data', (chunk) => { output += chunk; out.push(String(chunk)); });
+    child.stderr.on('data', (chunk) => { output += chunk; err.push(String(chunk)); });
+    child.on('close', (code) => {
+      out.end();
+      err.end();
+      const finish = () => done({ code: code ?? 1, output });
+      if (log) log.end(finish);
+      else finish();
     });
   });
 }
@@ -144,7 +169,7 @@ async function batch(lanes: number[], items: string[], repeat: number, strict: b
       for (let run = 1; run <= repeat; run += 1) {
         const log = resolve(dir, `${stamp}-${basename(item).replace(/\.json$/, '')}-run${run}.log`);
         const began = Date.now();
-        const { code, output } = await runNode(itemArgs(item, strict, group, wiGating), laneEnv(n), log);
+        const { code, output } = await runNode(itemArgs(item, strict, group, wiGating), laneEnv(n), { logPath: log });
         const result = {
           item, lane: n, run, code, log, ms: Date.now() - began,
           automated: output.match(/^automated: .*$/m)?.[0] ?? null,
@@ -178,8 +203,7 @@ async function main() {
   } else if (command === 'run') {
     const [n] = laneNumbers(rest.slice(0, 1));
     const at = rest.indexOf('--');
-    const { code, output } = await runNode(rest.slice(at + 1), laneEnv(n));
-    process.stdout.write(output);
+    const { code } = await runNode(rest.slice(at + 1), laneEnv(n), { echo: true });
     process.exitCode = code;
     return;
   } else if (command === 'batch') {

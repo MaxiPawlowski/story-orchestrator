@@ -68,7 +68,7 @@ export const DISCARD_REASON = "superseded: a newer read covered the same turns";
 const writeText = (entry: ApplyQueueEntry) => entry.deltas.map((delta) => `${delta.q}=${String(delta.v)}`);
 const queueRow = (entry: ApplyQueueEntry) => ({ origin: entry.origin ?? entry.source, deltas: writeText(entry) });
 
-// Plan 01 §A: every boundary is journaled, including one that applied nothing, and each write says
+// Every boundary is journaled, including one that applied nothing, and each write says
 // which read produced it (`origin` = the audit id) so read -> applied/discarded links by identity.
 const boundaryEvents = (log: BoundaryLogEntry[]): JournalEvent[] => log.flatMap((entry) => {
   const at = new Date(entry.at).toISOString();
@@ -132,14 +132,28 @@ const reconciliationEvents = (events: ReconciliationEvent[]): JournalEvent[] => 
     detail: { checkpointId: event.checkpointId, targetedKeys: event.targetedKeys },
   }];
   if (event.resolvedAt) {
-    rows.push({ at: event.resolvedAt, boundary: event.boundary, messageId: -1, kind: "reconciliation", summary: `stall re-check resolved (${event.evidence.length} evidence)`, detail: { evidence: event.evidence } });
+    rows.push({
+      at: event.resolvedAt,
+      boundary: event.boundary,
+      messageId: -1,
+      kind: "reconciliation",
+      summary: `stall re-check resolved (${event.evidence.length} evidence)`,
+      detail: { evidence: event.evidence },
+    });
   }
   return rows;
 });
 
 export function buildSessionJournal(sources: JournalSources): JournalEvent[] {
   const events: JournalEvent[] = [
-    ...sources.records.map((record) => ({ at: record.at, boundary: record.boundary, messageId: record.messageId, kind: record.kind, summary: record.summary, ...(record.note ? { detail: { note: record.note } } : {}) })),
+    ...sources.records.map((record) => ({
+      at: record.at,
+      boundary: record.boundary,
+      messageId: record.messageId,
+      kind: record.kind,
+      summary: record.summary,
+      ...(record.note ? { detail: { note: record.note } } : {})
+    })),
     ...boundaryEvents(sources.boundaryLog),
     ...extractionEvents(sources.audits),
     ...pendingEvents(sources.pending ?? [], sources.audits, new Date().toISOString()),
@@ -210,7 +224,14 @@ export class SessionJournal {
   }
 
   flag(note: string, context: JournalContext): JournalRecord {
-    const record: JournalRecord = { at: new Date().toISOString(), boundary: context.boundary, messageId: context.messageId, kind: "flag", summary: note.trim() || "flagged this moment", ...(note.trim() ? { note: note.trim() } : {}) };
+    const record: JournalRecord = {
+      at: new Date().toISOString(),
+      boundary: context.boundary,
+      messageId: context.messageId,
+      kind: "flag",
+      summary: note.trim() || "flagged this moment",
+      ...(note.trim() ? { note: note.trim() } : {})
+    };
     this.push(record);
     return record;
   }

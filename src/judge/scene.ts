@@ -154,7 +154,7 @@ export function sceneTrackerText(facts: SceneFacts): string | null {
 }
 
 /**
- * C2 (v2.3 plan 03): how far the stored read can still be trusted. A read that does not answer —
+ * How far the stored read can still be trusted. A read that does not answer —
  * a timeout, an error, an unreachable plugin — used to leave the previous record untouched, so a
  * tracker that had not worked for ten minutes looked exactly like one that answered a second ago.
  * `failures` counts consecutive misses; past `SCENE_STALE_AFTER` the tracker is withheld rather
@@ -175,7 +175,7 @@ export interface SceneReadRecord {
   model: string | null;
   freshness?: SceneFreshness;
   /**
-   * v2.3 plan 05. Where this read came from. It is the same envelope every derived record carries
+   * Where this read came from. It is the same envelope every derived record carries
    * (`@memory/provenance`), declared structurally here because the judge core is pure and may not
    * import the memory layer.
    */
@@ -198,7 +198,7 @@ export interface SceneReadRecord {
 }
 
 /**
- * C2 (v2.3 plan 03): has the judge failed to confirm this scene often enough to stop asserting it?
+ * Has the judge failed to confirm this scene often enough to stop asserting it?
  *
  * It lives here, in the pure module, rather than on the coordinator, because four consumers have
  * to agree about it — the injected tracker block, the player's "where you are" line, the
@@ -222,6 +222,7 @@ export function toSceneRecord(read: SceneAnswers, input: SceneReadInput, meta: {
   // The read describes the messages it was handed, so its inputs name that span: an edit inside it
   // invalidates the facts derived from it, and the confidence is the weakest answer it rested on.
   const confidences = [read.location?.confidence, read.time?.confidence].filter((value): value is number => typeof value === "number");
+  const { present, headingTo } = read;
   return {
     ...meta,
     provenance: {
@@ -236,8 +237,17 @@ export function toSceneRecord(read: SceneAnswers, input: SceneReadInput, meta: {
     ...(read.sceneBreak ? { sceneBreak: { ...read.sceneBreak, triggered: sceneBreakTriggered(read) } } : {}),
     ...(read.location ? { location: read.location } : {}),
     ...(read.time ? { time: read.time } : {}),
-    ...(read.present ? { present: input.cast.filter((member) => member.rosterId in read.present!).map((member) => ({ id: member.rosterId, name: member.name, p: read.present![member.rosterId] })) } : {}),
-    ...(read.headingTo ? { headingTo: reachable.filter((entry) => entry.id in read.headingTo!).map((entry) => ({ id: entry.id, name: entry.name, p: read.headingTo![entry.id], hops: entry.hops ?? 1 })) } : {}),
+    ...(present ? { present: input.cast.filter((member) => member.rosterId in present).map((member) => ({
+      id: member.rosterId,
+      name: member.name,
+      p: present[member.rosterId],
+    })) } : {}),
+    ...(headingTo ? { headingTo: reachable.filter((entry) => entry.id in headingTo).map((entry) => ({
+      id: entry.id,
+      name: entry.name,
+      p: headingTo[entry.id],
+      hops: entry.hops ?? 1,
+    })) } : {}),
     facts: { ...facts, headingTo: facts.headingTo.map((id) => reachable.find((entry) => entry.id === id)?.name ?? id) },
   };
 }

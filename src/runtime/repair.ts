@@ -3,7 +3,7 @@ import type { RuntimeSnapshot } from "./types";
 import { hasUnsavedChanges, SAVE_PLAYER_TEXT } from "./saveHealth";
 import { ROLE_PROBLEM_STATES } from "./roleHealth";
 
-// v2.3 plan 09. The four things a person does here are Start, Continue, Repair and Author. Repair is
+// The four things a person does here are Start, Continue, Repair and Author. Repair is
 // the odd one: it is the one *missing* step, and the player surface, the HUD chip and the settings
 // panel all have to point at the same one. So it is derived once, here, worst-first — and the plain
 // consequence comes before the technical line, because "the story will not advance" is the part a
@@ -32,7 +32,7 @@ const entryCounts = (entries: Array<{ lorebook: string; comment: string }>) => {
   return [...counts].map(([lorebook, count]) => `${count} ${count === 1 ? "entry" : "entries"} in ${lorebook}`).join(", ");
 };
 
-// v2.5 plan 01 B: install-wide like the orphaned book, so it shows without a story too; last among the
+// B: install-wide like the orphaned book, so it shows without a story too; last among the
 // story's own steps, because the story in play still sees its own lore correctly. Books and counts only:
 // a checkpoint entry's name is a spoiler, and this row shows in player mode.
 function wiGatingStep(snapshot: RuntimeSnapshot): RepairStep | null {
@@ -67,7 +67,7 @@ function roleStep(snapshot: RuntimeSnapshot): RepairStep | null {
   return { area: "model-role", consequence: ROLE_CONSEQUENCES[route.role], detail: route.detail, targetId: roleProfileTargetId(route.role), provisionable: false };
 }
 
-// v2.4 plan 02 T14: a deleted chat's mirror book the reaper did not delete (declined, not provably ours,
+// A deleted chat's mirror book the reaper did not delete (declined, not provably ours,
 // or the deletion could not be confirmed). Last, because it costs the story in play nothing, and shown
 // without a story too, because the chat it belonged to is gone.
 function orphanedLorebookStep(snapshot: RuntimeSnapshot): RepairStep | null {
@@ -116,7 +116,7 @@ export function nextRepairStep(snapshot: RuntimeSnapshot): RepairStep | null {
       provisionable: true,
     };
   }
-  // v2.4 plan 05 T12 (D9 shape rule): a story book in the scan view before every other listener and
+  // A story book in the scan view before every other listener and
   // gone after all of them, two loud generations running. No extension is named: there is no allowlist.
   const hidden = snapshot.loreEvidence?.hiddenBooks ?? [];
   if (hidden.length) {

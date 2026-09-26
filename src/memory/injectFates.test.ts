@@ -9,7 +9,7 @@ import { blockTokens } from "./budget";
 import { buildMemoryInjection, type InjectionOptions } from "./inject";
 import { MEMORY_TIERS, type MemoryEntry, type MemoryTier } from "./types";
 
-const entry = (overrides: Partial<MemoryEntry>): MemoryEntry => ({
+const entry = (overrides: Partial<MemoryEntry>) => ({
   id: overrides.id ?? `id-${Math.random()}`,
   tier: "facts",
   text: "text",
@@ -23,7 +23,7 @@ const entry = (overrides: Partial<MemoryEntry>): MemoryEntry => ({
   createdAt: 0,
   recallCount: 0,
   ...overrides,
-});
+}) as MemoryEntry;
 
 const budgets = (facts: number): Record<MemoryTier, number> => ({ facts, session_details: 100000, short_term: 100000, scene_history: 100000 });
 const opts = (tokenBudgets: Record<MemoryTier, number>): InjectionOptions => ({ tokenBudgets, scoreContext: { boundary: 0, turnText: "", turnEntities: [] } });

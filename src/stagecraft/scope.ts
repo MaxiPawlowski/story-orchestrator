@@ -3,7 +3,7 @@ import type { CuratorEntryView } from "./types";
 
 // The whole write scope of every background curator, in one function: the story's own
 // `stagecraft.lorebooks`. Nothing is inferred from requirements or from world_info effects (user
-// decision 2026-08-11), so a story that says nothing grants nothing.
+// decision), so a story that says nothing grants nothing.
 export const curatorLorebooks = (story: NormalizedStoryV2 | null): string[] =>
   (story?.stagecraft?.lorebooks ?? []).map((name) => name.trim()).filter(Boolean);
 

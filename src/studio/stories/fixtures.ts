@@ -21,7 +21,7 @@ export const sampleStory = (): StoryDraft => ({
   roster: [{ id: "guide", name: "The Guide" }],
 });
 
-// v2.3 plan 09 fixture: nothing here is special except the length. A key that is a sentence, a rubric
+// Fixture: nothing here is special except the length. A key that is a sentence, a rubric
 // that is a paragraph, and twelve options — the shapes a real author produces and a fixed-width row
 // does not survive.
 export const longNameStory = (): StoryDraft => ({
@@ -33,12 +33,26 @@ export const longNameStory = (): StoryDraft => ({
       key: "how_completely_the_party_has_earned_the_trust_of_the_ferryman_who_owns_the_only_boat",
       type: "int",
       source: "extractor",
-      rubric: "How completely the party has earned the ferryman's trust, read from what they have done in front of him rather than from what they have said about themselves, from 0 (he will not look at them) to 5 (he would hand over the tiller).",
+      rubric: "How completely the party has earned the ferryman's trust, read from what they have done in front of him rather than from what they have said about themselves, " +
+        "from 0 (he will not look at them) to 5 (he would hand over the tiller).",
     },
     {
       key: "the_road_the_party_took_through_the_flooded_quarter",
       type: "enum",
-      values: ["the toll road", "the flooded underpass", "the roof line", "the barge", "the stairs by the mill", "the tunnel under the wall", "the old aqueduct", "the rope bridge", "the long way round", "the smuggler's cut", "the temple steps", "the ferry"],
+      values: [
+        "the toll road",
+        "the flooded underpass",
+        "the roof line",
+        "the barge",
+        "the stairs by the mill",
+        "the tunnel under the wall",
+        "the old aqueduct",
+        "the rope bridge",
+        "the long way round",
+        "the smuggler's cut",
+        "the temple steps",
+        "the ferry",
+      ],
       source: "extractor",
       rubric: "Which of the twelve ways through the flooded quarter the party actually used.",
     },

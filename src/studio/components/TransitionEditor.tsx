@@ -86,7 +86,12 @@ const TransitionEditor: React.FC = () => {
                 </select>
               </Field>
               <Field label="Priority">
-                <input type="number" className="text_pole st-input" value={selected.priority} onChange={(event) => { const parsed = parseInt(event.target.value, 10); patch({ priority: Number.isFinite(parsed) ? parsed : 0 }); }} />
+                <input
+                  type="number"
+                  className="text_pole st-input"
+                  value={selected.priority}
+                  onChange={(event) => { const parsed = parseInt(event.target.value, 10); patch({ priority: Number.isFinite(parsed) ? parsed : 0 }); }}
+                />
               </Field>
             </div>
 
@@ -114,7 +119,15 @@ const TransitionEditor: React.FC = () => {
                     </select>
                   </Field>
                   <Field label="Amount">
-                    <input type="number" className="text_pole st-input" value={progress.amount} onChange={(event) => { const parsed = parseFloat(event.target.value); patch({ effects: { progress: { anchor: progress.anchor, amount: Number.isFinite(parsed) ? parsed : 0 } } }); }} />
+                    <input
+                      type="number"
+                      className="text_pole st-input"
+                      value={progress.amount}
+                      onChange={(event) => {
+                        const parsed = parseFloat(event.target.value);
+                        patch({ effects: { progress: { anchor: progress.anchor, amount: Number.isFinite(parsed) ? parsed : 0 } } });
+                      }}
+                    />
                   </Field>
                 </div>
               ) : null}

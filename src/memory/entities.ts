@@ -3,7 +3,7 @@ import type { LedgerBinding } from "./ledger";
 import type { LedgerEntry, MemoryEntry } from "./types";
 import { isLive } from "./provenance";
 
-// v2.3 plan 05. Who and what the memory model is allowed to talk about, derived from the story and
+// Who and what the memory model is allowed to talk about, derived from the story and
 // the ledger rather than owned by a coordinator: the ledger pass, the extraction scope and the
 // conflict queue all ask the same question, and each answering it for itself is how two of them end
 // up disagreeing about the cast.
@@ -11,8 +11,9 @@ import { isLive } from "./provenance";
 export function ledgerBindings(story: NormalizedStoryV2 | null): LedgerBinding[] {
   if (!story) return [];
   return Object.values(story.qualityByKey)
-    .filter((quality) => quality.ledger_binding)
-    .map((quality) => ({ entity: quality.ledger_binding!.entity, field: quality.ledger_binding!.field, qualityKey: quality.key }));
+    .flatMap((quality) => (quality.ledger_binding
+      ? [{ entity: quality.ledger_binding.entity, field: quality.ledger_binding.field, qualityKey: quality.key }]
+      : []));
 }
 
 /** The roster, then the bound entities, then whatever the ledger has actually seen. */

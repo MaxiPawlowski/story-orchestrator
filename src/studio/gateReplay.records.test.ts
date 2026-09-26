@@ -29,7 +29,7 @@ const runs = walk(RECORDS).filter((path) => /engine-history-.*\.json$/.test(path
     for (const run of runs) {
       const edges: ReplayEdge[] = run.story.transitions.map((transition, order) => ({ from: transition.from, to: transition.to, gate: transition.gate, priority: transition.priority, order }));
       const declared = new Set(Object.keys(run.story.qualityByKey));
-      progressFires += run.history.log.filter((entry) => entry.fired?.effects?.progress).length;
+      progressFires += run.history.log.filter((entry) => (entry as RecordedRun["history"]["log"][number]).fired?.effects?.progress).length;
       for (const edge of edges) {
         const result = replayGate({ edge, siblings: edges, history: run.history, declared });
         const misses = result.rows.filter((row) => row.atSource && !row.manual && row.wouldFire !== row.recordedFire).map((row) => `${run.file}: ${edge.from}->${edge.to} at boundary ${row.boundary}`);

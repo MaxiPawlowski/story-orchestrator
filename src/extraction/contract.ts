@@ -1,6 +1,6 @@
 import { TENSION_CURRENT_KEY, TENSION_LEVELS, type TensionLevel } from "@engine/index";
 import { renderMemoryContractAddendum } from "@memory/contract";
-import { stableStringify } from "@runtime/hash";
+import { fnv1a, stableStringify } from "@runtime/hash";
 import type { SharedReadContract } from "./types";
 
 const TENSION_SCALE: Record<TensionLevel, string> = {
@@ -18,7 +18,8 @@ const renderType = (contract: SharedReadContract) => contract.qualities.map(({ q
   const hintText = hints.length ? ` Hints: ${hints.join(" | ")}` : "";
   if (quality.key === TENSION_CURRENT_KEY) {
     return [
-      `- ${TENSION_CURRENT_KEY}: type=level; Rate the current tension — pick the highest level whose description is met, not the average mood; write value as one quoted level, cite the strongest signal.${hintText}`,
+      `- ${TENSION_CURRENT_KEY}: type=level; Rate the current tension — pick the highest level whose description is met, not the average mood; write value as one quoted level, ` +
+        `cite the strongest signal.${hintText}`,
       ...TENSION_LEVELS.map((level) => `  ${level}: ${TENSION_SCALE[level]}`),
     ].join("\n");
   }
@@ -59,8 +60,7 @@ export function renderSharedReadPrompt(contract: SharedReadContract): string {
 }
 
 export function hashContract(contract: SharedReadContract): string {
-  let hash = 2166136261;
-  const text = stableStringify({
+  return fnv1a(stableStringify({
     storyTitle: contract.storyTitle,
     activeCheckpointId: contract.activeCheckpointId,
     qualities: contract.qualities.map((quality) => quality.key),
@@ -71,10 +71,5 @@ export function hashContract(contract: SharedReadContract): string {
     entities: contract.entities ?? [],
     ...(contract.window.form ? { windowForm: contract.window.form } : {}),
     ...(marksPlayerLines(contract) ? { playerLines: true } : {}),
-  });
-  for (let index = 0; index < text.length; index += 1) {
-    hash ^= text.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-  }
-  return (hash >>> 0).toString(16).padStart(8, "0");
+  }));
 }

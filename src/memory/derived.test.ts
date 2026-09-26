@@ -1,13 +1,13 @@
-import { disappearingEntries, recordDerived, rollbackDerived, type DerivedRecord } from "./derived";
+import { disappearingEntries, recordDerived, rollbackDerived, type DerivedInput, type DerivedRecord } from "./derived";
 import { excludeEntry, hashMemoryText, createMemoryState } from "./stores";
-import { reverseMemoryState } from "./reverse";
+import { reverseMemoryState, type MemoryRollbackState } from "./reverse";
 import type { ArcEntry, MemoryEntry } from "./types";
 
 // v2.3 plan 04. The half of the rollback contract that is not about messages: an artifact built from
 // rows has to go when the rows do, and it has to give back what it removed. Each case here is one of
 // the six kinds the plan names.
 
-const entry = (id: string, messageId: number, text = `fact ${id}`): MemoryEntry => ({
+const entry = (id: string, messageId: number, text = `fact ${id}`) => ({
   id,
   tier: "facts",
   text,
@@ -21,7 +21,7 @@ const entry = (id: string, messageId: number, text = `fact ${id}`): MemoryEntry 
   createdAt: messageId,
   messageId,
   recallCount: 0,
-});
+}) as Partial<MemoryEntry> as MemoryEntry;
 
 const record = (overrides: Partial<DerivedRecord> = {}): DerivedRecord => ({ ...recordDerived([], { kind: "canon", inputs: [], boundary: 1, messageId: 10 })[0], ...overrides });
 const removed = (...ids: string[]) => new Set(ids);
@@ -102,7 +102,7 @@ describe("derived artifacts reverse with their inputs", () => {
       confirmedAt: [{ messageId: 2 }, { messageId: 4 }, { messageId: 6 }],
     };
     const start = { ...createMemoryState(), entries: [survivor], shortTermSummaryEnd: -1, arcs: [], epistemic: [], ledger: [], canon: null, verifyDrops: [], derived: [] };
-    const next = reverseMemoryState(start, 4, 3);
+    const next = reverseMemoryState(start as Partial<MemoryRollbackState> as MemoryRollbackState, 4, 3);
     expect(next.entries?.[0].recallCount).toBe(1);
     expect(next.entries?.[0].confirmedAt).toEqual([{ messageId: 2 }]);
   });
@@ -124,7 +124,7 @@ describe("a memory rollback through the real composition", () => {
     const start = { ...state(), entries: [entry("m1", 2), entry("m2", 8)], shortTermSummaryEnd: 12 };
     const excluded = excludeEntry(start, "m1");
     const withRecord = { ...excluded, derived: recordDerived([], { kind: "exclusion", inputs: ["m1"], removed: [entry("m1", 2)], hash: hashMemoryText("fact m1"), boundary: 3, messageId: 8 }) };
-    const next = reverseMemoryState(withRecord, 8, 3);
+    const next = reverseMemoryState(withRecord as Partial<MemoryRollbackState> as MemoryRollbackState, 8, 3);
     expect(next.entries?.map((row) => row.id)).toContain("m1");
     expect(next.excluded).toEqual([]);
     expect(next.derived).toEqual([]);
@@ -136,9 +136,9 @@ describe("a memory rollback through the real composition", () => {
       ...state(),
       entries: [entry("s1", 10, "summary of 1-10")],
       shortTermSummaryEnd: 10,
-      derived: recordDerived([], { kind: "short_term", outputId: "s1", range: { from: 1, to: 10 }, removed: [entry("old", 4)], boundary: 4, messageId: 10 }),
+      derived: recordDerived([], { kind: "short_term", outputId: "s1", range: { from: 1, to: 10 }, removed: [entry("old", 4)], boundary: 4, messageId: 10 } as DerivedInput),
     };
-    const rewound = reverseMemoryState(start, 10, 5);
+    const rewound = reverseMemoryState(start as Partial<MemoryRollbackState> as MemoryRollbackState, 10, 5);
     expect(rewound.shortTermSummaryEnd).toBe(0);
     expect(rewound.entries?.map((row) => row.id)).toContain("old");
     expect(rewound.entries?.map((row) => row.id)).not.toContain("s1");
@@ -147,7 +147,7 @@ describe("a memory rollback through the real composition", () => {
   it("drops an arc summary whose source was invalidated", () => {
     const arc: ArcEntry = { id: "a1", text: "Find the ferryman", status: "resolved", entities: [], openedAt: 0, resolvedAt: 2, summary: "He was found." };
     const start = { ...state(), arcs: [arc], derived: recordDerived([], { kind: "arc_summary", inputs: ["a1"], boundary: 4, messageId: 10 }) };
-    const rewound = reverseMemoryState(start, 10, 5);
+    const rewound = reverseMemoryState(start as Partial<MemoryRollbackState> as MemoryRollbackState, 10, 5);
     expect(rewound.arcs?.[0].summary).toBeUndefined();
   });
 });

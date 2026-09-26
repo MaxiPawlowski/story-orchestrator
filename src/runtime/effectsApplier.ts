@@ -29,8 +29,9 @@ import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoG
 import { worldInfoFilesHeld } from "./worldInfoMode";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { generationWatch } from "./generationWatch";
+import { isRecord } from "@utils/guards";
 
-// v2.3 plan 06. What a host effect changed, read back from the host as it is NOW. Every reader is a
+// What a host effect changed, read back from the host as it is NOW. Every reader is a
 // QUESTION with an honest "cannot tell", so a reconcile never guesses: a target whose value cannot be
 // read leaves its row `pending` rather than inventing an answer.
 export interface EffectHostReads {
@@ -49,22 +50,23 @@ export const rollbackCastMirror = (mirror: Array<{ member: string; disabled: boo
   return next;
 };
 
-// V15b: the targets a restore can put back. v2.4 plan 06: a preset is a per-request sampler overlay
+// The targets a restore can put back. a preset is a per-request sampler overlay
 // that writes nothing to the host, so it has nothing to restore and is not "left in place" either.
 const RESTORABLE = new Set<EffectTarget["kind"]>(["cast", "an", "background"]);
 const NOTHING_TO_RESTORE = new Set<EffectTarget["kind"]>(["preset"]);
 
 export const OVERLAY_UNSUPPORTED_REASON = "a checkpoint preset applies on Text Completion and Chat Completion connections only; this connection uses another API";
 
-const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
-const readStrings = (value: unknown): string[] => Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0) : typeof value === "string" && value.trim() ? [value] : [];
+const readStrings = (value: unknown): string[] => Array.isArray(value) ? value.filter(
+  (entry): entry is string => typeof entry === "string" && entry.trim().length > 0,
+) : typeof value === "string" && value.trim() ? [value] : [];
 
 const readNpcReplies = (effects: CheckpointEffects | undefined): NpcReplyEffect[] => {
   const value = effects?.npc_replies;
   return Array.isArray(value) ? value : [];
 };
 
-// V15b: what the authored note resolves to, so the ledger can record it before the host is touched.
+// What the authored note resolves to, so the ledger can record it before the host is touched.
 const authorNoteText = (value: unknown, snapshot: RuntimeSnapshot): string | null => {
   if (value === null) return "";
   if (typeof value === "string") return value;
@@ -96,9 +98,9 @@ export function resolvePreset(value: unknown, story: NormalizedStoryV2, api: Sam
   return { name, settings: inline ?? (api && typeof value.name === "string" ? readSamplerPreset(value.name, api) : null) };
 }
 
-// V3: each book is two host writes and the plan spans several books, so the world is asked before
+// Each book is two host writes and the plan spans several books, so the world is asked before
 // every one of them, not once around the loop.
-// V17: each toggle answers what the host did, and a refusal is returned so the caller can journal
+// Each toggle answers what the host did, and a refusal is returned so the caller can journal
 // it; before, both answers were discarded and a lost write read as an applied checkpoint.
 const applyWorldInfo = async (plans: WorldInfoBookPlan[], run?: RunGuard): Promise<string[]> => {
   const refused: string[] = [];
@@ -114,8 +116,8 @@ const applyWorldInfo = async (plans: WorldInfoBookPlan[], run?: RunGuard): Promi
   return refused;
 };
 
-// v2.5 plan 01 C: leaving scan mode applies the open chat's state through the file path at once. It enables
-// from rest-off (S6). `path` is null when the story's requirements do not hold, which leaves its own entries
+// C: leaving scan mode applies the open chat's state through the file path at once. It enables
+// from rest-off. `path` is null when the story's requirements do not hold, which leaves its own entries
 // alone, as the file path does.
 export const replayWorldInfoFiles = async (library: unknown[], story: NormalizedStoryV2 | null, path: string[] | null, run?: RunGuard): Promise<string[]> => {
   const released = await applyWorldInfo(releasePlan(story ? [...library, story] : library, story), run);
@@ -123,7 +125,7 @@ export const replayWorldInfoFiles = async (library: unknown[], story: Normalized
   return [...released, ...(await applyWorldInfo(worldInfoPlan(story, path), run))];
 };
 
-// v2.3 plan 06 (S2). `disabled_members` lives on the GROUP, shared by every chat that opens it, so a
+// `disabled_members` lives on the GROUP, shared by every chat that opens it, so a
 // checkpoint's cast change outlives the chat that made it: one story's staging would otherwise decide
 // another story's cast. Each member an effect names is its own ledger row, carrying the flag the
 // group held BEFORE, and the chat keeps its own `extras.effects.cast` mirror — what this chat plays
@@ -153,7 +155,7 @@ export interface EffectApplierDeps {
   /** Persist what has been recorded so far: a pending row must survive a crash to be reconciled. */
   persist?: () => Promise<void>;
   /**
-   * v2.3 plan 11 §Fault matrix. Whether the last save is still unwritten (`hasUnsavedChanges`).
+   * Matrix. Whether the last save is still unwritten (`hasUnsavedChanges`).
    * `persist()` cannot answer this: it resolves even when nothing landed, because the call it wraps
    * swallows its own errors. Read AFTER the write-ahead persist, this is the evidence that the
    * `pending` row exists anywhere but memory — and a host effect whose record is memory-only is the
@@ -166,7 +168,7 @@ export interface EffectApplierDeps {
    * switching on an unrecorded write is the failure the row exists to prevent. The queue asks "may I
    * tell the AUTHOR their decision is settled?" — and refusing THAT on a read-back that merely could
    * not speak would block the only actor who can make the decision, for a write that in fact landed.
-   * Unifying them would move one of the two failures to the other's side of the line (2026-09-22).
+   * Unifying them would move one of the two failures to the other's side of the line.
    */
   unsaved?: () => boolean;
   journal?: (summary: string, note?: string) => void;
@@ -196,7 +198,7 @@ export class EffectsApplier {
     }
   }
 
-  // v2.3 plan 06. The write-ahead rule for one effect: RECORD what is about to change (and what it
+  // The write-ahead rule for one effect: RECORD what is about to change (and what it
   // holds now) BEFORE the host is touched, then record what the host said. A crash in between leaves
   // a `pending` row that hydrate reconciles against the host's own value, so a write that landed
   // without being recorded is still known to have landed — and one that never landed is known to
@@ -226,7 +228,7 @@ export class EffectsApplier {
   // each time, so a flag another chat left in a shared lorebook never survives into this one.
   async applyCheckpoint(story: NormalizedStoryV2, checkpoint: Checkpoint, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate", path: string[]) {
     if (!extras.requirements.ready) return;
-    // v2.3 plan 03. This is the write edge with the widest blast radius in the extension: unlike
+    // This is the write edge with the widest blast radius in the extension: unlike
     // a memory pass, almost nothing here is per-chat. World Info flags live in shared lorebook
     // FILES, the Author's Note and preset are install state, and `cast_changes` mutates the
     // GROUP's disabled_members, which outlives the chat entirely. Five awaits run in sequence,
@@ -244,7 +246,11 @@ export class EffectsApplier {
     const effects: CheckpointEffects = checkpoint.effects ?? {};
     if (!run.stillOwns()) return;
     const note = effects.author_note === undefined ? null : authorNoteText(effects.author_note, snapshot);
-    if (note !== null) await this.withLedger(extras, { effect: "author_note", target: { kind: "an" }, before: this.reads().read({ kind: "an" }), after: { text: note }, ...scope }, () => applyAuthorNote(effects.author_note, note));
+    if (note !== null) await this.withLedger(
+      extras,
+      { effect: "author_note", target: { kind: "an" }, before: this.reads().read({ kind: "an" }), after: { text: note }, ...scope },
+      () => applyAuthorNote(effects.author_note, note),
+    );
     // The check goes before EVERY host write, not once per group of them: the Author Note above is
     // itself a host write, so the preset below it is the second one since the last check.
     if (!run.stillOwns()) return;
@@ -252,7 +258,11 @@ export class EffectsApplier {
     if (effects.preset !== undefined) {
       const api = samplerApi();
       const preset = resolvePreset(effects.preset, story, api);
-      await this.withLedger(extras, { effect: "preset", target: { kind: "preset", name: preset.name, api: api ?? "none" }, before: null, after: { name: preset.name }, ...scope }, async () => this.armOverlay(preset, api, checkpoint.id));
+      await this.withLedger(
+        extras,
+        { effect: "preset", target: { kind: "preset", name: preset.name, api: api ?? "none" }, before: null, after: { name: preset.name }, ...scope },
+        async () => this.armOverlay(preset, api, checkpoint.id),
+      );
     }
     if (!run.stillOwns()) return;
     if (mode === "hydrate") await this.applyCastMirror(extras, scope, run);
@@ -261,11 +271,15 @@ export class EffectsApplier {
     // Deterministic stagecraft: idempotent, so hydrating a chat and rolling back into this
     // checkpoint both restore its background without re-triggering anything.
     // `applyCastChanges` awaits once per member, so this needs its own check: without it the
-    // background is the one write in this sequence that can land in another chat (2026-09-22).
+    // background is the one write in this sequence that can land in another chat.
     if (!run.stillOwns()) return;
     if (effects.background) {
       const name = effects.background.name;
-      await this.withLedger(extras, { effect: "background", target: { kind: "background" }, before: this.reads().read({ kind: "background" }), after: { name }, ...scope }, () => applyBackground(name));
+      await this.withLedger(
+        extras,
+        { effect: "background", target: { kind: "background" }, before: this.reads().read({ kind: "background" }), after: { name }, ...scope },
+        () => applyBackground(name),
+      );
     }
     if (!run.stillOwns()) return;
     if (mode === "activate") await this.fireNpcReplies(checkpoint, extras, "onEnter");
@@ -275,7 +289,7 @@ export class EffectsApplier {
     extras.updatedAt = new Date().toISOString();
   }
 
-  // v2.4 plan 06 (X20): a checkpoint preset is a sampler overlay on this checkpoint's loud requests. It
+  // A checkpoint preset is a sampler overlay on this checkpoint's loud requests. It
   // never changes the selected preset and writes no install-wide setting; unknown keys are reported.
   private armOverlay(preset: { name: string; settings: Record<string, unknown> | null }, api: SamplerApi | null, checkpointId: string) {
     if (!api) return couldNot(OVERLAY_UNSUPPORTED_REASON);
@@ -287,7 +301,7 @@ export class EffectsApplier {
     return wrote({ name: preset.name });
   }
 
-  // v2.4 plan 05 T13 spike: under scan-time gating a chat's world info is a per-scan view, so neither
+  // Spike: under scan-time gating a chat's world info is a per-scan view, so neither
   // the path replay nor the release writes a file. Default off; the file path is the fallback.
   async releaseWorldInfo(owners: unknown[], keep: unknown | null, run?: RunGuard) {
     if (worldInfoFilesHeld()) return;
@@ -300,7 +314,10 @@ export class EffectsApplier {
   private async applyCastChanges(value: unknown, extras: RuntimeExtras, scope: { checkpointId: string | null; boundary: number; messageId: number }, run: RunGuard) {
     if (!isRecord(value)) return;
     const group = getActiveGroup();
-    const changes: Array<[string, boolean]> = [...readStrings(value.disable).map((name): [string, boolean] => [name, true]), ...readStrings(value.enable).map((name): [string, boolean] => [name, false])];
+    const changes: Array<[string, boolean]> = [
+      ...readStrings(value.disable).map((name): [string, boolean] => [name, true]),
+      ...readStrings(value.enable).map((name): [string, boolean] => [name, false])
+    ];
     for (const [identifier, disabled] of changes) {
       // Inside the loop, like `fireNpcReplies`: one member is one await, and a two-member change
       // that stops half-way must not disable the second member on another chat's group.
@@ -324,7 +341,11 @@ export class EffectsApplier {
       if (!run.stillOwns()) return;
       const before = castFlag(group, member);
       if (before.disabled === disabled) continue;
-      await this.withLedger(extras, { ...scope, effect: "cast", target: { kind: "cast", group: String(group.id ?? ""), member }, before, after: { disabled } }, async () => setGroupMembersDisabled(disabled ? [] : [member], disabled ? [member] : []));
+      await this.withLedger(
+        extras,
+        { ...scope, effect: "cast", target: { kind: "cast", group: String(group.id ?? ""), member }, before, after: { disabled } },
+        async () => setGroupMembersDisabled(disabled ? [] : [member], disabled ? [member] : []),
+      );
     }
   }
 
@@ -344,7 +365,7 @@ export class EffectsApplier {
   }
 
   /**
-   * v2.3 plan 06. Put back what this chat changed in shared host state. Compare-and-set: a row whose
+   * Put back what this chat changed in shared host state. Compare-and-set: a row whose
    * target no longer holds what this chat wrote is REFUSED and marked `externally-changed`, so a
    * restore can never silently undo an edit someone else made in between.
    */
@@ -392,7 +413,7 @@ export class EffectsApplier {
     if (trigger === "afterSpeak" && extras.lastSelfInjectionMessageId === lastMessageId()) return;
     const aliases = speakerAliases.map((alias) => alias.trim().toLowerCase());
     const replies = readNpcReplies(checkpoint.effects).filter((reply) => reply.trigger === trigger);
-    // v2.3 plan 03. This is the only effect that SPEAKS: `fireReply` posts a message into whatever
+    // This is the only effect that SPEAKS: `fireReply` posts a message into whatever
     // chat is open. One await per reply, so a multi-reply checkpoint that outlives its chat puts
     // the rest of this story's characters into somebody else's conversation, visibly, in the
     // transcript. The check is inside the loop because each reply is its own write.

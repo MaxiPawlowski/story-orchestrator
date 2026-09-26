@@ -49,20 +49,20 @@ export interface BoundaryLogEntry {
 }
 
 // The oldest point a rollback can reach, and everything that gets there. Persisted with the state:
-// without it a reload cannot honour an edit to a message the run has already passed (R4), and
-// without a floor a rollback past the retained window would silently do nothing (E1).
+// without it a reload cannot honour an edit to a message the run has already passed, and
+// without a floor a rollback past the retained window would silently do nothing.
 //
 // `base` is the state AT `from` — the floor itself, restorable. The log alone is not enough: its
 // oldest entry describes a transition FROM a state nothing retains, so after a reload an edit to
 // the chat's own first message had nothing to roll back to and reported the history as gone while
-// the run was one boundary old (found live, J6.6).
+// the run was one boundary old (found live).
 export interface EngineHistory {
   from: { boundary: number; messageId: number };
   base: EngineState;
   log: BoundaryLogEntry[];
 }
 
-// E1's contract: a caller can tell "nothing to undo" from "the history is gone", and the second
+// Contract: a caller can tell "nothing to undo" from "the history is gone", and the second
 // carries the floor so a recovery notice can name it.
 export type RollbackOutcome =
   | { ok: true; result: "applied" | "noop" }
@@ -135,7 +135,7 @@ export class StoryEngine {
     this.hydrateHistory(history);
   }
 
-  // R4: what a reload needs to still recognise an edit to a message the run has already passed. The
+  // What a reload needs to still recognise an edit to a message the run has already passed. The
   // log carries a complete state per boundary, so restoring one is exact rather than replayed, and
   // the base is the state the oldest of them started from.
   serializeHistory(): EngineHistory {
@@ -169,7 +169,7 @@ export class StoryEngine {
     return oldest ? { boundary: oldest.boundary, messageId: oldest.after.lastMessageId } : { boundary: this.boundary, messageId: this.lastMessageId };
   }
 
-  // L4 (2026-09-23): a merged or staled expansion changes the graph under a live run. Reloading and
+  // A merged or staled expansion changes the graph under a live run. Reloading and
   // hydrating dropped the pending writes (a staled chain at the start of a boundary threw away the
   // write that boundary was committing) and the boundary history rollback needs.
   replaceGraph(normalized: NormalizedStoryV2): void {
@@ -241,7 +241,7 @@ export class StoryEngine {
     return { boundary: this.boundary, queue, fired, effects, activeCheckpointId: this.activeCheckpointId, context: normalizedContext, previousLastMessageId: before.lastMessageId };
   }
 
-  // E1: three outcomes, and a caller can tell them apart. `noop` means the run is already at or
+  // Three outcomes, and a caller can tell them apart. `noop` means the run is already at or
   // before that point; `unavailable` means the history that would get there is gone, which the
   // caller must report rather than treat as "nothing changed".
   rollbackTo(boundary: number): RollbackOutcome {
@@ -282,7 +282,15 @@ export class StoryEngine {
     this.boundaryLog.push({ at: this.host.now(), boundary: this.boundary, before, after, fired: null, source: "manual", context: normalizedContext, queue, evaluated: null });
     if (this.boundaryLog.length > 200) this.boundaryLog.shift();
     this.recordSnapshot();
-    return { boundary: this.boundary, queue, fired: null, effects: checkpoint.effects ?? null, activeCheckpointId: this.activeCheckpointId, context: normalizedContext, previousLastMessageId: before.lastMessageId };
+    return {
+      boundary: this.boundary,
+      queue,
+      fired: null,
+      effects: checkpoint.effects ?? null,
+      activeCheckpointId: this.activeCheckpointId,
+      context: normalizedContext,
+      previousLastMessageId: before.lastMessageId,
+    };
   }
 
   // `null` is not "boundary 0": it is "the state before this message is no longer retained", which
@@ -302,10 +310,10 @@ export class StoryEngine {
     return Math.min(oldestSnapshot ?? Number.POSITIVE_INFINITY, oldestLogged ?? Number.POSITIVE_INFINITY);
   }
 
-  // L2 (2026-09-23): a delete with nothing to undo still takes the chat's end from under the cursor.
+  // A delete with nothing to undo still takes the chat's end from under the cursor.
   // Left at the old end, the next boundary scanned from past the new messages and every window
-  // started after them (J6.3: lastMessageId 7 over a chat of 1).
-  // v2.4 plan 01 (T1 live, 2026-09-24). A queued write read the chat as it was. A mutation at or before the end of its read window changed
+  // started after them (lastMessageId 7 over a chat of 1).
+  // A queued write read the chat as it was. A mutation at or before the end of its read window changed
   // what it read, and a rollback that restores nothing never reaches `rollbackTo`'s flush.
   discardPendingFrom(messageId: number): ApplyQueueEntry[] {
     return Number.isFinite(messageId) ? this.queue.discardReadingFrom(messageId) : [];

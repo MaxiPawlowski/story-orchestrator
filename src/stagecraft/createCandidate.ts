@@ -126,14 +126,24 @@ export interface CreateCase {
 export const caseEntries = (entry: CreateCase): CuratorEntryView[] =>
   entry.entries.map((row) => ({ lorebook: entry.book, comment: row.comment, keys: row.keys, content: row.content, disabled: false, uid: row.uid }));
 
-export const caseScope = (entry: CreateCase): CuratorScope => ({ storyTitle: entry.story, checkpointName: entry.checkpoint, objective: "", canon: entry.canon, openArcs: [], entries: caseEntries(entry) });
+export const caseScope = (entry: CreateCase): CuratorScope => ({
+  storyTitle: entry.story,
+  checkpointName: entry.checkpoint,
+  objective: "",
+  canon: entry.canon,
+  openArcs: [],
+  entries: caseEntries(entry),
+});
 
 export const caseContext = (entry: CreateCase): CreateCandidateContext => ({ allowlist: [entry.book], entries: caseEntries(entry), roster: entry.roster, facts: entry.facts });
 
 export function scoreCreateSample(entry: CreateCase, raw: string): CreateCaseSample {
   const verdicts = parseCreateLines(raw).map((op) => validateCreate(op, caseContext(entry)));
   const valid = verdicts.filter((verdict) => verdict.ok).map((verdict) => verdict.op);
-  const namesEntity = entry.entity !== null && valid.some((op) => mentions(op.comment, entry.entity as string) || mentions(entry.entity as string, op.comment) || op.keys.some((key) => mentions(key, entry.entity as string) || mentions(entry.entity as string, key)));
+  const namesEntity = entry.entity !== null && valid.some((op) => mentions(
+    op.comment,
+    entry.entity as string,
+  ) || mentions(entry.entity as string, op.comment) || op.keys.some((key) => mentions(key, entry.entity as string) || mentions(entry.entity as string, key)));
   return {
     created: verdicts.length,
     valid,

@@ -21,7 +21,7 @@ export type HostSlashCommandMeta = {
 };
 
 // The *active* global books — what a story's `requirements.lorebooks` is satisfied by. Two host
-// quirks decide how this is read (v2.1 plan 07 live findings): activation lands in
+// quirks decide how this is read (live findings): activation lands in
 // `selected_world_info` and only reaches `world_info.globalSelect` on a debounced save, and deleting
 // a book leaves its name behind in the selection — so read the live array and intersect it with the
 // books that actually exist, or a requirement goes green over a lorebook that is gone.

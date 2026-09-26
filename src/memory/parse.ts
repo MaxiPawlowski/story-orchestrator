@@ -1,10 +1,14 @@
-import { EPISTEMIC_TAGS, MEMORY_ENTRY_TYPES, MEMORY_EXPIRATIONS, SCENE_BREAK_REASONS, TIER_FOR_ENTRY_TYPE, type EpistemicTag, type MemoryEntryType, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine, type SceneBreakSignal } from "./types";
+import {
+  EPISTEMIC_TAGS, MEMORY_ENTRY_TYPES, MEMORY_EXPIRATIONS, SCENE_BREAK_REASONS, TIER_FOR_ENTRY_TYPE, type EpistemicTag,
+  type MemoryEntryType, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal,
+  type ParsedMemoryLine, type SceneBreakSignal,
+} from "./types";
 
 const isMemoryEntryType = (value: string): value is MemoryEntryType => (MEMORY_ENTRY_TYPES as readonly string[]).includes(value);
 
 const tokenPattern = /(\w+)=("(?:[^"\\]|\\.)*"|\S+)/g;
 
-const tokenize = (rest: string): Map<string, string> => {
+const parseFields = (rest: string): Map<string, string> => {
   const tokens = new Map<string, string>();
   let match: RegExpExecArray | null;
   tokenPattern.lastIndex = 0;
@@ -24,7 +28,7 @@ export interface MemoryLineParseResult {
 
 export function parseMemoryLine(line: string): MemoryLineParseResult {
   if (!/^MEMORY\s+/i.test(line)) return { reason: "not a memory line" };
-  const tokens = tokenize(line.slice(line.indexOf(" ") + 1));
+  const tokens = parseFields(line.slice(line.indexOf(" ") + 1));
 
   const type = tokens.get("type");
   if (!type || !isMemoryEntryType(type)) return { reason: "unknown memory type" };

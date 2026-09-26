@@ -1,13 +1,3 @@
-export interface NormalizeNameOptions {
-  stripExtension?: boolean;
-}
-
-export function normalizeName(value: string | null | undefined, options?: NormalizeNameOptions): string {
-  const normalized = (value ?? "").normalize("NFKC").trim().toLowerCase();
-  if (!normalized) return "";
-  return options?.stripExtension ? normalized.replace(/\.\w+$/, "") : normalized;
-}
-
 // Encodes for ST's STRICT_ESCAPING parser mode, which `stHost/slashCommands.ts` pins on every run:
 // inside quotes only `"` is a delimiter, and backslashes collapse in pairs only right before one
 // (SlashCommandParser.js:583-624, 1235-1245). Braces are escaped so macros reach the command as
@@ -30,3 +20,5 @@ const isControlChar = (char: string) => {
   return code <= 0x1f || (code >= 0x80 && code <= 0x9f);
 };
 export const lorebookFileId = (name: string): string => [...name.trim()].filter((char) => !ILLEGAL_FILE_CHARS.has(char) && !isControlChar(char)).join("");
+
+export const truncate = (value: string, limit: number) => (value.length > limit ? `${value.slice(0, limit)}…` : value);

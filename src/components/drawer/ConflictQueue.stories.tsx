@@ -25,7 +25,12 @@ const memoryEntry = (overrides: Partial<MemoryEntry>): MemoryEntry => ({
   ...overrides,
 });
 
-const snapshot = (options: { conflicts?: RuntimeSnapshot["memory"]["conflicts"]; entries?: MemoryEntry[]; epistemic?: RuntimeSnapshot["memory"]["epistemic"]; ledger?: RuntimeSnapshot["memory"]["ledger"] } = {}): RuntimeSnapshot => ({
+const snapshot = (options: {
+  conflicts?: RuntimeSnapshot["memory"]["conflicts"];
+  entries?: MemoryEntry[];
+  epistemic?: RuntimeSnapshot["memory"]["epistemic"];
+  ledger?: RuntimeSnapshot["memory"]["ledger"];
+} = {}): RuntimeSnapshot => ({
   memory: {
     conflicts: options.conflicts ?? [],
     entries: options.entries ?? [],
@@ -44,7 +49,16 @@ const pair: ConflictPair = {
   ],
 };
 
-const fakeManager = (actions: Record<string, unknown> = {}) => ({ memoryActions: { resolveMemoryConflict: fn(async () => true), lockAsCanon: fn(async () => true), dismissMemoryConflict: fn(async () => true), setMemoryLocked: fn(async () => {}), reconfirmMemoryEntry: fn(async () => true), rereadConflictWindow: fn(async () => true), discardQuarantined: fn(async () => true), ...actions } }) as unknown as RuntimeManager;
+const fakeManager = (actions: Record<string, unknown> = {}) => ({ memoryActions: {
+  resolveMemoryConflict: fn(async () => true),
+  lockAsCanon: fn(async () => true),
+  dismissMemoryConflict: fn(async () => true),
+  setMemoryLocked: fn(async () => {}),
+  reconfirmMemoryEntry: fn(async () => true),
+  rereadConflictWindow: fn(async () => true),
+  discardQuarantined: fn(async () => true),
+  ...actions
+} }) as unknown as RuntimeManager;
 
 const meta: Meta<typeof ConflictQueue> = {
   title: "Drawer/ConflictQueue",
@@ -110,7 +124,12 @@ export const EachSideNamesWhereItCameFrom: Story = {
 
 export const AQuarantinedRowCanBeReconfirmed: Story = {
   args: {
-    snapshot: snapshot({ entries: [memoryEntry({ id: "q1", text: "the ferryman owes the player a crossing", pinned: true, provenance: { ...provenance({ source: "extractor", messageId: 4, boundary: 4, pass: "shared-read" }), validity: "source-removed" } })] }),
+    snapshot: snapshot({ entries: [memoryEntry({
+      id: "q1",
+      text: "the ferryman owes the player a crossing",
+      pinned: true,
+      provenance: { ...provenance({ source: "extractor", messageId: 4, boundary: 4, pass: "shared-read" }), validity: "source-removed" },
+    })] }),
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
@@ -131,7 +150,11 @@ export const TheNewestDecisionComesFirstAndQuarantineLast: Story = {
         { ...pair, key: "older", detectedAt: "2026-09-20T00:00:00.000Z" },
         { ...pair, key: "newer", detectedAt: "2026-09-21T00:00:00.000Z" },
       ],
-      entries: [memoryEntry({ id: "q1", text: "the ferryman owes the player a crossing", provenance: { ...provenance({ source: "extractor", messageId: 4, boundary: 4, pass: "shared-read" }), validity: "source-removed" } })],
+      entries: [memoryEntry({
+        id: "q1",
+        text: "the ferryman owes the player a crossing",
+        provenance: { ...provenance({ source: "extractor", messageId: 4, boundary: 4, pass: "shared-read" }), validity: "source-removed" },
+      })],
     }),
   },
   play: async ({ canvasElement }) => {
@@ -171,7 +194,11 @@ export const ARefusalNamesRowsChangedElsewhere: Story = {
 export const ADiscardThatWasNotWrittenSaysSo: Story = {
   args: {
     manager: fakeManager({ discardQuarantined: fn(async () => false) }),
-    snapshot: snapshot({ entries: [memoryEntry({ id: "q1", text: "the ferryman owes the player a crossing", provenance: { ...provenance({ source: "extractor", messageId: 4, boundary: 4, pass: "shared-read" }), validity: "source-removed" } })] }),
+    snapshot: snapshot({ entries: [memoryEntry({
+      id: "q1",
+      text: "the ferryman owes the player a crossing",
+      provenance: { ...provenance({ source: "extractor", messageId: 4, boundary: 4, pass: "shared-read" }), validity: "source-removed" },
+    })] }),
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
@@ -214,7 +241,20 @@ export const APrivateQuarantinedRowIsTheSameDecision: Story = {
 };
 
 export const APinnedLedgerRowQuarantinedByRollbackIsOffered: Story = {
-  args: { snapshot: snapshot({ entries: [], ledger: [{ id: "l1", entity: "Kael", entityType: "character", field: "location", value: "the crypt", createdAt: 2, messageId: 4, pinned: true, provenance: { ...provenance({ source: "extractor", messageId: 4, boundary: 1, pass: "ledger" }), validity: "source-removed" as const } }] }) },
+  args: { snapshot: snapshot({
+    entries: [],
+    ledger: [{
+      id: "l1",
+      entity: "Kael",
+      entityType: "character",
+      field: "location",
+      value: "the crypt",
+      createdAt: 2,
+      messageId: 4,
+      pinned: true,
+      provenance: { ...provenance({ source: "extractor", messageId: 4, boundary: 1, pass: "ledger" }), validity: "source-removed" as const },
+    }],
+  }) },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     const row = canvasElement.querySelector('[data-so="quarantined"][data-so-kind="ledger"]');
@@ -227,7 +267,10 @@ export const APinnedLedgerRowQuarantinedByRollbackIsOffered: Story = {
 };
 
 export const AConflictedPrivateRowSaysSo: Story = {
-  args: { snapshot: snapshot({ entries: [], epistemic: [hiddenRow({ provenance: { ...provenance({ source: "extractor", messageId: 4, boundary: 1, pass: "epistemic" }), validity: "conflicted" as const } })] }) },
+  args: { snapshot: snapshot({
+    entries: [],
+    epistemic: [hiddenRow({ provenance: { ...provenance({ source: "extractor", messageId: 4, boundary: 1, pass: "epistemic" }), validity: "conflicted" as const } })],
+  }) },
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector('[data-so="quarantined"]')?.textContent).toContain("Conflicted");
   },
@@ -238,8 +281,20 @@ const heldPair: ConflictPair = {
   detectedAt: "2026-09-25T00:00:00.000Z",
   window: { from: 1, to: 1 },
   sides: [
-    { store: "memory", id: "seed", label: "The old stone bridge over the river collapsed in the flood and is gone.", standing: true, provenance: provenance({ source: "extractor", messageId: 0, boundary: 0, pass: "shared-read" }) },
-    { store: "memory", id: "claim", label: "The old stone bridge over the river is still standing and intact.", messageId: 1, provenance: provenance({ source: "extractor", messageId: 1, boundary: 1, pass: "shared-read" }) },
+    {
+      store: "memory",
+      id: "seed",
+      label: "The old stone bridge over the river collapsed in the flood and is gone.",
+      standing: true,
+      provenance: provenance({ source: "extractor", messageId: 0, boundary: 0, pass: "shared-read" }),
+    },
+    {
+      store: "memory",
+      id: "claim",
+      label: "The old stone bridge over the river is still standing and intact.",
+      messageId: 1,
+      provenance: provenance({ source: "extractor", messageId: 1, boundary: 1, pass: "shared-read" }),
+    },
   ],
 };
 

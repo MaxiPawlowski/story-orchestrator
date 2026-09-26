@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, readdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { archiveJourneyRecord, archiveRefusal, dependencyProblems, unselectedDependencies } from './journeyArchive.mts';
+import { archiveJourneyRecord, archiveRefusal, dependencyProblems, unselectedDependencies, fixtureSha256 } from './journeyArchive.mts';
 import { readdirSync, readFileSync } from 'node:fs';
 import { runSteps } from '../so-scenario.mts';
 
@@ -87,4 +87,11 @@ test('every shipped journey declares valid dependencies', () => {
   assert.ok(files.length >= 13);
   const problems = files.flatMap((name) => dependencyProblems(JSON.parse(readFileSync(new URL(name, dir), 'utf-8')).checks ?? []).map((line) => `${name}: ${line}`));
   assert.deepEqual(problems, []);
+});
+
+test('a journey record names its fixture by the sha256 of the file bytes, as the attestation reads it', () => {
+  const bytes = '{"id":"J3","checks":[]}\n';
+  assert.equal(fixtureSha256(bytes), fixtureSha256(Buffer.from(bytes, 'utf-8')));
+  assert.match(fixtureSha256(bytes), /^[0-9a-f]{64}$/);
+  assert.notEqual(fixtureSha256(bytes), fixtureSha256(bytes.replace('J3', 'J4')));
 });

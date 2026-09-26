@@ -1,3 +1,4 @@
+import { readWith } from "../../test/support/modelCall";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseStoryV2OrThrow, StoryEngine, type NormalizedStoryV2 } from "@engine/index";
@@ -138,7 +139,7 @@ describe("v2.4 acceptance D1: the screen takes the labelled quote, and the world
       reason: "d1",
       window: window(lines),
       scope: story.qualities.filter((quality) => quality.source === "extractor").map((quality) => ({ key: quality.key, quality, hints: [] })),
-      client: { profileId: "p1", debugResponse: reply },
+      ...readWith("p1", { debugResponse: reply }),
     });
   };
 

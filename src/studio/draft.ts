@@ -127,7 +127,7 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
 
 export const resetDraftStore = (): void => useDraftStore.getState().newDraft();
 
-/** v2.5 plan 01 D: the install facts diagnostics read. Set when the Studio opens; re-derives the open draft. */
+/** D: the install facts diagnostics read. Set when the Studio opens; re-derives the open draft. */
 export const setDiagnosticsContext = (context: DiagnosticsContext): void => {
   diagnosticsContext = context;
   useDraftStore.setState((state) => ({ diagnostics: runDiagnostics(state.draft, diagnosticsContext) }));

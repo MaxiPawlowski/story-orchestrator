@@ -4,7 +4,7 @@ import { hasStateChangeMarker } from "./similarity";
 import { buildJaccardMatchSets, type MatchSets } from "./consolidate";
 import type { LedgerEntry, MemoryEntry } from "./types";
 
-// v2.3 plan 05 (C3). Two stores can both hold a claim about the same thing and disagree. The soft
+// Two stores can both hold a claim about the same thing and disagree. The soft
 // signal that existed (`entry.contradicted`, a score penalty) is something a strong entry outweighs,
 // so a character could be corrected toward the losing side. A conflict is therefore a HARD state:
 // both records are marked `conflicted`, every consumer excludes them, and the author resolves it in
@@ -17,11 +17,11 @@ export interface ConflictSide {
   label: string;
   /** The message the claim was read from, so the queue can ask the read to look at it again. */
   messageId?: number;
-  /** v2.3 plan 05: how sure the record itself was. Blackboard bound values have none (the author's
+  /** How sure the record itself was. Blackboard bound values have none (the author's
    *  own edit) and say so by leaving it out. */
   confidence?: number;
   provenance?: Provenance;
-  /** v2.4 plan 07: the established side of a held claim. It keeps steering while the pair waits. */
+  /** The established side of a held claim. It keeps steering while the pair waits. */
   standing?: true;
 }
 
@@ -34,7 +34,7 @@ export interface ConflictPair {
   /** Stable identity, so a resolved pair does not re-queue on the next pass. */
   key: string;
   sides: [ConflictSide, ConflictSide];
-  /** v2.3 plan 05: where the disagreement was found. Both sides are already conflicted. */
+  /** Where the disagreement was found. Both sides are already conflicted. */
   detectedAt: string;
   /** The span the two claims were read from, so "re-read the window" reads THAT, not the newest. */
   window: ConflictWindow | null;
@@ -50,7 +50,12 @@ export interface SceneConflictValue {
 
 /** What a stored scene read claims, in the same shape a ledger row or a blackboard value is. Fields
  *  the read did not answer are simply absent — an unanswered question is not a disagreement. */
-export function sceneConflictValues(record: { messageId: number; provenance?: Provenance; location?: { value: string; confidence: number }; time?: { value: string; confidence: number } } | null | undefined): SceneConflictValue[] {
+export function sceneConflictValues(record: {
+  messageId: number;
+  provenance?: Provenance;
+  location?: { value: string; confidence: number };
+  time?: { value: string; confidence: number };
+} | null | undefined): SceneConflictValue[] {
   if (!record) return [];
   return (["location", "time"] as const).flatMap((field) => {
     const read = record[field];
@@ -59,8 +64,6 @@ export function sceneConflictValues(record: { messageId: number; provenance?: Pr
   });
 }
 
-export const memoryConflictKey = (entry: MemoryEntry) => `memory:${entry.id}`;
-export const ledgerConflictKey = (entry: LedgerEntry) => `ledger:${ledgerKey(entry.entity, entry.field)}`;
 export const sceneConflictKey = (field: string) => `scene:${field.trim().toLowerCase()}`;
 
 export const sceneFieldsInConflict = (conflicts: ReadonlyArray<{ sides: ReadonlyArray<{ store: string; id: string }> }> | undefined): Set<string> =>
@@ -109,7 +112,38 @@ const mentions = (text: string, token: string) => text.toLowerCase().includes(to
 // (`jaccardSimilarity`), so the queue's candidate search uses the same shape: token overlap over the
 // words long enough to carry meaning. It is deliberately generous — a pair it over-includes is
 // decided by `claimsDifferentValue`, while a pair it under-includes is a disagreement nobody sees.
-const stopWords = new Set(["the", "and", "with", "that", "this", "from", "into", "over", "under", "her", "his", "its", "their", "they", "she", "him", "was", "were", "has", "had", "have", "not", "but", "for", "are", "been", "than", "then", "when", "while"]);
+const stopWords = new Set([
+  "the",
+  "and",
+  "with",
+  "that",
+  "this",
+  "from",
+  "into",
+  "over",
+  "under",
+  "her",
+  "his",
+  "its",
+  "their",
+  "they",
+  "she",
+  "him",
+  "was",
+  "were",
+  "has",
+  "had",
+  "have",
+  "not",
+  "but",
+  "for",
+  "are",
+  "been",
+  "than",
+  "then",
+  "when",
+  "while",
+]);
 const contentTokens = (text: string) => [...new Set(text.toLowerCase().split(/[^a-z0-9]+/).filter((token) => token.length > 3 && !stopWords.has(token)))];
 
 function sameTopic(fact: MemoryEntry, row: LedgerEntry, bound?: { field: string; value: string }): boolean {
@@ -159,7 +193,12 @@ export function detectConflicts(
       key,
       sides: [
         sideOf(row, "ledger", `${row.entity} ${row.field} = ${row.value} (ledger)`),
-        { store: "ledger", id: `bound:${row.entity}:${row.field}`, label: `${bound.entity} ${bound.field} = ${bound.value} (blackboard)`, ...(bound.provenance ? { provenance: bound.provenance } : {}) },
+        {
+          store: "ledger",
+          id: `bound:${row.entity}:${row.field}`,
+          label: `${bound.entity} ${bound.field} = ${bound.value} (blackboard)`,
+          ...(bound.provenance ? { provenance: bound.provenance } : {})
+        },
       ],
     });
   }
@@ -187,11 +226,37 @@ export function detectConflicts(
     const key = sceneConflictKey(read.field);
     if (already.has(key)) continue;
     if (row && normalizeValue(row.value) !== normalizeValue(read.value)) {
-      push({ key, sides: [sideOf(row, "ledger", `${row.entity} ${row.field} = ${row.value} (ledger)`), { store: "scene", id: `scene:${read.field}`, label: `scene ${read.field} = ${read.value}`, ...(read.messageId === undefined ? {} : { messageId: read.messageId }), ...(read.confidence === undefined ? {} : { confidence: read.confidence }), ...(read.provenance ? { provenance: read.provenance } : {}) }] });
+      push({
+        key,
+        sides: [
+          sideOf(row, "ledger", `${row.entity} ${row.field} = ${row.value} (ledger)`),
+          {
+            store: "scene",
+            id: `scene:${read.field}`,
+            label: `scene ${read.field} = ${read.value}`,
+            ...(read.messageId === undefined ? {} : { messageId: read.messageId }),
+            ...(read.confidence === undefined ? {} : { confidence: read.confidence }),
+            ...(read.provenance ? { provenance: read.provenance } : {})
+          },
+        ],
+      });
       continue;
     }
     if (bound && normalizeValue(bound.value) !== normalizeValue(read.value)) {
-      push({ key, sides: [{ store: "ledger", id: `bound:${bound.entity}:${bound.field}`, label: `${bound.entity} ${bound.field} = ${bound.value} (blackboard)` }, { store: "scene", id: `scene:${read.field}`, label: `scene ${read.field} = ${read.value}`, ...(read.messageId === undefined ? {} : { messageId: read.messageId }), ...(read.confidence === undefined ? {} : { confidence: read.confidence }), ...(read.provenance ? { provenance: read.provenance } : {}) }] });
+      push({
+        key,
+        sides: [
+          { store: "ledger", id: `bound:${bound.entity}:${bound.field}`, label: `${bound.entity} ${bound.field} = ${bound.value} (blackboard)` },
+          {
+            store: "scene",
+            id: `scene:${read.field}`,
+            label: `scene ${read.field} = ${read.value}`,
+            ...(read.messageId === undefined ? {} : { messageId: read.messageId }),
+            ...(read.confidence === undefined ? {} : { confidence: read.confidence }),
+            ...(read.provenance ? { provenance: read.provenance } : {})
+          },
+        ],
+      });
     }
   }
   return pairs;
@@ -206,8 +271,8 @@ export function markConflicted<T extends { provenance: Provenance }>(records: T[
   return records.map((record) => (wanted.has(idOf(record)) ? { ...record, ...withValidity(record, "conflicted") } : record));
 }
 
-// v2.4 plan 07 (J8.5). A row the story has settled: locked as canon, decided by the author, or written
-// by the author. A pin is retention, not truth (v2.3 M5), so a pinned extracted row is not settled. A new claim in its band is HELD — queued with the established row standing — instead of
+// A row the story has settled: locked as canon, decided by the author, or written
+// by the author. A pin is retention, not truth, so a pinned extracted row is not settled. A new claim in its band is HELD — queued with the established row standing — instead of
 // joining the live facts on its own. "In its band" is the consolidation bands (vectors, else
 // Jaccard), which cannot tell a contradiction from an agreeing paraphrase: both are held, and an
 // agreeing one loses nothing because the established row already says it. A contradiction worded with
@@ -232,14 +297,14 @@ export function unionMatchSets(left: MatchSets, right: MatchSets): MatchSets {
   return { dup: merge(left.dup, right.dup), sameTopic: merge(left.sameTopic, right.sameTopic) };
 }
 
-/** v2.4 plan 07 (live, bundle 9b2f890a5987): the bands that guard an ESTABLISHED row are the vectors
+/** The bands that guard an ESTABLISHED row are the vectors
  *  bands OR the Jaccard bands. Measured on lane 2, "the bridge is gone" vs "the bridge is intact" sat at
  *  cosine 0.410 / 0.359 (under the 0.55 same-topic band) and at Jaccard 0.533 / 0.571 (over its 0.4
  *  band): a sentence embedding barely moves on polarity, so vectors alone stored the claim live. The
  *  union only widens the hold on settled rows; ordinary consolidation keeps its single source. */
 export const establishedBands = (group: MemoryEntry[], vectors: MatchSets | null): MatchSets => {
-  const jaccard = buildJaccardMatchSets(group);
-  return vectors ? unionMatchSets(vectors, jaccard) : jaccard;
+  const overlap = buildJaccardMatchSets(group);
+  return vectors ? unionMatchSets(vectors, overlap) : overlap;
 };
 
 /** Below a lock, a candidate carrying a state-change marker is an UPDATE that consolidation may
@@ -271,7 +336,7 @@ export interface ConflictResolution {
   drop: string;
   at: string;
   boundary: number;
-  /** v2.3 plan 05: "Lock as canon" is one decision, not two — the kept row and its lock are written
+  /** "Lock as canon" is one decision, not two — the kept row and its lock are written
    *  together, so a failure cannot leave a resolved pair with an unlocked winner. */
   lock?: boolean;
 }
@@ -280,7 +345,12 @@ export interface ConflictResolution {
  *  later pass can see that a human decided this. */
 export function resolveConflict(entries: MemoryEntry[], resolution: ConflictResolution): MemoryEntry[] {
   return entries.map((entry) => {
-    if (entry.id === resolution.keep) return { ...entry, ...withOverride(entry, "reconciled", resolution.at, resolution.boundary), contradicted: false, ...(resolution.lock ? { locked: true, pinned: true } : {}) };
+    if (entry.id === resolution.keep) return {
+      ...entry,
+      ...withOverride(entry, "reconciled", resolution.at, resolution.boundary),
+      contradicted: false,
+      ...(resolution.lock ? { locked: true, pinned: true } : {})
+    };
     if (entry.id === resolution.drop) return { ...entry, supersededBy: resolution.keep, ...withOverride(entry, "reconciled", resolution.at, resolution.boundary) };
     return entry;
   });

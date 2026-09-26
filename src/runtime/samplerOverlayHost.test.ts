@@ -12,8 +12,9 @@ import { SamplerOverlay } from "./samplerOverlay";
 import { startSamplerOverlay } from "./samplerOverlayHost";
 import type { GenerationLifecycleSnapshot } from "./generationLifecycle";
 
-const idle: GenerationLifecycleSnapshot = { outermost: null, nested: [], awaitingRender: null, draftedChid: null };
-const open = (type: string, nested: string[] = []): GenerationLifecycleSnapshot => ({ outermost: { type, watermark: 3 }, nested, awaitingRender: null, draftedChid: null });
+const idle = { outermost: null, nested: [], awaitingRender: null, draftedChid: null } as Partial<GenerationLifecycleSnapshot> as GenerationLifecycleSnapshot;
+const open = (type: string, nested: string[] = []) =>
+  ({ outermost: { type, watermark: 3 }, nested, awaitingRender: null, draftedChid: null }) as Partial<GenerationLifecycleSnapshot> as GenerationLifecycleSnapshot;
 
 function wire(api: "textgen" | "chat") {
   const overlay = new SamplerOverlay();

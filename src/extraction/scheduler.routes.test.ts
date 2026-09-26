@@ -1,3 +1,4 @@
+import { plantedModel } from "../../test/support/modelCall";
 const mockChat: Array<{ name: string; mes: string }> = [];
 
 jest.mock("@services/STAPI", () => ({
@@ -13,7 +14,7 @@ jest.mock("./sharedRead", () => ({
 
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import { BREAKER_BACKOFF_MS, type ProbeResult } from "./breaker";
-import { ModelCallError } from "./client";
+import { ModelCallError } from "./modelError";
 import { ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "./scheduler";
 import { runSharedRead } from "./sharedRead";
 
@@ -32,6 +33,7 @@ function harness() {
     getStory: () => ({}) as unknown as NormalizedStoryV2,
     getEngineState: () => ({ lastMessageId: 9 }) as unknown as EngineState,
     getExtractionSettings: () => settings,
+    model: plantedModel,
     getFacts: () => [],
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],

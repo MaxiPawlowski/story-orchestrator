@@ -187,16 +187,43 @@ describe("v2.4 plan 04 T7: one cleaner for every window reader", () => {
     });
   });
 
-  it("is cheap enough for the reply path: 24 messages of 8 KB well under 5 ms", () => {
-    const block = `Mara <i>walks</i> on. <details><summary>s</summary>${"x".repeat(200)}</details> &amp; *smiles*\n`;
-    const message = block.repeat(Math.ceil(8192 / block.length)).slice(0, 8192);
-    const window = Array.from({ length: 24 }, (_, index) => reply(`${message}${index}`));
-    window.forEach((entry) => cleanWindowMessage(entry));
-    const runs = Array.from({ length: 20 }, () => {
-      const started = performance.now();
-      window.forEach((entry) => cleanWindowMessage(entry));
-      return performance.now() - started;
+  describe("reply-path cost is structural: the passes per message do not grow with its length", () => {
+    const PASS_BOUND = 17;
+    const shaped = (size: number) => {
+      const head = `Mara <i>walks</i> on. <details><summary>s</summary>${"x".repeat(200)}</details> &amp; *smiles* `;
+      return (head + "plain words ".repeat(Math.ceil(size / 12))).slice(0, size);
+    };
+    const passes = (clean: (raw: unknown) => unknown, text: string) => {
+      const spies = [
+        jest.spyOn(String.prototype, "replace"),
+        jest.spyOn(String.prototype, "split"),
+        jest.spyOn(String.prototype, "match"),
+        jest.spyOn(RegExp.prototype, "test"),
+      ];
+      try {
+        clean(reply(text));
+        return spies.reduce((sum, spy) => sum + spy.mock.calls.length, 0);
+      } finally {
+        spies.forEach((spy) => spy.mockRestore());
+      }
+    };
+
+    it("a 1 KB and an 8 KB message of the same shape take the same number of passes, within the measured bound", () => {
+      const small = passes(cleanWindowMessage, shaped(1024));
+      const large = passes(cleanWindowMessage, shaped(8192));
+      expect(large).toBe(small);
+      expect(large).toBeLessThanOrEqual(PASS_BOUND);
     });
-    expect(Math.min(...runs)).toBeLessThan(5);
+
+    it("control: a cleaner that runs a pass per chunk of text is caught", () => {
+      const perChunk = (raw: unknown) => {
+        const text = String((raw as { mes: string }).mes);
+        const chunks: string[] = [];
+        for (let index = 0; index < text.length; index += 512) chunks.push(text.slice(index, index + 512).replace(/&amp;/g, "&"));
+        return cleanWindowMessage({ ...(raw as object), mes: chunks.join("") });
+      };
+      expect(passes(perChunk, shaped(8192))).toBeGreaterThan(passes(perChunk, shaped(1024)));
+      expect(passes(perChunk, shaped(8192))).toBeGreaterThan(PASS_BOUND);
+    });
   });
 });

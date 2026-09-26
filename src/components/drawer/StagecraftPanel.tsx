@@ -73,7 +73,7 @@ const DiffView = ({ before, after }: { before: string; after: string }) => (
   </div>
 );
 
-// v2.3 plan 05. Which pass read this truth, from which message, how sure it was, and whether another
+// Which pass read this truth, from which message, how sure it was, and whether another
 // store disagrees. A fact with no origin says so rather than implying an extractor read it.
 const originText = (provenance: { source: string; pass: string; messageId: number; confidence?: number } | undefined, conflictingValue?: string) => {
   const rest = [
@@ -92,7 +92,13 @@ const originText = (provenance: { source: string; pass: string; messageId: numbe
 // The plan-06 review pattern applied to a curator: one card per change, editable before it runs,
 // accepted or declined on its own. It lives in the drawer rather than the Studio because the author
 // is reviewing mid-play, and the plan-03 import boundary forbids drawer → studio.
-const OpCard = ({ record, index, entry, manager, onOpenFact }: { record: CuratorProposalRecord; index: number; entry: CuratorOpRecord; manager: RuntimeManager; onOpenFact?: (id: string) => void }) => {
+const OpCard = ({ record, index, entry, manager, onOpenFact }: {
+  record: CuratorProposalRecord;
+  index: number;
+  entry: CuratorOpRecord;
+  manager: RuntimeManager;
+  onOpenFact?: (id: string) => void;
+}) => {
   const text = editableText(entry.op);
   const [draft, setDraft] = useState(text ?? "");
   const decidable = entry.status === "pending";
@@ -130,7 +136,11 @@ const OpCard = ({ record, index, entry, manager, onOpenFact }: { record: Curator
       ))}
       {decidable && (
         <div className="flex gap-2 flex-wrap">
-          <button data-so="curator-accept" className="menu_button" onClick={() => void manager.setCuratorOpDecision(record.id, index, "accepted", text !== null && draft !== text ? withText(entry.op, draft) : undefined)}>Accept</button>
+          <button
+            data-so="curator-accept"
+            className="menu_button"
+            onClick={() => void manager.setCuratorOpDecision(record.id, index, "accepted", text !== null && draft !== text ? withText(entry.op, draft) : undefined)}
+          >Accept</button>
           <button data-so="curator-reject" className="menu_button opacity-80" onClick={() => void manager.setCuratorOpDecision(record.id, index, "rejected")}>Decline</button>
         </div>
       )}
@@ -148,7 +158,8 @@ export const StagecraftPanel = ({ snapshot, manager, onOpenFact }: { snapshot: R
     <div id="so-stagecraft" className="text-xs opacity-80">
       <div className="font-medium opacity-100">World Info curator</div>
       {!settings.curatorEnabled && <div className="opacity-70">Off. Turn it on in settings to let the curator propose lorebook changes from what has happened.</div>}
-      {settings.curatorEnabled && !scope.length && <div className="opacity-70">This story lists no lorebook for the curator to edit, so it has nothing to do. Add one on the Studio&apos;s Story tab.</div>}
+      {settings.curatorEnabled && !scope.length && <div className="opacity-70">This story lists no lorebook for the curator to edit, so it has nothing to do. Add one on the
+        Studio&apos;s Story tab.</div>}
       {settings.curatorEnabled && scope.length > 0 && (
         <div className="opacity-70">
           Watching {scope.join(", ")} · {settings.acceptMode === "auto" ? "changes apply on their own" : settings.acceptMode === "off" ? "observing only, nothing is written" : "changes wait for you"}
@@ -162,7 +173,9 @@ export const StagecraftPanel = ({ snapshot, manager, onOpenFact }: { snapshot: R
       {lastError && <div className="text-red-300">{lastError}</div>}
       {lastPass && (
         <div data-so="curator-last-pass" title={lastPass.rawResponse || "(empty response)"} className="opacity-60">
-          Last read {lastPass.reason}: {lastPass.proposed ? `${lastPass.proposed} change(s)` : "nothing to change"}{lastPass.dropped.length ? ` · ${lastPass.dropped.length} discarded` : ""}{lastPass.focus ? ` · focused on ${lastPass.focus.shown} of ${lastPass.focus.total} entries` : ""}
+          Last read {lastPass.reason}: {lastPass.proposed ? `${lastPass.proposed} change(s)` : "nothing to change"}
+          {lastPass.dropped.length ? ` · ${lastPass.dropped.length} discarded` : ""}
+          {lastPass.focus ? ` · focused on ${lastPass.focus.shown} of ${lastPass.focus.total} entries` : ""}
         </div>
       )}
       {records.length === 0 ? (

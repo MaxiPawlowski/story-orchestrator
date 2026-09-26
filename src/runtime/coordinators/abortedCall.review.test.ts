@@ -1,5 +1,7 @@
+import { fakeHosts } from "../../../test/support/fakeHosts";
+import { sendModel } from "../../../test/support/modelCall";
 import { parseStoryV2OrThrow, StoryEngine, type EngineState } from "@engine/index";
-import { ModelCallError } from "@extraction/index";
+import { ModelCallError } from "@extraction/modelError";
 import type { ExpansionRuntimeState } from "@generation/index";
 import { createStagecraft } from "../extras";
 import { RunOwner } from "../runOwner";
@@ -7,7 +9,7 @@ import { ExpansionCoordinator } from "./expansionCoordinator";
 import { MemoryCoordinator } from "./memoryCoordinator";
 import { StagecraftCoordinator } from "./stagecraftCoordinator";
 
-jest.mock("@services/STAPI", () => ({
+const stapi = {
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
@@ -30,7 +32,7 @@ jest.mock("@services/STAPI", () => ({
   setStoryExtensionPrompt: () => {},
   clearStoryExtensionPrompt: () => {},
   sendConnectionProfileRequest: (_profile: string, prompt: string, _maxTokens: number, options: { signal?: AbortSignal }) => model.call(prompt, options.signal),
-}));
+};
 
 type Answer = { ok: true; text: string; finish: "stop" } | { ok: false; kind: "lapsed" | "transport"; message: string };
 
@@ -64,12 +66,12 @@ function memoryHarness(presummarised: boolean) {
     arcs: [{ id: "arc-0", text: "thread 0", status: "resolved" as const, summary: presummarised ? "already summarised" : undefined as string | undefined }],
     epistemic: [], ledger: [], canon: null as { text: string } | null, updatedAt: "",
   };
-  const coordinator = new MemoryCoordinator({
+  const coordinator = new MemoryCoordinator({ hosts: fakeHosts(stapi),
     getStory: () => ({ title: "S", checkpointById: {}, qualityByKey: {}, roster: [], arc_bridges: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5, blackboard: { values: {}, versions: {}, latched: {} } }),
     getMemory: () => memoryState,
     setMemory: (next: typeof memoryState) => { memoryState = next; },
-    getExtractionSettings: () => ({ profileId: "p1", enabled: true }),
+    model: sendModel(stapi.sendConnectionProfileRequest as never, "p1"),
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
     enqueueExtractorDeltas: () => {},
@@ -104,12 +106,12 @@ function expansionHarness() {
     "chat-a": { entries: {}, scheduler: { queueDepth: 0, inFlight: false, lastError: null } },
     "chat-b": { entries: {}, scheduler: { queueDepth: 0, inFlight: false, lastError: null } },
   };
-  const coordinator = new ExpansionCoordinator({
+  const coordinator = new ExpansionCoordinator({ hosts: { player: { getPlayerName: () => "Max" } },
     getStory: () => expansionStory,
     getStoryRaw: () => ({}),
     getState: () => ({ activeCheckpointId: "a", blackboard: { values: {}, versions: {}, latched: {} } }) as unknown as EngineState,
     getExpansion: () => stores[w.deps.chat],
-    getSettings: () => ({ enabled: true, profileId: "p1", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 }),
+    model: sendModel(stapi.sendConnectionProfileRequest as never, "p1"),
     getCanon: () => "",
     getFactTexts: () => [],
     replaceStory: () => undefined,
@@ -136,12 +138,12 @@ function curatorHarness() {
   engine.loadStory(curatorStory());
   let state = createStagecraft();
   state.settings = { ...state.settings, curatorEnabled: true, acceptMode: "review" };
-  const coordinator = new StagecraftCoordinator({
+  const coordinator = new StagecraftCoordinator({ hosts: fakeHosts(stapi),
     getStory: curatorStory,
     getState: () => ({ ...engine.serialize(), boundary: 10, lastMessageId: 10 }),
     getStagecraft: () => state,
     setStagecraft: (next: typeof state) => { state = next; },
-    getExtractionSettings: () => ({ profileId: "p1" }) as never,
+    model: sendModel(stapi.sendConnectionProfileRequest as never, "p1"),
     getCanon: () => "",
     getOpenArcs: () => [],
     journal: () => {},
@@ -164,7 +166,7 @@ describe("v2.4 plan 03 fault matrix: a pass aborted mid-call", () => {
   it("memory: a canon rebuild aborted by a chat switch cancels its request and writes nothing", async () => {
     const h = memoryHarness(true);
     model.onCall = () => h.switchChat();
-    await expect(h.coordinator.regenerateCanon(true)).resolves.toBe(false);
+    await expect(h.coordinator.canon.regenerateCanon(true)).resolves.toBe(false);
     expect(model.signals[0]?.aborted).toBe(true);
     expect(h.canon()).toBeNull();
   });

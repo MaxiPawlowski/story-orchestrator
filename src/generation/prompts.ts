@@ -21,15 +21,23 @@ export function renderGenerationPrompt(story: NormalizedStoryV2, input: PlannedE
     `Qualities:\n${qualities}`,
     `Canon-lite:\n${input.canon || "(none)"}`,
     `Facts:\n${input.facts.join("\n") || "(none)"}`,
-    `Gate grammar is mandatory. A gate leaf is exactly {"q":"quality_key","op":"==|!=|>=|<=|>|<|in","v":literal}. Combinators are exactly {"all":[gate,...]}, {"any":[gate,...]}, or {"not":gate}. Do not use condition, logic, type, threshold, check, expression, or prose gate fields.`,
+    `Gate grammar is mandatory. A gate leaf is exactly {"q":"quality_key","op":"==|!=|>=|<=|>|<|in","v":literal}. Combinators are exactly {"all":[gate,...]}, ` +
+      `{"any":[gate,...]}, or {"not":gate}. Do not use condition, logic, type, threshold, check, expression, or prose gate fields.`,
     `Valid gate examples: {"q":"key_found","op":"==","v":true}; {"q":"approach","op":"==","v":"safe"}; {"all":[{"q":"key_found","op":"==","v":true},{"q":"approach","op":"==","v":"safe"}]}.`,
     `Agency policy for the beats you write:\n${renderAgencyPolicy(agencyForCheckpoint(story, input.candidate.targetAnchorId))}`,
-    `Progress threshold for ${input.candidate.targetAnchorId}: ${threshold}. Progress increments may appear before the final anchor-entry beat only. The final beat outcome must not include progress. Earlier progress amounts must sum to at least ${threshold}. If there are 2 beats, the first beat progress amount must be ${threshold} and the second beat must omit progress.`,
+    `Progress threshold for ${input.candidate.targetAnchorId}: ${threshold}. Progress increments may appear before the final anchor-entry beat only. The final beat outcome ` +
+      `must not include progress. Earlier progress amounts must sum to at least ${threshold}. If there are 2 beats, the first beat progress amount must be ${threshold} and the ` +
+        `second beat must omit progress.`,
     `A beat may have several outcomes. Each outcome is its own route: the player may take any of them, so EVERY route must work on its own.`,
-    `On every route, each quality in the state delta must reach its target by the time the final beat's outcome fires: write it in that route's deltas, or gate that route's final outcome on it with "==". A route that can enter ${input.candidate.targetAnchorId} with a quality short of its target is invalid.`,
-    `The first outcome whose gate holds is the one that fires, so outcomes of the same beat must have gates that tell them apart: gate each outcome on the condition that leads to it, not on the state before the beat. Two outcomes with the same gate are one route.`,
+    `On every route, each quality in the state delta must reach its target by the time the final beat's outcome fires: write it in that route's deltas, or gate that route's ` +
+      `final outcome on it with "==". A route that can enter ${input.candidate.targetAnchorId} with a quality short of its target is invalid.`,
+    `The first outcome whose gate holds is the one that fires, so outcomes of the same beat must have gates that tell them apart: gate each outcome on the condition that leads ` +
+      `to it, not on the state before the beat. Two outcomes with the same gate are one route.`,
     `Progress counts the SMALLEST amount among a beat's outcomes, so give every outcome of a non-final beat a progress amount; an outcome without one makes that beat count 0.`,
-    `Return exact JSON only: {"beats":[{"objective":"...","guidance":"...","tension_target":"calm|stirring|tense|critical|peak","outcomes":[{"label":"success","gate":{"q":"key_found","op":"==","v":true},"deltas":[{"q":"key_found","v":true}],"progress":{"anchor":"${input.candidate.targetAnchorId}","amount":1}}]}]}`,
+    `Return exact JSON only: ` +
+      `{"beats":[{"objective":"...","guidance":"...","tension_target":"calm|stirring|tense|critical|peak",` +
+      `"outcomes":[{"label":"success","gate":{"q":"key_found","op":"==","v":true},"deltas":[{"q":"key_found","v":true}],` +
+      `"progress":{"anchor":"${input.candidate.targetAnchorId}","amount":1}}]}]}`,
   ].join("\n");
 }
 

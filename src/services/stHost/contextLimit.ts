@@ -1,13 +1,13 @@
 import { defaultContextLimit, usableContextLimit, type ContextLimit } from "@extraction/inputBudget";
 import { getContext } from "./context";
 import type { HostConnectApiMap } from "./hostTypes";
+import { isRecord } from "@utils/guards";
+import { log } from "@utils/log";
 
 const PRESET_CONTEXT_KEY: Record<string, string> = {
   textgenerationwebui: "max_length",
   openai: "openai_max_context",
 };
-
-const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 
 export function contextLimitFromPreset(selectedApi: string | undefined, presetName: string, preset: unknown): ContextLimit {
   const key = selectedApi ? PRESET_CONTEXT_KEY[selectedApi] : undefined;
@@ -18,16 +18,30 @@ export function contextLimitFromPreset(selectedApi: string | undefined, presetNa
   return { value, source: "preset" };
 }
 
+const findProfile = (profileId: string): Record<string, unknown> | "unavailable" | null => {
+  const settings = getContext().extensionSettings as Record<string, unknown>;
+  const disabled = Array.isArray(settings.disabledExtensions) ? settings.disabledExtensions : [];
+  if (disabled.includes("connection-manager")) return "unavailable";
+  const manager = isRecord(settings.connectionManager) ? settings.connectionManager : {};
+  const profiles = Array.isArray(manager.profiles) ? manager.profiles.filter(isRecord) : [];
+  return profiles.find((entry) => entry.id === profileId) ?? null;
+};
+
+export function readProfilePresetName(profileId: string | null | undefined): string | null {
+  try {
+    const profile = profileId ? findProfile(profileId) : null;
+    return isRecord(profile) && typeof profile.preset === "string" ? profile.preset.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
 export function readProfileContextLimit(profileId: string | null | undefined): ContextLimit {
   try {
     if (!profileId) return defaultContextLimit("no memory model profile is selected");
     const context = getContext();
-    const settings = context.extensionSettings as Record<string, unknown>;
-    const disabled = Array.isArray(settings.disabledExtensions) ? settings.disabledExtensions : [];
-    if (disabled.includes("connection-manager")) return defaultContextLimit("Connection Manager is not available");
-    const manager = isRecord(settings.connectionManager) ? settings.connectionManager : {};
-    const profiles = Array.isArray(manager.profiles) ? manager.profiles.filter(isRecord) : [];
-    const profile = profiles.find((entry) => entry.id === profileId);
+    const profile = findProfile(profileId);
+    if (profile === "unavailable") return defaultContextLimit("Connection Manager is not available");
     if (!profile) return defaultContextLimit(`the profile ${profileId} no longer exists`);
     const api = typeof profile.api === "string" ? profile.api : "";
     const apiMap: HostConnectApiMap | undefined = api ? context.CONNECT_API_MAP?.[api] : undefined;
@@ -39,6 +53,7 @@ export function readProfileContextLimit(profileId: string | null | undefined): C
     if (!presets || typeof presets.getCompletionPresetByName !== "function") return defaultContextLimit(`no preset manager for ${selected}`);
     return contextLimitFromPreset(selected, presetName, presets.getCompletionPresetByName(presetName));
   } catch (error) {
-    return defaultContextLimit(`the preset could not be read (${error instanceof Error ? error.message : String(error)})`);
+    log.warn("the memory model's preset could not be read", error);
+    return defaultContextLimit("the preset could not be read");
   }
 }

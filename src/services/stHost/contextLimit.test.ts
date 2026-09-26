@@ -32,9 +32,14 @@ describe("v2.4 plan 03 H12: the extraction profile's context limit", () => {
     expect(readProfileContextLimit("p1")).toEqual({ value: 8192, source: "default", reason: expect.stringContaining("Deleted preset") });
   });
 
-  it("a host that throws while reading is the default with the host's message, never a throw", () => {
+  it("a host that throws while reading is the default, never a throw; the host's message goes to the log, not the panel", () => {
     mockHost.context = host([{ id: "p1", api: "llamacpp", preset: "Artemis Extraction" }], { getPresetManager: () => { throw new Error("preset manager exploded"); } });
-    expect(readProfileContextLimit("p1")).toEqual({ value: 8192, source: "default", reason: expect.stringContaining("preset manager exploded") });
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => undefined);
+    const limit = readProfileContextLimit("p1");
+    expect(limit).toEqual({ value: 8192, source: "default", reason: "the preset could not be read" });
+    expect(limit.reason).not.toContain("exploded");
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("preset could not be read"), expect.objectContaining({ message: "preset manager exploded" }));
+    warn.mockRestore();
   });
 
   it.each([

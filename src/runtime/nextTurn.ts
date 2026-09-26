@@ -1,7 +1,7 @@
 import { INJECTION_REGISTRY, type InjectionSpec } from "@constants/injectionRegistry";
 import { isSceneStale, type SceneReadRecord } from "@judge/index";
 
-// v2.3 plan 09 (integration review recommendation 3). The author's one place to see what the next
+// The author's one place to see what the next
 // reply will receive, composed from the SAME registry the injections are registered in and the blocks
 // ST actually holds — not a second list that can drift from either. Read-only apart from the three
 // controls the owning subsystems already expose.
@@ -168,7 +168,7 @@ export const buildNextTurnPreview = (blocks: NextTurnSourceBlock[], facts: NextT
 /** What the preview can act on: only the one-shot note has a clear, and only from this surface. */
 export const clearableContributors = (rows: NextTurnContributor[]): NextTurnContributor[] => rows.filter((row) => row.oneShot);
 
-/** v2.4 plan 08 T19b: what OTHER extensions put beside the story's blocks. Read-only: no owner, no control. */
+/** What OTHER extensions put beside the story's blocks. Read-only: no owner, no control. */
 export const buildForeignRows = (blocks: NextTurnSourceBlock[], countOf: (value: string) => TokenCount | null, budget: NextTurnBudget | null): NextTurnForeignRow[] =>
   [...blocks].sort(byAssembly).map((block) => {
     const counted = countOf(block.value);
@@ -191,7 +191,7 @@ export const buildForeignRows = (blocks: NextTurnSourceBlock[], countOf: (value:
 const total = (rows: Array<{ tokens: number | null }>): number | null =>
   rows.some((row) => row.tokens === null) ? null : rows.reduce((sum, row) => sum + (row.tokens ?? 0), 0);
 
-/** v2.4 plan 08 T19a: the story blocks as a share of the main API's prompt budget. An unread budget is unknown, never 0. */
+/** The story blocks as a share of the main API's prompt budget. An unread budget is unknown, never 0. */
 export function buildNextTurnCost(rows: NextTurnContributor[], foreign: NextTurnForeignRow[], budget: NextTurnBudget | null, lastGenerationBudget: number | null): NextTurnCost {
   const ownTokens = total(rows);
   const known = budget?.ok ? budget : null;

@@ -1,6 +1,5 @@
+import { textModel } from "../../../test/support/modelCall";
 import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
-import { callExtractionModel } from "@extraction/client";
-import { clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, loadLorebook, readWIEntry, readWIEntryAt, restoreWIEntryAt, setStoryExtensionPrompt, updateWIEntryByUid, upsertWIEntry } from "@services/STAPI";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
 import { createStagecraft, sanitizeStagecraft } from "../extras";
 import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
@@ -8,11 +7,7 @@ import type { ExtractionRuntimeSettings, RuntimeExtras, StagecraftRuntimeState }
 
 const mockChat: Array<Record<string, unknown>> = [];
 
-jest.mock("@services/STAPI", () => ({
-  settingsAreLoaded: () => true,
-  settingsReady: async () => {},
-  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readServerBoundary: async () => null,
+const host = {
   setStoryExtensionPrompt: jest.fn(),
   clearStoryExtensionPrompt: jest.fn(),
   loadLorebook: jest.fn(),
@@ -25,9 +20,11 @@ jest.mock("@services/STAPI", () => ({
   enableWIEntry: jest.fn(async () => ({ ok: true, changed: true })),
   disableWIEntry: jest.fn(async () => ({ ok: true, changed: true })),
   getContext: () => ({ extensionSettings: {}, saveSettingsDebounced: () => undefined, chat: mockChat }),
-}));
+};
+const { clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, loadLorebook, readWIEntry, readWIEntryAt, restoreWIEntryAt, setStoryExtensionPrompt, updateWIEntryByUid, upsertWIEntry } = host;
 
-jest.mock("@extraction/client", () => ({ callExtractionModel: jest.fn(async () => "NONE") }));
+
+const callExtractionModel = jest.fn(async (..._args: unknown[]): Promise<string> => "NONE");
 
 const lorebook = (content = "The bridge stands, its ropes new and taut.") => ({
   entries: {
@@ -69,7 +66,7 @@ const engineState = (boundary = 10, lastMessageId = 20): EngineState => ({
 } as unknown as EngineState);
 
 const harness = (options: { story?: NormalizedStoryV2 | null; state?: EngineState; settings?: Partial<StagecraftRuntimeState["settings"]>; filterEntries?: StagecraftCoordinatorDeps["filterEntries"]; warden?: StagecraftCoordinatorDeps["warden"]; owned?: boolean } = {}) => {
-  let state: StagecraftRuntimeState = { ...createStagecraft(), settings: { curatorEnabled: true, acceptMode: "review", ...options.settings } };
+  let state: StagecraftRuntimeState = { ...createStagecraft(), settings: { curatorEnabled: true, acceptMode: "review", ...options.settings } as StagecraftRuntimeState["settings"] };
   const journal: string[] = [];
   let writes = 0;
   let persists = 0;
@@ -80,12 +77,12 @@ const harness = (options: { story?: NormalizedStoryV2 | null; state?: EngineStat
   let chatId = "chat-a";
   const context = (): RunContext => ({ chatId, storyId: "coordinator-fixture", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null });
   const ownership = options.owned === false ? undefined : { mint: () => mintToken(context()), check: (token: RunToken) => tokenMatches(context(), token) };
-  const coordinator = new StagecraftCoordinator({
+  const coordinator = new StagecraftCoordinator({ hosts: { prompt: host, chat: { chatRows: () => host.getContext().chat }, player: { getPlayerName: () => "Max" }, curator: host } as never,
     getStory: () => (options.story === undefined ? story() : options.story),
     getState: () => options.state ?? engineState(),
     getStagecraft: () => state,
     setStagecraft: (next) => { state = next; writes += 1; },
-    getExtractionSettings: () => ({ profileId: "p" } as ExtractionRuntimeSettings),
+    model: textModel(callExtractionModel),
     getCanon: () => "The flood took the bridge.",
     getOpenArcs: () => ["Who cut the ropes?"],
     ...(options.filterEntries ? { filterEntries: options.filterEntries } : {}),
@@ -809,7 +806,7 @@ describe("continuity warden (v2.2 plan 05)", () => {
   it("lapses an older note even when a pass is already in flight", async () => {
     let release: (value: typeof note | null) => void = () => undefined;
     const slow = { check: jest.fn(() => new Promise<typeof note | null>((resolve) => { release = resolve; })), facts: () => ["The bridge fell in the flood."], nudgeActive: () => false };
-    const env = harness({ settings: wardenOn("auto"), warden: slow });
+    const env = harness({ settings: wardenOn("auto"), warden: slow as unknown as StagecraftCoordinatorDeps["warden"] });
     env.read().proposals.push({ id: "warden-0-1", curator: "warden", at: "", boundary: 0, messageId: 1, checkpointId: "cp1", reason: "continuity", summary: "", mode: "auto", ops: [{ op: { kind: "note", text: note.text, facts: note.facts, replyMessageId: 1 }, status: "accepted" }], dropped: [] });
     mockChat.push({ name: "Max", mes: "Then we cross.", is_user: true }, { name: "Mira", mes: "Follow me.", is_user: false });
     const inFlight = env.coordinator.runWardenPass(3);
@@ -824,7 +821,7 @@ describe("continuity warden (v2.2 plan 05)", () => {
   it("V3: a warden pass held open in another chat does not block this chat's pass", async () => {
     const releases: Array<(value: typeof note | null) => void> = [];
     const slow = { check: jest.fn(() => new Promise<typeof note | null>((resolve) => { releases.push(resolve); })), facts: () => ["The bridge fell in the flood."], nudgeActive: () => false };
-    const env = harness({ settings: wardenOn("auto"), warden: slow });
+    const env = harness({ settings: wardenOn("auto"), warden: slow as unknown as StagecraftCoordinatorDeps["warden"] });
     mockChat.push({ name: "Max", mes: "Then we cross.", is_user: true }, { name: "Mira", mes: "Follow me.", is_user: false });
     const old = env.coordinator.runWardenPass(1);
     await Promise.resolve();
@@ -839,7 +836,7 @@ describe("continuity warden (v2.2 plan 05)", () => {
   it("V3: an old warden pass finishing does not release the new pass's hold", async () => {
     const releases: Array<(value: typeof note | null) => void> = [];
     const slow = { check: jest.fn(() => new Promise<typeof note | null>((resolve) => { releases.push(resolve); })), facts: () => ["The bridge fell in the flood."], nudgeActive: () => false };
-    const env = harness({ settings: wardenOn("auto"), warden: slow });
+    const env = harness({ settings: wardenOn("auto"), warden: slow as unknown as StagecraftCoordinatorDeps["warden"] });
     mockChat.push({ name: "Max", mes: "Then we cross.", is_user: true }, { name: "Mira", mes: "Follow me.", is_user: false });
     const old = env.coordinator.runWardenPass(1);
     await Promise.resolve();

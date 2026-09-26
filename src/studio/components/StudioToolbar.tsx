@@ -8,11 +8,12 @@ import FeedbackAlert from "@components/studio/FeedbackAlert";
 import { useDraftStore } from "../draft";
 import { exportDraft, importDraft } from "../io";
 import { slugifyStoryId } from "@engine/index";
+import { log } from "@utils/log";
 
 type Feedback = { type: "success" | "error"; message: string } | null;
 
 // What the host does with a saved record. The Studio never reaches into the runtime itself: the
-// chat that is playing this story decides whether to take the update (plan 05 hot-swap).
+// chat that is playing this story decides whether to take the update (hot-swap).
 export type StudioSaveHandler = (record: StoryLibraryRecord) => Promise<string | null> | string | null;
 
 const download = (filename: string, text: string) => {
@@ -24,8 +25,8 @@ const download = (filename: string, text: string) => {
     anchor.download = filename;
     anchor.click();
     URL.revokeObjectURL(url);
-  } catch {
-    /* download unavailable in this environment */
+  } catch (error) {
+    log.warn("studio: the story file could not be downloaded here", error);
   }
 };
 
@@ -56,15 +57,15 @@ const StudioToolbar: React.FC<Props> = ({ onSaved, confirmSave = confirmLibraryS
       return;
     }
     loadDraft({ ...current, id: result.record.id, version: result.record.version }, result.record.hash);
-    // v2.4 plan 02 §7: the library half says "Saved" only on evidence the server holds the record. The
-    // write armed that evidence and the runtime journals it (E3); this reads the same one.
+    // The library half says "Saved" only on evidence the server holds the record. The
+    // write armed that evidence and the runtime journals it; this reads the same one.
     const evidence = confirmSave(result.record);
     // A failing hand-off must not leave the toolbar stuck on "Saving..." with the author unsure
     // whether the library took the edit.
     let chatHalf = "";
     let chatFailed = false;
     try {
-      // Two events, two sentences (plan 09 §One save vocabulary). No handler at all means no chat is
+      // Two events, two sentences (save vocabulary). No handler at all means no chat is
       // watching this save, which is not the same as a chat declining it.
       const applied = onSaved ? await onSaved(result.record) : null;
       chatHalf = !onSaved ? "" : applied ? ` Applied to this chat: ${applied}.` : " Not applied to this chat: it is playing a different story.";

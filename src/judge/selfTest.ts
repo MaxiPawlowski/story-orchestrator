@@ -2,6 +2,7 @@ import { buildDirectorRequest, decideDirector, DIRECTOR_NOBODY } from "./directo
 import { buildPairRequest, buildVerifyRequest, pairDecision, readPair, readVerify, verifyVerdict, type JudgePairRelation } from "./memory";
 import { JUDGE_SELF_TEST_CASES, type JudgeSelfTestCase } from "./selfTestCases";
 import type { JudgeFallback, JudgeRequest, JudgeResult } from "./types";
+import { median } from "./stats";
 
 export interface JudgeSelfTestRow {
   id: string;
@@ -20,12 +21,6 @@ export interface JudgeSelfTestReport {
   p50LatencyMs: number | null;
   rows: JudgeSelfTestRow[];
 }
-
-const median = (values: number[]): number | null => {
-  if (!values.length) return null;
-  const sorted = [...values].sort((left, right) => left - right);
-  return sorted[Math.floor((sorted.length - 1) / 2)];
-};
 
 export async function runJudgeDirectorSelfTest(ask: (request: JudgeRequest) => Promise<JudgeResult>, cases: JudgeSelfTestCase[] = JUDGE_SELF_TEST_CASES): Promise<JudgeSelfTestReport> {
   const rows = await Promise.all(cases.map(async (entry): Promise<JudgeSelfTestRow & { model: string | null }> => {
@@ -85,7 +80,14 @@ export async function runMemoryVerifyCalibration(ask: (request: JudgeRequest) =>
     const scores = result.answers ? readVerify(result.answers, group.length) : group.map(() => null);
     return group.map((entry, index) => {
       const dropped = verifyVerdict(scores[index]).action === "drop";
-      return { id: entry.id, right: entry.supported ? !dropped : dropped, picked: scores[index] === null ? null : `p=${scores[index]}`, latencyMs: result.latencyMs, model: result.model, ...(result.fallback ? { fallback: result.fallback } : {}) };
+      return {
+        id: entry.id,
+        right: entry.supported ? !dropped : dropped,
+        picked: scores[index] === null ? null : `p=${scores[index]}`,
+        latencyMs: result.latencyMs,
+        model: result.model,
+        ...(result.fallback ? { fallback: result.fallback } : {})
+      };
     });
   }))).flat();
   return summarize(rows);
@@ -98,7 +100,15 @@ export async function runMemoryPairsCalibration(ask: (request: JudgeRequest) => 
     const result = await ask(buildPairRequest(entry.older, entry.newer));
     const read = result.answers ? readPair(result.answers) : null;
     const decision = pairDecision(read);
-    return { id: entry.id, right: decision !== null && pairAction(decision) === pairAction(entry.label), picked: decision ?? (read ? `undecided ${read.relation}@${read.confidence}` : null), detail: read ? `${read.relation}@${read.confidence} same=${read.sameThing}` : null, latencyMs: result.latencyMs, model: result.model, ...(result.fallback ? { fallback: result.fallback } : {}) };
+    return {
+      id: entry.id,
+      right: decision !== null && pairAction(decision) === pairAction(entry.label),
+      picked: decision ?? (read ? `undecided ${read.relation}@${read.confidence}` : null),
+      detail: read ? `${read.relation}@${read.confidence} same=${read.sameThing}` : null,
+      latencyMs: result.latencyMs,
+      model: result.model,
+      ...(result.fallback ? { fallback: result.fallback } : {})
+    };
   }));
   return summarize(rows);
 }

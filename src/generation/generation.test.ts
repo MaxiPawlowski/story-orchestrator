@@ -34,7 +34,7 @@ const parsedBeats = () => {
   return parsed.beats;
 };
 
-const cacheEntry = (): ExpansionCacheEntry => ({
+const cacheEntry = () => ({
   key: "start->bridge_stub->finish",
   status: "inserted",
   sourceCheckpointId: "start",
@@ -50,7 +50,7 @@ const cacheEntry = (): ExpansionCacheEntry => ({
   lastError: null,
   attempts: 1,
   updatedAt: "2026-07-05T00:00:00.000Z",
-});
+}) as Partial<ExpansionCacheEntry> as ExpansionCacheEntry;
 
 describe("background generation", () => {
   it("computes target state deltas", () => {

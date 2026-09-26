@@ -1,7 +1,7 @@
 import type { GateNode, PrimitiveValue, ScaffoldingDelta } from "@engine/index";
 import type { GeneratedBeat, GeneratedOutcome } from "./types";
 
-// v2.3 plan 07 (R9). A generated beat with several outcomes is several routes, and both the code
+// A generated beat with several outcomes is several routes, and both the code
 // checks and the staleness revalidation have to reason about all of them: `outcomes[0]` described one
 // path and silently assumed the rest were equivalent, which is how an omitted route stalled a player
 // at the anchor gate. Bounded and deduped, because a wide chain must not turn a code check into a
@@ -9,7 +9,7 @@ import type { GeneratedBeat, GeneratedOutcome } from "./types";
 
 export const MAX_OUTCOME_PATHS = 256;
 
-// L4 (2026-09-23). A transition fires only while its gate holds, so every value an `==` leaf (or a
+// A transition fires only while its gate holds, so every value an `==` leaf (or a
 // one-value `in`) of the gate pins is a FACT at that point of the route. Simulating deltas alone judged
 // the real model's chains as if a route could leave `approach == safe` with approach still unknown, and
 // failed every chain whose outcomes steered by gate rather than by delta (6 of 6 real generations).

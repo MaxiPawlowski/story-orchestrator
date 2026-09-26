@@ -9,7 +9,7 @@ export interface HostGroup {
   members: string[];
   disabled_members: string[];
   // The group's chat file ids (group-chats.js:2248/2286). `deleteGroupChat` splices the id out BEFORE
-  // its request, so absence here is not proof the file is gone (v2.4 02-H11).
+  // its request, so absence here is not proof the file is gone.
   chats?: string[];
   [key: string]: unknown;
 }
@@ -28,7 +28,7 @@ export interface HostScannableEntry extends HostWorldInfoEntry {
   constant?: boolean;
 }
 
-// v2.4 05-H2/H3: the four per-call arrays `getSortedEntries` hands to WORLDINFO_ENTRIES_LOADED before
+// The four per-call arrays `getSortedEntries` hands to WORLDINFO_ENTRIES_LOADED before
 // it sorts, hashes and clones them. Each element is already a copy (`{uid, world, ...rest}` over a
 // cloned book), so a listener's `disable` write is scan-local.
 export interface HostEntriesLoaded {
@@ -63,14 +63,17 @@ export interface SillyTavernContext {
   eventSource: SillyTavernEventSource;
   eventTypes: { PRESET_CHANGED: string } & Record<string, string | undefined>;
   textCompletionSettings: HostTextCompletionSettings;
-  executeSlashCommandsWithOptions: (command: string, options?: { handleParserErrors?: boolean; handleExecutionErrors?: boolean; parserFlags?: Record<number, boolean> }) => Promise<HostSlashCommandResult | undefined>;
+  executeSlashCommandsWithOptions: (
+    command: string,
+    options?: { handleParserErrors?: boolean; handleExecutionErrors?: boolean; parserFlags?: Record<number, boolean> },
+  ) => Promise<HostSlashCommandResult | undefined>;
   loadWorldInfo: (name: string) => Promise<unknown>;
   name1: string;
   characterId?: number | string;
   groupId: string | null | undefined;
   // The open chat file's id: a group's chat_id, or the character's chat (st-context.js:125).
   chatId?: string | null;
-  // v2.2 plan 04: `main_api` and `oai_settings` (st-context.js:200, :227), read for Generate()'s
+  // `main_api` and `oai_settings` (st-context.js:200, :227), read for Generate()'s
   // `send_if_empty` branch (script.js:4455).
   mainApi?: string;
   chatCompletionSettings?: { send_if_empty?: string };
@@ -79,29 +82,29 @@ export interface SillyTavernContext {
   worldInfo?: Record<string, HostWorldInfoEntry>;
   powerUserSettings?: { personas?: Record<string, string> };
   SlashCommandParser?: { commands?: Record<string, HostSlashCommand> };
-  // v2.5 plan 11 C3: exported on every supported host (st-context.js:98 import, :169 export, ST 1.18.0).
+  // Exported on every supported host (st-context.js:98 import, :169 export, ST 1.18.0).
   SlashCommandEnumValue: new (value: string, description?: string) => unknown;
-  // Provisioning seam (v2.1 plan 06): st-context.js:129 / :230 / :237. `getCharacters` is ST's
+  // Provisioning seam: st-context.js:129 / :230 / :237. `getCharacters` is ST's
   // reload, not a getter — it refreshes both the character and the group caches (script.js:1326).
   getRequestHeaders?: (options?: { omitContentType?: boolean }) => Record<string, string>;
   getCharacters?: () => Promise<void>;
   humanizedDateTime?: () => string;
   // Every lorebook that exists, not only the active ones (st-context.js:284).
   getWorldInfoNames?: () => string[];
-  // v2.4 03-H12: a CM profile's `api` -> `{selected}` (slash-commands.js:142, st-context.js:285), and the
+  // A CM profile's `api` -> `{selected}` (slash-commands.js:142, st-context.js:285), and the
   // preset manager for that API (st-context.js:288, preset-manager.js:83 — null for an unknown API).
   CONNECT_API_MAP?: Record<string, HostConnectApiMap | undefined>;
   getPresetManager?: (apiId?: string) => HostPresetManager | null;
-  // v2.4 03-H6: the reply text ST's extracted path reads (script.js:6276, st-context.js:287).
+  // The reply text ST's extracted path reads (script.js:6276, st-context.js:287).
   extractMessageFromData?: (data: unknown, activeApi?: string | null) => string;
-  // v2.4 08-H7: every extension prompt ST holds, ours and every other extension's (st-context.js:152).
+  // Every extension prompt ST holds, ours and every other extension's (st-context.js:152).
   extensionPrompts?: Record<string, HostExtensionPrompt | undefined>;
-  // v2.4 08-H6: the main API's tokenizer; on BEST_MATCH + textgen it is a backend call (tokenizers.js:443).
+  // The main API's tokenizer; on BEST_MATCH + textgen it is a backend call (tokenizers.js:443).
   getTokenCountAsync?: (text: string, padding?: number) => Promise<number>;
   [key: string]: unknown;
 }
 
-// v2.4 08-H7: script.js:8926-8935. `position` NONE -1 / IN_PROMPT 0 / IN_CHAT 1 / BEFORE_PROMPT 2; `filter`
+// Script.js:8926-8935. `position` NONE -1 / IN_PROMPT 0 / IN_CHAT 1 / BEFORE_PROMPT 2; `filter`
 // is a function ST awaits at assembly (a false answer skips the block) or null.
 export interface HostExtensionPrompt {
   value?: unknown;
@@ -142,9 +145,9 @@ export interface ScriptHostModule {
   getCurrentChatId: () => string | undefined;
   activateSendButtons: () => void;
   doNavbarIconClick: (this: Element) => Promise<void>;
-  // script.js:405 — the name ST gives its own group `/sd` posts and tool-call rows (v2.4 01-H11).
+  // script.js:405 — the name ST gives its own group `/sd` posts and tool-call rows.
   systemUserName: string;
-  // v2.4 08-H3: script.js:5929/5966/5981 — the main API's context, reply length and their difference.
+  // Script.js:5929/5966/5981 — the main API's context, reply length and their difference.
   getMaxContextTokens?: () => number;
   getMaxResponseTokens?: () => number;
   getMaxPromptTokens?: (overrideResponseLength?: number | null) => number;
@@ -174,11 +177,11 @@ export interface WorldInfoHostModule {
   createWorldInfoEntry: (name: string, data: unknown) => unknown;
   saveWorldInfo: (name: string, data: unknown, immediately?: boolean) => Promise<unknown>;
   // world-info.js:4346-4393: false for an unlisted name or a refused request; on success it evicts the
-  // cache, unselects the book and refreshes `world_names` (v2.4 02-H13).
+  // cache, unselects the book and refreshes `world_names`.
   deleteWorldInfo: (name: string) => Promise<boolean>;
-  // v2.2 plan 04: every entry of every active source (global, character, chat, persona), stamped
+  // Every entry of every active source (global, character, chat, persona), stamped
   // with `world`, decorators parsed and hashed, structured-cloned (world-info.js:4590). It emits
-  // WORLDINFO_ENTRIES_LOADED on the way (:4604, v2.4 05-H2) and clones at :4638.
+  // WORLDINFO_ENTRIES_LOADED on the way (:4604) and clones at :4638.
   getSortedEntries: () => Promise<HostScannableEntry[]>;
   [key: string]: unknown;
 }
@@ -207,8 +210,8 @@ export interface GroupChatsHostModule {
   [key: string]: unknown;
 }
 
-// v2.4 03-H1: `custom` is destructured at shared.js:424 and `signal` reaches both services' `fetch`
-// (CC :463, TC :483). `extractData: false` returns the raw reply JSON (03-H6).
+// `custom` is destructured at shared.js:424 and `signal` reaches both services' `fetch`
+// (CC :463, TC :483). `extractData: false` returns the raw reply JSON.
 export interface HostModelRequestCustom {
   extractData?: boolean;
   includePreset?: boolean;
@@ -220,7 +223,13 @@ export interface HostModelRequestCustom {
 export interface ExtensionsSharedHostModule {
   ConnectionManagerRequestService: {
     getSupportedProfiles: () => Array<Record<string, unknown>>;
-    sendRequest: (profileId: string, prompt: string | Array<{ role: string; content: string }>, maxTokens: number, custom?: HostModelRequestCustom, overridePayload?: Record<string, unknown>) => Promise<unknown>;
+    sendRequest: (
+      profileId: string,
+      prompt: string | Array<{ role: string; content: string }>,
+      maxTokens: number,
+      custom?: HostModelRequestCustom,
+      overridePayload?: Record<string, unknown>,
+    ) => Promise<unknown>;
   };
   [key: string]: unknown;
 }

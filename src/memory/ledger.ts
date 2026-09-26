@@ -1,4 +1,4 @@
-import { isLive, provenance as provenanceOf, withValidity, type ProvenanceSource } from "./provenance";
+import { isLive, keepPinnedFrom, provenance as provenanceOf, type ProvenanceSource } from "./provenance";
 import { generateMemoryId, type LedgerEntry, type LedgerView, type ParsedLedgerSignal } from "./types";
 
 export const LEDGER_CAP = 60;
@@ -15,7 +15,7 @@ export interface LedgerBinding {
 export interface LedgerSignalContext {
   boundary: number;
   messageId?: number;
-  /** Which pass wrote it (v2.3 plan 05). */
+  /** Which pass wrote it. */
   pass?: string;
   source?: ProvenanceSource;
 }
@@ -40,7 +40,7 @@ export function applyLedgerSignals(
     if (!signal.entity.trim() || !signal.field.trim() || !value) continue;
     const key = ledgerKey(signal.entity, signal.field);
     if (boundKeys.has(key)) continue;
-    // M3: a change is a NEW version, never an overwrite. An in-place edit destroys the value a
+    // A change is a NEW version, never an overwrite. An in-place edit destroys the value a
     // rollback has to restore, which is the whole reason `rollbackLedger` could only keep or drop.
     const previous = next.filter((entry) => ledgerKey(entry.entity, entry.field) === key).at(-1);
     if (previous && isLive(previous) && previous.value === value) continue;
@@ -81,22 +81,11 @@ export function removeLedger(entries: LedgerEntry[], id: string): LedgerEntry[] 
   return entries.filter((entry) => ledgerKey(entry.entity, entry.field) !== key);
 }
 
-/** The whole chain for one key, oldest first — what `buildLedgerView` collapses to one row. */
-export function ledgerVersions(entries: LedgerEntry[], entity: string, field: string): LedgerEntry[] {
-  const key = ledgerKey(entity, field);
-  return entries.filter((entry) => ledgerKey(entry.entity, entry.field) === key);
-}
-
 export function rollbackLedger(entries: LedgerEntry[], messageId: number): LedgerEntry[] {
-  return entries.flatMap((entry): LedgerEntry[] => {
-    const sourced = typeof entry.messageId === "number" && entry.messageId >= messageId;
-    if (!sourced) return [entry];
-    if (!entry.pinned) return [];
-    return [{ ...entry, ...withValidity(entry, "source-removed") }];
-  });
+  return entries.flatMap((entry) => keepPinnedFrom(entry, messageId));
 }
 
-/** V11 (carried from V9): below the engine's history floor a rollback only ever restores a key's
+/** Below the engine's history floor a rollback only ever restores a key's
  *  newest version, so the older ones there are unreachable and go first. */
 function trimOrder(kept: LedgerEntry[], older: LedgerEntry[], floor: number | null): LedgerEntry[] {
   if (floor === null) return older;
@@ -145,7 +134,7 @@ export function buildLedgerView(
     rows.push({ entity: binding.entity, field: binding.field, value: String(value), bound: true, turn: versions[binding.qualityKey] ?? 0 });
   }
   // One row per key: the newest LIVE version is the fact, the older ones are what a rollback
-  // restores. A quarantined version (v2.3 plan 05) neither speaks for the key nor hides the version
+  // restores. A quarantined version neither speaks for the key nor hides the version
   // it replaced, so the row falls back to the newest version still standing.
   const newest = new Map<string, LedgerEntry>();
   for (const entry of entries) {
@@ -164,14 +153,11 @@ export function buildLedgerView(
 export function renderLedgerBlock(view: LedgerView[]): string {
   if (!view.length) return "";
   const byEntity = new Map<string, string[]>();
-  const order: string[] = [];
   for (const row of view) {
-    if (!byEntity.has(row.entity)) {
-      byEntity.set(row.entity, []);
-      order.push(row.entity);
-    }
-    byEntity.get(row.entity)!.push(`${row.field}=${row.value}`);
+    const fields = byEntity.get(row.entity) ?? [];
+    fields.push(`${row.field}=${row.value}`);
+    byEntity.set(row.entity, fields);
   }
-  const lines = order.map((entity) => `${entity}: ${byEntity.get(entity)!.join(" | ")}`);
+  const lines = [...byEntity].map(([entity, fields]) => `${entity}: ${fields.join(" | ")}`);
   return ["Current state:", ...lines].join("\n");
 }

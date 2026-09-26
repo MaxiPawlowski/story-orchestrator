@@ -79,7 +79,7 @@ export class TurnBridge {
     this.reset();
   }
 
-  /** v2.4 E5: a load made outside CHAT_CHANGED (the page's first) names the chat it loaded. */
+  /** A load made outside CHAT_CHANGED (the page's first) names the chat it loaded. */
   noteLoaded(chat: LoadedChat | null) {
     this.loadedChat = chat;
   }
@@ -142,8 +142,10 @@ export class TurnBridge {
     const drain: { run: RunGuard | null } = { run: null };
     this.draining = drain;
     try {
-      while (this.draining === drain && this.pending[0]?.ready) {
-        const next = this.pending.shift()!;
+      while (this.draining === drain) {
+        const next = this.pending[0];
+        if (!next?.ready) break;
+        this.pending.shift();
         if (!next.run.stillOwns()) continue;
         drain.run = next.run;
         await this.manager.commitBoundary(next.messageId ?? undefined);

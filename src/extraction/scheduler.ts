@@ -3,7 +3,8 @@ import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, Parsed
 import type { ExtraGateSource, TypedJudge } from "./types";
 import { getChatWindow } from "./chatWindow";
 import { Breaker, DANGLING_PROFILE_DETAIL, failedProfile, failureClass, probeTimeoutMs, type ExtractionHealth, type ProbeResult, type ProbeTrigger } from "./breaker";
-import { isLapse } from "./client";
+import { isLapse } from "./modelError";
+import type { ModelCall } from "./modelRoute";
 import { runSharedRead, sharedReadWindow } from "./sharedRead";
 import type { RequestBudget } from "./tokenMeter";
 import type { ParsedFact, SharedReadAudit, SharedReadWindow } from "./types";
@@ -14,7 +15,6 @@ export interface SchedulerSettings {
   cadence: number;
   reconciliationMultiplier: number;
   stabilityLag: number;
-  debugResponse?: string | null;
   pressureThreshold?: number;
   budget?: RequestBudget;
 }
@@ -52,6 +52,7 @@ export interface SchedulerHost {
   getStory(): NormalizedStoryV2 | null;
   getEngineState(): EngineState | null;
   getExtractionSettings(): SchedulerSettings;
+  model: ModelCall;
   getFacts(): ParsedFact[];
   getFiredTransitions(): NormalizedTransition[];
   getExpansionGateSources(): ExtraGateSource[];
@@ -59,7 +60,15 @@ export interface SchedulerHost {
   getEpistemicLedgerCapable?(): boolean;
   getEntities?(): string[];
   judgeTyped?(): TypedJudge | null;
-  applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memory: ParsedMemoryLine[], arcs: ParsedArcSignal[], epistemic?: ParsedEpistemicSignal[], ledger?: ParsedLedgerSignal[], read?: ReadOwnership | null): Promise<void>;
+  applyExtractionAudit(
+    audit: SharedReadAudit,
+    facts: ParsedFact[],
+    memory: ParsedMemoryLine[],
+    arcs: ParsedArcSignal[],
+    epistemic?: ParsedEpistemicSignal[],
+    ledger?: ParsedLedgerSignal[],
+    read?: ReadOwnership | null,
+  ): Promise<void>;
   beginRead?(window: { from: number; to: number }): ReadOwnership;
   onSchedulerChange(): void;
   noteLapse?(reason: string, detail: string): void;
@@ -70,7 +79,7 @@ export interface SchedulerHost {
   epoch?: () => number;
 }
 
-// V25 (found live by V13, 2026-09-23). Cadence counts BOUNDARIES, and the window used to count
+// Cadence counts BOUNDARIES, and the window used to count
 // MESSAGES: `cadence` of them ending at the stable end. At cadence 1 a read saw only the newest reply,
 // never the player's line before it; in a group, several replies per line pushed the player's own
 // words out of every window; in a solo chat at cadence 3, half the transcript was never read. A
@@ -115,7 +124,7 @@ export class ExtractionScheduler {
   constructor(private readonly host: SchedulerHost) {}
 
   /**
-   * v2.3 plan 03: everything queued belonged to a world that no longer exists — a story load,
+   * Everything queued belonged to a world that no longer exists — a story load,
    * select, restart, clear, or a chat change.
    *
    * The ownership tokens already stop these jobs *writing* anything. This stops them *running*:
@@ -123,7 +132,7 @@ export class ExtractionScheduler {
    * produce a result that is then discarded.
    *
    * It does not touch `inFlight`: clearing the flag would let a second job start beside the one
-   * still awaiting the model. That one is aborted by the epoch change (v2.4 plan 03 D2), and refused
+   * still awaiting the model. That one is aborted by the epoch change, and refused
    * at the write edge if its answer wins the race against the abort.
    */
   clearForNewWorld() {
@@ -184,7 +193,10 @@ export class ExtractionScheduler {
   private mergeReread(job: SchedulerJob): boolean {
     const incoming = job.window;
     if (job.priority !== 0 || !incoming) return false;
-    const existing = this.queue.find((entry) => entry.priority === 0 && entry.window && overlaps(entry.window, incoming) && (entry.reason === REREAD_LAPSED_REASON || job.reason === REREAD_LAPSED_REASON));
+    const existing = this.queue.find((entry) => entry.priority === 0 && entry.window && overlaps(
+      entry.window,
+      incoming,
+    ) && (entry.reason === REREAD_LAPSED_REASON || job.reason === REREAD_LAPSED_REASON));
     if (!existing?.window) return false;
     existing.window = getChatWindow(Math.min(existing.window.from, incoming.from), Math.max(existing.window.to, incoming.to));
     if (existing.reason === REREAD_LAPSED_REASON) existing.reason = job.reason;
@@ -220,7 +232,7 @@ export class ExtractionScheduler {
     return Boolean(profileId && this.breaker.isOpen(profileId));
   }
 
-  /** v2.4 plan 08 T18: a routed profile's own reading, for its Repair row. */
+  /** A routed profile's own reading, for its Repair row. */
   profileHealth(profileId: string): ExtractionHealth | null {
     if (profileId === this.readProfile() && this.configProblem) return { kind: "config", detail: this.configProblem };
     const problem = this.profileProblems.get(profileId);
@@ -368,7 +380,7 @@ export class ExtractionScheduler {
     }
   }
 
-  // v2.2 plan 06: this boundary already queued a cadence read, which carries the judged step itself.
+  // This boundary already queued a cadence read, which carries the judged step itself.
   cadenceQueuedAt(boundary: number): boolean {
     return this.cadenceBoundary === boundary;
   }
@@ -402,7 +414,14 @@ export class ExtractionScheduler {
   }
 
   getSnapshot() {
-    return { queueDepth: this.queue.length, inFlight: this.inFlight, lastError: this.lastError, heavyQueueDepth: this.heavyQueue.length, heavyInFlight: this.heavyInFlight, lastHeavyError: this.lastHeavyError };
+    return {
+      queueDepth: this.queue.length,
+      inFlight: this.inFlight,
+      lastError: this.lastError,
+      heavyQueueDepth: this.heavyQueue.length,
+      heavyInFlight: this.heavyInFlight,
+      lastHeavyError: this.lastHeavyError,
+    };
   }
 
   private rereadIfMutated(read: LapsedRead, startedEpoch: number) {
@@ -414,7 +433,7 @@ export class ExtractionScheduler {
     const index = this.runnable(this.queue);
     if (index < 0) return;
     const [job] = this.queue.splice(index, 1);
-    // The world this job belongs to, read before it runs (v2.3 plan 03 §Abort and cleanup).
+    // The world this job belongs to, read before it runs (and cleanup).
     const startedEpoch = this.host.epoch?.() ?? 0;
     const story = this.host.getStory();
     const state = this.host.getEngineState();
@@ -431,11 +450,27 @@ export class ExtractionScheduler {
         await this.runWithRetries(job.run);
       } else {
         const priority = job.priority === 0 ? 0 : 1;
-        const window = sharedReadWindow({ state, priority, window: job.window && getChatWindow(job.window.from, job.window.to), stabilityLag: settings.stabilityLag });
+        const window = sharedReadWindow({ state, priority, window: job.window && getChatWindow(job.window.from, job.window.to), stabilityLag: settings.stabilityLag, readWindow: getChatWindow });
         const ownership = this.host.beginRead?.({ from: window.from, to: window.to }) ?? null;
         read = ownership ? { ownership, window: { from: window.from, to: window.to } } : null;
-        const client = { ...settings, role: "read" as const, ...(ownership?.signal ? { signal: ownership.signal } : {}) };
-        const result = await this.runWithRetries(() => runSharedRead({ story, state, priority, reason: job.reason, window, stabilityLag: settings.stabilityLag, firedTransitions: this.host.getFiredTransitions(), facts: this.host.getFacts(), extraGateSources: this.host.getExpansionGateSources(), openArcs: this.host.getOpenArcs(), epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false, entities: this.host.getEntities?.() ?? [], judgeTyped: this.host.judgeTyped?.() ?? null, client }));
+        const ask = { role: "read" as const, pass: "read" as const, ...(settings.budget ? { budget: settings.budget } : {}), ...(ownership?.signal ? { signal: ownership.signal } : {}) };
+        const result = await this.runWithRetries(() => runSharedRead({
+          story,
+          state,
+          priority,
+          reason: job.reason,
+          window,
+          stabilityLag: settings.stabilityLag,
+          firedTransitions: this.host.getFiredTransitions(),
+          facts: this.host.getFacts(),
+          extraGateSources: this.host.getExpansionGateSources(),
+          openArcs: this.host.getOpenArcs(),
+          epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false,
+          entities: this.host.getEntities?.() ?? [],
+          judgeTyped: this.host.judgeTyped?.() ?? null,
+          model: this.host.model,
+          ask,
+        }));
         await this.host.applyExtractionAudit(result.audit, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, ownership);
         if (read) this.rereadIfMutated(read, startedEpoch);
       }

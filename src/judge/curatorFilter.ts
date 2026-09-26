@@ -27,7 +27,10 @@ export function buildCuratorFilterRequest(input: CuratorFilterInput): JudgeReque
       open_threads: input.openThreads,
       entries: input.entries.map((entry) => ({ title: entry.title, switched_on: entry.enabled, content: entry.content })),
     },
-    questions: Object.fromEntries(input.entries.map((_, index) => [`entry:${index}`, noul(`Look at \`entries[${index}]\`. Has the story so far (\`canon\`, \`open_threads\`, \`checkpoint\`) made something in it out of date, or, if it is switched off, made it newly needed?`)])),
+    questions: Object.fromEntries(input.entries.map((_, index) => [
+      `entry:${index}`,
+      noul(`Look at \`entries[${index}]\`. Has the story so far (\`canon\`, \`open_threads\`, \`checkpoint\`) made something in it out of date, or, if it is switched off, made it newly needed?`),
+    ])),
   };
 }
 

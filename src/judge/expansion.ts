@@ -39,9 +39,18 @@ export function buildChainRequest(input: ChainInput): JudgeRequest {
       generated_beats: input.beats.map((beat) => (beat.guidance ? { objective: beat.objective, guidance: beat.guidance } : { objective: beat.objective })),
     },
     questions: {
-      contradicts: noul("Does any beat in `generated_beats` contradict one of `established_facts`?", { true: "A beat shows something an established fact rules out", false: "Every beat is compatible with every established fact" }),
-      advances: noul("Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?", { true: "The beats end at or clearly closer to the target", false: "The beats wander, go backwards, or make the target impossible" }),
-      newCharacter: noul("Do `generated_beats` bring in a named character who is not in `cast`?", { true: "A new named person appears in a beat", false: "Only cast members or unnamed people appear" }),
+      contradicts: noul(
+        "Does any beat in `generated_beats` contradict one of `established_facts`?",
+        { true: "A beat shows something an established fact rules out", false: "Every beat is compatible with every established fact" },
+      ),
+      advances: noul(
+        "Do `generated_beats`, taken in order, move the story toward `target_checkpoint`?",
+        { true: "The beats end at or clearly closer to the target", false: "The beats wander, go backwards, or make the target impossible" },
+      ),
+      newCharacter: noul(
+        "Do `generated_beats` bring in a named character who is not in `cast`?",
+        { true: "A new named person appears in a beat", false: "Only cast members or unnamed people appear" },
+      ),
       ...(trajectory ? { shape: score("How closely do `generated_beats` follow `tension_trajectory`, one level per beat in order?", CHAIN_SHAPE_LEVELS) } : {}),
     },
   };
@@ -73,9 +82,14 @@ export const chainScore = (read: ChainRead) =>
 // Code's pick: the highest-scoring chain the judge passes; ties go to the lowest variant index.
 export function pickChain(reads: Array<ChainRead | null>): number | null {
   let best: number | null = null;
+  let bestScore = 0;
   reads.forEach((read, index) => {
     if (!read || !judgeVerdict(read).pass) return;
-    if (best === null || chainScore(read) > chainScore(reads[best]!)) best = index;
+    const score = chainScore(read);
+    if (best === null || score > bestScore) {
+      best = index;
+      bestScore = score;
+    }
   });
   return best;
 }

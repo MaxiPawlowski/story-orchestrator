@@ -26,7 +26,8 @@
     }
   },
   "rules": {
-    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-non-null-assertion": "error",
     "@typescript-eslint/no-unused-vars": ["error", {
       "argsIgnorePattern": "^_",
       "varsIgnorePattern": "^_"
@@ -36,11 +37,18 @@
       "argsIgnorePattern": "^_",
       "varsIgnorePattern": "^_"
     }],
-    "no-console": "off",
+    "max-len": ["error", { "code": 200 }],
+    "no-console": "error",
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off",
     "react/no-unescaped-entities": "off"
   },
+  "overrides": [
+    {
+      "files": ["src/utils/log.ts"],
+      "rules": { "no-console": "off" }
+    }
+  ],
   "ignorePatterns": [
     "dist/**",
     "node_modules/**",

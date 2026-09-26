@@ -1,4 +1,7 @@
-import { CURATOR_MAX_TEXT, contentShownInPart, isNoteOp, type CuratorEntryView, type CuratorOp, type CuratorOpRecord, type CuratorProposal, type CuratorProposalRecord, type StagecraftAcceptMode, type WiCuratorOp } from "./types";
+import {
+  CURATOR_MAX_TEXT, contentShownInPart, isNoteOp, type CuratorEntryView, type CuratorOp, type CuratorOpRecord,
+  type CuratorProposal, type CuratorProposalRecord, type StagecraftAcceptMode, type WiCuratorOp,
+} from "./types";
 import { findSpanFuzzy } from "./fuzzy";
 import { viewForOp } from "./scope";
 
@@ -96,7 +99,11 @@ const nearMatch = (op: WiCuratorOp, entry: CuratorEntryView | undefined): Curato
 
 const beforeImage = (entry: CuratorEntryView) => ({ content: entry.content, disabled: entry.disabled, ...(entry.uid !== undefined ? { uid: entry.uid } : {}) });
 
-export function planCuratorProposal(proposal: CuratorProposal, entries: CuratorEntryView[], options: { mode?: StagecraftAcceptMode; declined?: WiCuratorOp[] } = {}): { records: CuratorOpRecord[]; dropped: string[] } {
+export function planCuratorProposal(
+  proposal: CuratorProposal,
+  entries: CuratorEntryView[],
+  options: { mode?: StagecraftAcceptMode; declined?: WiCuratorOp[] } = {},
+): { records: CuratorOpRecord[]; dropped: string[] } {
   const declined = new Set((options.declined ?? []).map(declineKey));
   const seen = new Set<string>();
   const dropped = [...proposal.dropped];

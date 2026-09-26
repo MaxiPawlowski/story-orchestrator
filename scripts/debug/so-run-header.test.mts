@@ -105,6 +105,21 @@ test('a removed lorebook selection is blocking (S12 companion)', () => {
   assert.equal(difference.allowed, false);
 });
 
+test('A28: a group chat that came back after its cleanup is blocking', () => {
+  const before = header({ inventory: { v2Stories: [], wizardSessions: [], lorebooksSelected: [], groupChats: ['17897/Adolion - 2026-09-20'] } });
+  const after = header({ inventory: { v2Stories: [], wizardSessions: [], lorebooksSelected: [], groupChats: ['17897/Adolion - 2026-09-20', '17897/sandbox-resurrected'] } });
+  const [difference] = diffHeaders(before, after);
+  assert.equal(difference.path, 'inventory.groupChats');
+  assert.deepEqual(difference.added, ['17897/sandbox-resurrected']);
+  assert.equal(difference.allowed, false);
+  assert.deepEqual(parseAllow(['groupChats:+17897/sandbox-resurrected']).allow[0].path, 'inventory.groupChats');
+});
+
+test('A28 control: the same chat list on both sides is no difference', () => {
+  const chats = { v2Stories: [], wizardSessions: [], lorebooksSelected: [], groupChats: ['17897/Adolion - 2026-09-20'] };
+  assert.deepEqual(diffHeaders(header({ inventory: chats }), header({ inventory: { ...chats } })), []);
+});
+
 test('a cast change left behind is blocking (S2)', () => {
   const after = header();
   after.group.disabledMembers = ['tobias', 'belle'];

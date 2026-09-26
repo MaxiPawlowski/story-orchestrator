@@ -1,0 +1,21 @@
+v2.5 plan 03 (code health, code items), mutations 2026-09-26 on the plan-03 branch. Each mutant was applied alone as an exact-text replacement by .debug/mutate03.py (asserted to match exactly once), the plan-03 guard and unit suites were run (codeHealth.guard.test.ts, errorCopy.guard.test.ts, architecture.test.ts, ownership.guard.test.ts, stopRuntime.test.ts, mountRegistry.test.ts, snapshotCache.test.ts, contextLimitCache.test.ts, macros.test.ts, memoryOwnership.review.test.ts, guards.test.ts, log.test.ts), and the file was restored byte for byte. The mutants follow the plan's Tests table (S2, S6, S7/Q3t, S8, D1, D3, E2, E4, F2, F3, Q1t, T3, S5, T1, E1).
+
+Baseline: Tests:       110 passed, 110 total (exit 0)
+- M1 S2 the coordinator budget re-raised to 620 (src/runtime/architecture.test.ts): KILLED, 1 failed, 109 passed, 110 total
+- M2 S6 a coordinator value-imports the host-reaching roster (src/runtime/coordinators/memoryCoordinator.ts): KILLED, 1 failed, 109 passed, 110 total
+- M3 Q3t/S7 the engine barrel re-exports test-support replay (src/engine/index.ts): KILLED, 1 failed, 109 passed, 110 total
+- M4 S8 isRecord redeclared outside its home (src/utils/string.ts): KILLED, 1 failed, 109 passed, 110 total
+- M5 D1 a coordinator reaches callExtractionModel past the route (src/runtime/coordinators/pacingCoordinator.ts): KILLED, 3 failed, 107 passed, 110 total
+- M6 D3 moved writer loses its token check (CanonSynthesis) (src/runtime/canonSynthesis.ts): KILLED, 2 failed, 108 passed, 110 total
+- M7 E2 raw error text back on a player surface (src/runtime/coordinators/expansionCoordinator.ts): KILLED, 1 failed, 109 passed, 110 total
+- M8 E2 a planted silent catch (src/utils/string.ts): KILLED, 2 failed, 108 passed, 110 total
+- M9 E1 a direct console call (src/utils/string.ts): KILLED, 2 failed, 108 passed, 110 total
+- M10 E4 stop skips the static macro unregister (src/runtime/macros.ts): KILLED, 3 failed, 107 passed, 110 total
+- M11 E4 the mount registry keeps its globals (src/utils/mountRegistry.ts): KILLED, 1 failed, 109 passed, 110 total
+- M12 F2 recordJudgeCall without touch (src/runtime/runtimeManager.ts): KILLED, 2 failed, 108 passed, 110 total
+- M13 F3 context-limit cache never invalidates (src/runtime/contextLimitCache.ts): KILLED, 3 failed, 107 passed, 110 total
+- M14 Q1t a real 900 ms sleep in a test (src/utils/guards.test.ts): KILLED, 1 failed, 109 passed, 110 total
+- M15 T3 a plan citation in a prod comment (src/utils/string.ts): KILLED, 1 failed, 109 passed, 110 total
+- M16 S5 a 201-char prod line (src/utils/string.ts): KILLED, 2 failed, 108 passed, 110 total
+- M17 T1 a non-null assertion (src/utils/string.ts): KILLED, 2 failed, 108 passed, 110 total
+Restored: Tests:       110 passed, 110 total (exit 0)

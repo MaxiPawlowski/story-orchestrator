@@ -21,7 +21,7 @@ export interface ChatSaveDeps {
   /** A journal record, and whether it must also reach the persisted ring now. */
   journal: (summary: string, note: string, persistNow: boolean) => void;
   recap: (summary: string, detail: string) => void;
-  /** v2.4 plan 02 T3: a message that changed with no event goes through the ordinary rollback. */
+  /** A message that changed with no event goes through the ordinary rollback. */
   rollback: (messageId: number, journal: DecodeJournal) => Promise<unknown>;
 }
 
@@ -43,9 +43,10 @@ const chatNow = (): unknown[] => (Array.isArray(getContext().chat) ? getContext(
 
 const driftNote = (messageId: number, chatLength: number, last: number): string => (messageId === chatLength && chatLength < last + 1
   ? `the chat ends at message ${chatLength - 1} while the story had read up to message ${last} (a branch, or messages removed while the story was not listening); stepped back from ${messageId}`
-  : `message ${messageId} no longer says what it said when the story read it, and no event announced the change (another extension rewrote it, or a move named only one of the rows it swapped); stepped back from ${messageId}`);
+  : `message ${messageId} no longer says what it said when the story read it, and no event announced the change (another extension rewrote it, or a move named only one of the ` +
+    `rows it swapped); stepped back from ${messageId}`);
 
-// V26: the one place a run's state is written into the open chat, split out of RuntimeManager. Every
+// The one place a run's state is written into the open chat, split out of RuntimeManager. Every
 // coordinator save() ends in `persist`; `landed` answers whether the last one actually reached disk.
 export class ChatSave {
   readonly fingerprints = new FingerprintKeeper();
@@ -57,9 +58,9 @@ export class ChatSave {
   async persist() {
     const loaded = this.deps.loaded();
     if (!loaded) return;
-    // v2.3 plan 03. The chokepoint: every coordinator save() ends here, and `saveMetadata` writes into
+    // The chokepoint: every coordinator save() ends here, and `saveMetadata` writes into
     // whichever chat ST has open at this instant, so a runtime hydrated for another chat declines
-    // rather than guessing. v2.1 plan 08 is the recorded case: a new group chat inherited the run.
+    // rather than guessing. is the recorded case: a new group chat inherited the run.
     if (!this.deps.owner.ownsOpenChat()) {
       this.deps.journal("save skipped: this run belongs to another chat", `claimed ${this.deps.owner.claimedChat()}, open chat is ${String(getContext().chatId ?? "")}`, true);
       return;
@@ -67,17 +68,27 @@ export class ChatSave {
     const extras = this.deps.extras();
     extras.lastSessionAt = new Date().toISOString();
     const engine = this.deps.engine();
-    // v2.3 plan 05. Losing a story's state is a fact about this chat, not a later surprise.
-    // v2.4 plan 02 T3: the fingerprints land in the same write as the boundary they describe.
+    // Losing a story's state is a fact about this chat, not a later surprise.
+    // The fingerprints land in the same write as the boundary they describe.
     const fingerprints = this.fingerprints.capture(chatNow(), engine.history.from.messageId, engine.state.lastMessageId);
-    const record = { storyId: loaded.record.id, storyTitle: loaded.story.title, pinnedStory: loaded.record.raw, playedVersion: loaded.record.version, contentHashAtLoad: loaded.record.hash, engineState: engine.state, engineHistory: engine.history, extras: stripGlobalSettings(extras), ...(fingerprints ? { fingerprints } : {}) };
+    const record = {
+      storyId: loaded.record.id,
+      storyTitle: loaded.story.title,
+      pinnedStory: loaded.record.raw,
+      playedVersion: loaded.record.version,
+      contentHashAtLoad: loaded.record.hash,
+      engineState: engine.state,
+      engineHistory: engine.history,
+      extras: stripGlobalSettings(extras),
+      ...(fingerprints ? { fingerprints } : {})
+    };
     const evicted = savePersistedRuntime(record);
     const notice = evictedStoryNotice(evicted, (id) => listStoryRecords().find((record) => record.id === id)?.title ?? null);
     if (notice) this.deps.recap(notice.summary, notice.detail);
     await this.saveAndObserve();
   }
 
-  // v2.3 plan 06: `saveMetadata` swallows its own errors, so the write is OBSERVED (saveEvidence).
+  // `saveMetadata` swallows its own errors, so the write is OBSERVED (saveEvidence).
   private async saveAndObserve() {
     const deps = saveEvidenceDeps(() => this.deps.extras().saveHealth, (health) => { this.deps.extras().saveHealth = health; }, () => undefined);
     const journal = (summary: string, note: string, observation: SaveObservation) => this.deps.journal(summary, labelled(observation, null, note), false);
@@ -86,7 +97,7 @@ export class ChatSave {
     await Promise.all([Promise.resolve(getContext().saveMetadata?.()), observed]);
   }
 
-  /** v2.4 E3: a chat write made outside persist (select, drop, replace, restamp) reads the observation
+  /** A chat write made outside persist (select, drop, replace, restamp) reads the observation
    *  `saveOpenChat` armed. The health goes to the extras the write was made for; the journal only while
    *  the world it was made in is still the current one. */
   recordWrite(write: ChatWrite): Promise<SaveEvidenceResult> | null {
@@ -98,10 +109,10 @@ export class ChatSave {
     return recordSaveEvidence({ ...deps, observe: () => write.observed, journal, claim: this.claim }, this.deps.engine().state.boundary);
   }
 
-  /** v2.3 plan 05. "Did the write reach the chat's stored state": `persist` cannot answer it, because
+  /** "Did the write reach the chat's stored state": `persist` cannot answer it, because
    *  `saveMetadata` catches its own errors and it returns early rather than throwing — and a save that
    *  never went out (no story, another chat's runtime) is not a landed one either (memoryQueue). */
-  /** v2.4 plan 02 T3: at a boundary, a hydrate or a same-chat reload, a consumed message that no longer
+  /** At a boundary, a hydrate or a same-chat reload, a consumed message that no longer
    *  says what it said is stepped back from. Answers whether the caller's run may go on writing. */
   async reconcile(run: RunGuard): Promise<boolean> {
     if (!this.deps.loaded() || !this.deps.owner.ownsOpenChat() || !run.stillOwns()) return run.stillOwns();
@@ -113,12 +124,12 @@ export class ChatSave {
     return run.stillOwns();
   }
 
-  /** An edit that left a consumed message exactly as the story read it changes nothing (H19). */
+  /** An edit that left a consumed message exactly as the story read it changes nothing. */
   unchanged(messageId: number): boolean {
     return Boolean(this.deps.loaded()) && this.deps.owner.ownsOpenChat() && this.fingerprints.unchanged(chatNow(), messageId);
   }
 
-  /** The first consumed message that changed, for a mutation event that names a later one (H6). */
+  /** The first consumed message that changed, for a mutation event that names a later one. */
   firstDrift(): number | null {
     return this.deps.loaded() && this.deps.owner.ownsOpenChat() ? this.fingerprints.drift(chatNow(), this.deps.engine().state.lastMessageId) : null;
   }

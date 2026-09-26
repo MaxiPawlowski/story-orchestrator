@@ -2,10 +2,10 @@ import { agencyForCheckpoint, type BoundaryLogEntry, type EngineState, type Gate
 import type { SharedReadAudit } from "@extraction/types";
 import { findStubExpansionCandidate } from "@generation/planner";
 
-// v2.3 plan 07 (C4). The player refused the prepared route. The signal is the plan's own words:
+// The player refused the prepared route. The signal is the plan's own words:
 // extraction READ what the player did and could not classify it against any exit the active
 // checkpoint declares. Two quiet boundaries alone are not that — a checkpoint whose gate needs three
-// increments of progress is quiet for two boundaries in ordinary play (V13, 2026-09-23). So each of
+// increments of progress is quiet for two boundaries in ordinary play. So each of
 // the boundaries since the player's last step toward an exit must be covered by a read, span two
 // player turns, and no read covering them may have MOVED an
 // exit: set a value that satisfies one of its leaves, or moved a numeric quality one compares. A read
@@ -63,7 +63,13 @@ export const playerTurnIds = (chat: readonly unknown[]): number[] =>
     return entry?.is_user && !entry.is_system ? [index] : [];
   });
 
-export const agencyRecovery = (story: NormalizedStoryV2 | null, state: EngineState | null, log: BoundaryLogEntry[], audits: SharedReadAudit[] = [], playerTurns: number[] = []): AgencyRecovery | null => {
+export const agencyRecovery = (
+  story: NormalizedStoryV2 | null,
+  state: EngineState | null,
+  log: BoundaryLogEntry[],
+  audits: SharedReadAudit[] = [],
+  playerTurns: number[] = [],
+): AgencyRecovery | null => {
   if (!story || !state) return null;
   const activeId = state.activeCheckpointId;
   const exits = story.outgoingByCheckpoint[activeId] ?? [];
@@ -83,7 +89,7 @@ export const agencyRecovery = (story: NormalizedStoryV2 | null, state: EngineSta
   const streak = log.slice(start);
   if (!streak.length || streak.some((entry) => !covering(entry).length)) return null;
   // A group answers one player line with several replies, and each reply is a boundary (found live,
-  // V13): three members answering one refusal is one refusal. So the streak counts player turns.
+  // ): three members answering one refusal is one refusal. So the streak counts player turns.
   const from = start > 0 ? log[start - 1].context.lastMessageId : -1;
   const to = streak[streak.length - 1].context.lastMessageId;
   const turns = playerTurns.filter((id) => id > from && id <= to).length;

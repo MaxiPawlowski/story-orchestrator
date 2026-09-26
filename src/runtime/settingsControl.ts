@@ -53,7 +53,7 @@ export class SettingsControl {
   }
 
   private refresh(after?: () => void) {
-    applyGlobalSettings(this.deps.extras());
+    applyGlobalSettings(this.deps.extras(), getGlobalSettings());
     after?.();
     void this.deps.persist();
     this.deps.notify();

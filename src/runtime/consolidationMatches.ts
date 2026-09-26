@@ -1,19 +1,20 @@
 import { buildJaccardMatchSets, candidatePairs, DEFAULT_DEDUP_THRESHOLDS, type DedupThresholds, type MatchSets, type MemoryEntry, type RelationLookup } from "@memory/index";
 import { buildPairRequest, pairDecision, PAIR_CONCURRENCY, PAIR_MAX_PER_PASS, PAIR_TIMEOUT_MS, readPair, type JudgePairRelation } from "@judge/index";
-import { capabilityState, DEFAULT_VECTOR_SOURCE, vectorInsert, vectorPurge, vectorQuery } from "@services/STAPI";
 import type { JudgeRuntime } from "./judge";
+import type { VectorHost } from "./hostPorts";
+import { log } from "@utils/log";
 
 // Candidate generation for consolidation: ST vectors when available, Jaccard otherwise. Moved out of
-// the memory coordinator in v2.2 plan 02 so the judged path fits its line budget.
-export async function buildMatchSets(group: MemoryEntry[], thresholds: DedupThresholds = DEFAULT_DEDUP_THRESHOLDS): Promise<MatchSets> {
-  // v2.3 plan 06. Absence is a fact about the install, not a failure: asking the vectors API anyway
+// the memory coordinator so the judged path fits its line budget.
+export async function buildMatchSets(host: VectorHost, group: MemoryEntry[], thresholds: DedupThresholds = DEFAULT_DEDUP_THRESHOLDS): Promise<MatchSets> {
+  // Absence is a fact about the install, not a failure: asking the vectors API anyway
   // costs a probe, an insert and N queries before the same fallback, and logs a warning that reads
   // like a defect. An `error` still goes down that path, because a fault may not repeat.
-  if ((await capabilityState("vectors")) === "absent") return buildJaccardMatchSets(group, thresholds);
+  if ((await host.capabilityState("vectors")) === "absent") return buildJaccardMatchSets(group, thresholds);
   const collectionId = `so_consol_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
   try {
-    await vectorInsert(collectionId, group.map((entry, index) => ({ hash: index, text: entry.text, index })), DEFAULT_VECTOR_SOURCE);
-    const queryAt = (text: string, threshold: number) => vectorQuery(collectionId, text, group.length, threshold, DEFAULT_VECTOR_SOURCE).then((matches) => new Set(matches.map((match) => match.index)));
+    await host.vectorInsert(collectionId, group.map((entry, index) => ({ hash: index, text: entry.text, index })), host.source);
+    const queryAt = (text: string, threshold: number) => host.vectorQuery(collectionId, text, group.length, threshold, host.source).then((matches) => new Set(matches.map((match) => match.index)));
     const dup: Set<number>[] = [];
     const sameTopic: Set<number>[] = [];
     for (let i = 0; i < group.length; i += 1) {
@@ -35,18 +36,18 @@ export async function buildMatchSets(group: MemoryEntry[], thresholds: DedupThre
     }
     return { dup, sameTopic };
   } catch (error) {
-    console.warn("[Story memory] vector consolidation unavailable, using keyword overlap", error);
+    log.warn("memory: vector consolidation unavailable, using keyword overlap", error);
     return buildJaccardMatchSets(group, thresholds);
   } finally {
     try {
-      await vectorPurge(collectionId);
-    } catch {
-      /* best effort */
+      await host.vectorPurge(collectionId);
+    } catch (error) {
+      log.warn("memory: the temporary vector collection could not be purged", error);
     }
   }
 }
 
-// v2.2 plan 02: one judged relation per candidate pair (dup band first, capped per pass). A pair the
+// One judged relation per candidate pair (dup band first, capped per pass). A pair the
 // judge does not answer confidently is left out of the lookup, so the walk keeps today's decision.
 export async function judgePairRelations(judge: JudgeRuntime, group: MemoryEntry[], matches: MatchSets, todays: MatchSets): Promise<RelationLookup> {
   const pairs = candidatePairs(group, matches).sort((left, right) => Number(right.dup) - Number(left.dup)).slice(0, PAIR_MAX_PER_PASS);

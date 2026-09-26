@@ -9,7 +9,7 @@ const storyWith = (trigger: string): NormalizedStoryV2 =>
 const windowOf = (...texts: string[]): SharedReadWindow => ({
   from: 0,
   to: texts.length - 1,
-  messages: texts.map((text, index) => ({ index, messageId: index, speaker: index % 2 ? "Assistant" : "User", text })),
+  messages: texts.map((text, index) => ({ index, messageId: index, speaker: index % 2 ? "Assistant" : "User", text })) as SharedReadWindow["messages"],
 });
 
 const captureScheduler = () => {

@@ -60,10 +60,17 @@ const asText = (value: unknown, kind: FieldSpec["kind"]): string => {
 
 // Every provisioning step is editable before it runs (ST-Copilot's edit-before-apply pattern): the
 // model drafts, the author corrects, and only then does anything touch the install.
+const applyLabel = (draft: ProvisioningOp, applied: boolean, busy: boolean) => {
+  if (applied) return draft.kind === "grantLorebook" ? "Confirmed" : "Created";
+  if (busy) return "Working…";
+  if (draft.kind === "grantLorebook") return draft.revoke ? "Revoke permission" : "Confirm permission";
+  return "Create it";
+};
+
 const ProvisioningCard: React.FC<ProvisioningCardProps> = ({ op, environment, applied = false, result = null, failed = false, busy = false, existing, onApply }) => {
   const [draft, setDraft] = useState<ProvisioningOp>(op);
   const fields = FIELDS[draft.kind];
-  const record = draft as unknown as Record<string, unknown>;
+  const record: Record<string, unknown> = { ...draft };
   const validation = validateProvisioningOp(draft, environment);
 
   const patch = (key: string, value: unknown) => setDraft((previous) => ({ ...previous, [key]: value }) as ProvisioningOp);
@@ -123,7 +130,7 @@ const ProvisioningCard: React.FC<ProvisioningCardProps> = ({ op, environment, ap
           disabled={applied || busy || !validation.ok}
           onClick={() => onApply(draft)}
         >
-          {applied ? draft.kind === "grantLorebook" ? "Confirmed" : "Created" : busy ? "Working…" : draft.kind === "grantLorebook" ? draft.revoke ? "Revoke permission" : "Confirm permission" : "Create it"}
+          {applyLabel(draft, applied, busy)}
         </button>
         <span className="text-[11px] st-muted">{draft.kind === "grantLorebook" ? "Changes permission, not the lorebook itself." : "Creates this in SillyTavern. Nothing existing is changed."}</span>
       </div>

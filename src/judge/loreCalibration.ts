@@ -1,6 +1,7 @@
 import { buildLoreRequests, loreKey, pickLore, readLore, type LoreEntry, type LoreScene, type LoreScope } from "./lore";
 import type { JudgeSelfTestReport, JudgeSelfTestRow } from "./selfTest";
 import type { JudgeRequest, JudgeResult } from "./types";
+import { median } from "./stats";
 
 export interface LoreCalibrationCase {
   id: string;
@@ -17,17 +18,9 @@ export interface LoreCalibrationFixture {
   rows: LoreCalibrationCase[];
 }
 
-export const LORE_CALIBRATION_FLOORS = { recall: 0.8, precision: 0.7 } as const;
-
 // Pools keep one copy of each book in the fixture; a case carries only its pool's name.
 export const resolveLoreCases = (fixture: LoreCalibrationFixture): LoreCalibrationCase[] =>
   fixture.rows.map((row) => ({ ...row, candidates: row.candidates ?? fixture.pools[row.pool] ?? [] }));
-
-const median = (values: number[]): number | null => {
-  if (!values.length) return null;
-  const sorted = [...values].sort((left, right) => left - right);
-  return sorted[Math.floor((sorted.length - 1) / 2)];
-};
 
 // Rows: `<case>.recall:<key>` per needed entry (was it forced?) and `<case>.precision:<key>` per
 // forced entry (was it needed?), so a report reads per family against the plan's floors.

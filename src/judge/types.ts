@@ -1,7 +1,7 @@
 export const JUDGE_MAX_CHOICE_OPTIONS = 255;
 export const JUDGE_MAX_REQUEST_CHARS = 140_000;
-// v2.4 plan 07 T25: docs.typesafe.ai/models (2026-09-24) caps `state` + the longest question at 32k tokens;
-// the live probe (2026-09-25) found the API refuses past its limit (400 max_tokens_exceeded), never truncates.
+// Docs.typesafe.ai/models caps `state` + the longest question at 32k tokens;
+// the live probe found the API refuses past its limit (400 max_tokens_exceeded), never truncates.
 // The ratio is the lowest natural-language one it measured (Spanish 3.488, English 4.525 chars per token).
 export const JUDGE_TOKEN_LIMIT = 32_768;
 export const JUDGE_TOKEN_MARGIN = 0.1;
@@ -76,17 +76,17 @@ export interface JudgeResponse {
 }
 
 /**
- * v2.3 plan 03: `signal` lets an epoch bump abort a call that is still in flight. It is optional
+ * `signal` lets an epoch bump abort a call that is still in flight. It is optional
  * because extraction does not pass one yet — `ConnectionManagerRequestService.sendRequest` does take
  * `custom.signal` (shared.js:423-424, pass-through :463/:483; 1.18.0 :420), so extraction is
- * abortable at the host but not wired (v2.4 plan 03). Corrected in v2.4 plan 01.
+ * abortable at the host but not wired. Corrected
  */
 export type JudgeTransport = (request: JudgeRequest, options: { timeoutMs: number; signal?: AbortSignal }) => Promise<JudgeResponse>;
 
 /**
- * `cancelled` is distinct from `timeout` on purpose (v2.3 plan 03). Both arrive as an AbortError,
+ * `cancelled` is distinct from `timeout` on purpose. Both arrive as an AbortError,
  * but one means the model was too slow and the other means WE stopped asking because the chat,
- * story or session moved. Plan 11 builds its cost and latency report from these rings, and counting
+ * story or session moved. builds its cost and latency report from these rings, and counting
  * a cancellation as a timeout makes the model look slower and less reliable than it is.
  */
 export type JudgeFallback = "disabled" | "unavailable" | "timeout" | "cancelled" | "error" | "invalid" | "no-roles" | "no-seam";
@@ -106,14 +106,14 @@ export interface JudgeCallRecord {
   outputTokens?: number;
   cost?: number;
   cached?: boolean;
-  /** v2.4 plan 07: metered, never ringed — the call was paid for but belongs to a world that moved. */
+  /** Metered, never ringed — the call was paid for but belongs to a world that moved. */
   discarded?: JudgeDiscard;
 }
 
 export type JudgeDiscard = "chat" | "story" | "version" | "epoch" | "window";
 
 export interface JudgeResult {
-  /** v2.3 plan 03 (C1): the call outlived the chat or session it was asked in, so it was not recorded. */
+  /** The call outlived the chat or session it was asked in, so it was not recorded. */
   discarded?: JudgeDiscard;
   answers: Record<string, JudgeAnswer> | null;
   model: string | null;

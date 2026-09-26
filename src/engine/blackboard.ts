@@ -19,7 +19,7 @@ export interface BlackboardSnapshot {
 
 const cloneRecord = <T>(value: Record<string, T>): Record<string, T> => ({ ...value });
 
-const valueMatchesQuality = (quality: Quality, value: PrimitiveValue): boolean => {
+export const qualityAccepts = (quality: Pick<Quality, "type" | "values">, value: PrimitiveValue): boolean => {
   if (quality.type === "bool") return typeof value === "boolean";
   if (quality.type === "string") return typeof value === "string";
   if (quality.type === "enum") return typeof value === "string" && Boolean(quality.values?.includes(value));
@@ -56,7 +56,7 @@ export class Blackboard {
     const quality = this.story.qualityByKey[delta.q];
     if (!quality) return { ok: false, key: delta.q, reason: "unknown quality" };
     if (delta.source && delta.source !== quality.source) return { ok: false, key: delta.q, reason: "source mismatch" };
-    if (!valueMatchesQuality(quality, delta.v)) return { ok: false, key: delta.q, reason: "type mismatch" };
+    if (!qualityAccepts(quality, delta.v)) return { ok: false, key: delta.q, reason: "type mismatch" };
 
     const previous = this.values[delta.q];
     if (quality.monotonic && typeof previous === "number" && typeof delta.v === "number" && delta.v < previous) {

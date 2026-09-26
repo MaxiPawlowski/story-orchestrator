@@ -4,10 +4,9 @@ import { lorebookFileId } from "@utils/string";
 import type { RunContext } from "./runToken";
 import { loreEvidence, type EntryRef, type LoreEvidence, type LoreFlag, type ScanInput } from "./worldInfoEvidence";
 import { sameLorebook } from "./worldInfoMatch";
+import { withholds } from "./generationLifecycle";
 
-const WITHHOLDING = new Set(["quiet", "impersonate"]);
-
-export const isLoudGeneration = (type: string | null) => type === null || !WITHHOLDING.has(type);
+export const isLoudGeneration = (type: string | null) => type === null || !withholds(type);
 
 export interface LoreEvidenceWiring {
   chatId: () => string | null;
@@ -51,7 +50,7 @@ export function storyBooks(story: NormalizedStoryV2 | null, mirrorBook: string |
 
 const worldsOf = (payload: HostEntriesLoaded): ScanInput[] => loadedEntries(payload).map((entry) => ({ world: entry.world }));
 
-// v2.4 plan 05 T12: the host half. A slot opens with the outermost LOUD generation (plan 01 T6) and
+// The host half. A slot opens with the outermost LOUD generation and
 // closes when it settles, rendered or not; a quiet outermost is not a reply and records nothing.
 export function startLoreEvidence(deps: LoreEvidenceWiring): LoreEvidenceControls {
   const evidence = deps.evidence ?? loreEvidence;

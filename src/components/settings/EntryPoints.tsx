@@ -21,7 +21,7 @@ const Row = ({ title, children }: { title: string; children: React.ReactNode }) 
   </div>
 );
 
-// v2.3 plan 09. The four things a person does here, named once. The controls stay in their own groups
+// The four things a person does here, named once. The controls stay in their own groups
 // below — this is the index, and the one place that says which task is currently asking for something.
 // Repair is the only row that can be *dark* (nothing missing), because it is the one that is about a
 // defect rather than an intention.
@@ -33,7 +33,13 @@ export default function EntryPoints({ snapshot, busy, importOpen, onToggleImport
     <div id="so-entry-points" className="flex flex-col gap-3 border-t border-solid border-white/10 pt-2">
       <Row title="Start">
         <div className="flex flex-wrap items-center gap-2">
-          <button id="so-new-story-wizard" className="menu_button" disabled={busy} title="Start a new story from a premise: the wizard interviews you, proposes the graph, and creates the cards, lore and group it needs." onClick={onNewStory}>New story (wizard)</button>
+          <button
+            id="so-new-story-wizard"
+            className="menu_button"
+            disabled={busy}
+            title="Start a new story from a premise: the wizard interviews you, proposes the graph, and creates the cards, lore and group it needs."
+            onClick={onNewStory}
+          >New story (wizard)</button>
           <button id="so-entry-import-toggle" className="menu_button" aria-expanded={importOpen} onClick={onToggleImport}>{importOpen ? "Hide import" : "Import a story"}</button>
         </div>
         <div className="text-xs opacity-70">Nothing to continue yet? Start here — the wizard builds the cast, lore and graph with you.</div>
@@ -54,7 +60,12 @@ export default function EntryPoints({ snapshot, busy, importOpen, onToggleImport
             <div className="text-xs opacity-70">{repair.detail}</div>
             <div className="flex flex-wrap items-center gap-2">
               {repair.targetId && <button data-so="repair-reveal" className="menu_button" onClick={() => onRevealSetting(repair.targetId as string)}>Show me the setting</button>}
-              {repair.provisionable && <button id="so-entry-fix-with-wizard" className="menu_button" title="Open the wizard on the provisioning step, pre-filled with what this story is missing." onClick={onFixWithWizard}>Fix with wizard</button>}
+              {repair.provisionable && <button
+                id="so-entry-fix-with-wizard"
+                className="menu_button"
+                title="Open the wizard on the provisioning step, pre-filled with what this story is missing."
+                onClick={onFixWithWizard}
+              >Fix with wizard</button>}
             </div>
           </div>
         ) : (

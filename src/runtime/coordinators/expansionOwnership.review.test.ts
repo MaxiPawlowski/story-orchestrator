@@ -1,3 +1,4 @@
+import { sendModel } from "../../../test/support/modelCall";
 // v2.3 plan 11 §Fault matrix — expansion under a world switch.
 //
 // Found by the census, not by a journey. `ExpansionCoordinator.generate` awaits a model call that
@@ -21,13 +22,13 @@ import type { RuntimeExtras } from "../types";
 import { ExpansionCoordinator } from "./expansionCoordinator";
 import { testOwnership } from "../../../test/findings/testOwnership";
 
-jest.mock("@services/STAPI", () => ({
+const stapi = {
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
   getPlayerName: () => "Max",
-  sendConnectionProfileRequest: jest.fn() }));
+  sendConnectionProfileRequest: jest.fn() };
 
 const story = parseStoryV2OrThrow({
   format: 2,
@@ -58,12 +59,12 @@ function harness(options: { switchDuringGeneration: boolean; ownership?: boolean
   const context: RunContext = { chatId: "chat-a", storyId: "expansion-ownership", playedVersion: 1, sessionEpoch: 1, windowRevision: 0 };
   const ownership: RunOwnership = { mint: (window) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   let persists = 0;
-  const coordinator = new ExpansionCoordinator({
+  const coordinator = new ExpansionCoordinator({ hosts: { player: { getPlayerName: () => "Max" } },
     getStory: () => story,
     getStoryRaw: () => ({}),
     getState: () => ({ activeCheckpointId: "a", blackboard: { values: {}, versions: {}, latched: {} } }) as unknown as EngineState,
     getExpansion: () => stores[String(context.chatId ?? "")],
-    getSettings: () => ({ enabled: true, profileId: "p1", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 }),
+    model: sendModel(stapi.sendConnectionProfileRequest as never, "p1"),
     getCanon: () => "",
     getFactTexts: () => [],
     replaceStory: () => undefined,

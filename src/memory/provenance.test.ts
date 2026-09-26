@@ -16,7 +16,7 @@ jest.mock("@services/STAPI", () => ({
 import { applyLedgerSignals, buildLedgerView } from "./ledger";
 import { describeProvenance, isLive, originLabel, provenance, withOverride } from "./provenance";
 import { createMemoryState, dropByMessageId, editEntryText, setLocked } from "./stores";
-import type { LedgerEntry, MemoryEntry } from "./types";
+import type { EpistemicEntry, LedgerEntry, MemoryEntry } from "./types";
 
 // v2.3 plan 05. One envelope, two meanings that used to be one: a PIN is retention (trimming and
 // expiry spare the row) and a LOCK is truth (nothing supersedes it). What a record's source did to
@@ -69,7 +69,7 @@ describe("pin is retention, lock is truth", () => {
 
 describe("a record whose source was rolled back is quarantined, not injected", () => {
   it("keeps the record, marks it, and drops it from the private block", () => {
-    const secret = { id: "s1", subject: "Mara", tag: "knows" as const, content: "the player is the masked traitor", createdAt: 10, messageId: 10, pinned: true };
+    const secret = { id: "s1", subject: "Mara", tag: "knows" as const, content: "the player is the masked traitor", createdAt: 10, messageId: 10, pinned: true } as EpistemicEntry;
     const rolled = rollbackEpistemic([secret], 10);
     expect(rolled).toHaveLength(1);
     expect(rolled[0].provenance?.validity).toBe("source-removed");
@@ -78,12 +78,12 @@ describe("a record whose source was rolled back is quarantined, not injected", (
   });
 
   it("still drops an unpinned row outright", () => {
-    const loose = { id: "s2", subject: "Mara", tag: "knows" as const, content: "a rumour", createdAt: 10, messageId: 10 };
+    const loose = { id: "s2", subject: "Mara", tag: "knows" as const, content: "a rumour", createdAt: 10, messageId: 10 } as EpistemicEntry;
     expect(rollbackEpistemic([loose], 10)).toEqual([]);
   });
 
   it("reconfirmation makes it the author's claim, and it steers again", () => {
-    const secret = { id: "s1", subject: "Mara", tag: "knows" as const, content: "the player is the masked traitor", createdAt: 10, messageId: 10, pinned: true };
+    const secret = { id: "s1", subject: "Mara", tag: "knows" as const, content: "the player is the masked traitor", createdAt: 10, messageId: 10, pinned: true } as EpistemicEntry;
     const quarantined = rollbackEpistemic([secret], 10)[0];
     const kept = { ...quarantined, ...withOverride(quarantined, "reconfirm", "2026-09-21T00:00:00.000Z", 12) };
     expect(renderPrivateEpistemicBlock([kept], ["Mara"])).toContain("masked traitor");
@@ -109,7 +109,7 @@ describe("quarantined rows are excluded from every injection", () => {
 });
 
 describe("conflict detection and resolution", () => {
-  const ledgerRow = (value: string, messageId = 5): LedgerEntry => ({ id: `l-${value}`, entity: "Mara", entityType: "character", field: "condition", value, createdAt: messageId, messageId });
+  const ledgerRow = (value: string, messageId = 5) => ({ id: `l-${value}`, entity: "Mara", entityType: "character", field: "condition", value, createdAt: messageId, messageId }) as LedgerEntry;
 
   it("queues a ledger row that disagrees with the blackboard binding", () => {
     const pairs = detectConflicts([], [ledgerRow("injured")], { quality: { entity: "Mara", field: "condition", value: "healthy" } });

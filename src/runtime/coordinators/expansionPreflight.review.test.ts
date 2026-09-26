@@ -3,18 +3,16 @@
 
 import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
 import type { ExpansionRuntimeState } from "@generation/index";
-import { sendConnectionProfileRequest } from "@services/STAPI";
+import type { ModelAsk, ModelCall } from "@extraction/index";
 import { ExpansionCoordinator } from "./expansionCoordinator";
 import { testOwnership } from "../../../test/findings/testOwnership";
 
-jest.mock("@services/STAPI", () => ({
-  settingsAreLoaded: () => true,
-  settingsReady: async () => {},
-  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readServerBoundary: async () => null,
-  getPlayerName: () => "Max",
-  sendConnectionProfileRequest: jest.fn(async () => ({ ok: true, text: "not a chain", finish: "stop" })) }));
-
+const sent: ModelAsk[] = [];
+const model: ModelCall = async (_prompt, ask) => {
+  if (ask.debugResponse !== undefined && ask.debugResponse !== null) return { text: ask.debugResponse, finish: "unknown" };
+  sent.push(ask);
+  return { text: "not a chain", finish: "stop" };
+};
 const story = parseStoryV2OrThrow({
   format: 2,
   id: "expansion-preflight",
@@ -35,12 +33,12 @@ const story = parseStoryV2OrThrow({
 
 function harness() {
   const store: ExpansionRuntimeState = { entries: {}, scheduler: { queueDepth: 0, inFlight: false, lastError: null } };
-  const coordinator = new ExpansionCoordinator({ ownership: testOwnership(),
+  const coordinator = new ExpansionCoordinator({ hosts: { player: { getPlayerName: () => "Max" } }, ownership: testOwnership(),
     getStory: () => story,
     getStoryRaw: () => ({}),
     getState: () => ({ activeCheckpointId: "a", blackboard: { values: {}, versions: {}, latched: {} } }) as unknown as EngineState,
     getExpansion: () => store,
-    getSettings: () => ({ enabled: true, profileId: "p1", cadence: 3, reconciliationMultiplier: 1.5, stabilityLag: 0 }),
+    model,
     getCanon: () => "",
     getFactTexts: () => [],
     replaceStory: () => undefined,
@@ -51,9 +49,7 @@ function harness() {
   return { coordinator, store };
 }
 
-const sent = sendConnectionProfileRequest as jest.Mock;
-
-beforeEach(() => { sent.mockClear(); globalThis.storyOrchestratorDebugGenerationResponse = undefined; });
+beforeEach(() => { sent.length = 0; globalThis.storyOrchestratorDebugGenerationResponse = undefined; });
 
 describe("an author's generate-now is announced first (v2.4 plan 03 D5)", () => {
   it("a cancel sends nothing and files nothing", async () => {
@@ -62,14 +58,14 @@ describe("an author's generate-now is announced first (v2.4 plan 03 D5)", () => 
     expect(await env.coordinator.runNow(undefined, confirm)).toBe(false);
     expect(confirm).toHaveBeenCalledWith({ requests: 2, tokens: expect.any(Number) });
     expect((confirm.mock.calls[0] as unknown as [{ tokens: number }])[0].tokens).toBeGreaterThan(0);
-    expect(sent).not.toHaveBeenCalled();
+    expect(sent).toEqual([]);
     expect(env.store.entries).toEqual({});
   });
 
   it("a confirmed run generates", async () => {
     const env = harness();
     expect(await env.coordinator.runNow(undefined, async () => true)).toBe(true);
-    expect(sent).toHaveBeenCalled();
+    expect(sent.length).toBeGreaterThan(0);
     expect(Object.keys(env.store.entries)).toEqual(["a->s0->b"]);
   });
 
@@ -78,6 +74,6 @@ describe("an author's generate-now is announced first (v2.4 plan 03 D5)", () => 
     const confirm = jest.fn(async () => false);
     expect(await env.coordinator.runNow("BEAT not a chain", confirm)).toBe(true);
     expect(confirm).not.toHaveBeenCalled();
-    expect(sent).not.toHaveBeenCalled();
+    expect(sent).toEqual([]);
   });
 });

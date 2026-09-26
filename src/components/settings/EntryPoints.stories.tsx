@@ -59,7 +59,13 @@ export const RepairRevealsTheSetting: Story = {
 
 export const RepairNamesADeadTaskModel: Story = {
   args: {
-    snapshot: base({ roleRoutes: [{ role: "director", label: "Speaker direction", profileId: "fast", state: "not-answering", detail: "Speaker direction: the profile is not answering (API request failed)" }] }),
+    snapshot: base({ roleRoutes: [{
+      role: "director",
+      label: "Speaker direction",
+      profileId: "fast",
+      state: "not-answering",
+      detail: "Speaker direction: the profile is not answering (API request failed)",
+    }] }),
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);

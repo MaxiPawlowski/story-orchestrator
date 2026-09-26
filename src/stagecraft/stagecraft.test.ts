@@ -4,7 +4,7 @@ import { buildWiCuratorPrompt } from "./prompt";
 import { parseCuratorResponse } from "./parse";
 import { applyCuratorPatch, planCuratorProposal, previewCuratorOp, splitPatchAnchor } from "./proposal";
 import { curatorHasScope, curatorLorebooks, entriesForScope, isCheckpointGated, isCuratorWritable } from "./scope";
-import type { CuratorEntryView } from "./types";
+import type { CuratorEntryView, CuratorScope } from "./types";
 
 const entries = (): CuratorEntryView[] => [
   { lorebook: "Story Lore", comment: "The bridge", keys: ["bridge"], content: "The bridge stands, its ropes new and taut. Travellers cross freely.", disabled: false },
@@ -74,7 +74,7 @@ describe("curator prompt", () => {
   });
 
   it("tells the curator that switching on applies only to entries marked off, and off only to entries that are on", () => {
-    const prompt = buildWiCuratorPrompt({ storyTitle: "Crossing", checkpointName: "The bank", openArcs: [], entries: entries() });
+    const prompt = buildWiCuratorPrompt({ storyTitle: "Crossing", checkpointName: "The bank", openArcs: [], entries: entries() } as Partial<CuratorScope> as CuratorScope);
     expect(prompt).toContain("- [enable] only an entry marked [currently off]; every other entry is already on.");
     expect(prompt).toContain("- [disable] only an entry that is not marked [currently off].");
   });

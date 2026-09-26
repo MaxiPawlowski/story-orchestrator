@@ -1,6 +1,7 @@
 import type { NormalizedStoryV2 } from "@engine/index";
 import type { ExtractionScheduler } from "./scheduler";
 import type { SharedReadWindow } from "./types";
+import { log } from "@utils/log";
 
 export function scheduleForcedCues(story: NormalizedStoryV2 | null, activeCheckpointId: string | null, scheduler: ExtractionScheduler, window: SharedReadWindow) {
   if (!story || !activeCheckpointId || !window.messages.length) return;
@@ -9,7 +10,8 @@ export function scheduleForcedCues(story: NormalizedStoryV2 | null, activeCheckp
     let regex: RegExp;
     try {
       regex = new RegExp(transition.extractor_trigger, "i");
-    } catch {
+    } catch (error) {
+      log.warn(`the extractor_trigger on ${transition.from} -> ${transition.to} is not a valid pattern; it is skipped`, error);
       continue;
     }
     if (window.messages.some((message) => regex.test(message.text))) {

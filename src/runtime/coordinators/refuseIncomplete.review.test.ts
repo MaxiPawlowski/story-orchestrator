@@ -1,10 +1,12 @@
+import { fakeHosts } from "../../../test/support/fakeHosts";
+import { sendModel } from "../../../test/support/modelCall";
 // v2.4 plan 03 D6, per site. `refuseIncomplete` lives in the client, so a site that stops passing it
 // stores a truncated summary and no client test notices. Each case drives the real client through a
 // fake host reply: `finish: "length"` stores nothing at that site, and the control stores the answer.
 
 const reply = { finish: "stop" as "stop" | "length" };
 
-jest.mock("@services/STAPI", () => ({
+const stapi = {
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
@@ -21,7 +23,7 @@ jest.mock("@services/STAPI", () => ({
   disableWIEntry: async () => ({ ok: true, changed: true }),
   setStoryExtensionPrompt: () => {},
   clearStoryExtensionPrompt: () => {},
-}));
+};
 
 import { ExtractionCoordinator } from "./extractionCoordinator";
 import { MemoryCoordinator } from "./memoryCoordinator";
@@ -37,12 +39,12 @@ function memoryHarness(presummarised: boolean) {
     canon: null as { text: string } | null,
     updatedAt: "",
   };
-  const coordinator = new MemoryCoordinator({ ownership: testOwnership(),
+  const coordinator = new MemoryCoordinator({ hosts: fakeHosts(stapi), ownership: testOwnership(),
     getStory: () => ({ title: "S", checkpointById: {}, qualityByKey: {}, roster: [], arc_bridges: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5, blackboard: { values: {}, versions: {}, latched: {} } }),
     getMemory: () => memoryState,
     setMemory: (next: typeof memoryState) => { memoryState = next; },
-    getExtractionSettings: () => ({ profileId: "p1", enabled: true }),
+    model: sendModel(stapi.sendConnectionProfileRequest as never, "p1"),
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
     enqueueExtractorDeltas: () => {},
@@ -56,11 +58,11 @@ function memoryHarness(presummarised: boolean) {
 
 function shortTermHarness() {
   const written: string[] = [];
-  const coordinator = new ExtractionCoordinator({ ownership: testOwnership(),
+  const coordinator = new ExtractionCoordinator({ hosts: fakeHosts(stapi), ownership: testOwnership(),
     getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3 }),
     getExtraction: () => ({ audits: [], reconciliationEvents: [], judgedReads: [] }),
-    getSettings: () => ({ profileId: "p1", enabled: true, cadence: 1 }),
+    model: sendModel(stapi.sendConnectionProfileRequest as never, "p1"),
     memory: {
       enabled: true,
       shortTermSummaryEnd: -1,
@@ -109,12 +111,12 @@ describe("a truncated summary is not stored, at each summary site", () => {
 
   it("canon", async () => {
     const control = memoryHarness(true);
-    await control.coordinator.regenerateCanon(true);
+    await control.coordinator.canon.regenerateCanon(true);
     expect(control.canon()).toBe("They crossed the river at dusk.");
 
     reply.finish = "length";
     const truncated = memoryHarness(true);
-    await truncated.coordinator.regenerateCanon(true);
+    await truncated.coordinator.canon.regenerateCanon(true);
     expect(truncated.canon()).toBeNull();
   });
 });

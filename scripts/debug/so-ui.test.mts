@@ -6,7 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { assignedRoleProfiles, branchContinue, closeCharacterPanel, gateReplayHistoryFrom, jumpToCitation, memoryQueueSelector, PLAYER_FORBIDDEN_SELECTORS, PLAYER_RECOVERY_CONTROLS, recoveryControlFindings } from './so-ui.mts';
+import { assignedRoleProfiles, branchContinue, closeCharacterPanel, gateReplayHistoryFrom, jumpToCitation, memoryQueueSelector, PLAYER_FORBIDDEN_SELECTORS, PLAYER_RECOVERY_CONTROLS, recoveryControlFindings, errorStateFindings } from './so-ui.mts';
 
 test('keep and lock address the side row inside the named pair', () => {
   assert.equal(memoryQueueSelector({ action: 'keep', key: 'fact:abc' }), '[data-so="conflict-pair"][data-key="fact:abc"] [data-so="conflict-keep"] >> nth=0');
@@ -112,6 +112,29 @@ test('control: a covered control is refused without a click, and a click that le
 test('the player-clean sweep covers both recovery controls, and passes their player copy', () => {
   assert.deepEqual(PLAYER_RECOVERY_CONTROLS, ['#so-pipeline-retry', '#so-memorize-stop']);
   assert.deepEqual(recoveryControlFindings([{ selector: '#so-pipeline-retry', text: 'Try again' }, { selector: '#so-memorize-stop', text: 'Stop' }]), []);
+});
+
+test('player copy with no raw error text passes the error-state sweep', () => {
+  const texts = [
+    { tab: 'Overview', surface: '#drawer-manager', text: 'Where you are: The Ruins. Catching up on the last two replies.' },
+    { tab: 'Overview', surface: '#so-hud', text: 'The Ruins · tense' },
+    { tab: 'Overview', surface: '#story-orchestrator-settings', text: 'Expansion merge failed; the story plays its authored graph' },
+  ];
+  assert.deepEqual(errorStateFindings(texts), []);
+});
+
+test('raw error text on a player surface is a finding, named by marker', () => {
+  const findings = errorStateFindings([
+    { tab: 'Overview', surface: '#drawer-manager', text: "Status: TypeError: Cannot read properties of undefined (reading 'id')" },
+    { tab: 'Memory', surface: '#so-hud', text: 'tension NaN · [object Object]' },
+    { tab: 'Overview', surface: '#story-orchestrator-settings', text: 'failed\n    at runPass (http://127.0.0.1:8000/x.js:1:2)' },
+  ]);
+  const names = findings.map((finding) => finding.needle);
+  assert.ok(names.some((needle) => needle.includes('(error class)')));
+  assert.ok(names.some((needle) => needle.includes('(property access failure)')));
+  assert.ok(names.some((needle) => needle.includes('(unrendered value)') && needle.startsWith('#so-hud')));
+  assert.ok(names.some((needle) => needle.includes('(stack frame)')));
+  assert.deepEqual([...new Set(findings.map((finding) => finding.tab))].sort(), ['Memory', 'Overview']);
 });
 
 test('a recovery control whose label leaks internals is a finding', () => {

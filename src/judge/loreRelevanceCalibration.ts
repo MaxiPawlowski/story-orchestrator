@@ -3,7 +3,7 @@ import { buildLoreScoreRequests, readLoreScores } from "./loreScore";
 import { RANKING_CUTOFF, rankingMetrics, type LoreRankTurn, type LoreRankingMetrics, type LoreRelevance } from "./loreRanking";
 import type { JudgeAnswer, JudgeRequest, JudgeResult } from "./types";
 
-// v2.3 plan 10 (A): Noul-sort against Score-sort over the same rows and the same labels. The two arms
+// Noul-sort against Score-sort over the same rows and the same labels. The two arms
 // are asked in the same turn, from the same state, so a difference is the question shape and nothing
 // else. Ordering only — no `min_p` on either arm — because the question here is which arm orders
 // better, and a per-arm floor would change which entries are being compared.
@@ -104,8 +104,16 @@ export async function runLoreRelevanceCalibration(
     ]);
     const noulScored = noulResults.flatMap(({ chunk, result }) => (result.answers ? readLore(result.answers, chunk.entries).map((pick) => ({ entry: pick.entry, score: pick.p })) : []));
     const scoreScored = scoreResults.flatMap(({ chunk, result }) => (result.answers ? readLoreScores(result.answers, chunk.entries).map((pick) => ({ entry: pick.entry, score: pick.level })) : []));
-    const exchanges: LoreRelevanceExchange[] = [...noulResults.map(({ chunk, result }) => ({ arm: "noul" as const, chunk, result })), ...scoreResults.map(({ chunk, result }) => ({ arm: "score" as const, chunk, result }))]
-      .flatMap(({ arm, chunk, result }) => (result.answers ? [{ arm, key: requestKey(chunk.request.state, chunk.request.questions), questionCount: Object.keys(chunk.request.questions).length, answers: slimAnswers(result.answers) }] : []));
+    const exchanges: LoreRelevanceExchange[] = [
+      ...noulResults.map(({ chunk, result }) => ({ arm: "noul" as const, chunk, result })),
+      ...scoreResults.map(({ chunk, result }) => ({ arm: "score" as const, chunk, result }))
+    ]
+      .flatMap(({ arm, chunk, result }) => (result.answers ? [{
+        arm,
+        key: requestKey(chunk.request.state, chunk.request.questions),
+        questionCount: Object.keys(chunk.request.questions).length,
+        answers: slimAnswers(result.answers),
+      }] : []));
     const considered = candidates.map(loreKey);
     const labels = entry.labels ?? {};
     const model = [...noulResults, ...scoreResults].find(({ result }) => result.model)?.result.model ?? null;

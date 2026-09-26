@@ -11,6 +11,8 @@
     { "path": "src/runtime/extrasLegacy.test.ts", "kind": "removed", "reason": "v2.5 plan 11 step 5: renamed src/runtime/extrasHydrate.test.ts once its legacy blocks were deleted; the contract-drop, D3 scheduler and V12 repair blocks live on there." },
     { "path": "scripts/review/reviewRegression.test.ts", "kind": "removed", "reason": "Review harness copied, promoted into the finding ledger and deleted (01 §A); the dossier keeps the evidence copies." },
     { "path": "scripts/review/memory-engine.test.ts", "kind": "removed", "reason": "As above." },
+    { "path": "src/utils/fakeDocument.ts", "kind": "removed", "reason": "v2.5 plan 03 D5 (Q3t): moved to test/support/fakeDocument.ts so no test-support module is reachable from src/index.tsx." },
+    { "path": "src/types/", "kind": "removed", "reason": "v2.5 plan 03 D6: its only file, cytoscape-dagre.d.ts, was in no tsconfig include (the @types/cytoscape-dagre package supplies the module types), and linting `src` whole made it a parse error; deleted." },
     { "path": "src/endpoints/vectors.js", "kind": "host", "reason": "SillyTavern server source, C:/dev/SillyTavern-MainBranch/src/endpoints/vectors.js." },
     { "path": "src/plugin-loader.js", "kind": "host", "reason": "SillyTavern server source." },
     { "path": "scripts/install_st.py", "kind": "external", "reason": "The install helper outside this repo that plan 08 and the playbook discuss." },

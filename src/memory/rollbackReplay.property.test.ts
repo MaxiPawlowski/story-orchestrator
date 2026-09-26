@@ -16,11 +16,11 @@
 // stores; the committed count is what the gate runs.
 
 import { decodeDelete, messageKeys } from "@runtime/messageIdentity";
-import { applyConsolidation, type MatchSets } from "./consolidate";
+import { applyConsolidation, type ConsolidationResult, type MatchSets } from "./consolidate";
 import { disappearingEntries, recordDerived, type DerivedRecord } from "./derived";
 import { applyEpistemicSignals } from "./epistemic";
 import { applyLedgerSignals, buildLedgerView } from "./ledger";
-import { reverseMemoryState } from "./reverse";
+import { reverseMemoryState, type MemoryRollbackState } from "./reverse";
 import { addMemoryEntries, createMemoryState, excludeEntry, hashMemoryText } from "./stores";
 import type { ArcEntry, EpistemicEntry, LedgerEntry, MemoryEntry } from "./types";
 
@@ -42,7 +42,7 @@ const TAGS = ["knows", "believes", "suspects"] as const;
 
 interface Op { kind: "read" | "ledger" | "epistemic" | "consolidate" | "exclude" | "compact"; messageId: number; index: number }
 
-const memory = (index: number, messageId: number): MemoryEntry => ({
+const memory = (index: number, messageId: number) => ({
   id: `m${index}`,
   tier: "facts",
   text: `fact ${index}`,
@@ -56,7 +56,7 @@ const memory = (index: number, messageId: number): MemoryEntry => ({
   createdAt: messageId,
   messageId,
   recallCount: 0,
-});
+}) as Partial<MemoryEntry> as MemoryEntry;
 
 /** Every store a mutation can reach, kept together so a rollback is one call. */
 interface World {
@@ -115,12 +115,13 @@ const step = (world: World, op: Op): World => {
   const winner = matching[matching.length - 1].id;
   const matches: MatchSets = { dup: [new Set(), new Set()], sameTopic: [new Set(), new Set()] };
   const pairs = older.map((loserId) => ({ loserId, winnerId: winner }));
-  const consolidated = applyConsolidation(world, { droppedIds: [], supersededPairs: pairs, confirmedIds: [], matches }, { messageId: op.messageId });
+  const result = { droppedIds: [], supersededPairs: pairs, confirmedIds: [], matches } as Partial<ConsolidationResult> as ConsolidationResult;
+  const consolidated = applyConsolidation(world, result, { messageId: op.messageId });
   return { ...world, ...consolidated, derived: recordDerived(world.derived, { kind: "dedup", inputs: [winner], removed: disappearingEntries(world.entries, consolidated.entries), boundary: op.messageId, messageId: op.messageId }) };
 };
 
 const rollbackTo = (world: World, messageId: number, boundary: number): World => {
-  const next = reverseMemoryState(world, messageId, boundary);
+  const next = reverseMemoryState(world as World & Pick<MemoryRollbackState, "storyStart">, messageId, boundary);
   return { ...world, ...next };
 };
 

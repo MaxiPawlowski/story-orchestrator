@@ -1,9 +1,10 @@
-import type { ContinuityCase, RescoreResult, RescoreRow } from "./curatorCalibration";
-import { AGENCY_SCORE, CONTINUITY_P, HOUSE_RULE_P, WARDEN_MAX_RULES } from "./policy";
+import { continuityFactRows, type ContinuityCase, type RescoreResult, type RescoreRow } from "./curatorCalibration";
+import { AGENCY_SCORE, HOUSE_RULE_P, WARDEN_MAX_RULES } from "./policy";
 import { noulAnswer, scoreAnswer } from "./questions";
 import type { JudgeSelfTestReport, JudgeSelfTestRow } from "./selfTest";
 import type { JudgeAnswer, JudgeFallback, JudgeRequest, JudgeResult } from "./types";
 import { AGENCY_LEVELS, buildWardenRequests, readWarden, type WardenInput } from "./warden";
+import { median } from "./stats";
 
 export type Ask = (request: JudgeRequest) => Promise<JudgeResult>;
 
@@ -23,15 +24,16 @@ export async function askWarden(ask: Ask, input: WardenInput): Promise<WardenAsk
   return { answers: Object.assign({}, ...results.map((result) => result.answers)), model, latencyMs };
 }
 
-const median = (values: number[]): number | null => {
-  if (!values.length) return null;
-  const sorted = [...values].sort((left, right) => left - right);
-  return sorted[Math.floor((sorted.length - 1) / 2)];
-};
-
 const report = (perCase: Array<{ rows: JudgeSelfTestRow[]; model: string | null; latencyMs: number }>): JudgeSelfTestReport => {
   const rows = perCase.flatMap((entry) => entry.rows);
-  return { ranAt: new Date().toISOString(), model: perCase.find((entry) => entry.model)?.model ?? null, total: rows.length, right: rows.filter((row) => row.right).length, p50LatencyMs: median(perCase.map((entry) => entry.latencyMs)), rows };
+  return {
+    ranAt: new Date().toISOString(),
+    model: perCase.find((entry) => entry.model)?.model ?? null,
+    total: rows.length,
+    right: rows.filter((row) => row.right).length,
+    p50LatencyMs: median(perCase.map((entry) => entry.latencyMs)),
+    rows,
+  };
 };
 
 export interface AgencyCase {
@@ -46,7 +48,12 @@ export interface AgencyCase {
   source?: string;
 }
 
-export const agencyInput = (entry: Pick<AgencyCase, "player" | "playerMessage" | "reply">): WardenInput => ({ reply: entry.reply, facts: [], agency: { player: entry.player, message: entry.playerMessage }, houseRules: [] });
+export const agencyInput = (entry: Pick<AgencyCase, "player" | "playerMessage" | "reply">): WardenInput => ({
+  reply: entry.reply,
+  facts: [],
+  agency: { player: entry.player, message: entry.playerMessage },
+  houseRules: [],
+});
 
 // Rows: `<case>.writes` (flagged over AGENCY_SCORE) or `<case>.clean` (not flagged), read raw.
 export async function runAgencyCalibration(ask: Ask, cases: AgencyCase[]): Promise<JudgeSelfTestReport> {
@@ -114,7 +121,7 @@ export const continuityCombinedInput = (entry: CombinedContinuityCase): WardenIn
 
 export const isCombinedCase = (entry: CombinedContinuityCase): boolean => entry.playerMessage !== undefined || Boolean(entry.houseRules?.length);
 
-// The regression family (plan 07 §6): the continuity rows, asked inside the combined warden request.
+// The regression family: the continuity rows, asked inside the combined warden request.
 export async function runCombinedContinuityCalibration(ask: Ask, cases: CombinedContinuityCase[]): Promise<JudgeSelfTestReport> {
   return report(await Promise.all(cases.map(async (entry) => {
     const input = continuityCombinedInput(entry);
@@ -124,13 +131,7 @@ export async function runCombinedContinuityCalibration(ask: Ask, cases: Combined
     const pOf = (index: number) => (asked.answers ? noulAnswer(asked.answers, `fact:${index}`) : null);
     const rows: JudgeSelfTestRow[] = [
       { id: `${entry.id}.reply`, right: asked.answers !== null && Boolean(note) === entry.contradicts.length > 0, picked: asked.answers ? (note ? note.facts.join(" | ") : "no note") : null, ...base },
-      ...entry.established.map((fact, index) => {
-        const p = pOf(index);
-        const flagged = p !== null && p >= CONTINUITY_P;
-        return entry.contradicts.includes(index)
-          ? { id: `${entry.id}.broken:${index}`, right: flagged, picked: p === null ? null : `p=${p}`, detail: fact, ...base }
-          : { id: `${entry.id}.consistent:${index}`, right: !flagged, picked: p === null ? null : `p=${p}`, detail: fact, ...base };
-      }),
+      ...continuityFactRows(entry, pOf, base),
     ];
     return { rows, model: asked.model, latencyMs: asked.latencyMs };
   })));
@@ -151,7 +152,7 @@ const rescoreInput = (use: WardenRescoreUse, row: WardenRescoreRow): WardenInput
   return row.houseRules?.length ? { reply: row.reply, facts: [], agency: null, houseRules: row.houseRules } : null;
 };
 
-// X12: both arms scored by the one calibrated question. A row with nothing to hold it to is not
+// Both arms scored by the one calibrated question. A row with nothing to hold it to is not
 // asked (no facts, no player line, no rules), as the warden would not have asked either.
 export async function runWardenRescore(ask: Ask, use: WardenRescoreUse, rows: WardenRescoreRow[]): Promise<RescoreResult[]> {
   const asked = rows.map((row) => ({ row, input: rescoreInput(use, row) })).filter((entry): entry is { row: WardenRescoreRow; input: WardenInput } => entry.input !== null);

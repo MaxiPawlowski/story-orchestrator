@@ -1,14 +1,10 @@
+import { plantedModel } from "../../../test/support/modelCall";
 import type { StoryV2 } from "@engine/index";
-import { createCharacterCard, createLorebook, upsertWIEntry } from "@services/STAPI";
 import type { ProvisioningOp, WizardSessionState } from "@wizard/index";
 import { CopilotCoordinator } from "./copilotCoordinator";
 import { testOwnership } from "../../../test/findings/testOwnership";
 
-jest.mock("@services/STAPI", () => ({
-  settingsAreLoaded: () => true,
-  settingsReady: async () => {},
-  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readServerBoundary: async () => null,
+const host = {
   activateGlobalLorebook: jest.fn(async () => ({ ok: true })),
   clearStoryExtensionPrompt: jest.fn(),
   createCharacterCard: jest.fn(),
@@ -20,17 +16,18 @@ jest.mock("@services/STAPI", () => ({
   listGroupNames: jest.fn(() => []),
   setStoryExtensionPrompt: jest.fn(),
   upsertWIEntry: jest.fn(async () => "created"),
-}));
+};
+const { createCharacterCard, createLorebook, upsertWIEntry } = host;
 
 const draft = { format: 2, id: "owned", version: 1, title: "Owned", description: "Fixture", qualities: [], checkpoints: [], transitions: [], roster: [] } as unknown as StoryV2;
 
 const harness = (stored: WizardSessionState | null) => {
   let session = stored;
-  const coordinator = new CopilotCoordinator({ ownership: testOwnership(),
+  const coordinator = new CopilotCoordinator({ hosts: { prompt: host, chat: { lastMessageText: () => "" }, provisioning: host }, ownership: testOwnership(),
     getStory: () => null,
     getState: () => null,
     getSettings: () => ({}) as never,
-    getProfileId: () => null,
+    model: plantedModel,
     getCanon: () => "",
     notify: () => {},
     wizardSession: () => session,
@@ -39,7 +36,7 @@ const harness = (stored: WizardSessionState | null) => {
   return { coordinator, session: () => session };
 };
 
-const base = (patch: Partial<WizardSessionState>): WizardSessionState => ({ key: "owned", stage: "provisioning", history: [], questions: [], applied: [], seed: "", updatedAt: "", ...patch });
+const base = (patch: Partial<WizardSessionState>) => ({ key: "owned", stage: "provisioning", history: [], questions: [], applied: [], seed: "", updatedAt: "", ...patch }) as WizardSessionState;
 const write = (lorebook: string): ProvisioningOp => ({ kind: "upsertLorebookEntry", lorebook, comment: "Entry", content: "Text", keys: [] });
 
 beforeEach(() => jest.clearAllMocks());

@@ -1,5 +1,6 @@
 import type { StoryV2 } from "@engine/index";
-import { callExtractionModel, stripChannelNoise, type ExtractionClientOptions } from "@extraction/index";
+import { askText, type ModelAsk, type ModelCall } from "@extraction/modelRoute";
+import { stripChannelNoise } from "@extraction/parse";
 import { planProvisioning, type ProvisioningEnvironment } from "@wizard/index";
 import { parseProposal, parseSuggestions } from "./parse";
 import { renderReportPrompt, renderStagePrompt, renderSuggestPrompt } from "./prompts";
@@ -28,9 +29,9 @@ const provisioningIssues = (input: AuthoringStageInput, ops: ReturnType<typeof p
     .map((item) => `ops.${item.index}: ${item.validation.message}`);
 };
 
-export async function runAuthoringStage(input: AuthoringStageInput, client: ExtractionClientOptions): Promise<ProposalResult> {
+export async function runAuthoringStage(input: AuthoringStageInput, model: ModelCall, ask: ModelAsk): Promise<ProposalResult> {
   const prompt = renderStagePrompt(input.stage, input.draft, input.message, input.history, input.environment);
-  const rawResponse = await callExtractionModel(prompt, { ...client, maxTokens: STAGE_MAX_TOKENS });
+  const rawResponse = await askText(model, prompt, { ...ask, maxTokens: STAGE_MAX_TOKENS });
   const audit: CopilotAudit = { prompt, rawResponse };
 
   let parsed = parseProposal(rawResponse);
@@ -40,7 +41,7 @@ export async function runAuthoringStage(input: AuthoringStageInput, client: Extr
 
   if (firstProblems.length) {
     const repairPrompt = `${prompt}\n\nPrevious response was invalid:\n${firstProblems.join("\n")}\nReturn corrected exact JSON only.`;
-    const repairResponse = await callExtractionModel(repairPrompt, { ...client, maxTokens: STAGE_MAX_TOKENS });
+    const repairResponse = await askText(model, repairPrompt, { ...ask, maxTokens: STAGE_MAX_TOKENS });
     audit.repairPrompt = repairPrompt;
     audit.repairResponse = repairResponse;
     parsed = parseProposal(repairResponse);
@@ -61,11 +62,11 @@ export async function runAuthoringStage(input: AuthoringStageInput, client: Extr
   };
 }
 
-export async function runDriverSuggest(context: DriverContext, client: ExtractionClientOptions): Promise<Suggestion[]> {
-  const raw = await callExtractionModel(renderSuggestPrompt(context), { ...client, maxTokens: DRIVER_MAX_TOKENS });
+export async function runDriverSuggest(context: DriverContext, model: ModelCall, ask: ModelAsk): Promise<Suggestion[]> {
+  const raw = await askText(model, renderSuggestPrompt(context), { ...ask, maxTokens: DRIVER_MAX_TOKENS });
   return parseSuggestions(raw);
 }
 
-export async function runDriverReport(context: DriverContext, client: ExtractionClientOptions): Promise<string> {
-  return stripChannelNoise(await callExtractionModel(renderReportPrompt(context), { ...client, maxTokens: DRIVER_MAX_TOKENS }));
+export async function runDriverReport(context: DriverContext, model: ModelCall, ask: ModelAsk): Promise<string> {
+  return stripChannelNoise(await askText(model, renderReportPrompt(context), { ...ask, maxTokens: DRIVER_MAX_TOKENS }));
 }

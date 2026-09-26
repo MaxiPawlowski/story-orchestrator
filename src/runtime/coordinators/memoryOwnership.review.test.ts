@@ -1,3 +1,5 @@
+import { fakeHosts } from "../../../test/support/fakeHosts";
+import { sendModel } from "../../../test/support/modelCall";
 // v2.3 plan 03: the two memory passes that synthesise from memory rather than from the transcript.
 //
 // `runArcSummaryPass` is the shape that decided the guard's design: one await and one write PER
@@ -15,7 +17,7 @@ import { provenance } from "@memory/index";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
 import { control } from "../../../test/findings/ledger";
 
-jest.mock("@services/STAPI", () => ({
+const stapi = {
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
@@ -32,7 +34,7 @@ jest.mock("@services/STAPI", () => ({
   disableWIEntry: async () => ({ ok: true, changed: true }),
   setStoryExtensionPrompt: () => {},
   clearStoryExtensionPrompt: () => {},
-}));
+};
 
 // The tier writes count tokens through the host tokenizer before they write, so this is the await a
 // test moves the world across. Same shape as modelGate for the same reason: a hook on the Nth call
@@ -48,11 +50,6 @@ const tokenGate = {
   },
   reset() { this.calls = 0; this.onCall = null; this.value = 4; },
 };
-
-jest.mock("@extraction/index", () => ({
-  ...jest.requireActual("@extraction/index"),
-  callExtractionModel: (prompt: string) => modelGate.next(prompt),
-}));
 
 // A hook fired on each model call, so a test can move the world at an exact point: between the
 // Nth answer and the write that follows it. An earlier version handed out deferred promises and
@@ -103,12 +100,12 @@ function harness(arcCount: number, presummarised = 0) {
     updatedAt: "",
   };
 
-  const coordinator = new MemoryCoordinator({
+  const coordinator = new MemoryCoordinator({ hosts: fakeHosts(stapi),
     getStory: () => ({ title: "S", checkpointById: {}, qualityByKey: {}, roster: [], arc_bridges: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5, blackboard: { values: {}, versions: {}, latched: {} } }),
     getMemory: () => memoryState,
     setMemory: (next: typeof memoryState) => { memoryState = next; },
-    getExtractionSettings: () => ({ profileId: "p1", enabled: true }),
+    model: sendModel(stapi.sendConnectionProfileRequest as never, "p1"),
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
     enqueueExtractorDeltas: () => {},
@@ -127,7 +124,7 @@ function harness(arcCount: number, presummarised = 0) {
     markCanonStale: () => { if (memoryState.canon) memoryState.canon = { ...memoryState.canon, stale: true }; },
     switchChat: () => { current = { ...current, chatId: "chat-b", sessionEpoch: 2 }; },
     mutateAt: (messageId: number) => { current = { ...current, windowRevision: current.windowRevision + 1, lowestMutatedMessageId: messageId }; },
-    inFlight: () => (coordinator as unknown as { canonInFlight: boolean }).canonInFlight,
+    inFlight: () => (coordinator.canon as unknown as { inFlight: boolean }).inFlight,
     entries: () => (memoryState.entries as Array<{ text: string }>).map((entry) => entry.text),
     shortTerm: () => (memoryState.entries as Array<{ tier: string; text: string }>).find((entry) => entry.tier === "short_term")?.text,
     shortTermEnd: () => memoryState.shortTermSummaryEnd,
@@ -256,7 +253,7 @@ control("canon is not overwritten by a result from another chat", async () => {
   // case returns before reaching the model and asserts nothing.
   const h = harness(1, 1);
   modelGate.onCall = () => h.switchChat();
-  await h.coordinator.regenerateCanon(true);
+  await h.coordinator.canon.regenerateCanon(true);
   expect(modelGate.arcCalls()).toBe(0);
   expect(h.canon()).toBeNull();
 });
@@ -266,32 +263,32 @@ control("canon is not overwritten by a result from another chat", async () => {
 // the player's "story so far" empty for good after a resolution the canon could not notice.
 control("a stale canon is rebuilt even when its inputs hash the same", async () => {
   const h = harness(1, 1);
-  expect(await h.coordinator.regenerateCanon(true)).toBe(true);
+  expect(await h.coordinator.canon.regenerateCanon(true)).toBe(true);
   const calls = modelGate.calls;
   h.markCanonStale();
-  expect(await h.coordinator.regenerateCanon()).toBe(true);
+  expect(await h.coordinator.canon.regenerateCanon()).toBe(true);
   expect(modelGate.calls).toBe(calls + 1);
   expect(h.canon()?.stale).toBe(false);
 });
 
 control("a canon whose inputs have not changed and which is not stale is left alone", async () => {
   const h = harness(1, 1);
-  expect(await h.coordinator.regenerateCanon(true)).toBe(true);
+  expect(await h.coordinator.canon.regenerateCanon(true)).toBe(true);
   const calls = modelGate.calls;
-  expect(await h.coordinator.regenerateCanon()).toBe(false);
+  expect(await h.coordinator.canon.regenerateCanon()).toBe(false);
   expect(modelGate.calls).toBe(calls);
 });
 
 control("canon IS written when the chat has not moved", async () => {
   const h = harness(1, 1);
-  await h.coordinator.regenerateCanon(true);
+  await h.coordinator.canon.regenerateCanon(true);
   expect(h.canon()).not.toBeNull();
 });
 
 control("the in-flight flag is released even when the world moved", async () => {
   const h = harness(1, 1);
   modelGate.onCall = () => h.switchChat();
-  await h.coordinator.regenerateCanon(true);
+  await h.coordinator.canon.regenerateCanon(true);
   expect(h.inFlight()).toBe(false);
 });
 
@@ -302,7 +299,7 @@ control("the in-flight flag is released even when the world moved", async () => 
 // delete another chat's memory. The check is inside the loop because each group is its own write.
 
 jest.mock("../consolidationMatches", () => ({
-  buildMatchSets: async (group: Array<unknown>) => {
+  buildMatchSets: async (_host: unknown, group: Array<unknown>) => {
     matchGate.onBuild?.();
     return {
       dup: group.map((_, index) => new Set<number>(index === 0 ? [] : [0])),
@@ -342,12 +339,12 @@ function consolidationHarness(groupSize: number) {
     updatedAt: "",
   };
   const patches: string[] = [];
-  const coordinator = new MemoryCoordinator({
+  const coordinator = new MemoryCoordinator({ hosts: fakeHosts(stapi),
     getStory: () => ({ title: "S", checkpointById: {}, qualityByKey: {}, roster: [], arc_bridges: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5 }),
     getMemory: () => memoryState,
     setMemory: (next: typeof memoryState) => { patches.push("patch"); memoryState = next; },
-    getExtractionSettings: () => ({ profileId: "p1", enabled: true }),
+    model: sendModel(stapi.sendConnectionProfileRequest as never, "p1"),
     getFiredTransitions: () => [],
     getExpansionGateSources: () => [],
     enqueueExtractorDeltas: () => {},
@@ -425,12 +422,12 @@ describe("V3: a supersession bridge enqueues only into the story it read for", (
     const story = bridgeStory();
     const engine = new StoryEngine();
     engine.loadStory(story);
-    const coordinator = new MemoryCoordinator({
+    const coordinator = new MemoryCoordinator({ hosts: fakeHosts(stapi),
       getStory: () => story,
       getState: () => engine.serialize(),
       getMemory: () => ({ entries: [], settings: { enabled: true } }),
       setMemory: () => {},
-      getExtractionSettings: () => ({ profileId: "p1", enabled: true }),
+      model: sendModel(stapi.sendConnectionProfileRequest as never, "p1"),
       getFiredTransitions: () => [],
       getExpansionGateSources: () => [],
       enqueueExtractorDeltas: (deltas: unknown[]) => { enqueued.push(...deltas); },
@@ -465,13 +462,13 @@ describe("V11: the ledger cap is told where the history floor is", () => {
     const at = (id: string, entity: string, messageId: number) => ({ id, entity, entityType: "character", field: "location", value: `${entity}${messageId}`, messageId, boundary: messageId, createdAt: messageId, provenance: { source: "extractor", messageId, boundary: messageId, pass: "ledger", validity: "live" } });
     const filler = Array.from({ length: 236 }, (_, index) => at(`f${index}`, "F", 100 + index));
     let memory = { entries: [], arcs: [], epistemic: [], conflicts: [], resolvedConflicts: [], excluded: [], derived: [], writeLog: [], verifyDrops: [], canon: null, settings: { enabled: true, tierTokenBudgets: { facts: 400, session: 400, short_term: 400, scene_history: 400 } }, ledger: [at("a1", "A", 1), at("b2", "B", 2), at("b3", "B", 3), at("a8", "A", 8), ...filler] } as never as { ledger: Array<{ id: string }> };
-    const coordinator = new MemoryCoordinator({
+    const coordinator = new MemoryCoordinator({ hosts: fakeHosts(stapi),
       getStory: () => ({ title: "S", checkpointById: {}, qualityByKey: {}, roster: [], ledger_bindings: [] }),
       getState: () => ({ activeCheckpointId: "cp1", boundary: 400, lastMessageId: 400, blackboard: { values: {}, versions: {}, latched: {} } }),
       historyFloor: () => 5,
       getMemory: () => memory,
       setMemory: (next: typeof memory) => { memory = next; },
-      getExtractionSettings: () => ({ profileId: "p1", enabled: true }),
+      model: sendModel(stapi.sendConnectionProfileRequest as never, "p1"),
       getFiredTransitions: () => [],
       getExpansionGateSources: () => [],
       enqueueExtractorDeltas: () => {},

@@ -14,7 +14,7 @@ const entryList = (entries: Array<{ lorebook: string; comment: string }>, named:
   ? entries.map((entry) => `${entry.lorebook}: ${entry.comment}`).join("; ")
   : plural(entries.length, "entry", "entries"));
 
-// v2.5 plan 01 C. Install-wide. Choosing per chat opens the confirm that normalises the story lorebooks
+// C. Install-wide. Choosing per chat opens the confirm that normalises the story lorebooks
 // (nothing changes before it); choosing file writes asks nothing. Drift is the Repair row's target, and the
 // re-normalise button is its one action.
 export function WorldInfoGatingGroup({ status, authorView, onChoose, onRenormalize }: WorldInfoGatingGroupProps) {

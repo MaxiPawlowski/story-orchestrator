@@ -55,7 +55,13 @@ const WizardQuestions: React.FC<Props> = ({ questions, summary, busy = false, on
       ))}
       <div className="flex items-center gap-2">
         <button id="so-wizard-answer" type="button" className="st-button primary" disabled={busy} onClick={() => onAnswer(collect())}>{busy ? "Working…" : "Send answers"}</button>
-        <button id="so-wizard-you-decide" type="button" className="st-button secondary" disabled={busy} onClick={() => onAnswer(questions.map((question) => ({ id: question.id, text: "" })))}>You decide</button>
+        <button
+          id="so-wizard-you-decide"
+          type="button"
+          className="st-button secondary"
+          disabled={busy}
+          onClick={() => onAnswer(questions.map((question) => ({ id: question.id, text: "" })))}
+        >You decide</button>
         <span className="text-[11px] st-muted">{YOU_DECIDE}</span>
       </div>
     </section>

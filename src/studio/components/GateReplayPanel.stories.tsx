@@ -7,6 +7,7 @@ import { useDraftStore } from "../draft";
 import { setTransitionGate } from "../mutations";
 import { GateReplayContext } from "../replayContext";
 import { buildReplaySource, type GateReplaySource, type ReplayLogEntry } from "../gateReplay";
+import { required } from "@utils/guards";
 
 const draft = () => ({ ...sampleStory(), id: "ruins-heist" });
 
@@ -17,7 +18,7 @@ const step = (boundary: number, at: string, evaluated: ReplayLogEntry["evaluated
 const jump = fn();
 
 const recorded = (): GateReplaySource => ({
-  ...buildReplaySource("ruins-heist", draft(), {
+  ...required(buildReplaySource("ruins-heist", draft(), {
     from: { boundary: 0, messageId: 0 },
     log: [
       step(1, "start", {}),
@@ -25,7 +26,7 @@ const recorded = (): GateReplaySource => ({
       step(3, "infiltrate", { route: "stealth", trust: 1 }),
       step(4, "infiltrate", { route: "stealth", trust: 2 }, { from: "infiltrate", to: "cache" }),
     ],
-  })!,
+  }), "replay source"),
   jump,
 });
 

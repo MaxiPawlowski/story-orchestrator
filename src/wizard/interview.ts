@@ -33,9 +33,6 @@ export function renderAnswers(questions: WizardQuestion[], answers: WizardAnswer
   return lines.join("\n");
 }
 
-export const allDeferred = (questions: WizardQuestion[], answers: WizardAnswer[]): boolean =>
-  questions.every((question) => !answers.find((answer) => answer.id === question.id)?.text.trim());
-
 // "Fix with wizard": the unmet requirements become the premise of the provisioning stage, so the
 // author lands on a pre-filled step instead of re-explaining what the diagnostics already know.
 export function provisioningSeed(missing: { personas?: string[]; members?: string[]; lorebooks?: string[] }): string {
@@ -47,13 +44,7 @@ export function provisioningSeed(missing: { personas?: string[]; members?: strin
   return `This story cannot run yet. Propose the provisioning steps that fix exactly this, and nothing else — ${parts.join("; ")}.`;
 }
 
-export const recordApplied = (session: WizardSessionState, target: string): WizardSessionState => ({
-  ...session,
-  applied: session.applied.includes(target) ? session.applied : [...session.applied, target],
-  updatedAt: new Date().toISOString(),
-});
-
-// v2.3 plan 02 (R8). A grant is the author's own decision, so it is theirs to make and to take
+// A grant is the author's own decision, so it is theirs to make and to take
 // back; it lives with the session, never in the story record. File id, not display name: that is
 // what `world_names` and every WI host call actually address.
 export const recordGrant = (session: WizardSessionState, storyId: string, book: string, granted = true, at = new Date().toISOString()): WizardSessionState => {
