@@ -18,16 +18,30 @@ export function contextLimitFromPreset(selectedApi: string | undefined, presetNa
   return { value, source: "preset" };
 }
 
+const findProfile = (profileId: string): Record<string, unknown> | "unavailable" | null => {
+  const settings = getContext().extensionSettings as Record<string, unknown>;
+  const disabled = Array.isArray(settings.disabledExtensions) ? settings.disabledExtensions : [];
+  if (disabled.includes("connection-manager")) return "unavailable";
+  const manager = isRecord(settings.connectionManager) ? settings.connectionManager : {};
+  const profiles = Array.isArray(manager.profiles) ? manager.profiles.filter(isRecord) : [];
+  return profiles.find((entry) => entry.id === profileId) ?? null;
+};
+
+export function readProfilePresetName(profileId: string | null | undefined): string | null {
+  try {
+    const profile = profileId ? findProfile(profileId) : null;
+    return isRecord(profile) && typeof profile.preset === "string" ? profile.preset.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
 export function readProfileContextLimit(profileId: string | null | undefined): ContextLimit {
   try {
     if (!profileId) return defaultContextLimit("no memory model profile is selected");
     const context = getContext();
-    const settings = context.extensionSettings as Record<string, unknown>;
-    const disabled = Array.isArray(settings.disabledExtensions) ? settings.disabledExtensions : [];
-    if (disabled.includes("connection-manager")) return defaultContextLimit("Connection Manager is not available");
-    const manager = isRecord(settings.connectionManager) ? settings.connectionManager : {};
-    const profiles = Array.isArray(manager.profiles) ? manager.profiles.filter(isRecord) : [];
-    const profile = profiles.find((entry) => entry.id === profileId);
+    const profile = findProfile(profileId);
+    if (profile === "unavailable") return defaultContextLimit("Connection Manager is not available");
     if (!profile) return defaultContextLimit(`the profile ${profileId} no longer exists`);
     const api = typeof profile.api === "string" ? profile.api : "";
     const apiMap: HostConnectApiMap | undefined = api ? context.CONNECT_API_MAP?.[api] : undefined;

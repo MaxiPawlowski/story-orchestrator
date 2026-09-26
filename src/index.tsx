@@ -1,5 +1,8 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { bindNavbarDrawerToggle, readProfileContextLimit, showConfirmPopup, toggleNavbarDrawer } from "@services/STAPI";
+import {
+  bindNavbarDrawerToggle, readProfileContextLimit, readProfilePresetName, showConfirmPopup, subscribeToHostEvents, toggleNavbarDrawer,
+} from "@services/STAPI";
+import { contextLimitInvalidators, createContextLimitCache } from "@runtime/contextLimitCache";
 import packageJson from "../package.json";
 import { getGlobalSettings } from "@runtime/settingsStore";
 import SettingsPanel, { type SettingsHost } from "./components/settings/SettingsPanel";
@@ -26,8 +29,11 @@ const EXTENSION_VERSION = String(packageJson.version ?? "unknown");
 const manager = startRuntime();
 const ui = createMountRegistry();
 
+const contextLimits = createContextLimitCache({ limit: readProfileContextLimit, presetOf: readProfilePresetName });
+ui.add(subscribeToHostEvents(contextLimitInvalidators(contextLimits)));
+
 const memoryModelLimit = (profileId: string | null) => {
-  const limit = readProfileContextLimit(profileId);
+  const limit = contextLimits.read(profileId);
   return { ...limit, inputBudget: inputBudget(limit, DEFAULT_MAX_TOKENS).input };
 };
 
@@ -135,9 +141,9 @@ const driverController: DriverController = {
 };
 
 const useRuntimeSnapshot = () => {
-  const [snapshot, setSnapshot] = useState<RuntimeSnapshot>(() => manager.getSnapshot());
+  const [snapshot, setSnapshot] = useState<RuntimeSnapshot>(() => manager.getCachedSnapshot());
   useEffect(() => {
-    const unsubscribe = manager.subscribe(() => setSnapshot(manager.getSnapshot()));
+    const unsubscribe = manager.subscribe(() => setSnapshot(manager.getCachedSnapshot()));
     return () => { unsubscribe(); };
   }, []);
   return snapshot;
@@ -146,6 +152,7 @@ const useRuntimeSnapshot = () => {
 const settingsHost: SettingsHost = {
   extensionVersion: EXTENSION_VERSION,
   memoryModelLimit,
+  recheckMemoryModel: () => contextLimits.invalidate(),
   openWizard: () => void openWizard(),
   openStudio: () => void openStudio(),
   openWizardForRequirements: () => void openWizardForRequirements(),

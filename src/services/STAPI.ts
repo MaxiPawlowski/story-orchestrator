@@ -75,7 +75,7 @@ export { getSelectedConnectionProfileId, listConnectionProfiles, profileExists, 
 export type { ModelFailureKind, ModelFinish, ModelReply, ModelRequestOptions, ModelSamplers } from "@services/stHost/modelReply";
 export type { ConnectionProfileSummary } from "@services/stHost/connectionProfiles";
 export { countTokens, countTokensBatch } from "@services/stHost/tokenizer";
-export { readProfileContextLimit } from "@services/stHost/contextLimit";
+export { readProfileContextLimit, readProfilePresetName } from "@services/stHost/contextLimit";
 export { vectorInsert, vectorQuery, vectorPurge, DEFAULT_VECTOR_SOURCE } from "@services/stHost/vectors";
 export { judgeStatus, judgeTransport, writeJudgeSecret, JUDGE_PLUGIN_BASE, JUDGE_PLUGIN_ID, JUDGE_SECRET_KEY, type JudgeStatus } from "@services/stHost/judge";
 export type { VectorItem, VectorMatch } from "@services/stHost/vectors";

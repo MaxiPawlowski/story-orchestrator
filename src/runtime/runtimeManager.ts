@@ -30,6 +30,7 @@ import { hasUnsavedChanges } from "./saveHealth";
 import { getGlobalSettings, setGlobalSettings } from "./settingsStore";
 import { buildPossibleTransitions } from "./snapshot";
 import { buildRuntimeSnapshot, snapshotSources } from "./snapshotBuilder";
+import { SnapshotCache } from "./snapshotCache";
 import { applyStoryUpdate, type StoryUpdateOutcome } from "./storyUpdate";
 import { parseQualityValue } from "./values";
 import { SessionJournal, type JournalEvent, type JournalRecordKind } from "./journal";
@@ -66,6 +67,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   noteRecap(summary: string, detail: string, kind: JournalRecordKind = "story") { this.journal.record(kind, summary, this.journalContext(), detail); this.extras.journal = this.journal.getRecords(); }
   private readonly effects: EffectsApplier;
   private readonly listeners = new Set<() => void>();
+  private readonly snapshotCache = new SnapshotCache<RuntimeSnapshot>(() => this.getSnapshot());
   private readonly boundaryListeners = new Set<(result: BoundaryResult) => void>();
   private readonly rollbackListeners = new Set<(messageId: number, window: SharedReadWindow) => void>();
   private readonly sceneBreakListeners = new Set<(audit: SharedReadAudit, collect?: SchedulerJob[]) => void>();
@@ -129,6 +131,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   subscribe(listener: () => void) { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; }
 
   notify() {
+    this.snapshotCache.invalidate();
     if (this.journal.observeStatus(this.status, this.journalContext())) this.extras.journal = this.journal.getRecords();
     this.listeners.forEach((listener) => listener());
   }
@@ -310,7 +313,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     this.notify();
   }
 
-  recordJudgeCall(record: JudgeCallRecord) { this.extras.judge = appendJudgeCall(this.extras.judge, record); }
+  recordJudgeCall(record: JudgeCallRecord) { this.extras.judge = appendJudgeCall(this.extras.judge, record); this.touch(); }
   getSceneRead(): SceneReadRecord | null { return this.extras.judge.scene; }
   recordSceneRead(read: SceneReadRecord | null) { this.extras.judge = { ...this.extras.judge, scene: read }; this.notify(); }
 
@@ -365,6 +368,9 @@ export class RuntimeManager extends CoordinatorDelegates {
   getOwnership(): RunOwnership { return this.owner.ownership; }
 
   getRunContext(): RunContext { return this.owner.context(); }
+
+  getCachedSnapshot(): RuntimeSnapshot { return this.snapshotCache.read(); }
+  touch() { this.snapshotCache.invalidate(); }
 
   getSnapshot(): RuntimeSnapshot {
     return buildRuntimeSnapshot(snapshotSources({
@@ -421,7 +427,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   getAwayRecap(): AwayRecap | null { return this.awayRecap.get(); }
   async showAwayRecap(): Promise<boolean> { return this.awayRecap.show(); }
 
-  private persist() { return this.chatSave.persist(); }
+  private persist() { this.snapshotCache.invalidate(); return this.chatSave.persist(); }
 
   // The author edited this story from this chat: take the saved version without losing the run.
   // Every other chat keeps its pinned copy (spec addendum §Story identity).

@@ -14,6 +14,7 @@ import { DisplayGroup, GroupChatGroup, LorebooksGroup, PacingGroup, StagecraftGr
 export interface SettingsHost {
   extensionVersion: string;
   memoryModelLimit: (profileId: string | null) => CapabilitiesGroupProps["memoryModel"];
+  recheckMemoryModel: () => void;
   openWizard: () => void;
   openStudio: () => void;
   openWizardForRequirements: () => void;
@@ -126,7 +127,10 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             facts={hostProbe.facts}
             extensionVersion={host.extensionVersion}
             memoryModel={host.memoryModelLimit(snapshot.extraction.settings.profileId)}
-            onRefresh={() => hostProbe.probe(true)}
+            onRefresh={() => {
+              host.recheckMemoryModel();
+              hostProbe.probe(true);
+            }}
           />
           <PacingGroup snapshot={snapshot} manager={manager} />
           <div className="text-xs opacity-80">{snapshot.status}</div>

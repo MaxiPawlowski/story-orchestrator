@@ -493,6 +493,16 @@
       "reason": "host read probe answers a neutral value the caller reads"
     },
     {
+      "site": "src/services/stHost/contextLimit.ts#readProfilePresetName",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "cache-key probe: an unreadable profile keys as no preset; the limit read beside it logs its own failure"
+    },
+    {
       "site": "src/utils/log.ts#devBuild",
       "kind": 3,
       "template": "catch {} #1",

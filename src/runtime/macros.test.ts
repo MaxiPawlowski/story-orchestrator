@@ -33,6 +33,7 @@ const makeManager = (roster: Array<{ id: string; name?: string }>): RuntimeManag
   const story = { roster } as unknown as NormalizedStoryV2;
   return {
     getSnapshot: () => snapshot(),
+    getCachedSnapshot: () => snapshot(),
     getStory: () => story,
     getPossibleTransitions: () => ["→ Inner Sanctum when has_key == true"],
     subscribe: (fn: () => void) => {
