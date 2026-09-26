@@ -4,8 +4,15 @@ import { applyTransitionProgress } from "./convergence";
 import type { CheckpointEffects, NormalizedStoryV2, NormalizedTransition, PrimitiveValue } from "./schema";
 import { selectFiring } from "./transitions";
 
+export interface DerivedQualityView {
+  boundary: number;
+  activeCheckpointId: string;
+  checkpointStartedBoundary: number;
+}
+
 export interface EngineHost {
   now(): number;
+  derive?(view: DerivedQualityView): Array<{ q: string; v: PrimitiveValue }>;
 }
 
 export interface BoundaryContext {
@@ -372,6 +379,8 @@ export class StoryEngine {
     if (story.qualityByKey.elapsed?.source === "code") {
       blackboard.applyDelta({ q: "elapsed", v: Math.max(0, Math.floor((this.host.now() - this.checkpointStartedAt) / 1000)), source: "code" });
     }
+    const view = { boundary: this.boundary, activeCheckpointId: this.activeCheckpointId, checkpointStartedBoundary: this.checkpointStartedBoundary };
+    for (const delta of this.host.derive?.(view) ?? []) blackboard.applyDelta({ q: delta.q, v: delta.v, source: "code" });
   }
 
   private recordSnapshot(): void {

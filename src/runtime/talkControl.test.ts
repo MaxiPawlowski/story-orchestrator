@@ -381,3 +381,29 @@ describe("TalkController reconcile", () => {
     expect(calls.decisions).toHaveLength(2);
   });
 });
+
+describe("SP7 D4b: the rules pick takes the host's random when it offers one", () => {
+  const rules = (): TalkControl => ({ speakers: [{ member: "Mara", weight: 1 }, { member: "Finn", weight: 1 }], no_repeat: false });
+
+  it("a seam stream decides the weighted pick and Math.random is never asked", async () => {
+    const random = jest.spyOn(Math, "random");
+    const { host, calls } = makeHost({ getActiveTalkControl: rules, random: () => () => 0.99 });
+    const controller = new TalkController(host);
+    controller.onWrapperStarted({ type: "normal" });
+    await controller.onWrapperFinished();
+    expect(random).not.toHaveBeenCalled();
+    expect(calls.decisions[0]).toMatchObject({ chosenName: "Finn", source: "rules" });
+    random.mockRestore();
+  });
+
+  it("control: a host without a stream keeps today's Math.random pick", async () => {
+    const random = jest.spyOn(Math, "random").mockReturnValue(0.01);
+    const { host, calls } = makeHost({ getActiveTalkControl: rules, random: () => null });
+    const controller = new TalkController(host);
+    controller.onWrapperStarted({ type: "normal" });
+    await controller.onWrapperFinished();
+    expect(random).toHaveBeenCalled();
+    expect(calls.decisions[0]).toMatchObject({ chosenName: "Mara", source: "rules" });
+    random.mockRestore();
+  });
+});

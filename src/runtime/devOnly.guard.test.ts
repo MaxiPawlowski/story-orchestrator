@@ -9,10 +9,11 @@ const DEV_ONLY = [
   "src/judge/calibration.ts",
   "src/judge/selfTestCases.ts",
 ];
+const SPIKE_MODULES = ["src/engine/chance.ts", "src/runtime/spikes/install.ts", "src/runtime/spikes/sp7Chance.ts"];
 const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
 const LAZY_USER_FEATURES = ["src/judge/selfTest.ts", "src/runtime/selfTest.ts", "src/runtime/roleSelfTest.ts", "src/extraction/fixtureRun.ts"];
 
-const isDevOnly = (path: string) => DEV_ONLY.includes(path) || DEV_ONLY_PATTERN.test(path);
+const isDevOnly = (path: string) => DEV_ONLY.includes(path) || DEV_ONLY_PATTERN.test(path) || SPIKE_MODULES.includes(path);
 const ENTRY = join(SRC, "index.tsx");
 
 const staticReach = (files: string[], read?: (path: string) => string) =>
@@ -31,7 +32,7 @@ describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", 
 
   it("every listed dev-only module exists, so the list cannot rot into a vacuous pass", () => {
     const present = new Set(files.map(rel));
-    expect(DEV_ONLY.filter((path) => !present.has(path))).toEqual([]);
+    expect([...DEV_ONLY, ...SPIKE_MODULES].filter((path) => !present.has(path))).toEqual([]);
     expect(files.map(rel).filter((path) => DEV_ONLY_PATTERN.test(path)).length).toBeGreaterThanOrEqual(6);
   });
 
@@ -46,5 +47,12 @@ describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", 
     const fs = require("fs") as typeof import("fs");
     const read = (path: string) => (path === barrel ? `${fs.readFileSync(path, "utf8")}\nexport * from "./sceneCalibration";\n` : fs.readFileSync(path, "utf8"));
     expect(staticReach(files, read).filter(isDevOnly)).toContain("src/judge/sceneCalibration.ts");
+  });
+
+  it("control: a planted static import of a plan-09 spike module fails (v2.5 plan 09 rule 2)", () => {
+    const planted = join(SRC, "runtime", "index.ts");
+    const fs = require("fs") as typeof import("fs");
+    const read = (path: string) => (path === planted ? `import { installSpikes } from "./spikes/install";\n${fs.readFileSync(path, "utf8")}` : fs.readFileSync(path, "utf8"));
+    expect(staticReach(files, read).filter(isDevOnly)).toEqual(expect.arrayContaining(["src/runtime/spikes/install.ts", "src/runtime/spikes/sp7Chance.ts", "src/engine/chance.ts"]));
   });
 });

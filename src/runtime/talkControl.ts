@@ -41,6 +41,7 @@ export interface TalkControlHost {
   getPlayerName?(): string;
   triggerMember(name: string): Promise<void>;
   recordDecision(audit: TalkDecisionAudit): void;
+  random?(): (() => number) | null;
   ownership: RunOwnership;
 }
 
@@ -216,7 +217,7 @@ export class TalkController {
   }
 
   private chooseFallback(control: TalkControl, pool: TalkCandidate[], source: TalkDecisionSource): Decision {
-    const chosen = chooseByRules(control, pool, { lastSpeakerRosterId: this.host.getLastSpeakerRosterId() });
+    const chosen = chooseByRules(control, pool, { lastSpeakerRosterId: this.host.getLastSpeakerRosterId(), random: this.host.random?.() ?? undefined });
     return chosen ? { kind: "member", rosterId: chosen.rosterId, name: chosen.name, source } : { kind: "pass" };
   }
 

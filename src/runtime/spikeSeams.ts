@@ -1,0 +1,16 @@
+import type { DerivedQualityView, PrimitiveValue } from "@engine/index";
+
+export interface SpikeSeams {
+  derive?: (view: DerivedQualityView) => Array<{ q: string; v: PrimitiveValue }>;
+  npcRoll?: (key: string) => number | null;
+  talkRandom?: () => (() => number) | null;
+}
+
+export const spikeSeams: SpikeSeams = {};
+
+export const installSpikeSeams = (next: SpikeSeams): (() => void) => {
+  Object.assign(spikeSeams, next);
+  return () => {
+    for (const key of Object.keys(next) as Array<keyof SpikeSeams>) if (spikeSeams[key] === next[key]) delete spikeSeams[key];
+  };
+};

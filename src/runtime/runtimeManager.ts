@@ -49,9 +49,10 @@ import type {
 import { withholds } from "./generationLifecycle";
 import { CoordinatorDelegates } from "./managerDelegates";
 import { required } from "@utils/guards";
+import { spikeSeams } from "./spikeSeams";
 
 export class RuntimeManager extends CoordinatorDelegates {
-  private engine = new StoryEngine();
+  private engine = new StoryEngine({ now: () => Date.now(), derive: (view) => spikeSeams.derive?.(view) ?? [] });
   private loaded: LoadedStory | null = null;
   private extras: RuntimeExtras = createExtras(getGlobalSettings);
   private judge: JudgeRuntime | null = null;
@@ -125,7 +126,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     this.effects = new EffectsApplier(this.owner.ownership, { reads: { read: readEffectTarget },
         restore: restoreEffectTarget, persist: () => this.persist(),
         unsaved: () => hasUnsavedChanges(this.extras.saveHealth), journal: (summary, note) => this.noteRecap(summary,
-        note ?? "") });
+        note ?? ""), roll: (key) => spikeSeams.npcRoll?.(key) ?? null });
   }
 
   subscribe(listener: () => void) { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; }

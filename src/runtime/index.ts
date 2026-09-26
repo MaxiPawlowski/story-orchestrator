@@ -44,6 +44,14 @@ const registerSlashCommandsWhenReady = (attempt = 0) => {
   if (!slashRegistered && attempt < 100) window.setTimeout(() => registerSlashCommandsWhenReady(attempt + 1), 100);
 };
 
+const spikePort = () => ({
+  flags: () => getGlobalSettings().spikes,
+  chatId: () => getContext().chatId ?? null,
+  storyId: () => runtimeManager.getStory()?.id ?? null,
+  boundary: () => runtimeManager.getEngineState()?.boundary ?? null,
+  raw: () => runtimeManager.getPlayedStoryRaw(),
+});
+
 const registerHostSurfaces = () => {
   // A build with no MacrosParser throws on the first registration, and this call sits
   // in the middle of startRuntime: unguarded, a missing macro engine would take the bridge, the judge,
@@ -54,6 +62,9 @@ const registerHostSurfaces = () => {
     log.warn("host macros unavailable; {{story_*}} will not resolve", error);
   }
   if (__SO_DEV__) void import("./liveSuite").then(({ registerLiveSuite }) => { if (started) registerLiveSuite(runtimeManager); });
+  if (__SO_DEV__) void import("./spikes/install").then(({ installSpikes }) => {
+    if (started) runtimeDisposers.push(installSpikes(spikePort(), (debug) => { globalThis.storyOrchestratorSpikes = debug; }));
+  });
   window.setTimeout(() => registerSlashCommandsWhenReady(), 0);
   window.setTimeout(() => registerSlashCommandsWhenReady(), 1000);
 };
@@ -88,7 +99,7 @@ const windowAccess = (): WindowAccess => {
 
 export const RUNTIME_GLOBALS = [
   "storyOrchestratorScheduler", "storyOrchestratorLoreEvidence", "storyOrchestratorLore", "storyOrchestratorJudge",
-  "storyOrchestratorLiveSuite", "storyOrchestratorScanGating",
+  "storyOrchestratorLiveSuite", "storyOrchestratorScanGating", "storyOrchestratorSpikes",
 ] as const;
 
 export function startRuntime() {

@@ -5,6 +5,7 @@ import { defaultJudgeSettings, sanitizeJudgeSettings, type JudgeSettings } from 
 import { sanitizePassProfiles } from "./passProfiles";
 import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, StagecraftSettings } from "./types";
 import { isRecord } from "@utils/guards";
+import { defaultSpikeFlags, sanitizeSpikeFlags, type SpikeFlags } from "./spikeFlags";
 
 // User/install lifetime (spec addendum §Configuration homes). Chat lifetime keeps only engine
 // state, rings and the per-chat overrides listed in ChatOverrides.
@@ -18,6 +19,7 @@ export interface GlobalSettings {
   stagecraft: StagecraftSettings;
   judge: JudgeSettings;
   worldInfo: WorldInfoSettings;
+  spikes: SpikeFlags;
 }
 
 // `scan` is written only by the author's confirm (an install that never opens the setting stays
@@ -101,6 +103,7 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   stagecraft: defaultStagecraftSettings(),
   judge: defaultJudgeSettings(),
   worldInfo: defaultWorldInfoSettings(),
+  spikes: defaultSpikeFlags(),
 });
 
 const clampAlpha = (value: unknown) => (typeof value === "number" && value >= 0 && value <= 1 ? value : DEFAULT_TENSION_EMA_ALPHA);
@@ -143,5 +146,6 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     },
     judge: sanitizeJudgeSettings(value.judge),
     worldInfo: sanitizeWorldInfoSettings(value.worldInfo),
+    spikes: sanitizeSpikeFlags(value.spikes),
   };
 };

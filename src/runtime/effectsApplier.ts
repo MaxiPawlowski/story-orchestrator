@@ -172,6 +172,7 @@ export interface EffectApplierDeps {
    */
   unsaved?: () => boolean;
   journal?: (summary: string, note?: string) => void;
+  roll?: (key: string) => number | null;
 }
 
 export const PENDING_NOT_SAVED = "the effect was not applied: its write-ahead record could not be saved";
@@ -428,7 +429,7 @@ export class EffectsApplier {
       const max = Math.max(1, reply.maxTriggers ?? 1);
       if (count >= max) continue;
       if (typeof reply.probability === "number") {
-        const roll = Math.random();
+        const roll = this.deps.roll?.(key) ?? Math.random();
         const fired = roll <= reply.probability;
         this.deps.journal?.(`NPC reply ${reply.member} (${trigger}) ${fired ? "fired" : "skipped"} by its roll`, `rolled ${roll.toFixed(3)} against ${reply.probability} at ${key}`);
         if (!fired) continue;
