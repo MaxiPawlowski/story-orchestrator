@@ -37,6 +37,7 @@ jest.mock("@services/STAPI", () => {
   };
   return {
     getContext: () => mockContext,
+    guardHostStream: () => ({ halt: () => false, release: () => undefined }),
     saveOpenChat: async () => { await (mockContext).saveMetadata?.(); return { ok: true as const, chatId: "" }; },
     setStoryExtensionPrompt: (key: string, text: string, depth: number) => { mockExtensionPrompts[key] = { value: text, depth }; },
     clearStoryExtensionPrompt: (key: string) => { delete mockExtensionPrompts[key]; },
@@ -1330,6 +1331,16 @@ describe("RuntimeManager transition announcements and pending deltas", () => {
     expect(commentCalls[0][0]).toContain("End");
   });
 
+  it("v2.5 C7: posts the transition note before the onEnter NPC reply it announces", async () => {
+    const manager = new RuntimeManager();
+    const replying = { ...gatedStory, checkpoints: gatedStory.checkpoints.map((checkpoint) => checkpoint.id === "end" ? { ...checkpoint, effects: { npc_replies: [{ trigger: "onEnter", member: "Corin", kind: "llm" }] } } : checkpoint) };
+    await manager.importStory(JSON.stringify(replying));
+    (executeSlashCommands as jest.Mock).mockClear();
+    await manager.setQuality("has_key", "true");
+    const order = (executeSlashCommands as jest.Mock).mock.calls.map(([command]) => String(command)).filter((command) => command.startsWith("/comment") || command.startsWith("/trigger")).map((command) => command.split(" ")[0]);
+    expect(order).toEqual(["/comment", "/trigger"]);
+  });
+
   it("stays silent when announcements are disabled", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(gatedStory));
@@ -1634,7 +1645,7 @@ describe("RuntimeManager async boundary ownership", () => {
     expect(h.notify).not.toHaveBeenCalled();
   });
 
-  control("a boundary that lapses during persistence stops before announcement", async () => {
+  control("a boundary that lapses during persistence stops before observers, after the announcement it already posted", async () => {
     const h = await boundaryHarness();
     const gate = asyncGate();
     h.probe.persist.mockImplementationOnce(() => gate.promise);
@@ -1646,12 +1657,12 @@ describe("RuntimeManager async boundary ownership", () => {
     gate.resolve();
     expect(await pending).toBeNull();
 
-    expect(h.probe.effects.announceTransition).not.toHaveBeenCalled();
+    expect(h.probe.effects.announceTransition).toHaveBeenCalledTimes(1);
     expect(h.boundary).not.toHaveBeenCalled();
     expect(h.notify).not.toHaveBeenCalled();
   });
 
-  control("a boundary that lapses during announcement stops before observers", async () => {
+  control("a boundary that lapses during announcement stops before checkpoint effects and observers", async () => {
     const h = await boundaryHarness();
     const gate = asyncGate();
     h.probe.effects.announceTransition.mockImplementationOnce(() => gate.promise);
@@ -1663,6 +1674,8 @@ describe("RuntimeManager async boundary ownership", () => {
     gate.resolve();
     expect(await pending).toBeNull();
 
+    expect(h.probe.effects.applyCheckpoint).not.toHaveBeenCalled();
+    expect(h.probe.persist).not.toHaveBeenCalled();
     expect(h.boundary).not.toHaveBeenCalled();
     expect(h.notify).not.toHaveBeenCalled();
   });

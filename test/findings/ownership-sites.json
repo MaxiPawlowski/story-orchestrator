@@ -327,7 +327,7 @@
     },
     "src/runtime/runtimeManager.ts#RuntimeManager.commitBoundary": {
       "status": "checked",
-      "note": "v2.3 plan 03: mints before boundary work and checks after checkpoint effects, accepted stagecraft, persistence and transition announcement before any later runtime write, observer or notification. The persistence chokepoint and child writers retain their own guards. v2.4 plan 02 T3: the fingerprint reconcile runs first (ChatSave.reconcile, which checks the run before stepping back and answers stillOwns after), and the commit stops there when the run lapsed, before the engine write."
+      "note": "v2.3 plan 03: mints before boundary work and checks after checkpoint effects, accepted stagecraft, persistence and transition announcement before any later runtime write, observer or notification. The persistence chokepoint and child writers retain their own guards. v2.4 plan 02 T3: the fingerprint reconcile runs first (ChatSave.reconcile, which checks the run before stepping back and answers stillOwns after), and the commit stops there when the run lapsed, before the engine write. v2.5 C7: the transition announcement now runs right after the engine commit, before the checkpoint effects (so the note precedes the onEnter NPC reply it announces), with its own check after it."
     },
     "src/runtime/runtimeManager.ts#RuntimeManager.fireAfterSpeak": {
       "status": "checked",

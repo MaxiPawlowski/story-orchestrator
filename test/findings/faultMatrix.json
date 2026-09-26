@@ -388,8 +388,8 @@
     },
     "persistence|afterHostWrite": {
       "status": "partial",
-      "evidence": "src/runtime/runtimeManager.test.ts#a boundary that lapses during persistence stops before announcement",
-      "note": "Covers a world lapse at the persist step stopping the announce tail; no case where the save itself fails."
+      "evidence": "src/runtime/runtimeManager.test.ts#a boundary that lapses during persistence stops before observers, after the announcement it already posted",
+      "note": "Covers a world lapse at the persist step stopping the observer tail (since v2.5 C7 the transition note is posted before the checkpoint effects, so it precedes persist); no case where the save itself fails."
     },
     "persistence|persistFailure": {
       "status": "covered",
