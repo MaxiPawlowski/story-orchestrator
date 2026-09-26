@@ -2,6 +2,7 @@ import { readWith } from "../../test/support/modelCall";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
+import { getChatWindow } from "./chatWindow";
 import { planReconciliation } from "./reconcile";
 import { ExtractionScheduler, type SchedulerHost } from "./scheduler";
 import { runSharedRead } from "./sharedRead";
@@ -56,7 +57,7 @@ describe("scheduler and stall planning for the judge (v2.2 plan 06)", () => {
 
   it("plans a stall with every unmet extractor leaf, rubric and value included, without scheduling it", () => {
     const stalled = { ...state, boundary: 12, checkpointStartedBoundary: 0, checkpointStartedMessageId: 0, lastMessageId: 20 };
-    const plan = planReconciliation(story, stalled, 1.5);
+    const plan = planReconciliation(story, stalled, 1.5, getChatWindow);
     expect(plan?.reason.startsWith("reconcile:")).toBe(true);
     expect(plan?.leaves.map((leaf) => [leaf.q, leaf.op, leaf.v])).toEqual(expect.arrayContaining([["player_has_key", "==", true]]));
     expect(plan?.leaves.find((leaf) => leaf.q === "player_has_key")?.rubric).toBe(story.qualityByKey.player_has_key.rubric);

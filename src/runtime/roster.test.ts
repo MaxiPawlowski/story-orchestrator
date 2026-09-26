@@ -3,15 +3,16 @@
 
 const mockChat: { rows: unknown[] } = { rows: [] };
 
-jest.mock("@services/STAPI", () => ({
-  getActiveGroup: () => ({ disabled_members: [] }),
-  resolveGroupMemberId: (name: string) => (["Arin", "DM Narrator", "Luke", "Ponticius"].includes(name) ? `${name}.png` : null),
-  getContext: () => ({ chat: mockChat.rows }),
-  hostSystemUserName: "SillyTavern System",
-}));
-
 import { chooseByRules, buildCandidates } from "@talk/rules";
 import { activeSpeakerId } from "./roster";
+import type { RosterHost } from "./hostPorts";
+
+const host: RosterHost = {
+  getActiveGroup: () => ({ disabled_members: [] }),
+  resolveGroupMemberId: (name: string) => (["Arin", "DM Narrator", "Luke", "Ponticius"].includes(name) ? `${name}.png` : null),
+  chatRows: () => mockChat.rows,
+  systemUserName: "SillyTavern System",
+} as RosterHost;
 
 const story = {
   roster: [
@@ -33,7 +34,7 @@ const rosterNarrator = { name: "DM Narrator", is_user: false, is_system: false, 
 
 const speakerAfter = (...rows: unknown[]) => {
   mockChat.rows = [player, reply("Arin"), player, reply("Luke"), ...rows];
-  return activeSpeakerId(story);
+  return activeSpeakerId(story, host);
 };
 
 describe("activeSpeakerId skips rows that are not a character's turn (T10)", () => {

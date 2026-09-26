@@ -5,6 +5,7 @@ export * from "./canonLite";
 export * from "./chatWindow";
 export * from "./chunker";
 export * from "./client";
+export * from "./modelError";
 export * from "./contract";
 export * from "./evidence";
 export * from "./cues";

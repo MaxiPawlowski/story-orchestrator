@@ -1,18 +1,24 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
-import {
-  askText, createTokenMeter, defaultContextLimit, deriveFullScope, deriveScope, getChatWindow, getLastMessageText, isLapse,
-  maxTokensFor, maxTokensForInput, planBacklog, preflightNeeded, reconciliationKeySet, reconciliationTargets, retryOnTimeout, runSharedRead, withJudgeCalls,
-  sharedReadOverhead, sharedReadWindow, stripChannelNoise, type ExtraGateSource, type ModelAsk, type ModelCall, type ParsedDelta,
-  type ParsedFact, type PreflightConfirm, type ReadOwnership, type ReconciliationPlan, type RequestBudget, type RunSharedReadOptions,
-  type PassRole, type SchedulerJob, type SharedReadAudit, type SharedReadWindow,
-} from "@extraction/index";
+import { planBacklog } from "@extraction/backlogPlan";
+import { maxTokensFor, maxTokensForInput } from "@extraction/callBudget";
+import { defaultContextLimit } from "@extraction/inputBudget";
+import { isLapse, retryOnTimeout } from "@extraction/modelError";
+import { askText } from "@extraction/modelRoute";
+import { stripChannelNoise } from "@extraction/parse";
+import { preflightNeeded, withJudgeCalls } from "@extraction/preflight";
+import { reconciliationKeySet, reconciliationTargets, type ReconciliationPlan } from "@extraction/reconcile";
+import { deriveFullScope, deriveScope } from "@extraction/scope";
+import { runSharedRead, sharedReadOverhead, sharedReadWindow } from "@extraction/sharedRead";
+import { createTokenMeter } from "@extraction/tokenMeter";
+import type {
+  ExtraGateSource, ModelAsk, ModelCall, ParsedDelta, ParsedFact, PreflightConfirm, ReadOwnership, RequestBudget,
+  RunSharedReadOptions, PassRole, SchedulerJob, SharedReadAudit, SharedReadWindow } from "@extraction/index";
 import {
   buildEpistemicPassPrompt, buildLedgerPassPrompt, buildShortTermSummaryPrompt, detectSceneBreakHeuristic, fitShortTerm,
   generateMemoryId, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, provenance, summarizeScene, type ArcEntry,
   type MemoryEntry, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine,
 } from "@memory/index";
 import { anySignal } from "@utils/signals";
-import { getActiveGroup, getContext } from "@services/STAPI";
 import { SHORT_TERM_COMPACTION_MESSAGES } from "@constants/defaults";
 import { enabledCharacterNames } from "../roster";
 import type { MemoryCoordinator } from "./memoryCoordinator";
@@ -23,6 +29,7 @@ import {
 import { createTypedJudge } from "../typedRead";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunGuard, type RunOwnership, type RunToken } from "../runToken";
+import type { ChatHost, RosterHost } from "../hostPorts";
 import {
   buildStallRequest, buildVerifyRequest, readVerify, stallVerdict, STALL_TIMEOUT_MS, verifyVerdict,
   VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS,
@@ -58,9 +65,8 @@ export interface ExtractionCoordinatorDeps {
   requestBudget?: (role: PassRole) => RequestBudget;
   persist: () => Promise<void>;
   notify: () => void;
-  // v2.3 plan 03. Optional so the conversion can land one coordinator at a time: an unwired
-  // caller never lapses, and the write-edge census is what tracks real coverage.
   ownership: RunOwnership;
+  hosts: { chat: ChatHost; roster: RosterHost };
 }
 
 // Owns extras.extraction and every off-path read: the shared-read audit pipeline, the
@@ -150,11 +156,11 @@ export class ExtractionCoordinator {
     if (!story || !state) return;
     const hinted = deriveScope(story, state.activeCheckpointId, state.blackboard, this.deps.getExpansionGateSources()).filter((entry) => entry.quality.read_as && entry.quality.source === "extractor");
     if (!hinted.length) return;
-    const window = getChatWindow(Math.max(0, messageId - TYPED_READ_WINDOW + 1), messageId);
+    const window = this.deps.hosts.chat.chatWindow(Math.max(0, messageId - TYPED_READ_WINDOW + 1), messageId);
     // C1, the "typed" surface: a judged read whose deltas go into the blackboard apply queue.
     const typedRun = beginRun(this.deps.ownership, { from: window.from, to: window.to });
     const read = await createTypedJudge(() => this.deps.judge?.() ?? null)({ story, state, qualities: hinted.map((entry) => entry.quality), window });
-    if (!read || !typedRun.stillOwns() || this.deps.getState()?.lastMessageId !== state.lastMessageId || (getContext().chat?.length ?? 0) - 1 !== messageId) return;
+    if (!read || !typedRun.stillOwns() || this.deps.getState()?.lastMessageId !== state.lastMessageId || this.deps.hosts.chat.chatRows().length - 1 !== messageId) return;
     if (read.deltas.length) this.deps.enqueueExtractorDeltas(read.deltas, { from: window.from, to: window.to }, `judge:typed@${boundary}`);
     this.recordJudgedRead({ at: new Date().toISOString(), boundary, kind: "typed", window: { from: window.from, to: window.to }, answered: read.answered, deltas: read.deltas.map((entry) => ({ q: entry.delta.q, v: entry.delta.v, confidence: entry.judge ?? 0 })), model: read.model, ...(read.fallback ? { fallback: read.fallback } : {}) });
     await this.save();
@@ -233,7 +239,7 @@ export class ExtractionCoordinator {
     const judge = this.deps.judge?.() ?? null;
     const story = this.deps.getStory();
     if (!entries.length || !story || !judge?.active("memoryVerify")) return { kept: entries, dropped: [] };
-    const transcript = getChatWindow(window.from, window.to).messages.map((message) => ({ id: `msg_${message.index}`, speaker: message.speaker, text: message.text }));
+    const transcript = this.deps.hosts.chat.chatWindow(window.from, window.to).messages.map((message) => ({ id: `msg_${message.index}`, speaker: message.speaker, text: message.text }));
     const cast = story.roster.map((member) => member.name ?? member.id);
     const kept: MemoryEntry[] = [];
     const dropped: VerifyDrop[] = [];
@@ -263,9 +269,9 @@ export class ExtractionCoordinator {
     const state = this.deps.getState();
     if (!story || !state) return false;
     const memory = this.deps.memory;
-    const chatLength = Array.isArray(getContext().chat) ? getContext().chat.length : 0;
+    const chatLength = this.deps.hosts.chat.chatRows().length;
     const readState = chatLength - 1 > state.lastMessageId ? { ...state, lastMessageId: chatLength - 1, chatLength } : state;
-    const readWindow = sharedReadWindow({ state: readState, priority: 0, ...(window && window.from >= 0 ? { window: getChatWindow(window.from, window.to) } : {}) });
+    const readWindow = sharedReadWindow({ state: readState, priority: 0, ...(window && window.from >= 0 ? { window: this.deps.hosts.chat.chatWindow(window.from, window.to) } : {}) });
     const read = beginRun(this.deps.ownership, { from: readWindow.from, to: readWindow.to });
     const result = await runSharedRead({
       story,
@@ -294,11 +300,11 @@ export class ExtractionCoordinator {
   detectSceneBreak() {
     const story = this.deps.getStory();
     if (!story || !this.deps.memory.enabled) return null;
-    const text = getLastMessageText();
+    const text = this.deps.hosts.chat.lastMessageText();
     if (!text) return null;
     const location = this.deps.getState()?.blackboard.values.location;
     const locationValue = typeof location === "string" ? location : null;
-    const group = getActiveGroup();
+    const group = this.deps.hosts.roster.getActiveGroup();
     const cast = group ? group.members.filter((member) => !(group.disabled_members ?? []).includes(member)).sort().join(",") : null;
 
     const ownership = this.deps.ownership;
@@ -319,7 +325,7 @@ export class ExtractionCoordinator {
     // description of messages that no longer exist. A reply appended after it is fine.
     const range = { from: memory.sceneStart(audit.window.to), to: audit.window.to };
     const run = beginRun(this.deps.ownership, range);
-    const scene = getChatWindow(range.from, range.to);
+    const scene = this.deps.hosts.chat.chatWindow(range.from, range.to);
     const outcome = await summarizeScene({
       messages: scene.messages, budget: this.budget("synthesis"), stillOwns: () => run.stillOwns(),
       summarize: async (prompt, maxTokens) => stripChannelNoise(await askText(this.deps.model, prompt, {
@@ -345,9 +351,9 @@ export class ExtractionCoordinator {
   async runShortTermCompaction() {
     const memory = this.deps.memory;
     if (!this.deps.getStory() || !memory.enabled) return;
-    const lastId = (Array.isArray(getContext().chat) ? getContext().chat.length : 0) - 1;
+    const lastId = this.deps.hosts.chat.chatRows().length - 1;
     if (!this.shouldCompactShortTerm(lastId)) return;
-    const window = getChatWindow(memory.shortTermSummaryEnd + 1, lastId);
+    const window = this.deps.hosts.chat.chatWindow(memory.shortTermSummaryEnd + 1, lastId);
     if (!window.messages.length) return;
     const previous = memory.shortTermEntry();
     if (previous?.pinned) return;
@@ -370,7 +376,7 @@ export class ExtractionCoordinator {
     const story = this.deps.getStory();
     const memory = this.deps.memory;
     if (!story || !audit.sceneBreak || !memory.capable) return false;
-    const window = getChatWindow(audit.window.from, audit.window.to);
+    const window = this.deps.hosts.chat.chatWindow(audit.window.from, audit.window.to);
     const sceneText = window.messages.map((message) => `${message.speaker}: ${message.text}`).join("\n") || "(empty)";
 
     // Two model calls and two stores, with a write in between: the epistemic signals are applied
@@ -378,7 +384,7 @@ export class ExtractionCoordinator {
     // written in a chat that had already been replaced.
     const run = beginRun(this.deps.ownership, { from: audit.window.from, to: audit.window.to });
     const existing = memory.activeEpistemic();
-    const epistemicPrompt = buildEpistemicPassPrompt(sceneText, enabledCharacterNames(story), existing.map((entry) => ({ tag: entry.tag, subject: entry.subject, content: entry.content, hiddenFrom: entry.hiddenFrom })));
+    const epistemicPrompt = buildEpistemicPassPrompt(sceneText, enabledCharacterNames(story, this.deps.hosts.roster), existing.map((entry) => ({ tag: entry.tag, subject: entry.subject, content: entry.content, hiddenFrom: entry.hiddenFrom })));
     const epistemicResponse = await askText(this.deps.model, epistemicPrompt, { role: "read", pass: "epistemic", maxTokens: maxTokensForInput("epistemic", sceneText), signal: run.signal });
     if (!run.stillOwns()) return false;
     const epistemicSignals: ParsedEpistemicSignal[] = [];
@@ -414,7 +420,7 @@ export class ExtractionCoordinator {
     const story = this.deps.getStory();
     const memory = this.deps.memory;
     if (!story || !memory.enabled || memory.backfill?.running || this.backlogStop) return false;
-    const length = Array.isArray(getContext().chat) ? getContext().chat.length : 0;
+    const length = this.deps.hosts.chat.chatRows().length;
     // V3: the backlog reads the whole chat window by window for minutes; a chat switch in between
     // used to read the NEXT chat's windows into memory this pass still believed was its own.
     const read = beginRun(this.deps.ownership, { from: 0, to: Math.max(0, length - 1) });
@@ -430,7 +436,7 @@ export class ExtractionCoordinator {
     let completed = false;
     let failure: string | null = null;
     try {
-      const messages = getChatWindow(0, length - 1).messages;
+      const messages = this.deps.hosts.chat.chatWindow(0, length - 1).messages;
       const overhead = sharedReadOverhead(this.backlogRead(story, "memorize:window", { from: 0, to: -1, messages: [] }, { role: "read", pass: "read" }));
       const estimate = confirm ? await planBacklog(messages, overhead, { contextLimit: budget.contextLimit, meter: createTokenMeter() }, windowSize) : null;
       const preflight = estimate ? withJudgeCalls(estimate.preflight, this.deps.judge?.()?.active("memoryVerify") === true) : null;
@@ -483,7 +489,8 @@ export class ExtractionCoordinator {
     }
 
     if (!read.stillOwns()) return false;
-    const fullResult = await retryOnTimeout((timeoutScale) => runSharedRead(this.backlogRead(story, "memorize:full", getChatWindow(0, Math.max(0, length - 1)), { ...client, timeoutScale })));
+    const whole = this.deps.hosts.chat.chatWindow(0, Math.max(0, length - 1));
+    const fullResult = await retryOnTimeout((timeoutScale) => runSharedRead(this.backlogRead(story, "memorize:full", whole, { ...client, timeoutScale })));
     await this.applyAudit(fullResult.audit, [], [], [], [], [], read, sceneWork);
     await this.runSceneWork(sceneWork, read);
     if (!read.stillOwns()) return false;

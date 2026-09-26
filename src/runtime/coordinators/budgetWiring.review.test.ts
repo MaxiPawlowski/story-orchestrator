@@ -30,7 +30,8 @@ import { createTokenMeter } from "@extraction/tokenMeter";
 import { inputBudget } from "@extraction/inputBudget";
 import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
 import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
-import { finding, must } from "../../../test/findings/ledger";
+import { finding, must } from "../../../test/findings/ledger";
+import { coordinatorHosts } from "../coordinatorHosts";
 
 const story = parseStoryV2OrThrow({
   format: 2,
@@ -81,7 +82,7 @@ function harness(options: { lastSceneEnd?: number; shortTermEnd?: number; limit?
     replaceShortTerm: async (entry: { text: string }, window: { from: number; to: number }) => { shortTerms.push({ text: entry.text, window }); },
   };
   const extraction = { audits: [] as Audit[], reconciliationEvents: [], judgedReads: [] };
-  const coordinator = new ExtractionCoordinator({
+  const coordinator = new ExtractionCoordinator({ hosts: coordinatorHosts,
     getStory: () => story,
     getState: () => ({ ...engine.serialize(), lastMessageId: host.chat.length - 1 }),
     getExtraction: () => extraction,

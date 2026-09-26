@@ -13,6 +13,7 @@ import { StoryEngine } from "@engine/index";
 import { parseStoryV2OrThrow } from "@engine/index";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { getChatWindow } from "./chatWindow";
 import { maybeScheduleReconciliation } from "./reconcile";
 import { runSharedRead } from "./sharedRead";
 
@@ -50,13 +51,14 @@ describe("reconciliation recovery", () => {
       priority: 1,
       reason: "cadence",
       stabilityLag: 1,
+      readWindow: getChatWindow,
       ...readWith(null, { debugResponse: readGolden("reconcile-cadence.response.txt") }),
     });
     expect(cadence.audit.acceptedDeltas).toEqual([]);
     expect(engine.serialize().activeCheckpointId).toBe("start");
 
     const scheduler = { schedule: jest.fn() };
-    maybeScheduleReconciliation(story, state, 1.5, scheduler as any);
+    maybeScheduleReconciliation(story, state, 1.5, scheduler as any, getChatWindow);
     expect(scheduler.schedule).toHaveBeenCalledTimes(1);
     const job = scheduler.schedule.mock.calls[0][0];
     expect(job.reason).toBe("reconcile:player_has_key");

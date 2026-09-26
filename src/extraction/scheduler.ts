@@ -3,7 +3,7 @@ import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, Parsed
 import type { ExtraGateSource, TypedJudge } from "./types";
 import { getChatWindow } from "./chatWindow";
 import { Breaker, DANGLING_PROFILE_DETAIL, failedProfile, failureClass, probeTimeoutMs, type ExtractionHealth, type ProbeResult, type ProbeTrigger } from "./breaker";
-import { isLapse } from "./client";
+import { isLapse } from "./modelError";
 import type { ModelCall } from "./modelRoute";
 import { runSharedRead, sharedReadWindow } from "./sharedRead";
 import type { RequestBudget } from "./tokenMeter";
@@ -432,7 +432,7 @@ export class ExtractionScheduler {
         await this.runWithRetries(job.run);
       } else {
         const priority = job.priority === 0 ? 0 : 1;
-        const window = sharedReadWindow({ state, priority, window: job.window && getChatWindow(job.window.from, job.window.to), stabilityLag: settings.stabilityLag });
+        const window = sharedReadWindow({ state, priority, window: job.window && getChatWindow(job.window.from, job.window.to), stabilityLag: settings.stabilityLag, readWindow: getChatWindow });
         const ownership = this.host.beginRead?.({ from: window.from, to: window.to }) ?? null;
         read = ownership ? { ownership, window: { from: window.from, to: window.to } } : null;
         const ask = { role: "read" as const, pass: "read" as const, ...(settings.budget ? { budget: settings.budget } : {}), ...(ownership?.signal ? { signal: ownership.signal } : {}) };

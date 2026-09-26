@@ -11,8 +11,8 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ chat: host.chat, chatId: "chat-a", extensionSettings: {}, chatMetadata: {} }),
   getActiveGroup: () => null,
 }));
-jest.mock("@extraction/index", () => {
-  const actual = jest.requireActual("@extraction/index");
+jest.mock("@extraction/sharedRead", () => {
+  const actual = jest.requireActual("@extraction/sharedRead");
   return {
     ...actual,
     runSharedRead: (options: { reason: string; window: { from: number; to: number } }) => new Promise((resolve, reject) => {
@@ -25,7 +25,8 @@ jest.mock("@extraction/index", () => {
 });
 
 import { ExtractionCoordinator } from "./extractionCoordinator";
-import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
+import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
+import { coordinatorHosts } from "../coordinatorHosts";
 
 const settle = async () => { for (let i = 0; i < 20; i += 1) await Promise.resolve(); };
 
@@ -52,7 +53,7 @@ function harness(emitSceneBreak: (audit: unknown, collect?: SceneJob[]) => void 
     applyLedger: () => {},
     updateInjection: () => {},
   };
-  const coordinator = new ExtractionCoordinator({
+  const coordinator = new ExtractionCoordinator({ hosts: coordinatorHosts,
     getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [], qualities: [], checkpoints: [], transitions: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 11, visitedAnchors: [], blackboard: { values: {}, versions: {}, latched: {} } }),
     getExtraction: () => ({ audits: [], reconciliationEvents: [], judgedReads: [] }),

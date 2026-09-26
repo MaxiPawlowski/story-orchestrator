@@ -6,6 +6,7 @@ import { buildTypedPlan, readTypedDeltas, stallDirectValue, stallVerdict } from 
 import { hashContract, PLAYER_MARK, renderSharedReadPrompt, WORLD_EVIDENCE_RULE } from "./contract";
 import { evidenceInWindow, evidenceSources } from "./evidence";
 import { buildFixtureRun } from "./fixtureRun";
+import { getChatWindow } from "./chatWindow";
 import { planReconciliation } from "./reconcile";
 import { deriveScope } from "./scope";
 import { PLAYER_ONLY_EVIDENCE, runSharedRead } from "./sharedRead";
@@ -210,7 +211,7 @@ describe("v2.4 plan 04 T15: the judge paths follow the same rule", () => {
     const engine = new StoryEngine();
     engine.loadStory(s);
     const state = { ...engine.serialize(), boundary: 6, lastMessageId: 6, checkpointStartedBoundary: 0 };
-    const plan = planReconciliation(s, state as never, 1);
+    const plan = planReconciliation(s, state as never, 1, getChatWindow);
     expect(plan?.leaves.find((leaf) => leaf.q === "idol_taken")?.world).toBe(true);
     expect(plan?.leaves.find((leaf) => leaf.q === "torch_lit")?.world).toBeUndefined();
   });

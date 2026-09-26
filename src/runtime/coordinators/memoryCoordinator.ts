@@ -1,10 +1,14 @@
 import {
   progressQualityForAnchor, type BlackboardDelta, type EngineState, type NormalizedStoryV2, type NormalizedTransition,
 } from "@engine/index";
-import {
-  askText, deriveScope, getCanonLite, lapseAsEmpty, maxTokensForInput, runSharedRead, stripChannelNoise, type ExtraGateSource, type ModelCall,
-  type ParsedDelta, type ParsedFact, type SharedReadWindow,
-} from "@extraction/index";
+import { maxTokensForInput } from "@extraction/callBudget";
+import { getCanonLite } from "@extraction/canonLite";
+import { lapseAsEmpty } from "@extraction/modelError";
+import { askText } from "@extraction/modelRoute";
+import { stripChannelNoise } from "@extraction/parse";
+import { deriveScope } from "@extraction/scope";
+import { runSharedRead } from "@extraction/sharedRead";
+import type { ExtraGateSource, ModelCall, ParsedDelta, ParsedFact, SharedReadWindow } from "@extraction/index";
 import {
   activeEpistemic, addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicSignals, applyLedgerSignals, ARC_OPEN_INJECT_LIMIT,
   buildArcSummaryPrompt, buildBoundKeySet, buildCanonSummaryPrompt, canonHistory, canonInputHash, capAllTiers, capEpistemic, capLedger, highImportanceFacts, isLive, ledgerBindings,
@@ -33,6 +37,7 @@ import {
 } from "../memoryQueue";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunOwnership } from "../runToken";
+import type { RosterHost } from "../hostPorts";
 import { playerTurnIds } from "../agencyRecovery";
 import { computeEntryTokens, tokensFor } from "../entryTokens";
 import { PAIR_JACCARD_FLOOR } from "@judge/index";
@@ -66,6 +71,7 @@ export interface MemoryCoordinatorDeps {
   getScene?: () => SceneReadRecord | null;
   /** v2.3 plan 05: read a named span again, rather than whatever the transcript now ends with. */
   rereadWindow?: (window: { from: number; to: number }, reason: string) => Promise<unknown>;
+  hosts: { roster: RosterHost };
 }
 
 // Owns everything that reads or writes extras.memory: tiers, arcs, canon, epistemic, ledger,
@@ -414,7 +420,7 @@ export class MemoryCoordinator {
   // --- epistemic / ledger ------------------------------------------------
 
   applyEpistemic(signals: ParsedEpistemicSignal[], messageId: number, retireIds: string[] = []) {
-    const kept = dropCommonKnowledge(signals, enabledCharacterNames(this.deps.getStory()));
+    const kept = dropCommonKnowledge(signals, enabledCharacterNames(this.deps.getStory(), this.deps.hosts.roster));
     const applied = applyEpistemicSignals(this.state.epistemic, kept, { boundary: this.boundaryStamp(), messageId }, retireIds);
     // v2.3 plan 05: refresh here too, or a pass that lapses after this write injects the member an empty block.
     this.patch({ epistemic: capEpistemic(applied.entries) }); this.updateInjection();

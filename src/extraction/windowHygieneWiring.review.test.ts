@@ -47,7 +47,7 @@ const read = async (debugResponse: string) => {
   const engine = new StoryEngine();
   engine.loadStory(s);
   const state = { ...engine.serialize(), lastMessageId: chatRef.current.length - 1 };
-  return runSharedRead({ story: s, state, priority: 0, reason: "hygiene", ...readWith("p1", { debugResponse }) });
+  return runSharedRead({ story: s, state, priority: 0, reason: "hygiene", readWindow: getChatWindow, ...readWith("p1", { debugResponse }) });
 };
 
 beforeEach(() => { chatRef.current = hostChat(); });
@@ -104,7 +104,7 @@ describe("v2.4 plan 04 T7: every window reader takes the cleaned text", () => {
     const engine = new StoryEngine();
     engine.loadStory(s);
     const state = { ...engine.serialize(), lastMessageId: 7 };
-    const result = await runSharedRead({ story: s, state, priority: 0, reason: "hygiene", ...readWith("p1", { debugResponse: "NO_DELTA", budget: { contextLimit: { value: 3000, source: "preset" }, meter: createTokenMeter() } }) });
+    const result = await runSharedRead({ story: s, state, priority: 0, reason: "hygiene", readWindow: getChatWindow, ...readWith("p1", { debugResponse: "NO_DELTA", budget: { contextLimit: { value: 3000, source: "preset" }, meter: createTokenMeter() } }) });
     expect(result.audit.trimmedFrom).toBe(0);
     expect(result.audit.windowForm).toEqual(CLEANED_FORM);
   });

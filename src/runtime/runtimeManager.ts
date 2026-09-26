@@ -603,9 +603,9 @@ export class RuntimeManager {
     this.engine.replaceGraph(story);
   }
 
-  getEnabledCharacterIds(): string[] { return enabledCharacterIds(this.loaded?.story ?? null); }
+  getEnabledCharacterIds(): string[] { return enabledCharacterIds(this.loaded?.story ?? null, coordinatorHosts.roster); }
 
-  getActiveSpeakerId(): string | null { return activeSpeakerId(this.loaded?.story ?? null); }
+  getActiveSpeakerId(): string | null { return activeSpeakerId(this.loaded?.story ?? null, coordinatorHosts.roster); }
 
   rosterIdForName(name: string): string | null { return rosterIdForName(this.loaded?.story ?? null, name); }
 

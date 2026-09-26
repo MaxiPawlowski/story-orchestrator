@@ -20,7 +20,7 @@ jest.mock("./sharedRead", () => ({
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import { CADENCE_WINDOW_MAX, ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "./scheduler";
 import { runSharedRead } from "./sharedRead";
-import { ModelCallError } from "./client";
+import { ModelCallError } from "./modelError";
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 5));
 

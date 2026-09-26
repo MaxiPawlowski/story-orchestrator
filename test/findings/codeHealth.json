@@ -171,14 +171,9 @@
     "src/wizard/provisioning.ts": 3
   },
   "s6": [
-    "src/runtime/coordinators/extractionCoordinator.ts -> src/extraction/index.ts",
-    "src/runtime/coordinators/extractionCoordinator.ts -> src/runtime/roster.ts",
-    "src/runtime/coordinators/extractionCoordinator.ts -> src/services/STAPI.ts",
-    "src/runtime/coordinators/memoryCoordinator.ts -> src/extraction/index.ts",
     "src/runtime/coordinators/memoryCoordinator.ts -> src/runtime/consolidationMatches.ts",
     "src/runtime/coordinators/memoryCoordinator.ts -> src/runtime/entryTokens.ts",
     "src/runtime/coordinators/memoryCoordinator.ts -> src/runtime/memoryInjector.ts",
-    "src/runtime/coordinators/memoryCoordinator.ts -> src/runtime/roster.ts",
     "src/runtime/coordinators/memoryCoordinator.ts -> src/services/STAPI.ts"
   ],
   "s7": [
@@ -354,8 +349,9 @@
     "src/engine/validate.ts": 3,
     "src/extraction/backlogPlan.ts": 1,
     "src/extraction/breaker.ts": 1,
-    "src/extraction/client.ts": 2,
+    "src/extraction/client.ts": 1,
     "src/extraction/evidence.ts": 3,
+    "src/extraction/modelError.ts": 1,
     "src/extraction/parse.ts": 1,
     "src/extraction/preflight.ts": 1,
     "src/extraction/reconcile.ts": 2,
@@ -406,7 +402,7 @@
     "src/runtime/continuity.ts": 5,
     "src/runtime/coordinators/copilotCoordinator.ts": 5,
     "src/runtime/coordinators/expansionCoordinator.ts": 9,
-    "src/runtime/coordinators/extractionCoordinator.ts": 10,
+    "src/runtime/coordinators/extractionCoordinator.ts": 9,
     "src/runtime/coordinators/memoryCoordinator.ts": 9,
     "src/runtime/coordinators/sceneCoordinator.ts": 7,
     "src/runtime/coordinators/stagecraftCoordinator.ts": 8,

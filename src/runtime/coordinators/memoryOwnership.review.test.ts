@@ -50,11 +50,6 @@ const tokenGate = {
   reset() { this.calls = 0; this.onCall = null; this.value = 4; },
 };
 
-jest.mock("@extraction/index", () => ({
-  ...jest.requireActual("@extraction/index"),
-  callExtractionModel: (prompt: string) => modelGate.next(prompt),
-}));
-
 // A hook fired on each model call, so a test can move the world at an exact point: between the
 // Nth answer and the write that follows it. An earlier version handed out deferred promises and
 // released them from the test; it deadlocked, and the canon cases then passed in 2ms while

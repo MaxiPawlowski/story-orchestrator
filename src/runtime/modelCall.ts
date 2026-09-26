@@ -1,4 +1,5 @@
-import { callExtractionReply, ModelCallError } from "@extraction/client";
+import { callExtractionReply } from "@extraction/client";
+import { ModelCallError } from "@extraction/modelError";
 import type { ModelCall, ModelPass } from "@extraction/modelRoute";
 import { resolveRoute, type RouteSettings } from "./passProfiles";
 

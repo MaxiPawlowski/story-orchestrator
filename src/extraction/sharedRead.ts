@@ -1,7 +1,6 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
 import { stableStringify } from "@runtime/hash";
 import type { ExtractionReply, ModelAsk, ModelCall } from "./modelRoute";
-import { getChatWindow } from "./chatWindow";
 import { getCanonLite } from "./canonLite";
 import { hashContract, PLAYER_MARK, renderSharedReadPrompt } from "./contract";
 import { detectDegenerate } from "./degenerate";
@@ -11,7 +10,7 @@ import { inputBudget, tailFit, type TokenCounter } from "./inputBudget";
 import { deriveScope } from "./scope";
 import type { RequestBudget } from "./tokenMeter";
 import type {
-  ChatMessageWindowEntry, ExtraGateSource, JudgedTypedRead, ParsedDelta, ParsedFact, ParsedSharedRead, ReadBudgetRecord, ScopedQuality,
+  ChatMessageWindowEntry, ChatWindowReader, ExtraGateSource, JudgedTypedRead, ParsedDelta, ParsedFact, ParsedSharedRead, ReadBudgetRecord, ScopedQuality,
   SharedReadAudit, SharedReadContract, SharedReadResult, SharedReadWindow, TypedJudge,
 } from "./types";
 
@@ -88,6 +87,7 @@ export interface RunSharedReadOptions {
   judgeTyped?: TypedJudge | null;
   model: ModelCall;
   ask: ModelAsk;
+  readWindow?: ChatWindowReader;
 }
 
 const createId = (parts: unknown) => {
@@ -100,9 +100,11 @@ const createId = (parts: unknown) => {
   return (hash >>> 0).toString(16).padStart(8, "0");
 };
 
-export function sharedReadWindow(options: Pick<RunSharedReadOptions, "state" | "priority" | "window" | "stabilityLag">): SharedReadWindow {
+const noReader: ChatWindowReader = () => { throw new Error("a shared read needs a window or a chat reader"); };
+
+export function sharedReadWindow(options: Pick<RunSharedReadOptions, "state" | "priority" | "window" | "stabilityLag" | "readWindow">): SharedReadWindow {
   const latestMessageId = options.state.lastMessageId - (options.priority === 1 ? Math.max(0, options.stabilityLag ?? 1) : 0);
-  return options.window ?? getChatWindow(Math.max(0, latestMessageId - 7), latestMessageId);
+  return options.window ?? (options.readWindow ?? noReader)(Math.max(0, latestMessageId - 7), latestMessageId);
 }
 
 const scopeOf = (options: RunSharedReadOptions): ScopedQuality[] =>

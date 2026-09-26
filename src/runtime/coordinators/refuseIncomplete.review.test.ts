@@ -26,7 +26,8 @@ jest.mock("@services/STAPI", () => ({
 
 import { ExtractionCoordinator } from "./extractionCoordinator";
 import { MemoryCoordinator } from "./memoryCoordinator";
-import { testOwnership } from "../../../test/findings/testOwnership";
+import { testOwnership } from "../../../test/findings/testOwnership";
+import { coordinatorHosts } from "../coordinatorHosts";
 
 function memoryHarness(presummarised: boolean) {
   let memoryState = {
@@ -38,7 +39,7 @@ function memoryHarness(presummarised: boolean) {
     canon: null as { text: string } | null,
     updatedAt: "",
   };
-  const coordinator = new MemoryCoordinator({ ownership: testOwnership(),
+  const coordinator = new MemoryCoordinator({ hosts: coordinatorHosts, ownership: testOwnership(),
     getStory: () => ({ title: "S", checkpointById: {}, qualityByKey: {}, roster: [], arc_bridges: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5, blackboard: { values: {}, versions: {}, latched: {} } }),
     getMemory: () => memoryState,
@@ -57,7 +58,7 @@ function memoryHarness(presummarised: boolean) {
 
 function shortTermHarness() {
   const written: string[] = [];
-  const coordinator = new ExtractionCoordinator({ ownership: testOwnership(),
+  const coordinator = new ExtractionCoordinator({ hosts: coordinatorHosts, ownership: testOwnership(),
     getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3 }),
     getExtraction: () => ({ audits: [], reconciliationEvents: [], judgedReads: [] }),

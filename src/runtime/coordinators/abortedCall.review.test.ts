@@ -66,7 +66,7 @@ function memoryHarness(presummarised: boolean) {
     arcs: [{ id: "arc-0", text: "thread 0", status: "resolved" as const, summary: presummarised ? "already summarised" : undefined as string | undefined }],
     epistemic: [], ledger: [], canon: null as { text: string } | null, updatedAt: "",
   };
-  const coordinator = new MemoryCoordinator({
+  const coordinator = new MemoryCoordinator({ hosts: coordinatorHosts,
     getStory: () => ({ title: "S", checkpointById: {}, qualityByKey: {}, roster: [], arc_bridges: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5, blackboard: { values: {}, versions: {}, latched: {} } }),
     getMemory: () => memoryState,

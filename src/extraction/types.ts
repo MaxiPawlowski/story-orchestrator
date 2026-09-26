@@ -33,6 +33,8 @@ export interface ChatMessageWindowEntry {
   isUser: boolean;
 }
 
+export type ChatWindowReader = (from: number, to?: number) => SharedReadWindow;
+
 export interface SharedReadWindow {
   from: number;
   to: number;

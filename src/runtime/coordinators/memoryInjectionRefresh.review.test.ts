@@ -31,7 +31,8 @@ jest.mock("@services/STAPI", () => ({
   clearStoryExtensionPrompt: jest.fn(),
 }));
 
-import { setStoryExtensionPrompt } from "@services/STAPI";
+import { setStoryExtensionPrompt } from "@services/STAPI";
+import { coordinatorHosts } from "../coordinatorHosts";
 
 const SECRET = "the job comes from the Duke's steward";
 
@@ -65,7 +66,7 @@ function harness() {
     canon: null,
     updatedAt: "",
   };
-  const coordinator = new MemoryCoordinator({
+  const coordinator = new MemoryCoordinator({ hosts: coordinatorHosts,
     getStory: () => story,
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5, blackboard: { values: {}, versions: {} } }),
     getMemory: () => memoryState,

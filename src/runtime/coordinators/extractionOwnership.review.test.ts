@@ -11,7 +11,8 @@ import { textModel } from "../../../test/support/modelCall";
 
 import { ExtractionCoordinator } from "./extractionCoordinator";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
-import { control } from "../../../test/findings/ledger";
+import { control } from "../../../test/findings/ledger";
+import { coordinatorHosts } from "../coordinatorHosts";
 
 // Long enough that `shouldCompactShortTerm` is actually satisfied: it needs
 // `lastMessageId - shortTermSummaryEnd >= SHORT_TERM_COMPACTION_MESSAGES` (12). With three
@@ -35,13 +36,7 @@ jest.mock("@services/STAPI", () => ({
 
 const chatMessagesRef = { current: chatMessages as unknown[] };
 
-jest.mock("@extraction/index", () => {
-  const actual = jest.requireActual("@extraction/index");
-  return {
-    ...actual,
-    getChatWindow: (from: number, to: number) => ({ from, to, messages: [{ speaker: "Player", text: "We reach the gate." }] }),
-  };
-});
+const chatWindow = (from: number, to?: number) => ({ from, to: to ?? from, messages: [{ index: from, messageId: from, speaker: "Player", text: "We reach the gate.", isUser: true }] });
 
 const modelGate: { promise: Promise<string>; release: (text: string) => void; calls: number; onCall: ((call: number) => void) | null } = {
   promise: Promise.resolve(""),
@@ -101,7 +96,7 @@ function harness() {
     updateInjection: () => {},
     syncWorldInfo: async () => {},
   };
-  const coordinator = new ExtractionCoordinator({
+  const coordinator = new ExtractionCoordinator({ hosts: { ...coordinatorHosts, chat: { ...coordinatorHosts.chat, chatWindow } },
     getStory: () => ({ title: "S", qualityByKey: {}, checkpointById: {}, roster: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3 }),
     getExtraction: () => extractionState,

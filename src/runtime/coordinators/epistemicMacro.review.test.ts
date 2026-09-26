@@ -6,7 +6,8 @@ import { testModel } from "../../../test/support/modelCallHost";
 
 import { MemoryCoordinator } from "./memoryCoordinator";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
-import { EPISTEMIC_INJECTION_KEY } from "@constants/defaults";
+import { EPISTEMIC_INJECTION_KEY } from "@constants/defaults";
+import { coordinatorHosts } from "../coordinatorHosts";
 
 const mockHost: { group: boolean; rows: unknown[]; prompts: Record<string, { value: string; depth: number; role: number }> } = { group: true, rows: [], prompts: {} };
 
@@ -61,7 +62,7 @@ function harness(roster: Array<{ id: string; name: string }> = story.roster) {
     entries: [], conflicts: [], resolvedConflicts: [], writeLog: [], excluded: [], verifyDrops: [], derived: [],
     sceneCount: 0, shortTermSummaryEnd: 0, arcs: [], epistemic: [], ledger: [], canon: null, updatedAt: "",
   };
-  const coordinator = new MemoryCoordinator({
+  const coordinator = new MemoryCoordinator({ hosts: coordinatorHosts,
     getStory: () => ({ ...story, roster }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5, blackboard: { values: {}, versions: {} } }),
     getMemory: () => memoryState,

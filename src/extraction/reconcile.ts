@@ -1,6 +1,5 @@
 import type { GateNode, NormalizedStoryV2, PrimitiveValue, Quality } from "@engine/index";
-import type { ReconciliationDescriptor, SharedReadWindow } from "./types";
-import { getChatWindow } from "./chatWindow";
+import type { ChatWindowReader, ReconciliationDescriptor, SharedReadWindow } from "./types";
 import type { ExtractionScheduler } from "./scheduler";
 
 const collectUnmet = (gate: GateNode, story: NormalizedStoryV2, values: Record<string, unknown>, keys: Set<string>) => {
@@ -55,7 +54,7 @@ const collectUnmetLeaves = (gate: GateNode, story: NormalizedStoryV2, values: Re
 };
 
 // v2.2 plan 06: the stall, planned but not scheduled, so a judge pre-check can decide first.
-export function planReconciliation(story: NormalizedStoryV2 | null, state: ReconcileState | null, multiplier: number): ReconciliationPlan | null {
+export function planReconciliation(story: NormalizedStoryV2 | null, state: ReconcileState | null, multiplier: number, readWindow: ChatWindowReader): ReconciliationPlan | null {
   if (!story || !state) return null;
   const checkpoint = story.checkpointById[state.activeCheckpointId];
   const target = Math.max(Math.ceil((checkpoint?.target_turn_length ?? 4) * multiplier), 6);
@@ -75,13 +74,15 @@ export function planReconciliation(story: NormalizedStoryV2 | null, state: Recon
   return {
     descriptor: { checkpointId: state.activeCheckpointId, boundary: state.boundary, targetedKeys: [...unmet] },
     reason: `reconcile:${[...unmet].join(",")}`,
-    window: getChatWindow(Math.max(0, state.checkpointStartedMessageId + 1), state.lastMessageId),
+    window: readWindow(Math.max(0, state.checkpointStartedMessageId + 1), state.lastMessageId),
     leaves,
   };
 }
 
-export function maybeScheduleReconciliation(story: NormalizedStoryV2 | null, state: ReconcileState | null, multiplier: number, scheduler: ExtractionScheduler): ReconciliationDescriptor | null {
-  const plan = planReconciliation(story, state, multiplier);
+export function maybeScheduleReconciliation(
+  story: NormalizedStoryV2 | null, state: ReconcileState | null, multiplier: number, scheduler: ExtractionScheduler, readWindow: ChatWindowReader,
+): ReconciliationDescriptor | null {
+  const plan = planReconciliation(story, state, multiplier, readWindow);
   if (!plan) return null;
   scheduler.schedule({ priority: 0, reason: plan.reason, window: plan.window });
   return plan.descriptor;

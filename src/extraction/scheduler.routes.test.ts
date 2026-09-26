@@ -14,7 +14,7 @@ jest.mock("./sharedRead", () => ({
 
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import { BREAKER_BACKOFF_MS, type ProbeResult } from "./breaker";
-import { ModelCallError } from "./client";
+import { ModelCallError } from "./modelError";
 import { ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "./scheduler";
 import { runSharedRead } from "./sharedRead";
 

@@ -11,8 +11,10 @@ import { EPISTEMIC_INJECTION_DEPTH, EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_DE
 import { buildScoreContext } from "./scoreContext";
 import { activeSpeakerId, enabledCharacterIds, enabledCharacterNames, namesForRosterId, rosterIdForName, rosterMemberName } from "./roster";
 import type { MemoryRuntimeState } from "./types";
+import { coordinatorHosts } from "./coordinatorHosts";
 
 const prompt = { setStoryExtensionPrompt, clearStoryExtensionPrompt };
+const roster = coordinatorHosts.roster;
 
 export interface MemoryInjectorDeps {
   getStory: () => NormalizedStoryV2 | null;
@@ -73,7 +75,7 @@ export class MemoryInjector {
       return;
     }
     const options = this.options();
-    const speaker = activeSpeakerId(story);
+    const speaker = activeSpeakerId(story, roster);
     const injection = applyMemoryInjection(prompt, this.state.entries, speaker, this.state.settings.injectionDepths, options);
     this.lastInjection = memoryInjectionView(injection, this.highWater);
     const pinnedOverflow = pinnedOverflowOf(injection.fates);
@@ -86,14 +88,14 @@ export class MemoryInjector {
 
     this.stagedPrivate.clear();
     if (this.deps.capable()) {
-      for (const id of enabledCharacterIds(story)) {
+      for (const id of enabledCharacterIds(story, roster)) {
         const facts = buildMemoryInjectionBlocks(this.state.entries, id, options).facts;
         const epistemic = renderPrivateEpistemicBlock(this.state.epistemic, namesForRosterId(story, id));
         this.stagedPrivate.set(id, { facts, epistemic });
       }
       // A group has no speaker between drafts: whatever holds the prompt at rest (impersonate, quiet
       // generations, other extensions) must not carry the last drafted member's private knowledge.
-      const speakerBlock = getActiveGroup() ? "" : speaker ? (this.stagedPrivate.get(speaker)?.epistemic ?? "") : renderSoloEpistemicBlock(this.state.epistemic, enabledCharacterNames(story));
+      const speakerBlock = getActiveGroup() ? "" : speaker ? (this.stagedPrivate.get(speaker)?.epistemic ?? "") : renderSoloEpistemicBlock(this.state.epistemic, enabledCharacterNames(story, roster));
       applyEpistemicInjection(prompt, speakerBlock, EPISTEMIC_INJECTION_DEPTH);
     } else {
       clearEpistemicInjection(prompt);
@@ -121,7 +123,7 @@ export class MemoryInjector {
     const rosterId = name ? rosterIdForName(story, name) : null;
     const staged = rosterId ? this.stagedPrivate.get(rosterId) : undefined;
     if (!staged) {
-      this.setPrivateBlocks(buildMemoryInjectionBlocks(this.state.entries, activeSpeakerId(story), this.options()).facts, "");
+      this.setPrivateBlocks(buildMemoryInjectionBlocks(this.state.entries, activeSpeakerId(story, roster), this.options()).facts, "");
       return;
     }
     this.setPrivateBlocks(staged.facts, staged.epistemic);
@@ -130,17 +132,17 @@ export class MemoryInjector {
   blocks(): Record<MemoryTier, string> {
     const story = this.deps.getStory();
     const entries = story && this.deps.enabled() ? this.state.entries : [];
-    return buildMemoryInjectionBlocks(entries, activeSpeakerId(story), this.options());
+    return buildMemoryInjectionBlocks(entries, activeSpeakerId(story, roster), this.options());
   }
 
   epistemicBlock(): string {
     const story = this.deps.getStory();
     if (!story || !this.deps.capable()) return "";
     if (getActiveGroup()) return this.appliedEpistemicBlock();
-    const speaker = activeSpeakerId(story);
+    const speaker = activeSpeakerId(story, roster);
     return speaker
       ? renderPrivateEpistemicBlock(this.state.epistemic, namesForRosterId(story, speaker))
-      : renderSoloEpistemicBlock(this.state.epistemic, enabledCharacterNames(story));
+      : renderSoloEpistemicBlock(this.state.epistemic, enabledCharacterNames(story, roster));
   }
 
   /** What ST's next prompt ACTUALLY holds, not a re-render for whoever speaks next (in a group the

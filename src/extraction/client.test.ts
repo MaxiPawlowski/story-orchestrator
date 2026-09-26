@@ -1,6 +1,7 @@
 import { sendConnectionProfileRequest } from "@services/STAPI";
 import { testModel } from "../../test/support/modelCallHost";
-import { callExtractionReply, isLapse, ModelCallError, routedModel } from "./client";
+import { callExtractionReply, routedModel } from "./client";
+import { isLapse, ModelCallError } from "./modelError";
 import { askText, profileRoute, type ModelAsk } from "./modelRoute";
 import { parseSharedReadResponse } from "./parse";
 

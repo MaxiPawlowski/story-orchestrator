@@ -1,5 +1,5 @@
 import type * as Stapi from "@services/STAPI";
-import type { SharedReadWindow } from "@extraction/types";
+import type { ChatWindowReader } from "@extraction/types";
 
 export type ProvisioningHost = Pick<typeof Stapi,
   "activateGlobalLorebook" | "createCharacterCard" | "createGroup" | "createLorebook" | "getAllCharacterNames" | "listAllLorebooks" |
@@ -13,7 +13,7 @@ export type PlayerHost = Pick<typeof Stapi, "getPlayerName">;
 export type PromptHost = Pick<typeof Stapi, "setStoryExtensionPrompt" | "clearStoryExtensionPrompt">;
 
 export interface ChatHost {
-  chatWindow: (from: number, to?: number) => SharedReadWindow;
+  chatWindow: ChatWindowReader;
   lastMessageText: () => string;
   chatRows: () => unknown[];
   chatId: () => string | null;

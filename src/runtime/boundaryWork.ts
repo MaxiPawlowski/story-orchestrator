@@ -56,7 +56,7 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     id: "reconciliation",
     order: 30,
     run: ({ manager, scheduler }) => {
-      const plan = planReconciliation(manager.getStory(), manager.getEngineState(), manager.getExtractionSettings().reconciliationMultiplier);
+      const plan = planReconciliation(manager.getStory(), manager.getEngineState(), manager.getExtractionSettings().reconciliationMultiplier, getChatWindow);
       if (!plan) return;
       manager.recordReconciliation(plan.descriptor);
       const reread = () => scheduler.schedule({ priority: 0, reason: plan.reason, window: plan.window });

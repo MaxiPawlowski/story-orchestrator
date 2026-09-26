@@ -1,5 +1,6 @@
 import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
-import { callExtractionReply, ModelCallError } from "@extraction/client";
+import { callExtractionReply } from "@extraction/client";
+import { ModelCallError } from "@extraction/modelError";
 import { viaReply } from "../../test/support/modelCall";
 import { runSharedRead } from "@extraction/sharedRead";
 

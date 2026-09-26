@@ -2,7 +2,8 @@ import { profileRoute } from "./modelRoute";
 import { sendConnectionProfileRequest } from "@services/STAPI";
 import { PROBE_TIMEOUT_MS } from "./breaker";
 import { TIMEOUT_RETRY_SCALE } from "./callBudget";
-import { callExtractionReply, ModelCallError, probeModel, retryOnTimeout, setAnsweredObserver, type CallAnswered } from "./client";
+import { callExtractionReply, probeModel, setAnsweredObserver, type CallAnswered } from "./client";
+import { ModelCallError, retryOnTimeout } from "./modelError";
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
