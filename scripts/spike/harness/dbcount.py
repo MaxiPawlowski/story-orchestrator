@@ -3,7 +3,8 @@ import os
 import sqlite3
 import sys
 
-DB = os.path.join(os.path.expanduser("~"), ".local", "share", "opencode", "opencode.db").replace("\\", "/")
+DB = os.environ.get("SO_DB") or os.path.join(os.path.expanduser("~"), ".local", "share", "opencode", "opencode.db").replace("\\", "/")
+DB = DB.replace("\\", "/")
 
 
 SKIP = {"account", "control_account", "credential", "session_share", "account_state"}

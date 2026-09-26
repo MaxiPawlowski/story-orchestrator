@@ -1,0 +1,94 @@
+{
+  "cli": "opencode",
+  "probe": "smoke",
+  "started": "2026-09-26T15:12:31.172Z",
+  "finished": "2026-09-26T15:12:52.938Z",
+  "node": "v22.22.0",
+  "ownedRoot": "C:\\Users\\ROLAPO~1\\AppData\\Local\\Temp\\so-p0-owned",
+  "loginChecks": [
+    {
+      "label": "smoke",
+      "loginFile": "auth.json",
+      "copied": true,
+      "copyRewritten": false,
+      "copyDeleted": true,
+      "realSha256Prefix": "ecb9dc1c65d3",
+      "realUnchanged": true,
+      "rootRemoved": true
+    }
+  ],
+  "error": null,
+  "data": {
+    "quiet": {
+      "code": 0,
+      "killed": null,
+      "wallMs": 9076,
+      "spawnMs": 68,
+      "text": "PONG-D1A376EB",
+      "totalIn": 151,
+      "outputTokens": 11,
+      "reasons": [
+        "stop"
+      ],
+      "types": [
+        "step_start",
+        "text",
+        "step_finish"
+      ],
+      "toolEvents": 0,
+      "errors": [],
+      "canariesInOutput": [],
+      "ok": true,
+      "hosts": {
+        "remotes": [
+          "172.66.173.149",
+          "172.64.155.209",
+          "104.16.1.34"
+        ],
+        "named": {
+          "172.64.155.209": [
+            "chatgpt.com"
+          ],
+          "172.66.173.149": [
+            "models.opencode.ai"
+          ]
+        },
+        "unnamed": [
+          "104.16.1.34"
+        ]
+      }
+    },
+    "hardened": {
+      "code": 1,
+      "killed": null,
+      "wallMs": 12398,
+      "spawnMs": 38,
+      "text": "",
+      "totalIn": 0,
+      "outputTokens": 0,
+      "reasons": [],
+      "types": [
+        "error"
+      ],
+      "toolEvents": 0,
+      "errors": [
+        "{\"name\":\"UnknownError\",\"data\":{\"message\":\"Unexpected server error. Check server logs for details.\",\"ref\":\"err_bfb153a7\"}}"
+      ],
+      "canariesInOutput": [],
+      "ok": false,
+      "hosts": {
+        "remotes": [],
+        "named": {},
+        "unnamed": []
+      }
+    },
+    "ownedDataFiles": [
+      "auth.json",
+      "log",
+      "opencode.db",
+      "opencode.db-shm",
+      "opencode.db-wal",
+      "repos"
+    ]
+  }
+}

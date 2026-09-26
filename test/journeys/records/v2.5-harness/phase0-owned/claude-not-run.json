@@ -1,0 +1,17 @@
+{
+  "cli": "claude",
+  "at": "2026-09-26T15:12:29.171Z",
+  "notRun": "login copy refused: access token expires in under 90 min or has expired: a call would refresh inside the copy",
+  "why": "a model call from the copy would refresh the OAuth token inside the owned home; if the vendor rotates refresh tokens, the user's real login file keeps a revoked refresh token while its sha256 stays identical",
+  "probes": [
+    "login",
+    "p01",
+    "p02",
+    "hn1",
+    "hn1b",
+    "p03",
+    "p05",
+    "p07"
+  ],
+  "rerun": "node scripts/spike/harness/owned.mjs claude all"
+}

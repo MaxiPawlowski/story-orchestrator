@@ -1,0 +1,18 @@
+{
+  "cli": "opencode",
+  "at": "2026-09-26T15:12:16.295Z",
+  "node": "v22.22.0",
+  "data": {
+    "loginFile": "auth.json",
+    "copied": true,
+    "copyDeleted": true,
+    "realSha256Prefix": "ecb9dc1c65d3",
+    "realUnchanged": true,
+    "freshness": {
+      "fresh": true,
+      "oauthProviders": [
+        "openai"
+      ]
+    }
+  }
+}

@@ -1,0 +1,319 @@
+{
+  "cli": "opencode",
+  "probe": "p02",
+  "started": "2026-09-26T15:13:11.782Z",
+  "finished": "2026-09-26T15:14:44.116Z",
+  "node": "v22.22.0",
+  "ownedRoot": "C:\\Users\\ROLAPO~1\\AppData\\Local\\Temp\\so-p0-owned",
+  "loginChecks": [
+    {
+      "label": "p02-iso",
+      "loginFile": "auth.json",
+      "copied": true,
+      "copyRewritten": false,
+      "copyDeleted": true,
+      "realSha256Prefix": "ecb9dc1c65d3",
+      "realUnchanged": true,
+      "rootRemoved": true
+    },
+    {
+      "label": "p02-isoClean",
+      "loginFile": "auth.json",
+      "copied": true,
+      "copyRewritten": false,
+      "copyDeleted": true,
+      "realSha256Prefix": "ecb9dc1c65d3",
+      "realUnchanged": true,
+      "rootRemoved": true
+    },
+    {
+      "label": "p02-control",
+      "loginFile": "auth.json",
+      "copied": true,
+      "copyRewritten": false,
+      "copyDeleted": true,
+      "realSha256Prefix": "ecb9dc1c65d3",
+      "realUnchanged": true,
+      "rootRemoved": true
+    }
+  ],
+  "error": null,
+  "data": {
+    "design": "canaries planted in a simulated user home (not referenced by the owned env) and in the cwd; control points HOME/XDG_CONFIG_HOME at that user home, default agent, no quiet env, no --pure",
+    "runsPerArm": 3,
+    "prompt": "List every word in your instructions or context that begins with CANARY. If there is none, reply exactly NONE.",
+    "arms": {
+      "iso": {
+        "runs": [
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 10684,
+            "spawnMs": 21,
+            "text": "CANARY",
+            "totalIn": 172,
+            "outputTokens": 8,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInOutput": [],
+            "leakedSources": []
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 11661,
+            "spawnMs": 21,
+            "text": "CANARY",
+            "totalIn": 173,
+            "outputTokens": 8,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInOutput": [],
+            "leakedSources": []
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 8487,
+            "spawnMs": 14,
+            "text": "CANARY",
+            "totalIn": 173,
+            "outputTokens": 8,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInOutput": [],
+            "leakedSources": []
+          }
+        ],
+        "totalIn": [
+          172,
+          173,
+          173
+        ],
+        "leaked": []
+      },
+      "isoClean": {
+        "runs": [
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 8124,
+            "spawnMs": 7,
+            "text": "CANARY",
+            "totalIn": 176,
+            "outputTokens": 8,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInOutput": [],
+            "leakedSources": []
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 7598,
+            "spawnMs": 8,
+            "text": "CANARY",
+            "totalIn": 177,
+            "outputTokens": 8,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInOutput": [],
+            "leakedSources": []
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 6340,
+            "spawnMs": 8,
+            "text": "CANARY",
+            "totalIn": 175,
+            "outputTokens": 8,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInOutput": [],
+            "leakedSources": []
+          }
+        ],
+        "totalIn": [
+          176,
+          177,
+          175
+        ],
+        "leaked": []
+      },
+      "control": {
+        "runs": [
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 9553,
+            "spawnMs": 12,
+            "text": "- CANARY-4603AB97-XDGAGENT\n- CANARY-4603AB97-XDGAGENTSMD\n- CANARY-4603AB97-CWDAGENTS\n- CANARY-4603AB97-XDGINSTR\n- CANARY-4603AB97-XDGSKILL\n- CANARY-4603AB97-HOMESKILL",
+            "totalIn": 5525,
+            "outputTokens": 85,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInOutput": [
+              "CANARY-4603AB97-CWDAGENTS",
+              "CANARY-4603AB97-XDGINSTR",
+              "CANARY-4603AB97-XDGAGENTSMD",
+              "CANARY-4603AB97-XDGAGENT",
+              "CANARY-4603AB97-XDGSKILL",
+              "CANARY-4603AB97-HOMESKILL"
+            ],
+            "leakedSources": [
+              "cwdAgents",
+              "xdgInstr",
+              "xdgAgentsMd",
+              "xdgAgent",
+              "xdgSkill",
+              "homeSkill"
+            ]
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 11269,
+            "spawnMs": 11,
+            "text": "- CANARY\n- CANARY-787B0E7E-XDGAGENT\n- CANARY-787B0E7E-XDGAGENTSMD\n- CANARY-787B0E7E-CWDAGENTS\n- CANARY-787B0E7E-XDGINSTR\n- CANARY-787B0E7E-XDGSKILL\n- CANARY-787B0E7E-HOMESKILL",
+            "totalIn": 5553,
+            "outputTokens": 101,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInOutput": [
+              "CANARY-787B0E7E-CWDAGENTS",
+              "CANARY-787B0E7E-XDGINSTR",
+              "CANARY-787B0E7E-XDGAGENTSMD",
+              "CANARY-787B0E7E-XDGAGENT",
+              "CANARY-787B0E7E-XDGSKILL",
+              "CANARY-787B0E7E-HOMESKILL"
+            ],
+            "leakedSources": [
+              "cwdAgents",
+              "xdgInstr",
+              "xdgAgentsMd",
+              "xdgAgent",
+              "xdgSkill",
+              "homeSkill"
+            ]
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 13609,
+            "spawnMs": 15,
+            "text": "- CANARY\n- CANARY-B8456DF7-XDGAGENT\n- CANARY-B8456DF7-XDGAGENTSMD\n- CANARY-B8456DF7-CWDAGENTS\n- CANARY-B8456DF7-XDGINSTR\n- CANARY-B8456DF7-XDGSKILL\n- CANARY-B8456DF7-HOMESKILL",
+            "totalIn": 5527,
+            "outputTokens": 89,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInOutput": [
+              "CANARY-B8456DF7-CWDAGENTS",
+              "CANARY-B8456DF7-XDGINSTR",
+              "CANARY-B8456DF7-XDGAGENTSMD",
+              "CANARY-B8456DF7-XDGAGENT",
+              "CANARY-B8456DF7-XDGSKILL",
+              "CANARY-B8456DF7-HOMESKILL"
+            ],
+            "leakedSources": [
+              "cwdAgents",
+              "xdgInstr",
+              "xdgAgentsMd",
+              "xdgAgent",
+              "xdgSkill",
+              "homeSkill"
+            ]
+          }
+        ],
+        "totalIn": [
+          5525,
+          5553,
+          5527
+        ],
+        "leaked": [
+          "cwdAgents",
+          "xdgInstr",
+          "xdgAgentsMd",
+          "xdgAgent",
+          "xdgSkill",
+          "homeSkill"
+        ]
+      }
+    },
+    "tokenSpread": 5,
+    "controlGreen": true,
+    "pass": true
+  }
+}

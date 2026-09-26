@@ -1,0 +1,463 @@
+{
+  "cli": "opencode",
+  "probe": "p07",
+  "started": "2026-09-26T15:22:37.118Z",
+  "finished": "2026-09-26T15:24:37.267Z",
+  "node": "v22.22.0",
+  "ownedRoot": "C:\\Users\\ROLAPO~1\\AppData\\Local\\Temp\\so-p0-owned",
+  "loginChecks": [
+    {
+      "label": "p07-flagsOn",
+      "loginFile": "auth.json",
+      "copied": true,
+      "copyRewritten": false,
+      "copyDeleted": true,
+      "realSha256Prefix": "ecb9dc1c65d3",
+      "realUnchanged": true,
+      "rootRemoved": true
+    },
+    {
+      "label": "p07-flagsOff",
+      "loginFile": "auth.json",
+      "copied": true,
+      "copyRewritten": false,
+      "copyDeleted": true,
+      "realSha256Prefix": "ecb9dc1c65d3",
+      "realUnchanged": true,
+      "rootRemoved": true
+    }
+  ],
+  "error": null,
+  "data": {
+    "callsPerArm": 5,
+    "flagsOnEnv": [
+      "OPENCODE_DISABLE_AUTOUPDATE",
+      "OPENCODE_DISABLE_SHARE",
+      "OPENCODE_DISABLE_CLAUDE_CODE",
+      "OPENCODE_DISABLE_PROJECT_CONFIG",
+      "OPENCODE_DISABLE_EXTERNAL_SKILLS",
+      "OPENCODE_DISABLE_LSP_DOWNLOAD"
+    ],
+    "arms": {
+      "flagsOn": {
+        "runs": [
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 7839,
+            "spawnMs": 28,
+            "text": "REPLYCANARYD11B697C",
+            "totalIn": 173,
+            "outputTokens": 14,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInOutput": [],
+            "replyHasCanary": true,
+            "netSamples": 50
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 7313,
+            "spawnMs": 24,
+            "text": "REPLYCANARYAF22C870",
+            "totalIn": 171,
+            "outputTokens": 13,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInOutput": [],
+            "replyHasCanary": true,
+            "netSamples": 45
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 7519,
+            "spawnMs": 24,
+            "text": "REPLYCANARY8FE060C7",
+            "totalIn": 174,
+            "outputTokens": 14,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInOutput": [],
+            "replyHasCanary": true,
+            "netSamples": 45
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 9196,
+            "spawnMs": 23,
+            "text": "REPLYCANARY45A778D7",
+            "totalIn": 175,
+            "outputTokens": 14,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInOutput": [],
+            "replyHasCanary": true,
+            "netSamples": 60
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 7511,
+            "spawnMs": 25,
+            "text": "REPLYCANARYD9A2FBB3",
+            "totalIn": 178,
+            "outputTokens": 16,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInOutput": [],
+            "replyHasCanary": true,
+            "netSamples": 48
+          }
+        ],
+        "hosts": {
+          "remotes": [
+            "172.66.173.149",
+            "172.64.155.209",
+            "104.16.8.34",
+            "104.18.32.47"
+          ],
+          "named": {
+            "172.66.173.149": [
+              "models.opencode.ai"
+            ],
+            "172.64.155.209": [
+              "chatgpt.com",
+              "ab.chatgpt.com"
+            ],
+            "104.16.8.34": [
+              "registry.npmjs.org"
+            ],
+            "104.18.32.47": [
+              "chatgpt.com",
+              "ab.chatgpt.com"
+            ]
+          },
+          "hostnames": [
+            "ab.chatgpt.com",
+            "chatgpt.com",
+            "models.opencode.ai",
+            "registry.npmjs.org"
+          ],
+          "unnamed": []
+        },
+        "realDbRowDelta": {},
+        "realDbCanaryRows": {},
+        "realDirs": {
+          "newerFiles": 1,
+          "attributable": [],
+          "unattributedByGroup": {
+            "~/.local": 1
+          }
+        },
+        "ownedDbExists": true,
+        "ownedDbCanaryRows": {
+          "event": {
+            "PROMPTCANARYD11B697C": 1,
+            "REPLYCANARYD11B697C": 2,
+            "PROMPTCANARYAF22C870": 1,
+            "REPLYCANARYAF22C870": 2,
+            "PROMPTCANARY8FE060C7": 1,
+            "REPLYCANARY8FE060C7": 2,
+            "PROMPTCANARY45A778D7": 3,
+            "REPLYCANARY45A778D7": 2,
+            "PROMPTCANARYD9A2FBB3": 1,
+            "REPLYCANARYD9A2FBB3": 2
+          },
+          "part": {
+            "PROMPTCANARYD11B697C": 1,
+            "REPLYCANARYD11B697C": 2,
+            "PROMPTCANARYAF22C870": 1,
+            "REPLYCANARYAF22C870": 2,
+            "PROMPTCANARY8FE060C7": 1,
+            "REPLYCANARY8FE060C7": 2,
+            "PROMPTCANARY45A778D7": 1,
+            "REPLYCANARY45A778D7": 2,
+            "PROMPTCANARYD9A2FBB3": 1,
+            "REPLYCANARYD9A2FBB3": 2
+          },
+          "session": {
+            "PROMPTCANARY45A778D7": 1
+          }
+        },
+        "ownedCanaryFiles": [
+          {
+            "file": "data\\opencode\\auth.json",
+            "size": 2217,
+            "scanned": false
+          },
+          {
+            "file": "data\\opencode\\opencode.db",
+            "size": 299008,
+            "scanned": false
+          },
+          {
+            "file": "data\\opencode\\opencode.db-shm",
+            "size": 32768,
+            "scanned": false
+          },
+          {
+            "file": "data\\opencode\\opencode.db-wal",
+            "size": 828152,
+            "scanned": false
+          }
+        ]
+      },
+      "flagsOff": {
+        "runs": [
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 8302,
+            "spawnMs": 21,
+            "text": "REPLYCANARYE9AB9047",
+            "totalIn": 5099,
+            "outputTokens": 14,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInOutput": [],
+            "replyHasCanary": true,
+            "netSamples": 50
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 6865,
+            "spawnMs": 22,
+            "text": "REPLYCANARYD1ED2B9B",
+            "totalIn": 5102,
+            "outputTokens": 16,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInOutput": [],
+            "replyHasCanary": true,
+            "netSamples": 49
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 6640,
+            "spawnMs": 23,
+            "text": "REPLYCANARYC551FD34",
+            "totalIn": 5096,
+            "outputTokens": 13,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInOutput": [],
+            "replyHasCanary": true,
+            "netSamples": 41
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 6722,
+            "spawnMs": 22,
+            "text": "REPLYCANARY6B592C20",
+            "totalIn": 5098,
+            "outputTokens": 14,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInOutput": [],
+            "replyHasCanary": true,
+            "netSamples": 48
+          },
+          {
+            "code": 0,
+            "killed": null,
+            "wallMs": 6746,
+            "spawnMs": 21,
+            "text": "REPLYCANARY0E845DAE",
+            "totalIn": 5100,
+            "outputTokens": 14,
+            "reasons": [
+              "stop"
+            ],
+            "types": [
+              "step_start",
+              "text",
+              "step_finish"
+            ],
+            "toolEvents": 0,
+            "errors": [],
+            "canariesInOutput": [],
+            "replyHasCanary": true,
+            "netSamples": 44
+          }
+        ],
+        "hosts": {
+          "remotes": [
+            "172.66.173.149",
+            "104.16.10.34",
+            "104.18.32.47",
+            "104.16.2.34",
+            "104.16.8.34",
+            "172.64.155.209"
+          ],
+          "named": {
+            "172.66.173.149": [
+              "models.opencode.ai"
+            ],
+            "104.16.10.34": [
+              "registry.npmjs.org"
+            ],
+            "104.18.32.47": [
+              "chatgpt.com",
+              "ab.chatgpt.com"
+            ],
+            "104.16.2.34": [
+              "registry.npmjs.org"
+            ],
+            "104.16.8.34": [
+              "registry.npmjs.org"
+            ],
+            "172.64.155.209": [
+              "chatgpt.com",
+              "ab.chatgpt.com"
+            ]
+          },
+          "hostnames": [
+            "ab.chatgpt.com",
+            "chatgpt.com",
+            "models.opencode.ai",
+            "registry.npmjs.org"
+          ],
+          "unnamed": []
+        },
+        "realDbRowDelta": {},
+        "realDbCanaryRows": {},
+        "realDirs": {
+          "newerFiles": 1,
+          "attributable": [],
+          "unattributedByGroup": {
+            "~/.local": 1
+          }
+        },
+        "ownedDbExists": true,
+        "ownedDbCanaryRows": {
+          "event": {
+            "PROMPTCANARYE9AB9047": 1,
+            "REPLYCANARYE9AB9047": 2,
+            "PROMPTCANARYD1ED2B9B": 1,
+            "REPLYCANARYD1ED2B9B": 2,
+            "PROMPTCANARYC551FD34": 1,
+            "REPLYCANARYC551FD34": 2,
+            "PROMPTCANARY6B592C20": 1,
+            "REPLYCANARY6B592C20": 2,
+            "PROMPTCANARY0E845DAE": 1,
+            "REPLYCANARY0E845DAE": 2
+          },
+          "part": {
+            "PROMPTCANARYE9AB9047": 1,
+            "REPLYCANARYE9AB9047": 2,
+            "PROMPTCANARYD1ED2B9B": 1,
+            "REPLYCANARYD1ED2B9B": 2,
+            "PROMPTCANARYC551FD34": 1,
+            "REPLYCANARYC551FD34": 2,
+            "PROMPTCANARY6B592C20": 1,
+            "REPLYCANARY6B592C20": 2,
+            "PROMPTCANARY0E845DAE": 1,
+            "REPLYCANARY0E845DAE": 2
+          }
+        },
+        "ownedCanaryFiles": [
+          {
+            "file": "data\\opencode\\auth.json",
+            "size": 2217,
+            "scanned": false
+          },
+          {
+            "file": "data\\opencode\\opencode.db",
+            "size": 294912,
+            "scanned": false
+          },
+          {
+            "file": "data\\opencode\\opencode.db-shm",
+            "size": 32768,
+            "scanned": false
+          },
+          {
+            "file": "data\\opencode\\opencode.db-wal",
+            "size": 791072,
+            "scanned": false
+          }
+        ]
+      }
+    },
+    "realDbUnchanged": true,
+    "realDirsZeroAttributable": true
+  }
+}

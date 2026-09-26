@@ -428,9 +428,87 @@ time**, and relieves the llama-server contention of v2.5-seeds E1 for the roles 
 - ~~Q5~~ Decided 2026-09-26: no fixed cap; every knob configurable (H3, H7).
 - ~~Q6~~ Decided 2026-09-26: the user accepted H6's Phase A order.
 - Q7 Should the plugin always spawn each CLI with a plugin-owned config home holding only the login, so that user-level
-  instructions can never reach the model by construction?
+  instructions can never reach the model by construction? (Decided 2026-09-26: yes, option 1; see the gate record.)
+- Q8 An owned login copy whose OAuth access token has expired would refresh inside the copy and may revoke the real
+  refresh token (Phase 0 run 3). Refuse and ask the user to run the CLI once, or refresh and write back to the real file?
+- Q9 opencode contacts `models.opencode.ai` and `registry.npmjs.org` on a cold cache (run 3 P0-7): accept both hosts, or
+  require a pre-warmed owned cache with `OPENCODE_DISABLE_MODELS_FETCH=1`?
 
 ## Gate record (Phase 0)
+
+### Run 3 (plugin-owned homes) — 2026-09-26, master `13db430c`
+
+Worktree fast-forwarded to master `13db430c` (`git merge --ff-only master`; the modified `.claude/settings.local.json`
+was copied aside to `%TEMP%\so-p0-aside\` and restored from HEAD so the merge could run). Mechanism per the user's
+decision (option 1), built into `scripts/spike/harness/lib.mjs`; runner `scripts/spike/harness/owned.mjs <cli> <probe…|all|dry>`,
+records in `test/journeys/records/v2.5-harness/phase0-owned/<cli>-<probe>.json`. opencode 1.18.32, Claude Code 2.1.282,
+Codex 0.155.1, node 22.22.0.
+
+**Owned home.** One root per CLI and arm: `%TEMP%\so-p0-owned\<cli>\<label>-XXXX\{home,config,data,cache,state,tmp,cwd}`.
+Child env = the rule-5 allowlist plus `USERPROFILE`/`HOME`/`APPDATA`/`LOCALAPPDATA`/`TEMP`/`TMP` inside the root, and
+`CLAUDE_CONFIG_DIR=config` / `CODEX_HOME=config` / opencode `XDG_CONFIG_HOME=config`, `XDG_DATA_HOME=data`,
+`XDG_CACHE_HOME=cache`, `XDG_STATE_HOME=state` (`envOwned`). Login files, located by listing file NAMES in the real
+homes only: Claude `~/.claude/.credentials.json`, Codex `~/.codex/auth.json`, opencode `~/.local/share/opencode/auth.json`
+(copied to `data/opencode/auth.json`; the session DB is not copied, so each owned data dir creates its own `opencode.db`).
+`ownedSession` sha256-hashes the real file, copies only it, checks the copy's hash; `closeOwned` records whether the copy
+was rewritten (a token refresh), deletes it, re-hashes the real file (mismatch → loud error, exit 3), and removes the root.
+An `exit` handler deletes any copy left open by a crash.
+
+**Refresh guard (new, not in the decision text).** Before copying, `loginFreshness` reads only the expiry fields of the
+real file (`claudeAiOauth.expiresAt`; Codex `access_token` JWT `exp` and `last_refresh`; opencode each `type:"oauth"`
+provider's `expires`) and refuses the copy unless the access token has > 90 min left. Reason: a model call from a copy
+whose access token has expired refreshes inside the copy. OAuth refresh tokens rotate, so the user's real file would keep a
+refresh token the vendor may already have revoked, **while its sha256 stays identical**: the hash check cannot see it.
+Only booleans and a reason string are recorded; no field value.
+
+Hash checks (every session): real login file unchanged, copy deleted, owned root removed, copy **never rewritten**.
+Real sha256 prefixes: Claude `5944d6ebf273`, Codex `b447cf1bd755`, opencode `ecb9dc1c65d3`. Sessions: 3 `dry` (copy/hash/
+delete only, no spawn, all three CLIs) + 12 opencode (smoke 1, p02 3, hn1b 1, p07 2+2, p03 1, optOuts 1+1). Files copied:
+`.credentials.json` (dry only), `auth.json` (Codex, dry only), `auth.json` (opencode). No login content, token or key was
+printed, logged or written to a record (records grep-checked for JWTs, token keys and `sk-` strings: clean).
+
+| # | Predeclared PASS | Command (secrets redacted; none in argv) | Result | Verdict |
+|---|---|---|---|---|
+| mechanism | copy only the login file; real hash identical before/after | `owned.mjs {claude,codex,opencode} dry` — `*-dry.json` | all three: copied, copy deleted, real unchanged. Freshness: **Claude access token expired 16 h before the run** (file last written 2026-09-25 14:59 UTC, refresh token valid ~28 days); **Codex access token expired, `last_refresh` 10.2 days old**; opencode OpenAI OAuth valid ~135 h | PASS (mechanism) |
+| Claude P0-1, P0-2, H-N1, H-N1b model half, P0-3, P0-5, P0-7 | as in the Phase 0 table (P0-3 at 100 ms) | `owned.mjs claude all` — `claude-not-run.json` | refused by the refresh guard before any spawn: the only login on disk is expired, so the first call would refresh inside the copy | **NOT RUN (stale login)** |
+| Codex, same set | same | `owned.mjs codex all` — `codex-not-run.json` | now < 2026-09-27 20:58 (-03): quota. Its login copy would also be refused (expired access token) | **NOT RUN (quota; stale login)** |
+| smoke (opencode) | owned home answers | `owned.mjs opencode smoke` — `opencode-smoke.json` | quiet env: PONG, 151 input tokens, 9.1 s (fresh DB). `OPENCODE_DISABLE_MODELS_FETCH`+`DISABLE_DEFAULT_PLUGINS` on a cold owned cache: `UnknownError`, no answer | FACT |
+| P0-2 opencode | canary never echoed; tokens ±5 vs clean; control echoes | `owned.mjs opencode p02` — `opencode-p02.json`. Canaries in a **simulated user home** (`userhome-*`: `.config/opencode/{opencode.json instructions, AGENTS.md, agent, skill}`, `.claude/{CLAUDE.md, skills}`) and the cwd (`AGENTS.md`, `CLAUDE.md`); iso = owned env + quiet env + `so-text` + `--pure`; control = HOME/`XDG_CONFIG_HOME` → the user home, default agent, no quiet env, no `--pure`. 3 runs × 3 arms | iso: 0/3 echoed (replies `CANARY`), 172–173 input tokens; clean: 175–177 (the +3 is the longer `p02-isoClean-*` cwd path in opencode's env block); spread 5. Control: 3/3 echoed 6 sources each (cwd `AGENTS.md`, instructions, global `AGENTS.md`, agent, both skills), 5 525–5 553 tokens | **PASS** (spread at the ±5 limit) |
+| H-N1b opencode | no marker, 0 MCP children, 0 MCP events, 5/5 | `owned.mjs opencode hn1b` — `opencode-hn1b.json`: `mcp.canary` in the user-home `opencode.json`, `mcp.canaryproj` in the cwd `opencode.json`; control as P0-2 | iso 5/5: no marker, 0 `node` children, 0 MCP events, PONG, 9.9–17.7 s. Control: **both** markers, 2 `node` children, 39.4 s | **PASS** (control green) |
+| P0-3 opencode | tree gone ≤ 1 s after a 3 s deadline, polled every 100 ms | `owned.mjs opencode p03` — `opencode-p03.json` (`pollUntilGone`: `process.kill(pid,0)` on the child and every tree PID seen, every 100 ms from the kill) | 3× real exe: gone 446 / 540 / 429 ms after the kill; chocolatey shim (3 PIDs incl. the `opencode.exe` grandchild): 429 ms. `taskkill` returned in 385–454 ms | **PASS** |
+| P0-7 opencode | hosts ⊆ {vendor, documented telemetry}; real home unchanged; real `opencode.db` row counts unchanged | `owned.mjs opencode p07` (5 calls flags on = quiet env + `so-text` + `--pure`; 5 flags off = default agent, no quiet env) — `opencode-p07.json`; hosts = netstat per tree PID at 100 ms, named by DNS cache + A-record match | Run twice (same result; the record kept is the second). **Residue:** real `opencode.db` row delta `{}` and 0 canary rows, both arms; real opencode dirs: 0 attributable writes (the one newer file is `opencode.db-shm`, touched by `dbcount.py`'s own `mode=ro` open); prompt+reply canaries only in the **owned** `opencode.db` (`event`, `part`, `session`), both arms (so detection works). **Hosts, both arms:** `chatgpt.com` (vendor; `ab.chatgpt.com` shares its IPs), **`models.opencode.ai`** (model catalog), **`registry.npmjs.org`** | **FAIL** (hosts); residue PASS |
+| opt-outs (diagnostic, not a probe) | — | `owned.mjs opencode optOuts` — `opencode-optOuts.json`, 1 call per arm | `OPENCODE_DISABLE_DEFAULT_PLUGINS=1` alone breaks the call (`UnknownError`: the ChatGPT login is served by a default plugin, fetched from npm). After one warm-up call, `OPENCODE_DISABLE_MODELS_FETCH=1` answered PONG with only `chatgpt.com` contacted (1 sample) | FACT |
+
+**What run 3 means.**
+1. **The owned home isolates opencode.** Planted user-level and project instructions and MCP servers no longer reach the
+   run, and nothing lands in the user's opencode data (P0-2, H-N1b, P0-7 residue). Its session DB now fills the owned data
+   dir instead, so the plugin must discard that dir (keep only the login copy) after each call or at exit.
+2. **opencode still fails P0-7 on hosts**: its catalog (`models.opencode.ai`) and npm (the default ChatGPT-auth plugin)
+   are contacted on a cold cache. Two ways out, both user calls (Q9): accept those two hosts as documented dependencies, or give
+   the plugin a persistent, pre-warmed owned cache and run with `OPENCODE_DISABLE_MODELS_FETCH=1` (one diagnostic call
+   passed; P0-7 must re-run 5/5 on it).
+3. **The copy-only-login design has a refresh hazard the hash check cannot see.** Claude's stored access token lives
+   hours; Codex refreshes on its own schedule. Once it has expired, the first call from a copy refreshes in the copy and
+   (with rotating refresh tokens) can log the user's real CLI out, with the real file byte-identical. The plugin needs a rule:
+   refuse when the real token is near expiry and tell the user to run the CLI once (what this run did), or write the
+   refreshed file back (breaks "never write the real dirs"). Question Q8.
+4. P0-4 (opencode cannot classify `auth`) and P0-5 (no spend bound) from run 2 are unchanged; not re-run.
+
+**Rerun (one command each):** `node scripts/spike/harness/owned.mjs claude all` after the user refreshes the real Claude
+login (run `claude` once in a normal terminal, so `~/.claude/.credentials.json` holds a token with > 90 min left);
+`node scripts/spike/harness/owned.mjs codex all` after 2026-09-27 20:58 (-03) and a fresh `codex` login refresh. Both
+write `<cli>-not-run.json` again if the guard still refuses.
+
+### Blocks for Phase A (run 3)
+
+1. **Claude: no probe ran.** The user refreshes the real login, then the rerun above; plus Q8.
+2. **Codex:** quota until 2026-09-27 20:58, and a stale login (same refresh step).
+3. **opencode:** P0-7 hosts (item 2 above). It passes P0-2, H-N1 (run 2), H-N1b and P0-3 in owned homes, so it is the
+   only harness one decision away from being offered.
+4. No harness is offered yet, so no Phase A arm runs; H1–H4 are still unbuilt.
+
+Q8 (new): when the stored OAuth access token has expired, should the plugin refuse and ask the user to run the CLI (safe,
+manual), or refresh in its copy and write the new tokens back to the user's real login file (automatic, writes the real dir)?
 
 ### Run 2 — 2026-09-26, master `492a4c72` (opencode + no-model probes; Claude/Codex model calls NOT RUN)
 
