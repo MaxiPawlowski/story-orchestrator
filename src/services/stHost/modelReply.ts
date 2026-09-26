@@ -108,9 +108,13 @@ export function cleanTextCompletionReply(text: string, instruct: InstructSequenc
   return message;
 }
 
-export const samplerPayload = (apiSelected: string | null, samplers: ModelSamplers | undefined): Record<string, unknown> => ({
+export const TEXT_COMPLETION_BUDGET_KEYS = ["max_tokens", "max_new_tokens", "n_predict", "num_predict"] as const;
+
+const textCompletionBudget = (maxTokens: number): Record<string, number> => Object.fromEntries(TEXT_COMPLETION_BUDGET_KEYS.map((key) => [key, maxTokens]));
+
+export const samplerPayload = (apiSelected: string | null, samplers: ModelSamplers | undefined, maxTokens: number): Record<string, unknown> => ({
   stream: false,
-  ...(apiSelected === TEXT_COMPLETION_API && samplers ? samplers : {}),
+  ...(apiSelected === TEXT_COMPLETION_API ? { ...samplers, ...textCompletionBudget(maxTokens) } : {}),
 });
 
 export async function requestModelReply(host: ModelRequestHost, profileId: string, prompt: string, maxTokens: number, options: ModelRequestOptions = {}): Promise<ModelReply> {
@@ -125,7 +129,7 @@ export async function requestModelReply(host: ModelRequestHost, profileId: strin
       [{ role: "user", content: prompt }],
       maxTokens,
       { extractData: false, includePreset: true, includeInstruct: true, stream: false, ...(signal ? { signal } : {}) },
-      samplerPayload(selected, options.samplers),
+      samplerPayload(selected, options.samplers, maxTokens),
     );
     const type = selected === CHAT_COMPLETION_API ? CHAT_COMPLETION_API : TEXT_COMPLETION_API;
     const extracted = host.extractMessage(json, type);
