@@ -7,6 +7,7 @@ import { useDraftStore } from "../draft";
 import { setTransitionGate } from "../mutations";
 import { GateReplayContext } from "../replayContext";
 import { buildReplaySource, type GateReplaySource, type ReplayLogEntry } from "../gateReplay";
+import { ST_MENU_BUTTON_CSS } from "../stories/stHostCss";
 
 const draft = () => ({ ...sampleStory(), id: "ruins-heist" });
 
@@ -37,10 +38,22 @@ const withSource = (source: GateReplaySource | null) => function WithReplaySourc
   );
 };
 
+function InStudioTabpanel(Story: React.FC) {
+  return (
+    <div id="so-studio-modal">
+      <style>{ST_MENU_BUTTON_CSS}</style>
+      <div role="tabpanel" aria-label="Transitions">
+        <Story />
+      </div>
+    </div>
+  );
+}
+
 const meta: Meta<typeof GateReplayPanel> = {
   title: "Studio/GateReplayPanel",
   component: GateReplayPanel,
   args: { index: 1 },
+  decorators: [InStudioTabpanel],
   beforeEach: () => {
     seedDraft(draft());
   },
@@ -58,6 +71,25 @@ export const UnchangedGateShowsTheRecordedFire: Story = {
     await expect(canvasElement.querySelector('[data-so="gate-replay"]')?.getAttribute("data-state")).toBe("holds");
     await userEvent.click(canvas.getByRole("button", { name: "boundary 4 (message 9)" }));
     await expect(jump).toHaveBeenCalledWith(9);
+  },
+};
+
+export const RowsKeepTheirWidthUnderStCss: Story = {
+  decorators: [withSource(recorded())],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const list = canvas.getByRole("list", { name: "Replayed boundaries" }).getBoundingClientRect();
+    const button = canvas.getByRole("button", { name: "boundary 4 (message 9)" });
+    const box = button.getBoundingClientRect();
+    await expect(box.width).toBeGreaterThan(80);
+    await expect(box.height).toBeLessThan(40);
+    const row = button.closest('[data-so="gate-replay-row"]') as HTMLElement;
+    const verdict = within(row).getByText("would fire · recorded: fired");
+    await expect(verdict).toBeVisible();
+    const text = verdict.getBoundingClientRect();
+    await expect(text.width).toBeGreaterThan(40);
+    await expect(text.top).toBeGreaterThanOrEqual(list.top);
+    await expect(text.bottom).toBeLessThanOrEqual(list.bottom);
   },
 };
 
