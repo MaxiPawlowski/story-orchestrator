@@ -215,3 +215,17 @@ where a 1.18.0 column is filled. The plan doc's §Host facts table is the source
 | 08-H12 | `ConnectionManagerRequestService.sendRequest(profileId, …)` resolves the profile per request (`getProfile(profileId)`), so two passes can go to two profiles with no global switch | `extensions/shared.js:423-431`, `:546` | not re-read (plan 03 03-H1 covers the call) |
 
 Line drift vs the plan's table: none beyond `:3449` for the command name (the plan cites the block `:3448-3503`).
+
+## v2.5 Plan 07 (author tools, 2026-09-26)
+
+Re-read on the live 1.19.0 tree (`7c3994196`). The 1.18.0 column is left to V10 Q4, as for v2.5 plan 01/02.
+
+| # | Fact | 1.19.0 | 1.18.0 |
+|---|---|---|---|
+| v25-07-H1 | `macros.register` is a static binding of `MacroRegistry.registerMacro` on the `macros` object, which the context exposes whatever engine substitution uses; `macros.registry` is the registry instance (`unregisterMacro` is a method, not bound: call it on the registry) | `macros/macro-system.js:44-59` (`registry` `:47`, `register` `:58`); `st-context.js:245` | open |
+| v25-07-H2 | The context's `registerMacro`/`unregisterMacro` are the deprecated `MacrosParser` bridge | `st-context.js:179-182` | open |
+| v25-07-H3 | `registerMacro(name, {unnamedArgs, strictArgs, description, handler})`: `unnamedArgs` is a count or definitions `{name, description?}` (optional args a suffix), `strictArgs` defaults `true`; a bad option is caught, logged and answered `null` (the macro is not available); re-registering a name overwrites it with a warning | `macros/engine/MacroRegistry.js:62-75`, `:198-228`, `:301-308` | open |
+| v25-07-H4 | Wrong argument count with `strictArgs`: a `MacroRuntimeError`, which the engine logs as a warning and answers with the macro's raw text (the call stays literal); an unregistered name also stays literal | `MacroRegistry.js:404-421`; `MacroEngine.js:216-218`, `:229-236` | open |
+| v25-07-H5 | The handler receives `{unnamedArgs, args, …}`; `unnamedArgs` holds the positional values up to the defined count | `MacroRegistry.js:106-110`, `:425-439` | open |
+| v25-07-H6 | The engine is chosen per substitution call from `power_user.experimental_macro_engine` (so a macro registered through `macros.register` needs no reload when the setting flips); the source default is `true` | `script.js:2837`, `:2997`; `power-user.js:302` | open |
+| v25-07-H7 | `registry.unregisterMacro(name)` deletes by lower-cased name and answers whether one was removed | `MacroRegistry.js:327-331` | open |

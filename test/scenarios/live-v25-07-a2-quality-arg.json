@@ -1,0 +1,43 @@
+{
+  "_note": "v2.5 plan 07 A2 live gate, new-engine leg (LANE ONLY, x2 consecutive). Run: node scripts/debug/so-scenario.mts run test/scenarios/live-v25-07-a2-quality-arg.json --sandbox --group <lane group id>. An Author's Note carrying {{story_quality::location}} and {{story_quality_location}} reaches the REAL request (GENERATE_AFTER_DATA) with the same value at send time, after a /cp set lands at a boundary; an undeclared key reads (no quality \"k\"); the Author's Note is restored at the end.",
+  "steps": [
+    {
+      "eval": "const ctx = SillyTavern.getContext(); for (const key of Object.keys(globalThis).filter((name) => name.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; if (ctx.powerUserSettings?.experimental_macro_engine !== true) throw new Error('this leg needs the new macro engine: experimental_macro_engine is not true'); if (globalThis.__p0702?.handler) ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, globalThis.__p0702.handler); const NL = String.fromCharCode(10); const state = { sent: [], note: ctx.chatMetadata.note_prompt ?? '' }; state.handler = (data, dryRun) => { if (dryRun) return; state.sent.push({ board: { ...(globalThis.storyOrchestratorRuntime.getSnapshot().blackboard ?? {}) }, text: typeof data?.prompt === 'string' ? data.prompt : (data?.messages ?? []).map((message) => String(message?.content ?? '')).join(NL) }); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_DATA, state.handler); globalThis.__p0702 = state; return { macroEngine: true };",
+      "log": true
+    },
+    {
+      "import_story": {
+        "file": "./live-v24-08.story.json"
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const board = globalThis.storyOrchestratorRuntime.getSnapshot().blackboard ?? {}; const expected = (key) => board[key] === undefined || board[key] === null ? '(unset)' : String(board[key]); const fail = []; for (const key of ['go', 'location', 'coins']) { const arg = ctx.substituteParams(`{{story_quality::${key}}}`); const flat = ctx.substituteParams(`{{story_quality_${key}}}`); if (arg !== expected(key)) fail.push(`${key}: :: form ${arg}, blackboard ${expected(key)}`); if (arg !== flat) fail.push(`${key}: :: form ${arg} vs per-key ${flat}`); } const unknown = ctx.substituteParams('{{story_quality::no_such_key}}'); if (unknown !== '(no quality \"no_such_key\")') fail.push(`undeclared key read ${unknown}`); if (fail.length) throw new Error(fail.join('; ')); return { unknown };",
+      "log": true
+    },
+    {
+      "eval": "const field = document.getElementById('extension_floating_prompt'); if (!field) throw new Error('the Author note field #extension_floating_prompt is not on the page'); field.value = '[A2: arg={{story_quality::location}} flat={{story_quality_location}}]'; field.dispatchEvent(new Event('input', { bubbles: true })); return SillyTavern.getContext().chatMetadata.note_prompt;",
+      "log": true
+    },
+    {
+      "slash": "/cp set location yard"
+    },
+    {
+      "send_generate": {
+        "text": "I look around. Where are we standing right now?",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "eval": "const sent = globalThis.__p0702.sent[globalThis.__p0702.sent.length - 1]; if (!sent) throw new Error('no request captured'); const show = (value) => value === undefined || value === null ? '(unset)' : String(value); const want = `[A2: arg=${show(sent.board.location)} flat=${show(sent.board.location)}]`; const at = Math.max(0, sent.text.indexOf('[A2:')); if (sent.text.includes('{{story_quality')) throw new Error('the request carries an unresolved {{story_quality macro'); if (!sent.text.includes(want)) throw new Error(`the request ST posted does not carry ${want}: ${sent.text.slice(at, at + 80)}`); return want;",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const board = globalThis.storyOrchestratorRuntime.getSnapshot().blackboard ?? {}; if (board.location !== 'yard') throw new Error(`/cp set location yard did not land by the boundary: ${board.location}`); const arg = ctx.substituteParams('{{story_quality::location}}'); if (arg !== 'yard') throw new Error(`:: macro reads ${arg} after the boundary applied yard`); return arg;"
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const state = globalThis.__p0702; ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_DATA, state.handler); const field = document.getElementById('extension_floating_prompt'); field.value = state.note; field.dispatchEvent(new Event('input', { bubbles: true })); delete globalThis.__p0702; return { restoredNote: ctx.chatMetadata.note_prompt === state.note };",
+      "log": true
+    }
+  ]
+}

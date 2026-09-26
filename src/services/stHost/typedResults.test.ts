@@ -39,6 +39,7 @@ const READS: Record<string, string> = {
   vectorPurge: "the same, and it is best-effort by contract: its caller already swallows the throw",
   invalidateCapabilities: "clears OUR probe cache; nothing in ST changes",
   hostMacrosAvailable: "a question about the install: is the macro module there to register into",
+  hostArgMacrosAvailable: "a question about the install: does the new macro engine expose macros.register (v2.5 plan 07 A2)",
   noteHostSettingsLoaded: "records that ST emitted its settings-loaded event, in our own flag",
   installSaveWatcher: "installs OUR observer on the save route; it writes nothing ST keeps",
   profileExists: "a question about the install's connection profiles (v2.4 plan 03 D1 preflight)",

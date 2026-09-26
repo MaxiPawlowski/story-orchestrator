@@ -1,4 +1,4 @@
-import { getContext, hostMacrosAvailable } from "./context";
+import { getContext, hostArgMacrosAvailable, hostMacrosAvailable } from "./context";
 import { readPromptBudget } from "./contextBudget";
 import { judgeStatus, JUDGE_PLUGIN_BASE } from "./judge";
 import { backgroundsModule } from "./modules";
@@ -16,7 +16,7 @@ import { installScanGating, probeScanGating } from "./worldInfoScan";
 // attempt, and is NOT cached, so the next use retries it.
 
 export type CapabilityState = "present" | "absent" | "error";
-export type CapabilityId = "macros" | "slashCommands" | "backgrounds" | "vectors" | "judge" | "contextBudget" | "wiScanGating";
+export type CapabilityId = "macros" | "macroArgs" | "slashCommands" | "backgrounds" | "vectors" | "judge" | "contextBudget" | "wiScanGating";
 
 export interface CapabilityReport {
   id: CapabilityId;
@@ -39,6 +39,15 @@ const absent = (detail: string) => ({ state: "absent" as const, detail });
 // module `registerHostMacro` registers through.
 const macrosProbe: Probe = () =>
   hostMacrosAvailable() ? present("MacrosParser") : absent("this build exposes no MacrosParser, so {{story_*}} macros never resolve in a prompt");
+
+const QUALITY_ARG_FALLBACK = "{{story_quality_key}} works everywhere";
+
+const macroArgsProbe: Probe = () => {
+  if (!hostArgMacrosAvailable()) return absent(`this build has no macros.register, so {{story_quality::key}} is never registered; ${QUALITY_ARG_FALLBACK}`);
+  const engine = macroEngineInUse();
+  if (engine === "new") return present("macros.register; SillyTavern substitutes with the new macro engine");
+  return absent(`SillyTavern does not substitute with the new macro engine (${engine === "unknown" ? "setting unreadable" : "switched off"}), so {{story_quality::key}} stays literal; ${QUALITY_ARG_FALLBACK}`);
+};
 
 const slashCommandsProbe: Probe = () => {
   const names = new Set(listSlashCommands().flatMap((command) => [command.name, ...command.aliases]).map((name) => name.toLowerCase()));
@@ -91,7 +100,7 @@ const wiScanGatingProbe: Probe = async () => {
   }
 };
 
-const PROBES: Record<CapabilityId, Probe> = { macros: macrosProbe, slashCommands: slashCommandsProbe, backgrounds: backgroundsProbe, vectors: vectorsProbe, judge: judgeProbe, contextBudget: contextBudgetProbe, wiScanGating: wiScanGatingProbe };
+const PROBES: Record<CapabilityId, Probe> = { macros: macrosProbe, macroArgs: macroArgsProbe, slashCommands: slashCommandsProbe, backgrounds: backgroundsProbe, vectors: vectorsProbe, judge: judgeProbe, contextBudget: contextBudgetProbe, wiScanGating: wiScanGatingProbe };
 
 export const CAPABILITY_IDS = Object.keys(PROBES) as CapabilityId[];
 

@@ -3,7 +3,10 @@ const mockHost = { parser: true, commands: ["bg", "sendas"], judge: { configured
 jest.mock("./context", () => ({
   getContext: () => ({ getRequestHeaders: () => ({ "X-CSRF-Token": "t" }), mainApi: "textgenerationwebui" }),
   hostMacrosAvailable: () => mockHost.parser,
+  hostArgMacrosAvailable: () => mockArgMacros.register,
 }));
+
+const mockArgMacros = { register: true };
 
 jest.mock("./judge", () => ({
   JUDGE_PLUGIN_BASE: "/api/plugins/story-orchestrator-judge",
@@ -80,6 +83,21 @@ describe("capability probes", () => {
   it("names an absent macro engine rather than throwing on the first registration", async () => {
     mockHost.parser = false;
     await expect(probeCapability("macros")).resolves.toEqual({ id: "macros", state: "absent", detail: expect.stringContaining("MacrosParser") });
+  });
+
+  it("v2.5 plan 07 A2: {{story_quality::key}} is present only when macros.register exists AND substitution uses the new engine", async () => {
+    await expect(probeCapability("macroArgs")).resolves.toMatchObject({ state: "present" });
+    mockHost.macroEngine = "legacy";
+    const legacy = await probeCapability("macroArgs", { refresh: true });
+    expect(legacy.state).toBe("absent");
+    expect(legacy.detail).toContain("{{story_quality::key}} stays literal");
+    expect(legacy.detail).toContain("{{story_quality_key}} works everywhere");
+    mockHost.macroEngine = "new";
+    mockArgMacros.register = false;
+    const missing = await probeCapability("macroArgs", { refresh: true });
+    expect(missing.state).toBe("absent");
+    expect(missing.detail).toContain("macros.register");
+    mockArgMacros.register = true;
   });
 
   it("names the commands an effects path needs and this build does not have", async () => {
