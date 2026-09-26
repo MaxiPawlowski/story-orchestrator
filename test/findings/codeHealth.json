@@ -13,14 +13,7 @@
   "s2": [],
   "s3": [],
   "s4": {
-    "lines": [
-      "src/components/studio/GraphPanel.tsx#GraphPanel",
-      "src/studio/StudioModal.tsx#StudioModal",
-      "src/studio/components/CheckpointEditor.tsx#CheckpointEditor",
-      "src/studio/components/QualityEditor.tsx#QualityEditor",
-      "src/studio/components/StoryEditor.tsx#StoryEditor",
-      "src/studio/components/StudioCopilot.tsx#StudioCopilot"
-    ],
+    "lines": [],
     "branches": [],
     "nesting": []
   },
@@ -131,13 +124,11 @@
     "src/stagecraft/fuzzy.ts": 1,
     "src/stagecraft/prompt.ts": 1,
     "src/stagecraft/proposal.ts": 2,
-    "src/studio/StudioModal.tsx": 2,
-    "src/studio/components/CheckpointEditor.tsx": 8,
+    "src/studio/components/CheckpointEditor.tsx": 6,
     "src/studio/components/EffectsEditor.tsx": 14,
     "src/studio/components/GateBuilder.tsx": 1,
     "src/studio/components/ProposalReview.tsx": 1,
     "src/studio/components/ProvisioningCard.tsx": 1,
-    "src/studio/components/QualityEditor.tsx": 1,
     "src/studio/components/QualityReadEditor.tsx": 6,
     "src/studio/components/RosterEditor.tsx": 3,
     "src/studio/components/StoryEditor.tsx": 12,
@@ -379,7 +370,6 @@
     "src/studio/components/DiagnosticsPanel.tsx": 1,
     "src/studio/components/QualityReadEditor.tsx": 1,
     "src/studio/components/RosterEditor.tsx": 1,
-    "src/studio/components/StudioCopilot.tsx": 3,
     "src/studio/components/StudioToolbar.tsx": 4,
     "src/studio/diagnostics.ts": 3,
     "src/studio/draft.ts": 1,

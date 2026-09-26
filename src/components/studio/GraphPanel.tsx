@@ -22,12 +22,10 @@ type Props = {
   onAddTransition: () => void;
 };
 
-const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, onAddCheckpoint, onAddTransition, canAddTransition }) => {
-  const [layout, setLayout] = useState<LayoutName>("dagre");
-  const [dagreReady, setDagreReady] = useState(false);
+type ContainerRef = React.MutableRefObject<HTMLDivElement | null>;
+
+const useCytoscape = (containerRef: ContainerRef, onSelect: (id: string) => void) => {
   const [cyReady, setCyReady] = useState(false);
-  const [layoutTrigger, setLayoutTrigger] = useState(0);
-  const containerRef = useRef<HTMLDivElement | null>(null);
   const cyRef = useRef<Core | null>(null);
   const selectHandlerRef = useRef(onSelect);
 
@@ -36,8 +34,6 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
   }, [onSelect]);
 
   const themeColors = useMemo(resolveGraphThemeColors, []);
-
-  const elements = useMemo(() => buildGraphElements(draft, selectedId), [draft, selectedId]);
 
   useEffect(() => {
     let cy: Core | null = null;
@@ -113,8 +109,12 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
       }
       if (cleanup) cleanup();
     };
-  }, [themeColors]);
+  }, [themeColors, containerRef]);
 
+  return { cyRef, cyReady };
+};
+
+const useGraphFit = (containerRef: ContainerRef, cyRef: React.MutableRefObject<Core | null>, cyReady: boolean) => {
   useEffect(() => {
     if (!cyReady) return;
     const container = containerRef.current;
@@ -140,20 +140,11 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
     observer.observe(container);
 
     return () => observer.disconnect();
-  }, [cyReady]);
+  }, [cyReady, containerRef, cyRef]);
+};
 
-  useEffect(() => {
-    const cy = cyRef.current;
-    if (!cy) return;
-    syncGraphElements(cy, elements, layout, dagreReady);
-  }, [elements, cyReady, layout, dagreReady]);
-
-  useEffect(() => {
-    const cy = cyRef.current;
-    if (!cy || cy.elements().length === 0) return;
-    runGraphLayout(cy, layout, dagreReady);
-  }, [layoutTrigger, layout, cyReady, dagreReady]);
-
+const useDagre = () => {
+  const [dagreReady, setDagreReady] = useState(false);
   useEffect(() => {
     let cancelled = false;
     import("cytoscape-dagre")
@@ -171,6 +162,85 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
       });
     return () => { cancelled = true; };
   }, []);
+  return dagreReady;
+};
+
+interface ToolbarProps {
+  layout: LayoutName;
+  dagreReady: boolean;
+  disabled?: boolean;
+  canAddTransition: boolean;
+  onAddCheckpoint: () => void;
+  onAddTransition: () => void;
+  onRelayout: () => void;
+  onLayout: (layout: LayoutName) => void;
+}
+
+const GraphToolbar = ({ layout, dagreReady, disabled, canAddTransition, onAddCheckpoint, onAddTransition, onRelayout, onLayout }: ToolbarProps) => (
+  <div className="st-panel-header flex flex-wrap items-center justify-between gap-2 px-3 py-2">
+    <div className="font-semibold">Graph <HelpTooltip title="Click a Checkpoint to configure it" /></div>
+    <div className="flex flex-wrap items-center gap-2">
+      <button
+        type="button"
+        className="st-button secondary"
+        onClick={onAddCheckpoint}
+        disabled={!!disabled}
+      >
+        + Checkpoint
+      </button>
+      <button
+        type="button"
+        className="st-button secondary"
+        onClick={onAddTransition}
+        disabled={!!disabled || !canAddTransition}
+      >
+        + Transition
+      </button>
+      <button
+        type="button"
+        className="st-button secondary"
+        onClick={onRelayout}
+      >
+        Re-layout
+      </button>
+      <select
+        value={layout}
+        aria-label="Graph layout"
+        onChange={(e) => onLayout(e.target.value as LayoutName)}
+        className="text_pole st-input w-full mb-0"
+      >
+        <option value="breadthfirst">Breadthfirst</option>
+        <option value="grid">Grid</option>
+        <option value="cose">COSE</option>
+        <option value="dagre" disabled={!dagreReady}>
+          Dagre {dagreReady ? "" : "(unavailable)"}
+        </option>
+      </select>
+    </div>
+  </div>
+);
+
+const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, onAddCheckpoint, onAddTransition, canAddTransition }) => {
+  const [layout, setLayout] = useState<LayoutName>("dagre");
+  const [layoutTrigger, setLayoutTrigger] = useState(0);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const { cyRef, cyReady } = useCytoscape(containerRef, onSelect);
+  const dagreReady = useDagre();
+  useGraphFit(containerRef, cyRef, cyReady);
+
+  const elements = useMemo(() => buildGraphElements(draft, selectedId), [draft, selectedId]);
+
+  useEffect(() => {
+    const cy = cyRef.current;
+    if (!cy) return;
+    syncGraphElements(cy, elements, layout, dagreReady);
+  }, [elements, cyReady, layout, dagreReady, cyRef]);
+
+  useEffect(() => {
+    const cy = cyRef.current;
+    if (!cy || cy.elements().length === 0) return;
+    runGraphLayout(cy, layout, dagreReady);
+  }, [layoutTrigger, layout, cyReady, dagreReady, cyRef]);
 
   if (!dagreReady && layout === "dagre") {
     return (
@@ -182,50 +252,19 @@ const GraphPanel: React.FC<Props> = ({ draft, selectedId, onSelect, disabled, on
 
   return (
     <div className="st-panel flex flex-1 flex-col overflow-hidden shadow-sm">
-      <div className="st-panel-header flex flex-wrap items-center justify-between gap-2 px-3 py-2">
-        <div className="font-semibold">Graph <HelpTooltip title="Click a Checkpoint to configure it" /></div>
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            className="st-button secondary"
-            onClick={onAddCheckpoint}
-            disabled={!!disabled}
-          >
-            + Checkpoint
-          </button>
-          <button
-            type="button"
-            className="st-button secondary"
-            onClick={onAddTransition}
-            disabled={!!disabled || !canAddTransition}
-          >
-            + Transition
-          </button>
-          <button
-            type="button"
-            className="st-button secondary"
-            onClick={() => setLayoutTrigger((prev) => prev + 1)}
-          >
-            Re-layout
-          </button>
-          <select
-            value={layout}
-            aria-label="Graph layout"
-            onChange={(e) => {
-              setLayout(e.target.value as LayoutName);
-              setLayoutTrigger((prev) => prev + 1);
-            }}
-            className="text_pole st-input w-full mb-0"
-          >
-            <option value="breadthfirst">Breadthfirst</option>
-            <option value="grid">Grid</option>
-            <option value="cose">COSE</option>
-            <option value="dagre" disabled={!dagreReady}>
-              Dagre {dagreReady ? "" : "(unavailable)"}
-            </option>
-          </select>
-        </div>
-      </div>
+      <GraphToolbar
+        layout={layout}
+        dagreReady={dagreReady}
+        disabled={disabled}
+        canAddTransition={canAddTransition}
+        onAddCheckpoint={onAddCheckpoint}
+        onAddTransition={onAddTransition}
+        onRelayout={() => setLayoutTrigger((prev) => prev + 1)}
+        onLayout={(next) => {
+          setLayout(next);
+          setLayoutTrigger((prev) => prev + 1);
+        }}
+      />
       <div ref={containerRef} className="flex-1 min-h-[20rem] w-full bg-[var(--SmartThemeBlurTintColor)]" />
     </div>
   );
