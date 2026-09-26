@@ -418,3 +418,66 @@ A gate that cannot run (backend down, no profile) is reported **NOT green**, nev
 3. The main session stops and starts main ST for D1 itself (user permission to restart ST), only while no lane run is in flight.
 4. Unknown-key errors on the four alias-bearing objects only; the wider form needs its corpus measurement first (not in this plan).
 5. Accepted (review finding #22): an id-less import keys by title slug and updates a same-title record.
+
+## Gate record (steps 0-8)
+
+Date 2026-09-25. Branch `worktree-agent-adba238015709e160` (from master `c56e1f8`). Steps 0-8 only; step 9 and every live gate NOT run (no live/ST/lane access by instruction).
+
+### Commits
+
+| Step | Commit | Rows |
+|---|---|---|
+| 0 | `b0c65ca` | S1 src guard (`legacyFree.guard.test.ts`, `test/findings/legacyFree.ts`, baseline 109 hits / 18 files, C1 allowlist capabilities.ts×1, version.ts×2) + scripts/test twin (`scripts/debug/legacyFree.test.mts`, baseline 65 / 13); `BLOB_VERSION` constant |
+| 1 | `8285016` | H1-H5: blob v5, one read path, migration + v2/v3 fixtures deleted, J10.8/J10.11 deleted, J10.15 added |
+| 2 | `f457b26` | H13, H14: required `visitedPath`/`engineHistory`/`storyStart`, `isCurrentRecord` guard |
+| 3 | `a2720fb` | H10, H11 (+H8 pulled forward): provenance required, pin prompt gone |
+| 4 | `a0c8d52` | H6, H7, H9: library id-only, per-chat settings history gone, `settingsRoot.ts` schema 1 |
+| 5 | `4c07302` | H12, H15, H16, H17, H18 |
+| 6 | `cf8be87` | A1-A3, A7: aliases gone, unknown-key errors with did-you-mean, id-less import = title slug, `storyCorpus.test.ts` |
+| 7 | `850e455` | C2, C3, I1, I2: host fallbacks gone, ownership required (`test/findings/testOwnership.ts`) |
+| 8 | `ea5b998` | H19, H21, D rows: debug tooling id-only, docs; src baseline closed (`closed: true`) |
+
+### Gates (every step, worktree)
+
+`export ST_PUBLIC=C:/dev/SillyTavern-MainBranch/public` (worktree is nested, build manifest needs the host path), then
+`npm run typecheck && npm run typecheck:test && npm run lint && npm run debug:typecheck && npm test && npm run build && npm run test:debug && npm run test:release`. All exit 0 at every step.
+
+| Step | jest suites / tests | test:debug | test:release |
+|---|---|---|---|
+| before (c56e1f8) | 265 / 3877 | 278 | 37/37 |
+| 0 | 266 / 3887 | 284 (283 pass, 1 skipped, 0 fail) | 37/37 |
+| 1 | 265 / 3879 | same | 37/37 |
+| 2 | 265 / 3883 | same | 37/37 |
+| 3 | 265 / 3880 | same | 37/37 |
+| 4 | 266 / 3886 | same | 37/37 |
+| 5 | 266 / 3881 | same | 37/37 |
+| 6 | 267 / 3888 | same | 37/37 |
+| 7 | 267 / 3888 | same | 37/37 |
+| 8 | 267 / 3888 | same | 37/37 |
+
+Not run: `test-storybook:ci`; mutation sweep M1-M10 (`test/findings/mutations/v25-11-legacy.txt` not written).
+
+### Deviations
+
+- Step 0 introduced `BLOB_VERSION = 4` (the then-current value); step 1 bumped it to 5.
+- `citations-known.json` removed rows landed with the step that deleted the cited file (1: `v3-chat-blob.json`; 5: `live-v12-legacy-expansion.json`, `extrasLegacy.test.ts` → `extrasHydrate.test.ts`), not in step 8.
+- storyIdentity's settings-lift test depended on a v2 blob: deleted in step 1, replaced in step 4 by "a chat's per-chat settings are ignored".
+- H8 pulled into step 3: with provenance required, `migrateLegacyFacts` had nothing left to stamp; fallback is `createMemory()`.
+- H16: a uid-less applied op is refused on revert with status `revert-failed` ("recorded without a uid; not reverted").
+- H17 needed a `WizardSessionUpdate` input type so a UI session save cannot erase the coordinator's `createdLorebooks`.
+- H12 also drops entries without a valid `origin` (not only `contract`).
+- A3: `fallback` has no near key, so its error is `unknown key (known: ...)` without a did-you-mean.
+- A7 tests live in `storyIdentity.test.ts`. Corpus = 117 format-2 stories (examples + test, inline included); the install library was not read (no live access).
+- Plan 13's `extraction.routes` settings shape not landed (plan 13's work).
+- I1/I2 finished here (~40 test files via `testOwnership()`), not moved to plan 03 D10.
+- C3 makes vendored `SlashCommandEnumValue` required (st-context.js:98/169): needs a Verified ST host facts row in `docs/plans/v2/00-implementation-overview.md`.
+- `storyStart` required with default 0; `markStoryStart` still only on activate.
+- Optional-field sweep: now required — `visitedPath`, `engineHistory`, `pinnedStory`, `chatId`, `storyStart`, provenance ×3, expansion `contract`/`origin`, curator record fields, `createdLorebooks`. Still optional because a current writer omits them: fingerprints, `integrity`, pinned/locked/messageId-style flags, `target.uid` (refused on revert), grants.
+- Risk item "jest walk over writers" not built; `tsc` enforces required provenance at every writer.
+- H20 (asset-scope legacy mirror handling) + S9 `provenBy` re-point deferred until after step 9: twin guard stays open (21 hits in `assetScope.mts` 7, `assetScope.test.mts` 4, `so-assets.mts` 10); src guard closed.
+
+### Still needed
+
+- Step 9: D1/D2/D3 data moves with manifest + restore check (`so-legacy-books.mts` not built); then H20 deletion, S9 re-point, close the twin baseline.
+- `node scripts/debug/st-session.mts reload` after a build; live L1-L6 (J10 ×2 incl. J10.15, a real old chat, v24-02 ×2, J1 ×2, assets clean) — all NOT run, so plan 11 is NOT green.
+- Verified ST host facts row for `SlashCommandEnumValue`.
