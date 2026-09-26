@@ -187,8 +187,6 @@
     "src/runtime/coordinators/memoryCoordinator.ts -> src/runtime/memoryQueue.ts",
     "src/runtime/coordinators/memoryCoordinator.ts -> src/runtime/roster.ts",
     "src/runtime/coordinators/memoryCoordinator.ts -> src/services/STAPI.ts",
-    "src/runtime/coordinators/pacingCoordinator.ts -> src/runtime/extras.ts",
-    "src/runtime/coordinators/pacingCoordinator.ts -> src/services/STAPI.ts",
     "src/runtime/coordinators/stagecraftCoordinator.ts -> src/services/STAPI.ts"
   ],
   "s7": [

@@ -23,6 +23,7 @@ import { AwayRecapController, type AwayRecap } from "./awayRecap";
 import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./narrative";
 import { CopilotCoordinator } from "./coordinators/copilotCoordinator";
 import { PacingCoordinator } from "./coordinators/pacingCoordinator";
+import { coordinatorHosts } from "./coordinatorHosts";
 import { ExpansionCoordinator } from "./coordinators/expansionCoordinator";
 import { ExtractionCoordinator, type JudgedExtractionWork } from "./coordinators/extractionCoordinator";
 import { MemoryCoordinator } from "./coordinators/memoryCoordinator";
@@ -99,7 +100,7 @@ export class RuntimeManager {
     rollback: (messageId, journal) => this.rollbackFromMessage(messageId, journal),
   });
   // V26: what every coordinator reads the loaded story and engine through, and how each one saves.
-  private readonly view = { getStory: () => this.loaded?.story ?? null, getState: () => (this.loaded ? this.engine.serialize() : null) };
+  private readonly view = { getStory: () => this.loaded?.story ?? null, getState: () => (this.loaded ? this.engine.serialize() : null), hosts: coordinatorHosts };
   readonly model = createModelCall({ settings: () => this.getExtractionSettings(), exists: profileExists });
   private readonly lifecycle = { persist: () => this.persist(), notify: () => this.notify(), ownership: this.owner.ownership, model: this.model };
   private readonly memory: MemoryCoordinator = new MemoryCoordinator({

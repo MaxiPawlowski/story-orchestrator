@@ -7,20 +7,14 @@ import { sanitizeJournalRecords } from "./journal";
 import { defaultExtractionSettings, defaultMemorySettings, defaultStagecraftSettings, getGlobalSettings, type ChatOverrides } from "./settingsStore";
 import { EFFECT_LEDGER_LIMIT, JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
 import { createSaveHealth } from "./saveHealth";
-import type { CopilotRuntimeSettings, EffectLedgerRow, EffectsRuntimeState, ExtractionRuntimeState, MemoryMirrorBook, MemoryRuntimeState, PacingSettings, RuntimeExtras, SaveHealth, StagecraftRuntimeState, TalkRuntimeState, TensionRuntimeState, UiRuntimeSettings } from "./types";
+import type { CopilotRuntimeSettings, EffectLedgerRow, EffectsRuntimeState, ExtractionRuntimeState, MemoryMirrorBook, MemoryRuntimeState, PacingSettings, RuntimeExtras, SaveHealth, StagecraftRuntimeState, TalkRuntimeState, UiRuntimeSettings } from "./types";
+import { defaultTension, sanitizeTension } from "./tensionState";
 
 export const TALK_DECISION_LIMIT = 10;
 
 export const emptyRequirements = { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] };
 
 export const defaultPacingSettings = (): PacingSettings => ({ alpha: DEFAULT_TENSION_EMA_ALPHA, shapeOverride: null, hintEnabled: true });
-
-export const defaultTension = (): TensionRuntimeState => ({ levels: [], smoothed: null });
-
-export const sanitizeTension = (value: TensionRuntimeState | undefined): TensionRuntimeState => ({
-  levels: Array.isArray(value?.levels) ? value.levels.slice(-50) : [],
-  smoothed: typeof value?.smoothed === "number" ? value.smoothed : null,
-});
 
 export const createExtraction = (): ExtractionRuntimeState => ({
   settings: defaultExtractionSettings(),
