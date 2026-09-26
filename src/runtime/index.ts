@@ -17,6 +17,7 @@ import { startJudge, startScene } from "./wiring/judgeScene";
 import { startLore } from "./wiring/lore";
 import { startTalk } from "./wiring/talk";
 import { attachGenerationObservers, subscribeGenerationEvents } from "./wiring/generation";
+import { spikeHooks, startSpikes, stopSpikes } from "./wiring/spikes";
 import type { Disposers, LiveParts, WindowAccess } from "./wiring/types";
 import { log } from "@utils/log";
 import { readGatingModeWith } from "./worldInfoMode";
@@ -54,12 +55,13 @@ const registerHostSurfaces = () => {
     log.warn("host macros unavailable; {{story_*}} will not resolve", error);
   }
   if (__SO_DEV__) void import("./liveSuite").then(({ registerLiveSuite }) => { if (started) registerLiveSuite(runtimeManager); });
+  if (__SO_DEV__) void import("./spikes/toolTurnProbe").then(({ registerToolTurnProbe }) => { if (started) registerToolTurnProbe(runtimeManager); });
   window.setTimeout(() => registerSlashCommandsWhenReady(), 0);
   window.setTimeout(() => registerSlashCommandsWhenReady(), 1000);
 };
 
 const startWatches = () => {
-  bridge = new TurnBridge(runtimeManager, runtimeManager.chatSave);
+  bridge = new TurnBridge(runtimeManager, runtimeManager.chatSave, () => spikeHooks.toolTurnFold);
   bridge.start();
   const requirementsWatch = new RequirementsWatch(runtimeManager.requirementsHost, subscribeToHostEvents);
   requirementsWatch.start();
@@ -88,7 +90,7 @@ const windowAccess = (): WindowAccess => {
 
 export const RUNTIME_GLOBALS = [
   "storyOrchestratorScheduler", "storyOrchestratorLoreEvidence", "storyOrchestratorLore", "storyOrchestratorJudge",
-  "storyOrchestratorLiveSuite", "storyOrchestratorScanGating",
+  "storyOrchestratorLiveSuite", "storyOrchestratorScanGating", "storyOrchestratorToolTurnProbe",
 ] as const;
 
 export function startRuntime() {
@@ -114,6 +116,7 @@ export function startRuntime() {
   // so the gate opens now and the chat loads now; a page still fetching them opens it on the event.
   // Either way the load happens exactly once, because the gate resolves once.
   void settingsReady().then(() => {
+    void startSpikes();
     if (runtimeManager.getSnapshot().ready) return;
     noteHostSettingsLoaded?.();
     void startupLoad();
@@ -140,6 +143,7 @@ export function stopRuntime() {
   live.talk = null;
   live.scene = null;
   live.typedJudge = null;
+  stopSpikes();
   globalThis.talkControlInterceptor = () => undefined;
   for (const name of RUNTIME_GLOBALS) Reflect.deleteProperty(globalThis, name);
   started = false;

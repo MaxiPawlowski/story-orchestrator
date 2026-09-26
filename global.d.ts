@@ -60,6 +60,7 @@ declare global {
   var storyOrchestratorScheduler: { nextReadWindow: () => import("./src/extraction/scheduler").NextReadWindow | null } | undefined;
   var storyOrchestratorLoreEvidence: import("./src/runtime/worldInfoEvidence").LoreEvidence | undefined;
   var storyOrchestratorScanGating: import("./src/runtime/worldInfoScanHost").ScanGatingDebug | undefined;
+  var storyOrchestratorToolTurnProbe: import("./src/runtime/spikes/toolTurnProbe").ToolTurnProbe | undefined;
   var storyOrchestratorLore: { selector: import("./src/runtime/loreSelect").LoreSelector; willAddUserMessage: (type: string | undefined, params: Record<string, unknown> | undefined, dryRun: boolean | undefined) => boolean } | undefined;
   var storyOrchestratorDebugCuratorResponse: string | null | undefined;
   var storyOrchestratorDebugCallBudgetScale: number | null | undefined;
