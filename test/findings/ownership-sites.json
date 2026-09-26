@@ -448,6 +448,10 @@
     "src/runtime/worldInfoNormalize.ts#normalizeGatedEntries": {
       "status": "checked",
       "note": "v2.4 plan 05 T13 spike (2026-09-24): the one-time normaliser that sets each gated entry of a MARKER book (`SO-T13` prefix, `spikeBook`) to rest off in its file. Install-wide, not per chat, but minted from the manager's ownership so a chat switch or story load mid-run stops it; `run.stillOwns()` is checked immediately before each book's `disableWIEntry` (worldInfoNormalize.test.ts \"stops before a write once its run has lapsed\"). The ledger/outcome writes after the awaits are the call's own result object, returned to the caller (worldInfoScanHost), which writes the install-wide ledger. A lapsed run leaves the rest for the next run: the ledger only ever records what landed and was confirmed. The T12 evidence ring is not a row: it never awaits, so it is not a write-after-await site."
+    },
+    "src/runtime/worldInfoLedger.ts#verifyLedger": {
+      "status": "local",
+      "note": "v2.5 plan 01 B (2026-09-25): the ledger verifier is read-only. After each awaited book read it pushes only into the verdict object it returns (drift, missing, unreadable); it writes no file, no setting and no chat state, so a world that moved during a read changes nothing it touches. The caller publishes the verdict as install-wide status (drift is a fact about a lorebook file, not about a chat)."
     }
   }
 }

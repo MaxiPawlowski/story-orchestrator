@@ -1,6 +1,7 @@
-import { nextRepairStep, REPAIR_TARGET_IDS } from "./repair";
+import { nextRepairStep, REPAIR_TARGET_IDS, WI_GATING_TARGET_ID } from "./repair";
 import { createSaveHealth } from "./saveHealth";
 import type { RuntimeSnapshot } from "./types";
+import type { WiGatingStatus } from "./worldInfoMode";
 
 const snapshotWith = (overrides: Partial<RuntimeSnapshot> = {}): RuntimeSnapshot =>
   ({
@@ -118,6 +119,43 @@ describe("nextRepairStep", () => {
     it("shows in a chat with no story, because the chat it belonged to is gone", () => {
       expect(nextRepairStep(snapshotWith({ storyId: null, orphanedLorebooks: [orphan] } as Partial<RuntimeSnapshot>))?.area).toBe("lore");
     });
+  });
+});
+
+describe("v2.5 plan 01 B: a normalised entry switched on outside the story is a Repair row", () => {
+  const status = (overrides: Partial<WiGatingStatus> = {}): WiGatingStatus => ({
+    mode: "scan", active: true, capability: { state: "present", detail: "ok" }, ledger: { books: 1, entries: 3 }, drift: [], missingKey: [], missing: [], unreadable: [], busy: false, ...overrides,
+  });
+
+  it("names the drifted entry, says what it costs first, and points at the gating control", () => {
+    const step = nextRepairStep(snapshotWith({ wiGating: status({ drift: [{ lorebook: "Ruins", comment: "CP2" }] }) } as Partial<RuntimeSnapshot>));
+    expect(step).toEqual({
+      area: "lore",
+      consequence: "A story lorebook entry was switched on outside the story; it will show in chats without the story.",
+      detail: "Switched on outside the story: Ruins: CP2",
+      targetId: WI_GATING_TARGET_ID,
+      provisionable: false,
+    });
+  });
+
+  it("raises the same row for a gated entry the scan could not switch off (missingKey)", () => {
+    const step = nextRepairStep(snapshotWith({ wiGating: status({ missingKey: [{ lorebook: "Ruins", comment: "CP3" }] }) } as Partial<RuntimeSnapshot>));
+    expect(step?.consequence).toBe("A story lorebook entry was switched on outside the story; it will show in chats without the story.");
+    expect(step?.detail).toBe("Cannot be switched off for this chat: Ruins: CP3");
+  });
+
+  it("shows in a chat with no story, because every chat without the story sees the entry", () => {
+    expect(nextRepairStep(snapshotWith({ storyId: null, wiGating: status({ drift: [{ lorebook: "Ruins", comment: "CP2" }] }) } as Partial<RuntimeSnapshot>))?.targetId).toBe(WI_GATING_TARGET_ID);
+  });
+
+  it("control: nothing in file mode, and nothing when the ledger holds", () => {
+    expect(nextRepairStep(snapshotWith({ wiGating: status({ mode: "file", drift: [{ lorebook: "Ruins", comment: "CP2" }] }) } as Partial<RuntimeSnapshot>))).toBeNull();
+    expect(nextRepairStep(snapshotWith({ wiGating: status() } as Partial<RuntimeSnapshot>))).toBeNull();
+  });
+
+  it("comes after what the story in play is missing", () => {
+    const health = { ...createSaveHealth(), pendingBoundary: 7 };
+    expect(nextRepairStep(snapshotWith({ saveHealth: health, wiGating: status({ drift: [{ lorebook: "Ruins", comment: "CP2" }] }) } as Partial<RuntimeSnapshot>))?.area).toBe("save");
   });
 });
 

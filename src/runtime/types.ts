@@ -18,7 +18,7 @@ import type { PipelineStatus } from "./pipeline";
 import type { OrphanedLorebook } from "./mirrorReaper";
 import type { LoreEvidenceView } from "./worldInfoEvidence";
 import type { SamplerOverlayView } from "./samplerOverlay";
-import type { ScanGateView } from "./worldInfoMode";
+import type { ScanGateView, WiGatingStatus } from "./worldInfoMode";
 import type { MessageFingerprints } from "./fingerprints";
 import type { ChatIdentitySnapshot } from "./chatIdentity";
 import type { InjectedPromptBlock } from "@services/STAPI";
@@ -394,6 +394,8 @@ export interface RuntimeSnapshot {
   loreEvidence?: LoreEvidenceView;
   /** v2.4 plan 05 T13 spike (S5, author only): the last gated scan, per gated entry; null unless scan gating is active. */
   scanGate?: ScanGateView | null;
+  /** v2.5 plan 01: lorebook gating mode, ledger summary and drift (install-wide). */
+  wiGating?: WiGatingStatus | null;
   /** v2.4 plan 06 (X20, author only): the sampler overlay this checkpoint put on its replies, or null. */
   samplerOverlay?: SamplerOverlayView | null;
   // The story's authored curator allowlist, so the review panel can say what is in scope without

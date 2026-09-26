@@ -24,6 +24,28 @@ export interface RepairStep {
 
 export const REPAIR_TARGET_IDS = { memoryModel: "so-extraction-profile" } as const;
 
+export const WI_GATING_TARGET_ID = "so-wi-gating";
+
+const entryList = (entries: Array<{ lorebook: string; comment: string }>) => entries.map((entry) => `${entry.lorebook}: ${entry.comment}`).join("; ");
+
+// v2.5 plan 01 B: install-wide like the orphaned book, so it shows without a story too; last among the
+// story's own steps, because the story in play still sees its own lore correctly.
+function wiGatingStep(snapshot: RuntimeSnapshot): RepairStep | null {
+  const status = snapshot.wiGating;
+  if (status?.mode !== "scan" || (!status.drift.length && !status.missingKey.length)) return null;
+  const detail = [
+    ...(status.drift.length ? [`Switched on outside the story: ${entryList(status.drift)}`] : []),
+    ...(status.missingKey.length ? [`Cannot be switched off for this chat: ${entryList(status.missingKey)}`] : []),
+  ].join(" · ");
+  return {
+    area: "lore",
+    consequence: "A story lorebook entry was switched on outside the story; it will show in chats without the story.",
+    detail,
+    targetId: WI_GATING_TARGET_ID,
+    provisionable: false,
+  };
+}
+
 export const roleProfileTargetId = (role: PassRole): string => `so-role-profile-${role}`;
 
 export const ROLE_CONSEQUENCES: Record<PassRole, string> = {
@@ -56,7 +78,7 @@ function orphanedLorebookStep(snapshot: RuntimeSnapshot): RepairStep | null {
 }
 
 export function nextRepairStep(snapshot: RuntimeSnapshot): RepairStep | null {
-  if (!snapshot.storyId) return orphanedLorebookStep(snapshot);
+  if (!snapshot.storyId) return wiGatingStep(snapshot) ?? orphanedLorebookStep(snapshot);
   const settings = snapshot.extraction.settings;
   const config = snapshot.extractionHealth?.kind === "config" ? snapshot.extractionHealth.detail : null;
   if (!settings.enabled || !settings.profileId || config) {
@@ -113,5 +135,5 @@ export function nextRepairStep(snapshot: RuntimeSnapshot): RepairStep | null {
   if (hasUnsavedChanges(snapshot.saveHealth)) {
     return { area: "save", consequence: "Your last turn is not saved on the server yet.", detail: SAVE_PLAYER_TEXT, targetId: null, provisionable: false };
   }
-  return orphanedLorebookStep(snapshot);
+  return wiGatingStep(snapshot) ?? orphanedLorebookStep(snapshot);
 }
