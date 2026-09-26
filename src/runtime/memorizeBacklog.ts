@@ -109,7 +109,8 @@ export class MemorizeBacklog {
     const state = required(this.deps.getState(), "engine state");
     const windowed = reason === "memorize:window" ? { openArcs: memory.getOpenArcs(), epistemicLedgerCapable: memory.capable, entities: memory.getEntities() } : {};
     const scope = deriveFullScope(story, state.blackboard);
-    return { story, state, priority: 0, reason, window, scope, firedTransitions: this.deps.firedTransitions(), facts: memory.getFacts(), ...windowed, model: this.deps.model(), ask };
+    const tagged = { ...ask, budgetKind: reason };
+    return { story, state, priority: 0, reason, window, scope, firedTransitions: this.deps.firedTransitions(), facts: memory.getFacts(), ...windowed, model: this.deps.model(), ask: tagged };
   }
 
   private async memorizeWindows(story: NormalizedStoryV2, windows: SharedReadWindow[], length: number, read: ReadOwnership, budget: RequestBudget): Promise<boolean> {

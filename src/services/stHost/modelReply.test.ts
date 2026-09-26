@@ -102,7 +102,50 @@ describe("requestModelReply: the typed seam (v2.4 plan 03 D1)", () => {
   it("control: a TC profile keeps today's sampler override", async () => {
     const { host, calls } = fakeHost("llamacpp");
     await requestModelReply(host, "p1", "prompt", 512, { samplers: { temperature: 0.1, top_p: 0.9 } });
-    expect(calls[0].override).toEqual({ stream: false, temperature: 0.1, top_p: 0.9 });
+    expect(calls[0].override).toMatchObject({ stream: false, temperature: 0.1, top_p: 0.9 });
+  });
+
+  describe("A37: a TC request carries our output budget in every key ST fills from the preset's genamt", () => {
+    const presetPayload = {
+      max_tokens: 1200,
+      max_new_tokens: 1200,
+      n_predict: 1200,
+      num_predict: 1200,
+      num_ctx: 98304,
+      truncation_length: 98304,
+      temperature: 1,
+      top_p: 0.95,
+      top_k: 64,
+      min_p: 0.02,
+      repeat_penalty: 1.05,
+      dry_multiplier: 0.8,
+      stop: ["<end_of_turn>"],
+    };
+    const sent = (override: Record<string, unknown>) => ({ ...presetPayload, ...override });
+
+    it("every role's budget reaches n_predict and num_predict, samplers or not", async () => {
+      for (const [maxTokens, samplers] of [[512, { temperature: 0.1, top_p: 0.9 }], [1024, { temperature: 0.1, top_p: 0.9 }], [16, undefined]] as const) {
+        const { host, calls } = fakeHost("llamacpp");
+        await requestModelReply(host, "p1", "prompt", maxTokens, samplers ? { samplers } : {});
+        const body = sent(calls[0].override);
+        expect({ max_tokens: body.max_tokens, max_new_tokens: body.max_new_tokens, n_predict: body.n_predict, num_predict: body.num_predict }).toEqual({ max_tokens: maxTokens, max_new_tokens: maxTokens, n_predict: maxTokens, num_predict: maxTokens });
+      }
+    });
+
+    it("control: the preset's other samplers, context and stops are untouched", async () => {
+      const { host, calls } = fakeHost("llamacpp");
+      await requestModelReply(host, "p1", "prompt", 512, { samplers: { temperature: 0.1, top_p: 0.9 } });
+      const body = sent(calls[0].override);
+      const { max_tokens: _a, max_new_tokens: _b, n_predict: _c, num_predict: _d, temperature: _t, top_p: _p, ...rest } = presetPayload;
+      expect(body).toMatchObject(rest);
+      expect(Object.keys(calls[0].override).sort()).toEqual(["max_new_tokens", "max_tokens", "n_predict", "num_predict", "stream", "temperature", "top_p"]);
+    });
+
+    it("control: a CC profile gets no TC budget aliases (ST puts maxTokens in max_tokens itself)", async () => {
+      const { host, calls } = fakeHost("claude", { content: [{ type: "text", text: "x" }], stop_reason: "end_turn" });
+      await requestModelReply(host, "p1", "prompt", 512);
+      expect(calls[0].override).toEqual({ stream: false });
+    });
   });
 
   it("asks for the raw reply and hands the caller's signal to the host", async () => {
