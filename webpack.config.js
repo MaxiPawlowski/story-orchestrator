@@ -3,6 +3,7 @@ const webpack = require("webpack");
 const TerserPlugin = require("terser-webpack-plugin");
 const LiveReloadPlugin = require("webpack-livereload-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
+const { BundledPackagesPlugin } = require("./scripts/release/bundledPackages.cjs");
 
 const OUTPUT_DIRS = { prod: "dist", dev: "dist-dev" };
 
@@ -80,6 +81,7 @@ module.exports = (env = {}, argv = {}) => {
       new webpack.DefinePlugin({ __SO_DEV__: JSON.stringify(flavor === "dev") }),
       ...(argv.watch ? [new LiveReloadPlugin({ appendScriptTag: true })] : []),
       new ForkTsCheckerWebpackPlugin(),
+      new BundledPackagesPlugin({ out: path.join(__dirname, ".build", `packages-${flavor}.json`), webpackDir: path.dirname(require.resolve("webpack/package.json")) }),
     ],
   };
 };
