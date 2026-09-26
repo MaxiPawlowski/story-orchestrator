@@ -429,3 +429,88 @@ time**, and relieves the llama-server contention of v2.5-seeds E1 for the roles 
 - ~~Q6~~ Decided 2026-09-26: the user accepted H6's Phase A order.
 - Q7 Should the plugin always spawn each CLI with a plugin-owned config home holding only the login, so that user-level
   instructions can never reach the model by construction?
+
+## Gate record (Phase 0)
+
+**2026-09-26 — BLOCKED, not run. No probe has a verdict; nothing below is a PASS.** Worktree fast-forwarded to master
+`83913772`. The first probe batch (`node scripts/spike/harness/facts.mjs`, every CLI in a throwaway home with an
+allowlisted env) was refused by the session's auto-mode safety classifier, which then blocks every further CLI spawn in
+that session. Phase 0 has to be re-run from a session in the default permission mode. Recorded here: what was measured
+before the block (static facts only, no model call), the scripts written for the run, and the auth conflict that decides
+how much of Phase 0 can run under the throwaway-home rule at all.
+
+### Run rules (set for this run by the caller)
+
+Every CLI run in a throwaway config home (`CLAUDE_CONFIG_DIR`, `CODEX_HOME`, opencode `XDG_CONFIG_HOME`), never the real
+`~/.claude`, `~/.codex` or opencode config; Codex with `--ignore-user-config`; no key or credential file read, printed or
+copied; canaries only inside throwaway homes; egress by local observation only; predeclared counts only; lanes, main ST,
+`C:\dev\so-lanes` and the RunPod pod untouched.
+
+Deviation: `claude --version`, `codex --version`, `opencode --version` ran once each in the **real** environment (before
+the throwaway-home helper existed). Version strings only; no model call, no config written by design.
+
+### CLI host facts (static; measured 2026-09-26)
+
+| Harness | Version | Binary (spawn target, `shell:false`) | Shims on PATH | Config-home variable | Where the login lives |
+|---|---|---|---|---|---|
+| Claude Code | 2.1.282 | `~\.local\bin\claude.exe` (native, 242 MB) | none | `CLAUDE_CONFIG_DIR` (string in binary) | under `~/.claude` = the config dir, so a throwaway `CLAUDE_CONFIG_DIR` is **logged out** |
+| Codex | 0.155.1 | `%LOCALAPPDATA%\Programs\OpenAI\Codex\bin\codex.exe` (native, 307 MB; sibling `codex-code-mode-host.exe`) | none | `CODEX_HOME` (also `CODEX_SQLITE_HOME`) | `auth.json` in `CODEX_HOME`: a throwaway home is **logged out** |
+| opencode | 1.18.32 | `C:\ProgramData\chocolatey\lib\opencode\tools\opencode.exe` (real exe) | PATH's first hit `C:\ProgramData\chocolatey\bin\opencode.exe` is a 291 KB chocolatey shim (it spawns the real exe as a child, so a kill must take the tree); stale npm shims `C:\Program Files\nodejs\opencode{,.cmd,.ps1}` and `%APPDATA%\nvm\v22.22.0\opencode{,.cmd,.ps1}` (rule 1: refused) | `XDG_CONFIG_HOME`, `OPENCODE_CONFIG_DIR`, `OPENCODE_CONFIG`, `OPENCODE_CONFIG_CONTENT` | `auth.json` in the **data** dir (`~/.local/share/opencode`, next to the session DB `opencode.db`). A throwaway config home keeps the login; the session DB is then the real one |
+
+Env-variable and flag names found by a string scan of each binary (`scripts/spike/harness/envscan.mjs`). Presence of a
+string is not behaviour: each row is a candidate, unverified until a probe uses it.
+
+| Harness | Opt-out / isolation candidates | Proxy / CA | Output cap | System prompt by file |
+|---|---|---|---|---|
+| Claude | `DISABLE_TELEMETRY`, `DISABLE_ERROR_REPORTING`, `DISABLE_AUTOUPDATER`, `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`, `DO_NOT_TRACK`, `CLAUDE_CODE_DISABLE_CLAUDE_MDS`, `CLAUDE_CODE_DISABLE_AUTO_MEMORY` | `HTTPS_PROXY`, `NODE_EXTRA_CA_CERTS` | `CLAUDE_CODE_MAX_OUTPUT_TOKENS` (env, no flag) | `--system-prompt-file`, `--append-system-prompt-file` strings present (rule 2 fact still owed: not in `--help` check yet) |
+| Codex | none found (only `OTEL_*` exporter settings); analytics is a config key, and `--ignore-user-config` drops the user's | `HTTPS_PROXY`, `SSL_CERT_FILE`, `CODEX_CA_CERTIFICATE` | not found | not found (rule 2: prepend on stdin) |
+| opencode | `OPENCODE_DISABLE_AUTOUPDATE`, `OPENCODE_DISABLE_SHARE`, `OPENCODE_DISABLE_MODELS_FETCH`, `OPENCODE_DISABLE_PROJECT_CONFIG`, `OPENCODE_DISABLE_EXTERNAL_SKILLS`, `OPENCODE_DISABLE_DEFAULT_PLUGINS`, `OPENCODE_PURE`, **`OPENCODE_DISABLE_CLAUDE_CODE` (+`_PROMPT`, `_SKILLS`)** | not found by name (Bun runtime; unverified) | `OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX` | agent `prompt` via `OPENCODE_CONFIG_CONTENT` (env: rule 2 forbids it for `system`) |
+
+Two findings that change the P0-2 design:
+
+1. **opencode reads Claude Code's files by default** (the `OPENCODE_DISABLE_CLAUDE_CODE*` switches exist). P0-2's
+   opencode arm must also plant a canary in `~/.claude/CLAUDE.md` and a `~/.claude/skills/` skill of the throwaway
+   `HOME`, and rule 3's opencode argv needs those switches if the canary gets through.
+2. **The shell this session runs in exports `ANTHROPIC_AUTH_TOKEN` and `ANTHROPIC_BASE_URL`** (names seen, values never
+   read), inherited from the desktop host. A Claude child that inherits them authenticates without any config home, so a
+   "throwaway home" probe that passes the parent env is not isolated, and an ST started from such a shell hands them to
+   the plugin. Rule 5's allowlist is therefore load-bearing, and PS-H 6 should use one of these names as its canary.
+   `scripts/spike/harness/lib.mjs` `envFor` builds the child env from an allowlist and a throwaway `USERPROFILE`/`HOME`/
+   `APPDATA`/`LOCALAPPDATA`.
+
+### Probes
+
+Scripts: `scripts/spike/harness/lib.mjs` (spawn with `shell:false`, allowlisted env, throwaway homes under
+`%TEMP%\so-p0`, `taskkill /T /F` tree kill, process-tree and `netstat -ano` sampling), `facts.mjs` (the refused batch),
+`envscan.mjs`. **None of them has run to completion; `probe.mjs` is not written.** Records would go under
+`test/journeys/records/v2.5-harness/phase0/` (empty).
+
+| # | Predeclared PASS | Command (planned) | Result | Verdict |
+|---|---|---|---|---|
+| P0-1 | 20/20 PONGs per harness × model; p50/p90 wall, spawnMs, input tokens | `opencode run --pure --format json --agent so-text -m openai/gpt-6-astra-fast` (and `gpt-6-astra`), stdin `PONG` prompt, throwaway config home, real data dir; Claude `-p … --model haiku/sonnet`; Codex `exec - --json --ephemeral --ignore-user-config …` | blocked. Claude and Codex are logged out in a throwaway home (see auth conflict) | NOT RUN |
+| P0-2 | canary never echoed, tokens ±5, control arm echoes it (else void) | canaries in temp-cwd `CLAUDE.md`/`AGENTS.md` and user level of each throwaway home (`$CLAUDE_CONFIG_DIR/CLAUDE.md`, `$CODEX_HOME/AGENTS.md`, `$XDG_CONFIG_HOME/opencode/{opencode.json instructions, agent, skill}`, plus `$HOME/.claude/CLAUDE.md` for opencode) | blocked; Claude/Codex arms need a login in the throwaway home | NOT RUN |
+| H-N1 | 0 tool events, no file content, 5/5 per harness | tool-bait prompt (list cwd, read `~/.ssh/known_hosts` of the throwaway home, `whoami`, fetch a URL) | blocked | NOT RUN |
+| H-N1b | no marker file, 0 MCP children, 0 MCP events, 5/5 | `[mcp_servers.canary]` (Codex), `.claude.json` `mcpServers` (Claude), `opencode.json` `mcp` in the throwaway homes, command = `node -e` writing a marker in the home | blocked. The review text says "auth copied"; this run's rules forbid copying, so Claude/Codex can only give the pre-auth half (does an unauthenticated CLI start MCP servers) | NOT RUN |
+| P0-3 | tree gone within 1 s of a 3 s deadline, `timeout` | long-answer prompt, `lib.mjs` deadline → `taskkill /T /F`, `psTree` before/after | blocked | NOT RUN |
+| P0-4 | bad model / logged-out / quota each map to a kind | bad model on opencode; logged-out = every CLI in a fresh throwaway home (needs no auth, cheapest probe); quota only if natural (Codex until 2026-09-27 20:58) | blocked | NOT RUN |
+| P0-5 | killed or truncated, `finish: length` | 4 000-word ask, `maxOutputChars` 2 000 (`lib.mjs` kills at 2×) | blocked | NOT RUN |
+| P0-6 | each binary spawns with `shell:false`; a `.cmd` shim is detected and refused | `facts.mjs` spawns the three real exes and the four opencode shims with `shell:false` | blocked. Static: all three real entries are `.exe`; opencode's PATH-first hit is a chocolatey exe shim (spawnable, but the model process is its grandchild) | NOT RUN |
+| P0-7 | hosts ⊆ {vendor, documented telemetry}; no canary in home/app-data with flags on | `lib.mjs` `watch` (netstat per tree PID, 100 ms), `ipconfig /displaydns` after, `find -newer` over the throwaway home and the real opencode data dir, canary grep (auth files excluded) | blocked | NOT RUN |
+| PS-H | plan 12 PS-H 1–12 | needs the plugin; Phase 0 owes only PS-H 5's inputs (config-home variable per CLI: table above) and its precondition (control arm echoes the canary) | variables recorded statically; precondition not run | NOT RUN |
+
+### Auth vs the throwaway-home rule (decides what Phase 0 can measure)
+
+With credentials never copied: Claude and Codex are **logged out** in any throwaway home, so every model-call probe
+(P0-1, P0-2, H-N1, H-N1b, P0-3, P0-5, P0-7) can run on them only as "needs auth in the real home, not probed". Only
+opencode keeps its login (data dir) while its config home is throwaway, at the price of writing its session DB in the
+real `~/.local/share/opencode/opencode.db`, which P0-7 must then count as residue. PS-H 5 and Q7 both assume login
+material is copied into the throwaway home. That is a user decision: allow a copy of only the login file into a throwaway
+home (removed after, sha256 of the real file before/after), or run Claude/Codex Phase 0 in the real home with the
+back-up/plant/restore path P0-2 already describes.
+
+### Blocks for Phase A
+
+1. Phase 0 has not run: re-run from a default-permission session (`facts.mjs`, then a `probe.mjs` built on `lib.mjs`).
+2. The auth decision above; without it no Claude or Codex arm can pass P0-2/H-N1/H-N1b/P0-7, so neither harness can be
+   offered (plan rule: a harness that fails them is not offered and gets no Phase A arm).
+3. Codex quota until 2026-09-27 20:58.
