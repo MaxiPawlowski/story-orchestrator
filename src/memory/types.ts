@@ -72,7 +72,7 @@ export interface EpistemicEntry {
   /** v2.3 plan 05: never retired by extraction unless the author unlocks it. */
   locked?: boolean;
   /** v2.3 plan 05. Where this belief came from and whether it is still valid. */
-  provenance?: Provenance;
+  provenance: Provenance;
   supersededBy?: string;
   /** v2.3 plan 04 (M4). When a reveal retired this belief. The `supersededBy` marker is display
    *  only; this is what a rollback keys on. */
@@ -98,7 +98,7 @@ export interface LedgerEntry {
   messageId?: number;
   pinned?: boolean;
   /** v2.3 plan 05. Where this version came from and whether it is still valid. */
-  provenance?: Provenance;
+  provenance: Provenance;
 }
 
 export interface LedgerView {
@@ -159,7 +159,7 @@ export interface MemoryEntry {
    *  it, and a later contradicting candidate goes to the reconciliation queue instead. */
   locked?: boolean;
   /** v2.3 plan 05. Where this claim came from and whether it is still valid. */
-  provenance?: Provenance;
+  provenance: Provenance;
   tokens?: number;
 }
 

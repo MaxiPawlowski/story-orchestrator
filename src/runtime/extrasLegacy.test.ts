@@ -14,9 +14,8 @@ import { sanitizeExpansion, sanitizeExtraction, sanitizeMemory } from "./extras"
 import { repairActiveCheckpoint, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import type { RuntimeExtras } from "./types";
 
-// v2.3 plan 05. A chat saved before envelopes existed hydrates and plays unchanged (v2.1 rule 6), and
-// every row it brings is a STATED unknown: stamped `legacy`, still live, never dressed as an extractor
-// read that nobody can point at.
+// v2.5 plan 11. Every stored row carries its envelope; one that does not is dropped at hydrate, and
+// the drop is counted rather than silent.
 
 const blob = (overrides: Record<string, unknown> = {}): RuntimeExtras => ({
   memory: {
@@ -27,13 +26,16 @@ const blob = (overrides: Record<string, unknown> = {}): RuntimeExtras => ({
   },
 } as unknown as RuntimeExtras);
 
-describe("hydrating a chat written before envelopes (v2.3 plan 05)", () => {
-  it("stamps every row legacy, and legacy is live", () => {
-    const memory = sanitizeMemory(blob());
-    expect(memory.entries[0].provenance).toMatchObject({ source: "legacy", messageId: -1, validity: "live" });
-    expect(memory.epistemic[0].provenance?.source).toBe("legacy");
-    expect(memory.ledger[0].provenance?.source).toBe("legacy");
-    expect(memory.entries.every(isLive)).toBe(true);
+describe("hydrating stored rows and their envelopes", () => {
+  it("drops a row without an envelope, and counts it", () => {
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => undefined);
+    const valid = { source: "extractor" as const, messageId: 4, boundary: 2, pass: "shared-read", validity: "live" as const };
+    const memory = sanitizeMemory(blob({ entries: [blob().memory.entries[0], { ...blob().memory.entries[0], id: "m2", provenance: valid }, { ...blob().memory.entries[0], id: "m3", provenance: { source: "legacy", messageId: -1, boundary: -1, pass: "hydrate", validity: "live" } }] }));
+    expect(memory.entries.map((entry) => entry.id)).toEqual(["m2"]);
+    expect(memory.epistemic).toEqual([]);
+    expect(memory.ledger).toEqual([]);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("2 memory, 1 epistemic, 1 ledger"));
+    warn.mockRestore();
   });
 
   it("keeps an envelope the blob already carries", () => {

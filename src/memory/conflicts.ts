@@ -1,4 +1,4 @@
-import { isLive, withOverride, withValidity, type Provenance, type Provenanced } from "./provenance";
+import { isLive, withOverride, withValidity, type Provenance } from "./provenance";
 import { ledgerKey } from "./ledger";
 import { hasStateChangeMarker } from "./similarity";
 import { buildJaccardMatchSets, type MatchSets } from "./consolidate";
@@ -200,7 +200,7 @@ export function detectConflicts(
 /** Both sides of a queued conflict stop steering replies until the author resolves it. A store
  *  nothing matched is returned UNCHANGED, so a pass that found nothing is still a no-op and the
  *  write-edge census keeps seeing silence where there is nothing to write. */
-export function markConflicted<T extends Provenanced>(records: T[], ids: string[], idOf: (record: T) => string): T[] {
+export function markConflicted<T extends { provenance: Provenance }>(records: T[], ids: string[], idOf: (record: T) => string): T[] {
   const wanted = new Set(ids);
   if (!records.some((record) => wanted.has(idOf(record)))) return records;
   return records.map((record) => (wanted.has(idOf(record)) ? { ...record, ...withValidity(record, "conflicted") } : record));

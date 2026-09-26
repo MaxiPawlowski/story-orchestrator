@@ -253,9 +253,6 @@ export interface MemoryRuntimeState extends MemoryStoreState {
   /** v2.3 plan 05 (M7). Pinned rows the injection budget could not fit, so the author is told
    *  instead of losing them quietly. */
   pinnedOverflow: number;
-  /** v2.3 plan 05 (M5/M6). Rows an older chat pinned carry no envelope, so the author is asked once
-   *  per chat whether those pins stay pins or become locks. */
-  legacyPinPromptSeen: boolean;
   /** v2.4 plan 03 D5. The first message this story's play covers in this chat: the player's last message when it
    *  started, or 0 before the player spoke. The first scene summary starts here; earlier history is the backlog's. */
   storyStart: number;

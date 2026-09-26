@@ -13,6 +13,7 @@ import {
   buildLedgerView,
   buildMemoryInjectionBlocks,
   highImportanceFacts,
+  provenance,
   renderPrivateEpistemicBlock,
   rollbackEpistemic,
   rollbackLedger,
@@ -42,6 +43,7 @@ const entry = (overrides: Partial<MemoryEntry>): MemoryEntry => ({
   evidence: "evidence",
   createdAt: 1,
   recallCount: 0,
+  provenance: provenance({ source: "extractor", messageId: 1, boundary: 1, pass: "shared-read" }),
   ...overrides,
 });
 const quarantine = <T extends MemoryEntry>(row: T, validity: "source-removed" | "conflicted" = "source-removed"): T => ({ ...row, ...withValidity(row, validity) });

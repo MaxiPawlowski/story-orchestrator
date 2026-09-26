@@ -3,7 +3,7 @@
 // versions, scene fields. The consumers (injection, canon, the warden's fact list) read `validity`
 // rather than trusting a row simply because it is present — a claim whose source message was
 // removed, or one that contradicts another store, must not steer a reply.
-export const PROVENANCE_SOURCES = ["extractor", "judge", "author", "code", "curator", "blackboard", "legacy"] as const;
+export const PROVENANCE_SOURCES = ["extractor", "judge", "author", "code", "curator", "blackboard"] as const;
 export type ProvenanceSource = typeof PROVENANCE_SOURCES[number];
 
 export const VALIDITIES = ["live", "superseded", "source-removed", "conflicted", "quarantined"] as const;
@@ -62,28 +62,28 @@ export function provenance(spec: ProvenanceInputSpec): Provenance {
   };
 }
 
-/** A row an old chat hydrates with no envelope. Legacy is a STATED unknown, never dressed as a
- *  read: it stays live (v2.1 rule 6 — the chat hydrates and plays unchanged) and says so. */
-export function legacyProvenance(pass = "hydrate"): Provenance {
-  return { source: "legacy", messageId: -1, boundary: -1, pass, validity: "live" };
-}
+/** v2.5 plan 11: the hydrate sanitizer keeps a row only when its envelope has this shape. */
+export const isProvenance = (value: unknown): value is Provenance => {
+  const found = value as Partial<Provenance> | null;
+  return Boolean(found) && typeof found === "object" && (PROVENANCE_SOURCES as readonly unknown[]).includes(found?.source) && (VALIDITIES as readonly unknown[]).includes(found?.validity)
+    && typeof found?.messageId === "number" && typeof found?.boundary === "number" && typeof found?.pass === "string";
+};
 
-/** A record with no envelope is legacy by construction, so absent never means "not live". */
+/** A record that carries no envelope (a scene read written without one) is not quarantined, so absent reads as live. */
 export function isLive(record: Provenanced): boolean {
   return !record.provenance || record.provenance.validity === "live";
 }
 
 export const isQuarantined = (record: Provenanced): boolean => Boolean(record.provenance) && !isLive(record);
 
-export function withValidity(record: Provenanced, validity: Validity): { provenance: Provenance } {
-  return { provenance: { ...(record.provenance ?? legacyProvenance()), validity } };
+export function withValidity(record: { provenance: Provenance }, validity: Validity): { provenance: Provenance } {
+  return { provenance: { ...record.provenance, validity } };
 }
 
 /** The author decided this record is true: an override anchored to the boundary it was made at, and
  *  the reason it exists. Reconciled conflicts, Store-anyway rows and locks all take this shape. */
-export function withOverride(record: Provenanced, reason: string, at: string, boundary: number): { provenance: Provenance } {
-  const base = record.provenance ?? legacyProvenance();
-  return { provenance: { ...base, source: "author", validity: "live", override: { by: "author", at, boundary, from: reason } } };
+export function withOverride(record: { provenance: Provenance }, reason: string, at: string, boundary: number): { provenance: Provenance } {
+  return { provenance: { ...record.provenance, source: "author", validity: "live", override: { by: "author", at, boundary, from: reason } } };
 }
 
 /** Undoing a decision — an unlocked row, a resolved conflict reopened: the envelope goes back to
@@ -102,9 +102,7 @@ export function describeProvenance(record: Provenanced): string {
   return `${found.source} · ${found.pass} · ${where} · ${found.validity}${override}`;
 }
 
-/** The short form an author-facing list shows: where a claim came from, or a STATED unknown.
- *  A legacy envelope is a hydrate-time default, not a read — rendering it as "legacy · hydrate"
- *  would dress an unknown as a source (v2.3 plan 05). One rule, both the Memory tab and the
- *  conflict queue, because two renderings of the same envelope is how one of them goes stale. */
-export const originLabel = (found?: Provenance): string =>
-  !found || found.source === "legacy" ? "origin unknown" : `${found.source} · ${found.pass}`;
+/** The short form an author-facing list shows: where a claim came from, or a STATED unknown when the
+ *  read carries no envelope. One rule, both the Memory tab and the conflict queue, because two
+ *  renderings of the same envelope is how one of them goes stale. */
+export const originLabel = (found?: Provenance): string => (!found ? "origin unknown" : `${found.source} · ${found.pass}`);

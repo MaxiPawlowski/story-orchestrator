@@ -3,7 +3,7 @@ import { fn, within, userEvent, expect } from "@storybook/test";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { ConflictPair, MemoryEntry } from "@memory/index";
-import { legacyProvenance, provenance } from "@memory/provenance";
+import { provenance } from "@memory/provenance";
 import ConflictQueue from "./ConflictQueue";
 import { MessageJumpProvider } from "./MessageCitation";
 
@@ -21,6 +21,7 @@ const memoryEntry = (overrides: Partial<MemoryEntry>): MemoryEntry => ({
   createdAt: 1,
   messageId: 1,
   recallCount: 0,
+  provenance: provenance({ source: "extractor", messageId: 1, boundary: 1, pass: "shared-read" }),
   ...overrides,
 });
 
@@ -104,32 +105,6 @@ export const EachSideNamesWhereItCameFrom: Story = {
     expect(origins).toHaveLength(2);
     expect(origins[0].textContent).toContain("message 3");
     expect(origins[1].textContent).toContain("message 7");
-  },
-};
-
-// A row hydrated from an old chat carries `legacyProvenance()` — a hydrate-time DEFAULT, not a read.
-// The queue has to say so the way the Memory tab does, or the two panels disagree about the same
-// envelope; and a legacy envelope's `messageId` is -1, which must not print as "message -1".
-export const ALegacySideReadsAsUnknown: Story = {
-  args: {
-    snapshot: snapshot({
-      conflicts: [{
-        key: "fact:legacy|condition",
-        detectedAt: "2026-09-21T00:00:00.000Z",
-        window: null,
-        sides: [
-          { store: "memory", id: "l1", label: "Mara's condition is steady", provenance: legacyProvenance() },
-          { store: "ledger", id: "l2", label: "Mara condition = injured", messageId: 7, provenance: provenance({ source: "extractor", messageId: 7, boundary: 4, pass: "shared-read" }) },
-        ],
-      }],
-    }),
-  },
-  play: async ({ canvasElement }) => {
-    const origins = Array.from(canvasElement.querySelectorAll('[data-so="conflict-origin"]')).map((origin) => origin.textContent ?? "");
-    expect(origins[0]).toContain("origin unknown");
-    expect(origins.join(" | ")).not.toContain("legacy · hydrate");
-    expect(origins.join(" | ")).not.toContain("message -1");
-    expect(origins[1]).toContain("extractor · shared-read");
   },
 };
 

@@ -1,5 +1,5 @@
 import { stableStringify } from "@runtime/hash";
-import { clearOverride, legacyProvenance, withOverride, withValidity } from "./provenance";
+import { clearOverride, withOverride, withValidity } from "./provenance";
 import type { MemoryEntry, MemoryExpiration, MemoryStoreState, MemoryTier, MemoryWriteLogEntry } from "./types";
 
 export interface TurnRange {
@@ -105,7 +105,7 @@ export function dropByMessageId(state: MemoryStoreState, messageId: number, boun
         // own goes, and a kept record falls back to what its own source says — live while that source
         // is still in the chat, quarantined once it is not.
         if (!entry.pinned) return [];
-        const { override: _undone, ...rest } = found ?? legacyProvenance();
+        const { override: _undone, ...rest } = found;
         return [stripLinksAfter({ ...entry, provenance: { ...rest, validity: removed ? "source-removed" : "live" } }, messageId)];
       }
       if (removed) {

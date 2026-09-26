@@ -1,6 +1,6 @@
-import { stripChannelNoise, type ParsedFact } from "@extraction/index";
+import { stripChannelNoise } from "@extraction/index";
 import { EXPANSION_CONTRACT, type ExpansionCacheEntry, type ExpansionRuntimeState } from "@generation/index";
-import { CONFLICT_LIMIT, createMemoryState, DERIVED_LIMIT, generateMemoryId, legacyProvenance, type MemoryEntry } from "@memory/index";
+import { CONFLICT_LIMIT, createMemoryState, DERIVED_LIMIT, isProvenance } from "@memory/index";
 import { DEFAULT_TENSION_EMA_ALPHA } from "@constants/defaults";
 import { capProposalRing } from "@stagecraft/index";
 import { createJudgeRuntime, sanitizeJudgeRuntime } from "@judge/index";
@@ -50,7 +50,6 @@ export const createMemory = (): MemoryRuntimeState => ({
   conflicts: [],
   resolvedConflicts: [],
   pinnedOverflow: 0,
-  legacyPinPromptSeen: false,
   storyStart: 0,
   settings: defaultMemorySettings(),
   backfill: null,
@@ -65,21 +64,14 @@ export const createMemory = (): MemoryRuntimeState => ({
   updatedAt: new Date().toISOString(),
 });
 
-const migrateLegacyFacts = (facts: ParsedFact[]): MemoryEntry[] => facts.map((fact) => ({
-  id: generateMemoryId(),
-  tier: "facts",
-  text: fact.text,
-  type: "fact",
-  importance: fact.importance,
-  expiration: "permanent",
-  entities: [],
-  confidence: 1,
-  activationTriggers: [],
-  evidence: fact.evidence,
-  createdAt: fact.boundary ?? 0,
-  messageId: fact.messageId,
-  recallCount: 0,
-}));
+// v2.5 plan 11: a stored row without a valid envelope is dropped, never dressed with a default one;
+// the count goes to the console so a dropped row is never silent.
+const enveloped = <T extends { provenance: unknown }>(rows: unknown, store: string, dropped: string[]): T[] => {
+  if (!Array.isArray(rows)) return [];
+  const kept = rows.filter((row): row is T => Boolean(row) && typeof row === "object" && isProvenance((row as T).provenance));
+  if (kept.length < rows.length) dropped.push(`${rows.length - kept.length} ${store}`);
+  return kept;
+};
 
 const sanitizeMirrorBook = (value: unknown): MemoryMirrorBook | null => {
   const book = value as Partial<MemoryMirrorBook> | null | undefined;
@@ -89,9 +81,13 @@ const sanitizeMirrorBook = (value: unknown): MemoryMirrorBook | null => {
 export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeState => {
   const existing = value?.memory;
   if (existing && Array.isArray(existing.entries)) {
+    const dropped: string[] = [];
+    const entries = enveloped<MemoryRuntimeState["entries"][number]>(existing.entries, "memory", dropped);
+    const epistemic = enveloped<MemoryRuntimeState["epistemic"][number]>(existing.epistemic, "epistemic", dropped);
+    const ledger = enveloped<MemoryRuntimeState["ledger"][number]>(existing.ledger, "ledger", dropped);
+    if (dropped.length) console.warn(`[Story Orchestrator] dropped stored rows without a provenance envelope: ${dropped.join(", ")}`);
     return {
-      entries: existing.entries.map((entry) => ({ ...entry, text: stripChannelNoise(entry.text), provenance: entry.provenance ?? legacyProvenance() })),
-      // A row with no envelope is a stated unknown, not a silent one (v2.3 plan 05).
+      entries: entries.map((entry) => ({ ...entry, text: stripChannelNoise(entry.text) })),
       excluded: Array.isArray(existing.excluded) ? existing.excluded : [],
       writeLog: Array.isArray(existing.writeLog) ? existing.writeLog.slice(-100) : [],
       settings: { ...defaultMemorySettings(), ...existing.settings },
@@ -101,43 +97,19 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
       wiWrites: existing.wiWrites && typeof existing.wiWrites === "object" ? existing.wiWrites : {},
       wiBook: sanitizeMirrorBook(existing.wiBook),
       arcs: Array.isArray(existing.arcs) ? existing.arcs.map((arc) => ({ ...arc, text: stripChannelNoise(arc.text), ...(arc.summary ? { summary: stripChannelNoise(arc.summary) } : {}) })) : [],
-      epistemic: Array.isArray(existing.epistemic) ? existing.epistemic.map((row) => ({ ...row, provenance: row.provenance ?? legacyProvenance() })) : [],
-      ledger: Array.isArray(existing.ledger) ? existing.ledger.map((row) => ({ ...row, provenance: row.provenance ?? legacyProvenance() })) : [],
+      epistemic,
+      ledger,
       canon: existing.canon && typeof existing.canon === "object" ? { ...existing.canon, text: stripChannelNoise(existing.canon.text) } : null,
       verifyDrops: Array.isArray(existing.verifyDrops) ? existing.verifyDrops.filter((drop) => drop && typeof drop === "object" && drop.entry && typeof drop.p === "number").slice(-VERIFY_DROP_LIMIT) : [],
       derived: Array.isArray(existing.derived) ? existing.derived.filter((record) => record && typeof record === "object" && typeof record.id === "string" && Array.isArray(record.inputs) && typeof record.messageId === "number").slice(-DERIVED_LIMIT) : [],
       conflicts: Array.isArray(existing.conflicts) ? existing.conflicts.filter((pair) => Boolean(pair) && typeof pair.key === "string" && Array.isArray(pair.sides)).slice(-CONFLICT_LIMIT) : [],
       resolvedConflicts: Array.isArray(existing.resolvedConflicts) ? existing.resolvedConflicts.filter((key) => typeof key === "string").slice(-CONFLICT_LIMIT) : [],
       pinnedOverflow: typeof existing.pinnedOverflow === "number" ? existing.pinnedOverflow : 0,
-      legacyPinPromptSeen: existing.legacyPinPromptSeen === true,
       storyStart: typeof existing.storyStart === "number" ? existing.storyStart : 0,
       updatedAt: existing.updatedAt ?? new Date().toISOString(),
     };
   }
-  const legacyFacts = (value?.extraction as unknown as { facts?: ParsedFact[] } | undefined)?.facts;
-  return {
-    entries: Array.isArray(legacyFacts) ? migrateLegacyFacts(legacyFacts) : [],
-    excluded: [],
-    writeLog: [],
-    settings: defaultMemorySettings(),
-    backfill: null,
-    sceneCount: 0,
-    shortTermSummaryEnd: -1,
-    wiWrites: {},
-    wiBook: null,
-    arcs: [],
-    epistemic: [],
-    ledger: [],
-    canon: null,
-    verifyDrops: [],
-    derived: [],
-    conflicts: [],
-    resolvedConflicts: [],
-    pinnedOverflow: 0,
-    legacyPinPromptSeen: false,
-    storyStart: 0,
-    updatedAt: new Date().toISOString(),
-  };
+  return createMemory();
 };
 
 export const createCopilot = (): CopilotRuntimeSettings => ({ enabled: true });

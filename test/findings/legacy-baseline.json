@@ -2,22 +2,12 @@
   "$comment": "v2.5 plan 11 step 0. S1 guard baseline for src/ (src/runtime/legacyFree.guard.test.ts): per-file count of lines matching /legacy|migrat|OrHash|version\\s*[!=]==\\s*\\d/i outside tests and stories. It only shrinks: each plan-11 step deletes the entries it clears. 'closed' flips true at step 8, when the baseline must be empty. 'allowlist' is C1 only, keyed by file + exact line text with an exact count.",
   "closed": false,
   "baseline": {
-    "src/components/drawer/ConflictQueue.tsx": 2,
-    "src/components/drawer/DrawerTabs.tsx": 10,
-    "src/components/drawer/StagecraftPanel.tsx": 2,
-    "src/judge/scene.ts": 1,
-    "src/memory/provenance.ts": 9,
-    "src/memory/stores.ts": 2,
-    "src/runtime/coordinators/memoryCoordinator.ts": 1,
-    "src/runtime/extras.ts": 12,
+    "src/runtime/extras.ts": 2,
     "src/runtime/librarySave.ts": 2,
-    "src/runtime/memoryActions.ts": 4,
     "src/runtime/runtimeManager.ts": 4,
     "src/runtime/settingsStore.ts": 10,
     "src/runtime/storyLibrary.ts": 15,
-    "src/runtime/storySelection.ts": 9,
-    "src/runtime/types.ts": 1,
-    "src/stagecraft/types.ts": 1
+    "src/runtime/storySelection.ts": 9
   },
   "allowlist": [
     {

@@ -331,37 +331,8 @@ describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
   });
 });
 
-describe("RuntimeManager memory migration", () => {
+describe("RuntimeManager memory hydrate", () => {
   beforeEach(() => resetHost());
-
-  it("migrates a legacy extras.extraction.facts blob into the facts memory tier on hydrate", async () => {
-    const manager = new RuntimeManager();
-    await manager.importStory(JSON.stringify(story));
-    const storyId = manager.getSnapshot().storyId as string;
-
-    const blob = mockContext.chatMetadata.story_orchestrator as { stories: Record<string, { extras: Record<string, unknown> }> };
-    const persistedExtras = blob.stories[storyId].extras;
-    delete persistedExtras.memory;
-    persistedExtras.extraction = {
-      ...(persistedExtras.extraction as Record<string, unknown>),
-      facts: [{ text: "Mara trusts the player.", evidence: "I trust you.", importance: 2, boundary: 1, messageId: 3 }],
-    };
-
-    await manager.selectStory(storyId, "hydrate");
-
-    const migrated = manager.getSnapshot().memory.entries;
-    expect(migrated).toHaveLength(1);
-    expect(migrated[0]).toMatchObject({ tier: "facts", type: "fact", text: "Mara trusts the player.", evidence: "I trust you.", importance: 2, expiration: "permanent", createdAt: 1, messageId: 3 });
-  });
-
-  it("does not re-migrate once extras.memory already exists", async () => {
-    const manager = new RuntimeManager();
-    await manager.importStory(JSON.stringify(story));
-    const storyId = manager.getSnapshot().storyId as string;
-
-    await manager.selectStory(storyId, "hydrate");
-    expect(manager.getSnapshot().memory.entries).toHaveLength(0);
-  });
 
   it("clears a stuck backfill.running flag on reload so a new backlog can start", async () => {
     const manager = new RuntimeManager();

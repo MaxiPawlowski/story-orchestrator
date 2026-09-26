@@ -339,7 +339,6 @@ export class MemoryCoordinator {
   async reconfirmMemoryEntry(id: string) { return await reconfirmMemoryEntry(this.queueDeps(), id, new Date().toISOString()); }
 
   /** Rows an older chat pinned carry no envelope: the author is asked once per chat what a pin means. */
-  async dismissLegacyPinPrompt() { await this.commit(() => ({ legacyPinPromptSeen: true })); }
 
   /** The author overrules the judge's drop. One of the queue's own decisions (see memoryQueue). */
   async storeDroppedEntry(entryId: string) { return await storeDroppedEntry(this.queueDeps(), entryId, new Date().toISOString()); }

@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn, within, userEvent, expect } from "@storybook/test";
-import { legacyProvenance } from "@memory/provenance";
 import type { RuntimeManager } from "@runtime/index";
 import { buildNarrativeStatus } from "@runtime/narrative";
 import { derivePipelineStatus } from "@runtime/pipeline";
@@ -441,36 +440,6 @@ export const Memory: Story = {
     await expect(canvas.getByText(/State ledger \(2\)/)).toBeInTheDocument();
     await expect(canvas.getByText(/respect=2/)).toBeInTheDocument();
     await expect(canvas.getByText("blackboard")).toBeInTheDocument();
-  },
-};
-
-// v2.3 plan 05: a row an OLDER CHAT saved has no envelope of its own, and the sanitizer stamps it
-// `legacy`. The author view has to say "unknown origin" rather than dress that as a source, and the
-// pin question has to be asked of the source — not of the envelope's absence, which hydration erased.
-const legacySnapshot = (): RuntimeSnapshot => {
-  const snapshot = memorySnapshot() as unknown as { memory: Record<string, unknown> };
-  snapshot.memory = {
-    ...snapshot.memory,
-    legacyPinPromptSeen: false,
-    entries: [
-      { id: "legacy-1", tier: "facts", text: "The ferryman owes the player a crossing.", type: "fact", importance: 2, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: "e", createdAt: 1, recallCount: 0, pinned: true, provenance: legacyProvenance() },
-    ],
-  };
-  return derive(snapshot as unknown as RuntimeSnapshot);
-};
-
-export const MemoryLegacyRowsAreAStatedUnknown: Story = {
-  render: () => (
-    <div style={{ maxWidth: 360 }}>
-      <DrawerTabs snapshot={legacySnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
-    </div>
-  ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
-    await expect(canvas.getByText("origin unknown")).toBeInTheDocument();
-    await expect(canvas.queryByText(/legacy · hydrate/)).toBeNull();
-    await expect(canvas.getByText(/pinned in an earlier chat/)).toBeInTheDocument();
   },
 };
 

@@ -14,7 +14,7 @@ jest.mock("@services/STAPI", () => ({
   MEMORY_INJECTION_KEY_PREFIX: "so-memory-",
 }));
 import { applyLedgerSignals, buildLedgerView } from "./ledger";
-import { describeProvenance, isLive, legacyProvenance, originLabel, provenance, withOverride } from "./provenance";
+import { describeProvenance, isLive, originLabel, provenance, withOverride } from "./provenance";
 import { createMemoryState, dropByMessageId, editEntryText, setLocked } from "./stores";
 import type { LedgerEntry, MemoryEntry } from "./types";
 
@@ -44,12 +44,6 @@ const duplicatePairMatches = (): MatchSets => ({ dup: [new Set([1]), new Set([0]
 const injectionOptions = { tokenBudgets: { facts: 400, session_details: 400, short_term: 400, scene_history: 400 }, scoreContext: { boundary: 5, turnText: "", turnEntities: [] } };
 
 describe("the provenance envelope", () => {
-  it("treats a row with no envelope as legacy and live", () => {
-    const bare: MemoryEntry = { ...entry(), provenance: undefined };
-    expect(isLive(bare)).toBe(true);
-    expect(legacyProvenance().source).toBe("legacy");
-  });
-
   it("carries an override with the boundary it was made at", () => {
     const kept = withOverride(entry(), "store-anyway", "2026-09-21T00:00:00.000Z", 7);
     expect(kept.provenance).toMatchObject({ source: "author", validity: "live", override: { by: "author", boundary: 7, from: "store-anyway" } });
@@ -227,17 +221,14 @@ describe("a lock freezes the story's truth, under consolidation and under rollba
 describe("the author view can say where a row came from", () => {
   it("names the source, the pass, the message and the override", () => {
     expect(describeProvenance(entry())).toBe("extractor · shared-read · message 1 · live");
-    const bare: MemoryEntry = { ...entry(), provenance: undefined };
+    const bare = { provenance: undefined };
     expect(describeProvenance(bare)).toBe("unknown origin");
     const kept = { ...entry(), ...withOverride(entry(), "verify-drop", "2026-09-21T00:00:00.000Z", 7) };
     expect(describeProvenance(kept)).toContain("kept by you at boundary 7");
   });
 
-  it("renders a legacy or absent envelope as a stated unknown, never as a source", () => {
-    // The hydrate-time default is `source: "legacy", pass: "hydrate", messageId: -1`. Printing it
-    // verbatim would dress a default as a read, and the message clause must not print "message -1".
+  it("renders an absent envelope as a stated unknown, never as a source", () => {
     // One rule for both author-facing panels, so this asserts the rule they share.
-    expect(originLabel(legacyProvenance())).toBe("origin unknown");
     expect(originLabel(undefined)).toBe("origin unknown");
     expect(originLabel(provenance({ source: "extractor", messageId: 3, boundary: 3, pass: "shared-read" }))).toBe("extractor · shared-read");
     expect(originLabel(provenance({ source: "blackboard", messageId: -1, boundary: 0, pass: "blackboard" }))).toBe("blackboard · blackboard");

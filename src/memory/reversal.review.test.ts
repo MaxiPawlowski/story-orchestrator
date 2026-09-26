@@ -36,6 +36,7 @@ const memory = (overrides: Partial<MemoryEntry> = {}): MemoryEntry => ({
   createdAt: 1,
   messageId: 1,
   recallCount: 0,
+  provenance: provenance({ source: "extractor", messageId: 1, boundary: 1, pass: "shared-read" }),
   ...overrides,
 });
 
@@ -118,7 +119,7 @@ describe("review: pinning preserves records without freezing stale truth", () =>
   });
 
   finding("M6", () => {
-    const secret: EpistemicEntry = { id: "secret", subject: "Mara", tag: "knows", content: "the player is the masked traitor", createdAt: 10, messageId: 10, pinned: true };
+    const secret: EpistemicEntry = { id: "secret", subject: "Mara", tag: "knows", content: "the player is the masked traitor", createdAt: 10, messageId: 10, pinned: true, provenance: provenance({ source: "extractor", messageId: 10, boundary: 10, pass: "epistemic-pass" }) };
     const rolled = rollbackEpistemic([secret], 10);
     // "…until reconfirm" is the title's other half, and it was NOT true until 2026-09-22: nothing
     // could reconfirm a private row, so this contract's second clause had no implementation to pass

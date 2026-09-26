@@ -11,6 +11,7 @@
 
 import { MemoryCoordinator } from "./memoryCoordinator";
 import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { provenance } from "@memory/index";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
 import { control } from "../../../test/findings/ledger";
 
@@ -159,6 +160,7 @@ const tierEntry = (text: string) => ({
   createdAt: 0,
   recallCount: 0,
   messageId: 5,
+  provenance: provenance({ source: "extractor", messageId: 5, boundary: 0, pass: "shared-read" }),
 });
 
 control("entries land in their own chat's tiers", async () => {

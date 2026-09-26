@@ -12,9 +12,8 @@ import { MessageCitation } from "./MessageCitation";
 // Newest first, so the pair this pass just found is the one at the top of the queue.
 const byNewest = (left: ConflictPair, right: ConflictPair) => right.detectedAt.localeCompare(left.detectedAt);
 
-// Where a side came from, in the same words the Memory tab uses (`originLabel`): a legacy envelope
-// is a hydrate-time default, so it reads as an unknown rather than as a source — and a legacy
-// envelope carries `messageId -1`, which must not print as "message -1" (2026-09-22).
+// Where a side came from, in the same words the Memory tab uses (`originLabel`); a side with no
+// message (`messageId -1`) must not print as "message -1" (2026-09-22).
 const originText = (provenance: Provenance | undefined, messageId: number | undefined, confidence: number | undefined) => {
   const hasMessage = messageId !== undefined && messageId >= 0;
   const sure = confidence === undefined ? "" : `${Math.round(confidence * 100)}% sure`;

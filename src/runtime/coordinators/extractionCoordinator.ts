@@ -91,7 +91,7 @@ export class ExtractionCoordinator {
     return provenance({ source: "extractor", messageId: window.to, boundary: this.deps.getState()?.boundary ?? 0, pass });
   }
 
-  private newEntry(fields: Pick<MemoryEntry, "tier" | "text" | "type" | "importance" | "expiration" | "entities" | "evidence"> & Partial<MemoryEntry>): MemoryEntry {
+  private newEntry(fields: Pick<MemoryEntry, "tier" | "text" | "type" | "importance" | "expiration" | "entities" | "evidence" | "provenance"> & Partial<MemoryEntry>): MemoryEntry {
     return {
       id: generateMemoryId(),
       confidence: 1,
