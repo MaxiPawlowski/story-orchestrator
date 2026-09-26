@@ -14,7 +14,8 @@ import { MemoryCoordinator } from "./memoryCoordinator";
 import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
 import { provenance } from "@memory/index";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
-import { control } from "../../../test/findings/ledger";
+import { control } from "../../../test/findings/ledger";
+import { coordinatorHosts } from "../coordinatorHosts";
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -99,7 +100,7 @@ function harness(arcCount: number, presummarised = 0) {
     updatedAt: "",
   };
 
-  const coordinator = new MemoryCoordinator({
+  const coordinator = new MemoryCoordinator({ hosts: coordinatorHosts,
     getStory: () => ({ title: "S", checkpointById: {}, qualityByKey: {}, roster: [], arc_bridges: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5, blackboard: { values: {}, versions: {}, latched: {} } }),
     getMemory: () => memoryState,
@@ -298,7 +299,7 @@ control("the in-flight flag is released even when the world moved", async () => 
 // delete another chat's memory. The check is inside the loop because each group is its own write.
 
 jest.mock("../consolidationMatches", () => ({
-  buildMatchSets: async (group: Array<unknown>) => {
+  buildMatchSets: async (_host: unknown, group: Array<unknown>) => {
     matchGate.onBuild?.();
     return {
       dup: group.map((_, index) => new Set<number>(index === 0 ? [] : [0])),
@@ -338,7 +339,7 @@ function consolidationHarness(groupSize: number) {
     updatedAt: "",
   };
   const patches: string[] = [];
-  const coordinator = new MemoryCoordinator({
+  const coordinator = new MemoryCoordinator({ hosts: coordinatorHosts,
     getStory: () => ({ title: "S", checkpointById: {}, qualityByKey: {}, roster: [], arc_bridges: [] }),
     getState: () => ({ activeCheckpointId: "cp1", boundary: 3, lastMessageId: 5 }),
     getMemory: () => memoryState,
@@ -421,7 +422,7 @@ describe("V3: a supersession bridge enqueues only into the story it read for", (
     const story = bridgeStory();
     const engine = new StoryEngine();
     engine.loadStory(story);
-    const coordinator = new MemoryCoordinator({
+    const coordinator = new MemoryCoordinator({ hosts: coordinatorHosts,
       getStory: () => story,
       getState: () => engine.serialize(),
       getMemory: () => ({ entries: [], settings: { enabled: true } }),
@@ -461,7 +462,7 @@ describe("V11: the ledger cap is told where the history floor is", () => {
     const at = (id: string, entity: string, messageId: number) => ({ id, entity, entityType: "character", field: "location", value: `${entity}${messageId}`, messageId, boundary: messageId, createdAt: messageId, provenance: { source: "extractor", messageId, boundary: messageId, pass: "ledger", validity: "live" } });
     const filler = Array.from({ length: 236 }, (_, index) => at(`f${index}`, "F", 100 + index));
     let memory = { entries: [], arcs: [], epistemic: [], conflicts: [], resolvedConflicts: [], excluded: [], derived: [], writeLog: [], verifyDrops: [], canon: null, settings: { enabled: true, tierTokenBudgets: { facts: 400, session: 400, short_term: 400, scene_history: 400 } }, ledger: [at("a1", "A", 1), at("b2", "B", 2), at("b3", "B", 3), at("a8", "A", 8), ...filler] } as never as { ledger: Array<{ id: string }> };
-    const coordinator = new MemoryCoordinator({
+    const coordinator = new MemoryCoordinator({ hosts: coordinatorHosts,
       getStory: () => ({ title: "S", checkpointById: {}, qualityByKey: {}, roster: [], ledger_bindings: [] }),
       getState: () => ({ activeCheckpointId: "cp1", boundary: 400, lastMessageId: 400, blackboard: { values: {}, versions: {}, latched: {} } }),
       historyFloor: () => 5,

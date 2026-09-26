@@ -21,9 +21,6 @@ import {
   type ParsedEpistemicSignal, type ParsedLedgerSignal, type UncertainPair, consolidateTierJudged,
   clearContradicted, sceneRangeFrom,
 } from "@memory/index";
-import {
-  bindChatLorebook, currentChatOwner, disableWIEntry, ensureLorebook, getContext, loadLorebook, upsertWIEntry,
-} from "@services/STAPI";
 import type { SceneReadRecord } from "@judge/index";
 import type { Provenance } from "@memory/provenance";
 import { sceneConflictValues } from "@memory/conflicts";
@@ -37,7 +34,7 @@ import {
 } from "../memoryQueue";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunOwnership } from "../runToken";
-import type { RosterHost } from "../hostPorts";
+import type { MemoryHosts } from "../hostPorts";
 import { playerTurnIds } from "../agencyRecovery";
 import { computeEntryTokens, tokensFor } from "../entryTokens";
 import { PAIR_JACCARD_FLOOR } from "@judge/index";
@@ -71,7 +68,7 @@ export interface MemoryCoordinatorDeps {
   getScene?: () => SceneReadRecord | null;
   /** v2.3 plan 05: read a named span again, rather than whatever the transcript now ends with. */
   rereadWindow?: (window: { from: number; to: number }, reason: string) => Promise<unknown>;
-  hosts: { roster: RosterHost };
+  hosts: MemoryHosts;
 }
 
 // Owns everything that reads or writes extras.memory: tiers, arcs, canon, epistemic, ledger,
@@ -86,6 +83,7 @@ export class MemoryCoordinator {
     capable: () => this.capable,
     ledgerBindings: () => this.ledgerBindings(),
     setPinnedOverflow: (count) => this.patch({ pinnedOverflow: count }),
+    hosts: () => this.deps.hosts,
   });
   private consolidationInFlight = false;
   private canonInFlight = false;
@@ -152,7 +150,7 @@ export class MemoryCoordinator {
     if (!this.enabled || !entries.length) return;
     // The token count is a host call, so this write is an await past the caller's own check.
     const run = beginRun(this.deps.ownership, window);
-    await computeEntryTokens(entries);
+    await computeEntryTokens(this.deps.hosts.tokens, entries);
     const held = await findHeldContradictions(this.queueDeps(), entries);
     if (!run.stillOwns()) return;
     const written = addMemoryEntries(this.state, entries, window);
@@ -162,7 +160,7 @@ export class MemoryCoordinator {
 
   async addSceneSummary(entry: MemoryEntry, window: { from: number; to: number }): Promise<number | null> {
     const run = beginRun(this.deps.ownership, window);
-    await computeEntryTokens([entry]);
+    await computeEntryTokens(this.deps.hosts.tokens, [entry]);
     if (!run.stillOwns()) return null;
     const written = addMemoryEntries(this.state, entry.text ? [entry] : [], window);
     const capped = capAllTiers(expireScoped(written.state, "scene"), this.state.settings.tierBudgets);
@@ -175,7 +173,7 @@ export class MemoryCoordinator {
 
   async replaceShortTerm(entry: MemoryEntry, window: { from: number; to: number }) {
     const run = beginRun(this.deps.ownership, window);
-    await computeEntryTokens([entry]);
+    await computeEntryTokens(this.deps.hosts.tokens, [entry]);
     if (!run.stillOwns()) return;
     const entries = [...this.state.entries.filter((candidate) => candidate.tier !== "short_term"), entry];
     const replaced = this.state.entries.filter((candidate) => candidate.tier === "short_term");
@@ -189,7 +187,7 @@ export class MemoryCoordinator {
 
   sceneStart(to: number): number { return sceneRangeFrom(this.state.derived, to, this.state.storyStart); }
 
-  markStoryStart() { this.patch({ storyStart: playerTurnIds(getContext().chat ?? []).at(-1) ?? 0 }, false); }
+  markStoryStart() { this.patch({ storyStart: playerTurnIds(this.deps.hosts.chat.chatRows()).at(-1) ?? 0 }, false); }
 
   get shortTermSummaryEnd(): number {
     return this.state.shortTermSummaryEnd;
@@ -215,7 +213,7 @@ export class MemoryCoordinator {
   async editMemoryEntry(id: string, text: string) {
     const run = beginRun(this.deps.ownership);
     await this.commit(() => editEntryText(this.state, id, text, new Date().toISOString(), this.boundaryStamp()));
-    const tokens = await tokensFor(text);
+    const tokens = await tokensFor(this.deps.hosts.tokens, text);
     if (tokens === undefined || !run.stillOwns()) return;
     this.patch({ entries: this.state.entries.map((entry) => (entry.id === id && entry.text === text ? { ...entry, tokens } : entry)) }, false);
     this.updateInjection();
@@ -316,7 +314,7 @@ export class MemoryCoordinator {
       save: () => this.save(),
       run: () => beginRun(this.deps.ownership),
       refused: (refusal) => { this.decisionRefusal = refusal; },
-      matchSets: (group) => buildMatchSets(group),
+      matchSets: (group) => buildMatchSets(this.deps.hosts.vectors, group),
     };
   }
 
@@ -481,8 +479,8 @@ export class MemoryCoordinator {
       const judged = judge?.active("memoryPairs") ? judge : null;
       for (const group of groupOf().values()) {
         if (group.length < CONSOLIDATION_MIN_GROUP) continue;
-        const matches = await buildMatchSets(group);
-        const wider = judged ? await buildMatchSets(group, { ...DEFAULT_DEDUP_THRESHOLDS, jaccardSameTopic: PAIR_JACCARD_FLOOR }) : matches;
+        const matches = await buildMatchSets(this.deps.hosts.vectors, group);
+        const wider = judged ? await buildMatchSets(this.deps.hosts.vectors, group, { ...DEFAULT_DEDUP_THRESHOLDS, jaccardSameTopic: PAIR_JACCARD_FLOOR }) : matches;
         const judgedResult = judged ? consolidateTierJudged(group, wider, await judgePairRelations(judged, group, wider, matches)) : null;
         // Three awaits per group (two embedding passes and a judge pass), then writes that DROP and
         // supersede entries: destructive, so a run outliving its chat would delete another chat's
@@ -560,7 +558,7 @@ export class MemoryCoordinator {
   async syncWorldInfo(): Promise<MemoryMirrorSummary> {
     const story = this.deps.getStory();
     if (!story || !this.enabled) return emptyMirrorSummary();
-    const host = { getChatId: () => getContext().chatId ?? null, ensureLorebook, loadLorebook, upsertWIEntry, disableWIEntry, bindChatLorebook, owner: currentChatOwner, ownership: this.deps.ownership };
+    const host = { ...this.deps.hosts.mirror, getChatId: this.deps.hosts.chat.chatId, ownership: this.deps.ownership };
     const result = await syncMemoryMirror({ title: story.title, entries: this.state.entries, writes: this.state.wiWrites, book: this.state.wiBook }, host);
     if (!result) return emptyMirrorSummary();
     if (result.changed) {

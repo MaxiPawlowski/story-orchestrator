@@ -1,10 +1,15 @@
 import {
-  activateGlobalLorebook, clearStoryExtensionPrompt, createCharacterCard, createGroup, createLorebook, getActiveGroup, getAllCharacterNames,
-  getContext, getPlayerName, hostSystemUserName, listAllLorebooks, listGlobalLorebooks, listGroupNames, loadLorebook, readWIEntry, readWIEntryAt,
-  resolveGroupMemberId, restoreWIEntryAt, setStoryExtensionPrompt, updateWIEntryByUid, upsertWIEntry,
+  activateGlobalLorebook, bindChatLorebook, capabilityState, clearStoryExtensionPrompt, countTokens,
+  createCharacterCard, createGroup, createLorebook, currentChatOwner, DEFAULT_VECTOR_SOURCE, disableWIEntry,
+  ensureLorebook, getActiveGroup, getAllCharacterNames, getCharacterNameById, getContext, getPlayerName,
+  hostSystemUserName, listAllLorebooks, listGlobalLorebooks, listGroupNames, loadLorebook, readInjectedPromptBlocks,
+  readWIEntry, readWIEntryAt, resolveGroupMemberId, restoreWIEntryAt, setStoryExtensionPrompt, updateWIEntryByUid,
+  upsertWIEntry, vectorInsert, vectorPurge, vectorQuery,
 } from "@services/STAPI";
 import { getChatWindow, getLastMessageText } from "@extraction/chatWindow";
-import type { ChatHost, CuratorWiHost, PlayerHost, PromptHost, ProvisioningHost, RosterHost } from "./hostPorts";
+import type {
+  ChatHost, CuratorWiHost, InjectionHost, MirrorHost, PlayerHost, PromptHost, ProvisioningHost, RosterHost, TokenHost, VectorHost,
+} from "./hostPorts";
 
 const chatRows = (): unknown[] => (Array.isArray(getContext().chat) ? getContext().chat : []);
 
@@ -28,4 +33,15 @@ const provisioningHost: ProvisioningHost = {
   listGroupNames, readWIEntry, upsertWIEntry,
 };
 
-export const coordinatorHosts = { prompt: promptHost, player: playerHost, provisioning: provisioningHost, curator: curatorHost, chat: chatHost, roster: rosterHost };
+const injectionHost: InjectionHost = { readInjectedPromptBlocks, getCharacterNameById };
+
+const vectorHost: VectorHost = { vectorQuery, vectorInsert, vectorPurge, capabilityState, source: DEFAULT_VECTOR_SOURCE };
+
+const tokenHost: TokenHost = { countTokens };
+
+const mirrorHost: MirrorHost = { ensureLorebook, loadLorebook, upsertWIEntry, disableWIEntry, bindChatLorebook, owner: currentChatOwner };
+
+export const coordinatorHosts = {
+  prompt: promptHost, player: playerHost, provisioning: provisioningHost, curator: curatorHost, chat: chatHost, roster: rosterHost,
+  injection: injectionHost, vectors: vectorHost, tokens: tokenHost, mirror: mirrorHost,
+};

@@ -48,7 +48,8 @@ import { establishedFacts } from "../continuity";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
 import type { MemoryRuntimeState } from "../types";
 import { ExtractionCoordinator } from "./extractionCoordinator";
-import { MemoryCoordinator } from "./memoryCoordinator";
+import { MemoryCoordinator } from "./memoryCoordinator";
+import { coordinatorHosts } from "../coordinatorHosts";
 
 const SEED = "The old stone bridge over the river collapsed in the flood and is gone.";
 const STANDING = "The old stone bridge over the river is still standing and intact.";
@@ -115,7 +116,7 @@ function harness() {
   let memory = memoryState();
   const engine = { activeCheckpointId: "cp1", boundary: 0, lastMessageId: 0, blackboard: { values: {}, versions: {} } };
   const extraction = { audits: [] as unknown[], reconciliationEvents: [] as unknown[], judgedReads: [] as unknown[] };
-  const memoryCoordinator = new MemoryCoordinator({
+  const memoryCoordinator = new MemoryCoordinator({ hosts: coordinatorHosts,
     getStory: () => story,
     getState: () => engine,
     getMemory: () => memory,

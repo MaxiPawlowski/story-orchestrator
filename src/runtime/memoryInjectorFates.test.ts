@@ -1,18 +1,15 @@
-jest.mock("@services/STAPI", () => ({
-  settingsAreLoaded: () => true,
-  settingsReady: async () => {},
-  getActiveGroup: () => null,
-  getContext: () => ({ chat: [] }),
-  getCharacterNameById: () => null,
-  readInjectedPromptBlocks: () => [],
-  setStoryExtensionPrompt: jest.fn(),
-  clearStoryExtensionPrompt: jest.fn(),
-}));
-
-import { setStoryExtensionPrompt } from "@services/STAPI";
 import type { MemoryEntry } from "@memory/index";
 import { MemoryInjector } from "./memoryInjector";
 import type { MemoryRuntimeState } from "./types";
+import type { InjectorHosts } from "./hostPorts";
+
+const setStoryExtensionPrompt = jest.fn();
+const hosts = {
+  prompt: { setStoryExtensionPrompt, clearStoryExtensionPrompt: jest.fn() },
+  roster: { getActiveGroup: () => null, resolveGroupMemberId: () => null, chatRows: () => [], systemUserName: "SillyTavern System" },
+  chat: { chatRows: () => [], lastMessageText: () => "" },
+  injection: { getCharacterNameById: () => null, readInjectedPromptBlocks: () => [] },
+} as unknown as InjectorHosts;
 
 const entry = (id: string, text: string, patch: Partial<MemoryEntry> = {}): MemoryEntry => ({
   id, tier: "facts", text, type: "fact", importance: 2, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [], evidence: "e", createdAt: 1, recallCount: 0, ...patch,
@@ -36,6 +33,7 @@ const harness = (entries: MemoryEntry[]) => {
     capable: () => false,
     ledgerBindings: () => [],
     setPinnedOverflow: (count) => { overflow.push(count); },
+    hosts: () => hosts,
   });
   return { injector, memory, overflow };
 };
