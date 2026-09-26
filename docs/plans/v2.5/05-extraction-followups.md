@@ -3,6 +3,7 @@
 **Status: DRAFT 2026-09-25 — awaits user approval.** Depends on **02** (overview §Plan sequence), and on 11 through it.
 Backend-shaped items (F4–F7) also read plan **13 "Harness routing"** for their harness column; they do not wait for it.
 Verified against master `e7626d7`. Re-verify every path:line before building (v2.4 rule 1). Nothing here is built.
+**Code items built 2026-09-26** on branch `worktree-wf_aaec966e-c75-2` (merged with master `49a816a1`): see §A36 decision and §Gate record (code items). Live rows are pending (rule 14: ×1 here, ×2 in plan 10).
 
 Every item names its measurement and a floor **before** any build. An item without a measurement is a spike with
 conditions; below its floor it is recorded **not built**, and no floor is retuned.
@@ -254,3 +255,125 @@ Records: `test/journeys/records/v2.5-plan05/<route>/`. Every record names its ro
 - F1b: reject unfound FACT lines outright, or keep them as `downweight` (the `memoryVerify` shape)? Plan proposes reject.
 - F2: may the new fixtures carry Spanish transcripts although the extension is English-only for 2.5 (V11)? Plan proposes yes
   (the judge rule already requires es slices; the reader must not break on them).
+
+## A36 decision (2026-09-26)
+
+**Quoted bool/int delta values stay refused. No behaviour change.**
+
+- Evidence: 51 archived journal-follow records (v2.3/v2.4 acceptance and v2.4 post-freeze) hold 3 distinct quoted bool/int DELTA
+  lines: `chamber_entered value="true"`, `guardian_respect value="1"` and `reached_tower="false"`. All 3 are from one run
+  (`v2.4-postfreeze/ca25e4a632ed/J7/run1`). The same records hold 301 unquoted bool/int deltas, so the quoted share is about 1 %.
+  `chamber_entered` landed in the same run through a later unquoted read. J7 went green ×2 on `e080b9749436` (post-A35) with
+  the quoted forms still refused, and no quoted line appeared in those runs.
+- Reason: the contract is `value=<json_literal>` (`contract.ts`), and `"true"`/`"1"` are JSON strings. The D3 control pins
+  `reached_tower="false"` as refused by design ("quote stripping never fuzzes or coerces"). Coercion would make the parser
+  guess a type the line did not state, for about 1 % of lines, and no gate is red on it.
+- New control: `labelledEvidence.test.ts` "A36 decision: …" pins the two real J7 lines as refused and their unquoted forms as
+  accepted. The mutant A36-M1 (coerce a quoted true/false/int) is killed (`test/findings/mutations/v25-05-a36.txt`).
+
+## Gate record (code items)
+
+2026-09-26. Branch `worktree-wf_aaec966e-c75-2`. Worktree
+`.claude/worktrees/wf_aaec966e-c75-2`. ST host `7c3994196`. Nothing ran live: no lanes, no main ST, no pod.
+
+### Commits
+
+| Commit | Item | Outcome |
+|---|---|---|
+| `68a3e857` | F8 | built: `askReply` returns text plus finish, `CopilotAudit.finish/repairFinish`, and calibration records real finishes. Red first 4/4, mutants F8-M1..M3 killed |
+| `11199ede` | F0 offline | 497 audits replayed. 13 + 10 "not in window" rejections remain after A35/D1. One class was ours (backslash-escaped quotes), now read. Red fixture has 19 real lines, mutants F0-M1..M4 killed |
+| `bd743215` | F1a | built. M1 found-rate 0.900 / 0.895 (floor 0.8). Facts and memory are stamped with the first source message, provenance included. Red first 3/6, mutants F1a-M1..M5 killed, `rollbackReplay` green |
+| `16df2c00` | F2 | fixtures `extractor23`–`29` (epistemic ×3 incl. `[hiding]`, ledger ×2, arcs ×2), frozen by sha in `liveSuiteScore.test.mts`. Jest scores the stated tiers against goldens (control: tier lines removed → 3/3 fail). `extractor21/22` needles taken from the transcript. Spanish `extractor30/31` parked in `test/fixtures/pending-es/` (V11) |
+| `cad1b25c` | A36 | decision above; control + mutant A36-M1 killed |
+| `007b35f6` | F1b | **not built**: floor (i) screen precision 0/37 (≥ 0.7). Every sampled unfound quote is window text that was stitched, elided or straddles a label, and 0 are unsupported. The `factsScreened` column is not added (`v25-05-f1b.txt`) |
+| `a718aceb` | F4 | **not built**: M4 residue 0 of 898 archived replies (22 carried a Gemma thought block, all stripped). Profile/TC route only (`v25-05-f4.txt`) |
+| `8aa0ac43` | F5 | **not built**: M5 found 0 JSON-syntax causes in 12 authoring first-try failures; all were op shape, and curator drops are semantic (`v25-05-f5.txt`) |
+| `6015f27f` | F3 | spike harness only: `sceneArms` (pure), `sceneArmRunner` (census `local`), `liveSuite.runSceneArm`, `so-f3-arms.mts` + `sceneArmsScore` floors, 5 long + 2 short scenes (es parked). `runEpistemicLedgerPass` untouched. Mutants F3-M1..M6 killed. Build waits for the live floors |
+| `66d10364` | F7 | measurement only: `liveSuite.measureBudget` (the read role's own estimate + context limit), `live-v25-05-token-estimate.json` |
+| `37541f9f` | F6 | measurement only: `so-m6.mts follow\|report` + `m6Contention` floors. The archive cannot measure M6 because read failures are not journaled. Mutants M6-M1..M5 killed |
+| `d235eb27` | merge master | 2 conflicts, both sides kept: in `authoring.ts` the repair keeps F8's `askReply` finish plus master's declared-key lines, and in `liveSuite.ts` `runSceneArm`/`measureBudget` sit beside master's `askModel` |
+
+F9 needed no build: `live-v24-04-window-hygiene.json` exists, and its v2.4 build rule is unchanged. The F0 live fixtures
+`live-v25-05-breaker-slow.json` and `live-v25-05-memorize-timeout.json` were already on the branch (plan 02, `4162aff0`), and
+their evals were re-syntax-checked here.
+
+### Gates (after the merge, on `d235eb27`)
+
+| Command | Result |
+|---|---|
+| `npm run typecheck` / `typecheck:test` / `lint` / `debug:typecheck` | 0 / 0 / 0 / 0 |
+| `npm test` | 302 suites, 4198 tests passed |
+| `ST_PUBLIC=C:/dev/SillyTavern-MainBranch/public npm run build` | 0 |
+| `npm run test:debug` | 389 tests, 388 pass, 1 skipped, 0 fail |
+| `ST_PUBLIC=… npm run test:release` | 37/37 |
+| Storybook (nested-worktree form, `.debug/sb2.sh`: `storybook build` then `test-storybook --index-json`) | 37 suites, 262 tests passed |
+| Every live eval `new Function` syntax check + `validateFixture` | `live-v25-05-token-estimate` (3), `-breaker-slow` (11), `-memorize-timeout` (11), `live-v24-04-window-hygiene` (5): clean |
+
+Before each item commit: typecheck, typecheck:test, lint, jest, build and test:debug were all green. F1b, F4 and F5 are record-only commits, run on an unchanged code tree.
+
+**Budgets / ratchets.** The manager reads 548 of 700 effective lines. The largest coordinators are `memoryCoordinator` 500
+and `extractionCoordinator` 482 (480 on master, F1a is net 0 lines), all under 560. `codeHealth.guard` is green after the
+merge: one S5 over-width import line was split. The ownership census is green, with one new row:
+`sceneArmRunner.ts#sceneArmRunner>anonymous` `local`. `applyAudit`'s `checked` row was re-read under rule 13 in F1a.
+The fault matrix is green. `passProfiles` has one new call site, `sceneArmRunner.ts` → `read`. Judge uses are untouched,
+all off, and no floor was retuned.
+
+**Host facts verified** (ST `7c3994196`): `ConnectionManagerRequestService.sendRequest(profileId, prompt, maxTokens, custom,
+overridePayload)` at `shared.js:423`, exposed at `st-context.js:294`. The product reaches it per call through
+`stHost/connectionProfiles.ts:66`. `getTokenCountAsync` is at `st-context.js:151` / `tokenizers.js:443`.
+`GENERATION_STARTED/STOPPED/ENDED` are at `events.js:23-25` (emitted at `script.js:4299` with `dryRun`, and at `script.js:3536`).
+A TC non-stream reply is forwarded verbatim at `text-completions.js:409-421`, so `tokens_evaluated`/`usage` reach the page,
+and a CC reply at `chat-completions.js:2695-2699`. A CC non-2xx becomes `{error:{message: statusText}, quota_error}`
+(`chat-completions.js:2701-2710`) without the status code.
+
+### Corrections to this plan's verified-state table
+
+- **Vacuous `mustContain: [""]` was 16 of 22, not 2 of 22** (the gotcha was right). F2 replaced the two in `extractor21/22`.
+  The other 14 (`extractor6`–`14`, `16`–`20`) are still vacuous, and the new F2 test scopes its vacuity check to the
+  fixtures this plan wrote.
+- **The 6 zero-FACT misses are a model omission, not ours.** In all 44 archived live-suite responses (22 × 2 runs) the model
+  wrote 0 `FACT` lines and 1–2 `MEMORY` lines instead. The facts tier's 16/22 passes are exactly the `minCount: 0`
+  fixtures. No parser fixture follows, because no line was cut or left unparsed.
+
+### Open user decisions
+
+1. **V11 / the F2 unresolved question:** Spanish fixtures. `extractor30/31` and the F3 scene `long-es-1-carta` are parked in
+   `test/fixtures/pending-es/`. Adopting them means moving the files and raising the counts from 29 to 31 in
+   `playerEvidence`, `windowHygiene`, `evidenceCorpus` and `liveSuiteScore`. F3's ≥1 es condition is unmet until then.
+2. **The facts tier measures a line the model never writes.** Options: score `MEMORY` beside `FACT`, give the 14 vacuous
+   fixtures needles taken from their transcripts, or drop `FACT` from the prompt. Each option moves the facts number, and
+   none was done here (X15: the `facts` column is never redefined silently, and floors are not retuned).
+3. **F1b reject vs downweight** is moot while F1b is below its floor. It stays open for any later stitched-fragment screen,
+   which has no failing case today.
+4. The plan's draft status ("awaits user approval") is unchanged. The code items above were built under the plan as written.
+
+### Live pending (rule 14: ×1 here, ×2 in plan 10's matrix; one build, one lane batch, run header diffed around it)
+
+Setup:
+
+- `ST_PUBLIC=C:/dev/SillyTavern-MainBranch/public npm run build`
+- `node scripts/debug/st-lanes.mts start 1 2`
+- `node scripts/debug/st-lanes.mts run 1 -- node scripts/debug/st-session.mts reload`
+- The same reload on lane 2.
+- `node scripts/debug/st-lanes.mts run 1 -- node scripts/debug/so-run-header.mts capture --label v25-05-batch`
+
+Records go under `test/journeys/records/v2.5-plan05/<route>/`.
+
+| Row | Command | Green |
+|---|---|---|
+| M6 recorder (start first, background, lane 1) | `node scripts/debug/st-lanes.mts run 1 -- node scripts/debug/so-m6.mts follow --out test/journeys/records/v2.5-plan05/<route>/m6/lane1.jsonl`, then after the batch `node scripts/debug/so-m6.mts report <file>` | numbers recorded; `opens.rpmSpacing` / `opens.mutexDeferral` decide F6 |
+| F0 A5/A7 | `node scripts/debug/st-lanes.mts batch --lanes 1 --strict J7`, then the D1 replay over the run's `journal-follow` | as §F0 (A5 needs ≥1 own-label quote or it is "not exercised") |
+| F0 A10 | `node scripts/debug/st-lanes.mts batch --lanes 1 --strict J12` | as §F0 |
+| J3, J8.5 after F1a | `node scripts/debug/st-lanes.mts batch --lanes 1 --strict J3 J8` | unchanged green; quarantine journal shows facts attributed to their source message |
+| F0 A11 | `node scripts/debug/st-lanes.mts batch --lanes 1 --strict test/scenarios/live-v24-03-memorize.json`, then `node scripts/debug/so-timeout-arm.mts scale <that run's log>` and the forced arm `test/scenarios/live-v25-05-memorize-timeout.json` per its `_note` | as §F0 |
+| F0 A6 (own lane, contended by design) | `node scripts/debug/st-lanes.mts batch --lanes 2 --strict test/scenarios/live-v25-05-breaker-slow.json` | as §F0 |
+| F2 live suite | `node scripts/debug/st-lanes.mts run 1 -- node scripts/debug/so-live-suite.mts run --min 0.9 --expect-count 29 --min-tier facts=0.68,rejected=0.9,epistemic=0.8,ledger=0.8,arcs=0.8` | 29 of 29 ran, tiers at the declared floors |
+| F3 arms | `node scripts/debug/st-lanes.mts run 1 -- node scripts/debug/so-f3-arms.mts run --record test/journeys/records/v2.5-plan05/<route>/f3` | the `verdict.build` flag against the predeclared floors decides F3 |
+| F7 M7 | `node scripts/debug/st-lanes.mts batch --lanes 1 --strict test/scenarios/live-v25-05-token-estimate.json` twice: once with the lane's main API on TC, once on a CC profile | numbers recorded; `reopen` decides A13 |
+| F9 | the same batch with `test/scenarios/live-v24-04-window-hygiene.json` plus a planted `promptOnly` regex (lane copy) | 0 residue → not built again |
+| Header | `node scripts/debug/st-lanes.mts run 1 -- node scripts/debug/so-run-header.mts diff <baseline.json>` | no undeclared difference |
+
+Mutant-window controls (`control pending (mutant window)`):
+
+- A6: `probeTimeoutMs` fixed at 10000 on the slow arm.
+- A11: `TIMEOUT_RETRY_SCALE = 1`, or `retryOnTimeout` bypassed, on the forced arm.

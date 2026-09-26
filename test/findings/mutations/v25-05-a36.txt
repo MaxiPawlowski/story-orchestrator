@@ -1,0 +1,15 @@
+v2.5 plan 05 A36 decision (quoted bool/int delta values), 2026-09-26, worktree on 16df2c0.
+
+Evidence (grep over all 51 archived journal-follow records, v2.3/v2.4 acceptance + v2.4 post-freeze):
+- quoted bool/int DELTA lines: 3 distinct (chamber_entered value="true", guardian_respect value="1", reached_tower="false"), all from v2.4-postfreeze/ca25e4a632ed/J7/run1 (each logged twice: audit + rejection).
+- unquoted bool/int DELTA lines in the same records: 301. Quoted share about 1 %.
+- chamber_entered landed in the same run through a later unquoted read (chamber_entered=true accepted); guardian_respect's +1 was not re-read in that run.
+- J7 went green x2 on e080b9749436 (post-A35) with the quoted forms still refused; 0 quoted lines in those runs.
+- reached_tower="false" is pinned refused by design in the D3 control ("quote stripping never fuzzes or coerces").
+Decision: no behaviour change. The prompt contract is value=<json_literal> (contract.ts), and "true"/"1" are JSON strings; coercing would make the parser guess a type the line did not state, for about 1 % of lines, with no gate red on it.
+New control: src/extraction/labelledEvidence.test.ts "A36 decision: a quoted bool or int is a JSON string and stays refused, while the unquoted read of the same line lands" (the two real J7 lines).
+
+src/extraction/parse.ts
+- A36-M1 coerce a quoted true/false/int string to its JSON value: KILLED, 2 of 440 (src/extraction)
+    "control: quote stripping never fuzzes or coerces"
+    "A36 decision: a quoted bool or int is a JSON string and stays refused, while the unquoted read of the same line lands"

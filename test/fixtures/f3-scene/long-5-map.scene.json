@@ -1,0 +1,120 @@
+{
+  "description": "F3 long: Pell buys a map Hask forged at 13; the break is at 25.",
+  "slice": "long",
+  "lang": "en",
+  "participants": [
+    "Pell",
+    "Hask"
+  ],
+  "sceneStart": 12,
+  "detectFrom": 18,
+  "to": 25,
+  "transcript": [
+    {
+      "index": 12,
+      "speaker": "Narrator",
+      "text": "Behind his stall, the peddler Hask inks a fake vault map, copying the coastline wrong on purpose."
+    },
+    {
+      "index": 13,
+      "speaker": "Pell",
+      "text": "Pell pays Hask ten silver for the map and thanks him warmly, sure it leads to the drowned vault."
+    },
+    {
+      "index": 14,
+      "speaker": "Narrator",
+      "text": "Gulls fight over fish heads on the quay."
+    },
+    {
+      "index": 15,
+      "speaker": "Hask",
+      "text": "Hask counts the coins twice."
+    },
+    {
+      "index": 16,
+      "speaker": "Pell",
+      "text": "Pell asks about boats for hire."
+    },
+    {
+      "index": 17,
+      "speaker": "Hask",
+      "text": "\"Try the widow Orla, two piers down,\" Hask says."
+    },
+    {
+      "index": 18,
+      "speaker": "Narrator",
+      "text": "The tide begins to turn."
+    },
+    {
+      "index": 19,
+      "speaker": "Pell",
+      "text": "Pell buys a salted herring for the road."
+    },
+    {
+      "index": 20,
+      "speaker": "Narrator",
+      "text": "A bell rings the change of watch."
+    },
+    {
+      "index": 21,
+      "speaker": "Hask",
+      "text": "Hask starts packing up his stall."
+    },
+    {
+      "index": 22,
+      "speaker": "Pell",
+      "text": "Pell waves goodbye."
+    },
+    {
+      "index": 23,
+      "speaker": "Narrator",
+      "text": "Clouds roll in from the sea."
+    },
+    {
+      "index": 24,
+      "speaker": "Hask",
+      "text": "Hask pulls the canvas over his wares."
+    },
+    {
+      "index": 25,
+      "speaker": "Narrator",
+      "text": "The market empties."
+    }
+  ],
+  "expected": {
+    "epistemic": [
+      {
+        "setAt": 13,
+        "subject": "Pell",
+        "needles": [
+          "map"
+        ],
+        "tags": [
+          "believes",
+          "unaware"
+        ]
+      },
+      {
+        "setAt": 12,
+        "subject": "Hask",
+        "needles": [
+          "fake"
+        ],
+        "tags": [
+          "knows",
+          "hiding"
+        ]
+      }
+    ],
+    "ledger": [],
+    "forbidden": [
+      {
+        "tag": "knows",
+        "subject": "Pell",
+        "needles": [
+          "fake"
+        ]
+      }
+    ]
+  }
+}

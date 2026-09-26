@@ -14,6 +14,7 @@ import type {
   Transition,
   ValidationError,
 } from "@engine/index";
+import type { ExtractionReply } from "@extraction/modelRoute";
 import type { ProvisioningOp, WizardQuestion } from "@wizard/index";
 import type { Diagnostic } from "../studio/diagnostics";
 
@@ -68,8 +69,10 @@ export interface CopilotMessage {
 export interface CopilotAudit {
   prompt: string;
   rawResponse: string;
+  finish: ExtractionReply["finish"];
   repairPrompt?: string;
   repairResponse?: string;
+  repairFinish?: ExtractionReply["finish"];
 }
 
 // `questions` is the interview variant (spec addendum §Story wizard): the copilot may ask before it

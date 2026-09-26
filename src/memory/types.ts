@@ -119,6 +119,7 @@ export interface ParsedMemoryLine {
   characterId?: string;
   text: string;
   evidence: string;
+  messageId?: number;
 }
 
 export interface MemoryEntry {

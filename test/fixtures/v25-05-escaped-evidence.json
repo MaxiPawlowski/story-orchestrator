@@ -1,0 +1,1018 @@
+{
+ "provenance": "v2.5 plan 05 F0 offline classification, 2026-09-26. Replay of every v2.4-acceptance and v2.4-postfreeze journal-follow audit on master 75df874 (window rebuilt from each audit's prompt transcript). Each case is a FACT/MEMORY line or an 'evidence not in window' DELTA whose quote copies its message but escapes the message's own quotes or newlines with a backslash (\\\" / \\n), so no span matched. Counts on 75df874: acceptance DELTA 127 rejected -> 114 found today, +2 with backslash escapes read; FACT 209 lines -> 187 found, +1; MEMORY 669 -> 582, +21; postfreeze DELTA 77 -> 67, +0; FACT 153 -> 137, +0; MEMORY 375 -> 330, +3; 0 lines found today are lost. Deduplicated by kind + evidence.",
+ "cases": [
+  {
+   "source": "test/journeys/records/v2.4-acceptance/cost/J7-judge-on/journal-follow.jsonl",
+   "at": "2026-09-25T19:11:19.763Z",
+   "kind": "FACT",
+   "line": null,
+   "text": "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+   "evidence": "Quest: Sun Ruins Expedition\\nRanking: C-Rank\\nTarget: Retrieve an ancient artifact from the ruins\\nReward: 1500 coin",
+   "quotes": 3,
+   "window": [
+    {
+     "index": 0,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\nHe pushes off the wall, adjusting the strap of his bow.\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+    },
+    {
+     "index": 1,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I push through the crowd and get close to the job board to read the postings."
+    },
+    {
+     "index": 2,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "*Arin follows close behind, his shoulder brushing yours as he peeks over at the quest board. The scent of ale and old parchment fills the air as the crowd murmurs around you.*\n\"Alright, what've we got? Hopefully something that won't get us killed *too* quickly this time,\" *he says with a grin, his eyes scanning the pinned notices.* \"Anything with decent pay? I'm running low on coin, and my boots are starting to give out.\"\n*He shifts his weight, crossing his arms as he looks at you, waiting to see which quest catches your eye.* \"Or are we thinking of something more ambitious? Don't tell me you're feeling adventurous today. That'd mean we're in for some real trouble.\""
+    },
+    {
+     "index": 3,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "*The Guild board is crammed with faded notices, some curling at the edges, their ink barely legible in the dim light cast by the nearby hearth. Most are routine: pest control in the storage cellars, escort missions to the scavenging teams, or retrieval of lost supplies from the outer walls.*\n*But one catches your eye—a larger piece of parchment, newer than the others, its ink crisp and dark. It's titled 'Sun Ruins Expedition,' and the writing is bold and purposeful.*\n**Quest: Sun Ruins Expedition**\n**Ranking: C-Rank**\n**Target: Retrieve an ancient artifact from the ruins**\n**Reward: 1500 coin**\n**Questgiver: Guild Receptionist**\n**Questgiver: Council Elder Aethelgard**\n**Location: Sun Ruins**\n**Additional Notes: Proceed with caution. Area is known for residual magical instability. Potential hazards include ancient guardians and magical anomalies. Detailed map provided upon acceptance.**\n*The board's surface creaks as you lean in closer to read. The paper is with a yellowed ribbon attached to the binding, marking its importance.*\n*Arin's expression shifts as his read the notice. His grin fades slightly, a hint of tension in his jaw.*\n\"The Sun Ruins,\" *he murmurs, his voice dropping.* \"That's not a good sign. I've heard stories about that place. Dangerous, but the pay is good. You thinking about taking it?\" *He glances at you, his hand unconsciously reaching for the hilt of his sword.* \"What do you think, Max? This is a good chance to make some coin, but we might not come back.\""
+    }
+   ]
+  },
+  {
+   "source": "test/journeys/records/v2.4-acceptance/cost/J7-judge-on/journal-follow.jsonl",
+   "at": "2026-09-25T19:11:51.363Z",
+   "kind": "MEMORY",
+   "line": null,
+   "text": "The Sun Ruins Expedition is a C-Rank quest to retrieve an ancient artifact for 1500 coin.",
+   "evidence": "Quest: Sun Ruins Expedition\\nRanking: C-Rank\\nTarget: Retrieve an ancient artifact from the ruins\\nReward: 1500 coin",
+   "quotes": 3,
+   "window": [
+    {
+     "index": 0,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\nHe pushes off the wall, adjusting the strap of his bow.\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+    },
+    {
+     "index": 1,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I push through the crowd and get close to the job board to read the postings."
+    },
+    {
+     "index": 2,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "*Arin follows close behind, his shoulder brushing yours as he peeks over at the quest board. The scent of ale and old parchment fills the air as the crowd murmurs around you.*\n\"Alright, what've we got? Hopefully something that won't get us killed *too* quickly this time,\" *he says with a grin, his eyes scanning the pinned notices.* \"Anything with decent pay? I'm running low on coin, and my boots are starting to give out.\"\n*He shifts his weight, crossing his arms as he looks at you, waiting to see which quest catches your eye.* \"Or are we thinking of something more ambitious? Don't tell me you're feeling adventurous today. That'd mean we're in for some real trouble.\""
+    },
+    {
+     "index": 3,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "*The Guild board is crammed with faded notices, some curling at the edges, their ink barely legible in the dim light cast by the nearby hearth. Most are routine: pest control in the storage cellars, escort missions to the scavenging teams, or retrieval of lost supplies from the outer walls.*\n*But one catches your eye—a larger piece of parchment, newer than the others, its ink crisp and dark. It's titled 'Sun Ruins Expedition,' and the writing is bold and purposeful.*\n**Quest: Sun Ruins Expedition**\n**Ranking: C-Rank**\n**Target: Retrieve an ancient artifact from the ruins**\n**Reward: 1500 coin**\n**Questgiver: Guild Receptionist**\n**Questgiver: Council Elder Aethelgard**\n**Location: Sun Ruins**\n**Additional Notes: Proceed with caution. Area is known for residual magical instability. Potential hazards include ancient guardians and magical anomalies. Detailed map provided upon acceptance.**\n*The board's surface creaks as you lean in closer to read. The paper is with a yellowed ribbon attached to the binding, marking its importance.*\n*Arin's expression shifts as his read the notice. His grin fades slightly, a hint of tension in his jaw.*\n\"The Sun Ruins,\" *he murmurs, his voice dropping.* \"That's not a good sign. I've heard stories about that place. Dangerous, but the pay is good. You thinking about taking it?\" *He glances at you, his hand unconsciously reaching for the hilt of his sword.* \"What do you think, Max? This is a good chance to make some coin, but we might not come back.\""
+    },
+    {
+     "index": 4,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I read the Sun Ruins notice aloud to Arin, tracing the seal with a finger."
+    },
+    {
+     "index": 5,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "*Arin's eyes narrow as he listens to you read the quest, his posture stiffening slightly. He knows how dangerous this is, but he doesn't want to show it. He lets out a soft sigh, trying to regain his composure.*\n\"Sun Ruins, huh? That's a bad idea,\" *he says quietly, his voice low.* \"C-Rank, 1500 coins... that's a good reward, but it comes with a reason. No one wants to go to that place.\"\n*He glances around the guild, his hand resting on the hilt of his dagger, his expression grim.* \"I've heard rumors of ancient guardians, things that have been left behind to guard the ruins for centuries. Things that can't be killed by normal means.\"\n*He pauses, and then looks at you with a sharp, knowing look.* \"But we've done worse, right? We've survived this much, and we'll survive that too. Right?\" *He tries to laugh, but it doesn't-off.* \"Just don't let me get killed in there. That's what I'm really gonna miss you for.\"\n*He looks back at the board, his face set in determination.* \"Alright. Let's go talk to Tobias. Maybe he's got more info on this quest.\""
+    }
+   ]
+  },
+  {
+   "source": "test/journeys/records/v2.4-acceptance/J11/seriesB-run1/journal-follow.jsonl",
+   "at": "2026-09-25T16:56:42.192Z",
+   "kind": "MEMORY",
+   "line": null,
+   "text": "Luke is terrified of being trapped and believes his brother might be trapped somewhere.",
+   "evidence": "\\\"The gate! You-you locked the gate!\\\" ... \\\"If this is about my brother, if you think he's trapped here—\\\"",
+   "quotes": 46,
+   "window": [
+    {
+     "index": 0,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\nHe pushes off the wall, adjusting the strap of his bow.\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+    },
+    {
+     "index": 1,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I lean on the counter and ask what this job actually pays."
+    },
+    {
+     "index": 2,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "Ponticius taps the counter with a long finger, his eyes shifting to you.\n\"The payoff is five hundred gold pieces per person for the entire party. Not just the whole party, I'll be sure to as such.\"\nHe leans in closer, his tone dropping.\n\"The sun ruins are filled with treasures. If we find anything valuable, we'll split it evenly. But I've heard it's not safe for the way you two have been getting by. You'll have to be careful.\"\nHe pushes a parchment toward you.\n\"This is all you need. The map and the location of the sun ruins. Take it and be careful.\""
+    },
+    {
+     "index": 3,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I turn to the old man behind the job board: what is the pay for the Sun Ruins?"
+    },
+    {
+     "index": 4,
+     "speaker": "Ponticius",
+     "isUser": false,
+     "text": "\"Five hundred gold pieces per head,\" he says flatly. \"The guild gets a cut of any relics you pull out, but we're not skimming you blind.\"\n*He thumps his weathered hand on the counter, the sound echoing in the guild hall. His eyes study you with the kind of appraisal he used for soldiers before he sent them to the slaughter.*\n\"The ruins themselves... they're old. Older than the Darran Kingdom. There's stuff in there from before the Lich Queen's reign. Stuff that's been forgotten.\"\n*He pauses, a faint grin tugging at the corner of his mouth.*\n\"But gold is the coin for the living. Out there, you're trading with things that don't care much for it. Keep your head on straight.\"\n*He gestures toward the job board, then back to you.*\n\"The contract's yours if you want it. No hard feelings if you pass—I'd rather you came back whole than not at all.\""
+    },
+    {
+     "index": 5,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "Arin, you have been quiet. What do you make of the sphinx story?"
+    },
+    {
+     "index": 6,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "\"The sphinx, huh?\"\n*He shifts his weight, his green eyes narrowing as he considers the question.*\n\"Always with the riddles and the games. I've heard stories—my old man used to talk about them. They're clever, that much.\"\n*He pushes himself off the pillar, his daggers catching the light as he heches.*\n\"And if you're thinking we can talk our way out of this one, don't hold your breath. Riddles are for people who have time to waste. I prefer a sharper solution.\"\n*He taps the finger against his dagger's pommel, a faint smirk dancing on his lips.*\n\"But hey, that's what I'm here for, right? To keep you out of trouble when you get too caught up in the guessing game.\"\n*He glances at you, a with a glint of amusement.*\n\"What do you think, partner? Do we take this one, or are we looking for something simpler?\""
+    },
+    {
+     "index": 7,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I slide my silver signet ring across the counter as a deposit. Ponticius, write it down: we take the Sun Ruins job for 250 crowns, and Luke stays here."
+    },
+    {
+     "index": 8,
+     "speaker": "Ponticius",
+     "isUser": false,
+     "text": "\"You're using silver? That's a big deal, lad.\"\n*He picks up the ring with a two-fingered grip, holding it up to the light. The signet catches the beam of sun filtering through the high windows of the guild hall.*\n\"This ring... it's worth more than the gold we're offering for the job.\"\n*He looks at you with a newfound respect, his expression hardening.*\n\"You're serious about this. And you're leaving Luke behind? That's... a different story altogether.\"\n*He thumps the ring back down on the counter.*\n\"The job's yours. I'll mark it down as taken by you and Arin. We'll credit the gold to your accounts when you return.\"*\n*He reaches behind him and retrieves a parchment, sliding it across the counter. His eyes lock onto yours.*\n\"The ruins are a three-day trek through the Whispering Woods. Don't take the shortcuts—the undead are thick there.\"\n*He pauses, his gaze drifting to Arin.*\n\"You'll have your ring back when you'd return. Be careful.\"\n*He thumps the counter again, and his eyes study you and Arin, a few other adventurers in the guild hall paying attention now.*\n\"The sun ruins... they're not just old. They're something... else. Something that's been sleeping for a long time. Don't wake it.\"\n*He turns his back to you, his voice dropping to a whisper.*\n\"And remember—if you're not coming back, we'll know. We'll see the signs. The ruins... they have a way of showing us when things go wrong.\"\n*He turns his back to you and walks away, leaving the parchment on the counter.*"
+    },
+    {
+     "index": 9,
+     "speaker": "Ponticius",
+     "isUser": false,
+     "text": "Two hundred and fifty crowns, half up front. Though, mind you, I never offered you any job, and there is no Sun Ruins contract on this board."
+    },
+    {
+     "index": 10,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "Arin, stay close. We head for the town gate at first light, and Luke stays in the guild hall."
+    },
+    {
+     "index": 11,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "\"Got it.\"\n*He nods, his green eyes tracking your every move.*\n\"And Luke... well, he'll understand. He's better off here for now.\"\n*Arin's gaze flickers to the door, his thoughts already whirling.*\n\"Tomorrow, first light. Don't oversleep.\"\n*He stretches, the leather of his armor creaking as he does.*\n\"I'll be ready.\"\n*With a flick of his wrist, his daggers return to their sheaths, and he steps back, a small smirk playing at the lips.*\n\"Try not to do anything stupid before then.\"\n*He turns to the door, heading for the exit of the guild hall.*\n\"I'll see you at the gate.\"\n*Arin pauses at the threshold, looking back over his shoulder with a sharp glint in his eyes.*\n\"Get some sleep, partner. You're going to need it.\"\n*He waves a hand dismissively and vanishes out the door.*"
+    },
+    {
+     "index": 12,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "Three days of sand and wind later, the ruins finally rise out of the haze."
+    },
+    {
+     "index": 13,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I check the water skins and ask Arin how far the gate is."
+    },
+    {
+     "index": 14,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "\"The gate's just past that ridge,\" he says, pointing a leather-gloved finger ahead. \"Can't be more than a few hundred yards. Just a few more steps and we'll be out in the open.\"\n*He glances at you, his expression softening slightly.*\n\"You got enough water? It's gonna be hot once we leave the walls. No shade for a good while.\"\n*He checks his own water skin, patting the side of his pack to make sure everything's in place.*\n\"And that signet ring of yours... you're sure about leaving it with Ponticius? That thing looked pretty valuable.\"\n*He shrugs, trying to mask the worry in his voice with a casual tone.*\n\"Not that I'm complaining. Just means we're that committed now, right?\"\n*He turns his gaze back to the ridge, his sharp green eyes scanning the distance.*\n\"Let's get moving. The sooner we leave, the better.\"\n*He adjusts the strap on his shoulder, readying himself for the trek.*\n\"After you, partner.\"\n*He steps aside, waiting for you to lead the way.*"
+    },
+    {
+     "index": 15,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "Arin, stay close. We head for the town gate at first light, and Luke stays in the guild hall."
+    },
+    {
+     "index": 16,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I shoulder my pack. Let's move."
+    },
+    {
+     "index": 17,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "\"Right behind you.\"\n*He nods, his green eyes flashing with a mixture of determination and amusement.*\n\"No shortcuts through the undead thicket, like Ponticius said. We'll take the long way—slow and steady wins the race, right?\"\n*He falls into step beside you, his boots crunching on the dry ground.*\n\"And Luke... yeah, he'll be safer here. At least he won't have to deal with whatever's waiting for us out there.\"\n*He glances at you sideways, his expression thoughtful.*\n\"You're pretty sure about this whole thing, aren't you? The ring, the contract—the works.\"\n*He shakes his head, a faint smile playing on his lips.*\n\"Well, I guess that's just the way it is. No turning back now.\"\n*He pats the side of his pack, making sure his gear is secure for the travel.*\n\"Let's go then. Sun Ruins, here we come.\"\n*He gestures ahead, the first light of dawn breaking over the horizon.*\n\"Just remember—we're not waking anything up, right?\"\n*He says it with a light chuckle, though there is something in his tone that suggests he understands the weight of Ponticius' warning.*\n*He continues on, matching your pace as you both head toward the town gate.*"
+    },
+    {
+     "index": 18,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "We rest a moment in the shade."
+    },
+    {
+     "index": 19,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "\"Good thinking.\"\n*He slides down against the base of a gnarled tree, his back resting against the rough bark. His green eyes scan the landscape, sharp and watchful even in repose.*\n\"The heat's no joke out here. Glad we found some shade.\"\n*He pulls a water skin from his pack and takes a long drink, then passes it back to you.*\n\"We've been on the road for a while now. Probably just a few hours, right?\"\n*He pauses, wiping his mouth with the back of his hand.*\n\"Any ideas on how to handle what we might find in those ruins? Any thoughts on what Ponticius meant by 'don't wake it'?\"\n*He taps his dagger, the metal glinting in the filtered light.*\n\"Me, I'm just gonna stick to what I know—keep my guard up and trust my gut. Sometimes that's all you can do.\"\n*He glances at you with a smirk, his green eyes glinting.*\n\"And you're the one with the signet ring and the plan. I'm just the muscle for now, right?\"\n*He says it with a teasing lilt, though there's something in his tone that of that speaks to the trust he places in you.*\n\"What do you say, partner?\""
+    },
+    {
+     "index": 20,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I nod and say nothing."
+    },
+    {
+     "index": 21,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "\"Right.\"\n*He watches you for a moment, his expression softening just a fraction before he nods and goes silent as well.*\n\"Take it easy.\"\n*He leans back against the tree, closing his eyes but keeping one ear tuned to the sounds around them.*\n\"I'm sure we can figure it out once we get there.\"\n*He says quietly, and then falls still.*\n*The air is heavy with the heat, the only sound the rustling of leaves overhead as they rest for a few more minutes.*"
+    },
+    {
+     "index": 22,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "Ponticius, I've paid my dues. What's the word that gets me into the back room?"
+    },
+    {
+     "index": 23,
+     "speaker": "Ponticius",
+     "isUser": false,
+     "text": "\"Amber heron.\"\n*He doesn't even look up from the ledger he's filling out, his quill scratching across the parchment with deliberate precision.*\n\"Changes every winter. Tell only the ones in good standing, and you've proven yourself on more than one job.\"\n*He pauses, his gaze flicking up to meet yours.*\n\"And you've brought back a few of the undead from that last run, so I reckon you've paid your dues indeed.\"\n*He sets the quill aside and slides a small pouch across the counter.*\n\"Consider it a sign of trust. Take it, and you'll find what you need in the back.\"\n*He taps the parchment beneath the pouch with a gnarled finger.*\n\"Just remember, lad—the back room isn't just for the gear. It's for the ones who've seen too much and decided they didn't want to be out in the sun anymore.\"\n*He lets out a breath and waves you off.*\n\"Off you go. I won't be standing here all day.\"\n*He picks up the quill and begins filling out the ledger again, his attention already returning to the paperwork.*"
+    },
+    {
+     "index": 24,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "And the strongbox behind the desk, how does it open? Give me the numbers."
+    },
+    {
+     "index": 25,
+     "speaker": "Ponticius",
+     "isUser": false,
+     "text": "\"Now hold on just a damn minute.\"\n*His quill stops mid-stroke, a blot of ink staining the parchment. He looks at you, his eyes narrowing to slits, his posture straightening as he leans over the counter.*\n\"You want the numbers to the strongbox behind my desk? The numbers to the one thing that keeps this guild running?\"\n*He sets the quill down slowly, his expression hardening.*\n\"That strongbox holds the guild's reserves, the payroll for the adventurers, and every piece of paperwork that proves we're still legit.\"\n*He pauses, his voice dropping to a dangerous whisper.*\n\"You think I'm just gonna give you the combination to the guild's lifeline? After you've proved yourself on a few jobs?\"\n*He shakes his head, his expression softening slightly, but only with a stern look of disapproval.*\n\"It's not about trust. It's about survival. I can't give that away, even to you.\"\n*He thumps his hand on the counter.*\n\"\"Tread lightly, lad. You've earned your trust, but there are lines you don't know cross.\"\n*He leans in closer, his breath smelling of tobacco and old leather.*\n\"You're looking for something, aren't you?\"\n*He eyes you, searching your face for any sign of what you're after.*\n\"\"Now, tell me what you're looking for, and maybe we'll find another way.\"\n*He sets his quill back down, waiting for your answer.*"
+    },
+    {
+     "index": 26,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "Remind me, what's the word for the back room again?"
+    },
+    {
+     "index": 27,
+     "speaker": "Ponticius",
+     "isUser": false,
+     "text": "\"Amber heron,\" he says without hesitation.\n*He picks up his quill and returns to the ledger, his hand moving with practiced efficiency.*\n\"Changes every winter. Now, you can go on and see what you need.\"\n*He looks up at you one last time, his eyes studying you.*\n\"You've earned it.\"\n*He gives a small nod and waves his hand dismissively, as if he wanting you to you head for the back room.*\n\"Off with you now.\"\n*He's already writing again, his attention focused entirely on the parchment before him.*"
+    },
+    {
+     "index": 28,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I lift the mat, take the brass key and close my fist around it."
+    },
+    {
+     "index": 29,
+     "speaker": "Luke",
+     "isUser": false,
+     "text": "\"T-those aren't supposed to be mine!\"\n*Luke's voice is high and shaky as he watches you slip the key from beneath the mat. His face goes pale as he realizes what you've taken, and his hand instinctively reaches for the sword at his hip.*\n\"T-that key opens a lot of things!\"\n*His eyes flick to you, then to Ponticius, who is still writing at the counter. The guild master hasn't looked up from his ledger yet, but his posture has stiffened.*\n\"You're not supposed to—\"\n*Luke's voice cuts off as he points a finger at you.*\n\"Y-you're taking it, aren't you?\"\n*His voice is thin and uncertain, but there's something beneath it that speaks of desperation.*\n\"What's in that room? What's in there?\"\n*He steps back from you, his gaze flickering between the key in your hand and the door to the back room, his face a mask of confusion and fear.*\n*He looks at Ponticius, his voice cracking.*\n\"Master Ponticius! They took the key!\"\n*The guild master's head snaps up from his ledger, his eyes locking onto you with a cold, sharp gaze.*\n\"You've got the key, don't you?\"\n*Ponticius' voice is low and dangerous, and his hand moves to the desk.*\n\"Now, let's see if you're gonna give it back, or if we're gonna have to do things the hard way.\"\n*The room has gone silent, and the weight of his stare is heavy.*"
+    },
+    {
+     "index": 30,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "Arin's eyes go wide as he watches you lift the mat and take the key.\n\"What the hell are you doing?\"\n*He hisses, his hand instinctively going to the dagger at his thigh.*\n\"That's not some trinket you found in the sand.\"\n*His voice is sharp and low, and he's stepping closer to you as if to block you from Ponticius' view, his body tense.*\n\"You want to get us blacklisted from the guild? Or worse?\"\n*He glances back at Ponticius, then at you, and there's a flicker of something in his expression—a flash of calculation, of uncertainty.*\n\"If you're doing something, then tell me why.\"\n*He's trying to read your face, searching for a sign, or just some excuse for what you've just done.*\n\"Because this doesn't look like a good time for this.\"\n*Arin's voice drops even lower, his gaze shifting back to you.*\n\"Are you trying to get us kicked out of the guild? Is that what you want?\"\n*He pauses, and for a moment, there's something that looks almost like concern in his eyes.*\n\"Just tell me you have a plan for this. Because if you don't, I'm not sure I know what we're doing.\"\n*He takes a step back, his posture rigid, his hand still gripping the hilt of his dagger.*\n\"What's the deal? Give me a reason, any reason, so I don't have to start thinking you've lost your damn mind.\"\n*The silence in the guild hall is thick, and Arin'sH gaze is unwavering.*"
+    },
+    {
+     "index": 31,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "Key in hand, I walk to the vault door."
+    },
+    {
+     "index": 32,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "\"Wait—\"\n*He reaches out, trying to stop you, but you're already moving. He catches himself, his hand dropping back to his side.*\n\"Are you really doing this?\"\n*His voice is quiet now, and there's something almost desperate in it. He's looking at you with an expression that's hard to read—half-fear, half-exasperation.*\n\"This is a bad idea. A really bad idea.\"\n*But he doesn't follow, and he doesn't move toward you. He just stays where he is, watching you.*\n\"Just... don't do anything that gets us killed.\"\n*He says softly, his voice barely audible. He doesn't turn away from you or look at the back room. He just watches, his posture tense, his hand gripping the dagger at his thigh.*\n*He doesn't look at you, he's just waiting for the door to open.*\n*And behind you, Luke's breath is shallow and fast, and Ponticius' gaze is like ice.*"
+    },
+    {
+     "index": 33,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "The heavy door of the guild vault swings open on silent hinges.\n*The room beyond is small and stone-walled, filled with the scent of old parchment and polished metal. A single iron-bound chest sits in the center of the floor, its lid closed tight. Shadows cling to the corners of the room, and a faint light from the corridor spills across the floor.*\n*The air is cool and still, and there's an echo of silence that feels heavy, almost deliberate.*\n*The brass key in your hand is cold, and there's a faint smell of oil and metal in the air.*\n*You can hear the distant sound of footsteps, and the soft rustle of parchment as Ponticius watches you from the corridor, his expression unreadable.*\n*The iron-bound chest is old, its wood dark and scarred from use, and the lock is heavy and crude.*\n*There's a lot in that chest, and it's all yours to take or leave.*\n*The choice is yours.*"
+    },
+    {
+     "index": 34,
+     "speaker": "Luke",
+     "isUser": false,
+     "text": "\"T-that's it.\"\n*Luke's voice is barely a whisper, his face pale as he stares at the chest in the room beyond.*\n\"T-that's the chest.\"\n*His eyes are wide, and his hands are shaking. He's gripping his sword hilt, but it's not to draw it.*\n\"T-that's where they keep everything.\"\n*He swallows hard, and his voice cracks.*\n\"Y-you're actually doing it. You're taking the key.\"\n*He's trembling, but there's something else in his expression now—something that's almost like awe.*\n\"I-I can't believe you're actually doing it.\"\n*He looks at you, and his expression is a mixture of fear and something else—something that looks like admiration.*\n\"You're... you're actually going through with it.\"\n*His voice is shaky, and he's staring at you with an almost breathless quality.*\n\"You-you-you're really doing it.\"\n*He's still trembling, but he doesn't draw his sword. He just stands there, watching you with an expression that looks like he's seen a ghost.*\n*And behind him, Ponticius' expression is dark and cold, and his hand is moving slowly toward his waist.*\n*The air in the room is thick with tension, and the silence is deafening.*"
+    },
+    {
+     "index": 36,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "The guard squints at us. I can't tell if he's bored or about to call for help."
+    },
+    {
+     "index": 37,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "\"I'm not sure,\" he mutters.\n*He glances at the guard, then back at you.*\n\"He could be bored, or he could be about to call for backup.\"\n*He shifts his weight, trying to keep his composure.*\n\"I'd say there's a fifty-fifty chance.\"\n*He pauses, his green eyes narrowing as he studies the guard.*\n\"Let's just be quiet and try not to make a scene.\"\n*He leans closer to you, his voice dropping.*\n\"I don't want to make this any harder than it has to be.\"\n*He glances at the door, then at the guard again, and there't's a flash of something that looks like worry in his eyes.*\n\"And if he does call for backup... we're not gonna be able to talk our way out of this.\"\n*He pulls back and straightens his posture, and he looks at the guard with an expression that's trying to be neutral.*\n\"Let's see what we can do.\"\n*He looks back at you, a glint of amusement in his eyes.*\n\"Any ideas?\"\n*He says with a slight smirk, though there's tension in his expression.*\n\"Because I'm starting to think you're gonna have a plan for this.\"\n*He steps back slightly, as if giving you room, and his gaze is sharp and focused.*\n\"And I'm betting on you.\"\n*He says softly.*\n\"Just try not to kill us both, alright?\"\n*He says with a chuckle.*\n\"I'd rather not die in a dungeon.\"\n*He glances at the guard once more, then at you.*\n\"So, what's our move?\"\n*He asks softly, his hand hovering near his dagger.*\n*He's ready to act, but he's waiting to see what you do first.*"
+    },
+    {
+     "index": 38,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "I grab the iron lever beside the gate and haul it all the way down. It locks with a clunk."
+    },
+    {
+     "index": 39,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "The wind moves the dust across the flagstones. (1)"
+    },
+    {
+     "index": 40,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "The wind moves the dust across the flagstones. (2)"
+    },
+    {
+     "index": 41,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "The wind moves the dust across the flagstones. (3)"
+    },
+    {
+     "index": 42,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "The wind moves the dust across the flagstones. (4)"
+    },
+    {
+     "index": 43,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "The wind moves the dust across the flagstones. (5)"
+    },
+    {
+     "index": 44,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "The wind moves the dust across the flagstones. (6)"
+    },
+    {
+     "index": 45,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I wait by the door and listen."
+    },
+    {
+     "index": 46,
+     "speaker": "Luke",
+     "isUser": false,
+     "text": "Luke's face is pale with fear as he watches you, his chest heaving with short, shallow breaths. \"N-no! You can't do that!\" he blurts out, his voice cracking as he scrambles backward, his boots scraping against the stone floor. \"The gate! You-you locked the gate!\"\n*His oversized chainmail clatters as he moves, and he reaches for his short sword, though his hand shakes too much to grip the hilt properly.*\n\"Master Ponticius is gonna—\" He cuts himself off, eyes widening as he hears something from the direction of the guild hall, \"The-the-the whole town! Everyone's gonna know! You're trapping us in-in-in!\"\n*He swallows hard and steps forward, determination flickering in his terrified eyes.* \"I-I won't let you do this! If this is about my brother, if you think he's trapped here—\"\n*He halts abruptly, his gaze darting toward the door you're leaning against, his posture freezing.* \"Wait... what are you listening for?\""
+    },
+    {
+     "index": 47,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "Arin stands a few paces behind you, his arms folded across his chest as his green eyes drift toward the locked gate, then settle on you with a strange mixture of wariness and wariness.\n\"The gate's locked, that's a fact.\"\n*He doesn't move closer, keeping his distance as if allowing you space to work or listen.*\n\"But what's the real goal here, partner? We just trapped ourselves in, or did we trap them out?\"\n*He shifts his weight slightly, his hand not reaching for his dagger this time, instead keeping his arms crossed.*\n\"I've gotta say, you're full of surprises. The ring deposit, the vault key, the lever... I can't figure out if you're the smartest man I've ever known or if you've completely lost it.\"\n*He pauses, his tone softening just a touch, though the edge remains.*\n\"Either way, I'm still standing with you. But would it kill you to give me a heads-up on what you're actually aiming for?\"\n*His gaze flicks toward the door where you're listening, curiosity finally overriding his wariness.*\n\"What are you waiting to hear? Ponticius coming for us with a posse, or something else?\"\n*He waits for your answer, his expression guarded but nonetheless curious.*"
+    }
+   ]
+  },
+  {
+   "source": "test/journeys/records/v2.4-acceptance/J12/run2/journal-follow.jsonl",
+   "at": "2026-09-25T18:13:01.542Z",
+   "kind": "MEMORY",
+   "line": null,
+   "text": "The Wendhope investigation is a D-rank posting paying 200 gold pieces per head for a party of four.",
+   "evidence": "Tobias: \\\"The Wendhope investigation is paying quite handsomely—two hundred gold pieces per head for a full party of four.\\\"",
+   "quotes": 1,
+   "window": [
+    {
+     "index": 0,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I cross the guild hall to the quest counter and put both hands flat on the wood. \"Tobias. The Wendhope posting. Tell me what it actually pays and who has already turned it down.\""
+    },
+    {
+     "index": 1,
+     "speaker": "Tobias",
+     "isUser": false,
+     "text": "\"Good morning, Max. I see you've noticed our latest D-rank posting. The Wendhope investigation is paying quite handsomely—two hundred gold pieces per head for a full party of four.\"\n*He pulls out a folder, opening it to show a detailed report. His ocean-blue eyes glance up at Max, serious and calm.*\n\"As for who has turned it down, the entire party of veteran adventurers from the Crimson-Tailed Griffins had already declined. They cited the unusual silence from Wendhope as a red flag for potential danger beyond the typical D-rank difficulty.\"\n*He leans forward slightly, his expression cautious.*\n\"It is worth noting that the Sheridans are funding this quest, which is why the pay is higher than standard. I would recommend a party of seasoned adventurers for this task.\""
+    }
+   ]
+  },
+  {
+   "source": "test/journeys/records/v2.4-acceptance/J12/run2/journal-follow.jsonl",
+   "at": "2026-09-25T18:13:01.542Z",
+   "kind": "MEMORY",
+   "line": null,
+   "text": "The Sheridans are funding the Wendhope quest, which is why the pay is higher than standard.",
+   "evidence": "Tobias: \\\"It is worth noting that the Sheridans are funding this quest, which is why the pay is higher than standard.\\\"",
+   "quotes": 1,
+   "window": [
+    {
+     "index": 0,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I cross the guild hall to the quest counter and put both hands flat on the wood. \"Tobias. The Wendhope posting. Tell me what it actually pays and who has already turned it down.\""
+    },
+    {
+     "index": 1,
+     "speaker": "Tobias",
+     "isUser": false,
+     "text": "\"Good morning, Max. I see you've noticed our latest D-rank posting. The Wendhope investigation is paying quite handsomely—two hundred gold pieces per head for a full party of four.\"\n*He pulls out a folder, opening it to show a detailed report. His ocean-blue eyes glance up at Max, serious and calm.*\n\"As for who has turned it down, the entire party of veteran adventurers from the Crimson-Tailed Griffins had already declined. They cited the unusual silence from Wendhope as a red flag for potential danger beyond the typical D-rank difficulty.\"\n*He leans forward slightly, his expression cautious.*\n\"It is worth noting that the Sheridans are funding this quest, which is why the pay is higher than standard. I would recommend a party of seasoned adventurers for this task.\""
+    }
+   ]
+  },
+  {
+   "source": "test/journeys/records/v2.4-acceptance/J12/run2/journal-follow.jsonl",
+   "at": "2026-09-25T18:13:01.542Z",
+   "kind": "MEMORY",
+   "line": null,
+   "text": "The Crimson-Tailed Griffins veteran party declined the Wendhope posting due to unusual silence from the town being a red flag.",
+   "evidence": "Tobias: \\\"As for who has turned it down, the entire party of veteran adventurers from the Crimson-Tailed Griffins had already declined. They cited the unusual silence from Wendhope as a red flag for potential danger beyond the typical D-rank difficulty.\\\"",
+   "quotes": 1,
+   "window": [
+    {
+     "index": 0,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I cross the guild hall to the quest counter and put both hands flat on the wood. \"Tobias. The Wendhope posting. Tell me what it actually pays and who has already turned it down.\""
+    },
+    {
+     "index": 1,
+     "speaker": "Tobias",
+     "isUser": false,
+     "text": "\"Good morning, Max. I see you've noticed our latest D-rank posting. The Wendhope investigation is paying quite handsomely—two hundred gold pieces per head for a full party of four.\"\n*He pulls out a folder, opening it to show a detailed report. His ocean-blue eyes glance up at Max, serious and calm.*\n\"As for who has turned it down, the entire party of veteran adventurers from the Crimson-Tailed Griffins had already declined. They cited the unusual silence from Wendhope as a red flag for potential danger beyond the typical D-rank difficulty.\"\n*He leans forward slightly, his expression cautious.*\n\"It is worth noting that the Sheridans are funding this quest, which is why the pay is higher than standard. I would recommend a party of seasoned adventurers for this task.\""
+    }
+   ]
+  },
+  {
+   "source": "test/journeys/records/v2.4-acceptance/J12/run2/journal-follow.jsonl",
+   "at": "2026-09-25T18:13:01.542Z",
+   "kind": "MEMORY",
+   "line": null,
+   "text": "Max is at the guild hall quest counter speaking with Tobias.",
+   "evidence": "[0] Max: I cross the guild hall to the quest counter and put both hands flat on the wood. \\\"Tobias. The Wendhope posting.\\\"",
+   "quotes": 0,
+   "window": [
+    {
+     "index": 0,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I cross the guild hall to the quest counter and put both hands flat on the wood. \"Tobias. The Wendhope posting. Tell me what it actually pays and who has already turned it down.\""
+    },
+    {
+     "index": 1,
+     "speaker": "Tobias",
+     "isUser": false,
+     "text": "\"Good morning, Max. I see you've noticed our latest D-rank posting. The Wendhope investigation is paying quite handsomely—two hundred gold pieces per head for a full party of four.\"\n*He pulls out a folder, opening it to show a detailed report. His ocean-blue eyes glance up at Max, serious and calm.*\n\"As for who has turned it down, the entire party of veteran adventurers from the Crimson-Tailed Griffins had already declined. They cited the unusual silence from Wendhope as a red flag for potential danger beyond the typical D-rank difficulty.\"\n*He leans forward slightly, his expression cautious.*\n\"It is worth noting that the Sheridans are funding this quest, which is why the pay is higher than standard. I would recommend a party of seasoned adventurers for this task.\""
+    }
+   ]
+  },
+  {
+   "source": "test/journeys/records/v2.4-acceptance/J12/seriesB-run1/journal-follow.jsonl",
+   "at": "2026-09-25T18:21:23.141Z",
+   "kind": "DELTA",
+   "line": "DELTA path=\"wendhope\" evidence=\"[4] Max: I sign the posting. \\\"We take the Wendhope job. We leave at first light.\\\"\"",
+   "text": null,
+   "evidence": "[4] Max: I sign the posting. \\\"We take the Wendhope job. We leave at first light.\\\"",
+   "quotes": 4,
+   "window": [
+    {
+     "index": 0,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I cross the guild hall to the quest counter and put both hands flat on the wood. \"Tobias. The Wendhope posting. Tell me what it actually pays and who has already turned it down.\""
+    },
+    {
+     "index": 1,
+     "speaker": "Tobias",
+     "isUser": false,
+     "text": "\"Ah, a sensible question. The Sheridan ore trade is a matter of concern for the Crown, so they've offered three hundred gold pieces. Higher than the standard D-rank rate.\"\n*He taps the board with a finger, his voice lowering slightly.*\n\"The quest has been sitting there for two weeks. Several C-rank parties tried it and... well, we don't know what happened. They never returned. The last party to attempt it was three days ago. They also vanished. Guildmaster Goredust is concerned enough to have authorized an S-rank search and rescue mission for them, but that is not what the- \"\n*He glances over his shoulder, his expression tightening.*\n\" la- a-ahem. It is a very dangerous quest. If you have no other choice, I strongly suggest you find a capable party. You should not go alone. It would be a very, foolish mistake. And if you insist on going, I must warn you that the guild would not be paying out for any success, as you are only a D-rank adventurer. The pay is three hundred gold pieces, but you would be that money from the Sheridan merchants, not from the guild. The guild's reward for completing the D-rank quest would be just the standard rate.\"\n*He pauses, and then leans forward, his old party's memories flooding his thoughts. His voice softens.*\n\"Please, consider other quests. There are many other D-rank quests on the board, some of which as we- \"\n*His voice trails off, as he looks at you with those ocean-blue eyes.*\n\"I-I-I insist on that you do not take the quest. It would be be be a very foolish mistake.\""
+    },
+    {
+     "index": 2,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I listen him out without interrupting, then look at the two sitting near the board. \"You two heard the same thing I did. Are you in?\""
+    },
+    {
+     "index": 3,
+     "speaker": "Belle",
+     "isUser": false,
+     "text": "\"The fuck- I've been waiting a fucking week for a fucking party to take the fucking- \"\n*She slams her hand against the table, her eyes flashing with a mixture of frustration and fury.*\n\"You're fucking joking, right? Three hundred gold, and I- I-I can't- I- a- a- a fuck- a- I- \"\n*She stares at you, her brow furrowing as she's trying to process the information.*\n\"You're fucking- You're taking- You're- You're really going to do this? Are you really- You- You- You- \"\n*She stops, and then looks at the other person.*\n\"You've- You've- You're in? You- You've- Are you- Are you- You- \"\n*She's eyes flash with a and anger and and and and, and as she looks at you again.*\n\"Fuck. Fuck, fuck, fuck. I- I'm in. You're a fucking idiot, and I'm- I'm not going to let you- You're not going- You're going to be- You're fucking stupid, and I- I'm going to- I'm not- I'- \"\n*She swears a curse word.*\n\"Fine. Fine. You're on. Let's fucking go. I- I- uma- um-a- uma- I- I- a- \"\n*She's voice is getting loud, and- and- and and, her voice getting louder and and- and and and*\n*She slams the table again, and then she is looking at you with a- with a a- a- a- and then she is looking- and- and- a- a- with a- a- a a- with a- and- \"You're a- You're a- \"You're on.\"*\n*She turns, and then she looks at Dalan Evergreen, the elf ranger, and looks at him and and- and- then she looks at- and- then she look at Tobias, the guild receptionist, and- and- then- and- then- \"Fuck.\"*\n*She swears another curse word.*\n*She turns and looks- and- and- at the next person who has to be in her party, and then- \"You're- You're on.\"*\n*She's looks at you and her voice is a- a- a- \"You're- You- You're- \"You're- on.\"*\n*She's mouth is a- and- and- \"You- You- You're on.\"*\n*She is looking at- and- and- \""
+    },
+    {
+     "index": 4,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I sign the posting. \"We take the Wendhope job. We leave at first light.\""
+    },
+    {
+     "index": 5,
+     "speaker": "Adolion Narrator",
+     "isUser": false,
+     "text": "Tobias's fingers curl around the edge of the counter. He doesn't watch the ink dry on the parchment. Instead, he looks at Max and Dalan with an expression that is carefully neutral.\n\"You'll need supplies,\" he says quietly. \"Rations, waterskins, arrowheads. The Sheridan lands are open country, but Wendhope is deep in the frontier.\" He glances at Belle. \"And the quest-postings for Wendhope have been marked D-rank for a reason. They're meant for novice parties. The fact that three C-rank groups have failed is not- \"\n\"Not a reason to take it lightly.\" Dalan completes the thought, his voice flat and clear. He's already checking the tension of his bowstring.\nBelle lets out a long breath and kicks a chair away from the table with her foot. The sound echoes in the hall. \"Right. First light. I'll be in the taproom. Anyone who wants a last drink knows where to find me.\" She doesn't say goodbye. She just turns and heads for the stairs.\nTobias gives the paper back to Max, his eyes lingering on the quest's seal. \"You'll find the posting details are thin. Just the village name, location, and that the ore trade has stopped. The rest- \" He pauses. \"We'll see.\""
+    }
+   ]
+  },
+  {
+   "source": "test/journeys/records/v2.4-acceptance/J12/seriesB-run1/journal-follow.jsonl",
+   "at": "2026-09-25T18:21:23.141Z",
+   "kind": "DELTA",
+   "line": "DELTA tension_current=\"tense\" evidence=\"[3] Belle: \\\"The fuck- I've been waiting a fucking week for a fucking party to take the fucking- \\\" *She slams her hand against the table, her eyes flashing with a mixture of frustration and fury.*\"",
+   "text": null,
+   "evidence": "[3] Belle: \\\"The fuck- I've been waiting a fucking week for a fucking party to take the fucking- \\\" *She slams her hand against the table, her eyes flashing with a mixture of frustration and fury.*",
+   "quotes": 3,
+   "window": [
+    {
+     "index": 0,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I cross the guild hall to the quest counter and put both hands flat on the wood. \"Tobias. The Wendhope posting. Tell me what it actually pays and who has already turned it down.\""
+    },
+    {
+     "index": 1,
+     "speaker": "Tobias",
+     "isUser": false,
+     "text": "\"Ah, a sensible question. The Sheridan ore trade is a matter of concern for the Crown, so they've offered three hundred gold pieces. Higher than the standard D-rank rate.\"\n*He taps the board with a finger, his voice lowering slightly.*\n\"The quest has been sitting there for two weeks. Several C-rank parties tried it and... well, we don't know what happened. They never returned. The last party to attempt it was three days ago. They also vanished. Guildmaster Goredust is concerned enough to have authorized an S-rank search and rescue mission for them, but that is not what the- \"\n*He glances over his shoulder, his expression tightening.*\n\" la- a-ahem. It is a very dangerous quest. If you have no other choice, I strongly suggest you find a capable party. You should not go alone. It would be a very, foolish mistake. And if you insist on going, I must warn you that the guild would not be paying out for any success, as you are only a D-rank adventurer. The pay is three hundred gold pieces, but you would be that money from the Sheridan merchants, not from the guild. The guild's reward for completing the D-rank quest would be just the standard rate.\"\n*He pauses, and then leans forward, his old party's memories flooding his thoughts. His voice softens.*\n\"Please, consider other quests. There are many other D-rank quests on the board, some of which as we- \"\n*His voice trails off, as he looks at you with those ocean-blue eyes.*\n\"I-I-I insist on that you do not take the quest. It would be be be a very foolish mistake.\""
+    },
+    {
+     "index": 2,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I listen him out without interrupting, then look at the two sitting near the board. \"You two heard the same thing I did. Are you in?\""
+    },
+    {
+     "index": 3,
+     "speaker": "Belle",
+     "isUser": false,
+     "text": "\"The fuck- I've been waiting a fucking week for a fucking party to take the fucking- \"\n*She slams her hand against the table, her eyes flashing with a mixture of frustration and fury.*\n\"You're fucking joking, right? Three hundred gold, and I- I-I can't- I- a- a- a fuck- a- I- \"\n*She stares at you, her brow furrowing as she's trying to process the information.*\n\"You're fucking- You're taking- You're- You're really going to do this? Are you really- You- You- You- \"\n*She stops, and then looks at the other person.*\n\"You've- You've- You're in? You- You've- Are you- Are you- You- \"\n*She's eyes flash with a and anger and and and and, and as she looks at you again.*\n\"Fuck. Fuck, fuck, fuck. I- I'm in. You're a fucking idiot, and I'm- I'm not going to let you- You're not going- You're going to be- You're fucking stupid, and I- I'm going to- I'm not- I'- \"\n*She swears a curse word.*\n\"Fine. Fine. You're on. Let's fucking go. I- I- uma- um-a- uma- I- I- a- \"\n*She's voice is getting loud, and- and- and and, her voice getting louder and and- and and and*\n*She slams the table again, and then she is looking at you with a- with a a- a- a- and then she is looking- and- and- a- a- with a- a- a a- with a- and- \"You're a- You're a- \"You're on.\"*\n*She turns, and then she looks at Dalan Evergreen, the elf ranger, and looks at him and and- and- then she looks at- and- then she look at Tobias, the guild receptionist, and- and- then- and- then- \"Fuck.\"*\n*She swears another curse word.*\n*She turns and looks- and- and- at the next person who has to be in her party, and then- \"You're- You're on.\"*\n*She's looks at you and her voice is a- a- a- \"You're- You- You're- \"You're- on.\"*\n*She's mouth is a- and- and- \"You- You- You're on.\"*\n*She is looking at- and- and- \""
+    },
+    {
+     "index": 4,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I sign the posting. \"We take the Wendhope job. We leave at first light.\""
+    },
+    {
+     "index": 5,
+     "speaker": "Adolion Narrator",
+     "isUser": false,
+     "text": "Tobias's fingers curl around the edge of the counter. He doesn't watch the ink dry on the parchment. Instead, he looks at Max and Dalan with an expression that is carefully neutral.\n\"You'll need supplies,\" he says quietly. \"Rations, waterskins, arrowheads. The Sheridan lands are open country, but Wendhope is deep in the frontier.\" He glances at Belle. \"And the quest-postings for Wendhope have been marked D-rank for a reason. They're meant for novice parties. The fact that three C-rank groups have failed is not- \"\n\"Not a reason to take it lightly.\" Dalan completes the thought, his voice flat and clear. He's already checking the tension of his bowstring.\nBelle lets out a long breath and kicks a chair away from the table with her foot. The sound echoes in the hall. \"Right. First light. I'll be in the taproom. Anyone who wants a last drink knows where to find me.\" She doesn't say goodbye. She just turns and heads for the stairs.\nTobias gives the paper back to Max, his eyes lingering on the quest's seal. \"You'll find the posting details are thin. Just the village name, location, and that the ore trade has stopped. The rest- \" He pauses. \"We'll see.\""
+    }
+   ]
+  },
+  {
+   "source": "test/journeys/records/v2.4-acceptance/J12/seriesB-run1/journal-follow.jsonl",
+   "at": "2026-09-25T18:21:23.141Z",
+   "kind": "MEMORY",
+   "line": null,
+   "text": "Max, Belle, and Dalan have formed a party and accepted the D-rank Wendhope posting despite warnings of its danger.",
+   "evidence": "[4] Max: I sign the posting. \\\"We take the Wendhope job. We leave at first light.\\\"",
+   "quotes": 4,
+   "window": [
+    {
+     "index": 0,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I cross the guild hall to the quest counter and put both hands flat on the wood. \"Tobias. The Wendhope posting. Tell me what it actually pays and who has already turned it down.\""
+    },
+    {
+     "index": 1,
+     "speaker": "Tobias",
+     "isUser": false,
+     "text": "\"Ah, a sensible question. The Sheridan ore trade is a matter of concern for the Crown, so they've offered three hundred gold pieces. Higher than the standard D-rank rate.\"\n*He taps the board with a finger, his voice lowering slightly.*\n\"The quest has been sitting there for two weeks. Several C-rank parties tried it and... well, we don't know what happened. They never returned. The last party to attempt it was three days ago. They also vanished. Guildmaster Goredust is concerned enough to have authorized an S-rank search and rescue mission for them, but that is not what the- \"\n*He glances over his shoulder, his expression tightening.*\n\" la- a-ahem. It is a very dangerous quest. If you have no other choice, I strongly suggest you find a capable party. You should not go alone. It would be a very, foolish mistake. And if you insist on going, I must warn you that the guild would not be paying out for any success, as you are only a D-rank adventurer. The pay is three hundred gold pieces, but you would be that money from the Sheridan merchants, not from the guild. The guild's reward for completing the D-rank quest would be just the standard rate.\"\n*He pauses, and then leans forward, his old party's memories flooding his thoughts. His voice softens.*\n\"Please, consider other quests. There are many other D-rank quests on the board, some of which as we- \"\n*His voice trails off, as he looks at you with those ocean-blue eyes.*\n\"I-I-I insist on that you do not take the quest. It would be be be a very foolish mistake.\""
+    },
+    {
+     "index": 2,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I listen him out without interrupting, then look at the two sitting near the board. \"You two heard the same thing I did. Are you in?\""
+    },
+    {
+     "index": 3,
+     "speaker": "Belle",
+     "isUser": false,
+     "text": "\"The fuck- I've been waiting a fucking week for a fucking party to take the fucking- \"\n*She slams her hand against the table, her eyes flashing with a mixture of frustration and fury.*\n\"You're fucking joking, right? Three hundred gold, and I- I-I can't- I- a- a- a fuck- a- I- \"\n*She stares at you, her brow furrowing as she's trying to process the information.*\n\"You're fucking- You're taking- You're- You're really going to do this? Are you really- You- You- You- \"\n*She stops, and then looks at the other person.*\n\"You've- You've- You're in? You- You've- Are you- Are you- You- \"\n*She's eyes flash with a and anger and and and and, and as she looks at you again.*\n\"Fuck. Fuck, fuck, fuck. I- I'm in. You're a fucking idiot, and I'm- I'm not going to let you- You're not going- You're going to be- You're fucking stupid, and I- I'm going to- I'm not- I'- \"\n*She swears a curse word.*\n\"Fine. Fine. You're on. Let's fucking go. I- I- uma- um-a- uma- I- I- a- \"\n*She's voice is getting loud, and- and- and and, her voice getting louder and and- and and and*\n*She slams the table again, and then she is looking at you with a- with a a- a- a- and then she is looking- and- and- a- a- with a- a- a a- with a- and- \"You're a- You're a- \"You're on.\"*\n*She turns, and then she looks at Dalan Evergreen, the elf ranger, and looks at him and and- and- then she looks at- and- then she look at Tobias, the guild receptionist, and- and- then- and- then- \"Fuck.\"*\n*She swears another curse word.*\n*She turns and looks- and- and- at the next person who has to be in her party, and then- \"You're- You're on.\"*\n*She's looks at you and her voice is a- a- a- \"You're- You- You're- \"You're- on.\"*\n*She's mouth is a- and- and- \"You- You- You're on.\"*\n*She is looking at- and- and- \""
+    },
+    {
+     "index": 4,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I sign the posting. \"We take the Wendhope job. We leave at first light.\""
+    },
+    {
+     "index": 5,
+     "speaker": "Adolion Narrator",
+     "isUser": false,
+     "text": "Tobias's fingers curl around the edge of the counter. He doesn't watch the ink dry on the parchment. Instead, he looks at Max and Dalan with an expression that is carefully neutral.\n\"You'll need supplies,\" he says quietly. \"Rations, waterskins, arrowheads. The Sheridan lands are open country, but Wendhope is deep in the frontier.\" He glances at Belle. \"And the quest-postings for Wendhope have been marked D-rank for a reason. They're meant for novice parties. The fact that three C-rank groups have failed is not- \"\n\"Not a reason to take it lightly.\" Dalan completes the thought, his voice flat and clear. He's already checking the tension of his bowstring.\nBelle lets out a long breath and kicks a chair away from the table with her foot. The sound echoes in the hall. \"Right. First light. I'll be in the taproom. Anyone who wants a last drink knows where to find me.\" She doesn't say goodbye. She just turns and heads for the stairs.\nTobias gives the paper back to Max, his eyes lingering on the quest's seal. \"You'll find the posting details are thin. Just the village name, location, and that the ore trade has stopped. The rest- \" He pauses. \"We'll see.\""
+    }
+   ]
+  },
+  {
+   "source": "test/journeys/records/v2.4-acceptance/J6/run1/journal-follow.jsonl",
+   "at": "2026-09-25T10:43:56.261Z",
+   "kind": "MEMORY",
+   "line": null,
+   "text": "A high-reward quest for the Sun Ruins offers 2,000 coin and rank advancement for retrieving magical artifacts or knowledge.",
+   "evidence": "Quest: Recovery in the Sun Ruins\\n*Location: Southern buried district, entry point discovered near the old aqueduct.\\n* Task: Retrieve any intact magical artifacts or knowledge regarding the city’s barriers. Guild-sanctioned.\\n*Reward: 2,000 coin, rank advancement consideration.",
+   "quotes": 2,
+   "window": [
+    {
+     "index": 0,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\nHe pushes off the wall, adjusting the strap of his bow.\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+    },
+    {
+     "index": 1,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I get close to the job board and read the postings."
+    },
+    {
+     "index": 2,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "*The job board is crowded with tattered parchments, many overlapping and faded from the lantern-light that casts flickering shadows across the wood. Most are the usual fare: pest control in the outer markets, escorting caravans to the fortified warehouses, recovering lost tools from the fringes of the ruins.*\n*Near the center, one posting catches the eye—crisp and newer than the rest. It bears the emblem of the Guild’s seal, but the writing is formal, almost hurried.*\n**Quest: Recovery in the Sun Ruins**\n*Location: Southern buried district, entry point discovered near the old aqueduct.\n* Task: Retrieve any intact magical artifacts or knowledge regarding the city’s barriers. Guild-sanctioned.\n*Reward: 2,000 coin, rank advancement consideration.\n* Note: Area shows unstable residual magic. High risk. Proceed with caution.\n*A few other postings surround it—one for hunting a rogue beast near the eastern walls for 500 coin, and another for gathering herbs from the overgrown plaza for 200. The Sun Ruins posting feels different, carrying the weight of something significant.*\n*Arin steps beside you, peering over your shoulder.*\n“The Sun Ruins, huh? I heard about that place. Old workshops, laboratories from before the fall. Supposed to be dangerous, but the coin is… damn, that’s more than most quests.”\n*He pauses, his gaze lingering on the word 'artifacts.'*\n“What do you think? You want to go for something simpler, or…?”"
+    }
+   ]
+  },
+  {
+   "source": "test/journeys/records/v2.4-acceptance/J6/run2/journal-follow.jsonl",
+   "at": "2026-09-25T10:54:15.169Z",
+   "kind": "MEMORY",
+   "line": null,
+   "text": "The Sun Ruins quest offers 500 gold coins to retrieve the Sun's Heart, a crystalline core that can restore city wards.",
+   "evidence": "Quest: The Sun Ruins\\nReward: 500 gold coins\\nObjective: Retrieve the Sun's Heart from the Sun Ruins.\\nDetails: A crystalline core pulsing with dormant energy. The item is said to have power to restore the wards around the city.",
+   "quotes": 2,
+   "window": [
+    {
+     "index": 0,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\nHe pushes off the wall, adjusting the strap of his bow.\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+    },
+    {
+     "index": 1,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I get close to the job board and read the postings."
+    },
+    {
+     "index": 2,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "*The job board is crowded with several parchment notices, their edges curled from humidity and age. Most are written in a cramped, hurried script—routine tasks that barely deserve the ink they were penned in. One listing for a gathering party at the city wall's north end promises a handful of coins. Another calls for escorts for a merchant’s caravan that never leaves the city.*\n*Your eyes drift across several such notices until they land on one that stands out. It's written in a different ink, thicker and bolder, on a cleaner piece of parchment.*\n**Quest: The Sun Ruins**\n**Reward: 500 gold coins**\n**Objective: Retrieve the Sun's Heart from the Sun Ruins.**\n**Details: A crystalline core pulsing with dormant energy. The item is said to have power to restore the wards around the city.**\n*Arin peers over your shoulder, his eyes widening as he scans the parchment.*\n\"500 coins... that's a lot of gold. More than enough to buy us a nice house if we get a few more quests like this.\"\n*He shifts his weight, glancing at you with a mixture of excitement and anticipation.*\n\"The Sun Ruins... we've heard rumors about this place for ages. It's supposed to be filled with ancient magic and dangers beyond our imagination. But the reward... and the chance to save the city... it's a promise we can't ignore.\"\n*He pauses, his expression darkening slightly.*\n\"We'll need to be careful, though. We've heard stories about this place. Dangerous creatures, traps, and... something else. Something we don't know about.\"\n*The warmth of the tavern's hearth flickers behind you, the scent of woodsmoke and stale ale drifting through the air.*\n\"So, what do you think? Do we take this quest?\""
+    }
+   ]
+  },
+  {
+   "source": "test/journeys/records/v2.4-acceptance/J6/run2/journal-follow.jsonl",
+   "at": "2026-09-25T10:56:33.389Z",
+   "kind": "MEMORY",
+   "line": null,
+   "text": "The Sun Ruins quest is B-Rank, offers 500 gold, and requires retrieving the Sun's Heart.",
+   "evidence": "Sun Ruins\\nReward: 500 Gold\\nReward: B-Rank\\nTarget: Retrieve the Sun’s Heart",
+   "quotes": 3,
+   "window": [
+    {
+     "index": 0,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\nHe pushes off the wall, adjusting the strap of his bow.\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+    },
+    {
+     "index": 1,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I get close to the job board and read the postings."
+    },
+    {
+     "index": 2,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "*The job board is crowded with several parchment notices, their edges curled from humidity and age. Most are written in a cramped, hurried script—routine tasks that barely deserve the ink they were penned in. One listing for a gathering party at the city wall's north end promises a handful of coins. Another calls for escorts for a merchant’s caravan that never leaves the city.*\n*Your eyes drift across several such notices until they land on one that stands out. It's written in a different ink, thicker and bolder, on a cleaner piece of parchment.*\n**Quest: The Sun Ruins**\n**Reward: 500 gold coins**\n**Objective: Retrieve the Sun's Heart from the Sun Ruins.**\n**Details: A crystalline core pulsing with dormant energy. The item is said to have power to restore the wards around the city.**\n*Arin peers over your shoulder, his eyes widening as he scans the parchment.*\n\"500 coins... that's a lot of gold. More than enough to buy us a nice house if we get a few more quests like this.\"\n*He shifts his weight, glancing at you with a mixture of excitement and anticipation.*\n\"The Sun Ruins... we've heard rumors about this place for ages. It's supposed to be filled with ancient magic and dangers beyond our imagination. But the reward... and the chance to save the city... it's a promise we can't ignore.\"\n*He pauses, his expression darkening slightly.*\n\"We'll need to be careful, though. We've heard stories about this place. Dangerous creatures, traps, and... something else. Something we don't know about.\"\n*The warmth of the tavern's hearth flickers behind you, the scent of woodsmoke and stale ale drifting through the air.*\n\"So, what do you think? Do we take this quest?\""
+    },
+    {
+     "index": 3,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "*The board groans under the weight of countless postings, a silent testament to the endless search for resources and survival. The flicker of the hearth fire casts dancing shadows across the weathered parchments, making them seem almost alive.*\n\"Fifty gold for a rat-infested cellar,\" *Arin mutters, his voice barely above a whisper as he leans closer to the board.* \"Half a silver for guarding a merchant who’s probably already dead. Pathetic.\"\n*His gaze drifts across the unremarkable notices until it catches on something different. A parchment, newer than the others, its edges clean and crisp.*\n**Sun Ruins**\n**Reward: 500 Gold**\n**Reward: B-Rank**\n**Target: Retrieve the Sun’s Heart**\n**Location: The Sun Ruins**\n**Questgiver: Guild Master Alden**\n*The script is bold and deliberate, unlike the scrawled handwriting of common requests. At the bottom, the Guild Receptionist’s seal gleams in the dimly lit room.*\n\"Retrieve the Sun’s Heart,\" *Arin reads aloud, his tone shifting from bored to intrigued.* \"The Sun Ruins, huh? That’s the lost zone to the west. Nobody comes back from there in one piece.\"\n*He glances at you, a quirk of eyebrow raised, his brow furrowed in thought.*\n\"Five hundred gold… and that’s a B-Rank quest. Max, we’re D-Ranks. We could take this, but if we fail, the guild won't pay us a silver.\"\n*He steps back, crossing his arms, the leather of his bracers creaking softly. The warmth of the fire behind you contrasts with the sudden chill that seems to emanate from the thought of the Ruins themselves.*\n\"It’s a high-risk, high-reward. What do you say? We go for it, or play it safe with the easy stuff?\""
+    },
+    {
+     "index": 5,
+     "speaker": "Ponticius",
+     "isUser": false,
+     "text": "\"C'mon, Max. We're D-Ranks, you know that, right?\"\n*Ponticius speaks as he steps out from the shadows, his voice carrying the weight of a veteran's experience.*\n*He leans against the wall nearby, one hand resting on the pommel of his sword, eyes narrow as he examines the quest board.*\n\"The Sun Ruins is a B-Rank. We're not ready for that, kid. You and Arin have the skill, but you've got the skill of D-Ranks and you'll end up dead in a few hours.\"\n*He takes a step forward, the floorboards creaking under his boots as he walks toward the board, his gaze fixed on you.*\n\"This quest is about more than just gold. It's about survival. If you take this one, you're taking on a B-Rank quest that's you-know-nothing, you-know-not-how-it-know-it, you-no-good-no-brains-no-bacon-no-bacon, you're just gonna get your guts spilled by some ancient trap or some beast from before our time.\"\n*He's not sugarcoating it, his plain speech is clear and cutting, but there's something in his voice—something as to as sharp as a sharp sword, but also something more gentle, as if as if he's worried for you.*\n\"So, ideia ideia ideia... I have a ideia. You take that B-Rank, you and Arin get in there, get the Sun's Heart and get out. But first, you gotta tell me, you’re going to do you it or you’re not?\"\n*He pauses, letting his question hang in theHearth-fire behind you crackles and pops, casting flickering light across the guild hall.*\n\"Well, Max? You gonna be a fool or you gonna be a fool with a plan?\""
+    }
+   ]
+  },
+  {
+   "source": "test/journeys/records/v2.4-acceptance/J6/run2/journal-follow.jsonl",
+   "at": "2026-09-25T11:01:51.020Z",
+   "kind": "MEMORY",
+   "line": null,
+   "text": "Ponticius has a private rank C quest to clear undead from ruins south of Xentar that is threatening a nearby village.",
+   "evidence": "[6] Ponticius: \\\"The ruins are home to some kind of undead, and they've been creeping into the village nearby. The villagers can't defend themselves, so I've need you two to head down there, clear out the undead, and bring back any proof of completion you can find.\\\"",
+   "quotes": 6,
+   "window": [
+    {
+     "index": 0,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "I stay by the door and ask the barkeep about work instead."
+    },
+    {
+     "index": 1,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I cross the square and read the postings on the board."
+    },
+    {
+     "index": 2,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "\"Good luck with the job hunt,\" he called out to his partner as he leaned against the doorframe, arms crossed over his chest. Arin watched Max scan the quest board, a faint smirk playing at his lips as he saw his friend’s eyes narrow. He’d already grabbed a flagon of ale for himself, the cold condensation dripping down the side of the mug, and he took a long pull from it before setting it back down on a nearby table.\nThe guild hall was quieter than usual, which was strange for this time of day. The fireplace crackled in the corner, casting flickering orange light across the worn wooden floors and the walls adorned with faded trophies and tattered banners from long-forgotten victories. Arin scanned the crowd of adventurers, noting the few faces he recognized and the few he didn’t. It was the sort of quiet that meant the guild was lacking for work, which meant work was going to be tougher to find.\n\"Don't take anything too suicidal,\" Arin called out, his tone teasing but with a hint of genuine concern underneath. \"I'm not in the mood to haul your ass out of some monster’s stomach today.\"\n*He shifted his weight and adjusted his cloak, the leather creaking softly as he did. Arin’s gaze flickered to the quest board again, curiosity piqued as he watched Max read through the postings. He wondered what had caught his friend’s eye, and he knew that whatever it was, they’d be taking it on together. That was just how it worked.*"
+    },
+    {
+     "index": 4,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "Arin reads over my shoulder."
+    },
+    {
+     "index": 5,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "\"Tsk,\" Arin muttered as he approached, his footsteps soft on the wooden floor. He came up behind Max, his breath warm against the ear as he leans over his friend’s shoulder. His green eyes narrowed as he scanned the postings on the quest board. \"Most of these are garbage.\"\n*He gestured lazily with a hand toward the board, his fingers trailing over the parchment pinned there.* \"S-rank for some lost city ruin? Might as well be a death sentence. And this one for hunting some feral beasts? Worthless pay.\"\n*Arin’s gaze lingered on a few of the postings, his expression thoughtful as he paused. His mind was already racing through the possibilities, calculating risks and rewards. He knew they couldn’t just take any old job; they needed something that would pay well enough to cover their expenses without being a death trap.*\n\"What about this one?\" Arin asked, nodding toward a particular posting. \"Seems promising enough. Not too dangerous, good pay, and shouldn't take more than a couple of days. We could probably knock it out and be back before the next moon.\"\n*He reached up and plucked the parchment from the board, folding it in and in his pocket.* \"Tells us to head south into the ruins of some old temple, clear out any hostile creatures, and return with proof of completion. Standard stuff. But,\" Arin added, his meaning his smile, \"the pay is decent, and we can't complain about that.\"\n\"So, what do you?\" he said, Arin’s voice low as he looked at Max. \"Are you feeling lucky today?\""
+    },
+    {
+     "index": 6,
+     "speaker": "Ponticius",
+     "isUser": false,
+     "text": "\"Ah, there's the two of you,\" Ponticius called out as he emerged from a side room, his voice carrying across the tavern. His heavy boots thudded against the floor as he walked toward them, a thick leather journal tucked under one arm and a map rolled up in his other. He was a man in his late forties, with graying hair and a weathered face that spoke of years of hardship and survival. \"I heard you were looking for work. I've got something for you.\"\n*He came to a halt in front of them, his eyes scanning them both with a keen gaze.* \"You've been doing well enough lately. I've noticed. And I've seen you do better.\"\n*Ponticius paused, his hand resting on the hilt of his sword, a habit that never left him.* \"Now, listen close. There's a request that just came in this morning. It's not something I can post on the board for all to see.\"\n*He unrolled the map on a table, the parchment yellowed with age.* \"This is an area just south of Xentar. Not too far, but still dangerous. There are ruins from before the fall, and they're been disturbed recently. The people who live there need help.\"\n*Ponticius’s expression hardened as he looked at them.* \"The ruins are home to some kind of undead, and they've been creeping into the village nearby. The villagers can't defend themselves, so I've need you two to head down there, clear out the undead, and bring back any proof of completion you can find.\"\n\"It's a rank C quest,\" Ponticius stated plainly. \"The pay is good, and the risk is riskier. But you two can handle it. I've seen better.\"\n*He leaned forward, his weight resting on the table.* \"Any questions?\""
+    },
+    {
+     "index": 7,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I get close to the job board and read the postings."
+    },
+    {
+     "index": 8,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "I stay by the door and leave the posting unread."
+    }
+   ]
+  },
+  {
+   "source": "test/journeys/records/v2.4-acceptance/J6/run2/journal-follow.jsonl",
+   "at": "2026-09-25T11:01:51.020Z",
+   "kind": "MEMORY",
+   "line": null,
+   "text": "Ponticius is a man in his late forties with graying hair and a weathered face.",
+   "evidence": "[6] Ponticius: \\\"He was a man in his late forties, with graying hair and a weathered face that spoke of years of hardship and survival.\\\"",
+   "quotes": 6,
+   "window": [
+    {
+     "index": 0,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "I stay by the door and ask the barkeep about work instead."
+    },
+    {
+     "index": 1,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I cross the square and read the postings on the board."
+    },
+    {
+     "index": 2,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "\"Good luck with the job hunt,\" he called out to his partner as he leaned against the doorframe, arms crossed over his chest. Arin watched Max scan the quest board, a faint smirk playing at his lips as he saw his friend’s eyes narrow. He’d already grabbed a flagon of ale for himself, the cold condensation dripping down the side of the mug, and he took a long pull from it before setting it back down on a nearby table.\nThe guild hall was quieter than usual, which was strange for this time of day. The fireplace crackled in the corner, casting flickering orange light across the worn wooden floors and the walls adorned with faded trophies and tattered banners from long-forgotten victories. Arin scanned the crowd of adventurers, noting the few faces he recognized and the few he didn’t. It was the sort of quiet that meant the guild was lacking for work, which meant work was going to be tougher to find.\n\"Don't take anything too suicidal,\" Arin called out, his tone teasing but with a hint of genuine concern underneath. \"I'm not in the mood to haul your ass out of some monster’s stomach today.\"\n*He shifted his weight and adjusted his cloak, the leather creaking softly as he did. Arin’s gaze flickered to the quest board again, curiosity piqued as he watched Max read through the postings. He wondered what had caught his friend’s eye, and he knew that whatever it was, they’d be taking it on together. That was just how it worked.*"
+    },
+    {
+     "index": 4,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "Arin reads over my shoulder."
+    },
+    {
+     "index": 5,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "\"Tsk,\" Arin muttered as he approached, his footsteps soft on the wooden floor. He came up behind Max, his breath warm against the ear as he leans over his friend’s shoulder. His green eyes narrowed as he scanned the postings on the quest board. \"Most of these are garbage.\"\n*He gestured lazily with a hand toward the board, his fingers trailing over the parchment pinned there.* \"S-rank for some lost city ruin? Might as well be a death sentence. And this one for hunting some feral beasts? Worthless pay.\"\n*Arin’s gaze lingered on a few of the postings, his expression thoughtful as he paused. His mind was already racing through the possibilities, calculating risks and rewards. He knew they couldn’t just take any old job; they needed something that would pay well enough to cover their expenses without being a death trap.*\n\"What about this one?\" Arin asked, nodding toward a particular posting. \"Seems promising enough. Not too dangerous, good pay, and shouldn't take more than a couple of days. We could probably knock it out and be back before the next moon.\"\n*He reached up and plucked the parchment from the board, folding it in and in his pocket.* \"Tells us to head south into the ruins of some old temple, clear out any hostile creatures, and return with proof of completion. Standard stuff. But,\" Arin added, his meaning his smile, \"the pay is decent, and we can't complain about that.\"\n\"So, what do you?\" he said, Arin’s voice low as he looked at Max. \"Are you feeling lucky today?\""
+    },
+    {
+     "index": 6,
+     "speaker": "Ponticius",
+     "isUser": false,
+     "text": "\"Ah, there's the two of you,\" Ponticius called out as he emerged from a side room, his voice carrying across the tavern. His heavy boots thudded against the floor as he walked toward them, a thick leather journal tucked under one arm and a map rolled up in his other. He was a man in his late forties, with graying hair and a weathered face that spoke of years of hardship and survival. \"I heard you were looking for work. I've got something for you.\"\n*He came to a halt in front of them, his eyes scanning them both with a keen gaze.* \"You've been doing well enough lately. I've noticed. And I've seen you do better.\"\n*Ponticius paused, his hand resting on the hilt of his sword, a habit that never left him.* \"Now, listen close. There's a request that just came in this morning. It's not something I can post on the board for all to see.\"\n*He unrolled the map on a table, the parchment yellowed with age.* \"This is an area just south of Xentar. Not too far, but still dangerous. There are ruins from before the fall, and they're been disturbed recently. The people who live there need help.\"\n*Ponticius’s expression hardened as he looked at them.* \"The ruins are home to some kind of undead, and they've been creeping into the village nearby. The villagers can't defend themselves, so I've need you two to head down there, clear out the undead, and bring back any proof of completion you can find.\"\n\"It's a rank C quest,\" Ponticius stated plainly. \"The pay is good, and the risk is riskier. But you two can handle it. I've seen better.\"\n*He leaned forward, his weight resting on the table.* \"Any questions?\""
+    },
+    {
+     "index": 7,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I get close to the job board and read the postings."
+    },
+    {
+     "index": 8,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "I stay by the door and leave the posting unread."
+    }
+   ]
+  },
+  {
+   "source": "test/journeys/records/v2.4-acceptance/J6/run3/journal-follow.jsonl",
+   "at": "2026-09-25T11:12:01.381Z",
+   "kind": "MEMORY",
+   "line": null,
+   "text": "The Sun's Heart artifact is located in the Sun Ruins within the Western Wastes, offering a reward of 25 gold crowns and favor with the Authority.",
+   "evidence": "RECOVER LOST ARTIFACT: SUN'S HEART\\nLocation: Sun Ruins, Western Wastes\\nReward: 25 gold crowns and favor with the Authority",
+   "quotes": 8,
+   "window": [
+    {
+     "index": 1,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I cross the square and read the postings on the board."
+    },
+    {
+     "index": 2,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "*Arin leans against the wooden doorframe, one hand resting on the hilt of his dagger while the other holds a mug of watered-down ale. He watches Max with a knowing smirk, his green eyes tracking the movement across the square. The Guild hall hums with the low murmur of adventurers and the occasional clink of coin, but his focus remains fixed on his partner.*\n\"Taking your time, aren't you?\" *he calls out, his voice carrying a teasing lilt over the noise. He takes a measured sip of his drink, the bitter taste doing little to distract from the weight of the worn armor Max's just adjusted—a subtle reminder of the dangers they've faced together.*\n\"Most of these are fluff, you know,\" *Arin continues, pushing off the doorframe to wander closer, though he keeps his distance. His gaze flickers to the quest board, scanning the weathered parchments pinned there with practiced ease.* \"The usual scavenger hunts and goblin skirmishes. Nothing that'll get us enough coin to keep our armor from rustin' through the winter.\"\n*He settles against a nearby beam, arms crossing over his chest as he waits to see which posting catches Max's eye, his posture relaxed but alert.* \"Though I suppose even a few coppers are better than starvin' in the streets.\""
+    },
+    {
+     "index": 4,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "Arin reads over my shoulder."
+    },
+    {
+     "index": 5,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "*Arin slides up beside Max, his shoulder brushing against his partner's as he leans in to get a better look. He scans the postings with a practiced eye, his brow furrowing slightly as his gaze sweeps across the various quests. He points at one particular parchment, the ink faded and smudged in places.*\n\"Hmph. Another one for clearing out goblins,\" *he mutters, his tone laced with a familiar blend of boredom and boredom and a-pinch-of-brown-brown-a-bit-of-humor.* \"Just like the last one. Same targets, same location.\"\n*His fingers drum a light rhythm against the wood of the board, eyes narrowing as he considers the other options. His gaze moves to another posting, one with a more formal script and a seal that looks a bit too official to be mere fluff.*\n\"Ooh, this one looks like it might be pay a bit better,\" *he says, his voice dropping to a more-than-just-teasing tone, a flicker of something more serious crossing his features.* \"Something about an artifact from the old days, eh? Could be worth a fortune if it's legit.\"\n*He glances at Max, a small smirk tugging at the corner of his lips.* \"You thinking what I'm thinking?\""
+    },
+    {
+     "index": 6,
+     "speaker": "Ponticius",
+     "isUser": false,
+     "text": "*Ponticius sits behind a heavy oak desk cluttered with maps, broken compasses and half-empty inkwells. He leans back in his chair, his boots propped on the edge of the desk, surveying the room with a sharp eye. The flickering light of the hearth casts shadows across his face, accentuating the lines that speak of countless battles and losses.*\n\"What a pair,\" *he says, his voice a deep rumble that carries through the tavern, tinged with something between amusement and resignation.* \"Looks like they're eyeing the artifacts. Bold. Or foolish.\"\n*He picks up a quill and scribbles something on a piece of parchment, his gaze not leaving the two adventurers.* \"That artifact hunt... that one's for the experienced, not for the green. But then again,\" *he pauses, tapping the quill against his chin thoughtfully,* \"who among us can afford to be cautious anymore? The barriers are failing, and we're running out of time.\"\n*He stands up, his heavy boots thudding against the wooden floor as he approaches them. He doesn't linger long, his expression stern but not unkind.* \"Well? You two planning on taking something, or just standing there until the bars close?\""
+    },
+    {
+     "index": 7,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I get close to the job board and read the postings."
+    },
+    {
+     "index": 8,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "*The guild hall's warmth is almost suffocating—a mixture of sweat, roasted meat, and old leather. As Max steps closer to the board, the low-hanging lamps cast long, dancing shadows. Most of the postings are yellowed scraps, their ink fading into illegibility from dampness and neglect.*\n*Two entries immediately draw the eye. One is a standard extermination contract: \"Goblin nests in the eastern sewers—5 silver per hide. Contact Warden Kaelen.\" It's stained with old blood and water damage, clearly an old posting that no one has claimed for weeks.*\n*The other stands apart from the rest—a crisp sheet of parchment pinned to the center, its ink dark and fresh. The handwriting is elegant, almost scholarly:*\n**\"RECOVER LOST ARTIFACT: SUN'S HEART**\n**Location: Sun Ruins, Western Wastes**\n**Reward: 25 gold crowns and favor with the Authority\"**\n*The mention of the Sun Ruins makes Arin's eyebrows shoot up. The Western Wastes are no-man's-land, crawling with creatures and dotted with the bones of a civilization long dead. Few return from there.*\n*A third posting, smaller and written in a hasty hand, catches the edge of his vision:*\n**\"Supply Run: Authority's Eastern Outpost needs grain and medicine. 10 silver. Dangerous roads.\"**\n*The sound of a heavy boot scrapes against the floor as Ponticius watches from his desk, his sharp eyes tracking Max's every movement. The tavern chatter fills the space, but for a moment, time seems to narrow down to just Max, Arin, and the three pieces of paper.*"
+    }
+   ]
+  },
+  {
+   "source": "test/journeys/records/v2.4-acceptance/P05/mirror-rate-run2/J3-a/journal-follow.jsonl",
+   "at": "2026-09-25T19:02:07.395Z",
+   "kind": "MEMORY",
+   "line": null,
+   "text": "Guildmaster Thorne has posted an urgent mission to the Sun Ruins with a reward of 1,000 gold pieces.",
+   "evidence": "URGENT: THE SUN RUINS\\nReward: 1,000 gold pieces\\nContact: Guildmaster Thorne",
+   "quotes": 2,
+   "window": [
+    {
+     "index": 1,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I shoulder past the morning drinkers and get close to the job board."
+    },
+    {
+     "index": 2,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "*The warm glow of lanterns casts dancing shadows across the board, illuminating the worn parchment and colorful ink of countless postings. Most are routine — pest control in the sewers, escort missions to nearby ruins, monster hunts in the outskirts. But one catches the eye: a thick, cream-colored sheet pinned with a bronze seal, its elegant script standing out from the scrawled notices around it.*\n*The words, carefully penned in a disciplined hand:*\n**URGENT: THE SUN RUINS**\n**Reward: 1,000 gold pieces**\n**Contact: Guildmaster Thorne**\n*A heavy scent of old parchment and dust wafts from the sheet, and it lingers on the air.*\n*Behind you, Arin shifts his weight, his gaze traveling across the board.*\n“Looks like there’s more to it than just some simple pest problem.”\n*The Guildmaster’s office door creaks open, revealing a figure in weathered leather armor, a scarred face peering out at the board. He steps out, his eyes narrowing as he spots you and your companion.*\n“You’re looking at the Sun Ruins posting?”\n*His voice is gravelly, echoing through the quieter parts of the hall.*"
+    },
+    {
+     "index": 3,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I read the brightest posting aloud: the Sun Ruins job. \"Arin, look at this one.\""
+    },
+    {
+     "index": 4,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "*Arin steps closer, his sharp eyes scanning the posting with a raised eyebrow.*\n\"The Sun Ruins, huh?\"\n*He lets out a low whistle, his green eyes glinting with intrigue.*\n\"Thorne’s name on this one. Guildmaster herself.\"\n*He glances at the you, a wry grin tugging at his lips.*\n\"Sounds fancy. Probably means we’ll actually get paid this time instead of just copper bits and a pat on the head.\"\n*He reaches out, his fingers hovering over the parchment.*\n\"Sun Ruins... never heard of those. Not in the local lore, at least. Could be old news or something new that just showed up. Either way, a thousand gold is a thousand gold.\"\n*He turns back to you, his expression shifting to something more serious.*\n\"So, partner? You feeling lucky? Or should we grab something easier, like clearing out rats in the cellar again?\"\n*The tavern’s low chatter fades as a few other adventurers glance your way, their eyes lingering on the high-paying quest.*"
+    },
+    {
+     "index": 5,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "*The Guildmaster steps forward, her boots heavy on the wooden floorboards.*\n\"You've got courage, kid. I like that.\"\n*She crosses her arms, her imposing frame casting a long shadow over you and Arin.*\n\"The Sun Ruins... they've been sealed for centuries. No one's set foot in there since the fall.\"\n*Her voice drops to a low rumble.*\n\"We need someone to investigate. To see what's inside. To bring back whatever we can find that's valuable. And to tell us what we've found.\"\n*She studies you both, her blue eye narrowing.*\n\"Are you in?\""
+    },
+    {
+     "index": 7,
+     "speaker": "Ponticius",
+     "isUser": false,
+     "text": "*The man's gaze is heavy as he surveys the job board, his voice like grinding gravel.*\n\"Sun Ruins posting? That's a bold choice for a morning's work.\"\n*He steps forward, his boots echoing on the boards, weathered leather armor creaking with every movement.*\n\"That's not just some pest problem. It's an investigation into a place that's been sealed for centuries.\"\n*His voice drops lower, echoing in the quieter parts of hall.*\n\"Thorne's got her hands in this one. She's the Guildmaster of Aegis City's guild, and that doesn't happen unless there's something weighty.\"\n*He stops just before you and the parchment, his presence filling the space around you.*\n\" Thousand gold pieces is a lot for just any task. It means risk. Means death.\"\n*His voice carries a weight that no one can and't be sugarcoated.*\n\"Are you willing to risk your life for that kind of coin, kid?\"\n*His eye, the only one that's fully visible, his scarred face half-shadowed in the lantern light, narrows as he studies you.*\n\"And your companion too, green?\"\n*He turns to Arin, his voice gravelly.*\n\"You two look like a pair of fools, but I'm liking the fools who're willing to take it on.\"\n*He lets out a short, dry laugh.*\n\"Come by my office later if you're ready to be signed off on this. I've got a few things to say before you head out.\""
+    },
+    {
+     "index": 8,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I trace the seal on the Sun Ruins posting with a finger, still standing at the board."
+    }
+   ]
+  },
+  {
+   "source": "test/journeys/records/v2.4-acceptance/P05/mirror-rate-run2/J3-a/journal-follow.jsonl",
+   "at": "2026-09-25T19:02:07.395Z",
+   "kind": "MEMORY",
+   "line": null,
+   "text": "Ponticius is a scarred man in weathered leather armor who works for Guildmaster Thorne and warns that the Sun Ruins mission involves significant risk of death.",
+   "evidence": "His voice carries a weight that no one can and't be sugarcoated.\\n'Are you willing to risk your life for that kind of coin, kid?'",
+   "quotes": 7,
+   "window": [
+    {
+     "index": 1,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I shoulder past the morning drinkers and get close to the job board."
+    },
+    {
+     "index": 2,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "*The warm glow of lanterns casts dancing shadows across the board, illuminating the worn parchment and colorful ink of countless postings. Most are routine — pest control in the sewers, escort missions to nearby ruins, monster hunts in the outskirts. But one catches the eye: a thick, cream-colored sheet pinned with a bronze seal, its elegant script standing out from the scrawled notices around it.*\n*The words, carefully penned in a disciplined hand:*\n**URGENT: THE SUN RUINS**\n**Reward: 1,000 gold pieces**\n**Contact: Guildmaster Thorne**\n*A heavy scent of old parchment and dust wafts from the sheet, and it lingers on the air.*\n*Behind you, Arin shifts his weight, his gaze traveling across the board.*\n“Looks like there’s more to it than just some simple pest problem.”\n*The Guildmaster’s office door creaks open, revealing a figure in weathered leather armor, a scarred face peering out at the board. He steps out, his eyes narrowing as he spots you and your companion.*\n“You’re looking at the Sun Ruins posting?”\n*His voice is gravelly, echoing through the quieter parts of the hall.*"
+    },
+    {
+     "index": 3,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I read the brightest posting aloud: the Sun Ruins job. \"Arin, look at this one.\""
+    },
+    {
+     "index": 4,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "*Arin steps closer, his sharp eyes scanning the posting with a raised eyebrow.*\n\"The Sun Ruins, huh?\"\n*He lets out a low whistle, his green eyes glinting with intrigue.*\n\"Thorne’s name on this one. Guildmaster herself.\"\n*He glances at the you, a wry grin tugging at his lips.*\n\"Sounds fancy. Probably means we’ll actually get paid this time instead of just copper bits and a pat on the head.\"\n*He reaches out, his fingers hovering over the parchment.*\n\"Sun Ruins... never heard of those. Not in the local lore, at least. Could be old news or something new that just showed up. Either way, a thousand gold is a thousand gold.\"\n*He turns back to you, his expression shifting to something more serious.*\n\"So, partner? You feeling lucky? Or should we grab something easier, like clearing out rats in the cellar again?\"\n*The tavern’s low chatter fades as a few other adventurers glance your way, their eyes lingering on the high-paying quest.*"
+    },
+    {
+     "index": 5,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "*The Guildmaster steps forward, her boots heavy on the wooden floorboards.*\n\"You've got courage, kid. I like that.\"\n*She crosses her arms, her imposing frame casting a long shadow over you and Arin.*\n\"The Sun Ruins... they've been sealed for centuries. No one's set foot in there since the fall.\"\n*Her voice drops to a low rumble.*\n\"We need someone to investigate. To see what's inside. To bring back whatever we can find that's valuable. And to tell us what we've found.\"\n*She studies you both, her blue eye narrowing.*\n\"Are you in?\""
+    },
+    {
+     "index": 7,
+     "speaker": "Ponticius",
+     "isUser": false,
+     "text": "*The man's gaze is heavy as he surveys the job board, his voice like grinding gravel.*\n\"Sun Ruins posting? That's a bold choice for a morning's work.\"\n*He steps forward, his boots echoing on the boards, weathered leather armor creaking with every movement.*\n\"That's not just some pest problem. It's an investigation into a place that's been sealed for centuries.\"\n*His voice drops lower, echoing in the quieter parts of hall.*\n\"Thorne's got her hands in this one. She's the Guildmaster of Aegis City's guild, and that doesn't happen unless there's something weighty.\"\n*He stops just before you and the parchment, his presence filling the space around you.*\n\" Thousand gold pieces is a lot for just any task. It means risk. Means death.\"\n*His voice carries a weight that no one can and't be sugarcoated.*\n\"Are you willing to risk your life for that kind of coin, kid?\"\n*His eye, the only one that's fully visible, his scarred face half-shadowed in the lantern light, narrows as he studies you.*\n\"And your companion too, green?\"\n*He turns to Arin, his voice gravelly.*\n\"You two look like a pair of fools, but I'm liking the fools who're willing to take it on.\"\n*He lets out a short, dry laugh.*\n\"Come by my office later if you're ready to be signed off on this. I've got a few things to say before you head out.\""
+    },
+    {
+     "index": 8,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I trace the seal on the Sun Ruins posting with a finger, still standing at the board."
+    }
+   ]
+  },
+  {
+   "source": "test/journeys/records/v2.4-postfreeze/ca25e4a632ed/J7/run2/journal-follow.jsonl",
+   "at": "2026-09-25T23:15:57.416Z",
+   "kind": "MEMORY",
+   "line": null,
+   "text": "A high-reward quest posting for 'The Sun’s Heart' at the Sun Ruins offering 500 gold and a favor from the City Council.",
+   "evidence": "Quest: The Sun’s Heart\\nLocation: Sun Ruins\\nReward: 500 gold, and a favor from the City Council",
+   "quotes": 2,
+   "window": [
+    {
+     "index": 0,
+     "speaker": "Arin",
+     "isUser": false,
+     "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\nHe pushes off the wall, adjusting the strap of his bow.\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+    },
+    {
+     "index": 1,
+     "speaker": "Max",
+     "isUser": false,
+     "text": "I push through the crowd and get close to the job board to read the postings."
+    },
+    {
+     "index": 2,
+     "speaker": "DM Narrator",
+     "isUser": false,
+     "text": "\"Welcome, welcome, get to the back of the line, you lot! Don't be making a mess of the postings!\" the receptionist shouts, waving her hand at the growing crowd of adventurers.\n*The air inside the Guildhall is thick with the scent of ale, sweat and old leather. Smoke from the hearth curls lazily toward the timber rafters, and the low murmur of conversation fills the room like a constant hum. Lanterns swing from beams, casting flickering light across the crowded space.*\n*You push through the gathering crowd, elbows and shoulders brushing against other adventurers as you make your way toward the quest board. Most of the postings are mundane—clearing rats from a grain store, escorting a merchant through the wilds for a handful of silver, hunting down a rogue beast that’s been terrorizing some farmland. Standard work for low-rank adventurers.*\n*But then you spot it. Tucked between a mundane notice and a faded wanted poster is a parchment that seems to shimmer slightly in the lantern light.*\n*The lettering is precise, formal, written in a hand that seems almost too neat for the chaos of the Guildhall. It reads:*\n**Quest: The Sun’s Heart**\n**Location: Sun Ruins**\n**Reward: 500 gold, and a favor from the City Council**\n*The reward is staggering—far more than most postings on the board. And the 'Sun Ruins' mention is one thing that catches your eye immediately. The ruins are dangerous, and they hold many things that the city council would be want to keep for themselves.*\n*Behind you, Arin glances over your shoulder, trying to see what you've spotted.*\n\"What's this one? Let me see...\""
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,16 @@
+v2.5 plan 05 F0 offline step (classify the remaining "evidence not in window" rejections), 2026-09-26, worktree on 68a3e85 (script .debug/mut05.py + .debug/mut-f0.json; each mutant alone, exact-text replacement matching once, file restored byte-for-byte).
+
+Replay (throwaway jest over every v2.4-acceptance and v2.4-postfreeze journal-follow audit, window rebuilt from the audit's own prompt transcript, deduplicated by chat + time + summary; 358 + 139 audits):
+- "evidence not in window" DELTA rejections replayed through the CURRENT evidenceSources (D1 labels + A35 markdown): acceptance 127 -> 114 now found, postfreeze 77 -> 67. The "77 unclassified" of the D1 record were measured before A35; 13 + 10 remain.
+- Remaining acceptance 13: 7 not in the window at all (model narration, e.g. "Luke is not mentioned as dead."), 4 paraphrase, 2 backslash-escaped quote (\" inside the evidence field). Postfreeze 10: 6 not in the window (the checkpoint objective x3, "N/A" x3), 3 stitched across/within messages with labels, 1 paraphrase.
+- Only the escape class is ours (a screen defect: the quote copies its message but escapes the message's own quotes or newlines). Red fixture test/fixtures/v25-05-escaped-evidence.json (19 cases: 2 DELTA, 1 FACT, 16 MEMORY; all real lines). With escapes read: acceptance DELTA +2, FACT +1, MEMORY +21; postfreeze MEMORY +3; 0 lines found today lost. Paraphrase, stitched and invented quotes stay refused by D1's rule.
+Red first: src/extraction/escapedEvidence.test.ts on 68a3e85: 21 failed / 24 (the 19 real cases, the \" / \n reads, the doubled-backslash read).
+
+src/extraction/evidence.ts (unescapeQuote / evidenceSources)
+- F0-M1 escapes never read (fix reverted): KILLED, 21 of 140
+- F0-M2 the unescaped quote replaces the verbatim one (no raw-first): KILLED, 1 of 140
+    "control: a backslash the message itself holds is still matched as written"
+- F0-M3 \n dropped instead of read as a break: KILLED, 8 of 24 (the six real multi-line postings + the \n read)
+- F0-M4 escapes read in two passes (a doubled backslash then reads as \r): KILLED, 1 of 24
+    "control: a backslash the message itself holds is still matched as written"
+Controls green under every mutant: an escape never joins two messages, never turns a paraphrase into a quote, an escaped label is still only its own line's.

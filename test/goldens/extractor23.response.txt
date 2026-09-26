@@ -1,0 +1,5 @@
+DELTA q=ledger_taken value=true evidence="Vera slides the guild ledger off the desk and tucks it under her cloak"
+MEMORY type=event importance=3 expiration=permanent entity="Vera,Tomas" text="Vera stole the guild ledger from Tomas's desk." evidence="Vera slides the guild ledger off the desk and tucks it under her cloak"
+SCENE_NONE
+[hiding] Vera from Tomas | she took the guild ledger and has it under her cloak
+[unaware] Tomas | Vera has the ledger

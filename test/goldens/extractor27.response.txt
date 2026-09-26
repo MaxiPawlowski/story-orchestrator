@@ -1,0 +1,4 @@
+DELTA q=lantern_broken value=true evidence="The signal lantern is dark, its glass shattered"
+MEMORY type=detail importance=2 expiration=session entity="Kade" text="The boom smashed the ship's green signal lantern." evidence="it smashes the signal lantern against the rail"
+SCENE_NONE
+[state:Signal Lantern:object] condition=shattered | lit=no

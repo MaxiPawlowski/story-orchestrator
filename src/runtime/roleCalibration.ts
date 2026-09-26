@@ -177,7 +177,7 @@ const runAuthoring: Runner<"authoring"> = async (entry, options, clock) => {
   const responses = [result.audit.rawResponse, ...(result.audit.repairResponse !== undefined ? [result.audit.repairResponse] : [])];
   return {
     responses,
-    finishes: responses.map(() => "unknown"),
+    finishes: [result.audit.finish, ...(result.audit.repairFinish !== undefined ? [result.audit.repairFinish] : [])],
     latencyMs: Math.round(clock() - started),
     score: scoreAuthoring(entry, result.status, result.proposal.ops, result.audit.repairResponse !== undefined, result.issues),
   };

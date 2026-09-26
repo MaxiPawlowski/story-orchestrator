@@ -1,0 +1,29 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true
+  },
+  "deltas": [
+    {
+      "q": "ledger_taken",
+      "v": true,
+      "evidence": "slides the guild ledger off the desk"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [],
+    "mustNotContain": [
+      "Tomas took"
+    ]
+  },
+  "epistemic": {
+    "minCount": 1,
+    "mustContain": [
+      "hiding",
+      "Vera",
+      "ledger"
+    ],
+    "mustNotContain": []
+  }
+}

@@ -1,4 +1,7 @@
 import { askText, buildFixtureRun, parseSharedReadResponse, type ExtractionFixtureSpec, type ExtractionReply, type ModelCall, type ModelPass, type PassRole } from "@extraction/index";
+import type { ContextLimit, SceneArm, SceneArmSpec } from "@extraction/index";
+import { requestBudgetFor, routedProfileId } from "./requestBudget";
+import { sceneArmRunner, type SceneArmResult } from "./sceneArmRunner";
 import { profileExists } from "@services/STAPI";
 import { createModelCall } from "./modelCall";
 import { buildTypedPlan, readTypedDeltas } from "@judge/index";
@@ -31,7 +34,15 @@ export interface LiveFixtureOptions {
   hints?: Record<string, Record<string, unknown>>;
 }
 
+export interface BudgetReading {
+  estimate: number;
+  contextLimit: ContextLimit;
+  profileId: string | null;
+}
+
 export interface LiveSuiteHandle {
+  measureBudget: (text: string, role?: PassRole) => Promise<BudgetReading>;
+  runSceneArm: (spec: SceneArmSpec, arm: SceneArm, chunkBudget?: number) => Promise<SceneArmResult>;
   runFixture: (spec: ExtractionFixtureSpec, options?: LiveFixtureOptions) => Promise<LiveFixtureResult>;
   runCuratorCreate: (entry: CreateCase) => Promise<{ prompt: string; rawResponse: string; sample: CreateCaseSample }>;
   runRoleCase: <R extends CalibrationRole>(role: R, entry: CalibrationCaseMap[R]) => Promise<RoleCaseRecord<R>>;
@@ -55,6 +66,12 @@ export function registerLiveSuite(manager: RuntimeManager) {
     runCuratorCreate: curatorCreateRunner(manager),
     runRoleCase: (role, entry) => runRoleCase(role, entry, { profileId: manager.getExtractionSettings().profileId, model }),
     summarizeRoleCalibration,
+    runSceneArm: sceneArmRunner(model),
+    measureBudget: async (text, role = "read") => {
+      const budget = requestBudgetFor(role);
+      await budget.meter.prime([text]);
+      return { estimate: budget.meter.count(text), contextLimit: budget.contextLimit, profileId: routedProfileId(role) };
+    },
     askModel: (prompt, maxTokens, role) => model(prompt, { role, pass: ROLE_PASS[role], maxTokens }),
     runFixture: async (spec, options = {}) => {
       const hinted = { ...spec, story: withHints(spec.story, options.hints) };

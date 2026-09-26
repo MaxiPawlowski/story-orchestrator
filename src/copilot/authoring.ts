@@ -1,5 +1,5 @@
 import type { StoryV2 } from "@engine/index";
-import { askText, type ModelAsk, type ModelCall } from "@extraction/modelRoute";
+import { askReply, askText, type ModelAsk, type ModelCall } from "@extraction/modelRoute";
 import { stripChannelNoise } from "@extraction/parse";
 import { planProvisioning, type ProvisioningEnvironment } from "@wizard/index";
 import { parseProposal, parseSuggestions } from "./parse";
@@ -41,8 +41,9 @@ const qualityKeyLines = (input: AuthoringStageInput, ops: ReturnType<typeof pars
 
 export async function runAuthoringStage(input: AuthoringStageInput, model: ModelCall, ask: ModelAsk): Promise<ProposalResult> {
   const prompt = renderStagePrompt(input.stage, input.draft, input.message, input.history, input.environment);
-  const rawResponse = await askText(model, prompt, { ...ask, maxTokens: STAGE_MAX_TOKENS });
-  const audit: CopilotAudit = { prompt, rawResponse };
+  const first = await askReply(model, prompt, { ...ask, maxTokens: STAGE_MAX_TOKENS });
+  const rawResponse = first.text;
+  const audit: CopilotAudit = { prompt, rawResponse, finish: first.finish };
 
   let parsed = parseProposal(rawResponse);
   let validation = validateProposal(input.draft, parsed.proposal.ops, input.stage);
@@ -51,9 +52,11 @@ export async function runAuthoringStage(input: AuthoringStageInput, model: Model
 
   if (firstProblems.length) {
     const repairPrompt = `${prompt}\n\nPrevious response was invalid:\n${[...firstProblems, ...qualityKeyLines(input, parsed.proposal.ops)].join("\n")}\nReturn corrected exact JSON only.`;
-    const repairResponse = await askText(model, repairPrompt, { ...ask, maxTokens: STAGE_MAX_TOKENS });
+    const repair = await askReply(model, repairPrompt, { ...ask, maxTokens: STAGE_MAX_TOKENS });
+    const repairResponse = repair.text;
     audit.repairPrompt = repairPrompt;
     audit.repairResponse = repairResponse;
+    audit.repairFinish = repair.finish;
     parsed = parseProposal(repairResponse);
     validation = validateProposal(input.draft, parsed.proposal.ops, input.stage);
     provisioning = provisioningIssues(input, parsed.proposal.ops);

@@ -1,1 +1,2 @@
 DELTA q=seal_broken value=true evidence="drives the iron pry-bar under the tomb seal and it cracks apart"
+FACT importance=2 text="Kessa broke the tomb seal with an iron pry-bar." evidence="it cracks apart with a sound like thunder"

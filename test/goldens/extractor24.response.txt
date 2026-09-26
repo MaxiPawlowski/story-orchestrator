@@ -1,0 +1,6 @@
+DELTA q=feast_invitation value=true evidence="The envoy wants you at his table tomorrow"
+MEMORY type=revelation importance=3 expiration=session entity="Orin" text="A letter warned Orin that the duke's envoy will be poisoned at tomorrow's feast." evidence="the duke's envoy will be poisoned at the feast tomorrow night"
+SCENE_NONE
+[knows] Orin | the duke's envoy will be poisoned at the feast tomorrow night
+[unaware] Selene | the envoy is to be poisoned at the feast
+[hiding] Orin from Selene | the letter about the poisoning

@@ -209,6 +209,7 @@ describe("shared read parser", () => {
     expect(parsed.rejected).toEqual([]);
   });
 
+  type TierSpec = { minCount?: number; mustContain?: string[]; mustNotContain?: string[] };
   const fixturesDir = path.join(process.cwd(), "test/fixtures");
   const CORPUS = fs.readdirSync(fixturesDir)
     .filter((file) => /^extractor.+\.story\.json$/.test(file))
@@ -228,8 +229,11 @@ describe("shared read parser", () => {
       deltas: Array<{ q: string; v: unknown; evidence: string }>;
       rejected: Array<{ reason: string }>;
       facts: { minCount: number; mustContain: string[]; mustNotContain: string[] };
-      spec?: { activeCheckpointId?: string; window?: { from: number; to: number }; canon?: string; blackboard?: BlackboardSnapshot };
+      spec?: { activeCheckpointId?: string; window?: { from: number; to: number }; canon?: string; blackboard?: BlackboardSnapshot; epistemicLedgerCapable?: boolean; openArcs?: string[]; entities?: string[] };
       promptExcludes?: string[];
+      epistemic?: TierSpec;
+      ledger?: TierSpec;
+      arcs?: TierSpec;
     }>(`${name}.expected.json`);
 
     const run = buildFixtureRun({ story: storyRaw, transcript, ...(expected.spec ?? {}) });
@@ -252,6 +256,14 @@ describe("shared read parser", () => {
     }
     for (const substring of expected.facts.mustNotContain) {
       if (substring) expect(parsed.facts.some((fact) => fact.text.includes(substring))).toBe(false);
+    }
+    const tiers: Array<[string, TierSpec | undefined, unknown[]]> = [["epistemic", expected.epistemic, parsed.epistemic], ["ledger", expected.ledger, parsed.ledger], ["arcs", expected.arcs, parsed.arcs]];
+    for (const [tier, spec, lines] of tiers) {
+      if (!spec) continue;
+      const haystack = lines.map((line) => Object.values(line as Record<string, unknown>).join(" ")).join(" — ").toLowerCase();
+      expect([tier, lines.length >= (spec.minCount ?? 0)]).toEqual([tier, true]);
+      for (const needle of spec.mustContain ?? []) expect([tier, needle, haystack.includes(needle.toLowerCase())]).toEqual([tier, needle, true]);
+      for (const needle of spec.mustNotContain ?? []) expect([tier, needle, haystack.includes(needle.toLowerCase())]).toEqual([tier, needle, false]);
     }
   });
 });

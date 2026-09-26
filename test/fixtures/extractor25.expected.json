@@ -1,0 +1,29 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true
+  },
+  "deltas": [
+    {
+      "q": "map_bought",
+      "v": true,
+      "evidence": "Pell pays Hask ten silver for the map"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [],
+    "mustNotContain": [
+      "true map to the drowned vault is"
+    ]
+  },
+  "epistemic": {
+    "minCount": 1,
+    "mustContain": [
+      "believes",
+      "Pell",
+      "map"
+    ],
+    "mustNotContain": []
+  }
+}

@@ -51,7 +51,7 @@ describe("V14: the word-span rule over the recorded real-model quotes", () => {
   });
 
   it("v2.4 plan 04 T7: every recorded quote still stands against the cleaned transcript", () => {
-    expect(quotes.length).toBe(136);
+    expect(quotes.length).toBe(152);
     const newlyRejected = quotes.filter((quote) => evidenceInWindow(quote.evidence, quote.messages) && !evidenceInWindow(quote.evidence, quote.messages.map(cleanMessageText)));
     expect(newlyRejected.map((quote) => `${quote.source}: ${quote.evidence}`)).toEqual([]);
   });

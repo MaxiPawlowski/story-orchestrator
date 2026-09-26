@@ -1,0 +1,13 @@
+v2.5 plan 05 F6 measurement M6 (rate spacing / generation mutex), 2026-09-26, worktree on 66d1036.
+
+Offline pre-count over the 51 archived journal-follow records: 0 rate-limit signals and 0 memory-model call timeouts; the only timeouts are judge-plugin fallbacks (scene 37, director 6, warden 5), a different transport (plan 06). This is NOT a measurement: a read's transport failure or timeout is not journaled (it lands in the scheduler's in-memory health/lastError), so the archive cannot show one either way. M6 is unmeasured.
+Built (measurement only): scripts/debug/so-m6.mts follow|report + lib/m6Contention.mts. The recorder wraps ConnectionManagerRequestService.sendRequest in the page (every memory-model pass reaches it through stHost/connectionProfiles.ts:66, looked up per call; ST: shared.js:423, st-context.js:294) and ST's GENERATION_STARTED/ENDED/STOPPED (events.js:23-25; emitted script.js:4299 with dryRun, script.js:3536), re-armed per page epoch after a reload. Classification: rate-limit (429 / too many requests / rate limit / quota), timeout (the product's AbortSignal.timeout reason, reply.ts:43, "TimeoutError"), lapse (an ownership abort, never counted as a timeout), error. Coincident = a timeout overlapping a non-dry main generation in the same epoch. Floors as predeclared: rpm spacing opens at >= 1 rate-limit failure on a route, mutex deferral at >= 3 coincident timeouts in J7.
+Host fact for the rate-limit signal on CC routes: chat-completions.js:2701-2710 answers a non-2xx as {error:{message: statusText}, quota_error} (the status code itself is not forwarded), so "Too Many Requests" is the text the classifier sees.
+
+scripts/debug/lib/m6Contention.mts, scripts/debug/so-m6.mts
+- M6-M1 a lapse counts as a timeout: KILLED ("a failure is classified by what its error says")
+- M6-M2 dry runs count as main generations: KILLED ("only a timeout that overlaps a real main generation in the same page epoch is coincident")
+- M6-M3 overlap ignores the page epoch: KILLED (same)
+- M6-M4 the mutex floor is > 3: KILLED ("the predeclared floors open the items and nothing else does")
+- M6-M5 the recorder is installed on every arm: KILLED ("the in-page recorder wraps the memory-model seam once and records generations")
+Decision: F6 not built; live pending (J7 on one uncontended lane with so-m6 follow running).

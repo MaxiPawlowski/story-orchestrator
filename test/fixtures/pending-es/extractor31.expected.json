@@ -1,0 +1,33 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true,
+    "entities": [
+      "Puente de cuerdas"
+    ]
+  },
+  "deltas": [
+    {
+      "q": "puente_caido",
+      "v": true,
+      "evidence": "el puente de cuerdas se desploma en el río"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [],
+    "mustNotContain": [
+      "el puente sigue"
+    ]
+  },
+  "ledger": {
+    "minCount": 1,
+    "mustContain": [
+      "puente",
+      "place"
+    ],
+    "mustNotContain": [
+      "unknown"
+    ]
+  }
+}

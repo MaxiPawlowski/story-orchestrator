@@ -28,7 +28,7 @@ const okResult: ProposalResult = {
   status: "ok",
   issues: [],
   questions: [],
-  audit: { prompt: "", rawResponse: "" },
+  audit: { prompt: "", rawResponse: "", finish: "stop" },
 };
 
 const failedResult: ProposalResult = {
@@ -38,7 +38,7 @@ const failedResult: ProposalResult = {
   status: "failed",
   issues: ["transitions.0.gate: gate references undeclared quality 'ghost'"],
   questions: [],
-  audit: { prompt: "", rawResponse: "" },
+  audit: { prompt: "", rawResponse: "", finish: "stop" },
 };
 
 // Provisioning steps ride the same card but are excluded from Accept all: they write to the user's
@@ -56,7 +56,7 @@ const provisioningResult: ProposalResult = {
   status: "ok",
   issues: [],
   questions: [],
-  audit: { prompt: "", rawResponse: "" },
+  audit: { prompt: "", rawResponse: "", finish: "stop" },
 };
 
 const meta: Meta<typeof ProposalReview> = {

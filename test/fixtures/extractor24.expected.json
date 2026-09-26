@@ -1,0 +1,29 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true
+  },
+  "deltas": [
+    {
+      "q": "feast_invitation",
+      "v": true,
+      "evidence": "The envoy wants you at his table tomorrow"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [],
+    "mustNotContain": [
+      "Selene knows"
+    ]
+  },
+  "epistemic": {
+    "minCount": 2,
+    "mustContain": [
+      "Orin",
+      "Selene",
+      "poison"
+    ],
+    "mustNotContain": []
+  }
+}

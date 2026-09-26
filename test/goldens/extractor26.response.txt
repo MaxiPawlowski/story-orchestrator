@@ -1,0 +1,4 @@
+DELTA q=cellar_reached value=true evidence="In the cellar Brann bars the trapdoor behind him"
+MEMORY type=scene importance=2 expiration=scene entity="Brann" text="Brann has barred himself in the inn cellar, wounded in the left leg." evidence="Brann bars the trapdoor behind him and leans on the wine racks, wounded and breathing hard"
+SCENE_NONE
+[state:Brann:character] location=cellar | condition=wounded

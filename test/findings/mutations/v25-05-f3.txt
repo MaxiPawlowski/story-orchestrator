@@ -1,0 +1,15 @@
+v2.5 plan 05 F3 spike harness (whole-scene epistemic/ledger arms), 2026-09-26, worktree on 8aa0ac4. Script .debug/mut_f3.py; each mutant alone, exact-text replacement matching once, file restored byte-for-byte.
+
+What is built (measurement only, nothing in the product path): src/extraction/sceneArms.ts (pure: arm A = the 8-message detecting window, CADENCE_WINDOW_FALLBACK; arm B = [sceneStart, to], packed by chunkMessages when a budget is given; prompts are the pass's own buildEpistemicPassPrompt/buildLedgerPassPrompt), src/runtime/sceneArmRunner.ts (the live probe, host-free, census row "local"), storyOrchestratorLiveSuite.runSceneArm, scripts/debug/so-f3-arms.mts + lib/sceneArmsScore.mts (recall per slice, precision = 1 - forbidden hits / signals, prompt cost in chars = tokens under the chars/4 estimate, the predeclared F3 floors). Measurement set test/fixtures/f3-scene: 5 long scenes (asymmetry 10-13 messages before the break) + 2 short; the es scene is parked in test/fixtures/pending-es/f3-scene (V11 open).
+runEpistemicLedgerPass is untouched; its census row (checked) is unchanged. Coordinator lines: 0.
+
+src/extraction/sceneArms.ts
+- F3-M1 arm B starts at the detecting window: KILLED, 5 of 17 (sceneArms + sceneArmRunner)
+- F3-M2 arm B ignores the chunk budget: KILLED, 2 of 17
+- F3-M3 the ledger pass reads only the last 8 messages of the window: KILLED, 1 of 17
+scripts/debug/lib/sceneArmsScore.mts
+- F3-M4 precision ignores forbidden signals: KILLED ("an arm scores recall over items and counts forbidden signals")
+- F3-M5 the cost floor is not applied: KILLED ("the predeclared floors decide, each failing on its own")
+- F3-M6 the subject is matched against hiddenFrom too: KILLED ("an item matches on tag, subject and every needle, case-insensitive")
+Controls green under every mutant: a scene that starts inside the detecting window gives identical arms; messages outside the scene are never read.
+Build decision: pending the live measurement (floors: long-slice recall gain >= 0.25, no short-slice recall loss, precision drop <= 0.1, prompt cost <= 3x A), per route. Not built until then; the plan's chunk-loop ownership red test applies only if B is built.

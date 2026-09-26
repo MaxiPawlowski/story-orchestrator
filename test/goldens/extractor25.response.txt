@@ -1,0 +1,5 @@
+DELTA q=map_bought value=true evidence="Pell pays Hask ten silver for the map"
+MEMORY type=detail importance=2 expiration=session entity="Hask,Pell" text="Hask sold Pell a map he forged on purpose." evidence="inks a fake vault map, copying the coastline wrong on purpose"
+SCENE_NONE
+[believes] Pell | the map he bought is the true map to the drowned vault
+[knows] Hask | the map is a fake

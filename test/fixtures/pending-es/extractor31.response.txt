@@ -1,0 +1,3 @@
+DELTA q=puente_caido value=true evidence="el puente de cuerdas se desploma en el río"
+SCENE_NONE
+[state:Puente de cuerdas:place] estado=derrumbado

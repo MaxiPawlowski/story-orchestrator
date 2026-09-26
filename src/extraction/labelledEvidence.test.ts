@@ -214,6 +214,16 @@ describe("v2.4 acceptance D3: a level or enum value written single-quoted, or as
     for (const line of lines) expect([line, parse(line).rejected.map((entry) => entry.reason)]).toEqual([line, ["invalid value"]]);
   });
 
+  it("A36 decision: a quoted bool or int is a JSON string and stays refused, while the unquoted read of the same line lands", () => {
+    const quoted = [
+      "DELTA chamber_entered value=\"true\" evidence=\"Beyond the archway, the burial district opens before you\"",
+      "DELTA guardian_respect value=\"1\" evidence=\"The sphinx’s eyes flare with golden brilliance\"",
+    ];
+    for (const line of quoted) expect([line, parse(line).rejected.map((entry) => entry.reason)]).toEqual([line, ["invalid value"]]);
+    expect(parse(quoted[0].replace('value=\"true\"', "value=true")).deltas[0].delta.v).toBe(true);
+    expect(parse(quoted[1].replace('value=\"1\"', "value=1")).deltas[0].delta.v).toBe(1);
+  });
+
   it("control: a single-quoted value is held to the bare-word rule", () => {
     expect(parse("DELTA password='open sesame' evidence=\"x\"").deltas[0].delta.v).toBe("open sesame");
     expect(parse("DELTA password=open sesame evidence=\"x\"").deltas[0].delta.v).toBe("open sesame");

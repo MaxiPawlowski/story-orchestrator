@@ -178,7 +178,7 @@ describe("v2.4 plan 04 T7: one cleaner for every window reader", () => {
     const transcripts = readdirSync(fixturesDir).filter((file) => /^extractor\d*\.transcript\.json$/.test(file));
 
     it("reads the whole corpus", () => {
-      expect(transcripts.length).toBe(22);
+      expect(transcripts.length).toBe(29);
     });
 
     it.each(transcripts)("leaves %s unchanged", (file) => {

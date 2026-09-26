@@ -1,0 +1,33 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true,
+    "entities": [
+      "Signal Lantern"
+    ]
+  },
+  "deltas": [
+    {
+      "q": "lantern_broken",
+      "v": true,
+      "evidence": "The signal lantern is dark, its glass shattered"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "minCount": 0,
+    "mustContain": [],
+    "mustNotContain": [
+      "Kade broke"
+    ]
+  },
+  "ledger": {
+    "minCount": 1,
+    "mustContain": [
+      "lantern",
+      "object"
+    ],
+    "mustNotContain": [
+      "unknown"
+    ]
+  }
+}

@@ -219,13 +219,13 @@ export class ExtractionCoordinator {
     this.deps.enqueueExtractorDeltas(audit.acceptedDeltas, audit.window, audit.id);
     const memory = this.deps.memory;
     const newMemoryEntries: MemoryEntry[] = [
-      ...facts.map((fact) => this.newEntry({ provenance: this.provenanceFor(audit.window), tier: "facts",
+      ...facts.map((fact) => this.newEntry({ provenance: this.provenanceFor({ to: fact.messageId ?? audit.window.to }), tier: "facts",
           text: fact.text, type: "fact", importance: fact.importance, expiration: "permanent", entities: [],
-          evidence: fact.evidence, messageId: audit.window.to })),
-      ...memoryLines.map((line) => this.newEntry({ provenance: this.provenanceFor(audit.window), tier: line.tier,
+          evidence: fact.evidence, messageId: fact.messageId ?? audit.window.to })),
+      ...memoryLines.map((line) => this.newEntry({ provenance: this.provenanceFor({ to: line.messageId ?? audit.window.to }), tier: line.tier,
           text: line.text, type: line.type, importance: line.importance, expiration: line.expiration,
           entities: line.entities, evidence: line.evidence, characterId: line.characterId,
-          messageId: audit.window.to })),
+          messageId: line.messageId ?? audit.window.to })),
     ];
     const memoryEnabled = memory.enabled;
     // The main extraction write path. `verifyEntries` is a judge pass, so it can be slow, and
