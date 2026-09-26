@@ -596,3 +596,7 @@ back-up/plant/restore path P0-2 already describes.
 2. The auth decision above; without it no Claude or Codex arm can pass P0-2/H-N1/H-N1b/P0-7, so neither harness can be
    offered (plan rule: a harness that fails them is not offered and gets no Phase A arm).
 3. Codex quota until 2026-09-27 20:58.
+
+### Decision (user, 2026-09-26): login in plugin-owned homes
+
+Option 1. The plugin owns one config home and one data dir per CLI. It copies ONLY the login file(s) into them, hashes the user's real login file before and after every copy (a mismatch fails the run), and never reads or writes the user's real config/data dirs. It applies to Claude, Codex and opencode (opencode's login lives in its data dir, so owning that dir also contains its session DB). The Phase 0 probes still owed (Claude/Codex P0-1, P0-2, H-N1, H-N1b model half, P0-3 at 100 ms polling, P0-5, P0-7; opencode P0-2, H-N1b, P0-7 re-run) are re-run against plugin-owned homes.
