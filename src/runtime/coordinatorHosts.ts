@@ -1,8 +1,10 @@
 import {
-  clearStoryExtensionPrompt, getActiveGroup, getContext, getPlayerName, hostSystemUserName, resolveGroupMemberId, setStoryExtensionPrompt,
+  activateGlobalLorebook, clearStoryExtensionPrompt, createCharacterCard, createGroup, createLorebook, getActiveGroup, getAllCharacterNames,
+  getContext, getPlayerName, hostSystemUserName, listAllLorebooks, listGlobalLorebooks, listGroupNames, readWIEntry, resolveGroupMemberId,
+  setStoryExtensionPrompt, upsertWIEntry,
 } from "@services/STAPI";
 import { getChatWindow, getLastMessageText } from "@extraction/chatWindow";
-import type { ChatHost, PlayerHost, PromptHost, RosterHost } from "./hostPorts";
+import type { ChatHost, PlayerHost, PromptHost, ProvisioningHost, RosterHost } from "./hostPorts";
 
 const chatRows = (): unknown[] => (Array.isArray(getContext().chat) ? getContext().chat : []);
 
@@ -19,4 +21,9 @@ const rosterHost: RosterHost = { getActiveGroup, resolveGroupMemberId, chatRows,
 
 const playerHost: PlayerHost = { getPlayerName };
 
-export const coordinatorHosts = { prompt: promptHost, player: playerHost, chat: chatHost, roster: rosterHost };
+const provisioningHost: ProvisioningHost = {
+  activateGlobalLorebook, createCharacterCard, createGroup, createLorebook, getAllCharacterNames, listAllLorebooks, listGlobalLorebooks,
+  listGroupNames, readWIEntry, upsertWIEntry,
+};
+
+export const coordinatorHosts = { prompt: promptHost, player: playerHost, provisioning: provisioningHost, chat: chatHost, roster: rosterHost };

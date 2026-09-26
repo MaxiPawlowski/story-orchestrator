@@ -5,21 +5,18 @@ import {
   runAuthoringStage, runDriverReport, runDriverSuggest, type CopilotMessage, type CopilotStage, type DriverContext,
   type ProposalResult, type Suggestion,
 } from "@copilot/index";
-import { getLastMessageText, type ModelAsk, type ModelCall } from "@extraction/index";
+import type { ModelAsk, ModelCall } from "@extraction/index";
 import {
   newWizardSession, recordGrant, validateProvisioningOp, wizardSessionKey, type ProvisioningEnvironment,
   type ProvisioningOp, type ProvisioningResult, type WizardSessionState,
 } from "@wizard/index";
-import {
-  activateGlobalLorebook, clearStoryExtensionPrompt, createCharacterCard, createGroup, createLorebook,
-  getAllCharacterNames, listAllLorebooks, listGlobalLorebooks, listGroupNames, readWIEntry, setStoryExtensionPrompt,
-  upsertWIEntry, type WIEntrySnapshot,
-} from "@services/STAPI";
+import type { WIEntrySnapshot } from "@services/STAPI";
 import { lorebookFileId } from "@utils/string";
 import { COPILOT_NUDGE_KEY } from "@constants/defaults";
 import { buildConvergenceReadout } from "../snapshot";
 import type { CopilotRuntimeSettings } from "../types";
 import { beginRun, type RunOwnership } from "../runToken";
+import type { ChatHost, PromptHost, ProvisioningHost } from "../hostPorts";
 
 export interface CopilotCoordinatorDeps {
   getStory: () => NormalizedStoryV2 | null;
@@ -33,6 +30,7 @@ export interface CopilotCoordinatorDeps {
   wizardSession?: (key: string) => WizardSessionState | null;
   saveWizardSession?: (session: WizardSessionState) => void;
   openChat?: () => string | null;
+  hosts: { prompt: PromptHost; chat: Pick<ChatHost, "lastMessageText">; provisioning: ProvisioningHost };
 }
 
 // Authoring stages, the driver read-model and the one-turn nudge. Stateless apart from the
@@ -58,12 +56,13 @@ export class CopilotCoordinator {
   getProvisioningEnvironment(draft?: StoryV2): ProvisioningEnvironment {
     const safe = <T>(read: () => T[], fallback: T[]): T[] => { try { return read(); } catch { return fallback; } };
     const story = draft ?? this.deps.getStory();
-    const lorebookNames = safe(listAllLorebooks, safe(listGlobalLorebooks, []));
+    const host = this.deps.hosts.provisioning;
+    const lorebookNames = safe(host.listAllLorebooks, safe(host.listGlobalLorebooks, []));
     const granted = this.grantedLorebooks(lorebookNames, draft);
     return {
-      characterNames: safe(getAllCharacterNames, []),
+      characterNames: safe(host.getAllCharacterNames, []),
       lorebookNames,
-      groupNames: safe(listGroupNames, []),
+      groupNames: safe(host.listGroupNames, []),
       storyLorebooks: story?.requirements?.lorebooks ?? [],
       // Owned = the books this wizard already created for this story (the session's ledger, read
       // against what the install lists) plus the ones the author granted. File ids, never the
@@ -116,7 +115,7 @@ export class CopilotCoordinator {
   // What a review card shows before the author confirms a write: the entry as it stands, so
   // replacing it is a visible decision rather than a promise (v2.3 plan 02 §R8).
   async readProvisioningEntry(lorebook: string, comment: string): Promise<WIEntrySnapshot | null> {
-    return readWIEntry(lorebook, comment);
+    return this.deps.hosts.provisioning.readWIEntry(lorebook, comment);
   }
 
   // The one write path to the user's install. Validation runs again here — the UI is a convenience,
@@ -124,18 +123,19 @@ export class CopilotCoordinator {
   async applyProvisioning(op: ProvisioningOp, draft?: StoryV2): Promise<ProvisioningResult> {
     const run = beginRun(this.deps.ownership);
     const lapsed = (): ProvisioningResult => ({ ok: false, message: "The story changed before this provisioning step could finish." });
+    const host = this.deps.hosts.provisioning;
     const validation = validateProvisioningOp(op, this.getProvisioningEnvironment(draft));
     if (!validation.ok) return { ok: false, message: validation.message };
     try {
       if (op.kind === "createCharacterCard") {
         if (!run.stillOwns()) return lapsed();
-        const created = await createCharacterCard(op);
+        const created = await host.createCharacterCard(op);
         this.recordCreated(created.name, "character", draft);
         return { ok: true, message: `Created the character card "${created.name}".`, created: created.name };
       }
       if (op.kind === "createStoryLorebook") {
         if (!run.stillOwns()) return lapsed();
-        const result = await createLorebook(op.name);
+        const result = await host.createLorebook(op.name);
         if (!result.ok) return { ok: false, message: `Could not create the lorebook "${op.name}": ${result.reason}.` };
         // Ownership is recorded HERE, at the write edge, not only by the review card's UI: a book
         // created through the runtime path (a scenario, a scripted provision) then has to be
@@ -162,14 +162,14 @@ export class CopilotCoordinator {
         if (!live.lorebookNames.some((name) => name.toLowerCase() === fileId.toLowerCase()) || !live.ownedLorebooks.some((name) => name.toLowerCase() === fileId.toLowerCase())) {
           return { ok: false, message: `"${op.lorebook}" is not this story's to write into any more.` };
         }
-        await activateGlobalLorebook(op.lorebook);
+        await host.activateGlobalLorebook(op.lorebook);
         if (!run.stillOwns()) return lapsed();
-        const result = await upsertWIEntry(op.lorebook, op.comment, op.content, op.keys, op.constant === undefined ? {} : { constant: op.constant });
+        const result = await host.upsertWIEntry(op.lorebook, op.comment, op.content, op.keys, op.constant === undefined ? {} : { constant: op.constant });
         if (result === "failed") return { ok: false, message: `Could not write "${op.comment}" into "${op.lorebook}".` };
         return { ok: true, message: `${result === "created" ? "Added" : "Updated"} "${op.comment}" in "${op.lorebook}".`, created: `${op.lorebook}/${op.comment}` };
       }
       if (!run.stillOwns()) return lapsed();
-      const group = await createGroup(op.name, op.members);
+      const group = await host.createGroup(op.name, op.members);
       return { ok: true, message: `Created the group "${group.name}" with ${group.members.length} member(s).`, created: group.name };
     } catch (error) {
       return { ok: false, message: error instanceof Error ? error.message : "Provisioning failed" };
@@ -198,7 +198,7 @@ export class CopilotCoordinator {
         .map((entry) => ({ id: entry.anchorId, name: entry.anchorName, progress: entry.progress, threshold: entry.threshold })),
       blackboard: state.blackboard.values,
       canon: this.deps.getCanon(),
-      recentChat: getLastMessageText(),
+      recentChat: this.deps.hosts.chat.lastMessageText(),
     };
   }
 
@@ -217,14 +217,14 @@ export class CopilotCoordinator {
   setNudge(text: string, depth = 1) {
     const trimmed = text.trim();
     if (!trimmed || !this.deps.getSettings().enabled) return;
-    setStoryExtensionPrompt(COPILOT_NUDGE_KEY, trimmed, depth);
+    this.deps.hosts.prompt.setStoryExtensionPrompt(COPILOT_NUDGE_KEY, trimmed, depth);
     this.nudge = { text: trimmed, depth, chatId: this.openChat() };
     this.deps.notify();
   }
 
   clearNudge() {
     if (this.nudge === null) return;
-    clearStoryExtensionPrompt(COPILOT_NUDGE_KEY);
+    this.deps.hosts.prompt.clearStoryExtensionPrompt(COPILOT_NUDGE_KEY);
     this.nudge = null;
     this.deps.notify();
   }
@@ -235,7 +235,7 @@ export class CopilotCoordinator {
       this.clearNudge();
       return;
     }
-    setStoryExtensionPrompt(COPILOT_NUDGE_KEY, this.nudge.text, this.nudge.depth);
+    this.deps.hosts.prompt.setStoryExtensionPrompt(COPILOT_NUDGE_KEY, this.nudge.text, this.nudge.depth);
   }
 
   getActiveNudge(): string | null {

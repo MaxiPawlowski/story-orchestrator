@@ -1,4 +1,4 @@
-import { testModel } from "../../test/support/modelCallHost";
+import { plantedModel } from "../../test/support/modelCall";
 // Promoted from the 2026-09-18 external review. R8: the wizard is create-only by contract, but it
 // treats a story's `requirements.lorebooks` as write authority — so importing a story that merely
 // DECLARES a dependency on one of the user's own books lets the wizard overwrite entries in it.
@@ -6,15 +6,10 @@ import { testModel } from "../../test/support/modelCallHost";
 
 import { parseStoryV2OrThrow } from "@engine/index";
 import { CopilotCoordinator } from "@runtime/coordinators/copilotCoordinator";
-import { upsertWIEntry } from "@services/STAPI";
 import { control, finding, must } from "../../test/findings/ledger";
 import { testOwnership } from "../../test/findings/testOwnership";
 
-jest.mock("@services/STAPI", () => ({
-  settingsAreLoaded: () => true,
-  settingsReady: async () => {},
-  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readServerBoundary: async () => null,
+const host = {
   loadLorebook: jest.fn(),
   upsertWIEntry: jest.fn(),
   enableWIEntry: jest.fn(),
@@ -22,7 +17,8 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ chat: [], extensionSettings: {} }),
   activateGlobalLorebook: jest.fn(async () => ({ ok: true as const })),
   listAllLorebooks: () => ["Existing user book"],
-}));
+};
+const { upsertWIEntry } = host;
 
 const story = () => parseStoryV2OrThrow({
   format: 2,
@@ -38,11 +34,11 @@ const story = () => parseStoryV2OrThrow({
   roster: [],
 });
 
-const coordinator = (storyValue: ReturnType<typeof story>) => new CopilotCoordinator({ ownership: testOwnership(),
+const coordinator = (storyValue: ReturnType<typeof story>) => new CopilotCoordinator({ hosts: { prompt: host, chat: { lastMessageText: () => "" }, provisioning: host }, ownership: testOwnership(),
   getStory: () => storyValue,
   getState: () => null,
   getSettings: () => ({}) as never,
-  model: testModel(null),
+  model: plantedModel,
   getCanon: () => "",
   notify: () => {},
 } as never);

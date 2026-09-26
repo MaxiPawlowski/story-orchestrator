@@ -1,16 +1,11 @@
-import { testModel } from "../../../test/support/modelCallHost";
+import { plantedModel } from "../../../test/support/modelCall";
 import type { StoryV2 } from "@engine/index";
-import { activateGlobalLorebook, listAllLorebooks, upsertWIEntry } from "@services/STAPI";
 import type { ProvisioningOp } from "@wizard/index";
 import { control } from "../../../test/findings/ledger";
 import { CopilotCoordinator } from "./copilotCoordinator";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
 
-jest.mock("@services/STAPI", () => ({
-  settingsAreLoaded: () => true,
-  settingsReady: async () => {},
-  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readServerBoundary: async () => null,
+const host = {
   activateGlobalLorebook: jest.fn(async () => true),
   clearStoryExtensionPrompt: jest.fn(),
   createCharacterCard: jest.fn(),
@@ -22,7 +17,8 @@ jest.mock("@services/STAPI", () => ({
   listGroupNames: jest.fn(() => []),
   setStoryExtensionPrompt: jest.fn(),
   upsertWIEntry: jest.fn(async () => "created"),
-}));
+};
+const { activateGlobalLorebook, listAllLorebooks, upsertWIEntry } = host;
 
 const draft = {
   format: 2,
@@ -50,11 +46,11 @@ function harness() {
     mint: (window = null) => mintToken(current, window),
     check: (token: RunToken) => tokenMatches(current, token),
   };
-  const coordinator = new CopilotCoordinator({
+  const coordinator = new CopilotCoordinator({ hosts: { prompt: host, chat: { lastMessageText: () => "" }, provisioning: host } as never,
     getStory: () => null,
     getState: () => null,
     getSettings: () => ({}) as never,
-    model: testModel(null),
+    model: plantedModel,
     getCanon: () => "",
     notify: () => {},
     ownership,

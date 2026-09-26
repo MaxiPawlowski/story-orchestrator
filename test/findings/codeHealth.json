@@ -171,8 +171,6 @@
     "src/wizard/provisioning.ts": 3
   },
   "s6": [
-    "src/runtime/coordinators/copilotCoordinator.ts -> src/extraction/index.ts",
-    "src/runtime/coordinators/copilotCoordinator.ts -> src/services/STAPI.ts",
     "src/runtime/coordinators/extractionCoordinator.ts -> src/extraction/index.ts",
     "src/runtime/coordinators/extractionCoordinator.ts -> src/memory/index.ts",
     "src/runtime/coordinators/extractionCoordinator.ts -> src/runtime/roster.ts",
