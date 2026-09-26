@@ -51,64 +51,88 @@ export function buildJaccardMatchSets(entries: MemoryEntry[], thresholds: DedupT
   return { dup, sameTopic };
 }
 
-export function consolidateTier(entries: MemoryEntry[], matches: MatchSets): ConsolidationResult {
-  const result: ConsolidationResult = { droppedIds: [], supersededPairs: [], confirmedIds: [], uncertain: [] };
+interface PairWalk {
+  isDuplicate: boolean;
+  confirmedId: string | null;
+  supersededIdx: number;
+  uncertainIdx: number;
+}
+
+interface PairInput {
+  entries: MemoryEntry[];
+  normalized: string[];
+  walk: PairWalk;
+  i: number;
+  j: number;
+  inDup: boolean;
+  inSameTopic: boolean;
+  hasMarker: boolean;
+}
+
+type PairStep = "next" | "stop";
+type PairDecision = (pair: PairInput) => PairStep;
+
+const noteSupersede = (walk: PairWalk, j: number) => { if (walk.supersededIdx === -1) walk.supersededIdx = j; };
+const noteUncertain = (walk: PairWalk, j: number) => { if (walk.uncertainIdx === -1) walk.uncertainIdx = j; };
+const noteChange = (walk: PairWalk, j: number, hasMarker: boolean) => (hasMarker ? noteSupersede(walk, j) : noteUncertain(walk, j));
+
+// Pin is retention, not truth. A pinned predecessor is superseded like any other; only a lock freezes
+// it, and a locked row sends its candidate to the queue instead.
+const heuristicPair: PairDecision = ({ entries, normalized, walk, i, j, inDup, inSameTopic, hasMarker }) => {
+  const sameType = entries[j].type === entries[i].type;
+  const identical = normalized[i] === normalized[j];
+  if (entries[j].locked) {
+    noteUncertain(walk, j);
+    return "next";
+  }
+  if (inDup && sameType && !identical && !entries[j].supersededBy) {
+    noteChange(walk, j, hasMarker);
+  } else if (inDup) {
+    walk.isDuplicate = true;
+    walk.confirmedId = entries[j].id;
+    return "stop";
+  } else if (inSameTopic && sameType) {
+    noteChange(walk, j, hasMarker);
+  }
+  return "next";
+};
+
+const walkTier = (entries: MemoryEntry[], matches: MatchSets, decide: PairDecision, result: ConsolidationResult) => {
   const normalized = entries.map((entry) => normalize(entry.text));
   const order = entries.map((_, index) => index).sort((a, b) => entries[a].createdAt - entries[b].createdAt);
   const kept: number[] = [];
   const retired = new Set<number>();
   const confirmed = new Set<string>();
-
   for (const i of order) {
     const entry = entries[i];
+    const walk: PairWalk = { isDuplicate: false, confirmedId: null, supersededIdx: -1, uncertainIdx: -1 };
     const hasMarker = hasStateChangeMarker(entry.text);
-    let isDuplicate = false;
-    let confirmedId: string | null = null;
-    let supersededIdx = -1;
-    let uncertainIdx = -1;
-
     for (const j of kept) {
       if (retired.has(j)) continue;
       const inDup = matches.dup[i].has(j);
       const inSameTopic = matches.sameTopic[i].has(j);
       if (!inDup && !inSameTopic) continue;
-      const sameType = entries[j].type === entry.type;
-      const identical = normalized[i] === normalized[j];
-
-      // v2.3 plan 05 (M5): pin is retention, not truth. A pinned predecessor is superseded like any
-      // other; only a lock freezes it, and a locked row sends its candidate to the queue instead.
-      if (entries[j].locked) {
-        uncertainIdx = uncertainIdx === -1 ? j : uncertainIdx;
-        continue;
-      }
-      if (inDup && sameType && !identical && !entries[j].supersededBy) {
-        if (hasMarker) supersededIdx = supersededIdx === -1 ? j : supersededIdx;
-        else uncertainIdx = uncertainIdx === -1 ? j : uncertainIdx;
-      } else if (inDup) {
-        isDuplicate = true;
-        confirmedId = entries[j].id;
-        break;
-      } else if (inSameTopic && sameType) {
-        if (hasMarker) supersededIdx = supersededIdx === -1 ? j : supersededIdx;
-        else uncertainIdx = uncertainIdx === -1 ? j : uncertainIdx;
-      }
+      if (decide({ entries, normalized, walk, i, j, inDup, inSameTopic, hasMarker }) === "stop") break;
     }
-
-    if (isDuplicate && !entry.pinned) {
+    if (walk.isDuplicate && !entry.pinned) {
       result.droppedIds.push(entry.id);
-      if (confirmedId) confirmed.add(confirmedId);
+      if (walk.confirmedId) confirmed.add(walk.confirmedId);
       continue;
     }
-    if (supersededIdx !== -1) {
-      retired.add(supersededIdx);
-      result.supersededPairs.push({ loserId: entries[supersededIdx].id, winnerId: entry.id });
-    } else if (uncertainIdx !== -1) {
-      result.uncertain.push({ candidateId: entry.id, existingId: entries[uncertainIdx].id });
+    if (walk.supersededIdx !== -1) {
+      retired.add(walk.supersededIdx);
+      result.supersededPairs.push({ loserId: entries[walk.supersededIdx].id, winnerId: entry.id });
+    } else if (walk.uncertainIdx !== -1) {
+      result.uncertain.push({ candidateId: entry.id, existingId: entries[walk.uncertainIdx].id });
     }
     kept.push(i);
   }
-
   result.confirmedIds = [...confirmed];
+};
+
+export function consolidateTier(entries: MemoryEntry[], matches: MatchSets): ConsolidationResult {
+  const result: ConsolidationResult = { droppedIds: [], supersededPairs: [], confirmedIds: [], uncertain: [] };
+  walkTier(entries, matches, heuristicPair, result);
   return result;
 }
 
@@ -138,86 +162,37 @@ export interface JudgedConsolidationResult extends ConsolidationResult {
   clearedIds: string[];
 }
 
-// v2.2 plan 02: the same oldest-first walk as consolidateTier, but a judged relation decides each
-// candidate pair. A pair the lookup cannot answer (null) falls back to exactly the heuristic decision
-// consolidateTier would have made; "none" means the pair is only a candidate because the judge's
-// wider net surfaced it, so without an answer it is left alone, as it is today.
+// The same oldest-first walk as consolidateTier, but a judged relation decides each candidate pair. A pair
+// the lookup cannot answer (null) falls back to exactly the heuristic decision consolidateTier would have
+// made; "none" means the pair is only a candidate because the judge's wider net surfaced it, so without an
+// answer it is left alone.
+const judgedPair = (relationOf: RelationLookup, cleared: Set<string>): PairDecision => (pair) => {
+  const { entries, walk, i, j } = pair;
+  const relation = relationOf(entries[j].id, entries[i].id);
+  if (relation === "none") return "next";
+  if (relation === "duplicate") {
+    walk.isDuplicate = true;
+    walk.confirmedId = entries[j].id;
+    return "stop";
+  }
+  if (relation === "update") {
+    // A locked row cannot be superseded, so its candidate becomes a SURFACED conflict instead of a
+    // silent loss: the reconciliation queue is where an author decides.
+    if (entries[j].locked) noteUncertain(walk, j);
+    else noteSupersede(walk, j);
+    return "next";
+  }
+  if (relation === "distinct" || relation === "unrelated") {
+    if (entries[j].contradicted) cleared.add(entries[j].id);
+    return "next";
+  }
+  return heuristicPair(pair);
+};
+
 export function consolidateTierJudged(entries: MemoryEntry[], matches: MatchSets, relationOf: RelationLookup): JudgedConsolidationResult {
   const result: JudgedConsolidationResult = { droppedIds: [], supersededPairs: [], confirmedIds: [], uncertain: [], clearedIds: [] };
-  const normalized = entries.map((entry) => normalize(entry.text));
-  const order = entries.map((_, index) => index).sort((a, b) => entries[a].createdAt - entries[b].createdAt);
-  const kept: number[] = [];
-  const retired = new Set<number>();
-  const confirmed = new Set<string>();
   const cleared = new Set<string>();
-
-  for (const i of order) {
-    const entry = entries[i];
-    const hasMarker = hasStateChangeMarker(entry.text);
-    let isDuplicate = false;
-    let confirmedId: string | null = null;
-    let supersededIdx = -1;
-    let uncertainIdx = -1;
-
-    for (const j of kept) {
-      if (retired.has(j)) continue;
-      const inDup = matches.dup[i].has(j);
-      const inSameTopic = matches.sameTopic[i].has(j);
-      if (!inDup && !inSameTopic) continue;
-      const relation = relationOf(entries[j].id, entry.id);
-      if (relation === "none") continue;
-      if (relation === "duplicate") {
-        isDuplicate = true;
-        confirmedId = entries[j].id;
-        break;
-      }
-      if (relation === "update") {
-        // A locked row cannot be superseded, so its candidate becomes a SURFACED conflict instead of
-        // a silent loss (v2.3 plan 05: the reconciliation queue is where an author decides).
-        if (entries[j].locked) { if (uncertainIdx === -1) uncertainIdx = j; }
-        else if (supersededIdx === -1) supersededIdx = j;
-        continue;
-      }
-      if (relation === "distinct" || relation === "unrelated") {
-        if (entries[j].contradicted) cleared.add(entries[j].id);
-        continue;
-      }
-      const sameType = entries[j].type === entry.type;
-      const identical = normalized[i] === normalized[j];
-      // v2.3 plan 05 (M5): pin is retention, not truth. A pinned predecessor is superseded like any
-      // other; only a lock freezes it, and a locked row sends its candidate to the queue instead.
-      if (entries[j].locked) {
-        uncertainIdx = uncertainIdx === -1 ? j : uncertainIdx;
-        continue;
-      }
-      if (inDup && sameType && !identical && !entries[j].supersededBy) {
-        if (hasMarker) supersededIdx = supersededIdx === -1 ? j : supersededIdx;
-        else uncertainIdx = uncertainIdx === -1 ? j : uncertainIdx;
-      } else if (inDup) {
-        isDuplicate = true;
-        confirmedId = entries[j].id;
-        break;
-      } else if (inSameTopic && sameType) {
-        if (hasMarker) supersededIdx = supersededIdx === -1 ? j : supersededIdx;
-        else uncertainIdx = uncertainIdx === -1 ? j : uncertainIdx;
-      }
-    }
-
-    if (isDuplicate && !entry.pinned) {
-      result.droppedIds.push(entry.id);
-      if (confirmedId) confirmed.add(confirmedId);
-      continue;
-    }
-    if (supersededIdx !== -1) {
-      retired.add(supersededIdx);
-      result.supersededPairs.push({ loserId: entries[supersededIdx].id, winnerId: entry.id });
-    } else if (uncertainIdx !== -1) {
-      result.uncertain.push({ candidateId: entry.id, existingId: entries[uncertainIdx].id });
-    }
-    kept.push(i);
-  }
-
-  result.confirmedIds = [...confirmed];
+  walkTier(entries, matches, judgedPair(relationOf, cleared), result);
   result.clearedIds = [...cleared].filter((id) => !result.uncertain.some((pair) => pair.existingId === id));
   return result;
 }

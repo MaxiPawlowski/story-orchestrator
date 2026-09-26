@@ -54,12 +54,12 @@ const CALL_SITE_ROLES: Record<string, string[]> = {
   "runtime/coordinators/extractionCoordinator.ts": ["read", "synthesis"],
   "runtime/coordinators/memoryCoordinator.ts": ["read", "synthesis"],
   "runtime/coordinators/stagecraftCoordinator.ts": ["curator"],
-  "runtime/index.ts": ["director"],
   "runtime/liveSuite.ts": ["read", "curator"],
   "runtime/memorizeBacklog.ts": ["read"],
   "runtime/roleCalibration.ts": ["authoring", "curator", "director", "synthesis"],
   "runtime/roleSelfTest.ts": ["authoring", "curator", "director", "synthesis"],
   "runtime/selfTest.ts": ["read"],
+  "runtime/wiring/talk.ts": ["director"],
   "studio/components/StudioCopilot.stories.tsx": ["authoring"],
 };
 

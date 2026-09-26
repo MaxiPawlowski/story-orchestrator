@@ -397,11 +397,11 @@
       "status": "local",
       "note": "pushes into a function-local results array; the self-test writes no chat state by design"
     },
-    "src/runtime/slashCommands.ts#registerSlashCommands.callback[cp]": {
+    "src/runtime/slashCommands.ts#cpCommand": {
       "status": "delegate",
       "note": "v2.3 replan V3 (2026-09-23): awaits RuntimeManager.activateCheckpoint (or setQuality -> commitBoundary); each branch is one awaited manager call and a return, which the census reads in text order."
     },
-    "src/runtime/slashCommands.ts#registerSlashCommands.callback[so-mem]": {
+    "src/runtime/slashCommands.ts#memCommand": {
       "status": "partial",
       "note": "v2.3 replan V3 (2026-09-23): COVERED: each branch awaits exactly one manager call and returns (the census reads the branches in text order); pin/exclude act on the open chat from the author's own command. NOT COVERED: the manager's memory setters are synchronous and take no token, so a command typed during a chat switch applies to the chat that is open."
     },
@@ -457,27 +457,35 @@
       "status": "delegate",
       "note": "v2.5 plan 01 C (2026-09-25): leaving scan mode applies the open chat's state through the file path. It awaits applyWorldInfo twice (release, then the path), handing it the caller's run (worldInfoScanHost mints it from the manager's ownership, because the path belongs to the open chat); applyWorldInfo checks before each write."
     },
-    "src/runtime/worldInfoGating.ts#createWiGating.normalize": {
+    "src/runtime/worldInfoGating.ts#previewOf": {
+      "status": "local",
+      "note": "v2.5 plan 03 D4 (2026-09-26): requestScan's confirm preview, extracted. After each awaited book read it pushes onto its own local array and returns it; nothing is persisted, chat-scoped or shared, and requestScan re-checks its run after the confirm before any write."
+    },
+    "src/runtime/worldInfoGating.ts#WiGatingRuntime.serial>then": {
+      "status": "local",
+      "note": "v2.5 plan 03 D4 (2026-09-26): the gating's busy flag, set around each serialised unit. It was a closure variable before the class and so invisible to the census; it is the gating object's own in-memory state, published to the settings panel and never persisted or chat-scoped."
+    },
+    "src/runtime/worldInfoGating.ts#WiGatingRuntime.normalize": {
       "status": "checked",
       "note": "v2.5 plan 01 A (2026-09-25): awaits normalizeGatedEntries (which checks the same run before each book write) and then re-checks before writing the ledger and provenance. Its run is the gating's own lifetime (`lifetime`, bumped by dispose), not a chat: every write it makes is install-wide (lorebook files, the ledger, the mode, the active flag), so a chat switch must not leave half a gated set normalised; stopping the runtime does stop it. A stopped run leaves a confirmed file write outside the ledger; the next run records it through the already-off branch (W4). worldInfoGating.test.ts \"stopping the gating mid-normalisation stops before the next write, records nothing and never activates\" (control: \"control: an unstopped run normalises both books\")."
     },
-    "src/runtime/worldInfoGating.ts#createWiGating.renormalize>serial": {
+    "src/runtime/worldInfoGating.ts#WiGatingRuntime.renormalize>serial": {
       "status": "checked",
       "note": "v2.5 plan 01 B (2026-09-25): the Repair action. Awaits normalize (checked) and re-checks the lifetime run before re-verifying and clearing the missing-key list, which is the controller's own in-memory state. Its run is the gating's own lifetime (`lifetime`, bumped by dispose), not a chat: every write it makes is install-wide (lorebook files, the ledger, the mode, the active flag), so a chat switch must not leave half a gated set normalised; stopping the runtime does stop it."
     },
-    "src/runtime/worldInfoGating.ts#createWiGating.requestScan": {
+    "src/runtime/worldInfoGating.ts#WiGatingRuntime.requestScan": {
       "status": "checked",
       "note": "v2.5 plan 01 A/C (2026-09-26): reads each book for the preview (pushes into a local array), awaits the author's confirm, and re-checks its run before writing the mode. A cancelled confirm writes nothing (worldInfoGating.test.ts \"the confirm gates the first write: cancelling leaves file mode and writes nothing\"). Its run is the gating's mode-blind lifetime (`alive`, bumped by dispose), because it runs while the mode is still file. Every later write (normalise, verify, restore, re-normalise) takes `lifetime`, which also lapses when the mode leaves scan (mutation M12 in test/findings/mutations/v25-01.txt)."
     },
-    "src/runtime/worldInfoGating.ts#createWiGating.syncOnce": {
+    "src/runtime/worldInfoGating.ts#WiGatingRuntime.syncOnce": {
       "status": "checked",
       "note": "v2.5 plan 01 W2 (2026-09-25): probe, verify, normalise, then activate. Re-checks the lifetime run after the probe and before activating, so a stopped gating never activates the scan view. Its run is the gating's own lifetime (`lifetime`, bumped by dispose), not a chat: every write it makes is install-wide (lorebook files, the ledger, the mode, the active flag), so a chat switch must not leave half a gated set normalised; stopping the runtime does stop it."
     },
-    "src/runtime/worldInfoGating.ts#createWiGating.verify": {
+    "src/runtime/worldInfoGating.ts#WiGatingRuntime.verify": {
       "status": "checked",
       "note": "v2.5 plan 01 B (2026-09-25): awaits verifyLedger (read-only) and re-checks the lifetime run before it replaces the controller's verdict and journals newly drifted entries. Its run is the gating's own lifetime (`lifetime`, bumped by dispose), not a chat: every write it makes is install-wide (lorebook files, the ledger, the mode, the active flag), so a chat switch must not leave half a gated set normalised; stopping the runtime does stop it."
     },
-    "src/runtime/worldInfoGating.ts#createWiGating.restore>serial": {
+    "src/runtime/worldInfoGating.ts#WiGatingRuntime.restore>serial": {
       "status": "checked",
       "note": "v2.5 plan 01 E (2026-09-26): the removal dialog's restore. Checks the gating's lifetime run before each book's enable and again before dropping the restored entries from the ledger and provenance, so a stopped gating writes nothing (worldInfoGating.test.ts \"a stopped gating restores nothing\"; control \"offers only entries that were on before normalisation, and restores them only when asked\"). Install-wide work, so its run is the gating's lifetime, not a chat."
     }

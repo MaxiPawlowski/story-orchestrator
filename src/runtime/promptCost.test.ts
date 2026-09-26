@@ -114,17 +114,21 @@ describe("prompt cost cache (v2.4 plan 08 T19a)", () => {
 });
 
 describe("prompt cost stays off the reply path (architecture)", () => {
-  const source = readFileSync(join(__dirname, "index.ts"), "utf8");
-  const handlerBlock = source.slice(source.indexOf("const applyGeneration"), source.indexOf("privateInjectionUnsub = subscribeToHostEvents"));
+  const read = (file: string) => readFileSync(join(__dirname, file), "utf8");
+  const generation = read("wiring/generation.ts");
+  const talk = read("wiring/talk.ts");
+  const wiring = [read("index.ts"), generation, talk, read("wiring/lore.ts"), read("wiring/scheduler.ts"), read("wiring/judgeScene.ts")].join("\n");
+  const handlerBlock = generation.slice(generation.indexOf("const intentHandlers"), generation.indexOf("export const attachGenerationObservers"))
+    + generation.slice(generation.indexOf("export const subscribeGenerationEvents"));
 
   it("no generation handler requests a count or awaits the cost cache", () => {
     expect(handlerBlock.length).toBeGreaterThan(200);
     expect(handlerBlock).not.toMatch(/promptCost\.(request|attach)/);
-    expect(source).not.toMatch(/await\s+promptCost/);
+    expect(wiring).not.toMatch(/await\s+promptCost/);
   });
 
   it("the interceptor only records the budget it is handed", () => {
-    const interceptor = source.slice(source.indexOf("globalThis.talkControlInterceptor = async"), source.indexOf("const generation = new GenerationLifecycle"));
+    const interceptor = talk.slice(talk.indexOf("globalThis.talkControlInterceptor = async"));
     expect(interceptor).toMatch(/promptCost\.noteGenerationBudget\(/);
     expect(interceptor).not.toMatch(/promptCost\.(request|attach|countOf)/);
   });

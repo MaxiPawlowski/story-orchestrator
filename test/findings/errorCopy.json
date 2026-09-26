@@ -413,7 +413,7 @@
       "reason": "director/judge failure falls back to the rules pick without a word"
     },
     {
-      "site": "src/runtime/worldInfoGating.ts#normalize",
+      "site": "src/runtime/worldInfoGating.ts#WiGatingRuntime.normalize",
       "kind": 1,
       "template": "`Story lorebook entries now rest off: ${refText(flipped)}`",
       "surface": "player",
@@ -423,7 +423,7 @@
       "reason": "toast names entries, no error text"
     },
     {
-      "site": "src/runtime/worldInfoGating.ts#serial",
+      "site": "src/runtime/worldInfoGating.ts#WiGatingRuntime.serial",
       "kind": 3,
       "template": ".catch(() => undefined)",
       "surface": "console",

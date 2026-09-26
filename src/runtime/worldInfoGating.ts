@@ -60,223 +60,235 @@ const restingIn = (ledger: Record<string, string[]>, verdict: LedgerVerdict) => 
 };
 const flippedRefs = (flipped: Record<string, string[]>): GatedEntryRef[] => Object.entries(flipped).flatMap(([lorebook, comments]) => comments.map((comment) => ({ lorebook, comment })));
 
-export function createWiGating(deps: WiGatingDeps): WiGating {
-  let installed = false;
-  let active = false;
-  let disposed = false;
-  let busy = false;
-  let capability: CapabilityReading | null = null;
-  let verdict: LedgerVerdict = { drift: [], missing: [], unreadable: [] };
-  let missingKey: GatedEntryRef[] = [];
-  const journaledDrift = new Set<string>();
-  const journaledMissing = new Set<string>();
-  let chain: Promise<unknown> = Promise.resolve();
-  let generation = 0;
-  const mint = () => ({ chatId: null, storyId: null, playedVersion: null, sessionEpoch: generation, window: null, windowRevision: 0 });
-  const alive: RunOwnership = {
-    mint,
-    check: (token) => (!disposed && token.sessionEpoch === generation ? { ok: true } : { ok: false, reason: "epoch", detail: "the lorebook gating stopped" }),
-  };
-  const lifetime: RunOwnership = {
-    mint,
-    check: (token) => (alive.check(token).ok && deps.settings().gatingMode === "scan" ? { ok: true } : { ok: false, reason: "epoch", detail: "the lorebook gating stopped or left per-chat mode" }),
-  };
+const idOf = (story: unknown) => (story && typeof story === "object" ? (story as { id?: unknown }).id : undefined);
 
-  const status = (): WiGatingStatus => ({
-    mode: deps.settings().gatingMode,
-    active,
-    capability,
-    ledger: ledgerCounts(deps.settings().normalized),
-    drift: verdict.drift,
-    missingKey,
-    missing: verdict.missing,
-    unreadable: verdict.unreadable,
-    busy,
+const stripBook = (settings: WorldInfoSettings, book: RestoreBook): Partial<WorldInfoSettings> => {
+  const drop = new Set(book.comments);
+  const strip = <T>(records: Record<string, T[]>, comment: (row: T) => string) => Object.fromEntries(Object.entries(records)
+    .map(([name, rows]): [string, T[]] => [name, name.toLowerCase() === book.lorebook.toLowerCase() ? rows.filter((row) => !drop.has(comment(row))) : rows])
+    .filter(([, rows]) => rows.length > 0));
+  return { normalized: strip(settings.normalized, (row) => row), normalizedFrom: strip(settings.normalizedFrom, (row) => row.comment) };
+};
+
+const previewOf = async (deps: WiGatingDeps): Promise<NormalizePreviewBook[]> => {
+  const preview: NormalizePreviewBook[] = [];
+  for (const { lorebook, comments } of gatedIndex(deps.library()).values()) {
+    const entries = await deps.read(lorebook);
+    if (!entries) continue;
+    const count = [...comments].filter((comment) => entries.has(comment)).length;
+    if (count) preview.push({ lorebook, entries: count });
+  }
+  return preview;
+};
+
+class WiGatingRuntime implements WiGating {
+  private installed = false;
+  private live = false;
+  private disposed = false;
+  private busy = false;
+  private capability: CapabilityReading | null = null;
+  private verdict: LedgerVerdict = { drift: [], missing: [], unreadable: [] };
+  private missingKey: GatedEntryRef[] = [];
+  private readonly journaledDrift = new Set<string>();
+  private readonly journaledMissing = new Set<string>();
+  private chain: Promise<unknown> = Promise.resolve();
+  private generation = 0;
+  private readonly alive: RunOwnership;
+  private readonly lifetime: RunOwnership;
+
+  constructor(private readonly deps: WiGatingDeps) {
+    const mint = () => ({ chatId: null, storyId: null, playedVersion: null, sessionEpoch: this.generation, window: null, windowRevision: 0 });
+    this.alive = {
+      mint,
+      check: (token) => (!this.disposed && token.sessionEpoch === this.generation ? { ok: true } : { ok: false, reason: "epoch", detail: "the lorebook gating stopped" }),
+    };
+    this.lifetime = {
+      mint,
+      check: (token) => (this.alive.check(token).ok && this.deps.settings().gatingMode === "scan"
+        ? { ok: true }
+        : { ok: false, reason: "epoch", detail: "the lorebook gating stopped or left per-chat mode" }),
+    };
+  }
+
+  status = (): WiGatingStatus => ({
+    mode: this.deps.settings().gatingMode,
+    active: this.live,
+    capability: this.capability,
+    ledger: ledgerCounts(this.deps.settings().normalized),
+    drift: this.verdict.drift,
+    missingKey: this.missingKey,
+    missing: this.verdict.missing,
+    unreadable: this.verdict.unreadable,
+    busy: this.busy,
   });
-  const publish = () => deps.publish(status());
-  const serial = <T>(work: () => Promise<T>): Promise<T> => {
-    const next = chain.then(async () => {
-      busy = true;
-      publish();
+
+  active = () => this.live;
+
+  private publish = () => this.deps.publish(this.status());
+
+  private serial = <T>(work: () => Promise<T>): Promise<T> => {
+    const next = this.chain.then(async () => {
+      this.busy = true;
+      this.publish();
       try {
         return await work();
       } finally {
-        busy = false;
-        publish();
+        this.busy = false;
+        this.publish();
       }
     });
-    chain = next.catch(() => undefined);
+    this.chain = next.catch(() => undefined);
     return next;
   };
 
-  const verify = async () => {
-    const run = beginRun(lifetime);
-    const read = await verifyLedger(deps.settings().normalized, gatedIndex(deps.library()), deps.read);
+  private verify = async () => {
+    const run = beginRun(this.lifetime);
+    const read = await verifyLedger(this.deps.settings().normalized, gatedIndex(this.deps.library()), this.deps.read);
     if (!run.stillOwns()) return;
-    verdict = read;
-    const drifting = new Set(verdict.drift.map(refKey));
-    [...journaledDrift].filter((key) => !drifting.has(key)).forEach((key) => journaledDrift.delete(key));
-    const fresh = verdict.drift.filter((ref) => !journaledDrift.has(refKey(ref)));
-    fresh.forEach((ref) => journaledDrift.add(refKey(ref)));
-    if (fresh.length) deps.journal("story lorebook entry switched on outside the story", refText(fresh));
+    this.verdict = read;
+    const drifting = new Set(this.verdict.drift.map(refKey));
+    [...this.journaledDrift].filter((key) => !drifting.has(key)).forEach((key) => this.journaledDrift.delete(key));
+    const fresh = this.verdict.drift.filter((ref) => !this.journaledDrift.has(refKey(ref)));
+    fresh.forEach((ref) => this.journaledDrift.add(refKey(ref)));
+    if (fresh.length) this.deps.journal("story lorebook entry switched on outside the story", refText(fresh));
   };
 
-  const normalize = async (phase: "initial" | "growth" | "repair", recheck?: Set<string>): Promise<NormalizeOutcome | null> => {
-    if (deps.settings().gatingMode !== "scan") return null;
-    const run = beginRun(lifetime);
-    const { normalized, normalizedFrom } = deps.settings();
-    const outcome = await normalizeGatedEntries(deps.library(), { ledger: normalized, from: normalizedFrom }, {
-      read: deps.read,
-      disable: deps.disable,
-      ownership: lifetime,
+  private normalize = async (phase: "initial" | "growth" | "repair", recheck?: Set<string>): Promise<NormalizeOutcome | null> => {
+    if (this.deps.settings().gatingMode !== "scan") return null;
+    const run = beginRun(this.lifetime);
+    const { normalized, normalizedFrom } = this.deps.settings();
+    const outcome = await normalizeGatedEntries(this.deps.library(), { ledger: normalized, from: normalizedFrom }, {
+      read: this.deps.read,
+      disable: this.deps.disable,
+      ownership: this.lifetime,
       ...(recheck ? { recheck: (lorebook: string, comment: string) => recheck.has(refKey({ lorebook, comment })) } : {}),
     });
-    if (outcome.refused.length) deps.journal("lorebook normalisation refused", outcome.refused.join("; "));
+    if (outcome.refused.length) this.deps.journal("lorebook normalisation refused", outcome.refused.join("; "));
     if (!run.stillOwns()) return outcome;
-    if (outcome.changed) deps.write({ normalized: outcome.ledger, normalizedFrom: outcome.from });
+    if (outcome.changed) this.deps.write({ normalized: outcome.ledger, normalizedFrom: outcome.from });
     const flipped = flippedRefs(outcome.flipped);
     if (flipped.length) {
-      deps.journal("lorebook entries now rest off", refText(flipped));
-      if (phase === "growth") deps.toast(`Story lorebook entries now rest off: ${refText(flipped)}`);
+      this.deps.journal("lorebook entries now rest off", refText(flipped));
+      if (phase === "growth") this.deps.toast(`Story lorebook entries now rest off: ${refText(flipped)}`);
     }
     return outcome;
   };
 
-  const deactivate = async () => {
-    active = false;
-    deps.setActive(false);
-    if (installed) deps.handler.dispose();
-    installed = false;
-    capability = null;
-    verdict = { drift: [], missing: [], unreadable: [] };
-    missingKey = [];
-    await deps.replayFilePath();
+  private deactivate = async () => {
+    this.live = false;
+    this.deps.setActive(false);
+    if (this.installed) this.deps.handler.dispose();
+    this.installed = false;
+    this.capability = null;
+    this.verdict = { drift: [], missing: [], unreadable: [] };
+    this.missingKey = [];
+    await this.deps.replayFilePath();
   };
 
-  const syncOnce = async () => {
-    if (disposed) return;
-    if (deps.settings().gatingMode !== "scan") {
-      if (installed || active) await deactivate();
+  private syncOnce = async () => {
+    if (this.disposed) return;
+    if (this.deps.settings().gatingMode !== "scan") {
+      if (this.installed || this.live) await this.deactivate();
       return;
     }
-    const run = beginRun(lifetime);
-    if (!installed) {
-      deps.handler.install();
-      installed = true;
-      const reading = await deps.handler.probe();
+    const run = beginRun(this.lifetime);
+    if (!this.installed) {
+      this.deps.handler.install();
+      this.installed = true;
+      const reading = await this.deps.handler.probe();
       if (!run.stillOwns()) return;
-      capability = reading;
+      this.capability = reading;
     }
-    if (capability?.state !== "present") return;
-    await verify();
-    await normalize(active ? "growth" : "initial");
-    if (!run.stillOwns() || deps.settings().gatingMode !== "scan" || active) return;
-    active = true;
-    deps.setActive(true);
+    if (this.capability?.state !== "present") return;
+    await this.verify();
+    await this.normalize(this.live ? "growth" : "initial");
+    if (!run.stillOwns() || this.deps.settings().gatingMode !== "scan" || this.live) return;
+    this.live = true;
+    this.deps.setActive(true);
   };
 
-  const sync = () => serial(async () => {
+  sync = () => this.serial(async () => {
     try {
-      await syncOnce();
+      await this.syncOnce();
     } catch (error) {
-      deps.journal("lorebook gating failed", error instanceof Error ? error.message : String(error));
+      this.deps.journal("lorebook gating failed", error instanceof Error ? error.message : String(error));
     }
   });
 
-  const requestScan = async (): Promise<boolean> => {
-    const index = gatedIndex(deps.library());
-    const preview: NormalizePreviewBook[] = [];
-    for (const { lorebook, comments } of index.values()) {
-      const entries = await deps.read(lorebook);
-      if (!entries) continue;
-      const count = [...comments].filter((comment) => entries.has(comment)).length;
-      if (count) preview.push({ lorebook, entries: count });
-    }
-    const run = beginRun(alive);
-    if (!(await deps.confirm(preview)) || !run.stillOwns()) return false;
-    if (deps.settings().gatingMode !== "scan") deps.write({ gatingMode: "scan" });
-    await sync();
-    return active;
+  requestScan = async (): Promise<boolean> => {
+    const preview = await previewOf(this.deps);
+    const run = beginRun(this.alive);
+    if (!(await this.deps.confirm(preview)) || !run.stillOwns()) return false;
+    if (this.deps.settings().gatingMode !== "scan") this.deps.write({ gatingMode: "scan" });
+    await this.sync();
+    return this.live;
   };
 
-  const requestFile = async () => {
-    deps.write({ gatingMode: "file" });
-    await sync();
+  requestFile = async () => {
+    this.deps.write({ gatingMode: "file" });
+    await this.sync();
   };
 
-  const renormalize = () => serial(async () => {
-    if (deps.settings().gatingMode !== "scan" || !active) return null;
-    const run = beginRun(lifetime);
-    const recheck = new Set([...verdict.drift, ...missingKey].map(refKey));
-    const outcome = await normalize("repair", recheck);
+  renormalize = () => this.serial(async () => {
+    if (this.deps.settings().gatingMode !== "scan" || !this.live) return null;
+    const run = beginRun(this.lifetime);
+    const recheck = new Set([...this.verdict.drift, ...this.missingKey].map(refKey));
+    const outcome = await this.normalize("repair", recheck);
     if (!run.stillOwns()) return outcome;
-    await verify();
-    const rests = restingIn(deps.settings().normalized, verdict);
-    missingKey = missingKey.filter((ref) => !rests(ref));
-    [...journaledMissing].filter((key) => !missingKey.some((ref) => refKey(ref) === key)).forEach((key) => journaledMissing.delete(key));
+    await this.verify();
+    const rests = restingIn(this.deps.settings().normalized, this.verdict);
+    this.missingKey = this.missingKey.filter((ref) => !rests(ref));
+    [...this.journaledMissing].filter((key) => !this.missingKey.some((ref) => refKey(ref) === key)).forEach((key) => this.journaledMissing.delete(key));
     return outcome;
   });
 
-  const idOf = (story: unknown) => (story && typeof story === "object" ? (story as { id?: unknown }).id : undefined);
-  const restorable = (removed: unknown) => {
-    const remaining = deps.library().filter((story) => idOf(removed) === undefined || idOf(story) !== idOf(removed));
-    return restorePlan(removed, remaining, deps.settings().normalized, deps.settings().normalizedFrom);
+  restorable = (removed: unknown) => {
+    const remaining = this.deps.library().filter((story) => idOf(removed) === undefined || idOf(story) !== idOf(removed));
+    return restorePlan(removed, remaining, this.deps.settings().normalized, this.deps.settings().normalizedFrom);
   };
 
   // Never automatic: the removal dialog's own choice. Each confirmed enable leaves the ledger, because the entry
   // no longer rests off.
-  const restore = (removed: unknown) => serial(async () => {
-    const run = beginRun(lifetime);
+  restore = (removed: unknown) => this.serial(async () => {
+    const run = beginRun(this.lifetime);
     const outcome = { restored: [] as GatedEntryRef[], refused: [] as string[] };
-    for (const book of restorable(removed)) {
+    for (const book of this.restorable(removed)) {
       if (!run.stillOwns()) break;
-      const result = await deps.enable(book.lorebook, book.comments);
+      const result = await this.deps.enable(book.lorebook, book.comments);
       if (!result.ok) {
         outcome.refused.push(result.reason);
         continue;
       }
       if (result.confirmed === false || !run.stillOwns()) continue;
-      const { normalized, normalizedFrom } = deps.settings();
-      const drop = new Set(book.comments);
-      const strip = <T>(records: Record<string, T[]>, comment: (row: T) => string) => Object.fromEntries(Object.entries(records)
-        .map(([name, rows]): [string, T[]] => [name, name.toLowerCase() === book.lorebook.toLowerCase() ? rows.filter((row) => !drop.has(comment(row))) : rows])
-        .filter(([, rows]) => rows.length > 0));
-      deps.write({ normalized: strip(normalized, (row) => row), normalizedFrom: strip(normalizedFrom, (row) => row.comment) });
+      this.deps.write(stripBook(this.deps.settings(), book));
       outcome.restored.push(...book.comments.map((comment) => ({ lorebook: book.lorebook, comment })));
     }
-    if (outcome.restored.length) deps.journal("lorebook entries restored", refText(outcome.restored));
-    if (outcome.refused.length) deps.journal("lorebook restore refused", outcome.refused.join("; "));
+    if (outcome.restored.length) this.deps.journal("lorebook entries restored", refText(outcome.restored));
+    if (outcome.refused.length) this.deps.journal("lorebook restore refused", outcome.refused.join("; "));
     return outcome;
   });
 
-  const noteScan = (owner: "story" | "no-story", rows: ScanGateRow[]) => {
+  noteScan = (owner: "story" | "no-story", rows: ScanGateRow[]) => {
     if (owner !== "story") return;
     const found = rows.filter((row) => !row.on && row.fileDisabled === null).map((row) => ({ lorebook: row.lorebook, comment: row.comment }));
-    const fresh = found.filter((ref) => !journaledMissing.has(refKey(ref)));
+    const fresh = found.filter((ref) => !this.journaledMissing.has(refKey(ref)));
     if (!fresh.length) return;
-    fresh.forEach((ref) => journaledMissing.add(refKey(ref)));
-    missingKey = [...missingKey, ...fresh];
-    deps.journal("story lorebook entry cannot be switched off", refText(fresh));
-    publish();
+    fresh.forEach((ref) => this.journaledMissing.add(refKey(ref)));
+    this.missingKey = [...this.missingKey, ...fresh];
+    this.deps.journal("story lorebook entry cannot be switched off", refText(fresh));
+    this.publish();
   };
 
-  return {
-    sync,
-    requestScan,
-    requestFile,
-    renormalize,
-    noteScan,
-    restorable,
-    restore,
-    status,
-    active: () => active,
-    dispose: () => {
-      disposed = true;
-      generation += 1;
-      active = false;
-      deps.setActive(false);
-      if (installed) deps.handler.dispose();
-      installed = false;
-    },
+  dispose = () => {
+    this.disposed = true;
+    this.generation += 1;
+    this.live = false;
+    this.deps.setActive(false);
+    if (this.installed) this.deps.handler.dispose();
+    this.installed = false;
   };
+}
+
+export function createWiGating(deps: WiGatingDeps): WiGating {
+  return new WiGatingRuntime(deps);
 }

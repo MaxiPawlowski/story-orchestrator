@@ -17,26 +17,14 @@
   "s4": {
     "lines": [
       "src/components/studio/GraphPanel.tsx#GraphPanel",
-      "src/copilot/parse.ts#readOp",
-      "src/engine/storyDiff.ts#diffStories",
-      "src/runtime/index.ts#startRuntime",
-      "src/runtime/slashCommands.ts#registerSlashCommands",
-      "src/runtime/worldInfoGating.ts#createWiGating",
       "src/studio/StudioModal.tsx#StudioModal",
       "src/studio/components/CheckpointEditor.tsx#CheckpointEditor",
       "src/studio/components/QualityEditor.tsx#QualityEditor",
       "src/studio/components/StoryEditor.tsx#StoryEditor",
-      "src/studio/components/StudioCopilot.tsx#StudioCopilot",
-      "src/studio/diagnostics.ts#runDiagnostics"
+      "src/studio/components/StudioCopilot.tsx#StudioCopilot"
     ],
-    "branches": [
-      "src/copilot/parse.ts#readOp"
-    ],
-    "nesting": [
-      "src/memory/consolidate.ts#consolidateTier",
-      "src/memory/consolidate.ts#consolidateTierJudged",
-      "src/runtime/index.ts#applyGeneration"
-    ]
+    "branches": [],
+    "nesting": []
   },
   "s5": {
     "src/components/drawer/ConflictQueue.tsx": 7,
@@ -56,7 +44,7 @@
     "src/components/settings/PlayGroups.tsx": 4,
     "src/components/settings/RoleProfilesGroup.tsx": 1,
     "src/components/settings/StoryGroup.tsx": 2,
-    "src/copilot/parse.ts": 3,
+    "src/copilot/parseFields.ts": 3,
     "src/copilot/prompts.ts": 12,
     "src/copilot/proposal.ts": 2,
     "src/copilot/stages.ts": 1,
@@ -111,7 +99,7 @@
     "src/runtime/coordinators/stagecraftCoordinator.ts": 4,
     "src/runtime/effectsApplier.ts": 6,
     "src/runtime/extras.ts": 6,
-    "src/runtime/index.ts": 5,
+    "src/runtime/index.ts": 1,
     "src/runtime/journal.ts": 3,
     "src/runtime/judge.ts": 3,
     "src/runtime/librarySave.ts": 1,
@@ -232,7 +220,6 @@
     "src/components/settings/JudgeSettingsGroup.tsx": 1,
     "src/components/settings/WorldInfoGatingGroup.tsx": 1,
     "src/constants/injectionRegistry.ts": 1,
-    "src/copilot/parse.ts": 1,
     "src/copilot/proposal.ts": 2,
     "src/engine/agency.ts": 1,
     "src/engine/engine.ts": 10,
@@ -276,7 +263,7 @@
     "src/judge/wardenCalibration.ts": 2,
     "src/memory/budget.ts": 2,
     "src/memory/conflicts.ts": 8,
-    "src/memory/consolidate.ts": 5,
+    "src/memory/consolidate.ts": 1,
     "src/memory/derived.ts": 1,
     "src/memory/entities.ts": 1,
     "src/memory/epistemic.ts": 6,
@@ -310,7 +297,7 @@
     "src/runtime/extras.ts": 6,
     "src/runtime/fingerprints.ts": 3,
     "src/runtime/generationLifecycle.ts": 3,
-    "src/runtime/index.ts": 12,
+    "src/runtime/index.ts": 3,
     "src/runtime/journal.ts": 1,
     "src/runtime/judge.ts": 9,
     "src/runtime/librarySave.ts": 6,
@@ -349,7 +336,6 @@
     "src/runtime/settingsModel.ts": 2,
     "src/runtime/settingsRoot.ts": 1,
     "src/runtime/settingsStore.ts": 2,
-    "src/runtime/slashCommands.ts": 1,
     "src/runtime/snapshotBuilder.ts": 6,
     "src/runtime/stateExport.ts": 1,
     "src/runtime/storyLibrary.ts": 3,
@@ -396,7 +382,7 @@
     "src/studio/components/RosterEditor.tsx": 1,
     "src/studio/components/StudioCopilot.tsx": 3,
     "src/studio/components/StudioToolbar.tsx": 4,
-    "src/studio/diagnostics.ts": 7,
+    "src/studio/diagnostics.ts": 3,
     "src/studio/draft.ts": 1,
     "src/studio/mutations.ts": 3,
     "src/studio/stories/fixtures.ts": 1,
@@ -414,7 +400,7 @@
     "src/runtime/consolidationMatches.ts": 1,
     "src/runtime/coordinators/extractionCoordinator.ts": 1,
     "src/runtime/extras.ts": 2,
-    "src/runtime/index.ts": 4,
+    "src/runtime/index.ts": 3,
     "src/runtime/memorizeBacklog.ts": 1,
     "src/runtime/memoryQueue.ts": 1,
     "src/runtime/mirrorReaperHost.ts": 1,
@@ -422,6 +408,7 @@
     "src/runtime/runOwner.ts": 1,
     "src/runtime/storyLibrary.ts": 1,
     "src/runtime/storySelection.ts": 2,
+    "src/runtime/wiring/lore.ts": 1,
     "src/services/stHost/authorNotes.ts": 2,
     "src/services/stHost/characters.ts": 1,
     "src/services/stHost/drawers.ts": 1,
