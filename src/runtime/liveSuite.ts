@@ -1,4 +1,5 @@
-import { askText, buildFixtureRun, parseSharedReadResponse, type ExtractionFixtureSpec, type ExtractionReply, type ModelCall, type ModelPass, type PassRole } from "@extraction/index";
+import { askText, parseSharedReadResponse, type ExtractionReply, type ModelCall, type ModelPass, type PassRole } from "@extraction/index";
+import { buildFixtureRun, type ExtractionFixtureSpec } from "@extraction/fixtureRun";
 import type { ContextLimit, SceneArm, SceneArmSpec } from "@extraction/index";
 import { requestBudgetFor, routedProfileId } from "./requestBudget";
 import { sceneArmRunner, type SceneArmResult } from "./sceneArmRunner";

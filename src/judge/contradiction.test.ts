@@ -1,9 +1,9 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { buildContradictionRequest, releaseDecision, releaseRequest } from "./contradiction";
 import {
-  buildContradictionRequest, CONTRADICTION_RELEASE_FLOORS, releaseDecision, releaseRequest, runContradictionReleaseCalibration, scoreReleaseArm, scoreReleasePhaseA,
-  type ContradictionReleaseCase,
-} from "./contradiction";
+  CONTRADICTION_RELEASE_FLOORS, runContradictionReleaseCalibration, scoreReleaseArm, scoreReleasePhaseA, type ContradictionReleaseCase,
+} from "./contradictionCalibration";
 import { buildPairRequest } from "./memory";
 import { validateJudgeRequest } from "./questions";
 import type { JudgeAnswer, JudgeRequest, JudgeResult } from "./types";

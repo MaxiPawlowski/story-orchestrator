@@ -7,3 +7,4 @@ export * from "./curatorCalibration";
 export * from "./extractionCalibration";
 export * from "./expansionCalibration";
 export * from "./wardenCalibration";
+export * from "./contradictionCalibration";

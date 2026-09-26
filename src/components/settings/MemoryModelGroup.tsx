@@ -2,9 +2,8 @@ import { useRef, useState } from "react";
 import { listConnectionProfiles, profileExists } from "@services/STAPI";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
-import { runModelSelfTest, type SelfTestReport } from "@runtime/selfTest";
+import type { SelfTestReport } from "@runtime/selfTest";
 import { createModelCall } from "@runtime/modelCall";
-import { runRoleSelfTest } from "@runtime/roleSelfTest";
 import { roleHealth } from "@runtime/roleHealth";
 import { resolvedProfileId, resolveRoute } from "@runtime/passProfiles";
 import type { PassRole } from "@extraction/passRole";
@@ -74,6 +73,7 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
     selfTestCancelled.current = false;
     setSelfTestRunning(true);
     setSelfTest(null);
+    const { runModelSelfTest } = await import("@runtime/selfTest");
     const report = await runModelSelfTest({
       profileId: settings.profileId,
       model: createModelCall({ settings: () => settings, exists: profileExists, planted: false }),
@@ -91,6 +91,7 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
   const testRole = async (role: PassRole) => {
     const route = resolveRoute(settings, role, (id) => profiles.some((profile) => profile.id === id));
     setTestingRole(role);
+    const { runRoleSelfTest } = await import("@runtime/roleSelfTest");
     roleHealth.record(await runRoleSelfTest(role, { profileId: route.ok ? resolvedProfileId(route) : null }));
     setTestingRole(null);
   };

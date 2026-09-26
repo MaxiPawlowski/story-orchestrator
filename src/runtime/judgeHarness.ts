@@ -14,7 +14,7 @@ import {
 } from "@judge/index";
 import {
   runContradictionReleaseCalibration, scoreReleasePhaseA, type ContradictionReleaseCase, type ReleasePhaseAVerdict,
-} from "@judge/contradiction";
+} from "@judge/contradictionCalibration";
 import { runWardenLoreCalibration, type WardenLoreCase } from "@judge/calibration";
 import type { JudgeRuntime } from "./judge";
 

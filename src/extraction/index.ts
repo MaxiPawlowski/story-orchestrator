@@ -10,7 +10,6 @@ export * from "./contract";
 export * from "./evidence";
 export * from "./cues";
 export * from "./degenerate";
-export * from "./fixtureRun";
 export * from "./inputBudget";
 export * from "./parse";
 export * from "./preflight";

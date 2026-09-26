@@ -10,7 +10,7 @@ const DEV_ONLY = [
   "src/judge/selfTestCases.ts",
 ];
 const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
-const LAZY_USER_FEATURES = ["src/judge/selfTest.ts"];
+const LAZY_USER_FEATURES = ["src/judge/selfTest.ts", "src/runtime/selfTest.ts", "src/runtime/roleSelfTest.ts", "src/extraction/fixtureRun.ts"];
 
 const isDevOnly = (path: string) => DEV_ONLY.includes(path) || DEV_ONLY_PATTERN.test(path);
 const ENTRY = join(SRC, "index.tsx");
@@ -25,7 +25,7 @@ describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", 
     expect(staticReach(files).filter(isDevOnly)).toEqual([]);
   });
 
-  it("the judge self-test the settings panel runs loads lazily, not with the entry", () => {
+  it("the self-tests the settings panel runs load lazily, not with the entry", () => {
     expect(staticReach(files).filter((path) => LAZY_USER_FEATURES.includes(path))).toEqual([]);
   });
 

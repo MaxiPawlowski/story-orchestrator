@@ -1,4 +1,5 @@
-import { askText, buildFixtureRun, parseSharedReadResponse, profileRoute, routedModel, type ExtractionFixtureSpec, type ModelCall, type ParsedSharedRead } from "@extraction/index";
+import { askText, parseSharedReadResponse, profileRoute, routedModel, type ModelCall, type ParsedSharedRead } from "@extraction/index";
+import { buildFixtureRun, type ExtractionFixtureSpec } from "@extraction/fixtureRun";
 
 export const SELF_TEST_TIERS = ["deltas", "memory", "arcs", "epistemic", "ledger"] as const;
 export type SelfTestTier = typeof SELF_TEST_TIERS[number];
