@@ -31,7 +31,7 @@ import DrawerTabs from "./components/drawer/DrawerTabs";
 import HudStrip from "./components/drawer/HudStrip";
 import BranchNotice from "./components/drawer/BranchNotice";
 import HelpTooltip from "./components/studio/HelpTooltip";
-import { useDraftStore, type StoryDraft } from "./studio/draft";
+import { setDiagnosticsContext, useDraftStore, type StoryDraft } from "./studio/draft";
 import "./styles.css";
 
 // v2.3 plan 08: the version the settings panel reports is the one this bundle was built from.
@@ -74,6 +74,7 @@ const openStudio = async (intent?: StudioOpenIntent) => {
     if (source) store.loadDraft(source, active?.hash ?? null);
     else store.newDraft();
   }
+  setDiagnosticsContext({ worldInfoGating: getGlobalSettings().worldInfo.gatingMode });
   setStudioOpen(true, intent);
 };
 
@@ -81,6 +82,7 @@ const openStudio = async (intent?: StudioOpenIntent) => {
 const openWizard = async () => {
   if (useDraftStore.getState().dirty && !(await showConfirmPopup("Start a new story? Your unsaved Studio draft will be discarded.", { okButton: "New story", cancelButton: "Keep editing" }))) return;
   useDraftStore.getState().newDraft();
+  setDiagnosticsContext({ worldInfoGating: getGlobalSettings().worldInfo.gatingMode });
   setStudioOpen(true, { tab: "copilot", stage: "qualities" });
 };
 

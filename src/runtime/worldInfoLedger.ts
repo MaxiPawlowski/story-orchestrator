@@ -31,6 +31,12 @@ export function gatedIndex(stories: unknown[]): GatedIndex {
   return index;
 }
 
+// v2.5 plan 01 D: the author table says which story gates each entry.
+export function gatedBy(records: Array<{ title: string; raw: unknown }>): (lorebook: string, comment: string) => string[] {
+  const indexes = records.map((record) => ({ title: record.title, index: gatedIndex([record.raw]) }));
+  return (lorebook, comment) => indexes.filter((entry) => isGated(entry.index, lorebook, comment)).map((entry) => entry.title);
+}
+
 export const isGated = (index: GatedIndex, lorebook: string, comment: string): boolean => index.get(bookKey(lorebook))?.comments.has(comment) ?? false;
 
 export async function verifyLedger(ledger: NormalizedLedger, index: GatedIndex, read: (lorebook: string) => Promise<BookEntries | null>): Promise<LedgerVerdict> {

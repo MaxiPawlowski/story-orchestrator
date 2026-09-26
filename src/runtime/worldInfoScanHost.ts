@@ -8,6 +8,7 @@ import type { NormalizedLedger, ScanGateRow, ScanGateStats } from "./scanGatePla
 import { getGlobalSettings, setGlobalSettings } from "./settingsStore";
 import { listStoryRecords } from "./storyLibrary";
 import { createWiGating, type CapabilityReading, type NormalizePreviewBook, type WiGating } from "./worldInfoGating";
+import { gatedBy } from "./worldInfoLedger";
 import { noteScanGate, scanGatingActive, setScanGatingActive, setWiGatingStatus } from "./worldInfoMode";
 import type { NormalizeOutcome } from "./worldInfoNormalize";
 import { ScanGateProvider, type ScanGateChoice } from "./worldInfoScan";
@@ -74,6 +75,12 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
   let handle: ScanGatingHandle | null = null;
   let lastScan: (ScanGateStats & { owner: "story" | "no-story" }) | null = null;
   const timings: number[] = [];
+  let owners: { revision: string; of: (lorebook: string, comment: string) => string[] } | null = null;
+  const ownersOf = () => {
+    const revision = listStoryRecords().map((record) => `${record.id}@${record.version}:${record.hash}`).join(",");
+    if (owners?.revision !== revision) owners = { revision, of: gatedBy(listStoryRecords().map((record) => ({ title: record.title, raw: record.raw }))) };
+    return owners.of;
+  };
   const provider = new ScanGateProvider({
     chatId: deps.chatId,
     ownedChat: deps.ownedChat,
@@ -91,7 +98,8 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     lastScan = provider.apply(arrays, rows);
     timings.push(performance.now() - started);
     if (timings.length > SCAN_TIMING_LIMIT) timings.shift();
-    noteScanGate({ chatId: deps.chatId(), owner: lastScan.owner, rows });
+    const of = ownersOf();
+    noteScanGate({ chatId: deps.chatId(), owner: lastScan.owner, rows: rows.map((row) => ({ ...row, gatedBy: of(row.lorebook, row.comment) })) });
     gating.noteScan(lastScan.owner, rows);
   };
   const gating = createWiGating({

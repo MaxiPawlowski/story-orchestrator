@@ -56,7 +56,7 @@ const seeded: StoryV2 = {
         allow_silence: true,
       },
       agency: { alternate: "nowhere" },
-      effects: { author_note: "Hold the line." },
+      effects: { author_note: "Hold the line.", world_info: { enable: [{ lorebook: "Ruins", comments: ["Gate"] }] } },
     },
     { id: "cache", name: "Cache", objective: "", type: "anchor", convergence_threshold: 5 },
     { id: "lost", name: "Lost", objective: "", type: "anchor" },
@@ -85,7 +85,7 @@ describe("runDiagnostics", () => {
   });
 
   it("fires every diagnostic exactly once on the seeded-error story", () => {
-    const diagnostics = runDiagnostics(seeded);
+    const diagnostics = runDiagnostics(seeded, { worldInfoGating: "scan" });
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));
     DIAGNOSTIC_CODES.forEach((code) => {
@@ -257,5 +257,29 @@ describe("a rating with no readable scale (F1)", () => {
 
   it("says nothing for a rating whose levels are authored", () => {
     expect(runDiagnostics(withRating({ criteria: { levels: [{ value: 1, label: "1: calm" }, { value: 2, label: "2: terrified" }] } })).filter((entry) => entry.code === "quality-rating-no-scale")).toEqual([]);
+  });
+});
+
+describe("v2.5 plan 01 D: world info rests off under per-chat gating", () => {
+  const withWorldInfo: StoryV2 = {
+    ...clean,
+    checkpoints: [
+      { id: "start", name: "Start", objective: "", type: "intermediate", start: true, effects: { world_info: { enable: [{ lorebook: "Ruins", comments: ["CP1", "CP2"] }] } } },
+      { id: "cache", name: "Cache", objective: "", type: "anchor", effects: { world_info: { disable: [{ lorebook: "Ruins", comments: ["CP1"] }] } } },
+    ],
+  };
+  const restsOff = (draft: StoryV2, mode?: "file" | "scan") => runDiagnostics(draft, mode ? { worldInfoGating: mode } : {}).filter((entry) => entry.code === "world-info-rests-off");
+
+  it("says the story's gated entries rest off in their lorebooks, once, as info", () => {
+    const found = restsOff(withWorldInfo, "scan");
+    expect(found).toHaveLength(1);
+    expect(found[0].severity).toBe("info");
+    expect(found[0].message).toContain("2 lorebook entries in Ruins");
+  });
+
+  it("control: says nothing in file mode, with no mode given, or for a story with no world info", () => {
+    expect(restsOff(withWorldInfo, "file")).toEqual([]);
+    expect(restsOff(withWorldInfo)).toEqual([]);
+    expect(restsOff(clean, "scan")).toEqual([]);
   });
 });

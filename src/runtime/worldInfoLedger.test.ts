@@ -1,4 +1,4 @@
-import { gatedIndex, restorePlan, verifyLedger, type BookEntries } from "./worldInfoLedger";
+import { gatedBy, gatedIndex, restorePlan, verifyLedger, type BookEntries } from "./worldInfoLedger";
 
 const story = (books: Record<string, string[]>) => ({ checkpoints: [{ effects: { world_info: { enable: Object.entries(books).map(([lorebook, comments]) => ({ lorebook, comments })) } } }] });
 
@@ -47,6 +47,18 @@ describe("verifyLedger (v2.5 plan 01 B: verify, never trust)", () => {
     const verdict = await verifyLedger({ ruins: ["CP1", "Gone"], Removed: ["X"] }, gatedIndex(library), read);
     expect(verdict.drift).toEqual([]);
     expect(reads).toEqual(["ruins"]);
+  });
+});
+
+describe("gatedBy (v2.5 plan 01 D: which story gates an entry)", () => {
+  it("names every library story that gates the entry, matching the book by file id", () => {
+    const owner = gatedBy([
+      { title: "Sun Ruins", raw: story({ Xentar: ["CP1", "CP2"] }) },
+      { title: "Crossing", raw: story({ xentar: ["CP2"] }) },
+    ]);
+    expect(owner("XENTAR", "CP2")).toEqual(["Sun Ruins", "Crossing"]);
+    expect(owner("Xentar", "CP1")).toEqual(["Sun Ruins"]);
+    expect(owner("Xentar", "Ungated")).toEqual([]);
   });
 });
 

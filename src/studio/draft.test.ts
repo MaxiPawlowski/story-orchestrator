@@ -1,4 +1,4 @@
-import { resetDraftStore, useDraftStore, type StoryDraft } from "./draft";
+import { resetDraftStore, setDiagnosticsContext, useDraftStore, type StoryDraft } from "./draft";
 import { addCheckpoint, addQuality, removeCheckpoint, setStoryField } from "./mutations";
 
 const load = (draft: StoryDraft) => useDraftStore.getState().loadDraft(draft);
@@ -79,5 +79,22 @@ describe("draft store", () => {
     expect(state.selectedCheckpointId).toBe("cp0");
     expect(state.past).toHaveLength(0);
     expect(state.dirty).toBe(false);
+  });
+});
+
+describe("v2.5 plan 01 D: the Studio diagnoses under the install's lorebook gating", () => {
+  afterEach(() => setDiagnosticsContext({}));
+
+  it("re-derives the open draft when the gating mode is set, and every later edit keeps it", () => {
+    resetDraftStore();
+    const codes = () => useDraftStore.getState().diagnostics.map((entry) => entry.code);
+    useDraftStore.getState().mutate((draft) => ({ ...draft, checkpoints: draft.checkpoints.map((checkpoint, index) => (index === 0 ? { ...checkpoint, effects: { world_info: { enable: [{ lorebook: "Ruins", comments: ["CP1"] }] } } } : checkpoint)) }));
+    expect(codes()).not.toContain("world-info-rests-off");
+    setDiagnosticsContext({ worldInfoGating: "scan" });
+    expect(codes()).toContain("world-info-rests-off");
+    useDraftStore.getState().mutate((draft) => setStoryField(draft, "title", "Edited"));
+    expect(codes()).toContain("world-info-rests-off");
+    setDiagnosticsContext({ worldInfoGating: "file" });
+    expect(codes()).not.toContain("world-info-rests-off");
   });
 });

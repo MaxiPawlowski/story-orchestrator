@@ -640,8 +640,9 @@ const LoreFired = ({ evidence }: { evidence: RuntimeSnapshot["loreEvidence"] }) 
   );
 };
 
-// v2.4 plan 05 T13 spike (S5), author only and only while scan-time gating is active: per gated
-// entry, the state the last scan loaded (the file's), the state it used, and whether it fired.
+// v2.5 plan 01 D (was the v2.4 T13 spike's S5 table), author only and only while scan-time gating is active:
+// per gated entry, the story that gates it, the state the last scan loaded (the file's), the state it used,
+// and whether it fired.
 const flagText = (disabled: boolean | null) => (disabled === null ? "no flag" : disabled ? "off" : "on");
 
 const ScanGateTable = ({ view, evidence }: { view: RuntimeSnapshot["scanGate"]; evidence: RuntimeSnapshot["loreEvidence"] }) => {
@@ -650,13 +651,13 @@ const ScanGateTable = ({ view, evidence }: { view: RuntimeSnapshot["scanGate"]; 
   const firedRow = (lorebook: string, uid: number) => fired.some((entry) => entry.uid === uid && entry.world.trim().toLowerCase() === lorebookFileId(lorebook).toLowerCase());
   return (
     <div id="so-scan-gate" data-so="scan-gate">
-      <div className="font-medium opacity-100">Scan-time gating (spike): {view.owner === "story" ? "this chat's path" : "no story"}</div>
+      <div className="font-medium opacity-100">Per-chat lorebook gating: {view.owner === "story" ? "this chat's path" : "no story"}</div>
       {view.rows.length === 0 ? (
         <div className="opacity-60">No gated entry was in the last scan.</div>
       ) : view.rows.map((row) => (
         <div key={`${row.lorebook}.${row.uid}`} data-so="scan-gate-row" data-effective={flagText(row.effectiveDisabled)} className="flex flex-wrap items-center gap-2">
           <span>{row.comment}</span>
-          <span className="opacity-60">{row.lorebook} · file {flagText(row.fileDisabled)} · this chat {flagText(row.effectiveDisabled)}{firedRow(row.lorebook, row.uid) ? " · fired" : ""}</span>
+          <span className="opacity-60">{row.lorebook}{row.gatedBy?.length ? ` · gated by ${row.gatedBy.join(", ")}` : ""} · file {flagText(row.fileDisabled)} · this chat {flagText(row.effectiveDisabled)}{firedRow(row.lorebook, row.uid) ? " · fired" : ""}</span>
         </div>
       ))}
     </div>

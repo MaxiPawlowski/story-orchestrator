@@ -568,7 +568,7 @@ export const PayloadLoreFired: Story = {
   },
 };
 
-// v2.4 plan 05 T13 spike (S5): shown only while scan-time gating is active.
+// v2.5 plan 01 D (the T13 spike's S5 table): shown only while per-chat lorebook gating is active.
 export const PayloadScanGate: Story = {
   render: () => {
     const snapshot = sceneSnapshot(true) as unknown as Record<string, unknown>;
@@ -577,7 +577,7 @@ export const PayloadScanGate: Story = {
       chatId: "chat-1",
       owner: "story",
       rows: [
-        { lorebook: "SO-T13 Xentar", comment: "CP1 - Mission", uid: 9, on: true, fileDisabled: true, effectiveDisabled: false },
+        { lorebook: "SO-T13 Xentar", comment: "CP1 - Mission", uid: 9, on: true, fileDisabled: true, effectiveDisabled: false, gatedBy: ["Quest for the Sun Ruins"] },
         { lorebook: "SO-T13 Xentar", comment: "CP2 - Mission", uid: 17, on: false, fileDisabled: true, effectiveDisabled: true },
       ],
     };
@@ -590,8 +590,8 @@ export const PayloadScanGate: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
-    const table = within(await canvas.findByText(/Scan-time gating \(spike\): this chat's path/).then((node) => node.closest("[data-so=\"scan-gate\"]") as HTMLElement));
-    await expect(table.getByText(/SO-T13 Xentar · file off · this chat on · fired/)).toBeInTheDocument();
+    const table = within(await canvas.findByText(/Per-chat lorebook gating: this chat's path/).then((node) => node.closest("[data-so=\"scan-gate\"]") as HTMLElement));
+    await expect(table.getByText(/SO-T13 Xentar · gated by Quest for the Sun Ruins · file off · this chat on · fired/)).toBeInTheDocument();
     await expect(table.getByText(/SO-T13 Xentar · file off · this chat off$/)).toBeInTheDocument();
   },
 };

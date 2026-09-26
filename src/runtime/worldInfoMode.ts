@@ -7,7 +7,7 @@ import type { GatedEntryRef } from "./worldInfoLedger";
 export interface ScanGateView {
   chatId: string | null;
   owner: "story" | "no-story";
-  rows: ScanGateRow[];
+  rows: Array<ScanGateRow & { gatedBy?: string[] }>;
 }
 
 let scanGating = false;
