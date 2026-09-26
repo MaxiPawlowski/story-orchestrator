@@ -213,6 +213,34 @@ describe("LoreEvidence ring", () => {
     expect(evidence.hiddenBooks()).toEqual([]);
   });
 
+  it("C3: a hidden count does not carry into another chat that shares the book", () => {
+    const { evidence, world } = harness();
+    const first = [entry(1, "CP1 Road")];
+    const hiddenGeneration = () => {
+      evidence.opened({ type: "normal" });
+      evidence.filtered(["Ruins"], first, []);
+      evidence.settled({ rendered: true, lastMessageId: 1, story, path: ["one"], mirrorBook: null });
+    };
+    for (let index = 1; index < HIDDEN_GENERATIONS_FOR_REPAIR; index += 1) hiddenGeneration();
+    world.chatId = "chat-2";
+    hiddenGeneration();
+    expect(evidence.hiddenBooks()).toEqual([]);
+    world.chatId = "chat-1";
+    expect(evidence.hiddenBooks()).toEqual([]);
+    hiddenGeneration();
+    expect(evidence.hiddenBooks()).toEqual(["Ruins"]);
+  });
+
+  it("C3 control: the same hidden generations in one chat still raise the book", () => {
+    const { evidence } = harness();
+    for (let index = 0; index < HIDDEN_GENERATIONS_FOR_REPAIR; index += 1) {
+      evidence.opened({ type: "normal" });
+      evidence.filtered(["Ruins"], [entry(1, "CP1 Road")], []);
+      evidence.settled({ rendered: true, lastMessageId: 1, story, path: ["one"], mirrorBook: null });
+    }
+    expect(evidence.hiddenBooks()).toEqual(["Ruins"]);
+  });
+
   it("a book that never reached the view is not hidden: absent first is not a filter", () => {
     const { evidence } = harness();
     for (let index = 0; index < 3; index += 1) {

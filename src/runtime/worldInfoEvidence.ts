@@ -175,7 +175,7 @@ export class LoreEvidence {
   private loaded: LoadedCopy[] | null = null;
   private hiddenThisSlot = new Set<string>();
   private seenThisSlot = new Set<string>();
-  private hiddenRuns = new Map<string, number>();
+  private hiddenRuns = new Map<string, Map<string, number>>();
   private mirror = new Map<string, { eligible: number; fired: number }>();
   private host: LoreEvidenceHost | null = null;
 
@@ -232,7 +232,8 @@ export class LoreEvidence {
   // generation loads the view several times (vectors, lore-select and the scan itself).
   filtered(books: string[], first: ScanInput[], last: ScanInput[]) {
     if (!this.current) return;
-    for (const book of [...this.hiddenRuns.keys()]) if (!books.includes(book)) this.hiddenRuns.delete(book);
+    const runs = this.hiddenRunsFor(this.current.chatId);
+    for (const book of [...runs.keys()]) if (!books.includes(book)) runs.delete(book);
     const present = (entries: ScanInput[], book: string) => entries.some((entry) => typeof entry.world === "string" && sameLorebook(book, entry.world));
     for (const book of books) {
       if (!present(first, book)) continue;
@@ -253,7 +254,7 @@ export class LoreEvidence {
     const fired = firedEntries(slot.scans);
     const observed = slot.scans.some((scan) => scan.loud);
     const flags: LoreFlag[] = [];
-    this.countHidden();
+    this.countHidden(slot.chatId);
     if (observed) {
       const outcome = forcedOutcome(slot.forced, fired);
       slot.landed = outcome.landed;
@@ -290,7 +291,7 @@ export class LoreEvidence {
   }
 
   hiddenBooks(): string[] {
-    return [...this.hiddenRuns].filter(([, runs]) => runs >= HIDDEN_GENERATIONS_FOR_REPAIR).map(([book]) => book).sort();
+    return [...this.hiddenRunsFor(this.host?.chatId() ?? "")].filter(([, runs]) => runs >= HIDDEN_GENERATIONS_FOR_REPAIR).map(([book]) => book).sort();
   }
 
   // Plan 05 mirror key hygiene, measurement only: per `so_` entry of this chat's mirror book, how many
@@ -316,9 +317,16 @@ export class LoreEvidence {
     }
   }
 
-  private countHidden() {
-    for (const book of this.hiddenThisSlot) this.hiddenRuns.set(book, (this.hiddenRuns.get(book) ?? 0) + 1);
-    for (const book of this.seenThisSlot) if (!this.hiddenThisSlot.has(book)) this.hiddenRuns.delete(book);
+  private hiddenRunsFor(chatId: string): Map<string, number> {
+    const runs = this.hiddenRuns.get(chatId) ?? new Map<string, number>();
+    this.hiddenRuns.set(chatId, runs);
+    return runs;
+  }
+
+  private countHidden(chatId: string) {
+    const runs = this.hiddenRunsFor(chatId);
+    for (const book of this.hiddenThisSlot) runs.set(book, (runs.get(book) ?? 0) + 1);
+    for (const book of this.seenThisSlot) if (!this.hiddenThisSlot.has(book)) runs.delete(book);
     this.hiddenThisSlot = new Set();
     this.seenThisSlot = new Set();
   }
