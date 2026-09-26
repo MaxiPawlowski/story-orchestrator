@@ -94,4 +94,5 @@ test('control: a synthetic offender fails the scan', () => {
   const allowlist = [{ file: 'x.mts', text: 'const legacy = 1;', count: 1, reason: 'r' }];
   assert.equal(judgeLegacy({ 'x.mts': 'const legacy = 1;\nconst legacy = 1;' }, { ...empty, allowlist }).allowlistDrift.length, 1);
   assert.deepEqual(judgeLegacy({ 'x.mts': 'const legacy = 1;' }, { ...empty, allowlist }).unexpected, []);
+  assert.deepEqual(judgeLegacy({ 'x.mts': 'const legacy = 1;\nconst legacyPath = 2;' }, { ...empty, allowlist }).unexpected, ['x.mts: 1 hit(s), baseline 0']);
 });

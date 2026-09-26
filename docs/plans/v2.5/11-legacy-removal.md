@@ -530,3 +530,37 @@ Machine gates after the fixture changes (no src change): `npm test` 267 suites /
 - Lane 2: D2/D3 and the PR-08 lane-2 round-trip of one D1 book (main session, after J7).
 - H20 deletion, S9 re-point, closing the twin baseline (Gate record steps 0-8 §Still needed); mutation sweep M1-M10; `test-storybook:ci`; Verified ST host facts row for `SlashCommandEnumValue`.
 - J10.9/J10.10 and J1.8/J1.9 human rows unscored.
+
+## Gate record (code leftovers: H20, S9, twin baseline, mutants, storybook, host fact, mirror)
+
+Date 2026-09-26. Branch `worktree-agent-a94c9f25a1e7473b5`, fast-forwarded to master `13b76f8`. Code and docs only: no lane, no main ST, nothing under `C:\dev\so-lanes` touched. Worktree gates use a `node_modules` junction to the main checkout and `ST_PUBLIC=C:/dev/SillyTavern-MainBranch/public`.
+
+Baseline on `13b76f8` (before any change): `npm run typecheck && npm run typecheck:test && npm run lint` exit 0; `npm test` 267 suites / 3891 tests pass; `npm run test:debug` 296 tests, 1 fail (`so-run-header.test.mts` "the build half reads plan 08s nested manifest": the fresh worktree has no `dist/manifest.json`; green after `npm run build`), so every later `test:debug` run follows a build.
+
+### 1. H20, S9, twin baseline (`cfd9542`)
+
+- H20: `--legacy-mirrors`, `AssetsArgs.legacyMirrors`, `LEGACY_PREFIX`/`CHAT_ID_SUFFIX`, `legacyMirrorTargets` and its S9 test deleted from `scripts/debug/lib/assetScope.mts`, `assetScope.test.mts`, `so-assets.mts` (21 hits: 7 + 4 + 10). `removeMarkedAssets` scopes to the marker/ledger set only; `clean` no longer carries `legacyLeft`.
+- S9: `test/findings/ledger.json` `provenBy` → `scripts/debug/lib/assetScope.test.mts :: regex scripts and QR sets are in scope by marker prefix only (S9)` (`findingsLedger.test.ts` 6/6).
+- Twin baseline: `test/findings/legacy-baseline-scripts.json` `closed: true`, `baseline: {}`; allowlist unchanged (the three `so-legacy-books` name lines).
+- `.claude/rules/gotchas.md` cleanup bullet: `--legacy-mirrors` noted as removed by H20.
+- Gates: typecheck, typecheck:test, lint, debug:typecheck exit 0; `npm test` 267 / 3891 pass; `npm run test:debug` 295 tests, 294 pass, 1 skipped, 0 fail (one test fewer: the deleted S9 legacy-mirror case).
+
+### 2. Mutation sweep M1-M10
+
+Record: `test/findings/mutations/v25-11-legacy.txt`. Every mutant applied through `node scripts/mutate.mjs … --find … --replace … -- <cmd>` (the file is restored after each run; `git status` clean of src after the sweep).
+
+| # | Mutant | Command | Result |
+|---|---|---|---|
+| M1 | `KNOWN_VERSIONS=[4, BLOB_VERSION]` | jest `blobUnreadable.review.test.ts` | 3 failed / 16, CAUGHT |
+| M2 | `chatIdentity` `!== 4` | jest `chatIdentity.review` + `branchContinue.review` | 13 failed / 33, CAUGHT |
+| M3 | record guard (`every(isCurrentRecord)`) removed | jest `blobUnreadable.review.test.ts` | 5 failed / 16, CAUGHT |
+| M4 | sanitizer keeps envelope-less rows | jest `extrasHydrate.test.ts` | 1 failed / 10, CAUGHT |
+| M5 | unknown-key `addError` removed | jest `stagecraftFormat` + `agency` | 3 failed / 19, CAUGHT |
+| M6 | `settingsRoot()` stamps on read | jest `settingsRoot.test.ts` | 3 failed / 7, CAUGHT |
+| M7 | `createdLorebooks ?? session?.applied` restored | jest `copilotOwnedLorebooks.test.ts` | 1 failed / 6, CAUGHT |
+| M8 | src guard allowlist match widened to `/.*/` | jest `legacyFree.guard.test.ts` | 1 failed / 10, CAUGHT |
+| M8b | same widening in the twin guard | `node --test scripts/debug/legacyFree.test.mts` | first run SURVIVED (6/6 pass); control gained "a different legacy line in an allowlisted file is unexpected"; rerun 1 fail, CAUGHT |
+| M9 | D1 filter accepts a `so-owner` book | `node --test scripts/debug/so-legacy-books.test.mts` | 6 failed / 12, CAUGHT |
+| M10 | destination-root collision check skipped | same | first run SURVIVED (12/12 pass: the test matched `/already exists/`, and the later `mkdir(dest)` EEXIST satisfied it); test now asserts `/refused: destination root .* already exists/`; rerun 1 fail, CAUGHT |
+
+Gates after the two test fixes: typecheck, typecheck:test, lint, debug:typecheck exit 0; `npm test` 267 / 3891 pass; `npm run test:debug` 295 tests, 294 pass, 1 skipped, 0 fail.
