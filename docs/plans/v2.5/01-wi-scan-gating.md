@@ -227,3 +227,80 @@ Storybook runner (settings row + author table stories), then `st-session.mts rel
 - **Q3** File path: keep as fallback and as `file` mode (recommended: S6 proved it enables from rest-off, and it is
   what `absent`/`error` needs), or remove it after one release?
 - **Q4** Removal restore (E): offered in the removal dialog (recommended), or not offered at all?
+
+## Gate record (code items)
+
+**2026-09-26, branch `worktree-agent-ae193d3557c84c1ed` (from master `13b76f8`, master `8baa65e` merged in as `fe9e049`). Code items only. Nothing ran live: no lane, no main ST, nothing under `C:\dev\so-lanes`.** Every item whose proof is deterministic is built. The live gates G1–G8 have fixtures and commands (below) and are **pending**. Their sign-off also waits for plan 02 C2's attribution of the save race (overview sequence).
+
+### Decisions this build took (U1 is still the user's; each is the plan's recommendation)
+
+| Q | Taken | Where |
+|---|---|---|
+| Q1 | Normalise real library books, **only behind the author's confirm**. The spike's `SO-T13` marker filter is gone. | `worldInfoGating.ts` `requestScan` |
+| Q2 | **Default stays `file`.** Scan mode is written only by the confirm. An install that never opens the setting is never normalised. No judge default was touched. | `settingsStore.ts` `defaultWorldInfoSettings` |
+| Q3 | **The file path is kept**: as `file` mode, and as the fallback when `wiScanGating` is `absent`/`error`. | `effectsApplier.ts` `replayWorldInfoFiles` |
+| Q4 | Restore is **offered in the removal dialog**, never automatic. | `index.tsx` `deleteStory`, `worldInfoScanHost.ts` `removalRestore` |
+
+### Step 0: host facts re-read (ST 1.19.0, `7c3994196`, `package.json:118`)
+
+`05-H1`–`H4`, `H6`, `H11`–`H13` hold at their recorded lines: `world-info.js:882` cache, `:902` ACTIVATED emit, `:1013` CHAT_CHANGED pre-cache, `:2036-2042` `loadWorldInfo` cache hit, `:4346-4371` `deleteWorldInfo`, `:4515` per-call spread, `:4590`/`:4604` `getSortedEntries` + ENTRIES_LOADED, `:4801` disable skip, `:4886` forced check; `lib/eventemitter.js:66`/`:90` makeLast/makeFirst; `events.js:77,97,98`. No row drifted, so `v2.4/host-facts.md` is unchanged. New facts this build relies on:
+
+- `/api/worldinfo/get` answers an unknown name with the dummy `{entries:{}}` (`src/endpoints/worldinfo.js:17-31`, route `:71-79`). The drift reader therefore reads only books listed in `world_names`.
+- `saveWorldInfo` writes the cache before saving (`world-info.js:4177-4190`), and `loadWorldInfo` serves the cache (`:2041-2042`). The normaliser, re-normalise and restore therefore evict the book before writing (`stHost/worldInfoFiles.ts` `setLorebookEntriesDisabled`), so an API edit the cache has not seen cannot read as "already off".
+- The popup OK button is `.popup-button-ok` (`popup.js:255`, template `index.html:6481`). The harness clicks it to confirm the way an author does.
+- A mode switch without a reload needs **no host event**: our own settings write already notifies (`librarySave.onSettingsWrite`). The plan's "event a mode switch needs" row is not owed. The "WI editor read" row is not owed either, because the build does not touch the editor.
+
+### Items (failing test first; negative controls; gates green after each)
+
+| Commit | Item | Red first → green | Controls |
+|---|---|---|---|
+| `cc21c37` | W1 `normalizedFrom` provenance beside the unchanged `normalized` ledger; sanitizer keeps it | `worldInfoSettings.test.ts` 4 red → 4 green | malformed, duplicate and empty rows are dropped |
+| `19d20e2` | B ledger verify (read-only), drift/missingKey Repair row, `stHost/worldInfoFiles.ts` (server file, listed books only), `snapshot.wiGating` | `worldInfoLedger.test.ts`, `repair.test.ts` (2 red), `worldInfoFiles.test.ts` | "control: a ledger whose every entry rests off reports no drift"; unlisted book never read |
+| `a4509af` | A/C/W2 production normaliser (provenance, `recheck` for re-normalise), host-free controller `worldInfoGating.ts`: confirm → verify → normalise → **then** activate; the mode switch takes effect without a reload (file mode replays the open chat's path at once); growth normalised with a toast and a journal line; missingKey journaled once and raised | `worldInfoNormalize.test.ts` 8 red, `worldInfoGating.test.ts`, `librarySave.test.ts` 1 red | cancelled confirm writes nothing; file-mode sync normalises nothing; absent capability keeps the file path |
+| `2e1f789` | C `wiScanGating` in `CAPABILITY_IDS` (temporary no-op handler, always disposed) | `capabilities.test.ts` 2 red | `error` not cached; the detail never says "spike"/"T13" |
+| `b3d22db` | E removal restore (`wasOn` entries no remaining story gates; restored entries leave the ledger) | 5 red | a remaining story's entry is never restored; a stopped gating restores nothing |
+| `a3e1e9c` | C settings row `#so-wi-gating` (`#so-wi-gating-mode`, `[data-so="wi-ledger"]`, `[data-so="wi-drift"]`, `#so-wi-renormalize`) + stories | repair spoiler case red | player mode shows counts, never entry names |
+| `e5bbd14` | D author table "gated by `<story title>`", Studio diagnostic `world-info-rests-off` (info, scan mode only) | `diagnostics.test.ts` 1 red, `worldInfoLedger.test.ts` 1 red | file mode, no mode given, and no world_info all say nothing |
+| `6b17d66` | scanGatePlan == file-path oracle over the **shipped** stories (sun-ruins + Adolion academy/adventurer copied to `test/fixtures/scan-gate/`), 60 fixed seeds walking their own transitions | passed on first run; mutant M9 kills it | the 300-seed generated property is unchanged |
+| `40546e7` | fault matrix `wiNormalize` (9 cited, `aborted` na) + a write that throws late is journaled instead of an unhandled rejection | "a write that throws late …" red | the next sync still runs |
+| `b4da684` | mutation sweep `test/findings/mutations/v25-01.txt`: 12 mutants, 11 killed, M5b equivalent (reason in the file) | — | — |
+| `5cf6722` | live vehicles: `--wi-gating` for `so-journey`/`st-lanes batch`, `lib/wiGatingHarness.mts` (node:test 6), `live-v25-01-real-books.json`, `live-v25-01-g7-sticky.json`, helper `test/fixtures/interop/v25-01-gating.js` | harness test written with the lib, not before it | a popup that is not the gating confirm is never clicked |
+
+### Deviations and findings (read before trusting the list above)
+
+- **Two real defects found while building.** (1) The spike host used `onSettingsWrite` while the E3 journal listener also used it, and the listener was a single slot: starting scan mode silently evicted the settings-write journal. It is now a listener set (`librarySave.ts`, test + M10). (2) The mutation sweep found that switching back to file mode mid-normalisation let the remaining book writes continue. The gating's run now lapses when the mode leaves scan (M12).
+- **The normaliser's run is the gating's lifetime, not a chat token** (`alive`/`lifetime` in `worldInfoGating.ts`, census rows `createWiGating.*`). Its writes are install-wide, so a chat switch must not leave half a gated set normalised. Dispose and a switch to file mode stop it. This is a reading of invariant 10 for install-wide work, stated in each census row.
+- **The Repair detail names books and counts, not entry comments.** The plan's row text implied names, but Repair renders in player mode and checkpoint entry names are spoilers (inv 9). Names show in the settings row only with author view on, and in the journal.
+- **Red-first exceptions**: the `draft.ts` context test and `wiGatingHarness.test.mts` were written after their code. The shipped-stories property passed on its first run; M9 proves it can fail.
+- **Risk found, not fixed (W4 class):** in scan mode, between page start and activation the file path is still in charge (W2 by design). A hydrate in that window writes the chat's path into the files, and the start-up verify then reads those entries as drift. The Repair row and re-normalise recover it. G5/G1 live will show whether this is seen in practice.
+- **Spike fixtures now behave differently:** `live-v24-05-t13-*.json` switch modes by writing the setting and reloading. On a lane that holds real library stories this now normalises the real books too (the marker filter is gone). Do not re-run them on a seeded lane without the save/restore the v25 fixtures do.
+- `wiNormalize|persistFailure` is **partial**: a ledger save that never lands loses the entry's original `wasOn`, so a later restore cannot offer it (W4, stated).
+- Fault matrix: the plan's "`aborted` and `hostDeletes` columns" was read as the `aborted` shape (na, no model call) plus the host-deletes situation (a book deleted between read and write), which is recorded under `beforeHostWrite`/`afterHostWrite` (the typed write refuses and nothing is recorded). `hostDeletes` is a package in this matrix, not a shape.
+
+### Machine gates on HEAD `5cf6722`
+
+- `npm run typecheck && npm run typecheck:test && npm run lint && npm test` → all exit 0; jest **270 suites / 3946 tests passed**.
+- `npm run test:debug` → **301 pass / 0 fail**; `npm run debug:typecheck` → exit 0.
+- `npm run build` → OK (bundle `8b34c7da30fb` with `ST_PUBLIC` set).
+- `npm run test:release` → **37 / 37** with `ST_PUBLIC=C:/dev/SillyTavern-MainBranch/public`. Without it, 36/37: the worktree is not in ST's tree, so the host-version test cannot find ST. This is an environment limit, not a regression.
+- Storybook: `npm run storybook:build` OK, then the runner with `--index-json` (`.debug/ae19_sb.sh`, same as plan 11) → **35 suites / 247 tests passed**, including `Settings/WorldInfoGatingGroup` (5) and the updated `PayloadScanGate`. The plain `test-storybook:ci` finds 0 stories from a nested worktree (the glob escapes `\.claude`); run it verbatim from the main checkout at merge.
+- `st-session.mts reload`: not run (nothing live).
+- Ownership census and fault matrix green (`wiNormalize` 85 covered / 11 partial / 24 na / 0 todo of 120); manager 740/740 effective lines, untouched.
+
+### Live pending (LANES ONLY; each "×2" is two consecutive runs on one lane, with a run header captured and diffed around the batch)
+
+| Gate | Vehicle | Command |
+|---|---|---|
+| G1 (a/b), G2, G5, G8 | `test/scenarios/live-v25-01-real-books.json` + `test/fixtures/interop/v25-01-gating.js` | `node scripts/debug/so-run-header.mts capture --label v25-01-books` → `node scripts/debug/st-lanes.mts batch --lanes 1 --repeat 2 --group <group holding Arin> test/scenarios/live-v25-01-real-books.json` → `node scripts/debug/so-run-header.mts diff <capture>` |
+| G1 (c), G5 extension-disabled half | same fixture, `_design.G1c` / `_design.G5-disabled` (manual; extension disabled) | run once with `--keep`, then follow `_design` with `st-eval` |
+| G3 | J7 in scan mode | `node scripts/debug/st-lanes.mts batch --lanes 1 --repeat 2 --strict --wi-gating scan J7` |
+| G4 | J3 scan ×2, J7 file ×1 | `node scripts/debug/st-lanes.mts batch --lanes 1 --repeat 2 --strict --wi-gating scan J3`; `node scripts/debug/st-lanes.mts batch --lanes 1 --strict --wi-gating file J7` |
+| G7 | `test/scenarios/live-v25-01-g7-sticky.json` (05-H5 across a **confirmed** switch, no reload; predeclared: no loss accepted) | clean host per README-claimed ST version (overview V10) and one lane: `node scripts/debug/so-scenario.mts run test/scenarios/live-v25-01-g7-sticky.json --sandbox --group <group holding Arin, Ponticius, Luke>` |
+| G6 | dropped (v2.4 E9) | — |
+
+Records go to `test/journeys/records/v2.5-plan01/live-<bundle12>/`.
+
+### Proposed, not applied (applied when G1–G8 pass, per the plan's step 6)
+
+- **Invariant 14** (`.claude/rules/architecture.md`, "Checkpoint `world_info` is rebuilt from the chat's path"): replace the closing parenthesis "(v2.4 plan 05: a scan-time alternative exists only as a spike …)" with: *"Checkpoint `world_info` is a per-scan view derived from the chat's path; gated entries rest off in their files (normalised once, behind the author's confirm, `worldInfo.normalized` + `normalizedFrom`, verified against the files at start-up and on every library change); the file path (path replay + release) is the capability fallback and the `file` mode, and is the default until the author switches."*
+- `.claude/rules/architecture.md` tree line for `scanGatePlan.ts / … / worldInfoMode.ts` becomes "v2.5 plan 01: per-chat lorebook gating (`worldInfoGating.ts` controller, `worldInfoLedger.ts` verify/restore, `worldInfoNormalize.ts` normaliser, `worldInfoScanHost.ts` wiring)". The components/settings line adds `WorldInfoGatingGroup`. The capabilities bullet in gotchas adds `wiScanGating`.
