@@ -1,0 +1,45 @@
+v2.5 plan 01 (WI scan-time gating, code items), mutations 2026-09-26 on the plan-01 branch (after merging master 8baa65e). Each mutant was applied alone as an exact-text replacement by .debug/ae19_mutate.py (asserted to match exactly once), the named suites were run, and the file was restored byte for byte. The baseline and restored runs are below. The plan's six required mutants are M1 (drift comparison), M2 (order guard), M3 (missingKey journal), M4 (wasOn filter in restore), M5a (confirm gate before the first write) and M6 (RunToken check in the normaliser). M7-M12 cover checks added while building.
+
+Baseline: 94 passed, 94 total (exit 0)
+- M1 drift comparison: a file entry shown enabled is not reported as drift (src/runtime/worldInfoLedger.ts): KILLED, 4 failed, 27 passed, 31 total
+    lorebook gating: verify, missingKey and re-normalise (v2.5 plan 01 B) › re-normalise is the one write, and clears what it fixed
+    lorebook gating: verify, missingKey and re-normalise (v2.5 plan 01 B) › verifies the ledger against the files at start-up and publishes drift without writing
+    verifyLedger (v2.5 plan 01 B: verify, never trust) › reads an entry with no disable key as enabled: it is drift too
+    verifyLedger (v2.5 plan 01 B: verify, never trust) › reports a normalised entry the file shows enabled as drift, and nothing for one that still rests off
+- M2 order guard: activate before normalising (src/runtime/worldInfoGating.ts): KILLED, 3 failed, 20 passed, 23 total
+    lorebook gating control (v2.5 plan 01 A/C) › a switch to file mode while the ledger is being verified normalises nothing
+    lorebook gating control (v2.5 plan 01 A/C) › confirmed: normalises first, then activates (W2); a scan before that runs the file path
+    lorebook gating: verify, missingKey and re-normalise (v2.5 plan 01 B) › a write that throws late records nothing, never activates, journals why, and the next sync still runs
+- M3 missingKey journal deleted (src/runtime/worldInfoGating.ts): KILLED, 1 failed, 22 passed, 23 total
+    lorebook gating: verify, missingKey and re-normalise (v2.5 plan 01 B) › journals a gated entry an owned scan could not switch off once, and raises it; a no-story scan is not an owned scan
+- M4 wasOn filter deleted from the restore plan (src/runtime/worldInfoLedger.ts): KILLED, 3 failed, 28 passed, 31 total
+    lorebook gating: restore on story removal (v2.5 plan 01 E) › offers only entries that were on before normalisation, and restores them only when asked
+    restorePlan (v2.5 plan 01 E: restore on story removal) › offers nothing for an entry the ledger no longer holds, or that carries no provenance
+    restorePlan (v2.5 plan 01 E: restore on story removal) › re-enables only what was on before normalisation and no remaining story gates
+- M5a confirm gate ignored (the answer is not read) (src/runtime/worldInfoGating.ts): KILLED, 1 failed, 22 passed, 23 total
+    lorebook gating control (v2.5 plan 01 A/C) › the confirm gates the first write: cancelling leaves file mode and writes nothing
+- M5b file-mode gate before normalising deleted (src/runtime/worldInfoGating.ts): SURVIVED, 23 passed, 23 total
+- M6 RunToken check before each normaliser write deleted (src/runtime/worldInfoNormalize.ts): KILLED, 3 failed, 28 passed, 31 total
+    lorebook gating control (v2.5 plan 01 A/C) › a switch to file mode during a normalisation read stops before the write
+    lorebook gating: verify, missingKey and re-normalise (v2.5 plan 01 B) › stopping the gating mid-normalisation stops before the next write, records nothing and never activates
+    normalizeGatedEntries (v2.5 plan 01 A: production normalisation) › stops before a write once its run has lapsed
+- M7 lifetime check before the ledger write deleted (src/runtime/worldInfoGating.ts): KILLED, 1 failed, 22 passed, 23 total
+    lorebook gating: verify, missingKey and re-normalise (v2.5 plan 01 B) › stopping the gating mid-normalisation stops before the next write, records nothing and never activates
+- M8 Repair detail names entries (spoilers) instead of counts (src/runtime/repair.ts): KILLED, 3 failed, 27 passed, 30 total
+    v2.5 plan 01 B: a normalised entry switched on outside the story is a Repair row › names books and counts, never an entry's comment: checkpoint entry names are spoilers and Repair shows to the player
+    v2.5 plan 01 B: a normalised entry switched on outside the story is a Repair row › names the drifted entry, says what it costs first, and points at the gating control
+    v2.5 plan 01 B: a normalised entry switched on outside the story is a Repair row › raises the same row for a gated entry the scan could not switch off (missingKey)
+- M9 scan gate drops the path's disables (file path oracle over shipped stories) (src/runtime/scanGatePlan.ts): KILLED, 2 failed, 9 passed, 11 total
+    scanGatePlan (v2.4 plan 05 T13 spike) › gives every gated entry the file path's state over the real shipped stories, walking their own transitions
+    scanGatePlan (v2.4 plan 05 T13 spike) › gives every gated entry the state the file path leaves behind, over seeded libraries and paths
+- M10 settings-write listeners replace each other again (src/runtime/librarySave.ts): KILLED, 1 failed, 13 passed, 14 total
+    v2.4 E3: every install-wide write reads its settings save › v2.5 plan 01: a second listener (lorebook gating) never replaces the journal's, and each stops alone
+- M12 lifetime run ignores a switch to file mode (src/runtime/worldInfoGating.ts): KILLED, 1 failed, 22 passed, 23 total
+    lorebook gating control (v2.5 plan 01 A/C) › a switch to file mode during a normalisation read stops before the write
+- M11 restore dropped entries from the ledger even when the run lapsed (src/runtime/worldInfoGating.ts): KILLED, 1 failed, 22 passed, 23 total
+    lorebook gating: restore on story removal (v2.5 plan 01 E) › a gating stopped during the enable keeps the entry in the ledger
+Restored: 94 passed, 94 total (exit 0)
+
+Survivor, equivalent: M5b. The file-mode gate at the top of normalize is redundant with the lifetime run it starts. That run lapses when the mode leaves scan (M12), so normalizeGatedEntries refuses the write before each book, and the caller refuses the ledger write. The gate only saves the book reads. It is kept for that reason and recorded as equivalent, not killed.
+
+Found by the first sweep and fixed before this record: M11 survived, because no case stopped the gating during a restore's enable (a case was added). M5b also survived because nothing stopped a normalisation when the author switched back to file mode mid-run. That was a real gap: the remaining books kept being written after the switch. The lifetime run now lapses on a switch to file mode (M12 kills its removal). requestScan uses the mode-blind half (alive), because it runs before the mode is scan.

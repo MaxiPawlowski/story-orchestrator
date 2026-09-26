@@ -11,7 +11,8 @@ import { normalizeGatedEntries, type NormalizeOutcome } from "./worldInfoNormali
 // ledger, normalises, and only then activates the scan view (W2), so a scan before that runs the file
 // path. A mode change takes effect at the next sync, which every settings write triggers: no reload.
 // Its writes are install-wide (lorebook files, the ledger, the mode), so its run is the gating's own
-// lifetime, not a chat: a chat switch mid-normalisation must not leave half a gated set behind.
+// lifetime, not a chat: a chat switch mid-normalisation must not leave half a gated set behind, while
+// stopping the runtime or leaving per-chat mode ends the run before its next write.
 export type CapabilityReading = { state: "present" | "absent" | "error"; detail: string };
 
 export interface NormalizePreviewBook {
@@ -71,9 +72,14 @@ export function createWiGating(deps: WiGatingDeps): WiGating {
   const journaledMissing = new Set<string>();
   let chain: Promise<unknown> = Promise.resolve();
   let generation = 0;
-  const lifetime: RunOwnership = {
-    mint: () => ({ chatId: null, storyId: null, playedVersion: null, sessionEpoch: generation, window: null, windowRevision: 0 }),
+  const mint = () => ({ chatId: null, storyId: null, playedVersion: null, sessionEpoch: generation, window: null, windowRevision: 0 });
+  const alive: RunOwnership = {
+    mint,
     check: (token) => (!disposed && token.sessionEpoch === generation ? { ok: true } : { ok: false, reason: "epoch", detail: "the lorebook gating stopped" }),
+  };
+  const lifetime: RunOwnership = {
+    mint,
+    check: (token) => (alive.check(token).ok && deps.settings().gatingMode === "scan" ? { ok: true } : { ok: false, reason: "epoch", detail: "the lorebook gating stopped or left per-chat mode" }),
   };
 
   const status = (): WiGatingStatus => ({
@@ -186,7 +192,7 @@ export function createWiGating(deps: WiGatingDeps): WiGating {
       const count = [...comments].filter((comment) => entries.has(comment)).length;
       if (count) preview.push({ lorebook, entries: count });
     }
-    const run = beginRun(lifetime);
+    const run = beginRun(alive);
     if (!(await deps.confirm(preview)) || !run.stillOwns()) return false;
     if (deps.settings().gatingMode !== "scan") deps.write({ gatingMode: "scan" });
     await sync();

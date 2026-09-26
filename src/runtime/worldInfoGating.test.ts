@@ -23,6 +23,7 @@ const harness = (options: { mode?: "file" | "scan"; confirm?: boolean; capabilit
   const library = { value: options.library ?? [story({ Ruins: ["CP1"] })] };
   let active = false;
   let hold: Promise<void> | null = null;
+  let onRead: (() => void) | null = null;
   const deps: WiGatingDeps = {
     settings: () => settings,
     write: (patch) => {
@@ -32,6 +33,7 @@ const harness = (options: { mode?: "file" | "scan"; confirm?: boolean; capabilit
     library: () => library.value,
     read: async (lorebook) => {
       events.push(`read:${lorebook}`);
+      onRead?.();
       const book = disk.get(lorebook);
       return book ? new Map(book) : null;
     },
@@ -42,6 +44,7 @@ const harness = (options: { mode?: "file" | "scan"; confirm?: boolean; capabilit
       return wrote({ changed: true, confirmed: true });
     },
     enable: async (lorebook, comments) => {
+      if (hold) await hold;
       events.push(`enable:${lorebook}:${comments.join("|")}`);
       comments.forEach((comment) => disk.get(lorebook)?.set(comment, false));
       return wrote({ changed: true, confirmed: true });
@@ -72,6 +75,7 @@ const harness = (options: { mode?: "file" | "scan"; confirm?: boolean; capabilit
     gating, settings, disk, events, toasts, journal, statuses, library,
     active: () => active,
     holdWrites: (promise: Promise<void> | null) => { hold = promise; },
+    onRead: (callback: (() => void) | null) => { onRead = callback; },
     last: () => statuses[statuses.length - 1],
   };
 };
@@ -146,6 +150,23 @@ describe("lorebook gating control (v2.5 plan 01 A/C)", () => {
     expect(h.events.filter((event) => event.startsWith("confirm")).length).toBe(confirms);
   });
 
+  it("a switch to file mode while the ledger is being verified normalises nothing", async () => {
+    const h = harness({ mode: "scan", ledger: { Ruins: ["CP1"] }, library: [story({ Ruins: ["CP1", "CP2"] })] });
+    h.disk.get("Ruins")!.set("CP1", true);
+    h.onRead(() => { h.settings.gatingMode = "file"; });
+    await h.gating.sync();
+    expect(h.events.filter((event) => event.startsWith("disable"))).toEqual([]);
+    expect(h.active()).toBe(false);
+  });
+
+  it("a switch to file mode during a normalisation read stops before the write", async () => {
+    const h = harness({ mode: "scan", ledger: {} });
+    h.onRead(() => { h.settings.gatingMode = "file"; });
+    await h.gating.sync();
+    expect(h.events.filter((event) => event.startsWith("disable"))).toEqual([]);
+    expect(h.settings.normalized).toEqual({});
+  });
+
   it("a mode written by another path takes effect without a reload", async () => {
     const h = harness({ mode: "scan", ledger: {} });
     await h.gating.sync();
@@ -190,6 +211,20 @@ describe("lorebook gating: restore on story removal (v2.5 plan 01 E)", () => {
     await h.gating.requestScan();
     h.library.value = [story({ Ruins: ["CP1"] })];
     expect(h.gating.restorable(removed)).toEqual([{ lorebook: "Ruins", comments: ["CP2"] }]);
+  });
+
+  it("a gating stopped during the enable keeps the entry in the ledger", async () => {
+    const h = harness({ library: [removed] });
+    await h.gating.requestScan();
+    h.library.value = [];
+    const gate = deferred();
+    h.holdWrites(gate.promise);
+    const pending = h.gating.restore(removed);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    h.gating.dispose();
+    gate.release();
+    expect((await pending).restored).toEqual([]);
+    expect(h.settings.normalized).toEqual({ Ruins: ["CP1", "CP2"] });
   });
 
   it("a stopped gating restores nothing", async () => {
@@ -269,7 +304,9 @@ describe("lorebook gating: verify, missingKey and re-normalise (v2.5 plan 01 B)"
 
   it("a write that throws late records nothing, never activates, journals why, and the next sync still runs", async () => {
     const h = harness();
-    h.holdWrites(Promise.reject(new Error("the server went away")));
+    const failing = Promise.reject(new Error("the server went away"));
+    failing.catch(() => undefined);
+    h.holdWrites(failing);
     await expect(h.gating.requestScan()).resolves.toBe(false);
     expect(h.settings.normalized).toEqual({});
     expect(h.active()).toBe(false);
