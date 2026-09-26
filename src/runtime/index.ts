@@ -20,6 +20,7 @@ import { beginRun } from "./runToken";
 import { registerSlashCommands } from "./slashCommands";
 import { DIRECTOR_MAX_TOKENS, DIRECTOR_WINDOW_MESSAGES, TalkController, type TalkControlHost } from "./talkControl";
 import { GenerationLifecycle, type GenerationIntent } from "./generationLifecycle";
+import { generationWatch } from "./generationWatch";
 import { isTurnMessageType, TurnBridge } from "./turnBridge";
 import { RequirementsWatch } from "./requirementsWatch";
 import { currentChat, loadAtStartup } from "./chatIdentity";
@@ -280,6 +281,7 @@ export function startRuntime() {
     await onLoreIntercept(type, aborted);
   };
   const generation = new GenerationLifecycle(isTurnMessageType);
+  runtimeDisposers.push(generationWatch.attach(() => generation.snapshot().openedCount));
   runtimeDisposers.push(roleHealth.attach({ settings: () => runtimeManager.getExtractionSettings(), exists: profileExists, health: (id) => scheduler?.profileHealth(id) ?? null, notify: () => runtimeManager.notify() }));
   runtimeDisposers.push(promptCost.attach({ count: countTokens, budget: readPromptBudget, notify: () => runtimeManager.notify(), busy: () => generation.snapshot().outermost !== null }));
   runtimeDisposers.push(runtimeManager.subscribe(() => {

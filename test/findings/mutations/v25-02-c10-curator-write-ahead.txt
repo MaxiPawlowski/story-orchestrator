@@ -1,0 +1,21 @@
+v2.5 plan 02 C10: the curator write-ahead marker is reconciled on hydrate. Mutations 2026-09-25 (worktree on 13b76f8 + C10; each mutant applied alone as an exact-text replacement by .debug/mutate.py, the file restored byte-for-byte after each run; a replacement that did not match exactly once fails the script's assert, and none did)
+Suites per mutant: src/runtime/coordinators/stagecraftWriteAhead.test.ts (10) + src/runtime/curatorWriteAheadHydrate.review.test.ts (2). Baseline 12/12 green; full jest 3903/3903 green after the sweep.
+Red first: before the fix every stagecraftWriteAhead case but its control failed (reconcileWriteAhead did not exist; 9 failed, 1 passed). The control "without the reconcile the same crashed patch is retried and fails on its own output" passes on the old code by design: it is the defect.
+
+- M1 manager: hydrate never calls reconcileWriteAhead: KILLED, 2 of 12
+    C10: a reload settles a curator write that landed before the crash, and the next boundary does not write it again
+    C10 control: a reload over a write that never landed leaves it accepted for the next boundary
+- M2 coordinator: lapse check after the uid read deleted: KILLED, 1 of 12
+    a switch during the read settles nothing into the chat that replaced it
+- M3 settle: a landed write is treated as not landed (retry): KILLED, 4 of 12
+    a rewrite that landed before the crash is recorded applied and is not re-applied at the next boundary
+    a patch that landed before the crash is not retried, so it cannot fail on its own output
+    a reconciled write carries the boundary it was written at, so a rollback past it reverts it
+    C10: a reload settles a curator write that landed before the crash, and the next boundary does not write it again
+- M4 settle: an unlanded write is recorded applied: KILLED, 2 of 12
+    a write that never reached the file goes back to accepted and is written once, from a fresh read
+    C10 control: a reload over a write that never landed leaves it accepted for the next boundary
+- M5 settle: the reconciled record keeps the proposal's messageId instead of the marker's: KILLED, 1 of 12
+    a reconciled write carries the boundary it was written at, so a rollback past it reverts it
+- M6 apply: the message id is no longer stamped into the marker: KILLED, 1 of 12
+    the apply path stamps the boundary into the write-ahead marker

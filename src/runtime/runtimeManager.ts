@@ -458,7 +458,7 @@ export class RuntimeManager {
   async runArcSummaryPass(arcIds: string[]): Promise<boolean> { return this.memory.runArcSummaryPass(arcIds); }
   detectSceneBreak() { return this.extraction.detectSceneBreak(); }
   async runSceneBreakPass(audit: SharedReadAudit) { await this.extraction.runSceneBreakPass(audit); }
-  shouldCompactShortTerm(lastMessageId: number): boolean { return this.extraction.shouldCompactShortTerm(lastMessageId); }
+  shouldCompactShortTerm(messageId: number): boolean { return this.extraction.shouldCompactShortTerm(messageId); }
   async runShortTermCompaction() { await this.extraction.runShortTermCompaction(); }
   async runEpistemicLedgerPass(audit: SharedReadAudit): Promise<boolean> { return this.extraction.runEpistemicLedgerPass(audit); }
   async runExtractionNow(debugResponse?: string, reason = "manual") { return this.extraction.runNow(debugResponse, reason); }
@@ -556,6 +556,7 @@ export class RuntimeManager {
     // select the old id (V3), and only the current load may queue a recap (S3).
     await releaseGatedWorldInfo(this.effects, previous, loaded.story, run);
     if (!run.stillOwns()) return this.noteRecap("away recap skipped", `a later world change superseded this load: ${run.lapsedDetail() ?? "no detail"}`);
+    if (saved) { await this.stagecraft.reconcileWriteAhead(); if (!run.stillOwns()) return; }
     this.status = `${saved ? "Continuing" : "Started"} ${loaded.story.title}${this.engine.hydrateRepair ? ` — ${this.engine.hydrateRepair}` : ""}`;
     this.pacing.updateSteering();
     this.memory.updateInjection();

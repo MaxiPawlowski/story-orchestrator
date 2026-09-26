@@ -1,8 +1,17 @@
+import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { getContext } from "./context";
 import { scriptModule } from "./modules";
 
 export function isHostGenerating(): boolean {
   return Boolean(scriptModule.isGenerating());
+}
+
+export function stopHostGeneration(): WriteResult<{ stopped: boolean }> {
+  try {
+    return wrote({ stopped: Boolean(scriptModule.stopGeneration()) });
+  } catch (error) {
+    return couldNot(error instanceof Error ? error.message : "ST could not stop the generation");
+  }
 }
 
 export const hostSystemUserName: string = scriptModule.systemUserName;

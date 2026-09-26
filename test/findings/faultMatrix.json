@@ -452,10 +452,10 @@
       "note": "The sequence stops before the write that outlives the chat."
     },
     "effects|aborted": {
-      "status": "partial",
+      "status": "covered",
       "evidence": "src/runtime/npcRepliesOwnership.review.test.ts#a chat switch during a generating reply writes nothing into the departed chat's state",
-      "alsoEvidence": ["src/runtime/npcRepliesOwnership.review.test.ts#a generating reply in a chat that did not move records its own last message"],
-      "note": "Was na (\"performs no model call\"), which was wrong: an `llm` NPC reply is `/trigger await=true`, a main-model generation (v2.5 plan 02 C1). COVERED (v2.4 follow-up 2026-09-25): a sequence whose chat moved during the awaited reply writes nothing after it (the post-await check in fireNpcReplies); control: an unmoved chat records its own last message. NOT COVERED: nothing cancels the in-flight generation (executeSlashCommands takes no signal, nothing calls stopGeneration), and where that reply lands after a switch is unmeasured; the stop is v2.5 plan 02 C1 step 2, measure-first."
+      "alsoEvidence": ["src/runtime/npcRepliesOwnership.review.test.ts#a generating reply in a chat that did not move records its own last message", "src/runtime/npcTriggerStop.review.test.ts#stops the trigger's own generation when the chat changes while it streams", "src/runtime/npcTriggerStop.review.test.ts#issues no stop when another generation opened after the trigger's (the player's, in the new chat)"],
+      "note": "Was na (\"performs no model call\"), which was wrong: an `llm` NPC reply is `/trigger await=true`, a main-model generation (v2.5 plan 02 C1). COVERED (v2.4 follow-up 2026-09-25): a sequence whose chat moved during the awaited reply writes nothing after it (the post-await check in fireNpcReplies); control: an unmoved chat records its own last message. v2.5 plan 02 C1 step 2 (2026-09-26): the in-flight /trigger generation is stopped through stopHostGeneration when the epoch is replaced while it streams, only when exactly one outermost generation opened since the trigger and ST still generates (npcTriggerStop.review.test.ts; mutants 5/5 killed, test/findings/mutations/v25-02-c1-trigger-stop.txt). Built ahead of its live step 0: where an unstopped reply lands after a switch, and whether /trigger await=true resolves on stop, are still owed live."
     },
     "hostDeletes|delayedSuccess": {
       "status": "covered",

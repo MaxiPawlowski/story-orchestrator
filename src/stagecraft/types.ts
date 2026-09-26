@@ -95,9 +95,9 @@ export interface CuratorOpRecord {
   after?: { content: string; disabled: boolean };
   /** The host target, by file id and entry uid, never the display name. */
   target?: { lorebookFileId: string; uid?: number };
-  /** Write-ahead marker (v2.3 plan 04/06). Persisted before the host call; hydrate can reconcile a
-   *  crash after the file changed but before the applied record was saved. */
-  writeAhead?: { status: "pending"; at: string };
+  /** Write-ahead marker (v2.3 plan 04/06). Persisted before the host call, with the message id the
+   *  apply ran at; `StagecraftCoordinator.reconcileWriteAhead` settles it on hydrate (v2.5 plan 02 C10). */
+  writeAhead?: { status: "pending"; at: string; messageId?: number };
   fuzzy?: { anchor: string; span: string; score: number };
 }
 

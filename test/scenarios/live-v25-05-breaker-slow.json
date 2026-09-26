@@ -1,0 +1,119 @@
+{
+  "_note": "v2.5 plan 02 / plan 05 F0 A6 slow-backend arm (review #27). live-v24-03-breaker.json with an in-page delaying proxy: the recording fetch wrapper holds every memory-model request (probe and read, never the main model) for localStorage 'so-v25-a6-delay-ms' (default 12000; must be > PROBE_TIMEOUT_MS 10000 and < the 300 s backoff cap) before forwarding it, and honours the request's own abort signal, so the product sees a backend whose answers take longer than the 10 s probe floor. The delay starts when the url is restored. Pass (x2, own lane): the breaker closes within one backoff step plus the delay, on an answered call whose latency is > 10 s (recorded), with an answering-again note. Negative control, run once on a mutant build (probeTimeoutMs in src/extraction/breaker.ts returning a fixed 10000): set localStorage 'so-v25-a6-control' = '1'; the arm then passes only when the breaker is still open one backoff step plus the delay after the restore, and then removes the delay so the run can finish. v2.4 plan 03 live gate 1 (+ gate 6, Try again half). Real model, real extraction at cadence 1, so-scenario --sandbox --group 1759606632088, lanes only. The extraction profile (a Connection Manager profile separate from the main one) is repointed IN MEMORY to a dead port right after boundary A's cadence read has left, so the main model keeps answering and only the memory model dies; the original url is kept in localStorage so a crashed run is healed by the next run's first step, and a page reload restores it anyway (the change is never saved). Boundaries in the dead period are /sendas replies (a 'command' reply commits a boundary without a main-model call). Asserts: extraction.enabled stays true throughout (sampled every 200 ms, live and stored); the pipeline reads stalled-rechecking with Try again; no audit is written while dead; Try again sends a probe (which fails, so the breaker stays open); a boundary while open adds at most one held job; after the url is restored the backoff probe closes the breaker within one backoff step with no click, and the held read runs (an audit covering boundary B). assert-player-clean runs in player mode while Try again is visible. Every model request is recorded in-page (kind, timing, llama timings) and reported at the end.",
+  "steps": [
+    {
+      "import_story": {
+        "file": "./live-v24-03.story.json"
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; if (!ctx.groupId || !ctx.chatId) throw new Error('needs a group chat'); for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const profiles = () => ctx.extensionSettings.connectionManager?.profiles ?? []; const HEAL = 'so-live-v24-03-dead-url'; let healed = null; const pending = localStorage.getItem(HEAL); if (pending) { const rec = JSON.parse(pending); const row = profiles().find((p) => p.id === rec.id); if (row && row['api-url'] !== rec.url) { row['api-url'] = rec.url; healed = rec; } localStorage.removeItem(HEAL); } if (globalThis.__g03?.restore) globalThis.__g03.restore(); rt.setExtractionSettings({ cadence: 1 }); const profileId = rt.getGlobalSettings().extraction.profileId; const profile = profiles().find((p) => p.id === profileId); if (!profile) throw new Error('the extraction profile ' + profileId + ' is not a Connection Manager profile'); if (/127\\.0\\.0\\.1:9\\/?$/.test(String(profile['api-url']))) throw new Error('the extraction profile still points at the dead port and no heal record exists: ' + profile['api-url']); const R = globalThis.__g03 = { reqs: [], seq: 0, marks: {}, profileId, apiUrl: String(profile['api-url']) }; const inner = window.fetch; R.inner = inner; R.profile = () => profiles().find((p) => p.id === R.profileId); R.sleep = (ms) => new Promise((done) => setTimeout(done, ms)); R.kindOf = (prompt) => (prompt.includes('Reply with exactly: PONG') ? 'probe' : prompt.includes('NO_DELTA') ? 'read' : 'other'); R.processing = async () => { try { const text = await (await inner(R.apiUrl.replace(/\\/+$/, '') + '/metrics')).text(); const hit = text.match(/^llamacpp:requests_processing\\s+(\\S+)/m); return hit ? Number(hit[1]) : null; } catch (error) { return null; } }; R.brief = (r) => (r ? { n: r.n, kind: r.kind, t0: r.t0, ms: r.t1 ? r.t1 - r.t0 : null, outcome: r.outcome, status: r.status, promptChars: r.promptChars, estTokens: Math.ceil(r.promptChars / 4), tokensEvaluated: r.tokensEvaluated ?? null, predictedN: r.timings?.predicted_n ?? null, decodeTokS: r.timings?.predicted_per_second ?? null, prefillTokS: r.timings?.prompt_per_second ?? null, promptMs: r.timings?.prompt_ms ?? null, predictedMs: r.timings?.predicted_ms ?? null, stopType: r.stopType ?? null, error: r.error ?? null } : null); R.settle = async (r, ms) => { const until = Date.now() + ms; while (r.outcome === 'pending' && Date.now() < until) await R.sleep(50); return r.outcome !== 'pending'; }; R.schedulerIdle = async (ms) => { const until = Date.now() + ms; let quiet = 0; while (Date.now() < until) { const s = rt.getSnapshot().extraction.scheduler; const busy = s.inFlight || s.queueDepth > 0 || s.heavyInFlight || (s.heavyQueueDepth ?? 0) > 0; quiet = busy ? 0 : quiet || Date.now(); if (quiet && Date.now() - quiet >= 1500) return true; await R.sleep(100); } return false; }; R.say = async (command) => { const result = await ctx.executeSlashCommandsWithOptions(command); if (result?.isError) throw new Error('slash failed: ' + command + ' -> ' + result.errorMessage); return ctx.chat.length - 1; }; R.auditIds = () => new Set(rt.getSnapshot().extraction.audits.map((a) => a.id)); R.delayMs = 0; R.delay = (ms, signal) => new Promise((done, fail) => { if (signal?.aborted) { fail(signal.reason); return; } const timer = setTimeout(done, ms); signal?.addEventListener('abort', () => { clearTimeout(timer); fail(signal.reason); }, { once: true }); }); const wrapper = async function (input, init) { const url = typeof input === 'string' ? input : String(input?.url ?? ''); if (!url.includes('/api/backends/text-completions/generate') && !url.includes('/api/backends/chat-completions/generate')) return inner(input, init); let body = null; try { body = JSON.parse(String(init?.body ?? 'null')); } catch (error) { body = null; } const prompt = typeof body?.prompt === 'string' ? body.prompt : JSON.stringify(body?.messages ?? ''); const rec = { n: ++R.seq, t0: Date.now(), t1: null, kind: R.kindOf(prompt), head: prompt.slice(0, 120), promptChars: prompt.length, maxTokens: body?.n_predict ?? body?.max_tokens ?? body?.max_new_tokens ?? null, server: body?.api_server ?? null, status: null, outcome: 'pending' }; R.reqs.push(rec); try { if (R.delayMs && rec.kind !== 'other') await R.delay(R.delayMs, init?.signal); const res = await inner(input, init); rec.status = res.status; res.clone().json().then((json) => { rec.t1 = Date.now(); const failed = !res.ok || Boolean(json?.error); rec.outcome = failed ? 'error-reply' : 'ok'; rec.timings = json?.timings ?? null; rec.tokensEvaluated = json?.tokens_evaluated ?? null; rec.stopType = json?.stop_type ?? null; rec.error = failed ? String(json?.response ?? json?.error?.message ?? json?.message ?? 'error').slice(0, 200) : null; }, (error) => { rec.t1 = Date.now(); rec.outcome = error?.name === 'AbortError' ? 'aborted' : 'body-error'; rec.error = String(error?.message ?? error).slice(0, 200); }); return res; } catch (error) { rec.t1 = Date.now(); rec.outcome = error?.name === 'AbortError' ? 'aborted' : 'fetch-error'; rec.error = String(error?.message ?? error).slice(0, 200); throw error; } }; window.fetch = wrapper; R.restore = () => { if (window.fetch === wrapper) window.fetch = inner; if (R.sampler) clearInterval(R.sampler); }; return { healed, profile: profile.name, apiUrl: R.apiUrl, cadence: rt.getGlobalSettings().extraction.cadence, authorView: rt.getSnapshot().ui?.authorView ?? null };",
+      "log": true
+    },
+    {
+      "eval": "const R = globalThis.__g03; const raw = localStorage.getItem('so-v25-a6-delay-ms'); const delayMs = raw ? Number(raw) : 12000; if (!Number.isFinite(delayMs) || delayMs <= 10000 || delayMs >= 300000) throw new Error('slow arm: the delay must be above the 10 s probe floor and below the 300 s backoff cap, got ' + JSON.stringify(raw)); R.slowArm = { delayMs, control: localStorage.getItem('so-v25-a6-control') === '1' }; return R.slowArm;",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I set my pack down by the long table and ask Ponticius about the caravan job.",
+        "timeoutMs": 300000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const R = globalThis.__g03; const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); R.enabled = { samples: 0, bad: [] }; R.sampler = setInterval(() => { const live = rt.getGlobalSettings().extraction.enabled; const stored = ctx.extensionSettings['story-orchestrator']?.settings?.extraction?.enabled; R.enabled.samples += 1; if (live !== true || stored === false) R.enabled.bad.push({ at: Date.now(), live, stored }); }, 200); const snap = rt.getSnapshot(); if (snap.extractionHealth) throw new Error('the breaker is not closed before the run: ' + JSON.stringify(snap.extractionHealth)); const audits = snap.extraction.audits; if (!audits.length) throw new Error('the healthy real turn wrote no audit, so the baseline is not a working extraction path'); return { storedPath: ctx.extensionSettings['story-orchestrator']?.settings?.extraction?.enabled, audits: audits.length, lastAudit: { reason: audits[audits.length - 1].reason, window: audits[audits.length - 1].window, budget: audits[audits.length - 1].budget ?? null }, pipeline: snap.pipeline.state };",
+      "log": true
+    },
+    {
+      "eval": "const R = globalThis.__g03; const rt = globalThis.storyOrchestratorRuntime; R.marks.auditsBefore = [...R.auditIds()]; await R.say('/send compact=true I spread the caravan contract on the table and read the terms aloud.'); const n0 = R.seq; R.marks.boundaryA = await R.say('/sendas name=Ponticius Ponticius taps the contract. The pay is fair, he says, and the north road has been quiet this season.'); const until = Date.now() + 30000; let readA = null; while (!readA && Date.now() < until) { readA = R.reqs.find((r) => r.n > n0 && r.kind === 'read') ?? null; if (!readA) await R.sleep(25); } if (!readA) throw new Error('boundary A scheduled no cadence read within 30 s: ' + JSON.stringify({ boundary: rt.getSnapshot().boundary, lastMessageId: rt.getEngineState()?.lastMessageId, chat: SillyTavern.getContext().chat.length, generating: document.body.dataset.generating ?? null, scheduler: rt.getSnapshot().extraction.scheduler, health: rt.getSnapshot().extractionHealth, tail: SillyTavern.getContext().chat.slice(-3).map((m) => ({ name: m.name, mes: String(m.mes).slice(0, 60), extra: m.extra?.type ?? null })) })); localStorage.setItem('so-live-v24-03-dead-url', JSON.stringify({ id: R.profileId, url: R.apiUrl })); R.profile()['api-url'] = 'http://127.0.0.1:9'; R.marks.deadAt = Date.now(); R.marks.readA = readA.n; const inFlight = readA.outcome === 'pending'; await R.settle(readA, 240000); return { boundaryA: R.marks.boundaryA, readAInFlightAtRepoint: inFlight, readA: R.brief(readA), deadUrl: R.profile()['api-url'] };",
+      "log": 1500
+    },
+    {
+      "eval": "const R = globalThis.__g03; const rt = globalThis.storyOrchestratorRuntime; if (!(await R.schedulerIdle(240000))) throw new Error('the scheduler did not drain after read A'); const n1 = R.seq; await R.say('/send compact=true I ask whether the north road has seen any bandits lately.'); const startedAt = Date.now(); R.marks.boundaryB = await R.say('/sendas name=Ponticius Ponticius shrugs. A few rumours, he says, nothing a sharp guard cannot handle.'); const until = Date.now() + 120000; while (rt.getSnapshot().extractionHealth?.kind !== 'transport' && Date.now() < until) await R.sleep(100); const health = rt.getSnapshot().extractionHealth; if (health?.kind !== 'transport') throw new Error('the breaker did not open within 120 s of a read against the dead port: ' + JSON.stringify({ health, scheduler: rt.getSnapshot().extraction.scheduler, reqs: R.reqs.filter((r) => r.n > n1).map(R.brief) })); R.marks.trippedAt = Date.now(); const failed = R.reqs.filter((r) => r.n > n1 && r.kind === 'read'); if (!failed.length) throw new Error('the breaker opened without a failed read request'); if (failed.some((r) => r.outcome === 'ok')) throw new Error('a read against the dead port answered ok: ' + JSON.stringify(failed.map(R.brief))); return { boundaryB: R.marks.boundaryB, tripMs: R.marks.trippedAt - startedAt, attempts: failed.map(R.brief), health: { kind: health.kind, detail: health.detail, nextProbeInMs: health.nextProbeAt - Date.now() } };",
+      "log": 2000
+    },
+    {
+      "eval": "const R = globalThis.__g03; const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); const problems = []; if (snap.pipeline.state !== 'stalled-rechecking') problems.push('pipeline.state is ' + snap.pipeline.state); if (snap.pipeline.retryable !== true) problems.push('pipeline is not retryable'); if (!/not answering/.test(snap.pipeline.text)) problems.push('pipeline text: ' + snap.pipeline.text); if (snap.pipeline.nextAction !== 'retry') problems.push('nextAction ' + snap.pipeline.nextAction); if (rt.getGlobalSettings().extraction.enabled !== true) problems.push('extraction.enabled is not true'); if (ctx.extensionSettings['story-orchestrator']?.settings?.extraction?.enabled === false) problems.push('the stored extraction.enabled is false'); if (snap.extraction.scheduler.lastError) problems.push('a transport failure wrote lastError: ' + snap.extraction.scheduler.lastError); const before = new Set(R.marks.auditsBefore); const fresh = snap.extraction.audits.filter((a) => !before.has(a.id) && a.window.to > R.marks.boundaryA); if (fresh.length) problems.push('an audit was written while the backend was dead: ' + JSON.stringify(fresh.map((a) => ({ reason: a.reason, window: a.window })))); if (problems.length) throw new Error(problems.join('; ')); return { pipeline: { state: snap.pipeline.state, text: snap.pipeline.text, nextAction: snap.pipeline.nextAction }, scheduler: snap.extraction.scheduler, health: snap.extractionHealth, enabledSamples: R.enabled.samples, enabledBad: R.enabled.bad.length };",
+      "log": 1500
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "ui": {
+        "action": "drawer-tab",
+        "label": "Overview"
+      }
+    },
+    {
+      "expect_ui": {
+        "selector": "#so-pipeline-retry",
+        "contains": "Try again",
+        "timeoutMs": 10000
+      }
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      },
+      "log": 1500
+    },
+    {
+      "ui": {
+        "action": "drawer-tab",
+        "label": "Overview"
+      }
+    },
+    {
+      "expect_ui": {
+        "selector": "#so-pipeline-retry",
+        "contains": "Try again",
+        "timeoutMs": 10000
+      }
+    },
+    {
+      "eval": "const R = globalThis.__g03; const rt = globalThis.storyOrchestratorRuntime; R.marks.retryN = R.seq; R.marks.retryAt = Date.now(); R.marks.healthBeforeRetry = rt.getSnapshot().extractionHealth; return { health: R.marks.healthBeforeRetry, probesSoFar: R.reqs.filter((r) => r.kind === 'probe').map(R.brief) };",
+      "log": 1500
+    },
+    {
+      "ui": {
+        "action": "pointer-click",
+        "selector": "#so-pipeline-retry"
+      },
+      "log": true
+    },
+    {
+      "eval": "const R = globalThis.__g03; const rt = globalThis.storyOrchestratorRuntime; const until = Date.now() + 15000; let probe = null; while (!probe && Date.now() < until) { probe = R.reqs.find((r) => r.n > R.marks.retryN && r.kind === 'probe') ?? null; if (!probe) await R.sleep(50); } if (!probe) throw new Error('Try again sent no probe within 15 s'); await R.settle(probe, 15000); await R.sleep(300); const health = rt.getSnapshot().extractionHealth; if (probe.outcome === 'ok') throw new Error('the probe against the dead port answered ok'); if (health?.kind !== 'transport') throw new Error('a failed Try again closed the breaker: ' + JSON.stringify(health)); const heldBefore = rt.getSnapshot().extraction.scheduler.queueDepth; await R.say('/send compact=true I tell him we can leave at dawn if the pay holds.'); R.marks.boundaryC = await R.say('/sendas name=Ponticius Ponticius nods and says dawn it is.'); await R.sleep(2000); const heldAfter = rt.getSnapshot().extraction.scheduler.queueDepth; if (heldAfter > heldBefore + 1) throw new Error('a boundary while open grew the held queue by more than one job: ' + heldBefore + ' -> ' + heldAfter); if (rt.getSnapshot().extractionHealth?.kind !== 'transport') throw new Error('the breaker closed while the port was still dead'); return { probe: R.brief(probe), probeAfterClickMs: probe.t0 - R.marks.retryAt, health: { kind: health.kind, nextProbeInMs: health.nextProbeAt - Date.now(), detail: health.detail }, heldBefore, heldAfter, boundaryC: R.marks.boundaryC };",
+      "log": 1500
+    },
+    {
+      "eval": "const R = globalThis.__g03; const rt = globalThis.storyOrchestratorRuntime; const arm = R.slowArm; const atRestore = rt.getSnapshot().extractionHealth; if (atRestore?.kind !== 'transport') throw new Error('the breaker was not open at restore: ' + JSON.stringify(atRestore)); R.profile()['api-url'] = R.apiUrl; localStorage.removeItem('so-live-v24-03-dead-url'); R.delayMs = arm.delayMs; const restoredAt = Date.now(); const n = R.seq; const bound = atRestore.nextProbeAt + arm.delayMs + 12000; if (arm.control) { while (Date.now() < bound + 5000) await R.sleep(200); const held = rt.getSnapshot().extractionHealth; const answered = R.reqs.filter((r) => r.n > n && r.kind !== 'other' && r.outcome === 'ok'); R.delayMs = 0; if (!held) throw new Error('slow-arm control: the breaker closed within one backoff step, so this arm does not separate a fixed 10 s probe budget from the product one: ' + JSON.stringify(R.reqs.filter((r) => r.n > n).map(R.brief))); const until = Date.now() + 330000; while (rt.getSnapshot().extractionHealth && Date.now() < until) await R.sleep(100); return { control: true, heldPastOneStepMs: bound + 5000 - restoredAt, health: { kind: held.kind, detail: held.detail }, answeredWhileHeld: answered.map(R.brief), probes: R.reqs.filter((r) => r.n > n && r.kind === 'probe').map(R.brief), closedAfterDelayRemoved: !rt.getSnapshot().extractionHealth }; } const until = restoredAt + 330000; while (rt.getSnapshot().extractionHealth && Date.now() < until) await R.sleep(100); const closedAt = Date.now(); if (rt.getSnapshot().extractionHealth) throw new Error('the breaker did not close within 330 s of the url being restored: ' + JSON.stringify({ health: rt.getSnapshot().extractionHealth, reqs: R.reqs.filter((r) => r.n > n).map(R.brief) })); const answered = R.reqs.filter((r) => r.n > n && r.kind !== 'other' && r.outcome === 'ok'); const first = answered[0] ?? null; const probe = answered.find((r) => r.kind === 'probe') ?? null; const notes = rt.getSessionJournal().filter((e) => Date.parse(e.at) >= restoredAt - 1000).map((e) => String(e.summary ?? '') + ' | ' + JSON.stringify(e.detail ?? null)); const trigger = notes.find((line) => /answering again/.test(line)) ?? null; const problems = []; if (closedAt > bound) problems.push('the breaker closed ' + (closedAt - atRestore.nextProbeAt) + ' ms after its scheduled probe, more than one backoff step plus the ' + arm.delayMs + ' ms delay'); if (!first) problems.push('no memory-model call answered after the restore'); else if (first.t1 - first.t0 <= 10000) problems.push('the first answered call took ' + (first.t1 - first.t0) + ' ms, not above the 10 s probe floor, so this run did not exercise the slow path'); if (!trigger) problems.push('no answering-again note after the restore: ' + JSON.stringify(notes)); if (problems.length) throw new Error(problems.join('; ')); R.marks.closedAt = closedAt; return { delayMs: arm.delayMs, answerLatencyMs: first.t1 - first.t0, closedBy: first.kind, trigger, resumeLatencyMs: closedAt - restoredAt, scheduledProbeInMsAtRestore: atRestore.nextProbeAt - restoredAt, closedAfterScheduledMs: closedAt - atRestore.nextProbeAt, probe: R.brief(probe), journal: notes };",
+      "log": 4000
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 300000
+      }
+    },
+    {
+      "eval": "const R = globalThis.__g03; const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const before = new Set(R.marks.auditsBefore); const audits = rt.getSnapshot().extraction.audits.filter((a) => !before.has(a.id)); const held = audits.filter((a) => a.window.to >= R.marks.boundaryB); const problems = []; if (!held.length) problems.push('no audit covers boundary B after the breaker closed: ' + JSON.stringify(audits.map((a) => ({ reason: a.reason, window: a.window, createdAt: a.createdAt })))); if (R.enabled.bad.length) problems.push('extraction.enabled read false ' + R.enabled.bad.length + ' times: ' + JSON.stringify(R.enabled.bad.slice(0, 3))); if (rt.getGlobalSettings().extraction.enabled !== true) problems.push('extraction.enabled is not true at the end'); if (ctx.extensionSettings['story-orchestrator']?.settings?.extraction?.enabled === false) problems.push('the stored extraction.enabled is false at the end'); if (rt.getSnapshot().pipeline.state === 'stalled-rechecking' || rt.getSnapshot().pipeline.state === 'error') problems.push('pipeline still ' + rt.getSnapshot().pipeline.state); clearInterval(R.sampler); if (problems.length) throw new Error(problems.join('; ')); return { heldReads: held.map((a) => ({ reason: a.reason, window: a.window, createdAt: a.createdAt, accepted: a.acceptedDeltas.length, rejected: a.rejected.length })), enabledSamples: R.enabled.samples, pipeline: rt.getSnapshot().pipeline.state };",
+      "log": 1500
+    },
+    {
+      "eval": "const R = globalThis.__g03; const ctx = SillyTavern.getContext(); const row = R.profile(); const url = row ? row['api-url'] : null; if (row && url !== R.apiUrl) row['api-url'] = R.apiUrl; localStorage.removeItem('so-live-v24-03-dead-url'); R.delayMs = 0; R.restore(); const reads = R.reqs.filter((r) => r.outcome === 'ok' && r.timings); return { profileUrl: R.profile()?.['api-url'] ?? null, wasDead: url !== R.apiUrl, requests: R.reqs.length, e1: reads.map((r) => ({ kind: r.kind, predictedN: r.timings.predicted_n, decodeTokS: r.timings.predicted_per_second, prefillTokS: r.timings.prompt_per_second, promptN: r.timings.prompt_n })) };",
+      "log": 3000
+    }
+  ]
+}

@@ -6,7 +6,13 @@ export const CHARS_PER_TOKEN_ESTIMATE = 4;
 export const CALL_TIMEOUT_MS_PER_INPUT_TOKEN = 2;
 export const TIMEOUT_RETRY_SCALE = 2;
 
-export const callTimeoutMs = (maxTokens: number, inputTokens = 0): number => CALL_TIMEOUT_BASE_MS + Math.max(0, Math.ceil(maxTokens)) * CALL_TIMEOUT_MS_PER_TOKEN + Math.max(0, Math.ceil(inputTokens)) * CALL_TIMEOUT_MS_PER_INPUT_TOKEN;
+export const debugCallBudgetScale = (): number => {
+  const scale: unknown = Reflect.get(globalThis, "storyOrchestratorDebugCallBudgetScale");
+  return typeof scale === "number" && Number.isFinite(scale) && scale > 0 ? scale : 1;
+};
+
+export const callTimeoutMs = (maxTokens: number, inputTokens = 0): number =>
+  Math.round((CALL_TIMEOUT_BASE_MS + Math.max(0, Math.ceil(maxTokens)) * CALL_TIMEOUT_MS_PER_TOKEN + Math.max(0, Math.ceil(inputTokens)) * CALL_TIMEOUT_MS_PER_INPUT_TOKEN) * debugCallBudgetScale());
 
 export type PassFamily = "sharedRead" | "sceneSummary" | "shortTerm" | "arcSummary" | "canon" | "epistemic" | "ledger" | "curator";
 

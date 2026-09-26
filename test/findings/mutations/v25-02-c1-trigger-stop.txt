@@ -1,0 +1,16 @@
+v2.5 plan 02 C1 step 2: an llm NPC /trigger whose world moves while it streams is stopped only when it is provably its own generation. Mutations 2026-09-25/26 (each mutant applied alone as an exact-text replacement to src/runtime/effectsApplier.ts by .debug/mutate.py, file restored byte-for-byte after each run; every replacement matched exactly once)
+Suites per mutant: src/runtime/npcTriggerStop.review.test.ts (6) + src/runtime/npcRepliesOwnership.review.test.ts. Baseline green.
+Red first: npcTriggerStop.review.test.ts failed to load before the change (generationWatch did not exist; nothing stopped a /trigger).
+
+- M1 the "is ours" guard deleted (stop whenever the host generates): KILLED, 3
+    issues no stop when another generation opened after the trigger's (the player's, in the new chat)
+    issues no stop when the trigger's generation never opened before the switch
+    issues no stop without a generation tracker to prove whose generation it is
+- M2 "exactly one more generation" loosened to "at least one more": KILLED, 1
+    issues no stop when another generation opened after the trigger's (the player's, in the new chat)
+- M3 the still-generating check deleted: KILLED, 1
+    issues no stop when the host has already finished generating
+- M4 the lapse listener never attached: KILLED, 1
+    stops the trigger's own generation when the chat changes while it streams
+- M5 the listener left attached after the reply: KILLED, 1
+    control: a trigger that finishes in its own chat stops nothing, and a later switch does not reach back
