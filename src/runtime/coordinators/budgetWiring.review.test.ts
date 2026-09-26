@@ -115,7 +115,7 @@ const readBudget = inputBudget({ value: LIMIT, source: "preset" }, 512).input;
 describe("memorize backlog: token-bounded windows and a bounded full pass", () => {
   it("replaces the fixed 8-message windows with token-bounded ones that cover the chat in order", async () => {
     const h = harness();
-    expect(await h.coordinator.runMemorizeBacklog()).toBe(true);
+    expect(await h.coordinator.backlog.runMemorizeBacklog()).toBe(true);
     const windows = h.audits.filter((audit) => audit.reason === "memorize:window");
     expect(windows.length).toBeGreaterThan(1);
     expect(windows.length).not.toBe(Math.ceil(60 / 8));
@@ -131,7 +131,7 @@ describe("memorize backlog: token-bounded windows and a bounded full pass", () =
 
   it("memorize:full never exceeds the budget and records trimmedFrom", async () => {
     const h = harness();
-    await h.coordinator.runMemorizeBacklog();
+    await h.coordinator.backlog.runMemorizeBacklog();
     const full = h.audits.find((audit) => audit.reason === "memorize:full")!;
     expect(full.trimmedFrom).toBe(0);
     expect(full.window.to).toBe(59);
@@ -144,7 +144,7 @@ describe("memorize backlog: token-bounded windows and a bounded full pass", () =
   it("a manual run over the thresholds asks first, and a cancel sends nothing", async () => {
     const h = harness();
     const asked: Array<{ requests: number; tokens: number }> = [];
-    const ok = await h.coordinator.runMemorizeBacklog(undefined, async (preflight) => { asked.push(preflight); return false; });
+    const ok = await h.coordinator.backlog.runMemorizeBacklog(undefined, async (preflight) => { asked.push(preflight); return false; });
     expect(ok).toBe(false);
     expect(asked).toHaveLength(1);
     expect(asked[0].requests).toBeGreaterThan(3);
@@ -152,7 +152,7 @@ describe("memorize backlog: token-bounded windows and a bounded full pass", () =
     expect(host.calls).toEqual([]);
     expect(h.audits).toEqual([]);
     expect(h.backfill()).toBeNull();
-    expect(await h.coordinator.runMemorizeBacklog()).toBe(true);
+    expect(await h.coordinator.backlog.runMemorizeBacklog()).toBe(true);
   });
 
   it("the confirm is shown before any token count call, and the exact count runs only after it, while the run reads as preparing", async () => {
@@ -161,7 +161,7 @@ describe("memorize backlog: token-bounded windows and a bounded full pass", () =
     const countsAtConfirm: number[] = [];
     const preparingAtFirstRead: boolean[] = [];
     host.hold = async () => { preparingAtFirstRead.push(h.backfill()?.preparing === true); host.hold = null; return { ok: true, text: "NO_DELTA", finish: "stop" } as never; };
-    expect(await h.coordinator.runMemorizeBacklog(undefined, async () => { countsAtConfirm.push(counted.length); return true; })).toBe(true);
+    expect(await h.coordinator.backlog.runMemorizeBacklog(undefined, async () => { countsAtConfirm.push(counted.length); return true; })).toBe(true);
     expect(countsAtConfirm).toEqual([0]);
     expect(preparingAtFirstRead).toEqual([false]);
     expect(counted.length).toBeGreaterThan(0);
@@ -172,7 +172,7 @@ describe("memorize backlog: token-bounded windows and a bounded full pass", () =
   it("control: a cancelled confirm counts nothing and writes nothing", async () => {
     const counts = jest.fn(async (text: string) => estimateTokens(text));
     const h = harness({ countAsync: counts });
-    expect(await h.coordinator.runMemorizeBacklog(undefined, async () => false)).toBe(false);
+    expect(await h.coordinator.backlog.runMemorizeBacklog(undefined, async () => false)).toBe(false);
     expect(counts).not.toHaveBeenCalled();
     expect(h.backfill()).toBeNull();
   });
@@ -180,20 +180,20 @@ describe("memorize backlog: token-bounded windows and a bounded full pass", () =
   it("a confirmed run sends exactly the requests it announced", async () => {
     const h = harness();
     const asked: Array<{ requests: number; tokens: number }> = [];
-    expect(await h.coordinator.runMemorizeBacklog(undefined, async (preflight) => { asked.push(preflight); return true; })).toBe(true);
+    expect(await h.coordinator.backlog.runMemorizeBacklog(undefined, async (preflight) => { asked.push(preflight); return true; })).toBe(true);
     expect(host.calls).toHaveLength(asked[0].requests);
   });
 
   it("the confirm names the judge calls a run adds when Check memory before storing is on (v2.4 plan 07)", async () => {
     const asked: Array<{ requests: number; judgeCalls?: number }> = [];
-    expect(await harness({ judgeUses: ["memoryVerify"] }).coordinator.runMemorizeBacklog(undefined, async (preflight) => { asked.push(preflight); return false; })).toBe(false);
+    expect(await harness({ judgeUses: ["memoryVerify"] }).coordinator.backlog.runMemorizeBacklog(undefined, async (preflight) => { asked.push(preflight); return false; })).toBe(false);
     expect(asked[0].judgeCalls).toBe(asked[0].requests);
   });
 
   it("control: with memory checking off, or another judge use on, the confirm names no judge calls", async () => {
     const asked: Array<{ judgeCalls?: number }> = [];
-    await harness({ judgeUses: ["stallCheck"] }).coordinator.runMemorizeBacklog(undefined, async (preflight) => { asked.push(preflight); return false; });
-    await harness().coordinator.runMemorizeBacklog(undefined, async (preflight) => { asked.push(preflight); return false; });
+    await harness({ judgeUses: ["stallCheck"] }).coordinator.backlog.runMemorizeBacklog(undefined, async (preflight) => { asked.push(preflight); return false; });
+    await harness().coordinator.backlog.runMemorizeBacklog(undefined, async (preflight) => { asked.push(preflight); return false; });
     expect(asked.map((preflight) => preflight.judgeCalls)).toEqual([undefined, undefined]);
   });
 
@@ -201,18 +201,18 @@ describe("memorize backlog: token-bounded windows and a bounded full pass", () =
     seedChat(4);
     const h = harness({ limit: 32768 });
     const confirm = jest.fn(async () => false);
-    expect(await h.coordinator.runMemorizeBacklog(undefined, confirm)).toBe(true);
+    expect(await h.coordinator.backlog.runMemorizeBacklog(undefined, confirm)).toBe(true);
     expect(confirm).not.toHaveBeenCalled();
   });
 
   it("Stop cancels the request in flight, and a player's Stop is a note, not an error", async () => {
     const h = harness();
     host.hold = (signal) => new Promise((resolve) => signal?.addEventListener("abort", () => resolve({ ok: false, kind: "lapsed", message: "cancelled" }), { once: true }));
-    const pending = h.coordinator.runMemorizeBacklog();
+    const pending = h.coordinator.backlog.runMemorizeBacklog();
     await settle();
     expect(host.calls).toHaveLength(1);
     expect(host.calls[0].signal?.aborted).toBe(false);
-    expect(h.coordinator.cancelMemorizeBacklog()).toBe(true);
+    expect(h.coordinator.backlog.cancelMemorizeBacklog()).toBe(true);
     expect(host.calls[0].signal?.aborted).toBe(true);
     expect(await pending).toBe(false);
     expect(host.calls).toHaveLength(1);
@@ -223,7 +223,7 @@ describe("memorize backlog: token-bounded windows and a bounded full pass", () =
   it("control: a real failure still lands in lastError", async () => {
     const h = harness();
     host.hold = async () => ({ ok: false, kind: "transport", message: "Response not OK" }) as never;
-    expect(await h.coordinator.runMemorizeBacklog()).toBe(false);
+    expect(await h.coordinator.backlog.runMemorizeBacklog()).toBe(false);
     expect(h.backfill()).toMatchObject({ running: false, lastError: "Response not OK" });
     expect(h.backfill()?.stoppedNote ?? null).toBeNull();
   });
@@ -284,7 +284,7 @@ describe("A11: the memorize backlog survives a slow backend and gives up honestl
   const GAVE_UP = /^the memory model did not answer within (\d+) ms, nor within (\d+) ms on one retry$/;
 
   async function healthyCalls(): Promise<number> {
-    expect(await harness().coordinator.runMemorizeBacklog()).toBe(true);
+    expect(await harness().coordinator.backlog.runMemorizeBacklog()).toBe(true);
     const count = host.calls.length;
     host.calls = [];
     return count;
@@ -300,7 +300,7 @@ describe("A11: the memorize backlog survives a slow backend and gives up honestl
     const h = harness();
     let sent = 0;
     host.hold = async (_signal, prompt) => { sent += 1; return sent === total ? timedOut : answered(prompt); };
-    const completed = await h.coordinator.runMemorizeBacklog();
+    const completed = await h.coordinator.backlog.runMemorizeBacklog();
     must(completed && host.calls.length === total + 1, `the whole-chat pass that timed out once was not asked again: completed ${completed}, ${host.calls.length} asks for ${total} parts, backfill ${JSON.stringify(h.backfill())}`);
   });
 
@@ -310,7 +310,7 @@ describe("A11: the memorize backlog survives a slow backend and gives up honestl
     const h = harness();
     let sent = 0;
     host.hold = async (_signal, prompt) => { sent += 1; return sent === total ? timedOut : answered(prompt); };
-    expect(await h.coordinator.runMemorizeBacklog()).toBe(true);
+    expect(await h.coordinator.backlog.runMemorizeBacklog()).toBe(true);
     expect(host.calls).toHaveLength(total + 1);
     expect(host.calls[total].prompt).toBe(host.calls[total - 1].prompt);
     expect(budgets()[total]).toBe(budgets()[total - 1] * 2);
@@ -324,7 +324,7 @@ describe("A11: the memorize backlog survives a slow backend and gives up honestl
     const h = harness();
     let sent = 0;
     host.hold = async (_signal, prompt) => { sent += 1; return sent === 1 ? timedOut : answered(prompt); };
-    expect(await h.coordinator.runMemorizeBacklog()).toBe(true);
+    expect(await h.coordinator.backlog.runMemorizeBacklog()).toBe(true);
     expect(host.calls).toHaveLength(total + 1);
     expect(budgets()[1]).toBe(budgets()[0] * 2);
     expect(h.backfill()).toMatchObject({ running: false, processed: total, total, lastError: null });
@@ -336,7 +336,7 @@ describe("A11: the memorize backlog survives a slow backend and gives up honestl
     const h = harness();
     let sent = 0;
     host.hold = async (_signal, prompt) => { sent += 1; return sent >= total ? timedOut : answered(prompt); };
-    expect(await h.coordinator.runMemorizeBacklog()).toBe(false);
+    expect(await h.coordinator.backlog.runMemorizeBacklog()).toBe(false);
     expect(host.calls).toHaveLength(total + 1);
     const failure = GAVE_UP.exec(h.backfill()?.lastError ?? "");
     expect(failure).not.toBeNull();
@@ -349,7 +349,7 @@ describe("A11: the memorize backlog survives a slow backend and gives up honestl
   it("control: a refusing backend is asked once and gives up at once", async () => {
     const h = harness();
     host.hold = async () => ({ ok: false, kind: "transport", message: "Response not OK" });
-    expect(await h.coordinator.runMemorizeBacklog()).toBe(false);
+    expect(await h.coordinator.backlog.runMemorizeBacklog()).toBe(false);
     expect(host.calls).toHaveLength(1);
     expect(h.backfill()).toMatchObject({ running: false, processed: 0, lastError: "Response not OK" });
   });
@@ -357,9 +357,9 @@ describe("A11: the memorize backlog survives a slow backend and gives up honestl
   it("control: Stop while the first ask waits is not retried", async () => {
     const h = harness();
     host.hold = (signal) => new Promise((resolve) => signal?.addEventListener("abort", () => resolve({ ok: false, kind: "lapsed", message: "cancelled" }), { once: true }));
-    const pending = h.coordinator.runMemorizeBacklog();
+    const pending = h.coordinator.backlog.runMemorizeBacklog();
     await settle();
-    h.coordinator.cancelMemorizeBacklog();
+    h.coordinator.backlog.cancelMemorizeBacklog();
     expect(await pending).toBe(false);
     expect(host.calls).toHaveLength(1);
     expect(h.backfill()).toMatchObject({ running: false, lastError: null });

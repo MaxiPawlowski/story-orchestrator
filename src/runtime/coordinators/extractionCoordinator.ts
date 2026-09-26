@@ -1,24 +1,22 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
-import { planBacklog } from "@extraction/backlogPlan";
 import { maxTokensFor, maxTokensForInput } from "@extraction/callBudget";
 import { defaultContextLimit } from "@extraction/inputBudget";
-import { isLapse, retryOnTimeout } from "@extraction/modelError";
+import { isLapse } from "@extraction/modelError";
 import { askText } from "@extraction/modelRoute";
 import { stripChannelNoise } from "@extraction/parse";
-import { preflightNeeded, withJudgeCalls } from "@extraction/preflight";
 import { reconciliationKeySet, reconciliationTargets, type ReconciliationPlan } from "@extraction/reconcile";
-import { deriveFullScope, deriveScope } from "@extraction/scope";
-import { runSharedRead, sharedReadOverhead, sharedReadWindow } from "@extraction/sharedRead";
+import { deriveScope } from "@extraction/scope";
+import { runSharedRead, sharedReadWindow } from "@extraction/sharedRead";
 import { createTokenMeter } from "@extraction/tokenMeter";
 import type {
-  ExtraGateSource, ModelAsk, ModelCall, ParsedDelta, ParsedFact, PreflightConfirm, ReadOwnership, RequestBudget,
-  RunSharedReadOptions, PassRole, SchedulerJob, SharedReadAudit, SharedReadWindow } from "@extraction/index";
+  ExtraGateSource, ModelCall, ParsedDelta, ParsedFact, ReadOwnership, RequestBudget, PassRole, SchedulerJob,
+  SharedReadAudit,
+} from "@extraction/index";
 import {
   buildEpistemicPassPrompt, buildLedgerPassPrompt, buildShortTermSummaryPrompt, detectSceneBreakHeuristic, fitShortTerm,
   generateMemoryId, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, provenance, summarizeScene, type ArcEntry,
   type MemoryEntry, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine,
 } from "@memory/index";
-import { anySignal } from "@utils/signals";
 import { SHORT_TERM_COMPACTION_MESSAGES } from "@constants/defaults";
 import { enabledCharacterNames } from "../roster";
 import type { MemoryCoordinator } from "./memoryCoordinator";
@@ -28,18 +26,15 @@ import {
 } from "../types";
 import { createTypedJudge } from "../typedRead";
 import type { JudgeRuntime } from "../judge";
-import { beginRun, type RunGuard, type RunOwnership, type RunToken } from "../runToken";
+import { beginRun, type RunOwnership, type RunToken } from "../runToken";
 import type { ChatHost, RosterHost } from "../hostPorts";
+import { MemorizeBacklog } from "../memorizeBacklog";
 import {
   buildStallRequest, buildVerifyRequest, readVerify, stallVerdict, STALL_TIMEOUT_MS, verifyVerdict,
   VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS,
 } from "@judge/index";
 
 export const TYPED_READ_WINDOW = 3;
-export const BACKLOG_STOPPED_BY_EDIT = "Stopped: the chat changed while memorizing";
-export const BACKLOG_STOPPED_BY_UPDATE = "Stopped: the story was updated while memorizing";
-export const backlogStoppedByPlayer = (processed: number, windows: number) =>
-  `Stopped after ${Math.min(processed, windows)} of ${windows} parts. What was read is kept; the whole-chat pass did not run.`;
 
 // v2.2 plan 06: judged extraction off the LLM lanes. `judged()` answers synchronously whether it took
 // the work; the judge call itself is fire-and-forget.
@@ -74,9 +69,16 @@ export interface ExtractionCoordinatorDeps {
 // are delegated to the memory coordinator — this class never touches extras.memory directly.
 export class ExtractionCoordinator {
   private sceneDetectCursor: { location: string | null; cast: string | null; world: RunToken | null } | null = null;
-  private backlogStop: AbortController | null = null;
+  readonly backlog: MemorizeBacklog;
 
-  constructor(private readonly deps: ExtractionCoordinatorDeps) {}
+  constructor(private readonly deps: ExtractionCoordinatorDeps) {
+    this.backlog = new MemorizeBacklog({
+      getStory: () => deps.getStory(), getState: () => deps.getState(), memory: () => deps.memory, model: () => deps.model,
+      ownership: () => deps.ownership, chat: () => deps.hosts.chat, judge: () => deps.judge?.() ?? null,
+      firedTransitions: () => deps.getFiredTransitions(), applyAudit: (...args) => this.applyAudit(...args),
+      commitBoundary: () => deps.commitBoundary(), budget: () => this.budget(), save: () => this.save(), setStatus: (status) => deps.setStatus(status),
+    });
+  }
 
   private get state(): ExtractionRuntimeState {
     return this.deps.getExtraction();
@@ -409,117 +411,5 @@ export class ExtractionCoordinator {
     memory.updateInjection();
     await this.save();
     return epistemicSignals.length > 0 || ledgerSignals.length > 0 || retireIds.length > 0;
-  }
-
-  // Full-scope re-read of an existing chat, window by window, then one whole-chat pass that is
-  // allowed to move the blackboard. Progress is surfaced through the memory backfill state.
-  // v2.4 plan 03 D5: the windows are packed to the request budget (`windowSize` only caps their
-  // message count), the whole-chat pass is tail-fit, and a caller that passes `confirm` is asked
-  // before anything is sent when the run is large. Automatic and debug callers pass none.
-  async runMemorizeBacklog(windowSize?: number, confirm?: PreflightConfirm): Promise<boolean> {
-    const story = this.deps.getStory();
-    const memory = this.deps.memory;
-    if (!story || !memory.enabled || memory.backfill?.running || this.backlogStop) return false;
-    const length = this.deps.hosts.chat.chatRows().length;
-    // V3: the backlog reads the whole chat window by window for minutes; a chat switch in between
-    // used to read the NEXT chat's windows into memory this pass still believed was its own.
-    const read = beginRun(this.deps.ownership, { from: 0, to: Math.max(0, length - 1) });
-    const stop = new AbortController();
-    this.backlogStop = stop;
-    const owned: ReadOwnership = {
-      stillOwns: () => !stop.signal.aborted && read.stillOwns(),
-      lapsedDetail: () => (stop.signal.aborted ? "stopped" : read.lapsedDetail()),
-      signal: anySignal([stop.signal, read.signal]),
-    };
-    const budget = this.budget();
-    let windows: SharedReadWindow[] | null = null;
-    let completed = false;
-    let failure: string | null = null;
-    try {
-      const messages = this.deps.hosts.chat.chatWindow(0, length - 1).messages;
-      const overhead = sharedReadOverhead(this.backlogRead(story, "memorize:window", { from: 0, to: -1, messages: [] }, { role: "read", pass: "read" }));
-      const estimate = confirm ? await planBacklog(messages, overhead, { contextLimit: budget.contextLimit, meter: createTokenMeter() }, windowSize) : null;
-      const preflight = estimate ? withJudgeCalls(estimate.preflight, this.deps.judge?.()?.active("memoryVerify") === true) : null;
-      if (!read.stillOwns() || (confirm && preflight && preflightNeeded(preflight, budget.contextLimit) && !(await confirm(preflight)))) return false;
-      windows = [];
-      memory.setBackfill({ running: true, processed: 0, total: (estimate?.windows.length ?? 0) + 1, lastError: null, preparing: true });
-      await this.save();
-      const plan = await planBacklog(messages, overhead, budget, windowSize);
-      windows = plan.windows;
-      if (owned.stillOwns()) {
-        memory.setBackfill({ running: true, processed: 0, total: windows.length + 1, lastError: null });
-        await this.save();
-      }
-      completed = await this.memorizeWindows(story, windows, length, owned, budget);
-    } catch (error) {
-      failure = error instanceof Error ? error.message : "Memorize backlog failed";
-    } finally {
-      if (this.backlogStop === stop) this.backlogStop = null;
-      read.release();
-    }
-    return windows || failure ? this.endBacklog(read, stop.signal, { completed, failure, windows: windows?.length ?? 0 }) : false;
-  }
-
-  cancelMemorizeBacklog(): boolean {
-    if (!this.backlogStop || this.backlogStop.signal.aborted) return false;
-    this.backlogStop.abort();
-    return true;
-  }
-
-  private backlogRead(story: NormalizedStoryV2, reason: "memorize:window" | "memorize:full", window: SharedReadWindow, ask: ModelAsk): RunSharedReadOptions {
-    const memory = this.deps.memory;
-    const state = this.deps.getState()!;
-    const windowed = reason === "memorize:window" ? { openArcs: memory.getOpenArcs(), epistemicLedgerCapable: memory.capable, entities: memory.getEntities() } : {};
-    return { story, state, priority: 0, reason, window, scope: deriveFullScope(story, state.blackboard), firedTransitions: this.deps.getFiredTransitions(), facts: memory.getFacts(), ...windowed, model: this.deps.model, ask };
-  }
-
-  private async memorizeWindows(story: NormalizedStoryV2, windows: SharedReadWindow[], length: number, read: ReadOwnership, budget: RequestBudget): Promise<boolean> {
-    const memory = this.deps.memory;
-    const client: ModelAsk = { role: "read", pass: "read", budget, signal: read.signal };
-    const sceneWork: SchedulerJob[] = [];
-    for (const window of windows) {
-      if (!read.stillOwns()) return false;
-      const result = await retryOnTimeout((timeoutScale) => runSharedRead(this.backlogRead(story, "memorize:window", window, { ...client, timeoutScale })));
-      await this.applyAudit({ ...result.audit, acceptedDeltas: [] }, result.facts, result.memory, result.arcs, result.epistemic, result.ledger, read, sceneWork);
-      await this.runSceneWork(sceneWork, read);
-      if (!read.stillOwns()) return false;
-      const progress = memory.backfill!;
-      memory.setBackfill({ ...progress, processed: progress.processed + 1 });
-      await this.save();
-    }
-
-    if (!read.stillOwns()) return false;
-    const whole = this.deps.hosts.chat.chatWindow(0, Math.max(0, length - 1));
-    const fullResult = await retryOnTimeout((timeoutScale) => runSharedRead(this.backlogRead(story, "memorize:full", whole, { ...client, timeoutScale })));
-    await this.applyAudit(fullResult.audit, [], [], [], [], [], read, sceneWork);
-    await this.runSceneWork(sceneWork, read);
-    if (!read.stillOwns()) return false;
-    await this.deps.commitBoundary();
-    return true;
-  }
-
-  private async runSceneWork(jobs: SchedulerJob[], read: ReadOwnership) {
-    for (const job of jobs.splice(0)) {
-      if (!read.stillOwns()) return;
-      await job.run?.().catch((error: unknown) => { if (!isLapse(error)) console.warn(`[Story Orchestrator] ${job.reason} during the memorize backlog failed`, error); });
-    }
-  }
-
-  // A player's own Stop is not a failure, so it is a note, never `lastError`.
-  private async endBacklog(read: RunGuard, stop: AbortSignal, run: { completed: boolean; failure: string | null; windows: number }): Promise<boolean> {
-    const lapse = read.lapsed();
-    if (lapse && lapse !== "window" && lapse !== "version") return false;
-    const memory = this.deps.memory;
-    const total = run.windows + 1;
-    const processed = run.completed ? total : memory.backfill?.processed ?? 0;
-    const stopped = !run.completed && !lapse && stop.aborted;
-    const lastError = run.completed || stopped ? null
-      : lapse === "window" ? BACKLOG_STOPPED_BY_EDIT
-        : lapse === "version" ? BACKLOG_STOPPED_BY_UPDATE
-          : run.failure ?? "Memorize backlog failed";
-    memory.setBackfill({ running: false, processed, total, lastError, ...(stopped ? { stoppedNote: backlogStoppedByPlayer(processed, run.windows) } : {}) });
-    this.deps.setStatus(run.completed ? "Memorize backlog complete" : stopped ? "Memorize backlog stopped" : "Memorize backlog failed");
-    await this.save();
-    return run.completed;
   }
 }

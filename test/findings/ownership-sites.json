@@ -57,15 +57,15 @@
       "status": "checked",
       "note": "v2.3 plan 03: TWO model calls with a store written in between, so the check sits after each call rather than once at the end — the epistemic signals are applied before the ledger prompt is even sent. Both stores and the injection update are refused when the world moved."
     },
-    "src/runtime/coordinators/extractionCoordinator.ts#ExtractionCoordinator.runMemorizeBacklog": {
+    "src/runtime/memorizeBacklog.ts#MemorizeBacklog.runMemorizeBacklog": {
       "status": "checked",
       "note": "v2.3 replan V3 (2026-09-23): mints one read over the whole chat before the first await, asks it before every window, passes it into applyAudit (which refuses a lapsed read before any write), and asks again before the final read, the boundary commit and the error record. It used to read the NEXT chat's windows into memory after a switch. v2.4 plan 03 D4 (2026-09-24): the loop moved to memorizeWindows and the exit to endBacklog, so every ending passes through one write. The read it hands on is the chat token AND the backlog's own Stop controller (cancelMemorizeBacklog), checked between windows. Its only write after the await is clearing its own in-memory `backlogStop` handle. v2.4 plan 03 D5 wiring (2026-09-24): the read is minted BEFORE the plan's token count (an await), and the preflight popup is another await before anything is sent; the plan is refused when the read lapsed during either. The model calls now carry anySignal([Stop, read.signal]), so Stop and a mutation inside the whole-chat window cancel the request in flight (budgetWiring.review.test.ts)."
     },
-    "src/runtime/coordinators/extractionCoordinator.ts#ExtractionCoordinator.endBacklog": {
+    "src/runtime/memorizeBacklog.ts#MemorizeBacklog.endBacklog": {
       "status": "checked",
       "note": "v2.4 plan 03 D4 (2026-09-24): the backlog's one exit. Reads read.lapsed() BEFORE its only write: an epoch/chat/story lapse writes nothing (the backfill it would clear belongs to another chat, whose hydrate resets running itself); a same-chat lapse (window: an edit or swipe inside the whole-chat read; version: a hot-swapped story) and a player Stop write running:false with a reason. This is what closes the same-chat wedge, where every early return left running:true until reload."
     },
-    "src/runtime/coordinators/extractionCoordinator.ts#ExtractionCoordinator.memorizeWindows": {
+    "src/runtime/memorizeBacklog.ts#MemorizeBacklog.memorizeWindows": {
       "status": "checked",
       "note": "v2.4 plan 03 D4 (2026-09-24): the V3 window loop, moved out of runMemorizeBacklog unchanged. The ReadOwnership it is handed combines the whole-chat token with the Stop controller, and it is asked before every window, after every applyAudit (which refuses a lapsed read before any write), before the final read and before the boundary commit. A stopped run therefore writes nothing further, and the windows already applied stay (memory-only, acceptedDeltas: []). Live-found fix (2026-09-24): the scene passes a window's audit triggers are collected, not scheduled, and run one at a time after that window (runSceneWork, asked before each pass); each pass keeps its own guard and is censused where it is defined. v2.4 acceptance A11 (2026-09-25): each window read and the whole-chat read go through retryOnTimeout, one more ask at twice the budget after a timeout. The retry is another await INSIDE the read, before the same applyAudit and stillOwns checks, so no write moved past a check; a Stop or chat switch during the first ask is a lapse, which is never retried."
     },
