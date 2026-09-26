@@ -51,13 +51,12 @@ describe("hydrating stored rows and their envelopes", () => {
   });
 });
 
-// v2.3 plan 07. A chain generated before R9 was read with `outcomes[0]`, so it carries no outcome ids
-// and cannot express the branches its siblings were authored with. The cache does not survive the
-// contract that produced it: the entry is dropped and the stub re-generates on arrival.
+// v2.3 plan 07. The cache does not survive the contract that produced it: the entry is dropped and the
+// stub re-generates on arrival.
 describe("expansion cache contract", () => {
-  const entry = (contract?: number) => ({ key: "a->b->c", status: "inserted", sourceCheckpointId: "a", stubId: "b", targetAnchorId: "c", basis: {}, blackboardVersionSum: 0, beats: [], needsReview: false, verdicts: [], codeCheck: null, insertedCheckpointIds: [], lastError: null, attempts: 1, updatedAt: "x", ...(contract === undefined ? {} : { contract }) });
+  const entry = (contract?: number) => ({ key: "a->b->c", status: "inserted", sourceCheckpointId: "a", stubId: "b", targetAnchorId: "c", basis: {}, blackboardVersionSum: 0, beats: [], needsReview: false, verdicts: [], codeCheck: null, insertedCheckpointIds: [], lastError: null, attempts: 1, origin: "active", updatedAt: "x", ...(contract === undefined ? {} : { contract }) });
 
-  it("drops a pre-R9 chain and keeps a current one", () => {
+  it("a chain from another contract is dropped, and a current one is kept", () => {
     const kept = sanitizeExpansion({ expansion: { entries: { "a->b->c": entry(EXPANSION_CONTRACT) }, scheduler: { queueDepth: 0, inFlight: false, lastError: null } } } as unknown as RuntimeExtras);
     expect(Object.keys(kept.entries)).toEqual(["a->b->c"]);
     expect(kept.entries["a->b->c"].contract).toBe(EXPANSION_CONTRACT);
@@ -66,13 +65,12 @@ describe("expansion cache contract", () => {
     expect(dropped.entries).toEqual({});
   });
 
-  it("V12: a pre-R9 chain the chat is PLAYING is upgraded in place, not dropped — its checkpoints are where the player stands", () => {
-    const legacy = { ...entry(), status: "inserted", beats: [{ objective: "o", guidance: "g", tension_target: "calm", outcomes: [{ label: "a", gate: { q: "x", op: "==", v: true } }, { label: "b", gate: { q: "y", op: "==", v: true } }] }] };
-    const kept = sanitizeExpansion({ expansion: { entries: { "a->b->c": legacy }, scheduler: { queueDepth: 0, inFlight: false, lastError: null } } } as unknown as RuntimeExtras);
-    const upgraded = kept.entries["a->b->c"];
-    expect(upgraded.contract).toBe(EXPANSION_CONTRACT);
-    expect(upgraded.beats[0].id).toBe("0");
-    expect(upgraded.beats[0].outcomes.map((outcome) => outcome.id)).toEqual(["0:0", "0:1"]);
+  it("a playing chain from another contract is dropped too, and so is one with no origin", () => {
+    const other = sanitizeExpansion({ expansion: { entries: { "a->b->c": { ...entry(), status: "inserted" } }, scheduler: { queueDepth: 0, inFlight: false, lastError: null } } } as unknown as RuntimeExtras);
+    expect(other.entries).toEqual({});
+    const { origin: _origin, ...unmarked } = entry(EXPANSION_CONTRACT);
+    const originless = sanitizeExpansion({ expansion: { entries: { "a->b->c": unmarked }, scheduler: { queueDepth: 0, inFlight: false, lastError: null } } } as unknown as RuntimeExtras);
+    expect(originless.entries).toEqual({});
   });
 });
 

@@ -1293,28 +1293,6 @@ describe("RuntimeManager plan-13 surfacing", () => {
     await manager.selectStory(Object.keys(metadata.stories)[0], "hydrate");
     expect(mockPopupCloses.count).toBe(before);
   });
-
-  it("strips channel noise from persisted memory prose on hydrate", async () => {
-    const manager = new RuntimeManager();
-    await manager.importStory(JSON.stringify(gatedStory));
-    await manager.applyExtractionAudit({ ...sceneBreakAudit(), sceneBreak: undefined }, [], [
-      { tier: "session_details", type: "detail", importance: 1, expiration: "session", entities: [], text: "Clean detail.", evidence: "quote" },
-    ]);
-    const metadata = mockContext.chatMetadata.story_orchestrator as { stories: Record<string, { extras: { memory: { entries: Array<{ text: string }>; arcs: unknown[]; canon: unknown } } }> };
-    const storyId = Object.keys(metadata.stories)[0];
-    const memory = metadata.stories[storyId].extras.memory;
-    memory.entries[0].text = "<|channel>thought\n<channel|>The party searched the ruins.";
-    memory.arcs = [{ id: "arc-1", text: "<channel|>Find the key.", status: "resolved", summary: "<|channel>thought\nKey found.", openedAt: 0, messageId: 0 }];
-    memory.canon = { text: "<|channel>thought\n<channel|>Canon so far.", inputHash: "x", updatedAt: "2026-07-06T00:00:00.000Z" };
-
-    await manager.selectStory(storyId, "hydrate");
-    const snapshot = manager.getSnapshot();
-    expect(snapshot.memory.entries[0].text).toBe("The party searched the ruins.");
-    const arcs = manager.getArcs();
-    expect(arcs[0].text).toBe("Find the key.");
-    expect(arcs[0].summary).toBe("");
-    expect(manager.getCanon()).toContain("Canon so far.");
-  });
 });
 
 describe("RuntimeManager transition announcements and pending deltas", () => {

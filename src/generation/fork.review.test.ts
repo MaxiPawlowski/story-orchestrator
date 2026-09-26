@@ -45,6 +45,7 @@ const entry = (name: string): ExpansionCacheEntry => ({
   insertedCheckpointIds: ["gen_fork_stub_1", "gen_fork_stub_2"],
   lastError: null,
   attempts: 1,
+  origin: "active",
   updatedAt: "2026-09-22T00:00:00.000Z",
 });
 

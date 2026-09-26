@@ -5,7 +5,7 @@ import {
   type NormalizedStoryV2, type NormalizedTransition, type StoryV2, type TalkControl, type ValidationError,
 } from "@engine/index";
 import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Suggestion } from "@copilot/index";
-import type { ProvisioningEnvironment, ProvisioningOp, ProvisioningResult, WizardSessionState } from "@wizard/index";
+import type { ProvisioningEnvironment, ProvisioningOp, ProvisioningResult, WizardSessionState, WizardSessionUpdate } from "@wizard/index";
 import {
   type ExtraGateSource, type ExtractionScheduler, type ParsedDelta, type ParsedFact, type ReadOwnership, type SchedulerJob,
   type SharedReadAudit, type SharedReadWindow,
@@ -424,7 +424,7 @@ export class RuntimeManager {
   async applyProvisioning(op: ProvisioningOp, draft?: StoryV2): Promise<ProvisioningResult> { return this.copilot.applyProvisioning(op, draft); }
   async readProvisioningEntry(lorebook: string, comment: string): Promise<WIEntrySnapshot | null> { return this.copilot.readProvisioningEntry(lorebook, comment); }
   getWizardSession(key: string): WizardSessionState | null { return loadWizardSession(key); }
-  saveWizardSession(session: WizardSessionState) { saveWizardSession(session); }
+  saveWizardSession(session: WizardSessionUpdate) { saveWizardSession(session); }
   clearWizardSession(key: string) { clearWizardSession(key); }
   getDriverContext(): DriverContext | null { return this.copilot.getDriverContext(); }
   async runCopilotSuggest(debugResponse?: string): Promise<Suggestion[]> { return this.copilot.runSuggest(debugResponse); }

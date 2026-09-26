@@ -7,6 +7,8 @@
     { "path": "test/scenarios/live-switch-mid-read.json", "kind": "prescribed", "reason": "Plan 03 specified it; its own gate record (03 §The held-response race) states it and its verbs were never built and how the race was driven instead." },
     { "path": "test/fixtures/legacy-v3-chat-blob.json", "kind": "prescribed", "reason": "Plan 04 specified a captured v3 blob; built as the synthesized test/fixtures/v3-chat-blob.json, which the 04 audit reopened." },
     { "path": "test/fixtures/v3-chat-blob.json", "kind": "removed", "reason": "v2.5 plan 11 step 1: the v2/v3 blob migration it exercised was deleted; any blob but v5 now takes the unreadable path." },
+    { "path": "test/scenarios/live-v12-legacy-expansion.json", "kind": "removed", "reason": "v2.5 plan 11 step 5 (H12): the in-place upgrade of a pre-R9 chain it drove was deleted; a chain from another contract is dropped." },
+    { "path": "src/runtime/extrasLegacy.test.ts", "kind": "removed", "reason": "v2.5 plan 11 step 5: renamed src/runtime/extrasHydrate.test.ts once its legacy blocks were deleted; the contract-drop, D3 scheduler and V12 repair blocks live on there." },
     { "path": "scripts/review/reviewRegression.test.ts", "kind": "removed", "reason": "Review harness copied, promoted into the finding ledger and deleted (01 §A); the dossier keeps the evidence copies." },
     { "path": "scripts/review/memory-engine.test.ts", "kind": "removed", "reason": "As above." },
     { "path": "src/endpoints/vectors.js", "kind": "host", "reason": "SillyTavern server source, C:/dev/SillyTavern-MainBranch/src/endpoints/vectors.js." },

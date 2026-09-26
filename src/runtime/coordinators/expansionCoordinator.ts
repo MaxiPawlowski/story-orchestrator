@@ -124,6 +124,7 @@ export class ExpansionCoordinator {
       insertedCheckpointIds: [],
       lastError: null,
       attempts: 0,
+      origin: "active",
       updatedAt: new Date().toISOString(),
     };
   }

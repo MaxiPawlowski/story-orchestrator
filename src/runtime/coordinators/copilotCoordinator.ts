@@ -78,11 +78,11 @@ export class CopilotCoordinator {
 
   // V18: ownership is the books this wizard recorded creating AS books. A name in `applied` alone
   // is only a claim that something by that name was made: a card named after one of the user's
-  // listed books read as owning it. A session saved before the kind was recorded keeps the old read.
+  // listed books read as owning it.
   private sessionOwnedLorebooks(lorebooks: string[], draft?: StoryV2): string[] {
     const listed = (name: string) => lorebooks.some((entry) => entry.trim().toLowerCase() === lorebookFileId(name).toLowerCase());
     const session = this.sessionFor(draft);
-    return (session?.createdLorebooks ?? session?.applied ?? []).map(lorebookFileId).filter(listed);
+    return (session?.createdLorebooks ?? []).map(lorebookFileId).filter(listed);
   }
 
   private grantedLorebooks(lorebooks: string[], draft?: StoryV2): string[] {
@@ -97,7 +97,7 @@ export class CopilotCoordinator {
     const session = existing ?? newWizardSession(this.sessionKeyFor(draft));
     const books = session.createdLorebooks;
     const applied = session.applied.includes(name) ? session.applied : [...session.applied, name];
-    const createdLorebooks = kind === "lorebook" && !books?.includes(name) ? [...new Set([...(books ?? session.applied), name])] : books;
+    const createdLorebooks = kind === "lorebook" && !books.includes(name) ? [...books, name] : books;
     if (applied === session.applied && createdLorebooks === books) return;
     this.deps.saveWizardSession?.({ ...session, applied, createdLorebooks });
   }

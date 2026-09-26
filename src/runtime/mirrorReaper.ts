@@ -161,7 +161,7 @@ export class MirrorReaper {
     const marker = parseOwnerMarker(await this.deps.readMarker(book));
     const goneAfterRead = this.gone(book);
     if (goneAfterRead) return goneAfterRead;
-    if (!marker) return this.orphan(book, chatId, "no-marker", "it carries no ownership marker, so it may predate v2.4 or belong to someone else");
+    if (!marker) return this.orphan(book, chatId, "no-marker", "it carries no ownership marker");
     if (marker.chatId !== chatId) return { book, result: "not-ours" };
     const presence = await this.deps.probeChat(marker);
     if (presence === "present") return { book, result: "chat-present" };

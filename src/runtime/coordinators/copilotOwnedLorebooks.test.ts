@@ -59,8 +59,13 @@ describe("V18: lorebook ownership is recorded by kind", () => {
     expect(upsertWIEntry).toHaveBeenCalledTimes(1);
   });
 
-  it("a session saved before the kind was recorded keeps its whole ledger as the claim", () => {
+  it("a session without a recorded book list owns no book, whatever its ledger names", () => {
     const h = harness(base({ applied: ["Harbour"] }));
+    expect(h.coordinator.getProvisioningEnvironment(draft).ownedLorebooks).toEqual([]);
+  });
+
+  it("control: a session with X in its book list owns X", () => {
+    const h = harness(base({ applied: ["Harbour"], createdLorebooks: ["Harbour"] }));
     expect(h.coordinator.getProvisioningEnvironment(draft).ownedLorebooks).toEqual(["Harbour"]);
   });
 
@@ -74,10 +79,10 @@ describe("V18: lorebook ownership is recorded by kind", () => {
     expect(h.session()).toMatchObject({ applied: ["Tavern Lore", "Harbour Two"], createdLorebooks: ["Harbour Two"] });
   });
 
-  it("a legacy session that creates a book keeps what it already claimed", async () => {
+  it("a book created by a session records only that book, never the rest of its ledger", async () => {
     (createLorebook as jest.Mock).mockResolvedValue({ ok: true, name: "Harbour Two", created: true });
-    const h = harness(base({ applied: ["Harbour"] }));
+    const h = harness(base({ applied: ["Harbour"], createdLorebooks: [] }));
     await h.coordinator.applyProvisioning({ kind: "createStoryLorebook", name: "Harbour Two" }, draft);
-    expect(h.session()?.createdLorebooks).toEqual(["Harbour", "Harbour Two"]);
+    expect(h.session()?.createdLorebooks).toEqual(["Harbour Two"]);
   });
 });

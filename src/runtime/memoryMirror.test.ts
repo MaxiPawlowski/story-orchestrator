@@ -268,92 +268,27 @@ describe("v2.4 T14: the mirror marks the book it adopts", () => {
   });
 });
 
-describe("v2.4 E4: a book mirrored before T14 adopts the marker on its next sync, on proof of ownership only", () => {
+describe("v2.5 plan 11 (H18): a book this chat already holds is never marked after the fact", () => {
   const ownerOf = (chatId: string): ChatOwner => ({ chatId, integrity: "i-1", groupId: "grp-1", avatar: null });
   const markerOf = (entries: FakeEntry[] = []) => entries.find((entry) => entry.comment === OWNER_COMMENT);
-  const preT14 = (name: string, relationship: MemoryEntry) => ({ [name]: [{ uid: 0, comment: `so_${relationship.id}`, content: relationship.text, key: ["Arin"], disable: false }] });
+  const unmarked = (name: string, relationship: MemoryEntry) => ({ [name]: [{ uid: 0, comment: `so_${relationship.id}`, content: relationship.text, key: ["Arin"], disable: false }] });
   const tracked = (relationship: MemoryEntry) => ({ [`so_${relationship.id}`]: hashMemoryText(relationship.text) });
 
-  it("marks the book this chat's wiBook names when its name is exactly the mirror name for this chat", async () => {
+  it("an unmarked book is never marked, even when its name is exactly this chat's mirror name", async () => {
     const relationship = memory();
-    const { host, books, calls, state } = fakeHost({ books: preT14(bookA, relationship), slot: bookA });
-    host.owner = () => ownerOf("chat-a");
-    const result = await syncMemoryMirror(input([relationship], { writes: tracked(relationship), book: { name: bookA, chatId: "chat-a" } }), host);
-    const marker = markerOf(books.get(bookA));
-    expect(marker).toMatchObject({ key: [], disable: true });
-    expect(parseOwnerMarker(marker!.content)).toMatchObject({ chatId: "chat-a", integrity: "i-1", groupId: "grp-1" });
-    expect(result!.writes).toEqual(tracked(relationship));
-    expect(calls.binds).toEqual([]);
-    expect(state.slot).toBe(bookA);
-  });
-
-  it("marks it once: a book that already carries a marker is neither rewritten nor re-read into a second one", async () => {
-    const relationship = memory();
-    const { host, books, calls } = fakeHost({ books: preT14(bookA, relationship) });
-    host.owner = () => ownerOf("chat-a");
-    const synced = input([relationship], { writes: tracked(relationship), book: { name: bookA, chatId: "chat-a" } });
-    await syncMemoryMirror(synced, host);
-    calls.upserts.length = 0;
-    await syncMemoryMirror(synced, host);
-    expect(calls.upserts).not.toContain(OWNER_COMMENT);
-    expect(books.get(bookA)!.filter((entry) => entry.comment === OWNER_COMMENT)).toHaveLength(1);
-  });
-
-  it("control: a book whose suffix names another chat stays unmarked, though wiBook names it", async () => {
-    const relationship = memory();
-    const other = mirrorLorebookName("Crossing", "chat-b");
-    const { host, books } = fakeHost({ books: preT14(other, relationship) });
-    host.owner = () => ownerOf("chat-a");
-    await syncMemoryMirror(input([relationship], { writes: tracked(relationship), book: { name: other, chatId: "chat-a" } }), host);
-    expect(markerOf(books.get(other))).toBeUndefined();
-  });
-
-  it("control: a book with this chat's suffix under another title stays unmarked", async () => {
-    const relationship = memory();
-    const retitled = mirrorLorebookName("Old Crossing", "chat-a");
-    const { host, books } = fakeHost({ books: preT14(retitled, relationship) });
-    host.owner = () => ownerOf("chat-a");
-    await syncMemoryMirror(input([relationship], { writes: tracked(relationship), book: { name: retitled, chatId: "chat-a" } }), host);
-    expect(markerOf(books.get(retitled))).toBeUndefined();
-  });
-
-  it("control: a book with this chat's exact mirror name that wiBook does not name stays unmarked", async () => {
-    const relationship = memory();
-    const recorded = "Story Orchestrator - Crossing";
-    const { host, books, calls } = fakeHost({ books: { ...preT14(bookA, relationship), ...preT14(recorded, relationship) } });
-    host.owner = () => ownerOf("chat-a");
-    await syncMemoryMirror(input([relationship], { writes: tracked(relationship), book: { name: recorded, chatId: "chat-a" } }), host);
-    expect(markerOf(books.get(bookA))).toBeUndefined();
-    expect(markerOf(books.get(recorded))).toBeUndefined();
-    expect(calls.upserts).not.toContain(OWNER_COMMENT);
-  });
-
-  it("control: a marker naming another chat is left as it is", async () => {
-    const relationship = memory();
-    const foreign: FakeEntry = { uid: 9, comment: OWNER_COMMENT, content: ownerMarkerContent(ownerOf("chat-z"), "2026-01-01T00:00:00.000Z"), key: [], disable: true };
-    const { host, books, calls } = fakeHost({ books: { [bookA]: [...preT14(bookA, relationship)[bookA], foreign] } });
+    const { host, books, calls } = fakeHost({ books: unmarked(bookA, relationship), slot: bookA });
     host.owner = () => ownerOf("chat-a");
     await syncMemoryMirror(input([relationship], { writes: tracked(relationship), book: { name: bookA, chatId: "chat-a" } }), host);
+    expect(markerOf(books.get(bookA))).toBeUndefined();
     expect(calls.upserts).not.toContain(OWNER_COMMENT);
-    expect(parseOwnerMarker(markerOf(books.get(bookA))!.content)?.chatId).toBe("chat-z");
   });
 
-  it("control: no marker for an owner seam that names another chat", async () => {
+  it("control: adopting a book marks it", async () => {
     const relationship = memory();
-    const { host, books } = fakeHost({ books: preT14(bookA, relationship) });
-    host.owner = () => ownerOf("chat-z");
-    await syncMemoryMirror(input([relationship], { writes: tracked(relationship), book: { name: bookA, chatId: "chat-a" } }), host);
-    expect(markerOf(books.get(bookA))).toBeUndefined();
-  });
-
-  it("stops when the chat changes while the book is read, writing no marker", async () => {
-    const relationship = memory();
-    const { host, books, state } = fakeHost({ books: preT14(bookA, relationship) });
+    const { host, books } = fakeHost({});
     host.owner = () => ownerOf("chat-a");
-    const read = host.loadLorebook;
-    host.loadLorebook = async (name: string) => { const data = await read(name); state.chatId = "chat-z"; return data; };
-    expect(await syncMemoryMirror(input([relationship], { writes: tracked(relationship), book: { name: bookA, chatId: "chat-a" } }), host)).toBeNull();
-    expect(markerOf(books.get(bookA))).toBeUndefined();
+    const result = await syncMemoryMirror(input([relationship]), host);
+    expect(parseOwnerMarker(markerOf(books.get(result!.book!.name))!.content)).toMatchObject({ chatId: "chat-a" });
   });
 });
 

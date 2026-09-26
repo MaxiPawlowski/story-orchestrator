@@ -1,5 +1,4 @@
-import { stripChannelNoise } from "@extraction/index";
-import { EXPANSION_CONTRACT, type ExpansionCacheEntry, type ExpansionRuntimeState } from "@generation/index";
+import { EXPANSION_CONTRACT, type ExpansionRuntimeState } from "@generation/index";
 import { CONFLICT_LIMIT, createMemoryState, DERIVED_LIMIT, isProvenance } from "@memory/index";
 import { DEFAULT_TENSION_EMA_ALPHA } from "@constants/defaults";
 import { capProposalRing } from "@stagecraft/index";
@@ -81,7 +80,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
     const ledger = enveloped<MemoryRuntimeState["ledger"][number]>(existing.ledger, "ledger", dropped);
     if (dropped.length) console.warn(`[Story Orchestrator] dropped stored rows without a provenance envelope: ${dropped.join(", ")}`);
     return {
-      entries: entries.map((entry) => ({ ...entry, text: stripChannelNoise(entry.text) })),
+      entries,
       excluded: Array.isArray(existing.excluded) ? existing.excluded : [],
       writeLog: Array.isArray(existing.writeLog) ? existing.writeLog.slice(-100) : [],
       settings: defaultMemorySettings(),
@@ -90,10 +89,10 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
       shortTermSummaryEnd: typeof existing.shortTermSummaryEnd === "number" ? existing.shortTermSummaryEnd : -1,
       wiWrites: existing.wiWrites && typeof existing.wiWrites === "object" ? existing.wiWrites : {},
       wiBook: sanitizeMirrorBook(existing.wiBook),
-      arcs: Array.isArray(existing.arcs) ? existing.arcs.map((arc) => ({ ...arc, text: stripChannelNoise(arc.text), ...(arc.summary ? { summary: stripChannelNoise(arc.summary) } : {}) })) : [],
+      arcs: Array.isArray(existing.arcs) ? existing.arcs : [],
       epistemic,
       ledger,
-      canon: existing.canon && typeof existing.canon === "object" ? { ...existing.canon, text: stripChannelNoise(existing.canon.text) } : null,
+      canon: existing.canon && typeof existing.canon === "object" ? existing.canon : null,
       verifyDrops: Array.isArray(existing.verifyDrops) ? existing.verifyDrops.filter((drop) => drop && typeof drop === "object" && drop.entry && typeof drop.p === "number").slice(-VERIFY_DROP_LIMIT) : [],
       derived: Array.isArray(existing.derived) ? existing.derived.filter((record) => record && typeof record === "object" && typeof record.id === "string" && Array.isArray(record.inputs) && typeof record.messageId === "number").slice(-DERIVED_LIMIT) : [],
       conflicts: Array.isArray(existing.conflicts) ? existing.conflicts.filter((pair) => Boolean(pair) && typeof pair.key === "string" && Array.isArray(pair.sides)).slice(-CONFLICT_LIMIT) : [],
@@ -115,7 +114,7 @@ export const sanitizeStagecraft = (value: RuntimeExtras | undefined): Stagecraft
   if (!existing) return createStagecraft();
   return {
     settings: defaultStagecraftSettings(),
-    proposals: Array.isArray(existing.proposals) ? capProposalRing(existing.proposals.filter((entry) => Boolean(entry) && Array.isArray(entry.ops)).map((entry) => ({ ...entry, curator: entry.curator === "warden" ? "warden" : "wi" }))) : [],
+    proposals: Array.isArray(existing.proposals) ? capProposalRing(existing.proposals.filter((entry) => Boolean(entry) && Array.isArray(entry.ops)).filter((entry) => entry.curator === "warden" || entry.curator === "wi")) : [],
     lastPass: existing.lastPass && typeof existing.lastPass === "object" ? existing.lastPass : null,
     lastRunBoundary: typeof existing.lastRunBoundary === "number" ? existing.lastRunBoundary : -1,
     lastError: typeof existing.lastError === "string" ? existing.lastError : null,
@@ -220,17 +219,8 @@ export const sanitizeExtraction = (value: RuntimeExtras | undefined): Extraction
   };
 };
 
-const PLAYED_EXPANSION = new Set(["inserted", "validated"]);
 const UNFINISHED_EXPANSION = new Set(["queued", "generating"]);
-
-export const upgradeLegacyExpansion = (entry: ExpansionCacheEntry): ExpansionCacheEntry => ({
-  ...entry,
-  contract: EXPANSION_CONTRACT,
-  beats: entry.beats.map((beat, beatIndex) => {
-    const beatId = beat.id ?? String(beatIndex);
-    return { ...beat, id: beatId, outcomes: beat.outcomes.map((outcome, outcomeIndex) => ({ ...outcome, id: outcome.id ?? `${beatId}:${outcomeIndex}` })) };
-  }),
-});
+const EXPANSION_ORIGINS = new Set(["active", "lookahead"]);
 
 export const sanitizeExpansion = (value: RuntimeExtras | undefined): ExpansionRuntimeState => {
   const existing = value?.expansion;
@@ -241,8 +231,7 @@ export const sanitizeExpansion = (value: RuntimeExtras | undefined): ExpansionRu
     // A cache does not survive the contract that produced it: the entry is dropped, and the stub is
     // re-generated on arrival like any other missing chain.
     ? Object.entries(existing.entries)
-      .filter(([, entry]) => entry.contract === EXPANSION_CONTRACT || (entry.contract === undefined && PLAYED_EXPANSION.has(entry.status)))
-      .map(([key, entry]) => [key, { ...(entry.contract === EXPANSION_CONTRACT ? entry : upgradeLegacyExpansion(entry)), origin: entry.origin ?? "active" }] as const)
+      .filter(([, entry]) => entry.contract === EXPANSION_CONTRACT && EXPANSION_ORIGINS.has(entry.origin))
       .filter(([, entry]) => !(UNFINISHED_EXPANSION.has(entry.status) && entry.origin === "active"))
       .map(([key, entry]) => [key, UNFINISHED_EXPANSION.has(entry.status) ? { ...entry, status: "stale" as const, lastError: "Interrupted before it finished" } : entry] as const)
     : [];

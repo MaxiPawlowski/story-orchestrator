@@ -64,6 +64,10 @@ export interface WizardLorebookGrant {
   confirmed: true;
 }
 
+/** What the UI saves: its snapshot does not carry the created-book list, which only the coordinator
+ *  writes, so a save without one keeps the stored list. */
+export type WizardSessionUpdate = Omit<WizardSessionState, "createdLorebooks"> & Partial<Pick<WizardSessionState, "createdLorebooks">>;
+
 export interface WizardSessionState {
   key: string;
   stage: string;
@@ -71,8 +75,8 @@ export interface WizardSessionState {
   questions: WizardQuestion[];
   applied: string[];
   /** V18: the subset of `applied` that is a LOREBOOK this wizard created. `applied` holds names only,
-   *  so a card and a book of the same name read the same there. Absent on sessions saved before it. */
-  createdLorebooks?: string[];
+   *  so a card and a book of the same name read the same there. */
+  createdLorebooks: string[];
   /** Author-confirmed write authority over existing lorebooks; never authored story content. */
   grants?: WizardLorebookGrant[];
   seed: string;

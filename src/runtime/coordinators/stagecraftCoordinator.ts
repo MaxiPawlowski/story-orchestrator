@@ -40,8 +40,8 @@ import {
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { beginRun, type RunGuard, type RunOwnership, type RunToken } from "../runToken";
 import {
-  clearStoryExtensionPrompt, disableWIEntry, enableWIEntry, getContext, getPlayerName, loadLorebook, readWIEntry, readWIEntryAt,
-  restoreWIEntryAt, setStoryExtensionPrompt, updateWIEntryByUid, upsertWIEntry, type WIEntryTarget,
+  clearStoryExtensionPrompt, getContext, getPlayerName, loadLorebook, readWIEntry, readWIEntryAt,
+  restoreWIEntryAt, setStoryExtensionPrompt, updateWIEntryByUid, type WIEntryTarget,
 } from "@services/STAPI";
 import { lorebookFileId } from "@utils/string";
 import type { ExtractionRuntimeSettings, StagecraftRuntimeState } from "../types";
@@ -110,8 +110,8 @@ const readPlayerLine = (replyMessageId: number): string | null => {
 // curator can never move the blackboard or a memory tier (spec addendum §Stagecraft).
 const RETAINED_OP_STATUSES = new Set(["applied", "revert-failed", "externally-edited"]);
 
-// V10: an op recorded with an entry uid is reverted by that uid, so a rename after the write does not
-// lose the entry. Records from before the uid was recorded keep the name + comment address.
+// V10: an op is reverted by the entry uid it recorded, so a rename after the write does not lose the
+// entry. An op recorded without one is never name-addressed: it is refused.
 const uidTarget = (entry: CuratorOpRecord): WIEntryTarget | null =>
   entry.target?.uid !== undefined ? { lorebookFileId: entry.target.lorebookFileId, uid: entry.target.uid } : null;
 
@@ -393,7 +393,8 @@ export class StagecraftCoordinator {
         // Compare-and-set: the entry has to still hold what this op wrote. If it does not, someone
         // else edited the book after us and putting our before-image back would silently undo them.
         const at = uidTarget(entry);
-        const current: { content: string; disabled: boolean; comment?: string } | null = at ? await readWIEntryAt(at) : await readWIEntry(entry.op.lorebook, entry.op.comment);
+        if (!at) { ops.unshift({ ...entry, status: "revert-failed", message: `"${entry.op.comment}" was recorded without a uid; not reverted` }); continue; }
+        const current = await readWIEntryAt(at);
         if (run.lapsed()) { ops.unshift(entry); continue; }
         if (current?.comment !== undefined && current.comment !== entry.op.comment && !isCuratorWritable(story, entry.op.lorebook, current.comment)) {
           ops.unshift({ ...entry, status: "externally-edited", message: `"${entry.op.comment}" is now "${current.comment}", which the curator may not write, so it was left alone` });
@@ -403,7 +404,7 @@ export class StagecraftCoordinator {
           ops.unshift({ ...entry, status: "externally-edited", message: `"${entry.op.comment}" changed after this write, so it was left alone` });
           continue;
         }
-        const restored = await this.restoreBefore(entry);
+        const restored = await this.restoreBefore(entry, at);
         if (restored) reverted += 1;
         else ops.unshift({ ...entry, status: "revert-failed", message: `could not restore "${entry.op.comment}"; the entry it would restore is kept for a retry` });
       }
@@ -421,16 +422,10 @@ export class StagecraftCoordinator {
   // One inverse host call, checked. `false` means the host refused or could not find the entry;
   // the caller keeps the record and its before-image rather than reporting a revert that did not
   // happen.
-  private async restoreBefore(entry: CuratorOpRecord): Promise<boolean> {
-    const { op, before } = entry;
-    if (!before || isNoteOp(op)) return false;
-    const at = uidTarget(entry);
+  private async restoreBefore(entry: CuratorOpRecord, at: WIEntryTarget): Promise<boolean> {
+    if (!entry.before || isNoteOp(entry.op)) return false;
     try {
-      if (at) return (await restoreWIEntryAt(at, before)).ok;
-      const written = await upsertWIEntry(op.lorebook, op.comment, before.content);
-      if (written === "failed") return false;
-      const toggled = before.disabled ? await disableWIEntry(op.lorebook, op.comment) : await enableWIEntry(op.lorebook, op.comment);
-      return toggled.ok;
+      return (await restoreWIEntryAt(at, entry.before)).ok;
     } catch {
       return false;
     }

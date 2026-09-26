@@ -201,13 +201,9 @@
       "status": "local",
       "note": "pushes into a function-local array it returns; the caller owns the write"
     },
-    "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.restoreBefore": {
-      "status": "partial",
-      "note": "v2.3 plan 04 (R2). The inverse of one curator write: it puts the entry's before-image back and reports whether the host agreed. Partial, not checked, for the same reason `runRollback` is: the token is checked by its caller `revertAppliedSince` immediately before each call, AFTER the compare-and-set read (AE-01, 2026-09-25; the check used to sit before that read, so a switch during it reached this write unchecked), and it is that loop which decides whether to keep or settle the record, so a check in here would be a second, weaker copy of the same decision. Every failure path returns false and leaves the record `revert-failed` with its before-image."
-    },
     "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.revertAppliedSince": {
       "status": "checked",
-      "note": "v2.3 plan 03 + AE-01 (2026-09-25): a RunGuard minted before the settle and checked at three places: at the top of each op, immediately after the compare-and-set read (before `restoreBefore`, the host write), and once more before the proposal patch. So a rollback that outlives its chat neither restores pre-write content into a shared lorebook nor settles records, journals or saves in the chat that replaced it. Before AE-01 the only check preceded the read, and the patch after the loop was unchecked."
+      "note": "v2.3 plan 03 + AE-01 (2026-09-25): a RunGuard minted before the settle and checked at three places: at the top of each op, immediately after the compare-and-set read (before `restoreBefore`, the host write), and once more before the proposal patch. So a rollback that outlives its chat neither restores pre-write content into a shared lorebook nor settles records, journals or saves in the chat that replaced it. Before AE-01 the only check preceded the read, and the patch after the loop was unchecked. v2.5 plan 11 (H16, re-read per rule 13): an op without a recorded uid is refused before any await, and `restoreBefore` is now the single uid-addressed host write (no write follows its await, so it left the census)."
     },
     "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.runCuratorPass": {
       "status": "checked",
@@ -287,7 +283,7 @@
     },
     "src/runtime/memoryMirror.ts#syncMemoryMirror": {
       "status": "checked",
-      "note": "v2.3 plan 03: it already had a hand-rolled chat comparison guarding the binding, which the census could not see and which only asked about the chat. A story swap inside the same chat passed it, and the mirror book is per-chat but shared across stories. The comparison is kept (it is the only guard an unwired host has) and the token check added beside it."
+      "note": "v2.3 plan 03: it already had a hand-rolled chat comparison guarding the binding, which the census could not see and which only asked about the chat. A story swap inside the same chat passed it, and the mirror book is per-chat but shared across stories. The comparison is kept (it is the only guard an unwired host has) and the token check added beside it. v2.5 plan 11 (H18, re-read per rule 13): the E4 marker read and its await are gone; the marker is written only when adopting, after the lapse check that follows the sweep, and each remaining host write is still preceded by a check."
     },
     "src/runtime/mirrorReaper.ts#MirrorReaper.reap": {
       "status": "checked",

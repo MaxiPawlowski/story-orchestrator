@@ -15,6 +15,7 @@ export const newWizardSession = (key: string, seed = ""): WizardSessionState => 
   history: [],
   questions: [],
   applied: [],
+  createdLorebooks: [],
   seed,
   updatedAt: new Date().toISOString(),
 });
