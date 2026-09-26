@@ -13,6 +13,8 @@ import {
   setGroupMembersDisabled,
   getActiveGroup,
   getContext,
+  isHostGenerating,
+  stopHostGeneration,
 } from "@services/STAPI";
 import { quoteSlashArg } from "@utils/string";
 import { resolveSamplerOverlay, type SamplerApi } from "@utils/samplerKeys";
@@ -25,6 +27,7 @@ import type { EffectLedgerRow, EffectTarget, RuntimeExtras, RuntimeSnapshot } fr
 import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoGates";
 import { scanGatingActive } from "./worldInfoMode";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
+import { generationWatch } from "./generationWatch";
 
 // v2.3 plan 06. What a host effect changed, read back from the host as it is NOW. Every reader is a
 // QUESTION with an honest "cannot tell", so a reconcile never guesses: a target whose value cannot be
@@ -357,6 +360,20 @@ export class EffectsApplier {
     return this.deps.reads ?? { read: () => null };
   }
 
+  private async speak(reply: NpcReplyEffect) {
+    const lapse = reply.kind === "scripted" ? undefined : this.ownership.signal?.();
+    const before = generationWatch.openedCount();
+    const stopIfOurs = () => {
+      if (before !== null && generationWatch.openedCount() === before + 1 && isHostGenerating()) stopHostGeneration();
+    };
+    lapse?.addEventListener("abort", stopIfOurs, { once: true });
+    try {
+      await fireReply(reply);
+    } finally {
+      lapse?.removeEventListener("abort", stopIfOurs);
+    }
+  }
+
   async fireNpcReplies(checkpoint: Checkpoint, extras: RuntimeExtras, trigger: NpcReplyTrigger, occurrence?: number, speakerAliases: string[] = []) {
     if (trigger === "afterSpeak" && extras.lastSelfInjectionMessageId === lastMessageId()) return;
     const aliases = speakerAliases.map((alias) => alias.trim().toLowerCase());
@@ -382,7 +399,7 @@ export class EffectsApplier {
         if (!fired) continue;
       }
       extras.firedNpcReplies[key] = count + 1;
-      await fireReply(reply);
+      await this.speak(reply);
       if (!run.stillOwns()) return;
       extras.lastSelfInjectionMessageId = lastMessageId();
     }

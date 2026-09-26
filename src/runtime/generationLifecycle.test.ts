@@ -16,7 +16,7 @@ describe("GenerationLifecycle (v2.4 plan 01 T6)", () => {
     expect(g.ended([5])).toEqual([{ kind: "reapply", chid: 2 }]);
     expect(g.snapshot().outermost).toEqual({ type: "normal", watermark: 4 });
     expect(g.rendered(5, "normal")).toEqual([{ kind: "closed", reason: "rendered" }, { kind: "settled", rendered: true }]);
-    expect(g.snapshot()).toEqual({ outermost: null, nested: [], awaitingRender: null, draftedChid: null });
+    expect(g.snapshot()).toEqual({ outermost: null, nested: [], awaitingRender: null, draftedChid: null, openedCount: 1 });
   });
 
   it("ignores a foreign {source} STARTED, ENDED and STOPPED, alone and inside an open generation", () => {
@@ -102,7 +102,7 @@ describe("GenerationLifecycle (v2.4 plan 01 T6)", () => {
     g.drafted(1);
     g.started(["quiet", {}, false], 3);
     expect(g.chatChanged()).toEqual([{ kind: "closed", reason: "chat-changed" }, { kind: "settled", rendered: false }]);
-    expect(g.snapshot()).toEqual({ outermost: null, nested: [], awaitingRender: null, draftedChid: null });
+    expect(g.snapshot()).toEqual({ outermost: null, nested: [], awaitingRender: null, draftedChid: null, openedCount: 1 });
   });
 
   it("a new outermost drops a close still waiting for its render", () => {
@@ -111,5 +111,18 @@ describe("GenerationLifecycle (v2.4 plan 01 T6)", () => {
     g.ended([4]);
     expect(kinds(g.started(["normal", {}, false], 4))).toEqual(["settled:false", "opened"]);
     expect(g.rendered(3, "normal")).toEqual([]);
+  });
+
+  it("v2.5 plan 02 C1: counts each outermost it opens, never a nested, dry-run or foreign one", () => {
+    const g = lifecycle();
+    g.started(["normal", {}, false], 4);
+    g.started(["quiet", {}, false], 5);
+    g.started(["normal", {}, true], 5);
+    g.started([FOREIGN], 5);
+    expect(g.snapshot().openedCount).toBe(1);
+    g.chatChanged();
+    expect(g.snapshot().openedCount).toBe(1);
+    g.started(["normal", {}, false], 0);
+    expect(g.snapshot().openedCount).toBe(2);
   });
 });

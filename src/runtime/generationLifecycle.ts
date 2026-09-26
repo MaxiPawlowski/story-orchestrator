@@ -16,6 +16,7 @@ export interface GenerationLifecycleSnapshot {
   nested: Array<string | null>;
   awaitingRender: number | null;
   draftedChid: number | null;
+  openedCount: number;
 }
 
 const WITHHOLDING_TYPES: ReadonlySet<string> = new Set(["quiet", "impersonate"]);
@@ -48,6 +49,7 @@ export class GenerationLifecycle {
   private nested: Array<string | null> = [];
   private awaitingRender: number | null = null;
   private draftedChid: number | null = null;
+  private openedCount = 0;
 
   constructor(private readonly isTurn: (type: unknown) => boolean) {}
 
@@ -62,6 +64,7 @@ export class GenerationLifecycle {
     const stale: GenerationIntent[] = this.awaitingRender === null ? [] : [{ kind: "settled", rendered: false }];
     this.awaitingRender = null;
     this.outermost = { type, watermark: type !== null && REWRITES_LAST_MESSAGE.has(type) ? chatLength - 1 : chatLength };
+    this.openedCount += 1;
     return [...stale, { kind: "opened", type, params }];
   }
 
@@ -108,7 +111,7 @@ export class GenerationLifecycle {
   }
 
   snapshot(): GenerationLifecycleSnapshot {
-    return { outermost: this.outermost ? { ...this.outermost } : null, nested: [...this.nested], awaitingRender: this.awaitingRender, draftedChid: this.draftedChid };
+    return { outermost: this.outermost ? { ...this.outermost } : null, nested: [...this.nested], awaitingRender: this.awaitingRender, draftedChid: this.draftedChid, openedCount: this.openedCount };
   }
 
   private withheld(): boolean {

@@ -128,6 +128,7 @@ export interface HostPresetManager {
 export interface ScriptHostModule {
   setGenerationParamsFromPreset: (preset: Record<string, unknown>) => void;
   isGenerating: () => boolean;
+  stopGeneration: () => boolean;
   doNavbarIconClick: (this: Element) => Promise<void>;
   // script.js:405 — the name ST gives its own group `/sd` posts and tool-call rows (v2.4 01-H11).
   systemUserName: string;
