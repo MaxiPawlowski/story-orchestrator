@@ -1,4 +1,4 @@
-import { agencyFor, type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type ValidationError } from "@engine/index";
+import { agencyFor, type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type StoryEngine, type ValidationError } from "@engine/index";
 import type { DriverContext } from "@copilot/index";
 import { sceneFieldsInConflict, type LedgerView, type MemoryInjectionView } from "@memory/index";
 import { curatorLorebooks } from "@stagecraft/index";
@@ -22,6 +22,9 @@ import { roleHealth } from "./roleHealth";
 import { readChatIdentity } from "./chatIdentity";
 import type { ExtensionPromptBlocks } from "@services/STAPI";
 import type { ExtractionHealth } from "@extraction/index";
+import type { CopilotCoordinator } from "./coordinators/copilotCoordinator";
+import type { MemoryCoordinator } from "./coordinators/memoryCoordinator";
+import type { PacingCoordinator } from "./coordinators/pacingCoordinator";
 import type { LoadedStory, PayloadCapture, RuntimeExtras, RuntimeSnapshot } from "./types";
 
 // The single composed model the UI subscribes to. Everything a rendering component needs lives
@@ -53,6 +56,45 @@ export interface SnapshotSources {
   fingerprints: MessageFingerprints | null;
   extractionHealth?: ExtractionHealth | null;
 }
+
+export interface SnapshotPort {
+  loaded: LoadedStory | null;
+  engine: StoryEngine;
+  extras: RuntimeExtras;
+  validationErrors: ValidationError[];
+  status: string;
+  notices: { lastRollback: RollbackNotice | null; rollbackUnavailable: RollbackUnavailable | null };
+  memory: MemoryCoordinator;
+  pacing: PacingCoordinator;
+  copilot: CopilotCoordinator;
+  payloadCaptures: PayloadCapture[];
+  extractionHealth: ExtractionHealth | null;
+  fingerprints: MessageFingerprints | null;
+  promptBlocks: ExtensionPromptBlocks;
+  chat: readonly unknown[];
+}
+
+export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
+  loaded: port.loaded,
+  state: port.loaded ? port.engine.serialize() : null,
+  extras: port.extras,
+  validationErrors: port.validationErrors,
+  status: port.status,
+  pendingWrites: port.loaded ? port.engine.pendingWrites : [],
+  boundaryLog: port.loaded ? port.engine.stateLog : [],
+  expectedTension: port.loaded ? port.pacing.expectedTension() : null,
+  openThreads: port.memory.getOpenArcs(),
+  canon: port.memory.canon.getCanonProse(),
+  ...port.notices,
+  ...port.memory.injector.readModels(),
+  driver: port.copilot.getDriverContext(),
+  activeNudge: port.copilot.getActiveNudge(),
+  payloadCaptures: port.payloadCaptures,
+  extractionHealth: port.extractionHealth,
+  promptBlocks: port.promptBlocks,
+  chat: port.chat,
+  fingerprints: port.fingerprints,
+});
 
 export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot {
   const { loaded, state, extras } = sources;

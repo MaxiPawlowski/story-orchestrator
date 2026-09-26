@@ -7,8 +7,8 @@ import {
 import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Suggestion } from "@copilot/index";
 import type { ProvisioningEnvironment, ProvisioningOp, ProvisioningResult, WizardSessionState, WizardSessionUpdate } from "@wizard/index";
 import {
-  type ExtraGateSource, type ExtractionScheduler, type ParsedDelta, type ParsedFact, type ReadOwnership, type SchedulerJob,
-  type SharedReadAudit, type SharedReadWindow,
+  type ExtraGateSource, type ExtractionScheduler, type ParsedDelta, type ParsedFact, type ReadOwnership,
+  type SchedulerJob, type SharedReadAudit, type SharedReadWindow,
 } from "@extraction/index";
 import {
   clearAllMemoryInjection, type ArcEntry, type EpistemicEntry, type LedgerView, type MemoryEntry, type MemoryTier,
@@ -21,32 +21,25 @@ import {
 import { createModelCall } from "./modelCall";
 import { AwayRecapController, type AwayRecap } from "./awayRecap";
 import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./narrative";
-import { CopilotCoordinator } from "./coordinators/copilotCoordinator";
-import { PacingCoordinator } from "./coordinators/pacingCoordinator";
 import { coordinatorHosts } from "./coordinatorHosts";
-import { ExpansionCoordinator } from "./coordinators/expansionCoordinator";
-import { ExtractionCoordinator, type JudgedExtractionWork } from "./coordinators/extractionCoordinator";
-import { MemoryCoordinator } from "./coordinators/memoryCoordinator";
+import type { JudgedExtractionWork } from "./coordinators/extractionCoordinator";
+import { wireCoordinators } from "./managerWiring";
 import type { MemoryMirrorSummary } from "./memoryMirror";
-import { StagecraftCoordinator } from "./coordinators/stagecraftCoordinator";
-import { createCuratorFilter } from "./curatorFilter";
-import { createWarden, establishedFacts } from "./continuity";
 import { activeSpeakerId, enabledCharacterIds, namesForRosterId, rosterIdForName } from "./roster";
 import { EffectsApplier } from "./effectsApplier";
 import { createExtras, hydrateExtras, TALK_DECISION_LIMIT } from "./extras";
 import { SettingsControl } from "./settingsControl";
 import { beginRun, type RunContext, type RunOwnership } from "./runToken";
 import { RunOwner } from "./runOwner";
-import { runRollback, type DecodeJournal, type RollbackDeps } from "./rollback";
+import { runRollback, type DecodeJournal } from "./rollback";
 import { memoryActions, memoryDelegates } from "./memoryActions";
-import { agencyRecovery, playerTurnIds } from "./agencyRecovery";
 import { readEffectTarget, reconcileEffectLedger, restoreEffectTarget } from "./effectHost";
 import { ChatSave } from "./chatSave";
 import { hasUnsavedChanges } from "./saveHealth";
 import { getGlobalSettings, setGlobalSettings } from "./settingsStore";
 import { buildPossibleTransitions } from "./snapshot";
-import { buildRuntimeSnapshot } from "./snapshotBuilder";
-import { applyStoryUpdate, type StoryUpdateDeps, type StoryUpdateOutcome } from "./storyUpdate";
+import { buildRuntimeSnapshot, snapshotSources } from "./snapshotBuilder";
+import { applyStoryUpdate, type StoryUpdateOutcome } from "./storyUpdate";
 import { parseQualityValue } from "./values";
 import { SessionJournal, type JournalEvent, type JournalRecordKind } from "./journal";
 import { evaluateRequirements } from "./requirements";
@@ -57,7 +50,7 @@ import {
   type StorySelectionDeps,
 } from "./storySelection";
 import { clearWizardSession, loadWizardSession, saveWizardSession } from "./wizardSessions";
-import { confirmPreflight, requestBudgetFor } from "./requestBudget";
+import { confirmPreflight } from "./requestBudget";
 import type {
   CopilotRuntimeSettings, PersistedStoryRuntime, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory,
   MemoryRuntimeSettings, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, StagecraftRuntimeState,
@@ -71,13 +64,11 @@ export class RuntimeManager {
   private judge: JudgeRuntime | null = null;
   private validationErrors: ValidationError[] = [];
   private status = "No story loaded";
-  // v2.3 plan 03: which world this run belongs to. The rules live in RunOwner.
   private readonly owner = new RunOwner({
     openChatId: () => String(getContext().chatId ?? ""),
     storyId: () => this.loaded?.record.id ?? null,
     playedVersion: () => this.loaded?.record.version ?? null,
   });
-  /** v2.3 plan 03: dropped queued work belongs to the world that just ended. See RunOwner. */
   onEpochChanged(listener: () => void) { return this.owner.onChanged(listener); }
   invalidateRuns() { this.awayRecap.dismissUnless(String(getContext().chatId ?? "")); this.owner.bump(); }
   noteRecap(summary: string, detail: string, kind: JournalRecordKind = "story") { this.journal.record(kind, summary, this.journalContext(), detail); this.extras.journal = this.journal.getRecords(); }
@@ -99,101 +90,39 @@ export class RuntimeManager {
     recap: (summary, detail) => this.noteRecap(summary, detail),
     rollback: (messageId, journal) => this.rollbackFromMessage(messageId, journal),
   });
-  // V26: what every coordinator reads the loaded story and engine through, and how each one saves.
   private readonly view = { getStory: () => this.loaded?.story ?? null, getState: () => (this.loaded ? this.engine.serialize() : null), hosts: coordinatorHosts };
   readonly model = createModelCall({ settings: () => this.getExtractionSettings(), exists: profileExists });
   private readonly lifecycle = { persist: () => this.persist(), notify: () => this.notify(), ownership: this.owner.ownership, model: this.model };
-  private readonly memory: MemoryCoordinator = new MemoryCoordinator({
-    ...this.view,
-    historyFloor: () => (this.loaded ? this.engine.historyFrom().messageId : null),
-    getMemory: () => this.extras.memory,
-    setMemory: (next) => { this.extras.memory = next; },
-    getFiredTransitions: () => this.getFiredTransitions(),
-    getExpansionGateSources: () => this.getExpansionGateSources(),
+  private readonly co = wireCoordinators({
+    view: this.view, lifecycle: this.lifecycle, engine: this.engine, loaded: () => this.loaded, extras: () => this.extras, judge: () => this.judge,
+    setStatus: (status) => { this.status = status; }, unsaved: () => !this.chatSave.landed(), commitBoundary: () => this.commitBoundary(),
+    firedTransitions: () => this.getFiredTransitions(), gateSources: () => this.getExpansionGateSources(), replaceStory: (story) => this.replaceStory(story),
     enqueueExtractorDeltas: (accepted, window, origin) => this.enqueueExtractorDeltas(accepted, window, origin),
-    enqueueMechanical: (deltas) => this.engine.enqueue({ source: "mechanical", blackboardVersionSum: 0, deltas }),
-    ...this.lifecycle,
-    judge: () => this.judge,
-    getScene: () => this.extras.judge.scene,
-    rereadWindow: (window, reason) => this.extraction.runNow(undefined, reason, window),
-    unsaved: () => !this.chatSave.landed(),
-  });
-  /** v2.3 plan 05: the author's memory decisions, in one object (see memoryActions.ts). */
-  readonly memoryActions = memoryActions(memoryDelegates(this.memory));
-  private readonly expansion: ExpansionCoordinator = new ExpansionCoordinator({
-    ...this.view,
-    getStoryRaw: () => this.loaded?.record.raw,
-    getExpansion: () => this.extras.expansion,
-    getCanon: () => this.memory.canon.getCanon(),
-    getFactTexts: () => this.memory.getFacts().map((fact) => fact.text),
-    replaceStory: (story) => this.replaceStory(story),
-    judge: () => this.judge,
-    getSceneRead: () => this.extras.judge.scene,
-    refusing: () => agencyRecovery(this.loaded?.story ?? null, this.loaded ? this.engine.serialize() : null, this.loaded ? this.engine.stateLog : [], this.extras.extraction.audits, playerTurnIds(getContext().chat ?? [])) !== null,
-    setStatus: (status) => { this.status = status; },
-    ...this.lifecycle,
-  });
-  private readonly extraction: ExtractionCoordinator = new ExtractionCoordinator({
-    ...this.view,
-    getExtraction: () => this.extras.extraction,
-    memory: this.memory,
-    getFiredTransitions: () => this.getFiredTransitions(),
-    getExpansionGateSources: () => this.getExpansionGateSources(),
-    enqueueExtractorDeltas: (accepted, window, origin) => this.enqueueExtractorDeltas(accepted, window, origin),
-    commitBoundary: () => this.commitBoundary(),
     fireSceneBreakReplies: (occurrence) => this.effects.fireNpcReplies(this.engine.activeCheckpoint, this.extras, "sceneBreak", occurrence),
-    emitSceneBreak: (audit, collect) => this.sceneBreakListeners.forEach((listener) => listener(audit, collect)),
-    emitArcsResolved: (arcs) => { if (this.loaded && arcs.length) this.arcResolvedListeners.forEach((listener) => listener(arcs.map((arc) => arc.id))); },
-    setStatus: (status) => { this.status = status; },
-    judge: () => this.judge,
-    requestBudget: (role) => requestBudgetFor(role),
-    ...this.lifecycle,
-  });
-  private readonly pacing: PacingCoordinator = new PacingCoordinator({
-    ...this.view,
-    getStateLog: () => this.engine.stateLog,
-    getTensionTarget: () => this.engine.activeCheckpoint?.tension_target,
-    getTension: () => this.extras.tension,
-    setTension: (next) => { this.extras.tension = next; },
-    getPacing: () => this.extras.pacing,
-  });
-  private lastStoryUpdate: StoryUpdateOutcome | null = null;
-  private readonly storyUpdateDeps: StoryUpdateDeps = {
-    getLoaded: () => this.loaded,
-    getState: () => (this.loaded ? this.engine.serialize() : null),
-    mergeStory: (raw, base) => this.expansion.mergedStoryOrBase(raw, base),
-    swapStory: (loaded, state, reanchored) => this.swapStory(loaded, state, reanchored),
-    restart: () => this.restartStory(true),
-    ownership: this.owner.ownership,
-    journal: (outcome) => {
-      this.lastStoryUpdate = outcome;
-      this.journal.record("story", `story updated v${outcome.fromVersion} → v${outcome.toVersion} (${outcome.classification}${outcome.choice ? `, ${outcome.choice}` : ""})`, this.journalContext(), outcome.reason);
-      this.extras.journal = this.journal.getRecords();
+    sceneBreakListeners: this.sceneBreakListeners, arcResolvedListeners: this.arcResolvedListeners,
+    journal: (kind, summary, note) => { this.journal.record(kind, summary, this.journalContext(), note); this.extras.journal = this.journal.getRecords(); },
+    rollback: {
+      journal: this.journal, context: () => ({ ...this.getBoundaryContext(), journal: this.journalContext() }), refreshRequirements: () => this.refreshRequirements(),
+      reapplyCheckpoint: async (messageId) => { await this.effects.restoreFor(this.extras, { since: messageId }); await this.applyActive("hydrate"); },
+      notices: this.notices, onApplied: (messageId, window) => this.rollbackListeners.forEach((listener) => listener(messageId, window)),
     },
-  };
-  private readonly stagecraft: StagecraftCoordinator = new StagecraftCoordinator({
-    ...this.view,
-    getStagecraft: () => this.extras.stagecraft,
-    setStagecraft: (next) => { this.extras.stagecraft = next; },
-    getCanon: () => this.memory.canon.getCanon(),
-    getOpenArcs: () => this.memory.getOpenArcs(),
-    filterEntries: createCuratorFilter(() => this.judge),
-    warden: createWarden(() => this.judge, this.view, {
-      facts: () => establishedFacts(this.extras.memory.entries, this.memory.getLedger(), this.memory.boundProvenance(), this.extras.memory.conflicts),
-      nudgeActive: () => this.copilot.getActiveNudge() !== null,
-    }),
-    journal: (summary, note) => { this.journal.record("stagecraft", summary, this.journalContext(), note); this.extras.journal = this.journal.getRecords(); },
-    ...this.lifecycle,
+    storyUpdate: {
+      swapStory: (loaded, state, reanchored) => this.swapStory(loaded, state, reanchored), restart: () => this.restartStory(true),
+      journal: (outcome) => {
+        this.lastStoryUpdate = outcome;
+        this.journal.record("story", `story updated v${outcome.fromVersion} → v${outcome.toVersion} (${outcome.classification}${outcome.choice ? `, ${outcome.choice}` : ""})`, this.journalContext(), outcome.reason);
+        this.extras.journal = this.journal.getRecords();
+      },
+    },
   });
-  private readonly copilot: CopilotCoordinator = new CopilotCoordinator({
-    ...this.view,
-    getSettings: () => this.extras.copilot,
-    getCanon: () => this.memory.canon.getCanon(),
-    ...this.lifecycle,
-    wizardSession: (key) => loadWizardSession(key),
-    saveWizardSession: (session) => saveWizardSession(session),
-    openChat: () => String(getContext().chatId ?? "") || null,
-  });
+  private readonly memory = this.co.memory;
+  private readonly expansion = this.co.expansion;
+  private readonly extraction = this.co.extraction;
+  private readonly pacing = this.co.pacing;
+  private readonly stagecraft = this.co.stagecraft;
+  private readonly copilot = this.co.copilot;
+  readonly memoryActions = memoryActions(memoryDelegates(this.memory));
+  private lastStoryUpdate: StoryUpdateOutcome | null = null;
 
   constructor() {
     this.effects = new EffectsApplier(this.owner.ownership, { reads: { read: readEffectTarget }, restore: restoreEffectTarget, persist: () => this.persist(), unsaved: () => hasUnsavedChanges(this.extras.saveHealth), journal: (summary, note) => this.noteRecap(summary, note ?? "") });
@@ -334,29 +263,12 @@ export class RuntimeManager {
     this.notify();
   }
 
-  private readonly rollbackDeps: RollbackDeps = {
-    engine: this.engine,
-    journal: this.journal,
-    context: () => ({ ...this.getBoundaryContext(), journal: this.journalContext() }),
-    memory: this.memory,
-    stagecraft: this.stagecraft,
-    pacing: this.pacing,
-    revalidateExpansion: () => this.expansion.revalidateInserted(),
-    extras: () => this.extras,
-    refreshRequirements: () => this.refreshRequirements(),
-    reapplyCheckpoint: async (messageId) => { await this.effects.restoreFor(this.extras, { since: messageId }); await this.applyActive("hydrate"); },
-    ...this.lifecycle,
-    notices: this.notices,
-    setStatus: (status) => { this.status = status; },
-    onApplied: (messageId, window) => this.rollbackListeners.forEach((listener) => listener(messageId, window)),
-  };
-
   async rollbackFromMessage(messageId: number, decoded?: DecodeJournal): Promise<RollbackOutcome> {
     // A mutation's POSITION is recorded: an in-flight read whose window reaches it is invalidated,
     // a reply merely appended later is not. See `tokenMatches`.
     this.owner.noteMutation(messageId); this.chatSave.fingerprints.forgetFrom(messageId);
     if (!this.loaded) return { ok: true, result: "noop" };
-    const run = runRollback(this.rollbackDeps, messageId, decoded);
+    const run = runRollback(this.co.rollbackDeps, messageId, decoded);
     this.rollbackRun = Promise.allSettled([this.rollbackRun, run]);
     return run;
   }
@@ -369,7 +281,6 @@ export class RuntimeManager {
   getEngineState(): EngineState | null { return this.loaded ? this.engine.serialize() : null; }
   getExtractionSettings(): ExtractionRuntimeSettings { return this.extras.extraction.settings; }
 
-  // v2.3 plan 06: rows the process died mid-write on are decided against what the host holds now.
   private reconcileEffectLedger() {
     const { rows, notes } = reconcileEffectLedger(this.extras.effects.ledger);
     this.extras.effects.ledger = rows;
@@ -469,7 +380,6 @@ export class RuntimeManager {
   async editMemoryEntry(id: string, text: string) { await this.memory.editMemoryEntry(id, text); }
   async storeDroppedMemory(id: string) { return this.memory.queue.storeDroppedEntry(id); }
   attachJudge(judge: JudgeRuntime) { this.judge = judge; }
-  // v2.3 plan 09: the next-turn preview's controls. The scene coordinator lives in runtime/index.ts.
   private sceneRunner: { rerun(): Promise<unknown> } | null = null;
   attachScene(scene: { rerun(): Promise<unknown> } | null) { this.sceneRunner = scene; }
   readonly previewActions = { clearNote: () => this.stagecraft.clearContinuityNote(), rerunScene: async () => { await this.sceneRunner?.rerun(); } };
@@ -485,42 +395,21 @@ export class RuntimeManager {
   async regenerateCanon(force = false): Promise<boolean> { return this.memory.canon.regenerateCanon(force); }
   scheduleExpansionForActive(schedule: (reason: string, run: () => Promise<void>) => void) { return this.expansion.scheduleForActive(schedule); }
   async runExpansionNow(debugResponse?: string, confirm = false) { return this.expansion.runNow(debugResponse, confirm ? (preflight) => confirmPreflight(preflight, "authoring") : undefined); }
-  /** v2.3 plan 07: the boundary promotion and the author's regenerate, in one surface. */
   readonly expansions = { commitValidated: () => this.expansion.commitValidated(), regenerate: (key: string) => this.expansion.regenerate(key) };
 
-  /**
-   * v2.3 plan 03: the identity in-flight work is checked against, for writers constructed outside
-   * the manager. Exposed so a live gate can assert ownership without guessing — `so-state current`
-   * reports it, and the switch-mid-read scenario needs to see the epoch move. Read-only: nothing
-   * outside may set it.
-   */
+  /** The identity in-flight work is checked against, for writers constructed outside the manager; read-only. */
   getOwnership(): RunOwnership { return this.owner.ownership; }
 
   getRunContext(): RunContext { return this.owner.context(); }
 
   getSnapshot(): RuntimeSnapshot {
-    return buildRuntimeSnapshot({
-      loaded: this.loaded,
-      state: this.loaded ? this.engine.serialize() : null,
-      extras: this.extras,
-      validationErrors: this.validationErrors,
-      status: this.status,
-      pendingWrites: this.loaded ? this.engine.pendingWrites : [],
-      boundaryLog: this.loaded ? this.engine.stateLog : [],
-      expectedTension: this.loaded ? this.pacing.expectedTension() : null,
-      openThreads: this.memory.getOpenArcs(),
-      canon: this.memory.canon.getCanonProse(),
-      ...this.notices,
-      ...this.memory.injector.readModels(),
-      driver: this.copilot.getDriverContext(),
-      activeNudge: this.copilot.getActiveNudge(),
-      payloadCaptures: this.journal.getCaptures(),
-      extractionHealth: this.scheduler?.health() ?? null,
-    // A live in-memory read of ST's own extension prompts: cheap, and the only honest answer to
-    // "what will the next reply carry" (a capture answers what the LAST one carried).
-    promptBlocks: readExtensionPromptBlocks(),
-    chat: getContext().chat ?? [], fingerprints: this.chatSave.fingerprints.current,
-    });
+    return buildRuntimeSnapshot(snapshotSources({
+      ...this.co, loaded: this.loaded, engine: this.engine, extras: this.extras, validationErrors: this.validationErrors, status: this.status,
+      notices: this.notices, payloadCaptures: this.journal.getCaptures(), extractionHealth: this.scheduler?.health() ?? null,
+      // A live in-memory read of ST's own extension prompts: cheap, and the only honest answer to
+      // "what will the next reply carry" (a capture answers what the LAST one carried).
+      promptBlocks: readExtensionPromptBlocks(), chat: getContext().chat ?? [], fingerprints: this.chatSave.fingerprints.current,
+    }));
   }
 
   capturePayload(reason = "generation") {
@@ -572,7 +461,7 @@ export class RuntimeManager {
 
   // The author edited this story from this chat: take the saved version without losing the run.
   // Every other chat keeps its pinned copy (spec addendum §Story identity).
-  async applyStoryUpdate(record?: StoryLibraryRecord): Promise<StoryUpdateOutcome> { return applyStoryUpdate(this.storyUpdateDeps, record); }
+  async applyStoryUpdate(record?: StoryLibraryRecord): Promise<StoryUpdateOutcome> { return applyStoryUpdate(this.co.storyUpdateDeps, record); }
   getLastStoryUpdate(): StoryUpdateOutcome | null { return this.lastStoryUpdate; }
 
   private async swapStory(loaded: LoadedStory, state: EngineState | null, reanchored: boolean) {

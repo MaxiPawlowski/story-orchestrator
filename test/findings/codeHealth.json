@@ -10,9 +10,7 @@
     "fnNesting": 5,
     "lineChars": 200
   },
-  "s2": [
-    "src/runtime/runtimeManager.ts"
-  ],
+  "s2": [],
   "s3": [
     "src/components/drawer/DrawerTabs.tsx",
     "src/engine/validate.ts",
@@ -123,7 +121,7 @@
     "src/runtime/narrative.ts": 1,
     "src/runtime/pipeline.ts": 1,
     "src/runtime/roleCalibration.ts": 3,
-    "src/runtime/runtimeManager.ts": 11,
+    "src/runtime/runtimeManager.ts": 10,
     "src/runtime/samplerOverlayHost.ts": 1,
     "src/runtime/settingsModel.ts": 2,
     "src/runtime/settingsStore.ts": 1,
@@ -435,7 +433,7 @@
     "src/runtime/roster.ts": 1,
     "src/runtime/runOwner.ts": 5,
     "src/runtime/runToken.ts": 7,
-    "src/runtime/runtimeManager.ts": 9,
+    "src/runtime/runtimeManager.ts": 1,
     "src/runtime/saveEvidence.ts": 7,
     "src/runtime/saveEvidenceHost.ts": 1,
     "src/runtime/saveHealth.ts": 2,

@@ -13,9 +13,20 @@ const SRC = join(__dirname, "..");
 // the coordinator budget is back at 620. V26 part 2 moved the save chokepoint into runtime/chatSave.ts
 // and shared the coordinators' story/engine/lifecycle accessors (manager 775 -> 738). What is left is
 // the public delegate API plus lifecycle, boundary commit and load, so the budget is the measured size
-// (740), not 700: a stated decision, and any growth past it still fails.
-const MANAGER_LINE_BUDGET = 740;
-const COORDINATOR_LINE_BUDGET = 620;
+// (740), not 700: a stated decision, and any growth past it still fails. v2.5 plan 03 D3 moved the
+// coordinator wiring, the canon, the conflict queue, the memorize backlog and the curator's write
+// edge into delegated units, so both budgets come down to the design values with headroom below them.
+const MANAGER_LINE_BUDGET = 700;
+const COORDINATOR_LINE_BUDGET = 560;
+const DELEGATED_UNITS = ["runtime/memoryQueue.ts", "runtime/canonSynthesis.ts", "runtime/memorizeBacklog.ts", "runtime/curatorWriter.ts"];
+const COORDINATOR_SPECIFIER = /(^|\/)coordinators\/|^\.\/\w+Coordinator$/;
+const valueImportsOf = (source: string) => [...source.matchAll(/^import\s+(?!type\s)([\s\S]+?)\s+from\s+"([^"]+)"/gm)]
+  .filter((match) => !/^\{[^}]*\}$/.test(match[1].trim()) || match[1].replace(/\btype\s+\w+(\s+as\s+\w+)?/g, "").replace(/[{},\s]/g, "") !== "")
+  .map((match) => match[2]);
+const unitLeaks = (source: string) => ({
+  host: [...source.matchAll(/from\s+"([^"]+)"/g)].map((match) => match[1]).filter((specifier) => /@services|STAPI/.test(specifier)),
+  coordinators: valueImportsOf(source).filter((specifier) => COORDINATOR_SPECIFIER.test(specifier)),
+});
 const EFFECTIVE_WIDTH = 120;
 
 const walk = (dir: string): string[] =>
@@ -133,9 +144,18 @@ describe("architecture guards", () => {
 
   it("keeps coordinators from importing each other outside their typed deps", () => {
     for (const path of walk(join(SRC, "runtime/coordinators"))) {
-      const source = readFileSync(path, "utf8");
-      const valueImports = [...source.matchAll(/^import\s+(?!type\s)(.+?)\s+from\s+"(\.\/[^"]+)"/gm)].map((match) => match[2]);
+      const valueImports = valueImportsOf(readFileSync(path, "utf8")).filter((specifier) => COORDINATOR_SPECIFIER.test(specifier));
       expect({ path, valueImports }).toEqual({ path, valueImports: [] });
     }
+    expect(valueImportsOf('import { MemoryCoordinator } from "./memoryCoordinator";\nimport type { X } from "./copilotCoordinator";').filter((specifier) => COORDINATOR_SPECIFIER.test(specifier))).toEqual(["./memoryCoordinator"]);
+  });
+
+  it("keeps the delegated units host-free and off the coordinators they serve", () => {
+    for (const path of DELEGATED_UNITS.map((file) => join(SRC, file))) {
+      expect({ path, ...unitLeaks(readFileSync(path, "utf8")) }).toEqual({ path, host: [], coordinators: [] });
+    }
+    expect(unitLeaks('import { getContext } from "@services/STAPI";\nimport { MemoryCoordinator } from "./coordinators/memoryCoordinator";\nimport type { ExtractionCoordinator } from "./coordinators/extractionCoordinator";')).toEqual({
+      host: ["@services/STAPI"], coordinators: ["./coordinators/memoryCoordinator"],
+    });
   });
 });
