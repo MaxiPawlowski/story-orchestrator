@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
+import { DEBUG_DIR } from './lib/connection.mts';
 
 const USAGE = `Usage: node scripts/debug/st-payload.mts <arm|last|watch> [n] [options]
 
@@ -245,7 +246,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.exit(0);
   }
   if (command === 'arm' && process.argv.includes('--persist')) {
-    const out = resolve(process.cwd(), argValue('--out', '.debug/st-payload-session.jsonl'));
+    const out = resolve(process.cwd(), argValue('--out', resolve(DEBUG_DIR, 'st-payload-session.jsonl')));
     const intervalMs = Number(argValue('--interval-ms', 1000));
     runCli(async (page) => {
       await armPayloadCapture(page);

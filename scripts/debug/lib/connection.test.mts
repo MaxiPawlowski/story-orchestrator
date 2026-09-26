@@ -26,10 +26,18 @@ test('ST_DEBUG_PROFILE_DIR and SO_LANES_ROOT override the default', () => {
   assert.equal(browserProfileFor({ SO_LANES_ROOT: 'E:/lanes' }, resolve(ROOT, '.debug'), ROOT), resolve('E:/lanes/0/chromium-profile'));
 });
 
-test('an unset or blank SO_DEBUG_DIR keeps the historical directory', () => {
-  assert.equal(debugDirFor({}, ROOT), resolve(ROOT, '.debug'));
-  assert.equal(debugDirFor({ SO_DEBUG_DIR: '' }, ROOT), resolve(ROOT, '.debug'));
-  assert.equal(debugDirFor({ SO_DEBUG_DIR: '   ' }, ROOT), resolve(ROOT, '.debug'), 'whitespace is unset, not a directory named "   "');
+test('v2.5 plan 12 P3: an unset or blank SO_DEBUG_DIR defaults to lane 0 outside the served tree', () => {
+  const lane0 = resolve('C:/dev/so-lanes/0/debug');
+  assert.equal(debugDirFor({}, ROOT), lane0);
+  assert.equal(debugDirFor({ SO_DEBUG_DIR: '' }, ROOT), lane0);
+  assert.equal(debugDirFor({ SO_DEBUG_DIR: '   ' }, ROOT), lane0, 'whitespace is unset, not a directory named "   "');
+  assert.ok(!debugDirFor({}, ROOT).split(/[\/]/).includes('public'), 'run logs, journals and payload captures hold chat text; ST serves public/');
+  assert.equal(debugDirFor({ SO_LANES_ROOT: 'E:/lanes' }, ROOT), resolve('E:/lanes/0/debug'));
+});
+
+test('the default lane-0 debug dir keeps the existing lane-0 browser profile beside it', () => {
+  assert.equal(browserProfileFor({}, debugDirFor({}, ROOT), ROOT), resolve('C:/dev/so-lanes/0/chromium-profile'));
+  assert.equal(browserProfileFor({ SO_LANES_ROOT: 'E:/lanes' }, debugDirFor({ SO_LANES_ROOT: 'E:/lanes' }, ROOT), ROOT), resolve('E:/lanes/0/chromium-profile'));
 });
 
 test('a relative SO_DEBUG_DIR resolves under the project root', () => {
