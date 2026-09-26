@@ -16,6 +16,7 @@
     "package": "node scripts/release/package.mjs",
     "stage": "node scripts/release/stage.mjs",
     "notices": "node scripts/release/notices.mjs",
+    "inventory": "node scripts/release/inventory.mjs",
     "start": "npm run dev",
     "dev": "cross-env NODE_ENV=development concurrently \"webpack --mode development --watch\" \"tsc --noEmit --watch\"",
     "test": "jest --runInBand",
