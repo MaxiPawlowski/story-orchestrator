@@ -9,7 +9,7 @@ import { getGlobalSettings, setGlobalSettings } from "./settingsStore";
 import { listStoryRecords } from "./storyLibrary";
 import { createWiGating, type CapabilityReading, type NormalizePreviewBook, type WiGating } from "./worldInfoGating";
 import { gatedBy } from "./worldInfoLedger";
-import { noteScanGate, scanGatingActive, setScanGatingActive, setWiGatingStatus } from "./worldInfoMode";
+import { noteScanGate, scanGatingActive, setScanGatingActive, setScanGatingSettled, setWiGatingStatus } from "./worldInfoMode";
 import type { NormalizeOutcome } from "./worldInfoNormalize";
 import { ScanGateProvider, type ScanGateChoice } from "./worldInfoScan";
 
@@ -71,6 +71,7 @@ const confirmNormalisation = (preview: NormalizePreviewBook[]) => {
 // in file mode, it does nothing and the file path runs.
 export function startScanGating(deps: ScanGatingWiring): { reassert: () => void; dispose: () => void } {
   setScanGatingActive(false);
+  setScanGatingSettled(false);
   let ledger: NormalizedLedger = getGlobalSettings().worldInfo.normalized;
   let handle: ScanGatingHandle | null = null;
   let lastScan: (ScanGateStats & { owner: "story" | "no-story" }) | null = null;
@@ -120,6 +121,7 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
       },
     },
     setActive: setScanGatingActive,
+    settle: setScanGatingSettled,
     replayFilePath: async () => {
       const story = deps.story();
       const owned = story && deps.chatId() !== null && deps.chatId() === deps.ownedChat() ? story : null;
