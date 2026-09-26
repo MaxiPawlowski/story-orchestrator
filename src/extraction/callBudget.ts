@@ -6,14 +6,19 @@ export const CHARS_PER_TOKEN_ESTIMATE = 4;
 export const CALL_TIMEOUT_MS_PER_INPUT_TOKEN = 2;
 export const TIMEOUT_RETRY_SCALE = 2;
 
-export const debugCallBudgetScale = (): number => {
+export const debugCallBudgetScale = (kind?: string): number => {
   if (typeof __SO_DEV__ === "undefined" || !__SO_DEV__) return 1;
   const scale: unknown = Reflect.get(globalThis, "storyOrchestratorDebugCallBudgetScale");
-  return typeof scale === "number" && Number.isFinite(scale) && scale > 0 ? scale : 1;
+  if (!(typeof scale === "number" && Number.isFinite(scale) && scale > 0)) return 1;
+  const target: unknown = Reflect.get(globalThis, "storyOrchestratorDebugCallBudgetTarget");
+  return typeof target === "string" && target !== "" && target !== kind ? 1 : scale;
 };
 
-export const callTimeoutMs = (maxTokens: number, inputTokens = 0): number =>
-  Math.round((CALL_TIMEOUT_BASE_MS + Math.max(0, Math.ceil(maxTokens)) * CALL_TIMEOUT_MS_PER_TOKEN + Math.max(0, Math.ceil(inputTokens)) * CALL_TIMEOUT_MS_PER_INPUT_TOKEN) * debugCallBudgetScale());
+const unscaledTimeoutMs = (maxTokens: number, inputTokens: number): number =>
+  CALL_TIMEOUT_BASE_MS + Math.max(0, Math.ceil(maxTokens)) * CALL_TIMEOUT_MS_PER_TOKEN + Math.max(0, Math.ceil(inputTokens)) * CALL_TIMEOUT_MS_PER_INPUT_TOKEN;
+
+export const callTimeoutMs = (maxTokens: number, inputTokens = 0, kind?: string): number =>
+  Math.round(unscaledTimeoutMs(maxTokens, inputTokens) * debugCallBudgetScale(kind));
 
 export type PassFamily = "sharedRead" | "sceneSummary" | "shortTerm" | "arcSummary" | "canon" | "epistemic" | "ledger" | "curator";
 

@@ -270,7 +270,8 @@ body.no-blur dialog#so-studio-modal {
 }
 
 #drawer-manager .menu_button,
-#story-orchestrator-settings .menu_button {
+#story-orchestrator-settings .menu_button,
+#so-studio-modal .menu_button {
   white-space: nowrap;
   overflow-wrap: normal;
   width: auto;

@@ -1,4 +1,4 @@
-import { askText, buildFixtureRun, parseSharedReadResponse, type ExtractionFixtureSpec, type ModelCall } from "@extraction/index";
+import { askText, buildFixtureRun, parseSharedReadResponse, type ExtractionFixtureSpec, type ExtractionReply, type ModelCall, type ModelPass, type PassRole } from "@extraction/index";
 import { profileExists } from "@services/STAPI";
 import { createModelCall } from "./modelCall";
 import { buildTypedPlan, readTypedDeltas } from "@judge/index";
@@ -36,6 +36,7 @@ export interface LiveSuiteHandle {
   runCuratorCreate: (entry: CreateCase) => Promise<{ prompt: string; rawResponse: string; sample: CreateCaseSample }>;
   runRoleCase: <R extends CalibrationRole>(role: R, entry: CalibrationCaseMap[R]) => Promise<RoleCaseRecord<R>>;
   summarizeRoleCalibration: (role: CalibrationRole, records: RoleCaseRecord[], options?: { floorIds?: string[] }) => RoleSummary;
+  askModel: (prompt: string, maxTokens: number, role: PassRole) => Promise<ExtractionReply>;
 }
 
 const withHints = (story: unknown, hints: LiveFixtureOptions["hints"]) => {
@@ -43,6 +44,8 @@ const withHints = (story: unknown, hints: LiveFixtureOptions["hints"]) => {
   const raw = story as { qualities?: Array<Record<string, unknown>> };
   return { ...raw, qualities: (raw.qualities ?? []).map((quality) => ({ ...quality, ...(hints[String(quality.key)] ?? {}) })) };
 };
+
+const ROLE_PASS: Record<PassRole, ModelPass> = { read: "read", synthesis: "sceneSummary", authoring: "copilot", director: "director", curator: "curator" };
 
 const liveModel = (manager: RuntimeManager): ModelCall => createModelCall({ settings: () => manager.getExtractionSettings(), exists: profileExists, planted: false });
 
@@ -52,6 +55,7 @@ export function registerLiveSuite(manager: RuntimeManager) {
     runCuratorCreate: curatorCreateRunner(manager),
     runRoleCase: (role, entry) => runRoleCase(role, entry, { profileId: manager.getExtractionSettings().profileId, model }),
     summarizeRoleCalibration,
+    askModel: (prompt, maxTokens, role) => model(prompt, { role, pass: ROLE_PASS[role], maxTokens }),
     runFixture: async (spec, options = {}) => {
       const hinted = { ...spec, story: withHints(spec.story, options.hints) };
       const first = buildFixtureRun(hinted);

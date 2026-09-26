@@ -1,0 +1,122 @@
+{
+  "probe": "hn1bNoModel",
+  "started": "2026-09-26T12:51:05.911Z",
+  "finished": "2026-09-26T12:51:58.046Z",
+  "node": "v22.22.0",
+  "data": {
+    "claude": {
+      "iso": {
+        "argv": [
+          "-p",
+          "--tools",
+          "",
+          "--strict-mcp-config",
+          "--setting-sources",
+          "",
+          "--no-session-persistence",
+          "--exclude-dynamic-system-prompt-sections",
+          "--output-format",
+          "json",
+          "--model",
+          "haiku"
+        ],
+        "code": 1,
+        "wallMs": 1692,
+        "markerUser": false,
+        "markerProject": false,
+        "nodeChildren": 0,
+        "stdout": "{\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"b74b65ac-7759-4aab-b2ec-d3f40d8dcaa1\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"output_tokens\":0,\"server_tool_use\":{\"web_search_requests\":0,\"web_fetch_requests\":0},\"service_tier\":\"standard\",\"cache_creation\":{\"ephemeral_1h_input_tokens\":0,\"ephemeral_5m_input_tokens\":0},\"inference_geo\":\"\",\"iterations\":[],\"speed\":\"standard\"},\"modelUsage\":{},\"permission_denials\":[],\"terminal_reason\":\"api_error\",\"fast_mode_state\":\"off\",\"fast_m",
+        "stderr": ""
+      },
+      "control": {
+        "argv": [
+          "-p",
+          "--output-format",
+          "json",
+          "--model",
+          "haiku"
+        ],
+        "code": 1,
+        "wallMs": 4666,
+        "markerUser": true,
+        "markerProject": true,
+        "nodeChildren": 2,
+        "stdout": "{\"duration_api_ms\":0,\"stop_reason\":\"stop_sequence\",\"session_id\":\"8a5e4604-427d-45d2-a3c9-b658aec83b3e\",\"total_cost_usd\":0,\"usage\":{\"output_tokens_details\":{\"thinking_tokens\":0},\"input_tokens\":0,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"output_tokens\":0,\"server_tool_use\":{\"web_search_requests\":0,\"web_fetch_requests\":0},\"service_tier\":\"standard\",\"cache_creation\":{\"ephemeral_1h_input_tokens\":0,\"ephemeral_5m_input_tokens\":0},\"inference_geo\":\"\",\"iterations\":[],\"speed\":\"standard\"},\"modelUsage\":{},\"permission_denials\":[],\"terminal_reason\":\"api_error\",\"fast_mode_state\":\"off\",\"fast_m",
+        "stderr": ""
+      }
+    },
+    "codex": {
+      "iso": {
+        "argv": [
+          "exec",
+          "-",
+          "--json",
+          "--ephemeral",
+          "--skip-git-repo-check",
+          "--ignore-rules",
+          "-s",
+          "read-only",
+          "--ignore-user-config",
+          "-C",
+          "C:\\Users\\ROLAPO~1\\AppData\\Local\\Temp\\so-p0\\cwd-A3ej0n"
+        ],
+        "code": 1,
+        "wallMs": 25906,
+        "marker": false,
+        "nodeChildren": 0,
+        "events": [
+          "thread.started",
+          "turn.started",
+          "error",
+          "error",
+          "error",
+          "error",
+          "item.completed",
+          "error",
+          "error",
+          "error",
+          "error",
+          "error"
+        ],
+        "stdout": "{\"type\":\"thread.started\",\"thread_id\":\"01a0ddc5-0e98-7c33-b92f-bfe9cd6686d9\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"Reconnecting... 2/5 (unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: wss://api.openai.com/v1/responses, cf-ray: a41266e6ef234305-MAD)\"}\n{\"type\":\"error\",\"message\":\"Reconnecting... 3/5 (unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: wss://api.openai.com/v1/responses, cf-ray: a41266ea0d05cc54-MAD)\"}\n{\"type\":\"error\",\"message\":\"Reconnecting... 4/5 (unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: wss://api.openai.com/v1/responses, cf-ray: a41266effffdf775-MAD)\"}\n{\"type\":\"error\",\"message\":\"Reconnecting... 5/5 (unexpected status 401 Unauthorize",
+        "stderr": "2026-09-26T12:51:15.043439Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-26T12:51:15.257659Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-26T12:51:15.512913Z ERROR codex_api::e",
+        "mcpListSeesCanary": true
+      },
+      "control": {
+        "argv": [
+          "exec",
+          "-",
+          "--json",
+          "--ephemeral",
+          "--skip-git-repo-check",
+          "--ignore-rules",
+          "-s",
+          "read-only",
+          "-C",
+          "C:\\Users\\ROLAPO~1\\AppData\\Local\\Temp\\so-p0\\cwd-bnpL93"
+        ],
+        "code": 1,
+        "wallMs": 18344,
+        "marker": true,
+        "nodeChildren": 1,
+        "events": [
+          "thread.started",
+          "turn.started",
+          "error",
+          "error",
+          "error",
+          "error",
+          "item.completed",
+          "error",
+          "error",
+          "error",
+          "error",
+          "error"
+        ],
+        "stdout": "{\"type\":\"thread.started\",\"thread_id\":\"01a0ddc5-722c-7ef2-bec1-8f02888493fc\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"error\",\"message\":\"Reconnecting... 2/5 (unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: wss://api.openai.com/v1/responses, cf-ray: a4126789bb520385-MAD)\"}\n{\"type\":\"error\",\"message\":\"Reconnecting... 3/5 (unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: wss://api.openai.com/v1/responses, cf-ray: a412678d1eb7a2f6-MAD)\"}\n{\"type\":\"error\",\"message\":\"Reconnecting... 4/5 (unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: wss://api.openai.com/v1/responses, cf-ray: a4126792d91b392c-MAD)\"}\n{\"type\":\"error\",\"message\":\"Reconnecting... 5/5 (unexpected status 401 Unauthorize",
+        "stderr": "2026-09-26T12:51:41.085382Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-26T12:51:41.223286Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://api.openai.com/v1/responses\n2026-09-26T12:51:41.557065Z ERROR codex_api::e",
+        "mcpListSeesCanary": true
+      }
+    }
+  }
+}

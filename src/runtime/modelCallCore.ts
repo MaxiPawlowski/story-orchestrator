@@ -34,7 +34,7 @@ export const createModelCallVia = (reply: RouteReply, deps: ModelCallDeps): Mode
     if (debugResponse !== null) return reply(prompt, null, { debugResponse });
     const resolution = resolveRoute(deps.settings(), ask.role, deps.exists);
     if (!resolution.ok) throw new ModelCallError("config", resolution.reason, resolution.profileId);
-    return reply(prompt, resolution.route, { maxTokens: ask.maxTokens, temperature: ask.temperature, signal: ask.signal, timeoutScale: ask.timeoutScale });
+    return reply(prompt, resolution.route, { maxTokens: ask.maxTokens, temperature: ask.temperature, signal: ask.signal, timeoutScale: ask.timeoutScale, budgetKind: ask.budgetKind });
   };
   call.planted = planted;
   return call;

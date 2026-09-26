@@ -613,6 +613,8 @@ export async function getGateReplayState(page, { transition = 0 } = {}) {
   if (await button.count()) await button.click();
   return evaluateInST(page, () => {
     const text = (node) => node?.textContent?.trim() ?? null;
+    const box = (node) => { const rect = node?.getBoundingClientRect(); return rect ? { width: Math.round(rect.width), height: Math.round(rect.height), top: Math.round(rect.top), bottom: Math.round(rect.bottom) } : null; };
+    const rowLayout = (row) => { const list = box(row.closest('ul')); const jump = box(row.querySelector('[data-so="gate-replay-jump"]')); const verdict = box(row.querySelector('[data-so="gate-replay-verdict"]')); return { jump, verdict, verdictInList: Boolean(list && verdict && verdict.width > 0 && verdict.top >= list.top && verdict.bottom <= list.bottom) }; };
     const root = document.querySelector('#so-studio-modal [data-so="gate-replay"]');
     return {
       visible: Boolean(root),
@@ -620,7 +622,7 @@ export async function getGateReplayState(page, { transition = 0 } = {}) {
       summary: text(root?.querySelector('[data-so="gate-replay-summary"]')) ?? text(root),
       cut: text(root?.querySelector('[data-so="gate-replay-cut"]')),
       unknown: text(root?.querySelector('[data-so="gate-replay-unknown"]')),
-      rows: Array.from(root?.querySelectorAll('[data-so="gate-replay-row"]') ?? []).map((row) => ({ boundary: Number(row.getAttribute('data-boundary')), text: text(row) })),
+      rows: Array.from(root?.querySelectorAll('[data-so="gate-replay-row"]') ?? []).map((row) => ({ boundary: Number(row.getAttribute('data-boundary')), text: text(row), layout: rowLayout(row) })),
     };
   });
 }
