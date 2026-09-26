@@ -6,6 +6,7 @@ import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { calibrationOk, type ModelVerdict } from './lib/calibrationVerdict.mts';
+import { eventsFromJsonl, eventsFromRecord, timeoutReport, dedupe, type TimeoutEvent } from './lib/judgeTimeouts.mts';
 import { costInputOf, costReport, costReportAcross, filterJudgeCalls, rescoreRates, withEstablished } from './lib/judgeHarness.mts';
 import { classifyProbe, limitProbeCases, probeRequest, requestChars, JEV_USD_PER_MTOK_INPUT, type ProbeResult } from './lib/limitProbe.mts';
 
@@ -37,6 +38,12 @@ const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
                                       Every figure is over the METERED records; a record with no meter (a check that set the judge
                                       itself) is listed with its ring totals under unmeteredRing and enters nothing else.
                                       Reads every *.json with a cleanup block; writes .debug/so-judge-cost-report.json
+  timeouts --records <dir|file,...>   v2.5 plan 06 J2, offline: the warden and scene timeout tables and the plan's predeclared close.
+                                      Reads journey records (cleanup ring + J11.25 outcome) and journal-follow *.jsonl streams (every chat),
+                                      walking directories. Warden: <= 1 timeout per 50 calls over >= 100 calls, else 'unmeasured (n = N)';
+                                      each timeout says whether another warden call on the same message was in flight (the A8 shape);
+                                      p99 of successful calls only past 100 of them. Scene: 0 bursts, <= 1 timeout per 20 calls,
+                                      J11.25 green x2. Writes .debug/so-judge-timeouts.json; exit 0 only when both close
   limit-probe [--send]                T25: the documented token limit, probed. Without --send prints the plan and its cost; with it,
                                       six calls through the plugin (< $0.01), then refuses / truncates / answers past the limit and
                                       chars per token by language; writes .debug/so-judge-limit-probe.json
@@ -247,6 +254,40 @@ async function limitProbe(page: any, send: boolean) {
   return { ok: verdict.conclusive };
 }
 
+async function walk(path: string): Promise<string[]> {
+  if (/\.jsonl?$/.test(path)) return [path];
+  const entries = await readdir(path, { withFileTypes: true });
+  const nested = await Promise.all(entries.map((entry) => (entry.isDirectory() ? walk(join(path, entry.name)) : Promise.resolve(/\.jsonl?$/.test(entry.name) ? [join(path, entry.name)] : []))));
+  return nested.flat();
+}
+
+export async function readTimeoutSources(spec: string) {
+  const files = (await Promise.all(spec.split(',').map((entry) => entry.trim()).filter(Boolean).map(walk))).flat();
+  const events: TimeoutEvent[] = [];
+  const records: unknown[] = [];
+  const used: string[] = [];
+  for (const file of files) {
+    const text = await readFile(file, 'utf-8');
+    if (file.endsWith('.jsonl')) {
+      const own = eventsFromJsonl(text);
+      if (own.length) used.push(file);
+      events.push(...own);
+      continue;
+    }
+    let record;
+    try {
+      record = JSON.parse(text);
+    } catch {
+      continue;
+    }
+    if (!record || typeof record !== 'object' || !Array.isArray(record.results) || !record.cleanup) continue;
+    used.push(file);
+    records.push(record);
+    events.push(...eventsFromRecord(record));
+  }
+  return { files: used, events: dedupe(events), records };
+}
+
 export async function readCostRecords(spec: string) {
   const files: string[] = [];
   for (const path of spec.split(',').map((entry) => entry.trim()).filter(Boolean)) {
@@ -267,6 +308,15 @@ if (process.argv[1] === fileURLToPath(import.meta.url) && process.argv[2] === 'c
   console.log(JSON.stringify(report, null, 2));
   await writeJSON(report, 'so-judge-cost-report');
   process.exit(report.metered > 0 ? 0 : 1);
+} else if (process.argv[1] === fileURLToPath(import.meta.url) && process.argv[2] === 'timeouts') {
+  if (!process.argv.includes('--records')) {
+    console.log(USAGE);
+    process.exit(1);
+  }
+  const report = timeoutReport(await readTimeoutSources(argValue('--records', '')));
+  console.log(JSON.stringify({ files: report.files.length, records: report.records, warden: { calls: report.warden.calls, timeouts: report.warden.timeouts.length, wardenLoreCalls: report.warden.wardenLoreCalls, close: report.warden.close }, scene: { calls: report.scene.calls, timeouts: report.scene.timeouts.length, bursts: report.scene.bursts.length, close: report.scene.close } }, null, 2));
+  await writeJSON(report, 'so-judge-timeouts');
+  process.exit(report.warden.close.closed && report.scene.close.closed ? 0 : 1);
 } else if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [command, arg] = process.argv.slice(2);
   if (!command || hasHelpFlag() || !['status', 'ask', 'calibrate', 'calls', 'cost', 'rescore', 'limit-probe'].includes(command) || (command === 'ask' && !arg) || (command === 'rescore' && !process.argv.includes('--records'))) {
