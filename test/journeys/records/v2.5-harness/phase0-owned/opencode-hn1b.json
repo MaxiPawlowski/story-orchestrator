@@ -1,0 +1,172 @@
+{
+  "cli": "opencode",
+  "probe": "hn1b",
+  "started": "2026-09-26T15:14:44.118Z",
+  "finished": "2026-09-26T15:16:35.148Z",
+  "node": "v22.22.0",
+  "ownedRoot": "C:\\Users\\ROLAPO~1\\AppData\\Local\\Temp\\so-p0-owned",
+  "loginChecks": [
+    {
+      "label": "hn1b",
+      "loginFile": "auth.json",
+      "copied": true,
+      "copyRewritten": false,
+      "copyDeleted": true,
+      "realSha256Prefix": "ecb9dc1c65d3",
+      "realUnchanged": true,
+      "rootRemoved": true
+    }
+  ],
+  "error": null,
+  "data": {
+    "design": "MCP canaries in a simulated user-home config and the cwd opencode.json; iso = owned homes + quiet env; control = user home as HOME/XDG_CONFIG_HOME, no quiet env",
+    "runs": [
+      {
+        "code": 0,
+        "killed": null,
+        "wallMs": 9852,
+        "spawnMs": 49,
+        "text": "PONG",
+        "totalIn": 150,
+        "outputTokens": 6,
+        "reasons": [
+          "stop"
+        ],
+        "types": [
+          "step_start",
+          "text",
+          "step_finish"
+        ],
+        "toolEvents": 0,
+        "errors": [],
+        "canariesInOutput": [],
+        "markerUser": false,
+        "markerProject": false,
+        "nodeChildren": 0,
+        "mcpEvents": 0
+      },
+      {
+        "code": 0,
+        "killed": null,
+        "wallMs": 13164,
+        "spawnMs": 35,
+        "text": "PONG",
+        "totalIn": 149,
+        "outputTokens": 6,
+        "reasons": [
+          "stop"
+        ],
+        "types": [
+          "step_start",
+          "text",
+          "step_finish"
+        ],
+        "toolEvents": 0,
+        "errors": [],
+        "canariesInOutput": [],
+        "markerUser": false,
+        "markerProject": false,
+        "nodeChildren": 0,
+        "mcpEvents": 0
+      },
+      {
+        "code": 0,
+        "killed": null,
+        "wallMs": 14162,
+        "spawnMs": 36,
+        "text": "PONG",
+        "totalIn": 150,
+        "outputTokens": 6,
+        "reasons": [
+          "stop"
+        ],
+        "types": [
+          "step_start",
+          "text",
+          "step_finish"
+        ],
+        "toolEvents": 0,
+        "errors": [],
+        "canariesInOutput": [],
+        "markerUser": false,
+        "markerProject": false,
+        "nodeChildren": 0,
+        "mcpEvents": 0
+      },
+      {
+        "code": 0,
+        "killed": null,
+        "wallMs": 13946,
+        "spawnMs": 51,
+        "text": "PONG",
+        "totalIn": 149,
+        "outputTokens": 6,
+        "reasons": [
+          "stop"
+        ],
+        "types": [
+          "step_start",
+          "text",
+          "step_finish"
+        ],
+        "toolEvents": 0,
+        "errors": [],
+        "canariesInOutput": [],
+        "markerUser": false,
+        "markerProject": false,
+        "nodeChildren": 0,
+        "mcpEvents": 0
+      },
+      {
+        "code": 0,
+        "killed": null,
+        "wallMs": 17718,
+        "spawnMs": 35,
+        "text": "PONG",
+        "totalIn": 150,
+        "outputTokens": 6,
+        "reasons": [
+          "stop"
+        ],
+        "types": [
+          "step_start",
+          "text",
+          "step_finish"
+        ],
+        "toolEvents": 0,
+        "errors": [],
+        "canariesInOutput": [],
+        "markerUser": false,
+        "markerProject": false,
+        "nodeChildren": 0,
+        "mcpEvents": 0
+      }
+    ],
+    "control": {
+      "code": 0,
+      "killed": null,
+      "wallMs": 39414,
+      "spawnMs": 38,
+      "text": "PONG",
+      "totalIn": 5075,
+      "outputTokens": 6,
+      "reasons": [
+        "stop"
+      ],
+      "types": [
+        "step_start",
+        "text",
+        "step_finish"
+      ],
+      "toolEvents": 0,
+      "errors": [],
+      "canariesInOutput": [],
+      "markerUser": true,
+      "markerProject": true,
+      "nodeChildren": 2,
+      "mcpEvents": 0
+    },
+    "controlGreen": true,
+    "pass": true
+  }
+}

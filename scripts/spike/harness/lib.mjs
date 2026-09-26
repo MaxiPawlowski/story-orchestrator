@@ -1,4 +1,5 @@
 import { spawn, execFile } from "node:child_process";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -118,7 +119,7 @@ export function alive(pids) {
 }
 
 export async function run(harness, argv, opts = {}) {
-  const { env, cwd, stdin = "", timeoutMs = 120000, maxOutputChars = 0, watch = false, bin = BIN[harness], shell = false } = opts;
+  const { env, cwd, stdin = "", timeoutMs = 120000, maxOutputChars = 0, watch = false, bin = BIN[harness], shell = false, pollGone = false } = opts;
   const t0 = performance.now();
   let spawnMs = null;
   let child;
@@ -131,10 +132,14 @@ export async function run(harness, argv, opts = {}) {
   child.on("spawn", () => { spawnMs = performance.now() - t0; });
   let done = false;
   let killing = null;
+  let goneWatch = null;
   const kill = (why) => {
     if (killing) return killing;
     result.killed = why;
-    killing = killTree(child.pid);
+    result.killAtMs = Math.round(performance.now() - t0);
+    const pids = [child.pid, ...result.tree.keys()];
+    killing = killTree(child.pid).then(() => { result.taskkillReturnMs = Math.round(performance.now() - t0) - result.killAtMs; });
+    if (pollGone) goneWatch = pollUntilGone(pids, 100, 5000).then((g) => { result.gone = g; });
     return killing;
   };
   const watchers = [];
@@ -178,6 +183,7 @@ export async function run(harness, argv, opts = {}) {
   });
   clearTimeout(timer);
   if (killing) await killing;
+  if (goneWatch) await goneWatch;
   done = true;
   await Promise.all(watchers);
   result.code = exit.code ?? null;
@@ -222,6 +228,144 @@ export function pct(values, p) {
   const s = [...values].sort((a, b) => a - b);
   if (!s.length) return null;
   return s[Math.min(s.length - 1, Math.ceil((p / 100) * s.length) - 1)];
+}
+
+export function pidAlive(pid) {
+  try { process.kill(pid, 0); return true; } catch (e) { return e.code === "EPERM"; }
+}
+
+export async function pollUntilGone(pids, everyMs = 100, capMs = 5000) {
+  const t0 = performance.now();
+  const polls = [];
+  for (;;) {
+    const live = pids.filter(pidAlive);
+    const at = Math.round(performance.now() - t0);
+    polls.push({ at, live: live.length });
+    if (!live.length) return { goneMs: at, polls: polls.length, pids: pids.length, lastLive: [] };
+    if (at >= capMs) return { goneMs: null, polls: polls.length, pids: pids.length, lastLive: live };
+    await new Promise((r) => setTimeout(r, everyMs));
+  }
+}
+
+export const OWNED_ROOT = path.join(os.tmpdir(), "so-p0-owned");
+
+export const LOGIN = {
+  claude: { real: path.join(REAL_HOME, ".claude", ".credentials.json"), dest: ["config", ".credentials.json"] },
+  codex: { real: path.join(REAL_HOME, ".codex", "auth.json"), dest: ["config", "auth.json"] },
+  opencode: { real: path.join(REAL_OPENCODE_DATA, "opencode", "auth.json"), dest: ["data", "opencode", "auth.json"] },
+};
+
+export function sha256File(p) {
+  return crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex");
+}
+
+function jwtExpMs(token) {
+  try { return JSON.parse(Buffer.from(String(token).split(".")[1], "base64url").toString("utf8")).exp * 1000; } catch { return null; }
+}
+
+export function loginFreshness(cli, minMinutes) {
+  const floor = Date.now() + minMinutes * 60000;
+  let j;
+  try { j = JSON.parse(fs.readFileSync(LOGIN[cli].real, "utf8")); } catch { return { fresh: false, reason: "login file missing or unreadable" }; }
+  if (cli === "claude") {
+    const o = j.claudeAiOauth;
+    if (!o) return { fresh: false, reason: "no claudeAiOauth entry" };
+    return o.expiresAt > floor ? { fresh: true } : { fresh: false, reason: `access token expires in under ${minMinutes} min or has expired: a call would refresh inside the copy` };
+  }
+  if (cli === "codex") {
+    const exp = jwtExpMs(j.tokens?.access_token);
+    const age = Date.now() - Date.parse(j.last_refresh ?? "");
+    if (!(exp > floor)) return { fresh: false, reason: `access token expires in under ${minMinutes} min or has expired` };
+    if (!(age < 7 * 86400000)) return { fresh: false, reason: "last_refresh older than 7 days: codex refreshes on its own schedule" };
+    return { fresh: true };
+  }
+  const oauth = Object.entries(j).filter(([, v]) => v?.type === "oauth");
+  const stale = oauth.filter(([, v]) => !(v.expires > floor)).map(([k]) => k);
+  return stale.length ? { fresh: false, reason: `oauth provider(s) ${stale.join(",")} expire in under ${minMinutes} min` } : { fresh: true, oauthProviders: oauth.map(([k]) => k) };
+}
+
+const openCopies = new Set();
+process.on("exit", () => { for (const p of openCopies) { try { fs.unlinkSync(p); } catch {} } });
+for (const sig of ["SIGINT", "SIGTERM"]) process.on(sig, () => process.exit(130));
+
+export function ownedSession(cli, label, { minMinutes = 90, copyLogin = true } = {}) {
+  const fresh = loginFreshness(cli, minMinutes);
+  if (copyLogin && !fresh.fresh) {
+    const e = new Error(`owned-home refused for ${cli}: ${fresh.reason}`);
+    e.refused = fresh.reason;
+    throw e;
+  }
+  const base = path.join(OWNED_ROOT, cli);
+  fs.mkdirSync(base, { recursive: true });
+  const root = fs.mkdtempSync(path.join(base, `${label}-`));
+  const s = { cli, root, loginName: path.basename(LOGIN[cli].real), copied: false };
+  for (const k of ["home", "config", "data", "cache", "state", "tmp", "cwd"]) { s[k] = path.join(root, k); fs.mkdirSync(s[k], { recursive: true }); }
+  for (const d of ["AppData/Roaming", "AppData/Local"]) fs.mkdirSync(path.join(s.home, d), { recursive: true });
+  if (copyLogin) {
+    s.realBefore = sha256File(LOGIN[cli].real);
+    s.copy = path.join(root, ...LOGIN[cli].dest);
+    fs.mkdirSync(path.dirname(s.copy), { recursive: true });
+    openCopies.add(s.copy);
+    fs.copyFileSync(LOGIN[cli].real, s.copy);
+    s.copied = sha256File(s.copy) === s.realBefore;
+    if (!s.copied) { closeOwned(s); throw new Error(`owned-home copy for ${cli} does not match the real login file`); }
+  }
+  return s;
+}
+
+export function closeOwned(s, { removeRoot = true } = {}) {
+  const check = { loginFile: s.loginName, copied: s.copied };
+  if (s.copy) {
+    check.copyRewritten = fs.existsSync(s.copy) ? sha256File(s.copy) !== s.realBefore : null;
+    try { fs.unlinkSync(s.copy); } catch {}
+    openCopies.delete(s.copy);
+    check.copyDeleted = !fs.existsSync(s.copy);
+    const after = sha256File(LOGIN[s.cli].real);
+    check.realSha256Prefix = s.realBefore.slice(0, 12);
+    check.realUnchanged = after === s.realBefore;
+  }
+  if (removeRoot) { try { fs.rmSync(s.root, { recursive: true, force: true }); } catch {} check.rootRemoved = !fs.existsSync(s.root); }
+  if (check.realUnchanged === false) {
+    console.error(`\n!!! REAL LOGIN FILE CHANGED during the ${s.cli} run (${s.loginName}). FAILING THE RUN. !!!\n`);
+    process.exitCode = 3;
+    throw Object.assign(new Error(`real ${s.cli} login file changed`), { check });
+  }
+  if (check.copyRewritten) console.error(`\n!!! ${s.cli} rewrote its login COPY (token refresh): the real refresh token may now be revoked. !!!\n`);
+  return check;
+}
+
+export function envOwned(cli, s, extra = {}) {
+  const env = {};
+  for (const k of PASS) if (process.env[k] !== undefined) env[k] = process.env[k];
+  for (const k of PASS_THROUGH) if (process.env[k] !== undefined) env[k] = process.env[k];
+  env.USERPROFILE = s.home;
+  env.HOME = s.home;
+  env.HOMEPATH = s.home.slice(2);
+  env.HOMEDRIVE = s.home.slice(0, 2);
+  env.APPDATA = path.join(s.home, "AppData", "Roaming");
+  env.LOCALAPPDATA = path.join(s.home, "AppData", "Local");
+  env.TEMP = s.tmp;
+  env.TMP = s.tmp;
+  if (cli === "claude") env.CLAUDE_CONFIG_DIR = s.config;
+  if (cli === "codex") env.CODEX_HOME = s.config;
+  if (cli === "opencode") {
+    env.XDG_CONFIG_HOME = s.config;
+    env.XDG_DATA_HOME = s.data;
+    env.XDG_CACHE_HOME = s.cache;
+    env.XDG_STATE_HOME = s.state;
+  }
+  return { ...env, ...extra };
+}
+
+export function ownedCwd(s, label = "cwd") {
+  return fs.mkdtempSync(path.join(s.cwd, `${label}-`));
+}
+
+export function writeRecordIn(sub, name, data) {
+  const dir = path.join(process.cwd(), "test", "journeys", "records", "v2.5-harness", sub);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, name), JSON.stringify(data, null, 2) + "\n");
+  return path.join(dir, name);
 }
 
 export function writeRecord(name, data) {

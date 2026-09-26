@@ -1,0 +1,79 @@
+{
+  "cli": "opencode",
+  "probe": "p03",
+  "started": "2026-09-26T15:18:58.141Z",
+  "finished": "2026-09-26T15:19:16.081Z",
+  "node": "v22.22.0",
+  "ownedRoot": "C:\\Users\\ROLAPO~1\\AppData\\Local\\Temp\\so-p0-owned",
+  "loginChecks": [
+    {
+      "label": "p03",
+      "loginFile": "auth.json",
+      "copied": true,
+      "copyRewritten": false,
+      "copyDeleted": true,
+      "realSha256Prefix": "ecb9dc1c65d3",
+      "realUnchanged": true,
+      "rootRemoved": true
+    }
+  ],
+  "error": null,
+  "data": {
+    "runs": [
+      {
+        "bin": "real",
+        "killed": "deadline",
+        "wallMs": 4703,
+        "killAtMs": 3032,
+        "taskkillReturnMs": 431,
+        "goneMsAfterKill": 446,
+        "polls": 5,
+        "pids": 2,
+        "tree": [
+          "conhost.exe"
+        ]
+      },
+      {
+        "bin": "real",
+        "killed": "deadline",
+        "wallMs": 4455,
+        "killAtMs": 3038,
+        "taskkillReturnMs": 454,
+        "goneMsAfterKill": 540,
+        "polls": 6,
+        "pids": 2,
+        "tree": [
+          "conhost.exe"
+        ]
+      },
+      {
+        "bin": "real",
+        "killed": "deadline",
+        "wallMs": 4387,
+        "killAtMs": 3036,
+        "taskkillReturnMs": 385,
+        "goneMsAfterKill": 429,
+        "polls": 5,
+        "pids": 2,
+        "tree": [
+          "conhost.exe"
+        ]
+      },
+      {
+        "bin": "chocoShim",
+        "killed": "deadline",
+        "wallMs": 4343,
+        "killAtMs": 3029,
+        "taskkillReturnMs": 406,
+        "goneMsAfterKill": 429,
+        "polls": 5,
+        "pids": 3,
+        "tree": [
+          "conhost.exe",
+          "opencode.exe"
+        ]
+      }
+    ],
+    "pass": true
+  }
+}

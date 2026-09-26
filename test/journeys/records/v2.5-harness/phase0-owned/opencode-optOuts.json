@@ -1,0 +1,138 @@
+{
+  "cli": "opencode",
+  "probe": "optOuts",
+  "started": "2026-09-26T15:24:58.459Z",
+  "finished": "2026-09-26T15:25:18.100Z",
+  "node": "v22.22.0",
+  "ownedRoot": "C:\\Users\\ROLAPO~1\\AppData\\Local\\Temp\\so-p0-owned",
+  "loginChecks": [
+    {
+      "label": "optouts",
+      "loginFile": "auth.json",
+      "copied": true,
+      "copyRewritten": false,
+      "copyDeleted": true,
+      "realSha256Prefix": "ecb9dc1c65d3",
+      "realUnchanged": true,
+      "rootRemoved": true
+    }
+  ],
+  "error": null,
+  "data": {
+    "noDefaultPlugins": {
+      "code": 1,
+      "killed": null,
+      "wallMs": 4749,
+      "spawnMs": 53,
+      "text": "",
+      "totalIn": 0,
+      "outputTokens": 0,
+      "reasons": [],
+      "types": [
+        "error"
+      ],
+      "toolEvents": 0,
+      "errors": [
+        "{\"name\":\"UnknownError\",\"data\":{\"message\":\"Unexpected server error. Check server logs for details.\",\"ref\":\"err_b5f4a9e5\"}}"
+      ],
+      "canariesInOutput": [],
+      "ok": false,
+      "hosts": {
+        "remotes": [
+          "172.66.173.149"
+        ],
+        "named": {
+          "172.66.173.149": [
+            "models.opencode.ai"
+          ]
+        },
+        "hostnames": [
+          "models.opencode.ai"
+        ],
+        "unnamed": []
+      },
+      "cacheFiles": 3
+    },
+    "warmUpQuiet": {
+      "code": 0,
+      "killed": null,
+      "wallMs": 7566,
+      "spawnMs": 24,
+      "text": "PONG-5E8F2E4F",
+      "totalIn": 155,
+      "outputTokens": 15,
+      "reasons": [
+        "stop"
+      ],
+      "types": [
+        "step_start",
+        "text",
+        "step_finish"
+      ],
+      "toolEvents": 0,
+      "errors": [],
+      "canariesInOutput": [],
+      "ok": true,
+      "hosts": {
+        "remotes": [
+          "172.64.155.209",
+          "104.18.32.47"
+        ],
+        "named": {
+          "172.64.155.209": [
+            "chatgpt.com",
+            "ab.chatgpt.com"
+          ],
+          "104.18.32.47": [
+            "chatgpt.com",
+            "ab.chatgpt.com"
+          ]
+        },
+        "hostnames": [
+          "ab.chatgpt.com",
+          "chatgpt.com"
+        ],
+        "unnamed": []
+      },
+      "cacheFiles": 3
+    },
+    "warmCacheNoModelsFetch": {
+      "code": 0,
+      "killed": null,
+      "wallMs": 7128,
+      "spawnMs": 21,
+      "text": "PONG-5B0C010E",
+      "totalIn": 153,
+      "outputTokens": 13,
+      "reasons": [
+        "stop"
+      ],
+      "types": [
+        "step_start",
+        "text",
+        "step_finish"
+      ],
+      "toolEvents": 0,
+      "errors": [],
+      "canariesInOutput": [],
+      "ok": true,
+      "hosts": {
+        "remotes": [
+          "104.18.32.47"
+        ],
+        "named": {
+          "104.18.32.47": [
+            "chatgpt.com",
+            "ab.chatgpt.com"
+          ]
+        },
+        "hostnames": [
+          "ab.chatgpt.com",
+          "chatgpt.com"
+        ],
+        "unnamed": []
+      },
+      "cacheFiles": 3
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "cli": "codex",
+  "at": "2026-09-26T15:12:30.187Z",
+  "notRun": "quota: the ChatGPT plan is out until Sun Sep 27 2026 20:58:00 GMT-0300 (Argentina Standard Time)",
+  "probes": [
+    "login",
+    "p01",
+    "p02",
+    "hn1",
+    "hn1b",
+    "p03",
+    "p05",
+    "p07"
+  ],
+  "rerun": "node scripts/spike/harness/owned.mjs codex all"
+}
