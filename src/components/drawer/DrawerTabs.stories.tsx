@@ -1,11 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { fn, within, userEvent, expect } from "@storybook/test";
+import { fn, within, userEvent, expect, waitFor } from "@storybook/test";
 import type { RuntimeManager } from "@runtime/index";
 import { buildNarrativeStatus } from "@runtime/narrative";
 import { derivePipelineStatus } from "@runtime/pipeline";
 import { createSaveHealth } from "@runtime/saveHealth";
 import type { ExtractionRuntimeState, RuntimeSnapshot } from "@runtime/types";
 import { DrawerTabs } from "./DrawerTabs";
+
+const openTab = async (canvasElement: HTMLElement, name: string) => {
+  await userEvent.click(within(canvasElement).getByRole("tab", { name }));
+  await waitFor(() => expect(canvasElement.querySelector(`[data-so-tab="${name.toLowerCase()}"]`)).not.toBeNull());
+};
 
 // The narrative and pipeline slices are derived, never hand-written: a story that faked them
 // could pass while the real composition is broken.
@@ -426,7 +431,7 @@ export const Overview: Story = {
 export const Blackboard: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Blackboard" }));
+    await openTab(canvasElement, "Blackboard");
     await expect(canvas.getByText("has_key")).toBeInTheDocument();
     await expect(canvas.getByText("guardian_respect")).toBeInTheDocument();
   },
@@ -435,7 +440,7 @@ export const Blackboard: Story = {
 export const Scheduler: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Scheduler" }));
+    await openTab(canvasElement, "Scheduler");
     await expect(canvas.getByText("Extraction")).toBeInTheDocument();
     await expect(canvas.getByText("Expansion")).toBeInTheDocument();
     await expect(canvas.getByText("Stall re-checks")).toBeInTheDocument();
@@ -533,7 +538,7 @@ export const AuthorMemoryShowsAHeldClaimAsConflicted: Story = {
 export const Payload: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
+    await openTab(canvasElement, "Payload");
     await expect(canvas.getByText("story_orchestrator_memory_facts")).toBeInTheDocument();
     await expect(canvas.getByText(/@depth 4/)).toBeInTheDocument();
   },
@@ -544,7 +549,7 @@ export const Payload: Story = {
 export const NextTurn: Story = {
   play: async ({ canvasElement, step }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
+    await openTab(canvasElement, "Payload");
     await step("lists every contributor in ST's assembly order with its owner", async () => {
       const panel = canvasElement.querySelector("#so-next-turn") as HTMLElement;
       const rows = [...panel.querySelectorAll('[data-so="next-turn-row"]')];
@@ -584,7 +589,7 @@ export const NextTurn: Story = {
       openSettings.mockClear();
       await userEvent.click(canvas.getAllByRole("button", { name: "Open Memory" })[0]);
       await expect(canvas.getByRole("tab", { name: "Memory" })).toHaveAttribute("aria-selected", "true");
-      await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
+      await openTab(canvasElement, "Payload");
       await userEvent.click(canvas.getAllByRole("button", { name: "Open Scheduler" })[0]);
       await expect(canvas.getByRole("tab", { name: "Scheduler" })).toHaveAttribute("aria-selected", "true");
     });
@@ -599,7 +604,7 @@ export const NextTurnEmpty: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
+    await openTab(canvasElement, "Payload");
     await expect(canvas.getByText("Nothing is injected into the next reply.")).toBeInTheDocument();
     await expect(canvasElement.querySelector('[data-so="next-turn-reread-scene"]')).toBeNull();
   },
@@ -732,7 +737,7 @@ export const PayloadLoreForced: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
+    await openTab(canvasElement, "Payload");
     const forced = within(await canvas.findByText("Lore forced this turn").then((node) => node.closest("[data-so=\"lore-forced\"]") as HTMLElement));
     await expect(forced.getByText(/message 9 · MESSAGE_SENT · 912 ms/)).toBeInTheDocument();
     await expect(forced.getByText("NPC - Ellie")).toBeInTheDocument();
@@ -771,7 +776,7 @@ export const PayloadLoreFired: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
+    await openTab(canvasElement, "Payload");
     const fired = within(await canvas.findByText("Lore that fired last turn").then((node) => node.closest("[data-so=\"lore-fired\"]") as HTMLElement));
     await expect(fired.getByText(/reply rendered · 2 scans \(1 inside a quiet run\)/)).toBeInTheDocument();
     await expect(fired.getAllByText("gated")).toHaveLength(1);
@@ -822,7 +827,7 @@ export const PayloadScanGate: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
+    await openTab(canvasElement, "Payload");
     const table = within(await canvas.findByText(/Per-chat lorebook gating: this chat's path/).then((node) => node.closest("[data-so=\"scan-gate\"]") as HTMLElement));
     await expect(table.getByText(/SO-T13 Xentar · gated by Quest for the Sun Ruins · file off · this chat on · fired/)).toBeInTheDocument();
     await expect(table.getByText(/SO-T13 Xentar · file off · this chat off$/)).toBeInTheDocument();
@@ -851,7 +856,7 @@ export const PayloadSamplerOverlay: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
+    await openTab(canvasElement, "Payload");
     const row = within(await canvas.findByText(/Sampler overlay/).then((node) => node.closest("[data-so=\"next-turn-overlay\"]") as HTMLElement));
     await expect(row.getByText(/temperature 0.55, top_p 0.9/)).toBeInTheDocument();
     await expect(row.getByText(/the selected preset is untouched\. Applied to 2 request\(s\)\./)).toBeInTheDocument();
@@ -887,7 +892,7 @@ export const ScanGateHiddenWhenFileMode: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
+    await openTab(canvasElement, "Payload");
     await expect(canvas.queryByText(/Scan-time gating/)).toBeNull();
   },
 };
@@ -1188,9 +1193,9 @@ export const Empty: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Blackboard" }));
+    await openTab(canvasElement, "Blackboard");
     await expect(canvas.getByText("No blackboard values yet.")).toBeInTheDocument();
-    await userEvent.click(canvas.getByRole("tab", { name: "Payload" }));
+    await openTab(canvasElement, "Payload");
     await expect(canvas.getByText(/No captures yet\./)).toBeInTheDocument();
   },
 };
@@ -1311,7 +1316,7 @@ export const RefusedRouteOnAnAuthoredExit: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Scheduler" }));
+    await openTab(canvasElement, "Scheduler");
     const card = within((await canvas.findByText("Refused route")).closest("[data-so=\"agency-recovery\"]") as HTMLElement);
     await expect(card.getByText(/turns were read, and nothing in them moved an exit of The Ruined Gate/)).toBeInTheDocument();
     await expect(card.queryByText(/narrated on their behalf/)).toBeNull();
@@ -1329,7 +1334,7 @@ export const RefusedRouteWithARoadToGenerate: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "Scheduler" }));
+    await openTab(canvasElement, "Scheduler");
     const card = within((await canvas.findByText("Refused route")).closest("[data-so=\"agency-recovery\"]") as HTMLElement);
     await userEvent.click(card.getByRole("button", { name: "Generate the road ahead" }));
     await expect(stubManager.runExpansionNow).toHaveBeenCalledTimes(1);
@@ -1474,7 +1479,7 @@ export const AuthorJumpsFromACitation: Story = {
     const jump = canvas.getByRole("button", { name: "message 5 (changed since)" });
     await userEvent.click(jump);
     await expect(jumpFromDrawer).toHaveBeenCalledWith(5);
-    await userEvent.click(canvas.getByRole("tab", { name: "Scheduler" }));
+    await openTab(canvasElement, "Scheduler");
     await expect(canvasElement.querySelector('[data-so="jump-to-message"][data-mesid="6"]')).not.toBeNull();
   },
 };

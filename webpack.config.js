@@ -6,6 +6,7 @@ const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const { BundledPackagesPlugin } = require("./scripts/release/bundledPackages.cjs");
 
 const OUTPUT_DIRS = { prod: "dist", dev: "dist-dev" };
+const BUNDLE_BUDGET_BYTES = 1250000;
 
 module.exports = (env = {}, argv = {}) => {
   const mode = argv.mode || process.env.NODE_ENV || "production";
@@ -69,6 +70,7 @@ module.exports = (env = {}, argv = {}) => {
         },
       ],
     },
+    performance: flavor === "prod" ? { hints: "error", maxEntrypointSize: BUNDLE_BUDGET_BYTES, maxAssetSize: BUNDLE_BUDGET_BYTES } : false,
     optimization: {
       minimize: true,
       minimizer: [

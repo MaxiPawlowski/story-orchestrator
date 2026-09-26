@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from "react";
 import {
   bindNavbarDrawerToggle, readProfileContextLimit, readProfilePresetName, showConfirmPopup, subscribeToHostEvents, toggleNavbarDrawer,
 } from "@services/STAPI";
@@ -13,7 +13,7 @@ import { loadPersistedRuntime } from "@runtime/persistence";
 import { branchFromOldest, continueFromBranch } from "@runtime/chatIdentity";
 import { jumpToMessage } from "@runtime/messageJumpHost";
 import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
-import StudioModal, { STUDIO_TAB_IDS, type StudioOpenIntent } from "./studio/StudioModal";
+import type { StudioOpenIntent } from "./studio/StudioModal";
 import type { WizardHost } from "./studio/components/StudioCopilot";
 import { type DriverController } from "@components/drawer/DriverPanel";
 import DrawerTabs from "./components/drawer/DrawerTabs";
@@ -40,7 +40,7 @@ const memoryModelLimit = (profileId: string | null) => {
 if (__SO_DEV__) {
   ui.global("storyOrchestratorRuntime", manager);
   ui.global("storyOrchestratorStudioDraft", useDraftStore);
-  ui.global("storyOrchestratorStudioTabs", STUDIO_TAB_IDS);
+  void import("./studio/StudioModal").then(({ STUDIO_TAB_IDS }) => ui.global("storyOrchestratorStudioTabs", STUDIO_TAB_IDS));
 }
 
 // One Studio for the whole extension: the settings panel and the drawer's author view are separate
@@ -113,6 +113,8 @@ const readReplaySource = (): GateReplaySource | null => {
   return source ? { ...source, jump: (messageId) => void jumpFromDrawer(messageId) } : null;
 };
 
+const StudioModal = lazy(() => import("./studio/StudioModal"));
+
 const StudioHost = () => {
   const open = useSyncExternalStore(
     (listener) => { studioListeners.add(listener); return () => { studioListeners.delete(listener); }; },
@@ -121,15 +123,17 @@ const StudioHost = () => {
   const snapshot = useRuntimeSnapshot();
   if (!open) return null;
   return (
-    <StudioModal
-      onClose={() => setStudioOpen(false)}
-      copilotEnabled={snapshot.copilot.enabled}
-      runCopilotStage={(input) => manager.runCopilotStage(input)}
-      onSaved={applySavedStory}
-      wizardHost={wizardHost}
-      intent={studioIntent}
-      replay={studioIntent?.fromChat ? readReplaySource() : null}
-    />
+    <Suspense fallback={null}>
+      <StudioModal
+        onClose={() => setStudioOpen(false)}
+        copilotEnabled={snapshot.copilot.enabled}
+        runCopilotStage={(input) => manager.runCopilotStage(input)}
+        onSaved={applySavedStory}
+        wizardHost={wizardHost}
+        intent={studioIntent}
+        replay={studioIntent?.fromChat ? readReplaySource() : null}
+      />
+    </Suspense>
   );
 };
 

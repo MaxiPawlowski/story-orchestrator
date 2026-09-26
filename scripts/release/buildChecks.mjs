@@ -42,3 +42,11 @@ export const tagIssues = (tags, version) => {
   const carried = tags.filter((tag) => /^v\d/.test(tag));
   return [`release mode but HEAD carries no tag v${version}${carried.length ? ` (it carries ${carried.join(", ")})` : ""}`];
 };
+
+export const BUNDLE_BUDGET_BYTES = 1250000;
+
+export const budgetIssues = (manifest, budget = BUNDLE_BUDGET_BYTES) => {
+  const bytes = manifest?.bundle?.bytes;
+  if (typeof bytes !== "number") return ["dist/manifest.json names no bundle size"];
+  return bytes <= budget ? [] : [`dist/index.js is ${bytes} bytes, over the ${budget} byte budget`];
+};
