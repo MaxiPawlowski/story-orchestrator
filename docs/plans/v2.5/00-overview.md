@@ -95,7 +95,7 @@ lands on) and 03 (the model-call seam stays one injected surface, so no coordina
 ## Plan outlines (summaries; the plan docs are the source)
 
 ### 13 Harness routing (new, `13-harness-routing.md`)
-- **What:** each of the five `PassRole`s (`src/extraction/passRole.ts:1`) can route to a CLI harness the user is logged
+- **What:** each `PassRole` (five today, `src/extraction/passRole.ts:1`; nine after plan 13 H9) can route to a CLI harness the user is logged
   into: `claude -p`, `codex exec`, `opencode run` (gpt-6 family on the ChatGPT login, the user's pick). The narrative
   reply never does. A second server plugin spawns an allowlisted binary with fixed argv, no shell, the prompt on stdin,
   tools off, an empty temp cwd, an env allowlist, a deadline that kills the tree, and admin-only access by default.
