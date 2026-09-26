@@ -1,71 +1,49 @@
 import { parseStoryV2, isValidationErrorList, type NormalizedStoryV2 } from "@engine/index";
 import { getContext, observeNextSettingsSave, readServerExtensionSettings } from "@services/STAPI";
 import { hashStory } from "./hash";
-import { createSettingsWriteEvidence, missingFromServer, missingMigrated, recordSettingsWrite, stillHeldByServer, type LibrarySaveEvidence } from "./librarySave";
+import { createSettingsWriteEvidence, missingFromServer, recordSettingsWrite, stillHeldByServer, type LibrarySaveEvidence } from "./librarySave";
+import { SETTINGS_ROOT_KEY, settingsRoot, writableSettingsRoot } from "./settingsRoot";
 import type { LoadedStory, StoryLibraryRecord, RuntimeSnapshot } from "./types";
 
 const SETTINGS_KEY = "v2Stories";
-const ROOT_KEY = "story-orchestrator";
-
-const getRoot = () => {
-  const context = getContext();
-  const settings = context.extensionSettings;
-  settings[ROOT_KEY] = settings[ROOT_KEY] ?? {};
-  return settings[ROOT_KEY] as Record<string, unknown>;
-};
 
 const storyObject = (raw: unknown): Record<string, unknown> | null => (raw && typeof raw === "object" && !Array.isArray(raw) ? raw as Record<string, unknown> : null);
 
 const isStoryRecord = (value: unknown): value is StoryLibraryRecord => {
-  return Boolean(value) && typeof value === "object" && typeof (value as StoryLibraryRecord).hash === "string" && typeof (value as StoryLibraryRecord).title === "string";
+  const record = value as Partial<StoryLibraryRecord> | null;
+  return Boolean(record) && typeof record === "object" && typeof record?.id === "string" && Boolean(record.id) && typeof record.version === "number"
+    && typeof record.hash === "string" && typeof record.title === "string" && Boolean(storyObject(record.raw));
 };
 
 // Identity is authored (`id`), never derived from content. A story without one keeps a stable
 // identity anyway, derived from the content it had when it entered the library.
 export const storyIdFor = (story: Pick<NormalizedStoryV2, "id">, contentHash: string): string => story.id ?? `legacy-${contentHash}`;
 
-const rawIdOf = (record: StoryLibraryRecord): string | undefined => {
-  const raw = record.raw as { id?: unknown } | undefined;
-  return typeof raw?.id === "string" && raw.id.trim() ? raw.id.trim().toLowerCase() : undefined;
-};
-
-const rawVersionOf = (record: StoryLibraryRecord): number => {
-  const raw = record.raw as { version?: unknown } | undefined;
-  return typeof raw?.version === "number" && Number.isInteger(raw.version) && raw.version >= 1 ? raw.version : 1;
-};
-
 const stampedAt = (record: StoryLibraryRecord) => Date.parse(record.updatedAt ?? record.importedAt ?? "") || 0;
 
-// Records written before v2.1 carry no id/version; rekey them on read, newest wins on collision.
-const migrateRecords = (records: StoryLibraryRecord[]): { records: StoryLibraryRecord[]; changed: boolean } => {
-  let changed = false;
+let lastLibraryWarning = "";
+const warnOnce = (message: string) => {
+  if (message !== lastLibraryWarning) console.warn(`[Story Orchestrator] ${message}`);
+  lastLibraryWarning = message;
+};
+
+// v2.5 plan 11: the read is a sanitizer and never writes. A record without an id or version is
+// dropped with a warning; a duplicate id keeps the newer record.
+const sanitizeRecords = (stored: unknown[]): StoryLibraryRecord[] => {
+  const valid = stored.filter(isStoryRecord);
   const byId = new Map<string, StoryLibraryRecord>();
-  for (const record of records) {
-    const id = record.id ?? rawIdOf(record) ?? `legacy-${record.hash}`;
-    const migrated: StoryLibraryRecord = {
-      ...record,
-      id,
-      version: record.version ?? rawVersionOf(record),
-      updatedAt: record.updatedAt ?? record.importedAt ?? new Date().toISOString(),
-    };
-    if (!record.id || !record.version || !record.updatedAt) changed = true;
-    const existing = byId.get(id);
-    if (existing && stampedAt(existing) >= stampedAt(migrated)) {
-      console.warn(`[Story Orchestrator] duplicate story id '${id}' in the library; keeping the newer record "${existing.title}"`);
-      changed = true;
-      continue;
-    }
-    if (existing) {
-      console.warn(`[Story Orchestrator] duplicate story id '${id}' in the library; replacing "${existing.title}" with the newer record`);
-      changed = true;
-    }
-    byId.set(id, migrated);
+  for (const record of valid) {
+    const existing = byId.get(record.id);
+    if (!existing || stampedAt(record) > stampedAt(existing)) byId.set(record.id, record);
   }
-  return { records: [...byId.values()], changed };
+  const dropped = stored.length - valid.length;
+  const duplicates = valid.length - byId.size;
+  if (dropped || duplicates) warnOnce(`the story library holds ${dropped} record(s) without an id or version and ${duplicates} duplicate id(s); they are not read`);
+  return [...byId.values()];
 };
 
 const readServerLibrary = async (): Promise<unknown[] | null> => {
-  const root = await readServerExtensionSettings(ROOT_KEY);
+  const root = await readServerExtensionSettings(SETTINGS_ROOT_KEY);
   return root === null ? null : Array.isArray(root[SETTINGS_KEY]) ? (root[SETTINGS_KEY] as unknown[]) : [];
 };
 
@@ -73,25 +51,15 @@ const observeLibraryWrite = <T>(missing: (stored: unknown[] | null, write: T) =>
 
 const confirmRecord = observeLibraryWrite(missingFromServer);
 const confirmRemoval = observeLibraryWrite(stillHeldByServer);
-const confirmMigration = observeLibraryWrite(missingMigrated);
 const armedSaves = new WeakMap<StoryLibraryRecord, Promise<LibrarySaveEvidence>>();
 
 export function listStoryRecords(): StoryLibraryRecord[] {
-  const root = getRoot();
-  const stored = Array.isArray(root[SETTINGS_KEY]) ? (root[SETTINGS_KEY] as unknown[]).filter(isStoryRecord) : [];
-  const { records, changed } = migrateRecords(stored);
-  if (changed) {
-    root[SETTINGS_KEY] = records;
-    const ids = records.map((record) => record.id);
-    recordSettingsWrite("library migration not confirmed", `rekeyed records ${ids.join(", ")}`, () => confirmMigration(ids));
-    getContext().saveSettingsDebounced();
-  }
-  return [...records].sort((left, right) => left.title.localeCompare(right.title));
+  const stored = settingsRoot()[SETTINGS_KEY];
+  return sanitizeRecords(Array.isArray(stored) ? stored : []).sort((left, right) => left.title.localeCompare(right.title));
 }
 
-export function findStoryRecord(idOrHash: string): StoryLibraryRecord | null {
-  const records = listStoryRecords();
-  return records.find((record) => record.id === idOrHash) ?? records.find((record) => record.hash === idOrHash) ?? null;
+export function findStoryRecord(id: string): StoryLibraryRecord | null {
+  return listStoryRecords().find((record) => record.id === id) ?? null;
 }
 
 // A Studio-born story must enter the library with a real id: without one it keys as
@@ -126,7 +94,7 @@ export function saveStoryRecord(raw: unknown): LoadedStory | RuntimeSnapshot["va
     importedAt: existing?.importedAt ?? new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
-  getRoot()[SETTINGS_KEY] = [...records.filter((entry) => entry.id !== id), record];
+  writableSettingsRoot()[SETTINGS_KEY] = [...records.filter((entry) => entry.id !== id), record];
   const evidence = recordSettingsWrite("library save not confirmed", `“${record.title}” v${record.version}`, () => confirmRecord(record));
   if (evidence) armedSaves.set(record, evidence);
   getContext().saveSettingsDebounced();
@@ -136,11 +104,11 @@ export function saveStoryRecord(raw: unknown): LoadedStory | RuntimeSnapshot["va
 /** v2.4 plan 02 §7: whether the server holds what `saveStoryRecord` wrote; the evidence it already armed, or armed now. */
 export const confirmLibrarySave = (record: StoryLibraryRecord): Promise<LibrarySaveEvidence> => armedSaves.get(record) ?? confirmRecord(record);
 
-export function removeStoryRecord(idOrHash: string): boolean {
+export function removeStoryRecord(id: string): boolean {
   const records = listStoryRecords();
-  const target = findStoryRecord(idOrHash);
+  const target = records.find((record) => record.id === id);
   if (!target) return false;
-  getRoot()[SETTINGS_KEY] = records.filter((entry) => entry.id !== target.id);
+  writableSettingsRoot()[SETTINGS_KEY] = records.filter((entry) => entry.id !== target.id);
   const removal = { id: target.id, at: new Date().toISOString() };
   recordSettingsWrite("library removal not confirmed", `“${target.title}”`, () => confirmRemoval(removal));
   getContext().saveSettingsDebounced();

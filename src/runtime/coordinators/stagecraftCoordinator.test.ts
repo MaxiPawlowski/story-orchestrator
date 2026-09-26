@@ -875,10 +875,10 @@ describe("continuity warden (v2.2 plan 05)", () => {
 
 
 describe("stagecraft hydrate (v2.2 plan 05)", () => {
-  it("tags records saved before the warden as the World Info curator's, and fills the warden settings", () => {
+  it("tags records saved before the warden as the World Info curator's, and takes the settings from the defaults, never the chat", () => {
     const hydrated = sanitizeStagecraft({ stagecraft: { settings: { curatorEnabled: true, acceptMode: "auto" }, proposals: [{ id: "wi-1", ops: [], dropped: [] }], lastPass: null, lastRunBoundary: 3, lastError: null } } as unknown as RuntimeExtras);
     expect(hydrated.proposals[0].curator).toBe("wi");
-    expect(hydrated.settings).toEqual({ curatorEnabled: true, acceptMode: "auto", wardenEnabled: false, wardenAcceptMode: "review" });
+    expect(hydrated.settings).toEqual({ curatorEnabled: false, acceptMode: "review", wardenEnabled: false, wardenAcceptMode: "review" });
   });
 
 

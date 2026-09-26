@@ -229,4 +229,19 @@ describe("settings homes", () => {
     expect(second.getSnapshot().ui.authorView).toBe(false);
     expect(second.getSnapshot().pacing.shapeOverride).toBeNull();
   });
+
+  it("a chat's per-chat settings are ignored: the install's settings win and are not rewritten", async () => {
+    const first = new RuntimeManager();
+    await first.importStory(storyJson());
+    const extras = blob().stories["sun-ruins"].extras as unknown as Record<string, Record<string, unknown>>;
+    extras.extraction = { ...extras.extraction, settings: { enabled: true, profileId: "chat-profile", cadence: 7, reconciliationMultiplier: 2, stabilityLag: 1 } };
+    extras.ui = { authorView: true, announceTransitions: false, hudEnabled: false };
+    const install = JSON.stringify(getGlobalSettings());
+
+    const second = new RuntimeManager();
+    await second.selectStory("sun-ruins");
+    expect(second.getSnapshot().extraction.settings).toMatchObject({ profileId: null, cadence: 3 });
+    expect(second.getSnapshot().ui).toMatchObject({ authorView: true, announceTransitions: true, hudEnabled: true });
+    expect(JSON.stringify(getGlobalSettings())).toBe(install);
+  });
 });

@@ -79,17 +79,17 @@ export async function importStoryJson(deps: StorySelectionDeps, rawText: string)
 // Selecting is never destructive: a chat that already played this story hydrates its pinned copy
 // (library edits, and even deletion, cannot reach it); a story new to this chat pins the version the
 // library holds right now. Reset lives only in restartStory().
-export async function selectStory(deps: StorySelectionDeps, idOrHash: string, chosen = true): Promise<boolean> {
+export async function selectStory(deps: StorySelectionDeps, id: string, chosen = true): Promise<boolean> {
   if (chosen && !adoptChatState()) {
     const found = unreadableStored();
     if (found) {
-      refusedSelection = { chat: found.openChat, storyId: idOrHash };
-      deps.setStatus(`Story not selected: this chat's saved story state was ${UNREADABLE_NOTICE}`, `blob-unreadable: selecting '${idOrHash}' refused, ${describeMismatch(found)}; the stored state was left untouched`);
+      refusedSelection = { chat: found.openChat, storyId: id };
+      deps.setStatus(`Story not selected: this chat's saved story state was ${UNREADABLE_NOTICE}`, `blob-unreadable: selecting '${id}' refused, ${describeMismatch(found)}; the stored state was left untouched`);
     }
     return false;
   }
-  const record = findStoryRecord(idOrHash);
-  const persisted = loadPersistedRuntime(idOrHash) ?? (record ? loadPersistedRuntime(record.id) : null);
+  const record = findStoryRecord(id);
+  const persisted = loadPersistedRuntime(id);
   if (persisted) {
     const pinned = loadPinnedStory(persisted.storyId, persisted.pinnedStory, persisted.playedVersion, persisted.contentHashAtLoad, persisted.storyTitle);
     if (!isValidationErrorList(pinned)) {
@@ -99,7 +99,7 @@ export async function selectStory(deps: StorySelectionDeps, idOrHash: string, ch
     console.warn(`[Story Orchestrator] pinned copy of '${persisted.storyId}' did not parse; falling back to the library`, pinned);
   }
   if (!record) {
-    deps.fail([{ path: "story", message: `Unknown story '${idOrHash}'` }], "Story not found");
+    deps.fail([{ path: "story", message: `Unknown story '${id}'` }], "Story not found");
     return false;
   }
   const loaded = loadStoryRecord(record);
@@ -146,9 +146,9 @@ export async function restartStory(deps: StorySelectionDeps, currentId: string |
   return true;
 }
 
-export async function removeStory(deps: StorySelectionDeps, idOrHash: string): Promise<boolean> {
-  const record = findStoryRecord(idOrHash);
-  if (!record || !removeStoryRecord(idOrHash)) return false;
+export async function removeStory(deps: StorySelectionDeps, id: string): Promise<boolean> {
+  const record = findStoryRecord(id);
+  if (!record || !removeStoryRecord(id)) return false;
   deps.setStatus(`Removed "${record.title}" from the library`);
   return true;
 }

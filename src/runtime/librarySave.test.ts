@@ -1,4 +1,4 @@
-import { createLibrarySaveEvidence, journalSettingsWrite, librarySaveSentence, missingFromServer, missingMigrated, onSettingsWrite, recordSettingsWrite, scopeToOpenChat, stillHeldByServer, type OpenChat, type SettingsSaveObservation, type WriteChatScope } from "./librarySave";
+import { createLibrarySaveEvidence, journalSettingsWrite, librarySaveSentence, missingFromServer, onSettingsWrite, recordSettingsWrite, scopeToOpenChat, stillHeldByServer, type OpenChat, type SettingsSaveObservation, type WriteChatScope } from "./librarySave";
 import type { StoryLibraryRecord } from "./types";
 
 const record: StoryLibraryRecord = { id: "heist", version: 2, hash: "h", title: "Heist", description: "", raw: {}, importedAt: "2026-09-24T10:00:00.000Z", updatedAt: "2026-09-24T12:00:00.000Z" };
@@ -95,12 +95,6 @@ describe("v2.4 E3: every install-wide write reads its settings save", () => {
     expect(stillHeldByServer([{ id: "other", version: 1 }], removal)).toBeNull();
     expect(stillHeldByServer(held(3, "2026-09-24T12:30:00.000Z"), removal)).toBeNull();
     expect(stillHeldByServer(null, removal)).toBe("the server's settings could not be read back");
-  });
-
-  it("a migration is confirmed only when the server holds every rekeyed record", () => {
-    expect(missingMigrated([{ id: "a" }, { id: "b" }], ["a", "b"])).toBeNull();
-    expect(missingMigrated([{ id: "a" }, { hash: "h1", title: "B" }], ["a", "b"])).toBe("the server's library does not hold b");
-    expect(missingMigrated(null, ["a"])).toBe("the server's settings could not be read back");
   });
 
   it("arms a write's evidence only while something listens, and hands it over", () => {

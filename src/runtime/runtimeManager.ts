@@ -41,7 +41,7 @@ import { agencyRecovery, playerTurnIds } from "./agencyRecovery";
 import { readEffectTarget, reconcileEffectLedger, restoreEffectTarget } from "./effectHost";
 import { ChatSave } from "./chatSave";
 import { hasUnsavedChanges } from "./saveHealth";
-import { getGlobalSettings, liftLegacyChatSettings, setGlobalSettings } from "./settingsStore";
+import { getGlobalSettings, setGlobalSettings } from "./settingsStore";
 import { buildPossibleTransitions } from "./snapshot";
 import { buildRuntimeSnapshot } from "./snapshotBuilder";
 import { applyStoryUpdate, type StoryUpdateDeps, type StoryUpdateOutcome } from "./storyUpdate";
@@ -258,9 +258,9 @@ export class RuntimeManager {
   async loadSelectedFromChat() { if (await loadSelectedStory(this.selectionDeps)) void this.showAwayRecap(); }
 
   async importStory(rawText: string) { return importStoryJson(this.selectionDeps, rawText); }
-  async selectStory(idOrHash: string, _mode: "activate" | "hydrate" = "activate") { return selectStory(this.selectionDeps, idOrHash); }
+  async selectStory(id: string, _mode: "activate" | "hydrate" = "activate") { return selectStory(this.selectionDeps, id); }
   async restartStory(alreadyConfirmed = false): Promise<boolean> { return restartStory(this.selectionDeps, this.loaded?.record.id ?? null, alreadyConfirmed); }
-  async removeStory(idOrHash: string): Promise<boolean> { return removeStory(this.selectionDeps, idOrHash); }
+  async removeStory(id: string): Promise<boolean> { return removeStory(this.selectionDeps, id); }
 
   async commitBoundary(at?: number) {
     if (!this.loaded) return null;
@@ -539,7 +539,6 @@ export class RuntimeManager {
     this.pacing.clearPending();
     const persisted = mode === "hydrate" ? knownPersisted ?? loadPersistedRuntime(loaded.record.id) : null;
     const priorSessionAt = persisted?.extras?.lastSessionAt ?? null;
-    liftLegacyChatSettings(persisted?.extras, String(getContext().chatId ?? "an earlier chat"));
     this.invalidateRuns();
     this.extras = hydrateExtras(persisted?.extras); this.chatSave.fingerprints.load(persisted?.fingerprints);
     this.journal.hydrate(this.extras.journal);

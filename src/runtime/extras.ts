@@ -18,12 +18,6 @@ export const defaultPacingSettings = (): PacingSettings => ({ alpha: DEFAULT_TEN
 
 export const defaultTension = (): TensionRuntimeState => ({ levels: [], smoothed: null });
 
-export const sanitizePacing = (value: PacingSettings | undefined): PacingSettings => ({
-  ...defaultPacingSettings(),
-  ...(value ?? {}),
-  alpha: typeof value?.alpha === "number" && value.alpha >= 0 && value.alpha <= 1 ? value.alpha : DEFAULT_TENSION_EMA_ALPHA,
-});
-
 export const sanitizeTension = (value: TensionRuntimeState | undefined): TensionRuntimeState => ({
   levels: Array.isArray(value?.levels) ? value.levels.slice(-50) : [],
   smoothed: typeof value?.smoothed === "number" ? value.smoothed : null,
@@ -90,7 +84,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
       entries: entries.map((entry) => ({ ...entry, text: stripChannelNoise(entry.text) })),
       excluded: Array.isArray(existing.excluded) ? existing.excluded : [],
       writeLog: Array.isArray(existing.writeLog) ? existing.writeLog.slice(-100) : [],
-      settings: { ...defaultMemorySettings(), ...existing.settings },
+      settings: defaultMemorySettings(),
       backfill: existing.backfill ? { ...existing.backfill, running: false } : null,
       sceneCount: typeof existing.sceneCount === "number" ? existing.sceneCount : 0,
       shortTermSummaryEnd: typeof existing.shortTermSummaryEnd === "number" ? existing.shortTermSummaryEnd : -1,
@@ -113,16 +107,14 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
 };
 
 export const createCopilot = (): CopilotRuntimeSettings => ({ enabled: true });
-export const sanitizeCopilot = (value: RuntimeExtras | undefined): CopilotRuntimeSettings => ({ enabled: value?.copilot?.enabled ?? true });
 export const createUi = (): UiRuntimeSettings => ({ authorView: false, announceTransitions: true, hudEnabled: true });
-export const sanitizeUi = (value: RuntimeExtras | undefined): UiRuntimeSettings => ({ ...createUi(), ...value?.ui });
 export const createStagecraft = (): StagecraftRuntimeState => ({ settings: defaultStagecraftSettings(), proposals: [], lastPass: null, lastRunBoundary: -1, lastError: null });
 
 export const sanitizeStagecraft = (value: RuntimeExtras | undefined): StagecraftRuntimeState => {
   const existing = value?.stagecraft;
   if (!existing) return createStagecraft();
   return {
-    settings: { ...defaultStagecraftSettings(), ...existing.settings },
+    settings: defaultStagecraftSettings(),
     proposals: Array.isArray(existing.proposals) ? capProposalRing(existing.proposals.filter((entry) => Boolean(entry) && Array.isArray(entry.ops)).map((entry) => ({ ...entry, curator: entry.curator === "warden" ? "warden" : "wi" }))) : [],
     lastPass: existing.lastPass && typeof existing.lastPass === "object" ? existing.lastPass : null,
     lastRunBoundary: typeof existing.lastRunBoundary === "number" ? existing.lastRunBoundary : -1,
@@ -219,7 +211,7 @@ export const sanitizeExtraction = (value: RuntimeExtras | undefined): Extraction
   const existing = value?.extraction;
   if (!existing) return createExtraction();
   return {
-    settings: { ...defaultExtractionSettings(), ...existing.settings },
+    settings: defaultExtractionSettings(),
     audits: Array.isArray(existing.audits) ? existing.audits.slice(-20) : [],
     reconciliationEvents: Array.isArray(existing.reconciliationEvents) ? existing.reconciliationEvents.slice(-50) : [],
     lastReadBoundary: typeof existing.lastReadBoundary === "number" ? existing.lastReadBoundary : 0,
@@ -296,10 +288,10 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined): RuntimeExtr
   extras.memory = sanitizeMemory(extras);
   extras.extraction = sanitizeExtraction(extras);
   extras.expansion = sanitizeExpansion(extras);
-  extras.pacing = sanitizePacing(extras.pacing);
+  extras.pacing = defaultPacingSettings();
   extras.tension = sanitizeTension(extras.tension);
-  extras.copilot = sanitizeCopilot(extras);
-  extras.ui = sanitizeUi(extras);
+  extras.copilot = createCopilot();
+  extras.ui = createUi();
   extras.talk = sanitizeTalk(extras);
   extras.stagecraft = sanitizeStagecraft(extras);
   extras.effects = sanitizeEffects(extras);

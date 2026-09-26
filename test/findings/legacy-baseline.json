@@ -3,11 +3,7 @@
   "closed": false,
   "baseline": {
     "src/runtime/extras.ts": 2,
-    "src/runtime/librarySave.ts": 2,
-    "src/runtime/runtimeManager.ts": 4,
-    "src/runtime/settingsStore.ts": 10,
-    "src/runtime/storyLibrary.ts": 15,
-    "src/runtime/storySelection.ts": 9
+    "src/runtime/storyLibrary.ts": 2
   },
   "allowlist": [
     {

@@ -54,13 +54,6 @@ export function stillHeldByServer(stored: unknown[] | null, removal: { id: strin
   return !held || stampOf(held.updatedAt) > stampOf(removal.at) ? null : "the server's library still holds it";
 }
 
-/** v2.4 E3: the read-time migration rekeys records by id; the server holds it once it holds every id. */
-export function missingMigrated(stored: unknown[] | null, ids: string[]): string | null {
-  if (stored === null) return UNREADABLE;
-  const absent = ids.filter((id) => !entryWithId(stored, id));
-  return absent.length ? `the server's library does not hold ${absent.join(", ")}` : null;
-}
-
 /** v2.4 E3: the same evidence for any install-wide write: the observed settings save, then what the
  *  server's copy holds, read once per burst. `missing` answers null when the server holds the write. */
 export function createSettingsWriteEvidence<T, S = unknown[]>(deps: SettingsWriteDeps<S>, missing: (stored: S | null, write: T) => string | null): (write: T) => Promise<LibrarySaveEvidence> {

@@ -5,7 +5,8 @@ import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/
 import { defaultJudgeSettings, sanitizeJudgeSettings, type JudgeSettings, type JudgeUses } from "@judge/index";
 import { createSettingsWriteEvidence, recordSettingsWrite } from "./librarySave";
 import { sanitizePassProfiles } from "./passProfiles";
-import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, RuntimeExtras, StagecraftSettings, UiRuntimeSettings } from "./types";
+import { SETTINGS_ROOT_KEY, settingsRoot, writableSettingsRoot } from "./settingsRoot";
+import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, StagecraftSettings } from "./types";
 
 const SETTINGS_KEY = "settings";
 
@@ -21,7 +22,6 @@ export interface GlobalSettings {
   stagecraft: StagecraftSettings;
   judge: JudgeSettings;
   worldInfo: WorldInfoSettings;
-  migratedFromChat?: string;
 }
 
 // v2.4 plan 05 T13 spike. `scan` is never the default and no plan flips it; `normalized` is the
@@ -116,14 +116,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     },
     judge: sanitizeJudgeSettings(value.judge),
     worldInfo: sanitizeWorldInfoSettings(value.worldInfo),
-    ...(typeof value.migratedFromChat === "string" ? { migratedFromChat: value.migratedFromChat } : {}),
   };
-};
-
-const getRoot = (): Record<string, unknown> => {
-  const settings = getContext().extensionSettings;
-  settings["story-orchestrator"] = settings["story-orchestrator"] ?? {};
-  return settings["story-orchestrator"] as Record<string, unknown>;
 };
 
 const WRITE_RING = 16;
@@ -139,14 +132,14 @@ const heldByServer = (stored: { value: unknown } | null, write: { seq: number })
 const confirmSettingsWrite = createSettingsWriteEvidence<{ seq: number }, { value: unknown }>({
   observe: () => observeNextSettingsSave(),
   readBack: async () => {
-    const root = await readServerExtensionSettings("story-orchestrator");
+    const root = await readServerExtensionSettings(SETTINGS_ROOT_KEY);
     return root === null ? null : { value: root[SETTINGS_KEY] };
   },
 }, heldByServer);
 
 /** v2.4 E3: an install-wide settings write reads its settings save; the server holds it, or a later write. */
 const writeSettings = (settings: GlobalSettings, label: string) => {
-  getRoot()[SETTINGS_KEY] = settings;
+  writableSettingsRoot()[SETTINGS_KEY] = settings;
   const write = { seq: ++writeSeq };
   recentWrites.push({ ...write, json: JSON.stringify(sanitizeGlobalSettings(settings)) });
   if (recentWrites.length > WRITE_RING) recentWrites.shift();
@@ -156,21 +149,16 @@ const writeSettings = (settings: GlobalSettings, label: string) => {
 
 /**
  * v2.3 plan 06 (F2). The read is ALSO a write: it replaces the stored value with its sanitized form.
- * Before ST has loaded the extension settings that write is destructive — `getRoot()` would create
+ * Before ST has loaded the extension settings that write is destructive — `settingsRoot()` would create
  * our key, the sanitized defaults would be stamped in its place, and the author's settings would be
  * gone the moment anything saved. So the write-back waits for the load, and until then a caller gets
  * sanitized defaults WITHOUT them being stored.
  */
 export function getGlobalSettings(): GlobalSettings {
-  const root = getRoot();
+  const root = settingsRoot();
   const sanitized = sanitizeGlobalSettings(root[SETTINGS_KEY]);
   if (settingsAreLoaded?.()) root[SETTINGS_KEY] = sanitized;
   return sanitized;
-}
-
-export function isAtDefaults(settings: GlobalSettings = getGlobalSettings()): boolean {
-  const defaults = defaultGlobalSettings();
-  return !settings.migratedFromChat && JSON.stringify({ ...settings, migratedFromChat: undefined }) === JSON.stringify({ ...defaults, migratedFromChat: undefined });
 }
 
 export function setGlobalSettings(patch: Partial<{ [K in keyof GlobalSettings]: Partial<GlobalSettings[K]> }>): GlobalSettings {
@@ -197,22 +185,3 @@ export function setJudgeSettings(patch: { enabled?: boolean; uses?: Partial<Judg
   return setGlobalSettings({ judge: { ...(patch.enabled !== undefined ? { enabled: patch.enabled } : {}), uses: { ...current.uses, ...(patch.uses ?? {}) }, expansion: { ...current.expansion, ...(patch.expansion ?? {}) } } });
 }
 
-// One-time lift of settings that used to live per chat: an old chat carries the user's real
-// configuration, and until the install has its own it is the best source of truth.
-export function liftLegacyChatSettings(extras: RuntimeExtras | undefined, chatLabel: string): boolean {
-  if (!extras || !isAtDefaults()) return false;
-  const legacyExtraction = extras.extraction?.settings;
-  const legacyUi = extras.ui as (UiRuntimeSettings & { announceTransitions?: boolean; hudEnabled?: boolean }) | undefined;
-  if (!legacyExtraction?.profileId) return false;
-  setGlobalSettings({
-    extraction: { ...legacyExtraction, enabled: true },
-    pacing: { alpha: extras.pacing?.alpha, hintEnabled: extras.pacing?.hintEnabled },
-    display: { announceTransitions: legacyUi?.announceTransitions, hudEnabled: legacyUi?.hudEnabled },
-    copilot: { enabled: extras.copilot?.enabled },
-    memory: extras.memory?.settings,
-    talk: { enabled: extras.talk?.enabled },
-    stagecraft: extras.stagecraft?.settings,
-  });
-  writeSettings({ ...getGlobalSettings(), migratedFromChat: chatLabel }, `settings lifted from ${chatLabel}`);
-  return true;
-}
