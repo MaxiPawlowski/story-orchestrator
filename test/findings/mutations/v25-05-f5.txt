@@ -1,0 +1,11 @@
+v2.5 plan 05 F5 measurement M5 (constrained decoding: repair cause), 2026-09-26, worktree on 007b35f.
+
+Re-score (.debug/m5.py) of every first-try failure (score.repaired or !score.valid) in the archived role-calibration records, cause = json-syntax when the first response holds no parseable JSON object (fenced or bare), shape otherwise. Curator records: a dropped op line is json-syntax-like only if its line does not parse; every drop carries a semantic reason.
+- authoring-shared-65733265d301 (20 cases): 4 first-try failures (a05, a12, a15 repaired; a16 failed "unknown quality") -> json-syntax 0, shape 4
+- authoring-shared-e420eab0c646 (20): 6 (a05, a06, a07, a12, a15, a16) -> json-syntax 0, shape 6 (out-of-stage addTransition, intermediate checkpoint without an anchor beyond it)
+- authoring-shared (20): 2 (a07, a12) -> json-syntax 0, shape 2
+- curator-shared-65733265d301 (20): 0 dropped lines
+- curator-shared-e420eab0c646 (20): 1 case, 1 drop ("not an entry this story owns") -> semantic
+- curator-shared (20): 5 cases, 10 drops ("is already on") -> semantic
+Route: all on the profile route (TC, "Story Orchestrator Memory RunPod" as the authoring/curator fallback).
+Floor (>= 2 of 20 first-try failures are JSON syntax on some route): NOT MET (0 of 12 authoring first-try failures; 0 curator syntax drops). F5 NOT BUILT. Host facts owed by the design (llama.cpp grammar vs json_schema; extractJsonFromData vs extractMessageFromData) are not verified here because nothing is built on them.
