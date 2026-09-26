@@ -1,0 +1,18 @@
+DIFF build.head  "7034eec7e16946c1155638eaadc551af94515db5" -> "13b76f8b128938fdfe3a309387b98bd3220ba7e3"
+WARNING: the settings root carries no schema stamp: its shape baseline is not read
+{
+  "baseline": "test/journeys/records/v2.4-postfreeze/e080b9749436/J7/run1/header-start.json",
+  "label": "diff-end",
+  "allow": [],
+  "differences": 1,
+  "progress": 0,
+  "blocking": 1,
+  "blockingPaths": [
+    "build.head"
+  ],
+  "warnings": [
+    "the settings root carries no schema stamp: its shape baseline is not read"
+  ],
+  "wrote": "C:\\dev\\so-lanes\\2\\debug\\run-header-diff-end.json",
+  "ok": false
+}
