@@ -26,7 +26,7 @@ interface LabelledCase {
   rejectedAs: string;
   line: string;
   quotes: number | null;
-  refusedBecause?: string;
+  acceptedSince?: string;
   window: WindowLine[];
 }
 
@@ -48,19 +48,14 @@ const byQuote = (index: number) => fixture.labelled.find((entry) => entry.quotes
 
 describe("v2.4 acceptance D1: a quote that carries the window's own line label", () => {
   const found = fixture.labelled.filter((entry) => entry.quotes !== null);
-  const refused = fixture.labelled.filter((entry) => entry.quotes === null);
 
   it("replays every labelled line the acceptance runs refused", () => {
-    expect([found.length, refused.length]).toEqual([15, 1]);
+    expect([found.length, fixture.labelled.length]).toEqual([16, 16]);
     for (const entry of fixture.labelled) expect(evidenceOf(entry.line).replace(labelPrefix, "")).not.toBe(evidenceOf(entry.line));
   });
 
   it.each(found.map((entry) => [`${entry.source} ${entry.line.slice(0, 70)}`, entry] as const))("finds %s in the line it copied", (_name, entry) => {
     expect(evidenceSources(evidenceOf(entry.line), messagesOf(entry.window))).toEqual([entry.quotes]);
-  });
-
-  it.each(refused.map((entry) => [entry.refusedBecause, entry] as const))("control: still refuses a labelled quote that is %s", (_reason, entry) => {
-    expect(evidenceSources(evidenceOf(entry.line), messagesOf(entry.window))).toEqual([]);
   });
 
   const j7 = messagesOf(fixture.labelled[0].window);

@@ -18,7 +18,7 @@ export const normalizeEvidenceText = (text: string): string => text
   .toLowerCase()
   .replace(/…|\.\.\./g, ELISION)
   .replace(QUOTES, "")
-  .replace(/[.!?,;:()[\]{}—–]+/g, " ")
+  .replace(/[.!?,;:()[\]{}—–*_]+/g, " ")
   .replace(/\s+/g, " ")
   .trim();
 

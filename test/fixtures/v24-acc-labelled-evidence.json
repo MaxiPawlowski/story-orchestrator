@@ -579,7 +579,7 @@
       "source": "test/journeys/records/v2.4-acceptance/J8/run2/journal-follow.jsonl",
       "rejectedAs": "evidence not in window",
       "line": "DELTA tension_current value=\"calm\" evidence=\"Luke: 'Let's go find something to eat first,' he suggested, his voice regaining some of its excitement.\"",
-      "quotes": null,
+      "quotes": 20,
       "window": [
         {
           "index": 19,
@@ -600,7 +600,7 @@
           "text": "\"You're all right,\" *Ponticius said, his voice gruff as he watched Luke approach the bar.*\n\"Stomach full of stones isn't gonna get you far.\" *He said,* \"But we'll see if there's anything left in the pot.\"\n*He moved behind the bar, his boots crunching on the wooden floor as he leaned over the counter.*\n\"You're not the only ones who've come through the rain,\" *he said,* \"So we'll make it last.\"\n*He looked at the courier, then back at the group, his brow furrowing slightly.*\n\"So, you're headed for the bridge, then? The old one?\"\n*He paused, his eyes narrowing as he looked at them.*\n\"Be careful. Roads aren't always what they seem.\""
         }
       ],
-      "refusedBecause": "not verbatim: the quote drops the line's *action* markup (\"*he suggested\" -> \"he suggested\"); the label is not what refuses it"
+      "acceptedSince": "v2.4 A35 (post-freeze J7): the quote drops only the line's *action* markup; emphasis marks are not words (V14), so this is verbatim"
     },
     {
       "source": "test/journeys/records/v2.4-acceptance/J8/run2/journal-follow.jsonl",

@@ -75,3 +75,26 @@ describe("evidenceInWindow", () => {
     expect(evidenceInWindow("crossed", [])).toBe(false);
   });
 });
+
+describe("evidenceInWindow over markdown emphasis (v2.4 A35, J7 post-freeze)", () => {
+  const narration = [
+    "*The air inside the Guildhall is thick with the scent of ale, sweat and old parchment.* Arin leans on the board.",
+    "Luke's eyes dart around the crowded tavern. _He swallows hard._ \"Take me with you.\"",
+    "**The chamber feels both wondrous and dangerous**, a testament to a lost age.",
+  ];
+
+  it("accepts a quote that starts or ends at an emphasis boundary", () => {
+    expect(evidenceInWindow("The air inside the Guildhall is thick with the scent of ale, sweat and old parchment.", narration)).toBe(true);
+    expect(evidenceInWindow("He swallows hard", narration)).toBe(true);
+    expect(evidenceInWindow("The chamber feels both wondrous and dangerous, a testament", narration)).toBe(true);
+  });
+
+  it("accepts a quote that keeps the model's own emphasis marks", () => {
+    expect(evidenceInWindow("*The air inside the Guildhall is thick*", narration)).toBe(true);
+  });
+
+  it("control: emphasis stripping does not make a paraphrase or a stitched quote evidence", () => {
+    expect(evidenceInWindow("The air in the Guildhall is thick", narration)).toBe(false);
+    expect(evidenceInWindow("old parchment Luke's eyes dart", narration)).toBe(false);
+  });
+});
