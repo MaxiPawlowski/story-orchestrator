@@ -6,7 +6,8 @@ import { evaluateInST } from './lib/evaluate.mts';
 import { STEP_MODIFIERS, validateFixture } from './lib/scenarioSchema.mts';
 import { payloadFailures } from './lib/payloadAssert.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
-import { removableStories, type LibraryCapture } from './lib/configRestore.mts';
+import { type LibraryCapture } from './lib/configRestore.mts';
+import { captureLibrary, restoreLibrary } from './lib/librarySnapshot.mts';
 import { STORY_BOUND_VERBS, storylessStepError } from './lib/journeyArchive.mts';
 import { readExtractionSettings, restoreExtractionSettings } from './lib/extractionSettings.mts';
 import { readJudgeConfig, restoreJudgeConfig } from './lib/judgeHarness.mts';
@@ -947,16 +948,6 @@ function uiFailures(selector, text, spec) {
   return failures;
 }
 
-// S6: an unreadable library is `trusted: false`, never an empty one.
-async function libraryHashes(page): Promise<LibraryCapture> {
-  return evaluateInST(page, () => {
-    const settings = SillyTavern.getContext().extensionSettings;
-    if (!settings || typeof settings !== 'object') return { trusted: false, hashes: [] };
-    const records = settings['story-orchestrator']?.v2Stories;
-    return { trusted: true, hashes: Array.isArray(records) ? records.map((record) => record.hash).filter(Boolean) : [] };
-  });
-}
-
 // `storyOrchestratorDebug*` responses stand in for the model until the page reloads, so one run's
 // mock answered the next run's first real pass (plan07-memory, second run) and would answer a real
 // player's in the shared browser. A sandbox run starts and ends without any.
@@ -1012,22 +1003,10 @@ async function deleteSandboxMirrorBooks(page, guard) {
   }, { owned: [...guard.owned], titles: [...guard.storyTitles], books: [...guard.mirrorBooks] });
 }
 
-// Only stories this run introduced may be removed: a scenario story whose content matches a
-// record the user already had would otherwise delete the user's library entry.
 async function cleanupScenario(page, importedHashes, guard, keep, libraryBefore: LibraryCapture | null = null) {
   if (keep) return { kept: true, sandboxChatId: guard?.sandboxChatId ?? null, owned: guard?.owned ?? [] };
-  const { remove: removable, kept, untrusted } = removableStories(importedHashes, libraryBefore);
-  const cleaned = await evaluateInST(page, async (hashes) => {
-    const ctx = SillyTavern.getContext();
-    const root = ctx.extensionSettings?.['story-orchestrator'];
-    if (root?.v2Stories && Array.isArray(root.v2Stories)) {
-      root.v2Stories = root.v2Stories.filter((entry) => !hashes.includes(entry.hash));
-    }
-    return { removedStoryHashes: hashes };
-  }, removable) as Record<string, unknown>;
-  if (removable.length) cleaned.saved = await saveSettingsNow(page).catch((error) => ({ error: error.message }));
-  if (untrusted && importedHashes.length) cleaned.libraryUntrusted = 'the library before this run could not be read, so no imported story was removed';
-  else if (kept.length) cleaned.keptPreExistingStories = kept;
+  const cleaned: Record<string, unknown> = { importedStoryHashes: [...new Set(importedHashes)] };
+  cleaned.library = await restoreLibrary(page, libraryBefore).catch((error) => ({ error: error instanceof Error ? error.message : String(error) }));
   if (guard) {
     cleaned.clearedDebugResponses = await clearDebugResponses(page).catch((err) => ({ error: err instanceof Error ? err.message : String(err) }));
     await recordSandboxStory(page, guard);
@@ -1209,7 +1188,7 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
     else await openMostRecentGroupChat(page);
     guard = (await beginSandboxSession(page)).guard;
     await clearDebugResponses(page);
-    libraryBefore = await libraryHashes(page);
+    libraryBefore = await captureLibrary(page);
     // Extraction settings are INSTALL-WIDE. Scenarios write them (plan06-convergence sets
     // stabilityLag 1) and a failed read pauses extraction for the whole install — so running the
     // mocked corpus left extraction DISABLED and stabilityLag 1 behind, which a real player would
@@ -1237,6 +1216,12 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
       if (leftChats.length) {
         result.ok = false;
         result.error = `cleanup left sandbox chat(s) in the group: ${leftChats.join(', ')}`;
+      }
+      const library = cleanup.library as { error?: string; saved?: { error?: string } } | undefined;
+      const libraryError = library?.error ?? library?.saved?.error;
+      if (libraryError) {
+        result.ok = false;
+        result.error = [result.error, `cleanup did not restore the story library: ${libraryError}`].filter(Boolean).join('; ');
       }
       const branches = (cleanup.branchChats ?? {}) as { leaked?: string[]; failed?: string[]; error?: string };
       if (branches.error || branches.leaked?.length || branches.failed?.length) {

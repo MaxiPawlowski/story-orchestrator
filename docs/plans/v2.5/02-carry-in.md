@@ -347,14 +347,26 @@ A fix has to act before the swap (for example, stop or detach the stream before 
 | Mutant 2: open-chat check dropped (refuse any other-chat save while armed) | 1 failed: `control: a save of another chat that carries messages is sent` (the branch-create shape). Restored |
 | Recorder | `node --test scripts/debug/so-save-recorder.test.mts`: 9/9 (3 new: watcher outermost drained from the ring and ordered, watcher inner marked not duplicated, pre-arm refusals not imported) |
 
+### H1 (S12 shape): cleanup restores the library snapshot
+
+- **Shape, both runners.** `so-scenario` (`cleanupScenario`) and `so-journey` (`runCleanup`) captured the library as a list of hashes and removed every hash the run *played*. An import under an id the install already had replaced that record (new hash), and cleanup then removed the replacement, so the id was gone (lane 2's `v24-01-delete-decode@1`). An edited re-import carried a hash cleanup never recorded, so it stayed behind (plan 11 L5). `so-journey` had the identical code path.
+- **Fix.** `scripts/debug/lib/librarySnapshot.mts`: `captureLibrary` copies the whole `v2Stories` list before the run (`{trusted, records}`); `restoreLibrary` plans with the pure `planLibraryRestore` (`lib/configRestore.mts`, keyed by story id, hash when there is none) and writes back exactly the snapshot: pre-existing records as they were, in their old order, and every record not in the snapshot removed. It saves through `saveSettingsNow`, reads the library back and reports `{changed, restored[], removed[], verified}`; a mismatch or a failed save is an `error`, which fails the journey's cleanup gate and the scenario run. An untrusted capture changes nothing (S6, unchanged). `removableStories` is gone; both runners share the new pair.
+- **Decision to note:** the restore is exact, so a story a **peer** session added to the same install during the run is removed too (reported by id in `library.removed`). `mergeRestore`'s S12 peer-keeping still applies to the config restore, but the library restore runs after it. Lanes make installs private, so this only matters on a shared main install.
+
+| Check | Result |
+|---|---|
+| `node --test scripts/debug/lib/configRestore.test.mts` | 10/10 (5 library cases: same-id restored, run-created and edited re-import removed, untouched library not rewritten, deleted pre-existing record comes back in place, untrusted capture changes nothing; the S6 title the findings ledger cites is kept) |
+| `node --test scripts/debug/lib/librarySnapshot.test.mts` (new) | 4/4 against a fake page: the live H1 shape end to end (restored + removed, one save, `settings` untouched), capture is a copy, untouched library writes nothing, untrusted capture restores nothing |
+| Mutant: restore keeps only the current records whose key existed before (the hash-era outcome) | 4 failed (both H1 cases, the in-place restore, the copy case), 10 passed. Restored |
+
 ### Machine gates (both commits)
 
-`npm run typecheck` 0 errors · `npm run typecheck:test` 0 errors · `npm run lint` clean · `npm test` 282 suites passed (1 skipped), 4027 tests passed (1 skipped) · `npm run debug:typecheck` 0 errors · `npm run test:debug` 320 pass, 0 fail. `test:debug` needs a built `dist/manifest.json` (`so-run-header.test.mts` reads it); a fresh worktree has none, so `npm run build` ran first (dist is untracked, nothing served).
+`npm run typecheck` 0 errors · `npm run typecheck:test` 0 errors · `npm run lint` clean · `npm test` 282 suites passed (1 skipped), 4027 tests passed (1 skipped) · `npm run debug:typecheck` 0 errors · `npm run test:debug` 328 tests, 327 pass, 0 fail, 1 skipped (320 pass after the C2 commit). `test:debug` needs a built `dist/manifest.json` (`so-run-header.test.mts` reads it); a fresh worktree has none, so `npm run build` ran first (dist is untracked, nothing served).
 
 ### Live re-run owed for C2 (not run here)
 
 The guard is not live-green. Re-run the plan-02 C2 recipe on a **lane**, with a new bundle, ×2 green:
 1. `npm run build`, `st-lanes seed 1 --fresh`, `st-session reload`, `so-run-header capture` (bundle ≠ `0f4332fac075`), `open-group 1759606632088`.
 2. The red fixture the attribution asked for: the solo chat **with messages** (the populated-solo case), not the empty one. `so-save-recorder.mts arm`, then `test/journeys/records/v2.5-plan02/C2/c2-attempt.js` with the setting write (`setUiSettings`) immediately before `/go`.
-3. Pass: the drain shows a `refused` record (`source: 'watcher'`, `askedFor` = the group chat, file = the solo chat, rows > 0); the solo chat's file on disk is byte-identical before/after; the group chat's `saveHealth` reads `lost` and the next persist in the group chat lands (read-back boundary equal). Also assert no ST save of the solo chat was refused when the setting write is NOT made (control arm, ×2).
+3. Pass: the drain shows a `refused` record (`source: 'watcher'`, `askedFor` = the group chat, file = the solo chat, rows > 0); the solo chat's message rows on disk are unchanged before/after; the group chat's `saveHealth` reads `lost` and the next persist in the group chat lands (read-back boundary equal). Also assert no ST save of the solo chat was refused when the setting write is NOT made (control arm, ×2).
 4. Archive under `test/journeys/records/v2.5-plan02/C2-guard/`.
