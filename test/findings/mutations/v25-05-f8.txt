@@ -1,0 +1,15 @@
+v2.5 plan 05 F8 (finish reason in authoring calibration), mutations 2026-09-26 (worktree on 75df874; script .debug/mut05.py with .debug/mut-f8.json, each mutant applied alone as an exact-text replacement that must match once, the file restored byte-for-byte after its run)
+Red first: on 75df874 the new src/runtime/authoringFinish.test.ts ran 4 failed / 4 (record.finishes ["unknown","unknown"], audit had no finish/repairFinish).
+
+src/runtime/roleCalibration.ts / src/copilot/authoring.ts / src/extraction/modelRoute.ts
+- F8-M1 calibration hardcodes "unknown" again: KILLED, 2 of 37 (authoringFinish + roleCalibration)
+    "a length finish on the first answer and a stop on the repair are both recorded"
+    "control: an answer that needs no repair records one finish and no repairFinish"
+- F8-M2 the repair finish is dropped from the audit: KILLED, 3 of 106 (authoringFinish + roleCalibration + src/copilot)
+    "a length finish on the first answer and a stop on the repair are both recorded"
+    "the audit carries finish and repairFinish from the real stage run"
+    "control: refuseIncomplete still blanks an incomplete answer's text, and its finish is still recorded"
+- F8-M3 askReply ignores refuseIncomplete: KILLED, 2 of 467 (authoringFinish + src/copilot + src/extraction)
+    "control: refuseIncomplete still blanks an incomplete answer's text, and its finish is still recorded"
+    "callExtractionReply keeps call sites on Promise<string> and throws a typed failure > refuseIncomplete turns a truncated or looping summary into nothing to store"
+Golden replay unchanged: roleCalibration.test replays the archived authoring goldens (finishes recorded "unknown" by the old harness) and scores them identically; only the recorded finishes column changes on a new run.

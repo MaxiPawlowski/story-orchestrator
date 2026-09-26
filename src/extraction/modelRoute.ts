@@ -41,7 +41,11 @@ export const isPlanted =(model: ModelCall, ask: ModelAsk): boolean => (ask.debug
 
 export const isIncomplete = (reply: ExtractionReply): boolean => reply.finish === "length" || detectDegenerate(reply.text).degenerate;
 
-export async function askText(call: ModelCall, prompt: string, ask: ModelAsk): Promise<string> {
+export async function askReply(call: ModelCall, prompt: string, ask: ModelAsk): Promise<ExtractionReply> {
   const reply = await call(prompt, ask);
-  return ask.refuseIncomplete && isIncomplete(reply) ? "" : reply.text;
+  return ask.refuseIncomplete && isIncomplete(reply) ? { ...reply, text: "" } : reply;
+}
+
+export async function askText(call: ModelCall, prompt: string, ask: ModelAsk): Promise<string> {
+  return (await askReply(call, prompt, ask)).text;
 }
