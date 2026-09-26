@@ -1,6 +1,8 @@
 import type * as Stapi from "@services/STAPI";
 import type { SharedReadWindow } from "@extraction/types";
 
+export type PlayerHost = Pick<typeof Stapi, "getPlayerName">;
+
 export type PromptHost = Pick<typeof Stapi, "setStoryExtensionPrompt" | "clearStoryExtensionPrompt">;
 
 export interface ChatHost {

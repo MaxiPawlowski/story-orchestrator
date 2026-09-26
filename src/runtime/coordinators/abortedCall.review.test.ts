@@ -105,7 +105,7 @@ function expansionHarness() {
     "chat-a": { entries: {}, scheduler: { queueDepth: 0, inFlight: false, lastError: null } },
     "chat-b": { entries: {}, scheduler: { queueDepth: 0, inFlight: false, lastError: null } },
   };
-  const coordinator = new ExpansionCoordinator({
+  const coordinator = new ExpansionCoordinator({ hosts: { player: { getPlayerName: () => "Max" } },
     getStory: () => expansionStory,
     getStoryRaw: () => ({}),
     getState: () => ({ activeCheckpointId: "a", blackboard: { values: {}, versions: {}, latched: {} } }) as unknown as EngineState,

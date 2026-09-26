@@ -59,7 +59,7 @@ function harness(options: { switchDuringGeneration: boolean; ownership?: boolean
   const context: RunContext = { chatId: "chat-a", storyId: "expansion-ownership", playedVersion: 1, sessionEpoch: 1, windowRevision: 0 };
   const ownership: RunOwnership = { mint: (window) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   let persists = 0;
-  const coordinator = new ExpansionCoordinator({
+  const coordinator = new ExpansionCoordinator({ hosts: { player: { getPlayerName: () => "Max" } },
     getStory: () => story,
     getStoryRaw: () => ({}),
     getState: () => ({ activeCheckpointId: "a", blackboard: { values: {}, versions: {}, latched: {} } }) as unknown as EngineState,

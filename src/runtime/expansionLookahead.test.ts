@@ -1,16 +1,10 @@
-import { testModel } from "../../test/support/modelCallHost";
+import { plantedModel } from "../../test/support/modelCall";
 import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
 import type { ExpansionCacheEntry, ExpansionRuntimeState } from "@generation/index";
 import { defaultJudgeSettings, type JudgeSettings, type SceneReadRecord } from "@judge/index";
 import { ExpansionCoordinator } from "./coordinators/expansionCoordinator";
 import { JudgeRuntime } from "./judge";
 import { testOwnership } from "../../test/findings/testOwnership";
-
-jest.mock("@services/STAPI", () => ({
-  settingsAreLoaded: () => true,
-  settingsReady: async () => {},
-  observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
-  readServerBoundary: async () => null, getPlayerName: () => "Max", sendConnectionProfileRequest: jest.fn() }));
 
 const gate = { q: "done", op: "==", v: true };
 const RAW = {
@@ -45,12 +39,12 @@ const setup = (options: { lookahead?: boolean; scene?: SceneReadRecord | null; e
   const scheduled: string[] = [];
   const replaced: unknown[] = [];
   let persisted = 0;
-  const coordinator = new ExpansionCoordinator({ ownership: testOwnership(),
+  const coordinator = new ExpansionCoordinator({ hosts: { player: { getPlayerName: () => "Max" } }, ownership: testOwnership(),
     getStory: () => story,
     getStoryRaw: () => RAW,
     getState: () => ({ activeCheckpointId: "a", blackboard: { values: {}, versions: {}, latched: {} } }) as unknown as EngineState,
     getExpansion: () => expansion,
-    model: testModel("p1"),
+    model: plantedModel,
     getCanon: () => "",
     getFactTexts: () => [],
     replaceStory: (next) => { replaced.push(next); },

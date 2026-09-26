@@ -10,11 +10,12 @@ import {
   type SceneReadRecord,
 } from "@judge/index";
 import { numericToLevel } from "@pacing/index";
-import { getPlayerName } from "@services/STAPI";
+import type { PlayerHost } from "../hostPorts";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunGuard, type RunOwnership } from "../runToken";
 import { failureClass } from "@extraction/breaker";
-import { estimateTokens, type ExtraGateSource, type ModelCall, type Preflight, type PreflightConfirm } from "@extraction/index";
+import { estimateTokens } from "@extraction/callBudget";
+import type { ExtraGateSource, ModelCall, Preflight, PreflightConfirm } from "@extraction/index";
 
 export const expansionKey = (candidate: Pick<StubExpansionCandidate, "sourceCheckpointId" | "stubId" | "targetAnchorId">) => `${candidate.sourceCheckpointId}->${candidate.stubId}->${candidate.targetAnchorId}`;
 
@@ -34,6 +35,7 @@ export interface ExpansionCoordinatorDeps {
   persist: () => Promise<void>;
   notify: () => void;
   ownership: RunOwnership;
+  hosts: { player: PlayerHost };
 }
 
 // Owns extras.expansion: the generated-beat cache, its LLM generation and the staleness
@@ -181,7 +183,7 @@ export class ExpansionCoordinator {
     const judge = this.deps.judge?.() ?? null;
     const target = story.checkpointById[input.candidate.targetAnchorId];
     if (!judge || !target) return {};
-    const cast = [...new Set([...story.roster.map((member) => member.name ?? member.id), getPlayerName()].filter(Boolean))];
+    const cast = [...new Set([...story.roster.map((member) => member.name ?? member.id), this.deps.hosts.player.getPlayerName()].filter(Boolean))];
     const read = async (beats: GeneratedBeat[]) => {
       const request = buildChainRequest({ facts: input.facts, target: { name: target.name, objective: target.objective }, cast, trajectory: input.tensionTrajectory.map(numericToLevel), beats: beats.map((beat) => ({ objective: beat.objective, guidance: beat.guidance })) });
       const result = await judge.ask("critic", request, { timeoutMs: CRITIC_TIMEOUT_MS, summarize: (answers) => (answers ? Object.fromEntries(Object.entries(readChain(answers) ?? {}).map(([key, value]) => [key, value ?? "none"])) : {}) });

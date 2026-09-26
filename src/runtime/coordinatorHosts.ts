@@ -1,8 +1,8 @@
 import {
-  clearStoryExtensionPrompt, getActiveGroup, getContext, hostSystemUserName, resolveGroupMemberId, setStoryExtensionPrompt,
+  clearStoryExtensionPrompt, getActiveGroup, getContext, getPlayerName, hostSystemUserName, resolveGroupMemberId, setStoryExtensionPrompt,
 } from "@services/STAPI";
 import { getChatWindow, getLastMessageText } from "@extraction/chatWindow";
-import type { ChatHost, PromptHost, RosterHost } from "./hostPorts";
+import type { ChatHost, PlayerHost, PromptHost, RosterHost } from "./hostPorts";
 
 const chatRows = (): unknown[] => (Array.isArray(getContext().chat) ? getContext().chat : []);
 
@@ -17,4 +17,6 @@ const chatHost: ChatHost = {
 
 const rosterHost: RosterHost = { getActiveGroup, resolveGroupMemberId, chatRows, systemUserName: hostSystemUserName };
 
-export const coordinatorHosts = { prompt: promptHost, chat: chatHost, roster: rosterHost };
+const playerHost: PlayerHost = { getPlayerName };
+
+export const coordinatorHosts = { prompt: promptHost, player: playerHost, chat: chatHost, roster: rosterHost };
