@@ -64,3 +64,21 @@ who opts in, not a plan to flip anything.
 - **No row here is human-reviewed.** If the sessions are ever run, a usage with a poor human row
   drops out of this table whatever its calibration says — that is the rule this page was written to
   honour, and it is the one column it cannot fill.
+
+## Models per task (v2.5 plan 06 J1)
+
+Which Connection Manager profile each non-narrative **role** should use (`extraction.profiles[role]`,
+Settings -> Models per task). These are roles, not judge uses: every row goes through the memory-model
+client, never through the TypeSafe plugin. "Same as memory model" means the role is left unset and
+falls back to `extraction.profileId`. Floors are v2.4 plan 08's (`08-author-observability.md`
+"Per-role calibration floors") and are never retuned. The plan 06 J1 protocol: every arm runs twice
+and a verdict needs both runs (`so-role-calibration.mts verdict <run1> <run2>`); plan 10 CAL runs it
+on the v2.5 candidate, and only then does a row name a v2.5 bundle.
+
+| role | route | bundle | golden | overall | es | verdict |
+|---|---|---|---|---|---|---|
+| `curator` (World Info curator) | Same as memory model (`Story Orchestrator Memory RunPod`, Artemis 31B) | `65733265d301` | `test/goldens/live/role-calibration/curator-shared-65733265d301.json` | validity 20/20, opShape 14/14, decision 19/20 | 8/8, 6/6, 7/8 | **Recommended** on v2.4 evidence: every floor met, overall and es, for the first time. One run; plan 10 CAL x2 confirms it on the v2.5 bundle |
+| `authoring` (Wizard and road ahead) | Same as memory model | `65733265d301` | `authoring-shared-65733265d301.json` | validity 19/20, opShape 19/20 | validity **7/8 = 0.875 < 0.90**, opShape 7/8 | **Not recommended yet.** a16's repair set a snapshot on a quality it never declared. The repair prompt now names the draft's declared keys (v2.5 plan 06 J1 fix b); re-measure x2 with the 5-row es hold-out (`--holdout`). A hold-out miss in either run makes this row "fixture floors met; generalisation not shown" |
+| `director` (Speaker direction, the LLM director: 20 s budget) | Same as memory model | `56f299a98ea5` | `director-shared.json` | correct 22/26 (floor 22/26) | reported, no floor | Meets its floor on a v2.4 bundle, one run. Not the `judge.uses.director` row above (1500 ms, TypeSafe) |
+| `synthesis` (Summaries and canon) | Same as memory model | `56f299a98ea5` | `synthesis-shared.json` | validity 8/8 | — | No floor declared, so no verdict: recorded only |
+| `read` (Story reads) | the memory model itself | — | — | — | — | Not a calibration role: the live suite (`so-live-suite.mts`) measures it |
