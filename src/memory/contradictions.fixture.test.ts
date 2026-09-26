@@ -1,5 +1,5 @@
 import { PAIR_JACCARD_FLOOR } from "@judge/index";
-import { a0Arm, classCounts, jaccardBand, loadCosineBrackets, loadK0, rowsSha256, scoreK0, type BandArm } from "../../test/support/contradictions";
+import { a0Arm, classCounts, jaccardBand, loadCosineBrackets, loadK0, ordinaryOutcome, rowsSha256, scoreK0, type BandArm } from "../../test/support/contradictions";
 import { establishedBands } from "./conflicts";
 import { opposedPolarity } from "./polarity";
 
@@ -83,6 +83,22 @@ describe("A0: today's bands on K0", () => {
     const score = scoreK0(fixture, a0Arm, { kind: "vectors", cosine: flat });
     expect(score.held).toContain("K15");
     expect(score.recall.belowPlain.total).toBe(4);
+  });
+});
+
+describe("O1 measurement: K0 recast as ordinary rows, consolidated in an 8-row group", () => {
+  const outcomes = new Map(fixture.rows.map((row) => [row.id, ordinaryOutcome(row, { kind: "jaccard" })]));
+  const ids = (predicate: (id: string) => boolean) => [...outcomes.keys()].filter(predicate);
+
+  it("Jaccard-only mode: every in-band contradiction gets today's soft mark, every below-band one gets nothing", () => {
+    const contradicts = fixture.rows.filter((row) => row.label === "contradicts");
+    expect(contradicts.filter((row) => row.band.jaccard !== "below").map((row) => outcomes.get(row.id))).toEqual(Array(6).fill("soft-mark"));
+    expect(contradicts.filter((row) => row.band.jaccard === "below").map((row) => outcomes.get(row.id))).toEqual(Array(13).fill("none"));
+  });
+
+  it("Jaccard-only mode: the band cannot tell agreement from contradiction for ordinary rows either", () => {
+    expect(ids((id) => outcomes.get(id) === "soft-mark")).toEqual(["K01", "K02", "K03", "K04", "K05", "K06", "K21", "K22", "K23", "K24", "K25", "K26", "K30", "K31", "K32", "K33", "K34"]);
+    expect(ids((id) => outcomes.get(id) === "superseded")).toEqual(["K28"]);
   });
 });
 

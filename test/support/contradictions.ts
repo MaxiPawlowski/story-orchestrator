@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { buildJaccardMatchSets, DEFAULT_DEDUP_THRESHOLDS, heldContradictions, heldGroup, provenance, unionMatchSets, withOverride, type MatchSets, type MemoryEntry } from "../../src/memory/index";
+import { buildJaccardMatchSets, consolidateTier, DEFAULT_DEDUP_THRESHOLDS, heldContradictions, heldGroup, provenance, unionMatchSets, withOverride, type MatchSets, type MemoryEntry } from "../../src/memory/index";
 
 export type K0Label = "contradicts" | "agrees" | "update" | "distinct";
 export type K0Band = "dup" | "sameTopic" | "below";
@@ -143,7 +143,34 @@ export function scoreK0(fixture: K0Fixture, arm: BandArm, mode: K0Mode): K0Score
   };
 }
 
-export const classCounts = (fixture: K0Fixture, mode: K0Mode) =>
+export const ORDINARY_FILLERS = [
+  "Arin carries two curved daggers.",
+  "Ponticius keeps the guild ledger locked.",
+  "Rain fell on the eastern hills all week.",
+  "The market sells dried figs cheaply.",
+  "A grey mare waits tied near the inn.",
+  "Wolves were heard beyond the northern ridge.",
+];
+
+export type OrdinaryOutcome = "soft-mark" | "superseded" | "dropped" | "confirmed" | "none";
+
+export function ordinaryOutcome(item: K0Row, mode: K0Mode): OrdinaryOutcome {
+  const older = row("older", item.established);
+  const newer = row("newer", item.claim, { createdAt: 1, messageId: 4 });
+  const group = [older, newer, ...ORDINARY_FILLERS.map((text, index) => row(`filler-${index}`, text, { createdAt: 2 + index }))];
+  const vectors = vectorsFor(item, mode);
+  const jaccard = buildJaccardMatchSets(group);
+  const matches = vectors ? { dup: jaccard.dup.map((_, index) => new Set(index < 2 ? [...vectors.dup[index]] : [])), sameTopic: jaccard.sameTopic.map((_, index) => new Set(index < 2 ? [...vectors.sameTopic[index]] : [])) } : jaccard;
+  const result = consolidateTier(group, matches);
+  const pair = (left: string, right: string) => (left === "older" && right === "newer") || (left === "newer" && right === "older");
+  if (result.uncertain.some((entry) => pair(entry.candidateId, entry.existingId))) return "soft-mark";
+  if (result.supersededPairs.some((entry) => pair(entry.loserId, entry.winnerId))) return "superseded";
+  if (result.droppedIds.includes("newer") || result.droppedIds.includes("older")) return "dropped";
+  if (result.confirmedIds.includes("older") || result.confirmedIds.includes("newer")) return "confirmed";
+  return "none";
+}
+
+export const classCounts =(fixture: K0Fixture, mode: K0Mode) =>
   fixture.rows.reduce<Record<string, number>>((counts, item) => {
     const key = `${item.label}${item.form ? `:${item.form}` : ""}:${inBand(item, mode) ? "in" : "below"}`;
     return { ...counts, [key]: (counts[key] ?? 0) + 1 };
