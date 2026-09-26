@@ -1,0 +1,52 @@
+{
+  "_about": "v2.5 plan 06 J1 authoring hold-out (the memory-pairs-holdout rule). Five Spanish rows, labelled 2026-09-26 and committed BEFORE the a16 fix commit, with no model answer read for any of them. Same scoring as authoring.json (validity, opShape). Scored in both x2 re-runs of `so-role-calibration.mts run --role authoring --holdout` and reported beside the fixture score; they never enter or change the fixture floors. A miss in either run turns the recommended-config row into 'fixture floors met; generalisation not shown'. Drafts resolve by name from authoring.json. Do not edit a label after a run; add a row instead.",
+  "labelledAt": "2026-09-26",
+  "draftsFrom": "authoring.json",
+  "cases": [
+    {
+      "id": "h01",
+      "lang": "es",
+      "stage": "checkpoints",
+      "draft": "cripta",
+      "ask": "never",
+      "message": "Añade un punto de control intermedio, El osario, donde el grupo descubre que la reliquia es falsa.",
+      "require": { "kind": "addCheckpoint", "min": 1, "match": { "type": "intermediate" } }
+    },
+    {
+      "id": "h02",
+      "lang": "es",
+      "stage": "checkpoints",
+      "draft": "barco",
+      "ask": "never",
+      "message": "Añade un ancla final, El naufragio, donde la tripulación abandona el barco con el diario del capitán.",
+      "require": { "kind": "addCheckpoint", "min": 1, "match": { "type": "anchor" } }
+    },
+    {
+      "id": "h03",
+      "lang": "es",
+      "stage": "checkpoints",
+      "draft": "cripta",
+      "ask": "never",
+      "message": "Cuando se llegue a La cripta, la puerta ya debe constar como abierta.",
+      "require": { "kind": "setCheckpointSnapshot", "min": 1 }
+    },
+    {
+      "id": "h04",
+      "lang": "es",
+      "stage": "checkpoints",
+      "draft": "barco",
+      "ask": "never",
+      "message": "Añade un punto de control intermedio, La bodega, donde la tripulación encuentra el cargamento maldito.",
+      "require": { "kind": "addCheckpoint", "min": 1, "match": { "type": "intermediate" } }
+    },
+    {
+      "id": "h05",
+      "lang": "es",
+      "stage": "effects",
+      "draft": "barco",
+      "ask": "never",
+      "message": "Añade una nota del autor en La niebla: la niebla ahoga todos los sonidos.",
+      "require": { "kind": "setCheckpointEffects", "min": 1 }
+    }
+  ]
+}
