@@ -10,7 +10,7 @@ const DEV_ONLY = [
   "src/judge/selfTestCases.ts",
 ];
 const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
-const SPIKES = ["src/runtime/spikes/toolTurnProbe.ts", "src/runtime/spikes/toolTurnSummary.ts"];
+const SPIKES = ["src/runtime/spikes/toolTurnProbe.ts", "src/runtime/spikes/toolTurnSummary.ts", "src/runtime/spikes/witnessFilter.ts", "src/runtime/spikes/witnessFilterHost.ts"];
 const SPIKE_PATTERN = /^src\/runtime\/spikes\//;
 const LAZY_USER_FEATURES = ["src/judge/selfTest.ts", "src/runtime/selfTest.ts", "src/runtime/roleSelfTest.ts", "src/extraction/fixtureRun.ts"];
 
@@ -39,11 +39,15 @@ describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", 
     expect(files.map(rel).filter((path) => SPIKE_PATTERN.test(path)).sort()).toEqual([...SPIKES].sort());
   });
 
-  it("control: a planted static import of a plan-09 spike module from the entry fails", () => {
+  it.each([
+    ["the SP10 probe", 'export { createToolTurnProbe } from "./runtime/spikes/toolTurnProbe";', "src/runtime/spikes/toolTurnProbe.ts"],
+    ["the SP9 witness filter", 'export { startWitnessFilter } from "./runtime/spikes/witnessFilterHost";', "src/runtime/spikes/witnessFilterHost.ts"],
+    ["the SP9 pure filter", 'import "./runtime/spikes/witnessFilter";', "src/runtime/spikes/witnessFilter.ts"],
+  ])("control: a planted static import of %s from the entry fails", (_label, line, module) => {
     const planted = join(SRC, "index.tsx");
     const fs = require("fs") as typeof import("fs");
-    const read = (path: string) => (path === planted ? `${fs.readFileSync(path, "utf8")}\nexport { createToolTurnProbe } from "./runtime/spikes/toolTurnProbe";\n` : fs.readFileSync(path, "utf8"));
-    expect(staticReach(files, read).filter(isDevOnly)).toContain("src/runtime/spikes/toolTurnProbe.ts");
+    const read = (path: string) => (path === planted ? `${fs.readFileSync(path, "utf8")}\n${line}\n` : fs.readFileSync(path, "utf8"));
+    expect(staticReach(files, read).filter(isDevOnly)).toContain(module);
   });
 
   it("control: a planted static import of the live suite from the entry fails", () => {

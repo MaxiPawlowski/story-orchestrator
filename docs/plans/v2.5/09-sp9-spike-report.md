@@ -51,8 +51,61 @@ Authored sets (the F2 fixture) take precedence over presence.
 
 | # | Condition | Pass | Jest leg | Live leg | Result |
 |---|---|---|---|---|---|
-| F1 | No chat mutation | chat file and in-memory `chat[i].extra` byte-identical before/after 20 generations (a copy must replace `extra`) | pending | pending | pending |
-| F2 | Filter correct | authored witness sets: 0 unwitnessed messages in any drafted member's request, 100 % of witnessed kept | pending | pending | pending |
+| F1 | No chat mutation | chat file and in-memory `chat[i].extra` byte-identical before/after 20 generations (a copy must replace `extra`) | 2026-09-26: 24 live extras deep-equal and symbol-free after 3 drafts; control (symbol set on the shared `extra`) caught | pending | pending |
+| F2 | Filter correct | authored witness sets: 0 unwitnessed messages in any drafted member's request, 100 % of witnessed kept | 2026-09-26: 0 unwitnessed visible, 0 witnessed hidden, over 61 witnessed checks (DM Narrator 24, Arin 19, Ponticius 18); control (no source) hides nothing | pending | pending |
 | F3 | Extraction and rollback unaffected | J5 + J6 green ×2 with the filter on | n/a | pending | pending |
 | F4 | Witness source accuracy | ≥ 0.9 of 40 labelled messages (route recorded) | n/a | pending | pending |
-| F5 | Cost | interceptor p95 ≤ 5 ms added | pending (indicative) | pending | pending |
+| F5 | Cost | interceptor p95 ≤ 5 ms added | one node run, not kept (see deviation): p95 0.12 ms, max 0.39 ms, 1 000 passes of 500 messages | pending | pending |
+
+**No deterministic leg fails**, so the code stays behind the flag and every condition waits for its live leg.
+
+**Deviation (procedure only, bar unchanged).** F5's jest leg was run once (numbers above) and then taken out of the suite:
+the code-health ratchet Q1t forbids wall-clock reads in jest (`codeHealth.guard.test.ts`), and a timing number from node
+says nothing about the browser anyway. F5 is decided by its live leg alone.
+
+## Build (commit after the procedures)
+
+- `src/runtime/spikes/witnessFilter.ts` (pure): `filterUnwitnessed` replaces a hidden element with `{...row, extra: {...extra,
+  [Symbol.for('ignore')]: true}}`, never touching the live `extra`; the drafted member's own words, the continued message and
+  any message without a record are kept. `WitnessBook` (WeakMaps keyed by the live `extra`), `presenceOf`, `scoreWitnessAgreement`.
+- `src/runtime/spikes/witnessFilterHost.ts`: presence recorder on `MESSAGE_SENT` / `MESSAGE_RECEIVED` /
+  `CHARACTER_MESSAGE_RENDERED`, the interceptor step (group, drafted member, not quiet/impersonate), the dev handle
+  `storyOrchestratorWitness` (`setAuthored`, `clearAuthored`, `timings`, `export`).
+- `src/runtime/wiring/spikes.ts`: `refreshSpikes` reads `spikes.witnessFilter` (install-wide, default off) and, only in a dev
+  build, loads the filter through a dynamic import; `talkControlInterceptor` calls it last, after talk and lore, when not
+  aborted. `storyOrchestratorSpikes.refresh()` (dev) re-reads the flag without a reload.
+- Both spike modules are on the D3 list (`devOnly.guard.test.ts`, `SPIKE_PATTERN`) with a planted-import control each. Prod
+  main entry 1 175 031 B (master 1 174 410; +621 for the flag and the hook, no spike code: 0 occurrences of the dev handle or
+  the ignore symbol in `dist/index.js`); dev main 1 209 402 B, the filter in its own chunk.
+
+## Pending live legs
+
+Dev bundle served, one lane, ×2 consecutive, a run header around each batch:
+
+```bash
+npm run build:dev && npm run serve:dev
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/st-session.mts reload
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-run-header.mts capture --label sp9
+node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict --group <lane group id> test/scenarios/v25-09-witness.json
+node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict --group <lane group id> test/scenarios/v25-09-witness-f4.json
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/st-eval.mts "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.spikes = { ...(root.settings.spikes ?? {}), witnessFilter: true }; SillyTavern.getContext().saveSettingsDebounced(); return root.settings.spikes;"
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/st-session.mts reload
+node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict J5 J6
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/st-eval.mts "const root = SillyTavern.getContext().extensionSettings['story-orchestrator']; root.settings.spikes = { ...(root.settings.spikes ?? {}), witnessFilter: false }; SillyTavern.getContext().saveSettingsDebounced(); return root.settings.spikes;"
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/st-session.mts reload
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-run-header.mts diff <the captured header>
+```
+
+F3's flag write goes through `saveSettingsDebounced`; confirm it landed (reload, then read `getGlobalSettings().spikes`) before
+J5/J6, because a flag that never reached disk makes F3 a run without the filter. F4: label the first 40 messages of each run's
+`so-sp9-f4` transcript blind, into `test/journeys/records/v2.5-plan09/SP9/f4-labels-run<k>.json`, then score with
+`scoreWitnessAgreement`. Records: `test/journeys/records/v2.5-plan09/SP9/live-<bundle12>/`. The worth review (rule 8), and with
+it the "no message-level hiding" stance, is decided after these legs.
+
+## Findings so far (not conditions)
+
+- The ignore symbol hides the message from the prompt text, but ST builds the World Info scan buffer from `coreChat` text
+  without checking it (`script.js:4624`): an unwitnessed message can still trigger lore by keyword. F2 measures the request's
+  message text only; if the stance changes, keyword-activated lore from unwitnessed messages is a second leak to close.
+- Presence records are in memory: after a reload every older message is unrecorded and kept (fail-open), so the filter only
+  hides what happened since the page loaded. A shipped version would need the witness source persisted.

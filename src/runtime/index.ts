@@ -17,6 +17,7 @@ import { startJudge, startScene } from "./wiring/judgeScene";
 import { startLore } from "./wiring/lore";
 import { startTalk } from "./wiring/talk";
 import { attachGenerationObservers, subscribeGenerationEvents } from "./wiring/generation";
+import { refreshSpikes, stopSpikes } from "./wiring/spikes";
 import type { Disposers, LiveParts, WindowAccess } from "./wiring/types";
 import { log } from "@utils/log";
 import { readGatingModeWith } from "./worldInfoMode";
@@ -90,6 +91,7 @@ const windowAccess = (): WindowAccess => {
 export const RUNTIME_GLOBALS = [
   "storyOrchestratorScheduler", "storyOrchestratorLoreEvidence", "storyOrchestratorLore", "storyOrchestratorJudge",
   "storyOrchestratorLiveSuite", "storyOrchestratorScanGating", "storyOrchestratorToolTurnProbe",
+  "storyOrchestratorSpikes", "storyOrchestratorWitness",
 ] as const;
 
 export function startRuntime() {
@@ -114,7 +116,9 @@ export function startRuntime() {
   // Versioned settings (loaded synchronously from a cache) are already in place,
   // so the gate opens now and the chat loads now; a page still fetching them opens it on the event.
   // Either way the load happens exactly once, because the gate resolves once.
+  if (__SO_DEV__) globalThis.storyOrchestratorSpikes = { refresh: refreshSpikes };
   void settingsReady().then(() => {
+    void refreshSpikes();
     if (runtimeManager.getSnapshot().ready) return;
     noteHostSettingsLoaded?.();
     void startupLoad();
@@ -141,6 +145,7 @@ export function stopRuntime() {
   live.talk = null;
   live.scene = null;
   live.typedJudge = null;
+  stopSpikes();
   globalThis.talkControlInterceptor = () => undefined;
   for (const name of RUNTIME_GLOBALS) Reflect.deleteProperty(globalThis, name);
   started = false;
