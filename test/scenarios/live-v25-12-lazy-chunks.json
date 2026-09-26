@@ -1,0 +1,68 @@
+{
+  "_note": "v2.5 plan 12 F1 live gate on the DEV build (no model call). Serve dev first: npm run build:dev && npm run serve:dev, then node scripts/debug/st-session.mts reload (a lane: st-lanes.mts run <n> -- scripts/debug/st-session.mts reload). Run: node scripts/debug/so-scenario.mts run test/scenarios/live-v25-12-lazy-chunks.json --sandbox --group <group id>. Proves the lazy author tabs and the lazy Studio load from ST's served dist/ (every chunk 200, rendered), and that author view off shows none of them. The artifact half (prod bundle) is so-artifact-smoke.mts probe.",
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((name) => name.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const chunks = performance.getEntriesByType('resource').filter((entry) => /story-orchestrator\\/dist\\/\\d+\\.index\\.js/.test(entry.name)).map((entry) => entry.name); globalThis.__so12ChunksBefore = chunks; return { chunksBefore: chunks.length };",
+      "log": true
+    },
+    {
+      "import_story": {
+        "file": "./live-v24-08.story.json"
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); return { authorView: globalThis.storyOrchestratorRuntime.getSnapshot().ui.authorView };"
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "ui": {
+        "action": "drawer-tab",
+        "label": "Scheduler"
+      }
+    },
+    {
+      "eval": "const panel = document.querySelector('#drawer-manager [data-so-tab=\"scheduler\"]'); if (!panel) throw new Error('the Scheduler tab never finished loading its chunk'); if (!(panel.textContent ?? '').includes('Extraction')) throw new Error(`the Scheduler tab rendered without its content: ${(panel.textContent ?? '').slice(0, 120)}`); return { scheduler: true };"
+    },
+    {
+      "ui": {
+        "action": "drawer-tab",
+        "label": "Payload"
+      }
+    },
+    {
+      "eval": "if (!document.querySelector('#drawer-manager [data-so-tab=\"payload\"] #so-next-turn')) throw new Error('the Payload tab did not render the next-turn preview'); return { payload: true };"
+    },
+    {
+      "ui": {
+        "action": "drawer-tab",
+        "label": "Blackboard"
+      }
+    },
+    {
+      "ui": {
+        "action": "open-studio"
+      }
+    },
+    {
+      "eval": "const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const modal = await until(() => document.querySelector('#so-studio-modal[open]'), 15000); if (!modal) throw new Error('the Studio modal never opened from its lazy chunk'); const loaded = performance.getEntriesByType('resource').filter((entry) => /story-orchestrator\\/dist\\/\\d+\\.index\\.js/.test(entry.name)); const fresh = loaded.filter((entry) => !globalThis.__so12ChunksBefore.includes(entry.name)); const failed = loaded.filter((entry) => entry.responseStatus !== undefined && entry.responseStatus !== 200 && entry.responseStatus !== 0); if (fresh.length < 3) throw new Error(`expected the author tabs and the Studio to load at least 3 chunks, saw ${fresh.length}: ${fresh.map((entry) => entry.name).join(', ')}`); if (failed.length) throw new Error(`chunk requests failed: ${failed.map((entry) => `${entry.name} ${entry.responseStatus}`).join(', ')}`); return { chunks: fresh.map((entry) => entry.name.split('/').pop()) };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "close-studio"
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await new Promise((resolve) => setTimeout(resolve, 500)); const tabs = [...document.querySelectorAll('#drawer-manager [role=\"tablist\"] button')].map((button) => (button.textContent ?? '').trim()); if (tabs.some((label) => ['Blackboard', 'Scheduler', 'Payload'].includes(label))) throw new Error(`player mode still lists an author tab: ${tabs.join(', ')}`); if (document.querySelector('#drawer-manager [data-so-tab]')) throw new Error('an author tab body is still mounted in player mode'); return { tabs };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    }
+  ]
+}
