@@ -344,6 +344,38 @@ describe("A11: the memorize backlog survives a slow backend and gives up honestl
     expect(h.audits.some((audit) => audit.reason === "memorize:full")).toBe(false);
   });
 
+  describe("the A11 targeted arm: a debug scale aimed at memorize:full", () => {
+    afterEach(() => {
+      delete globalThis.storyOrchestratorDebugCallBudgetScale;
+      delete globalThis.storyOrchestratorDebugCallBudgetTarget;
+    });
+
+    it("scales only the whole-chat pass: every window keeps its unscaled budget, and the full pass's retry is twice its scaled first ask", async () => {
+      const total = await healthyCalls();
+      const unscaled = budgets();
+      timeout.mockClear();
+      globalThis.storyOrchestratorDebugCallBudgetScale = 0.25;
+      globalThis.storyOrchestratorDebugCallBudgetTarget = "memorize:full";
+      const h = harness();
+      let sent = 0;
+      host.hold = async (_signal, prompt) => { sent += 1; return sent === total ? timedOut : answered(prompt); };
+      expect(await h.coordinator.runMemorizeBacklog()).toBe(true);
+      const scaled = budgets();
+      expect(scaled.slice(0, total - 1)).toEqual(unscaled.slice(0, total - 1));
+      expect(scaled[total - 1]).toBe(Math.round(unscaled[total - 1] * 0.25));
+      expect(scaled[total]).toBe(scaled[total - 1] * 2);
+    });
+
+    it("control: without a target the same scale reaches every window too", async () => {
+      await healthyCalls();
+      const unscaled = budgets();
+      timeout.mockClear();
+      globalThis.storyOrchestratorDebugCallBudgetScale = 0.25;
+      expect(await harness().coordinator.runMemorizeBacklog()).toBe(true);
+      expect(budgets()).toEqual(unscaled.map((ms) => Math.round(ms * 0.25)));
+    });
+  });
+
   it("control: a refusing backend is asked once and gives up at once", async () => {
     const h = harness();
     host.hold = async () => ({ ok: false, kind: "transport", message: "Response not OK" });

@@ -61,4 +61,5 @@ declare global {
   var storyOrchestratorLore: { selector: import("./src/runtime/loreSelect").LoreSelector; willAddUserMessage: (type: string | undefined, params: Record<string, unknown> | undefined, dryRun: boolean | undefined) => boolean } | undefined;
   var storyOrchestratorDebugCuratorResponse: string | null | undefined;
   var storyOrchestratorDebugCallBudgetScale: number | null | undefined;
+  var storyOrchestratorDebugCallBudgetTarget: string | null | undefined;
 }

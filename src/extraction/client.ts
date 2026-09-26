@@ -17,6 +17,7 @@ export interface ExtractionClientOptions {
   refuseIncomplete?: boolean;
   budget?: RequestBudget;
   timeoutScale?: number;
+  budgetKind?: string;
 }
 
 export interface ExtractionReply {
@@ -80,7 +81,7 @@ export async function callExtractionReply(prompt: string, options: ExtractionCli
   const profileId = route.profileId;
   if (!profileId) throw new ModelCallError("config", "No memory LLM profile selected");
   const maxTokens = options.maxTokens ?? DEFAULT_MAX_TOKENS;
-  const timeoutMs = Math.round(callTimeoutMs(maxTokens, estimateTokens(prompt)) * (options.timeoutScale ?? 1));
+  const timeoutMs = Math.round(callTimeoutMs(maxTokens, estimateTokens(prompt), options.budgetKind) * (options.timeoutScale ?? 1));
   const startedAt = Date.now();
   const reply = await sendConnectionProfileRequest(profileId, prompt, maxTokens, {
     signal: anySignal([options.signal, AbortSignal.timeout(timeoutMs)]),

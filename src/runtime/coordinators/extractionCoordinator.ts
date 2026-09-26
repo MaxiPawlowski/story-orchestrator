@@ -472,7 +472,7 @@ export class ExtractionCoordinator {
     const memory = this.deps.memory;
     const state = this.deps.getState()!;
     const windowed = reason === "memorize:window" ? { openArcs: memory.getOpenArcs(), epistemicLedgerCapable: memory.capable, entities: memory.getEntities() } : {};
-    return { story, state, priority: 0, reason, window, scope: deriveFullScope(story, state.blackboard), firedTransitions: this.deps.getFiredTransitions(), facts: memory.getFacts(), ...windowed, client };
+    return { story, state, priority: 0, reason, window, scope: deriveFullScope(story, state.blackboard), firedTransitions: this.deps.getFiredTransitions(), facts: memory.getFacts(), ...windowed, client: { ...client, budgetKind: reason } };
   }
 
   private async memorizeWindows(story: NormalizedStoryV2, windows: SharedReadWindow[], length: number, read: ReadOwnership, budget: RequestBudget): Promise<boolean> {
