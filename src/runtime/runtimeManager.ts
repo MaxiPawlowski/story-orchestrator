@@ -27,7 +27,7 @@ import { memoryActions, memoryDelegates } from "./memoryActions";
 import { readEffectTarget, reconcileEffectLedger, restoreEffectTarget } from "./effectHost";
 import { ChatSave } from "./chatSave";
 import { hasUnsavedChanges } from "./saveHealth";
-import { getGlobalSettings, setGlobalSettings } from "./settingsStore";
+import { getGlobalSettings, setGlobalSettings, type SpikeFlags } from "./settingsStore";
 import { buildPossibleTransitions } from "./snapshot";
 import { buildRuntimeSnapshot, snapshotSources } from "./snapshotBuilder";
 import { SnapshotCache } from "./snapshotCache";
@@ -479,6 +479,8 @@ export class RuntimeManager extends CoordinatorDelegates {
   setStagecraftSettings(settings: Partial<StagecraftSettings>) { this.settingsControl.stagecraft(settings); }
 
   setScanMemory(on: boolean) { this.settingsControl.scanMemory(on); }
+
+  setSpikeFlags(flags: Partial<SpikeFlags>) { setGlobalSettings({ spikes: flags }); }
 
   private getBoundaryContext(at?: number): BoundaryContext { const chat = Array.isArray(getContext().chat) ? getContext().chat : []; const last = at === undefined ? chat.length - 1 : Math.min(at,
       chat.length - 1); return { lastMessageId: last, chatLength: last + 1 }; }

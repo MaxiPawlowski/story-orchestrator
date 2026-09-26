@@ -209,6 +209,7 @@ export async function capturePage(page) {
         wardenEnabled: settings?.stagecraft?.wardenEnabled ?? null,
         wardenAcceptMode: settings?.stagecraft?.wardenAcceptMode ?? null,
       },
+      spikes: settings?.spikes ?? {},
       extraction: {
         enabled: settings?.extraction?.enabled ?? null,
         cadence: settings?.extraction?.cadence ?? null,

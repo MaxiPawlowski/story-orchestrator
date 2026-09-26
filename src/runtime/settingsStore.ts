@@ -63,6 +63,7 @@ export function setGlobalSettings(patch: Partial<{ [K in keyof GlobalSettings]: 
     stagecraft: { ...current.stagecraft, ...(patch.stagecraft ?? {}) },
     judge: { ...current.judge, ...(patch.judge ?? {}), uses: { ...current.judge.uses, ...(patch.judge?.uses ?? {}) }, expansion: { ...current.judge.expansion, ...(patch.judge?.expansion ?? {}) } },
     worldInfo: { ...current.worldInfo, ...(patch.worldInfo ?? {}) },
+    spikes: { ...current.spikes, ...(patch.spikes ?? {}) },
   };
   const sanitized = sanitizeGlobalSettings(next);
   writeSettings(sanitized, Object.keys(patch).join(", "));

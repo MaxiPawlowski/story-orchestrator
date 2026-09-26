@@ -11,6 +11,7 @@ const DEV_ONLY = [
 ];
 const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
 const LAZY_USER_FEATURES = ["src/judge/selfTest.ts", "src/runtime/selfTest.ts", "src/runtime/roleSelfTest.ts", "src/extraction/fixtureRun.ts"];
+const PLAN_09_SPIKES = ["src/memory/shortTermAppend.ts"];
 
 const isDevOnly = (path: string) => DEV_ONLY.includes(path) || DEV_ONLY_PATTERN.test(path);
 const ENTRY = join(SRC, "index.tsx");
@@ -27,6 +28,19 @@ describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", 
 
   it("the self-tests the settings panel runs load lazily, not with the entry", () => {
     expect(staticReach(files).filter((path) => LAZY_USER_FEATURES.includes(path))).toEqual([]);
+  });
+
+  it("plan 09 spike modules load only behind their own flag, never with the entry (rule 2)", () => {
+    expect(staticReach(files).filter((path) => PLAN_09_SPIKES.includes(path))).toEqual([]);
+    const present = new Set(files.map(rel));
+    expect(PLAN_09_SPIKES.filter((path) => !present.has(path))).toEqual([]);
+  });
+
+  it("control: a planted static import of a spike module fails", () => {
+    const store = join(SRC, "memory", "index.ts");
+    const fs = require("fs") as typeof import("fs");
+    const read = (path: string) => (path === store ? `${fs.readFileSync(path, "utf8")}\nexport * from "./shortTermAppend";\n` : fs.readFileSync(path, "utf8"));
+    expect(staticReach(files, read).filter((path) => PLAN_09_SPIKES.includes(path))).toContain("src/memory/shortTermAppend.ts");
   });
 
   it("every listed dev-only module exists, so the list cannot rot into a vacuous pass", () => {

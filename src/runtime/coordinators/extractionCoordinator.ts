@@ -28,6 +28,7 @@ import { createTypedJudge } from "../typedRead";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunOwnership, type RunToken } from "../runToken";
 import type { ChatHost, RosterHost } from "../hostPorts";
+import type { SpikeFlags } from "../settingsModel";
 import { MemorizeBacklog } from "../memorizeBacklog";
 import {
   buildStallRequest, buildVerifyRequest, readVerify, stallVerdict, STALL_TIMEOUT_MS, verifyVerdict,
@@ -59,6 +60,7 @@ export interface ExtractionCoordinatorDeps {
   setStatus: (status: string) => void;
   judge?: () => JudgeRuntime | null;
   requestBudget?: (role: PassRole) => RequestBudget;
+  spikes?: () => SpikeFlags;
   persist: () => Promise<void>;
   notify: () => void;
   ownership: RunOwnership;
@@ -378,13 +380,15 @@ export class ExtractionCoordinator {
     if (!this.shouldCompactShortTerm(lastId)) return;
     const window = this.deps.hosts.chat.chatWindow(memory.shortTermSummaryEnd + 1, lastId);
     if (!window.messages.length) return;
-    const previous = memory.shortTermEntry();
+    const append = this.deps.spikes?.().sp4AppendShortTerm ? await import("@memory/shortTermAppend") : null;
+    const previous = append ? undefined : memory.shortTermEntry();
     if (previous?.pinned) return;
     // This one REPLACES the rolling short-term entry, so a stale result does not merely add noise
     // — it overwrites the live summary with one describing another chat or an edited window.
     const run = beginRun(this.deps.ownership, { from: window.from, to: window.to });
     const fit = await fitShortTerm(window.messages, previous?.text ?? null, this.budget("synthesis"));
-    const summary = stripChannelNoise(await askText(this.deps.model, buildShortTermSummaryPrompt(previous?.text ?? null, fit.text), {
+    const prompt = append ? append.buildShortTermWindowPrompt(fit.text) : buildShortTermSummaryPrompt(previous?.text ?? null, fit.text);
+    const summary = stripChannelNoise(await askText(this.deps.model, prompt, {
       role: "synthesis", pass: "shortTerm", maxTokens: maxTokensFor("shortTerm", fit.tokens), signal: run.signal, refuseIncomplete: true,
     }));
     if (!summary || !run.stillOwns()) return;
@@ -392,7 +396,7 @@ export class ExtractionCoordinator {
     const entry = this.newEntry({ provenance: this.provenanceFor(span, "short-term-compaction"), tier: "short_term",
         text: summary, type: "scene", importance: 2, expiration: "session", entities: [], evidence: fit.text,
         messageId: span.to });
-    await memory.replaceShortTerm(entry, span);
+    await memory.replaceShortTerm(entry, span, append?.appendShortTerm);
     memory.updateInjection();
     await this.save();
   }

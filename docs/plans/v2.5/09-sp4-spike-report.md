@@ -1,7 +1,10 @@
 # v2.5 plan 09 — SP4 append-only short_term spike report
 
-**Verdict: pending.** Conditions and procedures committed before any spike code or run (rule 1). The conditions are the plan's
-table (`09-research-spikes.md` §SP4) and are **never retuned**. This section only fixes how each one is measured.
+**Verdict: pending (T3 live).** T1, T2 and T4 PASS deterministically; T3 has not run. The conditions are the plan's table
+(`09-research-spikes.md` §SP4) and are **never retuned**. The procedures below were written before any run and committed in
+`096e6812` (rule 1); the first deterministic run happened in the working tree just before that commit and changed nothing in them.
+Two jest *controls* were added after that first run (a tight-context detection control for `uncovered`, and the removal of an
+assertion on the informational live-coverage column); no bar moved.
 
 ## What the spike builds (behind `spikes.sp4AppendShortTerm`, install-wide, default off, never flipped by this plan)
 
@@ -30,14 +33,50 @@ A PASS needs T1–T4 all to pass; T2 alone is not enough (plan: the claim is loc
 
 | # | Measured | Result | ST version note |
 |---|---|---|---|
-| T1 | pending | pending | n/a (pure memory modules) |
-| T2 | pending | pending | n/a (pure) |
-| T3 | pending (live) | pending | pending |
-| T4 | pending | pending | n/a (deterministic half) |
+| T1 | Both describes green for the append shape: 4 seeds × 400 cuts and 4 seeds × 100 decoded middle deletes, every view equal (entries, ledger, beliefs, excluded, derived, watermark, coverage). Control: in seed 1 the tier holds exactly 3 rows, at least one compaction rotated a row out, and every append row has `inputs: []`, so the property is not vacuous for this shape. The rolling describes stay green on the same generator. | **PASS** | n/a (pure memory modules) |
+| T2 | 400 cuts (4 seeds × 100), 80 compactions per shape. Σcalls: append **368** vs rolling **368**. Σuncovered: append **0** vs rolling **0**. Control: at a 1400-token context the rolling shape's fitted windows drop messages and `uncovered` reads > 0, so the zero is a measurement. Informational (not a bar): messages below the cut covered by a live row, append 13 164 vs rolling (lineage) 45 348 — rotation keeps about the last 3–5 windows. | **PASS** (tie on both) | n/a (pure) |
+| T3 | not run (live) | **pending** | pending (lane install version to be recorded by the run header) |
+| T4 | Max injected short_term tokens over every boundary of the 4 simulated 240-message chats: append **300**, rolling **125** (bar 300). The append rotation fills to the token budget exactly and never past it. | **PASS** | n/a (deterministic half) |
+
+Commands: `npx jest src/memory/rollbackReplay src/memory/shortTermLocality` (numbers printed with `SO_SPIKE_REPORT=1`), measured
+2026-09-26 on the working tree of the SP4 code commit.
+
+**What T2 found.** The locality half of the hypothesis has nothing to win: since v2.3 plan 04 a rollback past the newest
+rolling summary restores the previous one from its derived row's `removed` copy, so today's shape is already window-local. Both
+shapes invalidate the same compactions and leave the same messages uncovered. The informational coverage column is the other
+side of the trade: rotation drops old windows outright, which is exactly what T3 measures live.
+
+## Negative controls and mutants
+
+- D3 (plan 12): `devOnly.guard.test.ts` lists `src/memory/shortTermAppend.ts`; the module is not statically reachable from
+  `src/index.tsx`, and a planted `export * from "./shortTermAppend"` in `memory/index.ts` makes the guard fail.
+- Flag: `shortTermSpike.review.test.ts` drives the real Extraction + Memory coordinators. Flag off (control): today's prompt
+  (`EXISTING SUMMARY:`) and a replaced row with `inputs: [<old id>]`. Flag on: window-only prompt, appended row, `inputs: []`.
+  Mutant 1 (the coordinator ignores the flag): 2 of 3 fail. Mutant 2 (the memory coordinator ignores the placement): 2 of 3 fail.
+- Flag sanitising: `spikeFlags.test.ts` (default off, only a literal `true` switches it on).
+
+## Cost so far (for the worth review)
+
+Prod graph: the main entry grows 693 B (1 174 410 → 1 175 103, budget 1 250 000) for the flag read, the placement seam
+(`rollingShortTerm`/`ShortTermPlacement` in `memory/stores.ts`) and `setSpikeFlags`; the spike itself is a 980 B lazy chunk.
+Coordinators: extraction +3 lines, memory +1. No new host seam; no ST host fact beyond the extension-prompt path already used.
+The run header records `spikes` so a batch that leaves a flag on diffs red.
 
 ## Live legs (pending)
 
-Pending until the code commit.
+T3 (and T4's live evidence), ×2 per arm in one series on one lane, both arms on the same bundle and route:
+
+```
+npm run build:dev && npm run serve:dev
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/st-session.mts reload
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-run-header.mts capture --label v25-09-sp4
+node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict --group 1759606632088 test/scenarios/live-v25-09-sp4-t3-rolling.json test/scenarios/live-v25-09-sp4-t3-append.json
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-run-header.mts diff <capture.json>
+```
+
+Each run's score step logs `{arm, present, share, shortTermRows, t4max}`. Pass iff share(append, k) ≥ share(rolling, k) + 0.15 for
+k = 1, 2. Archive under `test/journeys/records/v2.5-plan09/sp4/live-<bundle12>/`. A lane holding `DM Narrator` is required (the
+lane seed has it). Model-heavy (60 generations plus the extraction reads and 5 synthesis calls per run): at most two model-heavy lanes per backend.
 
 ## Worth review (rule 8)
 
