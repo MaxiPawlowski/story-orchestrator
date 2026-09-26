@@ -1,0 +1,17 @@
+v2.5 plan 05 F1b floor (i) (screen precision on the M1 not-found lines), 2026-09-26, worktree on cad1b25.
+
+Sample: the 40 lines drawn from the v2.4-acceptance M1 not-found rows (random.seed(20260926), .debug/m1_sample.json, M1 as recorded in v25-05-f1a.txt). 3 of the 40 are DELTA rows and are out of F1b's scope; 37 FACT/MEMORY lines labelled.
+Method: each evidence split into fragments (at "...", "
+" and [n] Speaker: labels), each fragment searched in the audit's own window (normalised: case, punctuation, escaped quotes); the nearest window span printed beside it and read by hand.
+
+Labels (37):
+- stitched: fragments of one or more real window lines joined across the text between them (0 1 4 7 8 9 11 13 14 15 16 17 20 24 25 26 30 32 35 37 38): 21
+- stitched across [n] Speaker: labels (the quote carries the next line's label) (22 27 28 29 31 33 36 39, 12 with a leading speaker name): 9
+- elided (a "..." or omitted middle between two real spans) (5 23 6 10 34 18): 6
+- verbatim span, window holds a typo the quote corrected ("hellooks" -> "he looks") (2): 1
+- truly unsupported evidence (a fragment the window does not hold): 0
+Every one of the 37 quotes consists of text the window holds. Mechanical cross-check (word trigrams of each quote, labels stripped, searched in the window): 2 of 37 quotes have every trigram in the window; the other 35 miss only the 1-8 trigrams that straddle their joins (e.g. 14/16, 43/45, 37/44), which is the stitch signature, not invention. One fact text overreaches its evidence (#2 adds "a central chamber where the Sun's Heart artifact was kept", absent from the window); a verbatim-evidence screen cannot see that either way.
+
+Precision of the proposed screen = truly unsupported / rejected = 0/37 = 0.00 (1/37 = 0.03 counting #2's overreach). Floor (i) >= 0.7: NOT MET.
+Decision: F1b NOT BUILT (recorded below floor; floor not retuned). Floors (ii) factsScreened and (iii) J3/J8.5 are moot. The live-suite factsScreened column is not added.
+What the numbers say instead: the FACT/MEMORY misses are the D1 stitch/elision class, which D1 deliberately refuses for DELTA. A fact screen that accepted stitched fragments would reject nothing in this sample; that is a different design with no failing case today, so it is not proposed.
