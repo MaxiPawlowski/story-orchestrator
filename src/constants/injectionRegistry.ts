@@ -31,8 +31,6 @@ export const INJECTION_DEPTH_COLLISION_ALLOWLIST: ReadonlyArray<ReadonlySet<stri
   new Set([INJECTION_REGISTRY.memorySessionDetails.key, INJECTION_REGISTRY.ledger.key]),
 ];
 
-// Private knowledge and the state ledger never reach a scan: a scanned block is text any lorebook key can
-// match, and what it pulls in lands in the prompt of whoever is drafted next.
 const NEVER_SCANNABLE: ReadonlySet<string> = new Set(["epistemic", "ledger"]);
 const SCANNABLE_ALLOWLIST: ReadonlySet<string> = new Set(["memoryFacts", "memorySceneHistory", "checkpointGuidance"]);
 

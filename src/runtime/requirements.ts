@@ -11,8 +11,6 @@ export function evaluateRequirements(story: NormalizedStoryV2 | null, options: R
   return readRequirements(story.requirements, { persona, members: story.requirements?.members?.length ? listGroupMembers() : [], lore: readLoreBindings() }, options);
 }
 
-// Which chat-slot reading applies: scan mode frees the slot, and in file mode only this chat's own
-// mirror book may hold it without a conflict.
 export const requirementsOptions = (book: MemoryMirrorBook | null, scan = scanGatingActive()): RequirementsOptions => {
   const chatId = getContext().chatId ?? null;
   return { scan, mirrorBook: book && chatId !== null && book.chatId === chatId ? book.name : null };
