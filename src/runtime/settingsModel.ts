@@ -18,14 +18,7 @@ export interface GlobalSettings {
   stagecraft: StagecraftSettings;
   judge: JudgeSettings;
   worldInfo: WorldInfoSettings;
-  spikes: SpikeFlags;
 }
-
-export interface SpikeFlags {
-  toolTurnFold: boolean;
-}
-
-const sanitizeSpikeFlags = (value: unknown): SpikeFlags => ({ toolTurnFold: isRecord(value) && value.toolTurnFold === true });
 
 // `scan` is written only by the author's confirm (an install that never opens the setting stays
 // `file`). `normalized` is the ledger of gated entries whose FILE rests off (book -> comments); `normalizedFrom`
@@ -108,7 +101,6 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   stagecraft: defaultStagecraftSettings(),
   judge: defaultJudgeSettings(),
   worldInfo: defaultWorldInfoSettings(),
-  spikes: sanitizeSpikeFlags(null),
 });
 
 const clampAlpha = (value: unknown) => (typeof value === "number" && value >= 0 && value <= 1 ? value : DEFAULT_TENSION_EMA_ALPHA);
@@ -151,6 +143,5 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     },
     judge: sanitizeJudgeSettings(value.judge),
     worldInfo: sanitizeWorldInfoSettings(value.worldInfo),
-    spikes: sanitizeSpikeFlags(value.spikes),
   };
 };

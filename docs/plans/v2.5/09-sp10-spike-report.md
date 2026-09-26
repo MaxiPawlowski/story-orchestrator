@@ -1,9 +1,14 @@
 # v2.5 plan 09 — SP10 tool-call turns, spike report
 
-**Verdict: PENDING.** Conditions are the plan's predeclared table (`09-research-spikes.md` §SP10) and are not retuned.
-This file was committed with the fixtures and the measurement procedures below, before any spike code and before any run
-(rule 1). Rows are filled in as each leg runs; the worth review (rule 8) is written after the live legs, or not at all if a
-deterministic condition fails the spike.
+**Verdict: FAIL (Q3, deterministic half), 2026-09-26.** The fold is not unlocked. Under rule 2 the fold code is removed;
+the report, the fixtures and the dev-only Q1 probe stay, so Q1/Q2 can still document the inflation ("FAIL leaves:
+documented inflation"). No worth review: rule 8 runs after a PASS. Conditions are the plan's predeclared table
+(`09-research-spikes.md` §SP10) and were not retuned; this file, with the procedures below, was committed (`f9679fd4`) before
+any spike code and before any run (rule 1).
+
+Commits: `f9679fd4` procedures + fixtures; `25b90c80` the flagged fold (`spikes.toolTurnFold`, off, loaded only through a
+`__SO_DEV__` dynamic import), the Q1 probe and the Q3 property test, whose fold arm pins the measurement below (checkout
+`25b90c80` and run `npx jest src/runtime/spikes/toolTurnFold.property.test.ts` to replay it); the next commit removes the fold.
 
 ## Host facts (ST `7c3994196`, re-verified at step 0)
 
@@ -57,6 +62,38 @@ half passes.
 
 | # | Condition | Pass | Measured | Result |
 |---|---|---|---|---|
-| Q1 | Inflation measured | boundaries per player turn and per-depth work counts recorded, ×2 | pending | pending |
-| Q2 | Fold needed | > 1 boundary per chain or any per-generation work twice per chain | pending (from Q1) | pending |
-| Q3 | Fold is safe | rollback ≡ replay (jest, 4 seeds) and J6 green ×2 | pending | pending |
+| Q1 | Inflation measured | boundaries per player turn and per-depth work counts recorded, ×2 | pending (live, documentation only after Q3's FAIL) | pending |
+| Q2 | Fold needed | > 1 boundary per chain or any per-generation work twice per chain | pending (from Q1's records) | pending |
+| Q3 | Fold is safe | rollback ≡ replay (jest, 4 seeds) and J6 green ×2 | jest, 4 seeds × 200 chats, 23 066 (chat, cut) pairs: **control arm (fold off) 0 divergent**; **fold arm 2 684 divergent**, every one a cut at a tool-invocation message (2 684 of the 5 718 such cuts; 0 of 6 394 player-message cuts, 0 of 10 954 reply cuts). J6 leg not run: the jest half already fails | **FAIL** |
+
+## Q3: why the fold breaks rollback ≡ replay
+
+The first counterexample (seed 1, chat 0, cut at message 3): message 1 is the player, message 2 an intermediary reply that
+found a clue, message 3 its tool invocation, message 4 the continuation. Folded, the only boundary of that chain sits at
+message 4, so a rollback from message 3 (ST deletes a reply together with the tool calls before it, `script.js:1614-1629`,
+so deleting the continuation cuts at 3) rewinds to before message 2: `c0`, no clue. A replay of the surviving messages 0–2
+commits message 2 (nothing follows it, so nothing holds it): `c1`, `clue 1`. The fold removes the snapshot the rollback would
+need, and no fold rule can restore it, because a replay of a prefix that ends at the intermediary cannot know a tool call
+followed. The runtime would catch up at the next boundary (its read window covers message 2), but the committed path in
+between differs, and one transition per boundary means the path can stay different. Without the fold the same cut keeps the
+intermediary's boundary and matches the replay (control arm, 0 of 23 066).
+
+A fold of the per-boundary WORK only (keep the intermediary's boundary and snapshot, skip its cadence/tension work) would not
+touch this invariant. It is not what Q3 predeclared, so it is not measured here; it is a v2.6 seed if Q1/Q2 show the inflation
+matters.
+
+## Pending live legs (documentation only)
+
+Q1 and Q2 still document what tool turns cost today. Rule 1: ×2 consecutive on one lane, dev bundle, run header around the batch.
+
+```bash
+npm run build:dev && npm run serve:dev
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/st-session.mts reload
+MSYS_NO_PATHCONV=1 node scripts/debug/st-lanes.mts run <n> -- scripts/debug/st-actions.mts slash "/profile <Chat Completion profile>"
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-run-header.mts capture --label sp10-q1
+node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict --group <lane group id> test/scenarios/v25-09-tool-turn.json
+node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-run-header.mts diff <the captured header>
+```
+
+Records: `test/journeys/records/v2.5-plan09/SP10/live-<bundle12>/` (both run logs, the two `so-sp10-q1` records, the headers).
+Q2 reads `summary.foldNeeded`, `maxBoundariesPerDraft` and `maxWorkPerDraft` from each record.

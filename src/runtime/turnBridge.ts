@@ -31,10 +31,6 @@ const continueStamp = (messageId: number): string => {
   return `len${typeof message?.mes === "string" ? message.mes.length : 0}`;
 };
 
-export type FoldDecision = "commit" | "fold" | "hold";
-
-export type FoldVerdict = (current: number | null, next: number | null, chat: readonly unknown[]) => FoldDecision;
-
 interface PendingBoundary {
   run: RunGuard;
   messageId: number | null;
@@ -56,11 +52,7 @@ export class TurnBridge {
   private flushTimer: ReturnType<typeof setTimeout> | null = null;
   private unsubscribe: (() => void) | null = null;
 
-  constructor(
-    private readonly manager: RuntimeManager,
-    private readonly save: ChatSave | null = null,
-    private readonly fold: () => FoldVerdict | null = () => null,
-  ) {}
+  constructor(private readonly manager: RuntimeManager, private readonly save: ChatSave | null = null) {}
 
   start() {
     if (this.unsubscribe) return;
@@ -153,21 +145,14 @@ export class TurnBridge {
       while (this.draining === drain) {
         const next = this.pending[0];
         if (!next?.ready) break;
-        const decision = this.foldDecision(next.messageId, this.pending[1]?.messageId ?? null);
-        if (decision === "hold") break;
         this.pending.shift();
-        if (!next.run.stillOwns() || decision === "fold") continue;
+        if (!next.run.stillOwns()) continue;
         drain.run = next.run;
         await this.manager.commitBoundary(next.messageId ?? undefined);
       }
     } finally {
       if (this.draining === drain) this.draining = null;
     }
-  }
-
-  private foldDecision(current: number | null, next: number | null): FoldDecision {
-    const verdict = this.fold();
-    return verdict ? verdict(current, next, getContext().chat ?? []) : "commit";
   }
 
   private scheduleFlushPoll() {

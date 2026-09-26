@@ -10,7 +10,7 @@ const DEV_ONLY = [
   "src/judge/selfTestCases.ts",
 ];
 const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
-const SPIKES = ["src/runtime/spikes/toolTurnFold.ts", "src/runtime/spikes/toolTurnProbe.ts", "src/runtime/spikes/toolTurnSummary.ts"];
+const SPIKES = ["src/runtime/spikes/toolTurnProbe.ts", "src/runtime/spikes/toolTurnSummary.ts"];
 const SPIKE_PATTERN = /^src\/runtime\/spikes\//;
 const LAZY_USER_FEATURES = ["src/judge/selfTest.ts", "src/runtime/selfTest.ts", "src/runtime/roleSelfTest.ts", "src/extraction/fixtureRun.ts"];
 
@@ -42,8 +42,8 @@ describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", 
   it("control: a planted static import of a plan-09 spike module from the entry fails", () => {
     const planted = join(SRC, "index.tsx");
     const fs = require("fs") as typeof import("fs");
-    const read = (path: string) => (path === planted ? `${fs.readFileSync(path, "utf8")}\nexport { toolTurnVerdict } from "./runtime/spikes/toolTurnFold";\n` : fs.readFileSync(path, "utf8"));
-    expect(staticReach(files, read).filter(isDevOnly)).toContain("src/runtime/spikes/toolTurnFold.ts");
+    const read = (path: string) => (path === planted ? `${fs.readFileSync(path, "utf8")}\nexport { createToolTurnProbe } from "./runtime/spikes/toolTurnProbe";\n` : fs.readFileSync(path, "utf8"));
+    expect(staticReach(files, read).filter(isDevOnly)).toContain("src/runtime/spikes/toolTurnProbe.ts");
   });
 
   it("control: a planted static import of the live suite from the entry fails", () => {

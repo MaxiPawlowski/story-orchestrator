@@ -17,7 +17,6 @@ import { startJudge, startScene } from "./wiring/judgeScene";
 import { startLore } from "./wiring/lore";
 import { startTalk } from "./wiring/talk";
 import { attachGenerationObservers, subscribeGenerationEvents } from "./wiring/generation";
-import { spikeHooks, startSpikes, stopSpikes } from "./wiring/spikes";
 import type { Disposers, LiveParts, WindowAccess } from "./wiring/types";
 import { log } from "@utils/log";
 import { readGatingModeWith } from "./worldInfoMode";
@@ -61,7 +60,7 @@ const registerHostSurfaces = () => {
 };
 
 const startWatches = () => {
-  bridge = new TurnBridge(runtimeManager, runtimeManager.chatSave, () => spikeHooks.toolTurnFold);
+  bridge = new TurnBridge(runtimeManager, runtimeManager.chatSave);
   bridge.start();
   const requirementsWatch = new RequirementsWatch(runtimeManager.requirementsHost, subscribeToHostEvents);
   requirementsWatch.start();
@@ -116,7 +115,6 @@ export function startRuntime() {
   // so the gate opens now and the chat loads now; a page still fetching them opens it on the event.
   // Either way the load happens exactly once, because the gate resolves once.
   void settingsReady().then(() => {
-    void startSpikes();
     if (runtimeManager.getSnapshot().ready) return;
     noteHostSettingsLoaded?.();
     void startupLoad();
@@ -143,7 +141,6 @@ export function stopRuntime() {
   live.talk = null;
   live.scene = null;
   live.typedJudge = null;
-  stopSpikes();
   globalThis.talkControlInterceptor = () => undefined;
   for (const name of RUNTIME_GLOBALS) Reflect.deleteProperty(globalThis, name);
   started = false;
