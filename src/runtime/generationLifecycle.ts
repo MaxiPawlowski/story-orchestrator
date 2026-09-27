@@ -101,6 +101,12 @@ export class GenerationLifecycle {
     return [{ kind: "settled", rendered: true }];
   }
 
+  wrapperFinished(): GenerationIntent[] {
+    if (!this.outermost || !withholds(this.outermost.type)) return [];
+    this.reset();
+    return [{ kind: "closed", reason: "ended" }, { kind: "settled", rendered: false }];
+  }
+
   drafted(chid: unknown): GenerationIntent[] {
     this.draftedChid = draftedIndex(chid);
     return [];
