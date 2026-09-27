@@ -88,6 +88,27 @@ describe("GenerationLifecycle (v2.4 plan 01 T6)", () => {
     expect(g.started(["impersonate", {}, false], 3)).toEqual([{ kind: "nested", type: "impersonate", params: {}, withholds: true }]);
   });
 
+  it("a group quiet (the wrapper's STARTED, the member's STARTED, ONE ENDED) closes when the wrapper finishes, so the next loud run opens", () => {
+    for (const type of ["quiet", "impersonate"]) {
+      const g = lifecycle();
+      expect(kinds(g.started([type, { quiet_prompt: "sum" }, false], 20))).toEqual(["opened"]);
+      g.drafted(3);
+      expect(kinds(g.started([type, { quiet_prompt: "sum" }, false], 20))).toEqual(["nested"]);
+      expect(g.ended([20])).toEqual([]);
+      expect(kinds(g.wrapperFinished())).toEqual(["closed:ended", "settled:false"]);
+      expect(g.snapshot()).toMatchObject({ outermost: null, nested: [], draftedChid: null });
+      expect(kinds(g.started([undefined, {}, false], 21))).toEqual(["opened"]);
+    }
+  });
+
+  it("control: a wrapper finishing leaves a loud outermost waiting for its render, and does nothing when nothing is open", () => {
+    const g = lifecycle();
+    expect(g.wrapperFinished()).toEqual([]);
+    g.started(["normal", {}, false], 4);
+    expect(g.wrapperFinished()).toEqual([]);
+    expect(g.snapshot().outermost).toEqual({ type: "normal", watermark: 4 });
+  });
+
   it("swipe, continue and regenerate close on the message they rewrite", () => {
     for (const type of ["swipe", "continue", "regenerate"]) {
       const g = lifecycle();

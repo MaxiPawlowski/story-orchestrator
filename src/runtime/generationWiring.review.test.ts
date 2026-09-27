@@ -25,6 +25,7 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ chat: [{}, {}, {}, {}], chatId: "chat-a", extensionSettings: {}, chatMetadata: {}, characters: [], groups: [] }),
   registerHostMacro: () => {},
   unregisterHostMacro: () => {},
+  startSaveWatcherSurface: () => () => {},
   subscribeToHostEvents: (entries: Array<{ eventName: string; handler: (...args: unknown[]) => unknown }>) => {
     if (entries.some((entry) => entry.eventName === "GENERATION_STARTED")) {
       for (const entry of entries) mockWired.set(entry.eventName, entry.handler);
@@ -129,6 +130,17 @@ describe("runtime/index.ts generation wiring (v2.4 plan 01 T6)", () => {
     mockScans.activated?.([{ world: "Lore", uid: 4, comment: "NPC - Ellie" }]);
     await emit("GENERATION_ENDED", 4);
     expect(globalThis.storyOrchestratorLoreEvidence?.slotsForChat()).toEqual([]);
+  });
+
+  it("v2.5 batch 2 J8.10: after a group quiet (e.g. Summarize) the next loud generation is opened, not nested, so its blocks are set", async () => {
+    await emit("GENERATION_STARTED", "quiet", { quiet_prompt: "Summarize" }, false);
+    await emit("GROUP_MEMBER_DRAFTED", 3);
+    await emit("GENERATION_STARTED", "quiet", { quiet_prompt: "Summarize" }, false);
+    await emit("GENERATION_ENDED", 4);
+    await emit("GROUP_WRAPPER_FINISHED", { selected_group: "g1", type: "quiet" });
+    spies.started.mockClear();
+    await emit("GENERATION_STARTED", "normal", {}, false);
+    expect(spies.started).toHaveBeenCalledWith("normal");
   });
 
   it("STOPPED closes the outermost without spending the note", async () => {

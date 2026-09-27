@@ -475,9 +475,12 @@ export class RuntimeManager extends CoordinatorDelegates {
 
   rosterIdForName(name: string): string | null { return rosterIdForName(this.loaded?.story ?? null, name); }
 
-  onGenerationStarted(type: unknown, dryRun?: unknown) { if (withholds(type)) this.withholdTurnBlocks(); this.stagecraft.onGenerationStarted(type, dryRun); }
+  onGenerationStarted(type: unknown, dryRun?: unknown) {
+    if (withholds(type)) this.withholdTurnBlocks(); else this.memory.releaseStaleHold();
+    this.stagecraft.onGenerationStarted(type, dryRun);
+  }
 
-  clearPrivateInjection() { if (!this.loaded) return; this.memory.updateInjection(); this.pacing.updateSteering(); }
+  clearPrivateInjection() { if (!this.loaded) return; this.memory.releasePrivateInjection(); this.pacing.updateSteering(); }
 
   setEpistemicLedgerCapable(capable: boolean) { this.setMemorySettings({ epistemicLedgerCapable: capable }); }
 

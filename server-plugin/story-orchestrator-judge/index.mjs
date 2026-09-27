@@ -198,7 +198,10 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now } 
     const handlers = {
         async status(request, response) {
             const resolved = await resolveKey(request);
-            return response.json({ configured: Boolean(resolved), keySource: resolved?.source ?? null, model: DEFAULT_MODEL, pluginVersion: PLUGIN_VERSION });
+            return response.json({
+                configured: Boolean(resolved), keySource: resolved?.source ?? null, model: DEFAULT_MODEL, pluginVersion: PLUGIN_VERSION,
+                limits: { maxInFlight: MAX_IN_FLIGHT_PER_USER, perMinute: MAX_CALLS_PER_MINUTE_PER_USER },
+            });
         },
         async systemone(request, response) {
             const issues = validateRequest(request.body);

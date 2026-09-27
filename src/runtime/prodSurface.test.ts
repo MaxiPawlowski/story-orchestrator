@@ -14,6 +14,7 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ chat: [], chatId: "chat-a", extensionSettings: {}, chatMetadata: {}, characters: [], groups: [] }),
   registerHostMacro: () => undefined,
   unregisterHostMacro: () => undefined,
+  startSaveWatcherSurface: () => () => {},
   subscribeToHostEvents: () => () => {},
   judgeTransport: async () => ({ model: null, answers: null }),
   judgeStatus: async () => null,
@@ -94,13 +95,18 @@ describe("the prod flavour exposes no debug surface (v2.5 plan 12 D1/D2)", () =>
     jest.isolateModules(() => {
       globalThis.__SO_DEV__ = false;
       Reflect.deleteProperty(globalThis, "storyOrchestratorSaveRefusals");
-      jest.requireActual("@services/stHost/persistence");
+      const { startSaveWatcherSurface } = jest.requireActual("@services/stHost/persistence");
+      startSaveWatcherSurface()();
+      startSaveWatcherSurface();
       expect(Reflect.has(globalThis, "storyOrchestratorSaveRefusals")).toBe(false);
     });
     jest.isolateModules(() => {
       globalThis.__SO_DEV__ = true;
-      jest.requireActual("@services/stHost/persistence");
+      const { startSaveWatcherSurface } = jest.requireActual("@services/stHost/persistence");
+      const stop = startSaveWatcherSurface();
       expect(Reflect.has(globalThis, "storyOrchestratorSaveRefusals")).toBe(true);
+      stop();
+      expect(Reflect.has(globalThis, "storyOrchestratorSaveRefusals")).toBe(false);
     });
   });
 });

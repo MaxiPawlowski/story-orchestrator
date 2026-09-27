@@ -350,6 +350,8 @@ export class MemoryCoordinator {
   // injection (rendered by MemoryInjector) --------------------------
 
   updateInjection() { this.injector.update(); }
+  releasePrivateInjection() { this.injector.releaseDraft(); this.injector.update(); }
+  releaseStaleHold() { if (this.injector.releaseWithhold()) this.injector.update(); }
   withholdPrivateKnowledge() { this.injector.withholdPrivateKnowledge(); }
   onMemberDrafted(chId: number | [number]) { this.injector.onMemberDrafted(chId); }
   getInjectionBlocks(): Record<MemoryTier, string> { return this.injector.blocks(); }

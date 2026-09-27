@@ -1,5 +1,7 @@
 import { validateJudgeRequest } from "./questions";
-import type { JudgeRequest, JudgeResponse, JudgeResult, JudgeTransport, JudgeUsage } from "./types";
+import { isJudgeBusy, type JudgeGate } from "./gate";
+import { JUDGE_BUSY_RETRIES } from "./policy";
+import type { JudgeFallback, JudgeRequest, JudgeResponse, JudgeResult, JudgeTransport, JudgeUsage } from "./types";
 
 export const JUDGE_CACHE_LIMIT = 100;
 
@@ -16,6 +18,7 @@ export interface AskJudgeOptions {
   signal?: AbortSignal;
   now?: () => number;
   cache?: Map<string, JudgeResponse>;
+  gate?: JudgeGate;
 }
 
 const raceTimeout = <T,>(promise: Promise<T>, ms: number): Promise<T> => new Promise((resolve, reject) => {
@@ -49,6 +52,23 @@ export function readUsage(response: { usage?: unknown } | null | undefined): Jud
 
 const isTimeout = (error: unknown) => error instanceof JudgeTimeoutError || (error instanceof Error && (error.name === "AbortError" || error.name === "TimeoutError"));
 
+async function sendThroughGate(transport: JudgeTransport, request: JudgeRequest, options: AskJudgeOptions, sent: (at: number) => void): Promise<JudgeResponse> {
+  const now = options.now ?? Date.now;
+  const signal = options.signal ? { signal: options.signal } : {};
+  for (let attempt = 0; ; attempt += 1) {
+    const release = options.gate ? await options.gate.acquire(options.signal) : () => undefined;
+    try {
+      sent(now());
+      return await raceTimeout(transport(request, { timeoutMs: options.timeoutMs, ...signal }), options.timeoutMs);
+    } catch (error) {
+      if (!options.gate || !isJudgeBusy(error) || attempt >= JUDGE_BUSY_RETRIES) throw error;
+    } finally {
+      release();
+    }
+    await options.gate.backoff(attempt + 1, options.signal);
+  }
+}
+
 export async function askJudge(transport: JudgeTransport, request: JudgeRequest, options: AskJudgeOptions): Promise<JudgeResult> {
   const now = options.now ?? Date.now;
   const stateChars = JSON.stringify(request.state).length;
@@ -58,9 +78,9 @@ export async function askJudge(transport: JudgeTransport, request: JudgeRequest,
   const key = JSON.stringify(request);
   const hit = options.cache?.get(key);
   if (hit) return { ...base, answers: hit.answers, model: hit.model, latencyMs: 0, cached: true };
-  const startedAt = now();
+  let startedAt = now();
   try {
-    const response = await raceTimeout(transport(request, { timeoutMs: options.timeoutMs, ...(options.signal ? { signal: options.signal } : {}) }), options.timeoutMs);
+    const response = await sendThroughGate(transport, request, options, (at) => { startedAt = at; });
     const usage = readUsage(response);
     const paid = usage ? { usage } : {};
     if (!response || typeof response.answers !== "object" || response.answers === null) {
@@ -73,7 +93,7 @@ export async function askJudge(transport: JudgeTransport, request: JudgeRequest,
     // because judgeTransport wires both the timeout and the epoch signal to one controller, so
     // they are indistinguishable by the error alone.
     const cancelled = options.signal?.aborted === true;
-    const fallback = cancelled ? "cancelled" : isTimeout(error) ? "timeout" : "error";
+    const fallback: JudgeFallback = cancelled ? "cancelled" : isJudgeBusy(error) ? "busy" : isTimeout(error) ? "timeout" : "error";
     return { ...base, answers: null, model: null, latencyMs: now() - startedAt, fallback, cached: false };
   }
 }

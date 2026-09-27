@@ -9,7 +9,7 @@ import type { RunOwner } from "./runOwner";
 import { beginRun, type RunGuard } from "./runToken";
 import { ServedRequests, type SaveEvidenceResult, type SaveObservation } from "./saveEvidence";
 import { recordSaveEvidence, saveEvidenceDeps } from "./saveEvidenceHost";
-import { saveWasLost } from "./saveHealth";
+import { saveWasLost, type SaveHealth } from "./saveHealth";
 import { listStoryRecords } from "./storyLibrary";
 import type { LoadedStory, RuntimeExtras } from "./types";
 
@@ -41,6 +41,13 @@ const labelled = (observation: SaveObservation, own: ChatWriteKind | null, note:
 
 const chatNow = (): unknown[] => (Array.isArray(getContext().chat) ? getContext().chat : []);
 
+const HELD_OUTCOME_LIMIT = 16;
+
+interface HeldOutcome {
+  health: SaveHealth;
+  notes: Array<{ summary: string; note: string }>;
+}
+
 const driftNote = (messageId: number, chatLength: number, last: number): string => (messageId === chatLength && chatLength < last + 1
   ? `the chat ends at message ${chatLength - 1} while the story had read up to message ${last} (a branch, or messages removed while the story was not listening); stepped back from ${messageId}`
   : `message ${messageId} no longer says what it said when the story read it, and no event announced the change (another extension rewrote it, or a move named only one of the ` +
@@ -52,6 +59,7 @@ export class ChatSave {
   readonly fingerprints = new FingerprintKeeper();
   private readonly served = new ServedRequests();
   private readonly claim = (observation: SaveObservation) => this.served.claim(observation.burst);
+  private readonly held = new Map<string, HeldOutcome>();
 
   constructor(private readonly deps: ChatSaveDeps) {}
 
@@ -65,6 +73,7 @@ export class ChatSave {
       this.deps.journal("save skipped: this run belongs to another chat", `claimed ${this.deps.owner.claimedChat()}, open chat is ${String(getContext().chatId ?? "")}`, true);
       return;
     }
+    this.adoptHeld();
     const extras = this.deps.extras();
     extras.lastSessionAt = new Date().toISOString();
     const engine = this.deps.engine();
@@ -90,11 +99,45 @@ export class ChatSave {
 
   // `saveMetadata` swallows its own errors, so the write is OBSERVED (saveEvidence).
   private async saveAndObserve() {
-    const deps = saveEvidenceDeps(() => this.deps.extras().saveHealth, (health) => { this.deps.extras().saveHealth = health; }, () => undefined);
-    const journal = (summary: string, note: string, observation: SaveObservation) => this.deps.journal(summary, labelled(observation, null, note), false);
+    const world = this.worldKey();
+    const armed = this.deps.extras();
+    const here = () => world !== null && this.deps.owner.ownsOpenChat() && this.worldKey() === world;
+    const read = () => (here() ? this.deps.extras().saveHealth : this.held.get(world ?? "")?.health ?? armed.saveHealth);
+    const write = (health: SaveHealth) => {
+      if (here()) this.deps.extras().saveHealth = health;
+      else if (world !== null) this.hold(world, { health, notes: this.held.get(world)?.notes ?? [] });
+    };
+    const deps = saveEvidenceDeps(read, write, () => undefined);
+    const journal = (summary: string, note: string, observation: SaveObservation) => {
+      const labelledNote = labelled(observation, null, note);
+      if (here()) this.deps.journal(summary, labelledNote, false);
+      else if (world !== null) this.hold(world, { health: read(), notes: [...(this.held.get(world)?.notes ?? []), { summary, note: labelledNote }] });
+    };
     // Armed first, write second: the watcher has to be listening before the request goes out.
-    const observed = recordSaveEvidence({ ...deps, journal, claim: this.claim }, this.deps.engine().state.boundary);
+    const readBack = () => (here() ? deps.readBack() : Promise.resolve(null));
+    const observed = recordSaveEvidence({ ...deps, readBack, journal, claim: this.claim }, this.deps.engine().state.boundary);
     await Promise.all([Promise.resolve(getContext().saveMetadata?.()), observed]);
+  }
+
+  private worldKey(): string | null {
+    const loaded = this.deps.loaded();
+    const chat = this.deps.owner.claimedChat();
+    return loaded && chat ? JSON.stringify([chat, loaded.record.id]) : null;
+  }
+
+  private hold(world: string, outcome: HeldOutcome) {
+    this.held.delete(world);
+    this.held.set(world, outcome);
+    while (this.held.size > HELD_OUTCOME_LIMIT) this.held.delete(this.held.keys().next().value as string);
+  }
+
+  private adoptHeld() {
+    const world = this.worldKey();
+    const outcome = world !== null && this.deps.owner.ownsOpenChat() ? this.held.get(world) : undefined;
+    if (!outcome || world === null) return;
+    this.held.delete(world);
+    this.deps.extras().saveHealth = outcome.health;
+    outcome.notes.forEach(({ summary, note }) => this.deps.journal(summary, note, false));
   }
 
   /** A chat write made outside persist (select, drop, replace, restamp) reads the observation
@@ -136,5 +179,8 @@ export class ChatSave {
 
   note(summary: string, detail: string) { this.deps.journal(summary, detail, true); }
 
-  landed(): boolean { return Boolean(this.deps.loaded()) && this.deps.owner.ownsOpenChat() && !saveWasLost(this.deps.extras().saveHealth); }
+  landed(): boolean {
+    this.adoptHeld();
+    return Boolean(this.deps.loaded()) && this.deps.owner.ownsOpenChat() && !saveWasLost(this.deps.extras().saveHealth);
+  }
 }

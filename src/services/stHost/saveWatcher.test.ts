@@ -21,7 +21,7 @@ const base = ((url: string) => {
 }) as unknown as typeof fetch;
 globalThis.fetch = base;
 
-import { installSaveWatcher, observeNextSave, observeNextSettingsSave, readServerExtensionSettings, saveOpenChat, saveWatcherRefusalRing, saveWatcherRefusals, saveWatcherStats } from "./persistence";
+import { installSaveWatcher, observeNextSave, observeNextSettingsSave, readServerExtensionSettings, saveOpenChat, saveWatcherRefusalRing, saveWatcherRefusals, saveWatcherStats, startSaveWatcherSurface } from "./persistence";
 
 const answer = (status: number) => pending.shift()!.resolve({ ok: status < 300, status, json: async () => ({}) });
 const settle = async () => { for (let i = 0; i < 5; i += 1) await Promise.resolve(); };
@@ -277,6 +277,7 @@ describe("v2.5 plan 02 C2: a save of ours that ST ran after the open chat change
   });
 
   it("exposes the refusals on a page global a recorder can drain, in order", () => {
+    startSaveWatcherSurface();
     const ring = (globalThis as { storyOrchestratorSaveRefusals?: unknown[] }).storyOrchestratorSaveRefusals;
     expect(ring).toBe(saveWatcherRefusalRing());
     expect(saveWatcherRefusals().length).toBeGreaterThan(0);

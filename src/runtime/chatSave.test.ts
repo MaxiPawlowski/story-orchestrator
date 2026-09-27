@@ -202,3 +202,84 @@ describe("ChatSave: one request serving two writes (E3 dedupe)", () => {
     expect(extras.saveHealth.consecutiveFailures).toBe(2);
   });
 });
+
+describe("ChatSave: a save's outcome belongs to the chat it was armed in (v2.5 batch 2, C2)", () => {
+  const OTHER = { record: { id: "s2", version: 1, hash: "h2", raw: { format: 2, id: "s2" } }, story: { title: "T" } } as unknown as LoadedStory;
+  const lost: SaveObservation = { requested: false, status: null, ok: false, timedOut: false, failed: false, lost: "the open chat changed before the save ran" };
+
+  function switching() {
+    const journal: Array<{ chat: string; summary: string; note: string }> = [];
+    const world = { chat: "chat-a", loaded: LOADED, extras: createExtras(getGlobalSettings), epoch: 1 };
+    globalThis.__chatSaveTest = {
+      observation: { requested: true, status: 200, ok: true, timedOut: false },
+      stored: 1,
+      context: { chatId: "chat-a", saveMetadata: () => {}, chat: [], chatMetadata: {}, extensionSettings: {} },
+    };
+    const ownership: RunOwnership = {
+      mint: () => ({ chatId: world.chat, sessionEpoch: world.epoch }) as unknown as RunToken,
+      check: (token: RunToken) => ((token as unknown as { sessionEpoch: number }).sessionEpoch === world.epoch ? { ok: true } : { ok: false, reason: "sessionEpoch", detail: "moved" }) as never,
+    };
+    const owner = { ownsOpenChat: () => true, claimedChat: () => world.chat, ownership } as unknown as RunOwner;
+    const save = new ChatSave({
+      loaded: () => world.loaded,
+      engine: () => ({ state: { boundary: 1, blackboard: {}, visitedAnchors: [], visitedPath: [] } as never, history: { from: { boundary: 1, messageId: -1 }, log: [] } as never }),
+      extras: () => world.extras,
+      owner,
+      journal: (summary, note) => { journal.push({ chat: world.chat, summary, note }); },
+      recap: () => {},
+    } as Partial<ChatSaveDeps> as ChatSaveDeps);
+    const goTo = (chat: string, loaded: LoadedStory) => {
+      world.chat = chat;
+      world.loaded = loaded;
+      world.extras = createExtras(getGlobalSettings);
+      world.epoch += 1;
+      globalThis.__chatSaveTest.context.chatId = chat;
+      return world.extras;
+    };
+    const armLostSave = async (thenOpen: () => void, answer: SaveObservation = lost) => {
+      let report: (observation: SaveObservation) => void = () => {};
+      globalThis.__chatSaveTest.observation = new Promise<SaveObservation>((resolve) => { report = resolve; }) as never;
+      const saving = save.persist();
+      await Promise.resolve();
+      thenOpen();
+      report(answer);
+      await saving;
+    };
+    return { save, journal, goTo, armLostSave };
+  }
+
+  test("a lost save reported after the switch never lands in the other chat's story", async () => {
+    const { save, journal, goTo, armLostSave } = switching();
+    let other = createExtras(getGlobalSettings);
+    await armLostSave(() => { other = goTo("chat-b", OTHER); });
+    expect(other.saveHealth).toMatchObject({ lastOutcome: null, consecutiveFailures: 0, pendingBoundary: null });
+    expect(journal).toEqual([]);
+    expect(save.landed()).toBe(true);
+  });
+
+  test("the chat it was armed in carries the outcome when it is current again", async () => {
+    const { save, journal, goTo, armLostSave } = switching();
+    await armLostSave(() => goTo("chat-b", OTHER));
+    const back = goTo("chat-a", LOADED);
+    expect(save.landed()).toBe(false);
+    expect(back.saveHealth).toMatchObject({ lastOutcome: "unsaved", lastReason: "the open chat changed before the save ran", consecutiveFailures: 1 });
+    expect(journal).toEqual([{ chat: "chat-a", summary: "save not confirmed", note: "the open chat changed before the save ran" }]);
+  });
+
+  test("a 2xx reported after the switch is not read back against the chat now open", async () => {
+    const { save, goTo, armLostSave } = switching();
+    globalThis.__chatSaveTest.stored = 0;
+    await armLostSave(() => goTo("chat-b", OTHER), { requested: true, status: 200, ok: true, timedOut: false, failed: false });
+    const back = goTo("chat-a", LOADED);
+    expect(save.landed()).toBe(true);
+    expect(back.saveHealth).toMatchObject({ lastOutcome: "unconfirmed", lastReason: "the server's copy of this chat could not be read" });
+  });
+
+  test("the same chat playing another story does not take it", async () => {
+    const { save, goTo, armLostSave } = switching();
+    await armLostSave(() => goTo("chat-b", OTHER));
+    const restarted = goTo("chat-a", OTHER);
+    expect(save.landed()).toBe(true);
+    expect(restarted.saveHealth.lastOutcome).toBeNull();
+  });
+});

@@ -12,6 +12,8 @@ import { activeSpeakerId, enabledCharacterIds, enabledCharacterNames, namesForRo
 import type { MemoryRuntimeState } from "./types";
 import type { InjectorHosts } from "./hostPorts";
 
+const storyKey = (story: NormalizedStoryV2): string => story.id ?? story.title;
+
 export interface MemoryInjectorDeps {
   getStory: () => NormalizedStoryV2 | null;
   getState: () => EngineState | null;
@@ -29,6 +31,8 @@ export interface MemoryInjectorDeps {
 // the only memory field it writes is `pinnedOverflow`, through the coordinator.
 export class MemoryInjector {
   private stagedPrivate = new Map<string, { facts: string; epistemic: string }>();
+  private draft: { storyId: string; rosterId: string | null } | null = null;
+  private withheld = false;
   private lastInjection: MemoryInjectionView | null = null;
   private readonly highWater: Partial<Record<MemoryTier, number>> = {};
 
@@ -68,6 +72,7 @@ export class MemoryInjector {
 
   update() {
     const story = this.deps.getStory();
+    if (this.draft && (!story || this.draft.storyId !== storyKey(story))) this.draft = null;
     if (!story || !this.deps.enabled()) {
       clearAllMemoryInjection(this.hosts.prompt);
       this.stagedPrivate.clear();
@@ -97,8 +102,10 @@ export class MemoryInjector {
       // A group has no speaker between drafts: whatever holds the prompt at rest (impersonate, quiet
       // generations, other extensions) must not carry the last drafted member's private knowledge.
       const solo = () => renderSoloEpistemicBlock(this.state.epistemic, enabledCharacterNames(story, this.hosts.roster));
-      const speakerBlock = this.hosts.roster.getActiveGroup() ? "" : speaker ? (this.stagedPrivate.get(speaker)?.epistemic ?? "") : solo();
+      const group = Boolean(this.hosts.roster.getActiveGroup());
+      const speakerBlock = this.withheld || group ? "" : speaker ? (this.stagedPrivate.get(speaker)?.epistemic ?? "") : solo();
       applyEpistemicInjection(this.hosts.prompt, speakerBlock, EPISTEMIC_INJECTION_DEPTH);
+      if (group && this.draft) this.restageDraft(this.draft.rosterId);
     } else {
       clearEpistemicInjection(this.hosts.prompt);
     }
@@ -114,7 +121,26 @@ export class MemoryInjector {
   // Impersonate writes as the player and quiet generations serve other tools, even when ST drafted
   // a member for them: neither may read a character's private knowledge.
   withholdPrivateKnowledge() {
+    this.withheld = true;
     clearEpistemicInjection(this.hosts.prompt);
+  }
+
+  releaseDraft() {
+    this.draft = null;
+    this.withheld = false;
+  }
+
+  releaseWithhold(): boolean {
+    const held = this.withheld;
+    this.withheld = false;
+    return held;
+  }
+
+  private restageDraft(rosterId: string | null) {
+    const staged = rosterId ? this.stagedPrivate.get(rosterId) : undefined;
+    const epistemic = this.withheld ? "" : staged?.epistemic ?? "";
+    if (staged) this.setPrivateBlocks(staged.facts, epistemic);
+    else applyEpistemicInjection(this.hosts.prompt, epistemic, EPISTEMIC_INJECTION_DEPTH);
   }
 
   onMemberDrafted(chId: number | [number]) {
@@ -124,6 +150,7 @@ export class MemoryInjector {
     const name = this.hosts.injection.getCharacterNameById(numericId);
     const rosterId = name ? rosterIdForName(story, name) : null;
     const staged = rosterId ? this.stagedPrivate.get(rosterId) : undefined;
+    this.draft = { storyId: storyKey(story), rosterId: staged ? rosterId : null };
     if (!staged) {
       this.setPrivateBlocks(buildMemoryInjectionBlocks(this.state.entries, activeSpeakerId(story, this.hosts.roster), this.options()).facts, "");
       return;

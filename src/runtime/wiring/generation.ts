@@ -100,7 +100,7 @@ export const subscribeGenerationEvents = (live: LiveParts, generation: Generatio
     { eventName: "CHARACTER_MESSAGE_RENDERED", handler: (messageId, type) => apply(generation.rendered(messageId, type)) },
     { eventName: "CHAT_CHANGED", handler: () => apply(generation.chatChanged()) },
     { eventName: "GROUP_WRAPPER_STARTED", handler: (payload) => live.talk?.onWrapperStarted(payload as Record<string, unknown> | undefined) },
-    { eventName: "GROUP_WRAPPER_FINISHED", handler: () => { void live.talk?.onWrapperFinished(); } },
+    { eventName: "GROUP_WRAPPER_FINISHED", handler: () => { apply(generation.wrapperFinished()); void live.talk?.onWrapperFinished(); } },
     { eventName: EXTENSION_SETTINGS_LOADED_EVENT, handler: () => { noteHostSettingsLoaded(); startupLoad(); } },
   ];
   return subscribeToHostEvents(entries);

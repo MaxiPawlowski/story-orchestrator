@@ -38,7 +38,7 @@ export {
 } from "@services/stHost/characters";
 export { executeSlashCommands } from "@services/stHost/slashCommands";
 export {
-  observeNextSave, observeNextSettingsSave, saveOpenChat, installSaveWatcher, readServerBoundary,
+  observeNextSave, observeNextSettingsSave, saveOpenChat, installSaveWatcher, startSaveWatcherSurface, readServerBoundary,
   readServerExtensionSettings, saveWatcherStats, boundaryInBlob, SAVE_OBSERVE_MS, type SaveObservation,
 } from "@services/stHost/persistence";
 export { applyCharacterAN, clearCharacterAN } from "@services/stHost/authorNotes";

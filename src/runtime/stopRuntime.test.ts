@@ -2,6 +2,8 @@
  * @jest-environment jsdom
  */
 const macros = new Map<string, number>();
+const surface = { started: 0, stopped: 0 };
+const hostSubscriptions = { open: 0 };
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -16,7 +18,8 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ chat: [], chatId: "chat-a", extensionSettings: {}, chatMetadata: {}, characters: [], groups: [] }),
   registerHostMacro: (key: string) => { macros.set(key, (macros.get(key) ?? 0) + 1); },
   unregisterHostMacro: (key: string) => { macros.delete(key); },
-  subscribeToHostEvents: () => () => {},
+  subscribeToHostEvents: () => { hostSubscriptions.open += 1; return () => { hostSubscriptions.open -= 1; }; },
+  startSaveWatcherSurface: () => { surface.started += 1; return () => { surface.stopped += 1; }; },
   judgeTransport: async () => ({ model: null, answers: null }),
   judgeStatus: async () => null,
   getPlayerName: () => "Max",
@@ -36,7 +39,7 @@ jest.mock("@services/STAPI", () => ({
   showTextPopup: async () => undefined,
 }));
 
-import { RUNTIME_GLOBALS, startRuntime, stopRuntime } from "./index";
+import { RUNTIME_GLOBALS, runtimeManager, startRuntime, stopRuntime } from "./index";
 
 const soGlobals = () => Object.keys(globalThis).filter((name) => name.startsWith("storyOrchestrator") && Reflect.get(globalThis, name) !== undefined);
 
@@ -65,6 +68,29 @@ describe("stopRuntime", () => {
     stopRuntime();
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(soGlobals()).toEqual([]);
+  });
+
+  it("disposes the save watcher's surface it started (E4: the dev refusal ring and the fetch wrap)", () => {
+    const before = { ...surface };
+    startRuntime();
+    expect(surface.started).toBe(before.started + 1);
+    stopRuntime();
+    expect(surface.stopped).toBe(before.stopped + 1);
+  });
+
+  it("stops a tool-turn probe that was left running (E4: its patches and host listeners)", async () => {
+    const original = runtimeManager.onGenerationStarted;
+    startRuntime();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const probe = globalThis.storyOrchestratorToolTurnProbe;
+    expect(probe).toBeDefined();
+    const open = hostSubscriptions.open;
+    probe?.start();
+    expect(runtimeManager.onGenerationStarted).not.toBe(original);
+    expect(hostSubscriptions.open).toBe(open + 1);
+    stopRuntime();
+    expect(runtimeManager.onGenerationStarted).toBe(original);
+    expect(hostSubscriptions.open).toBeLessThanOrEqual(open);
   });
 
   it("a start after stop registers each macro once again", () => {

@@ -1,6 +1,9 @@
 export const JUDGE_DEFAULT_MODEL = "jev-1.13.0";
 export const JUDGE_DEFAULT_TIMEOUT_MS = 1500;
 export const JUDGE_CALL_RING_LIMIT = 300;
+export const JUDGE_DEFAULT_MAX_IN_FLIGHT = 2;
+export const JUDGE_BUSY_RETRY_MS = 600;
+export const JUDGE_BUSY_RETRIES = 4;
 
 // Docs.typesafe.ai/models — both aliases resolve to jev-1.13.0.
 export const JUDGE_MODEL_IDS = {

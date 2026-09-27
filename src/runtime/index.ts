@@ -1,6 +1,6 @@
 import { getChatWindow } from "@extraction/index";
 import {
-  clearStoryExtensionPrompt, getContext, noteHostSettingsLoaded, setStoryExtensionPrompt, settingsReady, subscribeToHostEvents,
+  clearStoryExtensionPrompt, getContext, noteHostSettingsLoaded, setStoryExtensionPrompt, settingsReady, startSaveWatcherSurface, subscribeToHostEvents,
 } from "@services/STAPI";
 import { registerRuntimeMacros } from "./macros";
 import { startMirrorReaper } from "./mirrorReaperHost";
@@ -125,6 +125,7 @@ export const RUNTIME_GLOBALS = [
 export function startRuntime() {
   if (started) return runtimeManager;
   started = true;
+  runtimeDisposers.push(startSaveWatcherSurface());
   runtimeDisposers.push(readGatingModeWith(() => getGlobalSettings().worldInfo.gatingMode));
   startScheduler(live, runtimeDisposers);
   registerHostSurfaces();
@@ -174,6 +175,7 @@ export function stopRuntime() {
   live.scene = null;
   live.typedJudge = null;
   stopSpikes();
+  globalThis.storyOrchestratorToolTurnProbe?.stop();
   globalThis.talkControlInterceptor = () => undefined;
   for (const name of RUNTIME_GLOBALS) Reflect.deleteProperty(globalThis, name);
   started = false;
