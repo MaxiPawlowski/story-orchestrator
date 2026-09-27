@@ -3,6 +3,7 @@ export * from "./questions";
 export * from "./policy";
 export * from "./readiness";
 export * from "./client";
+export * from "./gate";
 export * from "./director";
 export * from "./memory";
 export * from "./contradiction";

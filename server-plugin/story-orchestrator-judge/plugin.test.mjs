@@ -58,7 +58,10 @@ test('status reports the key source, never the key', async () => {
     process.env.TYPESAFE_API_KEY = 'sk-test-status';
     const { res, out } = fakeResponse();
     await plugin.createHandlers().status({}, res);
-    assert.deepEqual(out.body, { configured: true, keySource: 'env', model: plugin.DEFAULT_MODEL, pluginVersion: plugin.PLUGIN_VERSION });
+    assert.deepEqual(out.body, {
+        configured: true, keySource: 'env', model: plugin.DEFAULT_MODEL, pluginVersion: plugin.PLUGIN_VERSION,
+        limits: { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: plugin.MAX_CALLS_PER_MINUTE_PER_USER },
+    });
     assert.ok(!JSON.stringify(out.body).includes('sk-test-status'));
 });
 

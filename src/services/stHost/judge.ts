@@ -1,4 +1,4 @@
-import type { JudgeRequest, JudgeResponse, JudgeTransport } from "@judge/index";
+import { JudgeBusyError, type JudgeRequest, type JudgeResponse, type JudgeTransport } from "@judge/index";
 import { getContext } from "./context";
 import { importSTModule } from "./modules";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
@@ -13,6 +13,7 @@ export interface JudgeStatus {
   model: string | null;
   keySource: string | null;
   pluginVersion: string | null;
+  maxInFlight?: number | null;
 }
 
 // public/scripts/secrets.js:349 — writes through /api/secrets/write, clears nothing we own, and the
@@ -20,6 +21,8 @@ export interface JudgeStatus {
 interface SecretsHostModule {
   writeSecret(key: string, value: string, label?: string, options?: { allowEmpty?: boolean }): Promise<string | null>;
 }
+
+const BUSY_STATUSES: ReadonlySet<number> = new Set([429, 529]);
 
 const headers = (): Record<string, string> => (getContext() as unknown as { getRequestHeaders: () => Record<string, string> }).getRequestHeaders();
 
@@ -34,6 +37,7 @@ export async function judgeStatus(): Promise<JudgeStatus | null> {
       model: typeof data.model === "string" ? data.model : null,
       keySource: typeof data.keySource === "string" ? data.keySource : null,
       pluginVersion: typeof data.pluginVersion === "string" ? data.pluginVersion : null,
+      maxInFlight: isRecord(data.limits) && typeof data.limits.maxInFlight === "number" ? data.limits.maxInFlight : null,
     };
   } catch {
     return null;
@@ -55,6 +59,7 @@ export const judgeTransport: JudgeTransport = async (request: JudgeRequest, opti
       body: JSON.stringify(request),
       signal: controller.signal,
     });
+    if (BUSY_STATUSES.has(response.status)) throw new JudgeBusyError(response.status);
     if (!response.ok) throw new Error(`judge plugin ${response.status}`);
     return await response.json() as JudgeResponse;
   } finally {

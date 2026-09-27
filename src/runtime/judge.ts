@@ -1,13 +1,14 @@
 import {
-  askJudge, modelVerdict, buildDirectorRequest, decideDirector, directorJudgeEligible,
+  askJudge, createJudgeGate, modelVerdict, buildDirectorRequest, decideDirector, directorJudgeEligible,
   directorRecordP, judgeUseActive, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord,
-  type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeRequest, type JudgeResponse,
+  type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeGate, type JudgeRequest, type JudgeResponse,
   type JudgeResult, type JudgeSettings, type JudgeTransport, type JudgeUseKey,
 } from "@judge/index";
 import type { RunOwnership } from "./runToken";
 
 export interface JudgeStatusLike {
   configured: boolean;
+  maxInFlight?: number | null;
 }
 
 export interface JudgeRuntimeDeps {
@@ -19,6 +20,7 @@ export interface JudgeRuntimeDeps {
   // Optional: a caller that supplies none keeps today behaviour.
   ownership: RunOwnership;
   now?: () => number;
+  gate?: JudgeGate;
 }
 
 export interface JudgeAskOptions {
@@ -35,8 +37,11 @@ export class JudgeRuntime {
   private readonly cache = new Map<string, JudgeResponse>();
   private readonly unbilled = new Map<string | null, JudgeCallRecord[]>();
   private availability: { key: string; at: number; ok: boolean } | null = null;
+  private readonly gate: JudgeGate;
 
-  constructor(private readonly deps: JudgeRuntimeDeps) {}
+  constructor(private readonly deps: JudgeRuntimeDeps) {
+    this.gate = deps.gate ?? createJudgeGate();
+  }
 
   enabled(): boolean {
     return this.deps.getSettings().enabled;
@@ -62,6 +67,7 @@ export class JudgeRuntime {
     const now = (this.deps.now ?? Date.now)();
     if (this.availability && this.availability.key === key && now - this.availability.at < JUDGE_STATUS_TTL_MS) return this.availability.ok;
     const status = await this.deps.status();
+    if (typeof status?.maxInFlight === "number") this.gate.setCapacity(status.maxInFlight);
     const ok = Boolean(status?.configured);
     this.availability = { key, at: now, ok };
     return ok;
@@ -72,7 +78,7 @@ export class JudgeRuntime {
   // it asked for, and JudgeResult says which model actually answered.
   probe(request: JudgeRequest, model = this.deps.getSettings().model): Promise<JudgeResult> {
     const settings = this.deps.getSettings();
-    return askJudge(this.deps.transport, { ...request, model }, { timeoutMs: Math.max(settings.timeoutMs, JUDGE_PROBE_TIMEOUT_MS) });
+    return askJudge(this.deps.transport, { ...request, model }, { timeoutMs: Math.max(settings.timeoutMs, JUDGE_PROBE_TIMEOUT_MS), gate: this.gate });
   }
 
   // So-judge reads the verdict here, so the harness and the page share one map.
@@ -118,6 +124,7 @@ export class JudgeRuntime {
     const result = await askJudge(this.deps.transport, { ...request, model: settings.model }, {
       timeoutMs: options.timeoutMs ?? settings.timeoutMs,
       cache: this.cache,
+      gate: this.gate,
       // A story load, restart or chat change cancels this request in flight rather
       // than paying for an answer the token check below will refuse anyway.
       ...(this.deps.ownership.signal ? { signal: this.deps.ownership.signal() } : {}),

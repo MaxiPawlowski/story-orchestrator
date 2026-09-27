@@ -113,7 +113,7 @@ export function sanitizeJudgeRuntime(value: unknown): JudgeRuntimeState {
   return { calls: calls.slice(-JUDGE_CALL_RING_LIMIT), scene, meter: sanitizeJudgeMeter(value.meter) };
 }
 
-const NEVER_SENT: ReadonlySet<string> = new Set(["unavailable", "invalid", "disabled", "no-roles", "no-seam"]);
+const NEVER_SENT: ReadonlySet<string> = new Set(["unavailable", "invalid", "disabled", "no-roles", "no-seam", "busy"]);
 
 export function meterJudgeCall(meter: JudgeMeter, record: JudgeCallRecord): JudgeMeter {
   if (record.cached) return { ...meter, cachedCalls: meter.cachedCalls + 1 };
