@@ -23,6 +23,7 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ chat: [{}, {}, {}, {}], chatId: "chat-a", extensionSettings: {}, chatMetadata: {}, characters: [], groups: [] }),
   registerHostMacro: () => {},
   unregisterHostMacro: () => {},
+  startSaveWatcherSurface: () => () => {},
   subscribeToHostEvents: (entries: Array<{ eventName: string; handler: (...args: unknown[]) => unknown }>) => {
     if (entries.some((entry) => entry.eventName === "GENERATION_STARTED")) {
       for (const entry of entries) mockWired.set(entry.eventName, entry.handler);

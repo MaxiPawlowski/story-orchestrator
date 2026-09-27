@@ -36,6 +36,7 @@ interface Watch { kind: SaveKind; armedAt: number; sawRequest: boolean; chatId: 
 
 let watching: Watch[] = [];
 let ours: typeof fetch | null = null;
+let wrapped: typeof fetch | null = null;
 let clock = 0;
 const stats = { wraps: 0, reports: 0, refused: 0 };
 // The init objects our outermost wrapper minted. A wrapper of ours that meets one is
@@ -73,7 +74,6 @@ export interface SaveRefusal { seq: number; at: number; url: string; file: strin
 const REFUSAL_RING_CAP = 50;
 const refusals: SaveRefusal[] = [];
 let refusalSeq = 0;
-if (__SO_DEV__) (globalThis as { storyOrchestratorSaveRefusals?: SaveRefusal[] }).storyOrchestratorSaveRefusals = refusals;
 
 export const saveWatcherRefusals = (): SaveRefusal[] => refusals.slice();
 export const saveWatcherRefusalRing = (): readonly SaveRefusal[] => refusals;
@@ -175,7 +175,19 @@ export function installSaveWatcher() {
     return observed(current, input, carried);
   };
   ours = wrapper as typeof fetch;
+  wrapped = current;
   globalThis.fetch = ours;
+}
+
+export function startSaveWatcherSurface(): () => void {
+  if (__SO_DEV__) (globalThis as { storyOrchestratorSaveRefusals?: SaveRefusal[] }).storyOrchestratorSaveRefusals = refusals;
+  return () => {
+    Reflect.deleteProperty(globalThis, "storyOrchestratorSaveRefusals");
+    if (ours && wrapped && globalThis.fetch === ours) globalThis.fetch = wrapped;
+    ours = null;
+    wrapped = null;
+    watching.slice().forEach((entry) => entry.settle(unconfirmed()));
+  };
 }
 
 /** How many times the watcher wrapped `fetch`, and how many save requests it reported. */

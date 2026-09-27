@@ -50,6 +50,7 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => mockHost.context,
   registerHostMacro: () => {},
   unregisterHostMacro: () => {},
+  startSaveWatcherSurface: () => () => {},
   subscribeToHostEvents: () => () => {},
   judgeTransport: async () => ({ model: null, answers: null }),
   judgeStatus: async () => null,

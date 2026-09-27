@@ -31,6 +31,7 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ chat: [], chatId: "chat-a", extensionSettings: {}, chatMetadata: {}, characters: [], groups: [] }),
   registerHostMacro: () => {},
   unregisterHostMacro: () => {},
+  startSaveWatcherSurface: () => () => {},
   subscribeToHostEvents: () => () => {},
   judgeTransport: async () => ({ model: null, answers: null }),
   judgeStatus: async () => null,
