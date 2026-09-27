@@ -294,7 +294,9 @@ export class ExtractionCoordinator {
     const memory = this.deps.memory;
     const chatLength = this.deps.hosts.chat.chatRows().length;
     const readState = chatLength - 1 > state.lastMessageId ? { ...state, lastMessageId: chatLength - 1, chatLength } : state;
-    const readWindow = sharedReadWindow({ state: readState, priority: 0, ...(window && window.from >= 0 ? { window: this.deps.hosts.chat.chatWindow(window.from, window.to) } : {}) });
+    const chat = this.deps.hosts.chat;
+    const named = window && window.from >= 0 ? { window: chat.chatWindow(window.from, window.to) } : {};
+    const readWindow = sharedReadWindow({ state: readState, priority: 0, readWindow: chat.chatWindow, ...named });
     const read = beginRun(this.deps.ownership, { from: readWindow.from, to: readWindow.to });
     const result = await runSharedRead({
       story,
