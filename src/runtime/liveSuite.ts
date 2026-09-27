@@ -31,7 +31,7 @@ export interface LiveFixtureResult {
   memory: Array<{ tier: string; text: string }>;
   arcs: Array<{ kind: string; text: string }>;
   epistemic: Array<{ tag: string; subject: string; hiddenFrom?: string; content: string }>;
-  ledger: Array<{ entity: string; field: string; value: string }>;
+  ledger: Array<{ entity: string; entityType: string; field: string; value: string }>;
   judged?: { answered: string[]; answers: unknown; model: string | null; fallback?: string };
 }
 
@@ -66,6 +66,17 @@ const withHints = (story: unknown, hints: LiveFixtureOptions["hints"]) => {
   const raw = story as { qualities?: Array<Record<string, unknown>> };
   return { ...raw, qualities: (raw.qualities ?? []).map((quality) => ({ ...quality, ...(hints[String(quality.key)] ?? {}) })) };
 };
+
+type LiveReadTiers = Pick<LiveFixtureResult, "facts" | "rejected" | "memory" | "arcs" | "epistemic" | "ledger">;
+
+export const liveReadTiers = (parsed: ReturnType<typeof parseSharedReadResponse>): LiveReadTiers => ({
+  facts: parsed.facts.map((entry) => ({ text: entry.text, importance: entry.importance })),
+  rejected: parsed.rejected,
+  memory: parsed.memory.map((entry) => ({ tier: entry.tier, text: entry.text })),
+  arcs: parsed.arcs.map((entry) => ({ kind: entry.kind, text: entry.text })),
+  epistemic: parsed.epistemic.map((entry) => ({ tag: entry.tag, subject: entry.subject, ...(entry.hiddenFrom ? { hiddenFrom: entry.hiddenFrom } : {}), content: entry.content })),
+  ledger: parsed.ledger.map((entry) => ({ entity: entry.entity, entityType: entry.entityType, field: entry.field, value: entry.value })),
+});
 
 const ROLE_PASS: Record<PassRole, ModelPass> = { read: "read", synthesis: "sceneSummary", authoring: "copilot", director: "director", curator: "curator" };
 
@@ -111,12 +122,7 @@ export function registerLiveSuite(manager: RuntimeManager) {
         prompt,
         rawResponse,
         deltas: [...judgedDeltas, ...parsed.deltas.filter((entry) => !answered.includes(entry.delta.q)).map((entry) => ({ q: entry.delta.q, v: entry.delta.v, evidence: entry.evidence }))],
-        facts: parsed.facts.map((entry) => ({ text: entry.text, importance: entry.importance })),
-        rejected: parsed.rejected,
-        memory: parsed.memory.map((entry) => ({ tier: entry.tier, text: entry.text })),
-        arcs: parsed.arcs.map((entry) => ({ kind: entry.kind, text: entry.text })),
-        epistemic: parsed.epistemic.map((entry) => ({ tag: entry.tag, subject: entry.subject, ...(entry.hiddenFrom ? { hiddenFrom: entry.hiddenFrom } : {}), content: entry.content })),
-        ledger: parsed.ledger.map((entry) => ({ entity: entry.entity, field: entry.field, value: entry.value })),
+        ...liveReadTiers(parsed),
         ...(judged ? { judged } : {}),
       };
     },
