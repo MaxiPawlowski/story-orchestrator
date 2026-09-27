@@ -1,0 +1,54 @@
+2026-09-26T21:01:22.034Z 
+2026-09-26T21:01:22.036Z === J8 stagecraft ===
+2026-09-26T21:01:22.036Z Deterministic background effect plus one agentic curator (World Info) proposing off-path from real canon, reviewed by the author, applied at a boundary, journaled — and never writing the blackboard or memory tiers. Every asset it creates is marked SO-J8 and deleted in cleanup.
+2026-09-26T21:01:22.036Z 
+2026-09-26T21:01:22.045Z extraction before this run: {"enabled":true,"cadence":3,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","profiles":{}}
+2026-09-26T21:01:22.143Z Global config snapshot: C:\dev\so-lanes\2\debug\so-journey-config-snapshot.json
+2026-09-26T21:01:22.159Z extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+2026-09-26T21:01:23.100Z extraction configured via the settings panel: profile="Story Orchestrator Memory RunPod" {"enabled":true,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","cadence":1,"reconciliationMultiplier":1.5,"stabilityLag":0}
+2026-09-26T21:01:23.104Z --- J8.10 agency check auto (v2.4 plan 07 T22): a scripted reply that writes the player's act and words produces one agency note on the warden path; the next loud generation's prompt carries it, the one after does not, and the over-steer probe records reply N+1 (family agency). Under a journey judge mode: --judge-uses agencyCheck --warden-mode auto is the on arm; --judge-uses off is the control arm, where the same turns make no warden call and no Agency: line reaches a prompt
+2026-09-26T21:01:23.426Z J8.10 1/11 import_story ok 322ms
+2026-09-26T21:01:23.443Z J8.10 2/11 eval ok 17ms
+2026-09-26T21:01:23.443Z J8.10 2/11 eval -> {"arm":"on","settings":{"curatorEnabled":false,"acceptMode":"review","wardenEnabled":false,"wardenAcceptMode":"auto"},"uses":["agencyCheck"],"player":"Max","records":0,"calls":0}
+2026-09-26T21:01:25.764Z J8.10 3/11 send ok 2321ms
+2026-09-26T21:01:27.540Z J8.10 4/11 slash ok 1776ms
+2026-09-26T21:01:27.547Z J8.10 5/11 eval ok 7ms
+2026-09-26T21:01:27.548Z J8.10 5/11 eval -> {"record":"warden-1-2","family":"agency","score":3.84,"rules":null,"summary":"Gate Guard's reply writes the player's own part"}
+2026-09-26T21:02:15.035Z J8.10 6/11 send_generate ok 47488ms
+2026-09-26T21:02:15.046Z J8.10 7/11 expect ok 11ms
+2026-09-26T21:02:15.047Z J8.10 7/11 expect -> {"overSteer":{"ok":true,"failures":[],"block":{"key":"story_orchestrator_continuity","source":"capture","chars":118},"restate":{"ok":true,"span":1,"maxSpan":6,"metaHits":[]},"swing":null,"recorded":true}}
+2026-09-26T21:02:15.054Z J8.10 8/11 eval ok 7ms
+2026-09-26T21:02:15.054Z J8.10 8/11 eval -> {"carried":true,"promptsSeen":1}
+2026-09-26T21:04:38.807Z J8.10 9/11 wait ok 143754ms
+2026-09-26T21:05:12.873Z J8.10 10/11 send_generate ok 34066ms
+2026-09-26T21:05:12.879Z J8.10 11/11 eval ok 5ms
+2026-09-26T21:05:12.879Z J8.10 11/11 eval -> {"branch":"gone after one generation","carrying":0}
+2026-09-26T21:05:15.711Z Restored global config from C:\dev\so-lanes\2\debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions","schema"],"saved":{"status":200},"preservedStories":["so-j8-stagecraft"],"preservedSessions":[]}
+2026-09-26T21:05:21.869Z 
+2026-09-26T21:05:21.869Z SKIP         J8.1     a checkpoint's background effect switches the ST background deterministically, and re-applies on hydrate — not selected by --only
+2026-09-26T21:05:21.869Z SKIP         J8.2     the WI curator proposes a change off-path from real canon, the author reviews it on the drawer's cards (editing it when it is a text change), and the boundary write — whatever op kind the model chose — reaches the server file and the next generation's prompt — not selected by --only
+2026-09-26T21:05:21.869Z SKIP         J8.3     every curator action is journaled, it can never write the blackboard or a memory tier, and a write outside the story's allowlist is refused — not selected by --only
+2026-09-26T21:05:21.869Z SKIP         J8.4      — not selected by --only
+2026-09-26T21:05:21.869Z SKIP         J8.5     warden auto: a scripted reply that contradicts a seeded fact locked as canon produces one continuity note, and the claim the read takes from it is held in the reconciliation queue, never a live fact the warden enforces (v2.4 plan 07 contradiction fix); the next loud generation's prompt carries it, the one after does not. Under a journey judge mode (v2.4 plan 07) the check leaves the judge settings to the mode: --judge-uses warden --warden-mode auto is the on arm, and --judge-uses off is the control arm, where the same turns must make no warden call and no note may reach a prompt — not selected by --only
+2026-09-26T21:05:21.869Z SKIP         J8.6     warden review: the note waits for the author; a newer reply commits first, the note lapses, and no note reaches any prompt — not selected by --only
+2026-09-26T21:05:21.870Z SKIP         J8.9     both judge curators off (warden off, curator focus off): a contradicting reply and a generation make no warden or curator-filter call, add no proposal and put no note in the prompt — not selected by --only
+2026-09-26T21:05:21.870Z PASS         J8.10    agency check auto (v2.4 plan 07 T22): a scripted reply that writes the player's act and words produces one agency note on the warden path; the next loud generation's prompt carries it, the one after does not, and the over-steer probe records reply N+1 (family agency). Under a journey judge mode: --judge-uses agencyCheck --warden-mode auto is the on arm; --judge-uses off is the control arm, where the same turns make no warden call and no Agency: line reaches a prompt
+2026-09-26T21:05:21.870Z SKIP         J8.11    agency check review (v2.4 plan 07 T22): the agency note waits for the author; a newer reply commits first, the note lapses, and no Agency: line reaches any prompt — not selected by --only
+2026-09-26T21:05:21.870Z SKIP         J8.12    house rules auto (v2.4 plan 07 T23): a story with authored house_rules and a reply that breaks one produces a house-rule note naming the rule verbatim, and the captured GENERATE_AFTER_DATA prompt of the next loud generation carries it; the one after does not. Under a journey judge mode: --judge-uses houseRules --warden-mode auto is the on arm; off is the control — not selected by --only
+2026-09-26T21:05:21.870Z SKIP         J8.13    every warden family off (continuity warden off, agencyCheck off, houseRules off, judge on): a reply that writes the player and breaks a house rule makes no warden call, adds no proposal and puts no note in any prompt — not selected by --only
+2026-09-26T21:05:21.870Z 
+2026-09-26T21:05:21.870Z J8
+2026-09-26T21:05:21.870Z automated: 1 pass, 0 fail, 0 blocked, 0 not-runnable, 9 skipped
+2026-09-26T21:05:21.870Z human:     0 scored, 1 unscored
+2026-09-26T21:05:21.870Z cleanup:   clean
+2026-09-26T21:05:21.870Z first try: 1 of 1 passing check(s) needed no retry
+2026-09-26T21:05:21.870Z PARTIAL: --only ran a subset; this record cannot stand for a gate.
+2026-09-26T21:05:21.870Z NOT GREEN: 9 skipped (strict): an acceptance run runs every check
+2026-09-26T21:05:21.870Z 
+2026-09-26T21:05:21.870Z --- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+2026-09-26T21:05:21.870Z [J8.4] (D1) Did the presentation (scene, background, cast) feel handled for you, without you asking?
+2026-09-26T21:05:21.870Z       anchors: 1 = nothing happened · 3 = noticed it once · 5 = the stage kept up with the story
+2026-09-26T21:05:21.870Z [free] What would make you stop using this?
+2026-09-26T21:05:21.870Z 
+2026-09-26T21:05:21.885Z Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-26T21-05-21-884Z_journey-J8.json
+2026-09-26T21:05:21.885Z Matrix: C:\dev\so-lanes\2\debug\journey-J8.md

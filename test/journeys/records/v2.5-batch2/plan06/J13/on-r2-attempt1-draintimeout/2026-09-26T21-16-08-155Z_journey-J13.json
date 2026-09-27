@@ -1,0 +1,1612 @@
+{
+  "id": "J13",
+  "title": "reply effect",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j13-reply-effect.journey.json",
+  "fileSha256": "0967c9d5d6c419255730ecb4bb3e1192b59c9397135f606359e81e43c64ee624",
+  "ranAt": "2026-09-26T21:16:08.122Z",
+  "strict": true,
+  "partial": false,
+  "only": null,
+  "tally": {
+    "fail": 1
+  },
+  "tallies": {
+    "automated": {
+      "pass": 0,
+      "fail": 1,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 0
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 0,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [
+    "1 automated check(s) failed"
+  ],
+  "humanRecord": null,
+  "runnerError": null,
+  "releasedRoutes": null,
+  "capabilities": {
+    "continuity-warden": true,
+    "warden-families": true
+  },
+  "results": [
+    {
+      "id": "J13.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "house rules, reply effect (v2.5 plan 06 J3, A15): the J8.12 story (no guns, coins are marks) played for 22 scripted player turns that invite gunplay and money talk, with NO scripted defect: every reply is the real model's own. On arm: --judge-uses houseRules --warden-mode auto; off arm: --judge-uses off (0 warden calls asserted). The check passes on >= 20 captured replies; the effect is not judged here but offline, by so-judge rescore --use house-rules per record, then so-judge reply-effect over on x2 + off x2 (off >= 0.2 or VOID; on <= pooled off - 0.15 in both on runs).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Timed out waiting for the extraction scheduler to drain: {\"queueDepth\":2,\"inFlight\":true,\"lastError\":null,\"heavyQueueDepth\":0,\"heavyInFlight\":false,\"lastHeavyError\":null}",
+      "firstAttempt": "fail",
+      "retries": []
+    }
+  ],
+  "cleanup": {
+    "judgeSettle": {
+      "settled": true,
+      "waitedMs": 0,
+      "inFlight": 0,
+      "seen": 45
+    },
+    "judgeCalls": {
+      "count": 26,
+      "events": [
+        {
+          "at": "2026-09-26T20:39:37.635Z",
+          "boundary": 1,
+          "messageId": 1,
+          "kind": "judge",
+          "summary": "judge warden in 289 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1258,
+            "latencyMs": 289,
+            "inputTokens": 716,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T20:40:02.685Z",
+          "boundary": 2,
+          "messageId": 3,
+          "kind": "judge",
+          "summary": "judge warden in 267 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1029,
+            "latencyMs": 267,
+            "inputTokens": 678,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T20:41:08.375Z",
+          "boundary": 3,
+          "messageId": 7,
+          "kind": "judge",
+          "summary": "judge warden in 355 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1145,
+            "latencyMs": 355,
+            "inputTokens": 693,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T20:41:12.585Z",
+          "boundary": 5,
+          "messageId": 7,
+          "kind": "judge",
+          "summary": "judge warden fell back (timeout) in 4013 ms",
+          "detail": {
+            "use": "warden",
+            "model": null,
+            "route": null,
+            "questions": 2,
+            "stateChars": 1129,
+            "latencyMs": 4013,
+            "fallback": "timeout",
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T20:41:55.698Z",
+          "boundary": 6,
+          "messageId": 10,
+          "kind": "judge",
+          "summary": "judge warden in 299 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1269,
+            "latencyMs": 299,
+            "inputTokens": 732,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T20:41:59.334Z",
+          "boundary": 7,
+          "messageId": 10,
+          "kind": "judge",
+          "summary": "judge warden in 3292 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1188,
+            "latencyMs": 3292,
+            "inputTokens": 714,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T20:43:25.326Z",
+          "boundary": 8,
+          "messageId": 13,
+          "kind": "judge",
+          "summary": "judge warden in 290 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1399,
+            "latencyMs": 290,
+            "inputTokens": 793,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T20:43:29.367Z",
+          "boundary": 9,
+          "messageId": 13,
+          "kind": "judge",
+          "summary": "judge warden fell back (timeout) in 4014 ms",
+          "detail": {
+            "use": "warden",
+            "model": null,
+            "route": null,
+            "questions": 2,
+            "stateChars": 1153,
+            "latencyMs": 4014,
+            "fallback": "timeout",
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T20:44:33.131Z",
+          "boundary": 10,
+          "messageId": 16,
+          "kind": "judge",
+          "summary": "judge warden in 1669 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1038,
+            "latencyMs": 1669,
+            "inputTokens": 663,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T20:46:41.914Z",
+          "boundary": 12,
+          "messageId": 20,
+          "kind": "judge",
+          "summary": "judge warden in 301 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1300,
+            "latencyMs": 301,
+            "inputTokens": 769,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 1
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T20:47:58.879Z",
+          "boundary": 15,
+          "messageId": 22,
+          "kind": "judge",
+          "summary": "judge warden in 289 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1281,
+            "latencyMs": 289,
+            "inputTokens": 780,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T20:49:06.983Z",
+          "boundary": 16,
+          "messageId": 24,
+          "kind": "judge",
+          "summary": "judge warden in 286 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1570,
+            "latencyMs": 286,
+            "inputTokens": 877,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T20:49:51.418Z",
+          "boundary": 17,
+          "messageId": 26,
+          "kind": "judge",
+          "summary": "judge warden in 276 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1565,
+            "latencyMs": 276,
+            "inputTokens": 800,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T20:50:23.235Z",
+          "boundary": 18,
+          "messageId": 28,
+          "kind": "judge",
+          "summary": "judge warden in 315 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1350,
+            "latencyMs": 315,
+            "inputTokens": 751,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T20:52:40.401Z",
+          "boundary": 19,
+          "messageId": 31,
+          "kind": "judge",
+          "summary": "judge warden in 2676 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1659,
+            "latencyMs": 2676,
+            "inputTokens": 938,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 1
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T20:54:45.651Z",
+          "boundary": 21,
+          "messageId": 33,
+          "kind": "judge",
+          "summary": "judge warden in 272 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1776,
+            "latencyMs": 272,
+            "inputTokens": 945,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T20:56:49.439Z",
+          "boundary": 22,
+          "messageId": 36,
+          "kind": "judge",
+          "summary": "judge warden in 273 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1529,
+            "latencyMs": 273,
+            "inputTokens": 792,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T20:59:13.803Z",
+          "boundary": 24,
+          "messageId": 40,
+          "kind": "judge",
+          "summary": "judge warden in 302 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1658,
+            "latencyMs": 302,
+            "inputTokens": 831,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T20:59:20.583Z",
+          "boundary": 25,
+          "messageId": 40,
+          "kind": "judge",
+          "summary": "judge warden in 330 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1685,
+            "latencyMs": 330,
+            "inputTokens": 825,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T21:01:08.003Z",
+          "boundary": 27,
+          "messageId": 42,
+          "kind": "judge",
+          "summary": "judge warden in 318 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1550,
+            "latencyMs": 318,
+            "inputTokens": 850,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T21:04:07.239Z",
+          "boundary": 28,
+          "messageId": 45,
+          "kind": "judge",
+          "summary": "judge warden in 318 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1288,
+            "latencyMs": 318,
+            "inputTokens": 874,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T21:07:26.343Z",
+          "boundary": 30,
+          "messageId": 49,
+          "kind": "judge",
+          "summary": "judge warden in 334 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1390,
+            "latencyMs": 334,
+            "inputTokens": 889,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T21:07:26.940Z",
+          "boundary": 31,
+          "messageId": 49,
+          "kind": "judge",
+          "summary": "judge warden in 258 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1698,
+            "latencyMs": 258,
+            "inputTokens": 793,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T21:08:36.977Z",
+          "boundary": 33,
+          "messageId": 51,
+          "kind": "judge",
+          "summary": "judge warden fell back (timeout) in 4003 ms",
+          "detail": {
+            "use": "warden",
+            "model": null,
+            "route": null,
+            "questions": 2,
+            "stateChars": 1770,
+            "latencyMs": 4003,
+            "fallback": "timeout",
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T21:10:57.734Z",
+          "boundary": 34,
+          "messageId": 54,
+          "kind": "judge",
+          "summary": "judge warden in 301 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1360,
+            "latencyMs": 301,
+            "inputTokens": 830,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T21:12:26.728Z",
+          "boundary": 36,
+          "messageId": 56,
+          "kind": "judge",
+          "summary": "judge warden in 378 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1510,
+            "latencyMs": 378,
+            "inputTokens": 926,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        }
+      ]
+    },
+    "judgeMode": {
+      "mode": {
+        "label": "on",
+        "uses": [
+          "houseRules"
+        ],
+        "wardenMode": "auto"
+      }
+    },
+    "judgeMeter": {
+      "calls": 26,
+      "cachedCalls": 0,
+      "inputTokens": 18459,
+      "outputTokens": 920,
+      "cost": 0,
+      "lastAnsweredModel": "jev-1.13.0"
+    },
+    "boundaries": 36,
+    "warden": {
+      "flagged": 2,
+      "applied": 0,
+      "lapsed": 2,
+      "rejected": 0,
+      "pending": 0
+    },
+    "wardenNotes": [],
+    "rescore": {
+      "factsSource": "live facts-tier and pinned memory rows at cleanup; ledger-bound rows not included; player line = the newest player message before each reply; house rules = the played story at cleanup",
+      "rows": [
+        {
+          "id": "m0",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+          },
+          "player": "Max",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m1",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "\"About time you showed up. I'd been waiting by the gates for almost an hour. Thought you'd gotten yourself caught up in another side-quest, or maybe you've decided to be an interesting specimen in some necro-beast's stomach.\" *He leaned against a stone pillar, arms crossed, a slight smirk playing on his lips. His daggers were secured firmly to his thighs, and his shortbow hung over his shoulder. The morning sun caught thebeam of his brown hair as he pushed a few loose strands back from his face.*\n\"I've checked the mission briefing. We're heading to the southern forests to clear out a some nest of goblins. Simple enough, on paper. But something tells me that this won't be simple. Never has been, never been.\" *He pushed off the pillar and approached, green eyes scanning Max for any gear check, a habitual motion from their countless missions together.*\n\"You ready for this?\" *He raised an eyebrow, a clear question in hisdlgue, but there-was a-clear-undercurrent-of-something-more-serious-below it, something that-was-loud-and-serious, despite the smirk.*"
+          },
+          "player": "Max",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m3",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"Ugh, great! Just great! Why does it have to rain *now*?\" *Luke kicked at a puddle, splashing muddy water over his boots. He looked at the uprooted trees and debris floating by, the current too strong to attempt crossing. His chainmail clattered awkwardly as he shifted his weight, the short sword at his hip bouncing against his thigh.*\n\"I-I mean, we can just wait it out! Right? It'll clear up soon. Probably.\" *His voice pitched higher, trying to convince himself as much as anyone else. He looked up at Max and Arin, his eyes wide with forced optimism as water still drizzled down, rain-dampening his brown hair.*\n\"This is, like, a really good sign! It's a chance to... to practice our patience. Or something.\" *He tried to flash a grin, but it-wasn't quite there, and he looked more like he was trying to not-shriek-with-time-it.*"
+          },
+          "player": "Max",
+          "playerMessage": "I wait on the near bank and watch the brown water.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m5",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "\"Couldn't be nothing.\" *Ponticius squinted into the fog, his hand resting casually on the sword at his hip. The Guild Master's weathered face was tight, eyes narrowing as he studied the distant shapes.* \"Probably just some poor soul who didn't check the weather before setting off. Or maybe it's something else entirely.\" *He shifted his weight, his voice low and steady, dropping the bark and the bark-with-a-laugh for a moment.*\n\"Keep your eyes peeled, Max. In these lands, the shapes in the fog are rarely just travelers and the fog is rarely just a reason to hide.\" *His hand didn't leave the sword hilt, and he didn't tighten his grip on it—it's just a way to keep watch.* \"You're not wrong for asking. If it's something that needs your attention, we'll find out soon enough.\"\n*The fog-shrouded forms continued to drift downstream, silent and indistinct. The sound of the water rushed past, filling the air with a thick, heavy atmosphere.*"
+          },
+          "player": "Max",
+          "playerMessage": "Shapes move in the fog upstream. I ask whoever is nearest what they are.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m6",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "\"Shapes in the fog...\" *Arin muttered, his green eyes narrowing as he watched the distant forms drift downstream. He shifted his stance, one hand instinctively moving toward the dagger at his thigh. The smirk had vanished from his face, replaced by a sharp focus as he studied the moving shapes.*\n\"Could be anything, really. Could be some poor bastards who didn't think ahead, or could be something that's looking for trouble.\" *His voice was low and controlled, but there was an edge to it that hadn't been there before. He glanced over at Max, a brief look that was both questioning and cautious.*\n\"Keep an eye on them, Max. Whatever it is, we're not in the position to want to find a-something-that-doesn't-belong-here-suddenly-standing-next-to-us.\" *He didn't draw his weapon, but his fingers remained near the hilt of his dagger, ready to react.*\n*The shapes continued to float downstream, slowly moving closer, the gray fog clinging to the water's surface like a shroud.*"
+          },
+          "player": "Max",
+          "playerMessage": "Shapes move in the fog upstream. I ask whoever is nearest what they are.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m7",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"T-Those aren't people, right?\" *Luke's voice cracked slightly as he stared at the moving shapes, his hand unconsciously drifting to the hilt of his sword. His oversized chainmail rattled with each nervous movement, the metal too big for his frame.*\n\"They're moving too... too smoothly. Like they're—\" *He trailed off, swallowing hard as his eyes fixed on the drifting forms. His brown hair hung in clumps against his forehead, damp from the rain, and his face paled beneath the droplets.*\n\"They look like they're just floating, don't they? Like they've got no business floating like that.\" *He tried to steady his voice, but the uncertainty leaked through in waves. He gripped his sword hilt tighter, the metal clattering against his thigh as he moved, trying-not-to-look-like-a-fool-who-was-going-to-flee.*\n*His eyes remained wide, fixed on the shapes as they drew closer, still indistinct in the gray mist that clung to the water.*"
+          },
+          "player": "Max",
+          "playerMessage": "Shapes move in the fog upstream. I ask whoever is nearest what they are.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m9",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "\"Smugglers,\" *Ponticius repeated, his tone flat and unamused, his gaze still fixed on the fog. A slight crease formed between his brows as he processed the idea.*\n\"They wouldn't be stupid enough to use this river at this time. Too obvious, too much noise. Smugglers aren't that dumb.\" *He stepped closer to the bank, his boots leaving shallow prints in the soft earth, and his voice dropped lower.*\n\"But you're right to think about them. Smugglers know these rivers better than most, and that's where the danger lies. If these are smugglers, they'll have to have a way around the patrols—or through them.\" *He didn't look at you, his attention remaining on the water.* \"Maybe they've got someone on the inside, or maybe they just know where the patrols aren't.\"\n*He paused, then slowly turned his head to look at you with those hard, knowing eyes.*\n\"But that's not the only thing that can't keep the river patrols off its back. There's other things in these lands that don't care about patrols at all. Be patient, Max. We'll see what these shapes are soon enough.\""
+          },
+          "player": "Max",
+          "playerMessage": "Smugglers? I ask how they keep the river patrols off their backs.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m10",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "\"Smugglers, huh?\" *Arin's eyebrow arched as he watched the shapes drift closer, his expression unreadable. He didn't move from his position, but his weight shifted subtly, his fingers brushing against the hilt of one of his daggers.*\n\"T-They would have to be pretty bold, using this river when the patrols would be-somewhat-more-alert-to-anything-suspicious.\" *His voice held its usual sharp edge, but there was a concern beneath it that-was-palpable-now.*\n\"But smugglers are resourceful. They might have a contact within the patrol, or maybe they've just scouted the patrol's routes and know when the patrol isn't looking.\" *He glanced over at you, a quick look that was both calculating and cautious.*\n\"Still, it's not our problem right now, Max. Unless those shapes start heading toward us, or they start-looking-for-us. Let's just keep our eyes on the river, shall we?\" *His green eyes returned to their focus on the fog-shrouded shapes as they drifted closer, the water churning below.*"
+          },
+          "player": "Max",
+          "playerMessage": "Smugglers? I ask how they keep the river patrols off their backs.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m12",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"Oh! Oh, you're thinking ahead! That's smart!\" *Luke's eyes lit up, his face brightening as he looked at Max. For a moment, the tension in his shoulders loosened, and a small smile touched his lips.*\n\"A-A bargeman, right? Good thinking!\" *He clapped his hands together, the sound muffled by the rain.*\n\"I-I mean, if there's someone who can actually get us across, that would be great. But we'd have to see if-if-he's-even-there, right?\" *He looked back at the river, his brow furrowing as his gaze fixed on the intriguing shapes in the fog.*\n\"I-I-I just hope he's actually there, and not, like, some kind of monster-disguised-as-a-bargeman or something.\" *His voice trailed out as he tried-to-steady-it, his expression flicking-between-hope-and-doubt-as-the-shapes-drifted-closer.*\n\"S-So, yeah,-if-if-there-is-a-bargeman, you should definitely-ask-him-how-he's-going-to-get-us-across.\" *He shifted his weight from foot to foot, the rain-dampened metal of his oversized chainmail clattering with each movement.*\n\"And, like,-how-we-should-pay-him-and-all-that.\" *His voice trailed-off-as-he-continued-to-watch-the-eyes-of-the-river, trying-not-to-leave-the-bank-as-the-rain-drizzled-down-his-face.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the bargeman what his crossing costs, and how people pay out here.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m13",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "\"A bargeman.\" *Ponticius let out a short, sharp breath that might have been a laugh, his eyes not leaving the river.*\n\"You're optimistic, Max.\" *His voice was flat, carrying no real amusement, just a tired sort of realism.* \"Usually, a bargeman's fee is a few coin, and they'd take anything from silver to copper.\"\n\"But out here?\" *He shifted his gaze to you, his face hard and unamused.* \"Out here, they don't want coin. They want something they can use. Information, food, protection. Or maybe they want something else entirely.\"\n*He turned back to the river, his jaw tight as the shapes continued their drift downstream.*\n\"If there's a bargeman out here, he's going to be one of those who doesn't care for coin, and he'll want something that-is-worth-his-trouble.\" *He paused, his eyes narrowing slightly as the shapes drew closer.*\n\"And if he's a bargeman, he'll be a bargeman. If he's not-something-else-entirely, we'll know soon enough.\""
+          },
+          "player": "Max",
+          "playerMessage": "I ask the bargeman what his crossing costs, and how people pay out here.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m15",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "The shape in the fog resolves into a weathered barge, its wooden hull groaning against the current. A man stands at the bow, his face obscured by a tattered hood that keeps the rain at bay. He raises a hand, calling out over the rushing water.\n\"Ho there! You lot waiting for passage, or just enjoying the rain?\"\nHis voice is rough, carrying a coarse authority that cuts through the river's roar. Two more figures shift within the barge, their forms indistinct but clearly armed.\n\"The current's strong, but I can get you across for the right price!\"\nThe man's steps closer to the railing, his eyes sharp beneath the hood, scanning the party on the bank with practiced caution.\nThe rain continues its drizzle, the river churning below, and the crates provide a sturdy but temporary shield as the smuggler's barge draws nearer to the bank."
+          },
+          "player": "Max",
+          "playerMessage": "One of the smugglers shouts at us from the boat. I duck behind the crates.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m16",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"Price! See, I told you there'd be a-a-price!\" *Luke's voice was a frantic whisper, his words rushing out in a panicked blur. He crouched low, his oversized chainmail clinking with each jittery movement.*\n\"But-but-but-we-don't-even-know-if-we-have-the-right-price!\" *He shifted behind the crates, his eyes wide and darting back and forth between Max and Arin.*\n\"What-if-it's-too-much? Or what-if-they-don't-want-coin? What-if-they-want-something-we-can't-give-them?!\" *He gripped the hilt of his short sword, his knuckles white as he tried to suppress the trembling in his hands.*\n\"O-O-Ok, ok, so-so-what-do-we-do?\" *His voice cracked as he tried to calm himself, his eyes flicking back to the barge and the shouting man, his face pale and wet with rain.*\n\"T-T-This-is-really-bad-right-now!\" *He whimpered, his body pressing back against the crates as the sound of the river rushed past, his brown-haired face pressed close to the wooden edge as he peered out, trying-to-catch-a-glimpse-of-the-smuggler.*"
+          },
+          "player": "Max",
+          "playerMessage": "One of the smugglers shouts at us from the boat. I duck behind the crates.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m18",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"G-Guards? Why are you-asking-about-the-guards?\" *Luke's voice dropped to a frantic whisper, his eyes widening as he looked at you. He shifted his weight behind the crates, the metal of his chainmail clinking against the wooden edge.*\n\"D-Do you-think-the-guards-are-coming?\" *His voice rose slightly as he spoke, his brown hair plastered to his forehead in clumps from the rain.*\n\"W-W-We-don't-need-more-people-right-now! We-need-to-figure-out-what-to-do-with the-smugglers-and-not-get-arrested-and-not-die!\" *He stammered, his hands tightening around the hilt of his sword as he pressed himself closer to the crates.*\n\"T-T-T-They-probably-don't-have-flintlocks-anymě? Or-or-do-they? I-I-don't-know! I-don't-think-they'd-need-flintlock-right-now-in-the-rain!\" *He tried to rationalize his voice, but his words came out fast and uncertain, his brown eyes flicking back to you with a-fearful-kind-of-question.*\n*The sound of the barge's hull groaning against the river continued to fill the air, the man on the bow still watching the party from across the water, his hood keeping the rain from his face.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask how the guards on this road are armed these days.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m19",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "Arin remained low behind the crates, green eyes sharp as he scanned the barge. His hand was firmly on the hilt of a dagger, not yet drawing it, but ready.\n\"Guards on this road?\" *His voice was barely above a whisper, directed only at Max.* \"The last patrol I saw was two weeks ago. Longbows, spears, the usual guild-contracted infantry. Maybe a couple of cross-bows if they were feeling fancy.\"\nHe paused, his jaw tightening.\n\"They don't bring the heavy equipment out to this section unless there's trouble—or unless the Guild sends a formal detachment. Which they didn't.\"\n*Arin glanced toward the river, assessing the distance and the speed of the current.*\n\"The rain would've bogged down any cavalry or heavy infantry anyway. If any patrol's out there, it's probably just a few scouts who are more interested in finding cover than hunting smugglers in a flood.\""
+          },
+          "player": "Max",
+          "playerMessage": "I ask how the guards on this road are armed these days.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m20",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "\"The guards?\" *Ponticius's voice was low, almost conversational, though his eyes remained fixed on the barge.* \"You're asking about the guards while there's a boat full of armed men trying to talk us into a deal.\"\n*He didn't turn his head toward you, his gaze steady and knowing.*\n\"But you're right to ask. The patrols in this region are standard infantry. Spears, shields, bows. Maybe one or two crossbows if the commanding officer wants to feel important.\"\n\"They don't use flintlocks out here.\" *His tone was flat and certain.* \"Too much rain, too much moisture. Gunpowder doesn't like water, and neither does the training it takes to use them.\"\n*He shifted his stance slightly, his hand never leaving the sword hilt.*\n\"So unless the patrol commander is a fool, he's not bringing them into a flood.\"\n\"And as for what they're armed with—they're armed enough to handle a few goblins, but not enough to handle something that actually wants to fight.\"\n\"You're thinking ahead, Max.\" *He allowed a slight nod, his eyes flicking briefly to the side of his hood.* \"Just don't get so caught up in thinking ahead that you miss what's right in front of you.\""
+          },
+          "player": "Max",
+          "playerMessage": "I ask how the guards on this road are armed these days.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m22",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"W-What was that?!\" *Luke's voice shot up an octave, his brown-haired head whipping around to look at Max. His eyes were wide with panic, his chainmail rattling as he pressed his back against the crates.*\n\"T-T-That was a-a-a-crack! A-A-A-C-C-A-R-A-C-K!\" *His words came out in a stuttering mess, his face paling even further beneath the rain.*\n\"S-S-S-Something-broke! Or-or-or-was-that-a-g-g-gun? No, no, no-no-no, it-can't-be-a-gun-right?! It-can't-be! Gunpowder-doesn't-work-in-the-rain-right?!\" *He was nearly hyperventilating, his voice strained and desperate as he tried to make sense of the sound.*\n\"T-T-T-T-That-could-be-anything! Or-T-T-T... a-C-C-O-C-K-A-T-R-I-C-E?\" *He stammered out the word, his brown eyes darting between Max, Arin and Ponticius, his grip tightening on his sword hilt.*\n\"O-O-O-OK,-ok, l-l-l-what-is-it?!-what-is-i-t?!\" *His voice was barely audible, but his panic was palpable as he trembled behind the crates.*\n*The sound of the rushing river continued, but the silence that followed the crack was almost louder, heavy with tension and uncertainty.*"
+          },
+          "player": "Max",
+          "playerMessage": "A crack echoes across the water. I ask what that was.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m24",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"S-S-Somebody-is-hurt?!\" *Luke's voice rose in a panicked whisper, his eyes darting toward Max and Ponticius as he huddled behind the crates.*\n\"D-D-Do-you-think-T-T-The-smugglers-are-hurt?! Or-O-O-T-U-S-and-M-M-A-X-and-A-Arin-are-hurt?!\" *His brown eyes were wide, and his rain-slicked hair stuck to his forehead.*\n\"O-O-H-G-OD, T-T-T-H-T-A-H-O-M-E-D!\" *He breathed, his face going even paler as he pressed closer to the wooden crates.*\n\"I-I-I... I-I... I'm not-hurt! I-I'm-not!\" *His voice dropped to a barely audible mutter as he tried to steady himself, his grip on his sword hilt tightening.*\n\"B-B-B-U-T... b-b-but... maybe-someway-some-someone-else-is?!\" *He tried to glance around, his rain-soaked face peering out from behind the crates, trying to-catch-a-catch-of-someone-hurt.*\n\"L-L-L... l-l-let's-just-l-look-o-u-t-for-the-smugglers?! L-L-Let's-just-let-s-just-see-if-anybody-else-hurts?!\" *He stammered out, his words barely intelligible as he shivered behind the crate.*\n\"C-C-S-Someone-hurts-somebody-hurt-somebody-hurts-someone-hurt!\" *His voice was a whimpering panic, barely above a whisper as he looked around in a desperate attempt to find-something-hurt-someone-hurt-somewhere-hurt.*\n*The rain continued to drizzle down, the sound of the rushing river filling the air, while the silence in the wake of the crack only made the tension more acute.*"
+          },
+          "player": "Max",
+          "playerMessage": "I stay low and ask if anyone is hurt.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m26",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "\"Smugglers' leader.\" *Ponticius's voice remained flat and controlled as he listened to Max's question.*\n*His eyes didn't shift from the barge in the fog, his expression hard as rain drizzled down his weathered face.*\n\"You're asking the wrong person, Max.\" *His voice was low and steady, but there was a clear warning beneath it.* \"The man in the hood is just the bargeman. He's the one steering the boat, not the one who owns the cargo.\"\n\"If there's a leader, he's one of the men inside that barge, not the one talking to us.\"\n*He paused, then his eyes narrowed slightly, scanning the and rain-shrouded figures within the hull.*\n\"And if you want to know about them, you don't ask them to describe themselves. You observe. You listen. You wait.\"\n*Ponticius shifted his weight, his hand still resting casually on the sword at his hip.*\n\"Now stay low and keep your eyes open. We'll see if there's a leader when they decide to come ashore—or if the bargeman's just the only one they sent.\"\n\"But you're not wrong to wonder.\" *He added, his voice softening just a fraction.* \"If they are smugglers, they'll have someone in charge. And that person will be the most dangerous one on that boat.\"\n*The rain continued its drizzle, the shapes within the barge remaining indistinct and still, the bargeman still watching and waiting for a response to his offer.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the bargeman to describe the smugglers' leader.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m28",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "*Ponticius's eyes narrowed as he saw the figure in the barge raise an object and point it toward the dock.*\n*His hand tightened on the sword hilt, his body tensing as he held his breath. Rain drizzled down on his face, water running in streams from the hood of his cloak.*\n\"T-T-T...\" *He started to speak, but stopped himself, his voice dropping to a whisper.* \"Steady,\" *he murmured, his eyes never leaving the figure on the barge.*\n*He didn't move, his posture rigid and still as he waited to see what would happen. His jaw tightened as he watched the figure's every move, his weathered face hard and focused.*\n*The rain continued to fall, the river rushing past with its thick, churning sound, but the silence between them and the barge was almost deafening. Ponticius remained motionless, his eyes locked on the hooded figure, waiting, watching, waiting.*\n*He didn't speak, didn't breathe, didn't react. He just waited, his whole being focused on the potential threat and the sound of the rain-swollen water.*\n*His hand remained on the sword, ready to draw if needed, but he didn't make any move to draw it. He just watched, waited, and waited.*"
+          },
+          "player": "Max",
+          "playerMessage": "The leader points something at the dock. I freeze and wait to see what happens.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m30",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"W-W-W-Wait! Wait, wait, wait!\" *Luke's voice cracked in a frantic whisper as he watched Max move to offer the purse.*\n\"Y-Y-You-can't-just-do-that! You-can't-can't-do-that-now!\" *His brown-haired head whipped around, his brown eyes wide with panic as he looked at Max.*\n\"T-T-Those-are-smugglers! Smugglers don't-take-coin! They don't-don't-take-normal-coin!\" *His words came out in a rushing blur, his voice straining with worry.*\n\"T-T-What-if-they-take-y-y-your-coin-and-then-they-don't let-let-us-across? What-if-t-they-just-take-it-and-then-kill-us?!\" *He tried to whisper-his-voice-lowering-a-fraction-but-it-was-still-audible-to-the-party.*\n\"O-O-Oh, oh, oh-God!-T-T-Tha-T-Thome-d-T-Tome-d!\" *He whimpered, his grip tightening around the sword-hilt-at-his-hip, his chainmail-clattering-softly-with-each-jittery-movement.*\n\"L-L-Luke-doesn't-think-this-is-a-good-idea! L-Luke-thinks-this-is-not-a-good-T-T-Idea! L-L-Luke-think-t-this-is not-a-g-good-Idea-at-all!\" *His face paled beneath the raindrops as he looked between Max and the barge-the-hooded-man-still-watching.*\n\"S-S-Stop! S-Stop! You-don't-get-in-there-and-you-don't-g-get-in-there! S-S-Stop!\" *He reached out with a trembling hand toward Max, his eyes-wide-and-full-of-fear.*\n\"B-But-we're-not-in-in-there yet! W-W-We're-still-on-the-bank! S-So-we-just-can-t-can't-stop!\" *He whispered-to-himself-and-everyone-else-as-he-huddled-closer-to-the-crates, his-brown-hair-soaked-by-the-rain.*"
+          },
+          "player": "Max",
+          "playerMessage": "I offer the bargeman my purse to get me across before nightfall.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m31",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "\"The purse.\" *Ponticius's tone was flat, his gaze shifting to the purse in Max's hand.*\n*His eyes were hard, unamused as rain-soaked water dripped from the brim of his hood. He didn't look at you, his focus remaining on the barge-the hooded figures within.*\n\"You're making a mistake, Max. Smugglers like these don't want your coin.\"\n\"And offering them anything now is just giving them an opening.\"\n*He shifted his weight slightly, his boots sinking into the soft earth.*\n\"If they wanted your coin, they'd have waited for you to come to them.\"\n\"But if you're offering them something, you're giving them power.\"\n*His voice remained low and steady, carrying a warning that felt heavy and deliberate.*\n\"Don't give them an opening, Max. Don't give them anything until we know what they want.\"\n*Ponticius turned his head slightly, his eyes flicking toward the barge as it continued its slow drift toward the bank, the figures within remaining silent and indistinct in the rain-heavy fog.*\n\"Wait until they speak. Wait until we know their intentions.\"\n\"And don't offer anything until we do.\"\n*His tone was firm, unyielding. He didn't sugarcoat the risk, and he didn't offer any alternative paths. He simply stated his assessment and left it to you, the choice still in your hands.*"
+          },
+          "player": "Max",
+          "playerMessage": "I offer the bargeman my purse to get me across before nightfall.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m33",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"A r-room?\" *Luke's voice dropped to a baffled whisper, his brown eyes flickering between Max and Ponticius. His chainmail rattled softly as he shifted behind the crates.*\n\"Why-why-would-you-ask-about-a-room-right-now?!\" *His voice rose slightly in panic, then he quickly lowered it back down.*\n\"S-S-Should-we-not-be-focusing-on-t-the-t-t-smugglers?!\" *His brow furrowed, and for a moment the panic in his expression cleared to give way to pure confusion.*\n\"W-W-We-we're-behind-crates-right-now! P-P-Ponticius-and-Arin-and-all-the-o-other-smugglers-and-s-smugglers!\" *He gestured vaguely toward the barge, his hand shaking slightly.*\n\"A-A-And-you're-thinking-about-a-r-room?! A-At-a-tavern?!\" *He blinked, his brown hair stuck to his forehead in clumps from the rain.*\n\"I-I-don't-even-know-why-you'd-be-thinking-about-that-right-now!\" *He whispered-his-voice-trailing-off-as-he tried to steady-himself.*\n\"C-C-Can-you-explain-that-t-to-me? C-C-Could-you-please-e-explain-t-that-to-me?!\" *He stammered out in a desperate-sort-of-way, his-voice-breaking-as-he looked-back-at-the-barge, trying-to-catch-a-glimpse-of-the-hooded-figure.*\n\"S-S-Smugglers-right-there-in-front-of-us-and-you're-asking-about-t-a-t-tavern-room!\" *His grip on the hilt of his short-sword-at-his-T-T-hip-tightened-as-he-pressed-himself-closer-to-T-T-the-crate-as-if-to-T-To-try-to-get-inside-it.*\n*The rain-drizzled-down-on-him, and his face-was-pale-as-the-river-rushed-past-below-them, his-eyes-wide-with-a-mix-of-horror-and-confusion-as-he-looked-at-Max-as-if-Max-had-gone-crazy-in-the-flood.*"
+          },
+          "player": "Max",
+          "playerMessage": "I count what I have left and ask what a room at the tavern will cost.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m35",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "\"Testing the road.\" *Ponticius's voice was flat, his eyes narrowing as he watched you.*\n*He didn't look away from the barge, but his stance shifted subtly as you tested the road with your boot.*\n\"You're thinking about the water.\" *His voice was low, almost conversational, in a a way that felt both steady and knowing.* \"The river's dropped a fraction, but it's still too strong. The current will take you if you miscalculate.\"\n*He paused, his eyes flicking briefly to the side of his hood as the rain continued to drizzle.*\n\"You're looking for a way across, but you're still thinking about the road.\"\n\"The road is gone, Max.\" *His tone was certain and flat, carrying no room for argument.* \"It's been gone for a week, and it'll be gone for another. You can't test the road when the road is no longer there.\"\n*He shifted his weight, and his boots left shallow prints in the soft mud.*\n\"So testing the road won't tell you anything you already know.\"\n\"But it might tell you something else.\" *He added, his voice lowering.* \"Like how much you're willing to risk for a gamble.\"\n*Ponticius didn't move from his spot, his hand remaining casually on the sword-hilt at his-hip. He just watched, his gaze steady and knowing.*\n*The rain continued its-drizzle, and the river's churning-sound filling-the-air-around-them.*"
+          },
+          "player": "Max",
+          "playerMessage": "The water drops a little. I test the road with my boot.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m36",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"D-Don't-do-that!\" *Luke's voice came in a strangled gasp as he watched Max test the road with his boot.*\n*His brown-haired-head-snapped-toward-you, his brown-eyes-wide-with panic.*\n\"Y-Y-You're-going-to-drown!\" *His voice pitched-upwards-as-his words came-out-in-a-frenzied-blur.*\n\"S-S-So-easy! It's-so-easy-to-just-fall-in-and-be-swept-a-way-a-a-away-by-C-C-The-current!\" *His chainmail rattled with each jittery movement.*\n\"D-D-D-Don't!-Don't-don't do-it-it! Don't-go-near-the-water!\" *His words-came-out-fast-and-uncertain, his face paling-even-further-as-rain-drizzled down-his-face.*\n\"S-S-T-T-The-river-will-kill-you!\" *His voice-cracked-slightly, and his eyes-darted-to-the-barge-then-back-to-you.*\n\"D-D-Do-you-think-the-T-t-T-smugglers-are-g-g-going-to-h-help-you? P-P-They'll-just-watch-y-you-drown-and-then-take-t-t-your-stuff!\" *He tried-to-rationalize-his voice, but-it-wasn't-broken-and-jittery-all-the-way.*\n\"S-S-O-OK-O-K-so-stop-doing-it-it!\" *His face-was-pushed-up-against-the-wooden-crates,* \"s-so-s-stop-stop-stopping!\" *He whimpered-quietly.*\n\"L-L-Look-o-o-out for-t-the-s-s-smuggler-man!\" *He tried-to-calm-his-voice-but-the-words-came-out-as-a-shaking-whisper.*\n*The rain continued-to-fall, and-the-sound-of-the-churning-river filled-the-air.*"
+          },
+          "player": "Max",
+          "playerMessage": "The water drops a little. I test the road with my boot.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m38",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "\"Contact!\" *Ponticius's bark was sharp, his hand flying to the sword hilt with a practiced, instant motion. His weathered face tightened as he assessed the figure emerging from the reeds.*\n*He didn't draw his blade, but his fingers locked around the hilt as his body shifted into a combat stance. Rain-soaked water-streams from the brim of his-hood, and his gaze is unwavering as it locks onto the new threat.*\n\"Don't move.\" *His voice was a low command, directed at the figure with the weapon.*\n*Ponticius didn't take his eyes off the stranger, his entire posture radiating a controlled, predatory stillness. He didn't rush in, and he didn't flinch when Max raised his empty hands.*\n\"Max, stay back.\" *The command was brief, his eyes flicking momentarily to his side before returning to lock onto the armed intruder.*\n*The figure stands with weapon raised, water dripping from their clothes as they emerge from the reeds. The rain continues its drizzle, and the river churns just behind them, but the tension between Ponticius and the stranger is palpable.*\n*Ponticius remains motionless, his hand on the-sword hilt, his eyes fixed on the armed intruder.*\n\"Speak,\" *he commanded, his voice flat and carrying an authority that brook-ed no-room for-uncertainty.* \"And speak clearly. We're not in the mood for games.\"\n*His tone was hard-as-stone-and-as-sharp-as-any-blade, and his body remained rigid, waiting for the stranger to make the first move.*"
+          },
+          "player": "Max",
+          "playerMessage": "Someone steps out of the reeds with a weapon raised. I stop and show my empty hands.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m39",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "Arin's reaction was instant, a blur of motion that nearly ended with a dagger in hand. His green eyes had gone cold and focused as the figure emerged from the reeds, weapon raised.\n*He didn't pull the blade entirely, but his hand had clenched the hilt so hard his knuckles were white. His other hand had already shifted to the shortbow hanging from his shoulder, the strap creaking slightly as he adjusted his position behind the crates.*\n\"Whoa, easy there.\" *His voice was deceptively calm, but there was an edge to it that hadn't been there before. He spoke from a position of strength, his weight shifted forward as if ready to spring into action at any moment.*\n*He glanced at Max, his brow furrowed with a mixture of concern and caution.*\n\"Hands up, Max. You're doing the right thing. Keep them where they can see them.\" *His voice was barely above a whisper, but there wasH-A-S-I-L-E-L-Y-A-DVICE-there.*\n*Arin's attention snapped back to the figure in the reeds, his green eyes scanning them with a-sharpness-that-was-almost-predatory.*\n\"We're just trying to cross the river, not start a fight.\" *His tone was light, but there was a-clear-undercurrent-of-warning beneath it. He didn't lower his guard, and his fingers remained tightly curled around the hilt of his dagger.*\n*He didn't breathe, didn't react, just waited, his whole body-tensed-for-action.*\n*The rain continued to fall, the river churning below, and the silence between them and the intruder was almost deafening.*"
+          },
+          "player": "Max",
+          "playerMessage": "Someone steps out of the reeds with a weapon raised. I stop and show my empty hands.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m40",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "A figure emerges from the rain-slicked reeds, weapon raised, their silhouette stark against the gray fog. Water drips from their worn leather armor as they step onto the muddy bank, boots sinking slightly into the soft earth. The weapon they carry is a crude spear, its tip dull and rusted, but still capable of inflicting damage.\nThe figure is slender, draped in a rain-soaked cloak that clings to their frame, their face obscured by a deep hood that keeps the rain from their eyes. Only a pair of pale, steady eyes are visible beneath the shadow, locking onto Max and his companions with a mixture of caution and weariness.\n\"Wait!\" the stranger calls out, their voice raspy and low, barely audible over the roar of the river. \"I'm not here to harm you. I just need passage across.\"\nThey lower the spear slightly, though their grip remains firm, and their free hand moves to a small pouch at their waist.\n\"The bargeman is taking people across, but he won't take me unless I pay his price. I have coin, but not enough. I'm looking for anyone who might be willing to help me, or maybe someone who's looking to cross themselves.\"\nThe figure pauses, their pale eyes shifting between the party members, assessing their situation and their intent.\n\"I've been watching from the reeds, waiting for an opportunity. Please, I just want to cross.\"\nThe rain continues to fall, and the sound of the rushing river fills the air, but for a moment, the silence between the party and the hooded stranger is almost complete.*"
+          },
+          "player": "Max",
+          "playerMessage": "Someone steps out of the reeds with a weapon raised. I stop and show my empty hands.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m42",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "\"Courier?\" *Ponticius's brow rose slightly, his gaze remaining fixed on the hooded figure as the stranger spoke.*\n*His voice was low and level, but there was a clear edge-to-it-that-suggested-he-wasn't-easily-convinced.* \"You're asking a stranger-from-the-reeds-about-couriers while we're dealing-with-smugglers and-a-flood?\"\n\"You're either desperate, Max, or you're-trying-to-see-what-else-we-know.\" *His tone was flat, but there was-a-slight-undercurrent-of-something-more-than-just-warning-there.*\n*He didn't shift his position, his hand still resting on the sword-hilt-at-his-hip.*\n\"But I'll tell you this much: couriers aren't usually-looking-for-help-crossing-rivers-in-a-flood. They're usually-paid-to-cross-them.\"\n\"And they're usually-armed-enough-to-handle-their-own-problems.\"\n*He paused, then his eyes narrowed as he continued.*\n\"If someone-claims-to-be-a-courier-but-needs-help-with-passage, then-they're-either-lying-or-they're-very, very-bad-at-their-job.\"\n\"Or maybe they're-looking-to-get-paid-by-someone-else.\"\n\"Be careful, Max.\" *His voice was steady and clear, and his-hand-remained-on-his-sword.* \"Sometimes-a-story-is-more-dangerous-than-a-spear.\"\n*The rain continued to-drizzle-down, and Ponticius remained-motionless-watching-the-stranger-with-all-the-caution-of-a-man-who-had-seen-too-many-lies-in-his-time.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask what they want from a courier.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m44",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"S-S-Satchel-with-letters?\" *Luke's voice-came-out-in-a whisper, his brown-haired-head snapping-to-look-at-Max.*\n*His brown-eyes-were-wide-with-confusion-and-fear as-he-huddled-closer-to-the-crates.*\n\"Y-Y-Y-You-have-letters?! C-C-Could-be-T-T-T... t-t-target-letters?!\" *His words-were-muffled-by-the-rain, his-face-pale-beneath-the-droplets.*\n\"D-D-D-O-T-N-O-O-B-O-D-Y-C-O-U-R-I-E-R-T-H-E-T-A-A-L-T-E-E-O-F-E-A-R?\" *He stammered-out-the-question, his-voice-shaking.*\n\"N-N-N-No-o-one-ever-does-C-C-COURIERS-ST-ST-THE-T-TAA-LT-T-LETTER-OF-F-F-EAR-OF-F-U-E-S-E-F-H-C-K-C-K?!\" *His face-pressed-up-against-T-T-the-wooden-crate, his-hands-tightening-on-the-hilt-of-his-short-sword-at-T-his-T-T-hip.*\n\"Y-Y-Y-I-N-G-E-F-S-C-A-A-T-C-H-I-C-H-T-H-S-L-A-T-I-N-S-K-C-U-S-S-O?!\" *He whispered, his-brown-hair-damp-and-clinging-to-T-T-his-forehead.*\n\"M-M-M-C-C-U-T-U-U-C-M-S-C-T-U-O-S-Y-N-C-E?\" *His words-were barely audible, his-T-T-brown-eyes-filled-with-fear-and-a-confusion-that-seemed-almost-dangerous.*\n\"O-O-H-O-God, l-l-let's-not-o-do-do-this! L-L-Let's-just-l-l-look-o-u-t-for-T-T-S-Smugg"
+          },
+          "player": "Max",
+          "playerMessage": "I tell them the satchel holds letters, nothing worth stealing, and ask to pass.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m45",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "*Ponticius's eyes narrowed at Max's explanation, his jaw tightening as he processed the words.*\n*He didn't move, but his gaze shifted slightly to the hooded figure standing in the reeds.*\n\"Letters, you say?\" *His voice was low-level and flat-to-his-ears, carrying no real warmth or belief.*\n\"You're giving them-information, Max.\" *His hand remained-firmly-on-his-weapon-hilt.* \"Nothing-worth-stealing-is-what-every-man-says-when-he's-trying-to-keep-something-under-the-radar.\"\n*He didn't turn his head to face the stranger-in-the-reeds, but his body remained-rigid-and-alert.*\n\"If those letters are-worth-something, then-they-are-worth-taking-from-you.\"\n\"And if they're-worth-nothing, then-why-are-you-so-keen-on-crossing?\" *His tone was-level-and-even, but there was-no-room-for-debate in the way-he-spoke.*\n\"You're-asking-to-pass-for-free-when-we're-in-the-middle-of-negotiating-with-men-who-do-not-give-things-away.\"\n*Ponticius shifted his weight, his boots making-a-shallow-print-in-the mud.*\n\"Stay low.\" *The command-was-brief, his eyes flicking back to the barge-and-the-hooded-man.*\n\"And keep-your-satchel-tight. We'll-see-if-they-accept-your-offer-to-pass, or-if-they'-decide-to-take-what-you-have.\"\n*The rain-continued-to-drizzle-down-around them, and the-smuggler-s-barge-remained-its-steady-presence-in-the fog-as-Ponticius-watched-the-situation-unfold-with-all-the-hard-caution-of-experience.*"
+          },
+          "player": "Max",
+          "playerMessage": "I tell them the satchel holds letters, nothing worth stealing, and ask to pass.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m47",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"D-Defends-t-t-themselves-on-T-The-Road?! W-W-W-W-You're-talking-about-s-t-t-f-i-g-h-t-i-n-g?!\" *Luke's voice rose-in-a panicked whisper, and his brown-eyes-snapped-toward-Max-with-wide-eyed-alarm.*\n*His chainmail-rattled-softly-with-each-jittery-movement, his-face-paling-even-further-as-rain-drizzled-down-on-him-and-his-brown-haired-face.*\n\"O-O-Ok, l-look, we-we-just-s-s-stay-behind-the-T-T-Crates! R-R-Right?!\" *His words-came-out-fast, his-brown-eyes-flicking-between-Max-and-Ponticius-and-T-T-Arin-and-T-Them-on-T-T-The-Barge.*\n\"W-W-We-do-that, a-a-a-and-we'll-be-s-safe-right?!\" *He shifted-his-weight-and-pressed-his-back-against-T-The-wooden-crates, his-T-hands-trembling-as-he-gripped-T-T-h-e-hilt-of-T-T-short-sword-on-T-H-e-hip-at-H-e-T-S-T-side.*\n\"N-N-N-O-o-o-nobody-s-s-needs-to-t-f-f-i-get-f-f-fight-f-fighting-right-now-right?! R-R-R-O-M-U-M-A-Y-S-M-O-M-T-O-S!\" *He stammered-the-word-out, his-face-white-with-a-T-tremor-as-he looked-to-T-To-T-Ponticius-T-To-Arin.*\n\"L-L-L-S-S-S-T-T-Take-i-i-it-easy-i-t-t!\" *His voice-was-a-whimper, barely audible-over-the-sound-of-the-river-as-T-T-he-rain-continued-its-drizzle.*\n*T-The-bargeman-remained-in-T-T-e-bow, his-hood-keeping"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the keeper how a traveller defends themselves on this road.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m48",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "The hooded stranger in the reeds remains motionless, their pale eyes observing the party from beneath the shadow of their hood. The spear they carry is lowered slightly, but their grip remains firm and cautious.\n\"Travelers defend themselves however they can,\" the stranger rasps, their voice barely audible over the rushing water. \"With steel, with spells, or with nothing more than quick wits and a faster pair of boots. But the road you're on has changed. The flood has turned the river into a barrier, and what was once a simple journey has become a test of patience and nerves.\"\nThe stranger's gaze shifts between the party members, taking in their gear and their bearing. \"The guards on this road are fewer and farther between. They've pulled back to the walled cities, leaving the wilds to the monsters and the desperate. A traveler's best defense now is to know when to fight and when to run.\"\nRain continues to drizzle down, and the figure shifts their weight slightly, the mud beneath their boots squelching. \"And right now,\" they add, their gaze flicking toward the approaching barge, \"the bargeman and his crew are the only thing standing between you and the far bank. Your best defense will be whatever you can offer them—or however well you can fight.\"\nThe stranger remains still, their spear held low and ready, waiting to see what the party will do next. The barge continues its slow drift toward the bank, the figures within still indistinct and silent in the rain-heavy fog."
+          },
+          "player": "Max",
+          "playerMessage": "I ask the keeper how a traveller defends themselves on this road.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m49",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin shifted his weight, his green eyes flicking from the stranger to the approaching barge.*\n\"F-Fighting's an option,\" *he murmured, his voice low and controlled for Max's ears only.* \"But we're in no position to take on a barge full of armed men with the river at our backs.\"\n*He glanced at theBOW-on his shoulder, then at the daggers on his thighs, his jaw tight.*\n\"Best to keep it-civil-for-now. We can cross, and if things turn-sour, we'll deal-with-it-then.\"\n*Arin's hand-remained-near-the-hilt-of one of his daggers, his body still-low-and-ready.*\n\"But we're not going to let them-walk-all-over-us-either.\" *His tone-held-a-clear-undercurrent-of warning, despite his words.*\n*The rain continued-its drizzle-over them as he returned-his-green-eyes-to the hooded stranger, waiting to see how they-would-respond-to-Max's-question-and-his-offer.*\n*Arin remained-still, his posture-cautious-and-calculated as-he-watched-T-The-smugglers-T-Barge-and-Them.*\n*He didn't breathe, didn't react-except-for-that-one-slight-shift-in-position, his-whole-T-body-T-tense-for-action.*\n*The rain-drizzled-down on him as-T-T-He-waited for-the-next-move.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the keeper how a traveller defends themselves on this road.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m51",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "*Ponticius's eyebrows rose slightly at Max's words, his weathered face reflecting a mixture of confusion and weary acceptance.*\n\"You're ordering-a-meal?\" *His voice was flat, carrying a hint of disbelief that made it-sound-almost-like-a-question-himself.*\n\"Right-here-by-the riverbank?\" *He looked around at the rain-soaked-muddy-ground, the churning-river-below, and the barges-still-approaching-T-T-through-T-T-fog.*\n\"Max, we're-in-T-The-middle-of-a-flood-with-armed-men-closing-in, and-you're-asking-how-much-a-room-cost-and-now-ordering-a-meal.\" *His voice-was low-and-steady, but there-was-a-clear-edge-of-something-more-than-just-warning-there.*\n\"Do you-need-to-talk-about-the-stress?\" *His tone was flat and deadpan, and-he-didn't-look-away-from-T-T-barge.*\n\"But fine.\" *He-shifted-his-stance-slightly-his hand-never-leaving-the sword-hilt-at-his hip.*\n\"A-simple-meal-out-here-by-T-The river-will-likely-be-a-few-copper-and-silver.\" *His voice was level.*\n\"And as for-what-you-owe—you'll-likely-owe-them-the-price-of-the-meal-plus-T-THe-cost-of-crossing.\"\n\"But you-owe-us-the-D-Duty-of-not-D-distracting-us-while-T-THe-smugglers-are-approaching.\"\n*He paused, his-eyes-narrowing-as-he continued-to-speak-with-the-same-flat-T-tone-as-before.*\n\"So, Max, if-you-want-to-get-T-THe-T-Food-or-T-THe-Letters-across-T-THe river, you'll-likely-have-to-pay-their-price-first.\"\n\"And you'll-owe-T-THem-T-THeem-the-crossing-cost-after-T-THe-meal.\"\n*T-THe rain-continued-its-T-drizzle, and Ponticius-remained-motionless-watching-the-smugglers-on-the-barge"
+          },
+          "player": "Max",
+          "playerMessage": "I order a meal and ask what I owe.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m53",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "\"The shot...\" *Arin's green eyes sharpened immediately, his head-tilting-toward the water.*\n\"I heard it too. Sounded-like a-crossbow bolt-hitting-something.\"\n*His hand-clutched the hilt of his dagger-T-tighter as he-returned his gaze-to-the-approaching barge, his expression-hardened-with a-new-edge of concern.*\n\"Smugglers-firing-on-their-own-barge? That's a-strange-move-for-any-crew.\"\n*He shifted his posture, tensing-for-action-more-than before, his-voice dropping-to-a-whisper for Max's-ears-only.*\n\"Either they-shot-at something-and missed, or someone-onboard-just-got-hit.\"\n\"But it-doesn't-matter-what-it-was-until-T-The barge-gets-here. Right now-we-just-need-to-know-who-shot-and-what-they're-shooting-at.\"\n*Arin's-eyes-narrowed-slightly, his fingers-braced-on the-dagger's hilt-ready-to-strike-if needed.*\n\"Stay-focused-Max. Whatever-it-was, it-only-makes-T-The situation-T-The more-dangerous-for-us.\"\n*He didn't-breath, didn't-move-further, just-waited-with-H-A-G-S-L-A-S-H-Tense-body-tensed-for-action.*\n*The-rain-continued-T-T-Drizzle-over-T-T-them, T-The river's-Churn-F-Filling-The-air-with a-T-Thick,-T-heavy-Atmosphere-of uncertainty.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the keeper about the shot I heard on the river.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m54",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"S-S-Shot-SHOT-SHOT?!\" *Luke's-T-Voice-pitched-upward as his-words-came-out in-a-Frenzied-blur.*\n\"I-I-I... I-I-H-HEARD-IT-TOO!\" *His face-whitened-T-even-T-T-Further-beneath-the-droplets-as-he gripped-T-T-the-Hilt-of his-short sword-more tightly.*\n\"T-T-T... I-I-don't-know-if it-was-T-A-smuggler or-T-something-else!\" *His brown-haired head-snapped-to-look-at Max, his-eyes-wide-T-T-With-a panic-T-T-that was-T-too-easy-T-T-to-read.*\n\"T-T-T-Could-be-C-C-COCKATRICE-S-O-Y-S-Y-I-F-Y-F-S!\" *He-stammered-out-T-the word, his-T-voice cracking-slightly-T-T-as he tried-to-catch-his-breath-T-under-the sound-of-the river.*\n\"M-M-M-A-X-L-L-L... Max-do-you-T-think-i-i-was-s-some-Kind-of-s-smuggler-shot?\" *He-tried to steady-his voice, but-it-wasn't broken-and jittery-all-the way.*\n\"I-I-I'm not-sure! S-S-So-many-S-Smugglers! S-So-many-smugglers!\" *His chainmail clattered with-T-The shaking of-T-His-T-H-Hands as-H-He-pressed himself-closer-to the-crates-T-T-in a desperate attempt-to-H-H-hide-as the-T-S-smugglers-continue-T-T-Their-A-A-Approaching-A-Approach.*\n\"C-O-D, C-O-D-O-O-L-L-O-C-A-C-T-S-C-S-T-I-O-N-U-S-Y!\" *He whimpered-T-Quietly-to-himself, his brown eyes darting between-Max, Ponticius, and Arin.*\n\"D-D-D-T-O-O-O... d-do-we"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the keeper about the shot I heard on the river.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m56",
+          "arm": "on",
+          "established": [
+            "Arin and Max have completed countless missions together.",
+            "Arin has brown hair and green eyes.",
+            "Luke has brown hair and brown eyes."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin-shuffled closer-T-T-T to the-warmth-of-T-The fire, his-body-relaxing-slightly-as he-leaned back-against-H-A wooden beam.*\n*He-pushed-T-a few-loose-strands of-brown hair from his-forehead, his-green-T-eyes-scanning the-room with a-quiet-alertness-that-didn't-quite-fade-T-T-Even-T-In the safety-of the tavern.*\n\"Finally.\" *His voice-was a-low-drawl, but there-was a-hint-of-satisfaction-there as-T-he took in the-atmosphere of-the place.*\n*He-crossed-his legs at-the knee, his hand-resting-casually-T-near-H-E hilt-of a-dagger as he-watched the other-T-Patrons-T-Filling the tavern-T-with their-chatter.*\n\"Not-a-bad-change-of-pace, this.\" *He-muttered to himself-H-S-L-I-G-H-T-L-Y as he-took in the-glow-T-T-of-The-fire-C-asting-flickering shadows-across the-room.*\n*His attention-flicked briefly-to Max-as if-T-To check-in-silently before-H-E-returned-H-I-S-G-A-Z-E to the-crowd, his-ears-H-I-D-L-I-S-T-E-N-I-N-G for-anything-T-That-seemed-T-C-O-M-E from-the-S-S-Side-o-f the-R-River.*\n*T-T-And-so Arin-T-S-Sat-there in-T-The-G-L-O-W-of-the fire, a-calm-quiet-C-S-M-I-L-E on-his face-as he-S-I-L-T-T-LIST-T-Tened-in-S-T-T-R-T-Quiet-for a-few-m-m-oments-more, just-T-T-absorbing-T-the warmth-T-and-the-peace-of the-moment.*\n*He-t-t-looked-to-you-again and-T-Nodded-T-Slightly.*\n\"S-s-settle-in, I-guess.\" *"
+          },
+          "player": "Max",
+          "playerMessage": "I settle by the fire and listen to the other patrons.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        }
+      ]
+    },
+    "debugResponses": {
+      "cleared": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "judgeRestore": {
+      "restored": true,
+      "ok": true
+    },
+    "assets": {
+      "marker": "SO-J8",
+      "found": {
+        "allLorebooks": [
+          "Adalion groupchat",
+          "Adolion - Aegis City Noble Life",
+          "Adolion - Eshalanore",
+          "Adolion - Mountains of Shadow",
+          "Adolion - The Third Kingdom",
+          "Adolion - Tiunhime Village",
+          "Adolion Academy Checkpoints",
+          "Adolion Adventurer Checkpoints",
+          "Adolion Chronicle",
+          "Adolion World",
+          "Celia Lorebook",
+          "Chat_Book_Assistant_2025_10_04_18h59m30s",
+          "Exported",
+          "Magianomicon",
+          "main_Magianomicon_world_info",
+          "main_The Fantasy World of Adolion_world_info",
+          "ProjectStory",
+          "SO-J8 Lore",
+          "The Fantasy World of Adolion",
+          "Xentar Checkpoints",
+          "Xentar"
+        ],
+        "allRegex": [],
+        "allQrSets": [
+          "Default"
+        ],
+        "qrError": null,
+        "marker": "SO-J8",
+        "baseline": "2026-09-26T20:37:24.748Z",
+        "ledger": [],
+        "sessions": [],
+        "characters": [],
+        "groups": [],
+        "lorebooks": [
+          "SO-J8 Lore"
+        ],
+        "protected": [],
+        "regexScripts": [],
+        "qrSets": []
+      },
+      "removed": {
+        "characters": [],
+        "groups": [],
+        "lorebooks": [
+          "SO-J8 Lore"
+        ],
+        "lorebooksViaHost": [
+          "SO-J8 Lore"
+        ],
+        "lorebooksUnlisted": [],
+        "regexScripts": [],
+        "qrSets": [],
+        "evicted": [],
+        "staleCache": [],
+        "errors": [],
+        "sessions": {
+          "kept": [
+            "untitled",
+            "untitled-story"
+          ],
+          "dropped": []
+        }
+      },
+      "saved": {
+        "status": 200
+      },
+      "leaked": {
+        "allLorebooks": [
+          "Adalion groupchat",
+          "Adolion - Aegis City Noble Life",
+          "Adolion - Eshalanore",
+          "Adolion - Mountains of Shadow",
+          "Adolion - The Third Kingdom",
+          "Adolion - Tiunhime Village",
+          "Adolion Academy Checkpoints",
+          "Adolion Adventurer Checkpoints",
+          "Adolion Chronicle",
+          "Adolion World",
+          "Celia Lorebook",
+          "Chat_Book_Assistant_2025_10_04_18h59m30s",
+          "Exported",
+          "Magianomicon",
+          "main_Magianomicon_world_info",
+          "main_The Fantasy World of Adolion_world_info",
+          "ProjectStory",
+          "The Fantasy World of Adolion",
+          "Xentar Checkpoints",
+          "Xentar"
+        ],
+        "allRegex": [],
+        "allQrSets": [
+          "Default"
+        ],
+        "qrError": null,
+        "marker": "SO-J8",
+        "baseline": "2026-09-26T20:37:24.748Z",
+        "ledger": [],
+        "sessions": [],
+        "characters": [],
+        "groups": [],
+        "lorebooks": [],
+        "protected": [],
+        "regexScripts": [],
+        "qrSets": []
+      },
+      "clean": true
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions",
+        "schema"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [
+        "so-j8-house-rules"
+      ],
+      "preservedSessions": []
+    },
+    "importedStoryHashes": [
+      "v2-eddb4fe5"
+    ],
+    "library": {
+      "changed": true,
+      "removed": [
+        "so-j8-house-rules@1 (v2-eddb4fe5)"
+      ],
+      "restored": [],
+      "saved": {
+        "status": 200
+      },
+      "verified": true
+    },
+    "chat": {
+      "sandboxChatId": "2026-09-26@17h37m24s979ms",
+      "owned": [
+        "2026-09-26@17h37m24s979ms"
+      ],
+      "deleted": [
+        "2026-09-26@17h37m24s979ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "lateFileRepaired": [],
+      "saveSettleMs": 1539,
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-26@17h37m24s979ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-20@07h06m38s396ms"
+    },
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    }
+  }
+}

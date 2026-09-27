@@ -1,0 +1,15 @@
+llamacpp:prompt_tokens_total 2.53266e+06
+llamacpp:prompt_tokens_cached_total 249809
+llamacpp:prompt_seconds_total 2761.37
+llamacpp:tokens_predicted_total 166411
+llamacpp:tokens_predicted_seconds_total 15100
+llamacpp:n_decode_total 68381
+llamacpp:n_tokens_max 88468
+llamacpp:spec_decode_num_draft_tokens_total 0
+llamacpp:spec_decode_num_accepted_tokens_total 0
+llamacpp:spec_decode_num_drafts_total 0
+llamacpp:prompt_tokens_seconds 989.055
+llamacpp:predicted_tokens_seconds 14.9012
+llamacpp:requests_processing 0
+llamacpp:requests_deferred 0
+llamacpp:n_busy_slots_per_decode 2.46881

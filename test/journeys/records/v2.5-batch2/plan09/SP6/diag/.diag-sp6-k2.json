@@ -1,0 +1,93 @@
+{
+ "_note": "DIAGNOSTIC COPY of live-v25-09-sp6-k2.json (lane 3): probes the complication view after steps 7, 9 and 11. Not a gate fixture.",
+ "steps": [
+  {
+   "eval": "const rt = globalThis.storyOrchestratorRuntime; if (!rt) throw new Error('storyOrchestratorRuntime missing: serve the dev build'); if (typeof globalThis.storyOrchestratorSpikes?.complications !== 'function') throw new Error('storyOrchestratorSpikes.complications missing: this bundle has no SP6 spike'); for (const key of Object.keys(globalThis).filter((name) => name.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; root.settings = { ...(root.settings ?? {}), spikes: { ...((root.settings ?? {}).spikes ?? {}), sp6Complications: true } }; ctx.saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 1500)); if (rt.getGlobalSettings().spikes?.sp6Complications !== true) throw new Error('the sp6Complications flag did not take'); const state = { requests: [], original: window.fetch }; window.fetch = async (input, init) => { const url = typeof input === 'string' ? input : input?.url ?? ''; if (/\\/api\\/backends\\/.*\\/generate/.test(url)) state.requests.push({ url, body: typeof init?.body === 'string' ? init.body : '' }); return state.original(input, init); }; globalThis.__soSp6k2 = state; return { flag: true, recording: true };",
+   "log": true
+  },
+  {
+   "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+  },
+  {
+   "import_story": {
+    "file": "./live-v25-09-sp6.story.json"
+   }
+  },
+  {
+   "eval": "const rt = globalThis.storyOrchestratorRuntime; if (!SillyTavern.getContext().groupId) throw new Error('needs a sandbox GROUP chat holding DM Narrator'); const state = rt.getEngineState(); if (state.activeCheckpointId !== 'waystation') throw new Error(`not at the waystation: ${state.activeCheckpointId}`); if (!rt.getSnapshot().requirements?.ready) throw new Error('requirements not ready: the group needs DM Narrator'); return { at: state.activeCheckpointId, boundary: state.boundary };",
+   "log": true
+  },
+  {
+   "slash": "/cp set tension_current 0.1"
+  },
+  {
+   "slash": "/cp set tension_current 0.1"
+  },
+  {
+   "eval": "const view = globalThis.storyOrchestratorSpikes.complications(); if (view.pending?.id !== 'c1') throw new Error(`c1 is not pending after two escalate boundaries: ${JSON.stringify(view)}`); globalThis.__soSp6k2.pending = view.pending; globalThis.__soSp6k2.requests.length = 0; return view;",
+   "log": true
+  },
+  {
+   "eval": "const rt=globalThis.storyOrchestratorRuntime; const v=globalThis.storyOrchestratorSpikes.complications(); const s=rt.getEngineState(); return {tag:'after-step-7', pending: v && v.pending, releases: v && v.releases, directions: v && v.directions, flag: v && v.flag, boundary: s.boundary, log: rt.getBoundaryLog().map(b=>b.boundary), events: globalThis.storyOrchestratorSpikes.events.length, spikesKeys: Object.keys(globalThis.storyOrchestratorSpikes)};",
+   "log": true
+  },
+  {
+   "slash": "/gen Answer with one word: what colour is the sky?"
+  },
+  {
+   "eval": "await new Promise((resolve) => setTimeout(resolve, 2000)); if (globalThis.__soSp6k2.requests.length !== 1) throw new Error(`the quiet generation made ${globalThis.__soSp6k2.requests.length} generation request(s), want 1`); return { quiet: globalThis.__soSp6k2.requests.length };",
+   "log": true
+  },
+  {
+   "eval": "const rt=globalThis.storyOrchestratorRuntime; const v=globalThis.storyOrchestratorSpikes.complications(); const s=rt.getEngineState(); return {tag:'after-step-9', pending: v && v.pending, releases: v && v.releases, directions: v && v.directions, flag: v && v.flag, boundary: s.boundary, log: rt.getBoundaryLog().map(b=>b.boundary), events: globalThis.storyOrchestratorSpikes.events.length, spikesKeys: Object.keys(globalThis.storyOrchestratorSpikes)};",
+   "log": true
+  },
+  {
+   "slash": "/impersonate await=true I look around the room."
+  },
+  {
+   "eval": "await new Promise((resolve) => setTimeout(resolve, 2000)); const box = document.querySelector('#send_textarea'); if (box) { box.value = ''; box.dispatchEvent(new Event('input', { bubbles: true })); } if (globalThis.__soSp6k2.requests.length !== 2) throw new Error(`after the impersonation ${globalThis.__soSp6k2.requests.length} generation request(s) were recorded, want 2`); if (globalThis.storyOrchestratorSpikes.complications().pending?.id !== 'c1') throw new Error('the quiet and impersonate generations consumed the pending complication'); return { impersonated: true };",
+   "log": true
+  },
+  {
+   "eval": "const rt=globalThis.storyOrchestratorRuntime; const v=globalThis.storyOrchestratorSpikes.complications(); const s=rt.getEngineState(); return {tag:'after-step-11', pending: v && v.pending, releases: v && v.releases, directions: v && v.directions, flag: v && v.flag, boundary: s.boundary, log: rt.getBoundaryLog().map(b=>b.boundary), events: globalThis.storyOrchestratorSpikes.events.length, spikesKeys: Object.keys(globalThis.storyOrchestratorSpikes)};",
+   "log": true
+  },
+  {
+   "send_generate": {
+    "text": "We sit by the hearth and wait for the caravan.",
+    "timeoutMs": 300000,
+    "expectReply": true
+   }
+  },
+  {
+   "wait": {
+    "idle": true,
+    "quietMs": 3000,
+    "timeoutMs": 120000
+   }
+  },
+  {
+   "eval": "const view = globalThis.storyOrchestratorSpikes.complications(); if (view.pending) throw new Error(`the complication is still pending after the loud turn committed: ${JSON.stringify(view.pending)}`); globalThis.__soSp6k2.afterFirstLoud = globalThis.__soSp6k2.requests.length; return { requests: globalThis.__soSp6k2.requests.length };",
+   "log": true
+  },
+  {
+   "send_generate": {
+    "text": "We keep waiting and watch the road.",
+    "timeoutMs": 300000,
+    "expectReply": true
+   }
+  },
+  {
+   "wait": {
+    "idle": true,
+    "quietMs": 3000,
+    "timeoutMs": 120000
+   }
+  },
+  {
+   "eval": "const state = globalThis.__soSp6k2; window.fetch = state.original; const needle = 'A rider arrives at a gallop'; const carried = state.requests.map((request, index) => ({ index, url: request.url, carries: request.body.includes(needle) })); const loudFirst = 2; const fail = []; if (state.requests.length < 4) fail.push(`only ${state.requests.length} generation requests recorded`); const holders = carried.filter((row) => row.carries).map((row) => row.index); if (holders.length !== 1 || holders[0] !== loudFirst) fail.push(`the complication rode requests ${JSON.stringify(holders)}, want exactly [${loudFirst}] (quiet=0, impersonate=1, first loud=2)`); const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; root.settings.spikes = { ...(root.settings.spikes ?? {}), sp6Complications: false }; ctx.saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 1500)); delete globalThis.storyOrchestratorDebugExtractionResponse; delete globalThis.__soSp6k2; if (fail.length) throw new Error(`K2 FAIL: ${fail.join('; ')}`); return { K2: 'exactly the next loud request', carried };",
+   "log": true
+  }
+ ]
+}

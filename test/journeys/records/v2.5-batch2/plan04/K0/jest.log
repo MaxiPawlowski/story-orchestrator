@@ -1,0 +1,25 @@
+PASS src/memory/contradictions.fixture.test.ts (11.823 s)
+  K0 contradiction fixture
+    √ is frozen: the rows hash to the recorded sha256 (5 ms)
+    √ carries the planned class table (21 en, 14 es) (3 ms)
+    √ records every row's Jaccard band as the held-group bands compute it (2 ms)
+    √ fixes the Jaccard-mode class counts, with at least 5 in-band agreeing rows (3 ms)
+    √ covers every row in every recorded cosine bracket file (2 ms)
+  A0: today's bands on K0
+    √ scores the Jaccard-only mode: every in-band contradiction held, nothing below the band (6 ms)
+    √ replays recorded cosines through the vectors union: a cosine below every band changes nothing (10 ms)
+    √ replays recorded cosines through the vectors union: a cosine in the same-topic band joins a pair Jaccard misses (8 ms)
+  O1 measurement: K0 recast as ordinary rows, consolidated in an 8-row group
+    √ Jaccard-only mode: every in-band contradiction gets today's soft mark, every below-band one gets nothing (2 ms)
+    √ Jaccard-only mode: the band cannot tell agreement from contradiction for ordinary rows either (1 ms)
+  N1: the polarity screen on K0, against its predeclared floor
+    √ Jaccard-only mode: below-band explicit-negation recall 8/8 (es 4/4), in-band recall unchanged (2 ms)
+    √ Jaccard-only mode: one more false hold than A0 (K35, a same-subject distinct claim with a negator), within A0 + 1 (1 ms)
+    √ vectors-present mode is bounded by text alone: the screen reads no cosine, and every Jaccard-band row is held in both modes (1 ms)
+    √ replays a vectors mode through the same arm and keeps every A0 hold (10 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       14 passed, 14 total
+Snapshots:   0 total
+Time:        14.369 s
+Ran all test suites matching src/memory/contradictions.fixture.test.ts.

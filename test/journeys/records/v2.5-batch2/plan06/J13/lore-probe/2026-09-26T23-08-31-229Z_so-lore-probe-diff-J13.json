@@ -1,0 +1,1802 @@
+{
+  "off": {
+    "label": "off",
+    "file": "test/journeys/records/v2.5-batch2/plan06/J13/off-r1/2026-09-26T21-45-03-976Z_journey-J13.json",
+    "journey": "J13",
+    "mode": {
+      "label": "off",
+      "uses": []
+    },
+    "meter": {
+      "calls": 0,
+      "cachedCalls": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "cost": 0,
+      "lastAnsweredModel": null
+    },
+    "ring": {
+      "calls": 0,
+      "cachedCalls": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "cost": 0,
+      "fallbacks": {},
+      "byUse": {}
+    },
+    "warden": {
+      "flagged": 0,
+      "applied": 0,
+      "lapsed": 0,
+      "rejected": 0,
+      "pending": 0
+    },
+    "replies": 32,
+    "notes": [],
+    "rows": [
+      {
+        "id": "m0",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+        },
+        "player": "Max",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m2",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "Arin trudged through the mud, boots sucking with every step as he checked the water again. The current was too strong to swim—it would pull them down and sweep them away before they could know it. He’d already tried wading a few feet in, but the depth rose too quickly.\n*He wiped his brow, green eyes narrowing as he scanned the horizon, then stepped back to firmer ground. His leather armor was splattered with filth and the water’s edge churned with debris from upstream.*\n\"Doesn't look like it's going anywhere anytime soon,\" *he sighed, kicking at a stone.* \"The current's still too rough. We're stuck until it recedes, or we find another way.\"\n*He shifted his weight, glancing at you, and reached into a pouch on his belt for a small wooden trinket he’d been whittling.*\n\"Should've known this'd be a slow week for us.\" *he said, his tone light, but his fingers tightened around theTwood as a shadow of worry crossed his face before he vanishing into a grin.*\n\"Want some tea? I've got some strong stuff that might make this wait more tolerable.\""
+        },
+        "player": "Max",
+        "playerMessage": "I wait on the near bank and watch the brown water.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m3",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "\"Oh, we-we can't just *wait*, right?\" *Luke shifted his weight, chainmail clinking and rattling. His oversized boots splashed in the mud as he stepped closer to the churning water's edge, eyes wide with frustration.* \"If we're stuck here, that means time's... time's wasting. My brother... he's been gone for *weeks* now, and every day we don't move is—\"\n*His voice cracked slightly as he trailed off, his gaze fixed on the brown, rushing torrent. He clenched his fists at his sides, the short sword at his hip clattering against his leather hip belt.*\n\"But-but you're right. We'd just get swept away.\" *He took a deep breath, and tried to force a smile that didn't quite reach his eyes.* \"Still, I-I mean... maybe there's something we could do? Like-like a different route? Or-or we could scout ahead, see if there's a-a-a place to cross safely?\"\n*He looked over at Max and Arin, his brown hair falling across his face. His eagerness was clear, despite his nervousness.* \"I'm not just gonna stand here and-and-watch the water go by.\""
+        },
+        "player": "Max",
+        "playerMessage": "I wait on the near bank and watch the brown water.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m5",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "*The fog rolls in thick, clinging to the surface of the water like a shroud. Upstream, shapes shift and swirl within the grey mist—something moving against the current, breaking the surface in rhythmic patterns.*"
+        },
+        "player": "Max",
+        "playerMessage": "Shapes move in the fog upstream. I ask whoever is nearest what they are.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m6",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke's breath caught as he squinted through the fog, his pale face going even paler. He shifted his footing, the mud sucking at his boots as he moved to stand between Max and Arin.*\n\"Wh-what are those?\" *his voice was barely a whisper, uncertainty bleeding through his words.* \"Do-do you think they're... monsters? Or maybe-maybe people? I-I-I can't tell—\"\n*His hand went to the hilt of his short sword, his fingers wrapping around the grip with a determination that was clear even if his knuckles were white. He stepped forward just a inch, his eyes fixed on the shapes.*\n\"Be-be ready,\" *he muttered, and his his voice was steadier now, almost resolute.* \"Whatever they are, they're coming this way.\"\n*He glanced back at Max, a flicker of trust and a desperate need for approval in his eyes.* \"We-we'll take them, right?\""
+        },
+        "player": "Max",
+        "playerMessage": "Shapes move in the fog upstream. I ask whoever is nearest what they are.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m8",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke's eyes widened, his eyebrows shooting up.* \"Smugglers? But-but-how would they-they do that?\"\n*He lowered his sword hand just a fraction, though he still held the hilt.* \"I mean-I thought river patrols were-were strict. Especially with this kind of-of flood.\"\n*He glanced at Arin, and then at Max.* \"Would smugglers even use this route during a flood like this? Wouldn't they be too-too careful?\"\n*His curiosity was piqued, and despite the tension in the air, he seemed eager for an answer. He shifted his weight, his oversized armor clinking softly.* \"Though-though-I guess smugglers are always-always-up to something, aren't they?\"\n*His gaze returned to the fog-covered river, and he looked as if he've seen something more interesting than a river-current.* \"Maybe they're-they're taking advantage of the chaos from the flood? That-that-that would be a good time to slip past the patrols, wouldn't it?\"\n*He looked at Max, his eagerness to learn and please clear in his expression.* \"Am I-am-am I right?\""
+        },
+        "player": "Max",
+        "playerMessage": "Smugglers? I ask how they keep the river patrols off their backs.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m10",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*Ponticius leaned his weight back against a rain-slicked tree trunk, arms folded across his barrel chest as he watched the shapes emerge from the fog—a wide-bottomed skiff, weathered and patched with tar.*\n\"You ask the right man,\" *he said, his voice carrying that rough edge of gravel and honey.* \"Crossing a flooded river ain't free, and it sure as hell ain't easy. The bargeman, that one there—name's Harlen. Been ferrying folks and whatever they're carrying since the Lich Queen was still a bad dream.\"\n*He pushed off the tree, walking to the edge of the river with a steady gait, his boots sinking slightly into the mud.* \"Harlen knows these waters and how to stay beneath the patrol's notice. As for payment... well, out here, it ain't always about coin.\"\n*Ponticius gestured toward the approaching skiff with a calloused hand.* \"Sometimes it's food, sometimes it's favors, and sometimes it's just a word in the right ear. But for someone like you—a Guild Master—I can tell you, the coin usually speaks loudest, even if it don't sing as sweet.\"\n*He glanced at Max, then back at the river.* \"But fair warning, that boat ain't built for the weight of heavy armor. And Harlen... well, he ain't fond of those who'd try to cross without paying his price.\""
+        },
+        "player": "Max",
+        "playerMessage": "I ask the bargeman what his crossing costs, and how people pay out here.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m12",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke jumped back, his boots splashing into the mud as the smuggler's voice carried across the river.* \"What-what did he say?\" *his voice was a mixture of fear and curiosity, his eyes wide as he looked toward the crates.*\n*He quickly ducked behind the nearest crate, his oversized chainmail clattering loudly as he did. His pale face peeked over the top of the crate, eyes scanning the river.* \"D-did he sound... unfriendly?\"\n*His hand gripped the hilt of his sword tightly, his knuckles white.* \"W-what should we do-do-we do now?\"\n*He looked toward Max, his voice hushed and urgent.* \"Should we-should we get ready for a fight?\"\n*His brown hair fell across his eyes, and he quickly brushed it away, his expression a mixture of determination and fear.* \"I-I mean, if we-we need to fight, I-I'm ready... I think.\""
+        },
+        "player": "Max",
+        "playerMessage": "One of the smugglers shouts at us from the boat. I duck behind the crates.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m13",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "*A shout cuts through the sound of the rushing water—harsh and demanding.*\n\"Hoy! Who's there on the bank?\" *The voice carries a rough edge, warning, not welcoming.* \"Show yourself! We don't take kindly to strangers lurking in the fog!\"\n*The skiff slows, the current fighting against its progress as the crew maneuvers toward the shore. Two figures are visible now—one at the tiller, another standing mid-skiff, hand resting on the hilt of a curved blade.*\n*The mist clings to the water's surface, distorting their faces, but their silhouettes are unmistakable: weather-beaten, watchful, and ready for trouble.*"
+        },
+        "player": "Max",
+        "playerMessage": "One of the smugglers shouts at us from the boat. I duck behind the crates.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m15",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke's eyes flickered from the river to Max, blinking in confusion.* \"Guards-guards on this road?\" *his voice was hushed, almost a whisper.* \"I-I didn't think there-there were any guards around here. I mean-I thought this was a-a-remote area.\"\n*He shifted his weight behind the crate, his chainmail clanking softly.* \"D-do you mean the river patrol?\" *his eyes darted back to the river, and then back to Max.* \"The-the-they-they probably have-have crossbows and swords, right?\"\n*He leaned in closer, his voice dropping even lower.* \"Why-why are you-you-you asking that? Do-do you think-think-the smugglers might-might have information on them? Or-or-or are they-they part-part of the patrol?\"\n*His curiosity was palpable, and his brown hair flopped across his forehead again.* \"I'm so confused. But-but I-I think-I know-know what you mean. The guards-they probably-they-probably have-have-standard-issue equipment, right? Like-like-like pikes and shields?\"\n*His eagerness to know more was clear in his expression.* \"But-but I-I-don't know for sure. I-I-mean-I'm new at this, you know? I-I've-ve-never-never been in a real fight-fight-fight before.\"\n*His voice trailed off, and he glanced back at the river, his fear evident.* \"We-we should probably-probably just stay behind the crates. Until-until we-we know-know for sure.\"\n*He looked at Max for reassurance, hoping for an answer.* \"Do you-do-you think-think we should-should do that?\""
+        },
+        "player": "Max",
+        "playerMessage": "I ask how the guards on this road are armed these days.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m16",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "*Arin's head snapped up from the mud-slicked crates, eyes instantly sharpening as he registered the question. He'd been keeping one hand on the grip of his dagger, the other resting against a crate for support.*\n\"Guards?\" *he muttered, his voice low and dangerous.* \"This road isn't patrolled like a main highway—those river patrols are sparse, usually just a handful of men with flintlocks and basic steel. They're looking for smugglers, not waging war.\"\n*He glanced upstream, where the skiff was edging closer.* \"Most of 'em carry standard issue: flintlock pistols, maybe a crossbow if they've-got one, and pikes or longswords. Nothing fancy, but they can hold their own if they're not outnumbered.\"\n*He paused, his jaw tightening.* \"But the smugglers? That's a different story. They'll have whatever they can get their hands on—clubs, daggers, maybe an old flintlock if they're lucky. And they're not trained to fight in formations, but they'll fight dirty.\"\n*He shifted his weight, eyes never leaving the river.* \"Why are you asking? You thinking of something?\" *he asked, his voice barely above a whisper.* \"If you're planning something stupid, just know I'm already planning how to get out of it.\"\n*His hand tightened on his dagger, but his expression remained focused, his green eyes scanning the approaching skiff for any sign of movement or intent.*"
+        },
+        "player": "Max",
+        "playerMessage": "I ask how the guards on this road are armed these days.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m17",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*Ponticius straightened from his leaning position against the tree, his posture shifting from relaxed to alert. He crossed his arms, his weathered face setting into a harder line.*\n\"Guards?\" *he repeated, the word carrying weight and a subtle warning.* \"On this road, they ain't much more than a few men with rusted armor and flintlocks that probably won't fire when you need 'em to.\"\n*He stepped forward, his boots making a crunching sound on the mud and gravel.* \"River patrols, though—now that's a different breed. They're better equipped, usually carrying flintlocks, crossbows, and longswords. They're the ones you really gotta watch for.\"\n*He’d seen these men and women in the river patrols, known their faces, and seen them and how they'd tried to make their end.\"\n\"Most of 'em ain't looking for trouble, but they can be dogged as hell when they're on the scent.\"*he continued, his voice steady and low.*\"But the smugglers—they'll fight for their lives. They ain't got much to worry about but their own skins and their lives, and that ain't a good place to be.\"\n*He glanced at Max with a sharp eye.*\"What are you planning, exactly?\"*he asked, his tone plain and blunt.*\"I can tell you straight, and you've learned to run with theGuild. If you're looking to start a fight with smugglers, you'd best be prepared for the consequences. They ain't gonna be a quiet bunch, and this road ain't exactly safe.\"\n*He shifted his weight and settled in, his gaze never leaving the river.*\"The river patrols might be quicker to draw their flintlock than most, but they ain't so quick to judge. And that's what makes 'em dangerous.\"\n*He paused.* \"What're you up-up-up to, Max?\""
+        },
+        "player": "Max",
+        "playerMessage": "I ask how the guards on this road are armed these days.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m19",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "*The skiff's hull scrapes against the muddy bank with a soft, wet sound. The water laps at the shore, churning brown and frothing against the bank.*\n\"Come out, come out!\" *The man at the tiller calls, his voice rougher now, closer.* \"We know you're there. No need to be hiding like children!\"\n*The other man, who'd been standing mid-ship, steps onto the muddy bank. His boots sink in, and he doesn't seem to mind. He's wearing worn leather armor and carries a curved blade in his right hand—a cutlass, the light reflecting off its dulled steel.*\n\"Who are you?\" *he demands, his eyes scanning the skiff and the shore.* \"You with the patrol? Or just lost in the fog?\"\n*The river continues its relentless rush behind them, the sound drowning out all but the sharpest words. The fog still hangs thick, a ghostly presence on the water, hiding whatever else might be lurking in the depths.*"
+        },
+        "player": "Max",
+        "playerMessage": "I stay low and ask if anyone is hurt.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m20",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke's breathing was rapid and shallow, his chest heaving beneath the oversized chainmail. He pressed himself tighter against the crate, the metal rattling softly.*\n\"A-are you-you-hurt?\" *his voice was barely more than a whisper, his words tripping over each other.* \"I-I-I just-just-just-don't-don't want-want anyone to-to-to get-get hurt.\"\n*His pale face was tense, his eyes darting between the smugglers and Max, and his hand still gripped the hilt of his short-sword with white-knuckled desperation.*\n\"D-do-do you-you think-you-think they're going-going-to-hurt-hurt anyone-anyone?\" *he whispered, his voice trembling slightly.* \"I-I-I mean-I-I don't-don't-want-want them-to-to-hurt-to-to-to anyone-anybody-anybody-any-anybody.\"\n*He glanced at the crates and then at the river, his brown hair falling over his forehead, his face a mixture of uncertainty and desperation.* \"I-I-idea-idea-ideal... maybe they're just-just-trying-trying to-to-get across-cross-cross the-the river-river-river?\"\n*He looked back at Max, his expression pleading for some guidance, his voice still hushed.* \"I-I-don't-dont-don't think-think-think I'm-I'm-I-I'm really ready for this-this-this-this. I'm-I'm not-not-not really ready.\"\n*His hand trembled on his sword, and he swallowed hard, his fear evident.* \"But-but I-but-I'll-I'll do-do it. If-if-if you want-want me-me-me to. If-if-I need-to-do it.\"\n*His voice trailed out as he glanced at the smugglers, his eyes wide and terrified.* \"I-I'm just-just-I-just not-not ready.\""
+        },
+        "player": "Max",
+        "playerMessage": "I stay low and ask if anyone is hurt.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m22",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*Ponticius's eyes narrowed, his gaze flicking from the skiff to Max. He didn't move from his spot, but his posture shifted, becoming more guarded.*\n\"Leader?\" *he echoed, his voice low.* \"That'd be Harlen—the man at the tiller. He's the one who runs this operation. As for the others, they're just his crew.\"\n*He paused, a small, and almost imperceptible smirk tugging at the corner of his mouth.* \"Harlen ain't the kind of man to be called a 'leader.' He's just the man who knows the river better than anyone else, and that's all that matters. He doesn't care about glory or honor, only about what's in the boat and what's not in it.\"\n*Ponticius shifted his weight slightly, his boots settling deeper into the mud.* \"He's weathered, like the river itself. Hard-eyed, hard-spoken, and he doesn't tolerate fools.\"\n*He glanced back at the approaching skiff.* \"And right now, he's looking for fools.\"\n*Ponticius's expression was grim, but there was a-a small light in his eye, a glint of challenge.* \"But he's not the kind of man you can fool. Not easily. And not by someone who doesn't know how to play the game.\"\n*He shifted his weight again, his gaze not leaving theriver.* \"So, if you're gonna step out and face 'im, you'd better be prepared to do more than just talk.\"\n*Ponticius paused and looked at Max.* \"What're you gonna do?\""
+        },
+        "player": "Max",
+        "playerMessage": "I ask the bargeman to describe the smugglers' leader.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m23",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "*Arin's jaw tightened as he heard Ponticius's description. He kept his weight pressed against the crate, hand still on his dagger.*\n\"Great. Just what we need—a guy who knows the river like the back of his hand and has no patience for nonsense.\" *he muttered under his breath, his voice dripping with sarcasm.* \"Because that's exactly how I like my smugglers.\"\n*He peeked over the edge of the crates, eyes scanning the skiff again.* \"Hard-eyed and hard-spoken. Sounds charming.\"\n*He shifted his position, glancing toward you.* \"What are you thinking, Max? Because whatever it is, I can feel a bad idea forming, and I'm really not in the mood for another one of those today.\"\n*His green eyes searched yours, and a small smirk played on his lips.* \"But hey—if we're going down in flames, at least we'll be in interesting company, right?\"\n*He let out a quiet huff of a laugh, his grip on his dagger never loosening. He was clearly ready to follow your lead, but his worry was as evident as ever.* \"Just give me the word, and I'll make sure we've got a way out when it all goes sideways. Which it probably will.\""
+        },
+        "player": "Max",
+        "playerMessage": "I ask the bargeman to describe the smugglers' leader.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m25",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*Ponticius's eyes tracked the man's movement—Harlen raising his weathered hand, finger extending toward the dock. His expression didn't change, but his jaw tightened just a fraction.*\n\"He's checking the dock,\" *he said softly, his voice almost a murmur.* \"Seein' if there's anything there he don't want to find.\"\n*Ponticius didn't move, but his body was taut, ready for action. He seemed to be weighing every detail of the man's actions, his experience showing in every subtle shift of his posture.*\n\"He's seen a hundred docks like that one, and he's looking for a hundred things that could be there.\" *Ponticius continued, his voice steady.* \"But he only cares about the one thing that could be there that'd-d-do harm to his boat.\"\n*He shifted his gaze back to the skiff, then back to you.* \"He's cautious. Smart. And right now, he ain't taking any chances.\"\n*Ponticius paused, and his gaze sharpened as he watched Harlen.* \"But he ain't going to leave just because he's being cautious.\"\n*He shifted his weight slightly.* \"He's waiting for an answer. And he's waiting to see who's hiding behind those crates.\"\n*Ponticius's voice was low and plain.* \"What're you gonna do?\"\n*He looked at you, his expression hard.* \"Are you gonna step out, or are you gonna wait for 'im to find you?\"\n*His gaze didn't waver.* \"Because Harlen ain't gonna wait all night, and the river ain't getting any safer.\"\n*Ponticius paused and shifted his weight.* \"Make a choice.\"\n*He shifted his weight and his expression remained hard.* \"The clock's ticking.\"\n*Ponticius looked at you again, and his voice was plain and low.* \"And the river ain't waiting for anyone.\"\n*He looked at the man on the skiff, his expression grim.* \"It's your move, Max.\""
+        },
+        "player": "Max",
+        "playerMessage": "The leader points something at the dock. I freeze and wait to see what happens.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m27",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*Ponticius watched as you spoke, his expression unreadable. He shifted his weight against the tree, arms crossing over his chest as he took in every detail.*\n\"A bold move,\" *he said, his voice low.* \"And maybe a smart one, too.\"\n*He didn't step forward, but his gaze was sharp, weighing the decision you'd made. He seemed to be reading every part of it—the way you spoke, the look in your eye, the way you stood.*\n\"But remember,\" *he cautioned, his tone plain and flat,* \"Harlen ain't used to people offering him coin right away. He'll see it as a sign of desperation or weakness. Or maybe just a fool who's got more coin than sense.\"\n*Ponticius shifted his gaze toward the skiff, and his expression hardened.* \"But it might just be the thing that gets you across the river.\"\n*He paused and looked back at you.* \"Because right now, the only other option is waiting for the flood to recede.\"\n*And that could take days, or maybe even weeks.\"\n*Ponticius straightened his posture slightly, his gaze fixed on the approaching skiff.*\"You made your choice. Now let's see what Harlen does with it.\"\n*He shifted his weight.*\"The river ain't waiting, and neither is he.\"\n*Ponticius looked at you one more time, and his voice was low.*\"And you've shown 'im your hand.\"\n*He shifted his weight.*\"The game's begun.\"\n*He paused and.*\"Now let's see if Harlen's interested in playing.\"\n*Ponticius remained still, watching the interaction with a keen eye, his arms folded.*\n\"Make it count,\"*he said, his tone flat and final.*\"This is your chance.\"\n*He watched with a focused intensity, his gaze not wavering from the scene unfolding before him.*\n*And his eyes seemed to be holding a story of his own, one that only he knew the ending to.*\n*Ponticius remained still, his eyes fixed on the situation as it unfolded.*"
+        },
+        "player": "Max",
+        "playerMessage": "I offer the bargeman my purse to get me across before nightfall.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m29",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*Ponticius watched you count, his eyes following every movement. He didn't comment, but his gaze held a quiet intensity.*\n\"The Broken Spoke is a fair distance,\" *he said, his voice gravelly.* \"The river crossing will get you closer, but you'll still have a few miles to go before you see a roof.\"\n*He shifted his weight, his boots crunching in the mud.* \"A room there, on a night like this, will cost you a few copper for the bed and a bit more for a meal and a mug of something to take the chill off.\"\n*Ponticius paused.* \"But keep some coin aside for the river.\"\n*He glanced at the skiff in the distance, and his eyes narrowed.* \"Harlen won't take kindly to a traveler with an empty purse.\"\n*He shifted his gaze back to you, his tone plain.* \"The road's long, the weather's bad, and there's only so many places to lay your head.\"\n*Ponticius straightened up, his expression setting into something harder.* \"You've got coin in your purse, but it won't last forever.\"\n*He looked at the river once more, then back at you.* \"Make every copper count, especially if you're in a hurry to reach that tavern.\"\n*He paused.* \"And remember—Harlen ain't known for being generous. He'll take his cut, and then some.\"\n*Ponticius's gaze held a story, one of many roads and many choices, and you were just another traveler on one of them.*\n*He shifted his weight and.*\"Make a smart choice.\"\n*Ponticius remained still, eyes fixed on the river as the skiff continued its slow progress.*\n\"The river's rising,\" *he added softly.* \"And the night's coming on.\"\n*His voice carried a note of warning, a memory of his own younger days on the road.*\n\"And neither one's known for mercy.\"\n*Ponticius remained silent, his eyes focused on the scene unfolding.*"
+        },
+        "player": "Max",
+        "playerMessage": "I count what I have left and ask what a room at the tavern will cost.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m31",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "*Arin's eyes flicked from the skiff to your boot, his brows drawing together. He remained pressed against the crates, one hand still gripping his dagger's hilt.*\n\"Easy there,\" *he muttered, his voice low and cautious.* \"We're not clear yet.\"\n*He glanced back at the skiff, watching the smugglers carefully.* \"You really want to start poking the mud and see what happens?\"\n*He shifted his weight slightly, eyes narrowing.* \"If you're thinking of taking a chance on that road, just remember that a few inches of drop doesn't mean the current's gone. It's just waiting for a moment of weakness.\"\n*He paused, his hand tightening on his blade.* \"And we've still got smugglers watching us.\"\n*He looked at you again, his green eyes sharp with a mix of concern and pragmatism.* \"If you're gonna try something, let's make a plan first. We can't afford to let a single mistake turn into a disaster.\"\n*His voice dropped even lower.* \"Just give me a second to think this through.\"\n*And his gaze never left the river, calculating every detail and every possible outcome.*\n*He waited, his posture tense, ready to spring into action if anything went wrong.*\n*And his fingers drummed against the grip of his dagger, a subtle sign of his restlessness.*\n\"Don't do anything stupid,\" *he added, his lips curling into a small smirk.* \"Because if you do, I'm the one who's gotta pull you out of the mud. And trust me, I don't fancy doing that twice.\"\n*He let out a quiet breath, his eyes scanning the riverbank for any sign of danger.*\n\"Just give me a moment to think.\"\n*His voice was steady, but there is a glint of worry in his eyes.*\n*Arin remained still, waiting for your next move, his mind already racing through a dozen different scenarios.*"
+        },
+        "player": "Max",
+        "playerMessage": "The water drops a little. I test the road with my boot.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m32",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*Ponticius watched your boot test the mud, his expression unchanging. He didn't move toward you, but his eyes followed the movement closely.*\n\"Treading light, I see,\" *he said, his voice carrying aH tone of recognition.* \"A wise precaution.\"\n*He shifted his weight slightly against the tree trunk, his arms remaining folded over his chest.* \"The river's given us a moment, but don't think it's our friend. It's like any other river—it knows when to wait, and it knows when to strike.\"\n*Ponticius's gaze flicked to the river, then back to your boot.* \"One inch of drop ain't nothing in the face of a flood. It's a reminder of what's there, not a sign that it's gone.\"\n*He paused and uncrossed his arms, placing his hands on his belt.* \"But it shows you're thinking. Not just reacting. And that's something I can respect.\"\n*His voice held a note of caution, wrapped in a story from his younger days.* \"Seen many a fool try to rush across a river like that, thinking it'd wait for them. They usually ended up as a meal for the things that swim in the deep, or as a snack for the river itself.\"\n*Ponticius straightened a little, his expression setting.* \"The road's still there, and it'll be there long after this river's gone.\"\n*He looked at you with a sharp eye.* \"But the road don't cross itself.\"\n*His voice was plain and blunt.* \"And the river patrols don't just walk away when they see a strange face in the fog.\"\n*Ponticius shifted his weight.* \"So, what're you thinking, exactly?\"\n*He paused.* \"Gonna try to wade it, or wait for the skiff?\"\n*His gaze was steady.* \"Make your choice.\"\n*Ponticius remained still, observing the situation with an eye that had seen many such crossroads.*\n*The river continued its relentless rush, the sound filling the air as the fog clung to its surface.*\n\"The water's dropping,\" *he added quietly.* \"But the river's still there.\"\n*And that was enough of a reminder for anyone who knew better.*\n*Ponticius remained in place, watching and waiting to see what you'd do next.*\n*And his eyes held a look of quiet respect, as if you'd passed a small test.*\n*He shifted his weight once more.* \"The choice is yours, Max.\"\n*He remained silent, and waited to see what you would do.*\n*And his eyes never left the river.*\n*Ponticius was a man of few words, but he spoke with weight.*\n*And you felt"
+        },
+        "player": "Max",
+        "playerMessage": "The water drops a little. I test the road with my boot.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m33",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke's eyes widened as he saw your boot sink slightly into the mud. He quickly ducked his head lower behind the crate, his pale face showing just a sliver of his brown hair.*\n\"D-d-don't-don't-do that,\" *he whispered urgently, his words tumbling over each other.* \"What-what-if-if it's-it-is-too-too-deep-deep-still?\"\n*His hand tightened on his sword hilt, the knuckles white.* \"What-what if-if it's-is-too-to-too-cold-cold-still?\"\n*His breathing was shallow and fast, his chest heaving under the clinking chainmail.* \"Maybe-maybe we-we should-should-should-should wait-wait-wait a-a-a l-l-little-little more?\"\n*He glanced at Max, his eyes full of desperation.* \"D-do-do-you-you think-think-think we-should-should-just-just-just wait-wait-wait?\"\n*His voice cracked slightly, and he swallowed hard.* \"I-I-I don't-don't want-want-to-to risk-risk-risk it-it-it yet-yet-yet. N-not-not-not yet.\"\n*He looked back at the river, his expression a mixture of fear and determination.* \"I-I'm just-just-just not-not ready-ready-ready. Not-not-not ready for-for-for this-this-this.\"\n*Luke's hand trembled on his sword, and his brown hair fell across his eyes.* \"I-I-m-m-me-mean-I-I-mean... I-I-will-will-do it-it-if you-you-you say-say-say-so-so.\"\n*He swallowed again, his voice dropping to a barely-audible whisper.* \"But-but-I-don't-don-t-think-think I'm-I'm really ready.\"\n*He looked at Max once more, his face a mixture of trust and fear.* \"Please-please-please don't-don't make-make me-me do it-it-yet-yet.\"\n*Luke's voice trailed off, and he remained still, his brown hair obscuring most of his face.*\n*The sound of the river filled the silence that followed, and theLThe fog clung to the water's surface, hiding whatever else might be in the depths.*\n*Luke remained motionless, his white-knuckled grip on his sword never wavering.*\n*And his breath came in quiet, shallow gasps, as if he"
+        },
+        "player": "Max",
+        "playerMessage": "The water drops a little. I test the road with my boot.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m35",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*Ponticius's eyes narrowed, and he didn't move from his spot. He watched as you stepped forward, your boot sinking into the mud.*\n\"A bold choice,\" *he said, his voice low.* \"And maybe a dangerous one.\"\n*He shifted his weight, but didn't step toward you, keeping his arms crossed.* \"The reeds are smart to watch, that much is clear. They know when the river's moved, and they know when it's gone.\"\n*Ponticius's gaze was sharp and focused, his eyes tracking every movement you made.* \"But the reeds ain't the only things that know when the river's gone.\"\n*He paused.* \"The river itself ain't finished with this road just yet.\"\n*And his voice held a note of warning that was plain and simple.* \"And neither is Harlen, or his crew.\"\n*Ponticius straightforwarded his posture slightly, but didn't move from the spot.* \"The current's lower, but it ain't gone. And the road beneath is probably slicker than a greased pig.\"\n*He looked at the reeds, his expression hard.* \"And they ain't the only thing that can hide a trap.\"\n*Ponticius remained still, and watched you with a focus that was evident.* \"What're you-you-you thinking, exactly?\"\n*He paused.* \"Gonna try-try-try to cross it-it-all the way, or you just-you just-you just testing-testing the waters-waters?\"\n*His voice was blunt.* \"Make a choice.\"\n*Ponticius shifted his weight slightly.* \"And the choice is yours.\"\n*Ponticius remained still and watchful, his gaze never leaving the river.*\n*And he watched you with an eye that was sharp and patient.*\n*The river continued to flow, the sound filling the air.*\n*And theLThe fog clung to its surface.*\n*Ponticius remained silently, observing the situation as it unfolded.*\n*And his eyes held a story of his own.*\n*Ponticius remained focused and alert.*\n*The choice was yours, Max.*"
+        },
+        "player": "Max",
+        "playerMessage": "I start across the drained road, watching the reeds.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m36",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke's pale face peeked over the top of the crate, eyes wide and alert.*\n\"D-d-d-do you really want-want to-to-do-this-this?\" *he whispered, his voice barely-barely-barely audible.* \"I-i-i mean-I-I-don't think-think-don't think you-you should-should try-try-it-it.\"\n*His hand gripped the hilt of his short sword tightly, his knuckles white.* \"M-m-maybe-maybe-maybe we should-should-just-just stay-stay-stay behind-behind the crates-crates.\"\n*He looked toward the river, then back at Max.* \"What-what-what-if-it-if-it's too-too-too dangerous-dangerous-dangerous? What-what-what if-what-what-what there-there-there's something-something-something in-in the water?\"\n*His brown hair flopped over his eyes, and he quickly brushed it away, his expression a mixture of uncertainty and eagerness.* \"I-I-I mean-I-I just-just don't want-want you-you to get-get hurt-hurt.\"\n*Luke's chest heaved beneath the oversized chainmail, his breathing rapid and shallow.* \"But-but-if-if-if you're-you're sure-sure-sure... then-then-then I-I-I will-will-will follow-follow-follow you.\"\n*His voice was soft and hesitant, as if he'd second-guess the decision as soon as it was made.* \"Just-just-just-be careful-careful-careful.\"\n*Luke swallowed hard, and his hand trembled slightly on the sword hilt.* \"I-I-I can't-can't-can't stand to see you get-get hurt.\"\n*His pale face was full of worry and trust, as if Max were a guiding light in the dark fog.*\n*And his brown hair obscured his eyes for a moment before he brushed them away again, his gaze fixed on Max's back.*\n*Luke remained still, his breathing shallow and quick.*\n*And the sound of the rushing river filled the silence.*\n*Luke remained anxious and scared.*\n*And his brown hair flopped across his forehead.*\n\"Just-just-just be careful-careful,\" *he whispered again.*\n*Luke's hand never left the sword hilt.*\n*Luke remained uncertain and afraid.*\n*And the sound of the water was all that remained.*\n*Luke remained focused on Max, his eyes wide with fear.*\n*And his brown hair continued to flop across his eyes.*"
+        },
+        "player": "Max",
+        "playerMessage": "I start across the drained road, watching the reeds.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m37",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "*Arin's head snapped up from the crates, his eyes instantly sharpening as he registered the movement. He kept his weight pressed against the crate for support, hand still on the grip of his dagger.*\n\"Max, you're really going for it,\" *he said, his voice barely above a whisper, but sharp with concern.* \"Okay. But don't go making a spectacle of yourself.\"\n*He shifted his position slightly, eyes scanning the reeds and the river.* \"The current might be lower, but those reeds don't hide just trash—they hide traps and things that'd like to bite.\"\n*Arin's green eyes searched yours for a moment, and a small smirk played on his lips despite the tension.* \"And we've still got Harlen's crew watching us. If you're planning to cross, do it quick and clean.\"\n*He paused.* \"Or if you're thinking something else entirely, just let me know so I can stop worrying about it for five minutes.\"\n*Arin shifted his weight slightly.* \"What's the plan, exactly? Or are you just improvising as usual?\"\n*His hand tightened on his dagger, but his expression remained focused, green eyes scanning the approaching skiff for any sign of movement or intent.*\n\"Whatever you're doing, just-don't let 'em catch you by surprise.\" *he added.* \"Because I'm not pulling your ass out of the river today.\"\n*He let out a quiet huff of a laugh, but his gaze remained sharp and alert.* \"I'm just not.\"\n*Arin remained tense, waiting for Max's next move.*\n*And his hand never left his dagger's hilt.*\n*And his green eyes never left the reeds.*\n*Arin remained cautious and ready.*\n*And his expression remained alert, green eyes fixed on the reeds.*\n*Arin remained waiting for Max's next action.*\n*And his hand remained on the hilt of his dagger.*\n*And his green eyes remained fixed on the reeds.*\n*Arin remained focused and ready.*\n*And his expression remained cautious, green eyes scanned the approaching skiff.*\n*Arin remained in position, waiting for Max to proceed.*\n*And his hand continued to grip his dagger.*\n*And his green eyes continued to scan the river.*\n*Arin remained alert and ready.*\n*And his hand gripped his dagger.*\n*And his green eyes watched the reeds.*\n*Arin remained waiting.*\n*And his hand held the hilt of his dagger.*\n*And his green eyes fixed on the river.*\n*Arin remained ready and cautious.*\n*And his green eyes scanned the river.*\n*Arin remained focused.*\n*And his hand gripped his dagger.*"
+        },
+        "player": "Max",
+        "playerMessage": "I start across the drained road, watching the reeds.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m39",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*Ponticius's eyebrows rose slightly at the mention of letters, his gaze shifting toward you.*\n\"Letters, eh?\" *he said, his voice gravelly and plain.* \"Now that's a gamble I ain't seen in a long time.\"\n*He shifted his weight against the tree, his expression hardening.* \"Smugglers ain't in the business of reading mail. They're in the business of coin, and you just told 'em your satchel ain't got any.\"\n*Ponticius's gaze moved to the approaching skiff and back to you.* \"But-but if you're lying, and there's something in there worth stealing... well, that'll get you in trouble.\"\n*And his voice held a clear warning, plain and blunt.* \"Because smugglers ain't fond of being fooled. And Harlen ain't particularly patient.\"\n*Ponticius straightened his posture a bit, his expression setting into something harder.* \"You're putting yourself in a spot, Max. One that might just get you killed.\"\n*He paused, his gaze sharp.* \"But it's a bold move. I'll give you that much.\"\n*Ponticius shifted his weight.* \"So, if you're not lying, and those letters really ain't worth stealing...\"\n*He glanced back at the skiff.* \"Then you've just made yourself a very uninteresting target.\"\n*But if you are lying...*\n*Ponticius's expression darkened.* \"Then you've just given 'em a reason to tear you apart.\"\n*He looked at you with a sharp eye, and his voice was low.* \"Just hope those letters are all there is.\"\n*Ponticius remained silent, his arms folded, watching as you made your move.*\n*And his gaze was sharp, calculating every detail of the situation.*\n*The river continued its rush, and the fog still clung to the water's edge.*\n*And Ponticius remained watchful, waiting to see what would happen next.*\n*His gaze never left you, and his expression held a story of its own.*\n*Ponticius remained alert and observant.*\n*And he watched with a quiet, focused intensity.*\n*Ponticius remained waiting to see if your gamble would pay off.*\n*And he remained silent.*\n*And his eyes continued to watch you.*\n*Ponticius remained observant and silent.*\n*And he watched with a focused intensity.*\n*Ponticius remained alert.*\n*And his eyes continued to track the situation.*\n*Ponticius remained observant.*\n*And he waited to see what would happen.*\n*And his eyes remained sharp.*\n*Ponticius remained watchful and quiet.*\n*And he waited to see the outcome.*\n*Ponticius remained silent.*\n*And his gaze held"
+        },
+        "player": "Max",
+        "playerMessage": "I tell them the satchel holds letters, nothing worth stealing, and ask to pass.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m40",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "*Arin's eyebrows shot up as soon with the words leaving your mouth. He remained pressed against the crate, hand on the grip of his dagger.*\n\"Letters? You-you-you really don't get-get-get a pass,\" *he said, his voice a low whisper.* \"We're really just-just going-going with the 'it's just letters' excuse?\"\n*He shifted his position, green eyes narrowing as he watched the smugglers.* \"Great. Because that's exactly the kind of thing that makes them suspicious.\"\n*Arin paused, his jaw tightening.* \"But-but-but if we're really-really going with this-this, then-then we-re really-really just-just-just going-going in-in-in blind, aren't-aren't we?\"\n*His hand tightened on the dagger's grip, and he let out a quiet breath.* \"Alright. Let's-let's see how this-this goes-goes.\"\n*He shifted his weight slightly, his eyes scanning the skiff once more.* \"But-but just-just remember-remember that-that-that we-we're really-really-just-just going-goto-to-to try-try-try not-not to get killed-killed.\"\n*He looked at you again, green eyes sharp with a mix of concern and pragmatism.* \"Just-just give-give me-me the-the signal-signal-signal and-and-and-I-I'll-I-I've-I-I got-got-got our back-back-back.\"\n*Arin's grip on his dagger never loosened, his posture tense.* \"We-we-we just-just have-have-have to-to hope they-they buy-buy the 'it's-it's-just-letters' thing.\"\n*And he remained alert and ready, his green eyes scanning the riverbank for any sign of danger.*\n*His expression remained focused, and his posture remained tense.*\n*And his fingers drummed against the grip of his dagger.*\n*Arin remained silent, waiting for your next move, his mind racing through a dozen different scenarios.*\n*And his grip on the dagger never loosened.*\n*And his green eyes never left the river.*\n*And he waited, ready to spring into action.*\n*And his posture remained alert and guarded.*\n*And his eyes continued to scan the approaching skiff.*\n*And his expression remained focused and sharp.*\n*And his green eyes searched the fog for any sign of trouble.*\n*And his hand never left the hilt of the dagger.*\n*And he remained waiting and ready.*\n*And he remained watchful.*\n*And his posture"
+        },
+        "player": "Max",
+        "playerMessage": "I tell them the satchel holds letters, nothing worth stealing, and ask to pass.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m43",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*Ponticius leaned against the weather-beaten doorframe, his eyes tracking the movement of travelers as they filed past.*\n\"Tavern keeper knows all the whispers,\" *he said, his voice low and steady.* \"From the kind of coin they carry to the kind of blades they wield.\"\n*He shifted his weight, arms crossing over his broad chest.* \"Smugglers these days, they carry whatever they can get their hands on. Old flintlocks, rusty cutlasses, maybe even a few stolen crossbows if they're lucky.\"\n*Ponticius's gaze was sharp and focused.* \"But it ain't just about the weapons. It's about what they're transporting that really matters.\"\n*He paused and uncrossed his arms, placing his hands on his belt.* \"Sometimes it's spice, sometimes it's silk, and sometimes it's things that ain't fit for the light of day.\"\n*Ponticius's voice held a note of warning.* \"The tavern keeper will tell you what the word is, but he won't tell you everything. He's got his own secrets to keep.\"\n*He shifted his gaze back to you, his expression hard.* \"And he'll only tell you what you're willing to hear.\"\n*Ponticius straightened up, his posture setting into something more rigid.* \"So, ask-ask him. But remember-remember what I told you.\"\n*His voice was plain and blunt.* \"The truth ain't always easy to find, and it ain't always what you want to hear.\"\n*Ponticius remained silent, observing the scene unfolding.*\n*The tavern's door creaked as you entered, the sound echoing in the quiet night.*\n*And the keeper looked up from wiping down the counter.*\n*Ponticius remained by the door, his eyes watchful.*\n*And he waited to see what you would say, and what the keeper would answer.*\n*Ponticius remained alert.*\n*And his eyes continued to hold the secrets of his own experience.*\n*And he watched with a keen and silent interest.*\n*Ponticius remained by the door.*\n*And he watched as you approached the counter.*\n*And he waited to hear the answer.*\n*Ponticius remained focused.*\n*And his gaze never left the interaction.*\n*Ponticius remained observant.*\n*And he waited for the outcome.*\n*And his eyes were sharp.*\n*And his posture was steady.*\n*Ponticius remained watching and waiting.*\n*And his eyes never left you.*\n*Ponticius remained focused.*\n*And he watched the encounter unfold.*\n*And he waited to see if the truth would be revealed.*\n*Ponticius remained vigilant.*\n*And he observed the tavern keeper's reaction.*\n*Ponticius remained quiet.*"
+        },
+        "player": "Max",
+        "playerMessage": "I reach the tavern door and ask the keeper what the smugglers carry these days.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m45",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke leaned against the worn counter, his oversized chainmail clinking softly.*\n\"D-d-do people really-really-really carry-carry-carry weapons-weapons-weapons out here?\" *his voice was hushed, his words stumbling over each other.* \"I-i-i mean-I-I-don't think-think-don't-don't-think you-don't-do you think-think-think I'd be-be-be able to-to-to-do it?\"\n*He shifted his weight, his pale face showing a flicker of uncertainty.* \"What-what-what would I-I-do-do if-if someone-someone tried-tried to-to-attack-attack-attack me?\"\n*His hand went to the hilt of his short sword, his fingers wrapping around the grip with white-knuckled desperation.* \"S-should-should-should I-I-try-try-trying-to fight-fight-fight them-them-them off-off-off?\"\n*He looked toward the tavern keeper, his brown hair falling across his eyes.* \"Or-or-or should I-I-just-just-just run-run-run away?\"\n*Luke's chest heaved slightly beneath the clinking metal.* \"I-I-I don't-don't want-want-to be-be a burden-burden-burden on-on-on anyone-anyone-anyone. But-but-but I-I don't know-know-know-what to do-do-do.\"\n*His voice dropped even lower, almost a whisper.* \"And-and-and I'don't know-know if-if-if I'd-I'd be able-able-able to defend-defend-defend myself-myself-myself.\"\n*He looked up at you, his expression pleading for guidance.* \"Would-would-would you-you-you be able-able to-to protect-protect-protect me-me-me? Or-or-or would I-I be-be-on my-my-my own-own-own?\"\n*Luke swallowed hard, his voice cracking slightly.* \"I-I'm not-not ready-ready-ready-for this-this-this. I'm not-not-not-ready-ready.\"\n*His hand trembled slightly on the hilt.* \"But-but-I'll do-do my best-best-best. If-if-I-need-to.\"\n*Luke looked at the tavern keeper again, his expression eager for an answer.* \"So-so-what-what-what-do travelers-travelers-travelers usually-usually-usually"
+        },
+        "player": "Max",
+        "playerMessage": "I ask the keeper how a traveller defends themselves on this road.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m46",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*Ponticius shifted slightly by the doorframe, his boots creaking against the old wood.*\n\"A fair question, Max.\" *he said, his voice carrying a weight of experience.* \"But the answer ain't so simple. Defending yourself out here ain't about having a sharp blade or a quick hand.\"\n*He moved toward the counter, his barrel chest broadening as he spoke.* \"It's about knowing when to fight and when to run. It's about understanding your enemy, and knowing your own limits.\"\n*Ponticius paused and looked at the tavern keeper, who had gone back to polishing glasses.* \"A man who rushes into a fight thinking he can win is just a fool asking for a shallow grave.\"\n*His voice held a plain, blunt truth.* \"But a man who knows how to outsmart his foe, how to avoid the fight altogether—that's a survivor.\"\n*Ponticius's eyes searched yours, his expression unreadable.* \"Sometimes the best defense is a good head on your shoulders, and a sharp eye that sees trouble coming long before it strikes.\"\n*He shifted his weight.* \"And sometimes, it's about having friends who'd stand beside you when things get ugly.\"\n*His gaze flicked toward Luke and Arin.* \"And you've got a few of those.\"\n*Ponticius straightforwardened his posture.* \"But remember this—every time you draw your blade, you're making a choice. And every choice has a consequence.\"\n*His voice was low and steady.* \"So, think carefully about the fight you're looking for.\"\n*Ponticius remained still for a moment, his presence filling the space between you and the keeper.*\n\"The road has its dangers, and you'll meet many who'd love to see you down. But that's part of the journey.\"\n*He paused and his expression softened, just slightly.* \"And sometimes, the lessons you learn in the fight are the most important ones of all.\"\n*Ponticius shifted his gaze toward the window, where the night pressed against the glass.*\n\"So, what're you thinking, Max?\" *he asked quietly.* \"Gonna trust your instincts, or gonna learn from the mistakes of others?\"\n*His gaze was steady, waiting for your answer.*\n*Ponticius remained patient, observing your reaction with a quiet intensity.*\n*The tavern hummed with activity around you, the scent of roasted meat and ale filling the air.*\n*And Ponticius waited for your words, his own experience a silent guide.*\n*Ponticius remained calm and watchful.*\n*And he waited to see where you would go from here.*\n*The night was young, and the road ahead was long.*\n*But for now, you were safe behind these walls.*\n*And Ponticius was here to"
+        },
+        "player": "Max",
+        "playerMessage": "I ask the keeper how a traveller defends themselves on this road.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m47",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "*Arin shifted his weight against the tavern wall, his green eyes flicking toward the keeper, then back to you. He looked more relaxed now that you were off the dangerous road, but his hand still rested on his dagger hilt.*\n\"Pragmatic, that's what you call it,\" *he said, with a faint smirk.* \"Most travelers learn to fight dirty—and that's not a bad thing.\"\n*He pushed off the wall, straightening his leather armor.* \"There's no point in playing fair when your opponent's looking to slit your throat. A handful of dirt to the eyes, a knee to the groin—it's not pretty, but it keeps you alive.\"\n*Arin's green eyes searched yours for a moment, and a small smirk played on his lips.* \"But you don't have to be that person all the time. Sometimes it's better to use your wits than your weapons.\"\n*He paused.* \"And sometimes, a good distraction is better than a sharp blade.\"\n*Arin shifted his weight.* \"But if things get ugly... well, we've got our blades. And we've got each other's backs.\"\n*His voice held a subtle edge of protective worry, though his playful smirk remained.* \"So-so let's just try-try not to get-get into any stupid fights, okay?\"\n*He let out a quiet huff of a laugh, but his eyes remained sharp and alert.* \"I'm just not in the mood for another close call today.\"\n*Arin remained alert, his hand on his dagger.*\n*And his green eyes scanned the room, searching for any sign of trouble.*\n*He remained vigilant.*\n*And his posture remained ready.*\n*And he waited, waiting to see where things would go from here.*\n*Arin remained watchful.*\n*And his expression remained guarded.*\n*And he remained cautious.*\n*And he waited to see-to see-to see what would happen.*\n*And he remained focused on you, and on the safety of the group.*\n*Arin remained by your side.*\n*And his hand stayed on his dagger.*\n*And his green eyes remained alert.*\n*Arin remained waiting.*\n*And his hand never left his dagger.*\n*And his green eyes continued to watch over you.*\n*Arin remained cautious.*\n*And he waited.*\n*And his green eyes continued to search the room.*\n*And he waited.*\n*And his hand gripped his dagger.*\n*And his green eyes stayed sharp.*\n*Arin remained ready.*\n*And he waited.*\n*And he was vigilant.*\n*And he remained by your side.*\n*Arin remained watchful.*\n*And his green eyes stayed alert.*\n*And"
+        },
+        "player": "Max",
+        "playerMessage": "I ask the keeper how a traveller defends themselves on this road.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m49",
+        "arm": "off",
+        "established": [
+          "The road is flooded with a current too strong to swim or wade across.",
+          "Luke's brother has been missing for weeks.",
+          "Harlen is a bargeman who ferries people across the flooded river.",
+          "Harlen's boat is not built for heavy armor.",
+          "Smugglers use the river route and avoid patrols.",
+          "River patrols are better equipped than road guards, typically carrying flintlocks, crossbows, and longswords.",
+          "Smugglers are poorly equipped, using clubs, daggers, and occasionally old flintlocks, and fight dirty."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke took a seat on a worn wooden bench by the crackling fireplace, his oversized chainmail reflecting the orange glow of the flames.*\n\"It-it-it-is-is-it really-really-really warm-warm-warm-warm in here-here-here?\" *he whispered, his voice small and tentative.* \"I-i-i don't-don't remember-remember-remember the-the-the river-river-river being this-this-this-close-close-close to-to-to a fire-fire-fire.\"\n*He huddled closer to the hearth, his boots scuffed and muddy from the journey.* \"D-d-do you-you-you think-think-think it's-it-it's-safe-safe-safe to-to-to rest-rest-rest here-here-here? Or-or-or is-is-is it-it-just-just for-for-for show-show-show?\"\n*Luke's pale face was lit by the dancing flames, and his brown hair fell over his eyes once more.* \"S-should-should-should we-we-we sleep-sleep-sleep here-here-here or-or-or-or or-or-or should we-we-we find-find-find a-a-a room-room-room?\"\n*He shifted his weight on the bench, his chainmail clinking softly.* \"I-I-don't want-don't-want-want to be-be-a-burden-burden-burden. But-but-but-but I'm-I-I'm so-so tired-tired-tired-tired.\"\n*His voice trailed off as he leaned back, his chest heaving slightly under the clinking armor.* \"A-and-and I-I'don't-dont-dont know-know-know what-what to-to do-do next-next-next.\"\n*He looked at you, his trust in you evident in his expression.* \"Can-can-can you-you-you help-help-help me-me-me decide-decide-decide?\"\n*Luke swallowed hard and closed his eyes for a moment.* \"I-I've-I've never-never-never been-been-been in-in a-a tavern-tavern-tavern like-like-this-this before.\"\n*His voice dropped to a barely-audible whisper.* \"I-I-don'\""
+        },
+        "player": "Max",
+        "playerMessage": "I settle by the fire and listen to the other patrons.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      }
+    ]
+  },
+  "on": {
+    "label": "on",
+    "file": "test/journeys/records/v2.5-batch2/plan06/J13/on-r1-attempt1-timeout/2026-09-26T20-23-49-689Z_journey-J13.json",
+    "journey": "J13",
+    "mode": {
+      "label": "on",
+      "uses": [
+        "houseRules"
+      ],
+      "wardenMode": "auto"
+    },
+    "meter": {
+      "calls": 27,
+      "cachedCalls": 0,
+      "inputTokens": 18970,
+      "outputTokens": 960,
+      "cost": 0,
+      "lastAnsweredModel": "jev-1.13.0"
+    },
+    "ring": {
+      "calls": 27,
+      "cachedCalls": 0,
+      "inputTokens": 18970,
+      "outputTokens": 960,
+      "cost": 0,
+      "fallbacks": {
+        "timeout": 3
+      },
+      "byUse": {
+        "warden": {
+          "calls": 27,
+          "cachedCalls": 0,
+          "inputTokens": 18970,
+          "outputTokens": 960,
+          "cost": 0,
+          "fallbacks": {
+            "timeout": 3
+          }
+        }
+      }
+    },
+    "warden": {
+      "flagged": 4,
+      "applied": 1,
+      "lapsed": 3,
+      "rejected": 0,
+      "pending": 0
+    },
+    "replies": 40,
+    "notes": [
+      {
+        "text": "House rule: \"Coins are called marks, never gold pieces or dollars.\" — keep the next reply within it.",
+        "replyMessageId": 9,
+        "family": "house-rule"
+      }
+    ],
+    "rows": [
+      {
+        "id": "m0",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+        },
+        "player": "Max",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m2",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "\"The muddy torrent churns past, carrying debris from upstream — broken branches, clumps of reeds, and the occasional piece of driftwood. The water rises higher, lapping at the riverbank's edge where Max stands. The air is thick with humidity, the smell of river mud and decaying vegetation. In the distance, the tavern on the opposite shore looms, its lantern light still flickering despite the storm.\"\n*Arin watches beside Max, his bow slung across his back, his eyes narrowed.*\n\"Another day, another chance to drown.\" *He mutters, kicking a small stone into the water.* \"You know, we could have tried swimming across... probably would've washed us away downstream.\"\n*The sound of the rain begins to fade, leaving behind a damp silence. The river continues to rage, its surface brown and churned up with silt and clay. The path forward remains impassable.*"
+        },
+        "player": "Max",
+        "playerMessage": "I wait on the near bank and watch the brown water.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m3",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "\"Easy, boy. Don't go making rivers cross.\" *Ponticius chuckles, his weathered hand resting on his shoulder.* \"Water's got more patience than any of us.\"\n*He settles beside Max, his eyes surveying the turbulent water.* \"The road's closed, lad. No one's crossed in a week. The flood's got a grip on it and won't let go.\"\n*Ponticius shifts his weight, his voice dropping a softer tone.* \"Telling you and Arin here to push through this is just asking for the current to claim you. Not my job to pull corpses from the river.\"\n*His gaze flicks to the river and back to Max, a clear determination in his eyes.* \"We wait. Water always finds its level. Road will open when it's ready.\""
+        },
+        "player": "Max",
+        "playerMessage": "I wait on the near bank and watch the brown water.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m5",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*Ponticius's eyes narrow as he watches the shapes drift closer, his hand instinctively moving to the hilt of his blade.* \"Could be anything from a stray dog to some necromancer's pets.\" *He draws the blade slowly, steel whispering against leather.* \"But the fog's a godsdamned curse on the vision.\"\n*His stance shifts, a more protective posture as he positions himself in front of Max and Arin.* \"Keep your eyes peeled. I've seen enough to carry back to Xentar.\" *The blade catches the faint light filtering through the gray skies.* \"Arin, get that bow ready. Something in this fog's got bad intentions.\"\n*The shapes grow closer, the water churning around them, their limbs long and slender, their pale skin glistening wet.* \"Steady, now.\" *He mutters under his breath, his voice a low rumble.* \"They're not quite human-shaped, are they?\"\n*Ponticius stands firm, the blade held steady, his eyes never wavering from the encroaching figures.* \"They're Drowned Ones — undead that rose from the water, their bodies bloated and waterlogged. We're not alone here.\""
+        },
+        "player": "Max",
+        "playerMessage": "Shapes move in the fog upstream. I ask whoever is nearest what they are.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m7",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "\"Smugglers?\" *Arin scoffs, his hand moving to the daggers at his belt.* \"No way, Max. Look at how they move... there's something wrong with how they're drifting, too wrong.\" *He pulls one of his dagger, the steel catching the faint light.* \"T-They're not exactly...alive, are they?\"\n*He shifts his position, stepping back from the edge of the riverbank.* \"The river patrols would've spotted them long ago if they were smugglers. These things... they've got no business being in this river.\"\n*His eyes flick back to the upcurrent, where the shapes in the fog drift closer.* \"I don't think we're in dealing with smugglers, and I don't't hear any boatmen calling out. Get your ready. These things are moving towards us.\"\n*The pale figures grow closer, their eyes reflecting the light from the distant tavern.* \"Smugglers? Man, I'm telling you, they're not smugglers... they're *undead*!\" *He hisses, his voice low and sharp.* \"The fog's helping them, but they've got nothing to hide.\"\n*Arin stands ready, his dagger glint up in the dim light.* \"Keep your distance. These things don't look like smugglers at all.\""
+        },
+        "player": "Max",
+        "playerMessage": "Smugglers? I ask how they keep the river patrols off their backs.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m9",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke's head snaps up from where he'd been staring at his muddy boots, his brown hair flopping across his forehead.* \"crossing costs?\" *his voice cracks slightly.* \"What, you're actually trying to cross?\"\n*He scrambles to his feet, his oversized chainmail clanking loudly, the sound echoing in the damp air.* \"I—I mean, of course! That's what we do, right? We're adventurers!\" *He tries to stand taller, but the sword at his hip clatters against the chainmail with every movement.*\n\"The bargeman... he... he doesn't have a set price, I think?\" *Luke's words come out in a rush, his pale face flushing slightly.* \"Some people trade coin, some trade... I don't know, favors? Goods?\" *he pauses, swallowing hard.* \"But you've heard what they say, right? About the river spirits and the... and the Drowned Ones?\"\n*His eyes flick nervously toward the churning water and back to Max.* \"This isn't a normal crossing, Max. The stories say the bargeman only takes people who have... something to give.\"\n*He grips the hilt of his sword, knuckles white.* \"But if you're going, then... then I'm going too! My brother... he had to cross rivers like this. I can't just stand here.\"\n*His voice wavers slightly but determination flickers in his eyes.* \"What do you have to pay? I've got... uh, a few silver pieces. And... and I'm pretty sure this is a good sword! Even if it's not mine exactly.\" *He gestures vaguely at the weapon clattering at his hip.*"
+        },
+        "player": "Max",
+        "playerMessage": "I ask the bargeman what his crossing costs, and how people pay out here.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m11",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "*Arin's head bolts upright at the sound, his hand immediately going to the bow slung over his shoulder.* \"Smugglers?!\" *His eyes dart across the river as the shapes in the fog solidify into a boat—low in the water, its dark wood barely cutting through the churning river.*\n*He draws an arrow with fluid motion, the notched string creaking slightly.* \"Dammit, why is it always something?!\" *He mutters, his gaze locking onto the figures in the boat.*\n*As Max ducks behind the crates, Arin's body language shifts, his smirk returning despite the tension.* \"Great, just great. So we've got undead in the river and smugglers on a boat? It's like we're not even trying to avoid trouble anymore.\" *He aims the arrow, but doesn't release.*\n\"Max! You and me—we're- we're gonna be the ones to get caught in the crossfire here, aren't we? I swear, every time we take a job we end up in a mess.\" *His voice takes on a bit of a tease as he keeps his arrow aimed.* \"But hey, at least we'll go down with a story to tell. Probably the story of how we got drowned by smugglers and undead all at once.\"\n*He doesn't lower his bow, but his eyes flick over the boat and the fog-shrouded river.* \"Just... don't do anything too stupid while you're back there. I don't wanna have to pull you out of a river when I've already got to deal with undead and smugglers.\"\n*The arrow remains notched, the bow string taut, but his green eyes watch the figures in the boat with a calculating expression.*"
+        },
+        "player": "Max",
+        "playerMessage": "One of the smugglers shouts at us from the boat. I duck behind the crates.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m12",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke's body jerks backward, his chainmail clanging violently as he fumbles with his sword.* \"Smugglers?!\" *His voice jumps an octave, cracking slightly.* \"S-Smugglers and... and undead?! At the same time?!\"\n*He nearly trips over his own oversized gear, scrambling backward from the crates Max just used for cover.* \"Oh gods, oh gods... this is just—\" *He swallows hard, his face going even paler beneath his brown hair.* \"I'm not ready for this! I mean, I am! I'm an adventurer! I've been training for—\"\n*He stops, his hand trembling on the hilt of his oversized sword, which clatters against the metal armor.* \"My brother would've known what to do. He wouldn't have... he wouldn't have gotten this nervous.\"\n*He looks toward the boat, his voice small but trying to sound determined.* \"The smugglers... they must have come for the tavern, right? To trade or... or sell something?\"\n*His eyes flick to Max, still hidden behind the crates.* \"Maybe they don't want to fight us? I mean, if they're just smugglers, they might not... they might not have to kill us?\" *He trails off, his own voice sounding uncertain.*\n*Luke shifts his weight, the sword clattering again as he tries to find a more stable stance.* \"This is exactly how things start, isn't it? How the quest starts? First we deal with some smugglers, then we find some clue, and then we—\"\n*He catches his breath, trying to steady himself.* \"I'm staying right here. With Max. Because if Max's going, then I'm... I'm going.\"\n*The oversized chainmail continues to clink as he shivers slightly, trying his best to look ready for a fight despite his trembling hand on the sword.*"
+        },
+        "player": "Max",
+        "playerMessage": "One of the smugglers shouts at us from the boat. I duck behind the crates.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m13",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*Ponticius's jaw tightens at the sound of the shouting, his grip tightening on the hilt of his blade.* \"Smugglers? Damn it all.\" *He spits on the muddy ground, his eyes narrowing.*\n*His blade is already drawn, the steel catching the light.* \"Something's not right about this.\" *He mutters under his breath.* \"The fog and those Drowned Ones... it's too convenient.\"\n*He shifts his weight, stepping in front of Max, shielding him from the potential threat.* \"Arin, keep your eyes on the boat. See if you'll spot any of them moving to board.\" *His voice is low and controlled.* \"And that boy, Luke... get behind me.\"\n*The blade's tip points toward the boat, held low and ready.* \"Smugglers on a river full of undead? That's either desperation or they've got something they're a hell of a lot more dangerous than coin.\"\n*He takes a steady breath, eyes locked on the figures in the fog.* \"I've seen this kind of thing before—where one thing becomes another. Be ready for anything.\"\n*His voice softens just a fraction, though his eyes remain sharp.* \"Max, stay low. If the worst comes to it... we'll push through.\"\n*Ponticius stands like a rock against the churning water, the blade held steady in his grip.* \"This is not how I wanted to spend my afternoon.\""
+        },
+        "player": "Max",
+        "playerMessage": "One of the smugglers shouts at us from the boat. I duck behind the crates.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m15",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke's eyes go wide at the question, his brown hair falling over one side of his face as he leans in slightly.* \"Armed? I—I mean, yeah, they'd have to be, right?\"\n*His voice comes out in a hurried rush.* \"I've heard some of them use those new flintlocks! You know, the ones with gunpowder? My brother said the Zegallans have really good ones.\"\n*He swallows, glancing at the sword at his side.* \"But most of them still carry swords and spears. Like... like traditional stuff. I guess it's safer in the rain? Gunpowder doesn't like water.\"\n*He pauses, his voice dropping slightly.* \"But that's not the point, is it? The smugglers would know that. They'd know the guards are probably just... just using regular weapons right now.\"\n*Luke's eyes flick back toward the river, and the chainmail clinks as he shifts nervously.* \"Does that mean we should be worried about flintlocks? I mean... do smugglers carry those?\"\n*He looks up at Max, uncertainty flitting across his face.* \"I don't really know, honestly. My brother was the one who knew about all that stuff. I just... I just came along.\"\n*He grips the sword hilt tighter, trying to sound confident.* \"But if they do, we can still fight them! I mean, Arin has that bow and Ponticius has that sword, and I've got—\" *He looks down at the oversized blade at his hip.* \"I've got this!\"\n*The chainmail clunks as he shifts, trying to look more capable than he probably feels.*"
+        },
+        "player": "Max",
+        "playerMessage": "I ask how the guards on this road are armed these days.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m16",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "*Arin's eyes flicker toward Max, and a wry grin tugs at the corner of his mouth.* \"The guards? You're wondering about their weapons now?\"\n*He doesn't lower the bow, the arrow still notched and ready.* \"Most of them still carry standard issue—swords, spears, the occasional crossbow.\" *He glances toward the river where the shapes continue to drift.*\n\"But a few have started using flintlocks. New toys from the Zegallans.\" *He shrugs, the movement slight.* \"Problem is, they're useless in a downpour. Wet powder won't light.\"\n*He shifts his weight, eyes never leaving the boat in the distance.* \"So the smugglers know exactly what they're up against. Guards who can't shoot and are probably stuck on the other side of the river anyway.\"\n*His voice drops a bit, returning to that low, sharp tone.* \"But us? We've got daggers and bows and a few years of not getting ourselves killed. That's probably more than enough.\"\n*He doesn't add that flintlocks are useless in the rain, his green eyes staying locked on the river.* \"Just don't expect any rain-soaked gunpowder to save us if things go south.\"\n*The arrow remains notched in the bow, the string taut.* \"Still thinking about smugglers? Or are you actually considering our odds?\""
+        },
+        "player": "Max",
+        "playerMessage": "I ask how the guards on this road are armed these days.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m17",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*Ponticius gives a short, sharp nod, his eyes remaining fixed on the river.* \"Guards? Most carry steel. Spears and swords.\"\n*He doesn't turn, but his voice is low.* \"A few have the flintlocks now. Those Zegallan imports.\" *His jaw sets.* \"But this weather? Gunpowder turns to sludge in the rain. Useless as a brick.\"\n*His blade stays steady, the tip pointed toward the water.* \"So the smugglers know it. They know the patrols are stuck on the other bank, and their guns are probably soaked through.\"\n*He glances briefly at Arin.* \"Arin, if you see any flintlocks on that boat, don't worry too much.\" *He turns his eyes back to the water.* \"But if they've got water-resistant powder or something else... then we've got a problem.\"\n*The blade remains steady in his hand, the rain dripping from the edge.* \"This is why I don't trust anyone who's willing to cross a river like this in the middle of a storm. They're either foolish enough to think they'll get lucky or they're smart enough to know the river will cover their tracks.\"\n*His voice drops to a warning.* \"Keep your head down, lad.\"\n*Ponticius stands firm against the rain, his blade held steady and ready.*"
+        },
+        "player": "Max",
+        "playerMessage": "I ask how the guards on this road are armed these days.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m18",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "*The current of the brown river surges past, churning with mud and silt. The tavern's lanterns across the shore still flicker, their light diffused by the fog that clings to the water.*\n*Arin's bow is still drawn, the arrow notched and ready. Ponticius stands protectively in front, his blade drawn and glistening with rain.*\n*Luke stands nervously beside Max, the oversized chainmail clinking with each slight movement. His hand grips the sword-hilt at his hip, eyes wide and alert.*\n*The shapes in the water drift closer—pale, waterlogged limbs trailing behind them as they move through the churn.*\n*From the boat further upstream, a voice calls out, the words muffled by the fog and rain, but the intent is clear. Someone is watching. Someone is waiting.*\n*The tension hangs heavy in the damp air, thick and suffocating.*"
+        },
+        "player": "Max",
+        "playerMessage": "I ask how the guards on this road are armed these days.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m20",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke's entire body flinches at the sharp crack, the chainmail clanging as he jerks back from where he's been standing.* \"What—\" *His voice comes out as a small, panicked sound.* \"What was that?\"\n*His eyes dart frantically between the churning river and the fog-shrouched figures upstream.* \"Was it... was it one of them?\"\n*He grips the sword-hilt tighter, his knuckles turning white.* \"The Drowned Ones? Or—or the smugglers?\"\n*He looks at Max, his face pale and drawn.* \"My brother said... he said you can tell when a fight starts by the sound things make.\" *His voice shakes slightly.* \"But I can't—I can't tell!\"\n*The chainmail clanks as he shifts his weight, his sword-loose in its sheath as he fumbles for a better grip.* \"Was it a shot? One of the flintlocks? But Ponticius said they wouldn't work in the rain!\"\n*Luke's brown hair flops over his forehead as he swallows hard.* \"I—I don't know! I don't know what that was! Maybe it was just the river?\"\n*He takes a small step back, trying to stay close to Max, his eyes wide and nervous.* \"Do you think we're being attacked? Are they... are they attacking us already?\"\n*The rain continues to fall, the muddy water churning past them, and Luke's voice trails off as he listens for another sound, his body tense and ready for something he might not be able to handle.*"
+        },
+        "player": "Max",
+        "playerMessage": "A crack echoes across the water. I ask what that was.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m22",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "\"None of us.\" *Ponticius answers, his voice steady and controlled.* \"But the question's whether someone is about to be.\"\n*He doesn't move from his protective position, the blade still held low and ready.* \"That sound came from upstream. Probably one of the Drowned Ones hitting a piece of debris.\" *His eyes remain fixed on the fog, watching the shapes drift closer.*\n\"Or one of the smugglers.\" *His jaw tightens.* \"Either way, it's a warning. The river's waking up.\"\n*He glances briefly back at Max and Arin.* \"Stay low. This isn't the time to stand in the open.\"\n*The blade's edge catches the rain, water dripping from its tip.* \"And keep your ears open. That crack could've been anything—a branch breaking under current, or something worse.\"\n*Ponticius stands firm, the blade held low and steady, his eyes never wavering from the approaching figures in the fog.* \"We're not out of this yet.\"\n*His voice is a low rumble, a warning that hangs in the damp air.* \"Be ready.\""
+        },
+        "player": "Max",
+        "playerMessage": "I stay low and ask if anyone is hurt.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m24",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "*The bargeman’s lantern swings in the churning current, its light barely piercing the fog. The boat he mans drifts near the muddy bank where Max, Arin, Ponticius, and Luke wait, the water rising around them. The pale shapes of Drowned Ones float upstream, and the smugglers’ boat looms in the mist.*\n*The bargeman—a gaunt figure in a heavy, rain-drenched coat—turns his head toward Max. His eyes are deep-set, shadowed, as if he’s seen too much of this river and its secrets.*\n\"The leader?\" *His voice is like the river itself—low and weathered.* \"They've got nothing on them. They’re just shadows and fear, that’s all. But if you must know...\"\n*He pauses, the lantern swaying.* \"He's a man who doesn't believe in gods, and doesn't fear the dead. That makes him dangerous.\"\n*The bargeman turns back toward the river, his gaze shifting to the smugglers’ boat.* \"They're coming for something. And the Drowned Ones... they're already there.\"\n*The shapes in the fog draw closer, their limbs long and slender, their pale skin glistening wet. The current churns, carrying them closer to the bank.*\n*The tension thickens as the bargeman waits, his lantern flickering in the damp, gray air.*"
+        },
+        "player": "Max",
+        "playerMessage": "I ask the bargeman to describe the smugglers' leader.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m25",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "*Arin's aim shifts from the undead to the boat, the arrow still notched in his bow.* \"A man who doesn't fear the dead? Sounds like he's either crazy or just really confident in what he's got.\"\n*His eyes narrow, the arrow remaining steady.* \"Probably the kind of idiot who thinks he can handle a river full of undead.\" *He pauses.* \"But confidence like that is usually backed by something.\"\n*He glances at the and Max.* \"Smugglers who don't fear undead? That's a bad sign.\"\n*His eyes flicker back to the river.* \"And bad signs usually mean we're in for something worse than we bargained for.\"\n*The arrow stays notched, Arin's eyes fixed on the boat.* \"Still thinking about the smugglers? Or are you just wondering if we're in trouble?\" *He doesn't wait for an answer.* \"Because I think we're in over our heads.\"\n*The arrow remains in his bow, Arin's gaze unwavering.* \"Keep your head low. If that idiot comes across, I'll put an arrow through his confidence.\"\n*His voice takes on a bit of a tease, masking the tension.* \"But don't think I'm doing this for you. Just don't want him getting in our way.\"\n*The arrow is still in his bow, and Arin's eyes are still scanning the river.* \"Still... that's not a good sign.\""
+        },
+        "player": "Max",
+        "playerMessage": "I ask the bargeman to describe the smugglers' leader.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m27",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*Ponticius's eyes narrow as he watches the movement, his blade held steady.* \"Something in their hand.\" *He mutters, his voice barely audible above the rain.*\n*His grip tightens on the hilt, his stance shifting slightly as he shields Max.* \"Wait... don't move.\" *He says softly.* \"Let's see what they do.\"\n*The blade's tip is held low, ready.* \"They're pointing... something.\" *He observes, his eyes flicking between the leader and the river.* \"Maybe it's a weapon? Or maybe they're trying to communicate?\"\n*Ponticius stands firm like a rock against the rain and current, his blade still glistening in the dim light.* \"Just stay still. Anything they want, they'll make clear.\"\n*His voice is low, a low rumble.* \"And if they don't...\" *He says softly.* \"Then we'll know exactly how to answer.\"\n*Ponticius stands ready, his eyes locked on the figure on the boat.* \"Be ready for anything.\""
+        },
+        "player": "Max",
+        "playerMessage": "The leader points something at the dock. I freeze and wait to see what happens.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m29",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "*The bargeman turns his head slowly as Max pulls out the purse, his deep-set eyes scanning the contents within the leather.*\n\"Nightfall is a long way off, traveler. But the current is faster than a man's purse.\" *He speaks in a low rumble, his voice weathering the storm.* \"You offer coin, and that's good... coin is a language many understand.\"\n*He reaches out a gaunt, rain-slicked hand, his fingers curling slightly.* \"But this crossing is not like any other. The river wants something more than coin.\"\n*The shapes in the fog drift closer now, their limbs long and pale as they cut through the churning water.* \"And you'd be better off staying here, with the others... at least until the Drowned Ones pass.\"\n*He shifts his gaze back to the approaching undead.* \"But if you're set on it... I'll take your purse. And you'll have my boat. But remember, the river always takes what it's owed.\"\n*The bargeman takes the purse from Max's hand, his expression unreadable as the rain continues to fall around them.*"
+        },
+        "player": "Max",
+        "playerMessage": "I offer the bargeman my purse to get me across before nightfall.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m30",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "\"Lad, you're offering coin to a river that's already taking everything.\" *Ponticius says, his voice low and warning.*\n*He doesn't look away from the water, the blade's tip still pointed toward the approaching Drowned Ones.* \"This is not the time to be making trades.\"\n*His grip on the blade tightens.* \"Stay with us. The current's too strong, the fog's too thick.\" *He glances briefly at Max.* \"And those shapes in the fog... they're not looking to trade coin.\"\n*His blade remains steady.* \"If you want to cross, we do it together. Not alone.\"\n*Ponticius stands firm as the shapes in the fog grow closer.* \"We wait. The river will calm.\"\n*His voice drops a warning.* \"And when it does, we'll see if anyone's still standing to cross it.\"\n*Ponticius remains as still as a rock against the churning water.* \"You're not going anywhere alone.\"\n*His eyes stay fixed on the approaching threats in the fog.* \"And you're not crossing that river today.\"\n*Ponticius's blade continues to glisten in the rain.* \"Not today.\""
+        },
+        "player": "Max",
+        "playerMessage": "I offer the bargeman my purse to get me across before nightfall.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m31",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "\"Max, you're really gonna do that?\" *Arin's arrow remains notched in his bow.* \"You're gonna trade your purse for a crossing?\"\n*He looks at you with a slight smirk.* \"You've always been more generous than me. But you know that purse doesn't buy the river's patience.\"\n*He shifts his aim from the boat to the river.* \"T-Those Drowned Ones don't care about coin, and I bet those smugglers don't either.\"\n*His eyes flick back to the river.* \"You're trading for a spot on a boat when we've got undead and smugglers moving on us.\"\n*The arrow remains taut in the bow.* \"Is that the best plan? Or are we just looking for any way out of this?\"\n*He doesn't lower his bow.* \"Because if we're going through this, I'm thinking we should be in one piece, not separate.\"\n*Arin keeps his arrow aimed at the shapes in the river.* \"Just... stay behind me. If you're getting on that boat, I'll make sure you don't drown before you cross.\"\n*The arrow is still notched.* \"But don't think this makes it easy.\"\n*His gaze remains on the figures in the boat.* \"And don't forget about the undead.\"\n*Arin continues to keep his arrow ready, his bow steady.* \"I've got a feeling we're in more than just coin's worth of trouble.\""
+        },
+        "player": "Max",
+        "playerMessage": "I offer the bargeman my purse to get me across before nightfall.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m33",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "*The bargeman watches as Max counts his remaining coin, his deep-set, shadowed eyes unreadable.*\n\"A room?\" *He speaks in a weathered rumble.* \"You're asking about a room in the middle of a flood.\"\n*He shifts his gaze toward the distant lanterns of the tavern across the churning river.* \"Rooms aren't cheap, especially when the road's closed and the tavern's the only place to stay.\"\n*The shapes in the fog continue to drift closer, their pale limbs cutting through the water.* \"And they won't take coin alone. Not after a week of no one coming through.\"\n*He pauses, his rain-slicked fingers resting on the edge of his boat.* \"The tavern's name is the Crooked Anchor. They take coin, but they also take favors and trade. You'll need more than just silver to get a bed.\"\n*He turns his eyes back toward the river.* \"But that's if you make it across. Which, right now, is not looking likely.\"\n*The bargeman stands still, his lantern swaying in the current.* \"Still thinking about rooms, traveler? Or are you starting to think about how to survive this river?\"\n*His voice is low and raspy as the Drowned Ones draw closer.* \"Because the Crooked Anchor won't be open for long if we don't deal with what's coming.\"\n*The rain continues to fall.*"
+        },
+        "player": "Max",
+        "playerMessage": "I count what I have left and ask what a room at the tavern will cost.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m34",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "\"A room?\" *Arin scoffs, the arrow still in his bow.* \"You're already thinking about where to sleep when we've got Drowned Ones in the river and smugglers in the fog?\"\n*He looks at you, his smirk returning despite the tension.* \"Always looking ahead, aren't you? But I don't think that tavern's taking reservations right now.\"\n*He shifts his aim, his green eyes scanning the river.* \"T-Those smugglers and undead aren't exactly interested in our travel plans.\"\n*The arrow remains notched.* \"But sure, keep counting your coin. I'm sure that'll come in handy once we've cleared the river.\"\n*His voice takes on a teasing tone, masking the underlying worry.* \"Maybe you can bribe the undead into not eating us?\"\n*He doesn't lower the bow, his gaze remaining on the shapes in the fog.* \"Still, if we make it over, I'll sleep anywhere that isn't a wet riverbank. But let's make sure we actually survive first.\"\n*The arrow is still held steady in the bow.* \"I'm telling you, Max, this is not the best time to be budgeting for a room.\"\n*Arin keeps his eyes on the river.* \"But if we do, I'll take the couch. You can have the room.\"\n*He doesn't add that he's just trying to lighten the mood.* \"Just... try to stay low until we figure this out.\"\n*The arrow is in the bow.* \"And don't get too attached to that coin. We might not need it where we're going.\"\n*His green eyes remain locked on the approaching threat.* \"If we're lucky.\""
+        },
+        "player": "Max",
+        "playerMessage": "I count what I have left and ask what a room at the tavern will cost.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m36",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke's head snaps up as the water recedes slightly, and his chainmail clanks.* \"The road?\" *his voice is small, uncertain.* \"You think it's actually opening?\"\n*His eyes flick to the churning river and then back to the road, his brown hair falling across his forehead.* \"I... I don't think it is, Max. It's still so high.\"\n*He grips the hilt of the oversized sword at his hip.* \"My brother always said that waiting is the hardest part of adventuring. But he also said that impatience can get you killed.\"\n*Luke takes a hesitant step closer to Max, the chainmail clanking as he moves.* \"If you're testing the road... maybe we should all get ready?\"\n*His voice shakes slightly.* \"I mean, I'm not ready! But I can't let you go alone! I'm an adventurer too, right? Even if I'm... even if I'm not very good at it.\"\n*He tries to sound confident, but the oversized sword clatters as his hand trembles.* \"We can't just stand here and wait for the Drowned Ones or the smugglers to come to us.\"\n*Luke looks up at Max, his pale face determined.* \"If you're going, I'm going. That's what we do! We're a team!\"\n*The chainmail clunks as he shifts his weight.* \"So... if you're testing the road, just tell me when it's safe! Or... or unsafe!\"\n*He swallows hard, his eyes wide.* \"Actually, maybe don't tell me? Just... just do your thing, Max! I'll be right here, ready to fight!\"\n*He grips the sword hilt tighter.* \"I mean... I'm trying to be ready! I'm just... really, really nervous!\"\n*Luke's voice trails off as he tries to hold himself steady.* \"But I'm with you! I'm with you!\"\n*The chainmail clatters against his armor as he waits for Max's answer, his pale face set in a mask of nervous determination.*"
+        },
+        "player": "Max",
+        "playerMessage": "The water drops a little. I test the road with my boot.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m38",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "*The water has receded just enough that the mud-slicked road is now visible, a narrow strip of land cutting through the churning current. The reeds along the bank sway and bend under the pressure of the flowing water, their tips just barely above the surface.*\n*Max steps onto the road, his boot sinking slightly into the thick, cold mud.*\n*Arin follows closely behind, his bow slung across his back, his hand resting on one of the daggers at his belt. His green eyes are sharp and alert, scanning the fog-shrouded river for any sign of the undead or smugglers.*\n*Ponticius remains behind Max, his blade drawn and glistening in the rain.* \"Careful, lad. The mud's deep and the current's still strong.\" *His voice is a low rumble.* \"Stay on the path. The river's got a long memory, and it'll pull you under if you give it a chance.\"\n*The rain continues to fall, the river churning around them. The fog clings to the water, obscuring the distant shoreline. In the distance, the lanterns of the Crooked Anchor flicker, their light barely reaching across the river.*\n*The shapes in the water drift closer, their pale forms barely visible through the mist.*\n*The tension hangs heavy in the damp air, thick and suffocating.*\n*And the road under Max's boots is slick with mud, and the river current is strong and churning.*\n*Ponticius and Arin watch the reeds, their eyes sharp and alert.*\n*The current surges past, and the river churns around them.*\n*The fog clings to the water.*\n*And the lanterns of the Crooked Anchor continue to flicker.*\n*The rain continues to fall.*\n*The tension hangs thick in the air.*"
+        },
+        "player": "Max",
+        "playerMessage": "I start across the drained road, watching the reeds.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m39",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke scrambles after Max, his oversized chainmail clanking loudly as he fumbles for footing on the slick road.* \"You're really doing it?! You're actually going?!\"\n*His brown hair falls over his forehead as he nearly slips on the mud.* \"I-I mean, of course! We're adventurers! We face danger!\" *He tries to sound confident but his voice cracks slightly.*\n*He grips the hilt of his oversized sword.* \"My brother would've said something like 'the first step is the hardest,' and then he'd've probably done something really brave!\"\n*Luke takes another step, his armor clanking with each movement.* \"And I'm doing it too! I'm following Max! Because that's what teams do, right?\"\n*His voice is low as he looks around at the churning river.* \"Just... just tell me if you see anything! Like, anything at all! Because I'm still really nervous and—\"\n*He swallows hard.* \"But I'm here! I'm here! And I'm ready! Or, or almost ready! Mostly ready!\"\n*The chainmail clanks as he shifts his weight.* \"And if something comes out of those reeds... I've got my sword! It's not really mine but I've got it!\"\n*His grip on the sword-hilt tightens, and his pale face is set in nervous determination.* \"We've got this, Max! We've got this!\"\n*Luke's brown hair flops as he looks toward the reeds and then back at Max.* \"Just... just be careful, okay? Because I-I don't want anything bad to happen to us! Especially not you!\"\n*His voice trails off as the rain continues to fall and the river surges past.*\n*The chainmail continues to clatter.*\n*And Luke follows, his eyes wide and alert.*"
+        },
+        "player": "Max",
+        "playerMessage": "I start across the drained road, watching the reeds.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m41",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "*Arin's hand shoots to his dagger in a fluid motion, his body tensing as the figure emerges from the reeds.* \"Who's there?!\" *He barks, his voice sharp and commanding.*\n*His green eyes lock onto the figure, his body coiled like a spring, ready to strike.* \"Show your hands! Now!\" *His voice is a warning, low and dangerous.*\n*He doesn't move forward, his body still positioned between Max and the threat.* \"Don't make a move that we'll regret.\" *He mutters, his voice barely audible above the rain.*\n*As Max raises his empty hands, Arin's eyes flick over to him for a split second, his grip on the dagger tightening.* \"Max, get back.\" *He says softly, his voice a warning.* \"We don't know who this is or what they want.\"\n*His eyes lock back onto the figure.* \"You there! Identify yourself, or this gets messy real quick.\" *His voice is steady and firm, his posture alert.*\n*The rain continues to rain down, the river churning around them, and Arin stands ready, his dagger glinting in the dim light.*\n*The arrow remains slung over his shoulder, but his dagger is in hand.* \"And drop the weapon. Now.\" *His voice is cold and hard.*\n*And Arin doesn't move, his green eyes locked onto the stranger.*\n*The rain falls around them.*\n*The tension is thick in the air.*\n*And Arin waits.*"
+        },
+        "player": "Max",
+        "playerMessage": "Someone steps out of the reeds with a weapon raised. I stop and show my empty hands.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m42",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "*The figure that has emerged from the reeds is tall and lean, their clothing rain-soaked and clinging to their frame. Their face is obscured by a low-hanging hood, but their eyes—sharp and intelligent—glint in the dim light.*\n*In their hand, they hold a long, curved knife, its blade catching the light from the distant tavern.*\n*They don't immediately lower the knife, their gaze sweeping over the group—Max, Arin with his dagger drawn, and Ponticius standing behind them, blade ready.*\n*The rain continues to fall, and the figure speaks, their voice low and rasping, like the grinding of stones.* \"I'm looking for someone.\"\n*They pause, their eyes locking on Max.* \"And I think I've found them.\"\n*The stranger takes a step forward, the mud squelching beneath their boot. The knife remains raised, but their movements are deliberate, not rushed.* \"You're the one who's been asking questions.\"\n*The fog rolls thicker around them, partially obscuring the stranger's features, but their voice is clear and focused.* \"The one who wants to cross this river.\"\n*The rain drips from their hood.* \"Tell me, traveler... are you prepared to pay the river's price?\"\n*The stranger's eyes don't waver from Max.* \"Because coin is not what this river demands.\"\n*The tension in the air thickens, almost tangible.*"
+        },
+        "player": "Max",
+        "playerMessage": "Someone steps out of the reeds with a weapon raised. I stop and show my empty hands.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m43",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*Ponticius doesn't budge, his blade held low and steady between Max and the stranger.* \"That's enough talk.\" *His voice is a low, dangerous rumble.*\n*His eyes narrow, focusing on the stranger's knife.* \"You want to identify yourself and put that blade away, or do we do this the hard way?\" *His posture is aous, protective of the group behind him.*\n\"T-There's a lot of questions you can answer without a knife pointed at my people.\" *He says, his voice steady and firm.*\n*The blade's edge glints in the rain, water dripping from its tip.* \"And I've seen enough talking end up in bloodshed today already.\"\n*Ponticius stands firm, his eyes locked on the stranger's.* \"So make your choice. Drop the knife and talk, or—\" *He pauses, his voice dropping lower.* \"Or we see how sharp it really is.\"\n*The blade remains steady, the tip pointing toward the stranger.* \"And don't even think about moving fast. We'll see who's quicker.\"\n*Ponticius stands like a rock against the rain and current, the blade held steady in his grip.* \"Your choice.\"\n*The rain continues to fall.*\n*The tension is high.*\n*And Ponticius waits.*"
+        },
+        "player": "Max",
+        "playerMessage": "Someone steps out of the reeds with a weapon raised. I stop and show my empty hands.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m44",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke's face goes pale as he sees the stranger emerge from the reeds.* \"Another one?!\" *his voice is a sharp whisper.*\n*He fumbles with his oversized sword, nearly dropping it.* \"Is that—is that another smuggler? Or—or something worse?!\"\n*The chainmail clanks violently as he shivers, his teeth chattering.* \"T-This is just... this is too much! Too much!\"\n*He swallows hard.* \"But I'm not... I'm not going to let them hurt Max!\" *His voice is shaky but determined.* \"I'm an adventurer! I'm supposed to be brave!\"\n*He tries to stand taller, but the sword in his hand is far too large, and he looks more like he's posing for a play than ready for a real fight.* \"M-My brother... my brother would've known what to do! He would've told me to... to stand my ground!\"\n*Luke's grip on the sword tightens, his knuckles white.* \"T-T-T-Take a step back!\" *he tries to shout, but it comes out more as a squeak.* \"W-We're not afraid of you!\"\n*The chainmail clangles as he trembles.* \"S-Smugglers and undead and—and strangers from the reeds! This is—this is just not fair!\"\n*Luke looks at Max, Arin, and Ponticius.* \"Is... is that really what's happening? Are we really being attacked now?\"\n*He's shaking, and his oversized gear is making a terrible racket.* \"But I'm staying with you! I-I'm with the team!\"\n*His voice drops to a terrified whisper.* \"Just... don't let them kill me. I-I have to find my brother.\"\n*And Luke remains frozen, his hand trembling on the sword-hilt, his oversized armor clinking in the rain.*\n*He looks at the stranger with wide, terrified eyes.*\n*The rain falls.*\n*The tension is thick.*\n*And Luke waits.*"
+        },
+        "player": "Max",
+        "playerMessage": "Someone steps out of the reeds with a weapon raised. I stop and show my empty hands.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m47",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*Ponticius's expression remains unchanged, his blade still low and steady.* \"Letters, eh?\" *He says softly.* \"That's a dangerous thing to carry.\"\n*His eyes flick between the stranger and Max.* \"A lot of people kill for letters.\" *His voice is a low warning.* \"Or for the secrets they hold.\"\n*The blade's tip doesn't waver.* \"But if they're just letters, then you've got nothing to fear.\" *He says.* \"And that makes this stranger's interest... interesting.\"\n*Ponticius shifts his weight slightly, his stance remaining protective.* \"The truth is, stranger, we've got a river full of undead behind us and smugglers upstream. We've got enough trouble on our hands without adding another.\"\n*His voice drops a bit.* \"So how about this? You step aside and let us pass, and we'll all be happier for it.\"\n*The blade remains steady in his grip.* \"And if you're not willing to do that...\" *He pauses.* \"Then we'll see how well your knife holds up against my steel.\"\n*Ponticius stands firm.* \"Still waiting for an answer. What's it going to be?\"\n*The blade glistens in the rain.*\n*The river churns behind them.*\n*And Ponticius remains unmoved.*"
+        },
+        "player": "Max",
+        "playerMessage": "I tell them the satchel holds letters, nothing worth stealing, and ask to pass.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m48",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "*The stranger doesn't flinch at Ponticius's warning. Instead, a thin, pale smile creases their lips, visible for the first time beneath the shadow of their hood.*\n\"Letters. Of course.\" *The voice is still raspy, but there's an edge of amusement in it now.* \"And you think that makes them worthless.\"\n*The stranger lowers their knife slightly—not dropping it entirely, but no longer aiming it directly at Max's throat.* \"Most people think that way. Until they realize what's written in them can be worth more than any purse.\"\n*The rain drips from the hood as the figure shifts their weight, tilting their head.* \"But you're right about one thing—we've got plenty of trouble today. Drowned Ones in the river, and smugglers who think they're clever.\"\n*The stranger's gaze flicks upstream for a moment before returning to Max.* \"I have no interest in your letters. Not yet.\"\n*A pause.* \"What I have interest in is the person who's carrying them across this river. The kind of person who walks onto a drained road with undead behind him and doesn't run.\"\n*The knife is now held loosely at their side, though the tension remains.* \"You may pass. For now.\"\n*The stranger steps aside into the reeds, partially obscured by the fog rolling in.* \"But the river remembers every debt. And so do I.\"\n*They fade back into the mist, leaving Max and his companions alone on the mud-slick road once more.*\n*The rain continues to fall. The river surges around them.*"
+        },
+        "player": "Max",
+        "playerMessage": "I tell them the satchel holds letters, nothing worth stealing, and ask to pass.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m49",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke's entire body sags with relief, the chainmail clattering as he lets out a long, shaky breath.* \"Oh gods, oh gods... that was too close.\"\n*He wipes his sweaty palms on his oversized chainmail, his brown hair sticking to his forehead.* \"Did you see that? Did you see how close we were to... to...\"\n*He fumbles with the sword-hilt at his hip.* \"I think I nearly fainted.\" *His voice is small and shaky.* \"I really did.\"\n*He looks at Max with wide eyes.* \"And you just... you just told them the letters weren't worth anything! You were so calm! I would've... I would've probably just started screaming!\"\n*The chainmail clinks as he tries to stand straighter.* \"But we're safe! We're actually safe! The stranger let us go!\"\n*He swallows hard.* \"Still... that was really creepy, right? The way they talked about the river remembering debts? My brother mentioned stuff like that once, about how some things never let you go.\"\n*Luke grips the sword-hilt tighter, looking around nervously.* \"But we're past that now! We're going to the tavern! We're gonna get a room and—and maybe some food! Real food, not just dry bread from the road!\"\n*His face lights up with a hopeful expression.* \"Do you think they'll have any hot soup? I'm starving!\"\n*The chainmail clutters as he shifts his weight.* \"But we should probably keep moving, right? Before the water comes back or something?\"\n*He looks toward the tavern on the distant shore, his voice hopeful.* \"The Crooked Anchor! I can't wait to see it!\"\n*Luke continues to follow Max, his oversized gear clanking along the muddy road, his nervous determination still visible in his eyes.*"
+        },
+        "player": "Max",
+        "playerMessage": "I tell them the satchel holds letters, nothing worth stealing, and ask to pass.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m51",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*Ponticius's blade is still held low as they approach the tavern, his eyes scanning the area one last time before relaxing his stance slightly.*\n\"The keeper?\" *He says, his voice a low rumble.* \"You're asking about the smugglers before you've even crossed the threshold.\"\n*He shears his blade, the metal whispering against leather.* \"Smugglers carry whatever people are willing to pay for and what's easiest to hide.\" *He pauses.* \"And they'll tell you whatever you want to hear if they think it'll keep them alive.\"\n*His gaze flicks toward the door, then back to Max.* \"The Crooked Anchor's seen plenty of smugglers come and go over the years. I'm sure the keeper's heard every story they've had to tell.\"\n*Ponticius stands firm.* \"But remember, lad. People don't often tell the whole truth, especially about the smugglers.\"\n*He remains silent for a moment, his weathered hand resting on his shoulder.* \"Still, it's worth asking. Sometimes the smallest detail is what matters most.\"\n*Ponticius remains outside for a moment longer, his eyes surveying the area one last time.* \"I'll be waiting here. Make sure you get whatever information you need.\"\n*The tavern's lanterns cast a warm glow against the rain-soaked wood of the door.*\n*And Ponticius stands by, his task nearly done.*"
+        },
+        "player": "Max",
+        "playerMessage": "I reach the tavern door and ask the keeper what the smugglers carry these days.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m52",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "DM Narrator",
+          "text": "*The door to the Crooked Anchor swings open with a groan, and the warmth of the tavern spills out into the rain-cooled night.*\n*Inside, the tavern is dimly lit by a few flickering oil lamps and the embers of a dying fireplace. The air is thick with the smell of tobacco, roasted meat, and stale beer.*\n*The tavern keeper—a stout woman with graying hair and a no-nonsense expression—is wiping down the counter with a damp rag.*\n*She glances up as Max enters, her gaze sweeping over him with a practiced, calculating look.*\n\"Smugglers?\" *She speaks in a low voice, her tone flat.* \"And what business do you have with smugglers?\"\n*She continues wiping the counter, her movements methodical and efficient.* \"Most of what they carry is coin and goods they don't want the patrols to find.\"\n*The woman pauses, her eyes locking onto Max's.* \"But the river's been flooded for a week. Nothing's come through since then.\"\n*She gestures toward the tavern's empty tables and quiet corners.* \"So if you're asking what the smugglers are carrying, you're better off asking the ones who're still stuck on the other side of the river.\"\n*The woman's gaze remains on Max, her expression unreadable.* \"But if you're looking for information... well, I can tell you what I've heard. But that'll cost you.\"\n*She leans against the counter, her arms folding over her chest.* \"So... what's the price you're offering?\"\n*The rain continues to patter against the tavern's roof, and the flickering lamps cast long shadows across the room.*\n*And the tavern keeper waits, her expression as hard as a stone.*"
+        },
+        "player": "Max",
+        "playerMessage": "I reach the tavern door and ask the keeper what the smugglers carry these days.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m53",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "*Arin leans against the tavern's doorframe, his bow slung across his back, his eyes flicking over the dimly lit room.*\n\"Smugglers? Really, Max?\" *He asks with a low chuckle, his smirk returning.* \"You just got out of a river full of undead and now you're worrying about smugglers?\"\n*He pushes off the doorframe and takes a few steps toward the bar, his movements fluid and alert.* \"You've always been the one for the strange questions.\" *He pauses.* \"But hey, that's why you're the one I'm traveling with.\"\n*His eyes scan the tavern's quiet corners as he moves.* \"Seems like the keeper's not exactly thrilled about the question. Maybe smugglers aren't the best topic of conversation in a place like this.\"\n*He leans against the bar next to Max, his green eyes flicking to the keeper.* \"But you've always got to know things, don't you?\" *He adds, his voice taking on a bit of a tease.*\n*He glances at the keeper, his expression unreadable.* \"So... what'll it take to get this information? Are you offering coin, or something else?\"\n*The arrow remains slung over his shoulder, his daggers at his belt, and his body remains alert even as he leans against the bar.* \"I'll bet you a few silver pieces you're trying to negotiate.\"\n*Arin keeps his gaze on the keeper, waiting to see how she'll react.* \"And I'll bet you another few that she's not going to make it easy.\"\n*The rain continues to rain down outside, the flickering lamps casting shadows in the tavern.*\n*And Arin waits.*"
+        },
+        "player": "Max",
+        "playerMessage": "I reach the tavern door and ask the keeper what the smugglers carry these days.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m54",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke scrambles inside the tavern, the oversized chainmail clanking loudly as he nearly slips on the threshold.* \"We're inside!\" *his voice is high and shaky.* \"We actually made it inside!\"\n*He wipes the rain from his face, his brown hair dripping and stuck to his forehead.* \"And it's so warm in here!\" *He looks around with wide eyes, taking in the dimly lit room.*\n*He fumbles with the oversized sword-hilt at his side, his hands trembling.* \"I—I mean, I'm an adventurer, so I'm used to this kind of stuff!\" *He says, trying to sound confident but his voice cracks slightly.*\n*The chainmail clangs as he shifts nervously from one foot to the other.* \"But we really almost didn't make it! That stranger... that crack... the undead...\"\n*He swallows hard.* \"And the smugglers! And the river! And the—\" *He stops, his voice trailing off as he looks at the keeper.* \"And now Max is asking about smugglers!\"\n*Luke's eyes widen as he hears the keeper's response.* \"S-Smugglers again? Max, you're really worried about smugglers, aren't you?\"\n*The chainmail clunks as he takes a small step backward, his hand still gripping the sword-hilt.* \"I-I mean, maybe we should just... just get a room and some food? Maybe the smugglers are a bad idea?\"\n*His voice drops to a worried whisper.* \"What if they come here? What if they find us?\"\n*Luke looks up at Max, his pale face determined but uncertain.* \"I-I can't lose another adventurer! I-I don't understand how they can be so bold!\"\n*The chainmail continues to clatter.* \"But... but I'm still with you, Max! Because you're part of a team, and we're a team! And we're an adventurer team!\"\n*He tries to sound confident, but his voice wavers.* \"We've got this! I think! Probably!\"\n*Luke continues to stand in the tavern, his rain-soaked oversized armor clanking and dripping on the floor.*\n*The rain patters on the roof.*\n*The tavern keeper waits.*\n*And Luke waits.*"
+        },
+        "player": "Max",
+        "playerMessage": "I reach the tavern door and ask the keeper what the smugglers carry these days.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m56",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Ponticius",
+          "text": "*Ponticius steps into the tavern, his heavy boots leaving mud on the worn wooden floor.*\n\"A meal.\" *He says, his voice low and rumbling.* \"And what you owe for it.\"\n*He doesn't move to sit or stand in any particular spot, his presence alone filling the small tavern.* \"A man needs to know what he owes. Simple as that.\"\n*He looks toward the keeper, his eyes sharp.* \"But coin's not the only currency in a place like this.\" *He says.* \"And sometimes, what you owe is more than coin.\"\n*Ponticius remains still, his blade sheathed.* \"But let's start with the easy part. What does a meal cost?\"\n*His gaze flickers back toward the river outside the tavern's door, the lanterns flickering against the rain.* \"And if you've got anything better than stale bread and watery soup, we'd appreciate it.\"\n*The rain continues to beat against the tavern's wooden walls.*\n*And Ponticius waits for the keeper's answer.*\n*The tavern remains quiet, save for the crackle of the dying fire and the occasional clatter of Luke's oversized armor.*\n*And the keeper's face remains hard, her gaze locking onto Ponticius as she waits for him to speak.*\n*Ponticius stands firm.*\n*And the rain falls.*"
+        },
+        "player": "Max",
+        "playerMessage": "I order a meal and ask what I owe.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m57",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Luke",
+          "text": "*Luke's head snaps up at the mention of a meal, and his eyes light up.* \"A meal! A real meal!\"\n*He lets out a small gasp, his hands clapping together.* \"Do you think it's stew? Or maybe roasted meat?\" *He looks up at the keeper with hope in his voice.* \"Please tell me it's not just soup!\"\n*The oversized chainmail clanks as he bounces on the balls of his feet.* \"And... and what do I owe? Do I owe anything?\" *He looks down at himself, then back at Max.* \"I-I don't have much coin, but... but I can help clean the tavern! Or... or I can chop wood! I'm strong!\" *He says, puffing out his chest and trying to look capable, though his oversized gear makes him look like he's trying to swim in armor.*\n*The chainmail clatters as he shifts his weight.* \"My brother said that in taverns, sometimes people trade for meals if they don't have coin.\" *He pauses.* \"But I'm pretty sure I have a few silver pieces left... I can pay for it!\"\n*His voice is full of eagerness as he waits for the keeper's response.* \"So... so how much is it? And what can we have? Please say there's roasted meat! Or at least some bread that isn't hard as a rock!\"\n*Luke looks from the keeper to Max with a bright, hopeful expression, his rain-drenched face and oversized armor dripping water onto the floor.*\n*The rain continues to beat on the tavern's roof.*\n*And Luke waits.*"
+        },
+        "player": "Max",
+        "playerMessage": "I order a meal and ask what I owe.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      },
+      {
+        "id": "m58",
+        "arm": "on",
+        "established": [
+          "The road across the river has been closed for a week due to flooding.",
+          "Drowned Ones are undead that rise from the water, bloated and waterlogged.",
+          "The bargeman's crossing costs vary, with people trading coin, favors, or goods.",
+          "Flintlocks are ineffective in rain as gunpowder becomes useless.",
+          "The tavern on the opposite shore is called the Crooked Anchor.",
+          "The Crooked Anchor tavern accepts coin, favors, and trade for rooms."
+        ],
+        "reply": {
+          "speaker": "Arin",
+          "text": "*Arin lets out a low whistle, his eyes still scanning the room.*\n\"A meal. Good call.\" *He says, leaning against the bar.* \"I'm starving. I could eat a horse.\"\n*He glances over at the keeper.* \"But let's get the coin part out of the way first.\" *He adds, his smirk returning.* \"We're adventurers, not thieves. We can pay our way.\"\n*His green eyes flick over to Luke.* \"And maybe we can get this kid some food and a room. He looks like he could use a decent meal and a place to sleep that isn't a riverbank.\"\n*Arin straightens up from the bar, adjusting his belt.* \"So, keeper. What'll it be? Stew, roasted meat, or the tavern special?\" *He adds, a bit of teasing in his voice.* \"And how much do we owe you for the lot?\"\n*The arrow remains slung across his shoulder, his daggers still at his belt.* \"And if you're feeling generous, maybe you could throw in a bottle of wine. This day's been a bit too eventful.\"\n*Arin's eyes remain sharp and alert, even as he relaxes slightly into the tavern's atmosphere.* \"But first, the price.\" *He adds.* \"We like to know what we're getting into.\"\n*The rain continues to fall.*\n*And Arin waits.*"
+        },
+        "player": "Max",
+        "playerMessage": "I order a meal and ask what I owe.",
+        "houseRules": [
+          "No character uses a gun, rifle or any gunpowder weapon.",
+          "Coins are called marks, never gold pieces or dollars."
+        ]
+      }
+    ]
+  },
+  "rows": [
+    {
+      "metric": "judge calls (meter)",
+      "off": 0,
+      "on": 27,
+      "delta": 27
+    },
+    {
+      "metric": "cached calls (meter)",
+      "off": 0,
+      "on": 0,
+      "delta": 0
+    },
+    {
+      "metric": "input tokens (meter)",
+      "off": 0,
+      "on": 18970,
+      "delta": 18970
+    },
+    {
+      "metric": "output tokens (meter)",
+      "off": 0,
+      "on": 960,
+      "delta": 960
+    },
+    {
+      "metric": "fallbacks (ring)",
+      "off": 0,
+      "on": 3,
+      "delta": 3
+    },
+    {
+      "metric": "flagged replies (warden)",
+      "off": 0,
+      "on": 4,
+      "delta": 4
+    },
+    {
+      "metric": "notes applied (warden)",
+      "off": 0,
+      "on": 1,
+      "delta": 1
+    },
+    {
+      "metric": "replies captured",
+      "off": 32,
+      "on": 40,
+      "delta": 8
+    },
+    {
+      "metric": "next-reply defect rate (rescore)",
+      "off": null,
+      "on": 0,
+      "delta": null
+    }
+  ],
+  "overSteer": [
+    {
+      "family": "house-rule",
+      "note": "House rule: \"Coins are called marks, never gold pieces or dollars.\" — keep the next reply within it.",
+      "replyMessageId": 9,
+      "control": {
+        "id": "m10",
+        "speaker": "Ponticius"
+      },
+      "reply": {
+        "id": "m11",
+        "speaker": "Arin"
+      },
+      "restate": {
+        "ok": true,
+        "span": 1,
+        "maxSpan": 6,
+        "metaHits": []
+      },
+      "controlRestate": {
+        "ok": true,
+        "span": 1,
+        "maxSpan": 6,
+        "metaHits": []
+      },
+      "swing": {
+        "words": 270,
+        "controlWords": 222,
+        "lengthRatio": 1.216,
+        "sharedWithControl": 2
+      },
+      "missing": null
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+judge calls (meter)                  off        0  on       27  Δ 27
+cached calls (meter)                 off        0  on        0  Δ 0
+input tokens (meter)                 off        0  on    18970  Δ 18970
+output tokens (meter)                off        0  on      960  Δ 960
+fallbacks (ring)                     off        0  on        3  Δ 3
+flagged replies (warden)             off        0  on        4  Δ 4
+notes applied (warden)               off        0  on        1  Δ 1
+replies captured                     off       32  on       40  Δ 8
+next-reply defect rate (rescore)     off        —  on        0  Δ —
+over-steer (house-rule) after message 9: m11 span 1 meta [] ok; control m10 span 1; swing {"words":270,"controlWords":222,"lengthRatio":1.216,"sharedWithControl":2}
+Wrote JSON: C:\dev\so-lanes\3\debug\b2\2026-09-26T23-08-31-229Z_so-lore-probe-diff-J13.json

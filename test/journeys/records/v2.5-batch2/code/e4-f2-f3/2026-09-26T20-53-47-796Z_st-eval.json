@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "value": {
+    "restored": 98304,
+    "beforeRecheck": "Memory model context: 65,536 tokens (from its preset) · up to 58,470 per read",
+    "afterRecheck": "Memory model context: 98,304 tokens (from its preset) · up to 87,961 per read",
+    "disabled": false,
+    "selected": "Artemis v1.1 RP"
+  }
+}

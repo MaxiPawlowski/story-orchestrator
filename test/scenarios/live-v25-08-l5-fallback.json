@@ -75,7 +75,7 @@
       }
     },
     {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; window.fetch = window.__soOrigFetch; const out = V.stopCapture(); const last = globalThis.storyOrchestratorScanGating.lastExclusive?.(); if (last?.refusal !== 'no-selection' || last.stats.suppressed) throw new Error('X3: a failed judge must leave the keyword scan: ' + JSON.stringify(last)); globalThis.__x.x3 = { refusal: last.refusal, activated: out.generations.flat().map((entry) => entry.comment) }; return globalThis.__x.x3;",
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; window.fetch = window.__soOrigFetch; await globalThis.storyOrchestratorJudge?.invalidateStatus?.(); const out = V.stopCapture(); const last = globalThis.storyOrchestratorScanGating.lastExclusive?.(); if (last?.refusal !== 'no-selection' || last.stats.suppressed) throw new Error('X3: a failed judge must leave the keyword scan: ' + JSON.stringify(last)); globalThis.__x.x3 = { refusal: last.refusal, activated: out.generations.flat().map((entry) => entry.comment) }; return globalThis.__x.x3;",
       "log": true
     },
     {

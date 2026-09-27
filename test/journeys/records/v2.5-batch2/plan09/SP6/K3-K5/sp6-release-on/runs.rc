@@ -1,0 +1,2 @@
+run1 rc=1 secs=1924
+run2 rc=1 (killed wrapper; journey ran to its own end)

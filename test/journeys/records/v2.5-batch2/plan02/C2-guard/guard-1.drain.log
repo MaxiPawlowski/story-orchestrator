@@ -1,0 +1,17 @@
+2026-09-26T19:47:51.740Z {
+2026-09-26T19:47:51.742Z   "ok": true,
+2026-09-26T19:47:51.742Z   "saves": 4,
+2026-09-26T19:47:51.742Z   "metadataCalls": 4,
+2026-09-26T19:47:51.742Z   "flags": [
+2026-09-26T19:47:51.742Z     {
+2026-09-26T19:47:51.742Z       "seq": 2,
+2026-09-26T19:47:51.742Z       "kind": "refused",
+2026-09-26T19:47:51.742Z       "detail": "our save watcher held back a save of \"Ponticius - 2026-09-26@16h41m49s621ms\" (3 rows, asked for \"2026-09-26@16h47m12s938ms\"): the open chat changed before the save ran: a save of \"Ponticius - 2026-09-26@16h41m49s621ms\" (3 messages) was held back (asked for \"2026-09-26@16h47m12s938ms\")"
+2026-09-26T19:47:51.742Z     },
+2026-09-26T19:47:51.742Z     {
+2026-09-26T19:47:51.742Z       "seq": 2,
+2026-09-26T19:47:51.742Z       "kind": "posted-elsewhere",
+2026-09-26T19:47:51.742Z       "detail": "saveMetadata was asked in \"2026-09-26@16h47m12s938ms\" (seq 1); the next save wrote \"Ponticius - 2026-09-26@16h41m49s621ms\" (3 rows)"
+2026-09-26T19:47:51.742Z     }
+2026-09-26T19:47:51.742Z   ]
+2026-09-26T19:47:51.742Z }

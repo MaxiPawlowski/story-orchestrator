@@ -1,0 +1,101 @@
+2026-09-27T04:18:47.846Z 1/19 eval ok 1511ms
+2026-09-27T04:18:47.848Z 1/19 eval -> {"flag":true,"recording":true}
+2026-09-27T04:18:47.851Z 2/19 eval ok 5ms
+2026-09-27T04:18:47.851Z 2/19 eval -> {"installed":true}
+2026-09-27T04:18:47.855Z 3/19 eval ok 4ms
+2026-09-27T04:18:48.117Z 4/19 import_story ok 262ms
+2026-09-27T04:18:48.122Z 5/19 eval ok 5ms
+2026-09-27T04:18:48.122Z 5/19 eval -> {"at":"waystation","boundary":0}
+2026-09-27T04:18:49.787Z 6/19 slash ok 1664ms
+2026-09-27T04:18:51.456Z 7/19 slash ok 1669ms
+2026-09-27T04:18:51.461Z 8/19 eval ok 5ms
+2026-09-27T04:18:51.461Z 8/19 eval -> {"flag":true,"releases":[{"boundary":2,"checkpointId":"waystation","id":"c1","text":"A rider arrives at a gallop, wounded, and collapses by the well."}],"pending":{"boundary":2,"checkpointId":"waystation","id":"c1","text":"A rider arrives at a gallop, wounded, and collapses by the well."},"directions":["escalate","escalate"]}
+2026-09-27T04:18:56.314Z 9/19 slash ok 4853ms
+2026-09-27T04:18:58.320Z 10/19 eval ok 2006ms
+2026-09-27T04:18:58.320Z 10/19 eval -> {"quiet":1}
+2026-09-27T04:19:20.026Z 11/19 slash ok 21706ms
+2026-09-27T04:19:22.042Z 12/19 eval ok 2016ms
+2026-09-27T04:19:22.042Z 12/19 eval -> {"impersonated":true}
+2026-09-27T04:19:35.462Z 13/19 send_generate ok 13420ms
+2026-09-27T04:19:37.001Z 14/19 wait ok 1539ms
+2026-09-27T04:19:37.006Z 15/19 eval ok 5ms
+2026-09-27T04:19:37.006Z 15/19 eval -> {"requests":3}
+2026-09-27T04:19:49.370Z 16/19 send_generate ok 12365ms
+2026-09-27T04:19:50.912Z 17/19 wait ok 1541ms
+2026-09-27T04:19:50.917Z 18/19 eval ok 6ms
+2026-09-27T04:19:50.918Z 18/19 eval -> {"tag":"GENLOG","log":[[1790482731471,"GENERATION_STARTED","[\"quiet\",{\"force_name2\":true,\"quiet_prompt\":\"Answer with one word: what colour is the sky?\",\"quietToLoud\":false,\"skipWIAN\":false,\"force_chid\":null,\"quietImage\":"],[1790482731471,"GENERATION_AFTER_COMMANDS","[\"quiet\",{\"force_name2\":true,\"quiet_prompt\":\"Answer with one word: what colour is the sky?\",\"quietToLoud\":false,\"skipWIAN\":false,\"force_chid\":null,\"quietImage\":"],[1790482731475,"GROUP_WRAPPER_STARTED","[{\"selected_group\":\"1759606632088\",\"type\":\"quiet\"}]"],[1790482731475,"GROUP_MEMBER_DRAFTED","[5]"],[1790482731476,"GENERATION_STARTED","[\"quiet\",{\"automatic_trigger\":false,\"quiet_prompt\":\"Answer with one word: what colour is the sky?\",\"force_chid\":null,\"signal\":{},\"quietImage\
+2026-09-27T04:19:52.423Z 19/19 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: K2 FAIL: the complication rode requests [], want exactly [2] (quiet=0, impersonate=1, first loud=2)
+2026-09-27T04:19:52.423Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1058)
+2026-09-27T04:19:52.423Z     at async <anonymous>:316:30
+2026-09-27T04:19:52.503Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T04-19-52-500Z_so-scenario-failure.json
+2026-09-27T04:19:58.436Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T04-19-58-436Z_so-scenario-result.json
+2026-09-27T04:19:58.437Z {
+2026-09-27T04:19:58.437Z   "ok": false,
+2026-09-27T04:19:58.437Z   "steps": 19,
+2026-09-27T04:19:58.437Z   "cleanup": {
+2026-09-27T04:19:58.437Z     "importedStoryHashes": [
+2026-09-27T04:19:58.437Z       "v2-69a8ea0c"
+2026-09-27T04:19:58.437Z     ],
+2026-09-27T04:19:58.437Z     "library": {
+2026-09-27T04:19:58.437Z       "changed": true,
+2026-09-27T04:19:58.437Z       "removed": [
+2026-09-27T04:19:58.437Z         "live-v25-09-sp6@1 (v2-69a8ea0c)"
+2026-09-27T04:19:58.437Z       ],
+2026-09-27T04:19:58.437Z       "restored": [],
+2026-09-27T04:19:58.437Z       "saved": {
+2026-09-27T04:19:58.437Z         "status": 200
+2026-09-27T04:19:58.437Z       },
+2026-09-27T04:19:58.437Z       "verified": true
+2026-09-27T04:19:58.437Z     },
+2026-09-27T04:19:58.437Z     "clearedDebugResponses": [],
+2026-09-27T04:19:58.437Z     "soloChats": {
+2026-09-27T04:19:58.437Z       "deleted": [],
+2026-09-27T04:19:58.437Z       "leaked": []
+2026-09-27T04:19:58.437Z     },
+2026-09-27T04:19:58.437Z     "sandboxChatId": "2026-09-27@01h18m46s096ms",
+2026-09-27T04:19:58.437Z     "owned": [
+2026-09-27T04:19:58.437Z       "2026-09-27@01h18m46s096ms"
+2026-09-27T04:19:58.437Z     ],
+2026-09-27T04:19:58.437Z     "deleted": [
+2026-09-27T04:19:58.437Z       "2026-09-27@01h18m46s096ms"
+2026-09-27T04:19:58.437Z     ],
+2026-09-27T04:19:58.437Z     "notDeleted": [],
+2026-09-27T04:19:58.437Z     "resurrected": [],
+2026-09-27T04:19:58.437Z     "lateFileRepaired": [],
+2026-09-27T04:19:58.437Z     "saveSettleMs": 1532,
+2026-09-27T04:19:58.437Z     "skipped": [],
+2026-09-27T04:19:58.437Z     "currentChatAtCleanup": "2026-09-27@01h18m46s096ms",
+2026-09-27T04:19:58.437Z     "currentGroupAtCleanup": "1759606632088",
+2026-09-27T04:19:58.437Z     "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+2026-09-27T04:19:58.437Z     "branchChats": {
+2026-09-27T04:19:58.437Z       "recorded": [],
+2026-09-27T04:19:58.437Z       "deleted": [],
+2026-09-27T04:19:58.437Z       "failed": [],
+2026-09-27T04:19:58.437Z       "leaked": []
+2026-09-27T04:19:58.437Z     },
+2026-09-27T04:19:58.437Z     "mirrorBooks": {
+2026-09-27T04:19:58.437Z       "deleted": [],
+2026-09-27T04:19:58.437Z       "failed": [],
+2026-09-27T04:19:58.437Z       "leaked": []
+2026-09-27T04:19:58.437Z     },
+2026-09-27T04:19:58.437Z     "reapPrompts": {
+2026-09-27T04:19:58.437Z       "dismissed": [],
+2026-09-27T04:19:58.437Z       "leaked": []
+2026-09-27T04:19:58.437Z     },
+2026-09-27T04:19:58.437Z     "extraction": {
+2026-09-27T04:19:58.437Z       "restored": false,
+2026-09-27T04:19:58.437Z       "unchanged": true,
+2026-09-27T04:19:58.437Z       "settings": {
+2026-09-27T04:19:58.437Z         "enabled": true,
+2026-09-27T04:19:58.437Z         "cadence": 3,
+2026-09-27T04:19:58.437Z         "stabilityLag": 0,
+2026-09-27T04:19:58.437Z         "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+2026-09-27T04:19:58.437Z         "profiles": {}
+2026-09-27T04:19:58.437Z       }
+2026-09-27T04:19:58.437Z     },
+2026-09-27T04:19:58.437Z     "judge": {
+2026-09-27T04:19:58.437Z       "restored": false,
+2026-09-27T04:19:58.437Z       "unchanged": true
+2026-09-27T04:19:58.437Z     }
+2026-09-27T04:19:58.437Z   }
+2026-09-27T04:19:58.437Z }

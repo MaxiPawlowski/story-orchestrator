@@ -1,0 +1,111 @@
+2026-09-27T03:23:47.417Z 1/32 eval ok 5ms
+2026-09-27T03:23:47.417Z 1/32 eval -> {"flags":{"recommitEdit":false,"swipeBackCache":false,"witnessFilter":true,"sp5Scenario":false,"sp7Chance":false,"sp6Complications":false,"sp4AppendShortTerm":false,"sp8CuratorTiers":false,"sp8CuratorDigest":false}}
+2026-09-27T03:23:47.421Z 2/32 eval ok 4ms
+2026-09-27T03:23:47.677Z 3/32 import_story ok 255ms
+2026-09-27T03:24:15.978Z 4/32 send_generate ok 28301ms
+2026-09-27T03:24:28.879Z 5/32 send_generate ok 12902ms
+2026-09-27T03:25:07.330Z 6/32 send_generate ok 38450ms
+2026-09-27T03:25:48.252Z 7/32 send_generate ok 40922ms
+2026-09-27T03:26:06.858Z 8/32 send_generate ok 18606ms
+2026-09-27T03:26:07.691Z 9/32 eval ok 834ms
+2026-09-27T03:26:07.692Z 9/32 eval -> {"scene":"yard"}
+2026-09-27T03:26:09.817Z 10/32 wait ok 2126ms
+2026-09-27T03:26:26.317Z 11/32 send_generate ok 16499ms
+2026-09-27T03:27:04.964Z 12/32 send_generate ok 38646ms
+2026-09-27T03:27:16.814Z 13/32 send_generate ok 11851ms
+2026-09-27T03:27:30.223Z 14/32 send_generate ok 13409ms
+2026-09-27T03:27:39.547Z 15/32 send_generate ok 9324ms
+2026-09-27T03:27:40.231Z 16/32 eval ok 684ms
+2026-09-27T03:27:40.231Z 16/32 eval -> {"scene":"office"}
+2026-09-27T03:27:48.955Z 17/32 wait ok 8724ms
+2026-09-27T03:28:11.626Z 18/32 send_generate ok 22671ms
+2026-09-27T03:29:15.182Z 19/32 send_generate ok 63556ms
+2026-09-27T03:29:35.855Z 20/32 send_generate ok 20673ms
+2026-09-27T03:29:54.929Z 21/32 send_generate ok 19074ms
+2026-09-27T03:30:11.483Z 22/32 send_generate ok 16554ms
+2026-09-27T03:30:12.152Z 23/32 eval ok 669ms
+2026-09-27T03:30:12.152Z 23/32 eval -> {"scene":"reunion"}
+2026-09-27T03:30:21.972Z 24/32 wait ok 9820ms
+2026-09-27T03:30:48.165Z 25/32 send_generate ok 26193ms
+2026-09-27T03:31:32.871Z 26/32 send_generate ok 44706ms
+2026-09-27T03:32:07.850Z 27/32 send_generate ok 34980ms
+2026-09-27T03:32:35.231Z 28/32 send_generate ok 27380ms
+2026-09-27T03:33:44.757Z 29/32 send_generate ok 69526ms
+2026-09-27T03:33:47.925Z 30/32 wait ok 3168ms
+2026-09-27T03:33:47.931Z 31/32 eval ok 6ms
+2026-09-27T03:33:47.931Z 31/32 eval -> {"messages":53,"unknown":1}
+2026-09-27T03:33:47.935Z 32/32 eval ok 4ms
+2026-09-27T03:33:47.935Z 32/32 eval -> {"restored":true,"flags":{"recommitEdit":false,"swipeBackCache":false,"witnessFilter":false,"sp5Scenario":false,"sp7Chance":false,"sp6Complications":false,"sp4AppendShortTerm":false,"sp8CuratorTiers":false,"sp8CuratorDigest":false}}
+2026-09-27T03:33:53.885Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T03-33-53-884Z_so-scenario-result.json
+2026-09-27T03:33:53.886Z {
+2026-09-27T03:33:53.886Z   "ok": true,
+2026-09-27T03:33:53.886Z   "steps": 32,
+2026-09-27T03:33:53.886Z   "cleanup": {
+2026-09-27T03:33:53.886Z     "importedStoryHashes": [
+2026-09-27T03:33:53.886Z       "v2-00cffb33"
+2026-09-27T03:33:53.886Z     ],
+2026-09-27T03:33:53.886Z     "library": {
+2026-09-27T03:33:53.886Z       "changed": true,
+2026-09-27T03:33:53.886Z       "removed": [
+2026-09-27T03:33:53.886Z         "v25-09-witness-f4@1 (v2-00cffb33)"
+2026-09-27T03:33:53.886Z       ],
+2026-09-27T03:33:53.886Z       "restored": [],
+2026-09-27T03:33:53.886Z       "saved": {
+2026-09-27T03:33:53.886Z         "status": 200
+2026-09-27T03:33:53.886Z       },
+2026-09-27T03:33:53.886Z       "verified": true
+2026-09-27T03:33:53.886Z     },
+2026-09-27T03:33:53.886Z     "clearedDebugResponses": [
+2026-09-27T03:33:53.886Z       "storyOrchestratorDebugExtractionResponse"
+2026-09-27T03:33:53.886Z     ],
+2026-09-27T03:33:53.886Z     "soloChats": {
+2026-09-27T03:33:53.886Z       "deleted": [],
+2026-09-27T03:33:53.886Z       "leaked": []
+2026-09-27T03:33:53.886Z     },
+2026-09-27T03:33:53.886Z     "sandboxChatId": "2026-09-27@00h23m47s134ms",
+2026-09-27T03:33:53.886Z     "owned": [
+2026-09-27T03:33:53.886Z       "2026-09-27@00h23m47s134ms"
+2026-09-27T03:33:53.886Z     ],
+2026-09-27T03:33:53.886Z     "deleted": [
+2026-09-27T03:33:53.886Z       "2026-09-27@00h23m47s134ms"
+2026-09-27T03:33:53.886Z     ],
+2026-09-27T03:33:53.886Z     "notDeleted": [],
+2026-09-27T03:33:53.886Z     "resurrected": [],
+2026-09-27T03:33:53.886Z     "lateFileRepaired": [],
+2026-09-27T03:33:53.886Z     "saveSettleMs": 1523,
+2026-09-27T03:33:53.886Z     "skipped": [],
+2026-09-27T03:33:53.886Z     "currentChatAtCleanup": "2026-09-27@00h23m47s134ms",
+2026-09-27T03:33:53.886Z     "currentGroupAtCleanup": "1759606632088",
+2026-09-27T03:33:53.886Z     "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+2026-09-27T03:33:53.886Z     "branchChats": {
+2026-09-27T03:33:53.886Z       "recorded": [],
+2026-09-27T03:33:53.886Z       "deleted": [],
+2026-09-27T03:33:53.886Z       "failed": [],
+2026-09-27T03:33:53.886Z       "leaked": []
+2026-09-27T03:33:53.886Z     },
+2026-09-27T03:33:53.886Z     "mirrorBooks": {
+2026-09-27T03:33:53.886Z       "deleted": [],
+2026-09-27T03:33:53.886Z       "failed": [],
+2026-09-27T03:33:53.886Z       "leaked": []
+2026-09-27T03:33:53.886Z     },
+2026-09-27T03:33:53.886Z     "reapPrompts": {
+2026-09-27T03:33:53.886Z       "dismissed": [],
+2026-09-27T03:33:53.886Z       "leaked": []
+2026-09-27T03:33:53.886Z     },
+2026-09-27T03:33:53.886Z     "extraction": {
+2026-09-27T03:33:53.886Z       "restored": false,
+2026-09-27T03:33:53.886Z       "unchanged": true,
+2026-09-27T03:33:53.886Z       "settings": {
+2026-09-27T03:33:53.886Z         "enabled": true,
+2026-09-27T03:33:53.886Z         "cadence": 3,
+2026-09-27T03:33:53.886Z         "stabilityLag": 0,
+2026-09-27T03:33:53.886Z         "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+2026-09-27T03:33:53.886Z         "profiles": {}
+2026-09-27T03:33:53.886Z       }
+2026-09-27T03:33:53.886Z     },
+2026-09-27T03:33:53.886Z     "judge": {
+2026-09-27T03:33:53.886Z       "restored": false,
+2026-09-27T03:33:53.886Z       "unchanged": true
+2026-09-27T03:33:53.886Z     }
+2026-09-27T03:33:53.886Z   }
+2026-09-27T03:33:53.886Z }

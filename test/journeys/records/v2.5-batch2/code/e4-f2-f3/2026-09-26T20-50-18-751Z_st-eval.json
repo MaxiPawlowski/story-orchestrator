@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "value": {
+    "prompts": 1,
+    "markers": [
+      "Scene marker: [[The washed road — Wait out the flood on the near bank.]]\\nObject"
+    ],
+    "cp": "The washed road",
+    "cpId": "washed-road",
+    "boundary": 2
+  }
+}

@@ -1,0 +1,72 @@
+2026-09-26T22:46:28.420Z 
+2026-09-26T22:46:28.420Z === J5 group-direction ===
+2026-09-26T22:46:28.420Z Speaker direction, npc_replies and cast_changes across checkpoints in a real group chat, with per-speaker private injection asserted in the captured payload.
+2026-09-26T22:46:28.420Z 
+2026-09-26T22:46:28.428Z extraction before this run: {"enabled":true,"cadence":1,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","profiles":{}}
+2026-09-26T22:46:28.499Z Global config snapshot: C:\dev\so-lanes\1\debug\so-journey-config-snapshot.json
+2026-09-26T22:46:28.517Z extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+2026-09-26T22:46:29.040Z --- J5.1 a talk-control checkpoint loads with speaker direction enabled
+2026-09-26T22:46:29.837Z J5.1 1/5 import_story ok 797ms
+2026-09-26T22:46:30.159Z J5.1 2/5 ui ok 321ms
+2026-09-26T22:46:30.182Z J5.1 3/5 eval ok 24ms
+2026-09-26T22:46:30.233Z J5.1 4/5 eval ok 51ms
+2026-09-26T22:46:30.352Z J5.1 5/5 expect ok 118ms
+2026-09-26T22:46:30.359Z --- J5.2 cast_changes applied the checkpoint's roster (Luke disabled at the briefing)
+2026-09-26T22:46:30.365Z J5.2 1/1 eval ok 6ms
+2026-09-26T22:46:30.368Z --- J5.3 the scripted npc_reply for entering the checkpoint fired
+2026-09-26T22:46:30.411Z J5.3 1/1 expect ok 43ms
+2026-09-26T22:46:30.413Z --- J5.4 a real group turn is routed by speaker direction and the decision is recorded
+2026-09-26T22:47:14.274Z J5.4 1/3 send_generate ok 43861ms
+2026-09-26T22:47:14.337Z J5.4 2/3 wait ok 64ms
+2026-09-26T22:47:14.343Z J5.4 3/3 eval ok 5ms
+2026-09-26T22:47:14.343Z J5.4 3/3 eval -> {"at":"2026-09-26T22:46:40.037Z","messageId":2,"checkpointId":"brief","chosenRosterId":"guild_master","chosenName":"Ponticius","source":"director","latencyMs":7795}
+2026-09-26T22:47:14.345Z --- J5.5 the injected payload for that turn was captured
+2026-09-26T22:47:14.352Z J5.5 1/1 eval ok 7ms
+2026-09-26T22:47:14.354Z --- J5.6 private per-speaker injection: the drafted member sees their own epistemic block, not another's
+2026-09-26T22:47:14.391Z J5.6 1/4 eval ok 36ms
+2026-09-26T22:47:16.990Z J5.6 2/4 slash ok 2599ms
+2026-09-26T22:47:34.114Z J5.6 3/4 eval ok 17123ms
+2026-09-26T22:47:34.137Z J5.6 4/4 eval ok 23ms
+2026-09-26T22:47:34.138Z --- J5.8 final-payload privacy: with the party's private knowledge established first, the request ST actually sends for an enabled member's draft carries the knowledge that member held BEFORE the draft inside its private block, and never another member's The recorder reads GENERATE_AFTER_DATA (ST's main Generate() payload, dry runs skipped), not every /api/backends/ fetch: the fetch wrapper also caught our own memory-model calls made while a member was drafted, which carry no private block (L2 J5 run 1). A foreign entry whose text is identical to one of the member's own is set aside and recorded (sharedWithOwn): text alone cannot say whose it is (L2 J5 run 2).
+2026-09-26T22:47:34.169Z J5.8 1/7 eval ok 31ms
+2026-09-26T22:47:35.874Z J5.8 2/7 slash ok 1704ms
+2026-09-26T22:47:35.879Z J5.8 3/7 eval ok 5ms
+2026-09-26T22:47:35.887Z J5.8 4/7 eval ok 8ms
+2026-09-26T22:48:05.955Z J5.8 5/7 slash ok 30068ms
+2026-09-26T22:48:36.694Z J5.8 6/7 slash ok 30739ms
+2026-09-26T22:48:36.701Z J5.8 7/7 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: Arin: it is an enabled member holding pre-existing private knowledge and the request ST sent for its draft carries no private block at all :: {"member":"Arin","own":["the north road is washed out","the north road is washed out"],"eligible":["Ponticius","Arin"],"timeline":[{"t":240,"ev":"GENERATION_STARTED","drafted":null,"applied":0,"type":"normal","dryRun":false},{"t":254,"ev":"GROUP_MEMBER_DRAFTED","drafted":null,"applied":211,"member":17},{"t":257,"ev":"GENERATION_STARTED","drafted":17,"applied":211,"type":"normal","dryRun":false},{"t":2537,"ev":"GENERATE_AFTER_DATA","drafted":17,"applied":211,"dryRun":false},{"t":28311,"ev":"GENERATION_ENDED","drafted":17,"applied":0,"type":null,"dryRun":false},{"t":30301,"ev":"GENERATION_STARTED","drafted":null,"applied":0,"type":"normal","dryRun":false},{"t":30443,"ev":"GROUP_MEMBER_DRAFTED","drafted":null,"applied":198,"member":5},{"t":30448,"ev":"GENERATION_STARTED","drafted":5,"applied":198,"type":"normal","dryRun":false},{"t":33768,"ev":"GENERATE_AFTER_DATA","drafted":5,"applied":0,"dryRun":false},{"t":59040,"ev":"GENERATION_ENDED","drafted":5,"applied":0,"type":null,"dryRun":false}]}
+2026-09-26T22:48:36.701Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1901)
+2026-09-26T22:48:36.701Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:3094)
+2026-09-26T22:48:36.701Z     at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+2026-09-26T22:48:36.701Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-09-26T22:48:36.701Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-09-26T22:48:37.535Z Restored global config from C:\dev\so-lanes\1\debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions","schema"],"saved":{"status":200},"preservedStories":["journey-j5-group-direction"],"preservedSessions":[]}
+2026-09-26T22:48:49.973Z 
+2026-09-26T22:48:49.973Z PASS         J5.1     a talk-control checkpoint loads with speaker direction enabled
+2026-09-26T22:48:49.973Z PASS         J5.2     cast_changes applied the checkpoint's roster (Luke disabled at the briefing)
+2026-09-26T22:48:49.973Z PASS         J5.3     the scripted npc_reply for entering the checkpoint fired
+2026-09-26T22:48:49.973Z PASS         J5.4     a real group turn is routed by speaker direction and the decision is recorded
+2026-09-26T22:48:49.973Z PASS         J5.5     the injected payload for that turn was captured
+2026-09-26T22:48:49.973Z PASS         J5.6     private per-speaker injection: the drafted member sees their own epistemic block, not another's
+2026-09-26T22:48:49.973Z FAIL         J5.8     final-payload privacy: with the party's private knowledge established first, the request ST actually sends for an enabled member's draft carries the knowledge that member held BEFORE the draft inside its private block, and never another member's The recorder reads GENERATE_AFTER_DATA (ST's main Generate() payload, dry runs skipped), not every /api/backends/ fetch: the fetch wrapper also caught our own memory-model calls made while a member was drafted, which carry no private block (L2 J5 run 1). A foreign entry whose text is identical to one of the member's own is set aside and recorded (sharedWithOwn): text alone cannot say whose it is (L2 J5 run 2). — Evaluation failed in SillyTavern page: page.evaluate: Error: Arin: it is an enabled member holding pre-existing private knowledge and the request ST sent for its draft carries no private block at all :: {"member":"Arin","own":["the north road is washed out","the north road is washed out"],"eligible":["Ponticius","Arin"],"timeline":[{"t":240,"ev":"GENERATION_STARTED","drafted":null,"applied":0,"type":"normal","dryRun":false},{"t":254,"ev":"GROUP_MEMBER_DRAFTED","drafted":null,"applied":211,"member":17},{"t":257,"ev":"GENERATION_STARTED","drafted":17,"applied":211,"type":"normal","dryRun":false},{"t":2537,"ev":"GENERATE_AFTER_DATA","drafted":17,"applied":211,"dryRun":false},{"t":28311,"ev":"GENERATION_ENDED","drafted":17,"applied":0,"type":null,"dryRun":false},{"t":30301,"ev":"GENERATION_STARTED","drafted":null,"applied":0,"type":"normal","dryRun":false},{"t":30443,"ev":"GROUP_MEMBER_DRAFTED","drafted":null,"applied":198,"member":5},{"t":30448,"ev":"GENERATION_STARTED","drafted":5,"applied":198,"type":"normal","dryRun":false},{"t":33768,"ev":"GENERATE_AFTER_DATA","drafted":5,"applied":0,"dryRun":false},{"t":59040,"ev":"GENERATION_ENDED","drafted":5,"applied":0,"type":null,"dryRun":false}]}
+2026-09-26T22:48:49.973Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1901)
+2026-09-26T22:48:49.973Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:3094)
+2026-09-26T22:48:49.973Z     at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+2026-09-26T22:48:49.973Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-09-26T22:48:49.973Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-09-26T22:48:49.973Z SKIP         J5.7      — human check — operator scores it
+2026-09-26T22:48:49.973Z 
+2026-09-26T22:48:49.973Z J5
+2026-09-26T22:48:49.973Z automated: 6 pass, 1 fail, 0 blocked, 0 not-runnable, 0 skipped
+2026-09-26T22:48:49.973Z human:     0 scored, 1 unscored
+2026-09-26T22:48:49.973Z cleanup:   clean
+2026-09-26T22:48:49.973Z first try: 6 of 6 passing check(s) needed no retry
+2026-09-26T22:48:49.973Z NOT GREEN: 1 automated check(s) failed
+2026-09-26T22:48:49.973Z 
+2026-09-26T22:48:49.973Z --- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+2026-09-26T22:48:49.973Z [J5.7] (—) Did the right characters speak at the right moments, and did silence read as a choice rather than a bug?
+2026-09-26T22:48:49.973Z       anchors: 1 = wrong speaker constantly · 3 = mostly right · 5 = felt directed by a GM
+2026-09-26T22:48:49.973Z [free] What would make you stop using this?
+2026-09-26T22:48:49.973Z 
+2026-09-26T22:48:49.999Z Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-26T22-48-49-997Z_journey-J5.json
+2026-09-26T22:48:49.999Z Matrix: C:\dev\so-lanes\1\debug\journey-J5.md

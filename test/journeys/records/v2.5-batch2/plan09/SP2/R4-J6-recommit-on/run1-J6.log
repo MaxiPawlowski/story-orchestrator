@@ -1,0 +1,212 @@
+2026-09-27T02:42:30.626Z 
+2026-09-27T02:42:30.626Z === J6 mutation-storm ===
+2026-09-27T02:42:30.626Z Edit and delete messages around a committed boundary; the engine rolls back correctly and the player can tell what happened.
+2026-09-27T02:42:30.626Z 
+2026-09-27T02:42:30.632Z extraction before this run: {"enabled":true,"cadence":3,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","profiles":{}}
+2026-09-27T02:42:30.683Z Global config snapshot: C:\dev\so-lanes\3\debug\so-journey-config-snapshot.json
+2026-09-27T02:42:30.692Z extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+2026-09-27T02:42:32.847Z --- J6.1 a boundary is committed and a gate latches from a scripted turn
+2026-09-27T02:42:33.958Z J6.1 1/8 import_story ok 1110ms
+2026-09-27T02:42:34.194Z J6.1 2/8 ui ok 237ms
+2026-09-27T02:42:34.210Z J6.1 3/8 eval ok 15ms
+2026-09-27T02:42:52.792Z J6.1 4/8 send_generate ok 18583ms
+2026-09-27T02:42:52.796Z J6.1 5/8 extract FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader
+2026-09-27T02:42:52.796Z     at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)
+2026-09-27T02:42:52.796Z     at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)
+2026-09-27T02:42:52.796Z     at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)
+2026-09-27T02:42:52.796Z     at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)
+2026-09-27T02:42:52.796Z     at eval (eval at evaluate (:290:30), <anonymous>:4:30)
+2026-09-27T02:42:52.796Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-09-27T02:42:52.796Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-09-27T02:42:52.796Z --- J6.2 editing the message that carried the delta rolls the story back The check first waits for the group round J6.1 started to finish: a send returns before every member has replied, and an edit made mid-round is rolled back and then followed by the remaining replies' boundaries, which is a different scenario (L2 2026-09-23: J6.2 timed out on a still-generating round and J6.4 lost its notice to those boundaries).
+2026-09-27T02:42:54.332Z J6.2 1/6 wait ok 1535ms
+2026-09-27T02:43:05.660Z J6.2 2/6 wait ok 11329ms
+2026-09-27T02:43:05.666Z J6.2 3/6 eval ok 5ms
+2026-09-27T02:43:05.797Z J6.2 4/6 edit ok 132ms
+2026-09-27T02:43:07.318Z J6.2 5/6 wait ok 1520ms
+2026-09-27T02:43:07.365Z J6.2 6/6 expect ok 47ms
+2026-09-27T02:43:07.366Z --- J6.3 deleting the last message leaves engine state consistent, not orphaned
+2026-09-27T02:43:07.486Z J6.3 1/3 delete ok 120ms
+2026-09-27T02:43:09.024Z J6.3 2/3 wait ok 1538ms
+2026-09-27T02:43:09.029Z J6.3 3/3 eval ok 4ms
+2026-09-27T02:43:09.032Z --- J6.4 the player is told the story stepped back after a mutation
+2026-09-27T02:43:39.262Z J6.4 1/4 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: no rollback notice to show: {"checkpoint":"cp1","boundary":1,"lastMessageId":0,"chatLength":1,"journal":["status: No story selected for this chat","story: quality macro skipped","story: quality macro skipped","story: away recap not due","status: Started Quest for the Sun Ruins","payload: 1 story blocks injected (generation)","boundary: boundary 1: nothing applied (gate)","status: Following Investigate the Job Board"],"tail":[{"id":-3,"name":"Arin","user":false,"system":false,"at":"2026-09-27T02:42:30.910Z"}]}
+2026-09-27T02:43:39.262Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:713)
+2026-09-27T02:43:39.262Z     at async <anonymous>:316:30
+2026-09-27T02:43:39.262Z --- J6.6 a reloaded chat still recognises an edit to a message its run has passed
+2026-09-27T02:43:39.268Z J6.6 1/11 eval ok 6ms
+2026-09-27T02:43:39.268Z J6.6 1/11 eval -> {"checkpoint":"cp1","boundary":1}
+2026-09-27T02:43:51.916Z J6.6 2/11 send_generate ok 12648ms
+2026-09-27T02:43:51.920Z J6.6 3/11 extract FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader
+2026-09-27T02:43:51.920Z     at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)
+2026-09-27T02:43:51.920Z     at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)
+2026-09-27T02:43:51.920Z     at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)
+2026-09-27T02:43:51.920Z     at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)
+2026-09-27T02:43:51.920Z     at eval (eval at evaluate (:290:30), <anonymous>:4:30)
+2026-09-27T02:43:51.920Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-09-27T02:43:51.920Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-09-27T02:43:51.920Z --- J6.7 a ledger update is undone by an edit to the message its boundary acted on
+2026-09-27T02:43:51.942Z J6.7 1/10 eval ok 22ms
+2026-09-27T02:43:51.942Z J6.7 1/10 eval -> {"capable":true}
+2026-09-27T02:44:51.432Z J6.7 2/10 send_generate ok 59490ms
+2026-09-27T02:44:51.435Z J6.7 3/10 extract FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader
+2026-09-27T02:44:51.435Z     at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)
+2026-09-27T02:44:51.435Z     at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)
+2026-09-27T02:44:51.435Z     at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)
+2026-09-27T02:44:51.435Z     at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)
+2026-09-27T02:44:51.435Z     at eval (eval at evaluate (:290:30), <anonymous>:4:30)
+2026-09-27T02:44:51.435Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-09-27T02:44:51.435Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-09-27T02:44:51.435Z --- J6.8 a belief a reveal retired comes back when the reveal's message is edited The player line carries the evidence the scripted read cites: the evidence rule only accepts a quote from the read's window, and the old line relied on the model's reply happening to echo it (L2 2026-09-23: rejected once, story stayed at cp1).
+2026-09-27T02:45:30.042Z J6.8 1/9 send_generate ok 38607ms
+2026-09-27T02:45:30.046Z J6.8 2/9 extract FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader
+2026-09-27T02:45:30.046Z     at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)
+2026-09-27T02:45:30.046Z     at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)
+2026-09-27T02:45:30.046Z     at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)
+2026-09-27T02:45:30.046Z     at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)
+2026-09-27T02:45:30.046Z     at eval (eval at evaluate (:290:30), <anonymous>:4:30)
+2026-09-27T02:45:30.046Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-09-27T02:45:30.046Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-09-27T02:45:30.046Z --- J6.9 an edit older than the retained history says so and offers both ways out it names: re-read from here, or restart the story (V11)
+2026-09-27T02:45:30.719Z J6.9 1/12 import_story ok 673ms
+2026-09-27T02:45:32.410Z J6.9 2/12 send ok 1690ms
+2026-09-27T02:46:15.952Z J6.9 3/12 eval ok 43543ms
+2026-09-27T02:46:15.953Z J6.9 3/12 eval -> {"before":6,"after":211}
+2026-09-27T02:46:16.111Z J6.9 4/12 edit ok 158ms
+2026-09-27T02:46:17.660Z J6.9 5/12 wait ok 1549ms
+2026-09-27T02:46:17.664Z J6.9 6/12 eval ok 4ms
+2026-09-27T02:46:17.664Z J6.9 6/12 eval -> {"messageId":0,"checkpointName":"Accept the Mission","oldest":{"boundary":12,"messageId":10},"at":"2026-09-27T02:46:16.102Z"}
+2026-09-27T02:46:17.727Z J6.9 7/12 ui ok 63ms
+2026-09-27T02:46:17.787Z J6.9 8/12 ui ok 60ms
+2026-09-27T02:46:17.792Z J6.9 9/12 expect_ui ok 5ms
+2026-09-27T02:46:17.796Z J6.9 10/12 expect_ui ok 4ms
+2026-09-27T02:46:17.799Z J6.9 11/12 expect_ui ok 3ms
+2026-09-27T02:46:17.805Z J6.9 12/12 ui ok 5ms
+2026-09-27T02:46:17.807Z --- J6.10 an edit that leaves a consumed reply's text unchanged rewinds nothing and keeps the run (v2.4 plan 02 §2)
+2026-09-27T02:46:20.669Z J6.10 1/20 eval ok 2862ms
+2026-09-27T02:46:20.681Z J6.10 2/20 eval ok 12ms
+2026-09-27T02:46:20.681Z J6.10 2/20 eval -> {"greetingsCleared":1}
+2026-09-27T02:46:20.687Z J6.10 3/20 eval ok 6ms
+2026-09-27T02:46:20.942Z J6.10 4/20 import_story ok 254ms
+2026-09-27T02:46:20.950Z J6.10 5/20 eval ok 8ms
+2026-09-27T02:46:22.735Z J6.10 6/20 send ok 1785ms
+2026-09-27T02:46:22.738Z J6.10 7/20 extract FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader
+2026-09-27T02:46:22.738Z     at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)
+2026-09-27T02:46:22.739Z     at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)
+2026-09-27T02:46:22.739Z     at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)
+2026-09-27T02:46:22.739Z     at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)
+2026-09-27T02:46:22.739Z     at eval (eval at evaluate (:290:30), <anonymous>:4:30)
+2026-09-27T02:46:22.739Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-09-27T02:46:22.739Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-09-27T02:46:22.739Z --- J6.11 hiding a consumed message is not a mutation: its facts stay live and the next read leaves it out (v2.4 plan 02 §4)
+2026-09-27T02:46:25.518Z J6.11 1/25 eval ok 2779ms
+2026-09-27T02:46:25.531Z J6.11 2/25 eval ok 13ms
+2026-09-27T02:46:25.531Z J6.11 2/25 eval -> {"greetingsCleared":1}
+2026-09-27T02:46:25.537Z J6.11 3/25 eval ok 6ms
+2026-09-27T02:46:25.803Z J6.11 4/25 import_story ok 266ms
+2026-09-27T02:46:25.818Z J6.11 5/25 eval ok 14ms
+2026-09-27T02:46:27.507Z J6.11 6/25 send ok 1689ms
+2026-09-27T02:46:27.510Z J6.11 7/25 extract FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader
+2026-09-27T02:46:27.510Z     at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)
+2026-09-27T02:46:27.510Z     at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)
+2026-09-27T02:46:27.510Z     at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)
+2026-09-27T02:46:27.510Z     at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)
+2026-09-27T02:46:27.510Z     at eval (eval at evaluate (:290:30), <anonymous>:4:30)
+2026-09-27T02:46:27.510Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-09-27T02:46:27.510Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-09-27T02:46:27.510Z --- J6.12 moving a message is read as a change from the earliest moved row, so the story steps back from there at once (v2.4 plan 02 §2, H6)
+2026-09-27T02:46:30.273Z J6.12 1/20 eval ok 2763ms
+2026-09-27T02:46:30.285Z J6.12 2/20 eval ok 12ms
+2026-09-27T02:46:30.285Z J6.12 2/20 eval -> {"greetingsCleared":1}
+2026-09-27T02:46:30.291Z J6.12 3/20 eval ok 6ms
+2026-09-27T02:46:30.554Z J6.12 4/20 import_story ok 263ms
+2026-09-27T02:46:30.568Z J6.12 5/20 eval ok 14ms
+2026-09-27T02:46:32.232Z J6.12 6/20 send ok 1664ms
+2026-09-27T02:46:32.235Z J6.12 7/20 extract FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader
+2026-09-27T02:46:32.235Z     at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)
+2026-09-27T02:46:32.235Z     at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)
+2026-09-27T02:46:32.235Z     at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)
+2026-09-27T02:46:32.235Z     at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)
+2026-09-27T02:46:32.235Z     at eval (eval at evaluate (:290:30), <anonymous>:4:30)
+2026-09-27T02:46:32.235Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-09-27T02:46:32.235Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-09-27T02:46:33.879Z Restored global config from C:\dev\so-lanes\3\debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions","schema"],"saved":{"status":200},"preservedStories":["sun-ruins","v24-01-delete-decode"],"preservedSessions":[]}
+2026-09-27T02:46:46.073Z 
+2026-09-27T02:46:46.073Z FAIL         J6.1     a boundary is committed and a gate latches from a scripted turn — Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader
+2026-09-27T02:46:46.073Z     at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)
+2026-09-27T02:46:46.073Z     at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)
+2026-09-27T02:46:46.073Z     at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)
+2026-09-27T02:46:46.073Z     at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)
+2026-09-27T02:46:46.073Z     at eval (eval at evaluate (:290:30), <anonymous>:4:30)
+2026-09-27T02:46:46.073Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-09-27T02:46:46.073Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-09-27T02:46:46.073Z PASS         J6.2     editing the message that carried the delta rolls the story back The check first waits for the group round J6.1 started to finish: a send returns before every member has replied, and an edit made mid-round is rolled back and then followed by the remaining replies' boundaries, which is a different scenario (L2 2026-09-23: J6.2 timed out on a still-generating round and J6.4 lost its notice to those boundaries).
+2026-09-27T02:46:46.073Z PASS         J6.3     deleting the last message leaves engine state consistent, not orphaned
+2026-09-27T02:46:46.073Z FAIL         J6.4     the player is told the story stepped back after a mutation — Evaluation failed in SillyTavern page: page.evaluate: Error: no rollback notice to show: {"checkpoint":"cp1","boundary":1,"lastMessageId":0,"chatLength":1,"journal":["status: No story selected for this chat","story: quality macro skipped","story: quality macro skipped","story: away recap not due","status: Started Quest for the Sun Ruins","payload: 1 story blocks injected (generation)","boundary: boundary 1: nothing applied (gate)","status: Following Investigate the Job Board"],"tail":[{"id":-3,"name":"Arin","user":false,"system":false,"at":"2026-09-27T02:42:30.910Z"}]}
+2026-09-27T02:46:46.073Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:713)
+2026-09-27T02:46:46.073Z     at async <anonymous>:316:30
+2026-09-27T02:46:46.073Z SKIP         J6.5      — human check — operator scores it
+2026-09-27T02:46:46.073Z FAIL         J6.6     a reloaded chat still recognises an edit to a message its run has passed — Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader
+2026-09-27T02:46:46.073Z     at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)
+2026-09-27T02:46:46.073Z     at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)
+2026-09-27T02:46:46.073Z     at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)
+2026-09-27T02:46:46.073Z     at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)
+2026-09-27T02:46:46.073Z     at eval (eval at evaluate (:290:30), <anonymous>:4:30)
+2026-09-27T02:46:46.073Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-09-27T02:46:46.073Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-09-27T02:46:46.073Z FAIL         J6.7     a ledger update is undone by an edit to the message its boundary acted on — Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader
+2026-09-27T02:46:46.073Z     at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)
+2026-09-27T02:46:46.073Z     at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)
+2026-09-27T02:46:46.073Z     at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)
+2026-09-27T02:46:46.073Z     at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)
+2026-09-27T02:46:46.073Z     at eval (eval at evaluate (:290:30), <anonymous>:4:30)
+2026-09-27T02:46:46.073Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-09-27T02:46:46.073Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-09-27T02:46:46.073Z FAIL         J6.8     a belief a reveal retired comes back when the reveal's message is edited The player line carries the evidence the scripted read cites: the evidence rule only accepts a quote from the read's window, and the old line relied on the model's reply happening to echo it (L2 2026-09-23: rejected once, story stayed at cp1). — Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader
+2026-09-27T02:46:46.073Z     at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)
+2026-09-27T02:46:46.073Z     at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)
+2026-09-27T02:46:46.073Z     at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)
+2026-09-27T02:46:46.073Z     at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)
+2026-09-27T02:46:46.073Z     at eval (eval at evaluate (:290:30), <anonymous>:4:30)
+2026-09-27T02:46:46.073Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-09-27T02:46:46.073Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-09-27T02:46:46.073Z PASS         J6.9     an edit older than the retained history says so and offers both ways out it names: re-read from here, or restart the story (V11)
+2026-09-27T02:46:46.073Z FAIL         J6.10    an edit that leaves a consumed reply's text unchanged rewinds nothing and keeps the run (v2.4 plan 02 §2) — Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader
+2026-09-27T02:46:46.073Z     at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)
+2026-09-27T02:46:46.073Z     at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)
+2026-09-27T02:46:46.073Z     at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)
+2026-09-27T02:46:46.073Z     at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)
+2026-09-27T02:46:46.073Z     at eval (eval at evaluate (:290:30), <anonymous>:4:30)
+2026-09-27T02:46:46.073Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-09-27T02:46:46.073Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-09-27T02:46:46.073Z FAIL         J6.11    hiding a consumed message is not a mutation: its facts stay live and the next read leaves it out (v2.4 plan 02 §4) — Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader
+2026-09-27T02:46:46.073Z     at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)
+2026-09-27T02:46:46.074Z     at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)
+2026-09-27T02:46:46.074Z     at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)
+2026-09-27T02:46:46.074Z     at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)
+2026-09-27T02:46:46.074Z     at eval (eval at evaluate (:290:30), <anonymous>:4:30)
+2026-09-27T02:46:46.074Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-09-27T02:46:46.074Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-09-27T02:46:46.074Z FAIL         J6.12    moving a message is read as a change from the earliest moved row, so the story steps back from there at once (v2.4 plan 02 §2, H6) — Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader
+2026-09-27T02:46:46.074Z     at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)
+2026-09-27T02:46:46.074Z     at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)
+2026-09-27T02:46:46.074Z     at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)
+2026-09-27T02:46:46.074Z     at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)
+2026-09-27T02:46:46.074Z     at eval (eval at evaluate (:290:30), <anonymous>:4:30)
+2026-09-27T02:46:46.074Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-09-27T02:46:46.074Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-09-27T02:46:46.074Z 
+2026-09-27T02:46:46.074Z J6
+2026-09-27T02:46:46.074Z automated: 3 pass, 8 fail, 0 blocked, 0 not-runnable, 0 skipped
+2026-09-27T02:46:46.074Z human:     0 scored, 1 unscored
+2026-09-27T02:46:46.074Z cleanup:   clean
+2026-09-27T02:46:46.074Z first try: 3 of 3 passing check(s) needed no retry
+2026-09-27T02:46:46.074Z NOT GREEN: 8 automated check(s) failed
+2026-09-27T02:46:46.074Z 
+2026-09-27T02:46:46.074Z --- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+2026-09-27T02:46:46.074Z [J6.5] (U5) After you edited and deleted messages, was it clear what the story did in response?
+2026-09-27T02:46:46.074Z       anchors: 1 = no idea, felt broken · 3 = worked it out from the drawer · 5 = the system said what it did
+2026-09-27T02:46:46.074Z [free] What would make you stop using this?
+2026-09-27T02:46:46.074Z 
+2026-09-27T02:46:46.109Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T02-46-46-108Z_journey-J6.json
+2026-09-27T02:46:46.109Z Matrix: C:\dev\so-lanes\3\debug\journey-J6.md

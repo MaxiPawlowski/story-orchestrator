@@ -1,0 +1,36 @@
+{
+  "lanes": [
+    3
+  ],
+  "items": [
+    "test/scenarios/live-v25-09-sp6-k2.json"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/scenarios/live-v25-09-sp6-k2.json",
+      "lane": 3,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\3\\debug\\batch\\2026-09-27T04-13-07-632Z-live-v25-09-sp6-k2-run1.log",
+      "ms": 76598,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v25-09-sp6-k2.json",
+      "lane": 3,
+      "run": 2,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\3\\debug\\batch\\2026-09-27T04-13-07-632Z-live-v25-09-sp6-k2-run2.log",
+      "ms": 75001,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

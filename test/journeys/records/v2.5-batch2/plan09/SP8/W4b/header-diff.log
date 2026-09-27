@@ -1,0 +1,12 @@
+2026-09-27T05:59:41.053Z {
+2026-09-27T05:59:41.054Z   "baseline": "C:/dev/so-lanes/3/debug/run-header-v25-09-sp8-w4.json",
+2026-09-27T05:59:41.054Z   "label": "diff-end",
+2026-09-27T05:59:41.054Z   "allow": [],
+2026-09-27T05:59:41.054Z   "differences": 0,
+2026-09-27T05:59:41.054Z   "progress": 0,
+2026-09-27T05:59:41.055Z   "blocking": 0,
+2026-09-27T05:59:41.055Z   "blockingPaths": [],
+2026-09-27T05:59:41.055Z   "warnings": [],
+2026-09-27T05:59:41.055Z   "wrote": "C:\\dev\\so-lanes\\3\\debug\\run-header-diff-end.json",
+2026-09-27T05:59:41.055Z   "ok": true
+2026-09-27T05:59:41.055Z }

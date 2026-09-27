@@ -1,0 +1,4 @@
+run1 rc=0 secs=103
+run2 rc=0 secs=102
+verdict rc=1
+diff rc=0

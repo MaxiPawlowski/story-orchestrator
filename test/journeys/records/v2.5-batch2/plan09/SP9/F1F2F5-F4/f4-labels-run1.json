@@ -1,0 +1,184 @@
+{
+ "_note": "Blind labels, run 1, written from f4-transcript-run1.json alone (presence column not opened). Convention: roster members in earshot of the message when it happened, plus the speaker; the player is never listed; DM Narrator (narrator) counts as present throughout. Whispered lines (9, 10) list only the listener.",
+ "labels": {
+  "0": [
+   "DM Narrator",
+   "Arin",
+   "Ponticius"
+  ],
+  "1": [
+   "DM Narrator",
+   "Arin",
+   "Ponticius"
+  ],
+  "2": [
+   "DM Narrator",
+   "Arin",
+   "Ponticius",
+   "Luke"
+  ],
+  "3": [
+   "DM Narrator",
+   "Arin",
+   "Ponticius"
+  ],
+  "4": [
+   "DM Narrator",
+   "Arin",
+   "Ponticius"
+  ],
+  "5": [
+   "DM Narrator",
+   "Arin",
+   "Ponticius"
+  ],
+  "6": [
+   "DM Narrator",
+   "Arin",
+   "Ponticius"
+  ],
+  "7": [
+   "DM Narrator",
+   "Arin",
+   "Ponticius"
+  ],
+  "8": [
+   "DM Narrator",
+   "Arin",
+   "Ponticius"
+  ],
+  "9": [
+   "DM Narrator",
+   "Arin"
+  ],
+  "10": [
+   "DM Narrator",
+   "Arin"
+  ],
+  "11": [
+   "DM Narrator",
+   "Arin",
+   "Ponticius"
+  ],
+  "12": [
+   "DM Narrator",
+   "Arin",
+   "Ponticius"
+  ],
+  "13": [
+   "DM Narrator",
+   "Arin",
+   "Ponticius"
+  ],
+  "14": [
+   "DM Narrator",
+   "Arin"
+  ],
+  "15": [
+   "DM Narrator",
+   "Arin"
+  ],
+  "16": [
+   "DM Narrator",
+   "Arin",
+   "Luke"
+  ],
+  "17": [
+   "DM Narrator",
+   "Arin"
+  ],
+  "18": [
+   "DM Narrator",
+   "Arin"
+  ],
+  "19": [
+   "DM Narrator",
+   "Arin"
+  ],
+  "20": [
+   "DM Narrator",
+   "Arin"
+  ],
+  "21": [
+   "DM Narrator",
+   "Arin",
+   "Luke"
+  ],
+  "22": [
+   "DM Narrator",
+   "Arin"
+  ],
+  "23": [
+   "DM Narrator",
+   "Arin"
+  ],
+  "24": [
+   "DM Narrator",
+   "Arin"
+  ],
+  "25": [
+   "DM Narrator",
+   "Arin",
+   "Luke"
+  ],
+  "26": [
+   "DM Narrator",
+   "Arin"
+  ],
+  "27": [
+   "DM Narrator",
+   "Arin"
+  ],
+  "28": [
+   "DM Narrator",
+   "Ponticius"
+  ],
+  "29": [
+   "DM Narrator",
+   "Ponticius"
+  ],
+  "30": [
+   "DM Narrator",
+   "Ponticius"
+  ],
+  "31": [
+   "DM Narrator",
+   "Ponticius"
+  ],
+  "32": [
+   "DM Narrator",
+   "Ponticius"
+  ],
+  "33": [
+   "DM Narrator",
+   "Ponticius"
+  ],
+  "34": [
+   "DM Narrator",
+   "Arin",
+   "Luke"
+  ],
+  "35": [
+   "DM Narrator",
+   "Ponticius"
+  ],
+  "36": [
+   "DM Narrator",
+   "Ponticius"
+  ],
+  "37": [
+   "DM Narrator",
+   "Arin",
+   "Luke"
+  ],
+  "38": [
+   "DM Narrator",
+   "Ponticius"
+  ],
+  "39": [
+   "DM Narrator",
+   "Arin",
+   "Luke"
+  ]
+ }
+}

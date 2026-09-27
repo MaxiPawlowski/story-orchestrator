@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "tabs": [
+    "Overview",
+    "Memory"
+  ],
+  "surfaces": [
+    "#drawer-manager",
+    "#so-hud",
+    "#story-orchestrator-settings"
+  ],
+  "selectorsChecked": 54,
+  "findings": [],
+  "sweep": [],
+  "recoveryControls": [
+    {
+      "tab": "Overview",
+      "surface": "#drawer-manager",
+      "selector": "#so-pipeline-retry",
+      "visible": true,
+      "text": "Try again"
+    }
+  ]
+}

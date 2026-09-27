@@ -1,0 +1,88 @@
+2026-09-27T04:08:22.007Z 1/18 eval ok 1513ms
+2026-09-27T04:08:22.008Z 1/18 eval -> {"flag":true}
+2026-09-27T04:08:22.012Z 2/18 eval ok 5ms
+2026-09-27T04:08:22.278Z 3/18 import_story ok 266ms
+2026-09-27T04:08:22.283Z 4/18 eval ok 5ms
+2026-09-27T04:08:22.283Z 4/18 eval -> {"chatStart":1,"boundary":0}
+2026-09-27T04:08:24.085Z 5/18 slash ok 1802ms
+2026-09-27T04:08:39.524Z 6/18 send_generate ok 15438ms
+2026-09-27T04:08:41.058Z 7/18 wait ok 1534ms
+2026-09-27T04:08:41.063Z 8/18 eval ok 5ms
+2026-09-27T04:08:41.063Z 8/18 eval -> {"draw":{"kind":"npc","key":"gate:onEnter:Arin:0","chatId":"2026-09-27@01h08m20s255ms","storyId":"live-v25-09-sp7","boundary":1,"unit":0.8706773191224784},"fired":false,"lock":true,"gateEntered":1,"journal":1}
+2026-09-27T04:08:44.087Z 9/18 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the delete did not roll back to the hall at boundary 0: gate @ 2
+2026-09-27T04:08:44.088Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:547)
+2026-09-27T04:08:44.088Z     at async <anonymous>:316:30
+2026-09-27T04:08:44.157Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T04-08-44-154Z_so-scenario-failure.json
+2026-09-27T04:08:50.109Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T04-08-50-108Z_so-scenario-result.json
+2026-09-27T04:08:50.109Z {
+2026-09-27T04:08:50.109Z   "ok": false,
+2026-09-27T04:08:50.109Z   "steps": 9,
+2026-09-27T04:08:50.109Z   "cleanup": {
+2026-09-27T04:08:50.109Z     "importedStoryHashes": [
+2026-09-27T04:08:50.109Z       "v2-50802953"
+2026-09-27T04:08:50.109Z     ],
+2026-09-27T04:08:50.109Z     "library": {
+2026-09-27T04:08:50.109Z       "changed": true,
+2026-09-27T04:08:50.109Z       "removed": [
+2026-09-27T04:08:50.109Z         "live-v25-09-sp7@1 (v2-50802953)"
+2026-09-27T04:08:50.109Z       ],
+2026-09-27T04:08:50.109Z       "restored": [],
+2026-09-27T04:08:50.109Z       "saved": {
+2026-09-27T04:08:50.109Z         "status": 200
+2026-09-27T04:08:50.109Z       },
+2026-09-27T04:08:50.109Z       "verified": true
+2026-09-27T04:08:50.109Z     },
+2026-09-27T04:08:50.109Z     "clearedDebugResponses": [
+2026-09-27T04:08:50.109Z       "storyOrchestratorDebugExtractionResponse"
+2026-09-27T04:08:50.109Z     ],
+2026-09-27T04:08:50.109Z     "soloChats": {
+2026-09-27T04:08:50.109Z       "deleted": [],
+2026-09-27T04:08:50.109Z       "leaked": []
+2026-09-27T04:08:50.109Z     },
+2026-09-27T04:08:50.109Z     "sandboxChatId": "2026-09-27@01h08m20s255ms",
+2026-09-27T04:08:50.109Z     "owned": [
+2026-09-27T04:08:50.109Z       "2026-09-27@01h08m20s255ms"
+2026-09-27T04:08:50.109Z     ],
+2026-09-27T04:08:50.109Z     "deleted": [
+2026-09-27T04:08:50.109Z       "2026-09-27@01h08m20s255ms"
+2026-09-27T04:08:50.109Z     ],
+2026-09-27T04:08:50.109Z     "notDeleted": [],
+2026-09-27T04:08:50.109Z     "resurrected": [],
+2026-09-27T04:08:50.109Z     "lateFileRepaired": [],
+2026-09-27T04:08:50.109Z     "saveSettleMs": 1531,
+2026-09-27T04:08:50.109Z     "skipped": [],
+2026-09-27T04:08:50.109Z     "currentChatAtCleanup": "2026-09-27@01h08m20s255ms",
+2026-09-27T04:08:50.109Z     "currentGroupAtCleanup": "1759606632088",
+2026-09-27T04:08:50.109Z     "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+2026-09-27T04:08:50.109Z     "branchChats": {
+2026-09-27T04:08:50.109Z       "recorded": [],
+2026-09-27T04:08:50.109Z       "deleted": [],
+2026-09-27T04:08:50.109Z       "failed": [],
+2026-09-27T04:08:50.109Z       "leaked": []
+2026-09-27T04:08:50.109Z     },
+2026-09-27T04:08:50.109Z     "mirrorBooks": {
+2026-09-27T04:08:50.109Z       "deleted": [],
+2026-09-27T04:08:50.109Z       "failed": [],
+2026-09-27T04:08:50.109Z       "leaked": []
+2026-09-27T04:08:50.109Z     },
+2026-09-27T04:08:50.109Z     "reapPrompts": {
+2026-09-27T04:08:50.109Z       "dismissed": [],
+2026-09-27T04:08:50.109Z       "leaked": []
+2026-09-27T04:08:50.109Z     },
+2026-09-27T04:08:50.109Z     "extraction": {
+2026-09-27T04:08:50.109Z       "restored": false,
+2026-09-27T04:08:50.109Z       "unchanged": true,
+2026-09-27T04:08:50.109Z       "settings": {
+2026-09-27T04:08:50.109Z         "enabled": true,
+2026-09-27T04:08:50.109Z         "cadence": 3,
+2026-09-27T04:08:50.109Z         "stabilityLag": 0,
+2026-09-27T04:08:50.109Z         "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+2026-09-27T04:08:50.109Z         "profiles": {}
+2026-09-27T04:08:50.109Z       }
+2026-09-27T04:08:50.109Z     },
+2026-09-27T04:08:50.109Z     "judge": {
+2026-09-27T04:08:50.109Z       "restored": false,
+2026-09-27T04:08:50.109Z       "unchanged": true
+2026-09-27T04:08:50.109Z     }
+2026-09-27T04:08:50.109Z   }
+2026-09-27T04:08:50.109Z }

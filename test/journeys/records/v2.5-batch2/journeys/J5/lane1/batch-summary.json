@@ -1,0 +1,26 @@
+{
+  "lanes": [
+    1
+  ],
+  "items": [
+    "J5"
+  ],
+  "repeat": 1,
+  "strict": true,
+  "results": [
+    {
+      "item": "J5",
+      "lane": 1,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\1\\debug\\batch\\2026-09-26T22-46-26-885Z-J5-run1.log",
+      "ms": 143147,
+      "automated": "automated: 6 pass, 1 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\1\\debug\\2026-09-26T22-48-49-997Z_journey-J5.json",
+      "failures": [
+        "FAIL J5.8"
+      ]
+    }
+  ]
+}

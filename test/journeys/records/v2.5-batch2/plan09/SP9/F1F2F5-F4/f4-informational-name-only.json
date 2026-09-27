@@ -1,0 +1,17 @@
+{
+ "_note": "INFORMATIONAL ONLY, not the F4 score: the same labels compared after dropping roster ids (dm, companion, guild_master) from the presence sets. The declared scorer (scoreWitnessAgreement, exact set) reads 0/40 on both runs because presence carries each enabled member twice, as name and roster id (src/runtime/wiring/spikes.ts:11-14 -> namesForRosterId, src/runtime/roster.ts:52).",
+ "run1": {
+  "agree": 32,
+  "total": 40,
+  "nullPresence": [
+   0
+  ]
+ },
+ "run2": {
+  "agree": 33,
+  "total": 40,
+  "nullPresence": [
+   0
+  ]
+ }
+}

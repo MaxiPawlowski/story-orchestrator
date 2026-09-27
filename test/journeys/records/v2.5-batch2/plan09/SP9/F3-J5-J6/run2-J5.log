@@ -1,0 +1,61 @@
+2026-09-27T03:52:00.942Z 
+2026-09-27T03:52:00.942Z === J5 group-direction ===
+2026-09-27T03:52:00.942Z Speaker direction, npc_replies and cast_changes across checkpoints in a real group chat, with per-speaker private injection asserted in the captured payload.
+2026-09-27T03:52:00.942Z 
+2026-09-27T03:52:00.948Z extraction before this run: {"enabled":true,"cadence":3,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","profiles":{}}
+2026-09-27T03:52:00.998Z Global config snapshot: C:\dev\so-lanes\3\debug\so-journey-config-snapshot.json
+2026-09-27T03:52:01.010Z extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+2026-09-27T03:52:01.410Z --- J5.1 a talk-control checkpoint loads with speaker direction enabled
+2026-09-27T03:52:02.156Z J5.1 1/5 import_story ok 745ms
+2026-09-27T03:52:02.328Z J5.1 2/5 ui ok 171ms
+2026-09-27T03:52:02.344Z J5.1 3/5 eval ok 15ms
+2026-09-27T03:52:02.359Z J5.1 4/5 eval ok 16ms
+2026-09-27T03:52:02.398Z J5.1 5/5 expect ok 39ms
+2026-09-27T03:52:02.400Z --- J5.2 cast_changes applied the checkpoint's roster (Luke disabled at the briefing)
+2026-09-27T03:52:02.404Z J5.2 1/1 eval ok 4ms
+2026-09-27T03:52:02.405Z --- J5.3 the scripted npc_reply for entering the checkpoint fired
+2026-09-27T03:52:02.437Z J5.3 1/1 expect ok 32ms
+2026-09-27T03:52:02.439Z --- J5.4 a real group turn is routed by speaker direction and the decision is recorded
+2026-09-27T03:52:14.845Z J5.4 1/3 send_generate ok 12406ms
+2026-09-27T03:52:14.883Z J5.4 2/3 wait ok 38ms
+2026-09-27T03:52:14.887Z J5.4 3/3 eval ok 4ms
+2026-09-27T03:52:14.887Z J5.4 3/3 eval -> {"at":"2026-09-27T03:52:04.954Z","messageId":2,"checkpointId":"brief","chosenRosterId":"guild_master","chosenName":"Ponticius","source":"director","latencyMs":758}
+2026-09-27T03:52:14.889Z --- J5.5 the injected payload for that turn was captured
+2026-09-27T03:52:14.893Z J5.5 1/1 eval ok 4ms
+2026-09-27T03:52:14.896Z --- J5.6 private per-speaker injection: the drafted member sees their own epistemic block, not another's
+2026-09-27T03:52:14.916Z J5.6 1/4 eval ok 20ms
+2026-09-27T03:52:16.703Z J5.6 2/4 slash ok 1786ms
+2026-09-27T03:52:25.089Z J5.6 3/4 eval ok 8387ms
+2026-09-27T03:52:25.101Z J5.6 4/4 eval ok 12ms
+2026-09-27T03:52:25.103Z --- J5.8 final-payload privacy: with the party's private knowledge established first, the request ST actually sends for an enabled member's draft carries the knowledge that member held BEFORE the draft inside its private block, and never another member's The recorder reads GENERATE_AFTER_DATA (ST's main Generate() payload, dry runs skipped), not every /api/backends/ fetch: the fetch wrapper also caught our own memory-model calls made while a member was drafted, which carry no private block (L2 J5 run 1). A foreign entry whose text is identical to one of the member's own is set aside and recorded (sharedWithOwn): text alone cannot say whose it is (L2 J5 run 2).
+2026-09-27T03:52:25.122Z J5.8 1/7 eval ok 19ms
+2026-09-27T03:52:26.806Z J5.8 2/7 slash ok 1684ms
+2026-09-27T03:52:26.811Z J5.8 3/7 eval ok 5ms
+2026-09-27T03:52:26.817Z J5.8 4/7 eval ok 6ms
+2026-09-27T03:52:37.031Z J5.8 5/7 slash ok 10214ms
+2026-09-27T03:52:46.940Z J5.8 6/7 slash ok 9909ms
+2026-09-27T03:52:46.946Z J5.8 7/7 eval ok 6ms
+2026-09-27T03:52:47.102Z Restored global config from C:\dev\so-lanes\3\debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions","schema"],"saved":{"status":200},"preservedStories":["journey-j5-group-direction"],"preservedSessions":[]}
+2026-09-27T03:52:59.250Z 
+2026-09-27T03:52:59.250Z PASS         J5.1     a talk-control checkpoint loads with speaker direction enabled
+2026-09-27T03:52:59.250Z PASS         J5.2     cast_changes applied the checkpoint's roster (Luke disabled at the briefing)
+2026-09-27T03:52:59.250Z PASS         J5.3     the scripted npc_reply for entering the checkpoint fired
+2026-09-27T03:52:59.250Z PASS         J5.4     a real group turn is routed by speaker direction and the decision is recorded
+2026-09-27T03:52:59.250Z PASS         J5.5     the injected payload for that turn was captured
+2026-09-27T03:52:59.250Z PASS         J5.6     private per-speaker injection: the drafted member sees their own epistemic block, not another's
+2026-09-27T03:52:59.250Z PASS         J5.8     final-payload privacy: with the party's private knowledge established first, the request ST actually sends for an enabled member's draft carries the knowledge that member held BEFORE the draft inside its private block, and never another member's The recorder reads GENERATE_AFTER_DATA (ST's main Generate() payload, dry runs skipped), not every /api/backends/ fetch: the fetch wrapper also caught our own memory-model calls made while a member was drafted, which carry no private block (L2 J5 run 1). A foreign entry whose text is identical to one of the member's own is set aside and recorded (sharedWithOwn): text alone cannot say whose it is (L2 J5 run 2).
+2026-09-27T03:52:59.250Z SKIP         J5.7      — human check — operator scores it
+2026-09-27T03:52:59.250Z 
+2026-09-27T03:52:59.250Z J5
+2026-09-27T03:52:59.250Z automated: 7 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped
+2026-09-27T03:52:59.250Z human:     0 scored, 1 unscored
+2026-09-27T03:52:59.250Z cleanup:   clean
+2026-09-27T03:52:59.250Z first try: 7 of 7 passing check(s) needed no retry
+2026-09-27T03:52:59.250Z 
+2026-09-27T03:52:59.250Z --- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+2026-09-27T03:52:59.250Z [J5.7] (—) Did the right characters speak at the right moments, and did silence read as a choice rather than a bug?
+2026-09-27T03:52:59.250Z       anchors: 1 = wrong speaker constantly · 3 = mostly right · 5 = felt directed by a GM
+2026-09-27T03:52:59.250Z [free] What would make you stop using this?
+2026-09-27T03:52:59.250Z 
+2026-09-27T03:52:59.281Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T03-52-59-280Z_journey-J5.json
+2026-09-27T03:52:59.281Z Matrix: C:\dev\so-lanes\3\debug\journey-J5.md

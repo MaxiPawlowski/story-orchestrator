@@ -58,7 +58,7 @@
       "log": true
     },
     {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; V.bindCard('Arin', 'SO-V25-08 Req Lore'); V.bindCard('DM Narrator', 'SO-V25-08 Req Lore'); ctx.eventSource.emit(ctx.eventTypes.WORLDINFO_SETTINGS_UPDATED); await new Promise((resolve) => setTimeout(resolve, 600)); const req = V.requirements(); V.restoreBindings(); if (!req.ready || req.satisfiedBy?.['SO-V25-08 Req Lore'] !== 'character') throw new Error('every enabled member bound: ' + JSON.stringify(req)); globalThis.__l2.everyMember = { ready: req.ready, by: req.satisfiedBy }; return globalThis.__l2.everyMember;",
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const g = ctx.groups.find((x) => x.id === ctx.groupId); for (const avatar of g.members.filter((m) => !g.disabled_members.includes(m))) V.bindCard(ctx.characters.find((c) => c.avatar === avatar).name, 'SO-V25-08 Req Lore'); ctx.eventSource.emit(ctx.eventTypes.WORLDINFO_SETTINGS_UPDATED); await new Promise((resolve) => setTimeout(resolve, 600)); const req = V.requirements(); V.restoreBindings(); if (!req.ready || req.satisfiedBy?.['SO-V25-08 Req Lore'] !== 'character') throw new Error('every enabled member bound: ' + JSON.stringify(req)); globalThis.__l2.everyMember = { ready: req.ready, by: req.satisfiedBy }; return globalThis.__l2.everyMember;",
       "log": true
     },
     {

@@ -1,0 +1,191 @@
+{
+ "changed": [
+  {
+   "i": 23,
+   "before": "{\"isSmallSys\":false}",
+   "after": "{\"isSmallSys\":false,\"memory\":\"Ponticius, Guild Master of Xentar in Adolion, runs the Adventurer's Guild in Aegis City. A courier delivered a letter with a forged harbour office seal asking the guild to guard a dawn shipment. Arin, Max's companion, recognized the handwriting from a previous fake permit. Ponticius has left the hall to check the guild's ledgers and investigate the harbour office's de"
+  },
+  {
+   "i": 24,
+   "before": "{\"bias\":null,\"gen_id\":1790480220380,\"isSmallSys\":false,\"api\":\"manual\",\"model\":\"slash command\"}",
+   "after": "{\"bias\":null,\"gen_id\":1790480220380,\"isSmallSys\":false,\"api\":\"manual\",\"model\":\"slash command\",\"reasoning\":\"\"}"
+  }
+ ],
+ "fileChanged": [
+  {
+   "i": 23,
+   "before": "{\"name\":\"Max\",\"is_user\":true,\"is_system\":false,\"send_date\":\"2026-09-27T03:37:00.253Z\",\"mes\":\"I tell everyone we move at midnight. [w23]\",\"extra\":{\"isSmallSys\":false},\"force_avatar\":\"/thumbnail?type=persona&file=user-default.png\"}",
+   "after": "{\"name\":\"Max\",\"is_user\":true,\"is_system\":false,\"send_date\":\"2026-09-27T03:37:00.253Z\",\"mes\":\"I tell everyone we move at midnight. [w23]\",\"extra\":{\"isSmallSys\":false,\"memory\":\"Ponticius, Guild Master of Xentar in Adolion, runs the Adventurer's Guild in Aegis City. A courier delivered a letter with a forged harbour office seal asking the guild to guard a dawn shipment. Arin, Max's companion, recognized the handwriting from a previous fake permit. Ponticius has left the hall to check the guild's ledgers and investigate the harbour office's debts.\"},\"force_avatar\":\"/thumbnail?type=persona&file=use"
+  },
+  {
+   "i": 24,
+   "before": "{\"name\":\"Arin\",\"is_user\":false,\"is_system\":\"\",\"send_date\":\"2026-09-27T03:37:00.380Z\",\"mes\":\"I will take the back door. [w24]\",\"force_avatar\":\"/thumbnail?type=avatar&file=Arin.png\",\"original_avatar\":\"Arin.png\",\"extra\":{\"bias\":null,\"gen_id\":1790480220380,\"isSmallSys\":false,\"api\":\"manual\",\"model\":\"slash command\"},\"swipe_id\":0,\"swipes\":[\"I will take the back door. [w24]\"],\"swipe_info\":[{\"send_date\":\"2026-09-27T03:37:00.380Z\",\"gen_started\":null,\"gen_finished\":null,\"extra\":{\"bias\":null,\"gen_id\":1790480220380,\"isSmallSys\":false,\"api\":\"manual\",\"model\":\"slash command\"}}]}",
+   "after": "{\"name\":\"Arin\",\"is_user\":false,\"is_system\":\"\",\"send_date\":\"2026-09-27T03:37:00.380Z\",\"mes\":\"I will take the back door. [w24]\",\"force_avatar\":\"/thumbnail?type=avatar&file=Arin.png\",\"original_avatar\":\"Arin.png\",\"extra\":{\"bias\":null,\"gen_id\":1790480220380,\"isSmallSys\":false,\"api\":\"manual\",\"model\":\"slash command\",\"reasoning\":\"\"},\"swipe_id\":0,\"swipes\":[\"I will take the back door. [w24]\"],\"swipe_info\":[{\"send_date\":\"2026-09-27T03:37:00.380Z\",\"gen_started\":null,\"gen_finished\":null,\"extra\":{\"bias\":null,\"gen_id\":1790480220380,\"isSmallSys\":false,\"api\":\"manual\",\"model\":\"slash command\"}}]}"
+  }
+ ],
+ "caps": [
+  {
+   "k": 0,
+   "drafted": "DM Narrator",
+   "leaks": [],
+   "len": 7240
+  },
+  {
+   "k": 1,
+   "drafted": "Arin",
+   "leaks": [],
+   "len": 7406
+  },
+  {
+   "k": 2,
+   "drafted": "Ponticius",
+   "leaks": [],
+   "len": 6131
+  },
+  {
+   "k": 3,
+   "drafted": "DM Narrator",
+   "leaks": [],
+   "len": 7529
+  },
+  {
+   "k": 4,
+   "drafted": "Arin",
+   "leaks": [],
+   "len": 7729
+  },
+  {
+   "k": 5,
+   "drafted": "Ponticius",
+   "leaks": [],
+   "len": 6575
+  },
+  {
+   "k": 6,
+   "drafted": "DM Narrator",
+   "leaks": [],
+   "len": 8297
+  },
+  {
+   "k": 7,
+   "drafted": "Arin",
+   "leaks": [],
+   "len": 8552
+  },
+  {
+   "k": 8,
+   "drafted": "Ponticius",
+   "leaks": [],
+   "len": 7409
+  },
+  {
+   "k": 9,
+   "drafted": "Ponticius",
+   "leaks": [],
+   "len": 7423
+  },
+  {
+   "k": 10,
+   "drafted": "Ponticius",
+   "leaks": [
+    {
+     "m": "[w07]",
+     "ctx": ". The harbour office owes the guild money. [w04]<turn|>\\n<|turn>user\\nI break the seal and read it out. [w05]<turn|>\\n<|turn>model\\nDM Narrator: The letter asks the guild to guard a shipment leaving at dawn. [w06]<turn|>\\n<|turn>user\\nI lean close to Arin and whisper that the handwriting is forged. [w07]<turn|>\\n<|turn>model\\nArin: Arin w"
+    },
+    {
+     "m": "[w08]",
+     "ctx": "]<turn|>\\n<|turn>model\\nDM Narrator: The letter asks the guild to guard a shipment leaving at dawn. [w06]<turn|>\\n<|turn>user\\nI lean close to Arin and whisper that the handwriting is forged. [w07]<turn|>\\n<|turn>model\\nArin: Arin whispers back that she saw the same hand on a fake permit last week. [w08]<turn|>\\n<|turn>model\\nPonticius: P"
+    },
+    {
+     "m": "[w10]",
+     "ctx": ": Arin whispers back that she saw the same hand on a fake permit last week. [w08]<turn|>\\n<|turn>model\\nPonticius: Ponticius stands. I will check the ledgers in my office. He leaves the hall. [w09]<turn|>\\n<|turn>model\\nDM Narrator: In the yard, the lantern light catches a cart with a broken wheel. [w10]<turn|>\\n<|turn>user\\nArin, did you"
+    },
+    {
+     "m": "[w11]",
+     "ctx": "urn|>\\n<|turn>model\\nPonticius: Ponticius stands. I will check the ledgers in my office. He leaves the hall. [w09]<turn|>\\n<|turn>model\\nDM Narrator: In the yard, the lantern light catches a cart with a broken wheel. [w10]<turn|>\\n<|turn>user\\nArin, did you notice the cart carries the harbour mark? [w11]<turn|>\\n<|turn>model\\nArin: I did."
+    },
+    {
+     "m": "[w12]",
+     "ctx": "e. He leaves the hall. [w09]<turn|>\\n<|turn>model\\nDM Narrator: In the yard, the lantern light catches a cart with a broken wheel. [w10]<turn|>\\n<|turn>user\\nArin, did you notice the cart carries the harbour mark? [w11]<turn|>\\n<|turn>model\\nArin: I did. And the driver is the courier from the hall. [w12]<turn|>\\n<|turn>user\\nI tell Arin t"
+    },
+    {
+     "m": "[w13]",
+     "ctx": "ht catches a cart with a broken wheel. [w10]<turn|>\\n<|turn>user\\nArin, did you notice the cart carries the harbour mark? [w11]<turn|>\\n<|turn>model\\nArin: I did. And the driver is the courier from the hall. [w12]<turn|>\\n<|turn>user\\nI tell Arin to keep watch on the driver and head for the office. [w13]<turn|>\\n<|turn>model\\nDM Narrator:"
+    }
+   ],
+   "len": 8297
+  },
+  {
+   "k": 11,
+   "drafted": "Arin",
+   "leaks": [],
+   "len": 11488
+  },
+  {
+   "k": 12,
+   "drafted": "Ponticius",
+   "leaks": [],
+   "len": 11196
+  },
+  {
+   "k": 13,
+   "drafted": "DM Narrator",
+   "leaks": [],
+   "len": 12742
+  },
+  {
+   "k": 14,
+   "drafted": "Arin",
+   "leaks": [],
+   "len": 13106
+  },
+  {
+   "k": 15,
+   "drafted": "Ponticius",
+   "leaks": [],
+   "len": 12005
+  },
+  {
+   "k": 16,
+   "drafted": "DM Narrator",
+   "leaks": [],
+   "len": 14046
+  },
+  {
+   "k": 17,
+   "drafted": "Arin",
+   "leaks": [],
+   "len": 14470
+  },
+  {
+   "k": 18,
+   "drafted": "Ponticius",
+   "leaks": [],
+   "len": 13327
+  },
+  {
+   "k": 19,
+   "drafted": "DM Narrator",
+   "leaks": [],
+   "len": 14170
+  },
+  {
+   "k": 20,
+   "drafted": "DM Narrator",
+   "leaks": [],
+   "len": 14539
+  },
+  {
+   "k": 21,
+   "drafted": "DM Narrator",
+   "leaks": [],
+   "len": 14236
+  },
+  {
+   "k": 22,
+   "drafted": "Ponticius",
+   "leaks": [],
+   "len": 13132
+  }
+ ]
+}

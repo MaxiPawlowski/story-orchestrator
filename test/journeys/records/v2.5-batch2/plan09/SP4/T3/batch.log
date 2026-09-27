@@ -1,0 +1,9 @@
+lane 3 test/scenarios/live-v25-09-sp4-t3-rolling.json run 1: code 0 (2562 s)
+lane 3 test/scenarios/live-v25-09-sp4-t3-rolling.json run 2: code 0 (2447 s)
+lane 3 test/scenarios/live-v25-09-sp4-t3-append.json run 1: code 0 (2529 s)
+lane 3 test/scenarios/live-v25-09-sp4-t3-append.json run 2: code 0 (2375 s)
+{
+  "summary": "C:\\dev\\so-lanes\\batch-2026-09-27T06-00-52-502Z.json",
+  "green": 4,
+  "runs": 4
+}

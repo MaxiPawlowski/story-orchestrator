@@ -1,0 +1,13 @@
+2026-09-27T09:44:59.479Z ok   chat.chatLength  8 -> 9  (allowed by progress)
+2026-09-27T09:44:59.480Z {
+2026-09-27T09:44:59.480Z   "baseline": "C:/dev/so-lanes/3/debug/run-header-sp6-release-on.json",
+2026-09-27T09:44:59.480Z   "label": "diff-end",
+2026-09-27T09:44:59.480Z   "allow": [],
+2026-09-27T09:44:59.480Z   "differences": 1,
+2026-09-27T09:44:59.480Z   "progress": 1,
+2026-09-27T09:44:59.481Z   "blocking": 0,
+2026-09-27T09:44:59.481Z   "blockingPaths": [],
+2026-09-27T09:44:59.481Z   "warnings": [],
+2026-09-27T09:44:59.481Z   "wrote": "C:\\dev\\so-lanes\\3\\debug\\run-header-diff-end.json",
+2026-09-27T09:44:59.481Z   "ok": true
+2026-09-27T09:44:59.481Z }

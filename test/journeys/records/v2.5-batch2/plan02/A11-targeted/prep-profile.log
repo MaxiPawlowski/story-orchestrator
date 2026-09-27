@@ -1,0 +1,9 @@
+2026-09-27T09:46:35.080Z {
+2026-09-27T09:46:35.081Z   "command": "/profile Artemis RunPod RP",
+2026-09-27T09:46:35.082Z   "ok": true,
+2026-09-27T09:46:35.082Z   "pipe": "Artemis RunPod RP",
+2026-09-27T09:46:35.082Z   "messagesBefore": 0,
+2026-09-27T09:46:35.082Z   "messagesAfter": 0,
+2026-09-27T09:46:35.082Z   "newMessages": 0
+2026-09-27T09:46:35.082Z }
+2026-09-27T09:46:35.096Z Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-27T09-46-35-094Z_st-slash-result.json

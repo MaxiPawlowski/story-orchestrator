@@ -1,0 +1,36 @@
+{
+  "lanes": [
+    3
+  ],
+  "items": [
+    "test/scenarios/live-v25-09-sp8-w3-safety.json"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/scenarios/live-v25-09-sp8-w3-safety.json",
+      "lane": 3,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\3\\debug\\batch\\2026-09-27T04-21-13-703Z-live-v25-09-sp8-w3-safety-run1.log",
+      "ms": 2611268,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v25-09-sp8-w3-safety.json",
+      "lane": 3,
+      "run": 2,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\3\\debug\\batch\\2026-09-27T04-21-13-703Z-live-v25-09-sp8-w3-safety-run2.log",
+      "ms": 2934935,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

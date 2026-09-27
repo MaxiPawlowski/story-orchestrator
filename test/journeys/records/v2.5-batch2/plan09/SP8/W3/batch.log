@@ -1,0 +1,7 @@
+lane 3 test/scenarios/live-v25-09-sp8-w3-safety.json run 1: code 1 (2611 s)
+lane 3 test/scenarios/live-v25-09-sp8-w3-safety.json run 2: code 1 (2935 s)
+{
+  "summary": "C:\\dev\\so-lanes\\batch-2026-09-27T04-21-13-703Z.json",
+  "green": 0,
+  "runs": 2
+}

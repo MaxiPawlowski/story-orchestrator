@@ -1,0 +1,86 @@
+2026-09-26T23:18:53.087Z 1/9 inject_script ok 29ms
+2026-09-26T23:18:53.420Z 2/9 eval ok 333ms
+2026-09-26T23:18:53.420Z 2/9 eval -> {"mode":"file","members":["Luke.png","Ponticius.png","Arin.png","DM Narrator.png"]}
+2026-09-26T23:18:53.707Z 3/9 import_story ok 286ms
+2026-09-26T23:18:54.318Z 4/9 eval ok 610ms
+2026-09-26T23:18:54.940Z 5/9 eval ok 622ms
+2026-09-26T23:18:54.941Z 5/9 eval -> {"ready":true,"by":{"SO-V25-08 Req Lore":"chat"},"conflict":{"book":"SO-V25-08 Req Lore","kind":"story-book"}}
+2026-09-26T23:18:55.565Z 6/9 eval ok 625ms
+2026-09-26T23:18:55.566Z 6/9 eval -> {"ready":true,"by":{"SO-V25-08 Req Lore":"persona"}}
+2026-09-26T23:18:56.188Z 7/9 eval ok 623ms
+2026-09-26T23:18:56.188Z 7/9 eval -> {"ready":false,"gaps":{"SO-V25-08 Req Lore":["Luke","Ponticius","DM Narrator"]}}
+2026-09-26T23:18:56.812Z 8/9 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: every enabled member bound: {"ready":false,"missingPersonas":[],"missingMembers":[],"missingLorebooks":["SO-V25-08 Req Lore"],"satisfiedBy":{},"characterGaps":{"SO-V25-08 Req Lore":["Luke","Ponticius"]},"slotConflict":null}
+2026-09-26T23:18:56.813Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:543)
+2026-09-26T23:18:56.813Z     at async <anonymous>:316:30
+2026-09-26T23:18:56.890Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-26T23-18-56-885Z_so-scenario-failure.json
+2026-09-26T23:19:03.151Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-26T23-19-03-150Z_so-scenario-result.json
+2026-09-26T23:19:03.152Z {
+2026-09-26T23:19:03.152Z   "ok": false,
+2026-09-26T23:19:03.152Z   "steps": 8,
+2026-09-26T23:19:03.152Z   "cleanup": {
+2026-09-26T23:19:03.152Z     "importedStoryHashes": [
+2026-09-26T23:19:03.152Z       "v2-684bfbf5"
+2026-09-26T23:19:03.152Z     ],
+2026-09-26T23:19:03.152Z     "library": {
+2026-09-26T23:19:03.152Z       "changed": true,
+2026-09-26T23:19:03.152Z       "removed": [
+2026-09-26T23:19:03.152Z         "so-v25-08-req@1 (v2-684bfbf5)"
+2026-09-26T23:19:03.152Z       ],
+2026-09-26T23:19:03.152Z       "restored": [],
+2026-09-26T23:19:03.152Z       "saved": {
+2026-09-26T23:19:03.152Z         "status": 200
+2026-09-26T23:19:03.152Z       },
+2026-09-26T23:19:03.152Z       "verified": true
+2026-09-26T23:19:03.153Z     },
+2026-09-26T23:19:03.153Z     "clearedDebugResponses": [],
+2026-09-26T23:19:03.153Z     "soloChats": {
+2026-09-26T23:19:03.153Z       "deleted": [],
+2026-09-26T23:19:03.153Z       "leaked": []
+2026-09-26T23:19:03.153Z     },
+2026-09-26T23:19:03.153Z     "sandboxChatId": "2026-09-26@20h18m52s716ms",
+2026-09-26T23:19:03.153Z     "owned": [
+2026-09-26T23:19:03.153Z       "2026-09-26@20h18m52s716ms"
+2026-09-26T23:19:03.153Z     ],
+2026-09-26T23:19:03.153Z     "deleted": [
+2026-09-26T23:19:03.153Z       "2026-09-26@20h18m52s716ms"
+2026-09-26T23:19:03.153Z     ],
+2026-09-26T23:19:03.153Z     "notDeleted": [],
+2026-09-26T23:19:03.153Z     "resurrected": [],
+2026-09-26T23:19:03.153Z     "lateFileRepaired": [],
+2026-09-26T23:19:03.153Z     "saveSettleMs": 1532,
+2026-09-26T23:19:03.153Z     "skipped": [],
+2026-09-26T23:19:03.153Z     "currentChatAtCleanup": "2026-09-26@20h18m52s716ms",
+2026-09-26T23:19:03.153Z     "currentGroupAtCleanup": "1759606632088",
+2026-09-26T23:19:03.153Z     "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+2026-09-26T23:19:03.153Z     "branchChats": {
+2026-09-26T23:19:03.153Z       "recorded": [],
+2026-09-26T23:19:03.153Z       "deleted": [],
+2026-09-26T23:19:03.153Z       "failed": [],
+2026-09-26T23:19:03.153Z       "leaked": []
+2026-09-26T23:19:03.153Z     },
+2026-09-26T23:19:03.153Z     "mirrorBooks": {
+2026-09-26T23:19:03.153Z       "deleted": [],
+2026-09-26T23:19:03.153Z       "failed": [],
+2026-09-26T23:19:03.153Z       "leaked": []
+2026-09-26T23:19:03.153Z     },
+2026-09-26T23:19:03.153Z     "reapPrompts": {
+2026-09-26T23:19:03.153Z       "dismissed": [],
+2026-09-26T23:19:03.153Z       "leaked": []
+2026-09-26T23:19:03.153Z     },
+2026-09-26T23:19:03.153Z     "extraction": {
+2026-09-26T23:19:03.153Z       "restored": false,
+2026-09-26T23:19:03.153Z       "unchanged": true,
+2026-09-26T23:19:03.153Z       "settings": {
+2026-09-26T23:19:03.153Z         "enabled": true,
+2026-09-26T23:19:03.153Z         "cadence": 3,
+2026-09-26T23:19:03.153Z         "stabilityLag": 0,
+2026-09-26T23:19:03.153Z         "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+2026-09-26T23:19:03.153Z         "profiles": {}
+2026-09-26T23:19:03.153Z       }
+2026-09-26T23:19:03.153Z     },
+2026-09-26T23:19:03.153Z     "judge": {
+2026-09-26T23:19:03.153Z       "restored": false,
+2026-09-26T23:19:03.153Z       "unchanged": true
+2026-09-26T23:19:03.153Z     }
+2026-09-26T23:19:03.153Z   }
+2026-09-26T23:19:03.153Z }

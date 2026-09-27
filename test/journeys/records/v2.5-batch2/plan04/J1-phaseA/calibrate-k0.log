@@ -1,0 +1,93 @@
+2026-09-26T21:37:11.416Z ok   K01.a  hold       296 ms  [contradicts]  {"type":"choice","choice":"update","confidence":1,"probabilities":{"duplicate":0,"distinct":0,"update":1,"unrelated":0}}
+2026-09-26T21:37:11.418Z ok   K01.b  hold       284 ms  [contradicts]  {"type":"choice","choice":"contradicts","confidence":0.99,"probabilities":{"distinct":0,"update":0.01,"agrees":0,"contradicts":0.99}}
+2026-09-26T21:37:11.419Z ok   K02.a  hold        70 ms  [contradicts]  fallback=error
+2026-09-26T21:37:11.419Z ok   K02.b  hold        70 ms  [contradicts]  fallback=error
+2026-09-26T21:37:11.419Z ok   K03.a  hold        71 ms  [contradicts]  fallback=error
+2026-09-26T21:37:11.419Z ok   K03.b  hold        70 ms  [contradicts]  fallback=error
+2026-09-26T21:37:11.419Z ok   K04.a  hold        69 ms  [contradicts]  fallback=error
+2026-09-26T21:37:11.419Z ok   K04.b  hold        70 ms  [contradicts]  fallback=error
+2026-09-26T21:37:11.419Z ok   K05.a  hold        69 ms  [contradicts,es]  fallback=error
+2026-09-26T21:37:11.420Z ok   K05.b  hold        69 ms  [contradicts,es]  fallback=error
+2026-09-26T21:37:11.420Z ok   K06.a  hold        68 ms  [contradicts,es]  fallback=error
+2026-09-26T21:37:11.420Z ok   K06.b  hold        69 ms  [contradicts,es]  fallback=error
+2026-09-26T21:37:11.420Z ok   K07.a  hold        68 ms  [contradicts]  fallback=error
+2026-09-26T21:37:11.420Z ok   K07.b  hold        68 ms  [contradicts]  fallback=error
+2026-09-26T21:37:11.420Z ok   K08.a  hold        68 ms  [contradicts]  fallback=error
+2026-09-26T21:37:11.420Z ok   K08.b  hold        69 ms  [contradicts]  fallback=error
+2026-09-26T21:37:11.420Z ok   K09.a  hold        68 ms  [contradicts]  fallback=error
+2026-09-26T21:37:11.420Z ok   K09.b  hold        68 ms  [contradicts]  fallback=error
+2026-09-26T21:37:11.420Z ok   K10.a  hold        68 ms  [contradicts]  fallback=error
+2026-09-26T21:37:11.420Z ok   K10.b  hold        67 ms  [contradicts]  fallback=error
+2026-09-26T21:37:11.420Z ok   K11.a  hold        67 ms  [contradicts,es]  fallback=error
+2026-09-26T21:37:11.420Z ok   K11.b  hold        67 ms  [contradicts,es]  fallback=error
+2026-09-26T21:37:11.420Z ok   K12.a  hold        68 ms  [contradicts,es]  fallback=error
+2026-09-26T21:37:11.420Z ok   K12.b  hold        68 ms  [contradicts,es]  fallback=error
+2026-09-26T21:37:11.420Z ok   K13.a  hold        67 ms  [contradicts,es]  fallback=error
+2026-09-26T21:37:11.420Z ok   K13.b  hold        68 ms  [contradicts,es]  fallback=error
+2026-09-26T21:37:11.420Z ok   K14.a  hold        67 ms  [contradicts,es]  fallback=error
+2026-09-26T21:37:11.420Z ok   K14.b  hold        67 ms  [contradicts,es]  fallback=error
+2026-09-26T21:37:11.420Z ok   K15.a  hold        66 ms  [contradicts]  fallback=error
+2026-09-26T21:37:11.420Z ok   K15.b  hold        65 ms  [contradicts]  fallback=error
+2026-09-26T21:37:11.420Z ok   K16.a  hold        64 ms  [contradicts]  fallback=error
+2026-09-26T21:37:11.420Z ok   K16.b  hold        63 ms  [contradicts]  fallback=error
+2026-09-26T21:37:11.420Z ok   K17.a  hold        64 ms  [contradicts]  fallback=error
+2026-09-26T21:37:11.420Z ok   K17.b  hold        63 ms  [contradicts]  fallback=error
+2026-09-26T21:37:11.420Z ok   K18.a  hold        62 ms  [contradicts,es]  fallback=error
+2026-09-26T21:37:11.420Z ok   K18.b  hold        61 ms  [contradicts,es]  fallback=error
+2026-09-26T21:37:11.420Z ok   K19.a  hold        60 ms  [contradicts,es]  fallback=error
+2026-09-26T21:37:11.420Z ok   K19.b  hold        59 ms  [contradicts,es]  fallback=error
+2026-09-26T21:37:11.420Z MISS K20.a  hold        58 ms  [agrees]  fallback=error
+2026-09-26T21:37:11.420Z MISS K20.b  hold        58 ms  [agrees]  fallback=error
+2026-09-26T21:37:11.420Z MISS K21.a  hold        57 ms  [agrees]  fallback=error
+2026-09-26T21:37:11.420Z MISS K21.b  hold        58 ms  [agrees]  fallback=error
+2026-09-26T21:37:11.420Z MISS K22.a  hold        57 ms  [agrees]  fallback=error
+2026-09-26T21:37:11.420Z MISS K22.b  hold        58 ms  [agrees]  fallback=error
+2026-09-26T21:37:11.420Z MISS K23.a  hold        58 ms  [agrees]  fallback=error
+2026-09-26T21:37:11.421Z MISS K23.b  hold        57 ms  [agrees]  fallback=error
+2026-09-26T21:37:11.421Z MISS K24.a  hold        57 ms  [agrees]  fallback=error
+2026-09-26T21:37:11.421Z MISS K24.b  hold        58 ms  [agrees]  fallback=error
+2026-09-26T21:37:11.421Z MISS K25.a  hold        58 ms  [agrees,es]  fallback=error
+2026-09-26T21:37:11.421Z MISS K25.b  hold        58 ms  [agrees,es]  fallback=error
+2026-09-26T21:37:11.421Z MISS K26.a  hold        57 ms  [agrees,es]  fallback=error
+2026-09-26T21:37:11.421Z MISS K26.b  hold        54 ms  [agrees,es]  fallback=error
+2026-09-26T21:37:11.421Z ok   K27.a  hold        54 ms  [update]  fallback=error
+2026-09-26T21:37:11.421Z ok   K27.b  hold        53 ms  [update]  fallback=error
+2026-09-26T21:37:11.421Z ok   K28.a  hold        53 ms  [update]  fallback=error
+2026-09-26T21:37:11.421Z ok   K28.b  hold        52 ms  [update]  fallback=error
+2026-09-26T21:37:11.421Z ok   K29.a  hold        52 ms  [update,es]  fallback=error
+2026-09-26T21:37:11.421Z ok   K29.b  hold        51 ms  [update,es]  fallback=error
+2026-09-26T21:37:11.421Z ok   K30.a  hold        52 ms  [update,es]  fallback=error
+2026-09-26T21:37:11.421Z ok   K30.b  hold        52 ms  [update,es]  fallback=error
+2026-09-26T21:37:11.421Z MISS K31.a  hold        51 ms  [distinct]  fallback=error
+2026-09-26T21:37:11.421Z MISS K31.b  hold        51 ms  [distinct]  fallback=error
+2026-09-26T21:37:11.421Z MISS K32.a  hold        51 ms  [distinct]  fallback=error
+2026-09-26T21:37:11.421Z MISS K32.b  hold        51 ms  [distinct]  fallback=error
+2026-09-26T21:37:11.421Z MISS K33.a  hold        51 ms  [distinct]  fallback=error
+2026-09-26T21:37:11.421Z MISS K33.b  hold        51 ms  [distinct]  fallback=error
+2026-09-26T21:37:11.421Z MISS K34.a  hold        52 ms  [distinct,es]  fallback=error
+2026-09-26T21:37:11.421Z MISS K34.b  hold        51 ms  [distinct,es]  fallback=error
+2026-09-26T21:37:11.421Z MISS K35.a  hold        52 ms  [distinct,es]  fallback=error
+2026-09-26T21:37:11.421Z MISS K35.b  hold        53 ms  [distinct,es]  fallback=error
+2026-09-26T21:37:11.421Z FAIL jaccard (a) releaseErr 0/6 es 0/2 paraphrase 0/6
+2026-09-26T21:37:11.421Z FAIL jaccard (b) releaseErr 0/6 es 0/2 paraphrase 0/6
+2026-09-26T21:37:11.421Z FAIL vectors:fd8efa441c80 (a) releaseErr 0/15 es 0/8 paraphrase 0/6
+2026-09-26T21:37:11.421Z FAIL vectors:fd8efa441c80 (b) releaseErr 0/15 es 0/8 paraphrase 0/6
+2026-09-26T21:37:11.421Z {
+2026-09-26T21:37:11.421Z   "use": "contradiction-release",
+2026-09-26T21:37:11.421Z   "fixture": "contradiction-release",
+2026-09-26T21:37:11.421Z   "rows": 35,
+2026-09-26T21:37:11.421Z   "modes": [
+2026-09-26T21:37:11.421Z     "jaccard",
+2026-09-26T21:37:11.421Z     "vectors:fd8efa441c80"
+2026-09-26T21:37:11.421Z   ],
+2026-09-26T21:37:11.421Z   "brackets": [
+2026-09-26T21:37:11.421Z     "contradictions.cosine.fd8efa441c80.json"
+2026-09-26T21:37:11.421Z   ],
+2026-09-26T21:37:11.421Z   "passing": [],
+2026-09-26T21:37:11.421Z   "p50LatencyMs": 284,
+2026-09-26T21:37:11.421Z   "requestedModel": null,
+2026-09-26T21:37:11.421Z   "model": "jev-1.13.0",
+2026-09-26T21:37:11.421Z   "modelVerdict": "matched",
+2026-09-26T21:37:11.421Z   "ok": false
+2026-09-26T21:37:11.421Z }
+2026-09-26T21:37:11.437Z Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-26T21-37-11-433Z_so-judge-calibrate-contradiction-release.json

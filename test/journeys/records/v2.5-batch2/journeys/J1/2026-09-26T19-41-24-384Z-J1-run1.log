@@ -1,0 +1,72 @@
+2026-09-26T19:41:25.272Z 
+2026-09-26T19:41:25.272Z === J1 first-contact ===
+2026-09-26T19:41:25.272Z A new user with a cleared install: install state → import the example → configure → first real transition fires.
+2026-09-26T19:41:25.272Z 
+2026-09-26T19:41:25.279Z extraction before this run: {"enabled":true,"cadence":3,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","profiles":{}}
+2026-09-26T19:41:25.343Z Global config snapshot: C:\dev\so-lanes\2\debug\so-journey-config-snapshot.json
+2026-09-26T19:41:25.405Z extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+2026-09-26T19:41:27.445Z --- J1.1 with nothing installed, the drawer says what to do next
+2026-09-26T19:41:27.534Z J1.1 1/2 ui ok 88ms
+2026-09-26T19:41:27.538Z J1.1 2/2 expect_ui ok 5ms
+2026-09-26T19:41:27.540Z --- J1.2 a brand-new chat has extraction enabled by default
+2026-09-26T19:41:27.545Z J1.2 1/1 eval ok 5ms
+2026-09-26T19:41:27.549Z --- J1.3 the memory profile is an install-level setting, so it is not stored per chat
+2026-09-26T19:41:27.811Z J1.3 1/2 ui ok 262ms
+2026-09-26T19:41:27.819Z J1.3 2/2 eval ok 8ms
+2026-09-26T19:41:27.823Z --- J1.4 there is a first-run path that walks an empty install to playable
+2026-09-26T19:41:27.974Z J1.4 1/5 ui ok 151ms
+2026-09-26T19:41:27.978Z J1.4 2/5 expect_ui ok 4ms
+2026-09-26T19:41:28.461Z J1.4 3/5 ui ok 483ms
+2026-09-26T19:41:28.467Z J1.4 4/5 expect_ui ok 6ms
+2026-09-26T19:41:28.527Z J1.4 5/5 ui ok 61ms
+2026-09-26T19:41:28.529Z --- J1.10 the wizard entry point is reachable by a real pointer, not only by a scripted click: both controls are hit-tested AND clicked with real pointer input at their centre, and each opens what it names
+2026-09-26T19:41:28.577Z J1.10 1/8 ui ok 48ms
+2026-09-26T19:41:28.584Z J1.10 2/8 ui ok 7ms
+2026-09-26T19:41:28.591Z J1.10 3/8 ui ok 6ms
+2026-09-26T19:41:28.657Z J1.10 4/8 ui ok 66ms
+2026-09-26T19:41:28.699Z J1.10 5/8 ui ok 42ms
+2026-09-26T19:41:28.799Z J1.10 6/8 ui ok 100ms
+2026-09-26T19:41:28.873Z J1.10 7/8 ui ok 74ms
+2026-09-26T19:41:28.936Z J1.10 8/8 ui ok 63ms
+2026-09-26T19:41:28.938Z --- J1.5 importing the shipped example story from the settings panel makes it playable
+2026-09-26T19:41:28.978Z J1.5 1/3 ui ok 40ms
+2026-09-26T19:41:31.040Z J1.5 2/3 import_story ok 2063ms
+2026-09-26T19:41:31.077Z J1.5 3/3 expect ok 36ms
+2026-09-26T19:41:31.078Z --- J1.6 after configuring the memory model in the settings panel, the first real transition fires
+2026-09-26T19:41:31.156Z J1.6 1/7 ui ok 79ms
+2026-09-26T19:41:31.163Z J1.6 2/7 eval ok 6ms
+2026-09-26T19:41:56.953Z J1.6 3/7 send_generate ok 25791ms
+2026-09-26T19:42:20.728Z J1.6 4/7 send_generate ok 23774ms
+2026-09-26T19:44:15.608Z J1.6 5/7 send_generate ok 114880ms
+2026-09-26T19:44:15.645Z J1.6 6/7 wait ok 37ms
+2026-09-26T19:44:15.680Z J1.6 7/7 expect ok 35ms
+2026-09-26T19:44:15.682Z --- J1.7 the transition is announced to the player in chat (the note posts after cp2's awaited onEnter LLM reply, a real generation, so the assertion waits for it instead of a 5 s UI settle)
+2026-09-26T19:44:15.687Z J1.7 1/1 expect_ui ok 5ms
+2026-09-26T19:44:17.366Z Restored global config from C:\dev\so-lanes\2\debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions"],"saved":{"status":200},"preservedStories":[],"preservedSessions":[]}
+2026-09-26T19:44:29.472Z 
+2026-09-26T19:44:29.472Z PASS         J1.1     with nothing installed, the drawer says what to do next
+2026-09-26T19:44:29.472Z PASS         J1.2     a brand-new chat has extraction enabled by default
+2026-09-26T19:44:29.472Z PASS         J1.3     the memory profile is an install-level setting, so it is not stored per chat
+2026-09-26T19:44:29.472Z PASS         J1.4     there is a first-run path that walks an empty install to playable
+2026-09-26T19:44:29.472Z PASS         J1.10    the wizard entry point is reachable by a real pointer, not only by a scripted click: both controls are hit-tested AND clicked with real pointer input at their centre, and each opens what it names — reported pass as expected
+2026-09-26T19:44:29.472Z PASS         J1.5     importing the shipped example story from the settings panel makes it playable
+2026-09-26T19:44:29.472Z PASS         J1.6     after configuring the memory model in the settings panel, the first real transition fires
+2026-09-26T19:44:29.472Z PASS         J1.7     the transition is announced to the player in chat (the note posts after cp2's awaited onEnter LLM reply, a real generation, so the assertion waits for it instead of a 5 s UI settle)
+2026-09-26T19:44:29.472Z SKIP         J1.8      — human check — operator scores it
+2026-09-26T19:44:29.472Z SKIP         J1.9      — human check — operator scores it
+2026-09-26T19:44:29.472Z 
+2026-09-26T19:44:29.472Z J1
+2026-09-26T19:44:29.472Z automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped
+2026-09-26T19:44:29.472Z human:     0 scored, 2 unscored
+2026-09-26T19:44:29.472Z cleanup:   clean
+2026-09-26T19:44:29.472Z first try: 8 of 8 passing check(s) needed no retry
+2026-09-26T19:44:29.473Z 
+2026-09-26T19:44:29.473Z --- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+2026-09-26T19:44:29.473Z [J1.8] (U6) From opening SillyTavern with the extension installed, could you tell what to do to get a story running?
+2026-09-26T19:44:29.473Z       anchors: 1 = no idea where to start · 3 = worked it out by poking around · 5 = the next step was obvious at every point
+2026-09-26T19:44:29.473Z [J1.9] (U1, U6) Once you were playing, was it clear that the story was actually running (and would advance on its own)?
+2026-09-26T19:44:29.473Z       anchors: 1 = no signal at all · 3 = guessed from the drawer · 5 = unmistakable
+2026-09-26T19:44:29.473Z [free] What would make you stop using this?
+2026-09-26T19:44:29.473Z 
+2026-09-26T19:44:29.490Z Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-26T19-44-29-489Z_journey-J1.json
+2026-09-26T19:44:29.490Z Matrix: C:\dev\so-lanes\2\debug\journey-J1.md

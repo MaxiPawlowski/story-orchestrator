@@ -1,0 +1,51 @@
+2026-09-27T09:46:37.817Z {
+2026-09-27T09:46:37.818Z   "ok": true,
+2026-09-27T09:46:37.818Z   "value": {
+2026-09-27T09:46:37.818Z     "r": {
+2026-09-27T09:46:37.818Z       "content": "<|channel>thought\n<channel|>PONG",
+2026-09-27T09:46:37.818Z       "reasoning": ""
+2026-09-27T09:46:37.818Z     },
+2026-09-27T09:46:37.818Z     "ms": 1171,
+2026-09-27T09:46:37.818Z     "groupId": "1759606632088",
+2026-09-27T09:46:37.819Z     "chatId": "2026-09-20@07h06m38s396ms",
+2026-09-27T09:46:37.819Z     "spikes": {
+2026-09-27T09:46:37.819Z       "recommitEdit": false,
+2026-09-27T09:46:37.819Z       "swipeBackCache": false,
+2026-09-27T09:46:37.819Z       "witnessFilter": false,
+2026-09-27T09:46:37.819Z       "sp5Scenario": false,
+2026-09-27T09:46:37.819Z       "sp7Chance": false,
+2026-09-27T09:46:37.819Z       "sp6Complications": false,
+2026-09-27T09:46:37.819Z       "sp4AppendShortTerm": false,
+2026-09-27T09:46:37.819Z       "sp8CuratorTiers": false,
+2026-09-27T09:46:37.819Z       "sp8CuratorDigest": false
+2026-09-27T09:46:37.819Z     },
+2026-09-27T09:46:37.819Z     "judge": {
+2026-09-27T09:46:37.819Z       "enabled": false,
+2026-09-27T09:46:37.819Z       "model": "jev-1.13.0",
+2026-09-27T09:46:37.819Z       "timeoutMs": 1500,
+2026-09-27T09:46:37.819Z       "uses": {
+2026-09-27T09:46:37.819Z         "director": false,
+2026-09-27T09:46:37.819Z         "memoryVerify": false,
+2026-09-27T09:46:37.819Z         "memoryPairs": false,
+2026-09-27T09:46:37.819Z         "sceneTrigger": false,
+2026-09-27T09:46:37.819Z         "sceneTracker": false,
+2026-09-27T09:46:37.819Z         "lookahead": false,
+2026-09-27T09:46:37.819Z         "loreSelect": false,
+2026-09-27T09:46:37.819Z         "curatorFilter": false,
+2026-09-27T09:46:37.819Z         "typedExtraction": false,
+2026-09-27T09:46:37.819Z         "stallCheck": false,
+2026-09-27T09:46:37.819Z         "expansionCritic": false,
+2026-09-27T09:46:37.819Z         "expansionLookahead": false,
+2026-09-27T09:46:37.819Z         "agencyCheck": false,
+2026-09-27T09:46:37.819Z         "houseRules": false,
+2026-09-27T09:46:37.819Z         "loreExclusive": false
+2026-09-27T09:46:37.819Z       },
+2026-09-27T09:46:37.819Z       "expansion": {
+2026-09-27T09:46:37.819Z         "variants": 1,
+2026-09-27T09:46:37.819Z         "temperature": 0.7,
+2026-09-27T09:46:37.819Z         "pick": "code"
+2026-09-27T09:46:37.819Z       }
+2026-09-27T09:46:37.819Z     }
+2026-09-27T09:46:37.819Z   }
+2026-09-27T09:46:37.819Z }
+2026-09-27T09:46:37.833Z Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-27T09-46-37-831Z_st-eval.json

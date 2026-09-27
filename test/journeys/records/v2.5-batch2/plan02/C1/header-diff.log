@@ -1,0 +1,28 @@
+2026-09-26T19:45:10.136Z DIFF chat.chatId  "2026-09-20@07h06m38s396ms" -> "2026-09-26@16h43m53s748ms"
+2026-09-26T19:45:10.137Z ok   chat.chatLength  0 -> 1  (allowed by progress)
+2026-09-26T19:45:10.138Z DIFF inventory.groupChats  +1759606632088/2026-09-26@16h42m28s940ms +1759606632088/2026-09-26@16h43m53s748ms
+2026-09-26T19:45:10.138Z ok   story.activeCheckpointId  null -> "start"  (allowed by progress)
+2026-09-26T19:45:10.138Z ok   story.boundary  null -> 0  (allowed by progress)
+2026-09-26T19:45:10.138Z DIFF story.contentHash  null -> "v2-781000ed"
+2026-09-26T19:45:10.138Z DIFF story.id  null -> "so-v25-c2c1"
+2026-09-26T19:45:10.138Z DIFF story.playedVersion  null -> 1
+2026-09-26T19:45:10.138Z DIFF story.title  null -> "SO-V25-C2C1 save race and NPC switch"
+2026-09-26T19:45:10.139Z {
+2026-09-26T19:45:10.139Z   "baseline": "C:/dev/so-lanes/1/debug/run-header-c1.json",
+2026-09-26T19:45:10.139Z   "label": "diff-end",
+2026-09-26T19:45:10.139Z   "allow": [],
+2026-09-26T19:45:10.139Z   "differences": 9,
+2026-09-26T19:45:10.139Z   "progress": 3,
+2026-09-26T19:45:10.139Z   "blocking": 6,
+2026-09-26T19:45:10.139Z   "blockingPaths": [
+2026-09-26T19:45:10.139Z     "chat.chatId",
+2026-09-26T19:45:10.139Z     "inventory.groupChats",
+2026-09-26T19:45:10.139Z     "story.contentHash",
+2026-09-26T19:45:10.139Z     "story.id",
+2026-09-26T19:45:10.139Z     "story.playedVersion",
+2026-09-26T19:45:10.139Z     "story.title"
+2026-09-26T19:45:10.139Z   ],
+2026-09-26T19:45:10.139Z   "warnings": [],
+2026-09-26T19:45:10.139Z   "wrote": "C:\\dev\\so-lanes\\1\\debug\\run-header-diff-end.json",
+2026-09-26T19:45:10.139Z   "ok": false
+2026-09-26T19:45:10.139Z }

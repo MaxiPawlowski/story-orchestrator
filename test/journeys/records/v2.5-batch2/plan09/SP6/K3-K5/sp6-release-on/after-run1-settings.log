@@ -1,0 +1,15 @@
+2026-09-27T09:21:53.598Z {
+2026-09-27T09:21:53.599Z   "ok": true,
+2026-09-27T09:21:53.599Z   "value": {
+2026-09-27T09:21:53.599Z     "spikes": false,
+2026-09-27T09:21:53.599Z     "judgeEnabled": false,
+2026-09-27T09:21:53.599Z     "uses": [],
+2026-09-27T09:21:53.599Z     "warden": {
+2026-09-27T09:21:53.599Z       "curatorEnabled": true,
+2026-09-27T09:21:53.599Z       "acceptMode": "review",
+2026-09-27T09:21:53.600Z       "wardenEnabled": false,
+2026-09-27T09:21:53.600Z       "wardenAcceptMode": "review"
+2026-09-27T09:21:53.600Z     }
+2026-09-27T09:21:53.600Z   }
+2026-09-27T09:21:53.600Z }
+2026-09-27T09:21:53.625Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T09-21-53-623Z_st-eval.json

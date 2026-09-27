@@ -1,0 +1,3321 @@
+{
+  "id": "SP6",
+  "title": "complication pool",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\spikes\\sp6-complications.journey.json",
+  "fileSha256": "3a821fcd42eb9ef3b9d421b2b8272dd73109cda1a3e69502430b8040f80ff826",
+  "ranAt": "2026-09-27T09:21:51.696Z",
+  "strict": true,
+  "partial": false,
+  "only": null,
+  "tally": {
+    "fail": 1
+  },
+  "tallies": {
+    "automated": {
+      "pass": 0,
+      "fail": 1,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 0
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 0,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [
+    "1 automated check(s) failed"
+  ],
+  "humanRecord": null,
+  "runnerError": null,
+  "releasedRoutes": null,
+  "capabilities": {
+    "sp6-spike": true,
+    "warden-families": true
+  },
+  "results": [
+    {
+      "id": "SP6.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "SP6 K3/K4/K5 (v2.5 plan 09): 72 scripted quiet turns at the waystation (tension_target critical, complication_after 2, 24-item pool). The check passes when the arm reached >= 20 release points, the release arm carried the block on every one and the control arm on none. The bars are applied offline by so-sp6-score over release/control x judge on/off, each x2 consecutive: K3 agency flags (judge on) of each release run <= mean control + 1; K4 0 restatements (restate span >= 6 words or a meta token) in release-arm replies N+1; K5 (judge off) each release run reaches the target band within 6 boundaries of release in >= 60 % of releases, each control run <= 30 %.",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Evaluation failed in SillyTavern page: page.evaluate: Error: only 11 release point(s) in this release arm; the predeclared size is 20 released turns (the record is kept in so-sp6-records)\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1975)\n    at async <anonymous>:316:30",
+      "firstAttempt": "fail",
+      "retries": []
+    }
+  ],
+  "cleanup": {
+    "judgeSettle": {
+      "settled": true,
+      "waitedMs": 0,
+      "inFlight": 0,
+      "seen": 98
+    },
+    "judgeCalls": {
+      "count": 72,
+      "events": [
+        {
+          "at": "2026-09-27T08:50:04.747Z",
+          "boundary": 1,
+          "messageId": 2,
+          "kind": "judge",
+          "summary": "judge warden in 286 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1042,
+            "latencyMs": 286,
+            "inputTokens": 731,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.81
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:50:16.856Z",
+          "boundary": 2,
+          "messageId": 4,
+          "kind": "judge",
+          "summary": "judge warden in 312 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 694,
+            "latencyMs": 312,
+            "inputTokens": 647,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.92
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:50:33.828Z",
+          "boundary": 3,
+          "messageId": 6,
+          "kind": "judge",
+          "summary": "judge warden in 304 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 855,
+            "latencyMs": 304,
+            "inputTokens": 686,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.86
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:50:48.591Z",
+          "boundary": 4,
+          "messageId": 8,
+          "kind": "judge",
+          "summary": "judge warden in 313 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 783,
+            "latencyMs": 313,
+            "inputTokens": 675,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.19
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:51:14.582Z",
+          "boundary": 5,
+          "messageId": 10,
+          "kind": "judge",
+          "summary": "judge warden in 308 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 921,
+            "latencyMs": 308,
+            "inputTokens": 704,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.24
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:51:28.337Z",
+          "boundary": 6,
+          "messageId": 12,
+          "kind": "judge",
+          "summary": "judge warden in 249 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 705,
+            "latencyMs": 249,
+            "inputTokens": 652,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.08
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:51:45.441Z",
+          "boundary": 7,
+          "messageId": 14,
+          "kind": "judge",
+          "summary": "judge warden in 265 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 881,
+            "latencyMs": 265,
+            "inputTokens": 699,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.75
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:52:03.826Z",
+          "boundary": 8,
+          "messageId": 16,
+          "kind": "judge",
+          "summary": "judge warden in 257 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 821,
+            "latencyMs": 257,
+            "inputTokens": 671,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.43
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:52:21.217Z",
+          "boundary": 9,
+          "messageId": 18,
+          "kind": "judge",
+          "summary": "judge warden in 291 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1001,
+            "latencyMs": 291,
+            "inputTokens": 716,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.6
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:52:53.049Z",
+          "boundary": 10,
+          "messageId": 20,
+          "kind": "judge",
+          "summary": "judge warden in 2358 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 591,
+            "latencyMs": 2358,
+            "inputTokens": 623,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.32
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:53:09.667Z",
+          "boundary": 11,
+          "messageId": 22,
+          "kind": "judge",
+          "summary": "judge warden in 274 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 602,
+            "latencyMs": 274,
+            "inputTokens": 622,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.87
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:53:27.825Z",
+          "boundary": 12,
+          "messageId": 24,
+          "kind": "judge",
+          "summary": "judge warden in 322 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 834,
+            "latencyMs": 322,
+            "inputTokens": 685,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.76
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:53:47.202Z",
+          "boundary": 13,
+          "messageId": 26,
+          "kind": "judge",
+          "summary": "judge warden in 245 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 920,
+            "latencyMs": 245,
+            "inputTokens": 700,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.07
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:54:01.996Z",
+          "boundary": 14,
+          "messageId": 28,
+          "kind": "judge",
+          "summary": "judge warden in 258 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 730,
+            "latencyMs": 258,
+            "inputTokens": 664,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.4
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:54:31.905Z",
+          "boundary": 15,
+          "messageId": 30,
+          "kind": "judge",
+          "summary": "judge warden in 308 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 628,
+            "latencyMs": 308,
+            "inputTokens": 625,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.99
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:54:48.888Z",
+          "boundary": 16,
+          "messageId": 32,
+          "kind": "judge",
+          "summary": "judge warden in 289 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 628,
+            "latencyMs": 289,
+            "inputTokens": 636,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.54
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:55:08.253Z",
+          "boundary": 17,
+          "messageId": 34,
+          "kind": "judge",
+          "summary": "judge warden in 289 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 828,
+            "latencyMs": 289,
+            "inputTokens": 672,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.57
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:55:24.587Z",
+          "boundary": 18,
+          "messageId": 36,
+          "kind": "judge",
+          "summary": "judge warden in 262 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 626,
+            "latencyMs": 262,
+            "inputTokens": 631,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.11
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:55:44.716Z",
+          "boundary": 19,
+          "messageId": 38,
+          "kind": "judge",
+          "summary": "judge warden in 293 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 770,
+            "latencyMs": 293,
+            "inputTokens": 670,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.27
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:56:23.735Z",
+          "boundary": 20,
+          "messageId": 40,
+          "kind": "judge",
+          "summary": "judge warden in 3161 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 722,
+            "latencyMs": 3161,
+            "inputTokens": 647,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.27
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:56:40.575Z",
+          "boundary": 21,
+          "messageId": 42,
+          "kind": "judge",
+          "summary": "judge warden in 309 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 742,
+            "latencyMs": 309,
+            "inputTokens": 650,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.38
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:57:00.305Z",
+          "boundary": 22,
+          "messageId": 44,
+          "kind": "judge",
+          "summary": "judge warden in 261 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 669,
+            "latencyMs": 261,
+            "inputTokens": 646,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.08
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:57:18.699Z",
+          "boundary": 23,
+          "messageId": 46,
+          "kind": "judge",
+          "summary": "judge warden in 266 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 752,
+            "latencyMs": 266,
+            "inputTokens": 656,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.09
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:57:37.706Z",
+          "boundary": 24,
+          "messageId": 48,
+          "kind": "judge",
+          "summary": "judge warden in 269 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 761,
+            "latencyMs": 269,
+            "inputTokens": 680,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.91
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:58:16.576Z",
+          "boundary": 25,
+          "messageId": 50,
+          "kind": "judge",
+          "summary": "judge warden in 265 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 826,
+            "latencyMs": 265,
+            "inputTokens": 685,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.92
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:58:36.199Z",
+          "boundary": 26,
+          "messageId": 52,
+          "kind": "judge",
+          "summary": "judge warden in 266 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 694,
+            "latencyMs": 266,
+            "inputTokens": 661,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.83
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:58:54.715Z",
+          "boundary": 27,
+          "messageId": 54,
+          "kind": "judge",
+          "summary": "judge warden in 322 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 576,
+            "latencyMs": 322,
+            "inputTokens": 626,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.36
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:59:13.018Z",
+          "boundary": 28,
+          "messageId": 56,
+          "kind": "judge",
+          "summary": "judge warden in 271 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 618,
+            "latencyMs": 271,
+            "inputTokens": 635,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.28
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T08:59:33.236Z",
+          "boundary": 29,
+          "messageId": 58,
+          "kind": "judge",
+          "summary": "judge warden in 301 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 624,
+            "latencyMs": 301,
+            "inputTokens": 632,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.07
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:00:11.936Z",
+          "boundary": 30,
+          "messageId": 60,
+          "kind": "judge",
+          "summary": "judge warden in 2641 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 723,
+            "latencyMs": 2641,
+            "inputTokens": 652,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.12
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:00:36.132Z",
+          "boundary": 31,
+          "messageId": 62,
+          "kind": "judge",
+          "summary": "judge warden in 325 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 747,
+            "latencyMs": 325,
+            "inputTokens": 672,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.3
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:00:56.934Z",
+          "boundary": 32,
+          "messageId": 64,
+          "kind": "judge",
+          "summary": "judge warden in 251 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 726,
+            "latencyMs": 251,
+            "inputTokens": 649,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.22
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:01:17.109Z",
+          "boundary": 33,
+          "messageId": 66,
+          "kind": "judge",
+          "summary": "judge warden in 275 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 797,
+            "latencyMs": 275,
+            "inputTokens": 673,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.86
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:01:37.563Z",
+          "boundary": 34,
+          "messageId": 68,
+          "kind": "judge",
+          "summary": "judge warden in 289 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 655,
+            "latencyMs": 289,
+            "inputTokens": 641,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.87
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:02:15.134Z",
+          "boundary": 35,
+          "messageId": 70,
+          "kind": "judge",
+          "summary": "judge warden in 336 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 654,
+            "latencyMs": 336,
+            "inputTokens": 634,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.85
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:02:35.901Z",
+          "boundary": 36,
+          "messageId": 72,
+          "kind": "judge",
+          "summary": "judge warden in 262 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 756,
+            "latencyMs": 262,
+            "inputTokens": 666,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.02
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:03:03.173Z",
+          "boundary": 37,
+          "messageId": 74,
+          "kind": "judge",
+          "summary": "judge warden in 297 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 891,
+            "latencyMs": 297,
+            "inputTokens": 697,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.55
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:03:24.782Z",
+          "boundary": 38,
+          "messageId": 76,
+          "kind": "judge",
+          "summary": "judge warden in 293 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 642,
+            "latencyMs": 293,
+            "inputTokens": 648,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.3
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:03:43.892Z",
+          "boundary": 39,
+          "messageId": 78,
+          "kind": "judge",
+          "summary": "judge warden in 294 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 633,
+            "latencyMs": 294,
+            "inputTokens": 641,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.68
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:04:33.839Z",
+          "boundary": 40,
+          "messageId": 80,
+          "kind": "judge",
+          "summary": "judge warden in 3029 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 862,
+            "latencyMs": 3029,
+            "inputTokens": 689,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.58
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:04:54.402Z",
+          "boundary": 41,
+          "messageId": 82,
+          "kind": "judge",
+          "summary": "judge warden in 255 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 756,
+            "latencyMs": 255,
+            "inputTokens": 666,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.19
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:05:15.613Z",
+          "boundary": 42,
+          "messageId": 84,
+          "kind": "judge",
+          "summary": "judge warden in 301 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 789,
+            "latencyMs": 301,
+            "inputTokens": 666,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.04
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:05:44.248Z",
+          "boundary": 43,
+          "messageId": 86,
+          "kind": "judge",
+          "summary": "judge warden in 300 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 912,
+            "latencyMs": 300,
+            "inputTokens": 707,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.34
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:06:10.224Z",
+          "boundary": 44,
+          "messageId": 88,
+          "kind": "judge",
+          "summary": "judge warden in 275 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 932,
+            "latencyMs": 275,
+            "inputTokens": 696,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.27
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:06:32.633Z",
+          "boundary": 45,
+          "messageId": 90,
+          "kind": "judge",
+          "summary": "judge warden in 273 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 833,
+            "latencyMs": 273,
+            "inputTokens": 669,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.74
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:07:16.971Z",
+          "boundary": 46,
+          "messageId": 92,
+          "kind": "judge",
+          "summary": "judge warden in 302 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 726,
+            "latencyMs": 302,
+            "inputTokens": 666,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.34
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:07:39.824Z",
+          "boundary": 47,
+          "messageId": 94,
+          "kind": "judge",
+          "summary": "judge warden in 258 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 720,
+            "latencyMs": 258,
+            "inputTokens": 646,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.18
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:08:01.977Z",
+          "boundary": 48,
+          "messageId": 96,
+          "kind": "judge",
+          "summary": "judge warden in 301 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 700,
+            "latencyMs": 301,
+            "inputTokens": 661,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.2
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:08:33.902Z",
+          "boundary": 49,
+          "messageId": 98,
+          "kind": "judge",
+          "summary": "judge warden in 324 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 860,
+            "latencyMs": 324,
+            "inputTokens": 681,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.85
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:09:00.885Z",
+          "boundary": 50,
+          "messageId": 100,
+          "kind": "judge",
+          "summary": "judge warden in 3231 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 682,
+            "latencyMs": 3231,
+            "inputTokens": 664,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 2.06
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:09:21.595Z",
+          "boundary": 51,
+          "messageId": 102,
+          "kind": "judge",
+          "summary": "judge warden in 841 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 711,
+            "latencyMs": 841,
+            "inputTokens": 644,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.51
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:10:12.242Z",
+          "boundary": 52,
+          "messageId": 104,
+          "kind": "judge",
+          "summary": "judge warden in 280 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 704,
+            "latencyMs": 280,
+            "inputTokens": 649,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.17
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:10:33.165Z",
+          "boundary": 53,
+          "messageId": 106,
+          "kind": "judge",
+          "summary": "judge warden in 264 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 813,
+            "latencyMs": 264,
+            "inputTokens": 666,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.69
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:10:55.117Z",
+          "boundary": 54,
+          "messageId": 108,
+          "kind": "judge",
+          "summary": "judge warden in 368 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 754,
+            "latencyMs": 368,
+            "inputTokens": 656,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.53
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:11:28.524Z",
+          "boundary": 55,
+          "messageId": 110,
+          "kind": "judge",
+          "summary": "judge warden in 261 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 799,
+            "latencyMs": 261,
+            "inputTokens": 684,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.22
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:12:15.480Z",
+          "boundary": 56,
+          "messageId": 112,
+          "kind": "judge",
+          "summary": "judge warden in 268 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 824,
+            "latencyMs": 268,
+            "inputTokens": 674,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.24
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:12:40.414Z",
+          "boundary": 57,
+          "messageId": 114,
+          "kind": "judge",
+          "summary": "judge warden in 369 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 855,
+            "latencyMs": 369,
+            "inputTokens": 683,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.99
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:13:12.167Z",
+          "boundary": 58,
+          "messageId": 116,
+          "kind": "judge",
+          "summary": "judge warden in 288 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 622,
+            "latencyMs": 288,
+            "inputTokens": 635,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.55
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:13:38.709Z",
+          "boundary": 59,
+          "messageId": 118,
+          "kind": "judge",
+          "summary": "judge warden in 276 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 869,
+            "latencyMs": 276,
+            "inputTokens": 675,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.87
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:14:08.903Z",
+          "boundary": 60,
+          "messageId": 120,
+          "kind": "judge",
+          "summary": "judge warden in 2965 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 824,
+            "latencyMs": 2965,
+            "inputTokens": 688,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.62
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:15:04.932Z",
+          "boundary": 61,
+          "messageId": 122,
+          "kind": "judge",
+          "summary": "judge warden in 306 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 825,
+            "latencyMs": 306,
+            "inputTokens": 676,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.79
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:15:32.194Z",
+          "boundary": 62,
+          "messageId": 124,
+          "kind": "judge",
+          "summary": "judge warden in 1047 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 759,
+            "latencyMs": 1047,
+            "inputTokens": 670,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.46
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:15:56.416Z",
+          "boundary": 63,
+          "messageId": 126,
+          "kind": "judge",
+          "summary": "judge warden in 342 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 787,
+            "latencyMs": 342,
+            "inputTokens": 670,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.36
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:16:24.011Z",
+          "boundary": 64,
+          "messageId": 128,
+          "kind": "judge",
+          "summary": "judge warden in 336 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 657,
+            "latencyMs": 336,
+            "inputTokens": 636,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.83
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:16:53.312Z",
+          "boundary": 65,
+          "messageId": 130,
+          "kind": "judge",
+          "summary": "judge warden in 288 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 735,
+            "latencyMs": 288,
+            "inputTokens": 654,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.41
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:17:40.445Z",
+          "boundary": 66,
+          "messageId": 132,
+          "kind": "judge",
+          "summary": "judge warden in 296 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 670,
+            "latencyMs": 296,
+            "inputTokens": 640,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.42
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:18:19.523Z",
+          "boundary": 67,
+          "messageId": 134,
+          "kind": "judge",
+          "summary": "judge warden in 309 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 877,
+            "latencyMs": 309,
+            "inputTokens": 706,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.2
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:18:48.674Z",
+          "boundary": 68,
+          "messageId": 136,
+          "kind": "judge",
+          "summary": "judge warden in 319 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 836,
+            "latencyMs": 319,
+            "inputTokens": 676,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.36
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:19:13.244Z",
+          "boundary": 69,
+          "messageId": 138,
+          "kind": "judge",
+          "summary": "judge warden in 257 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 843,
+            "latencyMs": 257,
+            "inputTokens": 682,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.85
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:19:43.820Z",
+          "boundary": 70,
+          "messageId": 140,
+          "kind": "judge",
+          "summary": "judge warden in 3247 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 616,
+            "latencyMs": 3247,
+            "inputTokens": 632,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.22
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:20:11.894Z",
+          "boundary": 71,
+          "messageId": 142,
+          "kind": "judge",
+          "summary": "judge warden in 301 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 812,
+            "latencyMs": 301,
+            "inputTokens": 677,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.71
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:21:00.519Z",
+          "boundary": 72,
+          "messageId": 144,
+          "kind": "judge",
+          "summary": "judge warden in 429 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 710,
+            "latencyMs": 429,
+            "inputTokens": 659,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.46
+            }
+          }
+        }
+      ]
+    },
+    "judgeMode": {
+      "mode": {
+        "label": "on",
+        "uses": [
+          "agencyCheck"
+        ],
+        "wardenMode": "auto"
+      }
+    },
+    "judgeMeter": {
+      "calls": 72,
+      "cachedCalls": 0,
+      "inputTokens": 47843,
+      "outputTokens": 1224,
+      "cost": 0,
+      "lastAnsweredModel": "jev-1.13.0"
+    },
+    "boundaries": 72,
+    "warden": {
+      "flagged": 0,
+      "applied": 0,
+      "lapsed": 0,
+      "rejected": 0,
+      "pending": 0
+    },
+    "wardenNotes": [],
+    "rescore": {
+      "factsSource": "live facts-tier and pinned memory rows at cleanup; ledger-bound rows not included; player line = the newest player message before each reply; house rules = the played story at cleanup",
+      "rows": [
+        {
+          "id": "m0",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+          },
+          "player": "Max"
+        },
+        {
+          "id": "m2",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The tavern’s hearth crackles, sending warmth and the scent of pine wood through the air. Max and Arin sit by the fire, the flickering light painting shadows across the room. Other adventurers dot the tavern—some drinking in silence, others boasting over maps and coins.*\n*A reception worker approaches, her footsteps soft on the worn wooden floor. She carries a small ceramic pot of tea, steam curling upward.*\n“Eastern caravan’s late,” *she says, setting the pot on a low table between them. Her voice carries a weary edge.* “Two days past schedule. No one's seen them since they left the Red Moss-Gate. Don't think it's usual.”\n*Arin glances toward the door, his hand resting casually on his bow.*\n“Late? In these parts, that usually means something went wrong.” *he mutters, his gaze narrowing.* “Want me to check the road?”\n*The fire pops, and a log shifts, sending a small cascade of sparks into the air.*"
+          },
+          "player": "Max",
+          "playerMessage": "We wait by the hearth for the eastern caravan."
+        },
+        {
+          "id": "m4",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The worker pauses, wiping her hands on her apron.*\n“Usually? Right on time, or maybe a few hours late if the weather’s bad.” *She shakes her head.* “Two days… that’s never happened. Not with a merchant caravan of that size.”\n*She gestures to a window where the fading daylight casts a golden hue over the surrounding hills.*\n“Last word was from a scout who passed them three days ago. Everything seemed fine.”\n*Arin watches her, his expression unreadable.*\n“Three days ago is a lifetime out here,” *he says quietly, his fingers tapping the edge of his bow.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the keeper how late the caravan usually runs."
+        },
+        {
+          "id": "m6",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The keeper brings another round of ale, the drink pale and thin, barely concealing its water. Max and Arin drink in silence, watching the tavern’s other patrons as the hours slowly tick by.*\n*The fire dies down to glowing embers, casting long shadows across the walls. The keeper begins extinguishing the candles, leaving the room dimly lit.*\n*Outside, the wind howls through the valley, carrying with it the chill of approaching night. A distant sound reaches their ears—something unnatural.*\n*Arin’s hand tightens on his bow, his eyes flicking toward the door.*\n“You hear that?” *he asks, his voice low.*\n*It’s a sound that shouldn't be there—a soft, rhythmic thrumming, like wings beating against the cold air.*"
+          },
+          "player": "Max",
+          "playerMessage": "We order another round of watered ale and keep waiting."
+        },
+        {
+          "id": "m8",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Max digs through his pack, counting the dried meat and hardtack. Five days' worth for one person, perhaps three for two if they stretch it.*\n*Arin watches, his expression grim.*\n“Five days,” *he says, his voice flat.* “We’ve been waiting for two. If we head out now, we can make it to Red Moss-Gate by morning. Maybe find where the caravan went wrong.”\n*The sound outside grows louder—something large, circling in the darkness.*\n“Or we can wait here and see what’s coming for us.” *Arin suggests, his hand resting on the string of his bow.*\n*The keeper’s eyes are wide as she looks toward the window, her hand trembling as she clutches her apron.*"
+          },
+          "player": "Max",
+          "playerMessage": "I check our packs and count the remaining rations."
+        },
+        {
+          "id": "m10",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The sound of the dice rolling across the wooden table is the only thing that cuts through the tense silence of the tavern. Max and Arin play a slow, deliberate game, their faces illuminated by the dying embers of the fire.*\n*The keeper stands by the window, peering into the darkness, her expression anxious.*\n*Outside, the sound grows stronger—a low, rhythmic beating of wings that seems to vibrate in the very air itself.*\n*Arin’s eyes flick to the window, then back to the dice. He doesn't move, but his grip on his bow is white-knuckled.*\n“Let’s see if you can beat me this time,” *he says, his voice tight with forced calm.*\n*The fire crackles one last time, then dies, leaving the tavern in near-darkness.*\n*The sound of something landing on the roof above them is sudden and heavy.*"
+          },
+          "player": "Max",
+          "playerMessage": "We play a slow game of dice to pass the time."
+        },
+        {
+          "id": "m12",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The road stretches east, a dark ribbon through the valley. The moon is obscured by thick clouds, and the hills beyond the waystation are silhouettes against the gray sky.*\n*Nothing moves on the road. No torches, no horses, no carts.*\n*The only sound is the wind, whistling through the trees and the heavy thrumming above them.*\n*Arin watches you from across the table, his face unreadable in the gloom.*\n“See anything?” *he asks softly, his voice barely above a whisper.*\n*The keeper gasps, her hand flying to her mouth as she stares at something just beyond the window.*"
+          },
+          "player": "Max",
+          "playerMessage": "I look out of the window at the empty road east."
+        },
+        {
+          "id": "m14",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Arin leans in closer, his voice barely a murmur.*\n“You know what the Guild offered for the caravan’s safe arrival, right?” *he says, glancing around to make sure they’re not being overheard.* “Enough to get us through the next few months without having to scrape for every copper.”\n*The keeper's eyes widen at the mention of coin, and she turns her attention toward them, her anxiety momentarily forgotten.*\n“Is it true?” *she asks, her voice trembling.* “They're paying for that job?”\n*Arin nods slowly.*\n“A good chunk of it, yeah.”\n*The sound of something shifting on the roof grows louder, and the keeper flinches, her gaze darting back to the window.*\n“Please,” *she whispers, her voice shaking,* “just… tell me something good.”"
+          },
+          "player": "Max",
+          "playerMessage": "We talk quietly about the job waiting at the end of the road."
+        },
+        {
+          "id": "m16",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Max's boots scuff against the wooden floor as he stretches, pacing the length of the common room. The keeper watches him go, her eyes following his every move.*\n*Arin remains by the fire, his hand on the bow, his gaze fixed on the window.*\n*The tavern is nearly dark now, save for the last few embers of the hearth. The shadows seem to crawl across the floor as Max walks.*\n*The sound on the roof above them becomes more distinct—a slow, deliberate scratching, like claws scraping against wood.*\n“We’re not alone,” *Arin says quietly, his voice carrying an edge of danger.*\n*The keeper lets out a small sob, and collapses into a chair in the corner, her face buried in her hands.*"
+          },
+          "player": "Max",
+          "playerMessage": "I stretch my legs and walk once around the common room."
+        },
+        {
+          "id": "m18",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The warmth of the fading embers lulls Max and Arin into a shallow sleep. The tavern grows quiet, save for the distant howl of the wind and the occasional crackle from the hearth.*\n*Arin's breathing is steady, his head lolling to one side as he rests against the wall. His hand never fully releases his bow.*\n*Max's dreams are fragmented, filled with images of the eastern road and the shadows that dance along its edges.*\n*A sudden sound jolts them both awake—a heavy thump on the roof, followed by the unmistakable sound of claws scraping across the shingles.*\n*The keeper screams, a sharp, terrified sound that echoes through the silent tavern.*\n*Arin is up in an instant, bow in hand, his eyes scanning the darkness above.*\n“Get back,” *he hisses, his voice cold as ice.*\n*The sound of something large and powerful shifts above them, its weight causing the ceiling beams to groan.*"
+          },
+          "player": "Max",
+          "playerMessage": "We doze a little by the fire."
+        },
+        {
+          "id": "m20",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The keeper shakes her head violently, her eyes wide with terror.*\n“No! No news! We've heard nothing from the east for days!” *she cries, her voice breaking.*\n*The scratching sound on the roof intensifies, the beams above creaking under an immense weight.*\n“Please,” *she whispers, tears streaming down her cheeks,* “please help me.”\n*Arin stands ready, bow drawn, his gaze fixed upward as the ceiling begins to sag.*\n“We’re out of time,” *he says grimly.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask whether anyone has heard news from the east."
+        },
+        {
+          "id": "m22",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Arin pauses, his gaze flickering to the saddle as he kneels to mend the torn strap. The sound of scratching on the roof above grows louder, the ceiling beams groaning under the weight.*\n“You sure about this?” *he asks quietly, his hands working quickly.*\n*The keeper huddles in the corner of the room, her face buried in her trembling hands.*\n*The sound of something heavy moving on the roof above intensifies, its claws scraping against the shingles as it searches for a way in.*"
+          },
+          "player": "Max",
+          "playerMessage": "We mend a strap on one of the saddles."
+        },
+        {
+          "id": "m24",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The other travelers speak in hushed whispers, their voices carrying an edge of fear.*\n“Did you hear about the caravan from the east?” *one says, his voice shaking.* “Two days overdue, and no one’s seen it since it left Red Moss-Gate.”\n“Yeah, I heard it,” *another responds, her voice equally low.* “They say it’s been gone for three days now.”\n*The keeper looks up at them, her face pale and drawn.*\n“It’s true,” *she says quietly, her voice barely audible.* “No one’s seen them.”\n*The scratching on the roof continues, the creature shifting above them, searching for an entry point.*\n*Arin looks up from the saddle, his bow resting against his shoulder.*\n“The caravan’s gone,” *he says flatly.*"
+          },
+          "player": "Max",
+          "playerMessage": "I sit back and listen to the other travellers talk."
+        },
+        {
+          "id": "m26",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The waystation is quiet save for the occasional creak of the floorboards and the soft rustle of movement from other patrons. Max and Arin settle by the hearth, watching the dying embers pulse with a faint red glow.*\n*Arin keeps his bow close at hand, eyes occasionally flicking toward the door and window.*\n*A reception worker approaches silently, setting a small ceramic pot of steaming tea on the low table beside them.*\n“Eastern caravan’s late.” *She speaks softly, her expression weary.* “Two days past schedule. Don't think that's usual for a merchant group this size.”\n*Arin glances at the pot, then toward the door.*\n“Late?” *he says quietly.* “In these parts, that means something went wrong. Want me to check the road?”\n*The fire pops, sending a cascade of sparks into the air.*"
+          },
+          "player": "Max",
+          "playerMessage": "We wait by the hearth for the eastern caravan."
+        },
+        {
+          "id": "m28",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The keeper pauses, setting down a small clay bowl. She glances toward Max with a hollow, weary look.*\n“Usually? They arrive within a day's time of the schedule—maybe a few hours late if weather slows them.” *She shakes her head slowly.* “Two days is… unheard of. Not since the Lich Queen’s times.”\n*She gestures toward the darkened road outside the window.*\n“The scout’s word from three days ago said they were fine. Now we hear nothing.”\n*Arin shifts by the hearth, his fingers absentmindedly tapping the string of his bow.*\n“Three days,” *he mutters.* “A lot can happen on the eastern road.”"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the keeper how late the caravan usually runs."
+        },
+        {
+          "id": "m30",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The keeper brings a new pitcher, the liquid pale and thin. Max and Arin nurse their cups slowly, the tavern gradually emptying of patrons.*\n*The light from the fire dims to a soft orange glow as the night deepens. Outside, the wind howls softly through the hills, carrying the chill of autumn.*\n*Arin glances toward the road.*\n“Still nothing,” *he says quietly.*\n*The tavern grows quieter, the keeper beginning to clear the remaining glasses as the last of the daylight fades completely.*"
+          },
+          "player": "Max",
+          "playerMessage": "We order another round of watered ale and keep waiting."
+        },
+        {
+          "id": "m32",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Max rifles through his pack, fingers brushing past dried meat and hardtack biscuits. Five days' worth of supplies for one, or barely three if they share.*\n*Arin doesn't turn, his eyes still fixed on the door.*\n“Five days?” *he says softly.* “Two already spent waiting. We could be at Red Moss-Gate in a day if we leave now.”\n*The sound of the wind outside shifts, carrying a low thrumming that wasn't there before—a rhythmic beating like wings, growing louder.*\n*Arin's hand moves to his bow.*"
+          },
+          "player": "Max",
+          "playerMessage": "I check our packs and count the remaining rations."
+        },
+        {
+          "id": "m34",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The sound of bone dice clattering across the wooden table cuts through the tavern's oppressive quiet. Arin sits opposite Max, his expression unreadable as he rolls.*\n*The fire has died down to a smoldering orange glow, casting long, wavering shadows across the room.*\n*The keeper remains by the window, her silhouette tense against the fading light as she peers into the gathering darkness.*\n*The sound from outside grows stronger—a low vibration that seems to pulse through the very air.*\n*Arin doesn't look up from the dice, but his grip tightens on the table.*\n“Let's see if you've got any luck tonight,” *he says quietly.*\n*The dice tumble across the wood, coming to rest with a sharp clack.*"
+          },
+          "player": "Max",
+          "playerMessage": "We play a slow game of dice to pass the time."
+        },
+        {
+          "id": "m36",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The road stretches east, disappearing into the blackness of the hills. No torches, no lanterns, no movement.*\n*Only the wind whistles through the valley, and the low thrumming outside grows steadily louder.*\n*Arin continues with the game of dice, his expression grim in the dim light.*\n*The keeper gasps softly, her hand gripping the window frame.*\n“Do you see it?” *she whispers, her voice trembling.*\n*Outside, something moves in the shadows just beyond the road—something large and wrong.*"
+          },
+          "player": "Max",
+          "playerMessage": "I look out of the window at the empty road east."
+        },
+        {
+          "id": "m38",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Arin leans closer, his voice a low murmur that barely carries across the table.*\n“The Guild's offering a pretty sum for the caravan’s arrival,” *he says.* “Enough to keep us fed and housed for months.”\n*The keeper glances over, her eyes reflecting the orange light of the dying embers.*\n“Is it true?” *she asks softly, her voice uncertain.*\n*Arin nods slowly.*\n“Yeah. A good chunk of the payout is tied to them getting in safely.”\n*The sound outside grows louder—the beating of wings, closer now.*\n*The keeper looks back to the window, her expression darkening.*\n“Please,” *she whispers.* “Just… tell me they’re coming.”"
+          },
+          "player": "Max",
+          "playerMessage": "We talk quietly about the job waiting at the end of the road."
+        },
+        {
+          "id": "m40",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Max's boots thud softly on the wooden floor as he walks, pacing the room’s perimeter. The fire’s last embers cast long shadows that flicker along the walls.*\n*Arin doesn't move from the hearth, but his eyes follow the movement, tracking the darkness outside the window.*\n*The keeper is silent now, her gaze fixed on something beyond the road.*\n*The thrumming in the air intensifies—a vibration that rattles the windows slightly in their frames.*\n“We’re not alone out there,” *Arin says quietly.*\n*The keeper flinches at his words, her hand tightening around the edge of her chair.*"
+          },
+          "player": "Max",
+          "playerMessage": "I stretch my legs and walk once around the common room."
+        },
+        {
+          "id": "m42",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The warmth of the fading hearth lulls them into a thin sleep. Max leans against the wall, his breathing slowing, while Arin sits nearby, bow still within reach.*\n*The tavern has fallen silent, save for the low whistle of the wind through the valley.*\n*A sharp sound cracks through the air—a heavy impact on the roof. The ceiling beams groan, and dust shakes loose from the timbers.*\n*Arin is up instantly, bow drawn, an arrow already notched.*\n*The keeper screams, and a sound like metal scraping on wood echoes from above.*\n*The scratching grows louder as something large probes the roof from outside, searching for a way in.*"
+          },
+          "player": "Max",
+          "playerMessage": "We doze a little by the fire."
+        },
+        {
+          "id": "m44",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Arin shifts his gaze from the ceiling to the few other patrons still present in the dim room.*\n*The keeper, who has retreated to a corner, shakes her head violently.*\n“Nothing!” *she cries, her voice breaking.* “We’ve heard nothing from the east for three days!”\n*Another traveler, a weathered man clutching a sword-belt, looks up with a grim expression.*\n“No news,” *he says hoarsely.* “No word from anyone.”\n*The scratching above intensifies, beams groaning under an immense weight as the creature on the roof shifts its position.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask whether anyone has heard news from the east."
+        },
+        {
+          "id": "m46",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Arin drops to one knee beside the saddle, pulling out a needle and thick thread. His hands work quickly and methodically, though his eyes keep darting upward.*\n*The ceiling beams creak and groan under the weight on the roof, dust motes falling from the timber.*\n*The scratching continues—deliberate, searching, like something probing for a weak point in the structure.*\n*The keeper whimpers in her corner, pressing her face against her palms.*\n“Hold the torch closer,” *Arin mutters, his voice tense.*\n*The other patrons in the room have grown still, their eyes fixed on the ceiling or the door, waiting to see what comes next.*"
+          },
+          "player": "Max",
+          "playerMessage": "We mend a strap on one of the saddles."
+        },
+        {
+          "id": "m48",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The other travelers keep their voices low, fear-tainted whispers that drift across the darkening room.*\n“Maybe it’s a griffon,” *a man murmurs, his hand tight on his sword hilt.*\n“Griffons don't prowl roofs like that,” *a woman responds.* “Sound too heavy for one. Could be a drake.”\n*A sudden crash from above—the sound of shingles breaking—shatters the conversation.*\n*The keeper lets out a stifled sob.*\n“They’re coming for us,” *she whispers.*\n*The man clutching the sword-belt shakes his head.*\n“T'ain't us it's after. The caravan... that's why we're sitting here.”\n*Arin looks up sharp, his needle frozen in place.*"
+          },
+          "player": "Max",
+          "playerMessage": "I sit back and listen to the other travellers talk."
+        },
+        {
+          "id": "m50",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The waystation is nearly silent now, the few remaining travelers huddling together or staring blankly at the ceiling. Max and Arin sit by the dying embers, the fire's warmth almost gone.*\n*The scratching on the roof has stopped. The silence that follows is worse.*\n*Then, a low growl vibrates through the timber above—something hungry and patient.*\n*Arin slowly sets aside the saddle, his bow already drawn, an arrow notched and ready.*\n“Whatever it is,” *he says softly, his eyes fixed on the rafters above,* “it knows we're here.”\n*The keeper’s whimpers have quieted into a terrified, shallow breathing.*\n*Outside, the wind picks up, carrying with it the faint scent of ozone and wet earth.*"
+          },
+          "player": "Max",
+          "playerMessage": "We wait by the hearth for the eastern caravan."
+        },
+        {
+          "id": "m52",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The keeper looks up from where she's hunched in the corner, her eyes wild and rimmed with red.*\n“Usually?” *She lets out a harsh, trembling laugh.* “Usually they’re on time, or maybe a few hours behind.”\n*She wipes her face with the back of her hand.*\n“Two days... it's never happened. Not in all the time I’ve worked here. Not since… since before the Lich Queen.”\n*Her gaze flickers to the ceiling as another low growl echoes from above.*\n“They aren’t just late,” *she whispers.* “Something stopped them.”\n*Arin's grip tightens on his bow, his face grim.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the keeper how late the caravan usually runs."
+        },
+        {
+          "id": "m54",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The keeper hesitates, her eyes darting from the door to the ceiling.*\n“You want drink now?” *she asks, her voice strained.*\n*She gestures vaguely toward the kitchen in the back.*\n“I can… I can fetch it.”\n*Arin doesn't take his eyes off the rafters, the bow still drawn tight.*\n“Get the drink,” *he says quietly.* “We wait.”\n*The sound of her retreating footsteps echoes in the room as the growl from above continues, low and patient.*"
+          },
+          "player": "Max",
+          "playerMessage": "We order another round of watered ale and keep waiting."
+        },
+        {
+          "id": "m56",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Max rifles through his pack, counting the hardtack biscuits and dried meat strips.*\n*Five days for one. Barely three for two.*\n*Arin glances over from his position by the hearth.*\n“Three days if we stretch it,” *he mutters.* “And we've already spent two waiting.”\n*The scratching from above starts again, slow and methodical.*\n*The keeper returns with a pitcher, her hands shaking as she sets it on the table.*\n“Two days gone,” *she says softly.* “No word. No one’s seen anything.”"
+          },
+          "player": "Max",
+          "playerMessage": "I check our packs and count the remaining rations."
+        },
+        {
+          "id": "m58",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Arin sets the dice on the low wooden table, the sound of bone on wood sharp in the quiet room.*\n*The keeper's eyes flick to the dice, then back to the road outside the window.*\n*Outside, the thrumming grows louder, a steady vibration in the air.*\n“Your turn,” *Arin says, his voice tight.*\n*The fire crackles one last time, then dies completely, leaving the tavern in near-darkness.*\n*A heavy impact from above shakes the building, dust falling from the beams.*\n*The scratching begins again.*"
+          },
+          "player": "Max",
+          "playerMessage": "We play a slow game of dice to pass the time."
+        },
+        {
+          "id": "m60",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The road stretches east, disappearing into the darkness of the valley. The moon is obscured by thick clouds, and the hills beyond the waystation are silhouettes against the gray sky.*\n*Nothing moves on the road. No torches, no horses, no carts.*\n*Only the wind whistles through the trees and the low thrumming above grows steadily louder.*\n*Arin watches you from across the table, his expression unreadable in the gloom.*\n“See anything?” *he asks softly, his voice barely above a whisper.*\n*The keeper gasps, her hand flying to her mouth as she stares at something just beyond the window.*"
+          },
+          "player": "Max",
+          "playerMessage": "I look out of the window at the empty road east."
+        },
+        {
+          "id": "m62",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Arin leans in closer, his voice low and careful.*\n“Guild payout,” *he says quietly,* “is more than enough to keep us housed and fed for a few months. Maybe even longer if we're smart.”\n*The keeper glaces over, her face pale in the dim light.*\n“Is that true?” *she whispers.*\n*Arin nods slowly.*\n“Yeah. If we get the caravan back safely, that's what we're getting.”\n*The sound of something shifting on the roof above them grows louder, and the beams groan under its weight.*\n*The keeper looks toward the window, her eyes wide with fear.*\n“Please,” *she says faintly,* “just tell me something good.”"
+          },
+          "player": "Max",
+          "playerMessage": "We talk quietly about the job waiting at the end of the road."
+        },
+        {
+          "id": "m64",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The floorboards creak softly under Max's weight as he stretches, pacing around the common room in a slow, deliberate circle.*\n*The few remaining patrons don't look up, their faces drawn in the gloom.*\n*The keeper keeps her eyes fixed on the window, her hand trembling on the frame.*\n*Arin remains by the hearth, bow drawn, his gaze tracing the rafters above.*\n*The thrumming outside intensifies, a vibration that rattles the glasses on the table slightly.*\n“We’re not alone,” *Arin whispers, his voice cold and steady.*\n*The keeper flinches, her breathing becoming rapid and shallow.*"
+          },
+          "player": "Max",
+          "playerMessage": "I stretch my legs and walk once around the common room."
+        },
+        {
+          "id": "m66",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The last warmth of the dying embers lures Max and Arin into a shallow, uneasy sleep. Their breathing settles as they lean back against the rough-hewn walls.*\n*Tavern-quiet descends for a time, broken only by the wind and the soft snoring of another patron.*\n*A sudden, violent thud on the roof jolts them both awake. Ceiling beams groan. Dust shakes loose from the timber overhead.*\n*The keeper gasps and retreats further into the corner, clutching her apron with white-knuckled hands.*\n*Scratching sounds intensify—something large, testing the roof for weakness, searching for entry.*\n*Arin’s bow is in his hand before his eyes are fully open, an arrow notched and pointed upward.*"
+          },
+          "player": "Max",
+          "playerMessage": "We doze a little by the fire."
+        },
+        {
+          "id": "m68",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The keeper shakes her head frantically, her voice barely a whisper.*\n“No! No one has heard a word from the east!” *she cries, tears welling in her eyes.*\n*Another traveler speaks up from across the room, his voice hoarse with dread.*\n“Not a soul. Three days and the road’s been silent as the grave.”\n*The scratching on the roof grows more aggressive, followed by a deep, resonant thrumming that vibrates through the floor.*\n*Arin keeps his bow trained on the ceiling, his gaze unwavering.*\n“We’re running out of time.”"
+          },
+          "player": "Max",
+          "playerMessage": "I ask whether anyone has heard news from the east."
+        },
+        {
+          "id": "m70",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Arin kneels beside the saddle, fingers moving with practiced speed as he stitches the torn strap back together.*\n*His gaze never fully leaves the ceiling beams above, which groan under an invisible weight.*\n*The keeper’s whimpering grows louder as the scratching continues, her body trembling as she leans against the wall.*\n*Outside, the wind howls through the valley, carrying with it a faint scent of sulfur and old blood.*\n*Arin pulls the last stitch tight, his jaw set.*\n“Strap’s fixed. If we need to move fast, we’re ready.”"
+          },
+          "player": "Max",
+          "playerMessage": "We mend a strap on one of the saddles."
+        },
+        {
+          "id": "m72",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The few travelers remaining in the tavern huddle in small groups, their whispers carrying a sharp edge of fear.*\n“Could be a wyvern,” *one mutters, clutching his sword hilt.*\n“Too heavy for that,” *another responds softly.* “Griffons don’t make that much noise.”\n*The keeper makes a low, choked sound in her throat, her face buried in her hands.*\n*The sound on the roof intensifies—slow, deliberate scratching, followed by a low vibration that seems to hum through the very wood of the building.*\n“Caravan’s not coming,” *the first man says, his voice dropping to a flat, empty tone.* “Not after three days of silence.”"
+          },
+          "player": "Max",
+          "playerMessage": "I sit back and listen to the other travellers talk."
+        },
+        {
+          "id": "m74",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Max and Arin settle back by the dying embers of the hearth, their bodies tense despite the forced stillness. The tavern-quiet returns for a brief moment—nothing but the soft crackle of settling ash and the keeper’s ragged breathing.*\n*Then it breaks. A low thrumming vibrates through the floor, and the scratching from above begins again, more insistent this time.*\n*Arin’s hand tightens on his bow string, his eyes never leaving the rafters.*\n*The keeper doesn't even look up from her huddled position in the corner.*\n“They aren't coming,” *she whispers, and her voice cracks.* “They're gone.”\n*The other travelers don't move. They simply wait, their gazes locked on the door or the ceiling—trapped in a silence that feels heavier than the noise from above.*"
+          },
+          "player": "Max",
+          "playerMessage": "We wait by the hearth for the eastern caravan."
+        },
+        {
+          "id": "m76",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The keeper jerks her head toward Max, her eyes vacant in the dim light.*\n“They're never late,” *she says, her voice thin and flat.* “Two days, three days… never. Not since the Lich Queen fell.”\n*A shudder passes through her.*\n“No caravan has ever been delayed by more than a few hours. Not this late.”\n*The thrumming on the roof pulses again, and she flinches, closing her eyes tightly.*\n“Something stopped them,” *she murmurs.* “And now it's come for us.”\n*Arin glances toward her, his expression grim.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the keeper how late the caravan usually runs."
+        },
+        {
+          "id": "m78",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The keeper stares at the table for a moment, her expression unreadable. Then she slowly stands.*\n“Right,” *she says quietly.* “Drink.”\n*She retreats into the kitchen, her movements stiff and jerky.*\n*Arin doesn't move from his position, bow drawn, eyes locked on the rafters.*\n“We're waiting for nothing,” *he says, his voice low.*\n*The scratching from above continues—slow, methodical, testing for a way in.*\n*The thrumming in the air grows heavier, vibrating through the very floorboards.*"
+          },
+          "player": "Max",
+          "playerMessage": "We order another round of watered ale and keep waiting."
+        },
+        {
+          "id": "m80",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Max reaches into his pack, fingers brushing against dried meat strips and hardtack biscuits. Five days' worth of supplies for one.*\n*Arin doesn't turn his head, but his ears twitch at the sound.*\n“Two-three if we stretch it,” *he says quietly.* “And we've already spent two days waiting.”\n*The keeper returns with a pitcher of watered-down ale, her hands shaking as she sets it on the table.*\n*The scratching on the roof continues, steady and deliberate, like a claw testing the weight of the beams.*\n*Arin's gaze shifts momentarily toward the door.*\n“If we head out now, we can make it to Red Moss-Gate by morning. If we stay, we wait for whatever's on that roof.”\n*The pitcher rattles slightly as the keeper sets it down.*"
+          },
+          "player": "Max",
+          "playerMessage": "I check our packs and count the remaining rations."
+        },
+        {
+          "id": "m82",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The rattle of dice on the worn wooden table cuts through the tavern's heavy silence. Max and Arin play in low light, the last embers of the fire painting their faces in flickering orange and shadow.*\n*The keeper watches them from the edge of the room, her arms wrapped tight around herself.*\n*Outside, the low thrumming continues—a vibration felt more in the bones than heard with the ears.*\n*Arin rolls, the dice tumbling across the table with a dry clatter.*\n“Not a bad way to spend a night,” *he says softly.* “If you ignore the thing on the roof.”\n*A beam overhead creaks and groans, and dust drifts down onto the table.*"
+          },
+          "player": "Max",
+          "playerMessage": "We play a slow game of dice to pass the time."
+        },
+        {
+          "id": "m84",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The road stretches eastward, disappearing into a black horizon. No light from torches, no movement of carts—only a dark ribbon cutting through the valley.*\n*Arin glances from his dice to Max as he moves toward the window.*\n“See anything?” *he asks quietly, his hand hovering near his bow.*\n*The keeper's breath catches as she watches Max approach the window, and her knuckles turn white against the chair’s armrest.*\n*Outside, something moves in the shadows just beyond the road—large and wrong-shaped.*\n*The thrumming from above intensifies, making the window frames rattle.*\n“Whatever stopped the caravan,” *Arin murmurs,* “it's looking for something.”"
+          },
+          "player": "Max",
+          "playerMessage": "I look out of the window at the empty road east."
+        },
+        {
+          "id": "m86",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Arin lowers his voice to a near-whisper, eyes still tracing the beams above.*\n“The Guild’s offering a pretty sum if we bring that caravan back safely,” *he says.* “Enough to get us through several months without having to scrape for every copper.”\n*The keeper flinches at the mention of coin, her voice trembling when she speaks.*\n“Is it true?” *she whispers.* “They’re paying that well?”\n*Arin nods slowly.*\n“Yeah. But the payout only comes if we deliver.”\n*A long, slow groan echoes from the roof as the creature shifts its weight.*\n“The problem is,” *Arin continues,* “we don't know what stopped them in the first place. And whatever it is, it's up there now.”\n*The keeper buries her face in her hands, and the only sound in the room is her ragged breathing.*"
+          },
+          "player": "Max",
+          "playerMessage": "We talk quietly about the job waiting at the end of the road."
+        },
+        {
+          "id": "m88",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The floorboards creak underfoot as Max paces, his footsteps echoing in the oppressive quiet. The few travelers left in the tavern don't turn their heads, their gaze fixed on their own hands or the door.*\n*Arin stays by the hearth, his bow held steady, watching for any movement from the ceiling.*\n*The keeper continues to press her hands against her eyes, trembling in her corner.*\n*The thrumming outside grows louder, vibrating through the window frames until the glass rattles in its setting.*\n*A soft, high-pitched whine carries through the air—something unnatural and sharp.*\n“Whatever this is,” *Arin murmurs, his voice edged with concern,* “it’s getting closer.”\n*The sound of claws scraping across shingles grows more persistent, like someone testing the strength of wood and stone.*"
+          },
+          "player": "Max",
+          "playerMessage": "I stretch my legs and walk once around the common room."
+        },
+        {
+          "id": "m90",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The fading warmth of the embers coax Max and Arin into an uneasy, shallow sleep. They rest against the walls, their bodies still tense and ready despite the forced stillness.*\n*The tavern falls silent for a moment—nothing but the soft whistle of wind through the valley and the keeper’s shallow breathing in the corner.*\n*Then it shatters. A violent impact on the roof makes the ceiling beams groan and dust cascade from the timbers.*\n*Arin is up instantly, bow drawn and arrow notched before his eyes have fully opened.*\n*The keeper lets out a choked scream, her gaze fixed on the darkness above.*\n*Scratching sounds echo through the rafters as something large probes the roof from outside, searching for a weakness.*"
+          },
+          "player": "Max",
+          "playerMessage": "We doze a little by the fire."
+        },
+        {
+          "id": "m92",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The keeper jolts at the sound, her eyes snapping open as she stares at Max with wide, terror-filled eyes.*\n“Nothing!” *she cries, her voice cracking.* “No one’s heard a word in three days!”\n*A traveler near the door mutters something in response, his voice hollow with dread.*\n“Road’s been dead silent,” *he adds.* “If there was any news, we’d have heard it by now.”\n*The thrumming from the roof intensifies, and another beam groans under the weight above.*\n*Arin doesn't lower his bow, his gaze still fixed on the rafters.*\n“No news,” *he says quietly.* “Just us and whatever’s up there.”"
+          },
+          "player": "Max",
+          "playerMessage": "I ask whether anyone has heard news from the east."
+        },
+        {
+          "id": "m94",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Arin drops to one knee beside the saddle, pulling out a needle and thick thread. His hands move with practiced speed, though his eyes never leave the ceiling.*\n*The beams above creak and groan, and dust shakes loose from the timber as the weight on the roof shifts.*\n*The scratching continues—deliberate, probing, like something testing the structure's weak points.*\n*The keeper huddles in her corner, her face pressed into her palms.*\n“Hold the torch closer,” *Arin mutters, his voice strained.*\n*The other patrons in the room remain silent, their gazes fixed either on the ceiling or the door.*"
+          },
+          "player": "Max",
+          "playerMessage": "We mend a strap on one of the saddles."
+        },
+        {
+          "id": "m96",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The hushed voices of the travelers drift across the dim room, their words brittle with fear.*\n“It’s too heavy for a griffon,” *one murmurs, clutching a sword hilt.* “Sounds more like a drake.”\n*A sudden crash from above—the sound of shingles breaking—shatters the conversation.*\n*The keeper makes a stifled sound of distress in her throat.*\n“It's going to get in,” *someone whispers.*\n*Arin pauses, his needle mid-stitch.*\n“Whatever’s up there,” *he says quietly,* “it knows we’re here.”\n*The thrumming intensifies, rattling the window frames in their sockets.*"
+          },
+          "player": "Max",
+          "playerMessage": "I sit back and listen to the other travellers talk."
+        },
+        {
+          "id": "m98",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The waystation's interior is nearly dark now, the fire long since reduced to glowing ash. Max and Arin sit by the cold hearth, their eyes flicking between the darkened road outside and the ceiling above.*\n*A low thrumming vibrates through their bones, steady and wrong.*\n*The keeper huddled in the corner doesn't move, her face still pressed into her palms.*\n*Arin doesn't draw his bow yet, but his hand rests lightly on the string, ready.*\n“Any minute now,” *he murmurs.*\n*The scratching from above has grown more deliberate, circling the roof as if testing every weak point.*\n*A sudden gust of wind rattles the door, and a low groan echoes through the timber—a sound that could be from the building or something much larger.*"
+          },
+          "player": "Max",
+          "playerMessage": "We wait by the hearth for the eastern caravan."
+        },
+        {
+          "id": "m100",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The keeper doesn't lift her head, her voice muffled and trembling.*\n“Usually?” *she whispers.* “Usually they’re on time. Within an hour or two. Maybe a few hours if the weather’s bad.”\n*She shudders, and the sound of her breathing is ragged in the quiet.*\n“Two days is… it’s never happened. Not once. Not since the Lich Queen’s fall.”\n*The thrumming above pulses stronger for a moment, and she flinches.*\n“Something stopped them,” *she adds, her voice flat and hollow.* “And now it’s here.”\n*Arin’s eyes narrow, his grip tightening on his bow.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the keeper how late the caravan usually runs."
+        },
+        {
+          "id": "m102",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The keeper remains curled in her corner, but at the mention of more drink, she makes a jerky, stumbling effort to stand.*\n*She retrieves a pitcher from the bar, her movements stiff, and pours another round of pale, thin ale.*\n*The pitcher trembles in her grasp, splashing slightly onto the wooden table as she sets it down.*\n“Drink,” *she says softly, her voice barely audible.*\n*She retreats toward the kitchen, her steps uneven and uncertain.*\n*Arin doesn't touch his drink. He watches the ceiling beams sag slightly under an unseen weight, his bow still held steady.*"
+          },
+          "player": "Max",
+          "playerMessage": "We order another round of watered ale and keep waiting."
+        },
+        {
+          "id": "m104",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The bag rustles as Max digs through it, counting the remaining supplies in the dim light.*\n*Arin’s eyes flick over from his position by the hearth, watching from the corner of his eye.*\n“Five days for one,” *he says quietly.* “Or barely three if we stretch them for two.”\n*The sound from the roof above is constant now—slow, methodical scratching and the occasional groan of timber.*\n*The keeper stands by the door to the kitchen, motionless, her gaze fixed on nothing.*\n*Arin turns back to the ceiling, bow still drawn.*\n“We’ve already wasted two days waiting here.”"
+          },
+          "player": "Max",
+          "playerMessage": "I check our packs and count the remaining rations."
+        },
+        {
+          "id": "m106",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The dice tumble across the worn wooden table, the sound sharp in the heavy silence of the tavern.*\n*The keeper has retreated to the corner, huddling by a wall and watching Max and Arin through the gaps in her fingers.*\n*Outside, the thrumming grows louder—a low vibration that rattles the window frames and makes the glassware on the shelves ring softly.*\n*Arin rolls the bone dice, his movements slow and deliberate.*\n“Let’s see if fortune smiles on us tonight,” *he murmurs, his gaze shifting between the table and the rafters above.*\n*A sudden gust of wind slams against the building, and the scratching on the roof pauses for a heartbeat before resuming with renewed intensity.*"
+          },
+          "player": "Max",
+          "playerMessage": "We play a slow game of dice to pass the time."
+        },
+        {
+          "id": "m108",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The road stretches eastward through the darkened valley, disappearing into the blackness where the hills begin. No light from lanterns, no signs of carts or horses.*\n*Only the wind whistles through the trees and the low thrumming continues above—a rhythmic, unnatural beating like wings.*\n*Arin doesn’t turn around but speaks quietly.*\n“See anything moving out there?” *his hand stays close to his bow.*\n*The keeper's knuckles turn white as she grips the edge of her chair, watching Max's silhouette against the window.*\n*Outside, a shape shifts in the shadows just beyond the roadside—something large and wrong-moving.*"
+          },
+          "player": "Max",
+          "playerMessage": "I look out of the window at the empty road east."
+        },
+        {
+          "id": "m110",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Arin leans in, his voice barely above a whisper.*\n“Guild offered a good sum for this one,” *he says.* “Enough to keep us housed and fed for months if we play it right.”\n*The keeper’s eyes flicker toward them, her breathing uneven.*\n“Is it true?” *she asks softly.*\n*Arin nods.*\n“Yeah. But only if the caravan comes back safe. The Guild doesn't pay for corpses.”\n*The sound from above grows louder—the scratching on the roof intensifies, followed by a heavy, resonant vibration.*\n“The problem,” *Arin murmurs,* “is knowing what took them in the first place.”\n*The keeper shrinks further into her corner, and the silence in the room becomes stifling.*"
+          },
+          "player": "Max",
+          "playerMessage": "We talk quietly about the job waiting at the end of the road."
+        },
+        {
+          "id": "m112",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Max's boots thud softly on the wooden floor as he makes his way around the room’s perimeter. The fire’s last embers cast long, wavering shadows across the walls.*\n*Arin remains seated by the hearth, but his eyes trace the movement, never leaving the ceiling for too long.*\n*The keeper sits motionless, her knuckles white against her apron.*\n*The thrumming vibration in the air intensifies, causing the glass on the nearby shelves to ring faintly.*\n“We aren’t alone here,” *Arin says quietly, his voice devoid of warmth.*\n*A soft, high-pitched sound carries through the room—something unnatural.*\n*Scratching echoes from above, slow and methodical, testing the structure’s strength.*"
+          },
+          "player": "Max",
+          "playerMessage": "I stretch my legs and walk once around the common room."
+        },
+        {
+          "id": "m114",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The warmth of the last embers allows a fragile rest. Max leans back against the wall, breathing slowing, while Arin sits rigid nearby, bow within arm's reach.*\n*The waystation has fallen almost completely silent, save for the wind’s distant howl and the keeper’s ragged breath from her corner.*\n*A sudden, violent thump on the roof shatters the quiet. The ceiling beams groan under the impact, sending dust motes dancing through the dim air.*\n*Arin’s bow is in his hand before his eyes fully open, an arrow notched and pointed at the rafters above.*\n*The keeper lets out a small, terrified sob, her face pressed against her palms.*\n*Scratching noises resume—heavier now, more insistent, as if something is actively tearing at the shingles.*"
+          },
+          "player": "Max",
+          "playerMessage": "We doze a little by the fire."
+        },
+        {
+          "id": "m116",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The keeper's head doesn't lift from her hands. Her voice is a muffled whisper, broken by fear.*\n“No one,” *she says faintly.* “No one’s heard a word in three days.”\n*The man with the sword-belt mutters something in response, his tone hollow with dread.*\n“The road’s been dead silent.”\n*Above them, another beam groans under an immense weight as the scratching on the roof becomes more aggressive.*\n*Arin doesn't lower his bow, his gaze still fixed on the ceiling.*\n“We’re out of time.”"
+          },
+          "player": "Max",
+          "playerMessage": "I ask whether anyone has heard news from the east."
+        },
+        {
+          "id": "m118",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Arin shifts his attention momentarily to the saddle, pulling a needle and thread from his pack. His movements are quick and precise, but his eyes flick back to the rafters every second.*\n*The leather of the saddle strap is torn—worn from travel or perhaps cut by something sharp.*\n*The scratching above has changed rhythm, becoming faster and more deliberate, as if the creature has found a weak point in the roof.*\n*A fine spray of dust and splinters rains down from the beams, settling across the floor and the table.*\n*The keeper whimpers in her corner, pressing her hands harder against her face.*\n*The thrumming in the air has grown so strong it can be felt in the chest, a low-frequency vibration that seems to pulse with every heartbeat.*"
+          },
+          "player": "Max",
+          "playerMessage": "We mend a strap on one of the saddles."
+        },
+        {
+          "id": "m120",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The other patrons have fallen into a strained silence, but whispers occasionally break through as they huddle together.*\n“Griffons don’t probe like that,” *one voice says quietly.* “That’s too patient. Too… calculating.”\n*Another traveler, a woman with a weathered face, clutches her weapon-belt tight.*\n“Maybe it’s not just one thing. Maybe it’s a pack.”\n*A low, resonant growl vibrates through the timber above—a sound so deep it makes the glasses on the table rattle in their rests.*\n*The keeper gasps, her breath hitched in her throat.*\n“It’s inside,” *she whispers, her voice trembling.* “It’s almost inside.”\n*Arin’s needle freezes mid-stitch. His gaze is locked on the ceiling.*"
+          },
+          "player": "Max",
+          "playerMessage": "I sit back and listen to the other travellers talk."
+        },
+        {
+          "id": "m122",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Tension thickens in the room as Max and Arin remain by the hearth, the embers casting long, wavering shadows.*\n*Arin's bow remains drawn, an arrow still notched, his eyes never leaving the sagging beams above.*\n*The keeper has gone utterly silent, her body curled tighter in the corner, her gaze fixed on a point somewhere in the middle distance.*\n*Outside, the thrumming has shifted to a steady, rhythmic pulse, like a heartbeat vibrating through the building itself.*\n*Then it happens—a sudden, violent crash as a beam splinters and shatters under the pressure from above.*\n*Arin steps forward, bow steady.*\n“Brace yourselves,” *he mutters, his eyes widening as the ceiling begins to give.*"
+          },
+          "player": "Max",
+          "playerMessage": "We wait by the hearth for the eastern caravan."
+        },
+        {
+          "id": "m124",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The keeper's eyes snap open at the sound of Max's voice, but she doesn't turn her head. Her lips tremble as she speaks.*\n“Usually?” *she whispers, and her voice is thin and strained.* “They're never late. Not by more than a few hours. Not for two days.”\n*A loud groan from above cuts her off, and she flinches.*\n“Not since the Lich Queen fell,” *she adds, her gaze darting toward the ceiling.* “No caravan has ever been delayed by more than a few hours.”\n*Arin's arrow stays steady in his grip.*\n“That means something stopped them,” *he murmurs.*\n*The scratching above intensifies, claws scraping against wood and stone.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the keeper how late the caravan usually runs."
+        },
+        {
+          "id": "m126",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The keeper hesitates, her hands trembling as she looks between the door and the ceiling.*\n“Right,” *she whispers.* “More drink.”\n*She stumbles toward the bar, her movements jerky and uncertain.*\n*Arin doesn't move from his position by the hearth. His bow is still drawn tight.*\n“We’re not just waiting,” *he says softly.* “We’re being waited on.”\n*The scratching above grows more persistent, the creature searching for a way in.*\n*The thrumming vibrates through the floor, making the glassware ring softly on the shelves.*\n*The keeper returns with a pitcher, setting it on the table with a shaky hand before retreating back toward the kitchen.*"
+          },
+          "player": "Max",
+          "playerMessage": "We order another round of watered ale and keep waiting."
+        },
+        {
+          "id": "m128",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Max reaches into his pack, fingers brushing against dried meat strips and hardtack biscuits.*\n*Arin doesn't turn his head, but his ears twitch at the sound.*\n“Five days' worth for one,” *he says quietly.* “Three if we stretch it for two.”\n*The scratching on the roof continues, steady and deliberate, like claws testing the weight of the beams.*\n*The keeper watches from the doorway to the kitchen, her expression wide-eyed and anxious.*\n“Two days we’ve been waiting,” *Arin mutters.* “And we’ve only seen the road once.”"
+          },
+          "player": "Max",
+          "playerMessage": "I check our packs and count the remaining rations."
+        },
+        {
+          "id": "m130",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The rattle of bone dice across the wooden table cuts through the oppressive quiet of the tavern.*\n*Arin sits opposite Max, his expression grim as he watches the dice tumble.*\n*The keeper watches them from the edge of the room, her arms wrapped tight around herself.*\n*Outside, the low thrumming in the air continues—a steady, unnatural vibration that seems to pulse through the very floorboards.*\n“Let's see if fate is on our side tonight,” *Arin says softly, his voice tight with tension.*\n*The dice come to rest with a sharp clack, and Arin leans back slightly, eyes flicking toward the rafters above.*"
+          },
+          "player": "Max",
+          "playerMessage": "We play a slow game of dice to pass the time."
+        },
+        {
+          "id": "m132",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The window frames rattle as Max approaches, and the thrumming in the air intensifies.*\n*The road stretches east, disappearing into the black silhouette of the valley hills. No lanterns, no torches—just darkness.*\n*Outside, something moves in the shadows just beyond the road—a large, wrong-shaped mass that shifts in the wind.*\n*Arin doesn't look up from the table, but speaks quietly.*\n“See any signs of life out there?” *he asks, his hand moving toward his bow.*\n*The keeper flinches, her grip tightening on the armrest of her chair.*"
+          },
+          "player": "Max",
+          "playerMessage": "I look out of the window at the empty road east."
+        },
+        {
+          "id": "m134",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Arin leans closer, his voice a low murmur.*\n“Guild’s offering a pretty sum for this one.” *His eyes flick toward the window.* “Enough to house and feed us for months if we can get it right.”\n*The keeper glances over, her eyes wide and wet.*\n“Is it true?” *she asks softly.*\n*Arin nods slowly.*\n“Yeah. But the payout only comes if the caravan gets in safely. They don't pay for retrieval.”\n*A sudden vibration rolls through the floor—a thrumming that rattles the glassware on the nearby shelf.*\n*Arin's grip on his bow tightens.*\n“The problem is,” *he adds, voice dropping lower,* “we don't know what took them. And it's up there now.”\n*The keeper sinks back into her chair, her gaze drifting toward the sagging ceiling beams.*"
+          },
+          "player": "Max",
+          "playerMessage": "We talk quietly about the job waiting at the end of the road."
+        },
+        {
+          "id": "m136",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The floorboards creak softly as Max stretches, pacing the room’s perimeter in slow, deliberate steps.*\n*Arin doesn't leave his seat by the hearth, but follows Max's movements with a steady gaze.*\n*The keeper doesn't move, her knuckles white where they press against the armrests of her chair.*\n*The thrumming intensifies for a moment—a vibration that makes the windows rattle in their frames and the glassware sing softly.*\n*A high-pitched, unnatural sound carries through the air—sharp and piercing.*\n*Scratching from above becomes more insistent, methodically searching for a way in.*\n“We’re not alone,” *Arin says quietly.*\n*The keeper flinches and her breathing becomes rapid and shallow.*"
+          },
+          "player": "Max",
+          "playerMessage": "I stretch my legs and walk once around the common room."
+        },
+        {
+          "id": "m138",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The warmth of the dying fire lures them into a shallow, uneasy rest. Max and Arin lean back against the walls, their bodies stiff and ready despite the enforced stillness.*\n*Tavern-quiet returns for a short time—nothing but the soft rustle of movement from the keeper and the distant howl of the wind.*\n*Then it breaks. A violent thud on the roof jolts them both awake, making the ceiling beams groan and dust shake loose from the timbers above.*\n*The keeper makes a small, choked sound of distress and presses her face into her hands.*\n*Scratching resumes—heavier and more aggressive now, as if something has found a way through.*\n*Arin’s bow is already in his hand, an arrow notched as his gaze locks on the rafters overhead.*"
+          },
+          "player": "Max",
+          "playerMessage": "We doze a little by the fire."
+        },
+        {
+          "id": "m140",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The keeper looks up at the mention of news, her eyes wild with fear.*\n“Nothing!” *she cries, her voice breaking.* “We’ve heard nothing from the east for three days!”\n*A traveler near the door speaks in a low, hollow tone.*\n“No word. The road's been silent as a grave.”\n*The scratching from above intensifies, beams groaning under the immense weight above.*\n*Arin doesn't lower his arrow, eyes fixed on the ceiling.*\n“No news,” *he repeats quietly.* “And nothing's coming for us.”"
+          },
+          "player": "Max",
+          "playerMessage": "I ask whether anyone has heard news from the east."
+        },
+        {
+          "id": "m142",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Arin shifts his gaze from the ceiling to the saddle, pulling out a needle and thick thread. His hands work methodically, but his eyes keep flicking back to the rafters.*\n*The beams above creak and groan under an invisible weight, and dust shakes loose from the timber.*\n*The scratching continues—deliberate, methodical, like something probing for a weak point in the structure.*\n*The keeper whimpers from her corner, her face buried in her trembling hands.*\n*The thrumming from above grows stronger, vibrating through the floorboards and making the glassware on the bar ring softly.*\n*Arin pulls the last stitch tight, his jaw set.*\n“Strap’s fixed. If we need to move fast, we’re ready.”"
+          },
+          "player": "Max",
+          "playerMessage": "We mend a strap on one of the saddles."
+        },
+        {
+          "id": "m144",
+          "arm": "on",
+          "established": [
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof.",
+            "The eastern caravan is two days past schedule and hasn't been seen since leaving Red Moss-Gate.",
+            "A scout last saw the eastern caravan three days ago and reported everything seemed fine.",
+            "The waystation is currently under siege by a large creature on the roof."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The few remaining travelers huddle in small groups, their voices kept to low, hurried whispers.*\n“It could be a wyvern,” *one mutters.* “Or a griffon.”\n*A sudden crash from above—shingles splintering*—shatters the conversation.*\n*The keeper lets out a sharp gasp from her corner.*\n“They’re coming for us,”*she whispers.*\n*The thrumming grows more intense, a rhythmic pulse that vibrates through the very air, and more dust shakes from the groaning ceiling beams.*\n*Arin shifts his weight, bow held ready.*\n“We're not just waiting for a caravan anymore,”*he says quietly.*"
+          },
+          "player": "Max",
+          "playerMessage": "I sit back and listen to the other travellers talk."
+        }
+      ]
+    },
+    "debugResponses": {
+      "cleared": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "judgeRestore": {
+      "restored": true,
+      "ok": true
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions",
+        "schema"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [
+        "live-v25-09-sp6"
+      ],
+      "preservedSessions": []
+    },
+    "importedStoryHashes": [
+      "v2-69a8ea0c"
+    ],
+    "library": {
+      "changed": true,
+      "removed": [
+        "live-v25-09-sp6@1 (v2-69a8ea0c)"
+      ],
+      "restored": [],
+      "saved": {
+        "status": 200
+      },
+      "verified": true
+    },
+    "chat": {
+      "sandboxChatId": "2026-09-27@05h49m49s210ms",
+      "owned": [
+        "2026-09-27@05h49m49s210ms"
+      ],
+      "deleted": [
+        "2026-09-27@05h49m49s210ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "lateFileRepaired": [],
+      "saveSettleMs": 1532,
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-27@05h49m49s210ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-20@07h06m38s396ms"
+    },
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    }
+  }
+}

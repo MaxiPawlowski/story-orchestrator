@@ -1,0 +1,1354 @@
+{
+  "id": "J13",
+  "title": "reply effect",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j13-reply-effect.journey.json",
+  "fileSha256": "0967c9d5d6c419255730ecb4bb3e1192b59c9397135f606359e81e43c64ee624",
+  "ranAt": "2026-09-26T22:33:26.368Z",
+  "strict": true,
+  "partial": false,
+  "only": null,
+  "tally": {
+    "fail": 1
+  },
+  "tallies": {
+    "automated": {
+      "pass": 0,
+      "fail": 1,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 0
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 0,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [
+    "1 automated check(s) failed"
+  ],
+  "humanRecord": null,
+  "runnerError": null,
+  "releasedRoutes": null,
+  "capabilities": {
+    "continuity-warden": true,
+    "warden-families": true
+  },
+  "results": [
+    {
+      "id": "J13.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "house rules, reply effect (v2.5 plan 06 J3, A15): the J8.12 story (no guns, coins are marks) played for 22 scripted player turns that invite gunplay and money talk, with NO scripted defect: every reply is the real model's own. On arm: --judge-uses houseRules --warden-mode auto; off arm: --judge-uses off (0 warden calls asserted). The check passes on >= 20 captured replies; the effect is not judged here but offline, by so-judge rescore --use house-rules per record, then so-judge reply-effect over on x2 + off x2 (off >= 0.2 or VOID; on <= pooled off - 0.15 in both on runs).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "locator.click: Element is not visible\nCall log:\n\u001b[2m  - waiting for locator('#send_but')\u001b[22m\n\u001b[2m    - locator resolved to <div tabindex=\"0\" id=\"send_but\" title=\"Send a message\" data-i18n=\"[title]Send a message\" class=\"fa-solid fa-paper-plane interactable\"></div>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n",
+      "firstAttempt": "fail",
+      "retries": []
+    }
+  ],
+  "cleanup": {
+    "judgeSettle": {
+      "settled": true,
+      "waitedMs": 0,
+      "inFlight": 0,
+      "seen": 29
+    },
+    "judgeCalls": {
+      "count": 18,
+      "events": [
+        {
+          "at": "2026-09-26T22:09:48.718Z",
+          "boundary": 1,
+          "messageId": 4,
+          "kind": "judge",
+          "summary": "judge warden in 300 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1290,
+            "latencyMs": 300,
+            "inputTokens": 718,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T22:09:52.879Z",
+          "boundary": 3,
+          "messageId": 4,
+          "kind": "judge",
+          "summary": "judge warden fell back (timeout) in 4015 ms",
+          "detail": {
+            "use": "warden",
+            "model": null,
+            "route": null,
+            "questions": 2,
+            "stateChars": 1162,
+            "latencyMs": 4015,
+            "fallback": "timeout",
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T22:10:43.820Z",
+          "boundary": 4,
+          "messageId": 7,
+          "kind": "judge",
+          "summary": "judge warden in 303 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1541,
+            "latencyMs": 303,
+            "inputTokens": 796,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T22:10:44.203Z",
+          "boundary": 5,
+          "messageId": 7,
+          "kind": "judge",
+          "summary": "judge warden in 251 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1531,
+            "latencyMs": 251,
+            "inputTokens": 782,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T22:12:45.801Z",
+          "boundary": 6,
+          "messageId": 11,
+          "kind": "judge",
+          "summary": "judge warden in 300 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1602,
+            "latencyMs": 300,
+            "inputTokens": 838,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T22:14:09.888Z",
+          "boundary": 9,
+          "messageId": 14,
+          "kind": "judge",
+          "summary": "judge warden in 314 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1366,
+            "latencyMs": 314,
+            "inputTokens": 767,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T22:14:14.502Z",
+          "boundary": 10,
+          "messageId": 14,
+          "kind": "judge",
+          "summary": "judge warden in 266 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1347,
+            "latencyMs": 266,
+            "inputTokens": 749,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T22:14:49.928Z",
+          "boundary": 11,
+          "messageId": 16,
+          "kind": "judge",
+          "summary": "judge warden in 283 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1230,
+            "latencyMs": 283,
+            "inputTokens": 724,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 1
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T22:15:28.835Z",
+          "boundary": 12,
+          "messageId": 18,
+          "kind": "judge",
+          "summary": "judge warden in 292 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1360,
+            "latencyMs": 292,
+            "inputTokens": 731,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T22:18:47.801Z",
+          "boundary": 13,
+          "messageId": 22,
+          "kind": "judge",
+          "summary": "judge warden in 306 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1172,
+            "latencyMs": 306,
+            "inputTokens": 719,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T22:23:33.017Z",
+          "boundary": 16,
+          "messageId": 26,
+          "kind": "judge",
+          "summary": "judge warden in 325 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1207,
+            "latencyMs": 325,
+            "inputTokens": 715,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T22:24:43.925Z",
+          "boundary": 19,
+          "messageId": 28,
+          "kind": "judge",
+          "summary": "judge warden in 306 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1503,
+            "latencyMs": 306,
+            "inputTokens": 951,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T22:26:04.243Z",
+          "boundary": 20,
+          "messageId": 30,
+          "kind": "judge",
+          "summary": "judge warden in 267 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1918,
+            "latencyMs": 267,
+            "inputTokens": 1023,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T22:28:35.466Z",
+          "boundary": 21,
+          "messageId": 33,
+          "kind": "judge",
+          "summary": "judge warden in 316 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1529,
+            "latencyMs": 316,
+            "inputTokens": 986,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T22:28:39.556Z",
+          "boundary": 22,
+          "messageId": 33,
+          "kind": "judge",
+          "summary": "judge warden fell back (timeout) in 4009 ms",
+          "detail": {
+            "use": "warden",
+            "model": null,
+            "route": null,
+            "questions": 2,
+            "stateChars": 1721,
+            "latencyMs": 4009,
+            "fallback": "timeout",
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T22:32:21.926Z",
+          "boundary": 23,
+          "messageId": 37,
+          "kind": "judge",
+          "summary": "judge warden in 264 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1802,
+            "latencyMs": 264,
+            "inputTokens": 823,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T22:32:22.233Z",
+          "boundary": 24,
+          "messageId": 37,
+          "kind": "judge",
+          "summary": "judge warden in 218 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1255,
+            "latencyMs": 218,
+            "inputTokens": 728,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        },
+        {
+          "at": "2026-09-26T22:32:29.953Z",
+          "boundary": 25,
+          "messageId": 37,
+          "kind": "judge",
+          "summary": "judge warden in 2316 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 2,
+            "stateChars": 1579,
+            "latencyMs": 2316,
+            "inputTokens": 817,
+            "outputTokens": 40,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "rules": 2,
+              "broken": 0
+            }
+          }
+        }
+      ]
+    },
+    "judgeMode": {
+      "mode": {
+        "label": "on",
+        "uses": [
+          "houseRules"
+        ],
+        "wardenMode": "auto"
+      }
+    },
+    "judgeMeter": {
+      "calls": 18,
+      "cachedCalls": 0,
+      "inputTokens": 12867,
+      "outputTokens": 640,
+      "cost": 0,
+      "lastAnsweredModel": "jev-1.13.0"
+    },
+    "boundaries": 25,
+    "warden": {
+      "flagged": 1,
+      "applied": 1,
+      "lapsed": 0,
+      "rejected": 0,
+      "pending": 0
+    },
+    "wardenNotes": [
+      {
+        "text": "House rule: \"No character uses a gun, rifle or any gunpowder weapon.\" — keep the next reply within it.",
+        "replyMessageId": 16,
+        "family": "house-rule"
+      }
+    ],
+    "rescore": {
+      "factsSource": "live facts-tier and pinned memory rows at cleanup; ledger-bound rows not included; player line = the newest player message before each reply; house rules = the played story at cleanup",
+      "rows": [
+        {
+          "id": "m0",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+          },
+          "player": "Max",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m2",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The road disappears beneath a churn of muddy brown water, swirling with debris and carrying the scent of damp earth and rotting vegetation. Arin shifts his weight, the sound of his leather boots crunching on the gravel of the near bank. The current is strong, tugging at the shore with persistent pressure.*\n\"You're really just gonna stand here and wait for it to go down?\" *He asks, voice flat.* \"I'm not exactly built for patience, and neither are you. We've been here for a while, and that road isn't getting any shallower.\"\n*He glances over his shoulder at the direction you came from. A few birds flit through the air above, their cries echoing across the landscape.*\n\"Maybe there's a way around. Some other path that might cross that water. Something we'd find if we just started looking.\"\n*Arin's eyes flick back to you, his bow resting against his shoulder, the rain having stopped hours ago. The sun is starting to dip toward the horizon, painting the sky in bruised purples and golds.*\n\"Unless you're just really planning to swim. Because that looks like a death sentence.\""
+          },
+          "player": "Max",
+          "playerMessage": "I wait on the near bank and watch the brown water.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m3",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "*Ponticius surveys the flooded road ahead with his weather-beaten face set in a grim mask. His massive frame looms behind you, arms crossed over his broad chest, the worn leather of his armor creaking as he shifts his weight.*\n\"The road's closed, that's for sure,\" *he says, his voice like rolling thunder.* \"Been watching it for a week, and nobody's crossed it since the rains started.\"\n*He gestures with a weathered hand toward the swirling current.*\n\"Current's too strong, and there's things in there that'd prefer to keep it from being passed. The water's been at its highest in three days, and by my looks, it's been receding a week's worth of rain in a to a few days' time. But we'll still be able to cross by tomorrow morning.\"\n*A short, laugh barks from his chest, a grim chuckle that carries more weight than his weight.*\n\"We'll make camp here. Fire up some hot meals and tell stories from my younger days. I'm thinking we'red be able to to cross by tomorrow mornin' or the time after. Maybe the night before. So, we're gonna have to wait it out, and we've got to be able to be patient.\"\n*He turns his gaze to you, his eyes sharp and knowing.*\n\"What do you you think we should do, son? You're an adventurer. You're ready to ready to meet this flood, and you've in got to be able to withstand it. But we you got to be patient.\""
+          },
+          "player": "Max",
+          "playerMessage": "I wait on the near bank and watch the brown water.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m4",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"Right, right. Patience. Got it.\" *Luke mutters, glancing at the churning brown water before his oversized chainmail clatters as he shifts. He looks between Arin and the grizzled Ponticius, trying to seem confident despite the visible nervousness in his eyes.* \"I-I mean, I'm ready to do whatever you say! We can wait it out. Or we can try to find another way around if that's the best call.\" *His voice speeds up slightly as he speaks, eagerness coloring his words.* \"T-This is like exactly what happens in the stories, you know? Stuck before the big dungeon or whatever, and we have to figure it out together! My brother would have known what to do, and I know he would've wanted me to—\" *He catches himself, his face flushing slightly as he realizes he's rambling. He glances back at the water, his shoulders slumping a bit.* \"Sorry. I-I mean. Whatever you guys think.\"\n*He looks over at you, a mixture of hope and idolization in his gaze, waiting for a decision.*"
+          },
+          "player": "Max",
+          "playerMessage": "I wait on the near bank and watch the brown water.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m6",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "*Ponticius narrows his eyes, his hand moving instinctively to the hilt of his blade as shapes stir in the fog clinging to the water's edge. His stance shifts, feet planted wide and ready for any threat.*\n\"Those ain't no ordinary mist-dancers, boy,\" *he growls, his voice low and dangerous.* \"Looks like we've got company. And not the friendly kind.\"\n*He steps forward, partially blocking you, his gaze fixed on the churning current where the shapes shift and coil.*\n\"Keep your distance from the water's edge and stay sharp. Whatever's out there, it's been waitin' for the right moment to strike, and I've seen enough things in my younger days to know that that's what we're doin'.\"\n*A gruff laugh escapes his lips, this one devoid of warmth.*\n\"Guess our patient waitin' won't be be be waitin' no more, and we'd be able to see what we're facein'. Stay ready, and don't get careless. The first mistake's always the last one you make.\"\n*He draws his sword with a slow, deliberate motion, the steel catching the light.*\n\"We're gonna find out soon enough what we're dealin' with. Keep your head and your sword up, and be ready to do what you've got to do.\"\n*His eyes never leave the fog, watching for the movement that's grown more distinct, the shapes taking form as the current pushes them downstream toward your position on the bank.*"
+          },
+          "player": "Max",
+          "playerMessage": "Shapes move in the fog upstream. I ask whoever is nearest what they are.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m7",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin's posture sharpens instantly, his hand sliding to the dagger at his thigh as he squints into the gray curtain of fog rolling downstream. The relaxed lean against the tree vanishes, replaced by a focused stillness.*\n\"Great. Just great. We wait a week for the road to clear and get swamp-creatures or something instead.\" *His voice is tight, but there's no real nervousness in it—just the usual edge of annoyance at bad timing.*\n*He takes a half-step closer to you, positioning himself to your flank, eyes darting between the shapes and the water's edge.*\n\"Tread light, Max. I can't tell if they're swimming or floating. Might be worse if they're actually swimming.\" *The sarcasm has drained from his voice now, replaced with something practical and alert.*\n*His other hand moves to the shortbow slung over his shoulder, fingers brushing the against the string to test its tension.*\n\"If they're as smart as the currents, they've been following us. Just in case they're more than one thing.\"\n*The fog thickens around the shapes, blurring their outlines, but a low, wet sound reaches your ears—a slithering, splashing sound that makes the hairs on your neck stand up.*\n\"Whatever they are, they don't look friendly.\" *He adds, voice dropping to and almost a whisper.* \"Just don't rush in. We're outnumbered if we're not smart.\""
+          },
+          "player": "Max",
+          "playerMessage": "Shapes move in the fog upstream. I ask whoever is nearest what they are.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m9",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "\"Crossing costs? Son, we've been waitin' a week for the flood to go down, and no one's crossed that water in a week. Ain't no bargeman out here, no matter how many costs or costs it might be. You've been staring at it so long you've startin' to see things, and we're not just about to throw ourselves into that muddy mess.\"\n*He gives you a flat, unamused look, his brow furrowed with concern.*\n\"Nobody's gonna cross this water until it's go down a lot more. We'll make camp and wait it out, as well as as we can, and as we're ready, we'll be able to cross it.\"\n*His eyes flick back to the fog and the shapes moving in the current, his concern shifting to the possibility of an ambush.*\n\"We'veL'T a long way to get here, and we'll be able to make camp and stay sharp, and we'llL'T be able to cross this road until we're ready to and we're able to, and and and... well, we're not gonna beL'T just rush into it.\"\n*He narrows his eyes at you.*\n\"You're startin' to sound a bit strange, son. You're alright?\"\n*His movement is tense as he shifts his foot, his hand still on his hilt.*\n\"We've got a lot to get through and we're got to be ready. Are you alright?\"\n*The shapes in the fog shift, moving closer, and he steps between you and the water with his sword drawn.*\n\"We're just gonna be able toH'T to find out what we're facin' and we'reH'T l'T l'T gonna be in no rush to do anything foolish.\""
+          },
+          "player": "Max",
+          "playerMessage": "I ask the bargeman what his crossing costs, and how people pay out here.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m10",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin frowns, his confusion mirroring the old man's.*\n\"What are you talking about, Max? Some bargeman? We've just been standing here on the bank for—\" *He pauses, his eyes flicking to where you're looking.* \"There's nothing but fog and water.\"\n*His voice loses its edge, concern creeping in.*\n\"You alright, man? You look a little... off.\" *He shifts his position, moving closer to you and reaching out a hand as if to steady you.* \"Did the rain get to you? Maybe we should—\"\n*His eyes snap back to the shapes in the fog, sharp and alert.*\n\"Focus, Max. Whatever you're staring at in the mist is either real or it's not, but if those shapes are getting closer, we can't afford to have you hallucinating about boat-men.\"\n*A low, guttural sound emanates from the fog—a splash, followed by a slithering scrape against stone. The shapes are definitely real, and they are moving closer.*\n\"Daggers ready,\" *he says flatly, his fingers tightening on the hilt of his weapons.* \"And whatever you're seeing... if it isn't a threat, it isn't helpful. Let's deal with what's actually there first.\""
+          },
+          "player": "Max",
+          "playerMessage": "I ask the bargeman what his crossing costs, and how people pay out here.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m11",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke's eyes widen as he hears you speak, his face turning even paler under his unevenly cropped brown hair. He steps back, the oversized chainmail clanking softly as he moves.*\n\"A-A bargeman? What are you talking about?\" *His voice is quick and uncertain, cracking slightly as the words tumble out.* \"M-Max? Are you okay? There's—there's not even a boat, and the water's too high and—\"\n*He looks between you and Ponticius and Arin, his expression a mixture of confusion and fear. He seems to be looking at the fog with a wide-eyed uncertainty, trying to find what you might be seeing.*\n\"I-I-I mean... what if there *is* something out there?\" *He fumbles with the short sword at his hip, his hand shaking slightly as he tries to draw it.* \"But... but a bargeman? That doesn't make sense.\"\n*Luke looks back at you, his voice dropping to a worried murmur.*\n\"Max, you're scaring me. Are you—are you sure you're okay?\"\n*He grips his sword hilt, trying to be brave despite the obvious nervousness radiating from hisH him. He tries to stand his ground, but his eyes keep darting toward the water as the shapes in the fog get closer.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the bargeman what his crossing costs, and how people pay out here.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m13",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke jumps, the sound of the shout making him stumble back a few steps.* \"S-Smugglers? What are you—\" *His voice cuts off as he sees you dive behind the crates, and he quickly follows suit, his chainmail clashing and rattling as he ducks down beside you.*\n\"What's going on? Are they—are they real?\" *He's looking around wildly, trying to make sense of the chaos that's unfolded.* \"T-They're real, so they—so they have a boat? I-I thought Ponticius said—\"\n*He fumbles with his short sword, gripping it tightly now, his voice a frantic whisper.*\n\"Wait, so those were smugglers? That's so—that's so cool! I mean, scary! Mostly scary! I think it's mostly scary!\" *He's trying to sound brave, but his voice is shaky and the excitement and uncertainty are swirling together in a face that's still too pale for the situation.*\n*He peeks over the top of the crate, his wide eyes scanning for the smugglers and their boat.*\n\"What should we do? Are we—are we gonna fight them? Should we—should we tell them we're just—just waiting for the flood to—\"\n*He looks back at you with a mixture of fear and eagerness, waiting for direction, his sword clutched tightly in his hand.*"
+          },
+          "player": "Max",
+          "playerMessage": "One of the smugglers shouts at us from the boat. I duck behind the crates.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m14",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin doesn't hesitate when you dive for cover, moving with the practiced ease of someone who's done this a dozen times. He slides behind a stack of crates, his body low, daggers drawn in an instant. His eyes are narrowed, tracking the movement on the water with sharp focus.*\n\"Smugglers, you said? Well, that't's one way to make the night interesting.\" *His voice is a low hiss, but there's none of the panic in it.*\n*He's already assessing the situation, his gaze moving from you to the crates to the boat and the crates that are still being unloaded.*\n\"If they've got a boat, they've got the gear. And we've got the crates. Good cover.\" *He mutters, more to himself than to you.*\n*His eyes flick to Luke, who is scrambling beside you, and he shakes his head slightly.*\n\"Luke, stay low. Don't be a hero yet. Just watch and listen.\"\n*Arin's gaze returns to the water, his daggers catching the light in the dim evening glow.*\n\"You got a plan, Max? Or are we just going to keep hiding and hope they don't see us?\"\n*He speaks softly, his breath steady, his muscles coiled like a spring. He's clearly ready to move, but he's waiting for your lead.*"
+          },
+          "player": "Max",
+          "playerMessage": "One of the smugglers shouts at us from the boat. I duck behind the crates.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m16",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke's voice is a nervous whisper as he crouches low beside you, the clatter of his chainmail muffled as he tries to keep still.*\n\"The guards? I-I don't know! I've never really seen one!\" *He admits, his eyes wide and darting toward where he thinks the guards might be.* \"T-They've probably got the same as everyone else, right? Swords and shields, or—or maybe flails? Or maybe—\"\n*He pauses, as if something just occurred to him, his voice getting quieter.*\n\"Actually, my brother mentioned that the road guards out here were starting to carry flintlocks lately. Said they wanted to discourage the smugglers who keep trying to cross the river.\"\n*He looks at you, his expression earnest.*\n\"Does that matter? Are we going to—going to pretend to be guards or something? Because I don't think I-I could do that very well, but I'll try! I-I'll do my best! I promise!\"\n*Despite his nervousness, there's a spark of determination in his voice, and he's gripping the hilt of his short sword tightly now as if he's preparing for something.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask how the guards on this road are armed these days.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m18",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin's head snaps toward the sound, his eyes narrowing as he processes what just happened. He doesn't move from his crouched position, but his body is coiled and ready.*\n\"That wasn't any animal,\" *he says quietly, his voice sharp and certain.* \"And it definitely wasn't the current.\"\n*His gaze is fixed on the fog upstream, watching for any reaction or movement.*\n\"Sounds like a crossbow bolt hitting wood. Or maybe someone's testing a weapon.\"\n*He shifts his weight slightly, adjusting his grip on his daggers, his expression grim.*\n\"Means they've got ranged support. That changes things.\"\n*He looks at you for a split second, his green eyes assessing.*\n\"If we're dealing with crossbows, we need to stop thinking about using the crates for cover. Wood splinters. Better to find something more solid or just keep moving.\"\n*He doesn't wait for an answer before he starts scanning the area around them, his mind already working through tactical options.*\n\"They're getting closer. We need to decide if we're fighting or running.\"\n*The sound of splashing and slithering in the water grows louder, and Arin's jaw tightens.*\n\"And we need to decide fast.\""
+          },
+          "player": "Max",
+          "playerMessage": "A crack echoes across the water. I ask what that was.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m20",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin's brow furrows as he hears your question, and he doesn't shift from his vigilant position.*\n\"Hurt? What—\" *He pauses, his eyes tracking the movement in the fog.* \"No. We're all fine. No one's been hit.\"\n*He keeps his voice low, but there's a note of confusion in it.*\n\"But we need to worry about whether we'll get hurt soon. That sound was a warning shot or a test. If they're firing from a distance, we're sitting ducks out here.\"\n*He glances at you briefly, then at theT the shapes in the water, his body tense.*\n\"Stay low, that's smart. But let's not get complacent. We should be thinking about what we can do next.\"\n*He takes a slow, shallow breath, his eyes never leaving the fog.*\n\"If we're going to fight, we need a better plan. If we're going to run, we need to do it now. Every second we wait, we're losing our advantage of being hidden.\"\n*His fingers tighten on the hilts of his daggers, and he seems to be waiting for you or Ponticius to make a call.*"
+          },
+          "player": "Max",
+          "playerMessage": "I stay low and ask if anyone is hurt.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m21",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "*Ponticius doesn't move his gaze from the fog, his sword held in a low, ready stance. His massive frame creates a partial barrier between you and the approaching threat.*\n\"No one's hurt, son,\" *he grunts, his voice steady and commanding.* \"But we'll be hurt if we stay here and wait for 'em to pick us off.\"\n*He shifts his foot slightly, the leather of his boots crunching softly in the mud.*\n\"That shot was a greeting, not a parting gift. Means they're lookin' for a fight, and they're got the reach. We'veL'T got to move, and we'veL'T have to move now.\"\n*He glances back at you over his shoulder, his weathered face grim.*\n\"Arin's right. We can't just sit here and be waitin'. We'L'T need a plan, and we'L'T got to be ready to act on it. And we'L'T gotta be able to move with purpose, and and and... well, we'reH'T just gonna beL'T in no rush to beL'T gettin' our heads blowed off.\"\n*His eyes flick back to the fog, watching as the shapes grow more distinct.*\n\"Keep your head low, and keep your sword ready. We'llH'T find out soon enough if we can l'T l'T take this fight or if we'L'T l'T be smarter and run.\"\n*He steps back slightly, positioning himself more protectively in front of the group.*\n\"Don't be a fool, son. The first rule of survival is knowin' when to run. The second rule is knowing when toT'T to fight back.\"\n*The shapes in the fog shift and advance closer, their forms becoming more clear.*"
+          },
+          "player": "Max",
+          "playerMessage": "I stay low and ask if anyone is hurt.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m22",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The shapes in the fog coalesce into forms as they drift downstream, their movement slick and unnatural. The water around them churns, creating small eddies that disrupt the current. A low, gurgling sound rises from the direction of the figures, mingling with the splashing of water.*\n*The fog clings to the river's surface, blurring the edges of the approaching entities.*\n*Arin's dagger catches the fading light, a thin sliver of steel visible against the backdrop of the murky water.*\n*Ponticius's sword remains drawn, his posture unyielding as he waits for the threat to reveal itself.*\n*The current is strong and brown, carrying twigs and leaves that swirl around the base of the bank.*\n*The air is cool and damp, the scent of mud and vegetation heavy in the evening air.*\n*The evening sky deepens in color as the sun continues to set, casting long shadows across the land.*\n*Luke's chainmail catches the dim light as he shifts, the sound of his breathing audible in the tense silence.*\n*The shapes are close now, mere dozens of feet from the bank, and their forms are starting to resolve into something recognizable.*"
+          },
+          "player": "Max",
+          "playerMessage": "I stay low and ask if anyone is hurt.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m24",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke's confusion deepens, and he glances between you and where you're looking.* \"The bargeman again? Max, there's—\" *He trails off, his voice trembling.* \"You're really seeing someone out there?\"\n*He leans forward slightly, trying to squint through the fog, but his face is etched with uncertainty.* \"I don't see anybody but... whatever those things in the water are. They don't look like people.\"\n*Luke's hand tightens on the hilt of his sword, the knuckles white. He looks at you with a mixture of concern and fear, his voice a small whisper.* \"Are you sure you're alright? You've been acting really strange since we got here.\"\n*He glances back toward Ponticius, as if wanting to seek guidance or reassurance from the veteran adventurer.*\n\"Max, we need to—we need to focus on what's actually happening! Whatever's in the water is getting closer and—and we can't be thinking about bargemen!\"\n*Luke's voice cracks slightly, and his eyes are wide with fear, fixed now on the approaching shapes in the fog.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the bargeman to describe the smugglers' leader.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m25",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "*Ponticius's expression hardens as he hears your words, his hand tightening on his blade's hilt.*\n\"What in the seven hells are you talkin' about, son?\" *he barks, his voice low and dangerous.* \"There ain't no bargeman here. We've been waitin' on this flood for a week, and ain't nobody seen a soul pass it.\"\n*He steps closer to you, his other hand reaching out as if to steady you or pull you back.*\n\"You're startin' to see things, boy. The fog and the water and waitin' in one place too long... it's messin' with your head.\"\n*His gaze flicks back to the churning water, and his face set in a grim mask.*\n\"And we'veT'L l'T not just gonna beT'L lettin' ourselves gettin' our minds played with while we're facein' a real threat. You'L'TL l'T beL'T soundin' strange and you'L'T l't l'T gonna l'T l't gettin' our attention distracted.\"\n*He looks at you sternly, his voice dropping to a warning.*\n\"Stay sharp and don'T'T get distracted by what ain't there. Whatever's out there is real enough, and it'T'L l't be ready to l'T l'L beL't be l'T doin' something. And and and... we'L'L l'L l'l beT'l beL'l l'TT l'T gettin' l'l beL'L gettin' ready to do l'T something about l't.\"\n*He draws himself up to his full height, his massive frame blocking your view of the water for a moment.*\n\"You alright, son? Because right now you'T'T l'T soundin' like you're l'T l'l not quite with us.\"\n*The sound of splashing continues, growing closer, and Ponticius's stance remains unyielding, his eyes fixed on the threat.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the bargeman to describe the smugglers' leader.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m26",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin's confusion grows as he hears your continued questions, and he moves to place himself between you and the water.*\n\"Max, enough,\" *he says firmly, his voice low but steady.* \"There's no bargeman. There's nothing but us and whatever is in the water.\"\n*His green eyes are sharp as they look at you, scanning for signs of illness or injury.*\n\"You're not alright. We need to get you out of here, but right now—right now we're in the middle of a fight.\"\n*He slides his dagger back into its sheath and reaches out, his grip firm on your shoulder.*\n\"Trust me. You're not seeing anything that we are.\"\n*The sound of the water churning and splashing grows louder as the shapes get closer.*\n\"I need you to snap out of it. We're in danger and I can't help you if you're not focused on what's real.\"\n*His voice softens slightly, but his expression remains hard.*\n\"Let's deal with this, then let's figure out what's wrong with you.\"\n*He glances back over his shoulder at the fog, his body coiled and ready for action.*\n\"But right now, I need you to be with us.\"\n*Arin's grip on your shoulder tightens slightly, as if urging you to remain grounded in reality, his eyes scanning the fog for threats.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the bargeman to describe the smugglers' leader.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m28",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke's eyes widen further, and he takes a half-step back, the chainmail on his chest clinking softly as he moves.*\n\"Wait, your purse? You-you're giving away your money to... to nothing?\" *His voice is a panicked whisper, his face pale with worry.*\n*He looks at Ponticius and Arin, as if seeking help in dealing with this unfolding situation.* \"M-Max, you-you-you can't! You-you-T-T-T l'T can't beL'T l'lt doin' that!\"\n*His grip on his short sword is now white-knuckled as he watches you, his expression a mixture of horror and concern.*\n\"T-That's—that's not real! I-It'T'TL l'l l'l t l'lt not l't l'lt be real! You-You-You l'T l'LT l'T l'Lt l't not l'T t l'T l'n l't leT'L a l'T b'lT l'T l'C l'T e l'T c l'T o l'T m-money l'T t t l'T u l'T u-u l'T c-can l'L l'T n l'T b-beT'L t-t-t l'T p l't b l'T a l'T l'g-g-bargeman! You'T'L l'l t't beT'T l l'T throwing l'T y-your money i-in-in t'T the mud!\"\n*Luke's words tumble out in a rush, his fear and desperation evident in his voice.*\n\"You-You-T-L l'T’T l't n l'T l l-l-l l l l l l't can l l l n l l o l'L g i-l l t l-l-t n i l l l n'L i i-t l l t h l l u l-l-t l-l-lt i-i l l s-s-s-t i-l i l i-i t n l l a-a-a l l i-i l-i-l i-l t l l u-u s l l t n i-n l l l t u n l l l l r e l-l-t s-s l l e l t-t l t i-i-n-i n l-l-T i-i s-l l l a n l l i n l l t u-u n-n n"
+          },
+          "player": "Max",
+          "playerMessage": "I offer the bargeman my purse to get me across before nightfall.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m30",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin's hand moves from your shoulder to the small of your back, his voice firm and grounding.*\n\"You're counting money for a tavern that we haven't even seen yet.\" *He says it plainly, his eyes scanning your face for any sign that you're listening.* \"Max, listen to me. We're standing on a mud bank. The sun is setting. And there are things in the water.\"\n*His green eyes lock onto yours, and for a moment, the usual playful edge is completely gone, replaced by a look of raw concern.*\n\"We are not getting to a tavern tonight. We are getting through this. You and me, and Ponticius and the kid.\"\n*He shifts his stance, pulling you slightly back, as if to get you out of the direct line of sight of the water.*\n\"Focus on what I'm saying. Focus on the sounds you can hear. The splashing. The fog. All of it.\"\n*Arin's breathing is slow and controlled, his gaze flicking back to the water for just a second before returning to you.*\n\"If you want to count something, count how many arrows I've got left. But for now, I need you with us.\"\n*The sound of the current churning and the slithering noise growing closer punctuates his words, a reminder that the threat is moving toward them.*\n\"Don'T'L l l-T-L t n-l l t-l t-T l-T l-lt l l n t-L l n l-L-l t t l l b o o l-L l t r b l l p t l l l t n t l-l l t-T i i i t i t i l t n n i l-l l-l l n i-i i l t l n i-i t l o b i l-T l a n d a l-l n l-T o n l-L n l i l l n t n o-T t i i l l l l o n i i l l t-T l n o o t l i-T l p u l l t e l l p l-T l l l o i l-L i i n t-l l-i i-i l t l n n l l n i t-l l l t t-l i i t t l t t p i i-T-i p l p i l p-T l l t l n i l t t n p l t i i t l n n i-T p t p i l l l i o i-L p o i p o o p l l o-O p p l n i n n l l i l n t n p l-T l i i"
+          },
+          "player": "Max",
+          "playerMessage": "I count what I have left and ask what a room at the tavern will cost.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m32",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin's brow furrows and he steps forward, reaching out to grab your arm.*\n\"What are you doing?\" *he asks, voice low and sharp.* \"The water's still too deep.\"\n*He glances down at the road, which is still covered in mud and water, and then back at you with concern in his eyes.*\n\"You can't just walk across. You'll get stuck in the mud, or worse, swept away.\"\n*He shakes his head slightly, his hand still firm on your arm.*\n\"We've been waiting for a week for a reason. The road isn't ready yet.\"\n*The shapes in the fog continue to approach, and Arin's gaze flicks back toward the water.*\n\"And we've l'T l'lt l'T t-t t l-T n t t-t n-n t n-t l-T i l l-T t l l-t i l l l-C t l n i i t l l t t i-T t o n t l i-lt n n i l n n t i-t l i-l t-l l t n i n t n t t i-l n n-I l t l l n n o o l l l-I l-l t i i l i i-L n t-l t l-o-L t l t p n n l t i t o i n o-p o l i l l l p l o i i-I i l l-L l o i o o l p l-t t-T o i o l o o-O o o o-O-l o o l o-T n o l o l o l l l o o l-o n o l n-O l-o l-o o o l-o-o l n l o o n o l l-L o o l-o l o l-l-l o-O l l l o l n o-n o-O n l n i-T t n t o t-t l l l-L l-o o i i i o-l o l l t i o i l i o o t t o-o o l-o i-i o-O i l l l-T l o l l i i l n n i n n i n o l i-I i o i o n-T l l n-T l i l-i l i l-I i-o-i l n t o o l n l p p i o o i l-o l n n l t-T n t t l-o n n l-l l o l-o p o p-O o l l o l a n n a"
+          },
+          "player": "Max",
+          "playerMessage": "I start across the drained road, watching the reeds.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m33",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The water has receded significantly over the past week, leaving behind a landscape of slick mud and standing pools that reflect the bruised purples and golds of the setting sky. Reeds line the banks, their thin stems swaying in the damp breeze.*\n*The sound of Ponticius drawing his sword cuts through the quiet tension. The old man stands between Max and the approaching threat, his boots sinking slightly into the soft ground.*\n\"Tread careful, son,\" *he grunts, his voice gravelly and alert.* \"The road's not entirely dry yet, and there's things lurking in the reeds that'd prefer you weren't looking for 'em.\"\n*The gurgling sound grows louder, now accompanied by the rhythmic slap of water against something solid. Whatever is approaching isn't swimming—it's moving through the shallows, its form still largely obscured by the clinging fog.*\n*Arin has his daggers out, eyes fixed on the reeds where Ponticius indicated. He takes a half-step toward Max, positioning himself to cover their flank.*\n*Luke remains behind them, his short sword gripped with both hands, his oversized chainmail clinking softly as his breath comes in quick, shallow bursts.*\n*The air is heavy with the smell of silt and rotting vegetation, and the fading light makes it harder to discern the shapes in the mist. The temperature is dropping as evening settles in, and the damp chill seeps through their armor and clothes.*\n*A low hiss emanates from the reeds ahead—a sound that could be wind through the grass, or something else entirely.*"
+          },
+          "player": "Max",
+          "playerMessage": "I start across the drained road, watching the reeds.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m35",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The figure that emerges from the reeds is human-shaped but moving with a slow, deliberate caution that suggests uncertainty. They hold a weapon—long and slender, its tip glinting in the dying light.*\n*The person is dressed in worn leather armor, stained with mud and algae. Their face is partially obscured by a hood, but a flash of pale skin is visible beneath the brim. They stop several paces away, weapon still raised, and squint at the party as if trying to determine whether they are a threat or an opportunity.*\n*The water around their feet is shallow, barely reaching their ankles, and they move with a quiet efficiency that speaks of familiarity with the terrain.*\n*Ponticius's sword is held at the ready, his massive frame unmoving. His eyes are narrow and alert, tracking the stranger's every movement.*\n\"Halt there,\" *he says, his voice steady and low.* \"State your business, or we'll have to assume you're looking for trouble.\"\n*Arin hasn't moved from his defensive position beside Max, daggers still drawn. His gaze is sharp and calculating, taking in the stranger's posture and the way they hold their weapon.*\n*Luke has shifted slightly behind Ponticius, trying to peer around his broad shoulders while maintaining a cautious distance.*\n*The stranger doesn't respond immediately, their weapon still held high. They seem to be assessing the party, taking in Ponticius's size and Arin's weapons, and Max's raised hands.*\n*The evening air is still now, and the silence that follows Ponticius's demand is heavy.*\n*The sound of a crow's call echoes in the distance, sharp and lonely.*"
+          },
+          "player": "Max",
+          "playerMessage": "Someone steps out of the reeds with a weapon raised. I stop and show my empty hands.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m36",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke's breath catches in his throat as he watches the hooded figure emerge from the reeds.* \"S-Someone's there,\" *he whispers, his voice barely audible.* \"Is that—is that a guard? Or a smuggler?\"\n*He looks at Max's raised empty hands, his brow furrowing with confusion. Then his gaze flicks to Ponticius, seeking direction, and his grip on the short sword tightening.*\n\"Should we—should we trust them? They look like they've been out here a long time.\" *His voice is uncertain, but there's a spark of hope in his tone. Maybe this isn't a fight after all.*\n*He edges closer to Ponticius, staying low and trying to make himself smaller, though the oversized chainmail makes that difficult. His wide eyes keep darting between the stranger and the shapes still in the water.*\n\"Maybe they know about the flood. Or maybe they're just as lost as we are.\" *He pauses, his voice dropping.* \"Max, what do you think?\"\n*Despite his nervousness, Luke seems to be looking for some kind of positive outcome, his earnestness shining through even in the face of danger.*"
+          },
+          "player": "Max",
+          "playerMessage": "Someone steps out of the reeds with a weapon raised. I stop and show my empty hands.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m37",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "*Ponticius's eyes are fixed on the hooded figure, his sword still held in a low guard.*\n\"Tread light, kid,\" *he mutters to Luke, his voice barely above a whisper.* \"Don't go trustin' every wanderer that pops out of the reeds like this.\"\n*He shifts his weight slightly, the leather of his boots creaking softly.*\n\"A guard would've had a uniform, and a smuggler would've come with backup.\" *His voice is flat, matter-of-fact.* \"This one's alone, which makes 'em either brave or desperate. And in my experience, both can be dangerous.\"\n*He glances at Max briefly, noting his empty hands and the cautious stance.*\n\"Smart move, showing you're unarmed. Might buy us a few seconds if they're lookin' for a fight.\"\n*He turns his gaze back to the stranger, his jaw set.*\n\"Tread light. I'veL'T seen too many young 'uns get their throats slit 'cause they thought a stranger in the reeds was gonna help 'em.\"\n*He waits, his presence imposing and alert, his sword a clear sign that he isn'T'T in the mood for games.*\n*The shapes in the water continue their approach, and Ponticius's stance doesn't waver. His focus is split between the unknown stranger and the threat in the current.*\n\"We'llH'T find out soon enough if they're a friend or a foe. But we'L'L be ready for either.\"\n*His voice is low, commanding, and carries the weight of a veteran adventurer who's seen it all.*"
+          },
+          "player": "Max",
+          "playerMessage": "Someone steps out of the reeds with a weapon raised. I stop and show my empty hands.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m39",
+          "arm": "on",
+          "established": [
+            "The road is currently flooded with muddy brown water carrying debris.",
+            "The rain stopped hours ago.",
+            "The sun is starting to dip toward the horizon.",
+            "The road has been flooded for a week and is receding.",
+            "Ponticius believes the road will be crossable by tomorrow morning or the night before.",
+            "Luke's brother is someone he looks up to and would have known what to do.",
+            "The group is facing approaching shapes in the fog by the flooded road."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke's voice is tentative, hovering just behind Ponticius.*\n\"Letters? You—you have letters?\" *His eyes widen slightly.* \"That's... that's actually kind of nice. Like, you're delivering them or something?\"\n*He looks at the hooded stranger with a mix of curiosity and wariness, his grip on his sword loosening just a bit. It's hard for him to imagine someone traveling these dangerous roads just to deliver messages.*\n\"Do you know how to get across? Is there a way that—\" *He catches himself, remembering Ponticius's warning, and glances back at the older adventurer. His voice drops.* \"I mean, we'veT'TL l't been waiting here for a week, and the flood isn't going down fast enough.\"\n*Despite his hesitation, there's an earnestness in his gaze, a flicker of hope that maybe this stranger could offer a solution.*\n\"Please, we just need to get to the Sun Ruins. My brother... he's missing, and I-I need to find him.\"\n*He speaks with a sudden rush of emotion, his voice cracking slightly. For a moment, the fear and uncertainty in his expression are replaced by a raw, desperate determination.*\n*He looks back at the stranger, as if the letters might be a sign that this person is traveling on some kind of mission, like his brother was.*\n\"Maybe you can help us. Or at least tell us if it's safe to try and cross?\""
+          },
+          "player": "Max",
+          "playerMessage": "I tell them the satchel holds letters, nothing worth stealing, and ask to pass.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        }
+      ]
+    },
+    "debugResponses": {
+      "cleared": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "judgeRestore": {
+      "restored": true,
+      "ok": true
+    },
+    "assets": {
+      "marker": "SO-J8",
+      "found": {
+        "allLorebooks": [
+          "Adalion groupchat",
+          "Adolion - Aegis City Noble Life",
+          "Adolion - Eshalanore",
+          "Adolion - Mountains of Shadow",
+          "Adolion - The Third Kingdom",
+          "Adolion - Tiunhime Village",
+          "Adolion Academy Checkpoints",
+          "Adolion Adventurer Checkpoints",
+          "Adolion Chronicle",
+          "Adolion World",
+          "Celia Lorebook",
+          "Chat_Book_Assistant_2025_10_04_18h59m30s",
+          "Exported",
+          "Magianomicon",
+          "main_Magianomicon_world_info",
+          "main_The Fantasy World of Adolion_world_info",
+          "ProjectStory",
+          "SO-J8 Lore",
+          "The Fantasy World of Adolion",
+          "Xentar Checkpoints",
+          "Xentar"
+        ],
+        "allRegex": [],
+        "allQrSets": [
+          "Default"
+        ],
+        "qrError": null,
+        "marker": "SO-J8",
+        "baseline": "2026-09-26T22:08:52.082Z",
+        "ledger": [],
+        "sessions": [],
+        "characters": [],
+        "groups": [],
+        "lorebooks": [
+          "SO-J8 Lore"
+        ],
+        "protected": [],
+        "regexScripts": [],
+        "qrSets": []
+      },
+      "removed": {
+        "characters": [],
+        "groups": [],
+        "lorebooks": [
+          "SO-J8 Lore"
+        ],
+        "lorebooksViaHost": [
+          "SO-J8 Lore"
+        ],
+        "lorebooksUnlisted": [],
+        "regexScripts": [],
+        "qrSets": [],
+        "evicted": [],
+        "staleCache": [],
+        "errors": [],
+        "sessions": {
+          "kept": [
+            "untitled",
+            "untitled-story"
+          ],
+          "dropped": []
+        }
+      },
+      "saved": {
+        "status": 200
+      },
+      "leaked": {
+        "allLorebooks": [
+          "Adalion groupchat",
+          "Adolion - Aegis City Noble Life",
+          "Adolion - Eshalanore",
+          "Adolion - Mountains of Shadow",
+          "Adolion - The Third Kingdom",
+          "Adolion - Tiunhime Village",
+          "Adolion Academy Checkpoints",
+          "Adolion Adventurer Checkpoints",
+          "Adolion Chronicle",
+          "Adolion World",
+          "Celia Lorebook",
+          "Chat_Book_Assistant_2025_10_04_18h59m30s",
+          "Exported",
+          "Magianomicon",
+          "main_Magianomicon_world_info",
+          "main_The Fantasy World of Adolion_world_info",
+          "ProjectStory",
+          "The Fantasy World of Adolion",
+          "Xentar Checkpoints",
+          "Xentar"
+        ],
+        "allRegex": [],
+        "allQrSets": [
+          "Default"
+        ],
+        "qrError": null,
+        "marker": "SO-J8",
+        "baseline": "2026-09-26T22:08:52.082Z",
+        "ledger": [],
+        "sessions": [],
+        "characters": [],
+        "groups": [],
+        "lorebooks": [],
+        "protected": [],
+        "regexScripts": [],
+        "qrSets": []
+      },
+      "clean": true
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions",
+        "schema"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [
+        "so-j8-house-rules"
+      ],
+      "preservedSessions": []
+    },
+    "importedStoryHashes": [
+      "v2-eddb4fe5"
+    ],
+    "library": {
+      "changed": true,
+      "removed": [
+        "so-j8-house-rules@1 (v2-eddb4fe5)"
+      ],
+      "restored": [],
+      "saved": {
+        "status": 200
+      },
+      "verified": true
+    },
+    "chat": {
+      "sandboxChatId": "2026-09-26@19h08m52s337ms",
+      "owned": [
+        "2026-09-26@19h08m52s337ms"
+      ],
+      "deleted": [
+        "2026-09-26@19h08m52s337ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "lateFileRepaired": [],
+      "saveSettleMs": 1514,
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-26@19h08m52s337ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-20@07h06m38s396ms"
+    },
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    }
+  }
+}

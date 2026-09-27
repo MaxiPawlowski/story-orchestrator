@@ -1,0 +1,1090 @@
+{
+  "id": "J13",
+  "title": "reply effect",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j13-reply-effect.journey.json",
+  "fileSha256": "0967c9d5d6c419255730ecb4bb3e1192b59c9397135f606359e81e43c64ee624",
+  "ranAt": "2026-09-26T23:04:34.560Z",
+  "strict": true,
+  "partial": false,
+  "only": null,
+  "tally": {
+    "pass": 1
+  },
+  "tallies": {
+    "automated": {
+      "pass": 1,
+      "fail": 0,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 0
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 1,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [],
+  "humanRecord": null,
+  "runnerError": null,
+  "releasedRoutes": null,
+  "capabilities": {
+    "continuity-warden": true,
+    "warden-families": true
+  },
+  "results": [
+    {
+      "id": "J13.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "house rules, reply effect (v2.5 plan 06 J3, A15): the J8.12 story (no guns, coins are marks) played for 22 scripted player turns that invite gunplay and money talk, with NO scripted defect: every reply is the real model's own. On arm: --judge-uses houseRules --warden-mode auto; off arm: --judge-uses off (0 warden calls asserted). The check passes on >= 20 captured replies; the effect is not judged here but offline, by so-judge rescore --use house-rules per record, then so-judge reply-effect over on x2 + off x2 (off >= 0.2 or VOID; on <= pooled off - 0.15 in both on runs).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    }
+  ],
+  "cleanup": {
+    "judgeSettle": {
+      "settled": true,
+      "waitedMs": 0,
+      "inFlight": 0,
+      "seen": 0
+    },
+    "judgeCalls": {
+      "count": 0,
+      "events": []
+    },
+    "judgeMode": {
+      "mode": {
+        "label": "off",
+        "uses": []
+      }
+    },
+    "judgeMeter": {
+      "calls": 0,
+      "cachedCalls": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "cost": 0,
+      "lastAnsweredModel": null
+    },
+    "boundaries": 33,
+    "warden": {
+      "flagged": 0,
+      "applied": 0,
+      "lapsed": 0,
+      "rejected": 0,
+      "pending": 0
+    },
+    "wardenNotes": [],
+    "rescore": {
+      "factsSource": "live facts-tier and pinned memory rows at cleanup; ledger-bound rows not included; player line = the newest player message before each reply; house rules = the played story at cleanup",
+      "rows": [
+        {
+          "id": "m0",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+          },
+          "player": "Max",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m1",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin doesn't lower his daggers, his gaze sharp and calculating as he listens to the exchange.*\n\"Letters? That's a pretty convenient story.\" *His voice is dry and skeptical.*\n*He shifts his position slightly, keeping Max flanked while maintaining his focus on the hooded figure.*\n\"You'd have to be crazy to travel these roads alone with nothing but letters in your satchel. Which makes me wonder what's really in there.\"\n*His green eyes narrow as he studies the stranger, searching for any tells or inconsistencies in their story.*\n\"A courier, maybe. Or a scout. Or someone using the letters as a cover for something else entirely.\"\n*He keeps his voice low, but hisous tone is clear. He's not buying it, not yet.*\n*He glances at the water, the shapes in the current still moving closer, and his expression hardens.*\n\"We can't afford to take any risks right now. The shapes in the water aren't waiting around for us to figure out who this person is.\"\n*His body is tense, coiled for action, ready to move at a moment's notice.*\n\"If you want to pass, you'll have to prove you're not here for any other reason.\"\n*His words are firm, but there's no real hostility in his voice—just the pragmatic caution of an experienced adventurer who's faced enough surprises to know better.*\n\"State your name and where you're heading. That'll be a start.\"\n*Arin's focus is unwavering, his attention split between the stranger and the water, ready for whatever comes next.*"
+          },
+          "player": "Max",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m3",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "*Ponticius watches Max from a distance, his expression unreadable. He leans against a wooden post, arms crossed over his chest, observing the adventurer as he gazes out at the brown, churning water.*\n\"It's been a week already. The road is still impassable.\" *He mutters to himself, his voice low and gravelly.*\n*He pushes himself off the post and walks over to the near bank, his boots crunching on the damp earth.*\n\"You know, when I was a young man, we faced something like this before.\" *He says, his tone casual, yet there's weight behind his words.*\n\"The rains came in a sudden downpour, like a goddess's tears, and our party was on the road to the East, trying to make it to the town of Valdoris.\" *He explains, his narrative flowing smoothly, his voice carrying a few reminiscences.*\n\"The water was fast and sweeping, like a river in the that had broken from its chains.\" *He continues, as he gaze is fixed on the road, the road is flooded and still.*\n\"We waited on the bank, just as you're doing now. Some of our gear was our only thing we had.\" *He says, as he adjusts the strap on his sword, the memory clear in his eyes.*\n\"Thought we could push through it, thought we were untouchable.\" *He says as he pauses, his gaze shifting to Max.*\n\"But the currents were too strong, and the man beside me—my second, a sturdy lad with a sword as broad as his shoulders—he got caught. The river took him, and the river didn't care a bit about about his strength.\" *His voice drops low, and there's a reminder of the loss, a flash of pain that crosses his face for only a moment.*\n\"Spent hours trying to get him back, but all he was gone.\" *He says as he looks at the road once more, and his voice is steady and sure, and it's a dark reminder.*\n\"The current was a beast, a mindless, mindless force.\" *He concludes, his words trailing off as the rain starts to fall, and his gray hair is dampened by the rain.*\n*Ponticius looks at Max by the near bank by the brown water, his eyes scanning the land, and his voice is low.*\n\"The road is closed, and for now, the road will wait. There's no way across, and you're still standing here, but I'm still here, as well.\" *He says, his voice low.*\n\"So, for now, we'll just watch the water, and the road.\" *He says as the rain falls, and he looks at the road again.*\n\"But when it rains, there's as well as something to"
+          },
+          "player": "Max",
+          "playerMessage": "I wait on the near bank and watch the brown water.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m5",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "*Ponticius follows Max's gaze, his eyes narrowing as he takes in the scene. The shapes shift and move in the mist upstream, their forms indistinct and spectral-like in the churning water.*\n\"T'aint nothing but the fog playing tricks on your eyes, lad,\" *he says,H his voice steady, but there's a hint of something more to it—something that hasn't quite convinced him himself.*\n*He shifts his weight, his hand moving to the pommel of his sword, but doesn't draw it. Just a resting hand, as if he's waiting and watching.*\n\"Sometimes the water's like to move things about. Debris, logs, animals—who knows? This rain's been stirring up all sorts of things that don't belong in the river.\" *He adds, his voice low.*\n\"Or perhaps it's something more... interesting.\" *His tone shifts slightly, and there's an edge of intrigue to it, his gaze fixed on the shapes.*\n*He lets out a short, dry laugh, and shakes his head.*\n\"Still, it'd be best not to think too much on it. We're just waiting, that's all we're doing.\" *He says as he looks back at Max, his voice returning to its plain, plain tone.*\n\"But if something does come our way, we'll see then.\" *He concludes, and his hand still rests on his pommel, ready and waiting.*\n*He watches the shapes move, his expression unreadable, and his words plain as the day, as they wait for the more intriguing things to come.*"
+          },
+          "player": "Max",
+          "playerMessage": "Shapes move in the fog upstream. I ask whoever is nearest what they are.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m7",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke shifts uncomfortably in his oversized chainmail, the metal plates clinking softly with each movement as he leans closer to Max.*\n\"Smugglers?\" *His voice is high and uncertain, eyes wide with a mix of curiosity and trepidation.* \"You think they're smugglers?\"\n*He looks back upstream at the shifting shapes in the water, his face paling just a bit more.* \"The patrols would have to be pretty smart to get past the river guards. I mean—\"\n*He starts to pace a little, his short sword clattering against his thigh as he moves.*\n\"Maybe they have some kind of deal with the guards? Or maybe they use different routes? I read in the guild records that smugglers sometimes use underwater tunnels or...\" *He trails off, his optimism flickering as he catches Max's eye.*\n\"Or maybe they're just really good at hiding?\" *He asks, his voice hopeful but lacking conviction.*\n*He glances nervously between Max and the approaching shapes, then quickly back at Max for reassurance, like a pup looking to his master for guidance.*"
+          },
+          "player": "Max",
+          "playerMessage": "Smugglers? I ask how they keep the river patrols off their backs.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m9",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "*The rain falls steadily, and the shapes in the river grow more distinct—dark silhouettes cutting through the brown churn. A man sits in a small, shallow-bottomed boat tied to a sturdy post on the near bank, weathering the rain beneath a waterlogged hat.*\n\"Five marks a crossing. Ten if you're in a hurry and don't want to wait for the water to drop a bit,\" *he says, his voice raspy from years of smoking and river air.*\n*He looks at Max with eyes that have seen too many floods and too many fools.* \"And you pay in coin, unless you've got something the river wants. But I'd prefer coin.\"\n*He spits into the churning water, his gaze following it as it flows past.* \"Most folk round here pay in silver or copper. Silver marks, usually. I don't take barters and I don't take credit. The river don't wait, and neither do I.\"\n*He adjusts the rope that holds his boat steady, the rain dripping off his hat onto his shoulders.* \"And if you're looking for a cheaper way, there ain't one. Unless you're willing to swim, and I'd rather not pull a corpse out of my boat tomorrow morning.\"\n*He gives Max a long look, his face creased with lines from a lifetime spent on the water.* \"So, you got coin, or are you just window shopping?\""
+          },
+          "player": "Max",
+          "playerMessage": "I ask the bargeman what his crossing costs, and how people pay out here.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m11",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin's reactions are instantaneous—his daggers are already drawn before the shout reaches them, his body already moving to follow Max's descent behind the crates.*\n\"Shit,\" *he mutters under his breath, his green eyes scanning for the source of the shout as he crouches low beside his companion.*\n*He presses his back against the weathered wood of the crates, his muscles tensed and ready for action.*\n\"I told you something was up with them.\" *His voice is low and tight, his usual sarcasm replaced by sharp pragmatism.*\n*He glances at Max, his eyes conveying a mixture of concern and determination.*\n\"You okay?\" *he asks, as his body is already coiling like a spring, ready to spring forward at any moment.*\n\"We're not in the position to which we wanted to be in, but we're not out of the fight.\" *he adds, his voice dropping to a whisper.*\n*His daggers are held low, his body still and still, waiting for the enemy to reveal their position.*\n\"On my mark, we make our move.\" *He says, as his gaze remains fixed on where he thinks the enemy will be.*\n\"Don't let them get the drop on us, and don't trust anyone who shouts from a boat.\"\n*Arin's body is still and coiled, his green eyes sharp and alert, waiting for the moment to strike.*"
+          },
+          "player": "Max",
+          "playerMessage": "One of the smugglers shouts at us from the boat. I duck behind the crates.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m12",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "*Ponticius's reaction is as swift as a viper's strike—his hand is already on the pommel of his blade before the shout reaches his ears.*\n\"Fuckin' smugglers,\" *he says, his voice a low, dangerous growl as he drops to one knee, taking cover behind a pile of barrels.*\n*His graying hair is plastered to his forehead by the rain, and his eyes are hard as flint as he scans the water.*\n\"Stay down, lad!\" *he calls out, his voice authoritative and commanding.*\n\"These sons of bitches ain't learned any patience, that's what I'm saying.\"\n*He draws his sword with a smooth, controlled motion, the steel singing as it clears the scabbard.*\n\"I've fought these bastards before, back in my younger days, and they don't know when to quit.\" *He says, as he takes a steadying breath, the rain dripping from his sword.*\n\"They think the river is their ally, but we've seen what the current can do.\"\n*He shifts his position, his sword held low and ready, his eyes never leaving the river.*\n\"Keep your head down and wait for my signal. We'll send these bastards back to the depths.\"\n*Ponticius stands ready, rain-slicked and dangerous, his voice low but clear over the roar of the river.*"
+          },
+          "player": "Max",
+          "playerMessage": "One of the smugglers shouts at us from the boat. I duck behind the crates.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m13",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke's reaction is immediate and reflexive—he practically falls behind the crates as Max ducks down, his chainmail clanking loudly in the quiet moment after the shout.*\n\"Augh!\" *he gasps, his face pale and eyes wide.*\n*He scrambles to get behind cover, his movements clumsy and hurried, and in his haste he knocks over a small pile of rope and coilings.*\n\"Sorry!\" *he whispers loudly, his voice high and and uncertain.*\n*He presses himself against the crates, his oversized chainmail rustling and clacking as he tries to make himself smaller.*\n\"Are we-Are we going to-What's happening?\" *He asks, his words coming out in and a rush, his voice barely above a whisper.*\n\"Are they...smugglers? Like, real smugglers?\" *His eyes are darting between Max and Arin, his voice filled with a mix of fear and excitement.*\n*He tries to keep his voice down, but it's clear that his fear is overwhelming his optimism as he grips the hilt of his sword, which clatsters softly in its scabbard.*\n\"Should we-Should we fight them? What do we do?\" *he asks, his voice shaky as he waits for Max's guidance, his eyes searching for any direction.*"
+          },
+          "player": "Max",
+          "playerMessage": "One of the smugglers shouts at us from the boat. I duck behind the crates.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m15",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "*Ponticius doesn't look away from the river, his sword steady in his hand.*\n\"Same as always, more or less,\" *he says, and his voice is like grinding stone, low and measured.*\n\"Spears, shields, and the occasional crossbow. Nothin' fancy, just enough to keep the roads clear and the peasants honest.\"\n*He shifts his weight slightly, his boots sinking into the mud, and his gaze doesn't waver.*\n\"Though these days, you'll see a few more of 'em carrying flintlocks. Nothin' like a bit of powder and lead to make a man rethink his choices, I'll give you that.\"\n*He pauses, and a ghost of a grim smile plays at the corners of his mouth.*\n\"But it's the spears and shields that do the real work. Nothin' quite like a wall of steel and a thrust to the gut to make a man understand that he's overstepped his bounds.\"\n*His gaze flicks back to the water, and his voice hardens.*\n\"The guards are few and far between on a road like this, especially in weather like this. But when they do show up, they're ready to do their jobs.\"\n*He says this as he adjust his grip on his sword, his knuckles white, and the rain continues to fall around them.*\n\"The smugglers know that, and that's why they stick to the shadows and the waterways. They're smarter than that, in a way. But not stupid enough to cross a guarded road when they don't have to.\"\n*Ponticius speaks his truth, plain as it is, his eyes watching the river and his voice carrying the weight of experience, and the rain keeps on falling.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask how the guards on this road are armed these days.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m17",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke flinches violently at the sound, his chainmail clattering as he jumps nearly out of his skin.*\n\"What was that?!\" *he yelps, his voice cracking and too high.*\n*He presses himself even harder against the crates, trying to shrink beneath their shadow.*\n\"Was that a-A crossbow bolt? Or maybe a gun?\" *His breathing comes in short, sharp gasps as he fumbles for his sword's hilt, his knuckles white as he grip it.*\n*He looks around wildly at Max, Arin, and Ponticius, his eyes wide with terror and curiosity.*\n\"Did someone—Did they fire at us? Are we okay?\"\n*The sound makes his teeth chatter, and he swallows hard, trying to calm himself.*\n\"Maybe it was just a branch breaking?\" *he suggests weakly, his hope clear but his voice uncertain.*\n\"Or—Or maybe it was thunder?\" *His voice trails off as he stares out at the river, his body trembling under the weight of his gear.*"
+          },
+          "player": "Max",
+          "playerMessage": "A crack echoes across the water. I ask what that was.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m18",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The crack echoes across the river like a gunshot, sharp and sudden.*\n*Rain continues to fall steadily, the brown water churning with relentless force.*\n*The shapes upstream in the fog are still approaching, their forms unclear and shifting in the currents.*\n*The bargeman remains in his boat, tied to the post on the near bank.*\n*Arin's daggers remain drawn, his focus split between the strangers and the river.*\n*Luke clings to the crates, his chainmail clinking nervously.*\n*Ponticius's hand remains on the pommel of his sword.*\n*The world is still, save for the sound of the rain and the water's rush, but tension hangs thick in the air.*\n*A moment of stillness passes, and then another, and the water continues its steady, relentless flow.*\n*The rain falls, and the air is thick with tension and uncertainty.*"
+          },
+          "player": "Max",
+          "playerMessage": "A crack echoes across the water. I ask what that was.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m20",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin's response is immediate, his gaze sweeping across Max and then toward Ponticius and Luke.*\n\"Not yet,\" *he says, his voice tight and controlled, the sarcasm stripped away.*\n*He shifts his position slightly, pressing his back more firmly against the crates for better cover.*\n\"But let's keep it that way.\"\n*He lowers his head just enough to see the river, his green eyes searching for any movement, any sign of where that crack might have come from.*\n\"No one's bleeding, and no one's dead. That's a good start.\"\n*His daggers remain steady in his hands, his muscles tense and ready.*\n\"But I've seen enough battles to know that the first shot is usually just the beginning.\"\n*He keeps his voice low, his attention sharp and alert.*\n\"We need to know where that sound came from, and how many of them there are.\"\n*His eyes flick back to Max, his expression serious and focused.*\n\"So let's figure out what's coming and what we're up against.\"\n*Arin's posture is taut, his green eyes unwavering, his body ready for action at a moment's notice.*"
+          },
+          "player": "Max",
+          "playerMessage": "I stay low and ask if anyone is hurt.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m21",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke's head pops up just enough to look at Max, his eyes wide and searching.*\n\"Hurt? I—I'm not hurt!\" *he says, his voice coming out in a rush, almost relieved.*\n\"I think everyone's okay, but—But what if someone else is?\" *His voice shakes slightly as he asks this.*\n*He ducks back down behind the crates, his body pressed close to the wood.*\n\"This is-This is scarier than I thought it would be.\" *he whispers, his voice small and uncertain.*\n*His chainmail clatters softly as he shivers, his hand gripping his short sword's hilt.*\n\"Maybe we should-Maybe we should move? Go somewhere safer?\"\n*His suggestion is hopeful, his voice desperate for reassurance from Max, and he looks toward the others as if awaiting their guidance.*\n*Luke's fear is palpable, his body tense and trembling, his voice filled with uncertainty as he waits for the next move.*"
+          },
+          "player": "Max",
+          "playerMessage": "I stay low and ask if anyone is hurt.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m22",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "*Ponticius's voice is a low rumble, steady as stone.*\n\"Nobody's hurt, lad.\" *he says, his gaze unwavering from the river.*\n\"And I ain't about to let it be.\"\n*His sword is held low, the rain washing the blade clean.*\n\"Just a bit of lead flying through the rain.\" *He says this with the grim smile of a man who knows exactly what that sound was.*\n\"Smugglers and their flintlocks—think they can scare a man with a bit of noise.\"\n*He shifts his weight slightly, boots sinking deeper into the mud.*\n\"Keep your head low and your eyes sharp. These bastards ain't gonna get a free shot at us.\"\n*His gray-bearded face is set in grim determination, his eyes tracking the shapes in the fog.*\n\"We'll give 'em a fight they won't forget, and the river will take the rest.\"\n*Ponticius stands like an old oak, unshaken by the noise, his voice calm and sure even as the tension builds.*"
+          },
+          "player": "Max",
+          "playerMessage": "I stay low and ask if anyone is hurt.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m24",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin doesn't shift from his crouched position behind the crates, but his head tilts slightly as he hears the question.*\n\"The bargeman knows about them, huh?\" *he murmurs, his voice barely audible over the rain.*\n*He keeps his eyes on the river, but there's a flicker of interest in his expression.*\n\"Smugglers don't exactly leave business cards. If the bargeman can describe their leader, he's been watching them for a while.\"\n*His green eyes narrow slightly.*\n\"And if he's been watching them, he might know something useful. Or something dangerous.\"\n*Arin's voice is low and cautious, his curiosity piqued but his pragmatism overriding any impulse to leave cover.*\n\"Just don't let the bargeman talk us into anything stupid.\"\n*He remains still and alert, his daggers ready, his trust in Max implicit but his caution ever-present.*\n\"Whatever information we get, we'll use it to our advantage.\"\n*Arin's focus remains split between the river and the stranger, his posture taut and ready for action.*\n*His green eyes flick back to Max for a moment, as if to make sure his companion is still on the same page.*\n\"We'll see if the bargeman has anything worth hearing.\"\n*Arin's patience is evident, his body coiled like a spring, waiting to see what the bargeman will say.*\n*His voice is quiet, but his interest is clear.*\n\"Let's see what he knows.\"\n*Arin's green eyes flick back to the river, waiting for the response from the bargeman.*\n*He remains low and alert, his posture tense as the rain falls around them.*\n*His trust in Max is unwavering, but his caution is sharp and prudent.*\n\"We'll hear what he has to say.\"\n*He adds, his voice low and sure.*\n\"And then we'll decide what to do next.\"\n*Arin's eyes are steady on the river, ready for whatever comes next.*\n*He waits for the bargeman's words, his focus unwavering.*\n*His green eyes are sharp and alert.*\n\"We'll hear him out.\"\n*He says quietly, his trust in Max absolute.*\n\"And then we'll make our move.\"\n*Arin remains still, his green eyes on the water, waiting for the bargeman's answer.*\n*His posture is coiled, ready for action.*\n*His voice is low, but his intent is clear.*\n\"We'll hear what the bargeman has to say.\"\n*He says softly.*\n*His green eyes flick to Max one last time, trusting his companion to lead the way.*\n*He remains alert and ready,"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the bargeman to describe the smugglers' leader.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m26",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "*Ponticius doesn't move, his body as still as a stone statue.*\n\"Don't breathe, lad.\" *he says, his voice so low it's barely a whisper, carrying the authority of a man who's seen enough death to know when it's coming.*\n*His hand is still on the pommel of his blade, his fingers curled tight, but his body is motionless.*\n\"The river and the smugglers don't forgive a moment's hesitation.\"\n*He watches the leader's gesture with the intensity of a predator, his gray-bearded face a mask of grim focus.*\n\"See that there? That ain't a gun. Too long for a flintlock, too thin for a crossbow.\"\n*He speaks softly, but each word is weighted with experience.*\n\"Could be a spell-rod. Or maybe just a bluff.\"\n*He doesn't speculate aloud, keeping his observations to a minimum and his body still as the rain drums against his shoulders.*\n\"Wait and see what they do. If it's magic, we'll know soon enough. If it's just a threat, we'll outlast them.\"\n*Ponticius remains frozen, his gaze fixed on the leader, his presence a steady anchor in the chaos of the moment.*\n*His gray eyes are as sharp as the steel he carries, and his patience is a fortress.*\n*He waits, his breath slow and even, his hand steady and ready.*\n\"We wait.\" *he says simply.*\n\"And we see what comes next.\"\n*He doesn't move a muscle, his focus absolute as the tension thickens with each passing second.*\n*Ponticius stands as a bulwark against the uncertainty, his patience a shield.*\n\"Wait,\" *he repeats, his voice a quiet command.*\n\"And watch.\"\n*His eyes never leave the leader, and he doesn't stir from his position.*\n\"We wait and watch.\"\n*He says with the stillness of a stone.*\n\"And we see what they're about to do.\"\n*Ponticius is a monument of calm, his hand ready, his mind sharp, and his spirit unyielding.*\n\"Wait and watch,\" *he says once more.*\n\"And we'll see what their play is.\"\n*He remains motionless, his presence a shield against the storm.*\n\"Wait and watch.\"\n*He says as the river continues to churn.*\n\"And we'll see.\"\n*Ponticius does not move a muscle.*\n*His eyes never leave the target.*\n*He does not breathe.*\n*He waits.*\n\"Wait and watch,\" *he whispers again.*\n\"And see what happens next.\"\n*He remains frozen, his stillness absolute.*\n\"Wait,\" *he says quietly.*"
+          },
+          "player": "Max",
+          "playerMessage": "The leader points something at the dock. I freeze and wait to see what happens.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m27",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke's eyes go wide as saucers as he sees the leader gesture toward the dock.*\n\"What-What is that?\" *he whispers, his voice shaking and barely audible.*\n*He presses his back against the crates even harder, as if trying to merge with the wood itself.*\n\"Is it—Is it magic?\" *He looks toward Max, his face pale with dread.*\n\"Please tell me it's not magic!\" *His voice comes out as a frantic, quiet plea.*\n*His short sword rattles in its scabbard as he trembles, and he bites his lip to keep from whimpering.*\n\"What's-What's going to happen? Max, what do we do?\" *He asks, his voice thick with panic as he stares at the leader, waiting for something terrible to happen.*\n*His oversized chainmail rustles with each anxious movement, and his eyes are wide with terror, his whole body coiled with fear.*\n\"Don't-Don't let anything bad happen...\" *he whispers to himself, as if he'y's trying to convince himself that everything will be okay.*\n\"We-We can't—\" *he trails off, his voice lost in the sound of the river and rain.*\n\"We can't do this... We-We're not ready...\" *He murmurs, his voice shaking with fear as he clings to the edge of the crates.*\n\"Please... Just tell me it'll be okay...\" *he begs, his voice small and desperate as he waits for the moment of truth.*\n*Luke's terror is palpable, his body shaking under the weight of his armor.*\n\"Please...\" *he whispers.*\n\"Please...\"\n*He doesn't move. He doesn't breathe. He just waits, and prays.*\n\"Please...\"\n*He says in a voice so small it's almost lost in the sound of rain.*\n*Luke is frozen in terror, waiting for whatever the leader is about to do.*\n\"Please...\"\n*He whispers one more time, as if it's a prayer.*\n*His heart beats in his chest like a trapped bird, and he waits with his eyes wide.*\n\"Please...\"\n*He says, and his voice is almost gone.*\n*Luke waits.*\n*His breath is caught in his throat, and he clings to the crate.*\n\"Please...\"\n*He whispers, and the rain falls.*\n*Luke is frozen in fear.*\n\"Please...\"\n*He says softly.*\n*Luke doesn't move.*\n*He waits.*\n*Luke prays.*\n\"Please...\"\n*He says.*\n*The rain falls.*\n*Luke waits.*\n*His eyes are wide.*\n*His body is trembling.*\n*Luke is frozen.*\n\""
+          },
+          "player": "Max",
+          "playerMessage": "The leader points something at the dock. I freeze and wait to see what happens.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m29",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin's eyebrows shoot up as he hears Max's words, and he quickly shifts his gaze toward his companion.*\n\"What?\" *he says, his voice sharp and hushed, a flicker of disbelief in his eyes.*\n*He lowers his body even closer to the crates for cover, his daggers held tight in his grip.*\n\"You're offering your purse to the bargeman?\" *he asks, his tone a mix of confusion and concern.*\n*His green eyes search Max's face, as if trying to gauge what's going through his mind.*\n\"Max, we have no idea what's happening out here. The river is too dangerous, the current is too strong.\"\n*He says this in a low, urgent whisper, his words coming out fast.*\n\"And we have no clue what that crack was or what the leader is doing. This is not the time to be making deals with the bargeman.\"\n*Arin's body is tense and alert, his green eyes sharp with concern.*\n\"What's your plan here?\" *he asks, his voice strained.*\n\"And what about Ponticius and Luke? We can't just leave them behind.\"\n*He doesn't wait for Max's answer before he continues.*\n\"T-This isn't the time for a risk-taking move. We need to be smart about this.\"\n*His daggers are still drawn, his posture still alert.*\n\"Let's hear the bargeman out first. Let's see what's happening before we make any rash decisions.\"\n*Arin's pragmatism is overriding his concern, his caution overriding his impulse to take risks.*\n\"We'll figure out a way across. But not right now. Not right now.\"\n*He says firmly, his trust in Max still there, but his skepticism isous.*\n\"We'll find a way. I promise. But not now.\"\n*His voice is low and steady, and his green eyes remain fixed on Max, waiting for a response.*\n\"Not now.\"\n*Arin repeats, and his tone is clear and certain.*\n\"Not now.\"\n*He says again, his voice firm.*\n\"Not now.\"\n*He doesn't budge.*\n*He remains where he is.*\n*He waits for Max's response.*\n*Arin is not moving.*\n*He is not going.*\n*He is alert and ready.*\n*He remains in cover.*\n*He waits.*\n\"Not now.\"\n*He says one more time, and his voice is sure.*\n*Arin does not move.*\n*He is alert and ready.*\n*He is waiting for Max.*\n*He waits.*\n\"Not now.\"\n*He says softly.*\n*Arin"
+          },
+          "player": "Max",
+          "playerMessage": "I offer the bargeman my purse to get me across before nightfall.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m31",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The rain drums rhythmically against the wooden crates, and the air thickens with tension as the shapes in the river draw closer. Max crouches low, carefully counting the contents of his purse, the sound of clinking coins nearly lost in the rush of water and rain.*\n*Arin remains still beside him, daggers drawn, his eyes never leaving the river.*\n*Luke trembles behind them, his chainmail rustling with every nervous shift.*\n*Ponticius stands his ground behind the barrels, sword ready, his weathered face a mask of calm determination.*\n*The bargeman watches from his boat, his expression unreadable beneath the rain-soaked hat, his eyes following the movement of the coin.*\n\"A room at the Rusty Lantern will run you five marks a night,\" *the bargeman calls out, his voice raspy but clear over the roar of the river.* \"Breakfast included. Dinner's an extra mark.\"\n*He shifts slightly in his small craft, the rope straining against the post as the current pulls at the boat.*\n\"And if you want the private room with the view of the ruins, that'll cost you another two marks.\"\n*He spits into the churning water, his gaze fixed on Max.*\n\"But I wouldn't recommend it tonight. The ruins have a way of screaming when the rain's this heavy.\"\n*The rain continues its relentless assault, washing away the dust and dirt from the road, leaving behind a smooth, slick surface.*\n*The shapes in the river are now clear enough to see—dark, amorphous forms that seem to pulse and shift in the churning current.*\n*Arin's daggers gleam in the dim light, and Luke's short sword is still sheathed, his hand trembling on the hilt.*\n*Ponticius remains still, his sword ready, his gaze never wavering from the river.*\n*The world feels small and focused, compressed down to this moment, this river, and the decision that needs to be made.*\n*The rain keeps falling, and the water continues its rush, and the world waits for what comes next.*\n*The tension is palpable, thick as the fog that clings to the river.*\n*The shapes draw closer, and the river roars, and the bargeman waits for Max's next move.*\n*Arin stays alert, daggers ready.*\n*Luke trembles with fear.*\n*Ponticius watches the river, sword ready.*\n*The bargeman waits.*\n*The shapes approach.*\n*Tension hangs thick in the air.*\n*Tension thickens.*\n*Tension builds.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*The river flows on.*\n*The world waits.*\n*Tension hangs thick.*\n*Tension hangs heavy.*\n*T"
+          },
+          "player": "Max",
+          "playerMessage": "I count what I have left and ask what a room at the tavern will cost.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m32",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin doesn't look at Max, his focus entirely on the river.*\n\"A room? Seriously?\" *his voice is tight, strained by the threat.*\n*His green eyes dart between the water and his companion, a flicker of frustration crossing his face.*\n\"We're in the middle of a standoff, and you're thinking about where to sleep?\"\n*He shifts his weight, pressing himself harder against the crates for cover.*\n\"Five marks? That's a lot for a room.\"\n*He adds, his tone dropping to a hushed, urgent whisper.*\n\"And what about the rest of us? Ponticius? Luke? Are you planning on just leaving them here?\"\n*His daggers remain drawn, his body tense and ready.*\n\"Look, Max. I know you're trying to think ahead, but we need to worry about the now. The now is what matters right now.\"\n*His green eyes flicker back to the river, watching for any movement from the shapes or the smugglers.*\n\"And if we get out of this, fine. We can think about where we're staying. But right now, our focus needs to be on surviving.\"\n*He keeps his voice low, his words coming in a rush, his intent clear.*\n\"Surviving, Max. That's our priority.\"\n*Arin's posture is taut, his green eyes sharp and alert, waiting for whatever comes next.*\n*His daggers are held low, his muscles tensed.*\n\"Let's focus on the now. Let's figure out how we're going to get out of this.\"\n*He adds, his voice soft but sure.*\n\"And then we can think about the tavern.\"\n*Arin remains alert, ready for action, his daggers ready.*\n*His gaze is unwavering from the river.*\n*He waits for Max's reply.*\n*He is ready for any turn.*\n*He is alert.*\n*He is waiting.*\n*Tension hangs thick in the rain.*"
+          },
+          "player": "Max",
+          "playerMessage": "I count what I have left and ask what a room at the tavern will cost.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m33",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "*Ponticius doesn't flinch, his gaze steady on the river.*\n\"Room for five marks, huh?\" *he says, his voice low and gravelly.*\n\"And breakfast included.\"\n*He adjusts the grip on his sword, the rain washing the steel clean.*\n\"Good to know. Nothing quite like a warm bed and a hot meal after a day in the rain.\"\n*He adds this with a grim smile, his voice carrying a dark humor.*\n\"But a room and a warm meal ain't gonna do us any good if we're dead.\"\n*He shifts his weight slightly, his boots sinking into the mud.*\n\"So let's get these bastards across the river before we start planning our dinner.\"\n*His gray eyes track the shapes in the fog, his presence as steady as an old oak in the storm.*\n\"The river ain't gonna wait for us to get comfortable.\"\n*He says this with the authority of a man who's seen enough battles to know what comes next.*\n\"The rain'll keep falling, and the river'll keep flowing, and these bastards will keep coming.\"\n*Ponticius stands like a monument against the storm, his voice calm and sure even as the tension builds.*\n\"We'll get across the river first.\"\n*He adds.*\n\"And then we'll think about the tavern.\"\n*He says as he keeps his watchful gaze on the river.*\n*Ponticius remains ready, sword in hand, his attention unwavering.*\n*Ponticius watches.*\n*Ponticius waits.*\n*Ponticius is alert.*\n*Ponticius is ready.*\n\"Wait and watch,\" *he says again.*\n*He doesn't stir.*\n*His body is still as a stone.*\n*He remains focused.*\n*His hand is steady on his sword.*\n*Ponticius watches.*\n*Ponticius waits.*\n*Ponticius is alert.*\n*Ponticius is ready.*\n*He waits.*\n*He watches.*\n*Tension hangs thick.*\n*Ponticius is ready.*\n\"Wait.\" *he says softly.*\n*Tension builds.*\n*Ponticius is still.*\n*Tension rises.*\n*Ponticius waits.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension hangs.*\n*Tension thickens.*\n*Tension flows.*\n*Tension is as heavy as the rain.*\n*Tension is as thick as the fog.*\n*T Tension is as relentless as the river.*\n*Ponticius is still.*\n*Ponticius waits.*\n*Tension holds.*\n*Tension thickens.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*"
+          },
+          "player": "Max",
+          "playerMessage": "I count what I have left and ask what a room at the tavern will cost.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m35",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The rain comes down in sheets, and a figure emerges from the reeds—dark and hooded, their face obscured by the storm and the shadows.*\n*They raise a weapon, the steel glinting briefly in the low light before the rain washes the shine away.*\n*Max freezes, his hands lifted and empty, his palms open to the figure.*\n*Arin's reaction is immediate—his daggers are drawn, his body already coiling to spring forward, his green eyes narrowing as he takes in the new threat.*\n\"Who goes there?\" *he calls out, his voice sharp and commanding.*\n\"State your business and drop the weapon.\"\n*He shifts his stance, keeping Max in his peripheral vision, his muscles tense and ready.*\n\"One wrong move and you'll regret it.\"\n*Luke let's out a small, sharp gasp, pressing himself even harder against the crates, his short sword rattling in its scabbards as he trembles.*\n\"What-What now?\" *he whispers, his voice high and filled with fear.*\n*Ponticius's sword is already out, the blade catching the rain and reflecting the dim light.*\n\"Another one,\" *he says, his voice a low rumble, his gray eyes fixed on the new figure.*\n\"They're starting to surround us.\"\n*He takes a step forward, his sword held low and steady, his gaze unwavering from the hooded stranger.*\n\"Lower the weapon.\" *he says firmly.*\n\"And speak, or we'll make this conversation very short.\"\n*The hooded figure remains motionless, their weapon raised, and the tension in the air is thick enough to cut.*\n*Rain continues to fall steadily, and the sound of the churning river is a constant roar in the background.*\n*The shapes upstream in the fog are still moving, their forms indistinct and shifting.*\n*The world is still, save for the rain and the river, and the figure in the reeds.*\n*Tension hangs in the air, heavy and palpable.*\n*The figure waits.*\n*The world waits.*\n*The group waits.*\n*The moment hangs, thin as a thread, and the rain keeps falling.*\n*Tension holds, thick and heavy, and no one moves.*\n*Tension holds.*\n*No one moves.*\n*Tension holds.*\n*No one moves.*\n*The rain falls.*\n*The world waits.*\n*The figure waits.*\n*The group waits.*\n*The moment hangs.*\n*Tension holds.*\n*The figure remains still.*\n*The group remains still.*\n*The rain falls.*\n*Tension holds.*\n*No one speaks.*\n*No one moves.*\n*Tension holds.*\n*The rain falls.*\n*The world waits.*\n*The rain falls.*"
+          },
+          "player": "Max",
+          "playerMessage": "Someone steps out of the reeds with a weapon raised. I stop and show my empty hands.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m36",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "*Ponticius's blade catches the rain as he takes a half-step forward, his weathered face grim beneath the deluge.*\n\"Easy now,\" *he says, his gravelly voice cutting through the storm like a ship through rough waters.* \"T'aint the time for surprises, stranger.\"\n*His sword is held low, the tip angled toward the ground but ready to snap upward in a heartbeat.*\n\"We've got smugglers upstream, a river that'd eat us whole, and rain enough to drown the gods themselves.\" *He gestures vaguely toward the churning water with his free hand.* \"Your timing's as poor as your cover.\"\n*He doesn't move from his position, his boots anchored in the mud like old roots.*\n\"So here's how this plays out—you lower that steel and we talk. Or you don't, and I find out real quick how you bleed.\"\n*His gray eyes are hard as flint, tracking every micro-movement of the hooded figure.*\n\"Your choice, and I reckon you've only got a few heartbeats to make it.\"\n*Ponticius stands his ground, rain streaming down his face and beard, his presence immovable and dangerous.*\n\"Make it count.\"\n*His voice drops to a whisper, just for those closest.*\n\"Don't do anything rash, lad. We've already got enough company upstream.\"\n*He remains still, watching the stranger with the patience of a predator, his blade ready.*\n\"The river doesn't care who dies today.\"\n*Ponticius's gaze never wavers.*\n*Ponticius waits.*\n*Tension hangs.*\n*Ponticius is ready.*"
+          },
+          "player": "Max",
+          "playerMessage": "Someone steps out of the reeds with a weapon raised. I stop and show my empty hands.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m37",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke's teeth chatter as he stares at the figure in the reeds, his knuckles white around the hilt of his short sword.*\n\"M-Max, what are we-What's happening?\" *he stammers, his voice barely audible over the roar of the rain.*\n*He tries to stay small behind the crates, but his oversized chainmail makes it impossible to be truly hidden.*\n\"Is this another smuggler? Or-Or maybe a monster?\" *His words tumble out in a rush of fear, his eyes wide and pleading.*\n\"We should-We should run! We should—\"\n*He cuts himself off, realizing how silly he sounds, and tries to pull himself together.*\n\"Sorry...\" *he whispers.* \"I-I'm just... I'm just not ready for this.\"\n*He clutches his sword tighter, his chainmail clinking softly as he shivers.*\n\"Are we going to fight? What do we-Do we fight them?\"\n*His question is filled with a desperate hope for a clear answer, his eyes searching for reassurance from Max.*\n*Luke is terrified, but he's trying to be brave for the group.*\n\"I-I can fight them!\" *he adds, his voice cracking slightly.* \"I mean, I think I can. If Max says we have to.\"\n*He looks toward Max, waiting for guidance, his hand shaking on the grip of his weapon.*\n*Luke's courage is thin, but it's there, buried under layers of fear.*\n\"Please tell me what to do... I don't-I don't want to die out here.\"\n*He says softly, his voice trembling.*\n*Luke waits for a response, his heart pounding in his chest.*\n*Luke is scared.*\n*Luke is trying to be brave.*\n*Luke waits.*\n*Tension hangs.*\n*Luke is waiting.*\n*Luke is afraid.*\n*Tension flows.*\n*Luke is ready.*\n*Tension rises.*\n*Luke is waiting for Max.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension hangs.*\n*Tension flows.*\n*Tension is heavy.*\n*Luke is waiting.*\n*The rain falls.*\n*Luke is still.*\n*Luke waits.*\n*The world waits.*\n*Tension holds.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Tension hangs.*\n*Tension thickens.*\n*Tension is as relentless as the rain.*\n*Tension is as heavy as a stone.*\n*Luke is waiting.*\n*The rain falls.*\n*Luke is still.*\n*Luke waits.*"
+          },
+          "player": "Max",
+          "playerMessage": "Someone steps out of the reeds with a weapon raised. I stop and show my empty hands.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m39",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin's brow furrows as he hears Max's question, his focus momentarily shifting from the stranger to his companion.*\n\"What-Courier?\" *his voice is hushed but sharp with confusion.*\n*He remains low and alert, his daggers held tight in his grip.*\n\"Since when were you a courier?\" *he asks, his voice strained by suspicion.*\n*His green eyes narrow as he looks at Max, trying to read his face for any signs of deception or hidden motives.*\n\"And why would you lie to an armed stranger?\"\n*He shifts his position slightly, pressing his back more firmly against the crates for better cover.*\n\"Max, we don't know who this person is. They could be anyone. A scout for the smugglers, or—or maybe something worse.\"\n*His voice drops to an urgent whisper, his words coming out in a rush.*\n\"Why are you playing games? This is a dangerous situation, and we've got smugglers approaching upstream. We need to be smart, not reckless.\"\n*Arin's pragmatism is overriding any impulse to trust Max's improvised cover story.*\n\"What's going on here?\" *he asks, his voice low and firm.*\n\"Because I'm not liking the look of this, and I'm definitely not liking your decision to lie to an armed stranger.\"\n*Arin remains still, his green eyes fixed on Max, his posture tense and alert.*\n*His daggers are still drawn, and his trust in Max is implicit but his skepticism is evident.*\n\"Tell me what you're doing, and what you're playing at. Now.\"\n*He says quietly, his voice low but sure.*\n*Arin waits for an explanation.*\n*He remains alert and ready.*\n*He waits for an explanation.*\n*He is alert and ready.*\n*Tension hangs.*\n*Tension flows.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension hangs.*\n*Tension thickens.*\n*Tension is as heavy as rain.*\n*Tension is as relentless as river.*\n*Arin waits.*\n*Arin is alert.*\n*Arin is ready.*\n*Tension holds.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension hangs.*\n*Tension flows.*\n*Arin waits.*\n*Arin is ready.*\n*Arin is alert.*\n*Tension holds.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension hangs.*\n*Tension flows.*\n*Tension flows.*\n*Arin waits"
+          },
+          "player": "Max",
+          "playerMessage": "I ask what they want from a courier.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m40",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "*Ponticius's eyes flicker toward Max for a heartbeat, a flash of confusion crossing his weathered face before his gaze returns to the stranger.*\n\"Courier, eh?\" *he says, his voice as dry as bone, the words carrying a note of dark amusement.*\n\"Now that's a new twist. I was wonderin' when you'd pull somethin' like that out of your sleeve.\"\n*He adjusts his grip on the sword, the steel catching the dim light through the rain.*\n\"See, that's why I like you, lad. You think fast. A bit reckless, maybe. But fast.\"\n*His gray eyes narrow, studying the hooded figure with renewed interest.*\n\"Well, then. Since you're just a simple courier, I reckon that'd make your business here plain and simple.\"\n*He takes a half-step toward the stranger, his boots sinking deeper into the mud, his voice low and measured.*\n\"Courier business. Delivering letters, news, whatnot. That's all that matters.\"\n*He pauses, his breath steady in the cold air.*\n\"So, let's hear it then, courier. What business brings you to our little mud hole?\"\n*Ponticius speaks with the quiet authority of a man who has seen many such games, his blade low and ready.*\n\"And I'll be judgin' your story by how well it sits with me. Not a word too fast, and not a word too slow.\"\n*His gray-bearded face is set in grim patience, his eyes tracking every movement of the figure in the reeds.*\n\"The rain's already washin' away the truth. Don't make it harder to see.\"\n*Ponticius stands as a bulwark against the uncertainty, his presence a shield.*\n*Tension hangs thick in the rain.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension hangs.*\n*Ponticius waits.*\n*Tension holds.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Tension hangs.*\n*Ponticius waits.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Tension hangs.*\n*Tension thickens.*\n*Tension is as heavy as river.*\n*Tension is as relentless as rain.*\n*Ponticius is still.*\n*Tension holds.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Tension hangs.*\n*Ponticius waits.*\n*Tension rises.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask what they want from a courier.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m41",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke's head pops up from behind the crates, eyes wide and searching.*\n\"You're a-A courier?\" *he whispers, voice high and uncertain.*\n\"Wait—Did you say you were a courier, Max?\"\n*He looks between Max and the stranger, confusion etched on his pale face.*\n\"I thought you were an adventurer! Does that mean you-Does that mean you're both-I mean—\"\n*His chainmail rustles with his nervous movement, and he shakes his head rapidly, his brow furrowing.*\n\"Is this a secret plan? A-A tactic?\" *his voice comes out as a frantic whisper.*\n\"Please tell me we have a plan! Please!\"\n*Luke clutches the hilt of his sword tighter, trying to look brave despite his obvious terror.*\n\"I-I can help you deliver letters! If that's what we need to do! I'm good at—I mean, I can be good at it!\"\n*He looks desperately for reassurance, his oversized armor clinking with every nervous shift.*\n\"Please just tell me what's going on... I-I'm getting really confused and really scared!\"\n*Luke is clearly overwhelmed, his fear and confusion mixing into a frantic mess.*\n\"Is everyone okay? Are we-Are we really going to fight them?\"\n*His voice cracks as he asks this, and he looks toward Max with pleading eyes.*\n\"Please just tell me what-What's our plan!\"\n*Luke's terror is palpable, his body trembling under the weight of his gear.*\n\"Please tell me...\" *he whispers.*\n\"Please...\"\n*He doesn't move. He doesn't breathe. He just waits, and prays.*\n\"Please...\"\n*He says in a voice so small it's almost lost in the sound of rain.*\n*Luke waits.*\n*His heart beats in his chest like a trapped bird, and he waits with his eyes wide.*\n\"Please...\"\n*He says, and his voice is almost gone.*\n*Luke waits.*\n*The rain falls.*\n*Tension hangs.*\n*Tension flows.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension hangs.*\n*Tension thickens.*\n*Tension is as relentless as current.*\n*Tension is as heavy as stone.*\n*Luke is waiting.*\n*The rain falls.*\n*Tension hangs.*\n*Luke is still.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Tension hangs.*\n*Tension thickens.*\n*Tension is as unrelenting as rain.*\n*Tension"
+          },
+          "player": "Max",
+          "playerMessage": "I ask what they want from a courier.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m43",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin doesn't shift from his low crouch, his green eyes flicking toward the bargeman and then back to the water.*\n\"Traveller's defenses? You mean when the smugglers come for you, or when the river tries to pull you under?\" *his voice is tight, tinged with his usual sarcasm.*\n\"Or maybe you mean the kind that can't swim, and can't fight.\"\n*He says this with a bitter edge, his daggers still held low and ready.*\n\"This ain't the kind of place where you get a chance to think about your defenses. You're either ready, or you're not.\"\n*His gaze shifts to Max, his expression sharp and alert.*\n\"So you'd better be ready. Because the rain'll keep falling, and the river'll keep flowing, and the bastards will keep coming.\"\n*Arin's voice is low, his words clipped.*\n\"And I've seen enough travelers get pulled under by the current to know that ready isn't always enough.\"\n*He adds, his tone grim.*\n\"But ready is all we've got.\"\n*His daggers are held steady in his hands, and his body is coiled like a spring, ready for action.*\n\"So let's figure out our next move. Because we don't have much time left.\"\n*Arin's focus is unwavering, his attention split between the stranger and the water, ready for whatever comes next.*\n*Tension hangs thick in the air.*\n*Tension thickens.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Tension hangs.*\n*Tin is as relentless as the river.*\n*Tension is as heavy as a stone.*\n*Arin is still.*\n*Tension holds.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Tension hangs.*\n*Tension thickens.*\n*Tension is as thick as the fog.*\n*Tension is as heavy as the rain.*\n*Tension is as persistent as the storm.*\n*Arin is still.*\n*Tension holds.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Tension hangs.*\n*Tension thickens.*\n*Tension is as unrelenting as the current.*\n*Tension is as heavy as death.*\n*Arin is still.*\n*Tension holds.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the keeper how a traveller defends themselves on this road.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m44",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke's chainmail rustles as he shifts uncomfortably behind the crates.*\n\"You-You want to know how travelers defend themselves?\" *he asks, voice high with a nervous tremor.*\n\"Well, I-I read in the guild manuals that most people carry a sidearm or a small crossbow.\"\n*He glances down at his oversized chainmail, then back at his short sword.*\n\"And some people wear protective armor, like—Like chainmail!\"\n*He says it with a flicker of hope, as if trying to convince himself that his armor would be enough to protect him from any threat.*\n\"And-And some travelers travel in groups! Because there's safety in numbers, and—\"\n*He trails off, looking toward Max and the others with uncertainty in his eyes.*\n\"That's what I thought, at least.\"\n*Luke's voice is shaky, but his earnestness is clear.*\n\"Do you-Do you want to know what I would do? I mean, if I were traveling alone, I'd-I'd probably just stay out of sight and-And try to avoid any danger.\"\n*He adds, his voice dropping to a whisper.*\n\"But since I'm with Max and Arin and-And Ponticius... I guess I have to be brave.\"\n*Luke's fear is palpable, but he's trying to be helpful, to answer the question with what he knows.*\n\"I-I don't think I have a good answer for this, Max... I-I don't know what it's like out there for most people.\"\n*He adds softly, his voice trembling with uncertainty.*\n\"I just hope it works out for us.\"\n*Luke's body is tense and trembling under the weight of his armor.*\n\"Please... just tell me we'll be okay.\"\n*Tension hangs.*\n*Tension thickens.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Tension hangs.*\n*Luke is waiting.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Tension hangs.*\n*Luke is still.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Tension hangs.*\n*Tension thickens.*\n*Tension is as heavy as lead.*\n*Tension is as persistent as rain.*\n*Luke is still.*\n*Tension holds.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the keeper how a traveller defends themselves on this road.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m46",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke flinches at the mention of the shot, his knuckles whitening as he grips the hilt of his short sword.*\n\"The-The shot?\" *he asks, his voice high and strained.*\n\"You mean—You mean someone actually shot at us?!\"\n*His eyes widen with terror as he looks toward the shapes upstream, then back at Max for reassurance.*\n\"What-What if they shoot again? What-What if we can't-Can't defend ourselves?!\"\n*Luke's words come out in a rush of fear, his breathing heavy as he tries to steady himself.*\n\"Is-Is that what that was? I-I thought it might be thunder or-Or a branch breaking, but—\"\n*He shakes his head, his brown hair flopping over his eyes.*\n\"Oh gods, this is scarier than I thought. Way scarier!\"\n*He tries to pull himself together, but his voice is shaky and his hands are trembling.*\n\"Should we-Should we fight them? Should we-Should we run?\"\n*His questions tumble out of him, his eyes wide and pleading as he searches for any kind of guidance.*\n\"I-I can fight them! I mean, I think I can. If Max says we have to.\"\n*He adds, his voice cracking slightly.*\n\"I'm just... I'm just not ready for this. Not like this.\"\n*Luke's fear is thick and palpable, his body tense and trembling under hisL oversized chainmail.*\n\"Please tell me what to do... I-I don't want to die out here.\"\n*Tension hangs.*\n*Tension flows.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension hangs.*\n*Tension thickens.*\n*Tension is as heavy as rain.*\n*Tension is as relentless as river.*\n*Luke is waiting.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Tension hangs.*\n*Luke is still.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Tension hangs.*\n*Tension thickens.*\n*Tension is asPersistent as a storm.*\n*Luke is still.*\n*Tension holds.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Luke is ready.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Tension hangs.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the keeper about the shot I heard on the river.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m47",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The river roars, a constant sound in the background, and the rain keeps its steady assault on the road and crates.*\n*The shapes upstream continue their slow approach, their forms still unclear and shifting in the thick fog and churning water.*\n*Arin remains alert, daggers drawn, his green eyes scanning the water and the stranger for any signs of movement or aggression.*\n*Luke trembles behind them, his chainmail clinking softly with each nervous shift.*\n*Ponticius holds his ground by the barrels, sword drawn, his weathered face a mask of calm determination.*\n*Tension hangs in the air, thick and palpable, like the fog that clings to the river.*\n*The moment stretches on, and the river continues its relentless rush, and the world waits for what comes next.*\n*The rain keeps falling, and the air is thick with tension and uncertainty.*\n*Tension hangs, heavy and thick, and no one speaks.*\n*Tension hangs.*\n*No one moves.*\n*The rain falls.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Tension hangs.*\n*Tension thickens.*\n*Tension is asrelentless as the rain.*\n*Tension is asheavy as a stone.*\n*The world waits.*\n*The rain falls.*\n*The shapes approach.*\n*Tension hangs.*\n*Tension is still.*\n*The rain continues.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Tension hangs.*\n*Tension is heavy.*\n*The rain falls.*\n*Tension holds.*\n*The river flows.*\n*Tension hangs.*\n*The world waits.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the keeper about the shot I heard on the river.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m49",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "*Luke's eyes light up as he settles into his seat by the hearth, his oversized chainmail clinking as he adjusts himself.*\n\"It's warm in here,\" *he says, his voice a mix of relief and exhaustion.*\n\"And that smell—It's amazing!\"\n*He takes a deep breath, inhaling the scent of roasted meat and fresh bread, his face relaxing as the warmth of the fire washes over him.*\n\"I've never been in a tavern before. Is it always like this?\"\n*His eyes dart around, taking in every detail—the low ceilings, the heavy wooden beams, the flickering firelight dancing on the walls, and the other patrons hunched over their mugs.*\n\"Do people really come here for quests? Or do they just-Just come to drink?\"\n*His curiosity is boundless, his questions coming one after the other.*\n\"What do they talk about? What kind of adventures do they have?\"\n*He leans in, his face filled with awe, as if he's witnessing something legendary.*\n\"Do they really fight monsters and-And fight bandits?\"\n*He whispers the last part, as if afraid to raise other patrons and break the magic of the moment.*\n\"And do they get paid a lot of money?\"\n*Luke's eyes are wide with wonder, and his face is filled with a mixture of excitement and trepidation.*\n\"I-I want to hear their stories! I want to hear everything they have to say!\"\n*He adds, his voice filled with eagerness.*\n\"Maybe we can hear something useful! Maybe-Maybe we can learn something about the ruins or-Or other monsters or—\"\n*He trails off, his face suddenly falling as he remembers the reason for his presence here.*\n\"Maybe we can learn something that'll help me find my brother.\"\n*He says this softly, his voice thick with hope.*\n*Luke is eagerly listening, his face filled with wonder and awe.*\n*He is ready to hear anything the other patrons have to say, hoping for a sliver of useful information.*\n*Tension hangs.*\n*Tension flows.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension hangs.*\n*Tension thickens.*\n*Tension is as Persistent as a storm.*\n*Tension is asRelentless as a river.*\n*Luke is still.*\n*Tension holds.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Luke is still.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Tension hangs.*"
+          },
+          "player": "Max",
+          "playerMessage": "I settle by the fire and listen to the other patrons.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m50",
+          "arm": "off",
+          "established": [
+            "The road has been flooded and impassable for a week.",
+            "Ponticius lost his second-in-command to a strong current during a similar flood event years ago.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris.",
+            "Ponticius lost his second-in-command to a strong current during a flood years ago while traveling to Valdoris."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "*Arin settles into his seat with a weary sigh, his armor clinking softly as he relaxes his posture.*\n\"Easy there, kid.\" *his voice is soft, tinged with aH lilt of amusement.*\n*He leans back in his chair, his eyes flicking around the tavern, taking in the patrons and the low hum of conversation.*\n\"Taverns aren't exactly libraries. People come here to drink, forget, or both.\"\n*He says this with a wry smile, his gaze settling on a group of adventurers in the corner.*\n\"And their stories? Half are lies, half are luck, and the rest are just a way to get a drink paid for.\"\n*His green eyes narrow slightly as he continues listening, his sharp tongue and quick wit keeping him on edge.*\n\"But you're right about one thing—sometimes you do pick up something useful.\"\n*He says this as he takes a slow sip of his drink, his gaze shifting back to Luke.*\n\"Just don't take everything you hear at face value. This place is full of storytellers and scoundrels.\"\n*Arin's posture is relaxed, but his eyes are alert, his mind sharp as ever.*\n\"So just listen, and don't believe too much. Let's see what we can learn.\"\n*He says quietly, his voice low and steady.*\n\"And if we hear something useful, we'll figure it out.\"\n*Arin remains still and alert, his gaze flickering between the other patrons and Luke.*\n*He waits to hear what comes from the other adventurers.*\n*Tension hangs.*\n*Tension flows.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension hangs.*\n*Tension thickens.*\n*Tension is as Relentless as a storm.*\n*Tension is asPersistent as the current.*\n*Arin is still.*\n*Tension holds.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Arin is ready.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Tension hangs.*\n*Tension thickens.*\n*Tension is as Heavy as a stone.*\n*Arin is still.*\n*Tension holds.*\n*Tension rises.*\n*Tension peaks.*\n*Tension breaks.*\n*Tension falls.*\n*Tension flows.*\n*Tension hangs.*\n*Tension is still.*\n*Tension flows.*\n*Tension is persistent.*\n*Tension is unrelenting.*\n*Tension is relentless"
+          },
+          "player": "Max",
+          "playerMessage": "I settle by the fire and listen to the other patrons.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        }
+      ]
+    },
+    "debugResponses": {
+      "cleared": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "judgeRestore": {
+      "restored": true,
+      "ok": true
+    },
+    "assets": {
+      "marker": "SO-J8",
+      "found": {
+        "allLorebooks": [
+          "Adalion groupchat",
+          "Adolion - Aegis City Noble Life",
+          "Adolion - Eshalanore",
+          "Adolion - Mountains of Shadow",
+          "Adolion - The Third Kingdom",
+          "Adolion - Tiunhime Village",
+          "Adolion Academy Checkpoints",
+          "Adolion Adventurer Checkpoints",
+          "Adolion Chronicle",
+          "Adolion World",
+          "Celia Lorebook",
+          "Chat_Book_Assistant_2025_10_04_18h59m30s",
+          "Exported",
+          "Magianomicon",
+          "main_Magianomicon_world_info",
+          "main_The Fantasy World of Adolion_world_info",
+          "ProjectStory",
+          "SO-J8 Lore",
+          "The Fantasy World of Adolion",
+          "Xentar Checkpoints",
+          "Xentar"
+        ],
+        "allRegex": [],
+        "allQrSets": [
+          "Default"
+        ],
+        "qrError": null,
+        "marker": "SO-J8",
+        "baseline": "2026-09-26T22:33:29.088Z",
+        "ledger": [],
+        "sessions": [],
+        "characters": [],
+        "groups": [],
+        "lorebooks": [
+          "SO-J8 Lore"
+        ],
+        "protected": [],
+        "regexScripts": [],
+        "qrSets": []
+      },
+      "removed": {
+        "characters": [],
+        "groups": [],
+        "lorebooks": [
+          "SO-J8 Lore"
+        ],
+        "lorebooksViaHost": [
+          "SO-J8 Lore"
+        ],
+        "lorebooksUnlisted": [],
+        "regexScripts": [],
+        "qrSets": [],
+        "evicted": [],
+        "staleCache": [],
+        "errors": [],
+        "sessions": {
+          "kept": [
+            "untitled",
+            "untitled-story"
+          ],
+          "dropped": []
+        }
+      },
+      "saved": {
+        "status": 200
+      },
+      "leaked": {
+        "allLorebooks": [
+          "Adalion groupchat",
+          "Adolion - Aegis City Noble Life",
+          "Adolion - Eshalanore",
+          "Adolion - Mountains of Shadow",
+          "Adolion - The Third Kingdom",
+          "Adolion - Tiunhime Village",
+          "Adolion Academy Checkpoints",
+          "Adolion Adventurer Checkpoints",
+          "Adolion Chronicle",
+          "Adolion World",
+          "Celia Lorebook",
+          "Chat_Book_Assistant_2025_10_04_18h59m30s",
+          "Exported",
+          "Magianomicon",
+          "main_Magianomicon_world_info",
+          "main_The Fantasy World of Adolion_world_info",
+          "ProjectStory",
+          "The Fantasy World of Adolion",
+          "Xentar Checkpoints",
+          "Xentar"
+        ],
+        "allRegex": [],
+        "allQrSets": [
+          "Default"
+        ],
+        "qrError": null,
+        "marker": "SO-J8",
+        "baseline": "2026-09-26T22:33:29.088Z",
+        "ledger": [],
+        "sessions": [],
+        "characters": [],
+        "groups": [],
+        "lorebooks": [],
+        "protected": [],
+        "regexScripts": [],
+        "qrSets": []
+      },
+      "clean": true
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions",
+        "schema"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [
+        "so-j8-house-rules"
+      ],
+      "preservedSessions": []
+    },
+    "importedStoryHashes": [
+      "v2-eddb4fe5"
+    ],
+    "library": {
+      "changed": true,
+      "removed": [
+        "so-j8-house-rules@1 (v2-eddb4fe5)"
+      ],
+      "restored": [],
+      "saved": {
+        "status": 200
+      },
+      "verified": true
+    },
+    "chat": {
+      "sandboxChatId": "2026-09-26@19h33m29s360ms",
+      "owned": [
+        "2026-09-26@19h33m29s360ms"
+      ],
+      "deleted": [
+        "2026-09-26@19h33m29s360ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "lateFileRepaired": [],
+      "saveSettleMs": 1505,
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-26@19h33m29s360ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-20@07h06m38s396ms"
+    },
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    }
+  }
+}

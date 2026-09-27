@@ -1,0 +1,1535 @@
+{
+  "id": "SP6",
+  "title": "complication pool",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\spikes\\sp6-complications.journey.json",
+  "fileSha256": "3a821fcd42eb9ef3b9d421b2b8272dd73109cda1a3e69502430b8040f80ff826",
+  "ranAt": "2026-09-27T09:43:37.520Z",
+  "strict": true,
+  "partial": false,
+  "only": null,
+  "tally": {
+    "fail": 1
+  },
+  "tallies": {
+    "automated": {
+      "pass": 0,
+      "fail": 1,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 0
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 0,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [
+    "1 automated check(s) failed"
+  ],
+  "humanRecord": null,
+  "runnerError": null,
+  "releasedRoutes": null,
+  "capabilities": {
+    "sp6-spike": true,
+    "warden-families": true
+  },
+  "results": [
+    {
+      "id": "SP6.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "SP6 K3/K4/K5 (v2.5 plan 09): 72 scripted quiet turns at the waystation (tension_target critical, complication_after 2, 24-item pool). The check passes when the arm reached >= 20 release points, the release arm carried the block on every one and the control arm on none. The bars are applied offline by so-sp6-score over release/control x judge on/off, each x2 consecutive: K3 agency flags (judge on) of each release run <= mean control + 1; K4 0 restatements (restate span >= 6 words or a meta token) in release-arm replies N+1; K5 (judge off) each release run reaches the target band within 6 boundaries of release in >= 60 % of releases, each control run <= 30 %.",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "send_generate: reported ok:false",
+      "firstAttempt": "fail",
+      "retries": []
+    }
+  ],
+  "cleanup": {
+    "judgeSettle": {
+      "settled": true,
+      "waitedMs": 0,
+      "inFlight": 0,
+      "seen": 49
+    },
+    "judgeCalls": {
+      "count": 32,
+      "events": [
+        {
+          "at": "2026-09-27T09:22:13.205Z",
+          "boundary": 1,
+          "messageId": 2,
+          "kind": "judge",
+          "summary": "judge warden in 271 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1450,
+            "latencyMs": 271,
+            "inputTokens": 802,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.13
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:22:30.897Z",
+          "boundary": 2,
+          "messageId": 4,
+          "kind": "judge",
+          "summary": "judge warden in 256 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1157,
+            "latencyMs": 256,
+            "inputTokens": 747,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.29
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:22:54.812Z",
+          "boundary": 3,
+          "messageId": 6,
+          "kind": "judge",
+          "summary": "judge warden in 262 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1235,
+            "latencyMs": 262,
+            "inputTokens": 770,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.93
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:23:16.875Z",
+          "boundary": 4,
+          "messageId": 8,
+          "kind": "judge",
+          "summary": "judge warden in 259 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1127,
+            "latencyMs": 259,
+            "inputTokens": 753,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.09
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:23:48.179Z",
+          "boundary": 5,
+          "messageId": 10,
+          "kind": "judge",
+          "summary": "judge warden in 432 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1365,
+            "latencyMs": 432,
+            "inputTokens": 803,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.78
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:24:09.371Z",
+          "boundary": 6,
+          "messageId": 12,
+          "kind": "judge",
+          "summary": "judge warden in 266 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1185,
+            "latencyMs": 266,
+            "inputTokens": 758,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.18
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:24:38.457Z",
+          "boundary": 7,
+          "messageId": 14,
+          "kind": "judge",
+          "summary": "judge warden in 305 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1637,
+            "latencyMs": 305,
+            "inputTokens": 851,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.19
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:25:20.853Z",
+          "boundary": 8,
+          "messageId": 16,
+          "kind": "judge",
+          "summary": "judge warden in 260 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 2542,
+            "latencyMs": 260,
+            "inputTokens": 1084,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.02
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:25:56.067Z",
+          "boundary": 9,
+          "messageId": 18,
+          "kind": "judge",
+          "summary": "judge warden in 287 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1722,
+            "latencyMs": 287,
+            "inputTokens": 873,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.56
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:26:47.229Z",
+          "boundary": 10,
+          "messageId": 20,
+          "kind": "judge",
+          "summary": "judge warden in 292 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1715,
+            "latencyMs": 292,
+            "inputTokens": 869,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.57
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:27:20.961Z",
+          "boundary": 11,
+          "messageId": 22,
+          "kind": "judge",
+          "summary": "judge warden in 294 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1522,
+            "latencyMs": 294,
+            "inputTokens": 841,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.13
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:27:57.725Z",
+          "boundary": 12,
+          "messageId": 24,
+          "kind": "judge",
+          "summary": "judge warden in 321 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1736,
+            "latencyMs": 321,
+            "inputTokens": 883,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.42
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:28:35.041Z",
+          "boundary": 13,
+          "messageId": 26,
+          "kind": "judge",
+          "summary": "judge warden in 2138 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 2215,
+            "latencyMs": 2138,
+            "inputTokens": 971,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.26
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:29:10.886Z",
+          "boundary": 14,
+          "messageId": 28,
+          "kind": "judge",
+          "summary": "judge warden in 277 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1477,
+            "latencyMs": 277,
+            "inputTokens": 821,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.31
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:30:21.874Z",
+          "boundary": 15,
+          "messageId": 30,
+          "kind": "judge",
+          "summary": "judge warden in 299 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 2102,
+            "latencyMs": 299,
+            "inputTokens": 983,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.25
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:31:04.699Z",
+          "boundary": 16,
+          "messageId": 32,
+          "kind": "judge",
+          "summary": "judge warden in 335 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1605,
+            "latencyMs": 335,
+            "inputTokens": 866,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.13
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:31:34.938Z",
+          "boundary": 17,
+          "messageId": 34,
+          "kind": "judge",
+          "summary": "judge warden in 273 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1349,
+            "latencyMs": 273,
+            "inputTokens": 799,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.79
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:32:11.514Z",
+          "boundary": 18,
+          "messageId": 36,
+          "kind": "judge",
+          "summary": "judge warden in 310 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1466,
+            "latencyMs": 310,
+            "inputTokens": 813,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.69
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:32:39.759Z",
+          "boundary": 19,
+          "messageId": 38,
+          "kind": "judge",
+          "summary": "judge warden in 323 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1043,
+            "latencyMs": 323,
+            "inputTokens": 725,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.17
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:33:33.461Z",
+          "boundary": 20,
+          "messageId": 40,
+          "kind": "judge",
+          "summary": "judge warden in 270 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1361,
+            "latencyMs": 270,
+            "inputTokens": 794,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.79
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:34:12.688Z",
+          "boundary": 21,
+          "messageId": 42,
+          "kind": "judge",
+          "summary": "judge warden in 317 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 2019,
+            "latencyMs": 317,
+            "inputTokens": 942,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.29
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:34:50.962Z",
+          "boundary": 22,
+          "messageId": 44,
+          "kind": "judge",
+          "summary": "judge warden in 305 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1468,
+            "latencyMs": 305,
+            "inputTokens": 819,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.24
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:35:29.525Z",
+          "boundary": 23,
+          "messageId": 46,
+          "kind": "judge",
+          "summary": "judge warden in 264 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1687,
+            "latencyMs": 264,
+            "inputTokens": 867,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.11
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:36:11.475Z",
+          "boundary": 24,
+          "messageId": 48,
+          "kind": "judge",
+          "summary": "judge warden in 307 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1520,
+            "latencyMs": 307,
+            "inputTokens": 837,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.28
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:37:28.366Z",
+          "boundary": 25,
+          "messageId": 50,
+          "kind": "judge",
+          "summary": "judge warden in 266 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 2398,
+            "latencyMs": 266,
+            "inputTokens": 1044,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.45
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:38:09.633Z",
+          "boundary": 26,
+          "messageId": 52,
+          "kind": "judge",
+          "summary": "judge warden in 302 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1501,
+            "latencyMs": 302,
+            "inputTokens": 833,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.28
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:38:49.067Z",
+          "boundary": 27,
+          "messageId": 54,
+          "kind": "judge",
+          "summary": "judge warden in 290 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1689,
+            "latencyMs": 290,
+            "inputTokens": 883,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.54
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:39:26.712Z",
+          "boundary": 28,
+          "messageId": 56,
+          "kind": "judge",
+          "summary": "judge warden in 277 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1566,
+            "latencyMs": 277,
+            "inputTokens": 842,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.39
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:40:08.748Z",
+          "boundary": 29,
+          "messageId": 58,
+          "kind": "judge",
+          "summary": "judge warden in 310 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1855,
+            "latencyMs": 310,
+            "inputTokens": 901,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.89
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:41:19.867Z",
+          "boundary": 30,
+          "messageId": 60,
+          "kind": "judge",
+          "summary": "judge warden in 288 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1811,
+            "latencyMs": 288,
+            "inputTokens": 882,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.82
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:42:17.870Z",
+          "boundary": 31,
+          "messageId": 62,
+          "kind": "judge",
+          "summary": "judge warden in 275 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 1888,
+            "latencyMs": 275,
+            "inputTokens": 914,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 0.65
+            }
+          }
+        },
+        {
+          "at": "2026-09-27T09:43:17.678Z",
+          "boundary": 32,
+          "messageId": 64,
+          "kind": "judge",
+          "summary": "judge warden in 3072 ms",
+          "detail": {
+            "use": "warden",
+            "model": "jev-1.13.0",
+            "route": "judge:typesafe:jev-1.13.0",
+            "questions": 1,
+            "stateChars": 2374,
+            "latencyMs": 3072,
+            "inputTokens": 1028,
+            "outputTokens": 17,
+            "p": {
+              "facts": 0,
+              "flagged": 0,
+              "agency": 1.02
+            }
+          }
+        }
+      ]
+    },
+    "judgeMode": {
+      "mode": {
+        "label": "on",
+        "uses": [
+          "agencyCheck"
+        ],
+        "wardenMode": "auto"
+      }
+    },
+    "judgeMeter": {
+      "calls": 32,
+      "cachedCalls": 0,
+      "inputTokens": 27598,
+      "outputTokens": 544,
+      "cost": 0,
+      "lastAnsweredModel": "jev-1.13.0"
+    },
+    "boundaries": 32,
+    "warden": {
+      "flagged": 0,
+      "applied": 0,
+      "lapsed": 0,
+      "rejected": 0,
+      "pending": 0
+    },
+    "wardenNotes": [],
+    "rescore": {
+      "factsSource": "live facts-tier and pinned memory rows at cleanup; ledger-bound rows not included; player line = the newest player message before each reply; house rules = the played story at cleanup",
+      "rows": [
+        {
+          "id": "m0",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+          },
+          "player": "Max"
+        },
+        {
+          "id": "m2",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"Welcome, travelers,\" the waystation attendant says with a weary smile. \"The Eastern caravan is late.\"\n*The air is thick with the smell of woodsmoke and roasting meat, the warmth of the hearth-fire casting a gentle glow over the room. Outside the windows, the sun is beginning to set, painting the sky in shades of orange and pink. The distant sounds of the market and the murmur of people fill the air.*\n*The waystation is bustling with activity, a hub of travelers and traders waiting for their journey to begin.*\n\"You'll want to get settled in for the night. The Eastern caravan is expected to arrive at dawn.\"\n*The attendant gestures toward a cluster of tables near the fire, where other travelers have to be resting. The sound of distant laughter and the clink of tankards fill the space as the night settles in.*\n*The fireplace is large, crackling with warmth, its stones soot-stained from years of use. Nearby, a large pot of stew simmers over the fire, filling the air with a savory aroma that mingles with the woodsmoke.*\n*A few travelers are scattered about the room, some nodding off over their drinks, others engaged in quiet conversation.*\n*The window shows the gathering darkness outside, the stars beginning to twinkle in the sky.*\n\"Sleep well, travelers,\" the attendant says, and his face isT"
+          },
+          "player": "Max",
+          "playerMessage": "We wait by the hearth for the eastern caravan."
+        },
+        {
+          "id": "m4",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"Two days late, sometimes three,\" the attendant says, with a shrug. \"The roads from the East aren't always safe. Monsters, bandits, bad weather... it all comes. Just that this caravan is more late than most.\"\n*He pauses, looking at you with concern.*\n\"They should have been here a week ago. Something must've happened.\"\n*The attendant's words hang in the air, heavy with unspoken worry. Outside, the wind howls faintly, carrying the chill of the night with it.*\n*Inside the waystation, the fire crackles, throwing flickering shadows across the walls. A few travelers shift in their places, their conversations growing quieter as the attendant's speak of danger.*\n*The attendant sighs, rubbing his tired eyes.*\n\"You can wait as long as you need to, travelers. But I'm not sure how much longer you can wait. The roads aren't safe right now.\"\n*He looks toward the door, his expression grim.*\n*A heavy silence settles over the room, broken only by the crackle of the fire and the distant murmur of the night wind.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the keeper how late the caravan usually runs."
+        },
+        {
+          "id": "m6",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"Coming right up,\" the attendant says, his voice low.\n*He heads toward the bar and returns a moment later with two tankards of watered-down ale, the foam thick and the brew pale.*\n*The ale tastes of grain and water, but it's refreshing enough. You and Arin sit by the fire for a while, the warmth seeping into your bones.*\n*As the night deepens, the other travelers begin to drift off to sleep, some slumping over their drinks, others finding makeshift bedding on the floor.*\n*The fire burns lower, casting long shadows across the room. The attendant cleans the bar with a rag, his movements slow and deliberate.*\n*Outside, the world is silent, save for the distant howl of a wolf and the rustle of wind in the trees.*\n*The waystation feels peaceful, yet there's an underlying tension in the air, a sense of unease that lingers in the back of your mind.*\n*The attendant glints at you over the rim of his glass, his eyes narrow.*\n\"You two don't look like the type to be waiting for a caravan.\"\n*His voice is low, but it carries an edge of suspicion.*\n\"What are you really waiting for?\""
+          },
+          "player": "Max",
+          "playerMessage": "We order another round of watered ale and keep waiting."
+        },
+        {
+          "id": "m8",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"He's asking a question,\" Arin says under his breath, glancing at you. \"You should probably answer.\"\n*The attendant leans against the bar, his eyes fixed on you, waiting for an answer.*\n*The fire has burned down to glowing embers, the room now dimly lit. The warmth still clings to the space, but the chill is starting to seep in from the edges.*\n*Arin shifts in his seat, his gaze darting between you and the attendant.*\n*Outside, a distant sound breaks the silence — a neighing horse, muffled and pained. It's close.*\n*The attendant straightens up, his eyes widening.*\n\"What was that?\"\n*He looks toward the window, his face pale in the flickering firelight.*\n*The sound of hooves on cobblestone grows louder, accompanied by the sound of ragged breathing.*\n*A shadow crosses the window, momentarily blotting out the starlight.*\n*The attendant's hand goes to the handle of a knife tucked into his belt, his eyes darting toward the door.*\n\"Stay close,\" he says, his voice tight.*"
+          },
+          "player": "Max",
+          "playerMessage": "I check our packs and count the remaining rations."
+        },
+        {
+          "id": "m10",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"He's not gonna like that,\" Arin mutters, rolling the eyes.\n*The dice rattle against the worn wooden table, the sound sharp in the quiet room. The game is slow, the pace unhurried as you and Arin trade off rolls.*\n*The attendant continues to clean the bar, his movements deliberate and methodical. Every so often, he glances toward the window, his eyes narrowing as if expecting something.*\n*The fire has dwindled to a soft glow, the room bathed in shadow. The warmth that once filled the space now clings only to the edges of the room.*\n*Arin yawns, his eyes half-lidded.*\n\"We're wasting time,\" he says softly. \"Maybe we should check the road.\"\n*The attendant pauses his cleaning, his eyes flicking toward Arin before returning to the bar.*\n*Outside, the night is still, the only sound the whisper of wind through the trees. The stars above twinkle brightly, casting a pale light across the landscape.*\n*The waystation is quiet, the fire now just a heap of glowing embers. The last few travelers have drifted off to sleep, their breathing slow and steady.*\n*The attendant looks at you, his eyes hard.*\n\"You two aren't going anywhere, are you?\"\n*His voice is low and edged with suspicion, as if he's expecting an answer.*"
+          },
+          "player": "Max",
+          "playerMessage": "We play a slow game of dice to pass the time."
+        },
+        {
+          "id": "m12",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"Telling us more than we want to know,\" Arin says with a grin. \"Like we're all about to get hit with a train.\"\n*The road stretches out before you, empty and silent. The stars above shine brightly, casting a pale glow across the landscape. The moonlight reflects off the cobblestones, revealing a path that leads to the unknown.*\n*The waystation is still, the air heavy with the scent of old wood and the lingering warmth of the fire.*\n*The attendant watches you, his eyes narrow. He's still cleaning the bar, but his movements have slowed, his gaze lingering on you.*\n\"What's it for?\"\n*His voice is low, questioning, as if he's trying to gauge your intent.*\n*The silence between you is thick, broken only by the distant sound of the wind and the crackle of a few embers.*\n*Outside, the shadows lengthen, the darkness pooling in the crevices of the landscape.*\n*Arin looks toward the road as well, his gaze lingering on the empty path before returning to you with a quiet sigh.*\n\"It's not coming,\" he says, his voice barely above a whisper.*"
+          },
+          "player": "Max",
+          "playerMessage": "I look out of the window at the empty road east."
+        },
+        {
+          "id": "m14",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"Yeah, the one that'll probably pay enough to keep us in beer and bread for a month,\" Arin says, his voice low, eyes flicking to the side. \"Assuming we live that long.\"\n*He leans in closer, his words hushed, as if the air itself might betray them.*\n\"The client, they said it was some kind of salvage job. Old ruins in the hills, said they wanted something specific retrieved. Didn't give too many details, though.\"\n*Arin's tone is cautious, his gaze shifting back and forth between you and the surrounding area.*\n\"You think the caravan's going to show up? Because I'm starting to think we might have to go find them ourselves.\"\n*The attendant continues his cleaning, oblivious to their hushed conversation, his focus entirely on the bar.*\n*The fire crackles softly, its warmth a comforting presence in the cold night.*\n*The waystation is silent, the air heavy with unspoken words and expectations.*\n*The silence is broken only by the soft sounds of the wind outside, and the faint whisper of the trees.*\n*Arin's voice trails off, leaving the conversation hanging in the air, unresolved.*\n\"What do you think we should do? Wait a little longer? Or go check the road?\"\n*The attendant glances toward Arin as the two ofs whisper together, his eyebrows raising in suspicion.*\n\"You two planning something?\"\n*The attendant's voice is low, sharp.*\n\"You don't like to talk quietly when you're in a waystation.\"\n*He pauses, his gaze narrowing.*\n\"What's the job you're after?\""
+          },
+          "player": "Max",
+          "playerMessage": "We talk quietly about the job waiting at the end of the road."
+        },
+        {
+          "id": "m16",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"Take a walk, then,\" Arin says with a small smirk. \"I'll stay here and play the diplomat.\"\n*He settles back into his seat, his posture relaxing slightly, though his eyes remain alert.*\n*The room is dimly lit, the only real source of light the embers of the fire and a few candles placed around the room.*\n*You pass a table with a half-eaten bowl of stew, the steam rising in thin curls into the air.*\n*The scent of wood and smoke hangs thick in the room, mixing with the faint smell of ale and the musk of sleeping travelers.*\n*The attendant continues to clean, his eyes following you as you move through the space, his gaze cautious and unblinking.*\n*You pass by the window that looks out onto the road, the glass slightly clouded with the residue of countless travelers passing by.*\n*The moonlight filters through the panes, casting a pale, watery light on the ground outside.*\n*As you reach the far wall, you notice a small painting hanging on the wall — a scene of a forest with a river running through it, the colors faded and worn by time.*\n*The attendant speaks as you walk past, his voice low.*\n\"You're looking for a job that's late, aren't you?\"\n*The attendant's eyes are hard, as though he's trying to see into you.*\n\"A job that's been late for a week. That's not a normal kind of delay.\"\n*The attendant pauses, his gaze intensifying.*\n\"What did you find out on the road?\"\n*He seems to expect an answer.*\n*As you pass, you notice the scent of something unfamiliar — a metallic, sharp tang that mingles with the smell of smoke and wood.*\n*It's faint, barely noticeable, but it's there.*\n*And then, as you make your way back to your seat, you hear it again — the sound of a neighing horse, more distant this time, muffled by the walls of the waystation.*\n*The sound is low and pained, a sound of suffering that lingers in the air.*\n*The attendant's grip tightens on the rag in his hand, his eyes widening in alarm.*\n*He looks toward you and Arin.*\n\"Don't go out there.\"\n*The attendant's voice is sharp, warning.*\n\"It's not safe.\"\n*The sound of hoofbeats grows louder, accompanied by a low moan that echoes in the night.*\n*The attendant's face is pale, his hand tightening on the knife at his belt.*\n*You hear a thud, as if something heavy has hit the cobblestone outside.*\n*The attendant's expression turns grim, as if he're expecting the worst.*\n*His gaze"
+          },
+          "player": "Max",
+          "playerMessage": "I stretch my legs and walk once around the common room."
+        },
+        {
+          "id": "m18",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"Just a little,\" Arin says, leaning back against the hearth's edge. \"Five minutes. Maybe ten.\"\n*His eyes flutter shut as the warmth from the embers seeps into his skin.*\n*You settle into a similar half-sleep, your mind drifting in the space between wakefulness and dreams. The crackle of dying fire and the low breathing of sleeping travelers create a gentle rhythm that pulls you deeper into rest.*\n*But the peace is short-lived.*\n*A sudden crash from outside shatters the quiet — wood splintering, something heavy slamming against the waystation's door. The impact is followed by a guttural, inhuman shriek that vibrates through the very walls.*\n*The attendant bolts upright, his knife drawn and gleaming in the firelight. He stands behind the bar, his face twisted with terror.*\n\"By the gods, get away from the door!\"\n*Arin is fully awake now, his hand already reaching for his bow as he scrambles to his feet. His eyes are wide, reflecting the panic in the room as several of the sleeping travelers stir, waking with confusion and alarm.*\n*Another impact rattles the building, harder than the last. Something scratches against the exterior walls—long, scraping sounds that travel up the wood.*\n*Then comes a low, wheezing breath from the other side of the door, like air being sucked through wet lungs.*\n\"What is that thing?\" one of the travelers stammers, their voice trembling.*\n*The attendant doesn't answer. He just stares at the entrance, his knuckles white as he grips the knife. Through the gaps in the wooden planks, a sickly yellow-green light begins to seep into the common room.*"
+          },
+          "player": "Max",
+          "playerMessage": "We doze a little by the fire."
+        },
+        {
+          "id": "m20",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"News from the east?\" the attendant echoes, his voice high and strained as he glances back at you.*\n*Another crash against the door makes several travelers jump, one of them yelping in fear.*\n*The attendant swallows hard, his gaze returning to the entrance as the scratching sounds continue.*\n\"No one's come in since the caravan went missing, no. That's why everyone's so on edge. We've heard nothing for a week.\"\n*He steps back from the bar, his hand trembling as he holds the knife steady.*\n\"Not a single messenger, not a single rider. Nothing.\"\n*Arin has his bow ready, an arrow notched as he watches the door with tense focus.*\n\"This is bad,\" he mutters under his breath.*\n*The scratching stops, replaced by a wet, dragging sound that moves slowly around the building's exterior.*\n*One of the travelers, a merchant in a fine but travel-worn coat, speaks up from his seat.*\n\"The caravan had a dozen guards,\" he says, his voice shaking. \"Skilled ones. If something took them out, whatever it is...\"\n*He trails off as a new sound emerges from outside — the sound of something heavy being dragged across the cobblestones, followed by more of those guttural shrieks.*\n*The attendant's face pales even further.*\n\"More than one.\"\n*He whispers the words, and they seem to hang in the air like a death sentence.*\n\"There's more than one of them.\"\n*The scratching starts again, this time from multiple directions, as if they're surrounding the waystation.*\n*Arin's arrow is aimed at the door, his fingers tight on the string.*\n\"Get ready,\" he says grimly.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask whether anyone has heard news from the east."
+        },
+        {
+          "id": "m22",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"On a saddle? Now?\" Arin asks, incredulous. \"They're trying to break in!\"\n*The scratching on the walls intensifies, and another thud hits the door. The wood creaks under the pressure, a small crack appearing near the top hinge.*\n*The attendant is backed against the wall, his knife raised. His voice is sharp with fear.*\n\"What are you doing?! We need to barricade the door, not fix horse gear!\"\n*One of the travelers, who's been huddled in the corner, looks up at you and Arin with wide, terrified eyes.*\n\"Please, please get something to block the door!\" they plead.*\n*Arin shoots an arrow toward the door as something slams against it again. The arrow thuds into the wood, and a screech pierces the silence.*\n\"We're not mending anything right now,\" Arin says grimly, his bow drawn and another arrow already notched. \"Unless it's a way to survive this night.\"\n*The sound of more scratching comes from the roof, as if something is climbing up.*\n\"Get help, get a weapon, get anything you can find,\" the attendant says desperately. \"Just do something!\"\n*The sound of scratching from the roof grows louder, and something slams against the shingles above your heads.*\n\"They're on the roof!\" the attendant screams.*\n*Arin's bow is aimed upward now, ready to fire at any moment. His eyes are sharp, alert for any movement.*\n\"Stay close,\" he tells you, his voice low and urgent.*"
+          },
+          "player": "Max",
+          "playerMessage": "We mend a strap on one of the saddles."
+        },
+        {
+          "id": "m24",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"You're just going to sit there?\" Arin hisses, his bow still drawn. \"These things are trying to kill us!\"\n*The merchant speaks up, his voice trembling as he addresses the others.*\n\"We need to fight back. We can't just wait here. We need to do something.\"\n*The merchant's words are echoed by a few others in the room, their fear turning into determination.*\n\"What can we do? We're unarmed!\" someone else shouts.*\n\"There are tables, chairs, the hearth — anything we can use as weapons!\" the merchant replies.*\n\"The attendants' knife isn't enough for all of them!\" another traveler adds.*\nThe attendant nods, his knife still raised. \"I'll do what I can, but we need more. We need a plan.\"\n*The sounds outside intensify, the scratching and thuds coming from all directions. Something slams against the window, the glass rattling in the frame.*\n\"They're coming for us!\" someone screams, and panic flares up in the room.*\n*Arin doesn't move from his position, his bow still aimed at the door. His eyes flick toward you for a moment, his expression a mix of concern and confusion.*\n\"What's the plan here? Are we fighting, or are you just going to watch this unfold?\"\n*The room fills with the sounds of panicking travelers and the sound of things clawing at the building.*\n*Arin's's voice cuts through the noise, low and sharp.*\n\"Max, talk to me. What are we doing here?\"\n*Outside, the shrieks continue, and the sounds of scratching grow louder as the things outside try to get in.*\n\"We can't just sit here and wait for them to get eaten!\" Arin exclaims, his voice strained.*"
+          },
+          "player": "Max",
+          "playerMessage": "I sit back and listen to the other travellers talk."
+        },
+        {
+          "id": "m26",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*A long silence follows your decision, thick with tension and unresolved questions.*\n*The fire crackles in the hearth, casting dancing shadows against the walls as the last embers pulse with a soft orange glow. The waystation around you is still—eerie in its stillness—despite the hours that have passed.*\n*The attendant has retreated to the far end of the common room, cleaning a glass over and over, his eyes occasionally flicking toward you with a wariness that hasn't faded. The other travelers have settled into their own uneasy corners, some nodding off in exhaustion, others staring into space with hollow expressions.*\n*Arin leans back against a wooden pillar, his bow resting across his lap. He watches you with a complicated expression, something between respect and concern.*\n\"If you're sure,\" he says quietly. \"But we're waiting for ghosts now. No one's come through that road in a week.\"\n*The window shows the eastern road stretching into darkness, the moonlight painting it in silver. No lanterns, no hoofbeats, no signs of life.*\n*The weight of the situation presses down on the room like a physical thing. Every creak of the building, every distant sound of the night, seems to carry a hidden threat.*\n\"A dozen guards,\" Arin mutters to himself. \"Skilled ones, too. For them to just... vanish.\"\n*He looks away from you, staring out at the empty road.*\n\"Something's waiting out there. Something bad enough to take down a whole caravan without leaving a single messenger.\"\n*The attendant clears his throat, his voice tentative.*\n\"The morning's coming soon. If it does.\"\n*He sets down the glass, his hands trembling slightly.*\n\"We'll see if the road stays empty. But I can't promise anyone safety if they decide to leave this waystation tonight.\"\n*The fire is now just a bed of glowing coals, and the cold is beginning to creep back into the room. Outside, the night is silent—too silent.*\n*The questions remain hanging in the air like a fog, unanswered and heavy. What happened to the caravan? And what will happen when you finally decide to act?*"
+          },
+          "player": "Max",
+          "playerMessage": "We wait by the hearth for the eastern caravan."
+        },
+        {
+          "id": "m28",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The attendant stops his cleaning, his hands still resting on the glass. He looks toward you, his expression guarded.*\n\"Usually?\" he repeats, his voice flat. \"They're rarely late. Maybe a day or two if the weather's bad. But never a week.\"\n*He sets down the cloth, his movements slow and deliberate.*\n\"A dozen guards. Skilled men. They should've made it back.\"\n*The attendant looks toward the window again, his eyes narrowing as he peers into the darkness.*\n\"Something happened out there. Something that took out a whole caravan and left no survivors. And I can't shake the feeling that whatever it was is still out there.\"\n*Arin shifts his position, his gaze flicking between you and the attendant.*\n\"That's why we're still here,\" he says softly. \"Waiting for answers.\"\n*The attendant's gaze returns to you, his eyes hard.*\n\"Are you waiting for answers, or are you waiting for something else entirely? The roads aren't safe right now. And you're acting like you've got a plan.\"\n*The fire is dying now, and the room is filling with shadow. Outside, the wind howls faintly, carrying the chill of the night with it.*\n*The silence stretches on, broken only by the crackle of the fading embers.*\n\"So,\" the attendant says, his voice low. \"What are you really waiting for?\"\n*Arin looks at you, waiting for your response.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the keeper how late the caravan usually runs."
+        },
+        {
+          "id": "m30",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The attendant's expression softens slightly, though his suspicion doesn't entirely vanish.*\n\"Coming right up,\" he says, his voice quieter now.\n*He heads toward the bar and returns a moment later with two tankards of watered-down ale, the foam thick and the brew pale.*\n*The ale tastes of grain and water, but it's refreshing enough. You and Arin sit by the fire for a while, the warmth seeping into your bones as you drink in silence.*\n*The other travelers drift off to sleep, their breathing slow and steady, the waystation falling into a deep, heavy quiet.*\n*The fire burns low, casting long shadows across the walls and floor. The room is now dimly lit, the warmth only clinging to the edges of the space.*\n*Arin sits with his drink, his gaze drifting between you and the window. He's quiet, but his expression is focused, as if he's expecting something to happen.*\n*The attendant continues cleaning, his movements now slow and methodical, as if he's trying to soothe his own nerves.*\n\"The dawn is coming,\" he says softly, his eyes flicking toward you. \"We'll see what it brings.\"\n*Outside, the night is still, the only sound the whisper of wind through the trees.*\n*The waystation feels peaceful, yet there's an underlying tension in the air, a sense of unease that lingers in the back of your mind.*\n*And then, in the stillness, you hear it—a distant, pained neighing of a horse, muffled by the walls and the night.*\n*The sound is low and far off, but it's unmistakable.*\n*The attendant straightens up, his eyes widening.*\n\"What was that?\"\n*He looks toward the window, his face pale in the flickering light of the dying fire.*\n*The sound of hooves on cobblestone grows louder, accompanied by the sound of ragged breathing.*\n*A shadow crosses the window, momentarily blotting out the starlight.*\n*The attendant's hand goes to the handle of a knife tucked into his belt, his eyes darting toward the door.*\n\"Stay close,\" he says, hisH*"
+          },
+          "player": "Max",
+          "playerMessage": "We order another round of watered ale and keep waiting."
+        },
+        {
+          "id": "m32",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"He's asking a question,\" Arin says under his breath, glancing at you. \"You should probably answer.\"\n*The attendant leans against the bar, his eyes fixed on you, waiting for an answer.*\n*The fire has burned down to glowing embers, the room now dimly lit. The warmth still clings to the space, but the chill is starting to seep in from the edges.*\n*Arin shifts in his seat, his gaze darting between you and the attendant.*\n*Outside, a distant sound breaks the silence—a neighing horse, muffled and pained. It's close.*\n*The attendant straightens up, his knife hand tightening, his eyes widening.*\n\"What was that?\"\n*He looks toward the window.*\n*The sound of hoofbeats on cobblestone grows louder, followed by a ragged, wheezing breath.*\n*A shadow passes over the window, briefly blotting out the stars.*\n*The attendant's hand moves to the knife at his belt, his grip white-knuckled.*\n\"Stay close,\" he says, and his voice is sharp now.*\n*The sound of breathing grows louder, closer, and then—a heavy thud against the door.*\n*The attendant stumbles backward, his knife raised.*\n\"Get back from the door!\"\n*Arin's hand is already on his bow as he stands, an arrow notched.*\n\"What's out there?\"\n*The attendant doesn't answer, his gaze fixed on the entrance as a low, guttural shriek pierces the night.*\n\"They're here,\" he whispers, his voice trembling.*\n*And through the cracks in the wood, a sickly yellow-green glow begins to seep into the room.*"
+          },
+          "player": "Max",
+          "playerMessage": "I check our packs and count the remaining rations."
+        },
+        {
+          "id": "m34",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"He's not gonna like that,\" Arin mutters, rolling his eyes.\n*The dice rattle against the worn wooden table, the sound sharp in the quiet room. The game is slow, the pace unhurried as you and Arin trade off rolls.*\n*The attendant continues to clean the bar, his movements deliberate and methodical. Every so often, he glances toward the window, his eyes narrowing as if expecting something.*\n*The fire has dwindled to a soft glow, the room bathed in shadow. The warmth that once filled the space now clings only to the edges of the room.*\n*Arin yawns, his eyes half-lidded.*\n\"We're wasting time,\" he says softly. \"Maybe we should check the road.\"\n*The attendant pauses his cleaning, his eyes flicking toward the and Arin, his expression hard.*\n\"You two aren't going anywhere, are you?\"\n*His voice is low, sharp with suspicion.*\n\"You don't like to talk quietly when you're in a waystation.\"\n*He pauses, his gaze narrowing.*\n\"What's the job you're after?\"\n*The silence stretches on, broken only by the soft rattling of dice.*\n*Outside, the night is still—too still—the only sound the distant whisper of wind through the trees.*\n*Arin looks at you, his expression questioning, waiting for your answer.*"
+          },
+          "player": "Max",
+          "playerMessage": "We play a slow game of dice to pass the time."
+        },
+        {
+          "id": "m36",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The attendant continues to clean behind the bar, but his movements have slowed, his eyes lingering on you as you look out the window.*\n*The road stretches ahead, empty and silent under the moonlight. The stars above are bright, their pale light reflecting off the cobblestones.*\n*There's nothing—no lanterns, no figures, no sounds of travel.*\n*The attendant speaks softly, his voice cutting through the quiet.*\n\"It's been a week,\" he says, as if continuing a thought.*\n\"A dozen guards, skilled and experienced. They would have sent a messenger if there were trouble.\"\n*He pauses, looking at the road himself.*\n\"They should have been here days ago.\"\n*Arin glances at the window as well, his gaze distant.*\n\"You think they're still out there,\" Arin says quietly. \"Waiting.\"\n*The attendant doesn't respond immediately, his expression grim.*\n\"I don't know,\" he says finally. \"But I do know that we're not alone out here tonight.\"\n*The fire is burning low now, and the warmth is beginning to fade from the room.*\n*Arin turns to look at you, his brow furrowed.*\n\"What do you think? Should we wait, or should we go check the road ourselves?\"\n*The attendant watches you both, his expression cautious and unreadable.*\n\"The road isn't safe,\" he adds, his voice barely above a whisper. \"I wouldn't recommend it.\""
+          },
+          "player": "Max",
+          "playerMessage": "I look out of the window at the empty road east."
+        },
+        {
+          "id": "m38",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"The ruins,\" Arin says softly, leaning in closer. \"The client was pretty vague about it, but they said something in the hills.\"\n*He pauses, glancing over his shoulder at the attendant, who is still cleaning the bar.*\n\"Said they wanted something specific retrieved from an old ruin. Didn't say what, or why.\"\n*Arin's tone is cautious, as if he knows that the job could be more dangerous than they'd first expected.*\n\"You think it's related to why the caravan's late? Maybe it's all part of the same thing.\"\n*The attendant looks up at the two of you whispering, his eyebrows raising in suspicion.*\n\"What job?\" he asks, his voice sharp.*\n\"You don't talk quietly in a waystation.\"\n*He pauses, his gaze narrow.*\n\"What are you after?\"\n*The room is silent, the only sounds the soft crackle of the fire and the distant rustle of wind.*\n*Arin glances at you, waiting for your response.*"
+          },
+          "player": "Max",
+          "playerMessage": "We talk quietly about the job waiting at the end of the road."
+        },
+        {
+          "id": "m40",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"You're just going for a walk?\" Arin says, his brow furrowing. \"In this? These things are trying to get in.\"\n*He says it quietly, his voice tight with concern.*\n*You pass by the window that looks out on the road, the moonlight casting long shadows in the room. The fire has burned down to a heap of glowing embers, and the chill of the night is starting to creep in.*\n*The attendant continues to clean, his eyes following you as you move through the space.*\n\"You two aren't normal travelers,\" he says, his voice low.*\n\"You're too calm. Too quiet.\"\n*He pauses, setting down the cloth and looking directly at you.*\n\"And you're planning something, aren't you?\"\n*The scratching on the walls continues, a rhythmic, unsettling sound that seems to come from everywhere and nowhere.*\n*Arin's bow is still aimed at the door, his fingers tight on the string.*\n\"What are we doing, Max?\" he asks softly, his voice strained.*\n\"Are we waiting for them to break in, or are we going to fight?\"\n*The sound of something slamming against the door echoes through the room, followed by another guttural shriek.*\n\"We can't just wait,\" Arin adds, his voice rising slightly.*\n\"They're going to get in. We need a plan.\""
+          },
+          "player": "Max",
+          "playerMessage": "I stretch my legs and walk once around the common room."
+        },
+        {
+          "id": "m42",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"Just a little,\" Arin says softly. \"Maybe we can get a little rest before whatever comes next.\"\n*He settles back against the pillar, his bow still resting across his lap, his eyes half-closed.*\n*The warmth from the dying embers is still present, a faint comfort against the chill creeping into the room.*\n*The scratching outside has quieted for a moment, replaced by the distant rustle of leaves and the occasional howl of the wind.*\n*The attendant has stopped cleaning, standing motionless by the bar, his gaze fixed on you and Arin.*\n*But the peace is short-lived.*\n*A sudden crash from outside shatters the stillness—wood splintering, something heavy slamming against the waystation's door. The impact is followed by a guttural, inhuman shriek that vibrates through the very walls.*\n*The attendant bolts upright, his knife drawn and gleaming in the firelight.*\n\"Get away from the door!\"\n*Arin is fully awake now, his hand already reaching for his bow as he scrambles to his feet. His eyes are wide, reflecting the panic in the room as several of the sleeping travelers stir, waking with confusion and alarm.*\n*Another impact rattles the building, harder than the last. Something scratches against the exterior walls—long, scraping sounds that travel up the wood.*\n*Then comes a low, wheezing breath from the other side of the door, like air being sucked through wet lungs.*\n*The attendant's voice is high and strained.*\n\"By the gods, get back! Get back from the door!\"\n*A yellow-green light begins to seep through the gaps in the door, casting an eerie, otherworldly glow across the common room floor.*\n\"What is that thing?\" one of the travelers stammers, their voice trembling.*\n*Arin's arrow is aimed at the door, and his fingers are tight on the string.*\n\"I don't care what it is,\" he says grimly, his voice steady despite the situation.*\n\"I just know we need to kill it.\""
+          },
+          "player": "Max",
+          "playerMessage": "We doze a little by the fire."
+        },
+        {
+          "id": "m44",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The attendant shakes his head, his eyes wide with terror as he looks from the door to you.*\n\"No one's come in since the caravan went missing,\" he says, his voice tight.*\n\"Nothing. No one. Just us, waiting and waiting.\"\n*He swallows hard, his grip tightening on his knife.*\n\"We've heard nothing from the east for a week.\"\n*Another crash hits the door, and a splinter of wood flies across the room, embedding itself in the far wall.*\n\"Not a single rider. Not a single messenger.\"\n*The attendant's face pales.*\n\"It's like the road just... stopped. Like nothing's coming through anymore.\"\n*Arin's arrow thuds into the door, but there's no response from outside. The scratching continues, circling the building.*\n\"A dozen guards,\" the merchant in the corner says, his voice shaking.*\n\"A dozen skilled guards, gone without a word. Whatever took them is out there.\"\n*The attendant's words hang in the air, heavy with an unspoken dread.*\n\"And now it's here. And we're next.\"\n*The scratching sounds intensify, moving closer to the roof. The yellow-green light grows brighter, seeping through more cracks in the door.*\n\"We need to fight,\" Arin says firmly, his voice clear in the panic.*\n\"We can't just sit here and wait to be eaten.\"\n*He looks at you, his eyes sharp and alert.*\n\"Max, we need a plan. Now.\""
+          },
+          "player": "Max",
+          "playerMessage": "I ask whether anyone has heard news from the east."
+        },
+        {
+          "id": "m46",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The crash from outside is deafening as something slams into the door again. The wood groans and splinters, and another chunk of the frame flies across the room.*\n*The attendant shrieks as he throws himself behind the bar for cover, his knife trembling in his hand.*\n\"Get back! Get away from the door!\"\n*The scratching intensifies, traveling along the roof above you with a sound like thousands of tiny, sharp nails scraping across wood.*\n\"What in the hell is that?\" one of the travelers screams from their corner.*\n*Arin bolts upright, his bow already drawn and an arrow notched.*\n\"Get the hell back!\" he shouts at the others, his voice sharp and clear.*\n\"We don't have time for this! Max, what's the plan?\"\n*The sickly yellow-green light is pouring into the room now, painting everything in a grotesque hue.*\n*Arin shoots an arrow toward the door as something slams against it again. The arrow thuds into the wood, and a screech pierces the silence.*\n\"We're not mending anything right now!\" Arin yells, his eyes flashing with anger.*\n\"Unless it's a way to survive this night!\"\n*The scratching from the roof grows louder, and something slams against the shingles above your heads.*\n\"They're on the roof!\" the attendant screams from behind the bar.*\n*Arin's bow is aimed upward now, ready to fire at any moment. His eyes are sharp, alert for any movement.*\n\"Stay close,\" he tells you, his voice urgent.*\n\"Whatever's about to happen, stay close!\"\n*The sound of scratching continues, and the door creaks dangerously under the pressure.*"
+          },
+          "player": "Max",
+          "playerMessage": "We mend a strap on one of the saddles."
+        },
+        {
+          "id": "m48",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The common room is a storm of panic.*\n\"We have to fight!\" a merchant shouts, clutching a heavy wooden candlestick as if it were a sword.*\n\"We're all going to die if we just sit here!\"\n*A woman in travel-stained clothes sobs openly, pressing herself against the far wall.*\n\"There's too many of them. We can't hold them back!\"\n*The attendant is practically hyperventilating behind the bar now.*\n\"The door won't hold! It won't hold!\"\n*Another impact shakes the entire structure, and a new sound joins the shrieks—a low, wet dragging noise that moves along the exterior.*\n*Arin doesn't look at the chaos. His focus is absolute, his bow still drawn and aimed upward at the scratching sounds on the roof.*\n\"Shut up,\" he says coldly to the panicking travelers.*\n\"Every bit of noise and panic is just making this worse.\"\n*He flicks his eyes to you for a fraction of a second, his jaw set.*\n\"Max, these people are about to break and open the door or burn this place down in a panic. We need to handle this before they make it worse.\"\n*Outside, there's another slam against the door—this one accompanied by a wet, tearing sound, as if something is pulling at the wood.*\n*The yellow-green light seeps in through a new crack that has formed near the bottom of the doorframe.*\n\"Oh god,\" the merchant whispers, his bravado crumbling.*\n\"What the hell are those things?\""
+          },
+          "player": "Max",
+          "playerMessage": "I sit back and listen to the other travellers talk."
+        },
+        {
+          "id": "m50",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The night stretches on, hours passing with agonizing slowness as you and Arin remain by the dying embers of the hearth.*\n*The waystation is silent now—a heavy, unnatural quiet that feels more threatening than the sounds of the creatures had been.*\n*The attendant has retreated to the furthest corner of the common room, his face a mask of exhaustion and fear. The other travelers have huddled into small groups or slumped over alone, some staring into space with hollow eyes.*\n*Arin remains alert, his bow resting across his knees. He hasn't spoken in an hour, his gaze flickering occasionally between you and the window that looks east.*\n*Outside, the darkness is absolute. No stars, no moonlight, just a void where the road used to be.*\n*The fire has burned down to white ash, and the chill is beginning to seep back into the room.*\n*Then, from the silence, a sound emerges—faint at first, then growing louder.*\n*The sound of hoofbeats. Not the panicked, ragged hoofbeats from earlier, but a steady, rhythmic pace.*\n*The attendant straightens up, his eyes widening.*\n\"The caravan?\" he whispers, his voice barely audible.*\n*But as the sound grows closer, you realize it's wrong. The hoofbeats are too heavy, too slow, and they carry a strange, wet quality to them.*\n*And then comes the sound—a guttural, rasping shriek that echoes through the night, followed by the sound of something massive being dragged across the cobblestones.*\n*Arin is already on his feet, his bow drawn and an arrow notched.*\n\"Get back from the window,\" he says firmly.*\n*The sound is right outside now, and through the glass, you can see a faint, sickly yellow-green glow illuminating the road.*\n\"It's not the caravan,\" Arin whispers, his voice cold and clear.*\n\"It's them.\"\n*The sound of something heavy slamming against the wall of the waystation echoes through the building, followed by another shriek.*\n\"This time,\" Arin says, \"they're not just scratching.\"\n*The attendant stumbles backward, his knife raised in a trembling hand.*\n\"By the gods, there's more of them.\"\n*The scratching sounds are coming from all sides now, as if the waystation is completely surrounded.*\n\"Max, we need to move,\" Arin says urgently, his arrow aimed at the door.*\n\"Now.\""
+          },
+          "player": "Max",
+          "playerMessage": "We wait by the hearth for the eastern caravan."
+        },
+        {
+          "id": "m52",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"Usually?\" The attendant's voice cracks as he stares at the door. \"A day or two, maybe three if the roads are bad. Never a week.\"\n*He swallows hard, glancing from the yellow-green light seeping through the cracks to you.*\n\"Never a week. Not unless something went horribly wrong.\"\n*The attendant's hands are trembling as he grips his knife.*\n\"And with a dozen guards... they would have sent word. Someone would have made it through.\"\n*Outside, another crash rattles the walls, and the scratching sound intensifies.*\n\"Nothing came through,\" the attendant says, his voice barely a whisper.*\n\"Nothing at all. For a week, not a single messenger, not a single rider.\"\n*Arin shifts his weight, his bow still held ready.*\n\"That's what we've been waiting for,\" Arin says quietly. \"A sign of life from that direction. And all we got was silence.\"\n*The merchant in the corner speaks up, his voice unsteady.*\n\"Maybe it's just the weather. Bad weather can do things.\"\n*The attendant doesn't look at him, his gaze fixed on the door.*\n\"The weather doesn't drag things across cobblestones. The weather doesn't shriek like that.\"\n*Another shriek pierces the night, and this one is accompanied by a low, dragging sound that moves along the outside wall.*\n\"We need to act,\" Arin says, his arrow still notched and ready.*\n\"We're running out of time.\""
+          },
+          "player": "Max",
+          "playerMessage": "I ask the keeper how late the caravan usually runs."
+        },
+        {
+          "id": "m54",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"You've got to be kidding me,\" Arin mutters under his breath.*\n*The attendant's eyes go wide, his mouth falling open for a second as he looks between you and the bar.*\n\"Ale? Now?\" he stammers. \"Something's trying to break down the door and you want... ale?\"\n*The attendant takes a half-step back, his hands shaking as he grips the knife at his belt.*\n\"I... I don't think you're taking this seriously.\"\n*Arin looks at you with an expression of utter disbelief, his bow still aimed at the door.*\n\"Max, what are you thinking?\" he asks, his voice low and sharp.*\n\"There are things out there trying to kill us, and you're ordering drinks?\"\n*The merchant in the corner yelps as something slams against the wall, and the sound of wood splintering fills the room.*\n\"We're going to die!\" he screams, his voice cracking with panic.*\n*The attendant stammers, his words stumbling over each other.*\n\"I... I can't... I can't do this. I'm just a waystation keeper. I'm not...\"\n*Arin shakes his head, his expression hard.*\n\"We don't have time to stand around and order drinks,\" he says, his gaze flicking to you once more.*\n\"We need a plan. Or we're all going to be eating someone's heart by morning.\"\n*The yellow-green light sifts in through the door, illuminating the floor in an eerie glow.*\n*And then, with a sudden, deafening crash, the door groans and splits, a jagged crack running up its center.*\n\"It's breaking!\" someone screams.*\n*Arin draws his bow string tighter, his arrow already aimed.*\n\"We need to decide. Now.\""
+          },
+          "player": "Max",
+          "playerMessage": "We order another round of watered ale and keep waiting."
+        },
+        {
+          "id": "m56",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"Max, seriously?\" Arin's voice drops to a hiss, his brow furrowing in disbelief. \"The door is literally breaking down and you're checking your supplies?\"\n*The attendant nearly drops his knife as he stares at you, horror etched into his features.*\n\"Are you trying to get us killed?\" he shouts, his voice trembling.*\n*The merchant beside him whimpers, shrinking into his seat.*\n\"He's insane... they're both insane...\"\n*Another massive thud against the door makes the wood groan, and a chunk of the frame splinters off, clattering across the floor.*\n*The yellow-green light floods in through the growing gap, painting everything in a nauseating hue.*\n\"We're not checking rations!\" Arin snaps, his bow string tight, arrow pointed squarely at the breach.*\n\"We're either fighting or we're dying. There is no third option where we sit and count crackers!\"\n*Something shrieks from the roof above, and the ceiling beams creak ominously.*\n*A traveler near the back collapses in fear, their breath coming in shallow gasps.*\n\"Please... please help us...\" the woman begs, looking toward you and Arin with desperate eyes.*\n*Arin's gaze flicks to you for just a second, his expression a mixture of anger and confusion.*\n\"Max, if you have a plan, speak now. Because otherwise, we're fighting whatever just broke through that door.\"\n*The wood shatters completely, and the first clawed appendage pushes through the opening.*"
+          },
+          "player": "Max",
+          "playerMessage": "I check our packs and count the remaining rations."
+        },
+        {
+          "id": "m58",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The attendant's expression shifts from fear to utter bewilderment as you reach for the dice. He steps back, pressing himself against the wall behind the bar.*\n\"You're... you're playing dice?\" he whispers, his voice strained with disbelief.*\n\"They're breaking through the door and you're playing... dice?\"\n*Arin's hand drops from his bow, his arrow still aimed at the breach but his expression completely baffled.*\n\"Max... what is wrong with you?\" he asks, his voice quiet and sharp.*\n\"Are you trying to die?\"\n*The dice roll across the table with a hollow clatter, the sound punctuating the chaos outside.*\n\"Get away from them!\" the merchant screams, clutching his candlestick like a shield.*\n\"They're insane! Both of them!\"\n*The scratching and dragging sounds outside continue unabated, punctuated by guttural shrieks that pierce the night.*\n\"We need to move!\" the attendant yells, his voice cracking.*\n\"We need to barricade the door or get out of here! We can't just stand around playing games!\"\n*Arin looks at the dice on the table for a moment, then at you, his expression one of frustration and disbelief.*\n\"Fine,\" he says, his voice tight.*\n\"We'll play your game. But I'm warning you—once the door breaks down, this is all over.\"\n*He doesn't sit down. He stays on his feet, bow still aimed at the gap in the door, his attention alternating between the dice and the breach.*\n*The yellow-green light continues to seep in, casting eerie shadows across the common room as the other travelers huddle in fear.*\n*Outside, something massive slams against the roof, causing the ceiling to shake.*\n\"We're out of time,\" the attendant whispers, his voice broken.*\n\"This is it. We're all dead.\""
+          },
+          "player": "Max",
+          "playerMessage": "We play a slow game of dice to pass the time."
+        },
+        {
+          "id": "m60",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*The attendant's face pales as you walk toward the window.*\n\"The road is empty,\" he whispers. \"It's always empty.\"\n*Arin watches you with a troubled expression, his bow still drawn and aimed at the door.*\n\"What are you looking for?\" he asks quietly.*\n*Outside the window, the road stretches into darkness, illuminated only by the sickly yellow-green light that seeps from the cracks in the walls. No lanterns, no figures, no signs of the caravan.*\n\"You won't find anything out there,\" the attendant says softly, his voice devoid of hope.*\n\"Nothing comes through that road anymore.\"\n*Another crash rattles the building, and the merchant in the corner lets out a small sob.*\n\"The caravan... they would have come by now,\" the attendant continues, his voice hollow.*\n\"A week's delay. That's unheard of. Something took them out completely.\"\n*He glances at you with an unreadable expression, as if trying to understand your purpose.*\n\"Are you waiting for ghosts, or are you waiting for death?\"\n*Arin doesn't answer, his gaze returning to the door as another shriek echoes through the night.*\n*The silence that follows is heavy with dread, and the only sound is the slow, steady scratch of claws against the wooden walls.*\n\"We're all just waiting to die,\" the attendant whispers, and the words seem to hang in the air like a death sentence.*\n*Outside, something large moves across the window, momentarily blotting out the starlight.*\n*The yellow-green light intensifies, and the room fills with the scent of rot and decay.*\n\"The end is here,\" the attendant says, and he lowers his knife, his fight gone.*\n\"We just have to wait for it to come for us.\""
+          },
+          "player": "Max",
+          "playerMessage": "I look out of the window at the empty road east."
+        },
+        {
+          "id": "m62",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Arin glances at you, his brow furrowed in confusion and frustration as you lean in to whisper about the job.*\n\"You're talking about the job... now?\" he asks softly, his voice edged with disbelief.*\n\"Max, there are creatures literally scratching at our walls and breaking down the door!\"\n*He pauses, his gaze shifting between the door and the window, before returning to you with a hard look.*\n\"We're about to be killed, and you're discussing the salvage operation? The one in the ruins, that we won't even live to reach if we stay here?\"\n*The attendant glares at you from behind the bar, his grip on the knife white-knuckled.*\n\"You two are insane,\" he mutters under his breath.*\n*Another crash rattles the waystation, and a chunk of wood splinters from the wall near the window.*\n\"Look,\" Arin says urgently, his voice dropping to a hushed tone again.*\n\"If you're planning something, speak up now. Otherwise, this conversation is moot. We either fight these things, or we die here, but talking about some vague client and some old ruins isn't going to save us.\"\n*He turns back to the door, his arrow aimed at the growing gap in the wood.*\n\"Decide. Now. Do we fight or do we wait to be eaten?\"\n*The yellow-green light pours into the room, casting long, distorted shadows against the walls.*\n*And through the gap, a wet, clawed hand reaches through, grasping at the air.*\n\"This is it,\" the attendant whispers, his face pale with terror.*\n\"It's happening. We're next.\"\n*The room falls into a tense silence, the only sound the heavy, ragged breathing of the terrified travelers.*\n*Arin's arrow is still aimed at the creature, his fingers tight on the string.*\n\"What's the plan, Max? Speak up or get ready to die.\""
+          },
+          "player": "Max",
+          "playerMessage": "We talk quietly about the job waiting at the end of the road."
+        },
+        {
+          "id": "m64",
+          "arm": "on",
+          "established": [
+            "The roads from the East are dangerous due to monsters, bandits, and bad weather.",
+            "The party's job is a salvage operation to retrieve something specific from old ruins in the hills.",
+            "The eastern caravan has been missing for a week with no messengers or riders returning.",
+            "The waystation is under attack by multiple inhuman creatures that scratch at the walls and roof and emit guttural shrieks.",
+            "The missing eastern caravan had a dozen skilled guards.",
+            "The eastern caravan has been missing for over a week with no messengers or riders returning. It had a dozen skilled guards.",
+            "The party's client wants something specific retrieved from an old ruin in the hills."
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "*Arin stares at you, his mouth slightly open in disbelief as you calmly walk around the common room.*\n\"You've got to be kidding me,\" he says flatly, his voice dripping with frustration.*\n\"They're literally breaking into the building and you're taking a stroll?\"\n*The attendant is now practically hyperventilating behind the bar.*\n\"What are you doing?!\" he shrieks.*\n\"Get a weapon! Help us! Do something!\"\n*The other travelers are huddling in the corners of the room, their faces masks of terror.*\n\"He's insane,\" the merchant whispers, clutching his candlestick.*\n\"They're both insane. We're going to die because of them.\"\n*Another massive impact rattles the entire building, and another chunk of the wood splinters off the doorframe.*\n*The yellow-green light fills the room now, painting everything in a grotesque hue.*\n*And through the growing gap in the door, more clawed appendages begin to push through, their wet, tearing sounds echoing in the small space.*\n*Arin doesn't move from his position, his bow still aimed at the door, but his gaze is fixed on you with a look of utter confusion and anger.*\n\"Max... what is happening?\" he asks softly, his voice shaking.*\n\"What is the plan? Because I swear to the gods, if we're just going to stand here and watch these things come in, I'm not going to be part of it.\"\n*He shoots an arrow into the gap in the door, and a guttural shriek pierces the silence.*\n\"That's one,\" Arin says grimly, his arrow already notched.*\n\"How many more are there? How many more can we kill before they get in?\"\n*The scratching sounds continue from the roof, and something slams against the ceiling above your heads.*\n\"They're on the roof!\" the attendant screams, his voice breaking with fear.*\n*Arin's bow is still aimed at the door, his eyes sharp and alert.*\n\"We need a decision,\" he says firmly.*\n\"Now. Do we fight, or do we let them in?\"\n*The room fills with the sound of panic and screams as the other travelers start to lose their minds.*\n*And through the gap in the door, a second clawed hand pushes through, its long nails scraping against the floor.*\n\"We're out of options,\" the attendant says despairingly.*\n\"It's over. We're all going to die.\""
+          },
+          "player": "Max",
+          "playerMessage": "I stretch my legs and walk once around the common room."
+        }
+      ]
+    },
+    "debugResponses": {
+      "cleared": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "judgeRestore": {
+      "restored": true,
+      "ok": true
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions",
+        "schema"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [
+        "live-v25-09-sp6"
+      ],
+      "preservedSessions": []
+    },
+    "importedStoryHashes": [
+      "v2-69a8ea0c"
+    ],
+    "library": {
+      "changed": true,
+      "removed": [
+        "live-v25-09-sp6@1 (v2-69a8ea0c)"
+      ],
+      "restored": [],
+      "saved": {
+        "status": 200
+      },
+      "verified": true
+    },
+    "chat": {
+      "sandboxChatId": "2026-09-27@06h21m55s512ms",
+      "owned": [
+        "2026-09-27@06h21m55s512ms"
+      ],
+      "deleted": [
+        "2026-09-27@06h21m55s512ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "lateFileRepaired": [],
+      "saveSettleMs": 3061,
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-27@06h21m55s512ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-20@07h06m38s396ms"
+    },
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    }
+  }
+}

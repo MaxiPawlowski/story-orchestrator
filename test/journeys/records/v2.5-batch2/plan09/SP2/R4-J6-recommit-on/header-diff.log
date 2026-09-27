@@ -1,0 +1,22 @@
+2026-09-27T02:51:29.735Z DIFF chat.chatId  null -> "2026-09-20@07h06m38s396ms"
+2026-09-27T02:51:29.736Z ok   chat.chatLength  2 -> 8  (allowed by progress)
+2026-09-27T02:51:29.736Z DIFF chat.groupId  null -> "1759606632088"
+2026-09-27T02:51:29.736Z DIFF group.members  +Arin.png +DM Narrator.png +Luke.png +Ponticius.png
+2026-09-27T02:51:29.736Z DIFF group.name  null -> "Group: Arin, DM Narrator"
+2026-09-27T02:51:29.736Z {
+2026-09-27T02:51:29.736Z   "baseline": "C:/dev/so-lanes/3/debug/run-header-v25-09-sp2-j6.json",
+2026-09-27T02:51:29.736Z   "label": "diff-end",
+2026-09-27T02:51:29.736Z   "allow": [],
+2026-09-27T02:51:29.737Z   "differences": 5,
+2026-09-27T02:51:29.737Z   "progress": 1,
+2026-09-27T02:51:29.737Z   "blocking": 4,
+2026-09-27T02:51:29.737Z   "blockingPaths": [
+2026-09-27T02:51:29.737Z     "chat.chatId",
+2026-09-27T02:51:29.737Z     "chat.groupId",
+2026-09-27T02:51:29.737Z     "group.members",
+2026-09-27T02:51:29.737Z     "group.name"
+2026-09-27T02:51:29.737Z   ],
+2026-09-27T02:51:29.737Z   "warnings": [],
+2026-09-27T02:51:29.737Z   "wrote": "C:\\dev\\so-lanes\\3\\debug\\run-header-diff-end.json",
+2026-09-27T02:51:29.737Z   "ok": false
+2026-09-27T02:51:29.737Z }

@@ -1,0 +1,260 @@
+{
+  "dir": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\fixtures\\f3-scene",
+  "chunkBudget": null,
+  "scenes": 7,
+  "slices": {
+    "long": {
+      "A": {
+        "items": 8,
+        "found": 0,
+        "signals": 26,
+        "forbiddenHits": 0,
+        "promptChars": 17102,
+        "recall": 0,
+        "precision": 1
+      },
+      "B": {
+        "items": 8,
+        "found": 8,
+        "signals": 59,
+        "forbiddenHits": 0,
+        "promptChars": 21374,
+        "recall": 1,
+        "precision": 1
+      }
+    },
+    "short": {
+      "A": {
+        "items": 3,
+        "found": 3,
+        "signals": 15,
+        "forbiddenHits": 0,
+        "promptChars": 6802,
+        "recall": 1,
+        "precision": 1
+      },
+      "B": {
+        "items": 3,
+        "found": 3,
+        "signals": 15,
+        "forbiddenHits": 0,
+        "promptChars": 6802,
+        "recall": 1,
+        "precision": 1
+      }
+    }
+  },
+  "verdict": {
+    "build": true,
+    "reasons": [],
+    "recallGainLong": 1,
+    "recallChangeShort": 0,
+    "precisionDrop": 0,
+    "costRatio": 1.178714859437751
+  },
+  "rows": [
+    {
+      "name": "long-1-envoy",
+      "slice": "long",
+      "lang": "en",
+      "A": {
+        "items": 2,
+        "found": 0,
+        "signals": 6,
+        "forbiddenHits": 0,
+        "promptChars": 3765
+      },
+      "B": {
+        "items": 2,
+        "found": 2,
+        "signals": 10,
+        "forbiddenHits": 0,
+        "promptChars": 4655
+      },
+      "raw": {
+        "A": [
+          "NONE",
+          "[state:Orin:character] mood=smiles too quickly | active_goal=pours two cups of wine | location=dark room\n[state:Selene:character] mood=brightly | active_goal=heads for the door\n[state:common room:place] occupants=fiddler"
+        ],
+        "B": [
+          "[knows] Orin | the duke's envoy will be poisoned at the feast tomorrow night\n[unaware] Selene | the duke's envoy will be poisoned at the feast tomorrow night\n[hiding] Orin | Selene | the duke's envoy will be poisoned at the feast tomorrow night\n[believes] Selene | tomorrow is a happy day",
+          "[state:Orin:character] location=back room of the Gilded Stag | active_goal=none | carried_items=lamp's brass cap\n[state:Selene:character] location=back room of the Gilded Stag | mood=brightly\n[state:letter:object] location=lamp | condition=burned\n[state:Gilded Stag:place] occupants=Orin, Selene\n[state:duke's envoy:character] active_goal=none"
+        ]
+      }
+    },
+    {
+      "name": "long-2-well",
+      "slice": "long",
+      "lang": "en",
+      "A": {
+        "items": 2,
+        "found": 0,
+        "signals": 6,
+        "forbiddenHits": 0,
+        "promptChars": 3409
+      },
+      "B": {
+        "items": 2,
+        "found": 2,
+        "signals": 13,
+        "forbiddenHits": 0,
+        "promptChars": 4399
+      },
+      "raw": {
+        "A": [
+          "NONE",
+          "[state:Owl:character] location=bell rope\n[state:Jory:character] mood=tired | active_goal=telling a story\n[state:Mara:character] active_goal=listening to Jory\n[state:Fire:object] condition=red coals\n[state:Bell Rope:object] location=where the owl is"
+        ],
+        "B": [
+          "[knows] Mara | the crypt key is in her boot\n[hiding] Mara | Jory | the crypt key is in her boot\n[believes] Jory | the crypt key was dropped down the old well\n[unaware] Jory | the crypt key is in Mara's boot",
+          "[state:Jory:character] location=ruined chapel | active_goal=searching | carried_items=bedroll\n[state:Mara:character] location=ruined chapel | carried_items=knife, crypt key\n[state:crypt key:object] owner=Mara | location=Mara's boot\n[state:ruined chapel:place] occupants=Jory, Mara | hazards=broken roof | damage=ruined"
+        ]
+      }
+    },
+    {
+      "name": "long-3-ink",
+      "slice": "long",
+      "lang": "en",
+      "A": {
+        "items": 1,
+        "found": 0,
+        "signals": 8,
+        "forbiddenHits": 0,
+        "promptChars": 3369
+      },
+      "B": {
+        "items": 1,
+        "found": 1,
+        "signals": 14,
+        "forbiddenHits": 0,
+        "promptChars": 4257
+      },
+      "raw": {
+        "A": [
+          "NONE",
+          "[state:Hale:character] location=indoors | mood=pleasant | active_goal=waiting for roofers\n[state:Wren:character] location=indoors | active_goal=leaving\n[state:candle:object] status=guttering\n[state:papers:object] owner=Wren | location=indoors"
+        ],
+        "B": [
+          "[knows] Hale | Clerk Wren has violet ink on his cuff\n[knows] Hale | The forged supply orders were written in violet ink\n[unaware] Clerk Wren | Hale noticed the violet ink on his cuff\n[hiding] Clerk Wren | His involvement with the forged supply orders",
+          "[state:Captain Hale:character] location=quartermaster's office | mood=pleasant | active_goal=review grain tally\n[state:Clerk Wren:character] location=quartermaster's office | outfit_disguise=violet ink on cuff | carried_items=ledger, papers\n[state:quartermaster's office:place] occupants=Captain Hale, Clerk Wren | hazards=damp\n[state:ledger:object] owner=Clerk Wren | location=quartermaster's office\n[state:supply orders:object] condition=forged"
+        ]
+      }
+    },
+    {
+      "name": "long-4-silver",
+      "slice": "long",
+      "lang": "en",
+      "A": {
+        "items": 1,
+        "found": 0,
+        "signals": 1,
+        "forbiddenHits": 0,
+        "promptChars": 3338
+      },
+      "B": {
+        "items": 1,
+        "found": 1,
+        "signals": 7,
+        "forbiddenHits": 0,
+        "promptChars": 4062
+      },
+      "raw": {
+        "A": [
+          "NONE",
+          "[state:Brann:character] active_goal=bake at first light"
+        ],
+        "B": [
+          "[knows] Brann | the silver chest is hidden behind the wine racks in the cellar\n[unaware] Ilka | the silver chest is hidden behind the wine racks in the cellar\n[hiding] Brann | Ilka | the silver chest is hidden behind the wine racks in the cellar",
+          "[state:Silver Chest:object] location=cellar behind the wine racks\n[state:Brann:character] location=inn | outfit_disguise=apron | active_goal=bake at first light | carried_items=silver chest"
+        ]
+      }
+    },
+    {
+      "name": "long-5-map",
+      "slice": "long",
+      "lang": "en",
+      "A": {
+        "items": 2,
+        "found": 0,
+        "signals": 5,
+        "forbiddenHits": 0,
+        "promptChars": 3221
+      },
+      "B": {
+        "items": 2,
+        "found": 2,
+        "signals": 15,
+        "forbiddenHits": 0,
+        "promptChars": 4001
+      },
+      "raw": {
+        "A": [
+          "NONE",
+          "[state:Pell:character] carried_items=salted herring\n[state:Hask:character] active_goal=packing up his stall\n[state:stall:object] owner=Hask | condition=covered with canvas\n[state:market:place] occupants=Pell, Hask"
+        ],
+        "B": [
+          "[knows] Hask | the vault map is fake\n[knows] Hask | the coastline on the map is wrong\n[believes] Pell | the map leads to the drowned vault\n[hiding] Hask | Pell | the map is fake",
+          "[state:Hask:character] location=behind his stall | active_goal=packing up his stall\n[state:Pell:character] location=at Hask's stall | carried_items=fake vault map, salted herring\n[state:vault map:object] owner=Pell | location=with Pell | condition=fake\n[state:stall:object] owner=Hask | location=quay | status=being packed up\n[state:quay:place] occupants=Hask, Pell, gulls\n[state:Orla:character] location=two piers down"
+        ]
+      }
+    },
+    {
+      "name": "short-1-ledger",
+      "slice": "short",
+      "lang": "en",
+      "A": {
+        "items": 2,
+        "found": 2,
+        "signals": 12,
+        "forbiddenHits": 0,
+        "promptChars": 3548
+      },
+      "B": {
+        "items": 2,
+        "found": 2,
+        "signals": 12,
+        "forbiddenHits": 0,
+        "promptChars": 3548
+      },
+      "raw": {
+        "A": [
+          "[knows] Vera | she has the guild ledger under her cloak\n[unaware] Tomas | Vera has the guild ledger under her cloak\n[believes] Tomas | the clerk may have filed the ledger\n[hiding] Vera | Tomas | she has the guild ledger",
+          "[state:Tomas:character] location=guild office | active_goal=find the ledger\n[state:Vera:character] location=guild office | carried_items=guild ledger | outfit_disguise=cloak\n[state:guild ledger:object] owner=guild | location=under Vera's cloak\n[state:guild office:place] occupants=Tomas, Vera | hazards=darkness"
+        ],
+        "B": [
+          "[knows] Vera | she has the guild ledger under her cloak\n[unaware] Tomas | Vera has the guild ledger under her cloak\n[believes] Tomas | the clerk may have filed the ledger\n[hiding] Vera | Tomas | she has the guild ledger under her cloak",
+          "[state:Tomas:character] location=guild office | active_goal=find the ledger\n[state:Vera:character] location=guild office | carried_items=guild ledger | outfit_disguise=cloak\n[state:guild ledger:object] owner=guild | location=under Vera's cloak\n[state:guild office:place] occupants=Tomas, Vera | hazards=darkness"
+        ]
+      }
+    },
+    {
+      "name": "short-2-cellar",
+      "slice": "short",
+      "lang": "en",
+      "A": {
+        "items": 1,
+        "found": 1,
+        "signals": 3,
+        "forbiddenHits": 0,
+        "promptChars": 3254
+      },
+      "B": {
+        "items": 1,
+        "found": 1,
+        "signals": 3,
+        "forbiddenHits": 0,
+        "promptChars": 3254
+      },
+      "raw": {
+        "A": [
+          "NONE",
+          "[state:Brann:character] location=cellar | injuries=blood soaking through the bandage on his left leg | mood=breathing hard"
+        ],
+        "B": [
+          "NONE",
+          "[state:Brann:character] location=cellar | injuries=blood soaking through the bandage on his left leg | mood=breathing hard"
+        ]
+      }
+    }
+  ]
+}

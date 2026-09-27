@@ -1,0 +1,142 @@
+2026-09-27T03:05:48.795Z 1/28 eval ok 13ms
+2026-09-27T03:05:48.796Z 1/28 eval -> {"flags":{"recommitEdit":false,"swipeBackCache":false,"witnessFilter":true,"sp5Scenario":false,"sp7Chance":false,"sp6Complications":false,"sp4AppendShortTerm":false,"sp8CuratorTiers":false,"sp8CuratorDigest":false}}
+2026-09-27T03:05:48.809Z 2/28 eval ok 14ms
+2026-09-27T03:05:48.809Z 2/28 eval -> {"extraction":false}
+2026-09-27T03:05:49.081Z 3/28 import_story ok 271ms
+2026-09-27T03:05:55.502Z 4/28 eval ok 6421ms
+2026-09-27T03:05:55.502Z 4/28 eval -> {"seeded":24,"chatLength":25,"authored":24}
+2026-09-27T03:06:05.623Z 5/28 eval ok 10121ms
+2026-09-27T03:06:05.623Z 5/28 eval -> {"generation":1,"member":"DM Narrator","replied":true,"captures":1}
+2026-09-27T03:06:09.466Z 6/28 eval ok 3842ms
+2026-09-27T03:06:09.466Z 6/28 eval -> {"generation":2,"member":"Arin","replied":true,"captures":2}
+2026-09-27T03:06:12.991Z 7/28 eval ok 3525ms
+2026-09-27T03:06:12.991Z 7/28 eval -> {"generation":3,"member":"Ponticius","replied":true,"captures":3}
+2026-09-27T03:06:16.482Z 8/28 eval ok 3490ms
+2026-09-27T03:06:16.482Z 8/28 eval -> {"generation":4,"member":"DM Narrator","replied":true,"captures":4}
+2026-09-27T03:06:19.959Z 9/28 eval ok 3477ms
+2026-09-27T03:06:19.959Z 9/28 eval -> {"generation":5,"member":"Arin","replied":true,"captures":5}
+2026-09-27T03:06:22.921Z 10/28 eval ok 2962ms
+2026-09-27T03:06:22.921Z 10/28 eval -> {"generation":6,"member":"Ponticius","replied":true,"captures":6}
+2026-09-27T03:06:26.072Z 11/28 eval ok 3151ms
+2026-09-27T03:06:26.072Z 11/28 eval -> {"generation":7,"member":"DM Narrator","replied":true,"captures":7}
+2026-09-27T03:06:29.293Z 12/28 eval ok 3221ms
+2026-09-27T03:06:29.293Z 12/28 eval -> {"generation":8,"member":"Arin","replied":true,"captures":8}
+2026-09-27T03:06:32.596Z 13/28 eval ok 3303ms
+2026-09-27T03:06:32.596Z 13/28 eval -> {"generation":9,"member":"Ponticius","replied":true,"captures":9}
+2026-09-27T03:06:43.515Z 14/28 eval ok 10919ms
+2026-09-27T03:06:43.515Z 14/28 eval -> {"generation":10,"member":"DM Narrator","replied":true,"captures":11}
+2026-09-27T03:06:48.105Z 15/28 eval ok 4590ms
+2026-09-27T03:06:48.105Z 15/28 eval -> {"generation":11,"member":"Arin","replied":true,"captures":12}
+2026-09-27T03:06:52.894Z 16/28 eval ok 4789ms
+2026-09-27T03:06:52.894Z 16/28 eval -> {"generation":12,"member":"Ponticius","replied":true,"captures":13}
+2026-09-27T03:06:58.814Z 17/28 eval ok 5920ms
+2026-09-27T03:06:58.814Z 17/28 eval -> {"generation":13,"member":"DM Narrator","replied":true,"captures":14}
+2026-09-27T03:07:04.480Z 18/28 eval ok 5666ms
+2026-09-27T03:07:04.480Z 18/28 eval -> {"generation":14,"member":"Arin","replied":true,"captures":15}
+2026-09-27T03:07:11.135Z 19/28 eval ok 6655ms
+2026-09-27T03:07:11.135Z 19/28 eval -> {"generation":15,"member":"Ponticius","replied":true,"captures":16}
+2026-09-27T03:07:16.612Z 20/28 eval ok 5477ms
+2026-09-27T03:07:16.612Z 20/28 eval -> {"generation":16,"member":"DM Narrator","replied":true,"captures":17}
+2026-09-27T03:07:22.771Z 21/28 eval ok 6159ms
+2026-09-27T03:07:22.771Z 21/28 eval -> {"generation":17,"member":"Arin","replied":true,"captures":18}
+2026-09-27T03:07:29.828Z 22/28 eval ok 7057ms
+2026-09-27T03:07:29.828Z 22/28 eval -> {"generation":18,"member":"Ponticius","replied":true,"captures":19}
+2026-09-27T03:07:36.935Z 23/28 eval ok 7107ms
+2026-09-27T03:07:36.935Z 23/28 eval -> {"generation":19,"member":"DM Narrator","replied":true,"captures":21}
+2026-09-27T03:07:48.642Z 24/28 eval ok 11706ms
+2026-09-27T03:07:48.642Z 24/28 eval -> {"generation":20,"member":"Arin","replied":true,"captures":22}
+2026-09-27T03:07:54.750Z 25/28 eval ok 6108ms
+2026-09-27T03:07:54.750Z 25/28 eval -> {"generation":21,"member":"Ponticius","replied":true,"captures":23}
+2026-09-27T03:07:56.317Z 26/28 wait ok 1567ms
+2026-09-27T03:07:56.330Z 27/28 eval ok 13ms
+2026-09-27T03:07:56.330Z 27/28 eval -> {"at":"2026-09-27T03:07:56.326Z","f1":{"generations":23,"extrasChanged":2,"fileRowsChanged":2,"liveSymbolRows":[]},"f2":{"requests":23,"unwitnessedVisible":["Ponticius:[w07]","Ponticius:[w08]","Ponticius:[w10]","Ponticius:[w11]","Ponticius:[w12]","Ponticius:[w13]","Ponticius:[w07]","Ponticius:[w08]","Ponticius:[w10]","Ponticius:[w11]","Ponticius:[w12]","Ponticius:[w13]","Ponticius:[w07]"],"witnessedMissing":[],"witnessedChecked":457},"f5":{"calls":21,"p95Ms":0.20000004768371582,"maxMs":0.30000001192092896}}
+2026-09-27T03:07:56.335Z 28/28 eval ok 5ms
+2026-09-27T03:07:56.335Z 28/28 eval -> {"restored":true,"flags":{"recommitEdit":false,"swipeBackCache":false,"witnessFilter":false,"sp5Scenario":false,"sp7Chance":false,"sp6Complications":false,"sp4AppendShortTerm":false,"sp8CuratorTiers":false,"sp8CuratorDigest":false}}
+2026-09-27T03:08:02.402Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T03-08-02-399Z_so-scenario-result.json
+2026-09-27T03:08:02.402Z {
+2026-09-27T03:08:02.402Z   "ok": true,
+2026-09-27T03:08:02.402Z   "steps": 28,
+2026-09-27T03:08:02.402Z   "cleanup": {
+2026-09-27T03:08:02.402Z     "importedStoryHashes": [
+2026-09-27T03:08:02.402Z       "v2-783f9c3c"
+2026-09-27T03:08:02.402Z     ],
+2026-09-27T03:08:02.402Z     "library": {
+2026-09-27T03:08:02.402Z       "changed": true,
+2026-09-27T03:08:02.402Z       "removed": [
+2026-09-27T03:08:02.402Z         "live-v24-08@1 (v2-783f9c3c)"
+2026-09-27T03:08:02.402Z       ],
+2026-09-27T03:08:02.402Z       "restored": [],
+2026-09-27T03:08:02.402Z       "saved": {
+2026-09-27T03:08:02.402Z         "status": 200
+2026-09-27T03:08:02.402Z       },
+2026-09-27T03:08:02.402Z       "verified": true
+2026-09-27T03:08:02.402Z     },
+2026-09-27T03:08:02.402Z     "clearedDebugResponses": [],
+2026-09-27T03:08:02.402Z     "soloChats": {
+2026-09-27T03:08:02.402Z       "deleted": [],
+2026-09-27T03:08:02.402Z       "leaked": []
+2026-09-27T03:08:02.402Z     },
+2026-09-27T03:08:02.402Z     "sandboxChatId": "2026-09-27@00h05m48s506ms",
+2026-09-27T03:08:02.402Z     "owned": [
+2026-09-27T03:08:02.402Z       "2026-09-27@00h05m48s506ms"
+2026-09-27T03:08:02.402Z     ],
+2026-09-27T03:08:02.402Z     "deleted": [
+2026-09-27T03:08:02.402Z       "2026-09-27@00h05m48s506ms"
+2026-09-27T03:08:02.402Z     ],
+2026-09-27T03:08:02.402Z     "notDeleted": [],
+2026-09-27T03:08:02.402Z     "resurrected": [],
+2026-09-27T03:08:02.402Z     "lateFileRepaired": [],
+2026-09-27T03:08:02.402Z     "saveSettleMs": 1529,
+2026-09-27T03:08:02.402Z     "skipped": [],
+2026-09-27T03:08:02.402Z     "currentChatAtCleanup": "2026-09-27@00h05m48s506ms",
+2026-09-27T03:08:02.402Z     "currentGroupAtCleanup": "1759606632088",
+2026-09-27T03:08:02.402Z     "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+2026-09-27T03:08:02.402Z     "branchChats": {
+2026-09-27T03:08:02.402Z       "recorded": [],
+2026-09-27T03:08:02.402Z       "deleted": [],
+2026-09-27T03:08:02.402Z       "failed": [],
+2026-09-27T03:08:02.402Z       "leaked": []
+2026-09-27T03:08:02.402Z     },
+2026-09-27T03:08:02.402Z     "mirrorBooks": {
+2026-09-27T03:08:02.402Z       "deleted": [],
+2026-09-27T03:08:02.402Z       "failed": [],
+2026-09-27T03:08:02.402Z       "leaked": []
+2026-09-27T03:08:02.402Z     },
+2026-09-27T03:08:02.402Z     "reapPrompts": {
+2026-09-27T03:08:02.402Z       "dismissed": [],
+2026-09-27T03:08:02.402Z       "leaked": []
+2026-09-27T03:08:02.402Z     },
+2026-09-27T03:08:02.402Z     "extraction": {
+2026-09-27T03:08:02.402Z       "restored": true,
+2026-09-27T03:08:02.402Z       "from": {
+2026-09-27T03:08:02.402Z         "enabled": false,
+2026-09-27T03:08:02.402Z         "cadence": 3,
+2026-09-27T03:08:02.402Z         "stabilityLag": 0,
+2026-09-27T03:08:02.402Z         "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+2026-09-27T03:08:02.402Z         "profiles": {}
+2026-09-27T03:08:02.402Z       },
+2026-09-27T03:08:02.402Z       "to": {
+2026-09-27T03:08:02.402Z         "enabled": true,
+2026-09-27T03:08:02.402Z         "cadence": 3,
+2026-09-27T03:08:02.402Z         "stabilityLag": 0,
+2026-09-27T03:08:02.402Z         "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+2026-09-27T03:08:02.402Z         "profiles": {}
+2026-09-27T03:08:02.402Z       },
+2026-09-27T03:08:02.402Z       "verified": {
+2026-09-27T03:08:02.402Z         "enabled": true,
+2026-09-27T03:08:02.402Z         "cadence": 3,
+2026-09-27T03:08:02.402Z         "stabilityLag": 0,
+2026-09-27T03:08:02.402Z         "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+2026-09-27T03:08:02.402Z         "profiles": {}
+2026-09-27T03:08:02.402Z       },
+2026-09-27T03:08:02.402Z       "saved": {
+2026-09-27T03:08:02.402Z         "status": 200
+2026-09-27T03:08:02.402Z       },
+2026-09-27T03:08:02.402Z       "ok": true
+2026-09-27T03:08:02.402Z     },
+2026-09-27T03:08:02.402Z     "judge": {
+2026-09-27T03:08:02.402Z       "restored": false,
+2026-09-27T03:08:02.402Z       "unchanged": true
+2026-09-27T03:08:02.402Z     }
+2026-09-27T03:08:02.402Z   }
+2026-09-27T03:08:02.402Z }

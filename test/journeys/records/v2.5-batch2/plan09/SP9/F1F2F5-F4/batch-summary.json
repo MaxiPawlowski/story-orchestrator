@@ -1,0 +1,61 @@
+{
+  "lanes": [
+    3
+  ],
+  "items": [
+    "test/scenarios/v25-09-witness.json",
+    "test/scenarios/v25-09-witness-f4.json"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/scenarios/v25-09-witness.json",
+      "lane": 3,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\3\\debug\\batch\\2026-09-27T03-05-47-369Z-v25-09-witness-run1.log",
+      "ms": 135055,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v25-09-witness.json",
+      "lane": 3,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\3\\debug\\batch\\2026-09-27T03-05-47-369Z-v25-09-witness-run2.log",
+      "ms": 190888,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v25-09-witness-f4.json",
+      "lane": 3,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\3\\debug\\batch\\2026-09-27T03-05-47-369Z-v25-09-witness-f4-run1.log",
+      "ms": 752747,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v25-09-witness-f4.json",
+      "lane": 3,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\3\\debug\\batch\\2026-09-27T03-05-47-369Z-v25-09-witness-f4-run2.log",
+      "ms": 607847,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

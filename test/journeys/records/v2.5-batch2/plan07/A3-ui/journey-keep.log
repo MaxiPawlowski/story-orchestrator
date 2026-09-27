@@ -1,0 +1,56 @@
+2026-09-26T23:05:10.415Z 
+2026-09-26T23:05:10.418Z === J3 player-session ===
+2026-09-26T23:05:10.418Z A real play session on the shipped example: transitions announced, memory recalled, nothing the player should not see, and the session journal correlates it all.
+2026-09-26T23:05:10.418Z 
+2026-09-26T23:05:10.425Z extraction before this run: {"enabled":true,"cadence":1,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","profiles":{}}
+2026-09-26T23:05:10.506Z Global config snapshot: C:\dev\so-lanes\1\debug\so-journey-config-snapshot.json
+2026-09-26T23:05:10.527Z extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+2026-09-26T23:05:12.724Z --- J3.1 the story loads and the first real transition fires from play alone
+2026-09-26T23:05:13.954Z J3.1 1/11 import_story ok 1229ms
+2026-09-26T23:05:14.318Z J3.1 2/11 ui ok 363ms
+2026-09-26T23:05:14.339Z J3.1 3/11 eval ok 20ms
+2026-09-26T23:05:14.364Z J3.1 4/11 eval ok 24ms
+2026-09-26T23:05:14.475Z J3.1 5/11 expect ok 110ms
+2026-09-26T23:05:33.136Z J3.1 6/11 send_generate ok 18662ms
+2026-09-26T23:05:34.681Z J3.1 7/11 wait ok 1544ms
+2026-09-26T23:06:52.661Z J3.1 8/11 send_generate ok 77980ms
+2026-09-26T23:06:55.888Z J3.1 9/11 send_generate ok 3227ms
+2026-09-26T23:06:55.975Z J3.1 10/11 wait ok 87ms
+2026-09-26T23:06:56.036Z J3.1 11/11 expect ok 61ms
+2026-09-26T23:06:56.048Z 
+2026-09-26T23:06:56.048Z PASS         J3.1     the story loads and the first real transition fires from play alone
+2026-09-26T23:06:56.048Z SKIP         J3.2     the checkpoint change is announced in the chat itself — not selected by --only
+2026-09-26T23:06:56.048Z SKIP         J3.3     in player mode the drawer shows no author-only internals — not selected by --only
+2026-09-26T23:06:56.048Z SKIP         J3.4     player surfaces speak the story's language, not the implementation's — not selected by --only
+2026-09-26T23:06:56.048Z SKIP         J3.5     one composed narrative 'where am I' surface exists — not selected by --only
+2026-09-26T23:06:56.048Z SKIP         J3.6     a stalled pipeline is visibly distinct from a slow one, and the signal clears when the re-check lands — not selected by --only
+2026-09-26T23:06:56.048Z SKIP         J3.7     the session produced memory and injected it into the next generation — not selected by --only
+2026-09-26T23:06:56.048Z SKIP         J3.8     the session journal correlates extraction, transition, payload and flag on one timeline — not selected by --only
+2026-09-26T23:06:56.048Z SKIP         J3.9      — not selected by --only
+2026-09-26T23:06:56.048Z SKIP         J3.10     — not selected by --only
+2026-09-26T23:06:56.048Z SKIP         J3.11     — not selected by --only
+2026-09-26T23:06:56.048Z SKIP         J3.12     — not selected by --only
+2026-09-26T23:06:56.048Z SKIP         J3.13     — not selected by --only
+2026-09-26T23:06:56.048Z 
+2026-09-26T23:06:56.048Z J3
+2026-09-26T23:06:56.048Z automated: 1 pass, 0 fail, 0 blocked, 0 not-runnable, 7 skipped
+2026-09-26T23:06:56.048Z human:     0 scored, 5 unscored
+2026-09-26T23:06:56.048Z cleanup:   clean
+2026-09-26T23:06:56.048Z first try: 1 of 1 passing check(s) needed no retry
+2026-09-26T23:06:56.048Z PARTIAL: --only ran a subset; this record cannot stand for a gate.
+2026-09-26T23:06:56.048Z 
+2026-09-26T23:06:56.048Z --- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+2026-09-26T23:06:56.048Z [J3.9] (U4) During the session, did you always know where the story was and what it wanted from you?
+2026-09-26T23:06:56.048Z       anchors: 1 = lost most of the time · 3 = had to open the drawer to be sure · 5 = always obvious from play
+2026-09-26T23:06:56.048Z [J3.10] (U3) Did anything you saw spoil what was coming, or reveal what a character was supposed to be hiding?
+2026-09-26T23:06:56.048Z       anchors: 1 = major spoilers · 3 = one small leak · 5 = nothing leaked
+2026-09-26T23:06:56.048Z [J3.11] (U8) Did the on-screen wording sound like the game, or like the machine running it?
+2026-09-26T23:06:56.048Z       anchors: 1 = debug output · 3 = mixed · 5 = all in-world
+2026-09-26T23:06:56.049Z [J3.12] (U5) When the story did not move on a turn, could you tell whether it was stuck, thinking, or waiting for you?
+2026-09-26T23:06:56.049Z       anchors: 1 = indistinguishable · 3 = guessed right eventually · 5 = always clear
+2026-09-26T23:06:56.049Z [J3.13] (—) Pacing: did the story push when it should have pushed and breathe when it should have breathed?
+2026-09-26T23:06:56.049Z       anchors: 1 = fought me constantly · 3 = acceptable · 5 = felt directed
+2026-09-26T23:06:56.049Z [free] What would make you stop using this?
+2026-09-26T23:06:56.049Z 
+2026-09-26T23:06:56.072Z Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-26T23-06-56-072Z_journey-J3.json
+2026-09-26T23:06:56.073Z Matrix: C:\dev\so-lanes\1\debug\journey-J3.md

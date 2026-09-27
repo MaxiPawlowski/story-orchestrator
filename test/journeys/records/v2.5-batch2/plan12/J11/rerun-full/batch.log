@@ -1,0 +1,6 @@
+lane 1 J11 run 1: code 1 · automated: 22 pass, 4 fail, 0 blocked, 0 not-runnable, 0 skipped (2811 s)
+{
+  "summary": "C:\\dev\\so-lanes\\batch-2026-09-26T21-09-29-040Z.json",
+  "green": 0,
+  "runs": 1
+}

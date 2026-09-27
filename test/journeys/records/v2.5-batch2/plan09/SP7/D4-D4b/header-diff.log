@@ -1,0 +1,24 @@
+2026-09-27T04:10:14.066Z DIFF chat.chatId  null -> "2026-09-20@07h06m38s396ms"
+2026-09-27T04:10:14.067Z ok   chat.chatLength  2 -> 8  (allowed by progress)
+2026-09-27T04:10:14.067Z DIFF chat.groupId  null -> "1759606632088"
+2026-09-27T04:10:14.067Z DIFF group.members  +Arin.png +DM Narrator.png +Luke.png +Ponticius.png
+2026-09-27T04:10:14.067Z DIFF group.name  null -> "Group: Arin, DM Narrator"
+2026-09-27T04:10:14.067Z DIFF spikes.sp7Chance  false -> true
+2026-09-27T04:10:14.067Z {
+2026-09-27T04:10:14.067Z   "baseline": "C:/dev/so-lanes/3/debug/run-header-v25-09-sp7.json",
+2026-09-27T04:10:14.067Z   "label": "diff-end",
+2026-09-27T04:10:14.068Z   "allow": [],
+2026-09-27T04:10:14.068Z   "differences": 6,
+2026-09-27T04:10:14.068Z   "progress": 1,
+2026-09-27T04:10:14.068Z   "blocking": 5,
+2026-09-27T04:10:14.068Z   "blockingPaths": [
+2026-09-27T04:10:14.068Z     "chat.chatId",
+2026-09-27T04:10:14.068Z     "chat.groupId",
+2026-09-27T04:10:14.068Z     "group.members",
+2026-09-27T04:10:14.068Z     "group.name",
+2026-09-27T04:10:14.068Z     "spikes.sp7Chance"
+2026-09-27T04:10:14.068Z   ],
+2026-09-27T04:10:14.068Z   "warnings": [],
+2026-09-27T04:10:14.068Z   "wrote": "C:\\dev\\so-lanes\\3\\debug\\run-header-diff-end.json",
+2026-09-27T04:10:14.068Z   "ok": false
+2026-09-27T04:10:14.068Z }

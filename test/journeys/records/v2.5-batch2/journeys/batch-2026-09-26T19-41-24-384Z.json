@@ -1,0 +1,83 @@
+{
+  "lanes": [
+    2
+  ],
+  "items": [
+    "J1",
+    "J5",
+    "J8",
+    "J9",
+    "J10"
+  ],
+  "repeat": 1,
+  "strict": true,
+  "results": [
+    {
+      "item": "J1",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-26T19-41-24-384Z-J1-run1.log",
+      "ms": 185136,
+      "automated": "automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\2\\debug\\2026-09-26T19-44-29-489Z_journey-J1.json",
+      "failures": []
+    },
+    {
+      "item": "J5",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-26T19-41-24-384Z-J5-run1.log",
+      "ms": 81859,
+      "automated": "automated: 7 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\2\\debug\\2026-09-26T19-45-51-355Z_journey-J5.json",
+      "failures": []
+    },
+    {
+      "item": "J8",
+      "lane": 2,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-26T19-41-24-384Z-J8-run1.log",
+      "ms": 685160,
+      "automated": "automated: 8 pass, 2 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\2\\debug\\2026-09-26T19-57-16-504Z_journey-J8.json",
+      "failures": [
+        "FAIL J8.2",
+        "FAIL J8.10"
+      ]
+    },
+    {
+      "item": "J9",
+      "lane": 2,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-26T19-41-24-384Z-J9-run1.log",
+      "ms": 149959,
+      "automated": "automated: 7 pass, 1 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\2\\debug\\2026-09-26T19-59-46-474Z_journey-J9.json",
+      "failures": [
+        "FAIL J9.5"
+      ]
+    },
+    {
+      "item": "J10",
+      "lane": 2,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-09-26T19-41-24-384Z-J10-run1.log",
+      "ms": 67196,
+      "automated": "automated: 9 pass, 1 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\2\\debug\\2026-09-26T20-00-53-673Z_journey-J10.json",
+      "failures": [
+        "FAIL J10.14"
+      ]
+    }
+  ]
+}

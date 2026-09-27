@@ -1,0 +1,7 @@
+lane 3 test/scenarios/v25-09-witness.json run 1: code 0 (330 s)
+lane 3 test/scenarios/v25-09-witness.json run 2: code 0 (100 s)
+{
+  "summary": "C:\\dev\\so-lanes\\batch-2026-09-27T03-40-25-825Z.json",
+  "green": 2,
+  "runs": 2
+}

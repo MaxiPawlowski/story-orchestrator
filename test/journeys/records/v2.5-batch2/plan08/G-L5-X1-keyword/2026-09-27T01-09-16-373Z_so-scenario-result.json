@@ -1,0 +1,753 @@
+{
+  "file": "test/scenarios/live-v25-08-l5-x1-keyword.json",
+  "steps": [
+    {
+      "index": 0,
+      "key": "inject_script",
+      "ok": true,
+      "ms": 9
+    },
+    {
+      "index": 1,
+      "key": "eval",
+      "ok": true,
+      "ms": 285
+    },
+    {
+      "index": 2,
+      "key": "import_story",
+      "ok": true,
+      "ms": 289
+    },
+    {
+      "index": 3,
+      "key": "ui",
+      "ok": true,
+      "ms": 259
+    },
+    {
+      "index": 4,
+      "key": "eval",
+      "ok": true,
+      "ms": 643
+    },
+    {
+      "index": 5,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 50479
+    },
+    {
+      "index": 6,
+      "key": "eval",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 7,
+      "key": "eval",
+      "ok": true,
+      "ms": 1025
+    },
+    {
+      "index": 8,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 58936
+    },
+    {
+      "index": 9,
+      "key": "eval",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 10,
+      "key": "eval",
+      "ok": true,
+      "ms": 240
+    },
+    {
+      "index": 11,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 54077
+    },
+    {
+      "index": 12,
+      "key": "eval",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 13,
+      "key": "eval",
+      "ok": true,
+      "ms": 1024
+    },
+    {
+      "index": 14,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 25501
+    },
+    {
+      "index": 15,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 16,
+      "key": "eval",
+      "ok": true,
+      "ms": 1027
+    },
+    {
+      "index": 17,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 81501
+    },
+    {
+      "index": 18,
+      "key": "eval",
+      "ok": true,
+      "ms": 12
+    },
+    {
+      "index": 19,
+      "key": "eval",
+      "ok": true,
+      "ms": 252
+    },
+    {
+      "index": 20,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 97883
+    },
+    {
+      "index": 21,
+      "key": "eval",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 22,
+      "key": "eval",
+      "ok": true,
+      "ms": 1024
+    },
+    {
+      "index": 23,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 3286
+    },
+    {
+      "index": 24,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 25,
+      "key": "eval",
+      "ok": true,
+      "ms": 774
+    },
+    {
+      "index": 26,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 148571
+    },
+    {
+      "index": 27,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 28,
+      "key": "eval",
+      "ok": true,
+      "ms": 1026
+    },
+    {
+      "index": 29,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 3239
+    },
+    {
+      "index": 30,
+      "key": "eval",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 31,
+      "key": "eval",
+      "ok": true,
+      "ms": 446
+    },
+    {
+      "index": 32,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 158641
+    },
+    {
+      "index": 33,
+      "key": "eval",
+      "ok": true,
+      "ms": 9
+    },
+    {
+      "index": 34,
+      "key": "import_story",
+      "ok": true,
+      "ms": 4131
+    },
+    {
+      "index": 35,
+      "key": "eval",
+      "ok": true,
+      "ms": 265
+    },
+    {
+      "index": 36,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 89810
+    },
+    {
+      "index": 37,
+      "key": "eval",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 38,
+      "key": "import_story",
+      "ok": true,
+      "ms": 4904
+    },
+    {
+      "index": 39,
+      "key": "eval",
+      "ok": true,
+      "ms": 466
+    },
+    {
+      "index": 40,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 53789
+    },
+    {
+      "index": 41,
+      "key": "eval",
+      "ok": true,
+      "ms": 9
+    },
+    {
+      "index": 42,
+      "key": "eval",
+      "ok": true,
+      "ms": 1027
+    },
+    {
+      "index": 43,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 99363
+    },
+    {
+      "index": 44,
+      "key": "eval",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 45,
+      "key": "eval",
+      "ok": true,
+      "ms": 1023
+    },
+    {
+      "index": 46,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 3219
+    },
+    {
+      "index": 47,
+      "key": "eval",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 48,
+      "key": "eval",
+      "ok": true,
+      "ms": 930
+    },
+    {
+      "index": 49,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 116520
+    },
+    {
+      "index": 50,
+      "key": "eval",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 51,
+      "key": "eval",
+      "ok": true,
+      "ms": 1023
+    },
+    {
+      "index": 52,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 86059
+    },
+    {
+      "index": 53,
+      "key": "eval",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 54,
+      "key": "eval",
+      "ok": true,
+      "ms": 1031
+    },
+    {
+      "index": 55,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 3237
+    },
+    {
+      "index": 56,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 57,
+      "key": "eval",
+      "ok": true,
+      "ms": 1040
+    },
+    {
+      "index": 58,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 186854
+    },
+    {
+      "index": 59,
+      "key": "eval",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 60,
+      "key": "eval",
+      "ok": true,
+      "ms": 1025
+    },
+    {
+      "index": 61,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 56947
+    },
+    {
+      "index": 62,
+      "key": "eval",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 63,
+      "key": "eval",
+      "ok": true,
+      "ms": 1023
+    },
+    {
+      "index": 64,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 50358
+    },
+    {
+      "index": 65,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 66,
+      "key": "eval",
+      "ok": true,
+      "ms": 1031
+    },
+    {
+      "index": 67,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 81199
+    },
+    {
+      "index": 68,
+      "key": "eval",
+      "ok": true,
+      "ms": 11
+    },
+    {
+      "index": 69,
+      "key": "eval",
+      "ok": true,
+      "ms": 1022
+    },
+    {
+      "index": 70,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 48036
+    },
+    {
+      "index": 71,
+      "key": "eval",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 72,
+      "key": "eval",
+      "ok": true,
+      "ms": 1028
+    },
+    {
+      "index": 73,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 93058
+    },
+    {
+      "index": 74,
+      "key": "eval",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 75,
+      "key": "eval",
+      "ok": true,
+      "ms": 1079
+    },
+    {
+      "index": 76,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 3361
+    },
+    {
+      "index": 77,
+      "key": "eval",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 78,
+      "key": "eval",
+      "ok": true,
+      "ms": 1046
+    },
+    {
+      "index": 79,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 94857
+    },
+    {
+      "index": 80,
+      "key": "eval",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 81,
+      "key": "eval",
+      "ok": true,
+      "ms": 1026
+    },
+    {
+      "index": 82,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 69115
+    },
+    {
+      "index": 83,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 84,
+      "key": "eval",
+      "ok": true,
+      "ms": 1027
+    },
+    {
+      "index": 85,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 54817
+    },
+    {
+      "index": 86,
+      "key": "eval",
+      "ok": true,
+      "ms": 10
+    },
+    {
+      "index": 87,
+      "key": "eval",
+      "ok": true,
+      "ms": 1029
+    },
+    {
+      "index": 88,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 92043
+    },
+    {
+      "index": 89,
+      "key": "eval",
+      "ok": true,
+      "ms": 11
+    },
+    {
+      "index": 90,
+      "key": "eval",
+      "ok": true,
+      "ms": 1981
+    },
+    {
+      "index": 91,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 54253
+    },
+    {
+      "index": 92,
+      "key": "eval",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 93,
+      "key": "eval",
+      "ok": true,
+      "ms": 1028
+    },
+    {
+      "index": 94,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 55679
+    },
+    {
+      "index": 95,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 96,
+      "key": "eval",
+      "ok": true,
+      "ms": 1030
+    },
+    {
+      "index": 97,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 182086
+    },
+    {
+      "index": 98,
+      "key": "eval",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 99,
+      "key": "eval",
+      "ok": true,
+      "ms": 596
+    },
+    {
+      "index": 100,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 59354
+    },
+    {
+      "index": 101,
+      "key": "eval",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 102,
+      "key": "eval",
+      "ok": true,
+      "ms": 1028
+    },
+    {
+      "index": 103,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 3286
+    },
+    {
+      "index": 104,
+      "key": "eval",
+      "ok": true,
+      "ms": 6
+    },
+    {
+      "index": 105,
+      "key": "eval",
+      "ok": true,
+      "ms": 1269
+    },
+    {
+      "index": 106,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 63377
+    },
+    {
+      "index": 107,
+      "key": "eval",
+      "ok": true,
+      "ms": 7
+    },
+    {
+      "index": 108,
+      "key": "eval",
+      "ok": true,
+      "ms": 1057
+    },
+    {
+      "index": 109,
+      "key": "send_generate",
+      "ok": true,
+      "ms": 225957
+    },
+    {
+      "index": 110,
+      "key": "eval",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "index": 111,
+      "key": "eval",
+      "ok": true,
+      "ms": 2792
+    }
+  ],
+  "ok": true,
+  "error": null,
+  "retries": [],
+  "firstAttempt": "pass",
+  "cleanup": {
+    "importedStoryHashes": [
+      "v2-c0f5b34d",
+      "v2-2003d73d"
+    ],
+    "library": {
+      "changed": true,
+      "removed": [
+        "so-v25-08-xb@1 (v2-2003d73d)",
+        "so-v25-08-xa@1 (v2-c0f5b34d)"
+      ],
+      "restored": [],
+      "saved": {
+        "status": 200
+      },
+      "verified": true
+    },
+    "clearedDebugResponses": [],
+    "soloChats": {
+      "deleted": [],
+      "leaked": []
+    },
+    "sandboxChatId": "2026-09-26@21h24m55s414ms",
+    "owned": [
+      "2026-09-26@21h24m55s414ms"
+    ],
+    "deleted": [
+      "2026-09-26@21h24m55s414ms"
+    ],
+    "notDeleted": [],
+    "resurrected": [],
+    "lateFileRepaired": [],
+    "saveSettleMs": 1522,
+    "skipped": [],
+    "currentChatAtCleanup": "2026-09-26@21h24m55s414ms",
+    "currentGroupAtCleanup": "1759606632088",
+    "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "judge": {
+      "restored": false,
+      "unchanged": true
+    }
+  },
+  "releasedRoutes": null,
+  "extensionSettings": {
+    "restored": []
+  }
+}

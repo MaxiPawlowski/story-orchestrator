@@ -1,0 +1,36 @@
+{
+  "lanes": [
+    3
+  ],
+  "items": [
+    "test/scenarios/v25-09-witness.json"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/scenarios/v25-09-witness.json",
+      "lane": 3,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\3\\debug\\batch\\2026-09-27T03-40-25-825Z-v25-09-witness-run1.log",
+      "ms": 330017,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/v25-09-witness.json",
+      "lane": 3,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\3\\debug\\batch\\2026-09-27T03-40-25-825Z-v25-09-witness-run2.log",
+      "ms": 99597,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+2026-09-26T19:49:48.319Z DIFF chat.chatId  "2026-09-20@07h06m38s396ms" -> ""
+2026-09-26T19:49:48.320Z ok   chat.chatLength  0 -> 1  (allowed by progress)
+2026-09-26T19:49:48.320Z {
+2026-09-26T19:49:48.320Z   "baseline": "C:/dev/so-lanes/1/debug/run-header-c1.json",
+2026-09-26T19:49:48.320Z   "label": "diff-end",
+2026-09-26T19:49:48.320Z   "allow": [],
+2026-09-26T19:49:48.320Z   "differences": 2,
+2026-09-26T19:49:48.320Z   "progress": 1,
+2026-09-26T19:49:48.320Z   "blocking": 1,
+2026-09-26T19:49:48.320Z   "blockingPaths": [
+2026-09-26T19:49:48.320Z     "chat.chatId"
+2026-09-26T19:49:48.321Z   ],
+2026-09-26T19:49:48.321Z   "warnings": [],
+2026-09-26T19:49:48.321Z   "wrote": "C:\\dev\\so-lanes\\1\\debug\\run-header-diff-end.json",
+2026-09-26T19:49:48.321Z   "ok": false
+2026-09-26T19:49:48.321Z }

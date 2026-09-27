@@ -1,0 +1,90 @@
+2026-09-27T02:26:58.579Z 1/15 inject_script ok 8ms
+2026-09-27T02:26:58.755Z 2/15 eval ok 175ms
+2026-09-27T02:26:59.013Z 3/15 import_story ok 257ms
+2026-09-27T02:26:59.226Z 4/15 ui ok 213ms
+2026-09-27T02:26:59.231Z 5/15 eval ok 6ms
+2026-09-27T02:27:31.363Z 6/15 send_generate ok 32132ms
+2026-09-27T02:27:31.368Z 7/15 eval ok 4ms
+2026-09-27T02:27:31.368Z 7/15 eval -> {"refusal":"no-selection","activated":["Adventurer","Adventurer's Guild","sticky lore","plain lore","gated lore","World - Primer","sticky lore","plain lore","gated lore","World - Primer"]}
+2026-09-27T02:27:31.372Z 8/15 eval ok 5ms
+2026-09-27T02:27:47.233Z 9/15 send_generate ok 15860ms
+2026-09-27T02:27:47.237Z 10/15 eval ok 5ms
+2026-09-27T02:27:47.237Z 10/15 eval -> {"fired":["Darran Kingdom","Lich Queen","sticky lore","plain lore","gated lore","World - Primer"],"last":{"refusal":"no-selection","stats":{"suppressed":0,"picked":0,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T02:27:47.242Z 11/15 eval ok 4ms
+2026-09-27T02:28:19.657Z 12/15 send_generate ok 32416ms
+2026-09-27T02:29:11.595Z 13/15 send_generate ok 51938ms
+2026-09-27T02:29:11.600Z 14/15 eval ok 5ms
+2026-09-27T02:29:11.600Z 14/15 eval -> {"blocked":true,"x3":{"refusal":"no-selection","activated":["Adventurer","Adventurer's Guild","sticky lore","plain lore","gated lore","World - Primer","sticky lore","plain lore","gated lore","World - Primer"]},"x4":{"fired":["Darran Kingdom","Lich Queen","sticky lore","plain lore","gated lore","World - Primer"],"last":{"refusal":"no-selection","stats":{"suppressed":0,"picked":0,"constant":0,"gated":0,"timed":0,"missingKey":0}}},"x6":{"sticky":[true,true,true,true,true],"stats":{"suppressed":0,"picked":0,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T02:29:11.763Z 15/15 eval ok 163ms
+2026-09-27T02:29:11.763Z 15/15 eval -> {"blocked":true,"x3":{"refusal":"no-selection","activated":["Adventurer","Adventurer's Guild","sticky lore","plain lore","gated lore","World - Primer","sticky lore","plain lore","gated lore","World - Primer"]},"x4":{"fired":["Darran Kingdom","Lich Queen","sticky lore","plain lore","gated lore","World - Primer"],"last":{"refusal":"no-selection","stats":{"suppressed":0,"picked":0,"constant":0,"gated":0,"timed":0,"missingKey":0}}},"x6":{"sticky":[true,true,true,true,true],"stats":{"suppressed":0,"picked":0,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T02:29:17.761Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T02-29-17-759Z_so-scenario-result.json
+2026-09-27T02:29:17.761Z {
+2026-09-27T02:29:17.761Z   "ok": true,
+2026-09-27T02:29:17.761Z   "steps": 15,
+2026-09-27T02:29:17.761Z   "cleanup": {
+2026-09-27T02:29:17.761Z     "importedStoryHashes": [
+2026-09-27T02:29:17.761Z       "v2-9f467203"
+2026-09-27T02:29:17.761Z     ],
+2026-09-27T02:29:17.761Z     "library": {
+2026-09-27T02:29:17.761Z       "changed": true,
+2026-09-27T02:29:17.761Z       "removed": [
+2026-09-27T02:29:17.761Z         "so-v25-08-x3@1 (v2-9f467203)"
+2026-09-27T02:29:17.761Z       ],
+2026-09-27T02:29:17.761Z       "restored": [],
+2026-09-27T02:29:17.761Z       "saved": {
+2026-09-27T02:29:17.761Z         "status": 200
+2026-09-27T02:29:17.761Z       },
+2026-09-27T02:29:17.761Z       "verified": true
+2026-09-27T02:29:17.761Z     },
+2026-09-27T02:29:17.761Z     "clearedDebugResponses": [],
+2026-09-27T02:29:17.761Z     "soloChats": {
+2026-09-27T02:29:17.761Z       "deleted": [],
+2026-09-27T02:29:17.761Z       "leaked": []
+2026-09-27T02:29:17.761Z     },
+2026-09-27T02:29:17.761Z     "sandboxChatId": "2026-09-26@23h26m58s302ms",
+2026-09-27T02:29:17.761Z     "owned": [
+2026-09-27T02:29:17.761Z       "2026-09-26@23h26m58s302ms"
+2026-09-27T02:29:17.761Z     ],
+2026-09-27T02:29:17.761Z     "deleted": [
+2026-09-27T02:29:17.761Z       "2026-09-26@23h26m58s302ms"
+2026-09-27T02:29:17.762Z     ],
+2026-09-27T02:29:17.762Z     "notDeleted": [],
+2026-09-27T02:29:17.762Z     "resurrected": [],
+2026-09-27T02:29:17.762Z     "lateFileRepaired": [],
+2026-09-27T02:29:17.762Z     "saveSettleMs": 1522,
+2026-09-27T02:29:17.762Z     "skipped": [],
+2026-09-27T02:29:17.762Z     "currentChatAtCleanup": "2026-09-26@23h26m58s302ms",
+2026-09-27T02:29:17.762Z     "currentGroupAtCleanup": "1759606632088",
+2026-09-27T02:29:17.762Z     "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+2026-09-27T02:29:17.762Z     "branchChats": {
+2026-09-27T02:29:17.762Z       "recorded": [],
+2026-09-27T02:29:17.762Z       "deleted": [],
+2026-09-27T02:29:17.762Z       "failed": [],
+2026-09-27T02:29:17.762Z       "leaked": []
+2026-09-27T02:29:17.762Z     },
+2026-09-27T02:29:17.762Z     "mirrorBooks": {
+2026-09-27T02:29:17.762Z       "deleted": [],
+2026-09-27T02:29:17.762Z       "failed": [],
+2026-09-27T02:29:17.762Z       "leaked": []
+2026-09-27T02:29:17.762Z     },
+2026-09-27T02:29:17.762Z     "reapPrompts": {
+2026-09-27T02:29:17.762Z       "dismissed": [],
+2026-09-27T02:29:17.762Z       "leaked": []
+2026-09-27T02:29:17.762Z     },
+2026-09-27T02:29:17.762Z     "extraction": {
+2026-09-27T02:29:17.762Z       "restored": false,
+2026-09-27T02:29:17.762Z       "unchanged": true,
+2026-09-27T02:29:17.762Z       "settings": {
+2026-09-27T02:29:17.762Z         "enabled": true,
+2026-09-27T02:29:17.762Z         "cadence": 3,
+2026-09-27T02:29:17.762Z         "stabilityLag": 0,
+2026-09-27T02:29:17.762Z         "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+2026-09-27T02:29:17.762Z         "profiles": {}
+2026-09-27T02:29:17.762Z       }
+2026-09-27T02:29:17.762Z     },
+2026-09-27T02:29:17.762Z     "judge": {
+2026-09-27T02:29:17.762Z       "restored": false,
+2026-09-27T02:29:17.762Z       "unchanged": true
+2026-09-27T02:29:17.762Z     }
+2026-09-27T02:29:17.762Z   }
+2026-09-27T02:29:17.762Z }

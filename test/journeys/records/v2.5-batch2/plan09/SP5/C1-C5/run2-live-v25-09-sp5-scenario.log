@@ -1,0 +1,91 @@
+2026-09-27T04:07:26.089Z 1/45 inject_script ok 6ms
+2026-09-27T04:07:28.595Z 2/45 eval ok 2506ms
+2026-09-27T04:07:28.595Z 2/45 eval -> {"flag":{"spikes":{"recommitEdit":false,"swipeBackCache":false,"witnessFilter":false,"sp5Scenario":true,"sp7Chance":false,"sp6Complications":false,"sp4AppendShortTerm":false,"sp8CuratorTiers":false,"sp8CuratorDigest":false}},"planted":["Arin","Luke","Ponticius","DM Narrator"],"chats":{"A":{"groupId":"1759606632088","chatId":"2026-09-27@01h07m25s839ms"}}}
+2026-09-27T04:07:29.096Z 3/45 import_story ok 500ms
+2026-09-27T04:07:29.106Z 4/45 eval ok 11ms
+2026-09-27T04:07:29.106Z 4/45 eval -> {"rows":["applied"],"held":"SO-SP5 scenario one: the party waits at the city gate."}
+2026-09-27T04:07:30.881Z 5/45 send ok 1775ms
+2026-09-27T04:07:30.886Z 6/45 eval ok 5ms
+2026-09-27T04:07:30.886Z 6/45 eval -> {"evidence1":1}
+2026-09-27T04:07:32.658Z 7/45 slash ok 1771ms
+2026-09-27T04:07:34.195Z 8/45 wait ok 1538ms
+2026-09-27T04:07:34.200Z 9/45 extract FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader
+2026-09-27T04:07:34.200Z     at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)
+2026-09-27T04:07:34.200Z     at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)
+2026-09-27T04:07:34.200Z     at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)
+2026-09-27T04:07:34.200Z     at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)
+2026-09-27T04:07:34.200Z     at eval (eval at evaluate (:290:30), <anonymous>:4:30)
+2026-09-27T04:07:34.200Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-09-27T04:07:34.200Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-09-27T04:07:34.270Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T04-07-34-267Z_so-scenario-failure.json
+2026-09-27T04:07:40.202Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T04-07-40-202Z_so-scenario-result.json
+2026-09-27T04:07:40.202Z {
+2026-09-27T04:07:40.202Z   "ok": false,
+2026-09-27T04:07:40.202Z   "steps": 9,
+2026-09-27T04:07:40.202Z   "cleanup": {
+2026-09-27T04:07:40.202Z     "importedStoryHashes": [
+2026-09-27T04:07:40.202Z       "v2-21ae1005"
+2026-09-27T04:07:40.202Z     ],
+2026-09-27T04:07:40.202Z     "library": {
+2026-09-27T04:07:40.202Z       "changed": true,
+2026-09-27T04:07:40.202Z       "removed": [
+2026-09-27T04:07:40.202Z         "so-v25-sp5@1 (v2-21ae1005)"
+2026-09-27T04:07:40.202Z       ],
+2026-09-27T04:07:40.202Z       "restored": [],
+2026-09-27T04:07:40.202Z       "saved": {
+2026-09-27T04:07:40.202Z         "status": 200
+2026-09-27T04:07:40.202Z       },
+2026-09-27T04:07:40.202Z       "verified": true
+2026-09-27T04:07:40.202Z     },
+2026-09-27T04:07:40.202Z     "clearedDebugResponses": [],
+2026-09-27T04:07:40.202Z     "soloChats": {
+2026-09-27T04:07:40.202Z       "deleted": [],
+2026-09-27T04:07:40.202Z       "leaked": []
+2026-09-27T04:07:40.202Z     },
+2026-09-27T04:07:40.202Z     "sandboxChatId": "2026-09-27@01h07m25s839ms",
+2026-09-27T04:07:40.202Z     "owned": [
+2026-09-27T04:07:40.202Z       "2026-09-27@01h07m25s839ms"
+2026-09-27T04:07:40.202Z     ],
+2026-09-27T04:07:40.202Z     "deleted": [
+2026-09-27T04:07:40.202Z       "2026-09-27@01h07m25s839ms"
+2026-09-27T04:07:40.202Z     ],
+2026-09-27T04:07:40.202Z     "notDeleted": [],
+2026-09-27T04:07:40.202Z     "resurrected": [],
+2026-09-27T04:07:40.202Z     "lateFileRepaired": [],
+2026-09-27T04:07:40.202Z     "saveSettleMs": 1522,
+2026-09-27T04:07:40.202Z     "skipped": [],
+2026-09-27T04:07:40.202Z     "currentChatAtCleanup": "2026-09-27@01h07m25s839ms",
+2026-09-27T04:07:40.202Z     "currentGroupAtCleanup": "1759606632088",
+2026-09-27T04:07:40.202Z     "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+2026-09-27T04:07:40.202Z     "branchChats": {
+2026-09-27T04:07:40.202Z       "recorded": [],
+2026-09-27T04:07:40.202Z       "deleted": [],
+2026-09-27T04:07:40.202Z       "failed": [],
+2026-09-27T04:07:40.202Z       "leaked": []
+2026-09-27T04:07:40.202Z     },
+2026-09-27T04:07:40.202Z     "mirrorBooks": {
+2026-09-27T04:07:40.202Z       "deleted": [],
+2026-09-27T04:07:40.202Z       "failed": [],
+2026-09-27T04:07:40.202Z       "leaked": []
+2026-09-27T04:07:40.202Z     },
+2026-09-27T04:07:40.202Z     "reapPrompts": {
+2026-09-27T04:07:40.202Z       "dismissed": [],
+2026-09-27T04:07:40.202Z       "leaked": []
+2026-09-27T04:07:40.202Z     },
+2026-09-27T04:07:40.202Z     "extraction": {
+2026-09-27T04:07:40.202Z       "restored": false,
+2026-09-27T04:07:40.202Z       "unchanged": true,
+2026-09-27T04:07:40.202Z       "settings": {
+2026-09-27T04:07:40.202Z         "enabled": true,
+2026-09-27T04:07:40.202Z         "cadence": 3,
+2026-09-27T04:07:40.202Z         "stabilityLag": 0,
+2026-09-27T04:07:40.202Z         "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+2026-09-27T04:07:40.202Z         "profiles": {}
+2026-09-27T04:07:40.202Z       }
+2026-09-27T04:07:40.202Z     },
+2026-09-27T04:07:40.202Z     "judge": {
+2026-09-27T04:07:40.202Z       "restored": false,
+2026-09-27T04:07:40.202Z       "unchanged": true
+2026-09-27T04:07:40.202Z     }
+2026-09-27T04:07:40.202Z   }
+2026-09-27T04:07:40.202Z }

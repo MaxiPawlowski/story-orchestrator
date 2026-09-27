@@ -1,0 +1,3 @@
+{"contradicts":{"n":19,"jacIn":6,"cosIn":12,"union":15},"agrees":{"n":7,"jacIn":6,"cosIn":6,"union":6},"update":{"n":4,"jacIn":2,"cosIn":2,"union":2},"distinct":{"n":5,"jacIn":4,"cosIn":4,"union":5}}
+[ 'sameTopic', 'below', 'dup' ]
+[{"id":"K01","claimToEstablished":0.4102,"establishedToClaim":0.4102},{"id":"K02","claimToEstablished":0.3587,"establishedToClaim":0.3587},{"id":"K03","claimToEstablished":0.798,"establishedToClaim":0.798},{"id":"K04","claimToEstablished":0.4418,"establishedToClaim":0.4418},{"id":"K05","claimToEstab

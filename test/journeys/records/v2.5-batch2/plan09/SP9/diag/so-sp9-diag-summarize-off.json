@@ -1,0 +1,144 @@
+{
+ "changed": [
+  {
+   "i": 24,
+   "before": "{\"bias\":null,\"gen_id\":1790480875405,\"isSmallSys\":false,\"api\":\"manual\",\"model\":\"slash command\"}",
+   "after": "{\"bias\":null,\"gen_id\":1790480875405,\"isSmallSys\":false,\"api\":\"manual\",\"model\":\"slash command\",\"reasoning\":\"\"}"
+  }
+ ],
+ "fileChanged": [
+  {
+   "i": 24,
+   "before": "{\"name\":\"Arin\",\"is_user\":false,\"is_system\":\"\",\"send_date\":\"2026-09-27T03:47:55.405Z\",\"mes\":\"I will take the back door. [w24]\",\"force_avatar\":\"/thumbnail?type=avatar&file=Arin.png\",\"original_avatar\":\"Arin.png\",\"extra\":{\"bias\":null,\"gen_id\":1790480875405,\"isSmallSys\":false,\"api\":\"manual\",\"model\":\"slash command\"},\"swipe_id\":0,\"swipes\":[\"I will take the back door. [w24]\"],\"swipe_info\":[{\"send_date\":\"2026-09-27T03:47:55.405Z\",\"gen_started\":null,\"gen_finished\":null,\"extra\":{\"bias\":null,\"gen_id\":1790480875405,\"isSmallSys\":false,\"api\":\"manual\",\"model\":\"slash command\"}}]}",
+   "after": "{\"name\":\"Arin\",\"is_user\":false,\"is_system\":\"\",\"send_date\":\"2026-09-27T03:47:55.405Z\",\"mes\":\"I will take the back door. [w24]\",\"force_avatar\":\"/thumbnail?type=avatar&file=Arin.png\",\"original_avatar\":\"Arin.png\",\"extra\":{\"bias\":null,\"gen_id\":1790480875405,\"isSmallSys\":false,\"api\":\"manual\",\"model\":\"slash command\",\"reasoning\":\"\"},\"swipe_id\":0,\"swipes\":[\"I will take the back door. [w24]\"],\"swipe_info\":[{\"send_date\":\"2026-09-27T03:47:55.405Z\",\"gen_started\":null,\"gen_finished\":null,\"extra\":{\"bias\":null,\"gen_id\":1790480875405,\"isSmallSys\":false,\"api\":\"manual\",\"model\":\"slash command\"}}]}"
+  }
+ ],
+ "caps": [
+  {
+   "k": 0,
+   "drafted": "DM Narrator",
+   "leaks": [],
+   "len": 6889
+  },
+  {
+   "k": 1,
+   "drafted": "Arin",
+   "leaks": [],
+   "len": 7063
+  },
+  {
+   "k": 2,
+   "drafted": "Ponticius",
+   "leaks": [],
+   "len": 5743
+  },
+  {
+   "k": 3,
+   "drafted": "DM Narrator",
+   "leaks": [],
+   "len": 7151
+  },
+  {
+   "k": 4,
+   "drafted": "Arin",
+   "leaks": [],
+   "len": 7337
+  },
+  {
+   "k": 5,
+   "drafted": "Ponticius",
+   "leaks": [],
+   "len": 6134
+  },
+  {
+   "k": 6,
+   "drafted": "DM Narrator",
+   "leaks": [],
+   "len": 8532
+  },
+  {
+   "k": 7,
+   "drafted": "Arin",
+   "leaks": [],
+   "len": 8694
+  },
+  {
+   "k": 8,
+   "drafted": "Ponticius",
+   "leaks": [],
+   "len": 7439
+  },
+  {
+   "k": 9,
+   "drafted": "DM Narrator",
+   "leaks": [],
+   "len": 9430
+  },
+  {
+   "k": 10,
+   "drafted": "Arin",
+   "leaks": [],
+   "len": 9621
+  },
+  {
+   "k": 11,
+   "drafted": "Ponticius",
+   "leaks": [],
+   "len": 8611
+  },
+  {
+   "k": 12,
+   "drafted": "DM Narrator",
+   "leaks": [],
+   "len": 10410
+  },
+  {
+   "k": 13,
+   "drafted": "Arin",
+   "leaks": [],
+   "len": 10656
+  },
+  {
+   "k": 14,
+   "drafted": "Ponticius",
+   "leaks": [],
+   "len": 10012
+  },
+  {
+   "k": 15,
+   "drafted": "DM Narrator",
+   "leaks": [],
+   "len": 11899
+  },
+  {
+   "k": 16,
+   "drafted": "Arin",
+   "leaks": [],
+   "len": 12098
+  },
+  {
+   "k": 17,
+   "drafted": "Ponticius",
+   "leaks": [],
+   "len": 11485
+  },
+  {
+   "k": 18,
+   "drafted": "DM Narrator",
+   "leaks": [],
+   "len": 13395
+  },
+  {
+   "k": 19,
+   "drafted": "Arin",
+   "leaks": [],
+   "len": 13595
+  },
+  {
+   "k": 20,
+   "drafted": "Ponticius",
+   "leaks": [],
+   "len": 12866
+  }
+ ]
+}

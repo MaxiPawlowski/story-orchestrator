@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "value": {
+    "macro": "{{story_title}}",
+    "roots": [],
+    "globals": [
+      "storyOrchestratorSaveRefusals"
+    ],
+    "listenersBefore": 169,
+    "listenersAfter": 127,
+    "soTalk": "function",
+    "styles": 1
+  }
+}

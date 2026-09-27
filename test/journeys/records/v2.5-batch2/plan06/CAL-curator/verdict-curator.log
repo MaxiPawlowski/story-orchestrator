@@ -1,0 +1,10 @@
+{
+  "role": "curator",
+  "bundle": "fd8efa441c80",
+  "holdout": [
+    null,
+    null
+  ],
+  "verdict": "recommended",
+  "reason": "both runs meet every floor"
+}

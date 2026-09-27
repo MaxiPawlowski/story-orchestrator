@@ -1,0 +1,6 @@
+lane 2 test/scenarios/live-v25-05-token-estimate.json run 1: code 0 (399 s)
+{
+  "summary": "C:\\dev\\so-lanes\\batch-2026-09-26T22-15-36-612Z.json",
+  "green": 1,
+  "runs": 1
+}

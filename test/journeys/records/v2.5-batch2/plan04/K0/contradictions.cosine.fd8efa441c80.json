@@ -1,0 +1,220 @@
+{
+  "bundle": "fd8efa441c80",
+  "capturedAt": "2026-09-26T21:34:27.332Z",
+  "vectors": null,
+  "method": "bisection 14 steps, min of both directions",
+  "rows": {
+    "K01": 0.4102,
+    "K02": 0.3587,
+    "K03": 0.798,
+    "K04": 0.4418,
+    "K05": 0.8773,
+    "K06": 0.8671,
+    "K07": 0.6861,
+    "K08": 0.4971,
+    "K09": 0.8582,
+    "K10": 0.5578,
+    "K11": 0.6327,
+    "K12": 0.6981,
+    "K13": 0.7888,
+    "K14": 0.7454,
+    "K15": 0.103,
+    "K16": 0.302,
+    "K17": 0.3981,
+    "K18": 0.5634,
+    "K19": 0.6733,
+    "K20": 0.3058,
+    "K21": 0.8311,
+    "K22": 0.7961,
+    "K23": 0.8347,
+    "K24": 0.7458,
+    "K25": 0.8764,
+    "K26": 0.9284,
+    "K27": 0.316,
+    "K28": 0.5541,
+    "K29": 0.4728,
+    "K30": 0.7848,
+    "K31": 0.7136,
+    "K32": 0.6575,
+    "K33": 0.454,
+    "K34": 0.8236,
+    "K35": 0.8535
+  },
+  "probes": [
+    {
+      "id": "K01",
+      "claimToEstablished": 0.4102,
+      "establishedToClaim": 0.4102
+    },
+    {
+      "id": "K02",
+      "claimToEstablished": 0.3587,
+      "establishedToClaim": 0.3587
+    },
+    {
+      "id": "K03",
+      "claimToEstablished": 0.798,
+      "establishedToClaim": 0.798
+    },
+    {
+      "id": "K04",
+      "claimToEstablished": 0.4418,
+      "establishedToClaim": 0.4418
+    },
+    {
+      "id": "K05",
+      "claimToEstablished": 0.8773,
+      "establishedToClaim": 0.8773
+    },
+    {
+      "id": "K06",
+      "claimToEstablished": 0.8671,
+      "establishedToClaim": 0.8671
+    },
+    {
+      "id": "K07",
+      "claimToEstablished": 0.6861,
+      "establishedToClaim": 0.6861
+    },
+    {
+      "id": "K08",
+      "claimToEstablished": 0.4971,
+      "establishedToClaim": 0.4971
+    },
+    {
+      "id": "K09",
+      "claimToEstablished": 0.8582,
+      "establishedToClaim": 0.8582
+    },
+    {
+      "id": "K10",
+      "claimToEstablished": 0.5578,
+      "establishedToClaim": 0.5578
+    },
+    {
+      "id": "K11",
+      "claimToEstablished": 0.6327,
+      "establishedToClaim": 0.6327
+    },
+    {
+      "id": "K12",
+      "claimToEstablished": 0.6981,
+      "establishedToClaim": 0.6981
+    },
+    {
+      "id": "K13",
+      "claimToEstablished": 0.7888,
+      "establishedToClaim": 0.7888
+    },
+    {
+      "id": "K14",
+      "claimToEstablished": 0.7454,
+      "establishedToClaim": 0.7454
+    },
+    {
+      "id": "K15",
+      "claimToEstablished": 0.103,
+      "establishedToClaim": 0.103
+    },
+    {
+      "id": "K16",
+      "claimToEstablished": 0.302,
+      "establishedToClaim": 0.302
+    },
+    {
+      "id": "K17",
+      "claimToEstablished": 0.3981,
+      "establishedToClaim": 0.3981
+    },
+    {
+      "id": "K18",
+      "claimToEstablished": 0.5634,
+      "establishedToClaim": 0.5634
+    },
+    {
+      "id": "K19",
+      "claimToEstablished": 0.6733,
+      "establishedToClaim": 0.6733
+    },
+    {
+      "id": "K20",
+      "claimToEstablished": 0.3058,
+      "establishedToClaim": 0.3058
+    },
+    {
+      "id": "K21",
+      "claimToEstablished": 0.8311,
+      "establishedToClaim": 0.8311
+    },
+    {
+      "id": "K22",
+      "claimToEstablished": 0.7961,
+      "establishedToClaim": 0.7961
+    },
+    {
+      "id": "K23",
+      "claimToEstablished": 0.8347,
+      "establishedToClaim": 0.8347
+    },
+    {
+      "id": "K24",
+      "claimToEstablished": 0.7458,
+      "establishedToClaim": 0.7458
+    },
+    {
+      "id": "K25",
+      "claimToEstablished": 0.8764,
+      "establishedToClaim": 0.8764
+    },
+    {
+      "id": "K26",
+      "claimToEstablished": 0.9284,
+      "establishedToClaim": 0.9284
+    },
+    {
+      "id": "K27",
+      "claimToEstablished": 0.316,
+      "establishedToClaim": 0.316
+    },
+    {
+      "id": "K28",
+      "claimToEstablished": 0.5541,
+      "establishedToClaim": 0.5541
+    },
+    {
+      "id": "K29",
+      "claimToEstablished": 0.4728,
+      "establishedToClaim": 0.4728
+    },
+    {
+      "id": "K30",
+      "claimToEstablished": 0.7848,
+      "establishedToClaim": 0.7848
+    },
+    {
+      "id": "K31",
+      "claimToEstablished": 0.7136,
+      "establishedToClaim": 0.7136
+    },
+    {
+      "id": "K32",
+      "claimToEstablished": 0.6575,
+      "establishedToClaim": 0.6575
+    },
+    {
+      "id": "K33",
+      "claimToEstablished": 0.454,
+      "establishedToClaim": 0.454
+    },
+    {
+      "id": "K34",
+      "claimToEstablished": 0.8236,
+      "establishedToClaim": 0.8236
+    },
+    {
+      "id": "K35",
+      "claimToEstablished": 0.8535,
+      "establishedToClaim": 0.8535
+    }
+  ]
+}

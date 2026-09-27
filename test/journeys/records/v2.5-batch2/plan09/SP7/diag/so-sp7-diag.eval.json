@@ -1,0 +1,4 @@
+{
+  "ok": true,
+  "value": "{\"boundary\":1,\"active\":\"hall\",\"last\":0,\"ev\":[[\"status\",\"2026-09-27T04:11:37.983Z\",\"No story selected for this chat\"],[\"story\",\"2026-09-27T04:11:37.991Z\",\"away recap not due\"],[\"status\",\"2026-09-27T04:11:38.205Z\",\"Started Live v2.5 09 SP7 - Seeded chance\"],[\"payload\",\"2026-09-27T04:11:39.873Z\",\"1 story blocks injected (generation)\"],[\"talk\",\"2026-09-27T04:11:40.023Z\",\"Arin speaks (rules)\"],[\"boundary\",\"2026-09-27T04:11:49.379Z\",\"boundary 1: nothing applied (gate)\"],[\"status\",\"2026-09-27T04:11:49.497Z\",\"Following The Hall\"]],\"audits\":[],\"log\":[{\"boundary\":1,\"last\":2,\"fired\":null}]}"
+}

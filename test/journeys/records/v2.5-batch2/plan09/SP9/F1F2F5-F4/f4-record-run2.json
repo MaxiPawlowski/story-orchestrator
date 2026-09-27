@@ -1,0 +1,811 @@
+{
+ "at": "2026-09-27T03:33:47.928Z",
+ "chatId": "2026-09-27@00h23m47s134ms",
+ "route": "presence (no model)",
+ "transcript": [
+  {
+   "index": 0,
+   "speaker": "Arin",
+   "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+  },
+  {
+   "index": 1,
+   "speaker": "player",
+   "text": "A courier hands me a sealed letter in the guild hall. I read it aloud to everyone."
+  },
+  {
+   "index": 2,
+   "speaker": "Ponticius",
+   "text": "\"Hmph. A letter? How unusual for the Guild to use messengers instead of postings.\" *He watches as Max holds up the sealed envelope, his sharp eyes narrowing with interest. Around the hall, a few other adventurers lean closer, sensing something significant is about to happen.*\n\"Go on then, read it. Let's hear what's in there.\" *He gestures with a thick, scarred hand, his voice carrying that weight that demands attention even from the casual observers. A few patrons in the tavern section turn their heads, mugs paused mid-air.*\n*The Guild Master stands with his arms crossed, his posture relaxed but alert, his patience evident in the way he lets the slowly unfurl the letter. He's not one to rush things—he knows that anticipation can be a time as long as a discovery, and in these moments, the guildhall's normal bustle settles into a curious quiet.*"
+  },
+  {
+   "index": 3,
+   "speaker": "Arin",
+   "text": "*Arin moves closer, his shoulder brushing against Max's as he peeks over his shoulder to catch a glimpse of the parchment.*\n\"I hope it's a payout,\" *he mutters, his voice low enough that only Max can hear.* \"The last job had us sneaking through a sewer. I'm still finding scum in my boots.\"\n*He shifts his weight, his green eyes darting between Max and the letter in his hand, curiosity flickering in his expression despite the his sarcasm.*\n\"Read it aloud for everyone, I guess. Make it sound official and all that.\" *He smirks, giving Max's arm a playful nudge.*"
+  },
+  {
+   "index": 4,
+   "speaker": "Luke",
+   "text": "\"T-That's not true! I'm not always— I mean, I've almost died, sure, but...\"\n*Luke's face flushes as he tries to fight back the stutter in his voice. He shifts his weight from foot to foot, the oversized chainmail clinking loudly with every movement.*\n\"And it's not always a bad decision! Sometimes we're just... experiencing complications!\"\n*He puffs out his chest, trying to look more imposing, though the effect is somewhat lost on how the chainmail rides up his narrow shoulders.*\n\"Besides, Max and the guild partner is here. What could go wrong when you've got legends like them on your side?\"\n*He fumbles with thes leather strap across his chest, producing a crumpled piece of parchment from a small pouch.*\n\"The guild partner said this was important. They said to read it together.\"\n*His pale fingers tremble slightly as he unfolds the paper, the words scrched in a hasty hand.*"
+  },
+  {
+   "index": 5,
+   "speaker": "player",
+   "text": "Ponticius, does the guild owe the harbour office anything?"
+  },
+  {
+   "index": 6,
+   "speaker": "Ponticius",
+   "text": "\"The harbor office?\" *He raises an eyebrow, his voice dropping to a a thoughtful rumble.*\n\"Hmm. Aye, that's about right. The Guild does owe them for the docking fees from the last shipment of supplies—some old flintlock parts we're expecting.\"\n*He pauses, his gaze sweeping across the hall and lingering on the others.*\n\"But they won't push for it. They've got bigger problems than a few docking fees. The Zegallans are still making runs, so they'll probably just... forget.\"\n*He leans back against the nearby pillar, his arms unfolding to rest on his hips.*\n\"Why do you ask, Max? Planning to sneak past them?\"\n*His tone is plain and knowing, though there is something in it that suggests he's heard and is about to give you a way forward if you ask for it.*"
+  },
+  {
+   "index": 7,
+   "speaker": "player",
+   "text": "Arin, what do you make of the seal?"
+  },
+  {
+   "index": 8,
+   "speaker": "Arin",
+   "text": "*Arin's eyes narrow as he leans in closer, studying the wax seal on the letter.*\n\"Hmm. Blue and silver, with a laurel leaf pressed into it.\" *His fingers trace the edge of the seal without touching it.*\n\"That's the seal of the harbor master's office, isn't it?\" *He looks up at Max, a knowing expression on his face.*\n\"And this isn't the official seal for the Guild. It's private—sealed and marked for a specific person.\"\n*He shifts his weight, pulling a dagger from his thigh strap, the blade catching the light for just a moment before he returns it with a half-sheathed position.*\n\"Something fishy about this. Why would the harbor master send a sealed letter to the Guild hall instead of just posting a public request?\"\n*His voice drops to a whisper.* \"Maybe it's something we aren't supposed to hear aloud.\""
+  },
+  {
+   "index": 9,
+   "speaker": "Luke",
+   "text": "\"Here's what it says...\"\n*Luke leans closer to Arin, the paper crinkling under his nervous grip. His brown hair falls over his eyes as he reads aloud, his voice cracking slightly.*\n\"To the Guild members listed, this letter was dispatched by order of the Guild Master himself. We have received reports from a scouting party of increased undead activity near the Sun Ruins—a significant escalation in Lich Queen's remnant forces. The situation requires immediate action to prevent them from spreading toward the outskirts of Aegis City.\"\n*He pauses, his throat tightening.*\n\"The Guild Master wants a group assembled for an immediate mission to investigate and eliminate the undead threat. You have been selected to investigate the undead activity and clear them out.\"\n*Luke swallows hard, his eyes flicking over the parchment again. The word 'Sun Ruins' makes his blood run cold.*\n\"M-My brother went there. He vanished there.\"\n*He takes a breath, his voice trembling.*\n\"The undead are active there. That's where they are. This is our chance to clear them out. I'm coming with you. I need to have to.\"\n*He clutches the parchment tightly, his jaw set in determination despite the obvious fear in his eyes.*"
+  },
+  {
+   "index": 10,
+   "speaker": "player",
+   "text": "I quietly ask Arin, so only she hears, whether the handwriting looks forged."
+  },
+  {
+   "index": 11,
+   "speaker": "Arin",
+   "text": "*Arin's and eyes flick over to you as you lean in close, his expression shifting from playful to serious in an instant.*\n\"Forged?\" *He whispers, his voice barely audible over the din of the guildhall.*\n\"Let me see.\" *He reaches out, carefully taking the parchment from your hands and holding it up to the light, his keen green eyes scanning every stroke and curve of the letters.*\n\"Handwriting is a bit shaky in places—not quite as clean as the Guild Master's usually is. And the ink... it doesn't smell like the ink Ponticius uses.\"\n*He hands it back, his brow furrowing.*\n\"You're probably right. It could be forged. But if Ponticius didn't send it—who did, and why would they want us heading into the Sun Ruins?\"\n*He pauses, a thought crossing through his mind, and his voice drops even lower.*\n\"And Luke's brother... it's all too convenient, isn't it? Someone might be playing us.\""
+  },
+  {
+   "index": 12,
+   "speaker": "Luke",
+   "text": "\"I-I can be useful! I promise!\"\n*Luke's voice cracks as he insists, his brown hair falling over his face as he he looks up at Arin with wide eyes. He fumbles with his short sword, nearly dropping it in the process.*\n\"I've been practicing! I've been training with the guild instructors and I'm really good with a blade! And I'veL-Let me prove it!\"\n*He fumbles with a short sword, almost dropping it it as he tries to draw it. The chainmail that's too big for him clatters against his chest as he- He shifts his weight, the armor too large for him, and he's looking up at Arin and Max with a desperate, pleading expression.*\n\"My brother vanished in the Sun Ruins, and this mission is the Guild Master himself asking for an undead problem. I need to find him!\"\n*His voice is fast and uncertain, but there's an unmistakable resolve in his determination.*\n\"And I've been-I'veH-He's an adventurer, too. I'm sure he'll-he's still out there somewhere, and he'll-I can help!\"\n*He stands his ground, his face pale but determined, his chin lifted in a little bit of resistance to his stubbornness.*\n\"I'm not asking for permission! I'm-I'm not backing down!\"\n*He clatters in his chainmail as he shifts his weight, still clutching the parchment in one hand and his sword in the other.*"
+  },
+  {
+   "index": 13,
+   "speaker": "Ponticius",
+   "text": "*The Guild Master's voice cuts through the air, authoritative and grounded.*\n\"Enough.\"\n*He steps forward, his heavy boots thudding on the wooden floorboards. His gaze moves from Luke to Arin and then settles on Max, his expression unreadable.*\n\"Luke. You've been given a mission by order of the 'Guild Master'—in a letter you read aloud. Now tell me—\"\n*He pauses, and a slow smile spreads across and his face, one that doesn't quite reach his eyes.*\n\"Who wrote that letter?\"\n*His arms cross over his chest and he shifts his weight, waiting for an answer. The question hangs in the air, sharp and pointed.*"
+  },
+  {
+   "index": 14,
+   "speaker": "player",
+   "text": "Ponticius, please check the ledgers in your office."
+  },
+  {
+   "index": 15,
+   "speaker": "Ponticius",
+   "text": "\"Ledgers?\"\n*He frowns, his voice a low rumble.*\n\"Aye, the docking fee issue—maybe there's a truth to it in there. I can check.\"\n*He glances over to Arin and Luke, his expression darkening as he considers something.*\n\"But I'm not to just go checking ledgers like some clerk, Max.\"\n*He pauses, hisH-His voice is gruff but there's something in it that's underneath—perhaps a doubt, a concern, that he's already begun to think about something.*\n\"You've got a point, though. If someone's trying to pull a fast one, the truth's in the books.\"\n*He turns and starts walking toward his office door, his heavy boots echoing in the hall.*\n\"Arin. Luke. Stay here. We'll get to the bottom of this.\"\n*The door to his office swings open, and theL-The light from inside spills into the hall. Ponticius disappears inside, leaving a quiet tension hanging in the air.*"
+  },
+  {
+   "index": 16,
+   "speaker": "player",
+   "text": "I step into the yard with Arin and look at the broken cart."
+  },
+  {
+   "index": 17,
+   "speaker": "Arin",
+   "text": "*Arin follows you into the yard, his boots crunching on gravel.*\n\"Tch.\"\n*He whistles through his teeth as he looks over the broken cart, his hands on his hips.*\n\"Broken axle. Right wheel's completely snapped off.\"\n*He crouches down to examine the cart more closely, his sharp eyes scanning for clues.*\n\"Looks like it was hit pretty hard. The frame's bent, and the wood's splintered.\"\n*He stands back up, dusting his hands on his pants, and shoots you a glance.*\n\"Something's not right. If this was just an accident, why wouldn't they've left it here to be fixed? And why would Ponticius mention docking fees when we're standing over a wrecked cart?\"\n*His tone is thoughtful, his gaze shifting between the cart and Ponticius's office window.*\n\"I have a feeling we're getting a raw deal, Max.\""
+  },
+  {
+   "index": 18,
+   "speaker": "player",
+   "text": "Arin, is that the harbour mark on the cart?"
+  },
+  {
+   "index": 19,
+   "speaker": "Arin",
+   "text": "*Arin leans closer, squinting at the wooden side of the cart.*\n\"Let me see.\"\n*He traces a line in the dust and dirt on the wood with his finger, uncovering a symbol.*\n\"Yeah. That's the harbor master's mark. The same seal as on the letter.\"\n*His jaw tightens.*\n\"Someone's using the harbor mark on this cart. And if the cart's broken, why is it sitting in the yard instead of being fixed at the harbor?\"\n*He stands up and kicks the cart wheel lightly, watching it wobble.*\n\"Maybe they're trying to set us up, Max. Or maybe they're using this cart as a message.\"\n*He crosses his arms, his green eyes narrowing as he looks back at the Guildhall.*\n\"Whatever it is, it ain't right. And I bet Ponticius will have something to say about this when he gets back from his office.\""
+  },
+  {
+   "index": 20,
+   "speaker": "Luke",
+   "text": "*Luke's jaw drops slightly as his gaze shifts between Arin and Ponticius. He's clutching the crumpled letter tightly, his pale fingers trembling.*\n\"W-Wait, the Guild Master... he doesn't know anything about this letter?\"\n*He takes a step toward Ponticius, his chainmail clanking softly. His eyes are wide with confusion and concern.*\n\"But it looks official! It has the seal and everything... And it said the undead were active at the Sun Ruins! That's exactly where my brother went missing!\"\n*He looks back at Arin, his voice rising in pitch.*\n\"What if someone's using the Guild's name to lure adventurers into a trap? What if they want us to go there?\"\n*His grip on the parchment tightens further, crinkling the paper in his nervous hands. A flicker of worry crosses his pale face as the realization sinks in.*\n\"Is that what this is? Is this a trick?\""
+  },
+  {
+   "index": 21,
+   "speaker": "player",
+   "text": "I ask the driver where he is headed."
+  },
+  {
+   "index": 22,
+   "speaker": "Arin",
+   "text": "*Arin shifts his weight as he notices you approach the driver.*\n\"Tch.\"\n*He mutters under his breath, his hand instinctively moving to the dagger at his thigh as he watches you make your move.*\n\"I hope this guy is telling the truth.\"\n*He stays back a few paces, giving you room but keeping his eyes fixed on the driver, his posture alert and ready to react at any moment.*"
+  },
+  {
+   "index": 23,
+   "speaker": "player",
+   "text": "I tell Arin to keep an eye on the driver."
+  },
+  {
+   "index": 24,
+   "speaker": "Arin",
+   "text": "*Arin's head snaps up at your words, his sharp green eyes instantly locking onto the driver.*\n\"Got it.\"\n*He shifts his position, his hand resting on the hilt of his dagger.*\n\"I'll watch him like a hawk, don't you worry.\"\n*He stands with his back against the broken cart, his gaze unwavering and intense.*\n\"You do your thing. If he makes a wrong move, I'll have him pinned before he can blink.\"\n*His tone is low and serious, all humor gone from his voice. His posture is alert and controlled, ready to spring into action at any second.*"
+  },
+  {
+   "index": 25,
+   "speaker": "player",
+   "text": "I leave Arin in the yard and walk to the office."
+  },
+  {
+   "index": 26,
+   "speaker": "Arin",
+   "text": "*Arin waves you off, his eyes never leaving the driver for a second.*\n\"Go on. I'll keep an eye on him.\"\n*He stays in the yard, leaning back against the cart, his hand on his dagger.*\n\"Just don't take too long. I don't trust this guy one bit.\"\n*He watches you walk away, his jaw set and his expression alert, ready to act if the driver tries anything suspicious.*"
+  },
+  {
+   "index": 27,
+   "speaker": "player",
+   "text": "I knock and enter Ponticius's office."
+  },
+  {
+   "index": 28,
+   "speaker": "Ponticius",
+   "text": "*The office is dimly lit by a few candles, the scent of old parchment and tobacco hanging in the air. Ponticius is hunched over a large wooden desk, his scarred face illuminated by a single oil lamp as he flips through a leather-bound ledger.*\n\"You're not an idiot for coming in here, Max.\" *His voice is a low rumble, devoid of any judgment.*\n\"And I can't say you're not for questioning me, either. I appreciate it.\"\n*He taps the finger on a line in the ledger, his eyes narrowing.*\n\"See this?\" *He points to a mark on a page.*\n\"The harbor fees—they were paid. Weeks ago.\"\n*He looks up at you, his gaze sharp.*\n\"The letter mentioned a 'debt' to the harbor office. Someone's lying. Someone wants us to think there's unfinished business there.\"\n*He closes the ledger with a heavy thud, the sound echoing in the small office.*\n\"And the letter... it claimed to be from me, ordering a mission to the Sun Ruins. But I didn't write it.\"\n*He leans back in his chair, the creaking of the wood the only sound in the room for a moment.*\n\"So we've got a forgery, a 'debt' that doesn't exist, and a mission that someone wants us to believe is official. All pointing to the Sun Ruins.\"\n*He looks at you again, his eyes hard.*\n\"This isn't just a prank, Max. This is a setup. Someone's trying to get us out there, and I don't know why.\"\n*He pauses, then his voice softens slightly.*\n\"But Luke... he's determined to go, whether it's a mission or not. His brother disappeared there.\"\n*He sighs, a heavy sound.*\n\"And now we've got this... setup. This doesn't sit right with me.\"\n*He stands up from his desk, his chair scraping against the floor.*\n\"What do you think? What's the next move?\""
+  },
+  {
+   "index": 29,
+   "speaker": "player",
+   "text": "Ponticius, what do the ledgers say?"
+  },
+  {
+   "index": 30,
+   "speaker": "Ponticius",
+   "text": "*He frowns, and his eyes narrow as he looks back at you.*\n\"The ledgers say the harbor fees were paid weeks ago. The letter mentioned a debt to the harbor master.\"\n*He taps the ledger again, his finger landing on a line of ink that's faded slightly with time.*\n\"There's a signature here—harbor master himself, confirming receipt.\"\n*He pauses, the ink blotting into a smear as he stares at it.*\n\"Someone's lying. And it's not just the letter, but the details.\"\n*He looks up, his gaze sharpening.*\n\"And they didn't just make up the 'debt'—they used it as a reason for the mission to the Sun Ruins.\"\n*He sighs, and his voice is rough around the edges.*\n\"Which means... whoever wrote that letter is probably watching us. And they're expecting us to get some of our adventurers out there.\"\n*He leans forward, the wood of his desk creaking under his weight.*\n\"They wanted us to take this seriously. They wanted us to believe this was real.\"\n*He pauses, thinking, then his gaze flickers to the door.*\n\"What do you think, Max? Who would benefit from this?\"\n*His voice isH-It's a question, but there's a challenge in it too—a challenge to see if you're ready to think like a Guild Master.*"
+  },
+  {
+   "index": 31,
+   "speaker": "Luke",
+   "text": "*Luke's eyes dart between Arin and the office door where Ponticius disappeared, his expression torn between hope and doubt. He fidgets with the strap of his oversized chainmail, the metal clinking softly.*\n\"If this letter is a lie... then there's no undead threat at the Sun Ruins right now, is there?\"\n*His voice drops to a whisper, thick with disappointment. He looks down at the crumpled parchment in his hand, his fingers tightening around it.*\n\"But that doesn't mean there aren't any undead there. My brother... he must have encountered something. Something dangerous.\"\n*He looks up at Max, his brown eyes reflecting a mix of desperation and trust.*\n\"We can't just ignore this, can we? Even if the letter was fake, there's still truth in the story that the undead are there. We still need to go there, to make sure.\"\n*He shifts his weight, trying to stand tall in his too-big armor.*\n\"I can help. I'll be careful, I promise. I just... I can't give up on him.\""
+  },
+  {
+   "index": 32,
+   "speaker": "DM Narrator",
+   "text": "*The sun dips lower in the sky, casting long shadows across the Guildhall yard where Arin still stands watch over the cart driver. The driver himself sits on the broken cart's edge, picking his teeth with a splinter of wood, seemingly oblivious to the tension building inside the office.*\n*Inside, the air between Max and Ponticius grows heavy with the weight of the Guild Master's discovery. The ledger remains open on the desk, its pages telling a truth that contradicts the mysterious letter.*\n*From the yard, the muffled sounds of the guild's daily business continue—the clink of tankards, distant laughter from the tavern, the shuffling of boots on gravel. But in this office, there is only the low hum of the oil lamp and the gravity of a potential trap.*\n*Luke's conflicted presence lingers just outside the office door, his silent hope warring with the evidence of deception. He stands at a crossroads, his future tied not just to his own courage, but to the decisions made within these four walls.*"
+  },
+  {
+   "index": 33,
+   "speaker": "player",
+   "text": "I tell Ponticius the letter looks forged."
+  },
+  {
+   "index": 34,
+   "speaker": "Ponticius",
+   "text": "*His brow furrows, and his jaw tightens as he considers your words.*\n\"Forged? Aye, I can see that now. The ink isn't right, and the writing...\"\n*He looks down at the letter again, picking it up and holding it to the light of the candle.*\n\"And the harbor fees were already paid. Someone went through a lot of trouble to make this look official, but they made a mistake.\"\n*He pauses, holding the letter in the hand for a moment.*\n\"Someone wants us to believe we're in debt to the harbor master, and they want us to investigate the Sun Ruins.\"\n*He looks at you, his voice taking on a hard edge.*\n\"Why? Why would they do that? Why would they use our name, our Guild, to lure us into the ruins?\"\n*He pauses, then his gaze shifts to the door, thinking of Luke.*\n\"And why did they send this to our guildhall?\"\n*He sighs, his voice a low growl.*\n\"It's not a good sign, Max. Not a good sign at all.\"\n*He looks back at you, his expression grim.*\n\"So we're left with a choice. We investigate the ruins, knowing it's a likely trap, or we wait and watch.\"\n*He pauses, and his voice is heavy with uncertainty.*\n\"And we're left to decide the fate of Luke's brother.\"\n*He stands, and his gaze is sharp, piercing you with an eye that's seen too many mistakes and too many failures.*\n\"What do you think we should do?\""
+  },
+  {
+   "index": 35,
+   "speaker": "player",
+   "text": "I look out of the office window at the yard."
+  },
+  {
+   "index": 36,
+   "speaker": "Ponticius",
+   "text": "*He steps up beside you at the window, his presence solid and steady. His eyes follow yours, scanning the yard.*\n\"What do you see?\" *He asks, his tone low and inquisitive.*\n\"I know what I'm looking for. I know what I'm thinking.\"\n*His gaze settles on the driver sitting by the cart, the broken wheel and the seal of the harbor office clearly visible even from this distance.*\n\"And that driver... he looks too calm for a man whose cart just broke down on guild grounds.\"\n*He pauses, then speaks, his voice a gruff murmur.*\n\"There's a lot to consider, Max. A lot to consider. And the answers are likely waiting out there in the yard.\"\n*He looks at you, and a spark of understanding flickers in his eyes.*\n\"Maybe we should head out and see what he has to say for himself.\"\n*He shifts his weight slightly, the floorboards creaking under his boots.*\n\"And maybe we'll find the answers we're looking for right there, without having to go anywhere near the Sun Ruins.\"\n*His voice isH-It's a challenge, but there's a trust in it too—a trust in you to lead the way.*"
+  },
+  {
+   "index": 37,
+   "speaker": "player",
+   "text": "I head back to the hall to gather everyone."
+  },
+  {
+   "index": 38,
+   "speaker": "Luke",
+   "text": "*Luke's shoulders slump as he listens to Arin's response, his face falling.*\n\"I-I know you're not supposed to be an official member yet, but you've been coming to the guild for months! You can't just—\"\n*He looks at Arin with a wide-eyed desperation, his hand reaching out to clasp Arin's arm.*\n\"The undead at the Sun Ruins are a real problem, regardless of whether the letter is fake. My brother vanished there on a real mission! We're talking about a real danger, and we're talking about about real danger!\"\n*He steps closer, his voice dropping to a pleading tone.*\n\"I-I'll prove myself to you! Let me come along and I'll show you that I'm a useful member of the guild! Just give me a chance, and I'm all-I'm sure I'm just not a few weeks shy of becoming a full member anyway!\"\n*His brown hair falls over his face as he his eyes search Arin's expression, his desperation clear. He doesn't want to give up, but he'd-he'd look at Max with an expression that says he's practically begging for backup.*"
+  },
+  {
+   "index": 39,
+   "speaker": "player",
+   "text": "Everyone is back in the hall. I tell them what we found."
+  },
+  {
+   "index": 40,
+   "speaker": "Ponticius",
+   "text": "*The Guild Master stands with his arms crossed, his gaze sweeping over the assembled group. His voice cuts through the air, grounding it with his authority.*\n\"Listen up.\" *He pauses, letting his presence command the space.*\n\"We've confirmed it. The letter is a fake.\"\n*The words hang in the air, heavy and unmistakable. He uncrosses his arms, his hands gesturing to emphasize his points.*\n\"The harbor fees it claimed we owed have been paid weeks ago. And the writing... it's not mine, and the ink isn't right.\"\n*He looks at Luke, and there's something soft in his voice as he says it.*\n\"Someone's using our name to lure adventurers into the Sun Ruins.\"\n*His gaze shifts to Arin.*\n\"And that cart driver out there... he's got a broken cart with the harbor master's seal. A bit too convenient for a setup like this.\"\n*He pauses, and there's a weight in his tone, a warning.*\n\"We're not going to the Sun Ruins. At least not yet.\"\n*The Guild Master's eyes flicker to the door.*\n\"But we are going to find out who's behind this. And we'll start with that driver.\"\n*He looks back to you, and there'sH-There's a flicker of approval in his gaze.*\n\"You and Arin should be ready for anything. We might be walking right into another trap.\"\n*He pauses, his voice a low warning.*\n\"And Luke... I'm sorry. I know how you feel about your brother, but we're not throwing people into a trap just to chase a ghost.\"\n*The Guild Master's tone is final, but there's still a flicker of respect in his eyes as he looks at the boy.*\n\"But maybe, just maybe, if we get some answers from the driver, we'll learn something we can actually use.\"\n*His voice is plain and clear, offering a path forward that doesn't end in a dead end.*"
+  },
+  {
+   "index": 41,
+   "speaker": "player",
+   "text": "Arin, where did the driver go?"
+  },
+  {
+   "index": 42,
+   "speaker": "Arin",
+   "text": "*Arin's glances at the door, his brow furrowed.*\n\"He's still in the yard.\" *He says, his voice flat.*\n\"I didn't let him out of my sight.\"\n*He shifts his weight, glancing back at you with a hard expression.*\n\"You were gone for a while. I was watching him the entire time. He hasn't moved.\"\n*His tone is clipped, suspicious.*\n\"But he looks jumpy. Kept looking at the door like he was expecting someone—or something.\"\n*He pauses, a flicker of something in his eyes.*\n\"So what? Ponticius got his answers from the ledgers? Did you find anything else?\"\n*His gaze is sharp, searching your face for any hint of a lead.*"
+  },
+  {
+   "index": 43,
+   "speaker": "Ponticius",
+   "text": "*The Guild Master is standing near the entrance to the yard, his boots solid on the wooden planks.*\n\"Driver's still there, isn't he?\" *He asks, his voice a low rumble.*\n\"You're right to keep a close eye on him. Good. We'll go out and talk to him together.\"\n*He pauses, his gaze shifting to you.*\n\"Max, you take the lead. We'll support you if things go south.\"\n*He looks at Luke.*\n\"Luke, stay back. This isn't your place, kid.\"\n*The Guild Master's words are final, his tone firm.*\n\"But Arin... you're with us. Let's see what we can learn from this driver.\"\n*He turns and walks toward the yard, his presence imposing and commanding.*\n\"And we'll see if he's telling the truth or not.\"\n*His voice is plain and clear as he speaks, and his words carry weight.*"
+  },
+  {
+   "index": 44,
+   "speaker": "player",
+   "text": "Ponticius, can the guild spare guards for the vault?"
+  },
+  {
+   "index": 45,
+   "speaker": "Ponticius",
+   "text": "*He pauses mid-stride, and his head turns to you with a furrow in his brow.*\n\"Guards for the vault?\" *His voice is low, questioning.*\n\"Aye, we've got enough people for that. We can spare some of the seasoned adventurers.\"\n*He considers this for a moment, his gaze shifting.*\n\"But why are you asking? We're worried about the cart driver and the fake letter, not the vault.\"\n*His tone is a and suspicious.*\n\"And you're not planning to do anything, are you?\"\n*His gaze is hard, searching your eyes for any sign of betrayal or deceit.*\n\"Because if you are, I'd sooner trust a dead man's coin than a man who asks for guards for the vault.\"\n*He shifts his weight and his hands move to his belt, as if checking for a weapon.*\n\"And that's just my way of saying I trust you right now, Max.\"\n*His voice is rough and plain, but there's something behind it—a challenge, a test to see if you'll answer honestly or try to deflect.*\n\"So tell me, why would you need guards for the vault?\"\n*He looks you in the eye, his gaze steady and unyielding.*"
+  },
+  {
+   "index": 46,
+   "speaker": "Arin",
+   "text": "*Arin's expression shifts from alert to puzzled as you ask Ponticius about the vault.*\n\"The vault?\" *He asks, his tone sharp.*\n\"Why would we need guards for the vault?\"\n*He shifts his gaze to the driver in the yard, then back to you.*\n\"Are you worried about someone trying to rob it?\"\n*He pauses, a flash of worry crossing his face.*\n\"Or are you thinking that someone inside the Guild might be planning something?\"\n*His voice is drops to a whisper.*\n\"This whole situation... it's starting to feel like a real mess.\"\n*He takes a step closer, his hand still resting on his dagger.*\n\"But you're right. If someone's planning something, it's best to be ready.\"\n*He looks at you with trust in his expression, despite his concern.*\n\"And that's why we need to be prepared.\"\n*His tone is determined, as though he's agreed with the idea even if he doesn't fully understand why.*"
+  },
+  {
+   "index": 47,
+   "speaker": "player",
+   "text": "I lay out the plan for tonight."
+  },
+  {
+   "index": 48,
+   "speaker": "DM Narrator",
+   "text": "*The Guild Master listens intently as Max lays out the plan, his weathered face illuminated by the fading light filtering through the office windows. Around the room, the air thickens with anticipation—a mixture of determination, suspicion, and an unspoken fear of the unknown.*\n*Outside the window, the yard has fallen quiet. The driver still sits on his broken cart, a solitary figure in the deepening twilight, while Arin remains positioned near the guildhall's entrance, her gaze locked on him like a hawk.*\n*From the hall beyond the office, the faint sounds of the guild's evening settle in—the clatter of tankards, the low murmur of conversation, the occasional crackle of a hearth.*\n*The scent of old wood and tobacco clings to the room, mixed with the cool evening air drifting in from the open window.*\n*Ponticius finally breaks the silence, his voice a low, thoughtful rumble.*\n\"It's a bold plan, Max. Bold enough that I admire it.\"\n*He steps back from the window, his heavy boots echoing on the floorboards.*\n\"But it's also risky. A lot can't go wrong when you're dealing with forgeries and mysterious setups.\"\n*He pauses, his gaze settling on Max with a steady intensity.*\n\"I'll spare the guards for the vault, as you requested. And I'll have Arin keep watch in the yard.\"\n*His voice is plain, carrying the weight of his authority.*\n\"But I want a report from you first thing tomorrow morning. On what you've learned from the driver and on any other leads.\"\n*The Guild Master shifts his weight, the chair creaking as he settles back into his seat.*\n\"And Luke... we'll talk about the Sun Ruins after we've sorted this mess out.\"\n*He looks toward the door, then back at Max.*\n\"Go on then. Get this done. And don't get caught off guard.\"\n*The words are a warning, a final word in the discussion before the room returns to its uneasy quiet.*"
+  },
+  {
+   "index": 49,
+   "speaker": "player",
+   "text": "We agree to move at midnight."
+  },
+  {
+   "index": 50,
+   "speaker": "Luke",
+   "text": "\"T-That's all, that's all that's left...\"\n*Luke's voice trails off as he watches Arin and Ponticius head toward the yard. He clutches the parchment in his hands, his chest heaving as he stares at the door.*\n\"T-The guild master... he's going out there.\"\n*He looks over at Max, his eyes wide with a mix of fear and resolve. His chainmail clinks as he fidgets, his pale hands gripping the crumpled paper.*\n\"Is he... is he going to confront the driver?\"\n*He looks back at the yard, then at the parchment, then back at Max again.*\n\"We can't just... we can't just stay here, can we?\"\n*He's trying to sound brave, but his voice is uncertain and quick, betraying his anxiety. His brown hair shadows his face, but his eyes are bright with hope and determination.*"
+  },
+  {
+   "index": 51,
+   "speaker": "Ponticius",
+   "text": "*The Guild Master nods, his jaw setting in a grim line.*\n\"Midnight it is.\"\n*His voice is low and steady, carrying that weight that makes doubt seem impossible.*\n\"We'll move when the town settles into its deepest sleep.\"\n*He glances over to Arin, a flick of approval in his eyes.*\n\"Arin. You've got the first watch. Keep a close eye on that driver.\"\n*His gaze then shifts to you, Max.*\n\"And Max—make sure you're ready for anything.\"\n*He pauses, leaning against the edge of the desk, his arms folding across his chest.*\n\"Someone went through a lot of effort for this. They're not expecting us to wait until the dead of night.\"\n*His voice is plain, offering no sugarcoating for the risks ahead.*\n\"But that means we're the ones with the advantage.\"\n*The Guild Master straightens up, his heavy boots thudding on the floor as he turns toward the door.*\n\"I'll get some rest. When midnight comes, I'll be ready.\"\n*His words are final, leaving no room for argument or hesitation. The plan is set, and now there is only waiting.*"
+  },
+  {
+   "index": 52,
+   "speaker": "Arin",
+   "text": "*Arin straightens up from his leaned position, his green eyes flicking from Ponticius to you.*\n\"Got it, boss.\"\n*He adjusts the strap of his shortbow, his movements efficient and practiced.*\n\"I'll keep my eyes peeled.\"\n*He shifts his weight slightly, his hand brushing the hilt of his daggers as if to remind himself they're there.*\n\"But I'm telling you now—something's not quite right about this guy.\"\n*His voice is low, cautious.*\n\"The way he sits there, just waiting... it's like he's part of a script.\"\n*He shoots you a quick glance, his brow furrowing.*\n\"Just be ready for anything when you wake up, okay?\"\n*He smirks slightly, though there's no humor in his eyes.*\n\"I'd hate for you to get caught sleeping on the job.\"\n*The words are half-teasing, half-serious, and Arin's tone suggests that tonight, sleep might be a distant luxury.*"
+  }
+ ],
+ "presence": [
+  {
+   "index": 0,
+   "presence": null
+  },
+  {
+   "index": 1,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 2,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 3,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 4,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master",
+    "Luke"
+   ]
+  },
+  {
+   "index": 5,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 6,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 7,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 8,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 9,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master",
+    "Luke"
+   ]
+  },
+  {
+   "index": 10,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 11,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 12,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master",
+    "Luke"
+   ]
+  },
+  {
+   "index": 13,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 14,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 15,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 16,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion"
+   ]
+  },
+  {
+   "index": 17,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion"
+   ]
+  },
+  {
+   "index": 18,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion"
+   ]
+  },
+  {
+   "index": 19,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion"
+   ]
+  },
+  {
+   "index": 20,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Luke"
+   ]
+  },
+  {
+   "index": 21,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion"
+   ]
+  },
+  {
+   "index": 22,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion"
+   ]
+  },
+  {
+   "index": 23,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion"
+   ]
+  },
+  {
+   "index": 24,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion"
+   ]
+  },
+  {
+   "index": 25,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion"
+   ]
+  },
+  {
+   "index": 26,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion"
+   ]
+  },
+  {
+   "index": 27,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 28,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 29,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 30,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 31,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Ponticius",
+    "guild_master",
+    "Luke"
+   ]
+  },
+  {
+   "index": 32,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 33,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 34,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 35,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 36,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 37,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 38,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Ponticius",
+    "guild_master",
+    "Luke"
+   ]
+  },
+  {
+   "index": 39,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 40,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 41,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 42,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 43,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 44,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 45,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 46,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 47,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 48,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 49,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 50,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master",
+    "Luke"
+   ]
+  },
+  {
+   "index": 51,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  },
+  {
+   "index": 52,
+   "presence": [
+    "DM Narrator",
+    "dm",
+    "Arin",
+    "companion",
+    "Ponticius",
+    "guild_master"
+   ]
+  }
+ ]
+}

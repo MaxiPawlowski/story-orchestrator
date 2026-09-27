@@ -1,0 +1,89 @@
+2026-09-26T19:54:39.296Z c01 en valid=true shape=1/1 decision=true kept=[enable:The Old Tunnel]
+2026-09-26T19:54:45.130Z c02 en valid=true shape=1/1 decision=true kept=[patch:Siege of Varn]
+2026-09-26T19:54:50.255Z c03 en valid=true shape=1/1 decision=true kept=[patch:Captain Hale]
+2026-09-26T19:54:52.152Z c04 en valid=true shape=0/0 decision=true kept=[]
+2026-09-26T19:54:54.496Z c05 en valid=true shape=0/0 decision=true kept=[]
+2026-09-26T19:55:00.090Z c06 en valid=true shape=1/1 decision=true kept=[enable:The Drowned Bell]
+2026-09-26T19:55:04.815Z c07 en valid=true shape=1/1 decision=true kept=[patch:Orin's Shop]
+2026-09-26T19:55:07.274Z c08 en valid=true shape=0/0 decision=true kept=[]
+2026-09-26T19:55:11.352Z c09 en valid=true shape=1/1 decision=true kept=[patch:Festival of Lanterns]
+2026-09-26T19:55:17.720Z c10 en valid=true shape=0/1 decision=true kept=[]
+2026-09-26T19:55:21.435Z c11 en valid=true shape=2/2 decision=true kept=[patch:Guard Rotation, enable:The Vault]
+2026-09-26T19:55:23.541Z c12 en valid=true shape=0/0 decision=true kept=[]
+2026-09-26T19:55:25.979Z c13 es valid=true shape=1/1 decision=true kept=[enable:La Cripta]
+2026-09-26T19:55:29.273Z c14 es valid=true shape=1/1 decision=true kept=[patch:Alcalde Ruiz]
+2026-09-26T19:55:30.852Z c15 es valid=true shape=0/0 decision=true kept=[]
+2026-09-26T19:55:40.343Z c16 es valid=true shape=1/1 decision=true kept=[disable:La Tormenta]
+2026-09-26T19:55:42.737Z c17 es valid=true shape=0/0 decision=true kept=[]
+2026-09-26T19:55:46.461Z c18 es valid=true shape=1/1 decision=true kept=[enable:El Puente Roto]
+2026-09-26T19:55:53.143Z c19 es valid=true shape=1/1 decision=true kept=[patch:La Posada del Cuervo]
+2026-09-26T19:56:04.857Z c20 es valid=true shape=1/1 decision=false kept=[patch:Los Mineros]
+2026-09-26T19:56:04.932Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-26T19-56-04-931Z_so-role-calibration-curator-shared-fd8efa441c80-r1.json
+2026-09-26T19:56:04.935Z recorded test/goldens/live/role-calibration/curator-shared-fd8efa441c80-r1.json
+2026-09-26T19:56:04.935Z {
+2026-09-26T19:56:04.935Z   "role": "curator",
+2026-09-26T19:56:04.935Z   "arm": "shared-fd8efa441c80-r1",
+2026-09-26T19:56:04.935Z   "profile": {
+2026-09-26T19:56:04.935Z     "id": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+2026-09-26T19:56:04.935Z     "name": "Story Orchestrator Memory RunPod",
+2026-09-26T19:56:04.935Z     "fallback": true
+2026-09-26T19:56:04.935Z   },
+2026-09-26T19:56:04.935Z   "cases": 20,
+2026-09-26T19:56:04.935Z   "summary": {
+2026-09-26T19:56:04.935Z     "role": "curator",
+2026-09-26T19:56:04.935Z     "overall": {
+2026-09-26T19:56:04.935Z       "cases": 20,
+2026-09-26T19:56:04.935Z       "metrics": {
+2026-09-26T19:56:04.935Z         "validity": {
+2026-09-26T19:56:04.935Z           "passed": 20,
+2026-09-26T19:56:04.935Z           "total": 20,
+2026-09-26T19:56:04.935Z           "rate": 1,
+2026-09-26T19:56:04.935Z           "floor": 0.9,
+2026-09-26T19:56:04.935Z           "ok": true
+2026-09-26T19:56:04.935Z         },
+2026-09-26T19:56:04.935Z         "opShape": {
+2026-09-26T19:56:04.935Z           "passed": 14,
+2026-09-26T19:56:04.935Z           "total": 15,
+2026-09-26T19:56:04.935Z           "rate": 0.9333333333333333,
+2026-09-26T19:56:04.935Z           "floor": 0.85,
+2026-09-26T19:56:04.935Z           "ok": true
+2026-09-26T19:56:04.935Z         },
+2026-09-26T19:56:04.935Z         "decision": {
+2026-09-26T19:56:04.935Z           "passed": 19,
+2026-09-26T19:56:04.935Z           "total": 20,
+2026-09-26T19:56:04.935Z           "rate": 0.95,
+2026-09-26T19:56:04.935Z           "floor": 0.7,
+2026-09-26T19:56:04.935Z           "ok": true
+2026-09-26T19:56:04.935Z         }
+2026-09-26T19:56:04.935Z       }
+2026-09-26T19:56:04.935Z     },
+2026-09-26T19:56:04.935Z     "es": {
+2026-09-26T19:56:04.935Z       "cases": 8,
+2026-09-26T19:56:04.935Z       "metrics": {
+2026-09-26T19:56:04.935Z         "validity": {
+2026-09-26T19:56:04.935Z           "passed": 8,
+2026-09-26T19:56:04.935Z           "total": 8,
+2026-09-26T19:56:04.935Z           "rate": 1,
+2026-09-26T19:56:04.936Z           "floor": 0.9,
+2026-09-26T19:56:04.936Z           "ok": true
+2026-09-26T19:56:04.936Z         },
+2026-09-26T19:56:04.936Z         "opShape": {
+2026-09-26T19:56:04.936Z           "passed": 6,
+2026-09-26T19:56:04.936Z           "total": 6,
+2026-09-26T19:56:04.936Z           "rate": 1,
+2026-09-26T19:56:04.936Z           "floor": 0.85,
+2026-09-26T19:56:04.936Z           "ok": true
+2026-09-26T19:56:04.936Z         },
+2026-09-26T19:56:04.936Z         "decision": {
+2026-09-26T19:56:04.936Z           "passed": 7,
+2026-09-26T19:56:04.936Z           "total": 8,
+2026-09-26T19:56:04.936Z           "rate": 0.875,
+2026-09-26T19:56:04.936Z           "floor": 0.7,
+2026-09-26T19:56:04.936Z           "ok": true
+2026-09-26T19:56:04.936Z         }
+2026-09-26T19:56:04.936Z       }
+2026-09-26T19:56:04.936Z     },
+2026-09-26T19:56:04.936Z     "meetsFloors": true
+2026-09-26T19:56:04.936Z   },
+2026-09-26T19:56:04.936Z   "restored": {}
+2026-09-26T19:56:04.936Z }

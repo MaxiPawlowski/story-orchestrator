@@ -1,0 +1,103 @@
+2026-09-27T04:16:48.187Z 1/20 eval ok 1511ms
+2026-09-27T04:16:48.189Z 1/20 eval -> {"flag":true,"recording":true}
+2026-09-27T04:16:48.191Z 2/20 eval ok 4ms
+2026-09-27T04:16:48.459Z 3/20 import_story ok 268ms
+2026-09-27T04:16:48.464Z 4/20 eval ok 5ms
+2026-09-27T04:16:48.464Z 4/20 eval -> {"at":"waystation","boundary":0}
+2026-09-27T04:16:50.133Z 5/20 slash ok 1670ms
+2026-09-27T04:16:51.800Z 6/20 slash ok 1666ms
+2026-09-27T04:16:51.805Z 7/20 eval ok 5ms
+2026-09-27T04:16:51.805Z 7/20 eval -> {"flag":true,"releases":[{"boundary":2,"checkpointId":"waystation","id":"c1","text":"A rider arrives at a gallop, wounded, and collapses by the well."}],"pending":{"boundary":2,"checkpointId":"waystation","id":"c1","text":"A rider arrives at a gallop, wounded, and collapses by the well."},"directions":["escalate","escalate"]}
+2026-09-27T04:16:51.810Z 8/20 eval ok 5ms
+2026-09-27T04:16:51.810Z 8/20 eval -> {"tag":"after-step-7","pending":{"boundary":2,"checkpointId":"waystation","id":"c1","text":"A rider arrives at a gallop, wounded, and collapses by the well."},"releases":[{"boundary":2,"checkpointId":"waystation","id":"c1","text":"A rider arrives at a gallop, wounded, and collapses by the well."}],"directions":["escalate","escalate"],"flag":true,"boundary":2,"log":[1,2],"events":0,"spikesKeys":["refresh","draws","events","complications","recommitEdit","swipeBackCache"]}
+2026-09-27T04:16:56.740Z 9/20 slash ok 4930ms
+2026-09-27T04:16:58.755Z 10/20 eval ok 2015ms
+2026-09-27T04:16:58.755Z 10/20 eval -> {"quiet":1}
+2026-09-27T04:16:58.761Z 11/20 eval ok 6ms
+2026-09-27T04:16:58.761Z 11/20 eval -> {"tag":"after-step-9","pending":{"boundary":2,"checkpointId":"waystation","id":"c1","text":"A rider arrives at a gallop, wounded, and collapses by the well."},"releases":[{"boundary":2,"checkpointId":"waystation","id":"c1","text":"A rider arrives at a gallop, wounded, and collapses by the well."}],"directions":["escalate","escalate"],"flag":true,"boundary":2,"log":[1,2],"events":0,"spikesKeys":["refresh","draws","events","complications","recommitEdit","swipeBackCache"]}
+2026-09-27T04:17:20.673Z 12/20 slash ok 21912ms
+2026-09-27T04:17:22.695Z 13/20 eval ok 2023ms
+2026-09-27T04:17:22.695Z 13/20 eval -> {"impersonated":true}
+2026-09-27T04:17:22.704Z 14/20 eval ok 8ms
+2026-09-27T04:17:22.704Z 14/20 eval -> {"tag":"after-step-11","pending":{"boundary":2,"checkpointId":"waystation","id":"c1","text":"A rider arrives at a gallop, wounded, and collapses by the well."},"releases":[{"boundary":2,"checkpointId":"waystation","id":"c1","text":"A rider arrives at a gallop, wounded, and collapses by the well."}],"directions":["escalate","escalate"],"flag":true,"boundary":2,"log":[1,2],"events":0,"spikesKeys":["refresh","draws","events","complications","recommitEdit","swipeBackCache"]}
+2026-09-27T04:17:40.206Z 15/20 send_generate ok 17502ms
+2026-09-27T04:17:41.730Z 16/20 wait ok 1524ms
+2026-09-27T04:17:41.735Z 17/20 eval ok 5ms
+2026-09-27T04:17:41.735Z 17/20 eval -> {"requests":3}
+2026-09-27T04:18:04.338Z 18/20 send_generate ok 22604ms
+2026-09-27T04:18:05.866Z 19/20 wait ok 1529ms
+2026-09-27T04:18:07.379Z 20/20 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: K2 FAIL: the complication rode requests [], want exactly [2] (quiet=0, impersonate=1, first loud=2)
+2026-09-27T04:18:07.379Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:1058)
+2026-09-27T04:18:07.379Z     at async <anonymous>:316:30
+2026-09-27T04:18:07.448Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T04-18-07-446Z_so-scenario-failure.json
+2026-09-27T04:18:13.387Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T04-18-13-387Z_so-scenario-result.json
+2026-09-27T04:18:13.387Z {
+2026-09-27T04:18:13.387Z   "ok": false,
+2026-09-27T04:18:13.387Z   "steps": 20,
+2026-09-27T04:18:13.387Z   "cleanup": {
+2026-09-27T04:18:13.387Z     "importedStoryHashes": [
+2026-09-27T04:18:13.387Z       "v2-69a8ea0c"
+2026-09-27T04:18:13.387Z     ],
+2026-09-27T04:18:13.387Z     "library": {
+2026-09-27T04:18:13.387Z       "changed": true,
+2026-09-27T04:18:13.387Z       "removed": [
+2026-09-27T04:18:13.387Z         "live-v25-09-sp6@1 (v2-69a8ea0c)"
+2026-09-27T04:18:13.387Z       ],
+2026-09-27T04:18:13.387Z       "restored": [],
+2026-09-27T04:18:13.387Z       "saved": {
+2026-09-27T04:18:13.387Z         "status": 200
+2026-09-27T04:18:13.387Z       },
+2026-09-27T04:18:13.387Z       "verified": true
+2026-09-27T04:18:13.387Z     },
+2026-09-27T04:18:13.387Z     "clearedDebugResponses": [],
+2026-09-27T04:18:13.387Z     "soloChats": {
+2026-09-27T04:18:13.387Z       "deleted": [],
+2026-09-27T04:18:13.387Z       "leaked": []
+2026-09-27T04:18:13.387Z     },
+2026-09-27T04:18:13.387Z     "sandboxChatId": "2026-09-27@01h16m46s430ms",
+2026-09-27T04:18:13.387Z     "owned": [
+2026-09-27T04:18:13.387Z       "2026-09-27@01h16m46s430ms"
+2026-09-27T04:18:13.387Z     ],
+2026-09-27T04:18:13.387Z     "deleted": [
+2026-09-27T04:18:13.387Z       "2026-09-27@01h16m46s430ms"
+2026-09-27T04:18:13.387Z     ],
+2026-09-27T04:18:13.387Z     "notDeleted": [],
+2026-09-27T04:18:13.387Z     "resurrected": [],
+2026-09-27T04:18:13.387Z     "lateFileRepaired": [],
+2026-09-27T04:18:13.387Z     "saveSettleMs": 1528,
+2026-09-27T04:18:13.387Z     "skipped": [],
+2026-09-27T04:18:13.387Z     "currentChatAtCleanup": "2026-09-27@01h16m46s430ms",
+2026-09-27T04:18:13.387Z     "currentGroupAtCleanup": "1759606632088",
+2026-09-27T04:18:13.387Z     "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+2026-09-27T04:18:13.387Z     "branchChats": {
+2026-09-27T04:18:13.387Z       "recorded": [],
+2026-09-27T04:18:13.387Z       "deleted": [],
+2026-09-27T04:18:13.388Z       "failed": [],
+2026-09-27T04:18:13.388Z       "leaked": []
+2026-09-27T04:18:13.388Z     },
+2026-09-27T04:18:13.388Z     "mirrorBooks": {
+2026-09-27T04:18:13.388Z       "deleted": [],
+2026-09-27T04:18:13.388Z       "failed": [],
+2026-09-27T04:18:13.388Z       "leaked": []
+2026-09-27T04:18:13.388Z     },
+2026-09-27T04:18:13.388Z     "reapPrompts": {
+2026-09-27T04:18:13.388Z       "dismissed": [],
+2026-09-27T04:18:13.388Z       "leaked": []
+2026-09-27T04:18:13.388Z     },
+2026-09-27T04:18:13.388Z     "extraction": {
+2026-09-27T04:18:13.388Z       "restored": false,
+2026-09-27T04:18:13.388Z       "unchanged": true,
+2026-09-27T04:18:13.388Z       "settings": {
+2026-09-27T04:18:13.388Z         "enabled": true,
+2026-09-27T04:18:13.388Z         "cadence": 3,
+2026-09-27T04:18:13.388Z         "stabilityLag": 0,
+2026-09-27T04:18:13.388Z         "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+2026-09-27T04:18:13.388Z         "profiles": {}
+2026-09-27T04:18:13.388Z       }
+2026-09-27T04:18:13.388Z     },
+2026-09-27T04:18:13.388Z     "judge": {
+2026-09-27T04:18:13.388Z       "restored": false,
+2026-09-27T04:18:13.388Z       "unchanged": true
+2026-09-27T04:18:13.388Z     }
+2026-09-27T04:18:13.388Z   }
+2026-09-27T04:18:13.388Z }

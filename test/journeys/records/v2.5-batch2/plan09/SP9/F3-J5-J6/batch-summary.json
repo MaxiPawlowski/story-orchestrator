@@ -1,0 +1,79 @@
+{
+  "lanes": [
+    3
+  ],
+  "items": [
+    "J5",
+    "J6"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "J5",
+      "lane": 3,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\3\\debug\\batch\\2026-09-27T03-50-52-608Z-J5-run1.log",
+      "ms": 67341,
+      "automated": "automated: 7 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\3\\debug\\2026-09-27T03-51-59-925Z_journey-J5.json",
+      "failures": []
+    },
+    {
+      "item": "J5",
+      "lane": 3,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\3\\debug\\batch\\2026-09-27T03-50-52-608Z-J5-run2.log",
+      "ms": 59354,
+      "automated": "automated: 7 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\3\\debug\\2026-09-27T03-52-59-280Z_journey-J5.json",
+      "failures": []
+    },
+    {
+      "item": "J6",
+      "lane": 3,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\3\\debug\\batch\\2026-09-27T03-50-52-608Z-J6-run1.log",
+      "ms": 285508,
+      "automated": "automated: 3 pass, 8 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\3\\debug\\2026-09-27T03-57-44-770Z_journey-J6.json",
+      "failures": [
+        "FAIL J6.1",
+        "FAIL J6.4",
+        "FAIL J6.6",
+        "FAIL J6.7",
+        "FAIL J6.8",
+        "FAIL J6.10",
+        "FAIL J6.11",
+        "FAIL J6.12"
+      ]
+    },
+    {
+      "item": "J6",
+      "lane": 3,
+      "run": 2,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\3\\debug\\batch\\2026-09-27T03-50-52-608Z-J6-run2.log",
+      "ms": 226236,
+      "automated": "automated: 3 pass, 8 fail, 0 blocked, 0 not-runnable, 0 skipped",
+      "cleanup": "cleanup:   clean",
+      "record": "C:\\dev\\so-lanes\\3\\debug\\2026-09-27T04-01-31-007Z_journey-J6.json",
+      "failures": [
+        "FAIL J6.1",
+        "FAIL J6.4",
+        "FAIL J6.6",
+        "FAIL J6.7",
+        "FAIL J6.8",
+        "FAIL J6.10",
+        "FAIL J6.11",
+        "FAIL J6.12"
+      ]
+    }
+  ]
+}

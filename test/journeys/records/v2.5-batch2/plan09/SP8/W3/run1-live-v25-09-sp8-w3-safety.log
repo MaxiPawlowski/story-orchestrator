@@ -1,0 +1,228 @@
+2026-09-27T04:21:14.982Z 1/103 inject_script ok 6ms
+2026-09-27T04:21:15.171Z 2/103 eval ok 190ms
+2026-09-27T04:21:15.171Z 2/103 eval -> {"created":12,"seeded":6}
+2026-09-27T04:21:15.446Z 3/103 import_story ok 276ms
+2026-09-27T04:21:15.460Z 4/103 eval ok 14ms
+2026-09-27T04:21:15.460Z 4/103 eval -> {"armed":{"curator":{"curatorEnabled":true,"acceptMode":"auto","wardenEnabled":false,"wardenAcceptMode":"review"},"spikes":{"recommitEdit":false,"swipeBackCache":false,"witnessFilter":false,"sp5Scenario":false,"sp7Chance":false,"sp6Complications":false,"sp4AppendShortTerm":false,"sp8CuratorTiers":true,"sp8CuratorDigest":false}},"curatorProfile":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5"}
+2026-09-27T04:21:42.717Z 5/103 send_generate ok 27256ms
+2026-09-27T04:21:45.876Z 6/103 wait ok 3159ms
+2026-09-27T04:21:48.304Z 7/103 eval ok 2428ms
+2026-09-27T04:21:48.304Z 7/103 eval -> {"ran":true,"skipped":null,"ops":0,"dropped":[]}
+2026-09-27T04:21:48.309Z 8/103 eval ok 6ms
+2026-09-27T04:21:48.310Z 8/103 eval -> {"decided":0,"applied":0}
+2026-09-27T04:22:05.315Z 9/103 send_generate ok 17005ms
+2026-09-27T04:22:58.612Z 10/103 wait ok 53297ms
+2026-09-27T04:23:03.369Z 11/103 eval ok 4757ms
+2026-09-27T04:23:03.369Z 11/103 eval -> {"ran":true,"skipped":null,"ops":0,"dropped":["patch: \"The Crown\": the patch touches protected text","patch: \"The Temple\": the patch touches protected text"]}
+2026-09-27T04:23:03.375Z 12/103 eval ok 6ms
+2026-09-27T04:23:03.375Z 12/103 eval -> {"decided":0,"applied":0}
+2026-09-27T04:24:26.480Z 13/103 send_generate ok 83105ms
+2026-09-27T04:24:42.316Z 14/103 wait ok 15836ms
+2026-09-27T04:24:46.509Z 15/103 eval ok 4193ms
+2026-09-27T04:24:46.509Z 15/103 eval -> {"ran":true,"skipped":null,"ops":0,"dropped":["patch: \"The Crown\": the patch touches protected text","patch: \"The Temple\": the patch touches protected text"]}
+2026-09-27T04:24:46.514Z 16/103 eval ok 5ms
+2026-09-27T04:24:46.514Z 16/103 eval -> {"decided":0,"applied":0}
+2026-09-27T04:25:10.655Z 17/103 send_generate ok 24141ms
+2026-09-27T04:25:23.875Z 18/103 wait ok 13220ms
+2026-09-27T04:25:28.250Z 19/103 eval ok 4375ms
+2026-09-27T04:25:28.250Z 19/103 eval -> {"ran":true,"skipped":null,"ops":0,"dropped":["patch: \"The Crown\": the patch touches protected text","patch: \"The Temple\": the patch touches protected text"]}
+2026-09-27T04:25:28.255Z 20/103 eval ok 5ms
+2026-09-27T04:25:28.255Z 20/103 eval -> {"decided":0,"applied":0}
+2026-09-27T04:25:53.003Z 21/103 send_generate ok 24747ms
+2026-09-27T04:25:56.183Z 22/103 wait ok 3181ms
+2026-09-27T04:26:00.606Z 23/103 eval ok 4423ms
+2026-09-27T04:26:00.606Z 23/103 eval -> {"ran":true,"skipped":null,"ops":0,"dropped":["patch: \"The Crown\": the patch touches protected text","patch: \"The Temple\": the patch touches protected text"]}
+2026-09-27T04:26:00.614Z 24/103 eval ok 7ms
+2026-09-27T04:26:00.614Z 24/103 eval -> {"decided":0,"applied":0}
+2026-09-27T04:26:30.946Z 25/103 send_generate ok 30332ms
+2026-09-27T04:27:13.152Z 26/103 wait ok 42206ms
+2026-09-27T04:27:21.229Z 27/103 eval ok 8077ms
+2026-09-27T04:27:21.229Z 27/103 eval -> {"ran":true,"skipped":null,"ops":0,"dropped":["patch: \"The Crown\": the patch touches protected text","patch: \"The Old Bridge\": the patch touches protected text","patch: \"The Temple\": the patch touches protected text","patch: \"The Smuggler\": the patch touches protected text"]}
+2026-09-27T04:27:21.236Z 28/103 eval ok 6ms
+2026-09-27T04:27:21.236Z 28/103 eval -> {"decided":0,"applied":0}
+2026-09-27T04:27:52.573Z 29/103 send_generate ok 31337ms
+2026-09-27T04:27:55.729Z 30/103 wait ok 3157ms
+2026-09-27T04:28:03.432Z 31/103 eval ok 7702ms
+2026-09-27T04:28:03.432Z 31/103 eval -> {"ran":true,"skipped":null,"ops":0,"dropped":["patch: \"The Crown\": the patch touches protected text","patch: \"The Old Bridge\": the patch touches protected text","patch: \"The Temple\": the patch touches protected text","patch: \"The Smuggler\": the patch touches protected text"]}
+2026-09-27T04:28:03.438Z 32/103 eval ok 6ms
+2026-09-27T04:28:03.438Z 32/103 eval -> {"decided":0,"applied":0}
+2026-09-27T04:28:43.570Z 33/103 send_generate ok 40132ms
+2026-09-27T04:28:46.737Z 34/103 wait ok 3167ms
+2026-09-27T04:28:54.299Z 35/103 eval ok 7563ms
+2026-09-27T04:28:54.299Z 35/103 eval -> {"ran":true,"skipped":null,"ops":0,"dropped":["patch: \"The Crown\": the patch touches protected text","patch: \"The Old Bridge\": the patch touches protected text","patch: \"The Temple\": the patch touches protected text","patch: \"The Smuggler\": the patch touches protected text"]}
+2026-09-27T04:28:54.305Z 36/103 eval ok 6ms
+2026-09-27T04:28:54.305Z 36/103 eval -> {"decided":0,"applied":0}
+2026-09-27T04:29:18.556Z 37/103 send_generate ok 24251ms
+2026-09-27T04:30:01.092Z 38/103 wait ok 42535ms
+2026-09-27T04:30:12.234Z 39/103 eval ok 11142ms
+2026-09-27T04:30:12.234Z 39/103 eval -> {"ran":true,"skipped":null,"ops":0,"dropped":["over the 4-change cap: [patch] #6 || Market day is on Thursday. || on Thursday. || ","over the 4-change cap: [patch] #7 || It has rained for a week and the river is high","over the 4-change cap: [enable] #8","over the 4-change cap: [patch] #8 || The Drowned Lantern inn is shut for repairs. |","patch: \"The Crown\": the patch touches protected text","patch: \"The Old Bridge\": the patch touches protected text","patch: \"The Temple\": the patch touches protected text","patch: \"The Smuggler\": the patch touches protected text"]}
+2026-09-27T04:30:12.240Z 40/103 eval ok 6ms
+2026-09-27T04:30:12.241Z 40/103 eval -> {"decided":0,"applied":0}
+2026-09-27T04:30:42.036Z 41/103 send_generate ok 29795ms
+2026-09-27T04:30:54.994Z 42/103 wait ok 12958ms
+2026-09-27T04:31:05.961Z 43/103 eval ok 10967ms
+2026-09-27T04:31:05.961Z 43/103 eval -> {"ran":true,"skipped":null,"ops":0,"dropped":["over the 4-change cap: [patch] #6 || Market day is on Thursday. || Market day is on","over the 4-change cap: [patch] #7 || It has rained for a week and the river is high","over the 4-change cap: [enable] #8","over the 4-change cap: [patch] #8 || The Drowned Lantern inn is shut for repairs. |","patch: \"The Crown\": the patch touches protected text","patch: \"The Old Bridge\": the patch touches protected text","patch: \"The Temple\": the patch touches protected text","patch: \"The Smuggler\": the patch touches protected text"]}
+2026-09-27T04:31:05.967Z 44/103 eval ok 6ms
+2026-09-27T04:31:05.967Z 44/103 eval -> {"decided":0,"applied":0}
+2026-09-27T04:31:37.854Z 45/103 send_generate ok 31887ms
+2026-09-27T04:31:41.033Z 46/103 wait ok 3180ms
+2026-09-27T04:31:52.165Z 47/103 eval ok 11131ms
+2026-09-27T04:31:52.165Z 47/103 eval -> {"ran":true,"skipped":null,"ops":0,"dropped":["over the 4-change cap: [patch] #6 || Market day is on Thursday. || Market day is on","over the 4-change cap: [patch] #7 || It has rained for a week and the river is high","over the 4-change cap: [enable] #8","over the 4-change cap: [patch] #8 || The Drowned Lantern inn is shut for repairs. |","patch: \"The Crown\": the patch touches protected text","patch: \"The Old Bridge\": the patch touches protected text","patch: \"The Temple\": the patch touches protected text","patch: \"The Smuggler\": the patch touches protected text"]}
+2026-09-27T04:31:52.172Z 48/103 eval ok 7ms
+2026-09-27T04:31:52.172Z 48/103 eval -> {"decided":0,"applied":0}
+2026-09-27T04:32:25.468Z 49/103 send_generate ok 33295ms
+2026-09-27T04:33:08.528Z 50/103 wait ok 43060ms
+2026-09-27T04:33:22.263Z 51/103 eval ok 13735ms
+2026-09-27T04:33:22.263Z 51/103 eval -> {"ran":true,"skipped":null,"ops":0,"dropped":["over the 4-change cap: [patch] #6 || Market day is on Thursday. || Market day is on","over the 4-change cap: [patch] #8 || The Drowned Lantern inn is shut for repairs. |","over the 4-change cap: [patch] #9 || The ferryman, Oszkar, charges one copper per c","over the 4-change cap: [patch] #10 || The merchants' guild meets in the old granary","over the 4-change cap: [patch] #11 || The north road is safe in daylight. || The no","over the 4-change cap: [enable] #8","over the 4-change cap: [enable] #11","patch: \"The Crown\": the patch touches protected text","patch: \"The Old Bridge\": the patch touches protected text","patch: \"The Temple\": the patch touches protected text","patch: \"The Smuggler\": the patch touches protected text"]}
+2026-09-27T04:33:22.271Z 52/103 eval ok 9ms
+2026-09-27T04:33:22.271Z 52/103 eval -> {"decided":0,"applied":0}
+2026-09-27T04:35:17.645Z 53/103 send_generate ok 115374ms
+2026-09-27T04:35:48.345Z 54/103 wait ok 30699ms
+2026-09-27T04:36:00.112Z 55/103 eval ok 11768ms
+2026-09-27T04:36:00.113Z 55/103 eval -> {"ran":true,"skipped":null,"ops":1,"dropped":["over the 4-change cap: [patch] #8 \"The Inn\" || The Drowned Lantern inn is shut for ","over the 4-change cap: [patch] #9 \"The Ferryman\" || The ferryman, Oszkar, charges o","over the 4-change cap: [enable] #8 \"The Inn\"","over the 4-change cap: [enable] #11 \"The North Road\"","rewrite: \"The Crown\": the rewrite touches protected text","patch: \"The Old Bridge\": the patch touches protected text","patch: \"The Smuggler\": the patch touches protected text"]}
+2026-09-27T04:36:00.414Z 56/103 eval ok 302ms
+2026-09-27T04:36:00.414Z 56/103 eval -> {"decided":0,"applied":1}
+2026-09-27T04:37:33.277Z 57/103 send_generate ok 92864ms
+2026-09-27T04:38:08.910Z 58/103 wait ok 35632ms
+2026-09-27T04:38:19.727Z 59/103 eval ok 10817ms
+2026-09-27T04:38:19.727Z 59/103 eval -> {"ran":true,"skipped":null,"ops":1,"dropped":["over the 4-change cap: [rewrite] #8 \"The Inn\" || The Drowned Lantern inn has reopen","over the 4-change cap: [patch] #9 \"The Ferryman\" || charges one copper per crossing","over the 4-change cap: [enable] #11 \"The North Road\"","over the 4-change cap: [rewrite] #11 \"The North Road\" || The north road is plagued ","rewrite: \"The Crown\": the rewrite touches protected text","patch: \"The Old Bridge\": the patch touches protected text","patch: \"The Smuggler\": the patch touches protected text"]}
+2026-09-27T04:38:20.033Z 60/103 eval ok 305ms
+2026-09-27T04:38:20.033Z 60/103 eval -> {"decided":0,"applied":1}
+2026-09-27T04:39:23.191Z 61/103 send_generate ok 63158ms
+2026-09-27T04:40:10.409Z 62/103 wait ok 47218ms
+2026-09-27T04:40:20.051Z 63/103 eval ok 9642ms
+2026-09-27T04:40:20.051Z 63/103 eval -> {"ran":true,"skipped":null,"ops":0,"dropped":["over the 4-change cap: [enable] #11","patch: \"The Crown\": the patch touches protected text","patch: \"Captain Ilsa\": the patch touches protected text","patch: \"The Old Bridge\": the patch touches protected text","patch: \"The Smuggler\": the patch touches protected text"]}
+2026-09-27T04:40:20.057Z 64/103 eval ok 6ms
+2026-09-27T04:40:20.057Z 64/103 eval -> {"decided":0,"applied":0}
+2026-09-27T04:41:21.237Z 65/103 send_generate ok 61180ms
+2026-09-27T04:41:52.510Z 66/103 wait ok 31273ms
+2026-09-27T04:42:02.063Z 67/103 eval ok 9553ms
+2026-09-27T04:42:02.063Z 67/103 eval -> {"ran":true,"skipped":null,"ops":0,"dropped":["over the 4-change cap: [enable] #11 \"The North Road\"","patch: \"The Crown\": the patch touches protected text","patch: \"Captain Ilsa\": the patch touches protected text","patch: \"The Old Bridge\": the patch touches protected text","patch: \"The Smuggler\": the patch touches protected text"]}
+2026-09-27T04:42:02.069Z 68/103 eval ok 7ms
+2026-09-27T04:42:02.069Z 68/103 eval -> {"decided":0,"applied":0}
+2026-09-27T04:44:22.592Z 69/103 send_generate ok 140522ms
+2026-09-27T04:44:52.679Z 70/103 wait ok 30087ms
+2026-09-27T04:45:02.211Z 71/103 eval ok 9532ms
+2026-09-27T04:45:02.211Z 71/103 eval -> {"ran":true,"skipped":null,"ops":0,"dropped":["over the 4-change cap: [enable] #11 \"The North Road\"","patch: \"The Crown\": the patch touches protected text","patch: \"Captain Ilsa\": the patch touches protected text","patch: \"The Old Bridge\": the patch touches protected text","patch: \"The Smuggler\": the patch touches protected text"]}
+2026-09-27T04:45:02.219Z 72/103 eval ok 7ms
+2026-09-27T04:45:02.219Z 72/103 eval -> {"decided":0,"applied":0}
+2026-09-27T04:47:33.030Z 73/103 send_generate ok 150812ms
+2026-09-27T04:48:09.211Z 74/103 wait ok 36181ms
+2026-09-27T04:48:35.137Z 75/103 eval ok 25926ms
+2026-09-27T04:48:35.137Z 75/103 eval -> {"ran":true,"skipped":null,"ops":0,"dropped":["over the 4-change cap: [rewrite] #5 \"The Smuggler\" || Marten Vole, formerly a smugg","over the 4-change cap: [rewrite] #9 \"The Ferryman\" || The ferryman, Oszkar, has rai","over the 4-change cap: [rewrite] #10 \"The Guild\" || The merchants' guild now meets ","over the 4-change cap: [enable] #11 \"The North Road\"","over the 4-change cap: [patch] #11 \"The North Road\" || The north road is safe in da","rewrite: \"The Crown\": the rewrite touches protected text","rewrite: \"The Mill\": the rewrite touches protected text","rewrite: \"Captain Ilsa\": the rewrite touches protected text","rewrite: \"The Temple\": the rewrite touches protected text"]}
+2026-09-27T04:48:35.145Z 76/103 eval ok 8ms
+2026-09-27T04:48:35.145Z 76/103 eval -> {"decided":0,"applied":0}
+2026-09-27T04:50:34.639Z 77/103 send_generate ok 119494ms
+2026-09-27T04:51:02.400Z 78/103 wait ok 27761ms
+2026-09-27T04:51:27.597Z 79/103 eval ok 25197ms
+2026-09-27T04:51:27.597Z 79/103 eval -> {"ran":true,"skipped":null,"ops":0,"dropped":["over the 4-change cap: [patch] #5 \"The Smuggler\" || Nobody knows the smuggler's rea","over the 4-change cap: [enable] #11 \"The North Road\"","rewrite: \"The Crown\": the rewrite touches protected text","patch: \"The Mill\": the patch touches protected text","patch: \"Captain Ilsa\": the patch touches protected text","patch: \"The Temple\": the patch touches protected text"]}
+2026-09-27T04:51:27.605Z 80/103 eval ok 8ms
+2026-09-27T04:51:27.605Z 80/103 eval -> {"decided":0,"applied":0}
+2026-09-27T04:52:12.206Z 81/103 send_generate ok 44601ms
+2026-09-27T04:52:15.368Z 82/103 wait ok 3162ms
+2026-09-27T04:52:42.889Z 83/103 eval ok 27521ms
+2026-09-27T04:52:42.889Z 83/103 eval -> {"ran":true,"skipped":null,"ops":0,"dropped":["over the 4-change cap: [patch] #5 \"The Smuggler\" || Nobody knows the smuggler's rea","over the 4-change cap: [patch] #8 \"The Inn\" || The Drowned Lantern inn is shut for ","over the 4-change cap: [enable] #11 \"The North Road\"","rewrite: \"The Crown\": the rewrite touches protected text","patch: \"The Mill\": the patch touches protected text","patch: \"Captain Ilsa\": the patch touches protected text","patch: \"The Temple\": the patch touches protected text"]}
+2026-09-27T04:52:42.895Z 84/103 eval ok 6ms
+2026-09-27T04:52:42.895Z 84/103 eval -> {"decided":0,"applied":0}
+2026-09-27T04:53:28.511Z 85/103 send_generate ok 45616ms
+2026-09-27T04:54:10.544Z 86/103 wait ok 42034ms
+2026-09-27T04:54:35.641Z 87/103 eval ok 25096ms
+2026-09-27T04:54:35.641Z 87/103 eval -> {"ran":true,"skipped":null,"ops":1,"dropped":["over the 4-change cap: [rewrite] #5 \"The Smuggler\" || Marten Vole, formerly a smugg","over the 4-change cap: [rewrite] #6 \"Market Day\" || Market day is in decline. Only ","over the 4-change cap: [rewrite] #7 \"The Weather\" || A drought has persisted for a ","over the 4-change cap: [rewrite] #8 \"The Inn\" || The Drowned Lantern inn burned dow","over the 4-change cap: [enable] #11 \"The North Road\"","rewrite: \"The Crown\": the rewrite touches protected text","patch: \"The Mill\": the patch touches protected text","disable: \"Captain Ilsa\" touches protected text, so it may not be switched off"]}
+2026-09-27T04:54:36.216Z 88/103 eval ok 575ms
+2026-09-27T04:54:36.216Z 88/103 eval -> {"decided":1,"applied":1}
+2026-09-27T04:55:43.445Z 89/103 send_generate ok 67230ms
+2026-09-27T04:55:46.625Z 90/103 wait ok 3180ms
+2026-09-27T04:56:16.052Z 91/103 eval ok 29426ms
+2026-09-27T04:56:16.052Z 91/103 eval -> {"ran":true,"skipped":null,"ops":0,"dropped":["over the 4-change cap: [rewrite] #5 \"The Smuggler\" || Marten Vole, formerly a smugg","over the 4-change cap: [rewrite] #7 \"The Weather\" || A drought has persisted for a ","over the 4-change cap: [rewrite] #8 \"The Inn\" || The Drowned Lantern inn burned dow","over the 4-change cap: [rewrite] #10 \"The Guild\" || The merchants' guild meetings h","over the 4-change cap: [enable] #11 \"The North Road\"","rewrite: \"The Crown\": the rewrite touches protected text","rewrite: \"The Mill\": the rewrite touches protected text","rewrite: \"Captain Ilsa\": the rewrite touches protected text","rewrite: \"The Old Bridge\": the rewrite touches protected text"]}
+2026-09-27T04:56:16.058Z 92/103 eval ok 6ms
+2026-09-27T04:56:16.058Z 92/103 eval -> {"decided":0,"applied":0}
+2026-09-27T04:58:23.198Z 93/103 send_generate ok 127140ms
+2026-09-27T05:01:01.267Z 94/103 wait ok 158069ms
+2026-09-27T05:01:28.915Z 95/103 eval ok 27647ms
+2026-09-27T05:01:28.915Z 95/103 eval -> {"ran":true,"skipped":null,"ops":0,"dropped":["over the 4-change cap: [patch] #4 \"The Temple\" || Its bell has been silent since th","over the 4-change cap: [rewrite] #5 \"The Smuggler\" || Marten Vole, formerly a smugg","over the 4-change cap: [patch] #6 \"Market Day\" || Stalls sell apples and wool. || S","over the 4-change cap: [rewrite] #7 \"The Weather\" || A month-long drought has begun","over the 4-change cap: [rewrite] #8 \"The Inn\" || The Drowned Lantern inn burned to ","over the 4-change cap: [enable] #11 \"The North Road\"","rewrite: \"The Crown\": the rewrite touches protected text","rewrite: \"The Mill\": the rewrite touches protected text","patch: \"Captain Ilsa\": the patch touches protected text","rewrite: \"The Old Bridge\": the rewrite touches protected text"]}
+2026-09-27T05:01:28.922Z 96/103 eval ok 7ms
+2026-09-27T05:01:28.922Z 96/103 eval -> {"decided":0,"applied":0}
+2026-09-27T05:03:03.837Z 97/103 send_generate ok 94916ms
+2026-09-27T05:04:05.721Z 98/103 wait ok 61883ms
+2026-09-27T05:04:34.864Z 99/103 eval ok 29143ms
+2026-09-27T05:04:34.864Z 99/103 eval -> {"ran":true,"skipped":null,"ops":1,"dropped":["over the 4-change cap: [patch] #4 \"The Temple\" || Its bell has been silent since th","over the 4-change cap: [rewrite] #5 \"The Smuggler\" || Marten Vole, formerly a salt ","over the 4-change cap: [patch] #6 \"Market Day\" || Stalls sell apples and wool. || S","over the 4-change cap: [rewrite] #7 \"The Weather\" || A month-long drought has begun","over the 4-change cap: [rewrite] #8 \"The Inn\" || The Drowned Lantern inn burned to ","over the 4-change cap: [patch] #9 \"The Ferryman\" || The ferryman, Oszkar, charges o","over the 4-change cap: [rewrite] #10 \"The Guild\" || The merchants' guild was dissol","over the 4-change cap: [enable] #11 \"The North Road","rewrite: \"The Crown\": the rewrite touches protected text","rewrite: \"The Mill\"
+2026-09-27T05:04:35.446Z 100/103 eval ok 582ms
+2026-09-27T05:04:35.446Z 100/103 eval -> {"decided":1,"applied":1}
+2026-09-27T05:04:38.610Z 101/103 wait ok 3164ms
+2026-09-27T05:04:38.626Z 102/103 eval ok 16ms
+2026-09-27T05:04:38.626Z 102/103 eval -> {"records":23,"proposals":84,"refused":80,"planRefused":80,"edgeRefused":0,"refusedShare":0.9523809523809523,"applied":4,"violations":0,"opViolations":[],"bookViolations":[],"pending":0,"byStatus":{"applied":4},"disarmed":{"curator":{"curatorEnabled":true,"acceptMode":"review","wardenEnabled":false,"wardenAcceptMode":"review"},"spikes":{"recommitEdit":false,"swipeBackCache":false,"witnessFilter":false,"sp5Scenario":false,"sp7Chance":false,"sp6Complications":false,"sp4AppendShortTerm":false,"sp8CuratorTiers":false,"sp8CuratorDigest":false}},"pass":false}
+2026-09-27T05:04:38.798Z 103/103 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: W3 FAIL: refused share 0.9523809523809523
+2026-09-27T05:04:38.798Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:473)
+2026-09-27T05:04:38.798Z     at async <anonymous>:316:30
+2026-09-27T05:04:38.996Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T05-04-38-987Z_so-scenario-failure.json
+2026-09-27T05:04:44.947Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T05-04-44-946Z_so-scenario-result.json
+2026-09-27T05:04:44.947Z {
+2026-09-27T05:04:44.947Z   "ok": false,
+2026-09-27T05:04:44.947Z   "steps": 103,
+2026-09-27T05:04:44.947Z   "cleanup": {
+2026-09-27T05:04:44.947Z     "importedStoryHashes": [
+2026-09-27T05:04:44.947Z       "v2-fe0b881d"
+2026-09-27T05:04:44.947Z     ],
+2026-09-27T05:04:44.947Z     "library": {
+2026-09-27T05:04:44.947Z       "changed": true,
+2026-09-27T05:04:44.947Z       "removed": [
+2026-09-27T05:04:44.947Z         "so-v25-09-sp8-protected-lore@1 (v2-fe0b881d)"
+2026-09-27T05:04:44.947Z       ],
+2026-09-27T05:04:44.947Z       "restored": [],
+2026-09-27T05:04:44.947Z       "saved": {
+2026-09-27T05:04:44.947Z         "status": 200
+2026-09-27T05:04:44.947Z       },
+2026-09-27T05:04:44.947Z       "verified": true
+2026-09-27T05:04:44.947Z     },
+2026-09-27T05:04:44.947Z     "clearedDebugResponses": [],
+2026-09-27T05:04:44.947Z     "soloChats": {
+2026-09-27T05:04:44.947Z       "deleted": [],
+2026-09-27T05:04:44.947Z       "leaked": []
+2026-09-27T05:04:44.947Z     },
+2026-09-27T05:04:44.947Z     "sandboxChatId": "2026-09-27@01h21m14s704ms",
+2026-09-27T05:04:44.947Z     "owned": [
+2026-09-27T05:04:44.947Z       "2026-09-27@01h21m14s704ms"
+2026-09-27T05:04:44.947Z     ],
+2026-09-27T05:04:44.947Z     "deleted": [
+2026-09-27T05:04:44.947Z       "2026-09-27@01h21m14s704ms"
+2026-09-27T05:04:44.947Z     ],
+2026-09-27T05:04:44.947Z     "notDeleted": [],
+2026-09-27T05:04:44.947Z     "resurrected": [],
+2026-09-27T05:04:44.947Z     "lateFileRepaired": [],
+2026-09-27T05:04:44.947Z     "saveSettleMs": 1535,
+2026-09-27T05:04:44.947Z     "skipped": [],
+2026-09-27T05:04:44.947Z     "currentChatAtCleanup": "2026-09-27@01h21m14s704ms",
+2026-09-27T05:04:44.947Z     "currentGroupAtCleanup": "1759606632088",
+2026-09-27T05:04:44.947Z     "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+2026-09-27T05:04:44.947Z     "branchChats": {
+2026-09-27T05:04:44.947Z       "recorded": [],
+2026-09-27T05:04:44.947Z       "deleted": [],
+2026-09-27T05:04:44.947Z       "failed": [],
+2026-09-27T05:04:44.947Z       "leaked": []
+2026-09-27T05:04:44.947Z     },
+2026-09-27T05:04:44.947Z     "mirrorBooks": {
+2026-09-27T05:04:44.947Z       "deleted": [],
+2026-09-27T05:04:44.947Z       "failed": [],
+2026-09-27T05:04:44.947Z       "leaked": []
+2026-09-27T05:04:44.947Z     },
+2026-09-27T05:04:44.947Z     "reapPrompts": {
+2026-09-27T05:04:44.947Z       "dismissed": [],
+2026-09-27T05:04:44.947Z       "leaked": []
+2026-09-27T05:04:44.947Z     },
+2026-09-27T05:04:44.947Z     "extraction": {
+2026-09-27T05:04:44.947Z       "restored": false,
+2026-09-27T05:04:44.947Z       "unchanged": true,
+2026-09-27T05:04:44.947Z       "settings": {
+2026-09-27T05:04:44.947Z         "enabled": true,
+2026-09-27T05:04:44.947Z         "cadence": 3,
+2026-09-27T05:04:44.947Z         "stabilityLag": 0,
+2026-09-27T05:04:44.947Z         "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+2026-09-27T05:04:44.947Z         "profiles": {}
+2026-09-27T05:04:44.947Z       }
+2026-09-27T05:04:44.947Z     },
+2026-09-27T05:04:44.947Z     "judge": {
+2026-09-27T05:04:44.947Z       "restored": false,
+2026-09-27T05:04:44.947Z       "unchanged": true
+2026-09-27T05:04:44.947Z     }
+2026-09-27T05:04:44.947Z   }
+2026-09-27T05:04:44.947Z }

@@ -1,0 +1,277 @@
+{
+  "summary": {
+    "use": "contradiction-release",
+    "fixture": "contradiction-release-holdout",
+    "rows": 14,
+    "modes": [
+      "holdout"
+    ],
+    "brackets": [
+      "contradictions.cosine.fd8efa441c80.json"
+    ],
+    "passing": [
+      "a",
+      "b"
+    ],
+    "p50LatencyMs": 257,
+    "requestedModel": null,
+    "model": "jev-1.13.0",
+    "modelVerdict": "matched",
+    "ok": true
+  },
+  "report": {
+    "ranAt": "2026-09-26T21:40:45.123Z",
+    "model": "jev-1.13.0",
+    "total": 28,
+    "right": 26,
+    "p50LatencyMs": 257,
+    "rows": [
+      {
+        "id": "R01.a",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":1,\"probabilities\":{\"update\":1,\"distinct\":0,\"duplicate\":0,\"unrelated\":0}}",
+        "latencyMs": 270
+      },
+      {
+        "id": "R01.b",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"contradicts\",\"confidence\":0.99,\"probabilities\":{\"distinct\":0,\"agrees\":0,\"contradicts\":0.99,\"update\":0.01}}",
+        "latencyMs": 267
+      },
+      {
+        "id": "R02.a",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":1,\"probabilities\":{\"unrelated\":0,\"update\":1,\"distinct\":0,\"duplicate\":0}}",
+        "latencyMs": 261
+      },
+      {
+        "id": "R02.b",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"contradicts\",\"confidence\":0.92,\"probabilities\":{\"update\":0.06,\"distinct\":0,\"contradicts\":0.94,\"agrees\":0}}",
+        "latencyMs": 288
+      },
+      {
+        "id": "R03.a",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":1,\"probabilities\":{\"update\":1,\"duplicate\":0,\"distinct\":0,\"unrelated\":0}}",
+        "latencyMs": 268
+      },
+      {
+        "id": "R03.b",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"contradicts\",\"confidence\":1,\"probabilities\":{\"update\":0,\"contradicts\":1,\"agrees\":0,\"distinct\":0}}",
+        "latencyMs": 236
+      },
+      {
+        "id": "R04.a",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":1,\"probabilities\":{\"distinct\":0,\"update\":1,\"duplicate\":0,\"unrelated\":0}}",
+        "latencyMs": 235
+      },
+      {
+        "id": "R04.b",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"contradicts\",\"confidence\":0.98,\"probabilities\":{\"distinct\":0,\"update\":0.01,\"contradicts\":0.99,\"agrees\":0}}",
+        "latencyMs": 253
+      },
+      {
+        "id": "R05.a",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.99,\"probabilities\":{\"unrelated\":0,\"duplicate\":0,\"update\":1,\"distinct\":0}}",
+        "latencyMs": 285
+      },
+      {
+        "id": "R05.b",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"contradicts\",\"confidence\":0.99,\"probabilities\":{\"contradicts\":0.99,\"agrees\":0,\"distinct\":0,\"update\":0.01}}",
+        "latencyMs": 293
+      },
+      {
+        "id": "R06.a",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"duplicate\",\"confidence\":1,\"probabilities\":{\"unrelated\":0,\"duplicate\":1,\"distinct\":0,\"update\":0}}",
+        "latencyMs": 243
+      },
+      {
+        "id": "R06.b",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"agrees\",\"confidence\":1,\"probabilities\":{\"distinct\":0,\"contradicts\":0,\"agrees\":1,\"update\":0}}",
+        "latencyMs": 259
+      },
+      {
+        "id": "R07.a",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"duplicate\",\"confidence\":0.99,\"probabilities\":{\"duplicate\":0.99,\"update\":0.01,\"unrelated\":0,\"distinct\":0}}",
+        "latencyMs": 243
+      },
+      {
+        "id": "R07.b",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"agrees\",\"confidence\":0.99,\"probabilities\":{\"update\":0,\"agrees\":1,\"contradicts\":0,\"distinct\":0}}",
+        "latencyMs": 227
+      },
+      {
+        "id": "R08.a",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"duplicate\",\"confidence\":1,\"probabilities\":{\"unrelated\":0,\"duplicate\":1,\"distinct\":0,\"update\":0}}",
+        "latencyMs": 249
+      },
+      {
+        "id": "R08.b",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"agrees\",\"confidence\":1,\"probabilities\":{\"update\":0,\"agrees\":1,\"contradicts\":0,\"distinct\":0}}",
+        "latencyMs": 256
+      },
+      {
+        "id": "R09.a",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"duplicate\",\"confidence\":0.87,\"probabilities\":{\"unrelated\":0,\"update\":0.09,\"duplicate\":0.91,\"distinct\":0}}",
+        "latencyMs": 275
+      },
+      {
+        "id": "R09.b",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"agrees\",\"confidence\":0.93,\"probabilities\":{\"distinct\":0,\"contradicts\":0,\"agrees\":0.95,\"update\":0.05}}",
+        "latencyMs": 264
+      },
+      {
+        "id": "R10.a",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"duplicate\",\"confidence\":1,\"probabilities\":{\"duplicate\":1,\"distinct\":0,\"update\":0,\"unrelated\":0}}",
+        "latencyMs": 229
+      },
+      {
+        "id": "R10.b",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"agrees\",\"confidence\":1,\"probabilities\":{\"update\":0,\"agrees\":1,\"distinct\":0,\"contradicts\":0}}",
+        "latencyMs": 244
+      },
+      {
+        "id": "R11.a",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":1,\"probabilities\":{\"distinct\":0,\"duplicate\":0,\"unrelated\":0,\"update\":1}}",
+        "latencyMs": 270
+      },
+      {
+        "id": "R11.b",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.41,\"probabilities\":{\"contradicts\":0.44,\"agrees\":0,\"distinct\":0,\"update\":0.56}}",
+        "latencyMs": 419
+      },
+      {
+        "id": "R12.a",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":1,\"probabilities\":{\"unrelated\":0,\"duplicate\":0,\"distinct\":0,\"update\":1}}",
+        "latencyMs": 271
+      },
+      {
+        "id": "R12.b",
+        "right": true,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.85,\"probabilities\":{\"update\":0.89,\"agrees\":0,\"distinct\":0,\"contradicts\":0.11}}",
+        "latencyMs": 257
+      },
+      {
+        "id": "R13.a",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.35,\"probabilities\":{\"update\":0.51,\"unrelated\":0.01,\"distinct\":0.47,\"duplicate\":0.01}}",
+        "latencyMs": 229
+      },
+      {
+        "id": "R13.b",
+        "right": false,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"distinct\",\"confidence\":0.67,\"probabilities\":{\"distinct\":0.76,\"contradicts\":0.23,\"agrees\":0.01,\"update\":0}}",
+        "latencyMs": 232
+      },
+      {
+        "id": "R14.a",
+        "right": true,
+        "picked": "release",
+        "detail": "{\"type\":\"choice\",\"choice\":\"distinct\",\"confidence\":0.67,\"probabilities\":{\"unrelated\":0.05,\"distinct\":0.76,\"duplicate\":0,\"update\":0.19}}",
+        "latencyMs": 270
+      },
+      {
+        "id": "R14.b",
+        "right": false,
+        "picked": "hold",
+        "detail": "{\"type\":\"choice\",\"choice\":\"distinct\",\"confidence\":0.82,\"probabilities\":{\"update\":0,\"contradicts\":0.12,\"distinct\":0.87,\"agrees\":0.01}}",
+        "latencyMs": 233
+      }
+    ],
+    "phaseA": {
+      "modes": [
+        {
+          "mode": "holdout",
+          "measured": true,
+          "arms": [
+            {
+              "wording": "a",
+              "releaseErr": {
+                "hit": 0,
+                "total": 5
+              },
+              "releaseErrEs": {
+                "hit": 0,
+                "total": 2
+              },
+              "paraphraseRelease": {
+                "hit": 5,
+                "total": 5
+              },
+              "ok": true
+            },
+            {
+              "wording": "b",
+              "releaseErr": {
+                "hit": 0,
+                "total": 5
+              },
+              "releaseErrEs": {
+                "hit": 0,
+                "total": 2
+              },
+              "paraphraseRelease": {
+                "hit": 5,
+                "total": 5
+              },
+              "ok": true
+            }
+          ]
+        }
+      ],
+      "passing": [
+        "a",
+        "b"
+      ],
+      "ok": true
+    },
+    "verdict": {
+      "verdict": "matched"
+    }
+  }
+}

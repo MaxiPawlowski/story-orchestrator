@@ -1,0 +1,12 @@
+2026-09-26T21:30:54.271Z {
+2026-09-26T21:30:54.273Z   "baseline": "test/journeys/records/v2.5-batch2/harness/header-start.json",
+2026-09-26T21:30:54.273Z   "label": "diff-end",
+2026-09-26T21:30:54.273Z   "allow": [],
+2026-09-26T21:30:54.273Z   "differences": 0,
+2026-09-26T21:30:54.273Z   "progress": 0,
+2026-09-26T21:30:54.273Z   "blocking": 0,
+2026-09-26T21:30:54.273Z   "blockingPaths": [],
+2026-09-26T21:30:54.273Z   "warnings": [],
+2026-09-26T21:30:54.274Z   "wrote": "C:\\dev\\so-lanes\\2\\debug\\run-header-diff-end.json",
+2026-09-26T21:30:54.274Z   "ok": true
+2026-09-26T21:30:54.274Z }

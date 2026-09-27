@@ -1,0 +1,51 @@
+2026-09-26T21:45:06.622Z 
+2026-09-26T21:45:06.624Z === J13 reply effect ===
+2026-09-26T21:45:06.624Z v2.5 plan 06 J3: does a warden note change the NEXT reply? One scripted session with no scripted defect, run as a judge-on arm and a judge-off control arm, twice each, consecutive, same player turns. The replies are captured at cleanup (--judge-uses) and scored offline by so-judge rescore, one record at a time; so-judge reply-effect applies the predeclared bars. The induced agency arm (J13.2) is not written: authoring a story that pressures the narrator into writing the player is the user's decision (plan 06 Unresolved questions).
+2026-09-26T21:45:06.624Z 
+2026-09-26T21:45:06.631Z extraction before this run: {"enabled":true,"cadence":3,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","profiles":{}}
+2026-09-26T21:45:06.703Z Global config snapshot: C:\dev\so-lanes\3\debug\so-journey-config-snapshot.json
+2026-09-26T21:45:06.721Z extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+2026-09-26T21:45:07.613Z extraction configured via the settings panel: profile="Story Orchestrator Memory RunPod" {"enabled":true,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","cadence":1,"reconciliationMultiplier":1.5,"stabilityLag":0}
+2026-09-26T21:45:07.618Z --- J13.1 house rules, reply effect (v2.5 plan 06 J3, A15): the J8.12 story (no guns, coins are marks) played for 22 scripted player turns that invite gunplay and money talk, with NO scripted defect: every reply is the real model's own. On arm: --judge-uses houseRules --warden-mode auto; off arm: --judge-uses off (0 warden calls asserted). The check passes on >= 20 captured replies; the effect is not judged here but offline, by so-judge rescore --use house-rules per record, then so-judge reply-effect over on x2 + off x2 (off >= 0.2 or VOID; on <= pooled off - 0.15 in both on runs).
+2026-09-26T21:45:07.876Z J13.1 1/27 eval ok 257ms
+2026-09-26T21:45:08.936Z J13.1 2/27 import_story ok 1060ms
+2026-09-26T21:45:08.963Z J13.1 3/27 eval ok 27ms
+2026-09-26T21:45:08.964Z J13.1 3/27 eval -> {"arm":"off","wardenCalls":0,"started":1,"uses":[],"settings":{"curatorEnabled":false,"acceptMode":"review","wardenEnabled":false,"wardenAcceptMode":"review"}}
+2026-09-26T21:46:08.294Z J13.1 4/27 send_generate ok 59330ms
+2026-09-26T21:46:44.423Z J13.1 5/27 send_generate ok 36129ms
+2026-09-26T21:47:56.381Z J13.1 6/27 send_generate ok 71957ms
+2026-09-26T21:47:59.592Z J13.1 7/27 send_generate ok 3211ms
+2026-09-26T21:50:18.751Z J13.1 8/27 send_generate ok 139159ms
+2026-09-26T21:51:44.247Z J13.1 9/27 send_generate ok 85497ms
+2026-09-26T21:51:47.490Z J13.1 10/27 send_generate ok 3242ms
+2026-09-26T21:56:47.392Z J13.1 11/27 send_generate ok 299902ms
+2026-09-26T21:56:50.618Z J13.1 12/27 send_generate ok 3225ms
+2026-09-26T21:57:50.311Z J13.1 13/27 send_generate ok 59693ms
+2026-09-26T22:01:22.230Z J13.1 14/27 send_generate ok 211918ms
+2026-09-26T22:01:25.444Z J13.1 15/27 send_generate ok 3213ms
+2026-09-26T22:01:27.153Z J13.1 16/27 send_generate FAIL locator.click: Element is not visible
+2026-09-26T22:01:27.153Z Call log:
+2026-09-26T22:01:27.153Z [2m  - waiting for locator('#send_but')[22m
+2026-09-26T22:01:27.153Z [2m    - locator resolved to <div tabindex="0" id="send_but" title="Send a message" data-i18n="[title]Send a message" class="fa-solid fa-paper-plane interactable"></div>[22m
+2026-09-26T22:01:27.153Z [2m  - attempting click action[22m
+2026-09-26T22:01:27.153Z [2m    - scrolling into view if needed[22m
+2026-09-26T22:01:27.153Z 
+2026-09-26T22:01:30.563Z Restored global config from C:\dev\so-lanes\3\debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions","schema"],"saved":{"status":200},"preservedStories":["so-j8-house-rules"],"preservedSessions":[]}
+2026-09-26T22:01:36.750Z 
+2026-09-26T22:01:36.751Z FAIL         J13.1    house rules, reply effect (v2.5 plan 06 J3, A15): the J8.12 story (no guns, coins are marks) played for 22 scripted player turns that invite gunplay and money talk, with NO scripted defect: every reply is the real model's own. On arm: --judge-uses houseRules --warden-mode auto; off arm: --judge-uses off (0 warden calls asserted). The check passes on >= 20 captured replies; the effect is not judged here but offline, by so-judge rescore --use house-rules per record, then so-judge reply-effect over on x2 + off x2 (off >= 0.2 or VOID; on <= pooled off - 0.15 in both on runs). — locator.click: Element is not visible
+2026-09-26T22:01:36.751Z Call log:
+2026-09-26T22:01:36.751Z [2m  - waiting for locator('#send_but')[22m
+2026-09-26T22:01:36.751Z [2m    - locator resolved to <div tabindex="0" id="send_but" title="Send a message" data-i18n="[title]Send a message" class="fa-solid fa-paper-plane interactable"></div>[22m
+2026-09-26T22:01:36.751Z [2m  - attempting click action[22m
+2026-09-26T22:01:36.751Z [2m    - scrolling into view if needed[22m
+2026-09-26T22:01:36.751Z 
+2026-09-26T22:01:36.751Z 
+2026-09-26T22:01:36.751Z J13
+2026-09-26T22:01:36.751Z automated: 0 pass, 1 fail, 0 blocked, 0 not-runnable, 0 skipped
+2026-09-26T22:01:36.751Z human:     0 scored, 0 unscored
+2026-09-26T22:01:36.751Z cleanup:   clean
+2026-09-26T22:01:36.751Z first try: 0 of 0 passing check(s) needed no retry
+2026-09-26T22:01:36.751Z NOT GREEN: 1 automated check(s) failed
+2026-09-26T22:01:36.751Z 
+2026-09-26T22:01:36.793Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-26T22-01-36-792Z_journey-J13.json
+2026-09-26T22:01:36.793Z Matrix: C:\dev\so-lanes\3\debug\journey-J13.md

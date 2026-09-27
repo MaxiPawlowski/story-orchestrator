@@ -1,0 +1,61 @@
+{
+  "lanes": [
+    3
+  ],
+  "items": [
+    "test/scenarios/live-v25-09-sp2-r1.json",
+    "test/scenarios/live-v25-09-sp2-r4.json"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/scenarios/live-v25-09-sp2-r1.json",
+      "lane": 3,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\3\\debug\\batch\\2026-09-27T02-35-20-299Z-live-v25-09-sp2-r1-run1.log",
+      "ms": 58188,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v25-09-sp2-r1.json",
+      "lane": 3,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\3\\debug\\batch\\2026-09-27T02-35-20-299Z-live-v25-09-sp2-r1-run2.log",
+      "ms": 52914,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v25-09-sp2-r4.json",
+      "lane": 3,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\3\\debug\\batch\\2026-09-27T02-35-20-299Z-live-v25-09-sp2-r4-run1.log",
+      "ms": 51048,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/scenarios/live-v25-09-sp2-r4.json",
+      "lane": 3,
+      "run": 2,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\3\\debug\\batch\\2026-09-27T02-35-20-299Z-live-v25-09-sp2-r4-run2.log",
+      "ms": 47898,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

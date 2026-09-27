@@ -1,0 +1,87 @@
+2026-09-27T04:09:43.126Z 1/12 eval ok 1516ms
+2026-09-27T04:09:43.127Z 1/12 eval -> {"flag":true}
+2026-09-27T04:09:43.131Z 2/12 eval ok 5ms
+2026-09-27T04:09:43.395Z 3/12 import_story ok 264ms
+2026-09-27T04:09:43.400Z 4/12 eval ok 4ms
+2026-09-27T04:09:43.400Z 4/12 eval -> {"chatStart":1,"boundary":0}
+2026-09-27T04:10:00.933Z 5/12 send_generate ok 17534ms
+2026-09-27T04:10:02.484Z 6/12 wait ok 1550ms
+2026-09-27T04:10:02.488Z 7/12 eval ok 5ms
+2026-09-27T04:10:02.488Z 7/12 eval -> {"chosen":"Ponticius","draw":{"kind":"talk","key":"talk","chatId":"2026-09-27@01h08m20s255ms","storyId":"live-v25-09-sp7","boundary":1,"unit":0.195155571680516},"decisions":1}
+2026-09-27T04:10:05.501Z 8/12 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: the delete did not roll back to boundary 0: 1
+2026-09-27T04:10:05.501Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:525)
+2026-09-27T04:10:05.501Z     at async <anonymous>:316:30
+2026-09-27T04:10:05.574Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T04-10-05-571Z_so-scenario-failure.json
+2026-09-27T04:10:11.508Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T04-10-11-507Z_so-scenario-result.json
+2026-09-27T04:10:11.508Z {
+2026-09-27T04:10:11.508Z   "ok": false,
+2026-09-27T04:10:11.508Z   "steps": 8,
+2026-09-27T04:10:11.508Z   "cleanup": {
+2026-09-27T04:10:11.508Z     "importedStoryHashes": [
+2026-09-27T04:10:11.508Z       "v2-50802953"
+2026-09-27T04:10:11.508Z     ],
+2026-09-27T04:10:11.508Z     "library": {
+2026-09-27T04:10:11.508Z       "changed": true,
+2026-09-27T04:10:11.508Z       "removed": [
+2026-09-27T04:10:11.508Z         "live-v25-09-sp7@1 (v2-50802953)"
+2026-09-27T04:10:11.508Z       ],
+2026-09-27T04:10:11.508Z       "restored": [],
+2026-09-27T04:10:11.508Z       "saved": {
+2026-09-27T04:10:11.508Z         "status": 200
+2026-09-27T04:10:11.508Z       },
+2026-09-27T04:10:11.508Z       "verified": true
+2026-09-27T04:10:11.508Z     },
+2026-09-27T04:10:11.508Z     "clearedDebugResponses": [
+2026-09-27T04:10:11.508Z       "storyOrchestratorDebugExtractionResponse"
+2026-09-27T04:10:11.508Z     ],
+2026-09-27T04:10:11.508Z     "soloChats": {
+2026-09-27T04:10:11.508Z       "deleted": [],
+2026-09-27T04:10:11.508Z       "leaked": []
+2026-09-27T04:10:11.508Z     },
+2026-09-27T04:10:11.508Z     "sandboxChatId": "2026-09-27@01h09m41s372ms",
+2026-09-27T04:10:11.508Z     "owned": [
+2026-09-27T04:10:11.508Z       "2026-09-27@01h09m41s372ms"
+2026-09-27T04:10:11.508Z     ],
+2026-09-27T04:10:11.508Z     "deleted": [
+2026-09-27T04:10:11.508Z       "2026-09-27@01h09m41s372ms"
+2026-09-27T04:10:11.508Z     ],
+2026-09-27T04:10:11.508Z     "notDeleted": [],
+2026-09-27T04:10:11.508Z     "resurrected": [],
+2026-09-27T04:10:11.508Z     "lateFileRepaired": [],
+2026-09-27T04:10:11.508Z     "saveSettleMs": 1532,
+2026-09-27T04:10:11.508Z     "skipped": [],
+2026-09-27T04:10:11.508Z     "currentChatAtCleanup": "2026-09-27@01h09m41s372ms",
+2026-09-27T04:10:11.508Z     "currentGroupAtCleanup": "1759606632088",
+2026-09-27T04:10:11.508Z     "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+2026-09-27T04:10:11.508Z     "branchChats": {
+2026-09-27T04:10:11.508Z       "recorded": [],
+2026-09-27T04:10:11.508Z       "deleted": [],
+2026-09-27T04:10:11.508Z       "failed": [],
+2026-09-27T04:10:11.508Z       "leaked": []
+2026-09-27T04:10:11.508Z     },
+2026-09-27T04:10:11.508Z     "mirrorBooks": {
+2026-09-27T04:10:11.508Z       "deleted": [],
+2026-09-27T04:10:11.508Z       "failed": [],
+2026-09-27T04:10:11.508Z       "leaked": []
+2026-09-27T04:10:11.508Z     },
+2026-09-27T04:10:11.508Z     "reapPrompts": {
+2026-09-27T04:10:11.508Z       "dismissed": [],
+2026-09-27T04:10:11.508Z       "leaked": []
+2026-09-27T04:10:11.508Z     },
+2026-09-27T04:10:11.508Z     "extraction": {
+2026-09-27T04:10:11.508Z       "restored": false,
+2026-09-27T04:10:11.508Z       "unchanged": true,
+2026-09-27T04:10:11.508Z       "settings": {
+2026-09-27T04:10:11.508Z         "enabled": true,
+2026-09-27T04:10:11.508Z         "cadence": 3,
+2026-09-27T04:10:11.508Z         "stabilityLag": 0,
+2026-09-27T04:10:11.508Z         "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+2026-09-27T04:10:11.508Z         "profiles": {}
+2026-09-27T04:10:11.508Z       }
+2026-09-27T04:10:11.508Z     },
+2026-09-27T04:10:11.508Z     "judge": {
+2026-09-27T04:10:11.508Z       "restored": false,
+2026-09-27T04:10:11.508Z       "unchanged": true
+2026-09-27T04:10:11.508Z     }
+2026-09-27T04:10:11.508Z   }
+2026-09-27T04:10:11.508Z }

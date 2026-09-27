@@ -1,0 +1,37 @@
+{
+  "overall": "INCOMPLETE",
+  "short": [
+    "releaseOn: 1 of 2 runs",
+    "controlOn: 0 of 2 runs",
+    "releaseOff: 0 of 2 runs",
+    "controlOff: 0 of 2 runs"
+  ],
+  "small": [
+    "release/on 2026-09-27T09:21:43.722Z: 11 releases"
+  ],
+  "k3": {
+    "verdict": "INCOMPLETE",
+    "controlMean": null,
+    "rows": [
+      {
+        "at": "2026-09-27T09:21:43.722Z",
+        "flags": 0,
+        "bar": null,
+        "ok": false
+      }
+    ],
+    "judgeOffColumn": []
+  },
+  "k4": {
+    "verdict": "INCOMPLETE",
+    "measured": 11,
+    "unmeasured": 0,
+    "restated": []
+  },
+  "k5": {
+    "verdict": "INCOMPLETE",
+    "release": [],
+    "control": []
+  }
+}
+rc=1

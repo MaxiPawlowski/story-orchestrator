@@ -1,0 +1,93 @@
+2026-09-27T09:21:55.321Z 
+2026-09-27T09:21:55.323Z === SP6 complication pool ===
+2026-09-27T09:21:55.323Z v2.5 plan 09 SP6 K3/K4/K5 live legs: one scripted quiet wait at a waystation that wants critical tension, played for a fixed 72 player turns. Two arms by localStorage so-sp6-arm (release = spikes.sp6Complications on, control = off; the control arm derives the same release points from its own log without injecting anything) crossed with the judge arm by --judge-uses (agencyCheck + --warden-mode auto, or off). Each run appends one record to localStorage so-sp6-records; so-sp6-score applies the predeclared bars over the eight records.
+2026-09-27T09:21:55.323Z 
+2026-09-27T09:21:55.328Z extraction before this run: {"enabled":true,"cadence":3,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","profiles":{}}
+2026-09-27T09:21:55.378Z Global config snapshot: C:\dev\so-lanes\3\debug\so-journey-config-snapshot.json
+2026-09-27T09:21:55.384Z extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+2026-09-27T09:21:56.047Z extraction configured via the settings panel: profile="Story Orchestrator Memory RunPod" {"enabled":true,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","cadence":1,"reconciliationMultiplier":1.5,"stabilityLag":0}
+2026-09-27T09:21:56.050Z --- SP6.1 SP6 K3/K4/K5 (v2.5 plan 09): 72 scripted quiet turns at the waystation (tension_target critical, complication_after 2, 24-item pool). The check passes when the arm reached >= 20 release points, the release arm carried the block on every one and the control arm on none. The bars are applied offline by so-sp6-score over release/control x judge on/off, each x2 consecutive: K3 agency flags (judge on) of each release run <= mean control + 1; K4 0 restatements (restate span >= 6 words or a meta token) in release-arm replies N+1; K5 (judge off) each release run reaches the target band within 6 boundaries of release in >= 60 % of releases, each control run <= 30 %.
+2026-09-27T09:21:57.581Z SP6.1 1/149 eval ok 1531ms
+2026-09-27T09:21:57.581Z SP6.1 1/149 eval -> {"arm":"release","judge":"on","uses":["agencyCheck"]}
+2026-09-27T09:21:57.851Z SP6.1 2/149 import_story ok 270ms
+2026-09-27T09:21:57.856Z SP6.1 3/149 eval ok 5ms
+2026-09-27T09:21:57.856Z SP6.1 3/149 eval -> {"at":"waystation"}
+2026-09-27T09:22:14.390Z SP6.1 4/149 send_generate ok 16534ms
+2026-09-27T09:22:14.394Z SP6.1 5/149 eval ok 3ms
+2026-09-27T09:22:31.912Z SP6.1 6/149 send_generate ok 17518ms
+2026-09-27T09:22:31.916Z SP6.1 7/149 eval ok 4ms
+2026-09-27T09:22:55.596Z SP6.1 8/149 send_generate ok 23680ms
+2026-09-27T09:22:55.601Z SP6.1 9/149 eval ok 5ms
+2026-09-27T09:23:17.744Z SP6.1 10/149 send_generate ok 22143ms
+2026-09-27T09:23:17.749Z SP6.1 11/149 eval ok 5ms
+2026-09-27T09:23:49.263Z SP6.1 12/149 send_generate ok 31514ms
+2026-09-27T09:23:49.267Z SP6.1 13/149 eval ok 4ms
+2026-09-27T09:24:10.370Z SP6.1 14/149 send_generate ok 21103ms
+2026-09-27T09:24:10.373Z SP6.1 15/149 eval ok 3ms
+2026-09-27T09:24:39.151Z SP6.1 16/149 send_generate ok 28777ms
+2026-09-27T09:24:39.156Z SP6.1 17/149 eval ok 5ms
+2026-09-27T09:25:21.665Z SP6.1 18/149 send_generate ok 42508ms
+2026-09-27T09:25:21.669Z SP6.1 19/149 eval ok 4ms
+2026-09-27T09:25:57.054Z SP6.1 20/149 send_generate ok 35386ms
+2026-09-27T09:25:57.059Z SP6.1 21/149 eval ok 5ms
+2026-09-27T09:26:48.369Z SP6.1 22/149 send_generate ok 51310ms
+2026-09-27T09:26:48.373Z SP6.1 23/149 eval ok 4ms
+2026-09-27T09:27:20.681Z SP6.1 24/149 send_generate ok 32309ms
+2026-09-27T09:27:20.686Z SP6.1 25/149 eval ok 4ms
+2026-09-27T09:27:58.759Z SP6.1 26/149 send_generate ok 38073ms
+2026-09-27T09:27:58.763Z SP6.1 27/149 eval ok 4ms
+2026-09-27T09:28:33.712Z SP6.1 28/149 send_generate ok 34949ms
+2026-09-27T09:28:33.715Z SP6.1 29/149 eval ok 3ms
+2026-09-27T09:29:11.706Z SP6.1 30/149 send_generate ok 37992ms
+2026-09-27T09:29:11.711Z SP6.1 31/149 eval ok 4ms
+2026-09-27T09:30:23.172Z SP6.1 32/149 send_generate ok 71461ms
+2026-09-27T09:30:23.176Z SP6.1 33/149 eval ok 4ms
+2026-09-27T09:31:05.312Z SP6.1 34/149 send_generate ok 42136ms
+2026-09-27T09:31:05.316Z SP6.1 35/149 eval ok 4ms
+2026-09-27T09:31:35.755Z SP6.1 36/149 send_generate ok 30439ms
+2026-09-27T09:31:35.760Z SP6.1 37/149 eval ok 5ms
+2026-09-27T09:32:12.372Z SP6.1 38/149 send_generate ok 36612ms
+2026-09-27T09:32:12.377Z SP6.1 39/149 eval ok 5ms
+2026-09-27T09:32:40.338Z SP6.1 40/149 send_generate ok 27961ms
+2026-09-27T09:32:40.342Z SP6.1 41/149 eval ok 4ms
+2026-09-27T09:33:34.556Z SP6.1 42/149 send_generate ok 54214ms
+2026-09-27T09:33:34.560Z SP6.1 43/149 eval ok 4ms
+2026-09-27T09:34:13.692Z SP6.1 44/149 send_generate ok 39132ms
+2026-09-27T09:34:13.699Z SP6.1 45/149 eval ok 7ms
+2026-09-27T09:34:51.739Z SP6.1 46/149 send_generate ok 38041ms
+2026-09-27T09:34:51.744Z SP6.1 47/149 eval ok 5ms
+2026-09-27T09:35:30.794Z SP6.1 48/149 send_generate ok 39049ms
+2026-09-27T09:35:30.798Z SP6.1 49/149 eval ok 4ms
+2026-09-27T09:36:12.437Z SP6.1 50/149 send_generate ok 41639ms
+2026-09-27T09:36:12.442Z SP6.1 51/149 eval ok 5ms
+2026-09-27T09:37:29.614Z SP6.1 52/149 send_generate ok 77172ms
+2026-09-27T09:37:29.618Z SP6.1 53/149 eval ok 4ms
+2026-09-27T09:38:10.280Z SP6.1 54/149 send_generate ok 40662ms
+2026-09-27T09:38:10.284Z SP6.1 55/149 eval ok 4ms
+2026-09-27T09:38:50.582Z SP6.1 56/149 send_generate ok 40298ms
+2026-09-27T09:38:50.586Z SP6.1 57/149 eval ok 4ms
+2026-09-27T09:39:27.616Z SP6.1 58/149 send_generate ok 37030ms
+2026-09-27T09:39:27.621Z SP6.1 59/149 eval ok 5ms
+2026-09-27T09:40:09.804Z SP6.1 60/149 send_generate ok 42183ms
+2026-09-27T09:40:09.809Z SP6.1 61/149 eval ok 4ms
+2026-09-27T09:41:21.137Z SP6.1 62/149 send_generate ok 71329ms
+2026-09-27T09:41:21.141Z SP6.1 63/149 eval ok 4ms
+2026-09-27T09:42:18.732Z SP6.1 64/149 send_generate ok 57591ms
+2026-09-27T09:42:18.737Z SP6.1 65/149 eval ok 5ms
+2026-09-27T09:43:12.363Z SP6.1 66/149 send_generate ok 53626ms
+2026-09-27T09:43:12.368Z SP6.1 67/149 eval ok 5ms
+2026-09-27T09:43:22.674Z WARNING: send produced no reply (last message is the user's own). Silence is valid under talk control; an unreachable backend looks identical here.
+2026-09-27T09:43:22.674Z SP6.1 68/149 send_generate FAIL send_generate: reported ok:false
+2026-09-27T09:43:27.199Z Restored global config from C:\dev\so-lanes\3\debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions","schema"],"saved":{"status":200},"preservedStories":["live-v25-09-sp6"],"preservedSessions":[]}
+2026-09-27T09:43:37.519Z 
+2026-09-27T09:43:37.519Z FAIL         SP6.1    SP6 K3/K4/K5 (v2.5 plan 09): 72 scripted quiet turns at the waystation (tension_target critical, complication_after 2, 24-item pool). The check passes when the arm reached >= 20 release points, the release arm carried the block on every one and the control arm on none. The bars are applied offline by so-sp6-score over release/control x judge on/off, each x2 consecutive: K3 agency flags (judge on) of each release run <= mean control + 1; K4 0 restatements (restate span >= 6 words or a meta token) in release-arm replies N+1; K5 (judge off) each release run reaches the target band within 6 boundaries of release in >= 60 % of releases, each control run <= 30 %. — send_generate: reported ok:false
+2026-09-27T09:43:37.519Z 
+2026-09-27T09:43:37.519Z SP6
+2026-09-27T09:43:37.519Z automated: 0 pass, 1 fail, 0 blocked, 0 not-runnable, 0 skipped
+2026-09-27T09:43:37.519Z human:     0 scored, 0 unscored
+2026-09-27T09:43:37.519Z cleanup:   clean
+2026-09-27T09:43:37.519Z first try: 0 of 0 passing check(s) needed no retry
+2026-09-27T09:43:37.519Z NOT GREEN: 1 automated check(s) failed
+2026-09-27T09:43:37.519Z 
+2026-09-27T09:43:37.554Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T09-43-37-553Z_journey-SP6.json
+2026-09-27T09:43:37.554Z Matrix: C:\dev\so-lanes\3\debug\journey-SP6.md

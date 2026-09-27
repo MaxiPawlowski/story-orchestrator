@@ -1,0 +1,12 @@
+2026-09-26T22:06:15.565Z {
+2026-09-26T22:06:15.567Z   "baseline": "C:/dev/so-lanes/2/debug/run-header-l2-f2.json",
+2026-09-26T22:06:15.567Z   "label": "diff-end",
+2026-09-26T22:06:15.567Z   "allow": [],
+2026-09-26T22:06:15.568Z   "differences": 0,
+2026-09-26T22:06:15.568Z   "progress": 0,
+2026-09-26T22:06:15.568Z   "blocking": 0,
+2026-09-26T22:06:15.568Z   "blockingPaths": [],
+2026-09-26T22:06:15.568Z   "warnings": [],
+2026-09-26T22:06:15.568Z   "wrote": "C:\\dev\\so-lanes\\2\\debug\\run-header-diff-end.json",
+2026-09-26T22:06:15.568Z   "ok": true
+2026-09-26T22:06:15.568Z }

@@ -1,0 +1,87 @@
+2026-09-27T02:35:21.694Z 1/11 eval ok 6ms
+2026-09-27T02:35:21.695Z 1/11 eval -> {"flag":false,"before":{"recommitEdit":false,"swipeBackCache":false,"witnessFilter":false,"sp5Scenario":false,"sp7Chance":false,"sp6Complications":false,"sp4AppendShortTerm":false,"sp8CuratorTiers":false,"sp8CuratorDigest":false},"cadence":3,"judge":false}
+2026-09-27T02:35:22.237Z 2/11 import_story ok 543ms
+2026-09-27T02:35:46.438Z 3/11 send_generate ok 24202ms
+2026-09-27T02:35:54.630Z 4/11 wait ok 8191ms
+2026-09-27T02:35:54.859Z 5/11 eval ok 229ms
+2026-09-27T02:35:54.859Z 5/11 eval -> {"leg":"editor","id":2,"at":1790476554633,"active":"hall","stats":{"cycles":0,"recommits":0,"reads":0,"skipped":0}}
+2026-09-27T02:35:56.378Z 6/11 wait ok 1519ms
+2026-09-27T02:36:04.588Z 7/11 wait ok 8210ms
+2026-09-27T02:36:04.593Z 8/11 eval ok 5ms
+2026-09-27T02:36:04.593Z 8/11 eval -> {"leg":"editor","id":2,"at":1790476554633,"active":"hall","stats":{"cycles":0,"recommits":0,"reads":0,"skipped":0},"reads":[],"after":{"active":"hall","stats":{"cycles":0,"recommits":0,"reads":0,"skipped":0}}}
+2026-09-27T02:36:12.401Z 9/11 send_generate ok 7807ms
+2026-09-27T02:36:12.405Z 10/11 eval ok 5ms
+2026-09-27T02:36:12.405Z 10/11 eval -> {"leg":"editor","flag":false,"activeAtRequest":"hall","markers":["HALL"],"reads":[],"before":{"cycles":0,"recommits":0,"reads":0,"skipped":0},"after":{"active":"hall","stats":{"cycles":0,"recommits":0,"reads":0,"skipped":0}}}
+2026-09-27T02:36:12.410Z 11/11 eval ok 5ms
+2026-09-27T02:36:12.410Z 11/11 eval -> {"restored":{"recommitEdit":false,"swipeBackCache":false,"witnessFilter":false,"sp5Scenario":false,"sp7Chance":false,"sp6Complications":false,"sp4AppendShortTerm":false,"sp8CuratorTiers":false,"sp8CuratorDigest":false},"edits":[{"leg":"editor","id":2,"reads":[],"request":{"leg":"editor","flag":false,"activeAtRequest":"hall","markers":["HALL"],"reads":[],"before":{"cycles":0,"recommits":0,"reads":0,"skipped":0},"after":{"active":"hall","stats":{"cycles":0,"recommits":0,"reads":0,"skipped":0}}}}]}
+2026-09-27T02:36:18.466Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T02-36-18-464Z_so-scenario-result.json
+2026-09-27T02:36:18.466Z {
+2026-09-27T02:36:18.466Z   "ok": true,
+2026-09-27T02:36:18.466Z   "steps": 11,
+2026-09-27T02:36:18.466Z   "cleanup": {
+2026-09-27T02:36:18.466Z     "importedStoryHashes": [
+2026-09-27T02:36:18.466Z       "v2-838076eb"
+2026-09-27T02:36:18.466Z     ],
+2026-09-27T02:36:18.466Z     "library": {
+2026-09-27T02:36:18.466Z       "changed": true,
+2026-09-27T02:36:18.466Z       "removed": [
+2026-09-27T02:36:18.466Z         "live-v25-09-sp2@1 (v2-838076eb)"
+2026-09-27T02:36:18.466Z       ],
+2026-09-27T02:36:18.466Z       "restored": [],
+2026-09-27T02:36:18.466Z       "saved": {
+2026-09-27T02:36:18.466Z         "status": 200
+2026-09-27T02:36:18.466Z       },
+2026-09-27T02:36:18.466Z       "verified": true
+2026-09-27T02:36:18.466Z     },
+2026-09-27T02:36:18.466Z     "clearedDebugResponses": [],
+2026-09-27T02:36:18.466Z     "soloChats": {
+2026-09-27T02:36:18.466Z       "deleted": [],
+2026-09-27T02:36:18.466Z       "leaked": []
+2026-09-27T02:36:18.466Z     },
+2026-09-27T02:36:18.466Z     "sandboxChatId": "2026-09-26@23h35m21s421ms",
+2026-09-27T02:36:18.466Z     "owned": [
+2026-09-27T02:36:18.466Z       "2026-09-26@23h35m21s421ms"
+2026-09-27T02:36:18.466Z     ],
+2026-09-27T02:36:18.466Z     "deleted": [
+2026-09-27T02:36:18.466Z       "2026-09-26@23h35m21s421ms"
+2026-09-27T02:36:18.466Z     ],
+2026-09-27T02:36:18.466Z     "notDeleted": [],
+2026-09-27T02:36:18.466Z     "resurrected": [],
+2026-09-27T02:36:18.466Z     "lateFileRepaired": [],
+2026-09-27T02:36:18.466Z     "saveSettleMs": 1529,
+2026-09-27T02:36:18.466Z     "skipped": [],
+2026-09-27T02:36:18.466Z     "currentChatAtCleanup": "2026-09-26@23h35m21s421ms",
+2026-09-27T02:36:18.466Z     "currentGroupAtCleanup": "1759606632088",
+2026-09-27T02:36:18.466Z     "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+2026-09-27T02:36:18.466Z     "branchChats": {
+2026-09-27T02:36:18.466Z       "recorded": [],
+2026-09-27T02:36:18.466Z       "deleted": [],
+2026-09-27T02:36:18.466Z       "failed": [],
+2026-09-27T02:36:18.466Z       "leaked": []
+2026-09-27T02:36:18.466Z     },
+2026-09-27T02:36:18.466Z     "mirrorBooks": {
+2026-09-27T02:36:18.466Z       "deleted": [],
+2026-09-27T02:36:18.466Z       "failed": [],
+2026-09-27T02:36:18.466Z       "leaked": []
+2026-09-27T02:36:18.466Z     },
+2026-09-27T02:36:18.466Z     "reapPrompts": {
+2026-09-27T02:36:18.466Z       "dismissed": [],
+2026-09-27T02:36:18.466Z       "leaked": []
+2026-09-27T02:36:18.466Z     },
+2026-09-27T02:36:18.466Z     "extraction": {
+2026-09-27T02:36:18.466Z       "restored": false,
+2026-09-27T02:36:18.466Z       "unchanged": true,
+2026-09-27T02:36:18.466Z       "settings": {
+2026-09-27T02:36:18.466Z         "enabled": true,
+2026-09-27T02:36:18.466Z         "cadence": 3,
+2026-09-27T02:36:18.466Z         "stabilityLag": 0,
+2026-09-27T02:36:18.466Z         "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+2026-09-27T02:36:18.466Z         "profiles": {}
+2026-09-27T02:36:18.466Z       }
+2026-09-27T02:36:18.466Z     },
+2026-09-27T02:36:18.466Z     "judge": {
+2026-09-27T02:36:18.466Z       "restored": false,
+2026-09-27T02:36:18.466Z       "unchanged": true
+2026-09-27T02:36:18.466Z     }
+2026-09-27T02:36:18.466Z   }
+2026-09-27T02:36:18.466Z }

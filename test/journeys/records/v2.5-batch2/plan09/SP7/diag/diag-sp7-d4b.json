@@ -1,0 +1,65 @@
+{
+ "_note": "DIAGNOSTIC COPY of live-v25-09-sp7-d4b.json (lane 3): step 8 stores journal/audits/boundary log in localStorage so-sp7-diag before its check. Not a gate fixture.",
+ "steps": [
+  {
+   "eval": "const rt = globalThis.storyOrchestratorRuntime; if (!rt) throw new Error('storyOrchestratorRuntime missing: serve the dev build'); if (!globalThis.storyOrchestratorSpikes) throw new Error('storyOrchestratorSpikes missing: this bundle has no SP7 spike'); if (rt.getGlobalSettings().judge?.enabled && Object.values(rt.getGlobalSettings().judge.uses ?? {}).some(Boolean)) throw new Error('a judge use is on: switch every judge use off (the pick must be the rules pick)'); for (const key of Object.keys(globalThis).filter((name) => name.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; root.settings = { ...(root.settings ?? {}), spikes: { ...((root.settings ?? {}).spikes ?? {}), sp7Chance: true } }; ctx.saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 1500)); if (rt.getGlobalSettings().spikes?.sp7Chance !== true) throw new Error('the sp7Chance flag did not take'); globalThis.__soSp7b = { runs: [] }; return { flag: true };",
+   "log": true
+  },
+  {
+   "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+  },
+  {
+   "import_story": {
+    "file": "./live-v25-09-sp7.story.json"
+   }
+  },
+  {
+   "eval": "const rt = globalThis.storyOrchestratorRuntime; if (!SillyTavern.getContext().groupId) throw new Error('needs a sandbox GROUP chat'); if (!rt.getTalkState().enabled) rt.setTalkDirectionEnabled(true); const state = rt.getEngineState(); if (state.activeCheckpointId !== 'hall') throw new Error(`not at the hall: ${state.activeCheckpointId}`); globalThis.__soSp7b.chatStart = SillyTavern.getContext().chat.length; globalThis.__soSp7b.boundaryStart = state.boundary; globalThis.__soSp7b.decisionsStart = rt.getTalkState().decisions.length; return { chatStart: globalThis.__soSp7b.chatStart, boundary: state.boundary };",
+   "log": true
+  },
+  {
+   "send_generate": {
+    "text": "We wait a while in the quiet hall.",
+    "timeoutMs": 300000,
+    "expectReply": true
+   }
+  },
+  {
+   "wait": {
+    "idle": true,
+    "quietMs": 3000,
+    "timeoutMs": 120000
+   }
+  },
+  {
+   "eval": "const rt = globalThis.storyOrchestratorRuntime; const decisions = rt.getTalkState().decisions.slice(globalThis.__soSp7b.decisionsStart); const rules = decisions.filter((decision) => decision.source === 'rules'); if (!rules.length) throw new Error(`no rules decision was recorded: ${JSON.stringify(decisions)}`); const talk = (globalThis.storyOrchestratorSpikes.draws ?? []).filter((draw) => draw.kind === 'talk'); if (!talk.length) throw new Error('the rules pick did not draw from the seam'); globalThis.__soSp7b.runs.push({ chosen: rules[0].chosenName, draw: talk[0], decisions: decisions.length }); globalThis.__soSp7b.drawsAfterFirst = talk.length; return globalThis.__soSp7b.runs[0];",
+   "log": true
+  },
+  {
+   "eval": "const ctx = SillyTavern.getContext(); const start = globalThis.__soSp7b.chatStart; for (let id = ctx.chat.length - 1; id >= start; id -= 1) await ctx.deleteMessage(id, undefined, false); await new Promise((resolve) => setTimeout(resolve, 3000)); const rt = globalThis.storyOrchestratorRuntime; const state = rt.getEngineState(); if (ctx.chat.length !== start) throw new Error(`the chat holds ${ctx.chat.length} messages, want ${start}`); const j = rt.getSessionJournal(); const ev = (j.events ?? j).slice(-25).map((e) => [e.kind, e.at, String(e.text ?? e.summary ?? e.message ?? JSON.stringify(e)).slice(0, 220)]); const audits = rt.getExtractionAudits().slice(-5).map((a) => ({ reason: a.reason, window: a.window, createdAt: a.createdAt })); const log = (rt.getBoundaryLog?.() ?? []).slice(-6).map((b) => ({ boundary: b.boundary, last: b.context?.lastMessageId ?? b.lastMessageId, fired: b.fired ?? null, cp: b.activeCheckpointId ?? b.checkpointId })); localStorage.setItem('so-sp7-diag', JSON.stringify({ boundary: state.boundary, active: state.activeCheckpointId, last: state.lastMessageId, ev, audits, log })); if (state.boundary !== globalThis.__soSp7b.boundaryStart) throw new Error('DIAG boundary ' + state.boundary); globalThis.__soSp7b.decisionsBeforeSecond = rt.getTalkState().decisions.length; return { rolledBack: true, boundary: state.boundary };",
+   "log": true
+  },
+  {
+   "send_generate": {
+    "text": "We wait a while in the quiet hall.",
+    "timeoutMs": 300000,
+    "expectReply": true
+   }
+  },
+  {
+   "wait": {
+    "idle": true,
+    "quietMs": 3000,
+    "timeoutMs": 120000
+   }
+  },
+  {
+   "eval": "const rt = globalThis.storyOrchestratorRuntime; const decisions = rt.getTalkState().decisions.slice(globalThis.__soSp7b.decisionsBeforeSecond); const rules = decisions.filter((decision) => decision.source === 'rules'); if (!rules.length) throw new Error(`no fresh rules decision after the re-entry (a cached decision proves nothing): ${JSON.stringify(decisions)}`); const talk = (globalThis.storyOrchestratorSpikes.draws ?? []).filter((draw) => draw.kind === 'talk').slice(globalThis.__soSp7b.drawsAfterFirst); if (!talk.length) throw new Error('the second pick did not draw from the seam'); const [first] = globalThis.__soSp7b.runs; const again = { chosen: rules[0].chosenName, draw: talk[0] }; globalThis.__soSp7b.runs.push(again); const fail = []; if (again.chosen !== first.chosen) fail.push(`speaker ${first.chosen} -> ${again.chosen}`); if (again.draw.boundary !== first.draw.boundary) fail.push(`boundary ${first.draw.boundary} -> ${again.draw.boundary}`); if (again.draw.unit !== first.draw.unit) fail.push(`unit ${first.draw.unit} -> ${again.draw.unit}`); if (fail.length) throw new Error(`D4b FAIL: ${fail.join('; ')}`); return { D4b: 'same speaker', first, again };",
+   "log": true
+  },
+  {
+   "eval": "const ctx = SillyTavern.getContext(); const root = ctx.extensionSettings['story-orchestrator']; root.settings.spikes = { ...(root.settings.spikes ?? {}), sp7Chance: false }; ctx.saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 1500)); delete globalThis.storyOrchestratorDebugExtractionResponse; return { flag: globalThis.storyOrchestratorRuntime.getGlobalSettings().spikes?.sp7Chance, record: globalThis.__soSp7b };",
+   "log": true
+  }
+ ]
+}

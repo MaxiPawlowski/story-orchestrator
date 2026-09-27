@@ -1,0 +1,101 @@
+2026-09-26T21:48:34.527Z 
+2026-09-26T21:48:34.527Z === J3 player-session ===
+2026-09-26T21:48:34.527Z A real play session on the shipped example: transitions announced, memory recalled, nothing the player should not see, and the session journal correlates it all.
+2026-09-26T21:48:34.527Z 
+2026-09-26T21:48:34.536Z extraction before this run: {"enabled":true,"cadence":3,"stabilityLag":0,"profileId":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","profiles":{}}
+2026-09-26T21:48:34.629Z Global config snapshot: C:\dev\so-lanes\2\debug\so-journey-config-snapshot.json
+2026-09-26T21:48:34.640Z extraction declared by the journey: cadence 1, stabilityLag 0, profile inherit
+2026-09-26T21:48:37.252Z --- J3.1 the story loads and the first real transition fires from play alone
+2026-09-26T21:48:38.518Z J3.1 1/11 import_story ok 1265ms
+2026-09-26T21:48:38.915Z J3.1 2/11 ui ok 398ms
+2026-09-26T21:48:38.959Z J3.1 3/11 eval ok 43ms
+2026-09-26T21:48:38.991Z J3.1 4/11 eval ok 32ms
+2026-09-26T21:48:39.063Z J3.1 5/11 expect ok 71ms
+2026-09-26T21:49:20.278Z J3.1 6/11 send_generate ok 41214ms
+2026-09-26T21:49:21.817Z J3.1 7/11 wait ok 1540ms
+2026-09-26T21:52:04.476Z J3.1 8/11 send_generate ok 162659ms
+2026-09-26T21:52:07.709Z J3.1 9/11 send_generate ok 3233ms
+2026-09-26T21:52:07.805Z J3.1 10/11 wait ok 95ms
+2026-09-26T21:52:07.899Z J3.1 11/11 expect ok 94ms
+2026-09-26T21:52:07.902Z --- J3.2 the checkpoint change is announced in the chat itself
+2026-09-26T21:52:07.910Z J3.2 1/1 expect_ui ok 8ms
+2026-09-26T21:52:07.913Z --- J3.3 in player mode the drawer shows no author-only internals
+2026-09-26T21:52:08.002Z J3.3 1/4 ui ok 89ms
+2026-09-26T21:52:08.559Z J3.3 2/4 ui ok 558ms
+2026-09-26T21:52:08.649Z J3.3 3/4 ui ok 89ms
+2026-09-26T21:52:08.655Z J3.3 4/4 expect_ui ok 6ms
+2026-09-26T21:52:08.657Z --- J3.4 player surfaces speak the story's language, not the implementation's
+2026-09-26T21:52:08.749Z J3.4 1/3 ui ok 92ms
+2026-09-26T21:52:08.754Z J3.4 2/3 expect_ui ok 5ms
+2026-09-26T21:52:08.761Z J3.4 3/3 expect_ui ok 7ms
+2026-09-26T21:52:08.766Z --- J3.5 one composed narrative 'where am I' surface exists
+2026-09-26T21:52:08.773Z J3.5 1/2 eval ok 7ms
+2026-09-26T21:52:08.780Z J3.5 2/2 expect_ui ok 7ms
+2026-09-26T21:52:08.784Z --- J3.6 a stalled pipeline is visibly distinct from a slow one, and the signal clears when the re-check lands
+2026-09-26T21:52:08.855Z J3.6 1/5 ui ok 71ms
+2026-09-26T21:52:08.863Z J3.6 2/5 eval ok 9ms
+2026-09-26T21:52:10.406Z J3.6 3/5 expect_ui ok 1542ms
+2026-09-26T21:52:10.410Z J3.6 4/5 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader
+2026-09-26T21:52:10.410Z     at w (http://127.0.0.1:8102/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)
+2026-09-26T21:52:10.410Z     at A (http://127.0.0.1:8102/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)
+2026-09-26T21:52:10.410Z     at N.runNow (http://127.0.0.1:8102/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)
+2026-09-26T21:52:10.410Z     at H.runExtractionNow (http://127.0.0.1:8102/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)
+2026-09-26T21:52:10.410Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:65)
+2026-09-26T21:52:10.410Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:333)
+2026-09-26T21:52:10.410Z     at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+2026-09-26T21:52:10.410Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-09-26T21:52:10.410Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-09-26T21:52:10.411Z --- J3.7 the session produced memory and injected it into the next generation
+2026-09-26T21:52:10.607Z J3.7 1/3 wait ok 196ms
+2026-09-26T21:54:50.914Z J3.7 2/3 wait ok 160307ms
+2026-09-26T21:54:50.993Z J3.7 3/3 expect FAIL memoryInjection.facts: expected present=true, got false
+2026-09-26T21:54:50.993Z --- J3.8 the session journal correlates extraction, transition, payload and flag on one timeline
+2026-09-26T21:54:51.216Z J3.8 1/2 ui ok 223ms
+2026-09-26T21:54:51.225Z J3.8 2/2 eval ok 9ms
+2026-09-26T21:54:53.130Z Restored global config from C:\dev\so-lanes\2\debug\so-journey-config-snapshot.json: {"key":"story-orchestrator","cleared":false,"keys":["v2Stories","settings","wizardSessions","schema"],"saved":{"status":200},"preservedStories":[],"preservedSessions":[]}
+2026-09-26T21:55:05.466Z 
+2026-09-26T21:55:05.466Z PASS         J3.1     the story loads and the first real transition fires from play alone
+2026-09-26T21:55:05.466Z PASS         J3.2     the checkpoint change is announced in the chat itself
+2026-09-26T21:55:05.466Z PASS         J3.3     in player mode the drawer shows no author-only internals
+2026-09-26T21:55:05.466Z PASS         J3.4     player surfaces speak the story's language, not the implementation's
+2026-09-26T21:55:05.466Z PASS         J3.5     one composed narrative 'where am I' surface exists
+2026-09-26T21:55:05.466Z FAIL         J3.6     a stalled pipeline is visibly distinct from a slow one, and the signal clears when the re-check lands — Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader
+2026-09-26T21:55:05.466Z     at w (http://127.0.0.1:8102/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)
+2026-09-26T21:55:05.466Z     at A (http://127.0.0.1:8102/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)
+2026-09-26T21:55:05.466Z     at N.runNow (http://127.0.0.1:8102/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)
+2026-09-26T21:55:05.466Z     at H.runExtractionNow (http://127.0.0.1:8102/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)
+2026-09-26T21:55:05.466Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:65)
+2026-09-26T21:55:05.466Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:333)
+2026-09-26T21:55:05.466Z     at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+2026-09-26T21:55:05.466Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-09-26T21:55:05.466Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-09-26T21:55:05.466Z FAIL         J3.7     the session produced memory and injected it into the next generation — memoryInjection.facts: expected present=true, got false
+2026-09-26T21:55:05.466Z PASS         J3.8     the session journal correlates extraction, transition, payload and flag on one timeline
+2026-09-26T21:55:05.466Z SKIP         J3.9      — human check — operator scores it
+2026-09-26T21:55:05.466Z SKIP         J3.10     — human check — operator scores it
+2026-09-26T21:55:05.466Z SKIP         J3.11     — human check — operator scores it
+2026-09-26T21:55:05.466Z SKIP         J3.12     — human check — operator scores it
+2026-09-26T21:55:05.466Z SKIP         J3.13     — human check — operator scores it
+2026-09-26T21:55:05.466Z 
+2026-09-26T21:55:05.466Z J3
+2026-09-26T21:55:05.466Z automated: 6 pass, 2 fail, 0 blocked, 0 not-runnable, 0 skipped
+2026-09-26T21:55:05.466Z human:     0 scored, 5 unscored
+2026-09-26T21:55:05.466Z cleanup:   clean
+2026-09-26T21:55:05.466Z first try: 6 of 6 passing check(s) needed no retry
+2026-09-26T21:55:05.466Z NOT GREEN: 2 automated check(s) failed
+2026-09-26T21:55:05.466Z 
+2026-09-26T21:55:05.466Z --- HUMAN CHECKLIST (score 1-5 + free text; record in the Gate record) ---
+2026-09-26T21:55:05.466Z [J3.9] (U4) During the session, did you always know where the story was and what it wanted from you?
+2026-09-26T21:55:05.466Z       anchors: 1 = lost most of the time · 3 = had to open the drawer to be sure · 5 = always obvious from play
+2026-09-26T21:55:05.466Z [J3.10] (U3) Did anything you saw spoil what was coming, or reveal what a character was supposed to be hiding?
+2026-09-26T21:55:05.466Z       anchors: 1 = major spoilers · 3 = one small leak · 5 = nothing leaked
+2026-09-26T21:55:05.466Z [J3.11] (U8) Did the on-screen wording sound like the game, or like the machine running it?
+2026-09-26T21:55:05.466Z       anchors: 1 = debug output · 3 = mixed · 5 = all in-world
+2026-09-26T21:55:05.466Z [J3.12] (U5) When the story did not move on a turn, could you tell whether it was stuck, thinking, or waiting for you?
+2026-09-26T21:55:05.466Z       anchors: 1 = indistinguishable · 3 = guessed right eventually · 5 = always clear
+2026-09-26T21:55:05.466Z [J3.13] (—) Pacing: did the story push when it should have pushed and breathe when it should have breathed?
+2026-09-26T21:55:05.466Z       anchors: 1 = fought me constantly · 3 = acceptable · 5 = felt directed
+2026-09-26T21:55:05.466Z [free] What would make you stop using this?
+2026-09-26T21:55:05.466Z 
+2026-09-26T21:55:05.487Z Wrote JSON: C:\dev\so-lanes\2\debug\2026-09-26T21-55-05-485Z_journey-J3.json
+2026-09-26T21:55:05.487Z Matrix: C:\dev\so-lanes\2\debug\journey-J3.md

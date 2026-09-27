@@ -1,0 +1,34 @@
+{
+  "role": "authoring",
+  "bundle": "fd8efa441c80",
+  "holdout": [
+    {
+      "cases": 5,
+      "validity": {
+        "passed": 4,
+        "total": 5
+      },
+      "opShape": {
+        "passed": 4,
+        "total": 5
+      },
+      "misses": [
+        "h01"
+      ]
+    },
+    {
+      "cases": 5,
+      "validity": {
+        "passed": 5,
+        "total": 5
+      },
+      "opShape": {
+        "passed": 5,
+        "total": 5
+      },
+      "misses": []
+    }
+  ],
+  "verdict": "fixture floors met; generalisation not shown",
+  "reason": "hold-out miss run 1: h01"
+}

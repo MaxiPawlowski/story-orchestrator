@@ -1,0 +1,42 @@
+{
+  "ok": true,
+  "value": {
+    "imported": true,
+    "title": "SO-J8 Stagecraft",
+    "macro": "SO-J8 Stagecraft",
+    "roots": [
+      [
+        "so-drawer",
+        true
+      ],
+      [
+        "so-hud-root",
+        true
+      ],
+      [
+        "so-studio-root",
+        true
+      ],
+      [
+        "story-orchestrator-settings",
+        true
+      ]
+    ],
+    "globals": [
+      "storyOrchestratorSaveRefusals",
+      "storyOrchestratorScheduler",
+      "storyOrchestratorLore",
+      "storyOrchestratorLoreEvidence",
+      "storyOrchestratorSpikes",
+      "storyOrchestratorRuntime",
+      "storyOrchestratorStudioDraft",
+      "storyOrchestratorStop",
+      "storyOrchestratorScanGating",
+      "storyOrchestratorToolTurnProbe",
+      "storyOrchestratorLiveSuite",
+      "storyOrchestratorJudge",
+      "storyOrchestratorStudioTabs"
+    ],
+    "listeners": 169
+  }
+}

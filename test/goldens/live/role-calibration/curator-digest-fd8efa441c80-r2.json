@@ -1,0 +1,1613 @@
+{
+  "role": "curator",
+  "arm": "digest-fd8efa441c80-r2",
+  "profile": {
+    "id": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+    "name": "Story Orchestrator Memory RunPod",
+    "fallback": true
+  },
+  "routeDuringRun": {
+    "role": "curator",
+    "label": "World Info curator",
+    "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+    "state": "fallback",
+    "detail": "Same as memory model"
+  },
+  "roleMapRestored": {},
+  "fixtureFrozenAt": "2026-09-25",
+  "bundle": "fd8efa441c80",
+  "runAt": "2026-09-27T05:59:37.762Z",
+  "cases": 20,
+  "summary": {
+    "role": "curator",
+    "overall": {
+      "cases": 20,
+      "metrics": {
+        "validity": {
+          "passed": 20,
+          "total": 20,
+          "rate": 1,
+          "floor": 0.9,
+          "ok": true
+        },
+        "opShape": {
+          "passed": 20,
+          "total": 34,
+          "rate": 0.5882352941176471,
+          "floor": 0.85,
+          "ok": false
+        },
+        "decision": {
+          "passed": 18,
+          "total": 20,
+          "rate": 0.9,
+          "floor": 0.7,
+          "ok": true
+        }
+      }
+    },
+    "es": {
+      "cases": 8,
+      "metrics": {
+        "validity": {
+          "passed": 8,
+          "total": 8,
+          "rate": 1,
+          "floor": 0.9,
+          "ok": true
+        },
+        "opShape": {
+          "passed": 6,
+          "total": 13,
+          "rate": 0.46153846153846156,
+          "floor": 0.85,
+          "ok": false
+        },
+        "decision": {
+          "passed": 7,
+          "total": 8,
+          "rate": 0.875,
+          "floor": 0.7,
+          "ok": true
+        }
+      }
+    },
+    "meetsFloors": false
+  },
+  "incomplete": [],
+  "notGreen": [],
+  "records": [
+    {
+      "role": "curator",
+      "id": "c01",
+      "lang": "en",
+      "responses": [
+        "[enable] \"The Old Tunnel\"\n[enable] #95 \"Filwern - Minor God of Mining\"\n[why] The party has entered the collapsed mining tunnel, making the tunnel details and the god of mining relevant."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 4679,
+      "score": {
+        "valid": true,
+        "opLines": 2,
+        "survived": 1,
+        "decision": true,
+        "kept": [
+          "enable:The Old Tunnel"
+        ],
+        "dropped": [
+          "enable: \"Filwern - Minor God of Mining\" is already on"
+        ]
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 3,
+        "titleOnly": 263,
+        "promptChars": 9558,
+        "fullPromptChars": 117528,
+        "ratio": 0.08132530120481928
+      },
+      "case": {
+        "id": "c01",
+        "lang": "en",
+        "label": "change",
+        "why": "enable: the party entered the place the entry describes",
+        "scope": {
+          "storyTitle": "Under the Hills",
+          "checkpointName": "The Tunnel",
+          "objective": "Find the way through the old mine.",
+          "canon": "The party left the river camp at dawn. Bel lit the brass lantern and led them into the collapsed mining tunnel under the hills. The camp is far behind them now.",
+          "openArcs": [
+            "Where does the tunnel come out?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Hills Lore",
+              "comment": "The Old Tunnel",
+              "keys": [
+                "tunnel",
+                "mine"
+              ],
+              "content": "A collapsed mining tunnel under the hills. Damp, narrow, lit only by what the party carries.",
+              "disabled": true
+            },
+            {
+              "lorebook": "Hills Lore",
+              "comment": "Bel",
+              "keys": [
+                "Bel"
+              ],
+              "content": "Bel is the party's guide, a former miner who knows the hills.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "The Old Tunnel",
+            "kinds": [
+              "enable"
+            ]
+          }
+        ],
+        "forbidden": [
+          "Bel"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c02",
+      "lang": "en",
+      "responses": [
+        "[rewrite] \"Siege of Varn\" || The city of Varn was under siege for nine weeks. Its gates were shut and nobody went in or out. The siege was lifted three days ago when the besieging army broke camp and marched north.\n[disable] #60 \"Darran Kingdom Army\"\n[disable] #229 \"Third Kingdom Army\"\n[disable] #261 \"Zegallan Empire Army\"\n[why] The siege of Varn has ended, so the entry needs updating and the specific army details are no longer immediately relevant."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 7208,
+      "score": {
+        "valid": true,
+        "opLines": 4,
+        "survived": 4,
+        "decision": true,
+        "kept": [
+          "rewrite:Siege of Varn",
+          "disable:Darran Kingdom Army",
+          "disable:Third Kingdom Army",
+          "disable:Zegallan Empire Army"
+        ],
+        "dropped": []
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 4,
+        "titleOnly": 262,
+        "promptChars": 10157,
+        "fullPromptChars": 117501,
+        "ratio": 0.08644181751644667
+      },
+      "case": {
+        "id": "c02",
+        "lang": "en",
+        "label": "change",
+        "why": "the siege the entry describes is over",
+        "scope": {
+          "storyTitle": "The Gates of Varn",
+          "checkpointName": "Aftermath",
+          "objective": "Help the city recover.",
+          "canon": "After nine weeks the besieging army broke camp and marched north. Three days ago the siege of Varn was lifted and the city gates were thrown open. Traders are already coming back through them.",
+          "openArcs": [],
+          "entries": [
+            {
+              "lorebook": "Varn Lore",
+              "comment": "Siege of Varn",
+              "keys": [
+                "siege",
+                "gates"
+              ],
+              "content": "The city of Varn is under siege. Its gates are shut and nobody goes in or out.",
+              "disabled": false
+            },
+            {
+              "lorebook": "Varn Lore",
+              "comment": "Varn Market",
+              "keys": [
+                "market"
+              ],
+              "content": "The market square sits at the heart of Varn, ringed by stalls and a stone fountain.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "Siege of Varn",
+            "kinds": [
+              "disable",
+              "patch",
+              "rewrite"
+            ]
+          }
+        ],
+        "forbidden": [
+          "Varn Market"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c03",
+      "lang": "en",
+      "responses": [
+        "[rewrite] \"Captain Hale\" || Sergeant Brin commands the harbor watch. He took command after Captain Hale was killed in an ambush at the fish market, and has since doubled the patrols.\n[patch] #162 \"Market District\" || Many alleyways are set up with stalls for vendors to sell goods in the Market District. || alley vend… || Many alleyways are set up with stalls for vendors to sell goods in the Market District. The fish market is located here.\n[why] Captain Hale was killed in an ambush at the fish market, and Sergeant Brin has taken command."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 7277,
+      "score": {
+        "valid": true,
+        "opLines": 2,
+        "survived": 2,
+        "decision": true,
+        "kept": [
+          "rewrite:Captain Hale",
+          "patch:Market District"
+        ],
+        "dropped": []
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 3,
+        "titleOnly": 263,
+        "promptChars": 9671,
+        "fullPromptChars": 117525,
+        "ratio": 0.08228887470750904
+      },
+      "case": {
+        "id": "c03",
+        "lang": "en",
+        "label": "change",
+        "why": "the person the entry names as commander is dead",
+        "scope": {
+          "storyTitle": "Harbor Watch",
+          "checkpointName": "New Orders",
+          "objective": "Report to the new commander.",
+          "canon": "Captain Hale was killed in the ambush at the fish market. Sergeant Brin took command of the harbor watch the same night and has already doubled the patrols.",
+          "openArcs": [
+            "Who set up the ambush?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Harbor Lore",
+              "comment": "Captain Hale",
+              "keys": [
+                "Hale",
+                "captain"
+              ],
+              "content": "Captain Hale commands the harbor watch. He is stern but fair, and he answers to the governor.",
+              "disabled": false
+            },
+            {
+              "lorebook": "Harbor Lore",
+              "comment": "The Harbor",
+              "keys": [
+                "harbor",
+                "docks"
+              ],
+              "content": "A crowded harbor of fishing boats and merchant ships, busy from dawn to dusk.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "Captain Hale",
+            "kinds": [
+              "patch",
+              "rewrite",
+              "disable"
+            ]
+          }
+        ],
+        "forbidden": [
+          "The Harbor"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c04",
+      "lang": "en",
+      "responses": [
+        "[enable] The Delta\n[enable] Oskar\n[why] Mira and Tolan have reached the delta and hired Oskar the ferryman, making these entries relevant to the current scene."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 4313,
+      "score": {
+        "valid": true,
+        "opLines": 2,
+        "survived": 0,
+        "decision": true,
+        "kept": [],
+        "dropped": [
+          "enable: \"The Delta\" is already on",
+          "enable: \"Oskar\" is already on"
+        ]
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 2,
+        "titleOnly": 264,
+        "promptChars": 9091,
+        "fullPromptChars": 117468,
+        "ratio": 0.07739128954268397
+      },
+      "case": {
+        "id": "c04",
+        "lang": "en",
+        "label": "none",
+        "why": "every entry agrees with what has happened",
+        "scope": {
+          "storyTitle": "The Salt Road",
+          "checkpointName": "Crossing the Delta",
+          "objective": "Reach the far bank.",
+          "canon": "Mira and Tolan reached the delta at dusk and hired the ferryman Oskar to take them across the reeds.",
+          "openArcs": [
+            "Can Oskar be trusted?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Salt Road Lore",
+              "comment": "The Delta",
+              "keys": [
+                "delta",
+                "reeds"
+              ],
+              "content": "A drowned plain of reeds and channels between the salt flats and the sea. Only a ferry crosses it safely.",
+              "disabled": false
+            },
+            {
+              "lorebook": "Salt Road Lore",
+              "comment": "Oskar",
+              "keys": [
+                "Oskar",
+                "ferryman"
+              ],
+              "content": "Oskar is an old ferryman who charges one silver coin per crossing.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [],
+        "forbidden": [
+          "The Delta",
+          "Oskar"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c05",
+      "lang": "en",
+      "responses": [
+        "[enable] The Switchback Road\n[enable] The Monastery\n[why] The travellers have begun their ascent up the switchback road toward the monastery."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 4143,
+      "score": {
+        "valid": true,
+        "opLines": 2,
+        "survived": 0,
+        "decision": true,
+        "kept": [],
+        "dropped": [
+          "enable: \"The Switchback Road\" is already on",
+          "enable: \"The Monastery\" is already on"
+        ]
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 2,
+        "titleOnly": 264,
+        "promptChars": 9112,
+        "fullPromptChars": 117489,
+        "ratio": 0.07755619675033408
+      },
+      "case": {
+        "id": "c05",
+        "lang": "en",
+        "label": "none",
+        "why": "stable geography; nothing the story did touches it",
+        "scope": {
+          "storyTitle": "Winter Pass",
+          "checkpointName": "The Climb",
+          "objective": "Reach the monastery before the snow.",
+          "canon": "The travellers left the valley village and began the long climb up the switchback road. The wind is picking up but the road is still clear.",
+          "openArcs": [],
+          "entries": [
+            {
+              "lorebook": "Pass Lore",
+              "comment": "The Switchback Road",
+              "keys": [
+                "road",
+                "switchback"
+              ],
+              "content": "A narrow road that zigzags up the mountain to the monastery. It closes when heavy snow falls.",
+              "disabled": false
+            },
+            {
+              "lorebook": "Pass Lore",
+              "comment": "The Monastery",
+              "keys": [
+                "monastery",
+                "monks"
+              ],
+              "content": "A stone monastery near the summit where monks shelter travellers for the night.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [],
+        "forbidden": [
+          "The Switchback Road",
+          "The Monastery"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c06",
+      "lang": "en",
+      "responses": [
+        "[enable] \"The Drowned Bell\"\n[why] The party heard the bell ringing from under the lake, making the legend relevant."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 4049,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 1,
+        "decision": true,
+        "kept": [
+          "enable:The Drowned Bell"
+        ],
+        "dropped": []
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 2,
+        "titleOnly": 264,
+        "promptChars": 9219,
+        "fullPromptChars": 117596,
+        "ratio": 0.07839552365726725
+      },
+      "case": {
+        "id": "c06",
+        "lang": "en",
+        "label": "change",
+        "why": "enable: a legend the party has now witnessed",
+        "scope": {
+          "storyTitle": "Lake Morrow",
+          "checkpointName": "The Shore at Night",
+          "objective": "Find out what rings beneath the lake.",
+          "canon": "At midnight the party heard a bell ringing from under the black water of Lake Morrow, exactly as the villagers' old story says. Nobody has rung a bell there in a hundred years.",
+          "openArcs": [
+            "What rings the drowned bell?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Morrow Lore",
+              "comment": "The Drowned Bell",
+              "keys": [
+                "bell",
+                "drowned"
+              ],
+              "content": "Village legend: the chapel bell sank with the old village when the valley flooded, and it rings before a death.",
+              "disabled": true
+            },
+            {
+              "lorebook": "Morrow Lore",
+              "comment": "Lake Morrow",
+              "keys": [
+                "lake",
+                "Morrow"
+              ],
+              "content": "A deep, cold lake that flooded the old valley village a century ago.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "The Drowned Bell",
+            "kinds": [
+              "enable"
+            ]
+          }
+        ],
+        "forbidden": [
+          "Lake Morrow"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c07",
+      "lang": "en",
+      "responses": [
+        "[rewrite] \"Orin's Shop\" (Ashgate Lore) || Orin's shop on Candle Lane was gutted by fire last night. Nothing is left but a blackened shell.\n[disable] #162 \"Market District\"\n[why] Orin's shop has been destroyed by fire, and the Market District is irrelevant to the current investigation in Ashgate."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 5781,
+      "score": {
+        "valid": true,
+        "opLines": 2,
+        "survived": 2,
+        "decision": true,
+        "kept": [
+          "rewrite:Orin's Shop",
+          "disable:Market District"
+        ],
+        "dropped": []
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 3,
+        "titleOnly": 263,
+        "promptChars": 9629,
+        "fullPromptChars": 117483,
+        "ratio": 0.08196079432768996
+      },
+      "case": {
+        "id": "c07",
+        "lang": "en",
+        "label": "change",
+        "why": "the shop the entry describes burned down",
+        "scope": {
+          "storyTitle": "Ashgate",
+          "checkpointName": "Morning After",
+          "objective": "Find out who started the fire.",
+          "canon": "Last night a fire gutted Orin's shop on Candle Lane. Nothing is left but a blackened shell, and Orin is staying with his sister across town.",
+          "openArcs": [
+            "Who started the fire?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Ashgate Lore",
+              "comment": "Orin's Shop",
+              "keys": [
+                "Orin",
+                "shop"
+              ],
+              "content": "Orin's shop on Candle Lane sells lamp oil and rope. It is open every day from dawn.",
+              "disabled": false
+            },
+            {
+              "lorebook": "Ashgate Lore",
+              "comment": "Candle Lane",
+              "keys": [
+                "Candle Lane"
+              ],
+              "content": "A narrow lane of tradesmen's shops in the old quarter of Ashgate.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "Orin's Shop",
+            "kinds": [
+              "patch",
+              "rewrite",
+              "disable"
+            ]
+          }
+        ],
+        "forbidden": [
+          "Candle Lane"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c08",
+      "lang": "en",
+      "responses": [
+        "[enable] #128 \"Jehopa Ocean\"\n[why] The crew is at the docks seeking passage east, making the ocean and its routes relevant."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 4151,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 0,
+        "decision": true,
+        "kept": [],
+        "dropped": [
+          "enable: \"Jehopa Ocean\" is already on"
+        ]
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 1,
+        "titleOnly": 265,
+        "promptChars": 8956,
+        "fullPromptChars": 117438,
+        "ratio": 0.07626151671520291
+      },
+      "case": {
+        "id": "c08",
+        "lang": "en",
+        "label": "none",
+        "why": "an off entry about a place the story is nowhere near",
+        "scope": {
+          "storyTitle": "Southport",
+          "checkpointName": "The Docks",
+          "objective": "Find a ship heading east.",
+          "canon": "The crew arrived in the southern port city and spent the day asking captains along the docks about passage east.",
+          "openArcs": [],
+          "entries": [
+            {
+              "lorebook": "Southport Lore",
+              "comment": "The Northern Wastes",
+              "keys": [
+                "wastes",
+                "north"
+              ],
+              "content": "A frozen desert far to the north where nothing grows.",
+              "disabled": true
+            },
+            {
+              "lorebook": "Southport Lore",
+              "comment": "Southport Docks",
+              "keys": [
+                "docks",
+                "ships"
+              ],
+              "content": "The busy docks of Southport, where ships from every coast take on cargo and passengers.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [],
+        "forbidden": [
+          "The Northern Wastes",
+          "Southport Docks"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c09",
+      "lang": "en",
+      "responses": [
+        "[patch] \"Festival of Lanterns\" || The Festival of Lanterns fills the streets tonight: crowds, music and thousands of paper lanterns. || thousands of paper lanterns. || The Festival of Lanterns ended four days ago. The streets are empty again, and the paper lanterns have been taken down.\n[why] The festival has ended and the story has moved forward four days."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 5625,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 1,
+        "decision": true,
+        "kept": [
+          "patch:Festival of Lanterns"
+        ],
+        "dropped": []
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 2,
+        "titleOnly": 264,
+        "promptChars": 9153,
+        "fullPromptChars": 117530,
+        "ratio": 0.07787798859865566
+      },
+      "case": {
+        "id": "c09",
+        "lang": "en",
+        "label": "change",
+        "why": "a festival the entry says is happening tonight is over",
+        "scope": {
+          "storyTitle": "Lantern City",
+          "checkpointName": "Quiet Streets",
+          "objective": "Track the thief through the empty city.",
+          "canon": "The Festival of Lanterns ended four days ago. The streets are empty again, the paper lanterns have been taken down, and the thief has gone to ground.",
+          "openArcs": [
+            "Where is the thief hiding?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Lantern Lore",
+              "comment": "Festival of Lanterns",
+              "keys": [
+                "festival",
+                "lanterns"
+              ],
+              "content": "The Festival of Lanterns fills the streets tonight: crowds, music and thousands of paper lanterns.",
+              "disabled": false
+            },
+            {
+              "lorebook": "Lantern Lore",
+              "comment": "The Thief",
+              "keys": [
+                "thief"
+              ],
+              "content": "A masked thief who steals only from the city's moneylenders.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "Festival of Lanterns",
+            "kinds": [
+              "disable",
+              "patch",
+              "rewrite"
+            ]
+          }
+        ],
+        "forbidden": [
+          "The Thief"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c10",
+      "lang": "en",
+      "responses": [
+        "[enable] \"The Grey Mare\"\n[why] The riders have arrived at the Grey Mare inn for the night."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 3858,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 0,
+        "decision": true,
+        "kept": [],
+        "dropped": [
+          "enable: \"The Grey Mare\" is already on"
+        ]
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 265,
+        "full": 1,
+        "titleOnly": 264,
+        "promptChars": 8824,
+        "fullPromptChars": 117201,
+        "ratio": 0.07528945998754277
+      },
+      "case": {
+        "id": "c10",
+        "lang": "en",
+        "label": "none",
+        "why": "style bait: terse but accurate text is not a change",
+        "scope": {
+          "storyTitle": "The Long Road",
+          "checkpointName": "The Inn",
+          "objective": "Rest before the ride.",
+          "canon": "The riders stopped at the Grey Mare inn for the night and stabled their horses.",
+          "openArcs": [],
+          "entries": [
+            {
+              "lorebook": "Road Lore",
+              "comment": "The Grey Mare",
+              "keys": [
+                "Grey Mare",
+                "inn"
+              ],
+              "content": "Roadside inn. Stables. Cheap beds.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [],
+        "forbidden": [
+          "The Grey Mare"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c11",
+      "lang": "en",
+      "responses": [
+        "[enable] \"The Vault\"\n[patch] \"Guard Rotation\" || Guards patrol the vault corridor every hour, day and night. || day and night. || Guards patrol the vault corridor every hour, day and night, though the current shift is asleep in the guardroom.\n[why] The crew has reached the vault door and the guards are currently incapacitated, making the vault's details relevant and the patrol schedule temporarily altered."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 6024,
+      "score": {
+        "valid": true,
+        "opLines": 2,
+        "survived": 2,
+        "decision": true,
+        "kept": [
+          "patch:Guard Rotation",
+          "enable:The Vault"
+        ],
+        "dropped": []
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 2,
+        "titleOnly": 264,
+        "promptChars": 9117,
+        "fullPromptChars": 117494,
+        "ratio": 0.07759545168263911
+      },
+      "case": {
+        "id": "c11",
+        "lang": "en",
+        "label": "change",
+        "why": "two changes: the vault is now in play, and the guards the rotation describes are gone",
+        "scope": {
+          "storyTitle": "The Vault Job",
+          "checkpointName": "Inside",
+          "objective": "Open the inner vault.",
+          "canon": "The crew slipped past the drugged guards, who are asleep in the guardroom, and reached the vault door. The guard rotation will not resume until the morning shift.",
+          "openArcs": [
+            "Can Vex crack the inner lock?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Vault Lore",
+              "comment": "The Vault",
+              "keys": [
+                "vault"
+              ],
+              "content": "A steel vault with a dial lock and an inner door that needs two keys.",
+              "disabled": true
+            },
+            {
+              "lorebook": "Vault Lore",
+              "comment": "Guard Rotation",
+              "keys": [
+                "guards",
+                "patrol"
+              ],
+              "content": "Guards patrol the vault corridor every hour, day and night.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "The Vault",
+            "kinds": [
+              "enable"
+            ]
+          },
+          {
+            "comment": "Guard Rotation",
+            "kinds": [
+              "patch",
+              "rewrite",
+              "disable"
+            ]
+          }
+        ],
+        "forbidden": []
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c12",
+      "lang": "en",
+      "responses": [
+        "[patch] \"The Great Archive\" || The archive has burned twice, and bot… || The archive has burned twice, and bot… || The archive has burned twice, and both times the lower vaults were sealed to protect the oldest records. The reading room is currently occupied by scholars awaiting their requested documents.\n\n[why] The scholars are now in the reading room, so the archive's current state and the reading room's function are relevant."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 6098,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 1,
+        "decision": false,
+        "kept": [
+          "patch:The Great Archive"
+        ],
+        "dropped": []
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 265,
+        "full": 1,
+        "titleOnly": 264,
+        "promptChars": 9285,
+        "fullPromptChars": 117662,
+        "ratio": 0.07891247811527936
+      },
+      "case": {
+        "id": "c12",
+        "lang": "en",
+        "label": "none",
+        "why": "a long entry shown in part, still accurate: no rewrite",
+        "scope": {
+          "storyTitle": "The Archive",
+          "checkpointName": "Reading Room",
+          "objective": "Find the old charter.",
+          "canon": "The scholars entered the Great Archive and asked the archivist for the charter records. She sent them to the reading room to wait.",
+          "openArcs": [],
+          "entries": [
+            {
+              "lorebook": "Archive Lore",
+              "comment": "The Great Archive",
+              "keys": [
+                "archive",
+                "archivist"
+              ],
+              "content": "The Great Archive holds every charter, deed and ledger the city has issued in four hundred years. Its reading room is open to scholars with a seal from the university, and the archivist decides which records may be brought out. Records older than two centuries are kept in the lower vaults, where no lamp may be lit and a clerk must carry each volume up by hand. The archive has burned twice, and both times the lower vaults survived intact, which is why the city keeps its founding charter there. The archivist, a patient woman named Sela, has held the post for thirty years and knows where almost everything is kept, though she rarely admits it.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [],
+        "forbidden": [
+          "The Great Archive"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c13",
+      "lang": "es",
+      "responses": [
+        "[enable] \"La Cripta\"\n[why] The group has entered the crypt beneath the altar, making this location relevant."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 4021,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 1,
+        "decision": true,
+        "kept": [
+          "enable:La Cripta"
+        ],
+        "dropped": []
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 1,
+        "titleOnly": 265,
+        "promptChars": 8998,
+        "fullPromptChars": 117476,
+        "ratio": 0.07659436821137934
+      },
+      "case": {
+        "id": "c13",
+        "lang": "es",
+        "label": "change",
+        "why": "habilitar: el grupo bajó a la cripta",
+        "scope": {
+          "storyTitle": "La Abadía",
+          "checkpointName": "Bajo el altar",
+          "objective": "Encontrar la reliquia.",
+          "canon": "El grupo movió la losa detrás del altar y bajó por la escalera de piedra hasta la cripta. Las antorchas apenas iluminan los nichos.",
+          "openArcs": [
+            "¿Dónde está la reliquia?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Abadía Lore",
+              "comment": "La Cripta",
+              "keys": [
+                "cripta",
+                "nichos"
+              ],
+              "content": "Una cripta húmeda bajo el altar, llena de nichos con los restos de los antiguos abades.",
+              "disabled": true
+            },
+            {
+              "lorebook": "Abadía Lore",
+              "comment": "El Abad",
+              "keys": [
+                "abad"
+              ],
+              "content": "El abad Tomás dirige la abadía y desconfía de los forasteros.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "La Cripta",
+            "kinds": [
+              "enable"
+            ]
+          }
+        ],
+        "forbidden": [
+          "El Abad"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c14",
+      "lang": "es",
+      "responses": [
+        "[rewrite] \"Alcalde Ruiz\" || El alcalde Ruiz gobernó el pueblo durante diez años hasta que huyó con el dinero de los impuestos.\n[why] Ruiz is no longer the mayor and has fled the town."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 4594,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 1,
+        "decision": true,
+        "kept": [
+          "rewrite:Alcalde Ruiz"
+        ],
+        "dropped": []
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 1,
+        "titleOnly": 265,
+        "promptChars": 8996,
+        "fullPromptChars": 117472,
+        "ratio": 0.07657995096703896
+      },
+      "case": {
+        "id": "c14",
+        "lang": "es",
+        "label": "change",
+        "why": "el alcalde que nombra la entrada huyó",
+        "scope": {
+          "storyTitle": "Pueblo Viejo",
+          "checkpointName": "Nuevo gobierno",
+          "objective": "Presentarse ante la nueva alcaldesa.",
+          "canon": "El alcalde Ruiz huyó del pueblo con el dinero de los impuestos. El consejo nombró alcaldesa a Vega, que ya ha cerrado la taberna por orden suya.",
+          "openArcs": [
+            "¿Adónde huyó Ruiz?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Pueblo Lore",
+              "comment": "Alcalde Ruiz",
+              "keys": [
+                "Ruiz",
+                "alcalde"
+              ],
+              "content": "El alcalde Ruiz gobierna el pueblo desde hace diez años y todos le temen.",
+              "disabled": false
+            },
+            {
+              "lorebook": "Pueblo Lore",
+              "comment": "La Plaza",
+              "keys": [
+                "plaza"
+              ],
+              "content": "La plaza del pueblo, con una fuente y la iglesia al fondo.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "Alcalde Ruiz",
+            "kinds": [
+              "patch",
+              "rewrite",
+              "disable"
+            ]
+          }
+        ],
+        "forbidden": [
+          "La Plaza"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c15",
+      "lang": "es",
+      "responses": [
+        "[enable] \"El Faro\"\n[enable] \"Anselmo\"\n[why] The travelers have arrived at the lighthouse and met Anselmo, making these entries relevant to the current scene."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 4443,
+      "score": {
+        "valid": true,
+        "opLines": 2,
+        "survived": 0,
+        "decision": true,
+        "kept": [],
+        "dropped": [
+          "enable: \"El Faro\" is already on",
+          "enable: \"Anselmo\" is already on"
+        ]
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 2,
+        "titleOnly": 264,
+        "promptChars": 9031,
+        "fullPromptChars": 117408,
+        "ratio": 0.07691980103570455
+      },
+      "case": {
+        "id": "c15",
+        "lang": "es",
+        "label": "none",
+        "why": "todas las entradas coinciden con lo ocurrido",
+        "scope": {
+          "storyTitle": "El Faro",
+          "checkpointName": "La torre",
+          "objective": "Subir a lo alto del faro.",
+          "canon": "Los viajeros llegaron al faro al anochecer. El farero Anselmo les abrió la puerta y les ofreció sopa caliente.",
+          "openArcs": [],
+          "entries": [
+            {
+              "lorebook": "Faro Lore",
+              "comment": "El Faro",
+              "keys": [
+                "faro",
+                "torre"
+              ],
+              "content": "Un faro de piedra blanca sobre el acantilado, con una escalera de caracol de doscientos peldaños.",
+              "disabled": false
+            },
+            {
+              "lorebook": "Faro Lore",
+              "comment": "Anselmo",
+              "keys": [
+                "Anselmo",
+                "farero"
+              ],
+              "content": "Anselmo es el farero, un viejo amable que vive solo en el faro.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [],
+        "forbidden": [
+          "El Faro",
+          "Anselmo"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c16",
+      "lang": "es",
+      "responses": [
+        "[disable] \"La Tormenta\"\n[enable] \"El Puerto\"\n[why] The storm has passed and the sea is calm, so the storm entry is no longer relevant while the port becomes active again for departures."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 4630,
+      "score": {
+        "valid": true,
+        "opLines": 2,
+        "survived": 1,
+        "decision": true,
+        "kept": [
+          "disable:La Tormenta"
+        ],
+        "dropped": [
+          "enable: \"El Puerto\" is already on"
+        ]
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 1,
+        "titleOnly": 265,
+        "promptChars": 8913,
+        "fullPromptChars": 117393,
+        "ratio": 0.07592445886892744
+      },
+      "case": {
+        "id": "c16",
+        "lang": "es",
+        "label": "change",
+        "why": "la tormenta que describe la entrada ya pasó",
+        "scope": {
+          "storyTitle": "Costa Brava",
+          "checkpointName": "Mar en calma",
+          "objective": "Zarpar hacia la isla.",
+          "canon": "La tormenta pasó durante la noche. Esta mañana el mar está en calma y los pescadores ya han vuelto a salir.",
+          "openArcs": [],
+          "entries": [
+            {
+              "lorebook": "Costa Lore",
+              "comment": "La Tormenta",
+              "keys": [
+                "tormenta",
+                "olas"
+              ],
+              "content": "Una tormenta azota la costa: olas enormes y ningún barco puede salir del puerto.",
+              "disabled": false
+            },
+            {
+              "lorebook": "Costa Lore",
+              "comment": "El Puerto",
+              "keys": [
+                "puerto"
+              ],
+              "content": "Un pequeño puerto pesquero protegido por un espigón de piedra.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "La Tormenta",
+            "kinds": [
+              "disable",
+              "patch",
+              "rewrite"
+            ]
+          }
+        ],
+        "forbidden": [
+          "El Puerto"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c17",
+      "lang": "es",
+      "responses": [
+        "[enable] #15 \"Alks Forest\"\n[disable] \"El Desierto de Sal\"\n[why] The group has entered the forest of hayas (Alks Forest) and is searching for the hermit, making the desert irrelevant."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 4706,
+      "score": {
+        "valid": true,
+        "opLines": 2,
+        "survived": 0,
+        "decision": true,
+        "kept": [],
+        "dropped": [
+          "enable: \"Alks Forest\" is already on",
+          "disable: \"El Desierto de Sal\" is already off"
+        ]
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 1,
+        "titleOnly": 265,
+        "promptChars": 8891,
+        "fullPromptChars": 117372,
+        "ratio": 0.07575060491428962
+      },
+      "case": {
+        "id": "c17",
+        "lang": "es",
+        "label": "none",
+        "why": "una entrada apagada sobre un lugar lejano",
+        "scope": {
+          "storyTitle": "El Bosque",
+          "checkpointName": "El claro",
+          "objective": "Encontrar a la ermitaña.",
+          "canon": "El grupo se adentró en el bosque de hayas y acampó en un claro junto al arroyo.",
+          "openArcs": [],
+          "entries": [
+            {
+              "lorebook": "Bosque Lore",
+              "comment": "El Desierto de Sal",
+              "keys": [
+                "desierto",
+                "sal"
+              ],
+              "content": "Un desierto blanco de sal al otro lado de las montañas.",
+              "disabled": true
+            },
+            {
+              "lorebook": "Bosque Lore",
+              "comment": "El Bosque de Hayas",
+              "keys": [
+                "bosque",
+                "hayas"
+              ],
+              "content": "Un bosque antiguo de hayas, silencioso y lleno de claros.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [],
+        "forbidden": [
+          "El Desierto de Sal",
+          "El Bosque de Hayas"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c18",
+      "lang": "es",
+      "responses": [
+        "[enable] \"El Puente Roto\"\n[why] The group has reached the canyon and discovered the broken rope bridge, making this entry relevant."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 4114,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 1,
+        "decision": true,
+        "kept": [
+          "enable:El Puente Roto"
+        ],
+        "dropped": []
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 2,
+        "titleOnly": 264,
+        "promptChars": 9057,
+        "fullPromptChars": 117434,
+        "ratio": 0.0771241718752661
+      },
+      "case": {
+        "id": "c18",
+        "lang": "es",
+        "label": "change",
+        "why": "habilitar: el grupo llegó al puente roto",
+        "scope": {
+          "storyTitle": "El Cañón",
+          "checkpointName": "El paso",
+          "objective": "Cruzar el cañón.",
+          "canon": "Tras dos días de marcha el grupo llegó al borde del cañón y encontró el puente de cuerdas roto, colgando sobre el vacío.",
+          "openArcs": [
+            "¿Cómo cruzar el cañón?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Cañón Lore",
+              "comment": "El Puente Roto",
+              "keys": [
+                "puente",
+                "cuerdas"
+              ],
+              "content": "El viejo puente de cuerdas sobre el cañón, roto desde hace años. Sólo quedan los postes.",
+              "disabled": true
+            },
+            {
+              "lorebook": "Cañón Lore",
+              "comment": "El Cañón",
+              "keys": [
+                "cañón"
+              ],
+              "content": "Un cañón profundo con un río al fondo.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "El Puente Roto",
+            "kinds": [
+              "enable"
+            ]
+          }
+        ],
+        "forbidden": [
+          "El Cañón"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c19",
+      "lang": "es",
+      "responses": [
+        "[patch] La Posada del Cuervo || La Posada del Cuervo está llena de soldados del rey que vigilan a todo el que entra. || todo el que entra. || La Posada del Cuervo es un lugar de descanso en el camino, ahora vacío tras la partida de los soldados del rey.\n[why] Los soldados se marcharon de la posada al amanecer, dejando el lugar vacío."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 5908,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 1,
+        "decision": true,
+        "kept": [
+          "patch:La Posada del Cuervo"
+        ],
+        "dropped": []
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 2,
+        "titleOnly": 264,
+        "promptChars": 9049,
+        "fullPromptChars": 117426,
+        "ratio": 0.07706129817927887
+      },
+      "case": {
+        "id": "c19",
+        "lang": "es",
+        "label": "change",
+        "why": "los soldados que llenan la posada se marcharon",
+        "scope": {
+          "storyTitle": "Camino Real",
+          "checkpointName": "La posada",
+          "objective": "Hablar con la posadera.",
+          "canon": "Los soldados se marcharon de la Posada del Cuervo al amanecer. La posada está vacía y la posadera por fin puede hablar sin miedo.",
+          "openArcs": [],
+          "entries": [
+            {
+              "lorebook": "Camino Lore",
+              "comment": "La Posada del Cuervo",
+              "keys": [
+                "posada",
+                "Cuervo"
+              ],
+              "content": "La Posada del Cuervo está llena de soldados del rey que vigilan a todo el que entra.",
+              "disabled": false
+            },
+            {
+              "lorebook": "Camino Lore",
+              "comment": "La Posadera",
+              "keys": [
+                "posadera"
+              ],
+              "content": "Doña Elena regenta la posada desde que murió su marido.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "La Posada del Cuervo",
+            "kinds": [
+              "patch",
+              "rewrite",
+              "disable"
+            ]
+          }
+        ],
+        "forbidden": [
+          "La Posadera"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c20",
+      "lang": "es",
+      "responses": [
+        "[disable] \"El Pozo Norte\"\n[enable] \"La Galería Principal\"\n[enable] \"Los Mineros\"\n[why] The rescuers have entered the mine and are now in the main gallery where the trapped miners are located."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 4894,
+      "score": {
+        "valid": true,
+        "opLines": 3,
+        "survived": 1,
+        "decision": false,
+        "kept": [
+          "disable:El Pozo Norte"
+        ],
+        "dropped": [
+          "enable: \"La Galería Principal\" is already on",
+          "enable: \"Los Mineros\" is already on"
+        ]
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 267,
+        "full": 4,
+        "titleOnly": 263,
+        "promptChars": 9584,
+        "fullPromptChars": 117562,
+        "ratio": 0.08152294108640547
+      },
+      "case": {
+        "id": "c20",
+        "lang": "es",
+        "label": "none",
+        "why": "varias entradas, todas al día",
+        "scope": {
+          "storyTitle": "La Mina",
+          "checkpointName": "La galería",
+          "objective": "Rescatar a los mineros.",
+          "canon": "Los rescatadores entraron en la mina por el pozo norte. Oyen golpes al fondo de la galería principal: los mineros siguen vivos.",
+          "openArcs": [
+            "¿Llegarán a tiempo?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Mina Lore",
+              "comment": "El Pozo Norte",
+              "keys": [
+                "pozo"
+              ],
+              "content": "La entrada principal de la mina, con un ascensor de madera.",
+              "disabled": false
+            },
+            {
+              "lorebook": "Mina Lore",
+              "comment": "La Galería Principal",
+              "keys": [
+                "galería"
+              ],
+              "content": "Un túnel largo y estrecho donde quedaron atrapados los mineros tras el derrumbe.",
+              "disabled": false
+            },
+            {
+              "lorebook": "Mina Lore",
+              "comment": "Los Mineros",
+              "keys": [
+                "mineros"
+              ],
+              "content": "Seis mineros atrapados por un derrumbe al fondo de la galería.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [],
+        "forbidden": [
+          "El Pozo Norte",
+          "La Galería Principal",
+          "Los Mineros"
+        ]
+      }
+    }
+  ],
+  "digestPad": "Adolion World",
+  "digestRatio": {
+    "max": 0.08644181751644667,
+    "mean": 0.07843871439721802
+  }
+}

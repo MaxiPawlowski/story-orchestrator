@@ -1,0 +1,221 @@
+2026-09-27T01:37:39.056Z 1/112 inject_script ok 9ms
+2026-09-27T01:37:39.204Z 2/112 eval ok 148ms
+2026-09-27T01:37:39.503Z 3/112 import_story ok 299ms
+2026-09-27T01:37:39.810Z 4/112 ui ok 307ms
+2026-09-27T01:37:40.836Z 5/112 eval ok 1025ms
+2026-09-27T01:38:09.241Z 6/112 send_generate ok 28405ms
+2026-09-27T01:38:09.248Z 7/112 eval ok 6ms
+2026-09-27T01:38:09.248Z 7/112 eval -> {"id":"L01","lang":"en","story":"A","needed":4,"hit":4,"noise":0,"exclusive":{"refusal":null,"stats":{"suppressed":62,"picked":2,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T01:38:10.270Z 8/112 eval ok 1022ms
+2026-09-27T01:38:28.887Z 9/112 send_generate ok 18617ms
+2026-09-27T01:38:28.900Z 10/112 eval ok 13ms
+2026-09-27T01:38:28.900Z 10/112 eval -> {"id":"L02","lang":"en","story":"A","needed":4,"hit":4,"noise":0,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T01:38:29.918Z 11/112 eval ok 1018ms
+2026-09-27T01:39:10.907Z 12/112 send_generate ok 40989ms
+2026-09-27T01:39:10.913Z 13/112 eval ok 6ms
+2026-09-27T01:39:10.913Z 13/112 eval -> {"id":"L03","lang":"en","story":"A","needed":3,"hit":3,"noise":13,"exclusive":{"refusal":"not-loud","stats":{"suppressed":0,"picked":0,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T01:39:11.150Z 14/112 eval ok 237ms
+2026-09-27T01:39:26.716Z 15/112 send_generate ok 15566ms
+2026-09-27T01:39:26.723Z 16/112 eval ok 7ms
+2026-09-27T01:39:26.723Z 16/112 eval -> {"id":"L04","lang":"en","story":"A","needed":3,"hit":1,"noise":3,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T01:39:27.465Z 17/112 eval ok 742ms
+2026-09-27T01:40:12.676Z 18/112 send_generate ok 45212ms
+2026-09-27T01:40:12.681Z 19/112 eval ok 5ms
+2026-09-27T01:40:12.681Z 19/112 eval -> {"id":"L05","lang":"en","story":"A","needed":3,"hit":3,"noise":3,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T01:40:13.700Z 20/112 eval ok 1019ms
+2026-09-27T01:40:54.316Z 21/112 send_generate ok 40616ms
+2026-09-27T01:40:54.326Z 22/112 eval ok 10ms
+2026-09-27T01:40:54.326Z 22/112 eval -> {"id":"L06","lang":"es","story":"A","needed":4,"hit":1,"noise":3,"exclusive":{"refusal":"not-loud","stats":{"suppressed":0,"picked":0,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T01:40:54.596Z 23/112 eval ok 269ms
+2026-09-27T01:42:15.362Z 24/112 send_generate ok 80765ms
+2026-09-27T01:42:15.367Z 25/112 eval ok 5ms
+2026-09-27T01:42:15.367Z 25/112 eval -> {"id":"L07","lang":"es","story":"A","needed":3,"hit":3,"noise":3,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T01:42:16.394Z 26/112 eval ok 1026ms
+2026-09-27T01:42:57.073Z 27/112 send_generate ok 40679ms
+2026-09-27T01:42:57.079Z 28/112 eval ok 6ms
+2026-09-27T01:42:57.079Z 28/112 eval -> {"id":"L08","lang":"en","story":"A","needed":3,"hit":3,"noise":1,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T01:42:58.092Z 29/112 eval ok 1013ms
+2026-09-27T01:44:33.297Z 30/112 send_generate ok 95205ms
+2026-09-27T01:44:33.302Z 31/112 eval ok 5ms
+2026-09-27T01:44:33.302Z 31/112 eval -> {"id":"L09","lang":"en","story":"A","needed":3,"hit":3,"noise":9,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T01:44:34.330Z 32/112 eval ok 1029ms
+2026-09-27T01:44:37.512Z 33/112 send_generate ok 3182ms
+2026-09-27T01:44:37.517Z 34/112 eval ok 5ms
+2026-09-27T01:44:37.517Z 34/112 eval -> {"id":"L10","lang":"es","story":"A","needed":2,"hit":0,"noise":0,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T01:44:37.991Z 35/112 import_story ok 474ms
+2026-09-27T01:44:38.459Z 36/112 eval ok 467ms
+2026-09-27T01:45:19.671Z 37/112 send_generate ok 41212ms
+2026-09-27T01:45:19.676Z 38/112 eval ok 5ms
+2026-09-27T01:45:19.676Z 38/112 eval -> {"id":"R01","lang":"en","story":"B","needed":2,"hit":2,"noise":31,"exclusive":{"refusal":"not-loud","stats":{"suppressed":0,"picked":0,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T01:45:20.794Z 39/112 import_story ok 1118ms
+2026-09-27T01:45:21.039Z 40/112 eval ok 245ms
+2026-09-27T01:48:16.932Z 41/112 send_generate ok 175893ms
+2026-09-27T01:48:16.937Z 42/112 eval ok 5ms
+2026-09-27T01:48:16.937Z 42/112 eval -> {"id":"R02","lang":"en","story":"A","needed":1,"hit":1,"noise":34,"exclusive":{"refusal":null,"stats":{"suppressed":61,"picked":3,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T01:48:17.956Z 43/112 eval ok 1019ms
+2026-09-27T01:49:07.747Z 44/112 send_generate ok 49791ms
+2026-09-27T01:49:07.760Z 45/112 eval ok 12ms
+2026-09-27T01:49:07.760Z 45/112 eval -> {"id":"R03","lang":"en","story":"A","needed":1,"hit":1,"noise":2,"exclusive":{"refusal":null,"stats":{"suppressed":61,"picked":3,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T01:49:08.787Z 46/112 eval ok 1027ms
+2026-09-27T01:50:03.821Z 47/112 send_generate ok 55034ms
+2026-09-27T01:50:03.826Z 48/112 eval ok 5ms
+2026-09-27T01:50:03.826Z 48/112 eval -> {"id":"R04","lang":"en","story":"A","needed":1,"hit":1,"noise":3,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T01:50:04.852Z 49/112 eval ok 1025ms
+2026-09-27T01:51:26.602Z 50/112 send_generate ok 81750ms
+2026-09-27T01:51:26.607Z 51/112 eval ok 5ms
+2026-09-27T01:51:26.607Z 51/112 eval -> {"id":"R05","lang":"en","story":"A","needed":2,"hit":1,"noise":4,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T01:51:27.634Z 52/112 eval ok 1028ms
+2026-09-27T01:52:51.645Z 53/112 send_generate ok 84010ms
+2026-09-27T01:52:51.650Z 54/112 eval ok 6ms
+2026-09-27T01:52:51.651Z 54/112 eval -> {"id":"R06","lang":"en","story":"A","needed":2,"hit":2,"noise":4,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T01:52:52.677Z 55/112 eval ok 1026ms
+2026-09-27T01:52:55.846Z 56/112 send_generate ok 3169ms
+2026-09-27T01:52:55.852Z 57/112 eval ok 6ms
+2026-09-27T01:52:55.852Z 57/112 eval -> {"id":"R07","lang":"en","story":"A","needed":2,"hit":0,"noise":0,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T01:52:56.164Z 58/112 eval ok 312ms
+2026-09-27T01:56:38.593Z 59/112 send_generate ok 222428ms
+2026-09-27T01:56:38.599Z 60/112 eval ok 6ms
+2026-09-27T01:56:38.599Z 60/112 eval -> {"id":"R08","lang":"en","story":"A","needed":1,"hit":1,"noise":18,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T01:56:39.615Z 61/112 eval ok 1016ms
+2026-09-27T01:56:42.787Z 62/112 send_generate ok 3173ms
+2026-09-27T01:56:42.792Z 63/112 eval ok 5ms
+2026-09-27T01:56:42.793Z 63/112 eval -> {"id":"R09","lang":"en","story":"A","needed":1,"hit":0,"noise":0,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T01:56:43.822Z 64/112 eval ok 1029ms
+2026-09-27T01:57:38.699Z 65/112 send_generate ok 54877ms
+2026-09-27T01:57:38.704Z 66/112 eval ok 5ms
+2026-09-27T01:57:38.704Z 66/112 eval -> {"id":"R10","lang":"en","story":"A","needed":2,"hit":1,"noise":2,"exclusive":{"refusal":null,"stats":{"suppressed":61,"picked":3,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T01:57:39.719Z 67/112 eval ok 1015ms
+2026-09-27T02:00:40.592Z 68/112 send_generate ok 180874ms
+2026-09-27T02:00:40.598Z 69/112 eval ok 5ms
+2026-09-27T02:00:40.598Z 69/112 eval -> {"id":"R11","lang":"en","story":"A","needed":2,"hit":0,"noise":11,"exclusive":{"refusal":"no-selection","stats":{"suppressed":0,"picked":0,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T02:00:48.616Z 70/112 eval ok 8018ms
+2026-09-27T02:02:36.644Z 71/112 send_generate ok 108028ms
+2026-09-27T02:02:36.651Z 72/112 eval ok 7ms
+2026-09-27T02:02:36.652Z 72/112 eval -> {"id":"R12","lang":"en","story":"A","needed":1,"hit":1,"noise":2,"exclusive":{"refusal":null,"stats":{"suppressed":61,"picked":3,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T02:02:37.671Z 73/112 eval ok 1020ms
+2026-09-27T02:02:40.853Z 74/112 send_generate ok 3181ms
+2026-09-27T02:02:40.859Z 75/112 eval ok 7ms
+2026-09-27T02:02:40.859Z 75/112 eval -> {"id":"R13","lang":"en","story":"A","needed":1,"hit":0,"noise":0,"exclusive":{"refusal":null,"stats":{"suppressed":61,"picked":3,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T02:02:41.937Z 76/112 eval ok 1078ms
+2026-09-27T02:04:23.463Z 77/112 send_generate ok 101526ms
+2026-09-27T02:04:23.468Z 78/112 eval ok 5ms
+2026-09-27T02:04:23.468Z 78/112 eval -> {"id":"R14","lang":"en","story":"A","needed":1,"hit":0,"noise":0,"exclusive":{"refusal":"not-loud","stats":{"suppressed":0,"picked":0,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T02:04:24.197Z 79/112 eval ok 729ms
+2026-09-27T02:06:09.910Z 80/112 send_generate ok 105713ms
+2026-09-27T02:06:09.915Z 81/112 eval ok 5ms
+2026-09-27T02:06:09.915Z 81/112 eval -> {"id":"R15","lang":"en","story":"A","needed":3,"hit":0,"noise":7,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T02:06:10.948Z 82/112 eval ok 1033ms
+2026-09-27T02:07:46.494Z 83/112 send_generate ok 95546ms
+2026-09-27T02:07:46.500Z 84/112 eval ok 5ms
+2026-09-27T02:07:46.500Z 84/112 eval -> {"id":"R16","lang":"en","story":"A","needed":1,"hit":0,"noise":8,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T02:07:47.606Z 85/112 eval ok 1106ms
+2026-09-27T02:09:34.045Z 86/112 send_generate ok 106440ms
+2026-09-27T02:09:34.050Z 87/112 eval ok 6ms
+2026-09-27T02:09:34.051Z 87/112 eval -> {"id":"R17","lang":"es","story":"A","needed":1,"hit":0,"noise":4,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T02:09:35.079Z 88/112 eval ok 1028ms
+2026-09-27T02:11:12.055Z 89/112 send_generate ok 96977ms
+2026-09-27T02:11:12.061Z 90/112 eval ok 5ms
+2026-09-27T02:11:12.061Z 90/112 eval -> {"id":"R18","lang":"es","story":"A","needed":1,"hit":1,"noise":1,"exclusive":{"refusal":null,"stats":{"suppressed":62,"picked":2,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T02:11:13.078Z 91/112 eval ok 1017ms
+2026-09-27T02:11:16.275Z 92/112 send_generate ok 3197ms
+2026-09-27T02:11:16.279Z 93/112 eval ok 5ms
+2026-09-27T02:11:16.280Z 93/112 eval -> {"id":"R19","lang":"es","story":"A","needed":1,"hit":0,"noise":0,"exclusive":{"refusal":null,"stats":{"suppressed":62,"picked":2,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T02:11:16.775Z 94/112 eval ok 495ms
+2026-09-27T02:16:13.817Z 95/112 send_generate ok 297042ms
+2026-09-27T02:16:13.824Z 96/112 eval ok 7ms
+2026-09-27T02:16:13.824Z 96/112 eval -> {"id":"R20","lang":"es","story":"A","needed":1,"hit":1,"noise":39,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T02:16:14.844Z 97/112 eval ok 1020ms
+2026-09-27T02:16:18.034Z 98/112 send_generate ok 3189ms
+2026-09-27T02:16:18.038Z 99/112 eval ok 5ms
+2026-09-27T02:16:18.038Z 99/112 eval -> {"id":"R21","lang":"es","story":"A","needed":2,"hit":0,"noise":0,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T02:16:18.750Z 100/112 eval ok 712ms
+2026-09-27T02:17:28.025Z 101/112 send_generate ok 69276ms
+2026-09-27T02:17:28.031Z 102/112 eval ok 6ms
+2026-09-27T02:17:28.031Z 102/112 eval -> {"id":"R22","lang":"es","story":"A","needed":1,"hit":0,"noise":4,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T02:17:29.017Z 103/112 eval ok 986ms
+2026-09-27T02:21:31.559Z 104/112 send_generate ok 242542ms
+2026-09-27T02:21:31.564Z 105/112 eval ok 5ms
+2026-09-27T02:21:31.565Z 105/112 eval -> {"id":"R23","lang":"es","story":"A","needed":1,"hit":0,"noise":10,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T02:21:38.220Z 106/112 eval ok 6655ms
+2026-09-27T02:22:58.144Z 107/112 send_generate ok 79924ms
+2026-09-27T02:22:58.149Z 108/112 eval ok 5ms
+2026-09-27T02:22:58.149Z 108/112 eval -> {"id":"R24","lang":"en","story":"A","needed":2,"hit":0,"noise":0,"exclusive":{"refusal":"no-selection","stats":{"suppressed":0,"picked":0,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T02:22:59.166Z 109/112 eval ok 1017ms
+2026-09-27T02:25:58.379Z 110/112 send_generate ok 179213ms
+2026-09-27T02:25:58.385Z 111/112 eval ok 6ms
+2026-09-27T02:25:58.385Z 111/112 eval -> {"id":"R25","lang":"es","story":"A","needed":2,"hit":1,"noise":6,"exclusive":{"refusal":"not-loud","stats":{"suppressed":0,"picked":0,"constant":0,"gated":0,"timed":0,"missingKey":0}}}
+2026-09-27T02:25:58.593Z 112/112 eval ok 207ms
+2026-09-27T02:25:58.593Z 112/112 eval -> {"arm":"exclusive","turns":35,"spanish":11,"recall":0.5735,"noisePerTurn":6.4286,"refusals":[null,null,"not-loud",null,null,"not-loud",null,null,null,null,"not-loud",null,null,null,null,null,null,null,null,null,"no-selection",null,null,"not-loud",null,null,null,null,null,null,null,null,null,"no-selection","not-loud"],"rows":[{"id":"L01","lang":"en","story":"A","needed":4,"hit":4,"noise":0,"exclusive":{"refusal":null,"stats":{"suppressed":62,"picked":2,"constant":0,"gated":0,"timed":0,"missingKey":0}}},{"id":"L02","lang":"en","story":"A","needed":4,"hit":4,"noise":0,"exclusive":{"refusal":null,"stats":{"suppressed":60,"picked":4,"constant":0,"gated":0,"timed":0,"missingKey":0}}},{"id":"L03","lang":"en","story":"A","needed":3,"hit":3,"noise":13,"exclusive":{"refusal":"not-loud","stats":{"sup
+2026-09-27T02:26:04.666Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T02-26-04-663Z_so-scenario-result.json
+2026-09-27T02:26:04.666Z {
+2026-09-27T02:26:04.666Z   "ok": true,
+2026-09-27T02:26:04.666Z   "steps": 112,
+2026-09-27T02:26:04.666Z   "cleanup": {
+2026-09-27T02:26:04.666Z     "importedStoryHashes": [
+2026-09-27T02:26:04.666Z       "v2-c0f5b34d",
+2026-09-27T02:26:04.666Z       "v2-2003d73d"
+2026-09-27T02:26:04.666Z     ],
+2026-09-27T02:26:04.666Z     "library": {
+2026-09-27T02:26:04.666Z       "changed": true,
+2026-09-27T02:26:04.666Z       "removed": [
+2026-09-27T02:26:04.666Z         "so-v25-08-xb@1 (v2-2003d73d)",
+2026-09-27T02:26:04.666Z         "so-v25-08-xa@1 (v2-c0f5b34d)"
+2026-09-27T02:26:04.666Z       ],
+2026-09-27T02:26:04.666Z       "restored": [],
+2026-09-27T02:26:04.666Z       "saved": {
+2026-09-27T02:26:04.666Z         "status": 200
+2026-09-27T02:26:04.666Z       },
+2026-09-27T02:26:04.666Z       "verified": true
+2026-09-27T02:26:04.666Z     },
+2026-09-27T02:26:04.666Z     "clearedDebugResponses": [],
+2026-09-27T02:26:04.666Z     "soloChats": {
+2026-09-27T02:26:04.666Z       "deleted": [],
+2026-09-27T02:26:04.666Z       "leaked": []
+2026-09-27T02:26:04.666Z     },
+2026-09-27T02:26:04.666Z     "sandboxChatId": "2026-09-26@22h37m38s721ms",
+2026-09-27T02:26:04.666Z     "owned": [
+2026-09-27T02:26:04.666Z       "2026-09-26@22h37m38s721ms"
+2026-09-27T02:26:04.666Z     ],
+2026-09-27T02:26:04.666Z     "deleted": [
+2026-09-27T02:26:04.666Z       "2026-09-26@22h37m38s721ms"
+2026-09-27T02:26:04.666Z     ],
+2026-09-27T02:26:04.666Z     "notDeleted": [],
+2026-09-27T02:26:04.666Z     "resurrected": [],
+2026-09-27T02:26:04.666Z     "lateFileRepaired": [],
+2026-09-27T02:26:04.666Z     "saveSettleMs": 1536,
+2026-09-27T02:26:04.666Z     "skipped": [],
+2026-09-27T02:26:04.666Z     "currentChatAtCleanup": "2026-09-26@22h37m38s721ms",
+2026-09-27T02:26:04.666Z     "currentGroupAtCleanup": "1759606632088",
+2026-09-27T02:26:04.666Z     "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+2026-09-27T02:26:04.666Z     "branchChats": {
+2026-09-27T02:26:04.666Z       "recorded": [],
+2026-09-27T02:26:04.666Z       "deleted": [],
+2026-09-27T02:26:04.666Z       "failed": [],
+2026-09-27T02:26:04.666Z       "leaked": []
+2026-09-27T02:26:04.666Z     },
+2026-09-27T02:26:04.666Z     "mirrorBooks": {
+2026-09-27T02:26:04.666Z       "deleted": [],
+2026-09-27T02:26:04.666Z       "failed": [],
+2026-09-27T02:26:04.666Z       "leaked": []
+2026-09-27T02:26:04.666Z     },
+2026-09-27T02:26:04.666Z     "reapPrompts": {
+2026-09-27T02:26:04.666Z       "dismissed": [],
+2026-09-27T02:26:04.666Z       "leaked": []
+2026-09-27T02:26:04.666Z     },
+2026-09-27T02:26:04.666Z     "extraction": {
+2026-09-27T02:26:04.666Z       "restored": false,
+2026-09-27T02:26:04.666Z       "unchanged": true,
+2026-09-27T02:26:04.666Z       "settings": {
+2026-09-27T02:26:04.666Z         "enabled": true,
+2026-09-27T02:26:04.666Z         "cadence": 3,
+2026-09-27T02:26:04.666Z         "stabilityLag": 0,
+2026-09-27T02:26:04.666Z         "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+2026-09-27T02:26:04.666Z         "profiles": {}
+2026-09-27T02:26:04.666Z       }
+2026-09-27T02:26:04.666Z     },
+2026-09-27T02:26:04.666Z     "judge": {
+2026-09-27T02:26:04.666Z       "restored": false,
+2026-09-27T02:26:04.666Z       "unchanged": true
+2026-09-27T02:26:04.666Z     }
+2026-09-27T02:26:04.666Z   }
+2026-09-27T02:26:04.666Z }

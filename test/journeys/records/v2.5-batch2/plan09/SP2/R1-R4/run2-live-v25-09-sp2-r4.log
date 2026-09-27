@@ -1,0 +1,90 @@
+2026-09-27T02:38:03.723Z 1/18 eval ok 5ms
+2026-09-27T02:38:03.723Z 1/18 eval -> {"flag":true,"before":{"recommitEdit":true,"swipeBackCache":false,"witnessFilter":false,"sp5Scenario":false,"sp7Chance":false,"sp6Complications":false,"sp4AppendShortTerm":false,"sp8CuratorTiers":false,"sp8CuratorDigest":false},"cadence":3,"judge":false}
+2026-09-27T02:38:04.254Z 2/18 import_story ok 531ms
+2026-09-27T02:38:15.680Z 3/18 send_generate ok 11426ms
+2026-09-27T02:38:23.765Z 4/18 wait ok 8085ms
+2026-09-27T02:38:23.991Z 5/18 eval ok 226ms
+2026-09-27T02:38:23.991Z 5/18 eval -> {"leg":"editor","id":2,"at":1790476703768,"active":"hall","stats":{"cycles":1,"recommits":0,"reads":1,"skipped":0}}
+2026-09-27T02:38:25.542Z 6/18 wait ok 1551ms
+2026-09-27T02:38:33.759Z 7/18 wait ok 8217ms
+2026-09-27T02:38:33.764Z 8/18 eval ok 5ms
+2026-09-27T02:38:33.764Z 8/18 eval -> {"leg":"editor","id":2,"at":1790476703768,"active":"hall","stats":{"cycles":1,"recommits":0,"reads":1,"skipped":0},"reads":[],"after":{"active":"hall","stats":{"cycles":2,"recommits":0,"reads":2,"skipped":0}}}
+2026-09-27T02:38:44.144Z 9/18 send_generate ok 10380ms
+2026-09-27T02:38:44.148Z 10/18 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: R4 editor: the request after the edit carries ["HALL"], expected only VAULT :: {"leg":"editor","flag":true,"activeAtRequest":"hall","markers":["HALL"],"reads":[],"before":{"cycles":1,"recommits":0,"reads":1,"skipped":0},"after":{"active":"hall","stats":{"cycles":2,"recommits":0,"reads":2,"skipped":0}}}
+2026-09-27T02:38:44.148Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:559)
+2026-09-27T02:38:44.148Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:712)
+2026-09-27T02:38:44.148Z     at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+2026-09-27T02:38:44.148Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-09-27T02:38:44.148Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-09-27T02:38:44.218Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T02-38-44-215Z_so-scenario-failure.json
+2026-09-27T02:38:50.330Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T02-38-50-329Z_so-scenario-result.json
+2026-09-27T02:38:50.330Z {
+2026-09-27T02:38:50.330Z   "ok": false,
+2026-09-27T02:38:50.330Z   "steps": 10,
+2026-09-27T02:38:50.330Z   "cleanup": {
+2026-09-27T02:38:50.330Z     "importedStoryHashes": [
+2026-09-27T02:38:50.330Z       "v2-838076eb"
+2026-09-27T02:38:50.330Z     ],
+2026-09-27T02:38:50.330Z     "library": {
+2026-09-27T02:38:50.330Z       "changed": true,
+2026-09-27T02:38:50.330Z       "removed": [
+2026-09-27T02:38:50.330Z         "live-v25-09-sp2@1 (v2-838076eb)"
+2026-09-27T02:38:50.330Z       ],
+2026-09-27T02:38:50.330Z       "restored": [],
+2026-09-27T02:38:50.330Z       "saved": {
+2026-09-27T02:38:50.330Z         "status": 200
+2026-09-27T02:38:50.330Z       },
+2026-09-27T02:38:50.330Z       "verified": true
+2026-09-27T02:38:50.330Z     },
+2026-09-27T02:38:50.330Z     "clearedDebugResponses": [],
+2026-09-27T02:38:50.330Z     "soloChats": {
+2026-09-27T02:38:50.330Z       "deleted": [],
+2026-09-27T02:38:50.330Z       "leaked": []
+2026-09-27T02:38:50.330Z     },
+2026-09-27T02:38:50.330Z     "sandboxChatId": "2026-09-26@23h38m03s452ms",
+2026-09-27T02:38:50.330Z     "owned": [
+2026-09-27T02:38:50.330Z       "2026-09-26@23h38m03s452ms"
+2026-09-27T02:38:50.330Z     ],
+2026-09-27T02:38:50.330Z     "deleted": [
+2026-09-27T02:38:50.330Z       "2026-09-26@23h38m03s452ms"
+2026-09-27T02:38:50.330Z     ],
+2026-09-27T02:38:50.330Z     "notDeleted": [],
+2026-09-27T02:38:50.330Z     "resurrected": [],
+2026-09-27T02:38:50.330Z     "lateFileRepaired": [],
+2026-09-27T02:38:50.330Z     "saveSettleMs": 1533,
+2026-09-27T02:38:50.330Z     "skipped": [],
+2026-09-27T02:38:50.330Z     "currentChatAtCleanup": "2026-09-26@23h38m03s452ms",
+2026-09-27T02:38:50.330Z     "currentGroupAtCleanup": "1759606632088",
+2026-09-27T02:38:50.330Z     "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+2026-09-27T02:38:50.330Z     "branchChats": {
+2026-09-27T02:38:50.330Z       "recorded": [],
+2026-09-27T02:38:50.330Z       "deleted": [],
+2026-09-27T02:38:50.330Z       "failed": [],
+2026-09-27T02:38:50.330Z       "leaked": []
+2026-09-27T02:38:50.330Z     },
+2026-09-27T02:38:50.330Z     "mirrorBooks": {
+2026-09-27T02:38:50.330Z       "deleted": [],
+2026-09-27T02:38:50.330Z       "failed": [],
+2026-09-27T02:38:50.330Z       "leaked": []
+2026-09-27T02:38:50.330Z     },
+2026-09-27T02:38:50.330Z     "reapPrompts": {
+2026-09-27T02:38:50.330Z       "dismissed": [],
+2026-09-27T02:38:50.330Z       "leaked": []
+2026-09-27T02:38:50.330Z     },
+2026-09-27T02:38:50.330Z     "extraction": {
+2026-09-27T02:38:50.330Z       "restored": false,
+2026-09-27T02:38:50.330Z       "unchanged": true,
+2026-09-27T02:38:50.330Z       "settings": {
+2026-09-27T02:38:50.330Z         "enabled": true,
+2026-09-27T02:38:50.330Z         "cadence": 3,
+2026-09-27T02:38:50.330Z         "stabilityLag": 0,
+2026-09-27T02:38:50.330Z         "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+2026-09-27T02:38:50.330Z         "profiles": {}
+2026-09-27T02:38:50.330Z       }
+2026-09-27T02:38:50.330Z     },
+2026-09-27T02:38:50.330Z     "judge": {
+2026-09-27T02:38:50.330Z       "restored": false,
+2026-09-27T02:38:50.330Z       "unchanged": true
+2026-09-27T02:38:50.330Z     }
+2026-09-27T02:38:50.330Z   }
+2026-09-27T02:38:50.330Z }

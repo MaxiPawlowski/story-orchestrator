@@ -1,0 +1,15 @@
+2026-09-27T02:38:53.014Z DIFF spikes.recommitEdit  false -> true
+2026-09-27T02:38:53.015Z {
+2026-09-27T02:38:53.015Z   "baseline": "C:/dev/so-lanes/3/debug/run-header-v25-09-sp2-start.json",
+2026-09-27T02:38:53.015Z   "label": "diff-end",
+2026-09-27T02:38:53.015Z   "allow": [],
+2026-09-27T02:38:53.015Z   "differences": 1,
+2026-09-27T02:38:53.015Z   "progress": 0,
+2026-09-27T02:38:53.015Z   "blocking": 1,
+2026-09-27T02:38:53.015Z   "blockingPaths": [
+2026-09-27T02:38:53.015Z     "spikes.recommitEdit"
+2026-09-27T02:38:53.015Z   ],
+2026-09-27T02:38:53.015Z   "warnings": [],
+2026-09-27T02:38:53.015Z   "wrote": "C:\\dev\\so-lanes\\3\\debug\\run-header-diff-end.json",
+2026-09-27T02:38:53.015Z   "ok": false
+2026-09-27T02:38:53.016Z }

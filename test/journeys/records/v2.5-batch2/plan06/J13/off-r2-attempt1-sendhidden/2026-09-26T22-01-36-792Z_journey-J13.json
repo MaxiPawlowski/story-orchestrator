@@ -1,0 +1,743 @@
+{
+  "id": "J13",
+  "title": "reply effect",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j13-reply-effect.journey.json",
+  "fileSha256": "0967c9d5d6c419255730ecb4bb3e1192b59c9397135f606359e81e43c64ee624",
+  "ranAt": "2026-09-26T22:01:36.752Z",
+  "strict": true,
+  "partial": false,
+  "only": null,
+  "tally": {
+    "fail": 1
+  },
+  "tallies": {
+    "automated": {
+      "pass": 0,
+      "fail": 1,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 0
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 0,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [
+    "1 automated check(s) failed"
+  ],
+  "humanRecord": null,
+  "runnerError": null,
+  "releasedRoutes": null,
+  "capabilities": {
+    "continuity-warden": true,
+    "warden-families": true
+  },
+  "results": [
+    {
+      "id": "J13.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "house rules, reply effect (v2.5 plan 06 J3, A15): the J8.12 story (no guns, coins are marks) played for 22 scripted player turns that invite gunplay and money talk, with NO scripted defect: every reply is the real model's own. On arm: --judge-uses houseRules --warden-mode auto; off arm: --judge-uses off (0 warden calls asserted). The check passes on >= 20 captured replies; the effect is not judged here but offline, by so-judge rescore --use house-rules per record, then so-judge reply-effect over on x2 + off x2 (off >= 0.2 or VOID; on <= pooled off - 0.15 in both on runs).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "locator.click: Element is not visible\nCall log:\n\u001b[2m  - waiting for locator('#send_but')\u001b[22m\n\u001b[2m    - locator resolved to <div tabindex=\"0\" id=\"send_but\" title=\"Send a message\" data-i18n=\"[title]Send a message\" class=\"fa-solid fa-paper-plane interactable\"></div>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n",
+      "firstAttempt": "fail",
+      "retries": []
+    }
+  ],
+  "cleanup": {
+    "judgeSettle": {
+      "settled": true,
+      "waitedMs": 0,
+      "inFlight": 0,
+      "seen": 0
+    },
+    "judgeCalls": {
+      "count": 0,
+      "events": []
+    },
+    "judgeMode": {
+      "mode": {
+        "label": "off",
+        "uses": []
+      }
+    },
+    "judgeMeter": {
+      "calls": 0,
+      "cachedCalls": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "cost": 0,
+      "lastAnsweredModel": null
+    },
+    "boundaries": 23,
+    "warden": {
+      "flagged": 0,
+      "applied": 0,
+      "lapsed": 0,
+      "rejected": 0,
+      "pending": 0
+    },
+    "wardenNotes": [],
+    "rescore": {
+      "factsSource": "live facts-tier and pinned memory rows at cleanup; ledger-bound rows not included; player line = the newest player message before each reply; house rules = the played story at cleanup",
+      "rows": [
+        {
+          "id": "m0",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "Arin leans against a cracked pillar near the Adventurer’s Guild, his arms folded, eyes flicking toward you with a knowing smirk.\r\n“Let me guess — you’re thinking this one’ll be easy, right? You always say that before we almost die.”\r\nHe pushes off the wall, adjusting the strap of his bow.\r\n“Still… I’m in. What’s life without a little bad decision-making? Let's see what do we need to do this time”"
+          },
+          "player": "Max",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m2",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"This is just... this is so stupid.\" *He mutters, his voice cracking as he kicks a pebble into the water. The stone plops into the muddy flood, barely making a ripple against the current. Luke's oversized chainmail clanks as he shifts his weight, the short sword at his hip clattering with every movement. His brown hair is plastered to his forehead from the humidity, and he looks smaller than he ever has before.* \"We could be so close, and all that's left is to—to wait. Just sit here and watch the water.\"\n*He looks over at Max, his expression a mixture of frustration and anxiety. The brown water roars past, churning with debris and twisting branches. It's been a week already, and nobody has crossed it. He can't imagine how much of the that road leads to the Sun Ruins, his brother's last known location.*\n\"How long do you think this'll take? Maybe we're close enough to get around it?\" *He asks, though his voice wa với uncertainty. He bites his lip, the chainmail clanking as he crosses his arms over his chest, clearly struggling with your more patient approach.* \"The Guild said nobody's crossed it in a week, but... but I mean, I've never seen water like this before.\"\n*His eyes flick toward the road ahead, as if he could try to be able to force his way through the water by sheer will alone, the oversized chainmail shifting and clanking as he leans forward.*"
+          },
+          "player": "Max",
+          "playerMessage": "I wait on the near bank and watch the brown water.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m3",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"The current is too strong, boy,\" *a raspy voice cuts through the rush of water.*\n*An old woman crouches by the bank, her face a map of deep lines and sun-etched wrinkles. She's been watching the water for hours, her weathered hands folded in her lap. She looks at Luke with a mixture of pity and impatience.*\n\"Seen a hundred floods like this come and go. The water remembers when it was a river and it wants to be again. It won't let you pass until it's done its business.\" *She turns her gaze to Max, her eyes cloudy but sharp.* \"You're wise to wait. Many fools have tried to swim it. The river's got their bones now.\"\n*She spits into the mud, a thick glob of dark saliva that sinks into the wet earth.* \"They thought they were smarter than nature. They thought they were stronger than the current. They weren't.\"\n*The rain has finally stopped, but the air is thick and heavy. The scent of damp earth and decaying vegetation hangs in the air, and the sound of the flood is overwhelming. The woman's voice is a reminder of the danger that lies beneath the surface.*"
+          },
+          "player": "Max",
+          "playerMessage": "I wait on the near bank and watch the brown water.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m5",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "\"Ah, shapes in the fog, are they?\" *Ponticius shifts his weight, his eyes narrowing as he peers into the gray haze. The roar of the floodwaters provides a constant backdrop to the conversation, a dull roar that drowns out any other sound. He doesn't move from his spot, his expression unreadable.*\n*He lets out a soft grunt, his fingers drumming against his leather belt.* \"Could be anything, really. Animals, maybe. Or some poor bastard who didn't think the road was passable. The flood's been bringing in all sorts of things, you know.\"\n*He looks back at Max, his face impassive.* \"Not too much-time for the fog tos, eh?\" *He says, and a voice-over from the memory of a long time ago flickers across his face for a moment, a brief flicker of that weight, that every loss carried personally.* \"I've known a lot of people who thought they could outsmart the current. None of them came back.\"\n*His eyes return to the fog, hisH gaze fixed on the indistinct shapes. His tone is neutral, flat, and devoid of any emotion. It's simply a fact, and as soon as it is spoken, it's a breath of wind, a breeze from the road, a truth that's plain as day.*"
+          },
+          "player": "Max",
+          "playerMessage": "Shapes move in the fog upstream. I ask whoever is nearest what they are.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m7",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "\"Smugglers?\" *Ponticius's lips curl into the faintest shadow of a smile, more a grimace than anything approaching amusement.* \"The river patrols? Hah.\" *He lets out a short, sharp laugh, the sound cutting through the roar of the water.*\n*He shakes his head, a few strands of gray-streeled hair falling across his brow.* \"They don't keep them off their backs, boy. They just avoid them.\" *His eyes flick back to the water, watching as the shapes in the fog drift lazily downstream, barely visible.* \"The patrols are spread thin, and the river's a mess. The smugglers know the secret routes, the hidden paths that the patrols can't even see.\"\n*He looks at Max again, his voice dropping lower, more serious.* \"And besides, the patrols are only concerned with what's valuable. A few crates of contraband, a handful of stolen goods. They're not looking for every little thing that makes its way across the river.\"\n*He leans back against a nearby tree, the bark rough against his shoulder.* \"It's a simple matter of knowing where to look and how to avoid the eye of the law.\" *He pauses, and his tone shifts, becoming almost thoughtful.* \"And sometimes, the law turns a blind eye. A little coin to the right people, and they'll look the other way.\"\n*He speaks plainly, offering strategies in stories from his younger days, and as he says it, his face settles into the expression of a one-who-has-known-the-many-of-the-road and seen many of the road's ends. He's not sugarcoating risks, just offering a path forward, a truth wrapped in a story, a truth that's as plain as the muddy river.*"
+          },
+          "player": "Max",
+          "playerMessage": "Smugglers? I ask how they keep the river patrols off their backs.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m8",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "\"Smugglers, huh?\" *Arin's eyebrows shoot up as he watches the shapes drift in the fog. He pulls a small wooden trinket from his pocket, idly carving a sliver off with his dagger's tip.* \"Great. Just what we need on top of a flooded road. Because what could go wrong with *criminal* elements sneaking around in a place we're already stuck?\"\n*He glances at Max, his eyes sharp and calculating.* \"Still, if they're moving contraband, they probably have a route. Smugglers are good at finding ways through places everyone else thinks are impossible.\"\n*Arin sets the carving aside, his hand drifting toward the dagger at his hip.* \"Should we be worried about them, or should we see if they know a shortcut that doesn't involve waiting for a week?\" *His tone is light, but there's an edge to it—he's already assessing threats and opportunities, his mind working through the tactical options.*"
+          },
+          "player": "Max",
+          "playerMessage": "Smugglers? I ask how they keep the river patrols off their backs.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m10",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"A crossing?\" *The bargeman's voice is like dry parchment rubbing together as he steers his flat-bottomed boat through the current.* \"Cost? Bah!\"\n*The old man spits into the water, the sound lost in the roar of the flood.* \"You want to talk cost when the river's like this? Most folks don't pay a thing. They just survive the trip across, and that's enough for me.\"\n*He leans forward, his weathered face a mask of concentration as he guides the boat through the churning water, his muscles tensing with the effort.* \"But if you're talking about coin, then sure. I'll take whatever you got. A silver piece, a bit of food, a warm bed when I can find one.\"\n*He looks at Ponticius for a moment, his gaze lingering, and for a moment there's a flash of something in his eyes—a flicker of recognition, or perhaps it's just the trick of the light.* \"Most people out here pay with what they got. A story, a promise, a bit of coin. It's all the same to me in the end. I just want to get across and get on with my day.\"\n*He lets out a grunt as the boat hits a submerged branch, the wood groaning under the impact.* \"The river's got a mind of its own today. But for me, it's just another day on the water.\"\n*He's a man who has seen the flood and knows its ways, a man who knows the and is not afraid of the current. He speaks in the language of survivors, and his words are a reminder that in the wilds, the only currency that truly matters is survival itself.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the bargeman what his crossing costs, and how people pay out here.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m12",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"What—who?\" *Luke's head snaps around, his oversized chainmail clinking as he ducks behind the nearest crate, the metal scraping against the wood with a loud scrape.* \"What did he say?\"\n*His eyes are wide, his hands gripping the edge of the crate for support, his short sword clattering against his hip as he trembles slightly.* \"What's that?\"\n*He looks over at you, his expression a mix of terror and determination, the oversized chainmail shifting as he breathes heavily.* \"Should we... should we be doing something?\"\n*His voice is uncertain, but there is a truth in it—a truth that he's ready to jump into danger for the sake of getting across this river, for the sake of his brother.*\n*The smell of damp earth and decaying wood hangs in the air, the sound of the river overwhelming, as the shouts from the smuggler's boat drift closer through the fog.*"
+          },
+          "player": "Max",
+          "playerMessage": "One of the smugglers shouts at us from the boat. I duck behind the crates.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m13",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "\"Down, down!\" *Ponticius hisses, his voice sharp and low.* \"Don't let them see you!\"\n*He drops into a crouch, his movement fluid and practiced, his hand moving to the grip of his weapon.* \"They're not looking to help us, boy.\"\n*His eyes scan the fog, tracking the movement of the shapes as they draw closer. His voice drops to a whisper, barely audible over the sound of the current.* \"This is how they operate. They'll see you, and they'll think you're trouble. They'll think you've seen too much.\"\n*He glances over at the crates, his expression grim.* \"Keep your head down. We'll figure this out.\"\n*His tone is plain, offering a strategy wrapped in a story from his younger days—a truth that’ with just as plain as the muddy river. He doesn't sugarcoat the risk, but offers a path forward, a path that leads across this water and away from the fog.*\n*He doesn't linger, his focus is on the now, on the survival of those who have come to trust him, and the road ahead. He doesn't watch the outcome—he sends you off, and that is his job.*"
+          },
+          "player": "Max",
+          "playerMessage": "One of the smugglers shouts at us from the boat. I duck behind the crates.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m15",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"Guards?\" *Luke's voice is hushed, but his eyes flick towards you from behind the crate.* \"You mean the river patrols, right?\"\n*He shifts slightly, the oversized chainmail clanking quietly as he tries to stay low.* \"I... I heard they have those new flintlock rifles now, some of them. The ones that make that loud *boom* and can hit you from far away.\"\n*His voice drops even lower, his words coming out fast and uncertain.* \"And they're probably carrying swords too, right? Or maybe spears? I can't remember what the Guild said. But they're definitely armed.\"\n*He swallows hard, his brown hair plastered to his forehead, his pale face tight with anxiety. He looks at you for a moment, then looks back at the river.*\n\"Why do you ask? You're thinking about... about fighting them, aren't you?\" *There's a glimmer of hope in his expression, though it's buried under fear.* \"I mean, if we *did* have to fight them... would we win? I mean... we'd probably win, right?\"\n*The oversized chainmail shifts and clatters against the crate as he grips the wood tighter, his knuckles white.*\n*He's trying to sound optimistic, trying to believe that you and the others can handle whatever comes your way, but his voice betrays the fear that's clawing at him.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask how the guards on this road are armed these days.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m16",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "\"The guards?\" *Ponticius repeats the word, his voice flat and devoid of any real interest.* \"Hah.\"\n*He lets out a short laugh that's more of a grunt, his eyes not moving from the river.* \"They've got flintlocks, aye. A few of them do. They carry 'em on their belts like they're something fancy, but they're more trouble than they're worth. They're loud, they get wet, and they don't always go off when you want them to.\"\n*His tone is plain as the river, offering a truth that's just as plain as the mud.* \"Most of 'em stick to blades—swords, spears, the usual. Nothing fancy. They're trained to stand in a line and look scary, not to fight real warriors. They're no threat to someone who knows what they're doing.\"\n*He pauses, his voice dropping to a low whisper.* \"And the ones with firearms? They're specialized. Expensive to maintain. Most of these patrols don't have the coin or the training to use 'em right.\"\n*He glances at you briefly, his expression impassive.* \"Don't worry about them. Worry about the smugglers. They're a different story entirely.\"\n*He looks back at the fog, his face a mask of calm, his weight shifting slightly. He's ready for whatever comes next, but his focus is on the river.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask how the guards on this road are armed these days.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m18",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "\"A shot?\" *Ponticius's eyes snap to the source of the sound, his posture going rigid.* \"No.\" *He mutters to himself, his voice tight.* \"That was a crossbow bolt hitting something. A wooden beam or a crate, maybe.\"\n*He doesn't move, his gaze fixed on the fog and the shapes within it.* \"Sounds like they've found something.\" *He says quietly, his voice barely above a whisper.*\n*His hand is tight on the grip of his sword, his body coiled and ready.* \"Stay down, stay hidden.\" *His words are as sharp and clear as a command from a general on a battlefield.*\n*The sound of the shot, the impact of the bolt, and the ripple of water all blend together into a tense moment of anticipation.*\n*He doesn't look at you, but you can feel the intensity of his gaze, the focus in his face as he waits for whatever comes next. His weight shifts slightly, and you can hear the leather of his belt creak as he moves.*\n*The sound of the crossbow bolt has put him on edge, and he can't shake the feeling that something's about to happen. His voice is flat, offering a truth that's plain and unvarnished, a truth that's wrapped in the silence and the anticipation of the river.*"
+          },
+          "player": "Max",
+          "playerMessage": "A crack echoes across the water. I ask what that was.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m19",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"Was that... was that a weapon?\" *Luke's voice is high-pitched, his eyes wide as he stares into the fog.* \"Was that someone shooting?\"\n*He grips the edge of the crate, his knuckles turning white as he tries to keep himself hidden. His oversized chainmail clanks softly against the wood, a sound he doesn't seem to notice in his fear.*\n\"Should we do something? Maybe... maybe they're in trouble?\" *His voice is uncertain, his optimism flickering like a candle in the wind.* \"Maybe they need our help?\"\n*He looks at you with a desperate hope, his pale face strained with anxiety as he listens for another sound. The sound of the crossbow bolt, the impact, and the rush of the river all blend together in his mind, a tangled mess of fear and hope.*\n*He's ready to throw himself into danger, to help whoever it is, but he's not sure if it's a good idea. His voice is fast and uncertain, a reflection of the internal conflict tearing at him.*\n*The oversized chainmail shifts as he leans forward slightly, his brown hair falling over his eyes as he struggles to make sense of the situation.*"
+          },
+          "player": "Max",
+          "playerMessage": "A crack echoes across the water. I ask what that was.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m20",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "\"That was definitely a crossbow,\" *Arin says quietly, his carving knife still in his hand.* \"A clean shot, too. Someone's playing target practice with the river.\"\n*He adjusts his bow's strap, his eyes scanning the fog for any sign of the shooter.* \"The question is whether they're shooting at something or someone.\"\n*Arin's tone is light, but his posture is alert, ready to react. His hand is near his dagger, and his green eyes are sharp and focused.* \"Either way, sounds like we've got company. And not the friendly kind, if they're using weapons.\"\n*He glances at you, his smirk gone for once, replaced by a grim determination.* \"So, do we keep hiding, or do we go looking for whoever's shooting bolts into the river?\"\n*The sound of the river and the rain and the distant shouts all blend together, a tense background for the decision that needs to be made. Arin is ready for whatever comes his way, his trust in you evident in the way he waits for your word.*"
+          },
+          "player": "Max",
+          "playerMessage": "A crack echoes across the water. I ask what that was.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m22",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "\"Stay low.\" *Ponticius says it as a command, not a suggestion.* \"We don't know who shot or why.\"\n*He doesn't move from his crouched position, his eyes fixed on the shapes in the fog.* \"But we'll listen. If someone's screaming, we'll know.\"\n*His voice is a low whisper, flat and devoid of emotion.* \"We don't rush in without knowing what we're dealing with.\"\n*He glances at you briefly, the intensity in his eyes unmistakable.* \"We wait, and we listen.\"\n*He doesn't shift, his body completely still, his focus entirely on the sound that echoes across the water. He's a man who knows when to act and when to wait, a man who has seen enough to know that rushing in without thinking is a recipe for disaster.*\n*The silence that follows is thick and heavy, the sound of the rushing river the only noise in the tense atmosphere. He waits, his patience as steady as the river itself.*\n*His weight shifts slightly, just enough to adjust his grip on the sword, but not enough to alert anyone to their presence. He's a ready and waiting, a soldier in the war of survival.*"
+          },
+          "player": "Max",
+          "playerMessage": "I stay low and ask if anyone is hurt.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m23",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "\"Quiet now,\" *Arin whispers, his hand steady on the bow he's still holding.* \"Listen.\"\n*He doesn't move a muscle, his green eyes locked on the fog as if he could see through the gray haze.* \"If there's someone out there, they'll make a sound. A cry, a plea, anything.\"\n*His tone is low and cautious, his smirk completely absent. He's waiting, just as Ponticius is, his mind already working through the tactical possibilities.*\n*Arin's grip on his bow is tight, but not tense. He's ready, his muscles coiled like a spring, but not in a way that's aggressive. He's just listening, his presence a calming influence in the tension of the moment.*\n*He doesn't say anything more, simply waiting, his gaze unwavering and his hand ready to move should the need arise. His trust in you is absolute, and he's just waiting for your command.*\n*The sound of the river fills the air, a constant rush that masks other noises and makes listening for something specific that much harder. Arin's patience is absolute, and he is just listening.*"
+          },
+          "player": "Max",
+          "playerMessage": "I stay low and ask if anyone is hurt.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m24",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"You hear nothing but the river,\" *the old woman whispers, appearing seemingly from the fog itself, her voice barely audible over the rush.* \"The water hides all sounds.\"\n*She crouches beside you, her eyes scanning the river just as you did.* \"The river is the same as it has always been. It doesn't care for your questions. It only cares for its own.\"\n*She looks at you, her cloudy eyes searching your face.* \"The water remembers when it was a river and it wants to be again. It won't let you pass until it's done its business.\"\n*She spits into the mud, the sound wet and heavy. The river continues to flow, its muddy waters churning and churning as it moves towards the horizon.*\n*The woman's words are cryptic and unsettling, but her voice carries a weight of truth that is plain and unvarnished. She is a part of this landscape, a part of the ruins that surround you, and her words are a reminder of the fragile nature of human life in a world where the undead and the monsters roam free.*\n*The river flows on, its muddy currents carrying with them the debris of a lost age, and you are just another witness to the passing of time.*"
+          },
+          "player": "Max",
+          "playerMessage": "I stay low and ask if anyone is hurt.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m26",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"The leader?\" *Luke's voice cracks as he whispers, his wide eyes flicking to the bargeman.* \"How would he know that?\"\n*He grips the edge of the crates tighter, his oversized chainmail shifting with a quiet clatter.* \"I mean... do the smugglers always have a leader?\"\n*His voice is uncertain, full of questions, but there's a spark of hope in his eyes. Maybe the bargeman knows something, something that could help them.*\n\"And what if... what if the leader is someone we know?\" *He asks, his tone hopeful but scared, like he's trying to imagine a world where everything would work out. His oversized chainmail shifts again, clattering softly against the crates.*\n*The sound of the river rushes by, filling the silence between his words and the woman's cryptic warnings. Luke is trying to find any piece of information he can, any thread to pull on to see if it leads to answers he doesn't have.*\n*The oversized chainmail clatters again as he shifts, trying to see the river and the smugglers through the fog, but mostly just seeing the gray and muddy water flowing by.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the bargeman to describe the smugglers' leader.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m27",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "\"The leader?\" *Ponticius's brow furrows as he peers at the bargeman.* \"Aye, every crew's got a captain. One who knows the currents, the secret routes, the hidden paths.\"\n*His eyes flick back to the river, his expression neutral.* \"But that's not always the same man. The currents change, the routes shift, and so does the crew.\"\n*His voice is flat and unvarnished.* \"They're not like a guild with ranks and rules. They're more like a family or a crew of survivors, and whoever's got the most sense leads 'em for a time.\"\n*His tone is plain as the road, offering a truth wrapped in a story. He doesn't linger on the details—his job is to send you off, not watch the outcome.*\n*He looks at Max, his expression settling into a one-who-has-known-the-many-of-the-road. His focus is on the now, and the now is not about who's in charge of a boat in the distance.*\n*The river continues to roar, its currents churning with the debris of the lost age, and Ponticius's focus remains on the present, on the survival of his crew and the road that lies ahead.*"
+          },
+          "player": "Max",
+          "playerMessage": "I ask the bargeman to describe the smugglers' leader.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m29",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "\"Don't move,\" *Ponticius whispers, his voice a low hiss that cuts through the rush of water.* \"Don't even breathe.\"\n*He doesn't shift a muscle, his body completely still in the crouched position. His eyes are locked on the leader of the smugglers, tracking every movement of the man's arm as he points something at the dock.*\n*His hand is tight on the hilt of his sword, his grip firm and ready.* \"Wait.\" *His words are a command, a sharp instruction to wait and see.*\n*His tone is flat, offering no emotion, only a cold truth: that rushing in now is a death sentence. He doesn't sugarcoat risks, but always offers a path forward.*\n*He doesn't speak, doesn't make a sound, his focus entire and absolute.*\n*The river churns around them, the fog shifting and twisting, and for a moment, the entire world seems to hold its breath along with them.*\n*His weight is still, his patience as absolute as the current itself, waiting for the next moment to break the silence and reveal what comes next.*"
+          },
+          "player": "Max",
+          "playerMessage": "The leader points something at the dock. I freeze and wait to see what happens.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m30",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "DM Narrator",
+            "text": "\"Steady now,\" *the bargeman murmurs, his voice barely a whisper as he steers his boat toward the dock.* \"Steady.\"\n*His eyes are fixed on the leader, his face a mask of concentration. He doesn't move from his spot, his hands gripped tight on the oars.*\n*The river churns and churns, the current strong and unrelenting. The sound of the water is overwhelming, drowning out everything else.*\n*The leader's arm remains extended, pointing at the dock as if he's commanding something or signaling to his crew.*\n*The fog shifts and swirls, twisting around the shapes of the smugglers and the dock, and for a moment you can't tell where one ends and the other begins.*\n*The river flows on, oblivious to the tension, the stakes, and the choices that lie before you. It only cares about its own business, and it won't be done until it's finished.*\n*The bargeman's breath is slow and steady, a stark contrast to the chaotic river and the tension in the air. He's a man who knows his place in the world, and he knows that right now, the right place is to wait and see.*\n*The leader's finger points on, and the silence that follows is heavy and thick with anticipation.*"
+          },
+          "player": "Max",
+          "playerMessage": "The leader points something at the dock. I freeze and wait to see what happens.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m32",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "Luke",
+            "text": "\"Your purse?\" *Luke's voice comes out as a quiet gasp, his eyes wide and pleading.* \"Are you sure?\"\n*He grips the edge of the crater tighter, the oversized chainmail shifting and clattering against the wood.* \"I mean... if we get across, maybe we can find my brother sooner.\"\n*His voice is fast, hopeful, but laced with fear. He's trying to convince himself that this is a good plan, that it'll lead him to his brother.*\n\"But what if the smugglers... what if they see us?\" *He asks, his face pale and anxious as he watches the river flow by.* \"What if they shoot again?\"\n*His brown hair flops over his forehead, plastered to his skin by the humidity, and his brown eyes are wide with a mixture of terror and hope.*\n*The oversized chainmail clunks as he shifts, and he doesn't seem to realize that the sound is breaking the silence that had been held so carefully.*\n*He's trying to be optimistic, trying to believe that you and the others can handle the danger and get across the river to find his brother.*\n*The river churns on, its currents relentless and unending, and the river continues to churn as the sound of his voice drifts across the water, potentially alerting the smugglers to your presence.*\n*He doesn't think about the risks or the consequences, he just wants to find his brother.*\n*The oversized chainmail shifts and clanks again, a small sound in the roar of the river but one that feels enormous in the silence between you.*"
+          },
+          "player": "Max",
+          "playerMessage": "I offer the bargeman my purse to get me across before nightfall.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m33",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "Arin",
+            "text": "\"Easy, Luke. Take a breath.\" *Arin's voice is low but steady, his eyes never leaving the fog where the smugglers drift.* \"The purse is a bold move. Bold's good. But loud's bad.\"\n*He shifts his weight slightly, his fingers still gripping the bow but relaxed.* \"We don't just throw it over. We need to get the bargeman's attention without signaling every smuggler in the river that we're loaded with coin.\"\n*Arin glances at the bargeman, then back to you, his expression serious for once. The smirk is gone, replaced by tactical calculation.* \"You wait until the bargeman is closer, maybe when he's distracted by the current. Then we make our move.\"\n*He's not suggesting you change your mind, just how to execute it without ending up with crossbow bolts in their backs. His green eyes are sharp, always assessing, always looking for the angle that keeps them all alive.*\n*The river roars on, the fog churning around the shapes in the distance, and Arin's patience matches the current—unrelenting and focused.*"
+          },
+          "player": "Max",
+          "playerMessage": "I offer the bargeman my purse to get me across before nightfall.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        },
+        {
+          "id": "m34",
+          "arm": "off",
+          "established": [
+            "The road has been flooded for a week and no one has crossed it.",
+            "The bargeman accepts various forms of payment: coin, food, stories, or promises"
+          ],
+          "reply": {
+            "speaker": "Ponticius",
+            "text": "\"A purse. Hah.\" *Ponticius's lips curl into a grim smile, his eyes still locked on the river.* \"You're a bold one, ain't ya?\"\n*He doesn't move from the crouched position, but there's a flicker of something in his expression—respect, perhaps, or just the recognition of another gambler.* \"But the bargeman ain't looking for coin right now. He's looking to get across without becoming fish food.\"\n*His hand stays on his sword hilt.* \"Wait. We wait.\"\n*His tone is plain, offering the truth that's just as plain as the muddy water.* \"The river's got its own schedule, and so do the smugglers. We don't push our luck until we have to.\"\n*He doesn't linger, his focus is entirely on the current moment, on the survival of the group.* \"When the time is right, we'll cross. Not before. And not by throwing our coin to the wind.\"\n*The river flows past them, its current strong and relentless, and Ponticius waits, as he always does, with a patience born from seeing too many fools rush their luck and lose everything.*\n*He doesn't watch the outcome—he sends you off. His job is to get you to the crossing, and that's all that matters.*"
+          },
+          "player": "Max",
+          "playerMessage": "I offer the bargeman my purse to get me across before nightfall.",
+          "houseRules": [
+            "No character uses a gun, rifle or any gunpowder weapon.",
+            "Coins are called marks, never gold pieces or dollars."
+          ]
+        }
+      ]
+    },
+    "debugResponses": {
+      "cleared": []
+    },
+    "extraction": {
+      "restored": true,
+      "from": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "to": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "verified": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      },
+      "saved": {
+        "status": 200
+      },
+      "ok": true
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "judgeRestore": {
+      "restored": true,
+      "ok": true
+    },
+    "assets": {
+      "marker": "SO-J8",
+      "found": {
+        "allLorebooks": [
+          "Adalion groupchat",
+          "Adolion - Aegis City Noble Life",
+          "Adolion - Eshalanore",
+          "Adolion - Mountains of Shadow",
+          "Adolion - The Third Kingdom",
+          "Adolion - Tiunhime Village",
+          "Adolion Academy Checkpoints",
+          "Adolion Adventurer Checkpoints",
+          "Adolion Chronicle",
+          "Adolion World",
+          "Celia Lorebook",
+          "Chat_Book_Assistant_2025_10_04_18h59m30s",
+          "Exported",
+          "Magianomicon",
+          "main_Magianomicon_world_info",
+          "main_The Fantasy World of Adolion_world_info",
+          "ProjectStory",
+          "SO-J8 Lore",
+          "The Fantasy World of Adolion",
+          "Xentar Checkpoints",
+          "Xentar"
+        ],
+        "allRegex": [],
+        "allQrSets": [
+          "Default"
+        ],
+        "qrError": null,
+        "marker": "SO-J8",
+        "baseline": "2026-09-26T21:45:06.625Z",
+        "ledger": [],
+        "sessions": [],
+        "characters": [],
+        "groups": [],
+        "lorebooks": [
+          "SO-J8 Lore"
+        ],
+        "protected": [],
+        "regexScripts": [],
+        "qrSets": []
+      },
+      "removed": {
+        "characters": [],
+        "groups": [],
+        "lorebooks": [
+          "SO-J8 Lore"
+        ],
+        "lorebooksViaHost": [
+          "SO-J8 Lore"
+        ],
+        "lorebooksUnlisted": [],
+        "regexScripts": [],
+        "qrSets": [],
+        "evicted": [],
+        "staleCache": [],
+        "errors": [],
+        "sessions": {
+          "kept": [
+            "untitled",
+            "untitled-story"
+          ],
+          "dropped": []
+        }
+      },
+      "saved": {
+        "status": 200
+      },
+      "leaked": {
+        "allLorebooks": [
+          "Adalion groupchat",
+          "Adolion - Aegis City Noble Life",
+          "Adolion - Eshalanore",
+          "Adolion - Mountains of Shadow",
+          "Adolion - The Third Kingdom",
+          "Adolion - Tiunhime Village",
+          "Adolion Academy Checkpoints",
+          "Adolion Adventurer Checkpoints",
+          "Adolion Chronicle",
+          "Adolion World",
+          "Celia Lorebook",
+          "Chat_Book_Assistant_2025_10_04_18h59m30s",
+          "Exported",
+          "Magianomicon",
+          "main_Magianomicon_world_info",
+          "main_The Fantasy World of Adolion_world_info",
+          "ProjectStory",
+          "The Fantasy World of Adolion",
+          "Xentar Checkpoints",
+          "Xentar"
+        ],
+        "allRegex": [],
+        "allQrSets": [
+          "Default"
+        ],
+        "qrError": null,
+        "marker": "SO-J8",
+        "baseline": "2026-09-26T21:45:06.625Z",
+        "ledger": [],
+        "sessions": [],
+        "characters": [],
+        "groups": [],
+        "lorebooks": [],
+        "protected": [],
+        "regexScripts": [],
+        "qrSets": []
+      },
+      "clean": true
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions",
+        "schema"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [
+        "so-j8-house-rules"
+      ],
+      "preservedSessions": []
+    },
+    "importedStoryHashes": [
+      "v2-eddb4fe5"
+    ],
+    "library": {
+      "changed": true,
+      "removed": [
+        "so-j8-house-rules@1 (v2-eddb4fe5)"
+      ],
+      "restored": [],
+      "saved": {
+        "status": 200
+      },
+      "verified": true
+    },
+    "chat": {
+      "sandboxChatId": "2026-09-26@18h45m06s881ms",
+      "owned": [
+        "2026-09-26@18h45m06s881ms"
+      ],
+      "deleted": [
+        "2026-09-26@18h45m06s881ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "lateFileRepaired": [],
+      "saveSettleMs": 1600,
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-26@18h45m06s881ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-20@07h06m38s396ms"
+    },
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    }
+  }
+}

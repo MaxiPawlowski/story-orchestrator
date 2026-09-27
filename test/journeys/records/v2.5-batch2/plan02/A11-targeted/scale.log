@@ -1,0 +1,40 @@
+(node:47196) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/dev/SillyTavern-MainBranch/public/scripts/extensions/third-party/story-orchestrator/src/extraction/callBudget.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{
+  "ok": true,
+  "mode": "targeted",
+  "scale": 0.24,
+  "lo": 0.21984766499468883,
+  "hi": 0.26019564725789723,
+  "full": {
+    "measuredMs": 133471,
+    "budgetMs": 256482,
+    "firstMs": 61556,
+    "retryMs": 123112,
+    "abortDepth": 0.461,
+    "cacheReuse": true,
+    "retryCostMs": 95647
+  },
+  "passes": [
+    {
+      "n": 6,
+      "ms": 110249,
+      "promptChars": 401869
+    },
+    {
+      "n": 7,
+      "ms": 13199,
+      "promptChars": 67117
+    },
+    {
+      "n": 8,
+      "ms": 133471,
+      "promptChars": 401761
+    }
+  ],
+  "maxTokens": 512,
+  "set": "node scripts/debug/st-eval.mts \"localStorage.setItem('so-v25-a11-scale', '0.24'); localStorage.setItem('so-v25-a11-target', 'memorize:full')\""
+}
+rc=0

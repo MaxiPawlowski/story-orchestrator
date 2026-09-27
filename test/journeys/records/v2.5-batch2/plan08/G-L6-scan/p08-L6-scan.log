@@ -1,0 +1,160 @@
+2026-09-26T23:55:41.064Z 1/63 reload ok 7980ms
+2026-09-26T23:55:41.381Z 2/63 import_story ok 318ms
+2026-09-26T23:55:41.712Z 3/63 ui ok 331ms
+2026-09-26T23:55:41.730Z 4/63 eval ok 18ms
+2026-09-26T23:55:41.731Z 4/63 eval -> {"chatId":"2026-09-26@20h55m32s720ms","gatingMode":"scan","routes":{"fallback":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","read":null,"synthesis":null},"syncs":[]}
+2026-09-26T23:55:57.844Z 5/63 send_generate ok 16114ms
+2026-09-26T23:55:57.922Z 6/63 wait ok 77ms
+2026-09-26T23:57:02.271Z 7/63 send_generate ok 64350ms
+2026-09-26T23:57:02.352Z 8/63 wait ok 79ms
+2026-09-26T23:57:05.576Z 9/63 send_generate ok 3225ms
+2026-09-26T23:57:05.636Z 10/63 wait ok 61ms
+2026-09-26T23:57:08.823Z 11/63 send_generate ok 3187ms
+2026-09-26T23:57:08.909Z 12/63 wait ok 85ms
+2026-09-26T23:59:24.096Z 13/63 send_generate ok 135188ms
+2026-09-26T23:59:24.180Z 14/63 wait ok 84ms
+2026-09-27T00:00:36.985Z 15/63 send_generate ok 72804ms
+2026-09-27T00:00:37.072Z 16/63 wait ok 87ms
+2026-09-27T00:00:40.318Z 17/63 send_generate ok 3246ms
+2026-09-27T00:00:40.432Z 18/63 wait ok 114ms
+2026-09-27T00:02:33.318Z 19/63 send_generate ok 112886ms
+2026-09-27T00:02:33.442Z 20/63 wait ok 123ms
+2026-09-27T00:02:36.654Z 21/63 send_generate ok 3212ms
+2026-09-27T00:02:36.740Z 22/63 wait ok 86ms
+2026-09-27T00:02:39.926Z 23/63 send_generate ok 3186ms
+2026-09-27T00:02:40.034Z 24/63 wait ok 108ms
+2026-09-27T00:04:07.919Z 25/63 wait ok 87885ms
+2026-09-27T00:04:08.119Z 26/63 eval ok 199ms
+2026-09-27T00:04:08.119Z 26/63 eval -> {"created":2,"updated":0,"unchanged":2,"disabled":0,"lorebook":"Story Orchestrator - SO-V25-08 Mirror Rate - 2026-09-26@20h55m32s720ms","binding":null,"ran":true,"skipped":null,"live":4}
+2026-09-27T00:05:19.759Z 27/63 send_generate ok 71640ms
+2026-09-27T00:05:19.876Z 28/63 wait ok 117ms
+2026-09-27T00:05:23.129Z 29/63 send_generate ok 3253ms
+2026-09-27T00:05:23.251Z 30/63 wait ok 122ms
+2026-09-27T00:07:17.881Z 31/63 send_generate ok 114630ms
+2026-09-27T00:07:17.997Z 32/63 wait ok 116ms
+2026-09-27T00:07:21.264Z 33/63 send_generate ok 3266ms
+2026-09-27T00:07:21.396Z 34/63 wait ok 133ms
+2026-09-27T00:07:24.582Z 35/63 send_generate ok 3186ms
+2026-09-27T00:07:24.716Z 36/63 wait ok 134ms
+2026-09-27T00:07:27.881Z 37/63 send_generate ok 3165ms
+2026-09-27T00:07:27.993Z 38/63 wait ok 112ms
+2026-09-27T00:10:11.962Z 39/63 send_generate ok 163969ms
+2026-09-27T00:10:12.092Z 40/63 wait ok 130ms
+2026-09-27T00:12:31.035Z 41/63 send_generate ok 138943ms
+2026-09-27T00:12:31.223Z 42/63 wait ok 187ms
+2026-09-27T00:12:34.480Z 43/63 send_generate ok 3257ms
+2026-09-27T00:12:34.633Z 44/63 wait ok 153ms
+2026-09-27T00:12:37.866Z 45/63 send_generate ok 3233ms
+2026-09-27T00:12:38.018Z 46/63 wait ok 152ms
+2026-09-27T00:15:38.574Z 47/63 wait ok 180557ms
+2026-09-27T00:15:38.583Z 48/63 eval ok 8ms
+2026-09-27T00:15:38.583Z 48/63 eval -> {"created":0,"updated":0,"unchanged":4,"disabled":0,"lorebook":"Story Orchestrator - SO-V25-08 Mirror Rate - 2026-09-26@20h55m32s720ms","binding":null,"ran":true,"skipped":null,"live":4}
+2026-09-27T00:16:55.650Z 49/63 send_generate ok 77068ms
+2026-09-27T00:16:55.831Z 50/63 wait ok 181ms
+2026-09-27T00:16:59.074Z 51/63 send_generate ok 3243ms
+2026-09-27T00:16:59.241Z 52/63 wait ok 166ms
+2026-09-27T00:18:31.143Z 53/63 send_generate ok 91902ms
+2026-09-27T00:18:31.351Z 54/63 wait ok 208ms
+2026-09-27T00:18:34.621Z 55/63 send_generate ok 3270ms
+2026-09-27T00:18:34.796Z 56/63 wait ok 175ms
+2026-09-27T00:18:37.995Z 57/63 send_generate ok 3199ms
+2026-09-27T00:18:38.143Z 58/63 wait ok 148ms
+2026-09-27T00:21:35.671Z 59/63 send_generate ok 177528ms
+2026-09-27T00:21:35.806Z 60/63 wait ok 135ms
+2026-09-27T00:22:01.946Z 61/63 wait ok 26140ms
+2026-09-27T00:22:02.186Z 62/63 eval ok 240ms
+2026-09-27T00:22:02.186Z 62/63 eval -> {"created":1,"updated":0,"unchanged":4,"disabled":0,"lorebook":"Story Orchestrator - SO-V25-08 Mirror Rate - 2026-09-26@20h55m32s720ms","binding":null,"ran":true,"skipped":null,"live":5}
+2026-09-27T00:22:02.208Z 63/63 eval ok 22ms
+2026-09-27T00:22:02.208Z 63/63 eval -> {"book":"Story Orchestrator - SO-V25-08 Mirror Rate - 2026-09-26@20h55m32s720ms","enabledSoEntries":5,"sampled":0,"entries":0,"median":null,"verdict":"UNMEASURABLE (sample floor: >= 5 so_ entries each eligible in >= 20 loud generations): change nothing","gatingMode":"scan","routes":{"fallback":"c400ff9a-4fc7-4012-b095-ba1b4f40c0e5","read":null,"synthesis":null},"sceneCount":3,"syncs":[{"at":13,"ran":true,"skipped":null,"live":4,"created":2,"updated":0},{"at":26,"ran":true,"skipped":null,"live":4,"created":0,"updated":0},{"at":33,"ran":true,"skipped":null,"live":5,"created":1,"updated":0}],"rows":[]}
+2026-09-27T00:22:10.411Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-27T00-22-10-407Z_so-scenario-result.json
+2026-09-27T00:22:10.411Z {
+2026-09-27T00:22:10.411Z   "ok": true,
+2026-09-27T00:22:10.411Z   "steps": 63,
+2026-09-27T00:22:10.411Z   "cleanup": {
+2026-09-27T00:22:10.411Z     "importedStoryHashes": [
+2026-09-27T00:22:10.411Z       "v2-a45ad018"
+2026-09-27T00:22:10.411Z     ],
+2026-09-27T00:22:10.411Z     "library": {
+2026-09-27T00:22:10.411Z       "changed": true,
+2026-09-27T00:22:10.411Z       "removed": [
+2026-09-27T00:22:10.411Z         "so-v25-08-mirror-rate@1 (v2-a45ad018)"
+2026-09-27T00:22:10.411Z       ],
+2026-09-27T00:22:10.411Z       "restored": [],
+2026-09-27T00:22:10.411Z       "saved": {
+2026-09-27T00:22:10.411Z         "status": 200
+2026-09-27T00:22:10.411Z       },
+2026-09-27T00:22:10.411Z       "verified": true
+2026-09-27T00:22:10.411Z     },
+2026-09-27T00:22:10.411Z     "clearedDebugResponses": [],
+2026-09-27T00:22:10.411Z     "soloChats": {
+2026-09-27T00:22:10.411Z       "deleted": [],
+2026-09-27T00:22:10.411Z       "leaked": []
+2026-09-27T00:22:10.411Z     },
+2026-09-27T00:22:10.411Z     "sandboxChatId": "2026-09-26@20h55m32s720ms",
+2026-09-27T00:22:10.411Z     "owned": [
+2026-09-27T00:22:10.411Z       "2026-09-26@20h55m32s720ms"
+2026-09-27T00:22:10.411Z     ],
+2026-09-27T00:22:10.411Z     "deleted": [
+2026-09-27T00:22:10.411Z       "2026-09-26@20h55m32s720ms"
+2026-09-27T00:22:10.411Z     ],
+2026-09-27T00:22:10.411Z     "notDeleted": [],
+2026-09-27T00:22:10.411Z     "resurrected": [],
+2026-09-27T00:22:10.411Z     "lateFileRepaired": [],
+2026-09-27T00:22:10.411Z     "saveSettleMs": 1535,
+2026-09-27T00:22:10.411Z     "skipped": [],
+2026-09-27T00:22:10.412Z     "currentChatAtCleanup": "2026-09-26@20h55m32s720ms",
+2026-09-27T00:22:10.412Z     "currentGroupAtCleanup": "1759606632088",
+2026-09-27T00:22:10.412Z     "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+2026-09-27T00:22:10.412Z     "branchChats": {
+2026-09-27T00:22:10.412Z       "recorded": [],
+2026-09-27T00:22:10.412Z       "deleted": [],
+2026-09-27T00:22:10.412Z       "failed": [],
+2026-09-27T00:22:10.412Z       "leaked": []
+2026-09-27T00:22:10.412Z     },
+2026-09-27T00:22:10.412Z     "mirrorBooks": {
+2026-09-27T00:22:10.412Z       "deleted": [
+2026-09-27T00:22:10.412Z         "Story Orchestrator - SO-V25-08 Mirror Rate - 2026-09-26@20h55m32s720ms"
+2026-09-27T00:22:10.412Z       ],
+2026-09-27T00:22:10.412Z       "failed": [],
+2026-09-27T00:22:10.412Z       "leaked": []
+2026-09-27T00:22:10.412Z     },
+2026-09-27T00:22:10.412Z     "reapPrompts": {
+2026-09-27T00:22:10.412Z       "dismissed": [
+2026-09-27T00:22:10.412Z         "The chat \"2026-09-26@20h55m32s720ms\" was deleted, but its story-memory lorebook \"Story Orchestrator - SO-V25-08 Mirror Rate - 2026-09-26@20h55m32s720ms\" is still there. Delete the lorebook too? This c"
+2026-09-27T00:22:10.412Z       ],
+2026-09-27T00:22:10.412Z       "leaked": []
+2026-09-27T00:22:10.412Z     },
+2026-09-27T00:22:10.412Z     "extraction": {
+2026-09-27T00:22:10.412Z       "restored": true,
+2026-09-27T00:22:10.412Z       "from": {
+2026-09-27T00:22:10.412Z         "enabled": true,
+2026-09-27T00:22:10.412Z         "cadence": 2,
+2026-09-27T00:22:10.412Z         "stabilityLag": 0,
+2026-09-27T00:22:10.412Z         "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+2026-09-27T00:22:10.412Z         "profiles": {}
+2026-09-27T00:22:10.412Z       },
+2026-09-27T00:22:10.412Z       "to": {
+2026-09-27T00:22:10.412Z         "enabled": true,
+2026-09-27T00:22:10.412Z         "cadence": 3,
+2026-09-27T00:22:10.412Z         "stabilityLag": 0,
+2026-09-27T00:22:10.412Z         "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+2026-09-27T00:22:10.412Z         "profiles": {}
+2026-09-27T00:22:10.412Z       },
+2026-09-27T00:22:10.412Z       "verified": {
+2026-09-27T00:22:10.412Z         "enabled": true,
+2026-09-27T00:22:10.412Z         "cadence": 3,
+2026-09-27T00:22:10.412Z         "stabilityLag": 0,
+2026-09-27T00:22:10.412Z         "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+2026-09-27T00:22:10.412Z         "profiles": {}
+2026-09-27T00:22:10.412Z       },
+2026-09-27T00:22:10.412Z       "saved": {
+2026-09-27T00:22:10.413Z         "status": 200
+2026-09-27T00:22:10.413Z       },
+2026-09-27T00:22:10.413Z       "ok": true
+2026-09-27T00:22:10.413Z     },
+2026-09-27T00:22:10.413Z     "judge": {
+2026-09-27T00:22:10.413Z       "restored": false,
+2026-09-27T00:22:10.413Z       "unchanged": true
+2026-09-27T00:22:10.413Z     }
+2026-09-27T00:22:10.413Z   }
+2026-09-27T00:22:10.413Z }

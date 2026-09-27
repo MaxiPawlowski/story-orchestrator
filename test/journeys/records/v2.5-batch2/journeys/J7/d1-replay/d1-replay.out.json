@@ -1,0 +1,349 @@
+{
+  "summary": {
+    "files": [
+      "../journal-follow.jsonl"
+    ],
+    "audits": 24,
+    "quotes": 43,
+    "notInWindowRejections": 2,
+    "replayFindsAmongRejections": 0,
+    "quotesCarryingOwnLineLabel": 8,
+    "quotesCarryingAnyLabel": 10,
+    "criterionA_zeroReplayFinds": true,
+    "criterionB_atLeastOneOwnLabel": true,
+    "verdict": "green"
+  },
+  "rows": [
+    {
+      "chatId": "2026-09-26@18h59m13s752ms",
+      "at": "2026-09-26T22:04:21.636Z",
+      "reason": "scene:cast",
+      "window": {
+        "from": 4,
+        "to": 11
+      },
+      "windowParsed": [
+        4,
+        5,
+        6,
+        8,
+        9,
+        10,
+        11
+      ],
+      "kind": "accepted",
+      "rejectReason": null,
+      "line": "DELTA q=luke_decision value=\"undecided\"",
+      "evidence": "[10] Max: We take a breath, look around, and carry on.",
+      "replaySources": [
+        10
+      ],
+      "carriesLabel": true,
+      "ownLineLabel": true,
+      "labelIndex": "10",
+      "labelSpeaker": "Max"
+    },
+    {
+      "chatId": "2026-09-26@18h59m13s752ms",
+      "at": "2026-09-26T22:04:21.636Z",
+      "reason": "scene:cast",
+      "window": {
+        "from": 4,
+        "to": 11
+      },
+      "windowParsed": [
+        4,
+        5,
+        6,
+        8,
+        9,
+        10,
+        11
+      ],
+      "kind": "accepted",
+      "rejectReason": null,
+      "line": "DELTA q=tension_current value=0.1822575",
+      "evidence": "[8] DM Narrator: *Before you can answer, a shadow falls across the notice in Arin's hand. The sound of footsteps approaching — measured and deliberate — cuts through the ambient noise of the tavern.*",
+      "replaySources": [
+        8
+      ],
+      "carriesLabel": true,
+      "ownLineLabel": true,
+      "labelIndex": "8",
+      "labelSpeaker": "DM Narrator"
+    },
+    {
+      "chatId": "2026-09-26@18h59m13s752ms",
+      "at": "2026-09-26T22:05:00.241Z",
+      "reason": "cadence",
+      "window": {
+        "from": 9,
+        "to": 15
+      },
+      "windowParsed": [
+        9,
+        10,
+        11,
+        13,
+        14,
+        15
+      ],
+      "kind": "rejected",
+      "rejectReason": "evidence not in window",
+      "line": "DELTA tension_current='stirring' evidence=\"Luke's voice is thick with emotion now, but his eyes still burning with desperation.\"",
+      "evidence": "Luke's voice is thick with emotion now, but his eyes still burning with desperation.",
+      "replaySources": [],
+      "carriesLabel": false,
+      "ownLineLabel": false,
+      "labelIndex": null,
+      "labelSpeaker": null
+    },
+    {
+      "chatId": "2026-09-26@18h59m13s752ms",
+      "at": "2026-09-26T22:06:03.839Z",
+      "reason": "cadence",
+      "window": {
+        "from": 16,
+        "to": 19
+      },
+      "windowParsed": [
+        16,
+        17,
+        18,
+        19
+      ],
+      "kind": "accepted",
+      "rejectReason": null,
+      "line": "DELTA q=luke_decision value=\"undecided\"",
+      "evidence": "Luke: \\\"Please... please just let me come! I-I promise I-I won't get in your way!\\\"",
+      "replaySources": [
+        19
+      ],
+      "carriesLabel": true,
+      "ownLineLabel": false,
+      "labelIndex": null,
+      "labelSpeaker": "Luke"
+    },
+    {
+      "chatId": "2026-09-26@18h59m13s752ms",
+      "at": "2026-09-26T22:06:03.839Z",
+      "reason": "cadence",
+      "window": {
+        "from": 16,
+        "to": 19
+      },
+      "windowParsed": [
+        16,
+        17,
+        18,
+        19
+      ],
+      "kind": "accepted",
+      "rejectReason": null,
+      "line": "DELTA q=tension_current value=0.20258024999999996",
+      "evidence": "Luke: \\\"I-I'm begging you! This is my brother! This is about finding him!\\\"",
+      "replaySources": [
+        19
+      ],
+      "carriesLabel": true,
+      "ownLineLabel": false,
+      "labelIndex": null,
+      "labelSpeaker": "Luke"
+    },
+    {
+      "chatId": "2026-09-26@18h59m13s752ms",
+      "at": "2026-09-26T22:12:16.833Z",
+      "reason": "cue:cp-4a->cp-4a1",
+      "window": {
+        "from": 24,
+        "to": 31
+      },
+      "windowParsed": [
+        24,
+        25,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "kind": "accepted",
+      "rejectReason": null,
+      "line": "DELTA q=riddle_answer value=\"moon\"",
+      "evidence": "[30] Max: I face the sphinx and answer its riddle: 'The moon.'",
+      "replaySources": [
+        30
+      ],
+      "carriesLabel": true,
+      "ownLineLabel": true,
+      "labelIndex": "30",
+      "labelSpeaker": "Max"
+    },
+    {
+      "chatId": "2026-09-26@18h59m13s752ms",
+      "at": "2026-09-26T22:12:16.833Z",
+      "reason": "cue:cp-4a->cp-4a1",
+      "window": {
+        "from": 24,
+        "to": 31
+      },
+      "windowParsed": [
+        24,
+        25,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "kind": "accepted",
+      "rejectReason": null,
+      "line": "DELTA q=tension_current value=0.3944211138322499",
+      "evidence": "[31] Arin: 'T-T-THe moon...' *Arin's breath catches in his throat as he repeats the word, his eyes locked on the sphinx's glowing gold eyes. *He stands frozen, his daggers gripped tightly in his hands.",
+      "replaySources": [
+        31
+      ],
+      "carriesLabel": true,
+      "ownLineLabel": true,
+      "labelIndex": "31",
+      "labelSpeaker": "Arin"
+    },
+    {
+      "chatId": "2026-09-26@18h59m13s752ms",
+      "at": "2026-09-26T22:12:46.063Z",
+      "reason": "cue:cp-4a->cp-4a1",
+      "window": {
+        "from": 26,
+        "to": 33
+      },
+      "windowParsed": [
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33
+      ],
+      "kind": "accepted",
+      "rejectReason": null,
+      "line": "DELTA q=riddle_answer value=\"moon\"",
+      "evidence": "[30] Max: I face the sphinx and answer its riddle: 'The moon.'",
+      "replaySources": [
+        30
+      ],
+      "carriesLabel": true,
+      "ownLineLabel": true,
+      "labelIndex": "30",
+      "labelSpeaker": "Max"
+    },
+    {
+      "chatId": "2026-09-26@18h59m13s752ms",
+      "at": "2026-09-26T22:12:46.063Z",
+      "reason": "cue:cp-4a->cp-4a1",
+      "window": {
+        "from": 26,
+        "to": 33
+      },
+      "windowParsed": [
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33
+      ],
+      "kind": "accepted",
+      "rejectReason": null,
+      "line": "DELTA q=tension_current value=0.4260947796825749",
+      "evidence": "[33] Arin: 'The moon, the moon, he said!' *Arin's voice is strained with tension, his hands tightening around the hilts of his daggers, but he doesn't step closer.*",
+      "replaySources": [
+        33
+      ],
+      "carriesLabel": true,
+      "ownLineLabel": true,
+      "labelIndex": "33",
+      "labelSpeaker": "Arin"
+    },
+    {
+      "chatId": "2026-09-26@18h59m13s752ms",
+      "at": "2026-09-26T22:13:07.705Z",
+      "reason": "cadence",
+      "window": {
+        "from": 30,
+        "to": 33
+      },
+      "windowParsed": [
+        30,
+        31,
+        32,
+        33
+      ],
+      "kind": "accepted",
+      "rejectReason": null,
+      "line": "DELTA q=riddle_answer value=\"moon\"",
+      "evidence": "[30] Max: I face the sphinx and answer its riddle: 'The moon.'",
+      "replaySources": [
+        30
+      ],
+      "carriesLabel": true,
+      "ownLineLabel": true,
+      "labelIndex": "30",
+      "labelSpeaker": "Max"
+    },
+    {
+      "chatId": "2026-09-26@18h59m13s752ms",
+      "at": "2026-09-26T22:13:07.705Z",
+      "reason": "cadence",
+      "window": {
+        "from": 30,
+        "to": 33
+      },
+      "windowParsed": [
+        30,
+        31,
+        32,
+        33
+      ],
+      "kind": "accepted",
+      "rejectReason": null,
+      "line": "DELTA q=tension_current value=0.44826634577780244",
+      "evidence": "[33] Arin: 'The moon, the moon, he said!' *Arin's voice is strained with tension, his hands tightening around the hilts of his daggers, but he doesn't step closer.*",
+      "replaySources": [
+        33
+      ],
+      "carriesLabel": true,
+      "ownLineLabel": true,
+      "labelIndex": "33",
+      "labelSpeaker": "Arin"
+    },
+    {
+      "chatId": "2026-09-26@18h59m13s752ms",
+      "at": "2026-09-26T22:30:24.181Z",
+      "reason": "cue:cp-5->cp-6",
+      "window": {
+        "from": 42,
+        "to": 49
+      },
+      "windowParsed": [
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49
+      ],
+      "kind": "rejected",
+      "rejectReason": "evidence not in window",
+      "line": "DELTA tension_current=\"tense\" evidence=\"Arin's green eyes are fixed on the empty pedestal as his breathing becomes shallow and quick. 'W-We-W-We might need-S-S-Should-T-Try to leave quickly.'\"",
+      "evidence": "Arin's green eyes are fixed on the empty pedestal as his breathing becomes shallow and quick. 'W-We-W-We might need-S-S-Should-T-Try to leave quickly.'",
+      "replaySources": [],
+      "carriesLabel": false,
+      "ownLineLabel": false,
+      "labelIndex": null,
+      "labelSpeaker": null
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+lane 1 test/scenarios/live-v25-02-c7-note-order.json run 1: code 0 (30 s)
+{
+  "summary": "C:\\dev\\so-lanes\\batch-2026-09-26T19-46-18-123Z.json",
+  "green": 1,
+  "runs": 1
+}

@@ -1,0 +1,351 @@
+{
+  "summary": {
+    "use": "house-rules",
+    "records": [
+      "test/journeys/records/v2.5-batch2/plan06/J13/on-r2-attempt1-draintimeout/2026-09-26T21-16-08-155Z_journey-J13.json"
+    ],
+    "model": "jev-1.13.0",
+    "rates": [
+      {
+        "arm": "on",
+        "asked": 37,
+        "answered": 2,
+        "flagged": 0,
+        "defectRate": 0
+      }
+    ]
+  },
+  "results": [
+    {
+      "id": "m0",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 244,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m1",
+      "arm": "on",
+      "flagged": false,
+      "broken": [],
+      "latencyMs": 291,
+      "model": "jev-1.13.0"
+    },
+    {
+      "id": "m3",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 33,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m5",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 32,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m6",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 32,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m7",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 32,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m9",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 31,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m10",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 30,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m12",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 30,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m13",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 30,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m15",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 29,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m16",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 30,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m18",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 29,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m19",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 28,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m20",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 28,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m22",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 27,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m24",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 26,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m26",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 26,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m28",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 26,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m30",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 25,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m31",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 25,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m33",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 24,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m35",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 24,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m36",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 24,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m38",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 23,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m39",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 23,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m40",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 25,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m42",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 26,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m44",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 26,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m45",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 28,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m47",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 29,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m48",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 30,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m49",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 33,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m51",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 36,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m53",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 38,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m54",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 39,
+      "model": null,
+      "fallback": "error"
+    },
+    {
+      "id": "m56",
+      "arm": "on",
+      "flagged": null,
+      "broken": [],
+      "latencyMs": 39,
+      "model": null,
+      "fallback": "error"
+    }
+  ]
+}

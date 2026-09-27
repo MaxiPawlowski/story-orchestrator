@@ -1,0 +1,330 @@
+{
+  "id": "J6",
+  "title": "mutation-storm",
+  "file": "C:\\dev\\SillyTavern-MainBranch\\public\\scripts\\extensions\\third-party\\story-orchestrator\\test\\journeys\\j6-mutation-storm.journey.json",
+  "fileSha256": "32b1d1346bf28065057693a6a4a896468295949f86aaffadf390a44ed3a3d73f",
+  "ranAt": "2026-09-27T02:46:46.075Z",
+  "strict": true,
+  "partial": false,
+  "only": null,
+  "tally": {
+    "fail": 8,
+    "pass": 3,
+    "skipped": 1
+  },
+  "tallies": {
+    "automated": {
+      "pass": 3,
+      "fail": 8,
+      "blocked": 0,
+      "notRunnable": 0,
+      "skipped": 0
+    },
+    "human": {
+      "scored": 0,
+      "unscored": 1
+    },
+    "cleanup": {
+      "ok": true,
+      "failed": [],
+      "leaked": []
+    },
+    "firstAttempt": {
+      "pass": 3,
+      "retried": 0,
+      "retriedIds": []
+    }
+  },
+  "notGreen": [
+    "8 automated check(s) failed"
+  ],
+  "humanRecord": null,
+  "runnerError": null,
+  "releasedRoutes": null,
+  "capabilities": {
+    "rollback-notice": true
+  },
+  "results": [
+    {
+      "id": "J6.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "a boundary is committed and a gate latches from a scripted turn",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader\n    at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)\n    at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)\n    at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)\n    at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)\n    at eval (eval at evaluate (:290:30), <anonymous>:4:30)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "firstAttempt": "fail",
+      "retries": []
+    },
+    {
+      "id": "J6.2",
+      "mode": "auto",
+      "findings": [],
+      "goal": "editing the message that carried the delta rolls the story back The check first waits for the group round J6.1 started to finish: a send returns before every member has replied, and an edit made mid-round is rolled back and then followed by the remaining replies' boundaries, which is a different scenario (L2 2026-09-23: J6.2 timed out on a still-generating round and J6.4 lost its notice to those boundaries).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.3",
+      "mode": "auto",
+      "findings": [],
+      "goal": "deleting the last message leaves engine state consistent, not orphaned",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.4",
+      "mode": "auto",
+      "findings": [
+        "U5"
+      ],
+      "goal": "the player is told the story stepped back after a mutation",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Evaluation failed in SillyTavern page: page.evaluate: Error: no rollback notice to show: {\"checkpoint\":\"cp1\",\"boundary\":1,\"lastMessageId\":0,\"chatLength\":1,\"journal\":[\"status: No story selected for this chat\",\"story: quality macro skipped\",\"story: quality macro skipped\",\"story: away recap not due\",\"status: Started Quest for the Sun Ruins\",\"payload: 1 story blocks injected (generation)\",\"boundary: boundary 1: nothing applied (gate)\",\"status: Following Investigate the Job Board\"],\"tail\":[{\"id\":-3,\"name\":\"Arin\",\"user\":false,\"system\":false,\"at\":\"2026-09-27T02:42:30.910Z\"}]}\n    at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:713)\n    at async <anonymous>:316:30",
+      "firstAttempt": "fail",
+      "retries": []
+    },
+    {
+      "id": "J6.5",
+      "mode": "human",
+      "findings": [
+        "U5"
+      ],
+      "goal": "",
+      "prompt": "After you edited and deleted messages, was it clear what the story did in response?",
+      "anchors": "1 = no idea, felt broken · 3 = worked it out from the drawer · 5 = the system said what it did",
+      "outcome": "skipped",
+      "detail": "human check — operator scores it"
+    },
+    {
+      "id": "J6.6",
+      "mode": "auto",
+      "findings": [
+        "R4"
+      ],
+      "goal": "a reloaded chat still recognises an edit to a message its run has passed",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader\n    at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)\n    at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)\n    at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)\n    at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)\n    at eval (eval at evaluate (:290:30), <anonymous>:4:30)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "firstAttempt": "fail",
+      "retries": []
+    },
+    {
+      "id": "J6.7",
+      "mode": "auto",
+      "findings": [
+        "M3"
+      ],
+      "goal": "a ledger update is undone by an edit to the message its boundary acted on",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader\n    at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)\n    at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)\n    at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)\n    at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)\n    at eval (eval at evaluate (:290:30), <anonymous>:4:30)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "firstAttempt": "fail",
+      "retries": []
+    },
+    {
+      "id": "J6.8",
+      "mode": "auto",
+      "findings": [
+        "M4"
+      ],
+      "goal": "a belief a reveal retired comes back when the reveal's message is edited The player line carries the evidence the scripted read cites: the evidence rule only accepts a quote from the read's window, and the old line relied on the model's reply happening to echo it (L2 2026-09-23: rejected once, story stayed at cp1).",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader\n    at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)\n    at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)\n    at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)\n    at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)\n    at eval (eval at evaluate (:290:30), <anonymous>:4:30)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "firstAttempt": "fail",
+      "retries": []
+    },
+    {
+      "id": "J6.9",
+      "mode": "auto",
+      "findings": [
+        "E1"
+      ],
+      "goal": "an edit older than the retained history says so and offers both ways out it names: re-read from here, or restart the story (V11)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "pass",
+      "detail": "",
+      "firstAttempt": "pass",
+      "retries": []
+    },
+    {
+      "id": "J6.10",
+      "mode": "auto",
+      "findings": [
+        "T3"
+      ],
+      "goal": "an edit that leaves a consumed reply's text unchanged rewinds nothing and keeps the run (v2.4 plan 02 §2)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader\n    at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)\n    at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)\n    at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)\n    at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)\n    at eval (eval at evaluate (:290:30), <anonymous>:4:30)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "firstAttempt": "fail",
+      "retries": []
+    },
+    {
+      "id": "J6.11",
+      "mode": "auto",
+      "findings": [
+        "D5"
+      ],
+      "goal": "hiding a consumed message is not a mutation: its facts stay live and the next read leaves it out (v2.4 plan 02 §4)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader\n    at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)\n    at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)\n    at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)\n    at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)\n    at eval (eval at evaluate (:290:30), <anonymous>:4:30)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "firstAttempt": "fail",
+      "retries": []
+    },
+    {
+      "id": "J6.12",
+      "mode": "auto",
+      "findings": [
+        "T3"
+      ],
+      "goal": "moving a message is read as a change from the earliest moved row, so the story steps back from there at once (v2.4 plan 02 §2, H6)",
+      "prompt": "",
+      "anchors": "",
+      "outcome": "fail",
+      "detail": "Evaluation failed in SillyTavern page: page.evaluate: Error: a shared read needs a window or a chat reader\n    at w (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232351)\n    at A (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:232620)\n    at N.runNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:469102)\n    at H.runExtractionNow (http://127.0.0.1:8103/scripts/extensions/third-party/story-orchestrator/dist/index.js:1:602461)\n    at eval (eval at evaluate (:290:30), <anonymous>:4:30)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "firstAttempt": "fail",
+      "retries": []
+    }
+  ],
+  "cleanup": {
+    "judgeSettle": {
+      "settled": true,
+      "waitedMs": 0,
+      "inFlight": 0,
+      "seen": 0
+    },
+    "judgeCalls": {
+      "count": 0,
+      "events": []
+    },
+    "debugResponses": {
+      "cleared": [
+        "storyOrchestratorDebugExtractionResponse"
+      ]
+    },
+    "lorebooks": {
+      "Xentar Checkpoints": {
+        "deactivated": true
+      }
+    },
+    "extraction": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 3,
+        "stabilityLag": 0,
+        "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "profiles": {}
+      }
+    },
+    "extensionSettings": {
+      "restored": []
+    },
+    "config": {
+      "key": "story-orchestrator",
+      "cleared": false,
+      "keys": [
+        "v2Stories",
+        "settings",
+        "wizardSessions",
+        "schema"
+      ],
+      "saved": {
+        "status": 200
+      },
+      "preservedStories": [
+        "sun-ruins",
+        "v24-01-delete-decode"
+      ],
+      "preservedSessions": []
+    },
+    "importedStoryHashes": [
+      "v2-ea8a94f1",
+      "v2-de4f955d"
+    ],
+    "library": {
+      "changed": true,
+      "removed": [
+        "sun-ruins@2 (v2-ea8a94f1)",
+        "v24-01-delete-decode@1 (v2-de4f955d)"
+      ],
+      "restored": [],
+      "saved": {
+        "status": 200
+      },
+      "verified": true
+    },
+    "chat": {
+      "sandboxChatId": "2026-09-26@23h42m30s900ms",
+      "owned": [
+        "2026-09-26@23h42m30s900ms",
+        "2026-09-26@23h46m17s844ms",
+        "2026-09-26@23h46m22s766ms",
+        "2026-09-26@23h46m27s536ms"
+      ],
+      "deleted": [
+        "2026-09-26@23h42m30s900ms",
+        "2026-09-26@23h46m17s844ms",
+        "2026-09-26@23h46m22s766ms",
+        "2026-09-26@23h46m27s536ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "lateFileRepaired": [],
+      "saveSettleMs": 1532,
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-26@23h46m27s536ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-20@07h06m38s396ms"
+    },
+    "branchChats": {
+      "recorded": [],
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "mirrorBooks": {
+      "deleted": [],
+      "failed": [],
+      "leaked": []
+    },
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "member:DM Narrator": {
+      "enabled": true
+    },
+    "member:Arin": {
+      "enabled": true
+    },
+    "member:Ponticius": {
+      "enabled": true
+    },
+    "member:Luke": {
+      "enabled": true
+    },
+    "disabledMembers": []
+  }
+}
