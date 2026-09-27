@@ -211,9 +211,14 @@ describe("summarizeRoleCalibration", () => {
 
 describe("recorded live goldens replay through the same run path", () => {
   const dir = join(ROOT, "test/goldens/live/role-calibration");
-  const files = existsSync(dir) ? readdirSync(dir).filter((file) => file.endsWith(".json")) : [];
+  const all = existsSync(dir) ? readdirSync(dir).filter((file) => file.endsWith(".json")) : [];
+  const digestArm = all.filter((file) => read(`test/goldens/live/role-calibration/${file}`).digestPad);
+  const files = all.filter((file) => !digestArm.includes(file));
   it(`found ${files.length} recorded golden(s)`, () => {
     expect(Array.isArray(files)).toBe(true);
+  });
+  it("the SP8 digest arm's goldens ran through the padded digest path, not runRoleCase, and are not replayed here", () => {
+    expect(digestArm.every((file) => file.startsWith("curator-digest-"))).toBe(true);
   });
   const REACHABILITY_REFUSED = { valid: false, status: "failed", shape: false, repaired: true };
   const INTERMEDIATE_OK = { valid: true, status: "ok", shape: true, kinds: ["addCheckpoint"], issues: [] };
