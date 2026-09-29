@@ -1,6 +1,7 @@
 import type { EngineState } from "./engine";
-import type { GateLeaf, GateNode, NormalizedStoryV2, PrimitiveValue, Transition } from "./schema";
+import type { NormalizedStoryV2, PrimitiveValue, Transition } from "./schema";
 import { qualityAccepts } from "./blackboard";
+import { gateLeaves } from "./gates";
 
 // What changes when an author edits a story a chat is already playing. The table below is
 // the spec — every row is a jest fixture. "Live" always means the running chat actually holds the
@@ -56,14 +57,6 @@ export interface StoryDiffResult {
   droppedVisitedAnchors: string[];
   reanchorTo: string | null;
 }
-
-const gateLeaves = (gate: GateNode, out: GateLeaf[] = []): GateLeaf[] => {
-  if ("q" in gate) out.push(gate);
-  else if ("all" in gate) gate.all.forEach((entry) => gateLeaves(entry, out));
-  else if ("any" in gate) gate.any.forEach((entry) => gateLeaves(entry, out));
-  else gateLeaves(gate.not, out);
-  return out;
-};
 
 // Transitions have no id, so identity is the pair plus its occurrence among identical pairs —
 // the same rule the copilot uses to reference one (`transitionRefMatches`).

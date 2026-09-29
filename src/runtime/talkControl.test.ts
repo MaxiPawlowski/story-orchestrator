@@ -407,3 +407,138 @@ describe("SP7 D4b: the rules pick takes the host's random when it offers one", (
     random.mockRestore();
   });
 });
+
+describe("chained multi-speaker turns", () => {
+  const SYSTEM = { enabled: true, max: 3, stopOnTransition: true, holdExtraction: false };
+  type JudgeAnswer = { kind: "member"; rosterId: string; name: string; confidence: number; via: "choice" } | { kind: "player" | "silence"; confidence: number; via: "choice" };
+
+  const makeChainHost = (answers: JudgeAnswer[], overrides: Partial<TalkControlHost> = {}) => {
+    let index = 0;
+    let drafted = "guard";
+    const { host, calls } = makeHost({
+      getActiveTalkControl: (): TalkControl | null => ({ director: true }),
+      getChainConfig: () => SYSTEM,
+      getDraftedRosterId: () => drafted,
+      judgeDirector: async () => answers[Math.min(index++, answers.length - 1)],
+      ...overrides,
+    });
+    return { host, calls, setDrafted: (id: string) => { drafted = id; } };
+  };
+
+  it("asks the judge again after each voice and stops when it hands back to the player", async () => {
+    const { host, calls } = makeChainHost([
+      { kind: "member", rosterId: "guard", name: "Mara", confidence: 0.9, via: "choice" },
+      { kind: "member", rosterId: "sage", name: "Finn", confidence: 0.8, via: "choice" },
+      { kind: "player", confidence: 0.7, via: "choice" },
+    ]);
+    const controller = new TalkController(host);
+    controller.onWrapperStarted({ type: "normal" });
+    await controller.intercept(makeAbort().abort, "normal");
+    await controller.onWrapperFinished();
+    expect(calls.triggered).toEqual(["Finn"]);
+
+    // The trigger's own forced wrapper: it counts as the second voice, then the judge hands back.
+    controller.onWrapperStarted({ type: "normal" });
+    controller.onGenerationStarted({ force_chid: 1 });
+    await controller.onWrapperFinished();
+    expect(calls.triggered).toEqual(["Finn"]);
+    expect(calls.decisions.filter((decision) => decision.chainStep !== undefined).map((decision) => decision.chainStep)).toEqual([1, 2]);
+    expect(calls.decisions.at(-1)).toMatchObject({ chosenRosterId: null, chosenName: null, source: "judge" });
+  });
+
+  it("stops at max without asking the judge for one more", async () => {
+    const judge = jest.fn(async (): Promise<{ kind: "member"; rosterId: string; name: string; confidence: number; via: "choice" }> => ({ kind: "member", rosterId: "sage", name: "Finn", confidence: 0.9, via: "choice" }));
+    const { host, calls } = makeChainHost([], {
+      getChainConfig: () => ({ ...SYSTEM, max: 2 }),
+      judgeDirector: judge,
+      getDraftedRosterId: () => "sage",
+    });
+    const controller = new TalkController(host);
+    controller.onWrapperStarted({ type: "normal" });
+    await controller.intercept(makeAbort().abort, "normal");
+    await controller.onWrapperFinished();
+    expect(calls.triggered).toEqual(["Finn"]);
+
+    controller.onWrapperStarted({ type: "normal" });
+    controller.onGenerationStarted({ force_chid: 1 });
+    await controller.onWrapperFinished();
+    // spokeCount reached max (2): no further trigger, and the judge was asked twice, not three times.
+    expect(calls.triggered).toEqual(["Finn"]);
+    expect(judge).toHaveBeenCalledTimes(2);
+  });
+
+  it("a STOP ends the chain and no further voice is triggered", async () => {
+    const { host, calls } = makeChainHost([
+      { kind: "member", rosterId: "guard", name: "Mara", confidence: 0.9, via: "choice" },
+      { kind: "member", rosterId: "sage", name: "Finn", confidence: 0.8, via: "choice" },
+      { kind: "member", rosterId: "sage", name: "Finn", confidence: 0.8, via: "choice" },
+    ]);
+    const controller = new TalkController(host);
+    controller.onWrapperStarted({ type: "normal" });
+    await controller.intercept(makeAbort().abort, "normal");
+    await controller.onWrapperFinished();
+    expect(calls.triggered).toEqual(["Finn"]);
+
+    controller.onWrapperStarted({ type: "normal" });
+    controller.onGenerationStarted({ force_chid: 1 });
+    controller.onGenerationStopped();
+    await controller.onWrapperFinished();
+    expect(calls.triggered).toEqual(["Finn"]);
+  });
+
+  it("a checkpoint change ends the chain when stop_on_transition is on", async () => {
+    let checkpointId = "cp1";
+    const { host, calls } = makeChainHost([
+      { kind: "member", rosterId: "guard", name: "Mara", confidence: 0.9, via: "choice" },
+      { kind: "member", rosterId: "sage", name: "Finn", confidence: 0.8, via: "choice" },
+    ], { getCheckpointInfo: () => ({ id: checkpointId, name: "Gate", objective: "Open it", storyTitle: "Ruins" }) });
+    const controller = new TalkController(host);
+    controller.onWrapperStarted({ type: "normal" });
+    await controller.intercept(makeAbort().abort, "normal");
+    checkpointId = "cp2";
+    await controller.onWrapperFinished();
+    expect(calls.triggered).toEqual([]);
+  });
+
+  it("a scripted chain walks the sequence in order without a judge", async () => {
+    const judge = jest.fn();
+    const { host, calls } = makeChainHost([], {
+      getActiveTalkControl: (): TalkControl | null => ({ chain: { mode: "scripted", sequence: ["Mara", "Finn"] } }),
+      judgeDirector: judge,
+      getDraftedRosterId: () => "guard",
+    });
+    const controller = new TalkController(host);
+    controller.onWrapperStarted({ type: "normal" });
+    await controller.intercept(makeAbort().abort, "normal");
+    expect(calls.decisions[0]).toMatchObject({ chosenName: "Mara", source: "rules" });
+    await controller.onWrapperFinished();
+    expect(calls.triggered).toEqual(["Finn"]);
+    expect(judge).not.toHaveBeenCalled();
+  });
+
+  it("does not chain when the install turns chaining off", async () => {
+    const judge = jest.fn(async (): Promise<{ kind: "member"; rosterId: string; name: string; confidence: number; via: "choice" }> => ({ kind: "member", rosterId: "guard", name: "Mara", confidence: 0.9, via: "choice" }));
+    const { host, calls } = makeChainHost([], {
+      getChainConfig: () => ({ ...SYSTEM, enabled: false }),
+      judgeDirector: judge,
+    });
+    const controller = new TalkController(host);
+    controller.onWrapperStarted({ type: "normal" });
+    await controller.intercept(makeAbort().abort, "normal");
+    await controller.onWrapperFinished();
+    expect(calls.triggered).toEqual([]);
+    expect(judge).toHaveBeenCalledTimes(1);
+  });
+
+  it("a lone forced trigger (a user /trigger) opens no chain", async () => {
+    const { host, calls } = makeChainHost([
+      { kind: "member", rosterId: "sage", name: "Finn", confidence: 0.9, via: "choice" },
+    ]);
+    const controller = new TalkController(host);
+    controller.onWrapperStarted({ type: "normal" });
+    controller.onGenerationStarted({ force_chid: 1 });
+    await controller.onWrapperFinished();
+    expect(calls.triggered).toEqual([]);
+    expect(calls.decisions).toEqual([]);
+  });
+});

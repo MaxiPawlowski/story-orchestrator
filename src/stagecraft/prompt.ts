@@ -46,6 +46,7 @@ export function buildWiCuratorPrompt(scope: CuratorScope): string {
     "- [enable] only an entry marked [currently off]; every other entry is already on.",
     "- [disable] only an entry that is not marked [currently off].",
     "- An entry marked [shown in part — patch only] may only be patched: you have not seen all of it.",
+    "- Some entries carry `{{// ...}}` bookkeeping markers. Never write, move or delete a marker, and never change the words between `{{// so:protect}}` and `{{// so:end}}`.",
     "- Prefer [patch] over [rewrite]: quote the first and last words of the span exactly as they appear in the content.",
     `- Keep replacement text under ${String(CURATOR_MAX_TEXT)} characters. Never restate the whole entry in a patch.`,
     "- Only propose a change the story has actually made necessary. Style preferences are not changes.",

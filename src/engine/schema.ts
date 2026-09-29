@@ -64,6 +64,13 @@ export interface Quality {
   read_as?: QualityReadAs;
   criteria?: QualityCriteria;
   evidence_from?: EvidenceFrom;
+  /**
+   * A regex an extractor delta's quoted evidence must match before it may set this quality. It marks
+   * a value whose whole meaning is that something was COMMITTED to (taking a posting, swearing an
+   * oath): a latching gate read from a scene aside otherwise advances the story on a model mistake.
+   * Absent means any evidence is accepted, as before.
+   */
+  commit_evidence?: string;
 }
 
 export type EvidenceFrom = typeof EVIDENCE_FROM[number];
@@ -107,6 +114,7 @@ export interface NpcReplyEffect {
   trigger: NpcReplyTrigger;
   member: string;
   kind: NpcReplyKind;
+  new_chat_only?: boolean;
   text?: string;
   instruction?: string;
   maxTriggers?: number;
@@ -124,12 +132,29 @@ export interface TalkControlDirector {
   instruction?: string;
 }
 
+// How a scene answers a single player message with more than one voice. `director` asks the judge
+// for each next speaker and stops when it hands back to the player; `scripted` walks `sequence` in
+// order. Absent means the system defaults apply (chaining on, max 3), so a declared talk_control
+// opts in unless it turns this off.
+export const TALK_CHAIN_MAX_DEFAULT = 3;
+export const TALK_CHAIN_MAX_CAP = 8;
+
+export interface TalkControlChain {
+  mode?: "director" | "scripted";
+  max?: number;
+  sequence?: string[];
+  stop_on_transition?: boolean;
+  hold_extraction?: boolean;
+  stop_on_player?: boolean;
+}
+
 export interface TalkControl {
   speakers?: TalkControlSpeaker[];
   lead?: string;
   no_repeat?: boolean;
   allow_silence?: boolean;
   director?: boolean | TalkControlDirector;
+  chain?: TalkControlChain | false;
 }
 
 // Which objectives are the world pressing on the player and which need the
@@ -150,6 +175,8 @@ export interface Checkpoint {
   id: string;
   name: string;
   objective: string;
+  player_name?: string;
+  player_text?: string;
   type: "anchor" | "intermediate";
   start?: boolean;
   state_snapshot?: Record<string, PrimitiveValue>;
@@ -271,6 +298,8 @@ export interface StoryV2 {
   version?: number;
   title: string;
   description: string;
+  player_intro?: string;
+  illustrations?: { checkpoints?: boolean; scenes?: boolean; style?: string; appearances?: Record<string, string> };
   qualities: Quality[];
   checkpoints: Checkpoint[];
   transitions: Transition[];

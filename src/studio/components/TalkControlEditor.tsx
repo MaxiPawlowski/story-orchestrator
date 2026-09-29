@@ -1,5 +1,5 @@
 import React from "react";
-import type { RosterMember, TalkControl, TalkControlSpeaker } from "@engine/index";
+import { TALK_CHAIN_MAX_CAP, type RosterMember, type TalkControl, type TalkControlChain, type TalkControlSpeaker } from "@engine/index";
 import { directorEnabled, directorInstruction } from "@talk/index";
 import HelpTooltip from "@components/studio/HelpTooltip";
 
@@ -29,6 +29,76 @@ const SpeakerRow: React.FC<{
   </div>
 );
 
+const ChainFields: React.FC<{
+  chain: TalkControlChain;
+  off: boolean;
+  setChain: (patch: Partial<TalkControlChain>) => void;
+  onToggle: (on: boolean) => void;
+}> = ({ chain, off, setChain, onToggle }) => (
+  <>
+    <label className="flex items-center gap-2 text-sm">
+      <input data-so="chain-enabled" type="checkbox" checked={!off} onChange={(event) => onToggle(event.target.checked)} />
+      Answer with several voices
+      <HelpTooltip title={"One player message can be answered by more than one character. The judge picks each next speaker and stops when it hands back to you; " +
+        "a fixed order forces a scene. Unchecked = one voice per turn."} />
+    </label>
+    {!off ? (
+      <div className="flex flex-col gap-2 pl-6">
+        <label className="flex flex-col gap-1 text-sm">
+          <span className="text-xs st-muted">How the next voice is chosen</span>
+          <select
+            data-so="chain-mode"
+            className="text_pole st-input"
+            value={chain.mode ?? "director"}
+            onChange={(event) => setChain({ mode: event.target.value === "scripted" ? "scripted" : undefined })}
+          >
+            <option value="director">The judge decides each next speaker</option>
+            <option value="scripted">A fixed order I set</option>
+          </select>
+        </label>
+        {(chain.mode ?? "director") === "scripted" ? (
+          <label className="flex flex-col gap-1 text-sm">
+            <span className="text-xs st-muted">Order (comma-separated member names)</span>
+            <input
+              data-so="chain-sequence"
+              className="text_pole st-input"
+              aria-label="Chain sequence"
+              placeholder="Tobias, Belle, Dalan"
+              value={(chain.sequence ?? []).join(", ")}
+              onChange={(event) => setChain({ sequence: event.target.value.split(",").map((entry) => entry.trim()).filter(Boolean) })}
+            />
+          </label>
+        ) : null}
+        <label className="flex flex-col gap-1 text-sm">
+          <span className="text-xs st-muted">Voices at most (blank = install default)</span>
+          <input
+            data-so="chain-max"
+            type="number"
+            min={1}
+            max={TALK_CHAIN_MAX_CAP}
+            className="text_pole st-input w-24"
+            aria-label="Chain max"
+            value={chain.max ?? ""}
+            onChange={(event) => setChain({ max: event.target.value ? Math.min(TALK_CHAIN_MAX_CAP, Math.max(1, Math.round(Number(event.target.value)))) : undefined })}
+          />
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={chain.stop_on_transition !== false} onChange={(event) => setChain({ stop_on_transition: event.target.checked ? undefined : false })} />
+          End the chain when the scene changes
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={chain.stop_on_player !== false} onChange={(event) => setChain({ stop_on_player: event.target.checked ? undefined : false })} />
+          Let the judge hand the turn back to the player
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={chain.hold_extraction === true} onChange={(event) => setChain({ hold_extraction: event.target.checked ? true : undefined })} />
+          Wait for the whole reply before reading the scene
+        </label>
+      </div>
+    ) : null}
+  </>
+);
+
 const TalkControlEditor: React.FC<{ control: TalkControl | undefined; roster: RosterMember[]; onChange: (next: TalkControl | undefined) => void }> = ({ control, roster, onChange }) => {
   const emit = (next: TalkControl) => {
     const cleaned: TalkControl = { ...next };
@@ -40,6 +110,13 @@ const TalkControlEditor: React.FC<{ control: TalkControl | undefined; roster: Ro
 
   const speakers = control?.speakers ?? [];
   const hasDirector = control ? directorEnabled(control) : false;
+  const chain = control && control.chain !== false ? control.chain ?? {} : {};
+  const chainOff = control?.chain === false;
+  const setChain = (patch: Partial<TalkControlChain>) => {
+    const merged: TalkControlChain = { ...chain, ...patch };
+    (Object.keys(merged) as Array<keyof TalkControlChain>).forEach((key) => { if (merged[key] === undefined) delete merged[key]; });
+    emit({ ...(control ?? {}), chain: merged });
+  };
 
   return (
     <div className="st-subpanel flex flex-col gap-2 p-2">
@@ -109,6 +186,8 @@ const TalkControlEditor: React.FC<{ control: TalkControl | undefined; roster: Ro
               </label>
             </div>
           ) : null}
+
+          <ChainFields chain={chain} off={chainOff} setChain={setChain} onToggle={(on) => emit({ ...control, chain: on ? {} : false })} />
         </div>
       ) : null}
     </div>

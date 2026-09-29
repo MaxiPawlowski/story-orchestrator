@@ -11,13 +11,14 @@ const base = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
     extraction: { settings: { enabled: true, profileId: "artemis" } },
     requirements: { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] },
     saveHealth: createSaveHealth(),
+    ui: { authorView: true },
     ...overrides,
   }) as unknown as RuntimeSnapshot;
 
 const meta: Meta<typeof EntryPoints> = {
   title: "Settings/EntryPoints",
   component: EntryPoints,
-  args: { snapshot: base(), busy: false, importOpen: false, onToggleImport: fn(), onNewStory: fn(), onOpenStudio: fn(), onRevealSetting: fn(), onFixWithWizard: fn() },
+  args: { snapshot: base(), busy: false, importOpen: false, onToggleImport: fn(), onNewStory: fn(), onOpenStudio: fn(), onOpenDrawer: fn(), onRevealSetting: fn(), onFixWithWizard: fn() },
 };
 
 export default meta;

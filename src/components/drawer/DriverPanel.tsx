@@ -9,6 +9,16 @@ export interface DriverController {
   probe: () => Promise<void>;
   advance: (checkpointId: string) => Promise<void>;
   report: () => Promise<string>;
+  /** Author recovery: undo the last gate advance (resetting its gate keys) or one latched value. */
+  stepBack: () => Promise<{ ok: boolean; detail: string }>;
+  resetQuality: (key: string) => Promise<void>;
+}
+
+export interface RecoveryTarget {
+  from: string;
+  to: string;
+  keys: string[];
+  checkpointName: string;
 }
 
 type Props = {
@@ -19,9 +29,44 @@ type Props = {
   authorView?: boolean;
   /** The policy in effect, so the author can see what steering must respect. */
   agency?: AgencyPolicy | null;
+  /** The last gate advance into the active checkpoint, for the author's step-back control. */
+  recovery?: RecoveryTarget | null;
 };
 
-const DriverPanel: React.FC<Props> = ({ context, checkpoints, activeNudge, controller, authorView = true, agency = null }) => {
+const RecoveryControls: React.FC<{
+  recovery: RecoveryTarget;
+  stepBack: () => Promise<{ ok: boolean; detail: string }>;
+  onStatus: (text: string) => void;
+}> = ({ recovery, stepBack, onStatus }) => {
+  const [confirm, setConfirm] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const doStep = async () => {
+    if (!confirm) { setConfirm(true); return; }
+    setConfirm(false);
+    setBusy(true);
+    const outcome = await stepBack();
+    onStatus(outcome.ok ? `Stepped back to ${outcome.detail}.` : outcome.detail);
+    setBusy(false);
+  };
+  return (
+    <div data-so="driver-recovery" className="st-subpanel flex flex-col gap-1 p-2" aria-label="Transition recovery">
+      <div className="font-medium opacity-100">Recovery</div>
+      <div className="opacity-80">
+        Last move: {recovery.from} → {recovery.checkpointName}. Gate: {recovery.keys.join(", ") || "none"}.
+      </div>
+      <button type="button" className="st-button secondary self-start" disabled={busy} onClick={() => void doStep()}>
+        {busy ? "…" : confirm ? "Confirm step back" : "Step back"}
+      </button>
+      {confirm ? (
+        <span className="opacity-70">
+          Re-opens the previous checkpoint, resets {recovery.keys.join(", ") || "no gate keys"}, and leaves the messages.
+        </span>
+      ) : null}
+    </div>
+  );
+};
+
+const DriverPanel: React.FC<Props> = ({ context, checkpoints, activeNudge, controller, authorView = true, agency = null, recovery = null }) => {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [report, setReport] = useState<string>("");
   const [busy, setBusy] = useState<string | null>(null);
@@ -96,6 +141,8 @@ const DriverPanel: React.FC<Props> = ({ context, checkpoints, activeNudge, contr
           {context.unmetGates.map((gate, index) => <div key={index}>{gate}</div>)}
         </div>
       )}
+
+      {authorView && recovery ? <RecoveryControls recovery={recovery} stepBack={controller.stepBack} onStatus={setStatus} /> : null}
 
       {activeNudge ? (
         <div className="st-subpanel flex items-center gap-2 p-2" aria-label="Active nudge">

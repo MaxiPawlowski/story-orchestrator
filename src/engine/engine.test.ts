@@ -117,6 +117,17 @@ describe("v2 schema validation", () => {
     ]);
   });
 
+  it("retains fresh-chat-only scripted openings on import and refuses other uses", () => {
+    const withOpening = (reply: Record<string, unknown>) => ({ ...linearStory, checkpoints: [
+      { ...(linearStory as any).checkpoints[0], effects: { npc_replies: [reply] } },
+      ...(linearStory as any).checkpoints.slice(1),
+    ] });
+    const opening = { trigger: "onEnter", member: "Adolion Narrator", kind: "scripted", text: "Welcome.", new_chat_only: true };
+    expect(parseStoryV2OrThrow(withOpening(opening)).checkpointById.start.effects?.npc_replies).toEqual([opening]);
+    expect(JSON.stringify(parseStoryV2(withOpening({ ...opening, kind: "llm" })))).toContain("new_chat_only requires a scripted onEnter reply");
+    expect(JSON.stringify(parseStoryV2(withOpening({ ...opening, trigger: "afterSpeak" })))).toContain("new_chat_only requires a scripted onEnter reply");
+  });
+
   it("accepts valid talk_control and rejects bad shapes", () => {
     const valid = {
       ...linearStory,
@@ -177,6 +188,18 @@ describe("v2 schema validation", () => {
       ],
     };
     expect(JSON.stringify(parseStoryV2(notAnObject))).toContain("talk_control must be an object");
+  });
+
+  it("accepts commit_evidence on an extractor quality and refuses a bad pattern", () => {
+    const quality = (extra: Record<string, unknown>) => ({ key: "committed", type: "bool", source: "extractor", rubric: "Did they commit?", ...extra });
+    const withQuality = (extra: Record<string, unknown>) => ({
+      ...linearStory,
+      qualities: [...(linearStory as any).qualities, quality(extra)],
+    });
+    expect(parseStoryV2OrThrow(withQuality({ commit_evidence: "\\b(accept|swear)\\b" })).qualityByKey.committed.commit_evidence).toBe("\\b(accept|swear)\\b");
+    expect(JSON.stringify(parseStoryV2(withQuality({ commit_evidence: "([unterminated" })))).toContain("commit_evidence must be a valid regular expression");
+    expect(JSON.stringify(parseStoryV2(withQuality({ commit_evidence: "" })))).toContain("commit_evidence must be a non-empty pattern");
+    expect(JSON.stringify(parseStoryV2({ ...linearStory, qualities: [...(linearStory as any).qualities, { key: "committed", type: "bool", source: "code", rubric: "x", commit_evidence: "accept" }] }))).toContain("only extractor qualities read evidence");
   });
 
   it("accepts valid arc_bridges and rejects bad shapes", () => {
@@ -452,4 +475,70 @@ describe("StoryEngine checkpointPath", () => {
     expect(restored.checkpointPath).toEqual(saved.visitedPath);
   });
 
+});
+
+describe("gate recovery (step back a fired transition, reset a latched value)", () => {
+  it("steps back a fired transition, restores the path and progress, and names the gate keys", () => {
+    const story = parseStoryV2OrThrow(branchingStory);
+    const engine = new StoryEngine({ now: () => 0 });
+    engine.loadStory(story);
+    engine.enqueue(entry("route", "stealth"));
+    engine.commitBoundary({ lastMessageId: 0, chatLength: 1 });
+    expect(engine.serialize().activeCheckpointId).toBe("stealth");
+    expect(engine.serialize().blackboard.values.progress_toward_exit).toBe(1);
+
+    const outcome = engine.stepBackFiredTransition();
+    expect(outcome).toMatchObject({ ok: true, to: "start", keys: ["route"] });
+    expect(engine.serialize().activeCheckpointId).toBe("start");
+    expect(engine.serialize().visitedPath).toEqual(["start"]);
+    expect(engine.serialize().blackboard.values.progress_toward_exit).toBeUndefined();
+    expect(engine.getBoundary()).toBe(1);
+  });
+
+  it("does not re-fire a gate once its key is reset", () => {
+    const story = parseStoryV2OrThrow(branchingStory);
+    const engine = new StoryEngine({ now: () => 0 });
+    engine.loadStory(story);
+    engine.enqueue(entry("route", "stealth"));
+    engine.commitBoundary({ lastMessageId: 0, chatLength: 1 });
+    const outcome = engine.stepBackFiredTransition();
+    if (!outcome.ok) throw new Error(outcome.reason);
+    outcome.keys.forEach((key) => engine.resetQuality(key));
+    engine.commitBoundary({ lastMessageId: 1, chatLength: 2 });
+    expect(engine.serialize().activeCheckpointId).toBe("start");
+  });
+
+  it("reports when no gate moved the chat and walks back one checkpoint at a time", () => {
+    const engine = new StoryEngine({ now: () => 0 });
+    engine.loadStory(parseStoryV2OrThrow(linearStory));
+    expect(engine.stepBackFiredTransition()).toEqual({ ok: false, reason: "no gate transition has moved this chat" });
+    engine.enqueue(entry("has_key", true, 0, 0));
+    engine.commitBoundary({ lastMessageId: 0, chatLength: 1 });
+    engine.enqueue(entry("door_open", true, 1, 1));
+    engine.commitBoundary({ lastMessageId: 1, chatLength: 2 });
+    expect(engine.serialize().activeCheckpointId).toBe("end");
+    expect(engine.stepBackFiredTransition()).toMatchObject({ ok: true, from: "end", to: "door" });
+    expect(engine.stepBackFiredTransition()).toMatchObject({ ok: true, from: "door", to: "start" });
+    expect(engine.stepBackFiredTransition()).toEqual({ ok: false, reason: "no gate transition has moved this chat" });
+  });
+
+  it("resetQuality clears a latched value so a later read can revise it", () => {
+    const engine = new StoryEngine({ now: () => 0 });
+    engine.loadStory(parseStoryV2OrThrow(sunRuinsStory));
+    engine.enqueue(entry("mission_accepted", true, 0, 0));
+    engine.commitBoundary({ lastMessageId: 0, chatLength: 1 });
+    expect(engine.serialize().blackboard.latched.mission_accepted).toBe(true);
+
+    engine.enqueue(entry("mission_accepted", false, 1, 1));
+    engine.commitBoundary({ lastMessageId: 1, chatLength: 2 });
+    expect(engine.serialize().blackboard.values.mission_accepted).toBe(true);
+
+    expect(engine.resetQuality("mission_accepted")).toBe(true);
+    expect(engine.serialize().blackboard.values.mission_accepted).toBeUndefined();
+    expect(engine.serialize().blackboard.latched.mission_accepted).toBeUndefined();
+
+    engine.enqueue(entry("mission_accepted", false, 2, 2));
+    engine.commitBoundary({ lastMessageId: 2, chatLength: 3 });
+    expect(engine.serialize().blackboard.values.mission_accepted).toBe(false);
+  });
 });

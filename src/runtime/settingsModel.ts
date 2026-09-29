@@ -1,10 +1,21 @@
 import { DEFAULT_TENSION_EMA_ALPHA, MEMORY_TIER_INJECTION_DEPTHS } from "@constants/defaults";
 import { DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS } from "@memory/index";
 import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
+import { TALK_CHAIN_MAX_CAP, TALK_CHAIN_MAX_DEFAULT } from "@engine/index";
 import { defaultJudgeSettings, sanitizeJudgeSettings, type JudgeSettings } from "@judge/index";
 import { sanitizePassProfiles } from "./passProfiles";
 import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, StagecraftSettings } from "./types";
 import { isRecord } from "@utils/guards";
+import { defaultImageSettings, sanitizeImageSettings, type ImageSettings } from "../image/settings";
+
+// The system default for answering one player message with several voices. A checkpoint's own
+// `talk_control.chain` overrides each field; absent fields fall back here.
+export interface TalkChainSettings {
+  enabled: boolean;
+  max: number;
+  stopOnTransition: boolean;
+  holdExtraction: boolean;
+}
 
 // User/install lifetime (spec addendum §Configuration homes). Chat lifetime keeps only engine
 // state, rings and the per-chat overrides listed in ChatOverrides.
@@ -14,10 +25,11 @@ export interface GlobalSettings {
   display: { announceTransitions: boolean; hudEnabled: boolean };
   copilot: CopilotRuntimeSettings;
   memory: MemoryRuntimeSettings;
-  talk: { enabled: boolean };
+  talk: { enabled: boolean; chain: TalkChainSettings };
   stagecraft: StagecraftSettings;
   judge: JudgeSettings;
   worldInfo: WorldInfoSettings;
+  image: ImageSettings;
   spikes: SpikeSettings;
 }
 
@@ -109,14 +121,33 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   display: { announceTransitions: true, hudEnabled: true },
   copilot: { enabled: true },
   memory: defaultMemorySettings(),
-  talk: { enabled: true },
+  talk: { enabled: true, chain: { enabled: true, max: TALK_CHAIN_MAX_DEFAULT, stopOnTransition: true, holdExtraction: false } },
   stagecraft: defaultStagecraftSettings(),
   judge: defaultJudgeSettings(),
   worldInfo: defaultWorldInfoSettings(),
+  image: defaultImageSettings(),
   spikes: defaultSpikeSettings(),
 });
 
 const clampAlpha = (value: unknown) => (typeof value === "number" && value >= 0 && value <= 1 ? value : DEFAULT_TENSION_EMA_ALPHA);
+
+const sanitizeTalkChain = (value: unknown): TalkChainSettings => {
+  const source = isRecord(value) ? value : {};
+  const max = typeof source.max === "number" && Number.isInteger(source.max) && source.max >= 1 && source.max <= TALK_CHAIN_MAX_CAP
+    ? source.max
+    : TALK_CHAIN_MAX_DEFAULT;
+  return {
+    enabled: source.enabled !== false,
+    max,
+    stopOnTransition: source.stopOnTransition !== false,
+    holdExtraction: source.holdExtraction === true,
+  };
+};
+
+const sanitizeTalkSettings = (value: unknown): GlobalSettings["talk"] => {
+  const source = isRecord(value) ? value : {};
+  return { enabled: source.enabled !== false, chain: sanitizeTalkChain(source.chain) };
+};
 
 export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
   const defaults = defaultGlobalSettings();
@@ -143,7 +174,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     display: { announceTransitions: display.announceTransitions !== false, hudEnabled: display.hudEnabled !== false },
     copilot: { enabled: isRecord(value.copilot) ? value.copilot.enabled !== false : true },
     memory: { ...defaults.memory, ...memory, injectionDepths: { ...defaults.memory.injectionDepths, ...(isRecord(memory.injectionDepths) ? memory.injectionDepths : {}) } } as MemoryRuntimeSettings,
-    talk: { enabled: isRecord(value.talk) ? value.talk.enabled !== false : true },
+    talk: sanitizeTalkSettings(value.talk),
     stagecraft: {
       curatorEnabled: isRecord(value.stagecraft) && value.stagecraft.curatorEnabled === true,
       acceptMode: isRecord(value.stagecraft) && STAGECRAFT_ACCEPT_MODES.includes(value.stagecraft.acceptMode as StagecraftAcceptMode)
@@ -156,6 +187,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     },
     judge: sanitizeJudgeSettings(value.judge),
     worldInfo: sanitizeWorldInfoSettings(value.worldInfo),
+    image: sanitizeImageSettings(value.image),
     spikes: sanitizeSpikeSettings(value.spikes),
   };
 };

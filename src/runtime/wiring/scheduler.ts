@@ -34,6 +34,7 @@ const schedulerHost = (live: LiveParts): SchedulerHost => ({
   mutationSettled: () => runtimeManager.rollbackSettled(),
   epoch: () => runtimeManager.getRunContext().sessionEpoch,
   judgeTyped: () => live.typedJudge,
+  holdCadence: () => runtimeManager.isExtractionHeld(),
 });
 
 const scheduleSceneBreak = (live: LiveParts) => runtimeManager.onSceneBreakConfirmed((audit, collect) => {

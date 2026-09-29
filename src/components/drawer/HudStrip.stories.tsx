@@ -7,6 +7,7 @@ const baseSnapshot = (overrides: Record<string, unknown> = {}): RuntimeSnapshot 
   ({
     ready: true,
     activeCheckpointName: "The Ruined Gate",
+    narrative: { title: "Quest", sections: [{ id: "now", label: "Where you are", lines: ["The Ruined Gate"] }], text: "" },
     tension: { level: "high", smoothed: 0.72, expected: 0.6, hint: null },
     ui: { authorView: false, announceTransitions: true, hudEnabled: true },
     pendingDeltas: [],

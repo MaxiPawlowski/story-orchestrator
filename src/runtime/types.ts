@@ -76,6 +76,8 @@ export interface TalkDecisionAudit {
   chosenName: string | null;
   source: TalkDecisionSource;
   latencyMs: number;
+  /** Which voice in a chained turn this was; 0 or absent for the first (or only) speaker. */
+  chainStep?: number;
   judge?: { confidence: number; via: "choice" | "composite" };
 }
 
@@ -104,6 +106,7 @@ export interface StagecraftRuntimeState {
 
 export interface RuntimeExtras {
   firedNpcReplies: Record<string, number>;
+  firedNpcRepliesAt: Record<string, number[]>;
   requirements: RequirementsState;
   lastAppliedCheckpointId: string | null;
   lastSelfInjectionMessageId: number | null;
@@ -372,6 +375,15 @@ export interface StoryIdentity {
   drifted: boolean;
 }
 
+/** The gate advance that moved this chat into the checkpoint it stands on, for the author's recovery. */
+export interface LastFiredTransition {
+  from: string;
+  to: string;
+  /** The gate qualities that opened it; a step-back resets these so it cannot re-fire. */
+  keys: string[];
+  checkpointName: string;
+}
+
 export interface RuntimeSnapshot {
   ready: boolean;
   storyId: string | null;
@@ -384,6 +396,8 @@ export interface RuntimeSnapshot {
   chatIdentity?: ChatIdentitySnapshot | null;
   storyTitle: string | null;
   storyDescription: string | null;
+  publicStoryIntro?: string | null;
+  imageStory?: { checkpoints: boolean; scenes: boolean } | null;
   activeCheckpointId: string | null;
   activeCheckpointName: string | null;
   activeObjective: string | null;
@@ -442,6 +456,7 @@ export interface RuntimeSnapshot {
   ledger: LedgerView[];
   /** Each memory row's fate and each tier's trim, from the last injection (author view, in memory only). */
   memoryInjection: MemoryInjectionView | null;
+  lastFired: LastFiredTransition | null;
   driver: DriverContext | null;
   activeNudge: string | null;
   payloadCaptures: PayloadCapture[];

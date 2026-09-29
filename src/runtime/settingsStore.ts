@@ -3,6 +3,7 @@ import type { JudgeSettings, JudgeUses } from "@judge/index";
 import { createSettingsWriteEvidence, recordSettingsWrite } from "./librarySave";
 import { SETTINGS_ROOT_KEY, settingsRoot, writableSettingsRoot } from "./settingsRoot";
 import { sanitizeGlobalSettings, type GlobalSettings } from "./settingsModel";
+import { sanitizeImageSettings } from "../image/settings";
 
 export * from "./settingsModel";
 
@@ -46,6 +47,15 @@ const writeSettings = (settings: GlobalSettings, label: string) => {
 export function getGlobalSettings(): GlobalSettings {
   const root = settingsRoot();
   const sanitized = sanitizeGlobalSettings(root[SETTINGS_KEY]);
+  const stored = root[SETTINGS_KEY] as { image?: unknown } | undefined;
+  if (settingsAreLoaded?.() && stored?.image === undefined) {
+    // Seed the image settings once from the standalone Image Director's root, so an install that used
+    // that extension keeps its routes and character bindings. Automatic images start off until validated.
+    const prior = getContext().extensionSettings["st-image-director"];
+    if (prior && typeof prior === "object") {
+      sanitized.image = { ...sanitizeImageSettings(prior), enabled: false, directorProfileId: sanitized.extraction.profiles?.authoring ?? "" };
+    }
+  }
   if (settingsAreLoaded?.()) root[SETTINGS_KEY] = sanitized;
   return sanitized;
 }
@@ -63,6 +73,7 @@ export function setGlobalSettings(patch: Partial<{ [K in keyof GlobalSettings]: 
     stagecraft: { ...current.stagecraft, ...(patch.stagecraft ?? {}) },
     judge: { ...current.judge, ...(patch.judge ?? {}), uses: { ...current.judge.uses, ...(patch.judge?.uses ?? {}) }, expansion: { ...current.judge.expansion, ...(patch.judge?.expansion ?? {}) } },
     worldInfo: { ...current.worldInfo, ...(patch.worldInfo ?? {}) },
+    image: { ...current.image, ...(patch.image ?? {}) },
     spikes: { ...current.spikes, ...(patch.spikes ?? {}) },
   };
   const sanitized = sanitizeGlobalSettings(next);

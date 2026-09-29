@@ -7,6 +7,7 @@ import type { DecodeJournal } from "./messageIdentity";
 
 export type { DecodeJournal };
 import { dropJudgeCallsAfter } from "@judge/index";
+import { rewindNpcReplies } from "./npcReplyRewind";
 import type { RuntimeExtras } from "./types";
 
 // The mutation contract spans every store, so the composition lives in one place
@@ -67,6 +68,9 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
   const quarantine = () => {
     deps.memory.rollbackFromMessage(messageId, engine.serialize().boundary);
     extras.judge = dropJudgeCallsAfter(extras.judge, messageId);
+    extras.firedNpcRepliesAt = extras.firedNpcRepliesAt ?? {};
+    rewindNpcReplies(extras.firedNpcReplies, extras.firedNpcRepliesAt, messageId);
+    if (typeof extras.lastSelfInjectionMessageId === "number" && extras.lastSelfInjectionMessageId >= messageId) extras.lastSelfInjectionMessageId = null;
     extras.extraction.audits = extras.extraction.audits.filter((audit) => audit.window.to < messageId);
     engine.clampToChat(deps.context().chatLength);
     engine.discardPendingFrom(messageId);

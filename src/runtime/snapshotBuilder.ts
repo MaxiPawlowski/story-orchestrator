@@ -1,10 +1,10 @@
-import { agencyFor, type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type StoryEngine, type ValidationError } from "@engine/index";
+import { agencyFor, gateKeys, type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2, type StoryEngine, type ValidationError } from "@engine/index";
 import type { DriverContext } from "@copilot/index";
 import { sceneFieldsInConflict, type LedgerView, type MemoryInjectionView } from "@memory/index";
 import { curatorLorebooks } from "@stagecraft/index";
 import { confirmedSceneFacts, isSceneStale, judgeMeterView } from "@judge/index";
 import { buildConvergenceReadout, buildLastTransition, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot } from "./snapshot";
-import { buildNarrativeStatus, type RollbackNotice, type RollbackUnavailable } from "./narrative";
+import { buildNarrativeStatus, type NarrativeTransition, type RollbackNotice, type RollbackUnavailable } from "./narrative";
 import { agencyRecovery as agencyRecoveryOf, playerTurnIds, REFUSAL_PLAYER_TEXT, type AgencyRecovery } from "./agencyRecovery";
 import { jumpIndex } from "./messageJump";
 import type { MessageFingerprints } from "./fingerprints";
@@ -27,7 +27,7 @@ import type { ExtractionHealth } from "@extraction/index";
 import type { CopilotCoordinator } from "./coordinators/copilotCoordinator";
 import type { MemoryCoordinator } from "./coordinators/memoryCoordinator";
 import type { PacingCoordinator } from "./coordinators/pacingCoordinator";
-import type { LoadedStory, PayloadCapture, RuntimeExtras, RuntimeSnapshot } from "./types";
+import type { LastFiredTransition, LoadedStory, PayloadCapture, RuntimeExtras, RuntimeSnapshot } from "./types";
 
 // The single composed model the UI subscribes to. Everything a rendering component needs lives
 // here — read-models the coordinators own (ledger, driver, nudge) are handed in rather than
@@ -35,6 +35,16 @@ import type { LoadedStory, PayloadCapture, RuntimeExtras, RuntimeSnapshot } from
 const readerFields = (reader: { reader: "judge" | "llm"; confidence?: number } | undefined) => (reader
   ? { reader: reader.reader, ...(reader.confidence !== undefined ? { confidence: reader.confidence } : {}) }
   : {});
+
+const playerTransition = (story: NormalizedStoryV2 | null, boundaryLog: BoundaryLogEntry[]): NarrativeTransition | null => {
+  const transition = buildLastTransition(story, boundaryLog);
+  if (!transition || !story) return null;
+  const from = story.checkpoints.find((entry) => entry.name === transition.fromName)?.player_name ?? null;
+  const to = story.checkpoints.find((entry) => entry.name === transition.toName)?.player_name ?? null;
+  return to ? { fromName: from, toName: to } : null;
+};
+
+const publishedIntro = (story: NormalizedStoryV2 | null): string | null => story?.player_intro || story?.description || null;
 
 export interface SnapshotSources {
   loaded: LoadedStory | null;
@@ -102,11 +112,23 @@ export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
   fingerprints: port.fingerprints,
 });
 
+const lastFiredTransition = (log: BoundaryLogEntry[], story: NormalizedStoryV2 | null, activeCheckpointId: string | undefined): LastFiredTransition | null => {
+  const entry = [...log].reverse().find((candidate) => candidate.fired?.to === activeCheckpointId);
+  if (!entry?.fired) return null;
+  return {
+    from: entry.fired.from,
+    to: entry.fired.to,
+    keys: gateKeys(entry.fired.gate),
+    checkpointName: story?.checkpointById[entry.fired.to]?.name ?? entry.fired.to,
+  };
+};
+
 export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot {
   const { loaded, state, extras } = sources;
   const story = loaded?.story ?? null;
   const active = state && story ? story.checkpointById[state.activeCheckpointId] : null;
   const blackboard = state?.blackboard.values ?? {};
+  const lastFired = lastFiredTransition(sources.boundaryLog, story, state?.activeCheckpointId);
   const evidenceByKey = new Map<string, string>();
   const readerByKey = new Map<string, { reader: "judge" | "llm"; at: string; confidence?: number }>();
   const noteReader = (key: string, reader: "judge" | "llm", at: string, confidence?: number) => {
@@ -144,10 +166,11 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
   const nextTurnCost = buildNextTurnCost(nextTurn, nextTurnForeign, cost.budget, cost.lastGenerationBudget);
   const narrative = buildNarrativeStatus({
     storyTitle: story?.title ?? null,
-    checkpointName: active?.name ?? null,
-    objective: active?.objective ?? null,
-    lastTransition: buildLastTransition(story, sources.boundaryLog),
-    openThreads: sources.openThreads,
+    checkpointName: active?.player_name ?? (active ? "Current scene" : null),
+    objective: active?.player_text ?? null,
+    publicIntro: publishedIntro(story),
+    lastTransition: playerTransition(story, sources.boundaryLog),
+    openThreads: [],
     canon: sources.canon,
     tensionLevel: tension.level,
     pendingCount: pendingDeltas.length,
@@ -174,6 +197,8 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     chatIdentity: loaded ? null : readChatIdentity(),
     storyTitle: story?.title ?? null,
     storyDescription: story?.description ?? null,
+    publicStoryIntro: publishedIntro(story),
+    imageStory: story?.illustrations ? { checkpoints: story.illustrations.checkpoints === true, scenes: story.illustrations.scenes === true } : null,
     activeCheckpointId: active?.id ?? null,
     activeCheckpointName: active?.name ?? null,
     activeObjective: active?.objective ?? null,
@@ -228,6 +253,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     rollbackUnavailable: sources.rollbackUnavailable,
     ledger: sources.ledger,
     memoryInjection: sources.memoryInjection ?? null,
+    lastFired,
     driver: sources.driver,
     activeNudge: sources.activeNudge,
     payloadCaptures: sources.payloadCaptures,

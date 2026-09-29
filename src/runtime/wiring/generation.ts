@@ -95,7 +95,7 @@ export const subscribeGenerationEvents = (live: LiveParts, generation: Generatio
     { eventName: "GENERATION_STARTED", handler: onStarted },
     { eventName: "MESSAGE_SENT", handler: () => lore.onMessageSent() },
     { eventName: "GENERATION_ENDED", handler: (...args: unknown[]) => apply(generation.ended(args)) },
-    { eventName: "GENERATION_STOPPED", handler: (...args: unknown[]) => apply(generation.stopped(args)) },
+    { eventName: "GENERATION_STOPPED", handler: (...args: unknown[]) => { live.talk?.onGenerationStopped(); apply(generation.stopped(args)); } },
     { eventName: "MESSAGE_RECEIVED", handler: (messageId, type) => apply(generation.rendered(messageId, type)) },
     { eventName: "CHARACTER_MESSAGE_RENDERED", handler: (messageId, type) => apply(generation.rendered(messageId, type)) },
     { eventName: "CHAT_CHANGED", handler: () => apply(generation.chatChanged()) },

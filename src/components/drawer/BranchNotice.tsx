@@ -8,7 +8,7 @@ export interface BranchNoticeProps {
 }
 
 // Non-blocking, and never adopts on its own. The player's one control.
-export const BranchNotice = ({ identity, onContinue }: BranchNoticeProps) => {
+export const BranchNotice = ({ onContinue }: BranchNoticeProps) => {
   const [busy, setBusy] = useState(false);
   const run = async () => {
     setBusy(true);
@@ -20,7 +20,7 @@ export const BranchNotice = ({ identity, onContinue }: BranchNoticeProps) => {
   };
   return (
     <div id="so-branch-notice" className="flex flex-col gap-1 text-xs" role="status">
-      <span>{branchNoticeText(identity.checkpointName)}</span>
+       <span>{branchNoticeText(null)}</span>
       <button id="so-branch-continue" type="button" className="menu_button self-start" disabled={busy} onClick={() => void run()}>
         Continue from here
       </button>

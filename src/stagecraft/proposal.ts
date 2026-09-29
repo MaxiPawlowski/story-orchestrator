@@ -1,6 +1,6 @@
 import {
   CURATOR_MAX_TEXT, contentShownInPart, isNoteOp, type CuratorEntryView, type CuratorOp, type CuratorOpRecord,
-  type CuratorProposal, type CuratorProposalRecord, type StagecraftAcceptMode, type WiCuratorOp,
+  type CuratorPlan, type CuratorProposal, type CuratorProposalRecord, type StagecraftAcceptMode, type WiCuratorOp,
 } from "./types";
 import { findSpanFuzzy } from "./fuzzy";
 import { viewForOp } from "./scope";
@@ -78,7 +78,10 @@ export const declineKey = (op: WiCuratorOp): string => `${op.kind}:${opTargetKey
 export const declinedOps = (proposals: CuratorProposalRecord[], checkpointId: string, sinceBoundary: number): WiCuratorOp[] =>
   proposals
     .filter((record) => record.curator === "wi" && record.checkpointId === checkpointId && record.boundary >= sinceBoundary)
-    .flatMap((record) => record.ops.filter((entry) => entry.status === "rejected" && !isNoteOp(entry.op)).map((entry) => entry.op as WiCuratorOp));
+    .flatMap((record) => [
+      ...record.ops.filter((entry) => entry.status === "rejected" && !isNoteOp(entry.op)).map((entry) => entry.op as WiCuratorOp),
+      ...(record.refused ?? []).filter((op) => !isNoteOp(op)),
+    ]);
 
 export const decidedOp = (entry: CuratorOpRecord, status: "accepted" | "rejected", op?: CuratorOp): CuratorOp => {
   const chosen = op ?? entry.op;
@@ -103,20 +106,23 @@ export function planCuratorProposal(
   proposal: CuratorProposal,
   entries: CuratorEntryView[],
   options: { mode?: StagecraftAcceptMode; declined?: WiCuratorOp[] } = {},
-): { records: CuratorOpRecord[]; dropped: string[] } {
+): CuratorPlan {
   const declined = new Set((options.declined ?? []).map(declineKey));
   const seen = new Set<string>();
   const dropped = [...proposal.dropped];
+  const refused: WiCuratorOp[] = [];
   const records: CuratorOpRecord[] = [];
   for (const op of [...proposal.ops].sort((left, right) => ORDER[left.kind] - ORDER[right.kind])) {
     const key = `${op.kind}:${opTargetKey(op)}`;
     if (seen.has(key)) {
       dropped.push(`${op.kind}: "${op.comment}" was proposed twice`);
+      refused.push(op);
       continue;
     }
     seen.add(key);
     if (declined.has(declineKey(op))) {
       dropped.push(`${op.kind}: "${op.comment}" was declined earlier`);
+      refused.push(op);
       continue;
     }
     const entry = viewForOp(entries, op);
@@ -128,9 +134,10 @@ export function planCuratorProposal(
     }
     if (!preview.ok) {
       dropped.push(`${op.kind}: ${preview.message}`);
+      refused.push(op);
       continue;
     }
     records.push({ op, status: "pending", message: preview.message, before: entry ? beforeImage(entry) : undefined });
   }
-  return { records, dropped };
+  return { records, dropped, refused };
 }

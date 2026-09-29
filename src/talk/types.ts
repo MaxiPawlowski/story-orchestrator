@@ -18,6 +18,9 @@ export interface DirectorPromptInput {
   objective: string;
   candidates: TalkCandidate[];
   allowSilence: boolean;
+  /** Offer a "hand back to the player" answer — the chain stops and the player speaks next. */
+  handBack?: boolean;
+  playerName?: string;
   lead?: string;
   instruction?: string;
   window: DirectorWindowMessage[];

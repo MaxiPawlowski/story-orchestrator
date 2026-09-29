@@ -4,7 +4,7 @@
 const mockChat: { rows: unknown[] } = { rows: [] };
 
 import { chooseByRules, buildCandidates } from "@talk/rules";
-import { activeSpeakerId } from "./roster";
+import { activeSpeakerId, nameForRosterId, namesForRosterId } from "./roster";
 import type { RosterHost } from "./hostPorts";
 
 const host: RosterHost = {
@@ -58,6 +58,17 @@ describe("activeSpeakerId skips rows that are not a character's turn (T10)", () 
 
   it("still answers null when the last character row is not a roster member", () => {
     expect(speakerAfter(reply("Stranger"))).toBeNull();
+  });
+});
+
+describe("nameForRosterId is the display name alone (SP9 presence source)", () => {
+  it("maps an enabled id to its name, while namesForRosterId keeps the alias list", () => {
+    expect(nameForRosterId(story, "dm")).toBe("DM Narrator");
+    expect(namesForRosterId(story, "dm")).toEqual(["DM Narrator", "dm"]);
+  });
+
+  it("falls back to the id for an unknown member", () => {
+    expect(nameForRosterId(story, "ghost")).toBe("ghost");
   });
 });
 

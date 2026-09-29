@@ -79,6 +79,12 @@ export { countTokens, countTokensBatch } from "@services/stHost/tokenizer";
 export { readProfileContextLimit, readProfilePresetName } from "@services/stHost/contextLimit";
 export { vectorInsert, vectorQuery, vectorPurge, DEFAULT_VECTOR_SOURCE } from "@services/stHost/vectors";
 export { judgeStatus, judgeTransport, writeJudgeSecret, JUDGE_PLUGIN_BASE, JUDGE_PLUGIN_ID, JUDGE_SECRET_KEY, type JudgeStatus } from "@services/stHost/judge";
+export {
+  imageChat, imageModel, imageRender, imageSave, imageDelete, imagePlace, imageChatSettings, imageWriteChatSettings, imageComfyUrl, imageReview,
+  type ImageChat, type ImageMedia,
+} from "@services/stHost/image";
+export { reserveGpu, releaseGpu, gpuBrokerStatus } from "@services/stHost/gpuBroker";
+export { registerImageSurface } from "@services/stHost/imageSurface";
 export type { VectorItem, VectorMatch } from "@services/stHost/vectors";
 export { probeCapability, capabilityReport, capabilityState, invalidateCapabilities, hostFacts, renderCapabilityReport, CAPABILITY_IDS } from "@services/stHost/capabilities";
 export type { CapabilityId, CapabilityReport, CapabilityState, HostFacts } from "@services/stHost/capabilities";

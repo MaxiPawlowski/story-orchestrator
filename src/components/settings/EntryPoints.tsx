@@ -9,13 +9,14 @@ export interface EntryPointsProps {
   onToggleImport(): void;
   onNewStory(): void;
   onOpenStudio(): void;
+  onOpenDrawer(): void;
   /** Reveal a settings control that already exists further down this panel. */
   onRevealSetting(id: string): void;
   onFixWithWizard(): void;
 }
 
 const Row = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div className="flex flex-col gap-1" data-so="entry-point" data-task={title.toLowerCase()}>
+  <div className="so-task-card flex flex-col gap-1" data-so="entry-point" data-task={title.toLowerCase()}>
     <div className="font-medium text-sm">{title}</div>
     {children}
   </div>
@@ -25,12 +26,12 @@ const Row = ({ title, children }: { title: string; children: React.ReactNode }) 
 // below — this is the index, and the one place that says which task is currently asking for something.
 // Repair is the only row that can be *dark* (nothing missing), because it is the one that is about a
 // defect rather than an intention.
-export default function EntryPoints({ snapshot, busy, importOpen, onToggleImport, onNewStory, onOpenStudio, onRevealSetting, onFixWithWizard }: EntryPointsProps) {
+export default function EntryPoints({ snapshot, busy, importOpen, onToggleImport, onNewStory, onOpenStudio, onOpenDrawer, onRevealSetting, onFixWithWizard }: EntryPointsProps) {
   const repair = nextRepairStep(snapshot);
   const playing = snapshot.storyId ? snapshot.library.find((story) => story.id === snapshot.storyId) ?? null : null;
 
   return (
-    <div id="so-entry-points" className="flex flex-col gap-3 border-t border-solid border-white/10 pt-2">
+    <div id="so-entry-points" className="so-task-grid">
       <Row title="Start">
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -42,7 +43,7 @@ export default function EntryPoints({ snapshot, busy, importOpen, onToggleImport
           >New story (wizard)</button>
           <button id="so-entry-import-toggle" className="menu_button" aria-expanded={importOpen} onClick={onToggleImport}>{importOpen ? "Hide import" : "Import a story"}</button>
         </div>
-        <div className="text-xs opacity-70">Nothing to continue yet? Start here — the wizard builds the cast, lore and graph with you.</div>
+        <div className="text-xs opacity-70">Build a story with the wizard, or bring your own JSON.</div>
       </Row>
       <Row title="Continue">
         <div id="so-entry-continue" className="text-xs opacity-80">
@@ -57,10 +58,10 @@ export default function EntryPoints({ snapshot, busy, importOpen, onToggleImport
         {repair ? (
           <div id="so-entry-repair" data-so="repair-step" data-area={repair.area} className="flex flex-col gap-1">
             <div className="text-xs text-yellow-300">{repair.consequence}</div>
-            <div className="text-xs opacity-70">{repair.detail}</div>
+            {snapshot.ui.authorView && <div className="text-xs opacity-70">{repair.detail}</div>}
             <div className="flex flex-wrap items-center gap-2">
               {repair.targetId && <button data-so="repair-reveal" className="menu_button" onClick={() => onRevealSetting(repair.targetId as string)}>Show me the setting</button>}
-              {repair.provisionable && <button
+              {snapshot.ui.authorView && repair.provisionable && <button
                 id="so-entry-fix-with-wizard"
                 className="menu_button"
                 title="Open the wizard on the provisioning step, pre-filled with what this story is missing."
@@ -74,10 +75,10 @@ export default function EntryPoints({ snapshot, busy, importOpen, onToggleImport
       </Row>
       <Row title="Author">
         <div className="flex flex-wrap items-center gap-2">
-          <button id="so-open-studio" className="menu_button" disabled={busy} onClick={onOpenStudio}>Open Studio</button>
-          <button className="menu_button" onClick={() => onRevealSetting("so-author-view")}>Author view</button>
+          {(!snapshot.storyId || snapshot.ui.authorView) && <button id="so-open-studio" className="menu_button" disabled={busy} onClick={onOpenStudio}>Open Studio</button>}
+          {snapshot.storyId && !snapshot.ui.authorView && <button className="menu_button" onClick={onOpenDrawer}>Open author view in the story drawer</button>}
         </div>
-        <div className="text-xs opacity-70">Build or edit the story itself — its graph, cast, gates and lore.</div>
+        <div className="text-xs opacity-70">Edit the story, cast and what players may see.</div>
       </Row>
     </div>
   );

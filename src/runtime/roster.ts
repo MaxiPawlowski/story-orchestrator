@@ -52,6 +52,11 @@ export function namesForRosterId(story: NormalizedStoryV2 | null, id: string): s
   return member ? [rosterMemberName(member), member.id] : [id];
 }
 
+export function nameForRosterId(story: NormalizedStoryV2 | null, id: string): string {
+  const member = story?.roster.find((candidate) => candidate.id === id);
+  return member ? rosterMemberName(member) : id;
+}
+
 export function rosterIdForName(story: NormalizedStoryV2 | null, name: string): string | null {
   if (!story) return null;
   const search = name.trim().toLowerCase();

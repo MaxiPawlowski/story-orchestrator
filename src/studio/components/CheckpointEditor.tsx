@@ -120,6 +120,16 @@ const CheckpointBasics = ({ selected, patch, onStart }: { selected: Checkpoint; 
     <Field label="Objective">
       <textarea className="text_pole st-input min-h-[3rem]" value={selected.objective} onChange={(event) => patch({ objective: event.target.value })} />
     </Field>
+    <div className="st-subpanel flex flex-col gap-2 p-2">
+      <div className="text-sm font-medium">What the player sees</div>
+      <div className="text-xs st-muted">Only these fields appear in the player recap. Leave them empty for a neutral “Current scene”.
+        The objective above stays author-only.</div>
+      <Field label="Public scene name"><input className="text_pole st-input" value={selected.player_name ?? ""} onChange={(event) => patch({ player_name: event.target.value || undefined })} /></Field>
+      <Field label="Public situation">
+        <textarea className="text_pole st-input min-h-[3rem]" value={selected.player_text ?? ""}
+          onChange={(event) => patch({ player_text: event.target.value || undefined })} />
+      </Field>
+    </div>
     <div className="grid grid-cols-2 gap-3">
       <Field label="Type">
         <select className="text_pole st-input" value={selected.type} onChange={(event) => patch({ type: event.target.value as Checkpoint["type"] })}>

@@ -144,6 +144,32 @@ const readObjectiveBlock = (value: unknown, errors: ValidationError[]) => {
 };
 
 export const readStoryOptions = (json: Record<string, unknown>, errors: ValidationError[]) => {
+  if (json.player_intro !== undefined && typeof json.player_intro !== "string") addError(errors, "player_intro", "player_intro must be text");
+  const playerIntro = typeof json.player_intro === "string" ? json.player_intro.trim() : "";
+  const image = json.illustrations;
+  let illustrations: StoryV2["illustrations"];
+  if (image !== undefined) {
+    if (!isRecord(image)) addError(errors, "illustrations", "illustrations must be an object");
+    else {
+      rejectUnknownKeys(image, ["checkpoints", "scenes", "style", "appearances"], "illustrations", errors);
+      for (const key of ["checkpoints", "scenes"] as const) {
+        if (image[key] !== undefined && typeof image[key] !== "boolean") addError(errors, `illustrations.${key}`, `${key} must be true or false`);
+      }
+      if (image.style !== undefined && typeof image.style !== "string") addError(errors, "illustrations.style", "style must be text");
+      if (image.appearances !== undefined && (!isRecord(image.appearances) || Object.values(image.appearances).some((entry) => typeof entry !== "string"))) {
+        addError(errors, "illustrations.appearances", "appearances must map cast ids to text");
+      }
+      illustrations = {
+        ...(image.checkpoints === true ? { checkpoints: true } : {}),
+        ...(image.scenes === true ? { scenes: true } : {}),
+        ...(typeof image.style === "string" && image.style.trim() ? { style: image.style.trim() } : {}),
+        ...(isRecord(image.appearances) && Object.values(image.appearances).every((entry) => typeof entry === "string")
+          ? { appearances: Object.fromEntries(Object.entries(image.appearances).filter(([, entry]) => (entry as string).trim()).map(([key, entry]) => [key, (entry as string).trim()])) }
+          : {}),
+      };
+      if (!Object.keys(illustrations).length) illustrations = undefined;
+    }
+  }
   const arcTemplate = json.arc_template !== undefined ? readArcTemplate(json.arc_template, errors) : undefined;
   const requirements = json.requirements !== undefined ? readRequirements(json.requirements, errors) : undefined;
   const stagecraft = json.stagecraft !== undefined ? readStagecraft(json.stagecraft, errors) : undefined;
@@ -152,6 +178,8 @@ export const readStoryOptions = (json: Record<string, unknown>, errors: Validati
   const houseRules = json.house_rules !== undefined ? readHouseRules(json.house_rules, errors) : undefined;
   const objectiveBlock = readObjectiveBlock(json.objective_block, errors);
   return {
+    ...(playerIntro ? { player_intro: playerIntro } : {}),
+    ...(illustrations ? { illustrations } : {}),
     ...(arcTemplate !== undefined ? { arc_template: arcTemplate } : {}),
     ...(requirements ? { requirements } : {}),
     ...(stagecraft ? { stagecraft } : {}),

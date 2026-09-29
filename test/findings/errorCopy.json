@@ -691,6 +691,96 @@
       "silentCatch": "probe",
       "verdict": "pass",
       "reason": "becomes a typed refusal the next-turn header states"
+    },
+    {
+      "site": "src/image/ImageChatPanel.tsx#ImageChatPanel>callback",
+      "kind": 3,
+      "template": ".catch(() => undefined)",
+      "surface": "player",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "the image runtime records the failure in this chat's visible Illustrations status"
+    },
+    {
+      "site": "src/image/prompt.ts#parseImageReply",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "invalid JSON becomes a typed director refusal"
+    },
+    {
+      "site": "src/image/queue.ts#ImageQueue.enqueue",
+      "kind": 3,
+      "template": ".catch(() => undefined)",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "the caller receives the failure while the queue tail only resets for the next job"
+    },
+    {
+      "site": "src/image/runtime.ts#StoryImageDirector.plan",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "the invalid first reply gets one repair request and the second reply is validated"
+    },
+    {
+      "site": "src/image/runtime.ts#StoryImageDirector.onReply",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "player",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "the image runtime records the failed automatic image in Illustrations status"
+    },
+    {
+      "site": "src/services/stHost/gpuBroker.ts#releaseGpu",
+      "kind": 3,
+      "template": ".catch(() => null)",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "a non-JSON broker answer is a typed lease-release refusal"
+    },
+    {
+      "site": "src/services/stHost/gpuBroker.ts#reserveGpu",
+      "kind": 3,
+      "template": ".catch(() => null)",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "a non-JSON broker answer becomes an unavailable broker error"
+    },
+    {
+      "site": "src/services/stHost/imageSurface.ts#onClick",
+      "kind": 3,
+      "template": ".catch(() => undefined)",
+      "surface": "player",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "the image runtime records the failed button request in the Illustrations status"
+    },
+    {
+      "site": "src/services/stHost/imageSurface.ts#action",
+      "kind": 3,
+      "template": ".catch(() => undefined)",
+      "surface": "player",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "the image runtime records the tool failure in Illustrations status"
     }
   ]
 }

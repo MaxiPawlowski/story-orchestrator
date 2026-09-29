@@ -5,6 +5,7 @@ import {
 import { QUALITY_READ_AS, ratingLevels, READ_AS_TYPES } from "../qualityRead";
 import { progressQualityForAnchor } from "../convergence";
 import { isRecord } from "@utils/guards";
+import { log } from "@utils/log";
 import { addError, asString, isOneOf } from "./common";
 
 const readCriterion = (value: unknown): string | QualityCriterion | null => {
@@ -12,6 +13,27 @@ const readCriterion = (value: unknown): string | QualityCriterion | null => {
   if (!isRecord(value) || typeof value.what !== "string" || !value.what.trim()) return null;
   const examples = Array.isArray(value.examples) ? value.examples.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0) : [];
   return { what: value.what.trim(), ...(typeof value.not_for === "string" && value.not_for.trim() ? { not_for: value.not_for.trim() } : {}), ...(examples.length ? { examples } : {}) };
+};
+
+const readCommitEvidence = (value: Record<string, unknown>, source: Quality["source"], path: string, errors: ValidationError[]): Pick<Quality, "commit_evidence"> => {
+  if (value.commit_evidence === undefined) return {};
+  const pattern = asString(value.commit_evidence);
+  if (!pattern) {
+    addError(errors, `${path}.commit_evidence`, "commit_evidence must be a non-empty pattern");
+    return {};
+  }
+  if (source !== "extractor") {
+    addError(errors, `${path}.commit_evidence`, "only extractor qualities read evidence");
+    return {};
+  }
+  try {
+    new RegExp(pattern);
+  } catch (error) {
+    log.warn(`commit_evidence on ${path} is not a valid regular expression`, error);
+    addError(errors, `${path}.commit_evidence`, "commit_evidence must be a valid regular expression");
+    return {};
+  }
+  return { commit_evidence: pattern };
 };
 
 const readEvidenceFrom = (value: Record<string, unknown>, source: Quality["source"], path: string, errors: ValidationError[]): Pick<Quality, "evidence_from"> => {
@@ -135,6 +157,7 @@ export const readQuality = (value: unknown, path: string, errors: ValidationErro
     ...(ledgerBinding ? { ledger_binding: ledgerBinding } : {}),
     ...readQualityRead(value, type, source, rubric, values, path, errors),
     ...readEvidenceFrom(value, source, path, errors),
+    ...readCommitEvidence(value, source, path, errors),
   };
 };
 

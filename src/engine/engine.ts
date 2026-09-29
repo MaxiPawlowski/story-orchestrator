@@ -1,6 +1,7 @@
 import { ApplyQueue, type ApplyQueueEntry, type QueueDrainResult } from "./applyQueue";
 import { Blackboard, type BlackboardSnapshot } from "./blackboard";
-import { applyTransitionProgress } from "./convergence";
+import { applyTransitionProgress, progressQualityForAnchor } from "./convergence";
+import { gateKeys } from "./gates";
 import type { CheckpointEffects, NormalizedStoryV2, NormalizedTransition, PrimitiveValue } from "./schema";
 import { selectFiring } from "./transitions";
 
@@ -342,6 +343,45 @@ export class StoryEngine {
       if (entry.fired) return true;
       return entry.queue.applied.some((applied) => applied.turnRange && applied.turnRange.to >= normalized);
     });
+  }
+
+  // The most recent gate-fired advance INTO the checkpoint this run is standing on. Recovery walks
+  // these backwards, so a repeated step-back from cp3 reaches cp2 and then cp1.
+  lastFiredTransition(): { transition: NormalizedTransition; entry: BoundaryLogEntry } | null {
+    for (let index = this.boundaryLog.length - 1; index >= 0; index -= 1) {
+      const entry = this.boundaryLog[index];
+      if (entry.fired && entry.fired.to === this.activeCheckpointId) return { transition: entry.fired, entry };
+    }
+    return null;
+  }
+
+  // Undo the transition that put the run where it stands, without touching the boundary count or the
+  // messages: the turns happened, the story moved too early. Restores the checkpoint, its path and
+  // the progress the transition itself added, and names the gate keys a caller should reset so the
+  // same gate cannot fire again on the next boundary.
+  stepBackFiredTransition(): { ok: true; from: string; to: string; keys: string[] } | { ok: false; reason: string } {
+    const found = this.lastFiredTransition();
+    if (!found) return { ok: false, reason: "no gate transition has moved this chat" };
+    const { transition, entry } = found;
+    const before = entry.before;
+    this.activeCheckpointId = before.activeCheckpointId;
+    this.visitedAnchors = [...before.visitedAnchors];
+    this.visitedPath = [...before.visitedPath];
+    this.checkpointStartedBoundary = before.checkpointStartedBoundary;
+    this.checkpointStartedAt = before.checkpointStartedAt;
+    this.checkpointStartedMessageId = before.checkpointStartedMessageId;
+    const progress = transition.effects?.progress;
+    if (progress) this.requireBlackboard().override(progressQualityForAnchor(progress.anchor), before.blackboard.values[progressQualityForAnchor(progress.anchor)]);
+    return { ok: true, from: transition.to, to: before.activeCheckpointId, keys: gateKeys(transition.gate) };
+  }
+
+  // Author recovery only: drop a latched value (or leave it if it was never set) so extraction asks
+  // for it again and a one-way gate stops holding.
+  resetQuality(key: string): boolean {
+    const blackboard = this.requireBlackboard();
+    const existed = blackboard.get(key) !== undefined || blackboard.snapshot().latched[key] === true;
+    blackboard.override(key, undefined);
+    return existed;
   }
 
   get activeCheckpoint() {

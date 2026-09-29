@@ -145,6 +145,14 @@ export interface CuratorProvenance {
   validity: "live" | "superseded" | "source-removed" | "conflicted" | "quarantined";
 }
 
+/** The plan a curator response becomes: what survives, why the rest was dropped, and the ops the
+ * refusal rules rejected, so the next pass can tell the model not to propose them again. */
+export interface CuratorPlan {
+  records: CuratorOpRecord[];
+  dropped: string[];
+  refused: WiCuratorOp[];
+}
+
 export interface CuratorProposalRecord {
   id: string;
   curator: CuratorKind;
@@ -157,6 +165,7 @@ export interface CuratorProposalRecord {
   mode: StagecraftAcceptMode;
   ops: CuratorOpRecord[];
   dropped: string[];
+  refused?: WiCuratorOp[];
   /** A proposal is a claim about the story too: which pass made it, over which reply
    *  or boundary, at what confidence. */
   provenance?: CuratorProvenance;

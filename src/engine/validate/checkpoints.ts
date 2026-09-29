@@ -1,6 +1,6 @@
 import {
-  NPC_REPLY_KINDS, NPC_REPLY_TRIGGERS, TENSION_LEVELS, type BackgroundEffect, type AgencyPolicy, type Checkpoint,
-  type CheckpointEffects, type PrimitiveValue, type StoryV2, type TalkControl, type TalkControlSpeaker,
+  NPC_REPLY_KINDS, NPC_REPLY_TRIGGERS, TALK_CHAIN_MAX_CAP, TENSION_LEVELS, type BackgroundEffect, type AgencyPolicy, type Checkpoint,
+  type CheckpointEffects, type PrimitiveValue, type StoryV2, type TalkControl, type TalkControlChain, type TalkControlSpeaker,
   type ValidationError,
 } from "../schema";
 import { isRecord } from "@utils/guards";
@@ -53,11 +53,15 @@ const readCheckpointEffects = (value: unknown, path: string, errors: ValidationE
     if (!trigger) addError(errors, `${replyPath}.trigger`, "npc reply trigger is invalid");
     if (!member) addError(errors, `${replyPath}.member`, "npc reply member is required");
     if (!kind) addError(errors, `${replyPath}.kind`, "npc reply kind is invalid");
+    if (entry.new_chat_only !== undefined && (entry.new_chat_only !== true || trigger !== "onEnter" || kind !== "scripted")) {
+      addError(errors, `${replyPath}.new_chat_only`, "new_chat_only requires a scripted onEnter reply");
+    }
     if (!trigger || !member || !kind) return null;
     return {
       trigger,
       member,
       kind,
+      ...(entry.new_chat_only === true && trigger === "onEnter" && kind === "scripted" ? { new_chat_only: true } : {}),
       ...(typeof entry.text === "string" ? { text: entry.text } : {}),
       ...(typeof entry.instruction === "string" ? { instruction: entry.instruction } : {}),
       ...(typeof entry.maxTriggers === "number" && Number.isFinite(entry.maxTriggers) ? { maxTriggers: entry.maxTriggers } : {}),
@@ -162,6 +166,40 @@ const readTalkControl = (value: unknown, path: string, errors: ValidationError[]
       addError(errors, `${path}.director`, "director must be a boolean or object");
     }
   }
+  if (value.chain !== undefined) {
+    if (value.chain === false) {
+      control.chain = false;
+    } else if (isRecord(value.chain)) {
+      const chain: TalkControlChain = {};
+      if (value.chain.mode !== undefined) {
+        if (value.chain.mode === "director" || value.chain.mode === "scripted") chain.mode = value.chain.mode;
+        else addError(errors, `${path}.chain.mode`, "chain mode must be director or scripted");
+      }
+      if (value.chain.max !== undefined) {
+        if (typeof value.chain.max !== "number" || !Number.isInteger(value.chain.max) || value.chain.max < 1 || value.chain.max > TALK_CHAIN_MAX_CAP) {
+          addError(errors, `${path}.chain.max`, `chain max must be an integer between 1 and ${TALK_CHAIN_MAX_CAP}`);
+        } else {
+          chain.max = value.chain.max;
+        }
+      }
+      if (value.chain.sequence !== undefined) {
+        if (!Array.isArray(value.chain.sequence) || value.chain.sequence.some((entry) => typeof entry !== "string" || !entry.trim())) {
+          addError(errors, `${path}.chain.sequence`, "chain sequence must be an array of member names");
+        } else {
+          chain.sequence = value.chain.sequence as string[];
+        }
+      }
+      for (const key of ["stop_on_transition", "hold_extraction", "stop_on_player"] as const) {
+        if (value.chain[key] === undefined) continue;
+        if (typeof value.chain[key] !== "boolean") addError(errors, `${path}.chain.${key}`, `chain ${key} must be a boolean`);
+        else chain[key] = value.chain[key] as boolean;
+      }
+      if (chain.mode === "scripted" && !chain.sequence?.length) addError(errors, `${path}.chain.sequence`, "a scripted chain needs a sequence");
+      control.chain = chain;
+    } else {
+      addError(errors, `${path}.chain`, "chain must be an object or false");
+    }
+  }
   return control;
 };
 
@@ -183,6 +221,11 @@ export const readCheckpoint = (value: unknown, path: string, errors: ValidationE
   if (!id || !name || objective === null || !type) return null;
 
   const checkpoint: Checkpoint = { id, name, objective, type };
+  for (const key of ["player_name", "player_text"] as const) {
+    const text = value[key];
+    if (text !== undefined && typeof text !== "string") addError(errors, `${path}.${key}`, `${key} must be text`);
+    else if (typeof text === "string" && text.trim()) checkpoint[key] = text.trim();
+  }
   if (typeof value.start === "boolean") checkpoint.start = value.start;
   if (isRecord(value.state_snapshot)) checkpoint.state_snapshot = value.state_snapshot as Record<string, PrimitiveValue>;
   if (isOneOf(value.tension_target, TENSION_LEVELS)) checkpoint.tension_target = value.tension_target;

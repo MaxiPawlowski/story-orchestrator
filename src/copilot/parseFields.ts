@@ -104,6 +104,7 @@ export const readQualityPatch = (value: Record<string, unknown>): Partial<Qualit
   if (ledgerBinding) patch.ledger_binding = ledgerBinding;
   if (typeof value.read_as === "string" && (QUALITY_READ_AS as readonly string[]).includes(value.read_as)) patch.read_as = value.read_as as QualityReadAs;
   if (isRecord(value.criteria)) patch.criteria = value.criteria as QualityCriteria;
+  if (typeof value.commit_evidence === "string" && value.commit_evidence.trim()) patch.commit_evidence = value.commit_evidence;
   return patch;
 };
 
@@ -128,7 +129,8 @@ export const readQuality = (value: unknown, path: string, issues: string[]): Qua
     ...(patch.scope_hint ? { scope_hint: patch.scope_hint } : {}),
     ...(patch.ledger_binding ? { ledger_binding: patch.ledger_binding } : {}),
     ...(patch.read_as ? { read_as: patch.read_as } : {}),
-    ...(patch.read_as && patch.criteria ? { criteria: patch.criteria } : {})
+    ...(patch.read_as && patch.criteria ? { criteria: patch.criteria } : {}),
+    ...(patch.commit_evidence ? { commit_evidence: patch.commit_evidence } : {})
   };
 };
 

@@ -453,6 +453,22 @@
       "status": "checked",
       "note": "v2.3 replan V3 (2026-09-23): awaits TalkController.ensureDecision, which checks and answers `pass` for a decision whose world moved. v2.4 plan 01 (T1 live, 2026-09-24): the reconcile guard is now {key, run} and holds only while the decision's run still owns its world, because a /cut re-creates the same chat:checkpoint:message key and the stale guard skipped the chosen member (a silent turn). Control: talkControl.test.ts \"reconciles again after a mutation re-creates the same key\"."
     },
+    "src/runtime/recovery.ts#runResetQuality": {
+      "status": "checked",
+      "note": "v2.5 recovery: the author's reset acts on the open chat and stops after the save if the world moved, so a chat switch mid-save never notifies the wrong chat."
+    },
+    "src/runtime/recovery.ts#runStepBackTransition": {
+      "status": "checked",
+      "note": "v2.5 recovery: mints a run before the engine moves and stops after applyCheckpoint and after the announcement, so a chat switch mid-recovery never stamps the restored checkpoint's status and effects onto whatever loaded meanwhile."
+    },
+    "src/runtime/talkControl.ts#TalkController.advanceChain": {
+      "status": "checked",
+      "note": "v2.5 chaining: mints a run before asking the judge for the next voice and stops before triggering it if the world moved, so a chain never fires a member into another chat."
+    },
+    "src/runtime/talkControl.ts#TalkController.decideChainSpeaker": {
+      "status": "checked",
+      "note": "v2.5 chaining: mints a run before the judge/director call and records the decision only while it still owns the chat."
+    },
     "src/runtime/turnBridge.ts#TurnBridge.flushPending": {
       "status": "checked",
       "note": "v2.3 plan 03, V4 2026-09-23: the single pending slot is now a queue (a group round used to collapse into one boundary). Each entry keeps the guard captured when its reply was accepted; lapsed entries are dropped before polling, and each is re-checked immediately before its own commitBoundary. Only entries whose after-speak finished (ready) are committed, in order from the head, so an older reply never commits a newer one early. Controls in turnBridgeOwnership.review.test.ts + turnBridgeIdentity.review.test.ts."

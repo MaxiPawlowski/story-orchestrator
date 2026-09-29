@@ -30,6 +30,7 @@ import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoG
 import { worldInfoFilesHeld } from "./worldInfoMode";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { generationWatch } from "./generationWatch";
+import { recordNpcReplyFire } from "./npcReplyRewind";
 import { isRecord } from "@utils/guards";
 
 // What a host effect changed, read back from the host as it is NOW. Every reader is a
@@ -184,6 +185,7 @@ export type RestoreScope = "leave" | "exit" | "restart" | { since: number };
 const openChatId = () => String(getContext().chatId ?? "");
 
 export class EffectsApplier {
+  private speaking = 0;
   constructor(private readonly ownership: RunOwnership, private readonly deps: EffectApplierDeps = {}) {}
 
   private appliedChat: string | null = null;
@@ -243,6 +245,12 @@ export class EffectsApplier {
     // runs its own applyCheckpoint, so a partial sequence is corrected immediately, while a
     // completed wrong sequence leaves the other story's cast disabled on a shared group.
     const run = beginRun(this.ownership);
+    // The authored new-chat opening goes out FIRST, before any staging. Applying a Saga checkpoint
+    // writes ~100 group members one await at a time, so an opening fired at the end of the sequence
+    // left a brand-new chat blank for the better part of a minute — and an interrupted apply lost it
+    // entirely. Every other onEnter beat stays below, after the cast it needs is enabled.
+    if (mode === "activate" || mode === "hydrate") await this.fireNpcReplies(checkpoint, extras, "onEnter", undefined, [], (reply) => reply.new_chat_only === true);
+    if (!run.stillOwns()) return;
     const scope = { checkpointId: checkpoint.id, boundary: 0, messageId: lastMessageId() };
     const worldInfoRefused = worldInfoFilesHeld() ? [] : await applyWorldInfo(worldInfoPlan(story, path), run);
     if (worldInfoRefused.length) this.deps.journal?.("world_info effect could not be applied", worldInfoRefused.join("; "));
@@ -289,7 +297,7 @@ export class EffectsApplier {
       await this.applyExtension(extension, { story, checkpoint, path, ledger: extras.effects.ledger, mode }, extras, scope);
     }
     if (!run.stillOwns()) return;
-    if (mode === "activate") await this.fireNpcReplies(checkpoint, extras, "onEnter");
+    if (mode === "activate") await this.fireNpcReplies(checkpoint, extras, "onEnter", undefined, [], (reply) => reply.new_chat_only !== true);
     if (!run.stillOwns()) return;
     this.appliedChat = openChatId();
     extras.lastAppliedCheckpointId = checkpoint.id;
@@ -430,10 +438,10 @@ export class EffectsApplier {
     }
   }
 
-  async fireNpcReplies(checkpoint: Checkpoint, extras: RuntimeExtras, trigger: NpcReplyTrigger, occurrence?: number, speakerAliases: string[] = []) {
-    if (trigger === "afterSpeak" && extras.lastSelfInjectionMessageId === lastMessageId()) return;
+  async fireNpcReplies(checkpoint: Checkpoint, extras: RuntimeExtras, trigger: NpcReplyTrigger, occurrence?: number, speakerAliases: string[] = [], allow?: (reply: NpcReplyEffect) => boolean) {
+    if (trigger === "afterSpeak" && (this.speaking > 0 || extras.lastSelfInjectionMessageId === lastMessageId())) return;
     const aliases = speakerAliases.map((alias) => alias.trim().toLowerCase());
-    const replies = readNpcReplies(checkpoint.effects).filter((reply) => reply.trigger === trigger);
+    const replies = readNpcReplies(checkpoint.effects).filter((reply) => reply.trigger === trigger && (!allow || allow(reply)));
     // This is the only effect that SPEAKS: `fireReply` posts a message into whatever
     // chat is open. One await per reply, so a multi-reply checkpoint that outlives its chat puts
     // the rest of this story's characters into somebody else's conversation, visibly, in the
@@ -443,6 +451,7 @@ export class EffectsApplier {
       if (!run.stillOwns()) return;
       const reply = replies[index];
       if (reply.enabled === false) continue;
+      if (reply.new_chat_only && (trigger !== "onEnter" || !Array.isArray(getContext().chat) || getContext().chat.length !== 0)) continue;
       if (trigger === "afterSpeak" && reply.after_member && !aliases.includes(reply.after_member.trim().toLowerCase())) continue;
       const key = `${checkpoint.id}:${trigger}:${reply.member}:${index}${occurrence === undefined ? "" : `:${occurrence}`}`;
       const count = extras.firedNpcReplies[key] ?? 0;
@@ -454,8 +463,11 @@ export class EffectsApplier {
         this.deps.journal?.(`NPC reply ${reply.member} (${trigger}) ${fired ? "fired" : "skipped"} by its roll`, `rolled ${roll.toFixed(3)} against ${reply.probability} at ${key}`);
         if (!fired) continue;
       }
-      extras.firedNpcReplies[key] = count + 1;
-      await this.speak(reply);
+      extras.firedNpcRepliesAt = extras.firedNpcRepliesAt ?? {};
+      recordNpcReplyFire(extras.firedNpcReplies, extras.firedNpcRepliesAt, key, lastMessageId());
+      this.speaking += 1;
+      try { await this.speak(reply); }
+      finally { this.speaking -= 1; }
       if (!run.stillOwns()) return;
       extras.lastSelfInjectionMessageId = lastMessageId();
     }

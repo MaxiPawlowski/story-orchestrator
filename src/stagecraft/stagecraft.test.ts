@@ -2,7 +2,7 @@ import { capProposalRing } from "./types";
 import { parseStoryV2OrThrow } from "@engine/index";
 import { buildWiCuratorPrompt } from "./prompt";
 import { parseCuratorResponse } from "./parse";
-import { applyCuratorPatch, planCuratorProposal, previewCuratorOp, splitPatchAnchor } from "./proposal";
+import { applyCuratorPatch, declinedOps, planCuratorProposal, previewCuratorOp, splitPatchAnchor } from "./proposal";
 import { curatorHasScope, curatorLorebooks, entriesForScope, isCheckpointGated, isCuratorWritable } from "./scope";
 import type { CuratorEntryView, CuratorScope } from "./types";
 
@@ -77,6 +77,28 @@ describe("curator prompt", () => {
     const prompt = buildWiCuratorPrompt({ storyTitle: "Crossing", checkpointName: "The bank", openArcs: [], entries: entries() } as Partial<CuratorScope> as CuratorScope);
     expect(prompt).toContain("- [enable] only an entry marked [currently off]; every other entry is already on.");
     expect(prompt).toContain("- [disable] only an entry that is not marked [currently off].");
+  });
+
+  it("declares the bookkeeping markers and forbids touching a protected span", () => {
+    const prompt = buildWiCuratorPrompt({ storyTitle: "Crossing", checkpointName: "The bank", openArcs: [], entries: entries() } as Partial<CuratorScope> as CuratorScope);
+    expect(prompt).toContain("{{// so:protect}}");
+    expect(prompt).toContain("never change the words between");
+  });
+});
+
+describe("curator declined feedback", () => {
+  it("returns a refused op so the next pass can tell the model not to propose it again", () => {
+    const entry: CuratorEntryView = { lorebook: "Story Lore", comment: "The bridge", keys: ["bridge"], content: "The bridge stands.", disabled: false };
+    const plan = planCuratorProposal(
+      { summary: "x", ops: [{ kind: "patch", lorebook: "Story Lore", comment: "The bridge", anchor: "not in the content", replace: "x" }], dropped: [] },
+      [entry],
+      { mode: "review" },
+    );
+    expect(plan.records).toEqual([]);
+    expect(plan.refused).toHaveLength(1);
+
+    const record = { id: "r1", curator: "wi" as const, at: "", boundary: 3, messageId: 1, checkpointId: "cp1", reason: "", summary: "", mode: "review" as const, ops: [], dropped: [], refused: plan.refused };
+    expect(declinedOps([record], "cp1", 0)).toEqual(plan.refused);
   });
 });
 

@@ -1,6 +1,6 @@
 import { buildWiCuratorPrompt, NO_CURATOR_ENTRIES, renderCuratorEntry } from "./prompt";
 import { entryRef, viewForOp } from "./scope";
-import type { CuratorEntryView, CuratorOpRecord, CuratorScope, WiCuratorOp } from "./types";
+import type { CuratorEntryView, CuratorPlan, CuratorScope, WiCuratorOp } from "./types";
 
 export const DIGEST_MIN_ENTRIES = 40;
 export const DIGEST_FULL_LIMIT = 16;
@@ -42,24 +42,26 @@ export function buildDigestCuratorPrompt(scope: CuratorScope, digest: CuratorDig
   const full = digest.full.map((entry) => renderCuratorEntry(entry, all)).join("\n") || "(no entry matches what has happened; see the index below)";
   const groups = new Map<string, string[]>();
   digest.titleOnly.forEach((entry) => {
-    const line = `${[entryRef(entry, all), `"${entry.comment}"`].filter(Boolean).join(" ")}${entry.disabled ? " [currently off]" : ""}`;
+    const line = `${[entryRef(entry, all), `"${entry.comment}"`].filter(Boolean).join(" ")} [currently ${entry.disabled ? "off" : "on"}]`;
     groups.set(initialOf(entry), [...(groups.get(initialOf(entry)) ?? []), line]);
   });
   const index = [...groups].sort(([left], [right]) => left.localeCompare(right)).map(([initial, lines]) => `${initial}: ${lines.join("; ")}`).join("\n");
-  const listing = `${full}\n\nOTHER ENTRIES (title only: you have not seen their content, so you may only [enable] or [disable] them):\n${index}`;
+  const listing = `${full}\n\nOTHER ENTRIES (title only: you have not seen their content, so you may only [disable] the ones [currently on], or [enable] one [currently off]):\n${index}`;
   return buildWiCuratorPrompt({ ...scope, entries: [] }).replace(NO_CURATOR_ENTRIES, () => listing);
 }
 
-export function refuseTitleOnly(plan: { records: CuratorOpRecord[]; dropped: string[] }, digest: CuratorDigest): { records: CuratorOpRecord[]; dropped: string[] } {
+export function refuseTitleOnly(plan: CuratorPlan, digest: CuratorDigest): CuratorPlan {
   const hidden = new Set(digest.titleOnly);
   const all = [...digest.full, ...digest.titleOnly];
   const dropped = [...plan.dropped];
+  const refused = [...(plan.refused ?? [])];
   const records = plan.records.filter((record) => {
     const op = record.op as WiCuratorOp;
     const entry = viewForOp(all, op);
     if ((op.kind !== "rewrite" && op.kind !== "patch") || !entry || !hidden.has(entry)) return true;
     dropped.push(`${op.kind}: "${op.comment}": ${TITLE_ONLY_REFUSAL}`);
+    refused.push(op);
     return false;
   });
-  return { records, dropped };
+  return { records, dropped, refused };
 }

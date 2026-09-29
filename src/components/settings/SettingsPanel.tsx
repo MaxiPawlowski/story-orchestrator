@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { capabilityReport, hostFacts, judgeStatus, writeJudgeSecret, type CapabilityReport, type HostFacts } from "@services/STAPI";
 import type { JudgeSelfTestReport } from "@judge/selfTest";
 import { getGlobalSettings, setJudgeSettings } from "@runtime/settingsStore";
@@ -9,7 +9,9 @@ import EntryPoints from "./EntryPoints";
 import JudgeSettingsGroup, { type JudgeSettingsGroupProps, type JudgeSettingsPatch } from "./JudgeSettingsGroup";
 import { StoryGroup } from "./StoryGroup";
 import { MemoryModelGroup } from "./MemoryModelGroup";
-import { DisplayGroup, GroupChatGroup, LorebooksGroup, PacingGroup, StagecraftGroup } from "./PlayGroups";
+import { DisplayGroup, LorebooksGroup, PacingGroup, StagecraftGroup, TalkGroup } from "./PlayGroups";
+
+const ImageGroup = lazy(() => import("../../image/ImageGroup"));
 
 export interface SettingsHost {
   extensionVersion: string;
@@ -19,6 +21,7 @@ export interface SettingsHost {
   openStudio: () => void;
   openWizardForRequirements: () => void;
   revealSetting: (id: string) => void;
+  openDrawer: () => void;
 }
 
 interface SettingsPanelProps {
@@ -98,43 +101,47 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             onToggleImport={() => setImportOpen((open) => !open)}
             onNewStory={host.openWizard}
             onOpenStudio={host.openStudio}
+            onOpenDrawer={host.openDrawer}
             onRevealSetting={host.revealSetting}
             onFixWithWizard={host.openWizardForRequirements}
           />
-          <StoryGroup snapshot={snapshot} manager={manager} busy={busy} setBusy={setBusy} importOpen={importOpen} />
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={snapshot.copilot.enabled} onChange={(event) => manager.setCopilotSettings({ enabled: event.target.checked })} />
-            <span>Enable story copilot (authoring tab + in-play driver)</span>
-          </label>
-          <MemoryModelGroup snapshot={snapshot} manager={manager} />
-          <DisplayGroup snapshot={snapshot} manager={manager} />
-          <GroupChatGroup snapshot={snapshot} manager={manager} />
-          <LorebooksGroup snapshot={snapshot} manager={manager} />
-          <StagecraftGroup snapshot={snapshot} manager={manager} />
-          <JudgeSettingsGroup
-            settings={judge.judge}
-            status={judge.status}
-            selfTest={judge.selfTest}
-            authorView={snapshot.ui.authorView}
-            meter={snapshot.judgeMeter}
-            wardenEnabled={wardenOn}
-            onChange={judge.change}
-            onSaveKey={writeJudgeSecret}
-            onRefresh={judge.recheck}
-            onRunSelfTest={() => void judge.test()}
-          />
-          <CapabilitiesGroup
-            reports={hostProbe.capabilities}
-            facts={hostProbe.facts}
-            extensionVersion={host.extensionVersion}
-            memoryModel={host.memoryModelLimit(snapshot.extraction.settings.profileId)}
-            onRefresh={() => {
-              host.recheckMemoryModel();
-              hostProbe.probe(true);
-            }}
-          />
-          <PacingGroup snapshot={snapshot} manager={manager} />
-          <div className="text-xs opacity-80">{snapshot.status}</div>
+          <details id="so-current-chat" className="so-settings-section" open>
+            <summary>This chat <span className="opacity-60">— select and continue a story</span></summary>
+            <div className="flex flex-col gap-3 pt-2">
+              <StoryGroup snapshot={snapshot} manager={manager} busy={busy} setBusy={setBusy} importOpen={importOpen} />
+              <button type="button" className="menu_button self-start" onClick={host.openDrawer}>Open story and chat preferences</button>
+            </div>
+          </details>
+          <details id="so-general-setup" className="so-settings-section">
+            <summary>General setup <span className="opacity-60">— shared by every chat</span></summary>
+            <div className="flex flex-col gap-3 pt-2">
+              <p className="text-xs opacity-80">Connection Manager owns the actual model profiles. Choose which profiles this extension uses here; changes affect every chat.</p>
+              <MemoryModelGroup snapshot={snapshot} manager={manager} />
+              <DisplayGroup snapshot={snapshot} manager={manager} />
+              <Suspense fallback={<div className="text-xs">Loading image setup…</div>}><ImageGroup manager={manager} /></Suspense>
+            </div>
+          </details>
+          <details id="so-author-services" className="so-settings-section">
+            <summary>Author services <span className="opacity-60">— optional, shared by every chat</span></summary>
+            <div className="flex flex-col gap-3 pt-2">
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={snapshot.copilot.enabled} onChange={(event) => manager.setCopilotSettings({ enabled: event.target.checked })} />
+                Enable story copilot (Studio wizard and author driver)
+              </label>
+              <LorebooksGroup snapshot={snapshot} manager={manager} />
+              <StagecraftGroup snapshot={snapshot} manager={manager} />
+              <JudgeSettingsGroup settings={judge.judge} status={judge.status} selfTest={judge.selfTest} authorView={snapshot.ui.authorView} meter={snapshot.judgeMeter}
+                wardenEnabled={wardenOn} onChange={judge.change} onSaveKey={writeJudgeSecret} onRefresh={judge.recheck} onRunSelfTest={() => void judge.test()} />
+              <TalkGroup snapshot={snapshot} manager={manager} />
+              <PacingGroup snapshot={snapshot} manager={manager} />
+            </div>
+          </details>
+          <details id="so-diagnostics" className="so-settings-section">
+            <summary>Diagnostics <span className="opacity-60">— ST capabilities and version</span></summary>
+            <CapabilitiesGroup reports={hostProbe.capabilities} facts={hostProbe.facts} extensionVersion={host.extensionVersion}
+              memoryModel={host.memoryModelLimit(snapshot.extraction.settings.profileId)} onRefresh={() => { host.recheckMemoryModel(); hostProbe.probe(true); }} />
+            <div className="text-xs opacity-80">{snapshot.status}</div>
+          </details>
         </div>
       </div>
     </div>

@@ -21,7 +21,7 @@ export const HudStrip = ({ snapshot, onOpenDrawer, onOpenSettings }: HudStripPro
   if (!snapshot.ready && branch) {
     return (
       <div id="so-hud">
-        <button id="so-hud-branch" type="button" className="so-hud-chip" title={branchNoticeText(branch.checkpointName)} onClick={onOpenDrawer}>branch — continue?</button>
+        <button id="so-hud-branch" type="button" className="so-hud-chip" title={branchNoticeText(null)} onClick={onOpenDrawer}>branch — continue?</button>
       </div>
     );
   }
@@ -31,7 +31,7 @@ export const HudStrip = ({ snapshot, onOpenDrawer, onOpenSettings }: HudStripPro
   return (
     <div id="so-hud">
       <button type="button" className="so-hud-main" title="Open Story Orchestrator" onClick={onOpenDrawer}>
-        <span className="so-hud-name">◈ {snapshot.activeCheckpointName}</span>
+        <span className="so-hud-name">◈ {snapshot.narrative?.sections.find((section) => section.id === "now")?.lines[0] ?? "Current scene"}</span>
         {snapshot.tension.level ? <span className="so-hud-dim">tension {snapshot.tension.level}</span> : null}
       </button>
       {chip ? (

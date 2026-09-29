@@ -41,7 +41,11 @@ const releaseManifest = {
   tag: tags.find((tag) => tag === `v${version}`) ?? null,
   bundle: { sha256: distManifest.bundle.sha256, bytes: distManifest.bundle.bytes },
   source: { sha256: distManifest.source.sha256 },
-  plugins: { "story-orchestrator-judge": pluginVersion("story-orchestrator-judge"), "story-orchestrator-harness": pluginVersion("story-orchestrator-harness") },
+  plugins: {
+    "story-orchestrator-judge": pluginVersion("story-orchestrator-judge"),
+    "story-orchestrator-gpu": pluginVersion("story-orchestrator-gpu"),
+    "story-orchestrator-harness": pluginVersion("story-orchestrator-harness"),
+  },
   files: list.map((path) => ({ path, sha256: sha256(readFileSync(join(out, path))) })),
 };
 writeFileSync(join(out, "release-manifest.json"), `${JSON.stringify(releaseManifest, null, 2)}\n`);

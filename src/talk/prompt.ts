@@ -2,7 +2,8 @@ import type { DirectorPromptInput } from "./types";
 
 export function renderDirectorPrompt(input: DirectorPromptInput): string {
   const names = input.candidates.map((candidate) => candidate.name);
-  const answers = input.allowSilence ? [...names, "NONE"] : names;
+  const answers = [...names, ...(input.handBack ? ["PLAYER"] : []), ...(input.allowSilence ? ["NONE"] : [])];
+  const player = input.playerName?.trim() || "the player";
   return [
     `Story: ${input.storyTitle}`,
     `Scene: ${input.checkpointName} — ${input.objective}`,
@@ -12,6 +13,7 @@ export function renderDirectorPrompt(input: DirectorPromptInput): string {
     ...(input.lead ? [`Scene lead: ${input.lead} (prefer them when no one else is clearly addressed).`] : []),
     ...(input.instruction ? [`Author guidance: ${input.instruction}`] : []),
     "Pick the character who was addressed, challenged, or has the strongest reason to react.",
+    ...(input.handBack ? [`Answer PLAYER if the scene has said all it needs and ${player} should act next.`] : []),
     ...(input.allowSilence ? ["If nobody was addressed and none of the candidates has a reason to speak, answer NONE."] : []),
     "",
     "Transcript:",

@@ -189,6 +189,7 @@ const withGlobalSettings = (extras: RuntimeExtras, read: () => GlobalSettings): 
 
 export const createExtras = (read: () => GlobalSettings): RuntimeExtras => withGlobalSettings({
   firedNpcReplies: {},
+  firedNpcRepliesAt: {},
   requirements: emptyRequirements,
   lastAppliedCheckpointId: null,
   lastSelfInjectionMessageId: null,
@@ -308,5 +309,7 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   extras.judge = sanitizeJudgeRuntime(extras.judge);
   extras.journal = sanitizeJournalRecords(extras.journal);
   extras.lastSelfInjectionMessageId = typeof extras.lastSelfInjectionMessageId === "number" ? extras.lastSelfInjectionMessageId : null;
+  extras.firedNpcReplies = extras.firedNpcReplies && typeof extras.firedNpcReplies === "object" ? extras.firedNpcReplies : {};
+  extras.firedNpcRepliesAt = extras.firedNpcRepliesAt && typeof extras.firedNpcRepliesAt === "object" ? extras.firedNpcRepliesAt : {};
   return applyGlobalSettings(extras, read(), overrides);
 };

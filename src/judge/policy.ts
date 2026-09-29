@@ -32,6 +32,9 @@ export const DIRECTOR_ROLE_CONFIDENCE = 0.6;
 export const DIRECTOR_LEAD_BONUS = 0.25;
 export const DIRECTOR_ADDRESSED_WEIGHT = 2;
 export const DIRECTOR_SILENCE = { nobody: 0.5, maxAddressed: 0.5 } as const;
+// A chained turn hands back to the player when the scene is content to wait: same confidence bar as
+// silence, so the two are not contradictory.
+export const DIRECTOR_HANDBACK = 0.5;
 export const DIRECTOR_TIMEOUT_MS = 1500;
 
 export const VERIFY_DROP_BELOW = 0.2;

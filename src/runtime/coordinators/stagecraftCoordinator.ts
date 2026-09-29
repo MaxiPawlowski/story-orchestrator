@@ -227,6 +227,7 @@ export class StagecraftCoordinator {
         // "off" never leaves the ring at all.
         ops: spikes.tiers ? spikes.tiers.routeByTier(plan.records, shown, mode) : plan.records.map((entry) => (mode === "auto" ? { ...entry, status: "accepted" as const } : entry)),
         dropped: plan.dropped,
+        refused: plan.refused,
         provenance: { source: "curator", messageId: state.lastMessageId, boundary: state.boundary,
             pass: `wi-curator:${reason}`, inputs: shown.map((entry) => ({ store: "memory" as const,
             id: `${entry.lorebook}#${entry.comment}` })), validity: "live" },

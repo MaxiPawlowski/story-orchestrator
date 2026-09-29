@@ -27,6 +27,8 @@ const makeController = (): DriverController => ({
   probe: fn(async () => {}),
   advance: fn(async () => {}),
   report: async () => "The crew holds the key and is closing on the vault.",
+  stepBack: fn(async () => ({ ok: true, detail: "Approach" })),
+  resetQuality: fn(async () => {}),
 });
 
 const meta: Meta<typeof DriverPanel> = {
@@ -100,5 +102,22 @@ export const AgencyPolicyAuthorOptedOut: Story = {
     await expect(policy?.textContent).toContain("World pressure");
     await expect(policy?.textContent).toContain("choices not protected");
     await expect(policy?.textContent).not.toContain("never narrates the player");
+  },
+};
+
+export const StepBackRecovery: Story = {
+  args: {
+    controller: makeController(),
+    recovery: { from: "start", to: "stealth", keys: ["route"], checkpointName: "Stealth" },
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const panel = canvasElement.querySelector('[data-so="driver-recovery"]');
+    await expect(panel?.textContent).toContain("start → Stealth");
+    await userEvent.click(canvas.getByRole("button", { name: "Step back" }));
+    await expect(canvas.getByRole("button", { name: "Confirm step back" })).toBeInTheDocument();
+    await expect(args.controller.stepBack).not.toHaveBeenCalled();
+    await userEvent.click(canvas.getByRole("button", { name: "Confirm step back" }));
+    await expect(args.controller.stepBack).toHaveBeenCalled();
   },
 };

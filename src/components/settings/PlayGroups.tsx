@@ -1,9 +1,9 @@
 import { useState } from "react";
+import { TALK_CHAIN_MAX_CAP } from "@engine/index";
 import type { RuntimeManager } from "@runtime/index";
-import { getGlobalSettings } from "@runtime/settingsStore";
+import { getGlobalSettings, type TalkChainSettings } from "@runtime/settingsStore";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { wiGating } from "@runtime/worldInfoScanHost";
-import { isArcTemplateName } from "@pacing/index";
 import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import WorldInfoGatingGroup from "./WorldInfoGatingGroup";
@@ -20,8 +20,6 @@ const CURATOR_HELP = "A background agent that reads what has happened and propos
   "has overtaken. It only ever touches the lorebooks the story lists for it, it proposes rather than writes, and it can never change story progress or memory.";
 const WARDEN_HELP = "After each character reply, the judgment model checks it against the story's established facts. When the reply breaks one, a note restating that fact goes " +
   "into the next reply's prompt, once. Needs the judgment model switched on. Sends: the reply text, up to 40 established facts and the ledger's tracked values.";
-const TALK_HELP = "Let checkpoints with talk control decide who speaks next in group chats: name mentions win, then the LLM director, then weighted rules. Swipes, quiet " +
-  "passes, and explicit /trigger are never affected.";
 
 export const DisplayGroup = ({ snapshot, manager }: GroupProps) => (
   <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
@@ -33,16 +31,6 @@ export const DisplayGroup = ({ snapshot, manager }: GroupProps) => (
     <label className="flex items-center gap-2 text-sm">
       <input type="checkbox" checked={snapshot.ui.hudEnabled} onChange={(event) => manager.setUiSettings({ hudEnabled: event.target.checked })} />
       <span>Show story status above the chat input</span>
-    </label>
-  </div>
-);
-
-export const GroupChatGroup = ({ snapshot, manager }: GroupProps) => (
-  <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
-    <GroupHeader title="Group chat" scope="chat" id="so-group-chat-header" />
-    <label className="flex items-center gap-2 text-sm">
-      <input type="checkbox" checked={snapshot.talk.enabled} onChange={(event) => manager.setTalkDirectionEnabled(event.target.checked)} />
-      <span>Speaker direction <HelpTooltip title={TALK_HELP} /></span>
     </label>
   </div>
 );
@@ -124,21 +112,54 @@ export const StagecraftGroup = ({ snapshot, manager }: GroupProps) => (
   </div>
 );
 
+const CHAIN_HELP = "A single player message can be answered by more than one character. The judgment model picks each next speaker and stops when it hands the turn back to you; " +
+  "a story may set its own order on a checkpoint. Off: one voice per turn, as before.";
+
+export const TalkGroup = ({ snapshot, manager }: GroupProps) => {
+  const [, bump] = useState(0);
+  const chain = getGlobalSettings().talk.chain;
+  const update = (patch: Partial<TalkChainSettings>) => {
+    manager.setTalkChainSettings(patch);
+    bump((value) => value + 1);
+  };
+  return (
+    <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+      <GroupHeader title="Speaker direction" scope="install" id="so-talk-header" />
+      <label className="flex items-center gap-2 text-sm">
+        <input id="so-chain-enabled" type="checkbox" checked={chain.enabled} onChange={(event) => update({ enabled: event.target.checked })} />
+        <span>Several characters may answer one message <HelpTooltip title={CHAIN_HELP} /></span>
+      </label>
+      <label className="flex flex-wrap items-center gap-2 text-sm">
+        <span>Voices per turn at most</span>
+        <input
+          id="so-chain-max"
+          type="number"
+          min={1}
+          max={TALK_CHAIN_MAX_CAP}
+          className="st-input w-20"
+          value={chain.max}
+          onChange={(event) => update({ max: Math.min(TALK_CHAIN_MAX_CAP, Math.max(1, Math.round(Number(event.target.value) || 1))) })}
+        />
+      </label>
+      {snapshot.ui.authorView && (
+        <>
+          <label className="flex items-center gap-2 text-sm">
+            <input id="so-chain-stop-transition" type="checkbox" checked={chain.stopOnTransition} onChange={(event) => update({ stopOnTransition: event.target.checked })} />
+            <span>End the chain when the scene changes</span>
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input id="so-chain-hold-extraction" type="checkbox" checked={chain.holdExtraction} onChange={(event) => update({ holdExtraction: event.target.checked })} />
+            <span>Wait for the whole reply before reading the scene <HelpTooltip title="Off: each voice's turn is read as it lands, so a scene change can interrupt the chain." /></span>
+          </label>
+        </>
+      )}
+    </div>
+  );
+};
+
 export const PacingGroup = ({ snapshot, manager }: GroupProps) => (
   <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
     <GroupHeader title="Pacing" scope="install" id="so-pacing-header" />
-    <label className="flex flex-col gap-1 text-sm">
-      <span>Dramatic shape <span className="opacity-60">— this chat only</span></span>
-      <select
-        value={typeof snapshot.pacing.shapeOverride === "string" ? snapshot.pacing.shapeOverride : ""}
-        onChange={(event) => manager.setPacingSettings({ shapeOverride: isArcTemplateName(event.target.value) ? event.target.value : null })}
-      >
-        <option value="">Use story default</option>
-        <option value="rising">Rising to climax</option>
-        <option value="fall_recovery">Fall then recovery</option>
-        <option value="three_act">Three act</option>
-      </select>
-    </label>
     <div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
       <label className="flex flex-col gap-1">
         <span>Smoothing α <span className="opacity-60">(install-wide)</span> <HelpTooltip title={"How quickly the measured tension follows the latest scene. Higher = jumpier, " +

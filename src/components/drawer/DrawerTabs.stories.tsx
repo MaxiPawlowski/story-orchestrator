@@ -1145,8 +1145,8 @@ export const FooterEntryPoints: Story = {
     await expect(repair.textContent).toMatch(/^Repair: /);
     await userEvent.click(repair);
     await expect(calls.openRepair).toHaveBeenCalled();
-    await userEvent.click(canvasElement.querySelector("#so-drawer-new-story") as HTMLButtonElement);
-    await expect(calls.newStory).toHaveBeenCalled();
+    await expect(canvasElement.querySelector("#so-drawer-new-story")).toBeNull();
+    await expect(calls.newStory).not.toHaveBeenCalled();
   },
 };
 
@@ -1320,7 +1320,8 @@ export const PlayerSeesNoWizardFix: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText("Cast: Arin")).toBeInTheDocument();
+    await expect(canvas.getByText("Cast is not ready in this chat.")).toBeInTheDocument();
+    await expect(canvas.queryByText("Arin")).toBeNull();
     await expect(canvas.queryByRole("button", { name: "Fix with wizard" })).toBeNull();
   },
 };

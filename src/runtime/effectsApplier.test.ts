@@ -88,6 +88,34 @@ describe("fireNpcReplies v1 parity", () => {
     expect(executeSlashCommands).toHaveBeenCalledTimes(1);
   });
 
+  it("posts an authored opening only into a new chat, even after its reply counter resets", async () => {
+    const applier = new EffectsApplier(testOwnership());
+    const opening = checkpointWith([{ trigger: "onEnter", member: "Adolion Narrator", kind: "scripted", text: "The Guild opens its doors.", new_chat_only: true }]);
+    mockContext.chat = [];
+    await applier.fireNpcReplies(opening, makeExtras(), "onEnter");
+    expect(executeSlashCommands).toHaveBeenCalledWith(expect.stringContaining('/sendas name="Adolion Narrator"'), { silent: false });
+    mockContext.chat = [{ mes: "The Guild opens its doors." }];
+    await applier.fireNpcReplies(opening, makeExtras(), "onEnter");
+    expect(executeSlashCommands).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not treat the opening's rendered message as another character's afterSpeak turn", async () => {
+    const applier = new EffectsApplier(testOwnership());
+    const extras = makeExtras();
+    const checkpoint = checkpointWith([
+      { trigger: "onEnter", member: "Adolion Narrator", kind: "scripted", text: "Welcome.", new_chat_only: true },
+      { trigger: "afterSpeak", member: "Vallie", kind: "scripted", text: "A new posting!" },
+    ]);
+    mockContext.chat = [];
+    (executeSlashCommands as jest.Mock).mockImplementationOnce(async () => {
+      mockContext.chat = [{ mes: "Welcome." }];
+      await applier.fireNpcReplies(checkpoint, extras, "afterSpeak");
+    });
+    await applier.fireNpcReplies(checkpoint, extras, "onEnter");
+    expect(executeSlashCommands).toHaveBeenCalledTimes(1);
+    expect(extras.firedNpcReplies).toEqual({ "cp:onEnter:Adolion Narrator:0": 1 });
+  });
+
   it("still enforces maxTriggers counters with after_member gating", async () => {
     const applier = new EffectsApplier(testOwnership());
     const checkpoint = checkpointWith([
@@ -123,6 +151,34 @@ describe("fireNpcReplies v1 parity", () => {
     await twice.fireNpcReplies(repeated, allowed, "onEnter");
     await twice.fireNpcReplies(repeated, allowed, "onEnter");
     expect(executeSlashCommands).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("authored new-chat opening", () => {
+  const story = { title: "Fixture" } as unknown as NormalizedStoryV2;
+  const snapshot = {} as unknown as RuntimeSnapshot;
+  const readyExtras = () => ({ ...makeExtras(), requirements: { ready: true } } as unknown as RuntimeExtras);
+  const opening = { trigger: "onEnter", member: "Adolion Narrator", kind: "scripted", text: "Welcome.", new_chat_only: true };
+  const withOpening = (): Checkpoint => ({ id: "cp", name: "CP", objective: "", type: "anchor", effects: { npc_replies: [opening] } }) as unknown as Checkpoint;
+
+  beforeEach(() => {
+    (executeSlashCommands as jest.Mock).mockClear();
+    mockContext.chat = [];
+  });
+
+  it("posts the opening on activate and again on a hydrate of an empty chat whose opening never fired", async () => {
+    const applier = new EffectsApplier(testOwnership());
+    await applier.applyCheckpoint(story, withOpening(), readyExtras(), snapshot, "activate", []);
+    expect(executeSlashCommands).toHaveBeenCalledTimes(1);
+    await applier.applyCheckpoint(story, withOpening(), readyExtras(), snapshot, "hydrate", []);
+    expect(executeSlashCommands).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not post the opening into a chat that already holds messages", async () => {
+    const applier = new EffectsApplier(testOwnership());
+    mockContext.chat = [{ mes: "already here" }];
+    await applier.applyCheckpoint(story, withOpening(), readyExtras(), snapshot, "activate", []);
+    expect(executeSlashCommands).not.toHaveBeenCalled();
   });
 });
 

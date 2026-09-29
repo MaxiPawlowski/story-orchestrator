@@ -68,6 +68,11 @@ describe("v2.5 plan 09 SP8 digest behaviour", () => {
     const prompt = buildDigestCuratorPrompt(scope, digest);
     expect(digest.titleOnly.every((entry) => prompt.includes(`"${entry.comment}"`))).toBe(true);
     expect(prompt).toContain("OTHER ENTRIES (title only");
+    expect(prompt).toContain("you may only [disable] the ones [currently on]");
+    const off = digest.titleOnly.find((entry) => entry.disabled);
+    const on = digest.titleOnly.find((entry) => !entry.disabled);
+    if (off) expect(prompt).toContain(`"${off.comment}" [currently off]`);
+    if (on) expect(prompt).toContain(`"${on.comment}" [currently on]`);
     expect(prompt.split("  content: ").length - 1).toBe(digest.full.length);
     const target = digest.titleOnly.find((entry) => entry.disabled) ?? digest.titleOnly[3];
     const proposal = parseCuratorResponse(`[${target.disabled ? "enable" : "disable"}] #${target.uid}`, scope.entries);

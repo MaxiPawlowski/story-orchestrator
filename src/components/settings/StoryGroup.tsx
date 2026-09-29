@@ -75,8 +75,8 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
 
   return (
     <>
-      <label className="flex flex-col gap-1 text-sm">
-        <span>Story</span>
+      <div className="flex flex-col gap-1 text-sm">
+        <label htmlFor="story-library-select">Story for this chat</label>
         <div className="flex items-center gap-2">
           <select id="story-library-select" className="flex-1" value={snapshot.storyId ?? ""} disabled={busy} onChange={(event) => void selectStory(event.target.value)}>
             <option value="">Select a story</option>
@@ -85,17 +85,19 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
           <button
             id="so-restart-story"
             className="menu_button fa-solid fa-rotate-left"
+            aria-label="Restart story in this chat"
             title="Restart this story in this chat (clears progress and memory for it)"
             disabled={busy || (!snapshot.storyId && !snapshot.blobUnreadable)}
             onClick={() => void whileBusy(() => manager.restartStory())}
           />
-          <button
+          {snapshot.ui.authorView && <button
             id="so-delete-story"
             className="menu_button fa-solid fa-trash-can"
+            aria-label="Delete selected story from the library"
             title="Delete the selected story from the library"
             disabled={busy || !snapshot.storyId}
             onClick={() => void deleteStory()}
-          />
+          />}
         </div>
         {snapshot.storyId && (
           <div id="so-story-identity" className="text-xs opacity-70">
@@ -104,7 +106,7 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
           </div>
         )}
         {snapshot.blobUnreadable && <div id="so-blob-unreadable" className="text-xs opacity-90">This chat's saved story state was {snapshot.blobUnreadable.notice}.</div>}
-        <div id="so-retention-note" className="text-xs opacity-70 flex items-center gap-2">
+        {snapshot.ui.authorView && snapshot.storyId && <div id="so-retention-note" className="text-xs opacity-70 flex items-center gap-2">
           <span>This chat keeps its progress for the {STORY_STATE_RETENTION} most recent stories; switching to a sixth drops the oldest.</span>
           <button
             id="so-export-state"
@@ -112,8 +114,8 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
             title="Copy this chat's saved story state to the clipboard, before anything can drop it."
             onClick={() => void copyState()}
           >Export state</button>
-        </div>
-      </label>
+        </div>}
+      </div>
       {importOpen && (
         <label id="so-entry-import" className="flex flex-col gap-1 text-sm">
           <span>Import story (JSON)</span>

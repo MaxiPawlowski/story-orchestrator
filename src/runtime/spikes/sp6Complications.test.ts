@@ -119,6 +119,54 @@ describe("SP6 K1: release and spent-ness are derived from the log", () => {
   });
 });
 
+describe("SP6: spent-ness survives the 200-boundary log window", () => {
+  const keyOf = (release: ComplicationRelease) => `${release.checkpointId}:${release.id}`;
+  const sink = { set: () => undefined, clear: () => undefined };
+
+  const step = (engine: StoryEngine, seam: ReturnType<typeof createComplicationSeam>, from: number, to: number) => {
+    for (let index = from; index < to; index += 1) {
+      engine.enqueue({ source: "extractor", blackboardVersionSum: 0, deltas: [{ q: TENSION_CURRENT_KEY, v: 0.1, source: "extractor" }] });
+      engine.commitBoundary({ lastMessageId: index, chatLength: index + 1 });
+      seam({ kind: "opened", type: "normal", params: undefined });
+    }
+  };
+
+  it("a spent item older than the retained window is never released again", () => {
+    const engine = freshEngine();
+    const seam = createComplicationSeam(() => input(engine), sink, () => undefined, new Map());
+    step(engine, seam, 0, 260);
+    const inWindow = deriveReleases(input(engine));
+    expect(inWindow.length).toBeGreaterThan(0);
+
+    const spent = new Map(inWindow.map((release) => [keyOf(release), release.boundary - 500] as const));
+    expect(deriveReleases({ ...input(engine), spent })).toEqual([]);
+  });
+
+  it("a spent item still inside the window is found by the scan, not the remembered set", () => {
+    const engine = freshEngine();
+    const seam = createComplicationSeam(() => input(engine), sink, () => undefined, new Map());
+    step(engine, seam, 0, 20);
+    const releases = deriveReleases(input(engine));
+    expect(releases.length).toBeGreaterThan(0);
+
+    const spent = new Map(releases.map((release) => [keyOf(release), release.boundary] as const));
+    expect(deriveReleases({ ...input(engine), spent })).toEqual(releases);
+  });
+
+  it("rollback + replay with the remembered set equals the original", () => {
+    const engine = freshEngine();
+    const spent = new Map<string, number>();
+    const seam = createComplicationSeam(() => input(engine), sink, () => undefined, spent);
+    step(engine, seam, 0, 40);
+    const original = deriveReleases({ ...input(engine), spent }).map(keyOf);
+
+    expect(engine.rollbackTo(4).ok).toBe(true);
+    step(engine, seam, 4, 40);
+
+    expect(deriveReleases({ ...input(engine), spent }).map(keyOf)).toEqual(original);
+  });
+});
+
 describe("SP6 K2 machinery: the block rides the next loud generation only", () => {
   const harness = (flag = true) => {
     const engine = freshEngine();

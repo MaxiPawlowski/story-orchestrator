@@ -2,10 +2,11 @@ import { lazy, Suspense, useState, type ReactNode } from "react";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
 import { nextRepairStep } from "@runtime/repair";
-import type { DriverController } from "./DriverPanel";
+import type { DriverController, RecoveryTarget } from "./DriverPanel";
 import { MessageJumpProvider } from "./MessageCitation";
 import { OverviewTab } from "./tabs/OverviewTab";
 import { MemoryTab } from "./tabs/MemoryTab";
+import { isArcTemplateName } from "@pacing/index";
 
 const DriverPanel = lazy(() => import("./DriverPanel"));
 const BlackboardTab = lazy(() => import("./tabs/BlackboardTab").then((module) => ({ default: module.BlackboardTab })));
@@ -32,6 +33,7 @@ export interface DrawerDriver {
   context: ReturnType<RuntimeManager["getDriverContext"]>;
   activeNudge: string | null;
   controller: DriverController;
+  recovery?: RecoveryTarget | null;
 }
 
 export interface DrawerTabsProps {
@@ -48,6 +50,7 @@ export interface DrawerTabsProps {
   onBranchFromOldest?: (messageId: number) => void;
   /** A cited "message N" scrolls the chat there through /chat-jump. */
   onJumpToMessage?: (messageId: number) => void;
+  imagePanel?: ReactNode;
 }
 
 const FlagControl = ({ manager }: { manager: RuntimeManager }) => {
@@ -101,9 +104,9 @@ const StoryControls = ({ snapshot, manager, onEditStory, onOpenRepair, onNewStor
   return (
   <div id="so-drawer-entry-points" className="flex flex-wrap items-center gap-2 border-t border-solid border-white/10 pt-2">
     {repair && onOpenRepair && (
-      <button id="so-drawer-repair" className="menu_button" title={repair.detail} onClick={onOpenRepair}>Repair: {repair.consequence}</button>
+      <button id="so-drawer-repair" className="menu_button" title={snapshot.ui.authorView ? repair.detail : repair.consequence} onClick={onOpenRepair}>Repair: {repair.consequence}</button>
     )}
-    {onNewStory && (
+    {snapshot.ui.authorView && onNewStory && (
       <button id="so-drawer-new-story" className="menu_button opacity-80" title="Start a new story with the wizard." onClick={onNewStory}>New story</button>
     )}
     {snapshot.ui.authorView && onEditStory && (
@@ -127,7 +130,7 @@ const StoryControls = ({ snapshot, manager, onEditStory, onOpenRepair, onNewStor
   );
 };
 
-export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditStory, onFixWithWizard, onOpenRepair, onNewStory, onBranchFromOldest, onJumpToMessage }: DrawerTabsProps) => {
+export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditStory, onFixWithWizard, onOpenRepair, onNewStory, onBranchFromOldest, onJumpToMessage, imagePanel }: DrawerTabsProps) => {
   const [active, setActive] = useState<DrawerTabId>("overview");
   // A warden card cites the message a fact was read from, so its button has to land on
   // that fact. A `bound:` id is the blackboard's, and the blackboard tab is where it lives; a memory
@@ -159,7 +162,7 @@ export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditSt
         </div>
         <FlagControl manager={manager} />
       </div>
-      <div role="tabpanel">
+      <div role="tabpanel" className={activeTab === "overview" ? "so-overview-layout" : undefined}>
         {activeTab === "overview" && <OverviewTab
           snapshot={snapshot}
           authorView={authorView}
@@ -170,6 +173,25 @@ export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditSt
           onRetry={() => void manager.retryExtraction()}
           onBranchFromOldest={onBranchFromOldest}
         />}
+        {activeTab === "overview" && <div className="so-chat-tools flex flex-col gap-3">
+        <section id="so-chat-preferences" className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2 text-sm">
+          <div className="font-medium">Chat preferences <span className="opacity-60 font-normal">— this chat only</span></div>
+          <label className="flex items-center gap-2">
+            <input type="checkbox" checked={snapshot.talk.enabled} onChange={(event) => manager.setTalkDirectionEnabled(event.target.checked)} />
+            Speaker direction in group chats
+          </label>
+          <label className="flex flex-col gap-1">Dramatic shape
+            <select value={typeof snapshot.pacing.shapeOverride === "string" ? snapshot.pacing.shapeOverride : ""}
+              onChange={(event) => manager.setPacingSettings({ shapeOverride: isArcTemplateName(event.target.value) ? event.target.value : null })}>
+              <option value="">Use story default</option>
+              <option value="rising">Rising to climax</option>
+              <option value="fall_recovery">Fall then recovery</option>
+              <option value="three_act">Three act</option>
+            </select>
+          </label>
+        </section>
+        {imagePanel}
+        </div>}
         {activeTab === "blackboard" && <AuthorTab id="blackboard"><BlackboardTab snapshot={snapshot} /></AuthorTab>}
         {activeTab === "memory" && <MemoryTab snapshot={snapshot} manager={manager} authorView={authorView} focusFact={focusFact} />}
         {activeTab === "scheduler" && <AuthorTab id="scheduler"><SchedulerTab snapshot={snapshot} manager={manager} onOpenFact={openFact} /></AuthorTab>}
@@ -185,7 +207,15 @@ export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditSt
       {snapshot.copilot.enabled && authorView && (
         <div className="border-t border-solid border-white/10 pt-2">
           <Suspense fallback={null}>
-            <DriverPanel context={driver.context} checkpoints={snapshot.checkpoints} activeNudge={driver.activeNudge} controller={driver.controller} authorView={authorView} agency={snapshot.agency} />
+            <DriverPanel
+              context={driver.context}
+              checkpoints={snapshot.checkpoints}
+              activeNudge={driver.activeNudge}
+              controller={driver.controller}
+              authorView={authorView}
+              agency={snapshot.agency}
+              recovery={driver.recovery ?? null}
+            />
           </Suspense>
         </div>
       )}

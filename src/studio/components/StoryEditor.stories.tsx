@@ -48,6 +48,20 @@ export const AuthorRequirements: Story = {
   },
 };
 
+export const PublicCopyAndArt: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.type(canvas.getByLabelText("Player introduction"), "You arrive at the ruins.");
+    await userEvent.click(canvas.getByLabelText("At checkpoint changes"));
+    await userEvent.type(canvas.getByLabelText("Visual direction"), "Warm dusk and ink outlines");
+    await userEvent.type(canvas.getByLabelText("The Guide appearance"), "Red scarf");
+    const story = useDraftStore.getState().draft;
+    await expect(story.player_intro).toBe("You arrive at the ruins.");
+    await expect(story.description).toBe("A two-beat infiltration of the sun ruins.");
+    await expect(story.illustrations).toEqual({ checkpoints: true, style: "Warm dusk and ink outlines", appearances: { guide: "Red scarf" } });
+  },
+};
+
 // Nothing to pick from, so the author types each name. Every keystroke goes through the mutation:
 // a trailing space and a blank row must survive it, and parse trims on the way out.
 export const TypedMultiWordNames: Story = {

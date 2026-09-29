@@ -30,6 +30,7 @@ export interface ReleaseInput {
   pools: Record<string, ComplicationPool>;
   log: readonly BoundaryLogEntry[];
   shape: ArcTemplate | null;
+  spent?: ReadonlyMap<string, number>;
 }
 
 const readItem = (value: unknown, index: number): Complication | null => {
@@ -60,9 +61,14 @@ const directionOf = (story: NormalizedStoryV2, entry: BoundaryLogEntry, shape: A
   return getSteeringHint(typeof smoothed === "number" ? smoothed : null, expected)?.direction ?? "none";
 };
 
-export const deriveReleases = ({ story, pools, log, shape }: ReleaseInput): ComplicationRelease[] => {
+export const deriveReleases = ({ story, pools, log, shape, spent }: ReleaseInput): ComplicationRelease[] => {
   const releases: ComplicationRelease[] = [];
-  const spent = new Set<string>();
+  const used = new Set<string>();
+  // A release that has fallen out of the retained log window is remembered in `spent`; one that is
+  // still inside it is found by the scan, and one at or after the newest boundary was rolled back,
+  // so it is re-armed rather than counted as spent.
+  const oldest = log[0]?.boundary ?? 0;
+  if (spent) for (const [key, boundary] of spent) if (boundary < oldest) used.add(key);
   let streak = 0;
   let streakAt: string | null = null;
   for (const entry of log) {
@@ -75,9 +81,9 @@ export const deriveReleases = ({ story, pools, log, shape }: ReleaseInput): Comp
     const pool = pools[checkpointId];
     if (!pool || streak < pool.after) continue;
     streak = 0;
-    const next = pool.items.find((item) => !spent.has(`${checkpointId}:${item.id}`));
+    const next = pool.items.find((item) => !used.has(`${checkpointId}:${item.id}`));
     if (!next) continue;
-    spent.add(`${checkpointId}:${next.id}`);
+    used.add(`${checkpointId}:${next.id}`);
     releases.push({ boundary: entry.boundary, checkpointId, id: next.id, text: next.text });
   }
   return releases;
@@ -106,7 +112,7 @@ export interface PromptPort {
 
 export type ComplicationEvent = { kind: "set"; release: ComplicationRelease } | { kind: "clear" };
 
-export const createComplicationSeam = (read: () => ReleaseInput | null, prompt: PromptPort, record: (event: ComplicationEvent) => void = () => undefined) => {
+export const createComplicationSeam = (read: () => ReleaseInput | null, prompt: PromptPort, record: (event: ComplicationEvent) => void = () => undefined, spent: Map<string, number> = new Map()) => {
   let held = false;
   const clear = () => {
     if (!held) return;
@@ -116,8 +122,13 @@ export const createComplicationSeam = (read: () => ReleaseInput | null, prompt: 
   };
   const set = () => {
     const input = read();
-    const release = input ? pendingRelease(input) : null;
-    if (!input || !release) return clear();
+    if (!input) return clear();
+    const newest = input.log.at(-1)?.boundary ?? -1;
+    for (const [key, boundary] of spent) if (boundary > newest) spent.delete(key);
+    const releases = deriveReleases({ ...input, spent });
+    for (const release of releases) spent.set(`${release.checkpointId}:${release.id}`, release.boundary);
+    const release = releases.at(-1);
+    if (!release || release.boundary !== newest) return clear();
     prompt.set(COMPLICATION_KEY, composeComplication(input.story, release), COMPLICATION_DEPTH);
     held = true;
     record({ kind: "set", release });

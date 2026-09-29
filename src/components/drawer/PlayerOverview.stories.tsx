@@ -137,7 +137,7 @@ export const SteppedBack: Story = {
   args: { snapshot: { ...snapshot(), lastRollback: { checkpointName: "Investigate the Job Board", at: "2026-08-12T10:00:00.000Z" } } as RuntimeSnapshot },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText(/The story stepped back to Investigate the Job Board/)).toBeInTheDocument();
+    await expect(canvas.getByText(/The story stepped back to the current scene/)).toBeInTheDocument();
   },
 };
 
@@ -154,8 +154,8 @@ export const EditTooFarBack: Story = {
   },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText(/has not moved: you are still at Investigate the Job Board/)).toBeInTheDocument();
-    await userEvent.click(canvas.getByRole("button", { name: "Re-read from Investigate the Job Board" }));
+    await expect(canvas.getByText(/has not moved: you are still at the current scene/)).toBeInTheDocument();
+    await userEvent.click(canvas.getByRole("button", { name: "Re-read from the current scene" }));
     await expect(args.onReread).toHaveBeenCalledTimes(1);
     await userEvent.click(canvas.getByRole("button", { name: "Restart story" }));
     await expect(args.onRestart).toHaveBeenCalledTimes(1);
@@ -167,7 +167,7 @@ export const MissingCast: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText("This story still needs")).toBeInTheDocument();
-    await expect(canvas.getByText(/Cast: Ponticius/)).toBeInTheDocument();
+    await expect(canvas.getByText(/Cast is not ready in this chat/)).toBeInTheDocument();
   },
 };
 

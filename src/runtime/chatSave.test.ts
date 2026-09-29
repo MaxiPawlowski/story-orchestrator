@@ -25,7 +25,7 @@ declare global {
 
 const LOADED = { record: { id: "s1", version: 1, hash: "h", raw: { format: 2, id: "s1" } }, story: { title: "S" } } as unknown as LoadedStory;
 
-function harness(options: { loaded?: LoadedStory | null; owns?: boolean } = {}) {
+function harness(options: { loaded?: LoadedStory | null; owns?: boolean; claimedChat?: string; loadedChat?: string } = {}) {
   let saves = 0;
   const journal: Array<{ summary: string; persistNow: boolean }> = [];
   const notes: string[] = [];
@@ -40,9 +40,10 @@ function harness(options: { loaded?: LoadedStory | null; owns?: boolean } = {}) 
     mint: () => ({ chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: world.epoch, windowRevision: 0, lowestMutatedMessageId: null }) as unknown as RunToken,
     check: (token: RunToken) => ((token as unknown as { sessionEpoch: number }).sessionEpoch === world.epoch ? { ok: true } : { ok: false, reason: "sessionEpoch", detail: "moved" }) as never,
   };
-  const owner = { ownsOpenChat: () => options.owns ?? true, claimedChat: () => "chat-a", ownership } as unknown as RunOwner;
+  const owner = { ownsOpenChat: () => options.owns ?? true, claimedChat: () => options.claimedChat ?? "chat-a", ownership } as unknown as RunOwner;
   const save = new ChatSave({
     loaded: () => (options.loaded === undefined ? LOADED : options.loaded),
+    loadedChat: () => options.loadedChat ?? "chat-a",
     engine: () => ({ state: { boundary: 1, blackboard: {}, visitedAnchors: [], visitedPath: [] } as never, history: { from: { boundary: 1, messageId: -1 }, log: [] } as never }),
     extras: () => world.extras,
     owner,
@@ -53,6 +54,13 @@ function harness(options: { loaded?: LoadedStory | null; owns?: boolean } = {}) 
 }
 
 describe("ChatSave", () => {
+  test("a new chat claimed before its story hydrates cannot persist the previous chat's story", async () => {
+    const { save, saves } = harness({ claimedChat: "chat-b", loadedChat: "chat-a" });
+    globalThis.__chatSaveTest.context.chatId = "chat-b";
+    await save.persist();
+    expect(saves()).toBe(0);
+    expect(globalThis.__chatSaveTest.context.chatMetadata.story_orchestrator).toBeUndefined();
+  });
   test("a save in the run's own chat writes, is observed, and has landed", async () => {
     const { save, extras, saves } = harness();
     await save.persist();
@@ -222,6 +230,7 @@ describe("ChatSave: a save's outcome belongs to the chat it was armed in (v2.5 b
     const owner = { ownsOpenChat: () => true, claimedChat: () => world.chat, ownership } as unknown as RunOwner;
     const save = new ChatSave({
       loaded: () => world.loaded,
+      loadedChat: () => world.chat,
       engine: () => ({ state: { boundary: 1, blackboard: {}, visitedAnchors: [], visitedPath: [] } as never, history: { from: { boundary: 1, messageId: -1 }, log: [] } as never }),
       extras: () => world.extras,
       owner,

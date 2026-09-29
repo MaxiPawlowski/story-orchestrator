@@ -94,9 +94,31 @@ says which.
    Turn on **Author view** for the internals, **Edit story** to open the Studio on the story this chat
    is playing, and **Restart story** for the one honest reset.
 
-Three lifetimes, three homes: install-wide settings (memory profile, display, stagecraft) in the
-extension settings; per-chat state (progress, memory, author view, shape override, speaker direction)
-in the chat; authored content in the story record.
+Three lifetimes, three homes: install-wide services (model profiles, image backend, display and
+stagecraft) in **Extensions → Story Orchestrator → General setup / Author services**; progress,
+chat preferences (speaker direction, dramatic shape and image pause/quality) in **the story drawer**;
+portable creative intent in **Checkpoint Studio**. The settings panel's This chat section chooses the
+story played here; saving a story to the library does not switch other chats to the new version.
+
+## Illustrations and scope
+
+Open **General setup → Image service** to select the Connection Manager profile that writes image
+prompts, the ComfyUI URL, the automation mode and the default route for each image purpose. These
+are installation settings shared by every chat. Manual illustration works even when automatic
+images are off. A shared-GPU install can point its local text profiles at the optional localhost
+GPU broker; the image service does not change the text connection on its own.
+
+In **Studio → Story**, author a portable visual style, cast appearances and whether this story
+requests images at checkpoint changes or confirmed scene changes. These story cues run only when
+the install permits automatic images and its automation mode is **Story-authored moments**.
+For this chat alone, the **Overview → Illustrations** panel can pause automation, adjust the
+image model/quality/extra direction, draw on demand and show image queue errors. Image review
+lets you choose among several candidates with keyboard or mouse.
+
+The Studio's **Player introduction**, **Public scene name** and **Public situation** are the copy
+shown in the player's recap. The authored checkpoint name and objective are author-facing. For
+stories authored before these fields existed, the library description still serves as the public
+introduction; without a public scene name the player sees “Current scene” until one is authored.
 
 ## Macros
 

@@ -147,6 +147,9 @@ export function startRuntime() {
   // Either way the load happens exactly once, because the gate resolves once.
   if (__SO_DEV__) publishSpikeDebug({ refresh: refreshSpikes });
   void settingsReady().then(() => {
+    if (typeof document !== "undefined" && typeof getContext().eventSource?.on === "function") {
+      void import("../image/start").then(({ startImage }) => { if (started) startImage(runtimeManager); });
+    }
     void refreshSpikes();
     if (runtimeManager.getSnapshot().ready) return;
     noteHostSettingsLoaded?.();
@@ -156,6 +159,7 @@ export function startRuntime() {
 }
 
 export function stopRuntime() {
+  if (typeof document !== "undefined") void import("../image/start").then(({ stopImage }) => stopImage());
   bridge?.stop();
   bridge = null;
   runtimeManager.invalidateRuns();

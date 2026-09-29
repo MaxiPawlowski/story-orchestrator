@@ -31,6 +31,8 @@ const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, rec
   judgeDirector: (input) => judgeRuntime.director(input),
   getPlayerName,
   random: () => spikeSeams.talkRandom?.() ?? null,
+  getChainConfig: () => runtimeManager.getTalkChainConfig(),
+  setExtractionHold: (hold) => runtimeManager.setExtractionHold(hold),
   ownership: runtimeManager.getOwnership(),
 });
 

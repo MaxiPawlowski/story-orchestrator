@@ -1,6 +1,6 @@
 import { applyCuratorPatch } from "./proposal";
 import { viewForOp } from "./scope";
-import type { CuratorEntryView, CuratorOpRecord, StagecraftAcceptMode, WiCuratorOp } from "./types";
+import type { CuratorEntryView, CuratorOpRecord, CuratorPlan, StagecraftAcceptMode, WiCuratorOp } from "./types";
 
 const MARKER = /\{\{\/\/\s*so:(auto|protect|end)\s*\}\}/gi;
 
@@ -76,18 +76,23 @@ export function protectedRefusal(op: WiCuratorOp, content: string): string | nul
   return touched ? `"${op.comment}": the patch ${PROTECTED_REFUSAL}` : null;
 }
 
-export function refuseProtected(plan: { records: CuratorOpRecord[]; dropped: string[] }, entries: CuratorEntryView[]): { records: CuratorOpRecord[]; dropped: string[] } {
+export function refuseProtected(plan: CuratorPlan, entries: CuratorEntryView[]): CuratorPlan {
   const records: CuratorOpRecord[] = [];
   const dropped = [...plan.dropped];
+  const refused = [...(plan.refused ?? [])];
   for (const record of plan.records) {
     const op = record.op as WiCuratorOp;
     const entry = viewForOp(entries, op);
     const probe = op.kind === "patch" && record.fuzzy ? { ...op, anchor: record.fuzzy.anchor } : op;
     const refusal = entry ? protectedRefusal(probe, entry.content) : null;
-    if (refusal) dropped.push(`${op.kind}: ${refusal}`);
-    else records.push(record);
+    if (refusal) {
+      dropped.push(`${op.kind}: ${refusal}`);
+      refused.push(op);
+    } else {
+      records.push(record);
+    }
   }
-  return { records, dropped };
+  return { records, dropped, refused };
 }
 
 export function routeByTier(records: CuratorOpRecord[], entries: CuratorEntryView[], mode: StagecraftAcceptMode): CuratorOpRecord[] {

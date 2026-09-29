@@ -15,6 +15,7 @@ import type { LoadedStory, RuntimeExtras } from "./types";
 
 export interface ChatSaveDeps {
   loaded: () => LoadedStory | null;
+  loadedChat: () => string | null;
   engine: () => { state: EngineState; history: EngineHistory };
   extras: () => RuntimeExtras;
   owner: RunOwner;
@@ -66,6 +67,7 @@ export class ChatSave {
   async persist() {
     const loaded = this.deps.loaded();
     if (!loaded) return;
+    if (this.deps.loadedChat() !== this.deps.owner.claimedChat()) return;
     // The chokepoint: every coordinator save() ends here, and `saveMetadata` writes into
     // whichever chat ST has open at this instant, so a runtime hydrated for another chat declines
     // rather than guessing. is the recorded case: a new group chat inherited the run.
@@ -144,7 +146,8 @@ export class ChatSave {
    *  `saveOpenChat` armed. The health goes to the extras the write was made for; the journal only while
    *  the world it was made in is still the current one. */
   recordWrite(write: ChatWrite): Promise<SaveEvidenceResult> | null {
-    if (!this.deps.loaded() || !this.deps.owner.ownsOpenChat() || write.chatId !== this.deps.owner.claimedChat()) return null;
+    if (!this.deps.loaded() || !this.deps.owner.ownsOpenChat() || this.deps.loadedChat() !== this.deps.owner.claimedChat()
+      || write.chatId !== this.deps.owner.claimedChat()) return null;
     const run = beginRun(this.deps.owner.ownership);
     const extras = this.deps.extras();
     const deps = saveEvidenceDeps(() => extras.saveHealth, (health) => { extras.saveHealth = health; }, () => undefined);
@@ -158,6 +161,7 @@ export class ChatSave {
   /** At a boundary, a hydrate or a same-chat reload, a consumed message that no longer
    *  says what it said is stepped back from. Answers whether the caller's run may go on writing. */
   async reconcile(run: RunGuard): Promise<boolean> {
+    if (this.deps.loadedChat() !== this.deps.owner.claimedChat()) return false;
     if (!this.deps.loaded() || !this.deps.owner.ownsOpenChat() || !run.stillOwns()) return run.stillOwns();
     const chat = chatNow();
     const last = this.deps.engine().state.lastMessageId;

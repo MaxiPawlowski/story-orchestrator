@@ -123,6 +123,8 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     version: storyVersion ?? 1,
     title: json.title as string,
     description: json.description as string,
+    ...(options.player_intro ? { player_intro: options.player_intro } : {}),
+    ...(options.illustrations ? { illustrations: options.illustrations } : {}),
     qualities,
     checkpoints,
     transitions,

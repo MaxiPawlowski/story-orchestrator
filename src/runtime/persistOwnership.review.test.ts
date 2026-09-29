@@ -50,6 +50,7 @@ interface Probe {
   persist: () => Promise<void>;
   invalidateRuns: () => void;
   loaded: unknown;
+  loadedChatId: string | null;
   engine: { serialize: () => unknown; serializeHistory: () => unknown };
 }
 
@@ -70,6 +71,7 @@ function claim(manager: Probe, chatId: string) {
  */
 function makeWritable(manager: Probe) {
   manager.loaded = { record: { id: "s1", version: 1, hash: "h", raw: { format: 2, id: "s1" } }, story: { title: "S" } };
+  manager.loadedChatId = manager.owner.claimedChat();
   manager.engine = {
     serialize: () => ({ boundary: 1, blackboard: {}, visitedAnchors: [], visitedPath: [] }),
     serializeHistory: () => ({ from: { boundary: 1, messageId: -1 }, log: [] }),

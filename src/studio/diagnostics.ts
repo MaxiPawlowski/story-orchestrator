@@ -26,6 +26,8 @@ export const DIAGNOSTIC_CODES = [
   "talk-member-unknown",
   "talk-lead-outside-speakers",
   "talk-silence-without-director",
+  "talk-chain-member-unknown",
+  "talk-chain-empty",
   "agency-alternate-unknown",
   "agency-alternate-is-self",
   "scene-read-location-empty",
@@ -58,6 +60,8 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   "talk-member-unknown": "The story asks for a speaker nobody can be, so who speaks falls back to SillyTavern.",
   "talk-lead-outside-speakers": "This character still gets picked, just not at the weight you set.",
   "talk-silence-without-director": "Silence never happens, because nothing is choosing who speaks.",
+  "talk-chain-member-unknown": "This scripted voice nobody can be is skipped, so fewer characters answer than you wrote.",
+  "talk-chain-empty": "A scripted chain with no order speaks only its first voice.",
   "agency-alternate-unknown": "If the player refuses the route, there is nowhere prepared to go.",
   "agency-alternate-is-self": "If the player refuses the route, the recovery sends them back into it.",
   "scene-read-location-empty": "The story can never say where the scene is, so nothing can key off a place.",
@@ -264,6 +268,14 @@ const checkTalkAndAgency = (run: DiagnosticRun) => {
       }
       if (control.allow_silence && !directorEnabled(control)) {
         push("talk-silence-without-director", "warning", path, "allow_silence only takes effect when the director is enabled");
+      }
+      if (control.chain) {
+        (control.chain.sequence ?? []).forEach((ref, sequenceIndex) => {
+          if (!resolveRosterRef(ref)) push("talk-chain-member-unknown", "warning", `${path}.chain.sequence.${sequenceIndex}`, `chain speaker '${ref}' is not a roster member`);
+        });
+        if (control.chain.mode === "scripted" && !(control.chain.sequence ?? []).length) {
+          push("talk-chain-empty", "warning", `${path}.chain.sequence`, "a scripted chain needs an order");
+        }
       }
     }
     (checkpoint.effects?.npc_replies ?? []).forEach((reply, replyIndex) => {

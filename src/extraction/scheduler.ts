@@ -77,6 +77,8 @@ export interface SchedulerHost {
   mutationSettled?(): Promise<unknown>;
   profileExists?(profileId: string): boolean;
   epoch?: () => number;
+  /** True while a multi-voice turn is running and its checkpoint asked extraction to wait for it. */
+  holdCadence?(): boolean;
 }
 
 // Cadence counts BOUNDARIES, and the window used to count
@@ -394,6 +396,7 @@ export class ExtractionScheduler {
     }
     const settings = this.host.getExtractionSettings();
     if (!settings.enabled || settings.cadence <= 0) return;
+    if (this.host.holdCadence?.()) return;
     if (!fired && boundary > 0 && boundary % settings.cadence === 0 && !this.underPressure()) {
       const stableTo = lastMessageId - Math.max(0, settings.stabilityLag ?? 1);
       if (stableTo >= 0) {

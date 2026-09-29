@@ -7,6 +7,7 @@ import {
 import {
   type ExtractionScheduler, type ParsedDelta, type SchedulerJob, type SharedReadAudit, type SharedReadWindow,
 } from "@extraction/index";
+import { applyCommitEvidence } from "@extraction/commitGuard";
 import { clearAllMemoryInjection } from "@memory/index";
 import {
   getContext, profileExists, readExtensionPromptBlocks, readInjectedPromptBlocks, showTextPopup,
@@ -27,7 +28,7 @@ import { memoryActions, memoryDelegates } from "./memoryActions";
 import { readEffectTarget, reconcileEffectLedger, restoreEffectTarget } from "./effectHost";
 import { ChatSave } from "./chatSave";
 import { hasUnsavedChanges } from "./saveHealth";
-import { getGlobalSettings, setGlobalSettings, type SpikeSettings } from "./settingsStore";
+import { getGlobalSettings, setGlobalSettings, type SpikeSettings, type TalkChainSettings } from "./settingsStore";
 import { buildPossibleTransitions } from "./snapshot";
 import { buildRuntimeSnapshot, snapshotSources } from "./snapshotBuilder";
 import { SnapshotCache } from "./snapshotCache";
@@ -36,7 +37,11 @@ import { parseQualityValue } from "./values";
 import { SessionJournal, type JournalEvent, type JournalRecordKind } from "./journal";
 import { evaluateRequirements, requirementsOptions } from "./requirements";
 import type { RequirementsHost } from "./requirementsWatch";
-import { loadPersistedRuntime, setSelectedStoryId } from "./persistence";
+import { getMetadataBlob, getSelectedStoryId, loadPersistedRuntime, setSelectedStoryId } from "./persistence";
+import { findStoryRecord } from "./storyLibrary";
+import { settingsRoot } from "./settingsRoot";
+import { boundStoryForEmptyChat } from "./groupStoryBinding";
+import { runResetQuality, runStepBackTransition, type RecoveryHost } from "./recovery";
 import {
   importStoryJson, loadSelectedStory, releaseGatedWorldInfo, removeStory, restartStory, selectStory,
   type StorySelectionDeps,
@@ -51,9 +56,15 @@ import { CoordinatorDelegates } from "./managerDelegates";
 import { required } from "@utils/guards";
 import { spikeSeams } from "./spikeSeams";
 
+const boundStoryForOpenChat = () => {
+  const ctx = getContext();
+  return boundStoryForEmptyChat(settingsRoot(), ctx.groupId, ctx.chat);
+};
+
 export class RuntimeManager extends CoordinatorDelegates {
   private engine = new StoryEngine({ now: () => Date.now(), derive: (view) => spikeSeams.derive?.(view) ?? [] });
   private loaded: LoadedStory | null = null;
+  private loadedChatId: string | null = null;
   private extras: RuntimeExtras = createExtras(getGlobalSettings);
   private judge: JudgeRuntime | null = null;
   private validationErrors: ValidationError[] = [];
@@ -64,7 +75,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     playedVersion: () => this.loaded?.record.version ?? null,
   });
   onEpochChanged(listener: () => void) { return this.owner.onChanged(listener); }
-  invalidateRuns() { this.awayRecap.dismissUnless(String(getContext().chatId ?? "")); this.owner.bump(); }
+  invalidateRuns() { this.extractionHold = false; this.awayRecap.dismissUnless(String(getContext().chatId ?? "")); this.owner.bump(); }
   noteRecap(summary: string, detail: string, kind: JournalRecordKind = "story") { this.journal.record(kind, summary, this.journalContext(), detail); this.extras.journal = this.journal.getRecords(); }
   private readonly effects: EffectsApplier;
   private readonly listeners = new Set<() => void>();
@@ -78,6 +89,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   private readonly journal = new SessionJournal();
   readonly chatSave = new ChatSave({
     loaded: () => this.loaded,
+    loadedChat: () => this.loadedChatId,
     engine: () => ({ state: this.engine.serialize(), history: this.engine.serializeHistory() }),
     extras: () => this.extras,
     owner: this.owner,
@@ -154,6 +166,11 @@ export class RuntimeManager extends CoordinatorDelegates {
   }
 
   onBoundary(listener: (result: BoundaryResult) => void) { this.boundaryListeners.add(listener); return () => { this.boundaryListeners.delete(listener); }; }
+  ownsImageChat(chatId: string): boolean {
+    if (!this.loaded || this.owner.claimedChat() !== chatId || !this.owner.ownsOpenChat()) return false;
+    const blob = getMetadataBlob();
+    return blob.chatId === chatId && blob.selectedStoryId === this.loaded.record.id;
+  }
   onRollback(listener: (messageId: number, window: SharedReadWindow) => void) { this.rollbackListeners.add(listener); return () => { this.rollbackListeners.delete(listener); }; }
   onSceneBreakConfirmed(listener: (audit: SharedReadAudit, collect?: SchedulerJob[]) => void) { this.sceneBreakListeners.add(listener); return () => { this.sceneBreakListeners.delete(listener); }; }
   onArcsResolvedConfirmed(listener: (arcIds: string[]) => void) { this.arcResolvedListeners.add(listener); return () => { this.arcResolvedListeners.delete(listener); }; }
@@ -166,6 +183,7 @@ export class RuntimeManager extends CoordinatorDelegates {
       if (note) this.journal.record("story", status, this.journalContext(), note);
       const previous = this.loaded?.story ?? null;
       this.loaded = null;
+      this.loadedChatId = null;
       this.invalidateRuns();
       const run = beginRun(this.owner.ownership);
       await this.effects.restoreFor(this.extras, "exit");
@@ -186,7 +204,13 @@ export class RuntimeManager extends CoordinatorDelegates {
     loadedFallback: () => (this.loaded ? { ...this.loaded } : null),
   };
 
-  async loadSelectedFromChat() { if (await loadSelectedStory(this.selectionDeps)) void this.showAwayRecap(); }
+  async loadSelectedFromChat() {
+    if (await loadSelectedStory(this.selectionDeps)) { void this.showAwayRecap(); return; }
+    if (getSelectedStoryId()) return;
+    const run = beginRun(this.owner.ownership);
+    const id = boundStoryForOpenChat();
+    if (id && findStoryRecord(id) && run.stillOwns()) await selectStory(this.selectionDeps, id);
+  }
 
   async importStory(rawText: string) { return importStoryJson(this.selectionDeps, rawText); }
   async selectStory(id: string, _mode: "activate" | "hydrate" = "activate") { return selectStory(this.selectionDeps, id); }
@@ -224,6 +248,19 @@ export class RuntimeManager extends CoordinatorDelegates {
     this.notify();
     return result;
   }
+
+  private recoveryHost(): RecoveryHost {
+    return {
+      loaded: Boolean(this.loaded), engine: this.engine, ownership: this.owner.ownership,
+      applyActive: (mode) => this.applyActive(mode), refreshRequirements: () => this.refreshRequirements(),
+      announce: (checkpoint) => this.effects.announceTransition(checkpoint, this.extras, this.owner.ownsOpenChat()),
+      updateSteering: () => this.pacing.updateSteering(), updateInjection: () => this.memory.updateInjection(),
+      persist: () => this.persist(), setStatus: (text) => { this.status = text; },
+      noteRecap: (summary, detail) => this.noteRecap(summary, detail), notify: () => this.notify(),
+    };
+  }
+  async stepBackTransition() { return runStepBackTransition(this.recoveryHost()); }
+  async resetQuality(key: string) { return runResetQuality(this.recoveryHost(), key); }
 
   async activateCheckpoint(id: string) {
     if (!this.loaded) return false;
@@ -315,6 +352,18 @@ export class RuntimeManager extends CoordinatorDelegates {
     this.notify();
   }
 
+  getTalkChainConfig() { return getGlobalSettings().talk.chain; }
+
+  setTalkChainSettings(chain: Partial<TalkChainSettings>) {
+    const current = getGlobalSettings().talk.chain;
+    setGlobalSettings({ talk: { chain: { ...current, ...chain } } });
+    this.notify();
+  }
+
+  private extractionHold = false;
+  setExtractionHold(hold: boolean) { this.extractionHold = hold; }
+  isExtractionHeld() { return this.extractionHold; }
+
   recordJudgeCall(record: JudgeCallRecord) { this.extras.judge = appendJudgeCall(this.extras.judge, record); this.touch(); }
   getSceneRead(): SceneReadRecord | null { return this.extras.judge.scene; }
   recordSceneRead(read: SceneReadRecord | null) { this.extras.judge = { ...this.extras.judge, scene: read }; this.notify(); }
@@ -353,10 +402,18 @@ export class RuntimeManager extends CoordinatorDelegates {
 
   private enqueueExtractorDeltas(acceptedDeltas: ParsedDelta[], window: { from: number; to: number }, origin: string) {
     if (!acceptedDeltas.length) return;
-    const tensionLevels = this.pacing.applyExtractorTension(acceptedDeltas);
+    const story = this.loaded?.story ?? null;
+    const guarded = story ? applyCommitEvidence(story.qualityByKey, acceptedDeltas) : { accepted: acceptedDeltas, held: [] };
+    if (guarded.held.length) {
+      this.journal.record("story", `${guarded.held.length} commitment reading(s) held: the evidence did not show the commitment`,
+          this.journalContext(), guarded.held.map((entry) => `${entry.key}="${entry.value}" from "${entry.evidence.slice(0, 120)}"`).join("; "));
+      this.extras.journal = this.journal.getRecords();
+    }
+    if (!guarded.accepted.length) return;
+    const tensionLevels = this.pacing.applyExtractorTension(guarded.accepted);
     const versions = this.engine.serialize().blackboard.versions;
     this.engine.enqueue({ source: "extractor", origin, blackboardVersionSum: Object.values(versions).reduce((sum,
-        version) => sum + version, 0), turnRange: window, deltas: acceptedDeltas.map((entry) => entry.delta),
+        version) => sum + version, 0), turnRange: window, deltas: guarded.accepted.map((entry) => entry.delta),
         ...(tensionLevels.length ? { tensionLevels } : {}) });
   }
 
@@ -408,6 +465,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     this.journal.hydrate(this.extras.journal);
     this.reconcileEffectLedger();
     this.loaded = { record: loaded.record, story: this.expansion.mergedStoryOrBase(loaded.record.raw, loaded.story) };
+    this.loadedChatId = this.owner.claimedChat();
     // Minted *after* the load names its world: a token taken before it describes the world being replaced.
     const run = beginRun(this.owner.ownership);
     this.engine.loadStory(this.loaded.story);
@@ -444,6 +502,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   private async swapStory(loaded: LoadedStory, state: EngineState | null, reanchored: boolean) {
     const previous = this.loaded?.story ?? null;
     this.loaded = loaded;
+    this.loadedChatId = this.owner.claimedChat();
     const run = beginRun(this.owner.ownership);
     this.engine.loadStory(loaded.story);
     if (state) this.engine.hydrate(state);

@@ -21,10 +21,10 @@ const ARC_TEMPLATE_LABELS: Record<ArcTemplateName, string> = {
 };
 
 const Field: React.FC<{ label: string; hint?: string; children: React.ReactNode }> = ({ label, hint, children }) => (
-  <label className="flex flex-col gap-1 text-sm">
+  <div className="flex flex-col gap-1 text-sm">
     <span className="text-xs st-muted">{label}{hint ? <HelpTooltip title={hint} /> : null}</span>
     {children}
-  </label>
+  </div>
 );
 
 const RequirementList: React.FC<{
@@ -87,13 +87,17 @@ const StoryIdentitySection = ({ draft, mutate, idLocked }: { draft: Draft; mutat
           <input className="text_pole st-input" aria-label="Story version" readOnly value={draft.version ?? 1} />
         </Field>
       </div>
-      <Field label="Description" hint="Shown in the library and to the player in the drawer header. One or two sentences of premise.">
+      <Field label="Library description" hint="Existing stories use this as their public introduction. Keep it spoiler-safe; the Player introduction below replaces it in the drawer and recap.">
         <textarea
           className="text_pole st-input min-h-[4rem]"
           aria-label="Story description"
           value={draft.description}
           onChange={(event) => mutate((current) => setStoryField(current, "description", event.target.value))}
         />
+      </Field>
+      <Field label="Player introduction" hint="Only write what the player may know from the start. This is shown in their drawer and recap; leave secrets and future plot here out.">
+        <textarea className="text_pole st-input min-h-[4rem]" aria-label="Player introduction" placeholder="A spoiler-safe premise and what the player can expect…" value={draft.player_intro ?? ""}
+          onChange={(event) => mutate((current) => setStoryField(current, "player_intro", event.target.value || undefined))} />
       </Field>
       <Field label="Dramatic shape" hint="The tension curve the pacing hint steers toward across the story's anchors. A checkpoint's own tension_target always wins over the shape.">
         <select
@@ -145,7 +149,7 @@ const RequirementsSection = ({ draft, mutate, personaNames, memberNames, loreboo
       />
       <RequirementList
         label="Lorebook"
-        hint="Global lorebooks that must be active — the world_info effects assume their entries exist."
+        hint="Lorebooks this story needs. SillyTavern can scan them globally, in this chat's slot, through the persona, or on every enabled cast member."
         values={requirements.lorebooks ?? []}
         options={lorebookNames}
         listId="so-req-lorebooks"
@@ -169,6 +173,29 @@ const StagecraftSection = ({ draft, mutate, lorebookNames }: { draft: Draft; mut
   </div>
 );
 
+const IllustrationsSection = ({ draft, mutate }: { draft: Draft; mutate: Mutate }) => {
+  const art = draft.illustrations;
+  const update = (patch: NonNullable<Draft["illustrations"]>) => mutate((current) => setStoryField(current, "illustrations", { ...current.illustrations, ...patch }));
+  return <div data-so="story-illustrations" className="st-subpanel flex flex-col gap-3 p-3">
+    <div className="text-sm font-medium">Illustrations <span className="st-muted font-normal">— portable story direction</span></div>
+    <div className="text-xs st-muted">Choose when this story asks for art. Automatic images also need the install-wide image service enabled; a player can pause them in this chat.</div>
+    <label className="flex items-center gap-2 text-sm">
+      <input type="checkbox" checked={art?.checkpoints ?? false} onChange={(event) => update({ checkpoints: event.target.checked })} />At checkpoint changes
+    </label>
+    <label className="flex items-center gap-2 text-sm">
+      <input type="checkbox" checked={art?.scenes ?? false} onChange={(event) => update({ scenes: event.target.checked })} />At confirmed scene changes
+    </label>
+    <Field label="Visual direction" hint="Portable artistic direction for the image-prompt model. Model files, LoRAs and ComfyUI addresses belong to this SillyTavern install.">
+      <textarea className="text_pole st-input min-h-[4rem]" aria-label="Visual direction" value={art?.style ?? ""}
+        placeholder="Lighting, palette and visual mood…" onChange={(event) => update({ style: event.target.value })} />
+    </Field>
+    {draft.roster.map((member) => <Field key={member.id} label={`${member.name ?? member.id} — appearance`} hint="Appearance the image-prompt model should preserve for this story's cast member.">
+      <input className="text_pole st-input" aria-label={`${member.name ?? member.id} appearance`} value={art?.appearances?.[member.id] ?? ""}
+        onChange={(event) => update({ appearances: { ...art?.appearances, [member.id]: event.target.value } })} />
+    </Field>)}
+  </div>;
+};
+
 const LoreSelectSection = ({ draft, mutate, lorebookNames }: { draft: Draft; mutate: Mutate; lorebookNames: string[] }) => (
   <div data-so="lore-select-field" className="st-subpanel flex flex-col gap-3 p-3">
     <div className="text-sm font-medium">Lore-select <span className="st-muted font-normal">— lorebooks the judge may pick entries from each turn</span></div>
@@ -182,11 +209,11 @@ const LoreSelectSection = ({ draft, mutate, lorebookNames }: { draft: Draft; mut
       onChange={(lorebooks) => mutate((current) => setLoreSelect(current, { ...current.lore_select, lorebooks }))}
     />
     {draft.lore_select ? (
-      <label className="flex items-center gap-2 text-sm">
-        <span className="text-xs st-muted">Entries forced per turn<HelpTooltip title={"1 to 12, default 4. Forced entries still compete for ST's World Info budget; give an " +
-          "entry probability 100 if it must survive."} /></span>
+      <div className="flex items-center gap-2 text-sm">
+        <label htmlFor="so-lore-top-k" className="text-xs st-muted">Entries forced per turn</label>
         <input
           className="text_pole st-input w-20"
+          id="so-lore-top-k"
           type="number"
           min={1}
           max={12}
@@ -198,21 +225,25 @@ const LoreSelectSection = ({ draft, mutate, lorebookNames }: { draft: Draft; mut
             { ...(current.lore_select ?? { lorebooks: [] }), top_k: event.target.value === "" ? undefined : Number(event.target.value) },
           ))}
         />
-      </label>
+        <HelpTooltip title={"1 to 12, default 4. Forced entries still compete for ST's World Info budget; give an " +
+          "entry probability 100 if it must survive."} />
+      </div>
     ) : null}
     {draft.lore_select ? (
-      <label className="flex items-center gap-2 text-sm">
+      <div className="flex items-center gap-2 text-sm">
         <input
           data-so="lore-select-exclusive"
+          id="so-lore-exclusive"
           type="checkbox"
           aria-label="Exclude unpicked entries"
           checked={Boolean(draft.lore_select.exclusive)}
           onChange={(event) => mutate((current) => setLoreSelect(current, { ...(current.lore_select ?? { lorebooks: [] }), exclusive: event.target.checked }))}
         />
-        <span className="text-xs st-muted">Exclude unpicked entries<HelpTooltip title={"Only when the player's install turns on Exclusive lore selection and gates lore per chat: " +
+        <label className="text-xs st-muted" htmlFor="so-lore-exclusive">Exclude unpicked entries</label>
+        <HelpTooltip title={"Only when the player's install turns on Exclusive lore selection and gates lore per chat: " +
           "the entries of these books the judge did not pick are switched off for that one reply. Constant, checkpoint-gated and timed entries are never switched off, and a " +
-          "timeout keeps the ordinary keyword scan."} /></span>
-      </label>
+          "timeout keeps the ordinary keyword scan."} />
+      </div>
     ) : null}
   </div>
 );
@@ -324,6 +355,7 @@ const StoryEditor: React.FC<StoryEditorProps> = ({ personaNames = [], memberName
     <div data-so="story" className="flex flex-col gap-4">
       <StoryIdentitySection draft={draft} mutate={mutate} idLocked={idLocked} />
       <RequirementsSection draft={draft} mutate={mutate} personaNames={personaNames} memberNames={memberNames} lorebookNames={lorebookNames} />
+      <IllustrationsSection draft={draft} mutate={mutate} />
       <StagecraftSection draft={draft} mutate={mutate} lorebookNames={lorebookNames} />
       <LoreSelectSection draft={draft} mutate={mutate} lorebookNames={lorebookNames} />
       <HouseRulesSection draft={draft} mutate={mutate} />

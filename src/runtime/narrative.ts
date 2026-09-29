@@ -4,7 +4,7 @@ import type { PipelineStatus } from "./pipeline";
 // The one "where am I" composition (finding). The player Overview renders it, the away-recap
 // popup renders the same thing modally, and /story recap prints its text — three surfaces, one
 // source. Player voice only: checkpoint names, thread texts, no ids, no counters, no gates.
-export type NarrativeSectionId = "now" | "recently" | "threads" | "story" | "pending" | "status";
+export type NarrativeSectionId = "now" | "about" | "recently" | "threads" | "story" | "pending" | "status";
 
 export interface NarrativeSection {
   id: NarrativeSectionId;
@@ -48,6 +48,7 @@ export const branchNoticeText = (checkpointName: string | null): string =>
 
 export interface NarrativeInput {
   storyTitle: string | null;
+  publicIntro?: string | null;
   checkpointName: string | null;
   objective: string | null;
   lastTransition: NarrativeTransition | null;
@@ -114,6 +115,7 @@ export function buildNarrativeStatus(input: NarrativeInput): NarrativeStatus {
   }
   if (input.tensionLevel) now.push(TENSION_COPY[input.tensionLevel]);
   if (now.length) sections.push({ id: "now", label: "Where you are", lines: now });
+  if (input.publicIntro?.trim()) sections.push({ id: "about", label: "About this story", lines: [input.publicIntro.trim()] });
 
   const moved = input.lastTransition;
   if (moved) {

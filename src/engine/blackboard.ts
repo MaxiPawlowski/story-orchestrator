@@ -72,6 +72,16 @@ export class Blackboard {
     return { ok: true, key: delta.q, previous, value: delta.v, version: this.versions[delta.q] };
   }
 
+  // Author recovery only: clear a latched value (or set it) without the latch/monotonic guards, and
+  // always bump the version so the apply queue's drift check still sees a change. Used by
+  // resetQuality and the step-back recovery, never by an extraction path.
+  override(key: string, value: PrimitiveValue | undefined): void {
+    delete this.latched[key];
+    this.versions[key] = (this.versions[key] ?? 0) + 1;
+    if (value === undefined) delete this.values[key];
+    else this.values[key] = value;
+  }
+
   snapshot(): BlackboardSnapshot {
     return {
       values: cloneRecord(this.values),

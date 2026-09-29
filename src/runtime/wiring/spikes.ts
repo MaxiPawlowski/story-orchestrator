@@ -1,5 +1,5 @@
 import { getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext } from "@services/STAPI";
-import { namesForRosterId } from "../roster";
+import { nameForRosterId } from "../roster";
 import { runtimeManager } from "../runtimeManager";
 import { getGlobalSettings, type SpikeSettings } from "../settingsStore";
 
@@ -10,7 +10,7 @@ let disposeWitness: (() => void) | null = null;
 
 const enabledNames = () => {
   const story = runtimeManager.getStory();
-  return runtimeManager.getEnabledCharacterIds().flatMap((id) => namesForRosterId(story, id));
+  return runtimeManager.getEnabledCharacterIds().map((id) => nameForRosterId(story, id));
 };
 
 const release = () => {

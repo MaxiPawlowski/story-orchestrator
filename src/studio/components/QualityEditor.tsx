@@ -167,6 +167,23 @@ const QualityScopeFields = ({ selected, isReserved, draft, patch, onScope, onLed
       </select>
     </Field>
 
+    {selected.source === "extractor" ? (
+      <Field label="Commitment evidence (regex)">
+        <input
+          data-so="quality-commit-evidence"
+          className="text_pole st-input"
+          value={selected.commit_evidence ?? ""}
+          disabled={isReserved}
+          placeholder="take|accept|sign|I swear"
+          onChange={(event) => patch({ commit_evidence: event.target.value || undefined })}
+        />
+        <span className="text-[10px] st-muted">
+          A reading only sets this quality when the quote it cited matches. Use it for one-way commitments
+          (taking a posting, swearing an oath) so a scene aside can never advance the story.
+        </span>
+      </Field>
+    ) : null}
+
     {selected.source === "extractor" && !isReserved ? (
       <QualityReadEditor quality={selected} storyTitle={draft.title} checkpoint={draft.checkpoints.find((checkpoint) => checkpoint.start) ?? draft.checkpoints[0] ?? null} onChange={patch} />
     ) : null}
@@ -231,6 +248,7 @@ const QualityEditor: React.FC = () => {
       change.read_as = undefined;
       change.criteria = undefined;
       change.evidence_from = undefined;
+      change.commit_evidence = undefined;
     }
     patch(change);
   };

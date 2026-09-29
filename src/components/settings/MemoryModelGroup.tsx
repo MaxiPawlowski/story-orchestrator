@@ -109,7 +109,9 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
         <span>Let the story advance on its own (shared read extraction)</span>
       </label>
       <label className="flex flex-col gap-1 text-sm">
-        <span>Memory LLM profile</span>
+        <span>Memory LLM profile <HelpTooltip title={"This Connection Manager profile reads the chat after replies to track story progress. " +
+          "The choice affects every chat; it does not replace the main chat model."}
+          href="/scripts/extensions/third-party/story-orchestrator/README.md#quick-start" reference="Setup guide" /></span>
         <select id="so-extraction-profile" value={settings.profileId ?? ""} onChange={(event) => manager.setExtractionSettings({ profileId: event.target.value || null })}>
           <option value="">No profile selected</option>
           {profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.name}{profile.model ? ` (${profile.model})` : ""}</option>)}

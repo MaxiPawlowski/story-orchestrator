@@ -121,6 +121,45 @@
   .st-help-icon {
     color: var(--st-text-active);
     opacity: 0.65;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    padding: 0.25rem;
+  }
+
+  .st-help-icon:focus-visible {
+    outline: 2px solid var(--st-info);
+  }
+
+  .st-help {
+    display: inline-flex;
+    position: relative;
+    vertical-align: middle;
+  }
+
+  .st-help-content {
+    position: absolute;
+    z-index: 100;
+    top: 100%;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    width: min(18rem, 75vw);
+    padding: 0.75rem;
+    border: 1px solid var(--st-border);
+    border-radius: 0.5rem;
+    background: var(--st-bg-active);
+    color: var(--st-text-active);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    font-size: 0.85rem;
+    font-weight: normal;
+    white-space: normal;
+    text-align: left;
+  }
+
+  .st-help-content a {
+    text-decoration: underline;
   }
 
   .st-button {
@@ -267,6 +306,42 @@ body.no-blur dialog#so-studio-modal {
   overflow-wrap: anywhere;
   white-space: normal;
   min-width: 0;
+}
+
+@media (min-width: 700px) {
+  #drawer-manager .so-overview-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
+    gap: 0.8rem 1rem;
+    align-items: start;
+  }
+
+  #drawer-manager .so-overview-layout #so-player-overview { grid-column: 1; }
+  #drawer-manager .so-overview-layout .so-chat-tools { grid-column: 2; }
+}
+
+#story-orchestrator-settings .so-settings-section {
+  padding: 0.65rem;
+  border: 1px solid var(--st-border);
+  border-radius: 0.5rem;
+}
+
+#story-orchestrator-settings .so-settings-section > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+#story-orchestrator-settings .so-task-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 195px), 1fr));
+  gap: 0.6rem;
+}
+
+#story-orchestrator-settings .so-task-card {
+  padding: 0.65rem;
+  border: 1px solid var(--st-border);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--st-bg-tint) 50%, transparent);
 }
 
 #drawer-manager .menu_button,

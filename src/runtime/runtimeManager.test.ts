@@ -17,6 +17,7 @@ const mockPopupCloses = { count: 0 };
 const mockContext = {
   chat: [] as Array<{ mes: string; name?: string; is_user?: boolean }>,
   chatId: "chat-a" as string | undefined,
+  groupId: null as string | null,
   chatMetadata: {} as Record<string, unknown>,
   extensionSettings: {} as Record<string, Record<string, unknown>>,
   saveMetadata: jest.fn(async () => undefined),
@@ -118,6 +119,7 @@ const resetHost = () => {
   mockContext.extensionSettings = {};
   // A chat is open in these tests: an unnamed chat is a state the runtime must not write to.
   mockContext.chatId = "chat-a";
+  mockContext.groupId = null;
   Object.keys(mockExtensionPrompts).forEach((key) => { delete mockExtensionPrompts[key]; });
   Object.keys(mockLorebooks).forEach((key) => { delete mockLorebooks[key]; });
   (getActiveGroup as jest.Mock).mockReturnValue(null);
@@ -142,6 +144,35 @@ const selectNothing = () => { (mockContext.chatMetadata.story_orchestrator as { 
 
 describe("RuntimeManager pacing", () => {
   beforeEach(() => resetHost());
+
+  it("starts a bound group's story in a fresh chat and leaves populated chats unselected", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify({ ...story, id: "adolion-saga" }));
+    mockContext.extensionSettings["story-orchestrator"].groupStories = { "group-a": "adolion-saga" };
+    mockContext.chatId = "chat-b";
+    mockContext.groupId = "group-a";
+    mockContext.chatMetadata = {};
+    await manager.loadSelectedFromChat();
+    expect(manager.getSnapshot().storyId).toBe("adolion-saga");
+    expect((mockContext.chatMetadata.story_orchestrator as { selectedStoryId: string }).selectedStoryId).toBe("adolion-saga");
+
+    mockContext.chatId = "chat-c";
+    mockContext.chatMetadata = {};
+    mockContext.chat = [{ mes: "Already playing" }];
+    await manager.loadSelectedFromChat();
+    expect(manager.getSnapshot().storyId).toBeNull();
+  });
+
+  it("refuses image cues while the runtime belongs to another chat or the selected story changed", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify({ ...story, id: "image-story" }));
+    expect(manager.ownsImageChat("chat-a")).toBe(true);
+    mockContext.chatId = "chat-b";
+    expect(manager.ownsImageChat("chat-b")).toBe(false);
+    mockContext.chatId = "chat-a";
+    (mockContext.chatMetadata.story_orchestrator as { selectedStoryId: string }).selectedStoryId = "other-story";
+    expect(manager.ownsImageChat("chat-a")).toBe(false);
+  });
 
   it("clears the pacing prompt when no story is selected", async () => {
     const manager = new RuntimeManager();
@@ -1234,7 +1265,7 @@ describe("RuntimeManager plan-13 surfacing", () => {
     await manager.selectStory(storyId, "hydrate");
     const recap = manager.getAwayRecap();
     expect(recap).not.toBeNull();
-    expect(recap?.lines[0]).toContain("Start");
+    expect(recap?.lines[0]).toContain("Current scene");
 
     metadata.stories[storyId].extras.lastSessionAt = new Date().toISOString();
     await manager.selectStory(storyId, "hydrate");

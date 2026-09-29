@@ -29,14 +29,15 @@ describe("v2.5 plan 09 SP8 W1: protected spans (pure)", () => {
 
   it("drops a refused record at plan time with its reason and keeps the rest", () => {
     const records: CuratorOpRecord[] = [SP8_VIOLATIONS[0], SP8_CONTROLS[1]].map((entry) => ({ op: entry.op, status: "pending" }));
-    const plan = refuseProtected({ records, dropped: ["earlier"] }, views);
+    const plan = refuseProtected({ records, dropped: ["earlier"], refused: [] }, views);
     expect(plan.records.map((record) => record.op)).toEqual([SP8_CONTROLS[1].op]);
     expect(plan.dropped).toEqual(["earlier", 'rewrite: "The Crown": the rewrite touches protected text']);
+    expect(plan.refused).toEqual([SP8_VIOLATIONS[0].op]);
   });
 
   it("checks a fuzzy patch at the anchor the author will accept, not the one the model wrote", () => {
     const fuzzy: CuratorOpRecord = { op: { ...SP8_CONTROLS[1].op, anchor: "no such words" } as CuratorOpRecord["op"], status: "pending", fuzzy: { anchor: "The realm is || winter of 402", span: "", score: 0.9 } };
-    expect(refuseProtected({ records: [fuzzy], dropped: [] }, views).records).toEqual([]);
+    expect(refuseProtected({ records: [fuzzy], dropped: [], refused: [] }, views).records).toEqual([]);
   });
 });
 

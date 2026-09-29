@@ -7,7 +7,10 @@
     "THIRD-PARTY-NOTICES.md",
     "dist/manifest.json",
     "server-plugin/story-orchestrator-judge/index.mjs",
-    "server-plugin/story-orchestrator-judge/package.json"
+    "server-plugin/story-orchestrator-judge/package.json",
+    "server-plugin/story-orchestrator-gpu/index.mjs",
+    "server-plugin/story-orchestrator-gpu/gate.mjs",
+    "server-plugin/story-orchestrator-gpu/package.json"
   ],
   "optional": [
     "server-plugin/story-orchestrator-harness/index.mjs",

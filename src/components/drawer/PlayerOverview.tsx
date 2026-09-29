@@ -28,7 +28,7 @@ const MissingRequirements = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
       {items.map((item) => (
         <div key={item.label} className="flex items-center gap-2 text-xs">
           <span className="status-indicator status-error" />
-          <span>{item.label}: {item.missing.join(", ")}</span>
+           <span>{item.label} is not ready in this chat.</span>
         </div>
       ))}
     </div>
@@ -63,16 +63,18 @@ export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart, 
           )
       ))}
       {snapshot.lastRollback && (
-        <div id="so-rollback-notice" className="text-xs opacity-90">{rollbackNoticeText(snapshot.lastRollback)}</div>
+        <div id="so-rollback-notice" className="text-xs opacity-90">
+          {rollbackNoticeText({ ...snapshot.lastRollback, checkpointName: "the current scene" })}
+        </div>
       )}
       {/* E1: an edit the run cannot rewind to. The player is told plainly and offered both ways out
           the sentence names, right where it names them: rebuild from here, or start over. */}
       {snapshot.rollbackUnavailable && (
         <div id="so-rollback-unavailable" className="flex flex-col gap-1 text-xs opacity-90" role="status">
-          <span>{rollbackUnavailableText(snapshot.rollbackUnavailable)}</span>
+          <span>{rollbackUnavailableText({ ...snapshot.rollbackUnavailable, checkpointName: "the current scene" })}</span>
           {onReread && (
             <button id="so-reread-checkpoint" type="button" className="menu_button self-start" onClick={onReread}>
-              Re-read from {snapshot.rollbackUnavailable.checkpointName}
+              Re-read from the current scene
             </button>
           )}
           {onRestart && (

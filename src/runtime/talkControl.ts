@@ -1,4 +1,4 @@
-import type { RosterMember, TalkControl } from "@engine/index";
+import { TALK_CHAIN_MAX_CAP, TALK_CHAIN_MAX_DEFAULT, type RosterMember, type TalkControl, type TalkControlChain } from "@engine/index";
 import type { JudgeDirectorDecision, JudgeDirectorInput } from "@judge/index";
 import {
   buildCandidates, chooseByRules, directorEnabled, directorInstruction, findCandidate, narrowByMention,
@@ -24,6 +24,36 @@ export interface TalkCheckpointInfo {
   storyTitle: string;
 }
 
+/** The resolved chain config: the checkpoint's `talk_control.chain` over the install-wide defaults. */
+export interface TalkChainConfig {
+  enabled: boolean;
+  mode: "director" | "scripted";
+  max: number;
+  sequence: string[];
+  stopOnTransition: boolean;
+  holdExtraction: boolean;
+  stopOnPlayer: boolean;
+}
+
+export const resolveChainConfig = (
+  control: TalkControl,
+  system: { enabled: boolean; max: number; stopOnTransition: boolean; holdExtraction: boolean },
+): TalkChainConfig | null => {
+  if (control.chain === false) return null;
+  const chain: TalkControlChain = control.chain ?? {};
+  const mode = chain.mode ?? "director";
+  const max = Math.min(TALK_CHAIN_MAX_CAP, Math.max(1, chain.max ?? system.max ?? TALK_CHAIN_MAX_DEFAULT));
+  return {
+    enabled: system.enabled,
+    mode,
+    max,
+    sequence: chain.sequence ?? [],
+    stopOnTransition: chain.stop_on_transition ?? system.stopOnTransition,
+    holdExtraction: chain.hold_extraction ?? system.holdExtraction,
+    stopOnPlayer: chain.stop_on_player !== false,
+  };
+};
+
 export interface TalkControlHost {
   isGroupChat(): boolean;
   getChatId(): string | null;
@@ -42,6 +72,10 @@ export interface TalkControlHost {
   triggerMember(name: string): Promise<void>;
   recordDecision(audit: TalkDecisionAudit): void;
   random?(): (() => number) | null;
+  /** Install-wide chain defaults, read at each turn. */
+  getChainConfig?(): { enabled: boolean; max: number; stopOnTransition: boolean; holdExtraction: boolean };
+  /** Hold cadence extraction while a chain is running (a checkpoint asked for it). */
+  setExtractionHold?(hold: boolean): void;
   ownership: RunOwnership;
 }
 
@@ -50,6 +84,7 @@ type JudgeNote = { confidence: number; via: "choice" | "composite" };
 type Decision =
   | { kind: "pass" }
   | { kind: "silence"; source: TalkDecisionSource; judge?: JudgeNote }
+  | { kind: "player"; source: TalkDecisionSource; judge?: JudgeNote }
   | { kind: "member"; rosterId: string; name: string; source: TalkDecisionSource; judge?: JudgeNote };
 
 interface PassState {
@@ -86,12 +121,24 @@ const withTimeout = <T,>(promise: Promise<T>, ms: number, onTimeout: () => void)
   );
 });
 
+// One player turn's chain: how many voices have answered, which checkpoint it began in, and
+// whether it should stop. `aborted` is set by a player STOP; `hold` remembers whether extraction
+// was parked so it is lifted exactly once.
+interface ChainState {
+  key: string;
+  checkpointId: string;
+  spokeCount: number;
+  aborted: boolean;
+  hold: boolean;
+}
+
 export class TalkController {
   private cached: CachedDecision | null = null;
   private pending: PendingDecision | null = null;
   private forcedChid: number | null = null;
   private pass: PassState | null = null;
   private reconciled: { key: string; run: RunGuard | null } | null = null;
+  private chain: ChainState | null = null;
 
   constructor(private readonly host: TalkControlHost) {}
 
@@ -106,7 +153,17 @@ export class TalkController {
 
   onWrapperStarted(payload: Record<string, unknown> | undefined) {
     const type = typeof payload?.type === "string" ? payload.type : "";
-    this.pass = { loud: !QUIET_WRAPPER_TYPES.has(type), forced: false, spoke: false, key: null };
+    const loud = !QUIET_WRAPPER_TYPES.has(type);
+    this.pass = { loud, forced: false, spoke: false, key: null };
+    // A quiet/swipe/continue wrapper ends any chain: only a loud user turn opens one, and it does
+    // so in `intercept` (a forced wrapper, i.e. a lone `/trigger`, must never start a chain).
+    if (!loud) this.endChain();
+  }
+
+  // The player pressed STOP: no further voice this turn.
+  onGenerationStopped() {
+    if (this.chain) this.chain.aborted = true;
+    this.endChain();
   }
 
   async intercept(abort: (immediate: boolean) => void, type: string): Promise<void> {
@@ -115,9 +172,13 @@ export class TalkController {
     if (!this.host.isGroupChat()) return;
     const control = this.host.getActiveTalkControl();
     if (!control) return;
+    // The first intercept of a loud, non-forced group pass opens this turn's chain.
+    if (!this.chain) {
+      this.chain = { key: this.passKey(), checkpointId: this.host.getCheckpointInfo()?.id ?? "", spokeCount: 0, aborted: false, hold: false };
+    }
     const decision = await this.ensureDecision(control, this.passKey());
     if (decision.kind === "pass") return;
-    if (decision.kind === "silence") {
+    if (decision.kind === "silence" || decision.kind === "player") {
       abort(false);
       return;
     }
@@ -131,16 +192,89 @@ export class TalkController {
   async onWrapperFinished(): Promise<void> {
     const pass = this.pass;
     this.pass = null;
-    if (!pass || !pass.loud || pass.forced || pass.spoke) return;
+    if (!pass || !pass.loud) return;
     if (!this.host.isGroupChat()) return;
     const control = this.host.getActiveTalkControl();
     if (!control) return;
+    if (pass.spoke || pass.forced) {
+      await this.advanceChain(control);
+      return;
+    }
+    // Nobody spoke this pass: the reconcile triggers the chosen speaker, whose own wrapper then
+    // continues the chain (advanceChain counts voices, and the first was never a voice).
     const key = pass.key ?? this.decisionKey();
     const decision = await this.ensureDecision(control, key);
     if (decision.kind !== "member") return;
     if (this.reconciled?.key === key && this.reconciled.run?.stillOwns() !== false) return;
     this.reconciled = { key, run: this.cached?.key === key ? this.cached.run : null };
     void this.host.triggerMember(decision.name);
+  }
+
+  private endChain(): void {
+    if (this.chain?.hold) this.host.setExtractionHold?.(false);
+    this.chain = null;
+  }
+
+  private chainConfig(control: TalkControl): TalkChainConfig | null {
+    const system = this.host.getChainConfig?.();
+    return system ? resolveChainConfig(control, system) : null;
+  }
+
+  // A loud wrapper just produced a voice (or a forced trigger did). Decide who answers next, or end.
+  private async advanceChain(control: TalkControl): Promise<void> {
+    const chain = this.chain;
+    if (!chain || chain.aborted) { this.endChain(); return; }
+    const config = this.chainConfig(control);
+    if (!config || !config.enabled) { this.endChain(); return; }
+    chain.spokeCount += 1;
+    if (chain.spokeCount >= config.max) { this.endChain(); return; }
+    if (config.stopOnTransition && (this.host.getCheckpointInfo()?.id ?? "") !== chain.checkpointId) { this.endChain(); return; }
+    const run = beginRun(this.host.ownership, this.window());
+    const next = config.mode === "scripted"
+      ? this.scriptedSpeaker(config, chain.spokeCount)
+      : await this.decideChainSpeaker(control, config, chain);
+    if (!next) { this.endChain(); return; }
+    if (!run.stillOwns()) { this.endChain(); return; }
+    if (!chain.hold && config.holdExtraction) {
+      chain.hold = true;
+      this.host.setExtractionHold?.(true);
+    }
+    void this.host.triggerMember(next);
+  }
+
+  private scriptedSpeaker(config: TalkChainConfig, index: number): string | null {
+    // index counts voices so far, so the next scripted speaker is the one at that position.
+    return config.sequence[index] ?? null;
+  }
+
+  // Hand back to the player is only offered when the checkpoint asks for it. With no judge or LLM
+  // director there is nothing to say "enough", so the chain stops rather than let the rules loop.
+  private async decideChainSpeaker(control: TalkControl, config: TalkChainConfig, chain: ChainState): Promise<string | null> {
+    const candidates = buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds());
+    if (!candidates.length) return null;
+    const window = this.host.getWindow();
+    const handBack = config.stopOnPlayer;
+    const run = beginRun(this.host.ownership, this.window());
+    const messageId = this.host.getLastMessageId();
+    const checkpointId = this.host.getCheckpointInfo()?.id ?? chain.checkpointId;
+    const startedAt = Date.now();
+    const decision = await this.runJudge(control, candidates, window, handBack)
+      ?? (directorEnabled(control) ? await this.runDirector(control, candidates, window, handBack) : null);
+    if (!run.stillOwns() || !decision || decision.kind === "pass") return null;
+    if (decision.kind !== "member") {
+      this.host.recordDecision({
+        at: new Date().toISOString(), messageId, checkpointId, chosenRosterId: null, chosenName: null,
+        source: decision.source, latencyMs: Date.now() - startedAt, chainStep: chain.spokeCount,
+        ...(decision.judge ? { judge: decision.judge } : {}),
+      });
+      return null;
+    }
+    this.host.recordDecision({
+      at: new Date().toISOString(), messageId, checkpointId, chosenRosterId: decision.rosterId, chosenName: decision.name,
+      source: decision.source, latencyMs: Date.now() - startedAt, chainStep: chain.spokeCount,
+      ...(decision.judge ? { judge: decision.judge } : {}),
+    });
+    return decision.name;
   }
 
   private decisionKey(): string {
@@ -200,8 +334,11 @@ export class TalkController {
   private async computeDecision(control: TalkControl): Promise<Decision> {
     const candidates = buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds());
     if (!candidates.length) return { kind: "pass" };
+    // A scripted chain fixes the voice order: the first is the first line of the sequence.
+    const scripted = control.chain && control.chain.mode === "scripted" ? findCandidate(candidates, control.chain.sequence?.[0]) : null;
+    if (scripted) return { kind: "member", rosterId: scripted.rosterId, name: scripted.name, source: "rules" };
     const window = this.host.getWindow();
-    const judged = await this.runJudge(control, candidates, window);
+    const judged = await this.runJudge(control, candidates, window, false);
     if (judged) return judged;
     const lastText = window.length ? window[window.length - 1].text : "";
     const mentioned = narrowByMention(candidates, lastText);
@@ -209,7 +346,7 @@ export class TalkController {
     const pool = mentioned.length > 1 ? mentioned : candidates;
     if (directorEnabled(control)) {
       if (this.host.breakerOpen?.()) return this.chooseFallback(control, pool, "fallback");
-      const directed = await this.runDirector(control, pool, window);
+      const directed = await this.runDirector(control, pool, window, false);
       if (directed) return directed;
       return this.chooseFallback(control, pool, "fallback");
     }
@@ -221,7 +358,7 @@ export class TalkController {
     return chosen ? { kind: "member", rosterId: chosen.rosterId, name: chosen.name, source } : { kind: "pass" };
   }
 
-  private async runJudge(control: TalkControl, candidates: TalkCandidate[], window: DirectorWindowMessage[]): Promise<Decision | null> {
+  private async runJudge(control: TalkControl, candidates: TalkCandidate[], window: DirectorWindowMessage[], handBack: boolean): Promise<Decision | null> {
     const info = this.host.getCheckpointInfo();
     if (!this.host.judgeDirector || !info) return null;
     const instruction = directorInstruction(control);
@@ -235,11 +372,13 @@ export class TalkController {
         candidates: candidates.map((candidate) => ({ rosterId: candidate.rosterId, name: candidate.name, ...(candidate.role ? { role: candidate.role } : {}) })),
         ...(lead ? { lead } : {}),
         allowSilence: control.allow_silence === true,
+        ...(handBack ? { allowHandBack: true } : {}),
         window,
       });
       if (!verdict) return null;
       const judge = { confidence: verdict.confidence, via: verdict.via };
       if (verdict.kind === "silence") return { kind: "silence", source: "judge", judge };
+      if (verdict.kind === "player") return { kind: "player", source: "judge", judge };
       const candidate = candidates.find((entry) => entry.rosterId === verdict.rosterId);
       return candidate ? { kind: "member", rosterId: candidate.rosterId, name: candidate.name, source: "judge", judge } : null;
     } catch (error) {
@@ -248,7 +387,7 @@ export class TalkController {
     }
   }
 
-  private async runDirector(control: TalkControl, pool: TalkCandidate[], window: DirectorWindowMessage[]): Promise<Decision | null> {
+  private async runDirector(control: TalkControl, pool: TalkCandidate[], window: DirectorWindowMessage[], handBack: boolean): Promise<Decision | null> {
     const info = this.host.getCheckpointInfo();
     if (!info) return null;
     const allowSilence = control.allow_silence === true;
@@ -258,6 +397,8 @@ export class TalkController {
       objective: info.objective,
       candidates: pool,
       allowSilence,
+      ...(handBack ? { handBack: true } : {}),
+      playerName: this.host.getPlayerName?.() ?? undefined,
       lead: findCandidate(pool, control.lead)?.name,
       instruction: directorInstruction(control),
       window,
@@ -269,8 +410,9 @@ export class TalkController {
         DIRECTOR_TIMEOUT_MS,
         () => controller.abort(timeoutAbortReason(`the director did not answer within ${DIRECTOR_TIMEOUT_MS} ms`)),
       );
-      const verdict = parseDirectorResponse(raw, pool, allowSilence);
+      const verdict = parseDirectorResponse(raw, pool, allowSilence, handBack);
       if (!verdict) return null;
+      if (verdict.handBack) return { kind: "player", source: "director" };
       if (verdict.rosterId === null) return { kind: "silence", source: "director" };
       const candidate = pool.find((entry) => entry.rosterId === verdict.rosterId);
       return candidate ? { kind: "member", rosterId: candidate.rosterId, name: candidate.name, source: "director" } : null;

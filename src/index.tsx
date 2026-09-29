@@ -114,6 +114,7 @@ const readReplaySource = (): GateReplaySource | null => {
 };
 
 const StudioModal = lazy(() => import("./studio/StudioModal"));
+const ImageChatPanel = lazy(() => import("./image/ImageChatPanel"));
 
 const StudioHost = () => {
   const open = useSyncExternalStore(
@@ -144,6 +145,8 @@ const driverController: DriverController = {
   probe: async () => { await manager.runExtractionNow(undefined, "probe"); },
   advance: async (checkpointId) => { await manager.activateCheckpoint(checkpointId); },
   report: () => manager.runCopilotReport(),
+  stepBack: () => manager.stepBackTransition(),
+  resetQuality: async (key) => { await manager.resetQuality(key); },
 };
 
 const useRuntimeSnapshot = () => {
@@ -163,6 +166,7 @@ const settingsHost: SettingsHost = {
   openStudio: () => void openStudio(),
   openWizardForRequirements: () => void openWizardForRequirements(),
   revealSetting: (id) => revealSetting(id),
+  openDrawer: () => openSoDrawer(),
 };
 
 const SettingsRoot = () => <SettingsPanel snapshot={useRuntimeSnapshot()} manager={manager} host={settingsHost} />;
@@ -196,7 +200,7 @@ const DrawerPanel = () => {
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="font-semibold">{snapshot.storyTitle ?? "Story Orchestrator"}</div>
-          <div className="text-xs opacity-70">{snapshot.storyDescription ?? "Load a story from the extension settings."}</div>
+          {!snapshot.ready && <div className="text-xs opacity-70">Choose a story in Extensions → Story Orchestrator.</div>}
         </div>
         {snapshot.ready && (
           <label className="flex items-center gap-1 text-xs whitespace-nowrap" title="Show gates, blackboard, scheduler and payload debugging. Spoils upcoming story branches.">
@@ -210,7 +214,7 @@ const DrawerPanel = () => {
         <DrawerTabs
           snapshot={snapshot}
           manager={manager}
-          driver={{ context: snapshot.driver, activeNudge: snapshot.activeNudge, controller: driverController }}
+          driver={{ context: snapshot.driver, activeNudge: snapshot.activeNudge, controller: driverController, recovery: snapshot.lastFired }}
           onOpenSettings={openStorySettings}
           onEditStory={() => void openStudio({ fromChat: true })}
           onFixWithWizard={() => void openWizardForRequirements()}
@@ -218,6 +222,7 @@ const DrawerPanel = () => {
           onNewStory={() => void openWizard()}
           onBranchFromOldest={(messageId) => void branchAtFloor(messageId)}
           onJumpToMessage={(messageId) => void jumpFromDrawer(messageId)}
+          imagePanel={<Suspense fallback={<div className="text-xs">Loading illustrations…</div>}><ImageChatPanel manager={manager} snapshot={snapshot} /></Suspense>}
         />
       )}
     </div>

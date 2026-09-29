@@ -16,6 +16,18 @@ const compareLeaf = (leaf: GateLeaf, current: PrimitiveValue | undefined): boole
 
 export type GateReader = Pick<Blackboard, "get">;
 
+// Every quality a gate reads, deduped in order. Shared by the story diff, the commit-evidence
+// diagnostics and the recovery that resets a fired transition's keys.
+export const gateLeaves = (gate: GateNode, out: GateLeaf[] = []): GateLeaf[] => {
+  if ("q" in gate) out.push(gate);
+  else if ("all" in gate) gate.all.forEach((entry) => gateLeaves(entry, out));
+  else if ("any" in gate) gate.any.forEach((entry) => gateLeaves(entry, out));
+  else gateLeaves(gate.not, out);
+  return out;
+};
+
+export const gateKeys = (gate: GateNode): string[] => [...new Set(gateLeaves(gate).map((leaf) => leaf.q))];
+
 export const evaluateGate = (gate: GateNode, blackboard: GateReader): boolean => {
   if ("q" in gate) return compareLeaf(gate, blackboard.get(gate.q));
   if ("all" in gate) return gate.all.every((entry) => evaluateGate(entry, blackboard));

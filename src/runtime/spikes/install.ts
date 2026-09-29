@@ -50,14 +50,15 @@ export const releaseInput = (port: SpikePort): ReleaseInput | null => {
   return { story, pools: readComplicationPools(port.raw()), log: port.log?.() ?? [], shape: port.shape?.() ?? story.arc_template ?? null };
 };
 
-export const complicationView = (port: SpikePort): ComplicationView | null => {
+export const complicationView = (port: SpikePort, spent?: ReadonlyMap<string, number>): ComplicationView | null => {
   const input = releaseInput(port);
   if (!input) return null;
+  const withSpent = spent ? { ...input, spent } : input;
   return {
     flag: port.flags().sp6Complications,
-    releases: deriveReleases(input),
-    pending: pendingRelease(input),
-    directions: logDirections(input),
+    releases: deriveReleases(withSpent),
+    pending: pendingRelease(withSpent),
+    directions: logDirections(withSpent),
     compose: (release) => composeComplication(input.story, release),
   };
 };
@@ -68,9 +69,10 @@ const ring = <T>(list: T[], item: T) => {
 };
 
 export const installSpikes = (port: SpikePort, publish: (debug: SpikeDebug | undefined) => void): (() => void) => {
-  const debug: SpikeDebug = { draws: [], events: [], complications: () => complicationView(port) };
+  const spent = new Map<string, number>();
+  const debug: SpikeDebug = { draws: [], events: [], complications: () => complicationView(port, spent) };
   const generation = port.prompt
-    ? createComplicationSeam(() => (port.flags().sp6Complications ? releaseInput(port) : null), port.prompt, (event) => ring(debug.events, event))
+    ? createComplicationSeam(() => (port.flags().sp6Complications ? releaseInput(port) : null), port.prompt, (event) => ring(debug.events, event), spent)
     : undefined;
   const release = installSpikeSeams({ ...createChanceSeams(() => chanceContext(port), (draw) => ring(debug.draws, draw)), ...(generation ? { generation } : {}) });
   publish(debug);

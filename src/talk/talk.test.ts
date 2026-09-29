@@ -156,14 +156,29 @@ describe("renderDirectorPrompt", () => {
     expect(prompt).toContain("SPEAKER: <Captain Mara>");
     expect(prompt).not.toContain("NONE");
   });
+
+  it("offers PLAYER as a hand-back answer only when asked", () => {
+    const base = { storyTitle: "Sun Ruins", checkpointName: "The Gate", objective: "Open the gate", candidates: [candidate("guard", "Captain Mara")], allowSilence: false, window: [] };
+    expect(renderDirectorPrompt(base)).not.toContain("PLAYER");
+    const withHandBack = renderDirectorPrompt({ ...base, handBack: true, playerName: "Rell" });
+    expect(withHandBack).toContain("SPEAKER: <Captain Mara | PLAYER>");
+    expect(withHandBack).toContain("Rell should act next");
+  });
 });
 
 describe("parseDirectorResponse", () => {
   const candidates = [candidate("guard", "Captain Mara"), candidate("sage", "Elder Finn")];
 
-  it("parses the SPEAKER line by name or roster id", () => {
+  it("parses the SPEAKER line by the member's name", () => {
     expect(parseDirectorResponse("SPEAKER: Captain Mara", candidates, false)).toEqual({ rosterId: "guard" });
-    expect(parseDirectorResponse("speaker = sage", candidates, false)).toEqual({ rosterId: "sage" });
+    expect(parseDirectorResponse("speaker = elder finn", candidates, false)).toEqual({ rosterId: "sage" });
+  });
+
+  it("does not resolve a word that is only some member's roster id", () => {
+    const nameless = [candidate("maid", "Shiya"), candidate("dm", "dm")];
+    expect(parseDirectorResponse("SPEAKER: maid", nameless, false)).toBeNull();
+    expect(parseDirectorResponse("SPEAKER: Shiya", nameless, false)).toEqual({ rosterId: "maid" });
+    expect(parseDirectorResponse("SPEAKER: dm", nameless, false)).toEqual({ rosterId: "dm" });
   });
 
   it("tolerates quotes, emphasis, and a bare answer", () => {
@@ -174,6 +189,12 @@ describe("parseDirectorResponse", () => {
   it("honors NONE only when silence is allowed", () => {
     expect(parseDirectorResponse("SPEAKER: NONE", candidates, true)).toEqual({ rosterId: null });
     expect(parseDirectorResponse("SPEAKER: NONE", candidates, false)).toBeNull();
+  });
+
+  it("reads PLAYER as a hand-back only when it was offered", () => {
+    expect(parseDirectorResponse("SPEAKER: PLAYER", candidates, false, true)).toEqual({ rosterId: null, handBack: true });
+    expect(parseDirectorResponse("SPEAKER: the player", candidates, false, true)).toEqual({ rosterId: null, handBack: true });
+    expect(parseDirectorResponse("SPEAKER: PLAYER", candidates, false, false)).toBeNull();
   });
 
   it("returns null for unknown names or junk", () => {

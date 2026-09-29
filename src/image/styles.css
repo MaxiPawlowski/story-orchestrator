@@ -1,0 +1,7 @@
+#so-image-review .so-image-review-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
+#so-image-review figure { border: 3px solid transparent; border-radius: 6px; }
+#so-image-review figure.so-image-selected { border-color: var(--SmartThemeQuoteColor, #9cf); }
+#so-image-review img { width: 100%; cursor: pointer; border-radius: 4px; }
+#so-image-review figure > button { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; }
+#so-image-review figure > button:focus-visible { outline: 3px solid var(--SmartThemeQuoteColor, #9cf); }
+#so-image-review figcaption { display: flex; align-items: center; justify-content: space-between; }
