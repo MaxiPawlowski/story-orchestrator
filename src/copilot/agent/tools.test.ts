@@ -5,7 +5,7 @@ import { AGENT_TOOLS, EDIT_TOOLS, MUTATIONS_WITHOUT_A_TOOL, PROVISION_TOOLS, che
 describe("agent tool set (v2.6 plan 11 A1)", () => {
   it("backs every edit tool by a mutations.ts export, and names a reason for every export without a tool", () => {
     const exported = Object.keys({ ...coreMutations, ...innerVoiceMutations }).sort();
-    const backing = Object.values(EDIT_TOOLS).map((spec) => spec.backedBy);
+    const backing = Object.values(EDIT_TOOLS).flatMap((spec): string[] => [spec.backedBy, ...("composes" in spec ? spec.composes : [])]);
     const excluded = Object.keys(MUTATIONS_WITHOUT_A_TOOL);
     expect(exported.filter((name) => !backing.includes(name as never) && !excluded.includes(name))).toEqual([]);
     expect([...backing, ...excluded].filter((name) => !exported.includes(name))).toEqual([]);
@@ -42,6 +42,20 @@ describe("agent tool set (v2.6 plan 11 A1)", () => {
   it("turns a valid edit call into the typed op the Studio applies", () => {
     const check = checkToolCall({ tool: "setHouseRules", args: { rules: ["No magic in the city."] } });
     expect(check).toEqual({ ok: true, spec: AGENT_TOOLS.setHouseRules, op: { kind: "setHouseRules", rules: ["No magic in the city."] } });
+  });
+
+  it("setChapters: every chapter mutation is reached through it, and nothing is left without a tool", () => {
+    expect(Object.keys(MUTATIONS_WITHOUT_A_TOOL).filter((name) => /chapter/i.test(name))).toEqual([]);
+    const check = checkToolCall({ tool: "setChapters", args: { chapters: [{ id: " act1 ", title: "Arrival", seal: { keep_tail: 3 } }], assign: { start: "act1" } } });
+    expect(check).toEqual({ ok: true, spec: AGENT_TOOLS.setChapters, op: { kind: "setChapters", chapters: [{ id: "act1", title: "Arrival", seal: { keep_tail: 3 } }], assign: { start: "act1" } } });
+  });
+
+  it("setChapters: refuses a chapter the story validator refuses, and an assignment that is not an id", () => {
+    expect(checkToolCall({ tool: "setChapters", args: { chapters: [{ id: "a" }, { id: "a", title: "A", kind: "act" }] } })).toEqual({
+      ok: false, message: expect.stringContaining("setChapters.chapters.0.title: chapter title is required"),
+    });
+    expect(checkToolCall({ tool: "setChapters", args: { chapters: [{ id: "a", title: "A", kind: "act" }] } })).toEqual({ ok: false, message: expect.stringContaining("chapters.0.kind") });
+    expect(checkToolCall({ tool: "setChapters", args: { chapters: [], assign: { start: 3 } } })).toEqual({ ok: false, message: "setChapters.assign.start: expected a chapter id" });
   });
 
   it("refuses an edit whose arguments the op grammar rejects", () => {

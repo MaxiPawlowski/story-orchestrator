@@ -74,6 +74,11 @@ const sanitizeChronicle = (value: unknown): ChronicleState => {
   return { eras: Array.isArray(eras) ? eras.filter(valid) : [] };
 };
 
+const sanitizeSealSkip = (value: unknown) => {
+  const skip = value as { pathLength?: unknown; messageId?: unknown } | null;
+  return Number.isInteger(skip?.pathLength) && Number.isInteger(skip?.messageId) ? { pathLength: skip?.pathLength as number, messageId: skip?.messageId as number } : null;
+};
+
 const sanitizeBridge = (value: unknown) => {
   const bridge = value as { recordId?: unknown; text?: unknown } | null;
   return typeof bridge?.recordId === "string" && typeof bridge.text === "string" ? { recordId: bridge.recordId, text: bridge.text } : null;
@@ -133,6 +138,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
       chronicle: sanitizeChronicle(existing.chronicle),
       chapterBridge: sanitizeBridge(existing.chapterBridge),
       chapterRecapSeen: typeof existing.chapterRecapSeen === "string" ? existing.chapterRecapSeen : null,
+      chapterSealSkip: sanitizeSealSkip(existing.chapterSealSkip),
       updatedAt: existing.updatedAt ?? new Date().toISOString(),
     };
   }

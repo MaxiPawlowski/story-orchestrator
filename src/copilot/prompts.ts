@@ -10,7 +10,7 @@ const SCHEMA_SUMMARY = [
   `- quality: { key, type: ${QUALITY_TYPES.join("|")}, source: ${QUALITY_SOURCES.join("|")}, rubric, values?[] (enum only), latching?, monotonic? }. rubric MUST be a yes/no or ` +
     `short-answer question an extractor answers from the prose.`,
   `- checkpoint: { id, name, objective, type: anchor|intermediate, start?, state_snapshot?{ quality: value }, tension_target?: ${TENSION_LEVELS.join("|")}, ` +
-    `convergence_threshold? (anchors), guidance? }`,
+    `convergence_threshold? (anchors), guidance?, motives?{ roster_id: "what that character wants in this beat" } }`,
   "- transition: { from, to, gate, priority, effects?{ progress:{ anchor, amount } }, extractor_trigger?, extraction_hint? }",
   `- gate leaf: { "q": quality_key, "op": ${GATE_OPERATORS.join("|")}, "v": literal }; compose with { "all":[...] }, { "any":[...] }, { "not": gate }. Only "in" takes an array value.`,
   "Never invent quality keys inside a gate — declare the quality first.",
@@ -33,8 +33,8 @@ const OP_GRAMMAR = [
   '  { "kind": "updateTransition", "ref": { "from": string, "to": string }, "patch": Partial<Transition> }',
   '  { "kind": "removeTransition", "ref": { "from": string, "to": string } }',
   '  { "kind": "setTransitionGate", "ref": { "from": string, "to": string }, "gate": Gate }',
-  '  { "kind": "addRosterMember", "member": { "id": string, "name"?: string, "role"?: string } }',
-  '  { "kind": "updateRosterMember", "id": string, "patch": { "name"?: string, "role"?: string } }',
+  '  { "kind": "addRosterMember", "member": { "id": string, "name"?: string, "role"?: string, "drive"?: string } }',
+  '  { "kind": "updateRosterMember", "id": string, "patch": { "name"?: string, "role"?: string, "drive"?: string } }',
   '  { "kind": "removeRosterMember", "id": string }',
   `  { "kind": "setArcTemplate", "template": ${ARC_TEMPLATE_NAMES.map((name) => `"${name}"`).join("|")}|{ "points": [{ "at": 0-1, "tension": 0-1 }] }|null }`,
   '  { "kind": "setArcBridges", "bridges": [{ "arcMatch": string, "anchor": checkpoint_id, "amount": number }] }',
@@ -79,7 +79,9 @@ const STAGE_INSTRUCTIONS: Record<CopilotStage, string> = {
   transitions: `Stage TRANSITIONS: wire checkpoints toward their anchors with transitions, each carrying a gate over declared qualities and a progress effect toward the target ` +
     `anchor so the convergence threshold is reachable. ${stageOnlyEmitLine("transitions")}`,
   effects: `Stage EFFECTS/CAST: propose checkpoint effects (author_note, world_info, cast_changes, background — a background filename that suits the scene), the roster this ` +
-    `story directs (each member with a one-line role: what they do in this story), what the chat must provide before it can run (requirements), which lorebooks the background ` +
+    `story directs (each member with a one-line role: what they do in this story, and a one-line drive: what they privately want across it; a checkpoint's ` +
+      `motives may say what one member wants in that beat — drives and motives are told only to that character, never to the player), ` +
+      `what the chat must provide before it can run (requirements), which lorebooks the background ` +
       `curator may edit (stagecraft — the story's own books only), the places the story happens in (sceneRead.locations — short names the scene tracker can pick from), which ` +
         `of the story's own lorebooks lore-select may pick entries from each turn (loreSelect.lorebooks), the dramatic shape, and any thread bridges. ${stageOnlyEmitLine("effects")}`,
   provisioning: `Stage PROVISIONING: this story's requirements name people, lore and a group that may not exist on this install yet. Propose the create steps that close ` +

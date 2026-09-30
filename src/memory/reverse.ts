@@ -24,6 +24,7 @@ export interface MemoryRollbackState extends MemoryStoreState {
   chapters?: ChapterRecord[];
   chronicle?: ChronicleState;
   chapterBridge?: { recordId: string; text: string } | null;
+  chapterSealSkip?: { pathLength: number; messageId: number } | null;
 }
 
 export interface ChapterStoresIn {
@@ -78,5 +79,6 @@ export function reverseMemoryState<S extends MemoryRollbackState>(state: S, mess
     ...(unfolded ? { chapters: unfolded.chapters, chronicle: unfolded.chronicle, ...(unfolded.chapterBridge === null ? { chapterBridge: null } : {}) } : {}),
     ...(state.storyStart > messageId ? { storyStart: messageId } : {}),
     ...(state.innerBeats ? { innerBeats: rollbackBeats(state.innerBeats, messageId) } : {}),
+    ...(state.chapterSealSkip && state.chapterSealSkip.messageId >= messageId ? { chapterSealSkip: null } : {}),
   } as Partial<S>;
 }

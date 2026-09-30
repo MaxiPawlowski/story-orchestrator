@@ -462,6 +462,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   }
 
   getPayloadCaptures(): PayloadCapture[] { return this.journal.getCaptures(); }
+  noteFolded(folded: number) { if (this.journal.noteFolded(folded)) this.notify(); }
 
   private async loadStory(loaded: LoadedStory, mode: "activate" | "hydrate", knownPersisted: PersistedStoryRuntime | null = null) {
     const previous = this.loaded?.story ?? null;

@@ -42,6 +42,7 @@ export interface PayloadCapture {
   messageId?: number;
   reason: string;
   blocks: InjectedPromptBlock[];
+  folded?: number;
 }
 
 export interface StoryLibraryRecord {
@@ -300,6 +301,7 @@ export interface MemoryRuntimeState extends MemoryStoreState {
   chronicle?: ChronicleState;
   chapterBridge?: { recordId: string; text: string } | null;
   chapterRecapSeen?: string | null;
+  chapterSealSkip?: { pathLength: number; messageId: number } | null;
   updatedAt: string;
 }
 
@@ -507,6 +509,7 @@ export interface RuntimeSnapshot {
   modelCalls?: ModelCallRow[];
   modelCallRing?: ModelCallRecord[];
   nextTurnBuckets?: PromptBucketState;
+  nextTurnFold?: number;
   /** World Info activations persisted per rendered reply. */
   lore: LoreRuntimeState;
   /** The inline timeline: every item anchored under the message it is about, before the level filter. */
