@@ -241,3 +241,11 @@ discarded the worktree's local `.claude/settings.local.json` edit.
 - v2.5 plan 05 open decision 2 (the 14 vacuous facts needles).
 - The expansion non-throwing path's ownership check is reached by no test (R2 finding).
 - `npm run test:replay` should join the rule-16 list of overall gates (the rule already names "plan 13's defect-replay set").
+
+## User decisions 2026-09-30 (after wave 1)
+
+| Question | Decision |
+|---|---|
+| R4 `test/` < 10 MB target | **Dropped.** Every cited record stays in the repo; `test:release` keeps verifying citations. Uncited records stay moved out. |
+| Vacuous extractor needles (14 fixtures, v2.5 plan 05 open decision 2) | **Fix them**: a real needle each, or an explicit "no facts expectation". The facts number drops to its honest value. |
+| The 8.6 lane-hour gap in R5 | **Deferred** until development is finished and the suite list is final (user asked first whether development was done). |
