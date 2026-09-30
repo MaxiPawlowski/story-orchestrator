@@ -453,3 +453,12 @@ Branch `worktree-agent-a29ead4c8b5273158` (master `c743bedd` + A37 + A3 UI commi
 Gates: `npm run typecheck` 0 errors · `npm run typecheck:test` 0 errors · `npm run lint` clean · `npm run debug:typecheck` 0 errors · `npm test` 285 suites / 4052 tests passed · `npm run test:debug` 333 tests, 332 pass, 0 fail, 1 skipped. The eleven fixture evals syntax-check with `new Function`.
 
 Live re-check owed (lane 2 alone, other lane idle, new bundle, after the A37 re-check, because A37 changes every pass's reply length and therefore the base timings): `npm run build`; `node scripts/debug/st-lanes.mts run 2 -- scripts/debug/st-session.mts reload`; a fresh base run `node scripts/debug/st-lanes.mts batch --lanes 2 --group 1759606632088 test/scenarios/live-v24-03-memorize.json` (keep its stdout log); `node scripts/debug/so-timeout-arm.mts scale <that log>` (targeted); run the printed `set` command through `node scripts/debug/st-lanes.mts run 2 -- scripts/debug/st-eval.mts "…"`; then `node scripts/debug/st-lanes.mts batch --lanes 2 --repeat 2 --group 1759606632088 test/scenarios/live-v25-05-memorize-timeout.json`. Green ×2 = the whole-chat pass times out once at its scaled budget (±5 %/5 s), its retry answers, no other pass times out, the backlog completes with no `lastError`. Then the negative control once on a mutant build (`TIMEOUT_RETRY_SCALE = 1`) with `so-v25-a11-control` = `1`. Archive under `test/journeys/records/v2.5-plan02/A11-targeted/`.
+
+## Gate record (v2.6 carry-over, bundle f8eaa0675102)
+
+- C1 mutant (no write check): deterministic kill, defect replay `npc-stream-lands-in-next-chat` (5 failing in `streamGuard.test.ts` / `npcStreamLanding.review.test.ts`).
+- A37 (`live-v25-02-a37-output-budget.json`) and C7 (`live-v25-02-c7-note-order.json`) run with no key on lane 3: both need a model (A37 asks every role's profile; C7's onEnter reply is an LLM reply). C7's note-before-onEnter half passed. Final suite row 01-v25-02.
+- C2 guard/control: no model, but `records/v2.5-plan02/C2/c2-attempt.js` hard-codes lane 1's 2026-09-26 sandbox chat and story; rebuild owed on a fresh lane (open).
+- The v2.6 plan 02 Saga cast disagreement was the effect ledger evicting applied rows; fixed in v2.6 plan 01 (`trimLedger`).
+
+Full record: `docs/plans/v2.6/01-carry-over-proof.md` §Gate record (no-LLM half, 2026-09-30); records under `test/journeys/records/v2.6-01/`.

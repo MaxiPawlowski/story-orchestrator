@@ -18,12 +18,12 @@ Rules applied:
 | LLM scenario | keep | 32 |
 | LLM scenario | merge | 6 |
 | harness | keep | 73 |
-| jest | keep | 357 |
+| jest | keep | 358 |
 | journey check | keep | 144 |
 | live suite | keep | 29 |
 | no-LLM scenario | keep | 103 |
 | retired | retire (merged) | 1 |
-| storybook | keep | 44 |
+| storybook | keep | 46 |
 
 Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% killed of 199 scored mutants (sample 200 of 4469, seed 20260930). The R3 gate "not lower after pruning" holds by construction for this wave: no jest file was retired, so the same sample runs against the same tests.
 
@@ -207,7 +207,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | jest | `src/runtime/fingerprints.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/generationLifecycle.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/generationWiring.review.test.ts` | keep | guards a named defect |
-| jest | `src/runtime/groupStoryBinding.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
+| jest | `src/runtime/groupStoryBinding.test.ts` | keep | guards a named contract |
 | jest | `src/runtime/inlineTimeline.test.ts` | keep | guards a named contract |
 | jest | `src/runtime/journal.test.ts` | keep | guards a named contract |
 | jest | `src/runtime/journalContract.review.test.ts` | keep | guards a named defect |
@@ -246,6 +246,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | jest | `src/runtime/narrative.test.ts` | keep | guards a named contract |
 | jest | `src/runtime/nextTurn.test.ts` | keep | guards a named contract |
 | jest | `src/runtime/nextTurnCost.test.ts` | keep | guards a named contract |
+| jest | `src/runtime/npcLateLanding.review.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/npcRepliesOwnership.review.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/npcReplyRewind.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
 | jest | `src/runtime/npcReplyRoll.test.ts` | keep | guards a named defect |
@@ -405,7 +406,8 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | storybook | `src/components/settings/CapabilitiesGroup.stories.tsx` | keep | UI contract: 8 interaction plays + a11y |
 | storybook | `src/components/settings/ChapterControls.stories.tsx` | keep | UI contract: 2 interaction plays + a11y |
 | storybook | `src/components/settings/EntryPoints.stories.tsx` | keep | UI contract: 6 interaction plays + a11y |
-| storybook | `src/components/settings/JudgeSettingsGroup.stories.tsx` | keep | UI contract: 17 interaction plays + a11y |
+| storybook | `src/components/settings/GroupStoryBindingView.stories.tsx` | keep | UI contract: 4 interaction plays + a11y |
+| storybook | `src/components/settings/JudgeSettingsGroup.stories.tsx` | keep | UI contract: 19 interaction plays + a11y |
 | storybook | `src/components/settings/RoleProfilesGroup.stories.tsx` | keep | UI contract: 4 interaction plays + a11y |
 | storybook | `src/components/settings/WorldInfoGatingGroup.stories.tsx` | keep | UI contract: 8 interaction plays + a11y |
 | storybook | `src/components/studio/FeedbackAlert.stories.tsx` | keep | UI contract: 2 interaction plays + a11y |
@@ -413,6 +415,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | storybook | `src/components/studio/HelpTooltip.stories.tsx` | keep | UI contract: 2 interaction plays + a11y |
 | storybook | `src/components/studio/MultiSelect.stories.tsx` | keep | UI contract: 2 interaction plays + a11y |
 | storybook | `src/components/studio/Toolbar.stories.tsx` | keep | UI contract: 3 interaction plays + a11y |
+| storybook | `src/sprites/SpriteSettingsView.stories.tsx` | keep | UI contract: 4 interaction plays + a11y |
 | storybook | `src/studio/StudioModal.stories.tsx` | keep | UI contract: 9 interaction plays + a11y |
 | storybook | `src/studio/components/AgencyEditor.stories.tsx` | keep | UI contract: 5 interaction plays + a11y |
 | storybook | `src/studio/components/AgentWizard.stories.tsx` | keep | UI contract: 5 interaction plays + a11y |

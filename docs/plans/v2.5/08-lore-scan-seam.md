@@ -355,3 +355,11 @@ Lane prep: a lane (`node scripts/debug/st-lanes.mts start <n>`, then prefix comm
 - Plan 08 Q1-Q5 above (each taken as drafted, reversible).
 - Overview U1 (plan 01 Q1-Q4): scan mode's default and normalisation stay the user's; every L1/L5 path acts only when scan mode is active.
 - Whether `loreExclusive` should stay author-view only, and whether the copilot scope op should carry `exclusive`.
+
+## Gate record (v2.6 carry-over, bundle f8eaa0675102)
+
+- **G-L1 U6 is not a product defect.** The mirror writes relationship facts only; a scene-only memory skips as `nothing-live`, and the fixture asserted the book right after the scene pass while the real read that would have produced the first relationship fact was still in flight (attempt 3: `inFlight: true`, `auditCount: 0`). `live-memory-mirror.json` fixed (file mode asserted, `schedulerIdle`, its own seed, `expectReply`); no-LLM half `memory-mirror-file.json` green x2 on lane 3; jest pins scene-only-no-book.
+- Copilot `setLoreSelect` now keeps `exclusive` (parser, prompt schema, agent tool doc); red first in `parse.test.ts`; replay `lore-select-drops-exclusive`.
+- G-L4 P2, G-L5 X5 + story-flag column, L6 step-0 J7 replay, G-J: need a model; final suite row 01-v25-08.
+
+Full record: `docs/plans/v2.6/01-carry-over-proof.md` §Gate record (no-LLM half, 2026-09-30); records under `test/journeys/records/v2.6-01/`.
