@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Story Orchestrator — how it works (as of 2026-09-24)</title>
+<style>
+:root{
+  --bg:#0f1217;--panel:#171b22;--panel2:#1e232c;--line:#2b313c;--text:#e6e9ef;--muted:#9aa3b2;
+  --accent:#7aa2ff;--accent2:#b58cff;--ok:#4cc38a;--warn:#e8b04a;--bad:#ef6b6b;--code:#c9d1d9;
+  --chip:#262c37;--radius:10px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+code,.mono{font-family:ui-monospace,"Cascadia Code",Consolas,monospace;font-size:.88em;color:var(--code)}
+code{background:var(--chip);padding:1px 5px;border-radius:4px}
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+nav{position:sticky;top:0;height:100vh;overflow:auto;background:var(--panel);border-right:1px solid var(--line);padding:18px 12px}
+nav h1{font-size:16px;margin:0 0 4px}
+nav .sub{color:var(--muted);font-size:12px;margin-bottom:14px}
+nav a{display:block;padding:6px 10px;border-radius:6px;color:var(--muted);text-decoration:none;font-size:14px}
+nav a:hover{background:var(--panel2);color:var(--text)}
+nav a.active{background:var(--panel2);color:var(--text);border-left:3px solid var(--accent)}
+nav .grp{margin:12px 10px 4px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#6b7383}
+main{padding:28px 40px 80px;max-width:1180px}
+section{margin-bottom:64px;scroll-margin-top:16px}
+h2{font-size:26px;margin:0 0 6px}
+h3{font-size:18px;margin:22px 0 8px}
+.lede{color:var(--muted);margin:0 0 18px;max-width:820px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:1000px){.layout{grid-template-columns:1fr}nav{position:static;height:auto}.grid2,.grid3,.grid4{grid-template-columns:1fr}main{padding:20px}}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;background:var(--chip);color:var(--muted);margin:0 4px 4px 0}
+.pill.ok{background:#16352a;color:var(--ok)}.pill.warn{background:#3a2f16;color:var(--warn)}.pill.bad{background:#3a1c1c;color:var(--bad)}.pill.acc{background:#1d2745;color:var(--accent)}
+button,select,input[type=text],input[type=number]{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font:inherit;font-size:14px}
+button{cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.primary{background:#243463;border-color:#3b5bb0}
+button.danger{background:#3a1c1c;border-color:#6b2c2c}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600}
+.callout{border-left:3px solid var(--accent2);background:#1c1a2b;padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.callout.warn{border-color:var(--warn);background:#2a2415}
+.spine{display:grid;grid-template-columns:1fr 60px 1fr;align-items:center;gap:0}
+.spine .arrow{text-align:center;color:var(--muted);font-size:26px}
+.hero{background:linear-gradient(135deg,#1a2240,#231a3a);border:1px solid #2e3760;border-radius:14px;padding:26px 28px;margin-bottom:26px}
+.hero h2{font-size:30px}
+.stat{font-size:26px;font-weight:700}
+.stat + div{color:var(--muted);font-size:12px}
+details{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin:8px 0}
+details summary{cursor:pointer;font-weight:600}
+details[open] summary{margin-bottom:8px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tabs button.on{background:#243463;border-color:#3b5bb0}
+/* simulator */
+#sim-graph svg{width:100%;height:auto}
+.node rect{fill:var(--panel2);stroke:var(--line);stroke-width:1.5}
+.node.active rect{fill:#243463;stroke:var(--accent);stroke-width:2.5}
+.node.visited rect{stroke:var(--ok)}
+.node text{fill:var(--text);font-size:13px}
+.node .t2{fill:var(--muted);font-size:11px}
+.edge{stroke:#4a5263;stroke-width:1.6;fill:none}
+.edge.open{stroke:var(--ok);stroke-width:2.6}
+.edge.fired{stroke:var(--accent2);stroke-width:3}
+.elabel{fill:var(--muted);font-size:10.5px}
+.bb-row{display:grid;grid-template-columns:150px 1fr 90px;gap:8px;align-items:center;padding:5px 0;border-bottom:1px dashed var(--line)}
+.leaf{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;padding:2px 6px;border-radius:4px;display:inline-block;margin:2px 3px 2px 0}
+.leaf.t{background:#16352a;color:var(--ok)}.leaf.f{background:#3a1c1c;color:#f19a9a}
+.log{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;background:#0b0d11;border:1px solid var(--line);border-radius:8px;padding:10px;height:230px;overflow:auto}
+.log div{padding:1px 0}
+.log .b{color:var(--accent)}.log .g{color:var(--ok)}.log .r{color:var(--bad)}.log .y{color:var(--warn)}.log .p{color:var(--accent2)}
+.queue-item{display:flex;justify-content:space-between;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:4px 8px;margin:4px 0;font-size:13px}
+/* arch */
+.arch{display:grid;gap:10px}
+.layer{display:grid;grid-template-columns:130px 1fr;gap:10px;align-items:stretch}
+.layer .lname{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center}
+.boxes{display:flex;gap:8px;flex-wrap:wrap}
+.box{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;font-size:14px;transition:.15s}
+.box:hover{border-color:var(--accent)}
+.box.sel{border-color:var(--accent);background:#243463}
+.box small{display:block;color:var(--muted);font-size:11px}
+#arch-detail{min-height:180px}
+/* steps */
+.steps{display:flex;gap:6px;flex-wrap:wrap}
+.step{flex:1;min-width:130px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px;cursor:pointer;position:relative}
+.step .n{font-size:11px;color:var(--muted)}
+.step.sel{border-color:var(--accent2);background:#2a2145}
+.step.offpath{border-style:dashed}
+/* board */
+.plan{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;cursor:pointer}
+.plan:hover{border-color:var(--accent)}
+.plan .num{font-size:12px;color:var(--muted)}
+.plan h4{margin:2px 0 6px;font-size:15px}
+.bar{height:6px;background:var(--chip);border-radius:3px;overflow:hidden;margin-top:8px}
+.bar>i{display:block;height:100%}
+.timeline{position:relative;padding-left:26px}
+.timeline:before{content:"";position:absolute;left:9px;top:4px;bottom:4px;width:2px;background:var(--line)}
+.tl{position:relative;margin-bottom:14px}
+.tl:before{content:"";position:absolute;left:-22px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--accent);border:2px solid var(--bg)}
+.tl.cur:before{background:var(--warn);box-shadow:0 0 0 4px #3a2f16}
+.persona-panel{border:1px dashed var(--line);border-radius:8px;padding:8px 10px;margin:6px 0;font-size:13.5px}
+.persona-panel.author{border-color:#5b3fa0;background:#1d1830}
+.persona-panel.hidden{display:none}
+.chart svg{width:100%;height:auto;background:#0b0d11;border:1px solid var(--line);border-radius:8px}
+.gloss-item{padding:8px 0;border-bottom:1px solid var(--line)}
+.gloss-item b{color:var(--accent)}
+kbd{background:var(--chip);border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav id="nav">
+  <h1>Story Orchestrator</h1>
+  <div class="sub">SillyTavern extension · explained<br>state of the repo: 2026-09-24 (<code>c9f3843</code>)</div>
+  <div class="grp">Concept</div>
+  <a href="#what">What it is</a>
+  <a href="#spine">The design spine</a>
+  <a href="#sim">▶ Play a story (simulator)</a>
+  <div class="grp">How it works</div>
+  <a href="#turn">Turn loop &amp; boundaries</a>
+  <a href="#extract">Extraction</a>
+  <a href="#memory">Memory tiers</a>
+  <a href="#pacing">Pacing &amp; tension</a>
+  <a href="#gen">Background generation</a>
+  <a href="#talk">Speaker direction</a>
+  <a href="#stage">Stagecraft &amp; the judge</a>
+  <a href="#ui">Player vs author surfaces</a>
+  <a href="#arch">Architecture map</a>
+  <a href="#safety">Safety invariants</a>
+  <div class="grp">History &amp; now</div>
+  <a href="#history">Version timeline</a>
+  <a href="#v24">v2.4 — in progress</a>
+  <a href="#testing">How it's tested</a>
+  <a href="#glossary">Glossary</a>
+</nav>
+
+<main>
+
+<!-- ============ WHAT ============ -->
+<section id="what">
+  <div class="hero">
+    <h2>A story engine that runs underneath your roleplay chat</h2>
+    <p class="lede" style="color:#c3c9d6">LLMs write a good <i>next message</i> but can't run a <i>story</i>: over long play the plot wanders,
+    tension flattens and setups never pay off. Story Orchestrator lets an author define a story as a <b>graph of checkpoints</b>
+    with <b>typed conditions</b> between them. While you chat normally in SillyTavern, the extension quietly reads what happened,
+    keeps a scoreboard of story state, advances the plot by fixed rules, remembers what matters, steers the narrator,
+    decides who talks in group chats, and generates connecting beats where the author left gaps.</p>
+    <div class="grid4" style="margin-top:14px">
+      <div><div class="stat">~56k</div><div>lines of TypeScript in <code>src/</code></div></div>
+      <div><div class="stat">198</div><div>jest test files (+ Storybook, node:test harness)</div></div>
+      <div><div class="stat">22</div><div>end-to-end journeys (J0–J12…) run against a real LLM</div></div>
+      <div><div class="stat">257</div><div>commits · v2 → v2.4 in ~3 months</div></div>
+    </div>
+  </div>
+  <div class="grid3">
+    <div class="card"><h3 style="margin-top:0">For the player</h3>Pick a story, chat as usual. A HUD strip shows where you are and the tension; a drawer shows a spoiler-free "where am I" overview and what the story remembers. Swipes, edits and deletes are understood — the story steps back with you.</div>
+    <div class="card"><h3 style="margin-top:0">For the author</h3>A <b>Checkpoint Studio</b> (graph editor + diagnostics) and a <b>Wizard</b> that interviews you and creates the characters, lorebook and group a story needs. An "Author view" reveals the machinery: blackboard, scheduler, next-turn prompt preview, memory internals.</div>
+    <div class="card"><h3 style="margin-top:0">Under the hood</h3>A pure deterministic engine (no AI, fully testable) + a separate "memory model" that does all fuzzy reading off the reply path. Everything host-facing goes through one seam (<code>STAPI</code>), and every async write proves it still owns the chat.</div>
+  </div>
+</section>
+
+<!-- ============ SPINE ============ -->
+<section id="spine">
+  <h2>The design spine: deterministic engine, measured AI layer</h2>
+  <p class="lede">The single most important idea. The rulebook is arithmetic; the only fuzzy step is the AI <i>reading</i> prose into typed values — and that step is isolated, evidence-backed and scored against answer keys.</p>
+  <div class="spine">
+    <div class="card">
+      <h3 style="margin-top:0">🧮 Deterministic engine <span class="pill ok">no AI</span></h3>
+      <ul class="small">
+        <li><b>Blackboard</b> of typed <b>qualities</b> (int/float/bool/enum/string), with versions, <b>latching</b> (a flag stays true) and <b>monotonic</b> checks (progress only rises).</li>
+        <li><b>Gates</b>: JSON condition trees <code>{all|any|not}</code> over leaves <code>{q, op, v}</code>. Same blackboard ⇒ same result.</li>
+        <li><b>Transitions</b> with priority; exactly one checkpoint active; one transition per boundary.</li>
+        <li><b>Apply queue</b>: all writes wait and drain only at a turn boundary. Boundary logs + snapshots ⇒ rollback.</li>
+        <li>Lives in <code>src/engine/**</code>, which is forbidden (by a build-failing test) from importing the host.</li>
+      </ul>
+    </div>
+    <div class="arrow">⇄</div>
+    <div class="card">
+      <h3 style="margin-top:0">🔎 Measured AI layer <span class="pill warn">fuzzy, isolated</span></h3>
+      <ul class="small">
+        <li><b>Shared read</b> (extractor): a second "memory" LLM reads recent chat and proposes <code>DELTA</code> lines + memory lines, each quoting evidence.</li>
+        <li><b>Closed vocabulary</b>: can only name declared qualities and allowed values; strict line parser rejects the rest.</li>
+        <li>Runs <b>off the reply path</b> on a priority scheduler; results are applied only at the next boundary.</li>
+        <li>Scored by goldens in jest and by a live suite against the real model (per-tier floors).</li>
+        <li>Other AI helpers (scaffold generator, critic, curator, director, judge) <b>propose</b>; code decides.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout">A gate on <code>message_count &gt;= 5</code> is deterministic end-to-end. A gate on <code>mara_trust &gt;= 4</code> is deterministic <i>given</i> the blackboard, but rests on a reading. The author chooses per gate where on that spectrum to sit.</div>
+</section>
+
+<!-- ============ SIMULATOR ============ -->
+<section id="sim">
+  <h2>▶ Play a story (simulator)</h2>
+  <p class="lede">A tiny story, <b>"The Vault Job"</b>, running a faithful miniature of the engine: an extractor <i>proposes</i> deltas (with evidence), they sit in the <b>apply queue</b>, and nothing changes until a <b>turn boundary</b> commits. Then the active checkpoint's outgoing gates are evaluated in priority order and at most one fires. Try a swipe to see rollback.</p>
+  <div class="grid2">
+    <div class="card" id="sim-graph"></div>
+    <div class="card">
+      <h3 style="margin-top:0">Blackboard <span class="muted small">(committed values)</span></h3>
+      <div id="bb"></div>
+      <h3>Outgoing gates of the active checkpoint</h3>
+      <div id="gates" class="small"></div>
+    </div>
+  </div>
+  <div class="grid2" style="margin-top:16px">
+    <div class="card">
+      <h3 style="margin-top:0">1 · The extractor proposes (off-path)</h3>
+      <div class="small muted">Pick what the memory model "read" in the last turn. Proposals queue; they do <b>not</b> apply yet.</div>
+      <div class="row" style="margin:10px 0">
+        <select id="pq"></select>
+        <span id="pvWrap"></span>
+        <button id="propose">Propose delta</button>
+      </div>
+      <div class="small">Quick picks:
+        <button class="qp" data-q="mara_trust" data-v="+1">Mara laughs at your joke (+1 trust)</button>
+        <button class="qp" data-q="player_has_key" data-v="true">You pocket the key</button>
+        <button class="qp" data-q="location" data-v="tunnels">You slip into the tunnels</button>
+        <button class="qp" data-q="guards_alerted" data-v="true">A guard shouts</button>
+        <button class="qp" data-q="player_has_key" data-v="false">"You drop the key" (tests latching)</button>
+      </div>
+      <h3>Apply queue <span class="muted small">(pending, not persisted — a reload drops it)</span></h3>
+      <div id="queue"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">2 · Turn boundary</h3>
+      <div class="small muted">A boundary = a fully rendered reply. Code refreshes meta counters, drains the queue, evaluates gates, fires ≤1 transition and applies the new checkpoint's effects.</div>
+      <div class="row" style="margin:10px 0">
+        <button class="primary" id="commit">Reply rendered → commit boundary</button>
+        <button class="danger" id="swipe">Swipe / delete last reply → rollback</button>
+        <button id="reset">Restart story</button>
+      </div>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TURN LOOP ============ -->
+<section id="turn">
+  <h2>Turn loop &amp; boundaries</h2>
+  <p class="lede">The reply path is deterministic and AI-free in steady state. Click a step. Dashed steps run <b>off-path</b> — the reply never waits on them.</p>
+  <div class="steps" id="steps"></div>
+  <div class="card" id="step-detail" style="margin-top:12px"></div>
+  <h3>What counts as a turn (TurnBridge)</h3>
+  <table>
+    <tr><th>ST event / message type</th><th>Treated as</th></tr>
+    <tr><td><code>normal</code>, <code>regenerate</code>, <code>continue</code>, <code>appendFinal</code>, <code>command</code> (<code>/sendas</code>, our scripted NPC replies), untyped emitters</td><td>Boundary commit</td></tr>
+    <tr><td><code>first_message</code> (greetings), <code>extension</code> (<code>/sd</code> images)</td><td>Not a turn (denylist — an unknown reply type must never freeze a story)</td></tr>
+    <tr><td>Swipe, edit, delete (<code>MESSAGE_SWIPED/EDITED/DELETED</code>)</td><td>Mutation → rollback to the boundary before that message, drop queued writes that read it</td></tr>
+    <tr><td>Eventless changes (<code>/hide</code>, message move, a peer extension rewriting text) <span class="pill acc">v2.4</span></td><td>Detected by per-message <b>content fingerprints</b> reconciled at boundary/hydrate. Hiding never rolls back.</td></tr>
+    <tr><td><code>quiet</code>/<code>impersonate</code>/nested/foreign generations <span class="pill acc">v2.4</span></td><td>Ignored by the <b>outermost-loud-generation tracker</b> — they no longer spend one-turn notes or clear private blocks</td></tr>
+  </table>
+</section>
+
+<!-- ============ EXTRACTION ============ -->
+<section id="extract">
+  <h2>Extraction — the one fuzzy step</h2>
+  <p class="lede">A missed reading is load-bearing (a gate may never open), so the read is hardened in layers.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">Anatomy of a shared read</h3>
+      <ol class="small">
+        <li><b>Window</b>: recent messages (cadence N, stability lag K), cleaned of hidden/system/extension rows.</li>
+        <li><b>Scope</b>: only not-yet-latched qualities gated at or ahead of the active checkpoint on any reachable path (+ snapshot qualities). Wide by default; <code>scope_hint</code> narrows.</li>
+        <li><b>Contract</b>: each quality's <b>rubric</b> (question + scale) + transition <code>extraction_hint</code>s.</li>
+        <li><b>Call</b> the memory model via a Connection Manager profile (inline <code>&lt;think&gt;</code> stripped).</li>
+        <li><b>Parse</b> strict <code>DELTA</code>/<code>MEMORY</code>/arc/epistemic/ledger lines; reject unknown keys, bad values, and any delta whose evidence quote isn't in the window.</li>
+        <li><b>Audit</b> stored; accepted deltas queue for the next boundary.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Example model output</h3>
+<pre class="mono small" style="white-space:pre-wrap;margin:0">DELTA mara_trust +1 | "Mara laughs despite herself and slides the map across"
+DELTA player_has_key true | "You close your fist around the brass key"
+MEMORY [event:2:session] Mara showed the player the vault map :entity=Mara
+[arc] The missing ledger
+[knows] Mara: the vault's east door is unguarded after midnight
+[hiding] Mara from Guard Captain: she forged the pass
+SCENE_NONE</pre>
+      <p class="small muted">Scheduler priorities: P0 forced (cue/reconcile) · P1 cadence read · P2 scene-break tier passes · P3 scaffolding + critic · P4 consolidation / canon. Two lanes so a long generation never delays a forced read.</p>
+    </div>
+  </div>
+  <details><summary>Stall reconciliation</summary>
+  If no gate fires for <code>max(1.5 × target_turn_length, 6)</code> turns, a <b>targeted</b> re-read runs over the turns since the checkpoint was entered, for the unmet gates' qualities only. It may raise an under-read value on quoted evidence; un-latching needs explicit contradicting evidence. It can never write <code>source: code</code> qualities.</details>
+  <details><summary>Failure handling (being reworked in v2.4 plan 03)</summary>
+  Today a failed read can pause extraction <b>install-wide</b>. v2.4 decision D4: the runtime never writes <code>extraction.enabled</code> again — failures are classified <b>transport</b> (in-memory breaker per profile, backoff, auto-resume, player "Try again"), <b>config</b> (<code>not-configured</code> + a Repair step) or <b>bug</b> (per-chat error, retried next boundary). Every call becomes abortable, time-bounded and size-bounded.</details>
+</section>
+
+<!-- ============ MEMORY ============ -->
+<section id="memory">
+  <h2>Memory tiers</h2>
+  <p class="lede">The blackboard decides <i>whether the story advances</i>; memory decides <i>what the next scene must stay faithful to</i>. Adapted from Smart-Memory; all work on the memory model, off-path. Click a tier.</p>
+  <div class="grid2">
+    <div><div class="boxes" id="tiers"></div><div class="card" id="tier-detail" style="margin-top:12px"></div></div>
+    <div class="card">
+      <h3 style="margin-top:0">Privacy demo: who knows what</h3>
+      <p class="small muted">In a group chat each member gets <b>their own</b> epistemic block, swapped in when ST drafts them (<code>GROUP_MEMBER_DRAFTED</code>). The resting block is empty. Epistemic data is <b>never</b> written to World Info.</p>
+      <div class="row"><span class="small">Mode</span>
+        <select id="ep-mode"><option value="group">Group chat — drafted member</option><option value="solo">Solo narrator (v2.4 E2: attributed)</option><option value="solo-old">Solo narrator (before E2 — the defect)</option></select>
+        <select id="ep-member"><option>Arin</option><option>Ponticius</option><option>Mara</option></select>
+      </div>
+      <pre class="mono small" id="ep-out" style="white-space:pre-wrap;background:#0b0d11;border:1px solid var(--line);border-radius:8px;padding:10px;margin-top:10px"></pre>
+      <div id="ep-note" class="small"></div>
+    </div>
+  </div>
+  <h3>Maintenance machinery</h3>
+  <div class="grid4">
+    <div class="card small"><b>Scene detection</b><br>Code heuristics (time-skip, location change, <code>---</code>, cast change) force a read; every read also asks "did a scene break?". Breaks trigger heavy tier passes + a scene summary.</div>
+    <div class="card small"><b>Supersession</b><br>A changed fact retires its predecessor instead of coexisting. Same event as a blackboard mutation, seen from the memory layer.</div>
+    <div class="card small"><b>Consolidation</b><br>Dedup via ST's vectors backend (dup ≥0.82 / same-topic ≥0.55), Jaccard fallback. Pin / exclude / edit are honoured forever.</div>
+    <div class="card small"><b>Derived artifacts</b><br>Every summary/canon/dedup records its inputs and what it removed, so <b>rollback ≡ replay</b> (property-tested: 4 seeds × 400 cuts).</div>
+  </div>
+  <p class="small muted">Memory reaches the prompt as injected blocks at controlled depths (single registry: <code>constants/injectionRegistry.ts</code>), as <code>{{story_memory_*}}</code>/<code>{{story_canon}}</code> macros, and as a per-chat World Info mirror book (<code>Story Orchestrator - &lt;title&gt; - &lt;chatId&gt;</code>).</p>
+</section>
+
+<!-- ============ PACING ============ -->
+<section id="pacing">
+  <h2>Pacing &amp; tension</h2>
+  <p class="lede">Tension is read as one of five named levels (models label these reliably; 0–1 ratings are noisy), mapped to numbers, smoothed with an EMA into <code>tension_current</code>. The engine compares it to the author's dramatic shape and feeds the narrator a one-line hint. Pure arithmetic — no AI call.</p>
+  <div class="grid2">
+    <div class="card chart"><div id="pchart"></div></div>
+    <div class="card">
+      <div class="row"><span class="small">Shape</span><select id="shape"><option value="rising">rising-to-climax</option><option value="fall">fall-then-recovery</option><option value="three">three-act</option></select>
+      <span class="small">EMA α</span><input type="range" id="alpha" min="0.1" max="0.9" step="0.05" value="0.4"><span id="alphaV" class="mono small"></span></div>
+      <div class="small muted" style="margin:10px 0 6px">Add the level the extractor read this turn:</div>
+      <div class="row" id="lvlbtns"></div>
+      <div class="row" style="margin-top:8px"><button id="pclear">Clear</button></div>
+      <div class="callout" id="hint" style="margin-top:14px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GENERATION ============ -->
+<section id="gen">
+  <h2>Background generation &amp; convergence</h2>
+  <p class="lede">Authors write <b>anchors</b> (guaranteed beats) and may leave <b>stubs</b> between them. When the player approaches a stub, the extension generates <b>scaffolding</b> — not prose — for the bridging beats. The main model narrates them at runtime like any authored beat.</p>
+  <div class="steps" id="gensteps"></div>
+  <div class="card" id="gen-detail" style="margin-top:12px"></div>
+  <div class="callout">Convergence is deterministic: each anchor has a <code>progress_toward_&lt;anchor&gt;</code> counter (<code>source: code</code>). Generated transitions add declared increments; the edge into the anchor requires <code>progress ≥ threshold</code>. Nothing fuzzy can write the counter. Since v2.3 every generated outcome is its own route; a chain with any unusable route is <code>needs-review</code>, never half-inserted.</div>
+</section>
+
+<!-- ============ TALK ============ -->
+<section id="talk">
+  <h2>Speaker direction (group chats)</h2>
+  <p class="lede">A checkpoint can declare <code>talk_control</code>. The extension then decides who speaks next via ST's generate interceptor, vetoing the other drafted members. Try it:</p>
+  <div class="grid2">
+    <div class="card">
+      <div class="small muted">Checkpoint's talk_control: speakers Arin (w3), Ponticius (w1), lead Mara (not in speakers → joins at w1), <code>no_repeat</code> on.</div>
+      <div class="row" style="margin-top:10px"><input type="text" id="tk-msg" style="flex:1" value="Mara, what do you make of the map?"></div>
+      <div class="row" style="margin-top:8px">
+        <label class="small"><input type="checkbox" id="tk-force"> explicit <code>force_chid</code> (speak button / <code>/trigger</code>) → Ponticius</label>
+      </div>
+      <div class="row" style="margin-top:4px">
+        <label class="small"><input type="checkbox" id="tk-dir" checked> LLM director enabled</label>
+        <label class="small"><input type="checkbox" id="tk-dirfail"> director times out</label>
+        <label class="small"><input type="checkbox" id="tk-sil"> allow_silence</label>
+      </div>
+      <div class="row" style="margin-top:4px"><span class="small">Previous speaker</span><select id="tk-prev"><option>Arin</option><option>Ponticius</option><option>Mara</option></select>
+      <button class="primary" id="tk-go">Decide</button></div>
+    </div>
+    <div class="card"><div id="tk-out" class="small"></div></div>
+  </div>
+</section>
+
+<!-- ============ STAGECRAFT / JUDGE ============ -->
+<section id="stage">
+  <h2>Stagecraft, the curator, the warden &amp; the judge</h2>
+  <div class="grid3">
+    <div class="card"><h3 style="margin-top:0">Deterministic stagecraft first</h3><p class="small">Checkpoint <b>effects</b> fire on activation (and idempotently on hydrate): Author's Note (text/role/depth), preset, World Info on/off, cast enable/disable, scripted or LLM NPC replies, background. Every host effect goes through a <b>write-ahead ledger</b> and is restored compare-and-set on leave.</p></div>
+    <div class="card"><h3 style="margin-top:0">World Info curator</h3><p class="small">An optional background agent that <b>proposes only</b>: typed ops against the story's authored <code>stagecraft.lorebooks</code> allowlist, reviewed in the drawer (accept mode <code>review|auto|off</code>), applied at a boundary, reverted on rollback. Off by default. Checkpoint-gated entries are invisible to it.</p></div>
+    <div class="card"><h3 style="margin-top:0">Continuity warden</h3><p class="small">Checks the last reply against known facts; an accepted note is injected for <b>one</b> loud generation (depth 0), committed only when that generation renders its reply. Never rerolls, never rewrites.</p></div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3 style="margin-top:0">The judge (TypeSafe Jev, via an ST server plugin)</h3>
+    <p class="small">A small "System One" model that answers typed questions (scores, choices) fast. Rules that never bend: <b>never blocks, never writes</b>; every use is its own install-wide opt-in, <b>all off by default and never flipped by a plan</b>; every use keeps today's path on disabled/timeout/error; the key lives server-side only. Each use must beat a <b>predeclared floor</b> on a calibration fixture — and a floor that isn't reached is never retuned (e.g. the lore-ranking "Score" arm was measured, lost on nDCG, and was <i>not built</i>).</p>
+    <div class="row"><span class="pill">director (needs roster roles)</span><span class="pill">continuity warden checks</span><span class="pill">lore relevance (Noul)</span><span class="pill">backgrounds (below floor)</span><span class="pill bad">sceneOoc — removed v2.4</span><span class="pill bad">memoryRerank — removed v2.4</span><span class="pill acc">agencyCheck — v2.4 plan 07</span><span class="pill acc">houseRules — v2.4 plan 07</span></div>
+  </div>
+  <div class="callout">Agency policy (v2.3): by default the narrator must <b>not narrate the player's actions</b> and protects player choice; the objective is framed as world pressure. A player who refuses the prepared route gets one neutral line and an author-side recovery, never forced compliance.</div>
+</section>
+
+<!-- ============ UI ============ -->
+<section id="ui">
+  <h2>Player vs author surfaces</h2>
+  <p class="lede">Two personas, one default. Player mode is the publishable, spoiler-free surface; author view <b>adds</b> panels, never hides-and-reveals. Toggle to compare.</p>
+  <div class="tabs"><button id="p-player" class="on">Player mode (default)</button><button id="p-author">Author view</button></div>
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">Top-bar drawer <code>#so-drawer</code></h3>
+      <div class="persona-panel"><b>Overview</b> — "where am I" composed by <code>narrative.ts</code>: now / recently / threads / story / status; checkpoint <i>names</i>, never ids. Restart story.</div>
+      <div class="persona-panel"><b>Memory</b> — established facts, find + tier filter, pin/exclude/edit.</div>
+      <div class="persona-panel author hidden"><b>Blackboard</b> — every quality, version, latch state.</div>
+      <div class="persona-panel author hidden"><b>Scheduler</b> — queue, audits, talk decisions, the World Info curator review ring.</div>
+      <div class="persona-panel author hidden"><b>Payload</b> — the <b>next-turn preview</b>: every injected block in ST's own assembly order (v2.4 adds token cost + share of context).</div>
+      <div class="persona-panel author hidden"><b>Engine panels</b> — convergence, epistemic, ledger, arcs, driver (Advance / Nudge / Probe / Suggest), Edit story, Update to vN, Fix with wizard.</div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Elsewhere</h3>
+      <div class="persona-panel"><b>HUD strip</b> above the input: checkpoint · tension · pending-delta chip · pipeline chip (catching up / needs setup / stepped back).</div>
+      <div class="persona-panel"><b>Settings panel</b> — four entry points: <b>Start</b> (wizard / import), <b>Continue</b>, <b>Repair</b> (the ONE worst missing step: memory model → cast → lore → persona → unsaved), <b>Author</b> (Studio).</div>
+      <div class="persona-panel"><b>Away recap</b> popup and <code>/story recap|threads|flag</code> — same composition as the Overview.</div>
+      <div class="persona-panel author hidden"><b>Checkpoint Studio</b> — native <code>&lt;dialog&gt;</code>; editors for story, roster, qualities, gates, checkpoints, transitions, scope preview, diagnostics (each with a plain-words consequence), graph + Mermaid.</div>
+      <div class="persona-panel author hidden"><b>Wizard</b> — Premise → Turning points → Characters → Setup; interview questions; <b>create-only</b> provisioning cards (character cards, lorebook, group) applied one at a time, never by "Accept all". Personas are never created.</div>
+      <div class="persona-panel author hidden"><b>/cp</b> slash commands — state / set / activate / extract / expand / converge / memorize.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ARCH ============ -->
+<section id="arch">
+  <h2>Architecture map</h2>
+  <p class="lede">Click any module for what it does, where it lives and the rules that bind it.</p>
+  <div class="grid2">
+    <div class="arch" id="archmap"></div>
+    <div class="card" id="arch-detail"><span class="muted">← select a module</span></div>
+  </div>
+</section>
+
+<!-- ============ SAFETY ============ -->
+<section id="safety">
+  <h2>Safety invariants (the hard-won rules)</h2>
+  <p class="lede">Most of v2.1–v2.4 was spent making the extension correct under a hostile host: chat switches mid-await, other extensions, eventless edits, saves that swallow their own errors. Each rule below exists because a real defect was found.</p>
+  <div id="inv"></div>
+</section>
+
+<!-- ============ HISTORY ============ -->
+<section id="history">
+  <h2>Version timeline</h2>
+  <div class="timeline" id="tl"></div>
+</section>
+
+<!-- ============ V2.4 ============ -->
+<section id="v24">
+  <h2>v2.4 — "correct under the host as it really is" <span class="pill warn">in progress</span></h2>
+  <p class="lede">v2.3 made the extension correct under the mutations <i>we</i> modelled. A review of 55 community extensions, Jeved and Reddit threads found the host is wider: ST mutates chats without events (<code>/hide</code>, message moves, branches), other extensions generate inside our turn and patch <code>fetch</code>, and <code>MESSAGE_DELETED</code> doesn't carry what we assumed. v2.4 closes that gap first, then spends the rest on author leverage and judge uses that earn their floor. <b>No new autonomous agent, no reroll, no rewrite pass.</b></p>
+  <div class="row" style="margin-bottom:10px"><span class="pill ok">built + live green</span><span class="pill warn">built, not accepted</span><span class="pill acc">partially built</span><span class="pill">not started</span></div>
+  <div class="grid3" id="board"></div>
+  <div class="card" id="plan-detail" style="margin-top:14px"><span class="muted">Click a plan for its items and state.</span></div>
+
+  <h3>Key decisions (2026-09-23/24)</h3>
+  <div class="row" style="margin-bottom:8px"><input type="text" id="dec-filter" placeholder="filter decisions…" style="width:280px"></div>
+  <table id="dec"></table>
+
+  <h3>Refused in v2.4 (anti-patterns, not deferred)</h3>
+  <div class="row"><span class="pill bad">auto-reroll / auto-swipe QA</span><span class="pill bad">judge-driven rewrite or recast</span><span class="pill bad">rules that run STscript</span><span class="pill bad">browser-held judge key</span><span class="pill bad">a judge probability deciding a state write</span></div>
+  <h3>Deferred to v2.5</h3>
+  <p class="small muted">swipe-back cache · interceptor trimming / witness-filtered transcripts · roster aliases · append-only short_term · complication pool · story-owned scenario · seeded chance gates · re-commit after third-party rewrite · lore contradiction in warden · judge tension read · Studio gate replay · hosted judge routes · per-message author inspector · player-facing options menu / visible qualities · multiplayer POV · scan-time WI gating build (if the plan-05 spike passes)</p>
+</section>
+
+<!-- ============ TESTING ============ -->
+<section id="testing">
+  <h2>How it's tested</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">Gate tiers (never claim done without them)</h3>
+      <table>
+        <tr><th>Change touches</th><th>Required</th></tr>
+        <tr><td>docs</td><td>none</td></tr>
+        <tr><td>pure modules</td><td>typecheck + lint + jest</td></tr>
+        <tr><td>build / release</td><td>+ build + <code>test:release</code> (manifest vs bytes)</td></tr>
+        <tr><td>runtime / UI / ST-facing</td><td>+ <b>live gate: real-LLM browser validation as an end user</b></td></tr>
+      </table>
+      <p class="small muted">Mocks (<code>debugResponse</code>) are for determinism only; mocked gates once hid two ship-blocking bugs, so an LLM-consuming path is never signed off on mocks.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">The harness</h3>
+      <ul class="small">
+        <li><b>Journeys</b> (<code>so-journey.mts</code>): scripted end-user sessions with checks; outcomes pass/fail/blocked; three gates (automated/human/cleanup); <b>green only after two consecutive runs</b>, archived under <code>test/journeys/records/</code>.</li>
+        <li><b>Scenarios</b> with a closed, validated vocabulary — a typo is a load error.</li>
+        <li><b>Run header</b> diff around every batch — catches install-wide residue.</li>
+        <li><b>Parallel lanes</b>: separate ST servers + browsers on copies of the install.</li>
+        <li><b>Census guards</b>: ownership sites, fault matrix (9 packages × 9 fault shapes, cited tests), architecture budgets.</li>
+        <li><b>Mutation testing</b> per item: each new guard must kill its mutants.</li>
+        <li><b>Live suite</b>: extraction accuracy against the real memory model, per-tier floors.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GLOSSARY ============ -->
+<section id="glossary">
+  <h2>Glossary</h2>
+  <input type="text" id="gl-q" placeholder="search terms…" style="width:320px;margin-bottom:10px">
+  <div id="gl"></div>
+</section>
+
+</main>
+</div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ================= SIMULATOR ================= */
+const QUAL={
+  mara_trust:{type:'int',min:0,max:5,monotonic:true,source:'extractor',rubric:'Did anything change Mara\'s trust? By how much, quoting what?'},
+  player_has_key:{type:'bool',latching:true,source:'extractor',rubric:'Does the player now hold the vault key?'},
+  location:{type:'enum',values:['tavern','market','vault','tunnels'],source:'extractor',rubric:'Where is the player now?'},
+  guards_alerted:{type:'bool',latching:true,source:'extractor',rubric:'Have the guards been alerted?'},
+  message_count:{type:'int',source:'code',rubric:'(code) messages since story start'},
+};
+const CPS={
+  cp1:{name:'Tavern meeting',kind:'anchor',x:20,y:120,an:'Mara sizes you up over cheap ale.'},
+  cp2:{name:'Earn Mara\'s trust',kind:'anchor',x:200,y:120,an:'Mara is guarded; let trust be earned, not given.'},
+  cp3a:{name:'Through the vault door',kind:'anchor',x:390,y:40,an:'Tension high; the lock yields.'},
+  cp3b:{name:'The tunnels',kind:'anchor',x:390,y:200,an:'Dark, wet, echoing.'},
+  cp4:{name:'Escape',kind:'anchor',x:570,y:120,an:'Everything converges at the river gate.'},
+};
+const TR=[
+  {id:'t1',from:'cp1',to:'cp2',pri:1,gate:{q:'message_count',op:'>=',v:2}},
+  {id:'t2',from:'cp2',to:'cp3a',pri:2,gate:{all:[{q:'player_has_key',op:'==',v:true},{q:'mara_trust',op:'>=',v:4}]}},
+  {id:'t3',from:'cp2',to:'cp3b',pri:1,gate:{any:[{q:'location',op:'in',v:['tunnels']},{q:'guards_alerted',op:'==',v:true}]}},
+  {id:'t4',from:'cp3a',to:'cp4',pri:1,gate:{q:'location',op:'in',v:['vault','tunnels']}},
+  {id:'t5',from:'cp3b',to:'cp4',pri:1,gate:{not:{q:'guards_alerted',op:'==',v:false}}},
+];
+const init=()=>({bb:{mara_trust:0,player_has_key:false,location:'tavern',guards_alerted:false,message_count:0},
+  latched:{},active:'cp1',visited:['cp1'],boundary:0,queue:[],snaps:[],lastFired:null});
+let S=init();
+function leafEval(l,bb){const a=bb[l.q];switch(l.op){case'==':return a===l.v;case'!=':return a!==l.v;case'>=':return a>=l.v;case'<=':return a<=l.v;case'>':return a>l.v;case'<':return a<l.v;case'in':return l.v.includes(a)}return false}
+function gEval(g,bb){if(g.all)return g.all.every(x=>gEval(x,bb));if(g.any)return g.any.some(x=>gEval(x,bb));if(g.not)return!gEval(g.not,bb);return leafEval(g,bb)}
+function gRender(g,bb){
+  if(g.all)return '('+g.all.map(x=>gRender(x,bb)).join(' <b>AND</b> ')+')';
+  if(g.any)return '('+g.any.map(x=>gRender(x,bb)).join(' <b>OR</b> ')+')';
+  if(g.not)return '<b>NOT</b> '+gRender(g.not,bb);
+  const ok=leafEval(g,bb);const v=Array.isArray(g.v)?'['+g.v.join(',')+']':g.v;
+  return `<span class="leaf ${ok?'t':'f'}">${g.q} ${esc(g.op)} ${v}</span>`;
+}
+function log(msg,c=''){const d=document.createElement('div');d.className=c;d.innerHTML=msg;$('#log').appendChild(d);$('#log').scrollTop=1e9}
+function drawGraph(){
+  const W=720,H=270,bw=140,bh=48;
+  let s=`<svg viewBox="0 0 ${W} ${H}"><defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#6b7383"/></marker></defs>`;
+  for(const t of TR){const a=CPS[t.from],b=CPS[t.to];const x1=a.x+bw,y1=a.y+bh/2,x2=b.x,y2=b.y+bh/2;
+    const open=t.from===S.active&&gEval(t.gate,S.bb);const fired=S.lastFired===t.id;
+    s+=`<path class="edge ${fired?'fired':open?'open':''}" d="M${x1},${y1} C${x1+30},${y1} ${x2-30},${y2} ${x2},${y2}" marker-end="url(#ar)"/>`;
+    s+=`<text class="elabel" x="${(x1+x2)/2-14}" y="${(y1+y2)/2-6}">${t.id} p${t.pri}</text>`;}
+  for(const[id,c]of Object.entries(CPS)){const cls=id===S.active?'active':S.visited.includes(id)?'visited':'';
+    s+=`<g class="node ${cls}"><rect x="${c.x}" y="${c.y}" width="${bw}" height="${bh}" rx="8"/><text x="${c.x+10}" y="${c.y+20}">${esc(c.name)}</text><text class="t2" x="${c.x+10}" y="${c.y+37}">${id} · ${c.kind}</text></g>`;}
+  s+='</svg>';
+  s+=`<div class="small" style="margin-top:6px"><b>Active:</b> ${CPS[S.active].name} · boundary ${S.boundary}<br><span class="muted">Author's Note effect:</span> <i>${esc(CPS[S.active].an)}</i><br><span class="muted">Path:</span> ${S.visited.join(' → ')}</div>`;
+  $('#sim-graph').innerHTML=s;
+}
+function drawBB(){
+  $('#bb').innerHTML=Object.entries(S.bb).map(([k,v])=>{const q=QUAL[k];
+    const tags=[q.source==='code'?'<span class="pill acc">code</span>':'<span class="pill">extractor</span>',q.latching?'<span class="pill warn">latching</span>':'',q.monotonic?'<span class="pill warn">monotonic</span>':'',S.latched[k]?'<span class="pill ok">latched</span>':''].join('');
+    return `<div class="bb-row"><div class="mono">${k}</div><div>${tags}<div class="small muted">${esc(q.rubric)}</div></div><div class="mono" style="text-align:right;font-size:15px">${v}</div></div>`}).join('');
+  const out=TR.filter(t=>t.from===S.active).sort((a,b)=>b.pri-a.pri);
+  $('#gates').innerHTML=out.length?out.map(t=>{const ok=gEval(t.gate,S.bb);return `<div style="margin:6px 0"><span class="pill ${ok?'ok':''}">${t.id} → ${CPS[t.to].name} · priority ${t.pri} · ${ok?'OPEN':'closed'}</span><br>${gRender(t.gate,S.bb)}</div>`}).join(''):'<span class="muted">Terminal checkpoint — the story is complete.</span>';
+  $('#queue').innerHTML=S.queue.length?S.queue.map((d,i)=>`<div class="queue-item"><span class="mono">DELTA ${d.q} ${d.raw}</span><span class="muted">“${esc(d.ev)}”</span></div>`).join(''):'<div class="muted small">empty</div>';
+}
+function render(){drawGraph();drawBB()}
+function pvControl(){const q=QUAL[$('#pq').value];let h='';
+  if(q.type==='int')h=`<select id="pv"><option>+1</option><option>+2</option><option>-1</option></select>`;
+  else if(q.type==='bool')h=`<select id="pv"><option>true</option><option>false</option></select>`;
+  else h=`<select id="pv">${q.values.map(v=>`<option>${v}</option>`).join('')}</select>`;
+  $('#pvWrap').innerHTML=h}
+$('#pq').innerHTML=Object.keys(QUAL).filter(k=>QUAL[k].source!=='code').map(k=>`<option>${k}</option>`).join('');
+$('#pq').onchange=pvControl;pvControl();
+const EV={mara_trust:'Mara laughs despite herself',player_has_key:'You close your fist around the brass key',location:'You duck into the dripping tunnel mouth',guards_alerted:'"Halt!" a guard bellows'};
+function propose(q,raw){S.queue.push({q,raw,ev:EV[q]});log(`<span class="y">memory model</span> proposes <b>${q} ${raw}</b> → queued (not applied)`);render()}
+$('#propose').onclick=()=>propose($('#pq').value,$('#pv').value);
+$$('.qp').forEach(b=>b.onclick=()=>propose(b.dataset.q,b.dataset.v));
+function applyDelta(d){const q=QUAL[d.q];let nv;
+  if(q.type==='int'){nv=Math.max(q.min,Math.min(q.max,S.bb[d.q]+parseInt(d.raw)));if(q.monotonic&&nv<S.bb[d.q])return `<span class="r">rejected</span> ${d.q} ${d.raw}: monotonic quality cannot fall`}
+  else if(q.type==='bool'){nv=d.raw==='true'}else nv=d.raw;
+  if(S.latched[d.q]&&nv!==S.bb[d.q])return `<span class="r">rejected</span> ${d.q}=${nv}: latched (un-latching needs contradicting evidence + strict confirmation)`;
+  const old=S.bb[d.q];S.bb[d.q]=nv;if(q.latching&&nv===true)S.latched[d.q]=true;return `<span class="g">applied</span> ${d.q}: ${old} → ${nv}`}
+$('#commit').onclick=()=>{
+  S.snaps.push(JSON.parse(JSON.stringify({...S,snaps:[]})));
+  S.boundary++;S.lastFired=null;log(`<span class="b">── boundary ${S.boundary} ──</span> reply rendered`);
+  S.bb.message_count++;log(`code: message_count → ${S.bb.message_count}`);
+  const q=S.queue;S.queue=[];q.forEach(d=>log('drain: '+applyDelta(d)));
+  const out=TR.filter(t=>t.from===S.active).sort((a,b)=>b.pri-a.pri);const f=out.find(t=>gEval(t.gate,S.bb));
+  if(f){S.active=f.to;S.visited.push(f.to);S.lastFired=f.id;log(`<span class="p">transition ${f.id} fired</span> → <b>${CPS[f.to].name}</b>; effects applied (Author's Note, WI replay, cast…)`, 'p');
+    if(out.filter(t=>gEval(t.gate,S.bb)).length>1)log('(several gates open — highest priority wins; one transition per boundary)','y')}
+  else if(out.length)log('no gate open — stay. (extraction keeps reading off-path)');
+  else log('story complete 🎉','g');
+  render()};
+$('#swipe').onclick=()=>{if(!S.snaps.length){log('nothing to roll back (no boundary consumed yet)','y');return}
+  const snaps=S.snaps;const prev=snaps.pop();const dropped=S.queue.length;const was=S.boundary;
+  S={...prev,snaps};S.lastFired=null;log(`<span class="r">mutation</span> at the last reply → rollback boundary ${was} → ${S.boundary}; checkpoint restored to <b>${CPS[S.active].name}</b>${dropped?`; ${dropped} queued write(s) that read it discarded`:''}; forced re-read scheduled`,'r');render()};
+$('#reset').onclick=()=>{S=init();$('#log').innerHTML='';log('story started at <b>Tavern meeting</b> (effects applied on select)','b');render()};
+$('#reset').click();
+
+/* ================= TURN STEPS ================= */
+const STEPS=[
+ {t:'Player sends',d:'The player writes a message. Nothing about the story changes yet. In a group, speaker direction decides who is drafted.',off:false},
+ {t:'Generation starts',d:'<code>onGenerationStarted</code> assembles injections: guidance block (v2.4), pacing hint, memory tiers, per-member private epistemic block (swapped in on <code>GROUP_MEMBER_DRAFTED</code>), one-turn notes (nudge / warden). Only the <b>outermost loud</b> generation counts (v2.4 T6).',off:false},
+ {t:'Main model narrates',d:'The roleplay model writes the reply, steered by the injected blocks. The orchestrator makes no AI call on this path.',off:false},
+ {t:'Boundary commit',d:'Reply fully rendered ⇒ boundary. Refresh code qualities, drain the apply queue (type + latch checks), evaluate the active checkpoint\'s gates by priority, fire ≤1 transition, apply effects, write a boundary log entry + snapshot {lastMessageId, chatLength} + content fingerprints, persist to <code>chat_metadata</code> and <b>verify</b> the save landed.',off:false},
+ {t:'Boundary work registry',d:'<code>boundaryWork.ts</code> entries run in order: schedule extraction on cadence, scene-break check, expansion commit (order 42), consolidation cadence, curator apply, memory mirror sync, canon refresh…',off:true},
+ {t:'Shared read',d:'Memory model reads the window, proposes DELTA + memory lines with quotes. Accepted deltas queue for the <b>next</b> boundary. Every async writer holds a <code>RunToken</code> and re-checks ownership before each write.',off:true},
+ {t:'Heavy passes',d:'Scene summaries, epistemic/ledger passes, arc summaries, canon, consolidation, scaffolding generation + critic, WI curator — lower priority lanes, never blocking the reply.',off:true},
+];
+$('#steps').innerHTML=STEPS.map((s,i)=>`<div class="step ${s.off?'offpath':''}" data-i="${i}"><div class="n">${i+1}${s.off?' · off-path':''}</div><b>${s.t}</b></div>`).join('');
+$$('#steps .step').forEach(e=>e.onclick=()=>{$$('#steps .step').forEach(x=>x.classList.remove('sel'));e.classList.add('sel');const s=STEPS[e.dataset.i];$('#step-detail').innerHTML=`<h3 style="margin-top:0">${s.t}</h3><p>${s.d}</p>`});
+$$('#steps .step')[3].click();
+
+/* ================= GEN STEPS ================= */
+const GS=[
+ {t:'State delta',d:'Current blackboard vs the next anchor\'s <code>state_snapshot</code>: exactly which qualities must change, by how much.'},
+ {t:'Tension trajectory',d:'Current tension, the anchor\'s target and the story shape ⇒ ideal tension per step.'},
+ {t:'Generate N beats',d:'Scaffolding per beat: gate, target snapshot, tension target, guidance, <b>outcomes</b> (multiple outgoing gates ⇒ generated beats branch), declared deltas + progress increments. Context = canon + anchor snapshots. Respects the agency policy.'},
+ {t:'Critic',d:'A fresh-eyes call checks cumulative deltas reach the anchor, increments sum ≥ threshold on <b>every route</b>, tension follows trajectory, no contradiction with known facts. Bounded revision rounds, then accept as <code>needs_review</code> rather than block.'},
+ {t:'Validated → inserted',d:'Cached against the stub with the blackboard basis and a contract version. Promoted to <code>inserted</code> at a boundary. On stub entry the arithmetic is re-run: pass → use, partial → play the valid prefix while regenerating, fail → regenerate.'},
+];
+$('#gensteps').innerHTML=GS.map((s,i)=>`<div class="step offpath" data-i="${i}"><div class="n">${i+1}</div><b>${s.t}</b></div>`).join('');
+$$('#gensteps .step').forEach(e=>e.onclick=()=>{$$('#gensteps .step').forEach(x=>x.classList.remove('sel'));e.classList.add('sel');const s=GS[e.dataset.i];$('#gen-detail').innerHTML=`<h3 style="margin-top:0">${s.t}</h3><p>${s.d}</p>`});
+$$('#gensteps .step')[2].click();
+
+/* ================= MEMORY ================= */
+const TIERS=[
+ ['Facts','per character','Durable truths tagged [fact|relationship|preference|event : importance 1-3 : expiration scene|session|permanent], optional :entity=. Injected privately to the member they belong to.'],
+ ['Session details','story','Finer within-chapter specifics.'],
+ ['Short-term','story','One rolling compacted summary of recent play, refreshed about every 12 messages.'],
+ ['Scene history','story','Short summaries of completed scenes, rolling window. A scene is finer than a checkpoint.'],
+ ['Arcs','story','Open narrative threads: open → resolved + summary; pinnable. A resolved arc matching an authored arc_bridges keyword adds a code-side convergence increment.'],
+ ['Epistemic map','per character','knows / suspects / believes (false) / unaware / hiding-from-X. Knowledge asymmetries only; common knowledge is dropped. Never mirrored to World Info.'],
+ ['State ledger','per entity','Right-now physical state. Fields bound via ledger_binding ARE blackboard qualities — single writer is the blackboard, mirrored read-only.'],
+ ['Canon','story','Derived prose synthesis of resolved arcs + high-importance facts; regenerated (hash-keyed, incl. active checkpoint). Players see only its WHAT HAS HAPPENED part.'],
+];
+$('#tiers').innerHTML=TIERS.map((t,i)=>`<div class="box" data-i="${i}">${t[0]}<small>${t[1]}</small></div>`).join('');
+$$('#tiers .box').forEach(b=>b.onclick=()=>{$$('#tiers .box').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');const t=TIERS[b.dataset.i];$('#tier-detail').innerHTML=`<h3 style="margin-top:0">${t[0]} <span class="pill">${t[1]}</span></h3><p class="small">${t[2]}</p>`});
+$$('#tiers .box')[5].click();
+const EPI=[
+ {s:'Arin',k:'knows',f:'the north road washed out'},
+ {s:'Arin',k:'hiding',f:'he lost the caravan\'s payroll',from:'Ponticius'},
+ {s:'Ponticius',k:'suspects',f:'someone inside the guild is selling routes'},
+ {s:'Mara',k:'knows',f:'the vault\'s east door is unguarded after midnight'},
+ {s:'Mara',k:'hiding',f:'she forged the pass',from:'the Guard Captain'},
+ {s:'Mara',k:'unaware',f:'the north road washed out'},
+];
+function line2(e,who){const verb={knows:'know',suspects:'suspect',unaware:'are unaware that',hiding:'are concealing'}[e.k];
+  if(who==='you')return e.k==='hiding'?`- You are concealing from ${e.from}: ${e.f}`:`- You ${verb}${e.k==='unaware'?'':':'} ${e.f}`;
+  const v3={knows:'knows:',suspects:'suspects:',unaware:'is unaware that',hiding:`is concealing from ${e.from}:`}[e.k];return `- ${e.s} ${v3} ${e.f}`}
+function drawEp(){const m=$('#ep-mode').value,mem=$('#ep-member').value;$('#ep-member').disabled=m!=='group';let out='',note='';
+  if(m==='group'){out='[Private — what '+mem+' knows]\n'+EPI.filter(e=>e.s===mem).map(e=>line2(e,'you')).join('\n');note=`<span class="pill ok">scoped</span> Only ${mem}'s own rows. Other members' secrets never reach this request. Resting block (no one drafted) is empty.`}
+  else if(m==='solo'){out='[Private knowledge — voice each character accordingly]\n'+EPI.map(e=>line2(e,'3rd')).join('\n');note='<span class="pill ok">v2.4 E2</span> One narrator voices every NPC, so all knowledge is kept but each line names its subject.'}
+  else{out='[Private knowledge]\n'+EPI.map(e=>line2(e,'you')).join('\n');note='<span class="pill bad">defect</span> Every line says "You": the narrator is told it both knows and is unaware the north road washed out. Found 2026-09-24, fixed by attribution.'}
+  $('#ep-out').textContent=out;$('#ep-note').innerHTML=note}
+$('#ep-mode').onchange=drawEp;$('#ep-member').onchange=drawEp;drawEp();
+
+/* ================= PACING ================= */
+const LV=['calm','stirring','tense','critical','peak'];let readings=[1,1,2,1,2,3];
+$('#lvlbtns').innerHTML=LV.map((l,i)=>`<button data-i="${i}">${l}</button>`).join('');
+$$('#lvlbtns button').forEach(b=>b.onclick=()=>{readings.push(+b.dataset.i);if(readings.length>20)readings.shift();drawP()});
+$('#pclear').onclick=()=>{readings=[];drawP()};
+function expected(shape,p){if(shape==='rising')return Math.min(1,0.1+0.9*Math.pow(p,1.3));if(shape==='fall')return p<0.35?0.6-p:p<0.5?0.25:0.25+(p-0.5)*1.4;
+  return p<0.33?0.2+p*0.9:p<0.66?0.45+Math.sin((p-0.33)*9)*0.1:0.5+(p-0.66)*1.4}
+function drawP(){const a=+$('#alpha').value;$('#alphaV').textContent=a.toFixed(2);const sh=$('#shape').value;
+  const W=520,H=240,pad=30,N=20;const X=i=>pad+(W-2*pad)*i/(N-1),Y=v=>H-pad-(H-2*pad)*Math.min(1,Math.max(0,v));
+  let s=`<svg viewBox="0 0 ${W} ${H}">`;
+  LV.forEach((l,i)=>{const y=Y(i/4);s+=`<line x1="${pad}" x2="${W-pad}" y1="${y}" y2="${y}" stroke="#222833"/><text x="2" y="${y+4}" fill="#6b7383" font-size="9">${l}</text>`});
+  let ep='';for(let i=0;i<N;i++)ep+=(i?'L':'M')+X(i)+','+Y(expected(sh,i/(N-1)));s+=`<path d="${ep}" stroke="#b58cff" stroke-dasharray="5 4" fill="none" stroke-width="2"/>`;
+  let ema=null,pts=[],raw='';readings.forEach((r,i)=>{const v=r/4;ema=ema===null?v:a*v+(1-a)*ema;pts.push(ema);s+=`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="#4a5263"/>`});
+  if(pts.length){s+=`<path d="${pts.map((v,i)=>(i?'L':'M')+X(i)+','+Y(v)).join('')}" stroke="#7aa2ff" fill="none" stroke-width="2.5"/>`}
+  s+=`<text x="${W-160}" y="16" fill="#b58cff" font-size="11">- - expected (shape)</text><text x="${W-160}" y="30" fill="#7aa2ff" font-size="11">— tension_current (EMA)</text><text x="${W-160}" y="44" fill="#6b7383" font-size="11">● raw level reads</text></svg>`;
+  $('#pchart').innerHTML=s;
+  if(!pts.length){$('#hint').innerHTML='No readings yet.';return}
+  const cur=pts[pts.length-1],exp=expected(sh,(pts.length-1)/(N-1)),d=cur-exp;
+  const h=d<-0.12?['escalate','Raise the stakes: introduce pressure or a complication.']:d>0.12?['ease off','Let the scene breathe: a quieter beat, a moment of relief.']:['hold','Keep the current intensity.'];
+  $('#hint').innerHTML=`tension_current <b>${cur.toFixed(2)}</b> vs expected <b>${exp.toFixed(2)}</b> → hint: <span class="pill acc">${h[0]}</span><br><span class="small muted">Injected steering line:</span> <i>"${h[1]}"</i>`}
+$('#alpha').oninput=drawP;$('#shape').onchange=drawP;drawP();
+
+/* ================= TALK ================= */
+$('#tk-go').onclick=()=>{
+  const cands=[{n:'Arin',w:3},{n:'Ponticius',w:1},{n:'Mara',w:1,lead:true}];const msg=$('#tk-msg').value;const steps=[];let chosen=null,src=null;
+  if($('#tk-force').checked){chosen='Ponticius';src='force_chid';steps.push('1. Explicit <code>force_chid</code> present → always respected. No decision needed.')}
+  else{steps.push('1. No explicit force_chid.');
+    const ment=cands.filter(c=>new RegExp('\\b'+c.n+'\\b','i').test(msg));
+    if(ment.length===1){chosen=ment[0].n;src='mention';steps.push(`2. Single name mention of a candidate: <b>${chosen}</b> → wins deterministically, no LLM call.`)}
+    else{steps.push(`2. ${ment.length?ment.length+' mentions → pool narrowed to '+ment.map(c=>c.n).join(', '):'No candidate mentioned.'}`);
+      const pool=ment.length?ment:cands;
+      if($('#tk-dir').checked&&!$('#tk-dirfail').checked){const pick=$('#tk-sil').checked&&/nothing|silence|\.\.\./i.test(msg)?'NONE':pool.filter(c=>c.n!==$('#tk-prev').value)[0].n;
+        steps.push(`3. LLM director (memory model; window + candidates + checkpoint objective) answers <code>SPEAKER: ${pick}</code>.`);
+        if(pick==='NONE'){src='director';chosen=null;steps.push('   NONE honoured because allow_silence is on → all drafted members vetoed, no reconcile.')}else{chosen=pick;src='director'}}
+      else{steps.push($('#tk-dir').checked?'3. Director timed out / unparseable → fall back to rules.':'3. Director off.');
+        let p=pool.filter(c=>c.n!==$('#tk-prev').value);steps.push(`4. Rules: no_repeat removes ${$('#tk-prev').value}; lead first → `);
+        const lead=p.find(c=>c.lead);chosen=lead?lead.n:p.sort((a,b)=>b.w-a.w)[0].n;src='rules';steps[steps.length-1]+=`<b>${chosen}</b>`+(lead?' (the lead)':' (highest weight)')}}}
+  steps.push(chosen?`→ The generate interceptor aborts every other drafted member (loud generations only). If the pass ends without ${chosen} speaking, a single <code>/trigger</code> reconciles.`:'');
+  $('#tk-out').innerHTML=`<h3 style="margin-top:0">Decision: ${chosen?'<span class="pill ok">'+chosen+'</span>':'<span class="pill warn">silence</span>'} <span class="pill">source: ${src}</span></h3>`+steps.map(s=>`<div style="margin:4px 0">${s}</div>`).join('')+'<div class="muted" style="margin-top:8px">Decisions are keyed chatId:checkpointId:lastMessageId and audited in the drawer Scheduler tab.</div>'};
+$('#tk-go').click();
+
+/* ================= PERSONA ================= */
+function persona(a){$('#p-player').classList.toggle('on',!a);$('#p-author').classList.toggle('on',a);$$('.persona-panel.author').forEach(e=>e.classList.toggle('hidden',!a))}
+$('#p-player').onclick=()=>persona(false);$('#p-author').onclick=()=>persona(true);
+
+/* ================= ARCH ================= */
+const ARCH=[
+ ['Surfaces',[
+  ['index.tsx','settings panel + drawer + HUD mount','Starts the runtime, mounts React roots: settings panel (#story-orchestrator-settings, EntryPoints), top-bar drawer (#so-drawer / DrawerTabs, PlayerOverview, HudStrip). Drawer components read ONE snapshot; they never call manager getters during render (build-enforced).','src/index.tsx, src/components/drawer/*, src/components/settings/*'],
+  ['studio/','Checkpoint Studio + Wizard','Zustand draft store; every edit through typed mutations.ts. Editors, graph + Mermaid, diagnostics each with a consequence line. Wizard tab = interview + staged proposals + create-only provisioning. Save hands the record to the runtime via onSaved — the runtime decides whether this chat takes it.','src/studio/**, src/wizard/**'],
+ ]],
+ ['Runtime',[
+  ['RuntimeManager','ST-facing coordinator','Lifecycle, boundary commit, persistence, event fan-out and delegation. Size-budgeted (~740 lines) by architecture.test.ts. Debug handle: globalThis.storyOrchestratorRuntime.','src/runtime/runtimeManager.ts'],
+  ['TurnBridge','ST events → boundaries / rollback','Turns rendered replies into boundary commits, mutations into rollbacks; denylist of non-turn types; chat identity classification (same-chat reload, branch, switch) since v2.4.','src/runtime/turnBridge.ts, chatIdentity.ts, fingerprints.ts'],
+  ['Coordinators','memory · extraction · expansion · pacing · copilot · stagecraft · scene','Each owns one extras slice through injected accessors; never import each other; never call saveMetadata; engine writes go through injected enqueue callbacks. Stagecraft has no engine/memory dependency by construction.','src/runtime/coordinators/*'],
+  ['EffectsApplier','AN, preset, WI, cast, NPC replies, background','Every host effect goes through a write-ahead ledger: pending row persisted and VERIFIED saved before the host call; reconciled on hydrate; compare-and-set restore on leave. Ownership check before EACH host write.','src/runtime/effectsApplier.ts, effectLedger.ts'],
+  ['Persistence','chat_metadata.story_orchestrator','Blob v4, keyed by story id; each chat pins a full copy of the story it plays. Saves are observed and read back (save evidence). v2.4: unknown blob version read as detached, never overwritten.','src/runtime/persistence.ts, chatSave.ts, saveHealth.ts'],
+ ]],
+ ['Pure core',[
+  ['engine/','blackboard · gates · transitions · queue · rollback','Pure, deterministic, no host import. EngineHost is only a clock seam {now}. replay.ts runs fixtures deterministically.','src/engine/**'],
+  ['extraction/','scope · contract · parse · scheduler','Scope derivation, prompt contract, strict DELTA/FACT parser, P0–P4 scheduler with cadence, retry, reconciliation.','src/extraction/**'],
+  ['memory/','tiers · scenes · derived · reverse','Tier stores, scene detection, supersession, consolidation, derived-artifact records, reverseMemoryState (rollback).','src/memory/**'],
+  ['pacing/ talk/ generation/','tension · speaker · routes','Tension EMA + shapes + steering; director prompt/parse + weighted rules; generated-route enumeration.','src/pacing, src/talk, src/generation'],
+  ['judge/ stagecraft/','judge questions · curator ops','Pure question/policy/calibration modules; curator op parsing, proposal patching, allowlist scope.','src/judge, src/stagecraft'],
+ ]],
+ ['Host seam',[
+  ['STAPI + stHost/','the ONLY host import surface','Dynamic import(/* webpackIgnore */) of ST modules. One module per concern (worldInfo, groups, provisioning, backgrounds, judge, persistence, capabilities…). Every write answers {ok}|{ok:false,reason} — a build test fails on a new boolean/void writer. Host types are vendored narrowly and each is verified against ST source.','src/services/STAPI.ts, src/services/stHost/*'],
+  ['server-plugin','judge transport','story-orchestrator-judge ST server plugin: the only place the TypeSafe key is read. Browser never sees it.','server-plugin/'],
+ ]],
+];
+$('#archmap').innerHTML=ARCH.map(([l,bs],li)=>`<div class="layer"><div class="lname">${l}</div><div class="boxes">${bs.map((b,bi)=>`<div class="box" data-l="${li}" data-b="${bi}">${b[0]}<small>${b[1]}</small></div>`).join('')}</div></div>`).join('');
+$$('#archmap .box').forEach(e=>e.onclick=()=>{$$('#archmap .box').forEach(x=>x.classList.remove('sel'));e.classList.add('sel');const b=ARCH[e.dataset.l][1][e.dataset.b];
+  $('#arch-detail').innerHTML=`<h3 style="margin-top:0">${b[0]}</h3><div class="muted small">${b[1]}</div><p>${esc(b[2])}</p><div class="small"><span class="muted">Files:</span> <code>${b[3]}</code></div>`});
+
+/* ================= INVARIANTS ================= */
+const INV=[
+ ['Ownership tokens on every async write','A chat can switch while an await is pending. Every asynchronous writer mints a RunToken and re-checks it immediately before each write (inside loops, per host write). A census test lists every write-after-await and fails on an unclassified one.','An expansion generated for chat A was once filed into chat B\'s story.'],
+ ['Rollback ≡ replay','Stepping back to message m must produce the same state as replaying the chat up to m. Every derived artifact records inputs and removals; a property test drives the real composition over thousands of cuts.','Exclusions resurrected deleted rows; restored rows carried links from after the cut.'],
+ ['A save is evidence, not an exception','ST\'s saveMetadata swallows its own errors. Saves are observed at the network layer and read back; decisions that did not land are put back and say so. v2.4: a save asked for in one chat can no longer write an empty chat into the next.','A new branch lost every message to a save that ran after a chat switch.'],
+ ['Checkpoint World Info is replayed from the path','Lorebook flags are global files. Every entry a story\'s checkpoints touch is its gated set; each apply starts it all off and replays the checkpoint path in order, so a reopened chat equals a continuous run. Entries outside the set are never touched.','Toggling in place leaked lore across chats and stories.'],
+ ['Stagecraft proposes, never writes','Curators return typed ops; the runtime applies accepted ones at a boundary within the authored allowlist, re-checked at the write edge, each with pre-write state for revert.','—'],
+ ['The wizard is create-only','A validation function (shared by UI and coordinator) decides whether a provisioning op may run; bulk accept can never reach provisioning ops; personas are never provisioned.','—'],
+ ['Story identity = authored id + version','Each chat pins a full copy. Library edits never reach a running chat except via its own "Update to vN" (diffed: compatible hot-swap, or keep/restart choice with exact pruning).','—'],
+ ['Judge never blocks, never writes','Every use default-off, every failure keeps today\'s path, predeclared floors never retuned.','—'],
+ ['Fault matrix is checked, not claimed','9 packages × 9 fault shapes; covered/partial cells must cite a test that exists; v2.4 adds an "aborted" column and a 10th package.','Writing the census found two real defects.'],
+ ['Architecture budgets','Manager and coordinator line budgets, engine purity, components↔studio boundary, drawer-reads-snapshot — all fail the build.','—'],
+];
+$('#inv').innerHTML=INV.map(i=>`<details><summary>${i[0]}</summary><p class="small">${esc(i[1])}</p>${i[2]!=='—'?`<p class="small"><span class="pill bad">found because</span> ${esc(i[2])}</p>`:''}</details>`).join('');
+
+/* ================= TIMELINE ================= */
+const TL=[
+ ['v1','—','Trigger-based stories + v1 Studio. Superseded entirely; not loadable.','',''],
+ ['v2 (plans 01–14)','accepted 2026-07-06/07','Format-2 stories, deterministic engine, blackboard, gates, apply queue, rollback; shared-read extraction; pacing; convergence + background generation; memory tiers (facts → canon, epistemic, ledger); World Info mirror; Checkpoint Studio v2; macros &amp; slash; speaker direction (plan 14).','ok',''],
+ ['v2.1 (plans 01–08)','automated green 2026-08-13; human eval outstanding','Session journal; story identity by id + pinned copies; coordinators split; player/author hard split + narrative Overview + pipeline signal; author loop (save → diff → hot-swap/choice); the Wizard with create-only provisioning; stagecraft (backgrounds + WI curator); journey test layer.','warn',''],
+ ['v2.2 (plans 01–08)','automated green; human eval outstanding','The judge (TypeSafe Jev behind a server plugin): judge director, scene read, lore relevance, continuity warden; every use opt-in with calibration floors.','warn',''],
+ ['v2.3 (plans 01–11)','FROZEN candidate 569b053 (2026-09-24), not accepted','Hardening after a 21-finding review: evidence rules, input authority, async ownership tokens, rollback ≡ replay, provenance &amp; memory pins/reconciliation queue, typed host results + effect ledger + save evidence + capability probes, generated branching (every outcome a route) + agency policy, release reproducibility (build manifest, clean-host), four entry points + Repair + next-turn preview, judge seeds. Open: judge floors, human playthrough.','warn',''],
+ ['v2.4 (plans 01–09)','in progress','Correct under the host as it really is: interop corpus, chat identity &amp; silent mutation, call hygiene, extraction input quality, World Info evidence, steering, judge accounting, author observability.','','cur'],
+];
+$('#tl').innerHTML=TL.map(t=>`<div class="tl ${t[4]}"><b>${t[0]}</b> <span class="pill ${t[3]}">${t[1]}</span><div class="small muted">${t[2]}</div></div>`).join('');
+
+/* ================= V2.4 BOARD ================= */
+const PLANS=[
+ {n:'01',t:'Carry-in',st:'ok',pct:100,s:'built + live green ×2',items:[
+  'Interop corpus (T20): failing fixtures first, for host shapes v2.3 never modelled',
+  'T1 — MESSAGE_DELETED carries the post-delete chat.length: middle deletes decoded by an identity-snapshot diff; ambiguous → roll back from the earliest candidate',
+  'T10 — after our own /comment in a group the speaker read null: speaker skips system/image rows (also fixed a story_epistemic privacy leak)',
+  'T6 — quiet/nested/foreign generations (e.g. Stepped Thinking) cleared private blocks and spent warden notes: outermost-loud-generation tracker',
+  'D7 — checkpoint guidance is now injected (spec v2 promised it, never built); generated beats finally get steering',
+  'Over-steer probe for any one-turn note; host-facts table; corrections to v2.3 docs (rounded-Score claim, sendRequest does honour abort signals)'],
+  note:'Every live item green ×2 on 14402df10a0e incl. turn-types check + run-header diff (0 diffs). Open: a few intermittents (J6.4/J6.7/J5.8/J8.5) not reproduced on the final build.'},
+ {n:'02',t:'Chat identity & silent mutation',st:'warn',pct:85,s:'integrated, NOT accepted',items:[
+  'T11 — unknown blob version read as detached, never overwritten; minimum_client_version',
+  'T3 — per-message content fingerprints (mes + is_user + name) as optional v4 fields — no blob bump (X1: v2.3 would destroy a v5)',
+  'Eventless edits roll back; no-op edits and /hide do not (D5); same-chat reload keeps pending work',
+  'T2 — branches detected; non-blocking "Continue from here" notice, never auto-adopt; parent\'s mirror unbound',
+  'T14 — mirror-book reaper behind a confirm, ownership marker; scene rows no longer mirrored',
+  'T8 — library/settings saves read back; save watcher survives peers restoring fetch',
+  'Requirements re-evaluated on persona/group/WI changes',
+  '4 live-found save/drain defects fixed (empty save into the next chat, stuck boundary blocking later chats…)'],
+  note:'13 fixtures red→green ×2, J6/J10 ×2. Owed: the downgrade leg (v2.4 blob survives a v2.3 read-write), J10.12, clean-host. Follow-ups E2–E5 decided 2026-09-24.'},
+ {n:'03',t:'Off-path call hygiene',st:'acc',pct:35,s:'partially built, no live gate',items:[
+  'T4 — AbortSignal per read + timeout; AbortError = lapsed, not failed ✔ partial',
+  'Memorize backlog single exit + Stop (#so-memorize-stop) ✔ merged',
+  'Expansion "generating" wedge cleared (live-key map, hydrate demotes) ✔ merged',
+  'Hydrate resets scheduler snapshot ✔ merged',
+  'T9 budget modules — inputBudget, chunker, contextLimit ✔ pure half merged, not wired',
+  'T5 — never write extraction.enabled again: transport breaker / config Repair / per-chat bug (D4) — todo',
+  'finish_reason truncation, loop detector, input-proportional maxTokens, CC sampler fix — todo',
+  'Fault matrix: "aborted" column + host-delete package (E8) — todo'],
+  note:'Commits 99c3589, 3e5bed7 on master. Next: wire the budget, failure classes, live backend pause/resume run.'},
+ {n:'04',t:'Extraction input quality',st:'',pct:0,s:'not started',items:['T7 — one pure window cleaner shared by prompt + evidence (drops extension/foreign UI rows)','T15 — evidence_from: any|world per quality (opt-in), agency.player_attempts_only per checkpoint','Live-suite per-tier floors (rejected 0.9, facts non-regression 0.68)'],note:'Depends on 01 and 03 (shared window path).'},
+ {n:'05',t:'World Info: evidence, then gating',st:'',pct:0,s:'not started',items:['T12 — WORLD_INFO_ACTIVATED ring: forced ≠ landed evidence; Repair row for a foreign scan filter hiding our book','T13 SPIKE — scan-time gating via per-scan copies (would kill the cross-chat leak class); predeclared pass conditions; build → v2.5','Mirror key hygiene; read discarded WI WriteResults'],note:''},
+ {n:'06',t:'Steering & stagecraft',st:'',pct:0,s:'not started',items:['T16 — objective line in the guidance block (objective_block: auto|off), AN-inheritance diagnostic','T17 — curator hardening (uid addressing, refuse over-long rewrites, word diff)','F5 — curator create op, own Phase A with floor','Presets become a per-request sampler overlay (fixes a global preset write never restored)'],note:''},
+ {n:'07',t:'Judge: accounting first',st:'',pct:0,s:'not started',items:['T24 — usage/cost per call, a cost meter rollback does not cut, readiness "measured on <model>"','T25 — model-id map, answering model recorded, token guard','Remove sceneOoc + memoryRerank (both failed v2.2 floors)','T22 agencyCheck, T23 house_rules (≤8 per story) — each default off, own floor','Judge-on journey mode, judge-off control column'],note:''},
+ {n:'08',t:'Author observability',st:'',pct:0,s:'not started',items:['T19 — next-turn preview shows tokens + share of context; foreign blocks read-only; each memory row\'s fate; /chat-jump provenance','T18 — per-pass-family profiles (read, synthesis, authoring, director, curator)','{{story_quality_<key>}} macros'],note:''},
+ {n:'09',t:'Acceptance',st:'',pct:0,s:'not started',items:['J0–J12 --strict ×2 on the final tree','Interop live rows with Stepped Thinking present','Judge-on matrix + cost report','Clean hosts: pinned rev, ST 1.19.0, 1.18.0','Human sessions (the user) + attestation citing only existing records'],note:''},
+];
+const colr={ok:'var(--ok)',warn:'var(--warn)',acc:'var(--accent)','':'#4a5263'};
+$('#board').innerHTML=PLANS.map((p,i)=>`<div class="plan" data-i="${i}"><div class="num">Plan ${p.n}</div><h4>${p.t}</h4><span class="pill ${p.st}">${p.s}</span><div class="bar"><i style="width:${p.pct}%;background:${colr[p.st]}"></i></div></div>`).join('');
+$$('#board .plan').forEach(e=>e.onclick=()=>{const p=PLANS[e.dataset.i];$('#plan-detail').innerHTML=`<h3 style="margin-top:0">Plan ${p.n} — ${p.t} <span class="pill ${p.st}">${p.s}</span></h3><ul class="small">${p.items.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>${p.note?`<div class="callout small">${esc(p.note)}</div>`:''}`});
+$$('#board .plan')[2].click();
+const DEC=[
+ ['D1','Entry condition','Wait for the frozen v2.3 candidate; nothing in v2.4 starts early.'],
+ ['D4','Which failures pause extraction install-wide','None. The runtime never writes extraction.enabled again.'],
+ ['D5','/hide of a consumed message','Never rolls back; left out of future reads; its facts stay live.'],
+ ['D3','Branches','Non-blocking notice with "Continue from here"; no popup, no auto-adopt.'],
+ ['D6','"Player lines prove attempts only"','Opt-in; revisit after a player session.'],
+ ['D7','Checkpoint guidance','Always injected (moved to plan 01); objective line auto only when no author note.'],
+ ['D8','Scan-time WI gating','Run as a spike with predeclared pass conditions.'],
+ ['D10','Hosted judge routes','Deferred to v2.5.'],
+ ['D11','Fresh-row lore arms','Dropped — no nDCG gain.'],
+ ['X1','Blob version bump','None — v2.3 would destroy a v5 blob; new fields are optional v4.'],
+ ['X2','Fingerprint fields','mes + is_user + name (non-user only); no swipe_id, no is_system.'],
+ ['X20','Presets','Per-request sampler overlay replaces the global preset write.'],
+ ['X22','sceneOoc / memoryRerank','Removed — both failed their predeclared floors.'],
+ ['E1','Pod LLM_PARALLEL','2 → 4 at next pod start, --kv-unified kept.'],
+ ['E2','Solo story_epistemic','Attributed per subject instead of "You" for everyone.'],
+ ['E4','Pre-T14 mirror books','Marked for reaping only on proof of ownership.'],
+ ['E6','No-op MESSAGE_UPDATED from peers','Stays silent.'],
+];
+function drawDec(){const f=$('#dec-filter').value.toLowerCase();$('#dec').innerHTML='<tr><th>#</th><th>Question</th><th>Decision</th></tr>'+DEC.filter(d=>d.join(' ').toLowerCase().includes(f)).map(d=>`<tr><td class="mono">${d[0]}</td><td>${esc(d[1])}</td><td>${esc(d[2])}</td></tr>`).join('')}
+$('#dec-filter').oninput=drawDec;drawDec();
+
+/* ================= GLOSSARY ================= */
+const GL=[
+ ['Anchor','Authored checkpoint, guaranteed to happen.'],['Intermediate','AI-generated bridge beat; disposable.'],['Stub','Authored placeholder where intermediates are generated.'],
+ ['Blackboard','Typed story state (qualities) with versions and latch state.'],['Quality','A declared typed value with a source (code|extractor), rubric, optional latching/monotonic/scope_hint/ledger_binding.'],
+ ['Gate','JSON condition tree over qualities; pure evaluation.'],['Transition','Directed edge with gate + priority + optional progress effect.'],
+ ['Boundary','A fully rendered reply; the only moment writes apply and checkpoints change.'],['Apply queue','Serialized pending writes drained at boundaries; not persisted.'],
+ ['Shared read','The extractor call: one read proposing blackboard deltas and memory lines.'],['Stability lag','Newest K messages excluded from cadence reads (default 0 now).'],
+ ['Latching','A value that, once reached, stays (e.g. a flag true).'],['Convergence','progress_toward_<anchor> code counters ensuring generated chains land on the anchor.'],
+ ['Scaffolding','Generated beat structure (not prose) cached against a stub.'],['Canon / canon-lite','Derived prose history vs deterministic concatenation fallback.'],
+ ['Epistemic map','Who knows / suspects / hides what; injected privately per member.'],['Supersession','A newer fact retiring an older one.'],
+ ['Memory model','The second LLM (Connection Manager profile) used for all off-path passes.'],['Pinned story','The full story copy a chat plays; library changes do not reach it.'],
+ ['RunToken','Per-unit ownership token re-checked before each write after an await.'],['Save evidence','Observed + read-back proof that a save landed.'],
+ ['Effect ledger','Write-ahead record of host effects enabling reconcile and compare-and-set restore.'],['Gated set','All WI entries any checkpoint of a story toggles; replayed from the path.'],
+ ['Mirror book','Per-chat lorebook holding mirrored memory (never epistemic).'],['Curator','Background agent proposing WI edits within the allowlist.'],
+ ['Warden','Continuity checker whose accepted note is injected for one generation.'],['Judge','TypeSafe Jev System One model, via server plugin; opt-in per use.'],
+ ['Journey','Scripted end-user session with checks, run twice, archived.'],['Lane','Isolated ST server + browser on a copy of the install for parallel runs.'],
+ ['Run header','Snapshot of every variable of a live run, diffed around batches.'],['Fingerprint (v2.4)','Per-message content hash detecting eventless changes.'],
+ ['Interop corpus (v2.4)','Fixtures reproducing host shapes from ST and other extensions.'],['Repair','The single worst missing setup step, derived and revealed in settings.'],
+];
+function drawGl(){const q=$('#gl-q').value.toLowerCase();$('#gl').innerHTML=GL.filter(g=>(g[0]+g[1]).toLowerCase().includes(q)).map(g=>`<div class="gloss-item"><b>${g[0]}</b> — ${esc(g[1])}</div>`).join('')}
+$('#gl-q').oninput=drawGl;drawGl();
+
+/* nav highlight */
+const secs=$$('main section');const links=$$('nav a');
+addEventListener('scroll',()=>{let cur=secs[0].id;for(const s of secs)if(s.getBoundingClientRect().top<120)cur=s.id;links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur))});
+</script>
+</body>
+</html>
