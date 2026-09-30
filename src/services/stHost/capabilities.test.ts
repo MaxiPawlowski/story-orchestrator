@@ -16,6 +16,23 @@ jest.mock("./judge", () => ({
   },
 }));
 
+const mockHarness = { status: { pluginVersion: "1.0.0", harnesses: { claude: { installed: true, offered: true, fresh: true, version: "2.1.282" } } } as unknown };
+
+jest.mock("./harnessCache", () => ({ refreshHarnessStatus: async () => mockHarness.status }));
+
+describe("harness capability", () => {
+  it("is absent without the plugin, absent when nothing is offered, present when a harness is offered", async () => {
+    const { probeCapability } = await import("./capabilities");
+    await expect(probeCapability("harness", { refresh: true })).resolves.toMatchObject({ state: "present", detail: expect.stringContaining("claude 2.1.282") });
+    mockHarness.status = { pluginVersion: "1.0.0", harnesses: { claude: { installed: true, offered: false } } };
+    await expect(probeCapability("harness", { refresh: true })).resolves.toMatchObject({ state: "absent", detail: expect.stringContaining("offers no installed harness") });
+    mockHarness.status = null;
+    await expect(probeCapability("harness", { refresh: true })).resolves.toMatchObject({ state: "absent", detail: expect.stringContaining("not installed") });
+    mockHarness.status = { pluginVersion: "1.0.0", harnesses: { claude: { installed: true, offered: true, fresh: true, version: "2.1.282" } } };
+    await probeCapability("harness", { refresh: true });
+  });
+});
+
 jest.mock("./selectors", () => ({
   listSlashCommands: () => mockHost.commands.map((name) => ({ name, aliases: [] })),
 }));

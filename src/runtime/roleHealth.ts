@@ -6,10 +6,11 @@ import type { RoleCallObservation } from "./modelCallCore";
 import type { RouteResolution } from "@extraction/modelRoute";
 import { resolvedProfileId, resolveRoute, roleEffort, type RouteSettings } from "./passProfiles";
 import type { RoleSelfTestResult } from "./roleSelfTest";
+import { isHarnessKey } from "@utils/harness";
 
-export type RoleRouteState = "fallback" | "untested" | "ok" | "missing" | "not-configured" | "not-answering" | "failed" | "reasoning-exhausted";
+export type RoleRouteState = "fallback" | "untested" | "ok" | "missing" | "not-configured" | "not-answering" | "failed" | "reasoning-exhausted" | "not-logged-in" | "quota";
 
-export const ROLE_PROBLEM_STATES: ReadonlySet<RoleRouteState> = new Set(["missing", "not-configured", "not-answering", "failed", "reasoning-exhausted"]);
+export const ROLE_PROBLEM_STATES: ReadonlySet<RoleRouteState> = new Set(["missing", "not-configured", "not-answering", "failed", "reasoning-exhausted", "not-logged-in", "quota"]);
 
 export interface RoleRouteView {
   role: PassRole;
@@ -37,7 +38,9 @@ const stateOf = (input: RoleRouteInput, role: PassRole, label: string, route: Ro
   const health = profileId && route.source === "role" ? input.health(profileId) : null;
   const call = input.calls?.[role];
   if (health?.kind === "config") return ["not-configured", `${label}: ${health.detail}`];
-  if (health?.kind === "transport") return ["not-answering", `${label}: the profile is not answering (${health.detail})`];
+  if (call?.outcome === "auth" && call.profileId === profileId) return ["not-logged-in", `${label}: ${call.detail}`];
+  if (call?.outcome === "quota" && call.profileId === profileId) return ["quota", `${label}: ${call.detail}`];
+  if (health?.kind === "transport") return ["not-answering", `${label}: ${isHarnessKey(profileId) ? "the harness" : "the profile"} is not answering (${health.detail})`];
   if (call?.outcome === "reasoning-exhausted" && call.profileId === profileId && call.effort === effort) return ["reasoning-exhausted", reasoningExhaustedDetail(label)];
   if (route.source === "fallback") return ["fallback", "Same as memory model"];
   const selfTest = input.selfTests[role];

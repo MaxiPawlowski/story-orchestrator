@@ -2,8 +2,9 @@ import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engi
 import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine } from "@memory/index";
 import type { ExtraGateSource, TypedJudge } from "./types";
 import { getChatWindow } from "./chatWindow";
-import { Breaker, DANGLING_PROFILE_DETAIL, failedProfile, failureClass, probeTimeoutMs, type ExtractionHealth, type ProbeResult, type ProbeTrigger } from "./breaker";
+import { Breaker, DANGLING_PROFILE_DETAIL, failedProfile, failedRetryAt, failureClass, probeTimeoutMs, type ExtractionHealth, type ProbeResult, type ProbeTrigger } from "./breaker";
 import { isLapse } from "./modelError";
+import { isHarnessKey } from "@utils/harness";
 import type { ModelCall } from "./modelRoute";
 import { runSharedRead, sharedReadWindow } from "./sharedRead";
 import type { RequestBudget } from "./tokenMeter";
@@ -76,6 +77,8 @@ export interface SchedulerHost {
   probeModel?(profileId: string, timeoutMs?: number): Promise<ProbeResult>;
   mutationSettled?(): Promise<unknown>;
   profileExists?(profileId: string): boolean;
+  /** The route key the background lane's passes go to (synthesis); unset = the read route. */
+  heavyRouteKey?(): string | null;
   epoch?: () => number;
   /** True while a multi-voice turn is running and its checkpoint asked extraction to wait for it. */
   holdCadence?(): boolean;
@@ -255,7 +258,7 @@ export class ExtractionScheduler {
   }
 
   private dangling(profileId: string | null): boolean {
-    return Boolean(profileId && this.host.profileExists && !this.host.profileExists(profileId));
+    return Boolean(profileId && !isHarnessKey(profileId) && this.host.profileExists && !this.host.profileExists(profileId));
   }
 
   reevaluateConfig(clearOther = true) {
@@ -329,8 +332,8 @@ export class ExtractionScheduler {
     else this.profileProblems.set(profileId, detail);
   }
 
-  private trip(profileId: string, detail: string) {
-    if (!this.breaker.trip(profileId, detail, Date.now())) return;
+  private trip(profileId: string, detail: string, holdUntil: number | null = null) {
+    if (!this.breaker.trip(profileId, detail, Date.now(), holdUntil)) return;
     this.host.noteHealth?.(profileId === this.readProfile() ? "memory model not answering; reads held" : `model profile ${profileId} not answering; its passes held`, detail);
     this.armProbe(profileId);
   }
@@ -368,7 +371,7 @@ export class ExtractionScheduler {
       if (this.sameWorld(startedEpoch)) this.noteLapse(job, error);
       if (read) this.rereadIfMutated(read, startedEpoch);
     } else if (failure === "transport" && profileId) {
-      this.trip(profileId, message);
+      this.trip(profileId, message, failedRetryAt(error));
       if (!this.sameWorld(startedEpoch)) return;
       const held = { ...job, heldOn: profileId };
       if (heavy) this.heavyQueue.unshift(held);
@@ -491,7 +494,7 @@ export class ExtractionScheduler {
   }
 
   private async pumpHeavy() {
-    if (this.heavyInFlight || this.breakerOpen()) return;
+    if (this.heavyInFlight || this.breakerOpen(this.host.heavyRouteKey?.() ?? this.readProfile())) return;
     const index = this.runnable(this.heavyQueue);
     const next = index < 0 ? undefined : this.heavyQueue[index];
     if (!next) return;

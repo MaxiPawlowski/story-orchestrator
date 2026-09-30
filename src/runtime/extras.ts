@@ -3,6 +3,7 @@ import { CONFLICT_LIMIT, createMemoryState, DERIVED_LIMIT, isProvenance } from "
 import { DEFAULT_TENSION_EMA_ALPHA } from "@constants/defaults";
 import { capProposalRing } from "@stagecraft/index";
 import { createJudgeRuntime, sanitizeJudgeRuntime } from "@judge/index";
+import { sanitizeModelCalls } from "./modelCallLog";
 import { sanitizeJournalRecords } from "./journal";
 import { defaultExtractionSettings, defaultInlineSettings, defaultMemorySettings, defaultStagecraftSettings, type ChatOverrides, type GlobalSettings } from "./settingsModel";
 import { createLore, sanitizeLore } from "./loreFired";
@@ -208,6 +209,7 @@ export const createExtras = (read: () => GlobalSettings): RuntimeExtras => withG
   judge: createJudgeRuntime(),
   lore: createLore(),
   journal: [],
+  modelCalls: [],
   lastSessionAt: null,
   updatedAt: new Date().toISOString(),
 }, read);
@@ -311,6 +313,7 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   extras.judge = sanitizeJudgeRuntime(extras.judge);
   extras.lore = sanitizeLore(extras.lore);
   extras.journal = sanitizeJournalRecords(extras.journal);
+  extras.modelCalls = sanitizeModelCalls(extras.modelCalls);
   extras.lastSelfInjectionMessageId = typeof extras.lastSelfInjectionMessageId === "number" ? extras.lastSelfInjectionMessageId : null;
   extras.firedNpcReplies = extras.firedNpcReplies && typeof extras.firedNpcReplies === "object" ? extras.firedNpcReplies : {};
   extras.firedNpcRepliesAt = extras.firedNpcRepliesAt && typeof extras.firedNpcRepliesAt === "object" ? extras.firedNpcRepliesAt : {};

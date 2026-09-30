@@ -19,6 +19,7 @@ import type { PassProfiles, RoleRoutes } from "./passProfiles";
 import type { ReasoningBudget } from "@utils/reasoningEffort";
 import type { RoleRouteView } from "./roleHealth";
 import type { ModelCallRow } from "./modelCalls";
+import type { ModelCallRecord, RouteMeter } from "./modelCallLog";
 import type { PromptBucketState } from "./promptBuckets";
 import type { PipelineStatus } from "./pipeline";
 import type { OrphanedLorebook } from "./mirrorReaper";
@@ -131,6 +132,8 @@ export interface RuntimeExtras {
   /** Which World Info entries each rendered reply's scans activated, by message. */
   lore: LoreRuntimeState;
   journal: JournalRecord[];
+  /** v2.6 plan 04 H4: every non-narrative model call, with the route that answered it (cap 300). */
+  modelCalls: ModelCallRecord[];
   lastSessionAt: string | null;
   updatedAt: string;
 }
@@ -489,6 +492,7 @@ export interface RuntimeSnapshot {
   /** Which profile each family of passes asks, and whether it answers. */
   roleRoutes?: RoleRouteView[];
   modelCalls?: ModelCallRow[];
+  routeMeters?: RouteMeter[];
   nextTurnBuckets?: PromptBucketState;
   /** World Info activations persisted per rendered reply. */
   lore: LoreRuntimeState;

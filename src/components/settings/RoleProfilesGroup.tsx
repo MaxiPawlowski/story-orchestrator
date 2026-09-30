@@ -1,12 +1,25 @@
 import type { PassRole } from "@extraction/passRole";
 import type { PassProfiles } from "@runtime/passProfiles";
 import type { RoleRouteView } from "@runtime/roleHealth";
+import type { RouteMeter } from "@runtime/modelCallLog";
+import { HARNESS_KEY_PREFIX } from "@utils/harness";
 import { effortLabel, isReasoningEffort, REASONING_EFFORTS, type ReasoningEffort } from "@utils/reasoningEffort";
 
 export interface RoleProfileOption {
   id: string;
   name: string;
   model?: string;
+}
+
+export interface HarnessOption {
+  key: string;
+  label: string;
+  vendor: string;
+}
+
+export interface RoleHarnessRoute {
+  key: string;
+  fallback: string | null;
 }
 
 export interface RoleProfilesGroupProps {
@@ -17,17 +30,33 @@ export interface RoleProfilesGroupProps {
   onAssign: (role: PassRole, profileId: string | null) => void;
   onTest: (role: PassRole) => void;
   onEffort: (role: PassRole, effort: ReasoningEffort) => void;
+  harnesses?: HarnessOption[];
+  harnessRoutes?: Partial<Record<PassRole, RoleHarnessRoute>>;
+  meters?: RouteMeter[];
+  onHarness?: (role: PassRole, key: string | null) => void;
+  onFallback?: (role: PassRole, profileId: string | null) => void;
+  onOpen?: () => void;
 }
 
 const STATE_COPY: Record<RoleRouteView["state"], { text: string; tone: string }> = {
   fallback: { text: "", tone: "" },
   untested: { text: "not tested yet", tone: "opacity-70" },
   ok: { text: "passed its self-test", tone: "text-green-400" },
-  missing: { text: "profile no longer exists", tone: "text-red-300" },
+  missing: { text: "no longer available", tone: "text-red-300" },
   "not-configured": { text: "cannot be used", tone: "text-red-300" },
   "not-answering": { text: "not answering", tone: "text-yellow-300" },
   failed: { text: "failed its self-test", tone: "text-red-300" },
   "reasoning-exhausted": { text: "thought without answering", tone: "text-yellow-300" },
+  "not-logged-in": { text: "not logged in", tone: "text-red-300" },
+  quota: { text: "usage limit reached", tone: "text-yellow-300" },
+};
+
+export const ROLE_EGRESS: Record<PassRole, string> = {
+  read: "Story reads send the recent messages, the story's qualities, the current checkpoint and private character knowledge",
+  synthesis: "Summaries send memory rows and message windows",
+  authoring: "The wizard and the road ahead send the story draft and your notes",
+  director: "Speaker direction sends the roster and the recent turns, before every group reply (a harness adds 2-7 s)",
+  curator: "The curator sends its lorebook entries and the recent turns",
 };
 
 const reasoningNote = (route: RoleRouteView): string | null => {
@@ -36,28 +65,67 @@ const reasoningNote = (route: RoleRouteView): string | null => {
   return route.reasoning.collapsed ? "This connection only switches thinking on or off." : null;
 };
 
-export const RoleProfilesGroup = ({ routes, assigned, profiles, testing, onAssign, onTest, onEffort }: RoleProfilesGroupProps) => {
+const meterText = (meter: RouteMeter): string =>
+  `${String(meter.calls)} call${meter.calls === 1 ? "" : "s"} this chat (${String(meter.failed)} failed, ${String(meter.fallback)} fell back), ${String(meter.inputTokens)} in / ${String(meter.outputTokens)} out tokens`;
+
+export const RoleProfilesGroup = ({
+  routes, assigned, profiles, testing, onAssign, onTest, onEffort, harnesses = [], harnessRoutes = {}, meters = [], onHarness, onFallback, onOpen,
+}: RoleProfilesGroupProps) => {
   const setRoles = routes.filter((route) => route.state !== "fallback").length;
+  const choose = (role: PassRole, value: string) => {
+    if (value.startsWith(HARNESS_KEY_PREFIX)) {
+      onHarness?.(role, value);
+      return;
+    }
+    if (harnessRoutes[role]) onHarness?.(role, null);
+    onAssign(role, value || null);
+  };
   return (
-    <details id="so-role-profiles" className="text-sm">
+    <details id="so-role-profiles" className="text-sm" onToggle={(event) => { if (event.currentTarget.open) onOpen?.(); }}>
       <summary className="cursor-pointer opacity-80">Models per task{setRoles ? ` (${String(setRoles)} set)` : ""}</summary>
       <div className="flex flex-col gap-2 pt-2">
         <div className="text-xs opacity-70">Affects every chat. A task left on "Same as memory model" asks the memory model profile above.</div>
         {routes.map((route) => {
-          const value = assigned[route.role] ?? "";
-          const dangling = value !== "" && !profiles.some((profile) => profile.id === value);
+          const harness = harnessRoutes[route.role];
+          const value = harness?.key ?? assigned[route.role] ?? "";
+          const option = harness ? harnesses.find((entry) => entry.key === harness.key) : null;
+          const dangling = !harness && value !== "" && !profiles.some((profile) => profile.id === value);
           const state = STATE_COPY[route.state];
           const note = reasoningNote(route);
+          const meter = harness ? meters.find((entry) => entry.route === harness.key) : null;
           return (
             <div key={route.role} data-so="role-profile" data-role={route.role} data-state={route.state} className="flex flex-col gap-1">
               <label className="flex flex-col gap-1">
                 <span>{route.label}</span>
-                <select id={`so-role-profile-${route.role}`} value={value} onChange={(event) => onAssign(route.role, event.target.value || null)}>
+                <select id={`so-role-profile-${route.role}`} value={value} onChange={(event) => choose(route.role, event.target.value)}>
                   <option value="">Same as memory model</option>
                   {dangling && <option value={value}>Missing profile ({value})</option>}
-                  {profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.name}{profile.model ? ` (${profile.model})` : ""}</option>)}
+                  <optgroup label="Connection profiles">
+                    {profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.name}{profile.model ? ` (${profile.model})` : ""}</option>)}
+                  </optgroup>
+                  {(harnesses.length > 0 || (harness && !option)) && (
+                    <optgroup label="Cloud harness (on the SillyTavern server)">
+                      {harness && !option && <option value={harness.key}>Unavailable harness ({harness.key})</option>}
+                      {harnesses.map((entry) => <option key={entry.key} value={entry.key}>{entry.label}</option>)}
+                    </optgroup>
+                  )}
                 </select>
               </label>
+              {harness && (
+                <>
+                  <div data-so="role-egress" className="text-xs opacity-80">
+                    {`${ROLE_EGRESS[route.role]} to ${option?.vendor ?? "the harness's vendor"} via ${option?.label ?? harness.key}, from the machine running SillyTavern.`}
+                  </div>
+                  <label className="flex items-center gap-2 text-xs">
+                    <span className="opacity-80">On failure</span>
+                    <select id={`so-role-fallback-${route.role}`} value={harness.fallback ?? ""} onChange={(event) => onFallback?.(route.role, event.target.value || null)}>
+                      <option value="">Pause this task</option>
+                      {profiles.map((profile) => <option key={profile.id} value={profile.id}>Use {profile.name}</option>)}
+                    </select>
+                  </label>
+                  {meter && <div data-so="role-meter" className="text-xs opacity-70">{meterText(meter)}</div>}
+                </>
+              )}
               <label className="flex items-center gap-2 text-xs">
                 <span className="opacity-80">Reasoning effort</span>
                 <select

@@ -2,6 +2,7 @@ import type { SharedReadAudit } from "@extraction/index";
 import type { JudgeCallRecord } from "@judge/index";
 import type { CuratorPassAudit } from "@stagecraft/index";
 import type { TalkDecisionAudit } from "./types";
+import type { ModelCallRecord } from "./modelCallLog";
 
 export const MODEL_CALLS_SHOWN = 20;
 export const ROUTE_NOT_RECORDED = "route not recorded";
@@ -22,6 +23,7 @@ export interface ModelCallSources {
   audits: readonly SharedReadAudit[];
   talkDecisions: readonly TalkDecisionAudit[];
   curatorPass: CuratorPassAudit | null;
+  routed?: readonly ModelCallRecord[];
 }
 
 export const judgeRoute = (model: string | null): string | null => (model ? `judge:typesafe:${model}` : null);
@@ -81,6 +83,10 @@ export function buildModelCalls(sources: ModelCallSources): ModelCallRow[] {
     ...sources.audits.map(readRow),
     ...sources.talkDecisions.filter((decision) => MODEL_SPEAKER_SOURCES.has(decision.source)).map(talkRow),
     ...(sources.curatorPass ? [curatorRow(sources.curatorPass)] : []),
+    ...(sources.routed ?? []).map((call): ModelCallRow => ({
+      at: call.at, kind: "llm", role: `${call.role}:${call.pass}`, route: call.route, result: call.fallbackFrom ? `fallback from ${call.fallbackFrom}` : call.result,
+      ms: call.ms, tokens: call.inputTokens !== undefined || call.outputTokens !== undefined ? (call.inputTokens ?? 0) + (call.outputTokens ?? 0) : null, messageId: null,
+    })),
   ];
   return rows.sort((left, right) => Date.parse(right.at) - Date.parse(left.at)).slice(0, MODEL_CALLS_SHOWN);
 }

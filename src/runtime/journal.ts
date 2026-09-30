@@ -3,11 +3,12 @@ import type { ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { JudgeCallRecord } from "@judge/index";
 import type { PayloadCapture, TalkDecisionAudit } from "./types";
 import { judgeRoute } from "./modelCalls";
+import type { ModelCallRecord } from "./modelCallLog";
 
 export const JOURNAL_LIMIT = 200;
 export const PAYLOAD_CAPTURE_LIMIT = 5;
 
-export type JournalEventKind = "status" | "flag" | "story" | "boundary" | "transition" | "extraction" | "delta" | "reconciliation" | "payload" | "talk" | "stagecraft" | "judge" | "lore";
+export type JournalEventKind = "status" | "flag" | "story" | "boundary" | "transition" | "extraction" | "delta" | "reconciliation" | "payload" | "talk" | "stagecraft" | "judge" | "lore" | "model-call";
 
 // The persisted half of the journal: things nothing else records. Additive kinds read back fine
 // from older chats — `sanitizeJournalRecords` keeps any record that carries a kind and a summary.
@@ -44,10 +45,11 @@ export interface JournalSources {
   payloadCaptures: PayloadCapture[];
   talkDecisions: TalkDecisionAudit[];
   judgeCalls?: JudgeCallRecord[];
+  modelCalls?: ModelCallRecord[];
   pending?: ApplyQueueEntry[];
 }
 
-const KIND_ORDER: JournalEventKind[] = ["flag", "story", "boundary", "transition", "extraction", "delta", "reconciliation", "talk", "judge", "stagecraft", "lore", "payload", "status"];
+const KIND_ORDER: JournalEventKind[] = ["flag", "story", "boundary", "transition", "extraction", "delta", "reconciliation", "talk", "judge", "model-call", "stagecraft", "lore", "payload", "status"];
 
 const rank = (kind: JournalEventKind) => KIND_ORDER.indexOf(kind);
 
@@ -186,6 +188,14 @@ export function buildSessionJournal(sources: JournalSources): JournalEvent[] {
         ...(call.inputTokens !== undefined ? { inputTokens: call.inputTokens } : {}), ...(call.outputTokens !== undefined ? { outputTokens: call.outputTokens } : {}),
         ...(call.cost !== undefined ? { cost: call.cost } : {}), ...(call.p ? { p: call.p } : {}),
       },
+    })),
+    ...(sources.modelCalls ?? []).map((call) => ({
+      at: call.at,
+      boundary: -1,
+      messageId: -1,
+      kind: "model-call" as const,
+      summary: `${call.role} ${call.pass} via ${call.route}: ${call.result}${call.fallbackFrom ? ` (fell back from ${call.fallbackFrom})` : ""} in ${call.ms} ms`,
+      detail: { ...call },
     })),
   ];
   return events.sort((left, right) => timeOf(left.at) - timeOf(right.at) || rank(left.kind) - rank(right.kind));

@@ -29,8 +29,15 @@ export type ExtractionHealth =
 export const failureClass = (error: unknown): FailureClass => {
   const kind = error instanceof Error && error.name === "ModelCallError" && "kind" in error ? error.kind : null;
   if (kind === "lapsed" || kind === "config") return kind;
+  if (kind === "refused") return "config";
   if (kind === "reasoning-exhausted") return "exhausted";
-  return kind === "transport" || kind === "timeout" ? "transport" : "bug";
+  return kind === "transport" || kind === "timeout" || kind === "auth" || kind === "quota" || kind === "malformed" ? "transport" : "bug";
+};
+
+/** A quota answer names when the route may be asked again; the breaker holds it at least that long. */
+export const failedRetryAt = (error: unknown): number | null => {
+  const retryAt = error instanceof Error && error.name === "ModelCallError" && "retryAt" in error ? error.retryAt : null;
+  return typeof retryAt === "number" && Number.isFinite(retryAt) ? retryAt : null;
 };
 
 /** The profile a failed call went to, so its breaker, not the read path's, takes the failure. */
@@ -55,13 +62,14 @@ export class Breaker {
     return this.entries.has(profileId);
   }
 
-  trip(profileId: string, failure: string, now: number): boolean {
+  trip(profileId: string, failure: string, now: number, holdUntil: number | null = null): boolean {
     const current = this.entries.get(profileId);
     if (current) {
       current.lastFailure = failure;
+      if (holdUntil && holdUntil > current.nextProbeAt) current.nextProbeAt = holdUntil;
       return false;
     }
-    this.entries.set(profileId, { phase: "open", step: 0, openedAt: now, nextProbeAt: now + backoffFor(0), lastFailure: failure });
+    this.entries.set(profileId, { phase: "open", step: 0, openedAt: now, nextProbeAt: Math.max(now + backoffFor(0), holdUntil ?? 0), lastFailure: failure });
     return true;
   }
 
