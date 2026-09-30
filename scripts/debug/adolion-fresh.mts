@@ -307,9 +307,9 @@ async function pagePhase(mode: 'seed' | 'check', exportDir: string, commit: stri
       return where;
     };
 
+    const extraction = await readExtractionSettings(page);
+    await evaluateInST(page, () => { (globalThis as any).storyOrchestratorRuntime?.setExtractionSettings({ enabled: false }); });
     if (mode === 'seed') {
-      const extraction = await readExtractionSettings(page);
-      await evaluateInST(page, () => { (globalThis as any).storyOrchestratorRuntime?.setExtractionSettings({ enabled: false }); });
       const unlisted = await evaluateInST(page, async (avatars: string[]) => {
         const ctx = SillyTavern.getContext();
         const started = Date.now();
@@ -364,9 +364,6 @@ async function pagePhase(mode: 'seed' | 'check', exportDir: string, commit: stri
         await settle();
       }
       out.imports = imports;
-      const restore = await restoreExtractionSettings(page, extraction);
-      out.extraction = { before: extraction, restore };
-      if ((restore as { ok?: boolean }).ok === false) problems.push(`extraction settings not restored: ${JSON.stringify(restore)}`);
     }
 
     if (dropBook) out.dropped = await deleteLorebooksInPage(page, [dropBook]);
@@ -389,6 +386,9 @@ async function pagePhase(mode: 'seed' | 'check', exportDir: string, commit: stri
       const ctx = SillyTavern.getContext();
       return (ctx.groups ?? []).find((group) => group.id === ctx.groupId)?.name ?? null;
     });
+    const restore = await restoreExtractionSettings(page, extraction);
+    out.extraction = { before: extraction, restore };
+    if ((restore as { ok?: boolean }).ok === false) problems.push(`extraction settings not restored: ${JSON.stringify(restore)}`);
     if (mode === 'seed') out.baseline = await snapshotAssets(page);
     await saveSettingsNow(page);
     await writeFile(outFile, JSON.stringify(out, null, 2), 'utf-8');

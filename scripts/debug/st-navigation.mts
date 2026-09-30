@@ -411,16 +411,21 @@ async function waitForEntity(page, kind, value, timeout = 15000) {
 }
 
 export async function openGroup(page, idOrName) {
-  const clicked = await evaluateInST(page, (needle) => {
+  const clicked = await evaluateInST(page, async (needle) => {
     const ctx = SillyTavern.getContext();
     const search = String(needle).trim().toLowerCase();
     const group = (ctx.groups ?? []).find((candidate) => candidate.id === needle || (candidate.name ?? '').trim().toLowerCase() === search);
     if (!group) return { found: false, reason: `no group matching "${needle}"` };
     if (ctx.groupId === group.id) return { found: true, alreadyOpen: true, id: group.id, name: group.name };
     const block = Array.from(document.querySelectorAll<HTMLElement>('.group_select')).find((el) => (el.getAttribute('grid') || el.getAttribute('data-grid')) === group.id);
-    if (!block) return { found: false, reason: `group "${group.name}" has no .group_select block in the DOM` };
-    block.click();
-    return { found: true, id: group.id, name: group.name };
+    if (block) {
+      block.click();
+      return { found: true, id: group.id, name: group.name };
+    }
+    const chats = await import(/* webpackIgnore: true */ '/scripts/group-chats.js' as string) as { openGroupById?: (id: string) => Promise<boolean> };
+    if (typeof chats.openGroupById !== 'function') return { found: false, reason: `group "${group.name}" has no .group_select block in the DOM (the character list pages it out) and openGroupById is missing` };
+    await chats.openGroupById(group.id);
+    return { found: true, id: group.id, name: group.name, via: 'openGroupById' };
   }, idOrName);
   if (!clicked.found) throw new Error(clicked.reason);
   const state = clicked.alreadyOpen

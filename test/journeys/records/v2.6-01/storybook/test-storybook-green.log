@@ -1,0 +1,1589 @@
+(node:44976) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[SB] 
+[SB] > story-orchestrator@2.4.0 serve-sb
+[SB] > http-server .sb-static -p 6006 -s -c-1
+[SB] 
+[SB] (node:70092) [DEP0066] DeprecationWarning: OutgoingMessage.prototype._headers is deprecated
+[SB] (Use `node --trace-deprecation ...` to show where the warning was created)
+[TEST] [test-storybook] Detected a remote Storybook URL, running in index json mode. To disable this, run the command again with --no-index-json
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/drawer-drawertabs.test.js (16.681 s)
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/drawer-conflictqueue.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/settings-judgesettingsgroup.test.js (6.93 s)
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/drawer-stagecraftpanel.test.js (6.158 s)
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-storyeditor.test.js (7.301 s)
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/drawer-playeroverview.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/drawer-nextturnpanel.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-studiocopilot.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-studiomodal.test.js (6.447 s)
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/settings-worldinfogatinggroup.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/settings-capabilitiesgroup.test.js (5.952 s)
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-checkpointeditor.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/drawer-hudstrip.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/drawer-driverpanel.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-qualityeditor.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-provisioningcard.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-gatereplaypanel.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-proposalreview.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/settings-entrypoints.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-agentwizard.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-agencyeditor.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-transitioneditor.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-rostereditor.test.js (5.712 s)
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/inline-inlinestrip.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-studiotoolbar.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/settings-roleprofilesgroup.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-talkcontroleditor.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-gatebuilder.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/drawer-modelcallspanel.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-primitives-helptooltip.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-primitives-multiselect.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-primitives-feedbackalert.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-diagnosticspanel.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-primitives-toolbar.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-wizardquestions.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/inline-inlinedetail.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/drawer-messageinspector.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-primitives-graphpanel.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-scopepreview.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/drawer-branchnotice.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] PASS browser: chromium ../../../../../Users/ROLAPO~1/AppData/Local/Temp/381cdc6b2bd7ffafcccf2430ae9d6ba4/studio-studiograph.test.js
+[TEST]   ● Console
+[TEST] 
+[TEST]     console.log
+[TEST]       No accessibility violations detected!
+[TEST] 
+[TEST]       at DefaultTerminalReporter.<anonymous> (node_modules/axe-playwright/dist/reporter/defaultTerminalReporter.js:47:41)
+[TEST] 
+[TEST] 
+[TEST] Test Suites: 41 passed, 41 total
+[TEST] Tests:       289 passed, 289 total
+[TEST] Snapshots:   0 total
+[TEST] Time:        139.538 s
+[TEST] Ran all test suites.
+[TEST] [test-storybook] Cleaning up C:\Users\ROLAPO~1\AppData\Local\Temp\381cdc6b2bd7ffafcccf2430ae9d6ba4
+[TEST] npx wait-on -t 60000 http://127.0.0.1:6006 && node node_modules/@storybook/test-runner/dist/test-storybook.js --url http://127.0.0.1:6006 --maxWorkers 1 --index-json exited with code 0
+--> Sending SIGTERM to other processes..
+[SB] npm run serve-sb exited with code 1
+exit=0

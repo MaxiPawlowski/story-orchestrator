@@ -54,7 +54,7 @@ const readHostOptions = (): StudioHostOptions => {
   return { personaNames: safe(listPersonas), memberNames: safe(listGroupMembers), lorebookNames: safe(listGlobalLorebooks), backgroundNames: safe(listBackgrounds) };
 };
 
-if (__SO_DEV__) Object.assign(globalThis, { storyOrchestratorWizardAgent: wizardAgent });
+export const WIZARD_AGENT = wizardAgent;
 
 const agentTurnRunner = (model: ModelCall | undefined, host: WizardHost | undefined): AgentTurnRunner | undefined =>
   (model && host

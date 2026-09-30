@@ -20,9 +20,8 @@ Rules applied:
 | harness | keep | 73 |
 | jest | keep | 354 |
 | journey check | keep | 144 |
-| live suite | fix (pending decision) | 14 |
-| live suite | keep | 15 |
-| no-LLM scenario | keep | 101 |
+| live suite | keep | 29 |
+| no-LLM scenario | keep | 102 |
 | retired | retire (merged) | 1 |
 | storybook | keep | 41 |
 
@@ -38,7 +37,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | jest | `src/copilot/agent/tools.test.ts` | keep | guards a named contract |
 | jest | `src/copilot/authoring.test.ts` | keep | unnamed: names no invariant, defect or contract (touched by 3 fix commit(s)); name it on next touch (budget rule 1) |
 | jest | `src/copilot/authoringA16.review.test.ts` | keep | guards a named defect |
-| jest | `src/copilot/parse.test.ts` | keep | guards a named contract |
+| jest | `src/copilot/parse.test.ts` | keep | defect-replay killer: lore-select-drops-exclusive |
 | jest | `src/copilot/proposal.test.ts` | keep | guards a named contract |
 | jest | `src/copilot/validate.test.ts` | keep | unnamed: names no invariant, defect or contract (touched by 2 fix commit(s)); name it on next touch (budget rule 1) |
 | jest | `src/engine/agency.test.ts` | keep | guards a named defect |
@@ -190,9 +189,9 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | jest | `src/runtime/curatorFilter.test.ts` | keep | guards a named contract |
 | jest | `src/runtime/curatorWriteAheadHydrate.review.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/devOnly.guard.test.ts` | keep | guards a named invariant |
-| jest | `src/runtime/effectLedger.test.ts` | keep | guards a named defect |
+| jest | `src/runtime/effectLedger.test.ts` | keep | defect-replay killer: effect-ledger-evicts-owed-restore |
 | jest | `src/runtime/effectRestore.review.test.ts` | keep | guards a named defect |
-| jest | `src/runtime/effectsApplier.test.ts` | keep | defect-replay killer: write-ahead-unverified (killed) |
+| jest | `src/runtime/effectsApplier.test.ts` | keep | defect-replay killer: scan-mode-file-writes-before-gating, write-ahead-unverified (killed) |
 | jest | `src/runtime/effectsOwnership.review.test.ts` | keep | defect-replay killer: background-write-unowned (killed) |
 | jest | `src/runtime/epochAbort.review.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/errorCopy.guard.test.ts` | keep | guards a named invariant |
@@ -248,7 +247,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | jest | `src/runtime/npcRepliesOwnership.review.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/npcReplyRewind.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
 | jest | `src/runtime/npcReplyRoll.test.ts` | keep | guards a named defect |
-| jest | `src/runtime/npcStreamLanding.review.test.ts` | keep | guards a named defect |
+| jest | `src/runtime/npcStreamLanding.review.test.ts` | keep | defect-replay killer: npc-stream-lands-in-next-chat |
 | jest | `src/runtime/npcTriggerStop.review.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/ownership.guard.test.ts` | keep | guards a named invariant |
 | jest | `src/runtime/passProfiles.test.ts` | keep | guards a named defect |
@@ -329,7 +328,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | jest | `src/runtime/worldInfoEvidence.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/worldInfoEvidenceHost.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
 | jest | `src/runtime/worldInfoGates.test.ts` | keep | defect-replay killer: world-info-toggled-in-place (killed) |
-| jest | `src/runtime/worldInfoGating.test.ts` | keep | guards a named defect |
+| jest | `src/runtime/worldInfoGating.test.ts` | keep | defect-replay killer: scan-mode-file-writes-before-gating |
 | jest | `src/runtime/worldInfoLedger.test.ts` | keep | guards a named contract |
 | jest | `src/runtime/worldInfoNormalize.test.ts` | keep | guards a named contract |
 | jest | `src/runtime/worldInfoScan.test.ts` | keep | guards a named contract |
@@ -355,7 +354,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | jest | `src/services/stHost/saveWatcher.test.ts` | keep | defect-replay killer: save-binds-late-empty-save (killed) |
 | jest | `src/services/stHost/saveWatcherStop.test.ts` | keep | unnamed: names no invariant, defect or contract (touched by 1 fix commit(s)); name it on next touch (budget rule 1) |
 | jest | `src/services/stHost/slashCommands.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
-| jest | `src/services/stHost/streamGuard.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
+| jest | `src/services/stHost/streamGuard.test.ts` | keep | defect-replay killer: npc-stream-lands-in-next-chat |
 | jest | `src/services/stHost/typedResults.test.ts` | keep | guards a named invariant |
 | jest | `src/services/stHost/worldInfo.test.ts` | keep | guards a named defect |
 | jest | `src/services/stHost/worldInfoFiles.test.ts` | keep | guards a named contract |
@@ -431,7 +430,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | harness | `scripts/debug/eventNames.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/journeyTallies.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/legacyFree.test.mts` | keep | harness guard (contract) |
-| harness | `scripts/debug/lib/adolionFresh.test.mts` | keep | harness guard (nothing named) |
+| harness | `scripts/debug/lib/adolionFresh.test.mts` | keep | harness guard (contract) |
 | harness | `scripts/debug/lib/assetScope.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/lib/bundleFlavour.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/lib/calibrationVerdict.test.mts` | keep | harness guard (defect) |
@@ -612,6 +611,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | no-LLM scenario | `test/scenarios/live-v8-memory-decisions.json` | keep | deterministic tier, no backend (nothing named) |
 | no-LLM scenario | `test/scenarios/live-v9-ledger-cap.json` | keep | deterministic tier, no backend (nothing named) |
 | no-LLM scenario | `test/scenarios/live-wizard-ownership.json` | keep | deterministic tier, no backend (contract) |
+| no-LLM scenario | `test/scenarios/memory-mirror-file.json` | keep | deterministic tier, no backend (nothing named) |
 | no-LLM scenario | `test/scenarios/plan02-runtime.json` | keep | deterministic tier, no backend (nothing named) |
 | no-LLM scenario | `test/scenarios/plan03-extraction.json` | keep | deterministic tier, no backend (nothing named) |
 | no-LLM scenario | `test/scenarios/plan03a-delete-rollback.json` | keep | deterministic tier, no backend (nothing named) |
@@ -818,18 +818,18 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | journey check | `J0.5` | keep | no-LLM journey check (T3) |
 | journey check | `J0.6` | keep | no-LLM journey check (R12) |
 | live suite | `extractor` | keep | live-suite fixture (deltas, facts); its golden replays in jest |
-| live suite | `extractor10` | fix (pending decision) | vacuous facts needle (mustContain [""], mustNotContain ["zzz"]); the fix redefines the facts column, which is v2.5 plan 05's open user decision 2 (X15: never silently). Not changed here. |
-| live suite | `extractor11` | fix (pending decision) | vacuous facts needle (mustContain [""], mustNotContain ["zzz"]); the fix redefines the facts column, which is v2.5 plan 05's open user decision 2 (X15: never silently). Not changed here. |
-| live suite | `extractor12` | fix (pending decision) | vacuous facts needle (mustContain [""], mustNotContain ["zzz"]); the fix redefines the facts column, which is v2.5 plan 05's open user decision 2 (X15: never silently). Not changed here. |
-| live suite | `extractor13` | fix (pending decision) | vacuous facts needle (mustContain [""], mustNotContain ["zzz"]); the fix redefines the facts column, which is v2.5 plan 05's open user decision 2 (X15: never silently). Not changed here. |
-| live suite | `extractor14` | fix (pending decision) | vacuous facts needle (mustContain [""], mustNotContain ["zzz"]); the fix redefines the facts column, which is v2.5 plan 05's open user decision 2 (X15: never silently). Not changed here. |
+| live suite | `extractor10` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
+| live suite | `extractor11` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
+| live suite | `extractor12` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
+| live suite | `extractor13` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
+| live suite | `extractor14` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
 | live suite | `extractor15` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
-| live suite | `extractor16` | fix (pending decision) | vacuous facts needle (mustContain [""], mustNotContain ["zzz"]); the fix redefines the facts column, which is v2.5 plan 05's open user decision 2 (X15: never silently). Not changed here. |
-| live suite | `extractor17` | fix (pending decision) | vacuous facts needle (mustContain [""], mustNotContain ["zzz"]); the fix redefines the facts column, which is v2.5 plan 05's open user decision 2 (X15: never silently). Not changed here. |
-| live suite | `extractor18` | fix (pending decision) | vacuous facts needle (mustContain [""], mustNotContain ["zzz"]); the fix redefines the facts column, which is v2.5 plan 05's open user decision 2 (X15: never silently). Not changed here. |
-| live suite | `extractor19` | fix (pending decision) | vacuous facts needle (mustContain [""], mustNotContain ["zzz"]); the fix redefines the facts column, which is v2.5 plan 05's open user decision 2 (X15: never silently). Not changed here. |
+| live suite | `extractor16` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
+| live suite | `extractor17` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
+| live suite | `extractor18` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
+| live suite | `extractor19` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
 | live suite | `extractor2` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
-| live suite | `extractor20` | fix (pending decision) | vacuous facts needle (mustContain [""], mustNotContain ["zzz"]); the fix redefines the facts column, which is v2.5 plan 05's open user decision 2 (X15: never silently). Not changed here. |
+| live suite | `extractor20` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
 | live suite | `extractor21` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
 | live suite | `extractor22` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
 | live suite | `extractor23` | keep | live-suite fixture (deltas, rejected, facts, epistemic); its golden replays in jest |
@@ -842,8 +842,8 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | live suite | `extractor3` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
 | live suite | `extractor4` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
 | live suite | `extractor5` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
-| live suite | `extractor6` | fix (pending decision) | vacuous facts needle (mustContain [""], mustNotContain ["zzz"]); the fix redefines the facts column, which is v2.5 plan 05's open user decision 2 (X15: never silently). Not changed here. |
-| live suite | `extractor7` | fix (pending decision) | vacuous facts needle (mustContain [""], mustNotContain ["zzz"]); the fix redefines the facts column, which is v2.5 plan 05's open user decision 2 (X15: never silently). Not changed here. |
-| live suite | `extractor8` | fix (pending decision) | vacuous facts needle (mustContain [""], mustNotContain ["zzz"]); the fix redefines the facts column, which is v2.5 plan 05's open user decision 2 (X15: never silently). Not changed here. |
-| live suite | `extractor9` | fix (pending decision) | vacuous facts needle (mustContain [""], mustNotContain ["zzz"]); the fix redefines the facts column, which is v2.5 plan 05's open user decision 2 (X15: never silently). Not changed here. |
+| live suite | `extractor6` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
+| live suite | `extractor7` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
+| live suite | `extractor8` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
+| live suite | `extractor9` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
 | retired | `test/scenarios/v24-acc-I1-live.json` | retire (merged) | duplicate: identical steps to test/scenarios/live-v24-01-t1.json except 15 budgets of 600000 ms; the budgets were folded into live-v24-01-t1 (v2.4 plan 09 E1: 300 s timed out on the RTX PRO 4500 pod). The archived runs stay under test/journeys/records/v2.4-acceptance/. |
