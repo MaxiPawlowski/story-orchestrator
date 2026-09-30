@@ -5,6 +5,7 @@ import type { SharedReadAudit } from "@extraction/index";
 import { disableWIEntry, enableWIEntry, executeSlashCommands, getActiveGroup } from "@services/STAPI";
 import { RuntimeManager } from "./runtimeManager";
 import { BLOB_VERSION } from "./persistence";
+import { defaultInlineSettings } from "./settingsModel";
 import { control } from "../../test/findings/ledger";
 
 const mockExtensionPrompts: Record<string, { value: string; depth: number }> = {};
@@ -1408,7 +1409,7 @@ describe("RuntimeManager transition announcements and pending deltas", () => {
   it("defaults ui settings on hydrate and persists overrides", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(gatedStory));
-    expect(manager.getSnapshot().ui).toEqual({ authorView: false, announceTransitions: true, hudEnabled: true });
+    expect(manager.getSnapshot().ui).toEqual({ authorView: false, announceTransitions: true, hudEnabled: true, inline: defaultInlineSettings() });
     manager.setUiSettings({ authorView: true });
     const metadata = mockContext.chatMetadata.story_orchestrator as { stories: Record<string, { extras: { ui?: { authorView?: boolean } } }> };
     const storyId = Object.keys(metadata.stories)[0];

@@ -126,7 +126,7 @@ const reconciliationEvents = (events: ReconciliationEvent[]): JournalEvent[] => 
   const rows: JournalEvent[] = [{
     at: event.scheduledAt,
     boundary: event.boundary,
-    messageId: -1,
+    messageId: event.messageId ?? -1,
     kind: "reconciliation",
     summary: `stall re-check queued for ${event.targetedKeys.join(", ") || "recent scenes"}`,
     detail: { checkpointId: event.checkpointId, targetedKeys: event.targetedKeys },
@@ -135,7 +135,7 @@ const reconciliationEvents = (events: ReconciliationEvent[]): JournalEvent[] => 
     rows.push({
       at: event.resolvedAt,
       boundary: event.boundary,
-      messageId: -1,
+      messageId: event.messageId ?? -1,
       kind: "reconciliation",
       summary: `stall re-check resolved (${event.evidence.length} evidence)`,
       detail: { evidence: event.evidence },
@@ -161,7 +161,7 @@ export function buildSessionJournal(sources: JournalSources): JournalEvent[] {
     ...sources.payloadCaptures.map((capture) => ({
       at: capture.at,
       boundary: capture.boundary,
-      messageId: -1,
+      messageId: capture.messageId ?? -1,
       kind: "payload" as const,
       summary: `${capture.blocks.length} story blocks injected (${capture.reason})`,
       detail: { keys: capture.blocks.map((block) => `${block.key}@${block.depth}`) },

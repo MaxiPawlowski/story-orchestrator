@@ -46,6 +46,7 @@ export function applyArcSignals(arcs: ArcEntry[], signals: ParsedArcSignal[], ct
     if (best) {
       best.status = "resolved";
       best.resolvedAt = ctx.boundary;
+      if (typeof ctx.messageId === "number") best.resolvedMessageId = ctx.messageId;
       resolved.push(best);
     }
   }
@@ -86,8 +87,10 @@ export function rollbackArcs(arcs: ArcEntry[], messageId: number, boundary: numb
   return arcs
     .filter((arc) => typeof arc.openedMessageId !== "number" || arc.openedMessageId < messageId)
     .map((arc) => {
-      if (arc.status === "resolved" && typeof arc.resolvedAt === "number" && arc.resolvedAt > boundary) {
-        const { resolvedAt: _resolvedAt, summary: _summary, ...rest } = arc;
+      const resolvedAfter = (typeof arc.resolvedAt === "number" && arc.resolvedAt > boundary)
+        || (typeof arc.resolvedMessageId === "number" && arc.resolvedMessageId >= messageId);
+      if (arc.status === "resolved" && resolvedAfter) {
+        const { resolvedAt: _resolvedAt, resolvedMessageId: _resolvedMessageId, summary: _summary, ...rest } = arc;
         return { ...rest, status: "open" as const };
       }
       return arc;

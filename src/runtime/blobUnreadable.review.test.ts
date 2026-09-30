@@ -28,18 +28,19 @@ declare global {
 const record = (id: string) => currentRecord(id) as never;
 
 const SHAPES: Array<[string, () => unknown, number | string | null]> = [
-  ["a v6 blob from another build", () => ({ version: 6, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: { storyId: "s1", journal: ["kept"] } }, fingerprints: { v: 1 } }), 6],
-  ["a v4 blob, the format before v5", () => ({ version: 4, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: record("s1") } }), 4],
+  ["a v7 blob from another build", () => ({ version: 7, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: { storyId: "s1", journal: ["kept"] } }, fingerprints: { v: 1 } }), 7],
+  ["a v5 blob, the format before v6", () => ({ version: 5, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: record("s1") } }), 5],
+  ["a v4 blob", () => ({ version: 4, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: record("s1") } }), 4],
   ["a v3 blob", () => ({ version: 3, selectedStoryId: "s1", stories: { s1: record("s1") } }), 3],
   ["a v2 blob", () => ({ version: 2, selectedStoryHash: "v2-abc", stories: { "v2-abc": { storyHash: "v2-abc" } } }), 2],
-  ["a string version \"5\"", () => ({ version: "5", chatId: "chat-a", selectedStoryId: "s1", stories: { s1: {} } }), "5"],
+  ["a string version \"6\"", () => ({ version: "6", chatId: "chat-a", selectedStoryId: "s1", stories: { s1: {} } }), "6"],
   ["a blob with no version", () => ({ chatId: "chat-a", selectedStoryId: "s1", stories: { s1: {} } }), null],
-  ["a v5 blob whose stories is not a record", () => ({ version: 5, chatId: "chat-a", selectedStoryId: "s1", stories: ["s1"] }), 5],
-  ["a v5 blob whose record lacks engineHistory", () => ({ version: 5, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: currentRecord("s1", { engineHistory: undefined }) } }), 5],
-  ["a v5 blob whose engine state lacks visitedPath", () => ({ version: 5, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: currentRecord("s1", { engineState: currentEngineState({ visitedPath: undefined }) }) } }), 5],
-  ["a v5 blob whose record lacks pinnedStory", () => ({ version: 5, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: currentRecord("s1", { pinnedStory: null }) } }), 5],
-  ["a v5 blob whose engine state has a null lastMessageId", () => ({ version: 5, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: currentRecord("s1", { engineState: currentEngineState({ lastMessageId: null as never }) }) } }), 5],
-  ["a v5 blob whose unselected record lacks extras", () => ({ version: 5, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: currentRecord("s1"), s2: currentRecord("s2", { extras: undefined }) } }), 5],
+  ["a v6 blob whose stories is not a record", () => ({ version: 6, chatId: "chat-a", selectedStoryId: "s1", stories: ["s1"] }), 6],
+  ["a v6 blob whose record lacks engineHistory", () => ({ version: 6, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: currentRecord("s1", { engineHistory: undefined }) } }), 6],
+  ["a v6 blob whose engine state lacks visitedPath", () => ({ version: 6, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: currentRecord("s1", { engineState: currentEngineState({ visitedPath: undefined }) }) } }), 6],
+  ["a v6 blob whose record lacks pinnedStory", () => ({ version: 6, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: currentRecord("s1", { pinnedStory: null }) } }), 6],
+  ["a v6 blob whose engine state has a null lastMessageId", () => ({ version: 6, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: currentRecord("s1", { engineState: currentEngineState({ lastMessageId: null as never }) }) } }), 6],
+  ["a v6 blob whose unselected record lacks extras", () => ({ version: 6, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: currentRecord("s1"), s2: currentRecord("s2", { extras: undefined }) } }), 6],
 ];
 
 function open(blob: unknown, chatId = "chat-a") {
@@ -82,11 +83,11 @@ describe("T11: a blob this build cannot read is read detached and never overwrit
   });
 
   it("an explicit selection is refused, says another version saved it, adopts nothing, and is the story a confirmed Restart then starts", async () => {
-    open(SHAPES[4][1]());
+    open(SHAPES[5][1]());
     const other = deps();
     expect(await selectStory(other as unknown as StorySelectionDeps, "s1")).toBe(false);
-    expect(other.setStatus).toHaveBeenCalledWith(expect.anything(), expect.stringContaining('version "5"'));
-    open(SHAPES[1][1]());
+    expect(other.setStatus).toHaveBeenCalledWith(expect.anything(), expect.stringContaining('version "6"'));
+    open(SHAPES[2][1]());
     const before = bytes();
     expect(adoptChatState()).toBe(false);
     const d = deps();

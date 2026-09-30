@@ -5,6 +5,7 @@ import type { RunContext } from "./runToken";
 import { loreEvidence, type EntryRef, type LoreEvidence, type LoreFlag, type ScanInput } from "./worldInfoEvidence";
 import { sameLorebook } from "./worldInfoMatch";
 import { withholds } from "./generationLifecycle";
+import { loreFiredRecord, type LoreFiredRecord } from "./loreFired";
 
 export const isLoudGeneration = (type: string | null) => type === null || !withholds(type);
 
@@ -18,6 +19,7 @@ export interface LoreEvidenceWiring {
   /** The innermost generation open when a scan fires: its type tags the scan, and a quiet one is not the reply. */
   innermostType: () => string | null;
   journal: (flag: LoreFlag) => void;
+  fired?: (record: LoreFiredRecord) => void;
   notify: () => void;
   evidence?: LoreEvidence;
 }
@@ -89,8 +91,12 @@ export function startLoreEvidence(deps: LoreEvidenceWiring): LoreEvidenceControl
       if (!open) return;
       open = false;
       const state = deps.state();
-      const flags = evidence.settled({ rendered, lastMessageId: deps.lastMessageId(), story: deps.story(), path: state?.visitedPath ?? [], mirrorBook: mirror });
+      const story = deps.story();
+      const flags = evidence.settled({ rendered, lastMessageId: deps.lastMessageId(), story, path: state?.visitedPath ?? [], mirrorBook: mirror });
       for (const flag of flags) deps.journal(flag);
+      const slot = evidence.lastSettled();
+      const record = slot && slot.chatId === (deps.chatId() ?? "") ? loreFiredRecord(slot, story, mirror) : null;
+      if (record) deps.fired?.(record);
       deps.notify();
     },
     forced: (picks) => evidence.forced(picks),

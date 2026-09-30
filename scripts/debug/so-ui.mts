@@ -926,6 +926,70 @@ export const PLAYER_FORBIDDEN_SELECTORS = [
   '[data-so="lore-satisfied-by"]', '[data-so="lore-character-gap"]', '[data-so="mirror-slot-conflict"]',
 ];
 
+// v2.6 plan 08: the inline timeline's author half. Player levels (1-2) render chips, counts and player
+// copy only; details, actions, the inspector button and any level-3/4 row are author view.
+export const INLINE_PLAYER_FORBIDDEN_SELECTORS = [
+  '[data-so="inline-inspect"]', '[data-so="inline-action"]', '[data-so="inline-item-detail"]',
+  '[data-so="inline-item"][data-level="3"]', '[data-so="inline-item"][data-level="4"]', '[data-so="inline-strip"][data-level="3"]', '[data-so="inline-strip"][data-level="4"]',
+];
+
+export function inlineTextFindings(texts: Array<{ mesid: string; text: string }>) {
+  return texts.flatMap(({ mesid, text }) => [
+    ...PLAYER_FORBIDDEN.filter((needle) => text.includes(needle)).map((needle) => ({ tab: `inline ${mesid}`, needle })),
+    ...RAW_ERROR_MARKERS.filter(([, pattern]) => pattern.test(text)).map(([name]) => ({ tab: `inline ${mesid}`, needle: `inline notes show raw error text (${name})` })),
+  ]);
+}
+
+// Reads every strip under the chat, opening each chip in turn so the rows a player would see are
+// read, then closes what it opened. `nodes` is the strip's element count (the ≤30 per message floor at L1).
+export async function getInlineState(page, { messageId = null as number | null } = {}) {
+  return evaluateInST(page, async (wanted) => {
+    const settle = () => new Promise((resolve) => setTimeout(resolve, 30));
+    const strips = Array.from(document.querySelectorAll('#chat [data-so="inline-strip"]'))
+      .filter((strip) => wanted === null || strip.getAttribute('data-mesid') === String(wanted));
+    const rows = [];
+    for (const strip of strips) {
+      const chips = [];
+      const nodes = strip.querySelectorAll('*').length;
+      for (const chip of Array.from(strip.querySelectorAll('[data-so="inline-chip"]')) as HTMLElement[]) {
+        const opened = chip.getAttribute('aria-expanded') !== 'true';
+        if (opened) { chip.click(); await settle(); }
+        const items = Array.from(strip.querySelectorAll('[data-so="inline-expanded"] [data-so="inline-item"]')).map((item) => ({
+          state: item.getAttribute('data-state'), level: Number(item.getAttribute('data-level')), text: (item as HTMLElement).innerText.trim(),
+        }));
+        chips.push({ category: chip.getAttribute('data-category'), label: chip.getAttribute('aria-label'), items });
+        if (opened) { chip.click(); await settle(); }
+      }
+      rows.push({ mesid: strip.getAttribute('data-mesid'), level: Number(strip.getAttribute('data-level')), nodes, inspect: Boolean(strip.querySelector('[data-so="inline-inspect"]')), chips });
+    }
+    const view = globalThis.storyOrchestratorRuntime?.getSnapshot?.().inline ?? null;
+    const times = globalThis.storyOrchestratorInline?.attachTimes?.() ?? [];
+    const sorted = [...times].sort((left, right) => left - right);
+    return {
+      level: view ? { requested: view.requested, effective: view.level, window: view.window } : null,
+      attach: { samples: times.length, medianMs: sorted.length ? sorted[Math.floor(sorted.length / 2)] : null },
+      strips: rows,
+    };
+  }, messageId);
+}
+
+export async function setInlineLevel(page, level: number) {
+  return evaluateInST(page, (next) => {
+    const runtime = globalThis.storyOrchestratorRuntime;
+    if (!runtime?.setInlineSettings) throw new Error('storyOrchestratorRuntime.setInlineSettings is missing: is the dev bundle served?');
+    runtime.setInlineSettings({ level: next });
+    const view = runtime.getSnapshot().inline;
+    return { requested: view.requested, effective: view.level };
+  }, level);
+}
+
+async function inlinePlayerSweep(page) {
+  const state = await getInlineState(page);
+  const texts = state.strips.map((strip) => ({ mesid: String(strip.mesid), text: strip.chips.flatMap((chip) => chip.items.map((item) => item.text)).join('\n') }));
+  const hits = await evaluateInST(page, (selectors) => selectors.flatMap((selector) => Array.from(document.querySelectorAll(`#chat ${selector}`)).map(() => selector)), INLINE_PLAYER_FORBIDDEN_SELECTORS);
+  return [...inlineTextFindings(texts), ...(hits ?? []).map((selector) => ({ tab: 'inline', needle: `${selector} reachable under a message` }))];
+}
+
 // v2.4 plan 03 X17: recovery controls ARE player-visible (pipeline "Try again", backlog "Stop"), so the
 // sweep does not forbid them; it records where they are and fails on a label carrying internals.
 export const PLAYER_RECOVERY_CONTROLS = ['#so-pipeline-retry', '#so-memorize-stop'];
@@ -1006,6 +1070,7 @@ export async function assertPlayerClean(page) {
   }
   findings.push(...recoveryControlFindings(recoveryControls));
   findings.push(...errorStateFindings(errorTexts));
+  findings.push(...await inlinePlayerSweep(page));
   // Leave the drawer where a player would: on the narrative view, not on the last tab we walked.
   if (tabs.includes('Overview')) await switchDrawerTab(page, 'Overview');
   return { ok: findings.length === 0, tabs, surfaces: PLAYER_SURFACES, selectorsChecked: PLAYER_FORBIDDEN_SELECTORS.length, findings, sweep, recoveryControls };
@@ -1037,7 +1102,7 @@ export async function openStoryDrawer(page) {
   return { alreadyOpen: false };
 }
 
-const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|stagecraft|curator-accept|curator-reject|memory-queue|model-calls|gate-replay|gate-replay-history|hit-test|branch-continue|screenshot> [label]
+const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|stagecraft|curator-accept|curator-reject|memory-queue|model-calls|gate-replay|gate-replay-history|hit-test|branch-continue|inline|inline-level|screenshot> [label]
 
 all: print settings + drawer state.
 settings: print settings panel state.
@@ -1066,6 +1131,8 @@ memory-queue [action] [--key <conflictKey>] [--side <n>] [--index <n>]: the reco
   Actions: keep|lock (--key, --side), reread|dismiss (--key), reconfirm|discard (--index into the quarantined list).
   It clicks the panel's own control, then re-reads, so the result shows what the author would see after the click.
 hit-test <selector>: ask which element is topmost at the target's own centre. Exits 1 when a real pointer would not land on it.
+inline [mesid]: read the inline timeline under the chat (every chip opened in turn), the effective level and the attach-time median (v2.6 plan 08).
+inline-level <0-4>: set the install-wide inline level; prints requested vs effective (Author view caps it at 2).
 model-calls: the author Calls list (Scheduler tab): each row's kind, route ("route not recorded" for LLM passes until plan 13 H4) and result (v2.5 plan 07 A5).
 gate-replay [transitionIndex]: the Studio's gate replay panel for one transition (open the Studio from the drawer first) (v2.5 plan 07 A3).
 gate-replay-history --out <file>: write this chat's {storyId, pinnedStory, engineHistory} for the offline A3 correctness check.
@@ -1256,6 +1323,19 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       });
       console.log(JSON.stringify(state, null, 2));
       await writeJSON(state, `so-ui-${subcommand}`);
+    }
+
+    if (subcommand === 'inline') {
+      const raw = process.argv[3];
+      const state = await getInlineState(page, { messageId: raw !== undefined && raw !== '' && Number.isFinite(Number(raw)) ? Number(raw) : null });
+      console.log(JSON.stringify(state, null, 2));
+      await writeJSON(state, 'so-ui-inline');
+    }
+
+    if (subcommand === 'inline-level') {
+      const level = Number(process.argv[3]);
+      if (!Number.isInteger(level) || level < 0 || level > 4) throw new Error('inline-level needs 0-4');
+      console.log(JSON.stringify(await setInlineLevel(page, level), null, 2));
     }
 
     if (subcommand === 'hit-test') {

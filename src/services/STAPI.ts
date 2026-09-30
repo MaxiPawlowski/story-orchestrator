@@ -13,6 +13,8 @@ export { readPromptBuckets } from "@services/stHost/promptBuckets";
 export type { PromptBucketsRead } from "@services/stHost/promptBucketsParse";
 export type { StoryOrchestratorHostContext } from "@services/stHost/context";
 export { subscribeToHostEvent, subscribeToHostEvents } from "@services/stHost/events";
+export { mountInlineHosts, INLINE_HOST_PREFIX, INLINE_HOST_CLASS } from "@services/stHost/inlineMount";
+export type { InlineHostSet } from "@services/stHost/inlineMount";
 export type { HostEventPayloads, HostEventName, TypedHostEventHandler, HostSubscriptionEntry } from "@services/stHost/events";
 export {
   BIAS_CACHE,
@@ -73,12 +75,12 @@ export { observeWorldInfoScans, loadedEntries, type HostEntriesLoaded, type Worl
 export { observeSamplerPayloads, readSamplerPreset, samplerApi, type SamplerPayloadHandlers } from "@services/stHost/samplerOverlay";
 export { installScanGating, probeScanGating, vectorsScanWorldInfo, type ScanGatingHandle } from "@services/stHost/worldInfoScan";
 export { getSelectedConnectionProfileId, listConnectionProfiles, profileExists, sendConnectionProfileRequest } from "@services/stHost/connectionProfiles";
-export type { ModelFailureKind, ModelFinish, ModelReply, ModelRequestOptions, ModelSamplers } from "@services/stHost/modelReply";
+export type { ModelFailureKind, ModelFinish, ModelReply, ModelRequestOptions, ModelSamplers, ReasoningMeter } from "@services/stHost/modelReply";
 export type { ConnectionProfileSummary } from "@services/stHost/connectionProfiles";
 export { countTokens, countTokensBatch } from "@services/stHost/tokenizer";
 export { readProfileContextLimit, readProfilePresetName } from "@services/stHost/contextLimit";
 export { vectorInsert, vectorQuery, vectorPurge, DEFAULT_VECTOR_SOURCE } from "@services/stHost/vectors";
-export { judgeStatus, judgeTransport, writeJudgeSecret, JUDGE_PLUGIN_BASE, JUDGE_PLUGIN_ID, JUDGE_SECRET_KEY, type JudgeStatus } from "@services/stHost/judge";
+export { judgeLlamaComplete, judgeStatus, judgeTransport, writeJudgeSecret, JUDGE_PLUGIN_BASE, JUDGE_PLUGIN_ID, JUDGE_SECRET_KEY, type JudgeStatus } from "@services/stHost/judge";
 export {
   imageChat, imageModel, imageRender, imageSave, imageDelete, imagePlace, imageChatSettings, imageWriteChatSettings, imageComfyUrl, imageReview,
   type ImageChat, type ImageMedia,

@@ -185,10 +185,12 @@ export class LoreEvidence {
   private hiddenRuns = new Map<string, Map<string, number>>();
   private mirror = new Map<string, { eligible: number; fired: number }>();
   private host: LoreEvidenceHost | null = null;
+  private settledSlot: LoreSlot | null = null;
 
   attach(host: LoreEvidenceHost | null) {
     this.host = host;
     if (!host) {
+      this.settledSlot = null;
       this.slots = [];
       this.current = null;
       this.hiddenRuns.clear();
@@ -252,6 +254,7 @@ export class LoreEvidence {
   settled(input: SettleInput): LoreFlag[] {
     const slot = this.current;
     this.current = null;
+    this.settledSlot = null;
     if (!slot) return [];
     const loaded = this.loaded ?? [];
     this.loaded = null;
@@ -284,7 +287,12 @@ export class LoreEvidence {
       this.tallyMirror(input.mirrorBook, loaded, fired);
     }
     this.slots = [...this.slots, slot].slice(-LORE_EVIDENCE_LIMIT);
+    this.settledSlot = slot;
     return flags;
+  }
+
+  lastSettled(): LoreSlot | null {
+    return this.settledSlot;
   }
 
   view(story: NormalizedStoryV2 | null = null, mirrorBook: string | null = null): LoreEvidenceView {

@@ -1,4 +1,5 @@
-import { JudgeBusyError, type JudgeRequest, type JudgeResponse, type JudgeTransport } from "@judge/index";
+import { JUDGE_PROVIDER_IDS, JudgeBusyError, type JudgeProviderId, type JudgeProviderStatus, type JudgeRequest, type JudgeResponse, type JudgeTransport } from "@judge/index";
+import type { LlamaComplete } from "@judge/llamaLogprob";
 import { getContext } from "./context";
 import { importSTModule } from "./modules";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
@@ -14,7 +15,13 @@ export interface JudgeStatus {
   keySource: string | null;
   pluginVersion: string | null;
   maxInFlight?: number | null;
+  providers?: Partial<Record<JudgeProviderId, JudgeProviderStatus>>;
 }
+
+const readProviders = (value: unknown): Partial<Record<JudgeProviderId, JudgeProviderStatus>> | undefined => (isRecord(value)
+  ? Object.fromEntries(JUDGE_PROVIDER_IDS.map((id) => [id, value[id]]).filter((pair): pair is [JudgeProviderId, Record<string, unknown>] => isRecord(pair[1]))
+    .map(([id, row]) => [id, { configured: row.configured === true, local: row.local === true, host: typeof row.host === "string" ? row.host : null }]))
+  : undefined);
 
 // public/scripts/secrets.js:349 — writes through /api/secrets/write, clears nothing we own, and the
 // server never hands a non-exportable key back to the page (src/endpoints/secrets.js:568).
@@ -32,16 +39,30 @@ export async function judgeStatus(): Promise<JudgeStatus | null> {
     if (!response.ok) return null;
     const data = await response.json() as unknown;
     if (!isRecord(data)) return null;
+    const providers = readProviders(data.providers);
     return {
       configured: data.configured === true,
       model: typeof data.model === "string" ? data.model : null,
       keySource: typeof data.keySource === "string" ? data.keySource : null,
       pluginVersion: typeof data.pluginVersion === "string" ? data.pluginVersion : null,
       maxInFlight: isRecord(data.limits) && typeof data.limits.maxInFlight === "number" ? data.limits.maxInFlight : null,
+      ...(providers ? { providers } : {}),
     };
   } catch {
     return null;
   }
+}
+
+async function postToPlugin(path: string, body: unknown, signal?: AbortSignal): Promise<unknown> {
+  const response = await fetch(`${JUDGE_PLUGIN_BASE}${path}`, {
+    method: "POST",
+    headers: { ...headers(), "Content-Type": "text/plain;charset=UTF-8", "X-SO-Plugin": "1" },
+    body: JSON.stringify(body),
+    signal,
+  });
+  if (BUSY_STATUSES.has(response.status)) throw new JudgeBusyError(response.status);
+  if (!response.ok) throw new Error(`judge plugin ${response.status}`);
+  return await response.json() as unknown;
 }
 
 export const judgeTransport: JudgeTransport = async (request: JudgeRequest, options) => {
@@ -53,20 +74,14 @@ export const judgeTransport: JudgeTransport = async (request: JudgeRequest, opti
   options.signal?.addEventListener("abort", onEpochAbort);
   if (options.signal?.aborted) controller.abort();
   try {
-    const response = await fetch(`${JUDGE_PLUGIN_BASE}/systemone`, {
-      method: "POST",
-      headers: { ...headers(), "Content-Type": "text/plain;charset=UTF-8", "X-SO-Plugin": "1" },
-      body: JSON.stringify(request),
-      signal: controller.signal,
-    });
-    if (BUSY_STATUSES.has(response.status)) throw new JudgeBusyError(response.status);
-    if (!response.ok) throw new Error(`judge plugin ${response.status}`);
-    return await response.json() as JudgeResponse;
+    return await postToPlugin("/systemone", request, controller.signal) as JudgeResponse;
   } finally {
     clearTimeout(timer);
     options.signal?.removeEventListener("abort", onEpochAbort);
   }
 };
+
+export const judgeLlamaComplete: LlamaComplete = (body, options) => postToPlugin("/providers/llama-logprob/completion", body, options.signal);
 
 export async function writeJudgeSecret(value: string): Promise<WriteResult> {
   const trimmed = value.trim();

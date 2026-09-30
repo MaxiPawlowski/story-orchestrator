@@ -15,7 +15,8 @@ import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./nar
 import type { AgencyRecovery } from "./agencyRecovery";
 import type { NextTurnContributor, NextTurnCost, NextTurnForeignRow } from "./nextTurn";
 import type { ChatJumpIndex } from "./messageJump";
-import type { PassProfiles } from "./passProfiles";
+import type { PassProfiles, RoleRoutes } from "./passProfiles";
+import type { ReasoningBudget } from "@utils/reasoningEffort";
 import type { RoleRouteView } from "./roleHealth";
 import type { ModelCallRow } from "./modelCalls";
 import type { PromptBucketState } from "./promptBuckets";
@@ -29,10 +30,14 @@ import type { ChatIdentitySnapshot } from "./chatIdentity";
 import type { InjectedPromptBlock } from "@services/STAPI";
 import type { TalkDecisionSource } from "@talk/index";
 import type { BLOB_VERSION } from "./persistence";
+import type { LoreRuntimeState } from "./loreFired";
+import type { InlineView } from "./inlineTimeline";
+import type { InlineSettings } from "./settingsModel";
 
 export interface PayloadCapture {
   at: string;
   boundary: number;
+  messageId?: number;
   reason: string;
   blocks: InjectedPromptBlock[];
 }
@@ -123,6 +128,8 @@ export interface RuntimeExtras {
   effects: EffectsRuntimeState;
   saveHealth: SaveHealth;
   judge: JudgeRuntimeState;
+  /** Which World Info entries each rendered reply's scans activated, by message. */
+  lore: LoreRuntimeState;
   journal: JournalRecord[];
   lastSessionAt: string | null;
   updatedAt: string;
@@ -136,6 +143,7 @@ export interface UiRuntimeSettings {
   authorView: boolean;
   announceTransitions: boolean;
   hudEnabled: boolean;
+  inline: InlineSettings;
 }
 
 export interface PendingDeltaReadout {
@@ -287,9 +295,17 @@ export interface PacingSettings {
   hintEnabled: boolean;
 }
 
+export interface TensionHistoryRow {
+  messageId: number;
+  level: TensionLevel;
+  smoothed: number;
+}
+
 export interface TensionRuntimeState {
   levels: TensionLevel[];
   smoothed: number | null;
+  /** The committed level per reply that moved it, so a timeline can place pacing under its message. */
+  history: TensionHistoryRow[];
 }
 
 export interface ExtractionRuntimeSettings {
@@ -297,6 +313,8 @@ export interface ExtractionRuntimeSettings {
   profileId: string | null;
   /** Install-wide per-role profiles; an unset role uses `profileId`. */
   profiles?: PassProfiles;
+  routes?: RoleRoutes;
+  reasoningBudget?: ReasoningBudget;
   cadence: number;
   reconciliationMultiplier: number;
   stabilityLag: number;
@@ -472,6 +490,10 @@ export interface RuntimeSnapshot {
   roleRoutes?: RoleRouteView[];
   modelCalls?: ModelCallRow[];
   nextTurnBuckets?: PromptBucketState;
+  /** World Info activations persisted per rendered reply. */
+  lore: LoreRuntimeState;
+  /** The inline timeline: every item anchored under the message it is about, before the level filter. */
+  inline: InlineView;
 }
 
 export interface LoadedStory {

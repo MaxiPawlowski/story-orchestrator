@@ -57,10 +57,14 @@ test('info satisfies the ST loader contract', () => {
 test('status reports the key source, never the key', async () => {
     process.env.TYPESAFE_API_KEY = 'sk-test-status';
     const { res, out } = fakeResponse();
-    await plugin.createHandlers().status({}, res);
+    await plugin.createHandlers({ env: {} }).status({}, res);
     assert.deepEqual(out.body, {
         configured: true, keySource: 'env', model: plugin.DEFAULT_MODEL, pluginVersion: plugin.PLUGIN_VERSION,
         limits: { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: plugin.MAX_CALLS_PER_MINUTE_PER_USER },
+        providers: {
+            typesafe: { configured: true, keySource: 'env', contract: 'native', local: false, host: 'api.typesafe.ai' },
+            'llama-logprob': { configured: false, keySource: null, contract: 'logprob', local: false, host: null },
+        },
     });
     assert.ok(!JSON.stringify(out.body).includes('sk-test-status'));
 });
@@ -221,6 +225,94 @@ test('PS-J 3: per user at most 2 in flight and 60 a minute; the excess answers 4
     const later = fakeResponse();
     await handlers.receive(pageRequest(question), later.res);
     assert.equal(later.out.statusCode, 200, 'the window slides');
+});
+
+test('seam golden: a page call routed to the typesafe provider reaches TypeSafe byte-identical to the pre-seam plugin', async () => {
+    process.env.TYPESAFE_API_KEY = 'sk-test-golden';
+    delete process.env.TYPESAFE_BASE_URL;
+    const seen = [];
+    const fetchImpl = async (url, init) => {
+        seen.push({ url, method: init.method, headers: init.headers, body: init.body });
+        return new Response('{"model":"jev-1.13.0","answers":{"greeting":{"type":"noul","noul":0.97}}}', { status: 200 });
+    };
+    const { res, out } = fakeResponse();
+    await plugin.createHandlers({ fetchImpl }).receive(pageRequest(question), res);
+    assert.equal(out.statusCode, 200);
+    assert.deepEqual(seen, [{
+        url: 'https://api.typesafe.ai/v1/systemone',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer sk-test-golden' },
+        body: '{"state":{"transcript":[{"speaker":"Max","text":"hello"}]},"questions":{"greeting":{"type":"noul","instructions":"Is `transcript` a greeting?"}},"model":"jev-1.13.0"}',
+    }]);
+    assert.deepEqual(out.body, { model: 'jev-1.13.0', answers: { greeting: { type: 'noul', noul: 0.97 } } });
+});
+
+test('W12: with user accounts on, a user with no key of their own is refused; env and .env are never used for them', async () => {
+    process.env.TYPESAFE_API_KEY = 'sk-admin-env';
+    const { calls, fetchImpl } = countingFetch();
+    const accounts = plugin.createHandlers({ fetchImpl, accountsEnabled: true, env: {} });
+    const status = fakeResponse();
+    await accounts.status({}, status.res);
+    assert.equal(status.out.body.configured, false);
+    assert.equal(status.out.body.providers.typesafe.keySource, null);
+    const refused = fakeResponse();
+    await accounts.receive(pageRequest(question, { handle: 'bob' }), refused.res);
+    assert.equal(refused.out.statusCode, 409);
+    assert.equal(calls.total, 0);
+    assert.equal(await plugin.resolveKey({}, 'typesafe', { accountsEnabled: true }), null);
+    assert.deepEqual(await plugin.resolveKey({}, 'typesafe', { accountsEnabled: false }), { key: 'sk-admin-env', source: 'env' }, 'control: single-user installs keep the env fallback');
+});
+
+test('provider table: each provider reads its own key, and an unknown provider has none', async () => {
+    process.env.TYPESAFE_API_KEY = 'sk-typesafe';
+    process.env.SO_JUDGE_LLAMA_KEY = 'llama-local-key';
+    try {
+        assert.deepEqual(Object.keys(plugin.PROVIDERS), ['typesafe', 'llama-logprob']);
+        assert.equal((await plugin.resolveKey({}, 'llama-logprob', { accountsEnabled: false })).key, 'llama-local-key');
+        assert.equal((await plugin.resolveKey({}, 'typesafe', { accountsEnabled: false })).key, 'sk-typesafe');
+        assert.equal(await plugin.resolveKey({}, 'openai', { accountsEnabled: false }), null);
+    } finally {
+        delete process.env.SO_JUDGE_LLAMA_KEY;
+    }
+});
+
+test('llama-logprob: the completion route forwards only the whitelisted fields to the configured llama-server, never to a page-chosen URL', async () => {
+    const seen = [];
+    const fetchImpl = async (url, init) => {
+        seen.push({ url, headers: init.headers, body: JSON.parse(init.body) });
+        return new Response('{"model":"artemis","completion_probabilities":[{"token":" Yes","logprob":-0.1,"top_logprobs":[{"token":" Yes","logprob":-0.1}]}]}', { status: 200 });
+    };
+    const handlers = plugin.createHandlers({ fetchImpl, accountsEnabled: false, env: { SO_JUDGE_LLAMA_URL: 'http://127.0.0.1:18080/' } });
+    const body = { prompt: 'State: {}\nAnswer:', n_predict: 1, n_probs: 20, temperature: 0, cache_prompt: true, post_sampling_probs: false, url: 'http://evil.example', grammar: 'x' };
+    const ok = fakeResponse();
+    await handlers.receiveLlama(pageRequest(body), ok.res);
+    assert.equal(ok.out.statusCode, 200);
+    assert.equal(ok.out.body.model, 'artemis');
+    assert.deepEqual(seen, [{
+        url: 'http://127.0.0.1:18080/completion',
+        headers: { 'Content-Type': 'application/json' },
+        body: { prompt: 'State: {}\nAnswer:', n_predict: 1, n_probs: 20, temperature: 0, cache_prompt: true, post_sampling_probs: false, stream: false },
+    }]);
+    const status = fakeResponse();
+    await handlers.status({}, status.res);
+    assert.deepEqual(status.out.body.providers['llama-logprob'], { configured: true, keySource: null, contract: 'logprob', local: true, host: '127.0.0.1:18080' });
+    const bad = fakeResponse();
+    await handlers.receiveLlama(pageRequest({ ...body, n_predict: 400 }), bad.res);
+    assert.equal(bad.out.statusCode, 400);
+    const foreign = fakeResponse();
+    await handlers.receiveLlama(pageRequest(body, { headers: { 'x-so-plugin': undefined } }), foreign.res);
+    assert.equal(foreign.out.statusCode, 403);
+    assert.equal(seen.length, 1);
+});
+
+test('llama-logprob: unconfigured answers 409 without a network call; a remote host is reported as leaving the machine', async () => {
+    const { calls, fetchImpl } = countingFetch();
+    const none = fakeResponse();
+    await plugin.createHandlers({ fetchImpl, env: {} }).receiveLlama(pageRequest({ prompt: 'x', n_predict: 1, n_probs: 5, temperature: 0 }), none.res);
+    assert.equal(none.out.statusCode, 409);
+    assert.equal(calls.total, 0);
+    assert.deepEqual(plugin.llamaEndpoint({ SO_JUDGE_LLAMA_URL: 'https://pod-8080.proxy.runpod.net' }), { base: 'https://pod-8080.proxy.runpod.net', host: 'pod-8080.proxy.runpod.net', local: false });
+    assert.equal(plugin.llamaEndpoint({ SO_JUDGE_LLAMA_URL: 'file:///etc/passwd' }), null);
 });
 
 test('live: one real call through the handler (JUDGE_LIVE=1)', { skip: process.env.JUDGE_LIVE !== '1' }, async () => {

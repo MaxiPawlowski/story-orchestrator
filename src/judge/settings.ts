@@ -1,6 +1,7 @@
 import type { SceneReadRecord } from "./scene";
 import { JUDGE_CALL_RING_LIMIT, JUDGE_DEFAULT_MODEL, JUDGE_DEFAULT_TIMEOUT_MS } from "./policy";
 import type { JudgeCallRecord } from "./types";
+import { DEFAULT_JUDGE_PROVIDER, isJudgeProviderId, JUDGE_PROVIDER_IDS, type JudgeProviderId } from "./providers";
 import { isRecord } from "@utils/guards";
 
 export const JUDGE_USE_KEYS = [
@@ -25,6 +26,10 @@ export const JUDGE_USE_KEYS = [
 export type JudgeUseKey = (typeof JUDGE_USE_KEYS)[number];
 export type JudgeUses = Record<JudgeUseKey, boolean>;
 
+export const JUDGE_ROUTE_KEYS = [...JUDGE_USE_KEYS, "warden"] as const;
+export type JudgeRouteKey = (typeof JUDGE_ROUTE_KEYS)[number];
+export type JudgeProviderRoutes = Record<JudgeRouteKey, JudgeProviderId>;
+
 export const JUDGE_USE_DEPENDENCIES: Partial<Record<JudgeUseKey, JudgeUseKey>> = { expansionLookahead: "lookahead", loreExclusive: "loreSelect" };
 
 export const JUDGE_PICK_MODES = ["code", "llm"] as const;
@@ -42,6 +47,8 @@ export interface JudgeSettings {
   timeoutMs: number;
   uses: JudgeUses;
   expansion: JudgeExpansionSettings;
+  provider: JudgeProviderRoutes;
+  noticesSeen: JudgeProviderId[];
 }
 
 /** Monotonic spend per chat, exempt from rollback — a rolled-back call was still paid for. */
@@ -61,12 +68,16 @@ export interface JudgeRuntimeState {
 
 export const defaultJudgeUses = (): JudgeUses => Object.fromEntries(JUDGE_USE_KEYS.map((key) => [key, true])) as JudgeUses;
 
+export const defaultJudgeProviders = (): JudgeProviderRoutes => Object.fromEntries(JUDGE_ROUTE_KEYS.map((key) => [key, DEFAULT_JUDGE_PROVIDER])) as JudgeProviderRoutes;
+
 export const defaultJudgeSettings = (): JudgeSettings => ({
   enabled: true,
   model: JUDGE_DEFAULT_MODEL,
   timeoutMs: JUDGE_DEFAULT_TIMEOUT_MS,
   uses: defaultJudgeUses(),
   expansion: { variants: 1, temperature: 0.7, pick: "code" },
+  provider: defaultJudgeProviders(),
+  noticesSeen: [],
 });
 
 export function sanitizeJudgeSettings(value: unknown): JudgeSettings {
@@ -74,6 +85,8 @@ export function sanitizeJudgeSettings(value: unknown): JudgeSettings {
   if (!isRecord(value)) return defaults;
   const uses = isRecord(value.uses) ? value.uses : {};
   const expansion = isRecord(value.expansion) ? value.expansion : {};
+  const provider = isRecord(value.provider) ? value.provider : {};
+  const seen: unknown[] = Array.isArray(value.noticesSeen) ? value.noticesSeen : [];
   const variants = expansion.variants === 2 || expansion.variants === 3 ? expansion.variants : 1;
   return {
     enabled: typeof value.enabled === "boolean" ? value.enabled : defaults.enabled,
@@ -85,6 +98,11 @@ export function sanitizeJudgeSettings(value: unknown): JudgeSettings {
       temperature: typeof expansion.temperature === "number" && expansion.temperature >= 0 && expansion.temperature <= 2 ? expansion.temperature : defaults.expansion.temperature,
       pick: JUDGE_PICK_MODES.includes(expansion.pick as JudgePickMode) ? (expansion.pick as JudgePickMode) : defaults.expansion.pick,
     },
+    provider: Object.fromEntries(JUDGE_ROUTE_KEYS.map((key) => {
+      const routed = provider[key];
+      return [key, isJudgeProviderId(routed) ? routed : defaults.provider[key]];
+    })) as JudgeProviderRoutes,
+    noticesSeen: JUDGE_PROVIDER_IDS.filter((id) => seen.includes(id)),
   };
 }
 
@@ -114,7 +132,7 @@ export function sanitizeJudgeRuntime(value: unknown): JudgeRuntimeState {
   return { calls: calls.slice(-JUDGE_CALL_RING_LIMIT), scene, meter: sanitizeJudgeMeter(value.meter) };
 }
 
-const NEVER_SENT: ReadonlySet<string> = new Set(["unavailable", "invalid", "disabled", "no-roles", "no-seam", "busy"]);
+const NEVER_SENT: ReadonlySet<string> = new Set(["unavailable", "invalid", "disabled", "no-roles", "no-seam", "busy", "uncalibrated"]);
 
 export function meterJudgeCall(meter: JudgeMeter, record: JudgeCallRecord): JudgeMeter {
   if (record.cached) return { ...meter, cachedCalls: meter.cachedCalls + 1 };

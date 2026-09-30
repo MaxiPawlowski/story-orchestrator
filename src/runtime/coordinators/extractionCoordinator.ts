@@ -117,7 +117,7 @@ export class ExtractionCoordinator {
     const id = `${descriptor.boundary}:${descriptor.targetedKeys.join(",")}`;
     const event = { id, boundary: descriptor.boundary, checkpointId: descriptor.checkpointId,
         targetedKeys: descriptor.targetedKeys, scheduledAt: new Date().toISOString(), resolvedAt: null,
-        evidence: [] };
+        evidence: [], ...(typeof this.deps.getState()?.lastMessageId === "number" ? { messageId: this.deps.getState()?.lastMessageId } : {}) };
     this.state.reconciliationEvents = [...this.state.reconciliationEvents, event].slice(-50);
     void this.save();
   }

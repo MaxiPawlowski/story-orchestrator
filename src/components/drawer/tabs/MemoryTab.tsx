@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { describeProvenance, originLabel, MEMORY_TIERS, type MemoryEntry, type MemoryTier } from "@memory/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
-import ConflictQueue from "../ConflictQueue";
 import { FATE_LABELS } from "../memoryFate";
 import { MessageCitation } from "../MessageCitation";
-import { ArcCanonPanel, EffectLedgerPanel, EpistemicPanel, LedgerPanel, NotStoredPanel } from "./MemoryPanels";
+
+const ConflictQueue = lazy(() => import("../ConflictQueue"));
+const AuthorMemoryPanels = lazy(() => import("./MemoryPanels"));
 
 const MEMORY_TIER_LABELS: Record<MemoryTier, string> = {
   facts: "Facts",
@@ -179,7 +180,7 @@ export const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapsh
           {snapshot.memory.pinnedOverflow} pinned {snapshot.memory.pinnedOverflow === 1 ? "entry" : "entries"} did not fit this tier's budget — unpin or trim them, or raise the budget.
         </div>
       )}
-      {authorView && <ConflictQueue snapshot={snapshot} manager={manager} />}
+      {authorView && <Suspense fallback={null}><ConflictQueue snapshot={snapshot} manager={manager} /></Suspense>}
       <MemoryControls snapshot={snapshot} manager={manager} authorView={authorView} />
       {characterIds.length > 0 && (
         <label className="flex items-center gap-2 mt-1">
@@ -226,15 +227,7 @@ export const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapsh
           </div>
         );
       })}
-      {authorView && (
-        <>
-          <NotStoredPanel snapshot={snapshot} manager={manager} />
-          <ArcCanonPanel snapshot={snapshot} manager={manager} />
-          <EpistemicPanel snapshot={snapshot} manager={manager} />
-          <LedgerPanel snapshot={snapshot} manager={manager} />
-          <EffectLedgerPanel snapshot={snapshot} />
-        </>
-      )}
+      {authorView && <Suspense fallback={null}><AuthorMemoryPanels snapshot={snapshot} manager={manager} /></Suspense>}
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import {
   askJudge, createJudgeGate, modelVerdict, buildDirectorRequest, decideDirector, directorJudgeEligible,
-  directorRecordP, judgeUseActive, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord,
-  type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeGate, type JudgeRequest, type JudgeResponse,
+  directorRecordP, judgeRoute, judgeUseActive, DEFAULT_JUDGE_PROVIDER, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord,
+  type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeGate, type JudgeProviderId, type JudgeRequest, type JudgeResponse,
   type JudgeResult, type JudgeSettings, type JudgeTransport, type JudgeUseKey,
 } from "@judge/index";
 import type { RunOwnership } from "./runToken";
@@ -9,11 +9,13 @@ import type { RunOwnership } from "./runToken";
 export interface JudgeStatusLike {
   configured: boolean;
   maxInFlight?: number | null;
+  providers?: Partial<Record<string, { configured: boolean }>>;
 }
 
 export interface JudgeRuntimeDeps {
   getSettings(): JudgeSettings;
   transport: JudgeTransport;
+  providers?: Partial<Record<JudgeProviderId, JudgeTransport>>;
   status(): Promise<JudgeStatusLike | null>;
   record(record: JudgeCallRecord): void;
   context(): { boundary: number; messageId: number };
@@ -36,7 +38,8 @@ export const JUDGE_PROBE_TIMEOUT_MS = 5000;
 export class JudgeRuntime {
   private readonly cache = new Map<string, JudgeResponse>();
   private readonly unbilled = new Map<string | null, JudgeCallRecord[]>();
-  private availability: { key: string; at: number; ok: boolean } | null = null;
+  private readonly providerCaches = new Map<JudgeProviderId, Map<string, JudgeResponse>>();
+  private availability: { key: string; at: number; status: JudgeStatusLike | null } | null = null;
   private readonly gate: JudgeGate;
 
   constructor(private readonly deps: JudgeRuntimeDeps) {
@@ -61,24 +64,43 @@ export class JudgeRuntime {
     this.availability = null;
   }
 
-  private async available(): Promise<boolean> {
+  private async currentStatus(): Promise<JudgeStatusLike | null> {
     const settings = this.deps.getSettings();
     const key = `${settings.enabled}:${settings.model}`;
     const now = (this.deps.now ?? Date.now)();
-    if (this.availability && this.availability.key === key && now - this.availability.at < JUDGE_STATUS_TTL_MS) return this.availability.ok;
+    if (this.availability && this.availability.key === key && now - this.availability.at < JUDGE_STATUS_TTL_MS) return this.availability.status;
     const status = await this.deps.status();
     if (typeof status?.maxInFlight === "number") this.gate.setCapacity(status.maxInFlight);
-    const ok = Boolean(status?.configured);
-    this.availability = { key, at: now, ok };
-    return ok;
+    this.availability = { key, at: now, status };
+    return status;
+  }
+
+  private async available(provider: JudgeProviderId): Promise<boolean> {
+    const status = await this.currentStatus();
+    if (provider === DEFAULT_JUDGE_PROVIDER) return Boolean(status?.configured);
+    return Boolean(this.deps.providers?.[provider]) && status?.providers?.[provider]?.configured === true;
+  }
+
+  private transportFor(provider: JudgeProviderId): JudgeTransport {
+    return provider === DEFAULT_JUDGE_PROVIDER ? this.deps.transport : this.deps.providers?.[provider] ?? this.deps.transport;
+  }
+
+  private cacheFor(provider: JudgeProviderId): Map<string, JudgeResponse> {
+    if (provider === DEFAULT_JUDGE_PROVIDER) return this.cache;
+    const existing = this.providerCaches.get(provider);
+    if (existing) return existing;
+    const created = new Map<string, JudgeResponse>();
+    this.providerCaches.set(provider, created);
+    return created;
   }
 
   // For the settings self-test: works before the judge is switched on, and records nothing in a chat.
   // Calibration may name a model without mutating install settings — the exact run says which model
   // it asked for, and JudgeResult says which model actually answered.
-  probe(request: JudgeRequest, model = this.deps.getSettings().model): Promise<JudgeResult> {
+  probe(request: JudgeRequest, model = this.deps.getSettings().model, provider: JudgeProviderId = DEFAULT_JUDGE_PROVIDER): Promise<JudgeResult> {
     const settings = this.deps.getSettings();
-    return askJudge(this.deps.transport, { ...request, model }, { timeoutMs: Math.max(settings.timeoutMs, JUDGE_PROBE_TIMEOUT_MS), gate: this.gate });
+    const outgoing = provider === DEFAULT_JUDGE_PROVIDER ? { ...request, model } : request;
+    return askJudge(this.transportFor(provider), outgoing, { timeoutMs: Math.max(settings.timeoutMs, JUDGE_PROBE_TIMEOUT_MS), gate: this.gate });
   }
 
   // So-judge reads the verdict here, so the harness and the page share one map.
@@ -86,8 +108,8 @@ export class JudgeRuntime {
     return modelVerdict(requested ?? this.deps.getSettings().model, answered);
   }
 
-  recordFallback(use: string, fallback: JudgeFallback, request?: JudgeRequest, context = this.deps.context()) {
-    this.deps.record({
+  private fallbackRecord(use: string, fallback: JudgeFallback, request: JudgeRequest | undefined, context: { boundary: number; messageId: number }): JudgeCallRecord {
+    return {
       at: new Date((this.deps.now ?? Date.now)()).toISOString(),
       boundary: context.boundary,
       messageId: context.messageId,
@@ -97,7 +119,11 @@ export class JudgeRuntime {
       stateChars: request ? JSON.stringify(request.state).length : 0,
       questionCount: request ? Object.keys(request.questions).length : 0,
       fallback,
-    });
+    };
+  }
+
+  recordFallback(use: string, fallback: JudgeFallback, request?: JudgeRequest, context = this.deps.context()) {
+    this.deps.record(this.fallbackRecord(use, fallback, request, context));
   }
 
   async ask(use: string, request: JudgeRequest, options: JudgeAskOptions = {}): Promise<JudgeResult> {
@@ -107,23 +133,32 @@ export class JudgeRuntime {
     // recorded, with the other chat's boundary, in the other chat's ring — and builds its
     // cost and latency report out of these rings.
     const asked = this.deps.context();
-    const token = this.deps.ownership.mint();
-    if (!(await this.available())) {
-      const owned = token ? this.deps.ownership.check(token) : undefined;
-      if (!owned || owned.ok) this.recordFallback(use, "unavailable", request, asked);
-      return {
-        answers: null,
-        model: null,
-        latencyMs: 0,
-        stateChars: JSON.stringify(request.state).length,
-        questionCount: Object.keys(request.questions).length,
-        fallback: "unavailable",
-        cached: false,
-      };
+    const route = judgeRoute(settings, use);
+    const provider = route.provider;
+    const routed = provider === DEFAULT_JUDGE_PROVIDER ? {} : { provider };
+    const refuse = (fallback: JudgeFallback): JudgeResult => ({
+      answers: null,
+      model: null,
+      latencyMs: 0,
+      stateChars: JSON.stringify(request.state).length,
+      questionCount: Object.keys(request.questions).length,
+      fallback,
+      cached: false,
+    });
+    if (route.refused) {
+      this.deps.record({ ...this.fallbackRecord(use, "uncalibrated", request, asked), ...routed });
+      return refuse("uncalibrated");
     }
-    const result = await askJudge(this.deps.transport, { ...request, model: settings.model }, {
+    const token = this.deps.ownership.mint();
+    if (!(await this.available(provider))) {
+      const owned = token ? this.deps.ownership.check(token) : undefined;
+      if (!owned || owned.ok) this.deps.record({ ...this.fallbackRecord(use, "unavailable", request, asked), ...routed });
+      return refuse("unavailable");
+    }
+    const outgoing = provider === DEFAULT_JUDGE_PROVIDER ? { ...request, model: settings.model } : request;
+    const result = await askJudge(this.transportFor(provider), outgoing, {
       timeoutMs: options.timeoutMs ?? settings.timeoutMs,
-      cache: this.cache,
+      cache: this.cacheFor(provider),
       gate: this.gate,
       // A story load, restart or chat change cancels this request in flight rather
       // than paying for an answer the token check below will refuse anyway.
@@ -145,6 +180,7 @@ export class JudgeRuntime {
       ...(result.usage?.input_tokens !== undefined ? { inputTokens: result.usage.input_tokens } : {}),
       ...(result.usage?.output_tokens !== undefined ? { outputTokens: result.usage.output_tokens } : {}),
       ...(result.usage?.cost !== undefined ? { cost: result.usage.cost } : {}),
+      ...routed,
     };
     // A call whose chat, story or session moved while it ran is not this chat's to record. The
     // answer is still returned — the caller has its own ownership check at ITS write edge, and

@@ -1,0 +1,45 @@
+{
+  "plan": "docs/plans/v2.6/05-reasoning-control.md",
+  "step": "R3",
+  "declaredAt": "2026-09-30",
+  "rule": "A level is recommended for a role only if it meets that role's floor on two consecutive runs AND its p95 latency fits the role's cadence. Defaults stay 'default' whatever the numbers (overview rule 9). Floors are never retuned.",
+  "levels": ["default", "off", "low", "medium", "high"],
+  "reasoningBudget": { "low": 512, "medium": 2048, "high": 6144 },
+  "arms": [
+    { "id": "artemis-tc", "profile": "Artemis RunPod RP", "kind": "text-completion", "expect": "every level except default reads unsupported (F6); run default + one level to prove the refusal, not the full sweep" },
+    { "id": "artemis-cc", "profile": "<llama-server Chat Completion profile, custom source>", "kind": "chat-completion/custom", "expect": "off = enable_thinking false; low/medium/high collapse to one 'on' arm (F5)" },
+    { "id": "openrouter", "profile": "<OpenRouter CC profile>", "model": "<pick one reasoning-capable model and write it here BEFORE the first call (overview W23)>", "kind": "chat-completion/openrouter", "expect": "all five levels apply" }
+  ],
+  "roles": {
+    "read": {
+      "command": "node scripts/debug/so-live-suite.mts run --effort <level> --expect-count 29",
+      "floor": "plotDeltaAccuracy >= 0.9 and the default per-tier floors (facts=0.85,rejected=0.9,epistemic=0.8,ledger=0.8,arcs=0.8)",
+      "latency": "p95 <= the read interval at cadence 3 on the reference hardware (measure the interval on the arm's own default run first and write it here)"
+    },
+    "synthesis": {
+      "command": "node scripts/debug/so-role-calibration.mts run --role synthesis --effort <level> --arm <arm>-<level>-r<n>",
+      "floor": "docs/plans/v2.4/08-author-observability.md §Per-role calibration floors (synthesis)",
+      "latency": "p95 from the report's records[].latencyMs; off-path, bound only by the scene cadence"
+    },
+    "authoring": {
+      "command": "node scripts/debug/so-role-calibration.mts run --role authoring --holdout --effort <level> --arm <arm>-<level>-r<n>",
+      "floor": "v2.4 plan 08 authoring floors; hold-out reported, never in the floor",
+      "latency": "interactive: report p95, no bound"
+    },
+    "director": {
+      "command": "node scripts/debug/so-role-calibration.mts run --role director --effort <level> --arm <arm>-<level>-r<n>",
+      "floor": "director accuracy over D01-D26 (v2.2 / plan 14 floor as declared in so-role-calibration)",
+      "latency": "p95 <= 4000 ms (on-path before the group reply; DIRECTOR_TIMEOUT_MS is the hard bound)"
+    },
+    "curator": {
+      "command": "node scripts/debug/so-role-calibration.mts run --role curator --effort <level> --arm <arm>-<level>-r<n>",
+      "floor": "v2.4 plan 08 curator calibration floors",
+      "latency": "off-path; report p95"
+    }
+  },
+  "verdict": "node scripts/debug/so-role-calibration.mts verdict <r1.json> <r2.json> per role x arm x level; for read, both live-suite reports must be ok:true",
+  "hypothesis": "read/director best at off; authoring/synthesis gain at medium. To test, not to assume.",
+  "output": "docs/plans/v2.6/recommended-reasoning.md (one row per role x arm; the UI line comes from it)",
+  "records": "test/measurements/v2.6-05/<arm>/<role>-<level>-r<n>.json (copy each report out of the debug dir in the same commit as the table)",
+  "budget": "about 300-600 hosted calls"
+}

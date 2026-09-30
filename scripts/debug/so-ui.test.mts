@@ -6,7 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { assignedRoleProfiles, branchContinue, closeCharacterPanel, gateReplayHistoryFrom, jumpToCitation, memoryQueueSelector, PLAYER_FORBIDDEN_SELECTORS, PLAYER_RECOVERY_CONTROLS, recoveryControlFindings, errorStateFindings } from './so-ui.mts';
+import { assignedRoleProfiles, branchContinue, closeCharacterPanel, gateReplayHistoryFrom, INLINE_PLAYER_FORBIDDEN_SELECTORS, inlineTextFindings, jumpToCitation, memoryQueueSelector, PLAYER_FORBIDDEN_SELECTORS, PLAYER_RECOVERY_CONTROLS, recoveryControlFindings, errorStateFindings } from './so-ui.mts';
 
 test('keep and lock address the side row inside the named pair', () => {
   assert.equal(memoryQueueSelector({ action: 'keep', key: 'fact:abc' }), '[data-so="conflict-pair"][data-key="fact:abc"] [data-so="conflict-keep"] >> nth=0');
@@ -184,4 +184,14 @@ test('v2.5 plan 07 A3: the replay history is the selected story record of the ch
   assert.deepEqual(gateReplayHistoryFrom({ selectedStoryId: 's1', stories: { s1: record, s2: { storyId: 's2' } } }), { storyId: 's1', pinnedStory: record.pinnedStory, engineHistory: record.engineHistory });
   assert.equal(gateReplayHistoryFrom({ selectedStoryId: 's2', stories: { s2: { storyId: 's2' } } }), null);
   assert.equal(gateReplayHistoryFrom(null), null);
+});
+
+test('v2.6 plan 08: the inline sweep forbids the author half and flags a leak in player copy', () => {
+  for (const selector of ['[data-so="inline-inspect"]', '[data-so="inline-action"]', '[data-so="inline-item-detail"]', '[data-so="inline-item"][data-level="3"]']) {
+    assert.ok(INLINE_PLAYER_FORBIDDEN_SELECTORS.includes(selector), selector);
+  }
+  assert.deepEqual(inlineTextFindings([{ mesid: '4', text: 'Remembered: the map points east.\nLore consulted: 4 entries' }]), []);
+  const leaks = inlineTextFindings([{ mesid: '5', text: 'boundary 3 applied\nError: boom' }]);
+  assert.ok(leaks.some((finding) => finding.needle === 'boundary '));
+  assert.ok(leaks.some((finding) => finding.needle.includes('raw error text')));
 });

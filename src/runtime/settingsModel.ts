@@ -3,7 +3,8 @@ import { DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS } from "@memory/index"
 import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
 import { TALK_CHAIN_MAX_CAP, TALK_CHAIN_MAX_DEFAULT } from "@engine/index";
 import { defaultJudgeSettings, sanitizeJudgeSettings, type JudgeSettings } from "@judge/index";
-import { sanitizePassProfiles } from "./passProfiles";
+import { sanitizePassProfiles, sanitizeRoleRoutes } from "./passProfiles";
+import { sanitizeReasoningBudget } from "@utils/reasoningEffort";
 import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, StagecraftSettings } from "./types";
 import { isRecord } from "@utils/guards";
 import { defaultImageSettings, sanitizeImageSettings, type ImageSettings } from "../image/settings";
@@ -18,12 +19,45 @@ export interface TalkChainSettings {
   holdExtraction: boolean;
 }
 
+export const INLINE_CATEGORIES = ["progress", "memory", "threads", "lore", "cast", "pacing", "calls", "health"] as const;
+export type InlineCategory = (typeof INLINE_CATEGORIES)[number];
+
+export const INLINE_LEVELS = [0, 1, 2, 3, 4] as const;
+export type InlineLevel = (typeof INLINE_LEVELS)[number];
+
+export const INLINE_WINDOW_DEFAULT = 20;
+export const INLINE_WINDOW_MAX = 200;
+
+export interface InlineSettings {
+  level: InlineLevel;
+  categories: Partial<Record<InlineCategory, boolean>>;
+  window: number;
+}
+
+export const PLAYER_LEVEL_CAP: InlineLevel = 2;
+
+export const effectiveInlineLevel = (requested: InlineLevel, authorView: boolean): InlineLevel =>
+  (authorView ? requested : Math.min(requested, PLAYER_LEVEL_CAP) as InlineLevel);
+
+export const defaultInlineSettings = (): InlineSettings => ({ level: 1, categories: {}, window: INLINE_WINDOW_DEFAULT });
+
+export const sanitizeInlineSettings = (value: unknown): InlineSettings => {
+  if (!isRecord(value)) return defaultInlineSettings();
+  const level = (INLINE_LEVELS as readonly unknown[]).includes(value.level) ? value.level as InlineLevel : defaultInlineSettings().level;
+  const categories = isRecord(value.categories)
+    ? Object.fromEntries(INLINE_CATEGORIES.filter((category) => typeof (value.categories as Record<string, unknown>)[category] === "boolean")
+      .map((category) => [category, (value.categories as Record<string, unknown>)[category] as boolean]))
+    : {};
+  const window = typeof value.window === "number" && Number.isInteger(value.window) && value.window >= 1 ? Math.min(value.window, INLINE_WINDOW_MAX) : INLINE_WINDOW_DEFAULT;
+  return { level, categories, window };
+};
+
 // User/install lifetime (spec addendum §Configuration homes). Chat lifetime keeps only engine
 // state, rings and the per-chat overrides listed in ChatOverrides.
 export interface GlobalSettings {
   extraction: ExtractionRuntimeSettings;
   pacing: { alpha: number; hintEnabled: boolean };
-  display: { announceTransitions: boolean; hudEnabled: boolean };
+  display: { announceTransitions: boolean; hudEnabled: boolean; inline: InlineSettings };
   copilot: CopilotRuntimeSettings;
   memory: MemoryRuntimeSettings;
   talk: { enabled: boolean; chain: TalkChainSettings };
@@ -119,7 +153,7 @@ export const defaultStagecraftSettings = (): StagecraftSettings => ({ curatorEna
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
   pacing: { alpha: DEFAULT_TENSION_EMA_ALPHA, hintEnabled: true },
-  display: { announceTransitions: true, hudEnabled: true },
+  display: { announceTransitions: true, hudEnabled: true, inline: defaultInlineSettings() },
   copilot: { enabled: true },
   memory: defaultMemorySettings(),
   talk: { enabled: true, chain: { enabled: true, max: TALK_CHAIN_MAX_DEFAULT, stopOnTransition: true, holdExtraction: false } },
@@ -154,8 +188,10 @@ const sanitizeTalkSettings = (value: unknown): GlobalSettings["talk"] => {
 export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
   const defaults = defaultGlobalSettings();
   if (!isRecord(value)) return defaults;
-  const { profiles: rawProfiles, ...extraction }: Record<string, unknown> = isRecord(value.extraction) ? value.extraction : {};
+  const { profiles: rawProfiles, routes: rawRoutes, reasoningBudget: rawBudget, ...extraction }: Record<string, unknown> = isRecord(value.extraction) ? value.extraction : {};
   const profiles = sanitizePassProfiles(rawProfiles);
+  const routes = sanitizeRoleRoutes(rawRoutes);
+  const reasoningBudget = sanitizeReasoningBudget(rawBudget);
   const pacing = isRecord(value.pacing) ? value.pacing : {};
   const display = isRecord(value.display) ? value.display : {};
   const memory = isRecord(value.memory) ? value.memory : {};
@@ -171,9 +207,11 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
         : defaults.extraction.reconciliationMultiplier,
       stabilityLag: typeof extraction.stabilityLag === "number" && extraction.stabilityLag >= 0 ? extraction.stabilityLag : defaults.extraction.stabilityLag,
       ...(profiles ? { profiles } : {}),
+      ...(routes ? { routes } : {}),
+      ...(reasoningBudget ? { reasoningBudget } : {}),
     },
     pacing: { alpha: clampAlpha(pacing.alpha), hintEnabled: pacing.hintEnabled !== false },
-    display: { announceTransitions: display.announceTransitions !== false, hudEnabled: display.hudEnabled !== false },
+    display: { announceTransitions: display.announceTransitions !== false, hudEnabled: display.hudEnabled !== false, inline: sanitizeInlineSettings(display.inline) },
     copilot: { enabled: isRecord(value.copilot) ? value.copilot.enabled !== false : true },
     memory: { ...defaults.memory, ...memory, injectionDepths: { ...defaults.memory.injectionDepths, ...(isRecord(memory.injectionDepths) ? memory.injectionDepths : {}) } } as MemoryRuntimeSettings,
     talk: sanitizeTalkSettings(value.talk),

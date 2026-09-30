@@ -5,7 +5,7 @@ import { log } from "@utils/log";
 
 const METADATA_KEY = "story_orchestrator";
 
-export const BLOB_VERSION = 5;
+export const BLOB_VERSION = 6;
 
 // Keep the selected story plus the most recent others; a pinned copy is ~17 KB, so an unbounded
 // map would grow chat_metadata without limit.

@@ -7,8 +7,10 @@ import { MessageJumpProvider } from "./MessageCitation";
 import { OverviewTab } from "./tabs/OverviewTab";
 import { MemoryTab } from "./tabs/MemoryTab";
 import { isArcTemplateName } from "@pacing/index";
+import type { InlineActions } from "../inline/InlineDetail";
 
 const DriverPanel = lazy(() => import("./DriverPanel"));
+const MessageInspector = lazy(() => import("./MessageInspector"));
 const BlackboardTab = lazy(() => import("./tabs/BlackboardTab").then((module) => ({ default: module.BlackboardTab })));
 const SchedulerTab = lazy(() => import("./tabs/SchedulerTab").then((module) => ({ default: module.SchedulerTab })));
 const PayloadTab = lazy(() => import("./tabs/PayloadTab").then((module) => ({ default: module.PayloadTab })));
@@ -51,6 +53,8 @@ export interface DrawerTabsProps {
   /** A cited "message N" scrolls the chat there through /chat-jump. */
   onJumpToMessage?: (messageId: number) => void;
   imagePanel?: ReactNode;
+  /** The author's click-through from an inline chip: one message's full detail. */
+  inspect?: { messageId: number; onClose: () => void; actions?: InlineActions } | null;
 }
 
 const FlagControl = ({ manager }: { manager: RuntimeManager }) => {
@@ -130,7 +134,9 @@ const StoryControls = ({ snapshot, manager, onEditStory, onOpenRepair, onNewStor
   );
 };
 
-export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditStory, onFixWithWizard, onOpenRepair, onNewStory, onBranchFromOldest, onJumpToMessage, imagePanel }: DrawerTabsProps) => {
+export const DrawerTabs = ({
+  snapshot, manager, driver, onOpenSettings, onEditStory, onFixWithWizard, onOpenRepair, onNewStory, onBranchFromOldest, onJumpToMessage, imagePanel, inspect,
+}: DrawerTabsProps) => {
   const [active, setActive] = useState<DrawerTabId>("overview");
   // A warden card cites the message a fact was read from, so its button has to land on
   // that fact. A `bound:` id is the blackboard's, and the blackboard tab is where it lives; a memory
@@ -146,6 +152,11 @@ export const DrawerTabs = ({ snapshot, manager, driver, onOpenSettings, onEditSt
   return (
     <MessageJumpProvider value={{ enabled: authorView, index: snapshot.chatJump ?? null, onJump: onJumpToMessage ?? null }}>
     <div className="flex flex-col gap-2">
+      {authorView && inspect && (
+        <Suspense fallback={null}>
+          <MessageInspector view={snapshot.inline} messageId={inspect.messageId} onClose={inspect.onClose} actions={inspect.actions} />
+        </Suspense>
+      )}
       <div className="flex flex-wrap items-center gap-1">
         <div className="flex flex-wrap gap-1" role="tablist" aria-label="Story Orchestrator tabs">
           {tabs.map((tab) => (

@@ -1,5 +1,6 @@
 import { timeoutAbortReason } from "@utils/signals";
 import { classifyHostFailure, cleanTextCompletionReply, readFinish, requestModelReply, type ModelRequestHost } from "./modelReply";
+import type { ReasoningRoute } from "./reasoningPayload";
 
 const wrapped = (cause: unknown) => new Error("API request failed", { cause });
 const named = (name: string, message = name) => Object.assign(new Error(message), { name });
@@ -78,6 +79,8 @@ describe("cleanTextCompletionReply mirrors the TC clean-up extractData:false ski
   });
 });
 
+const NO_METER = { effort: "default", applied: false, collapsed: false, unsupported: null, budget: 0, chars: 0, tokens: null };
+
 const fakeHost = (api: string, reply: unknown = { choices: [{ text: "NO_DELTA", finish_reason: "stop" }] }) => {
   const calls: Array<{ custom: Record<string, unknown>; override: Record<string, unknown> }> = [];
   const host: ModelRequestHost = {
@@ -95,7 +98,7 @@ describe("requestModelReply: the typed seam (v2.4 plan 03 D1)", () => {
   it("CC profile sends no temperature/top_p, so the preset and ST's per-model rules decide (03-H7/H8)", async () => {
     const { host, calls } = fakeHost("claude", { content: [{ type: "text", text: "x" }], stop_reason: "end_turn" });
     const reply = await requestModelReply(host, "p1", "prompt", 512, { samplers: { temperature: 0.1, top_p: 0.9 } });
-    expect(reply).toEqual({ ok: true, text: "cc text", finish: "stop" });
+    expect(reply).toEqual({ ok: true, text: "cc text", finish: "stop", meter: NO_METER });
     expect(calls[0].override).toEqual({ stream: false });
   });
 
@@ -152,14 +155,14 @@ describe("requestModelReply: the typed seam (v2.4 plan 03 D1)", () => {
     const { host, calls } = fakeHost("llamacpp", { choices: [{ text: "partial", finish_reason: "length" }] });
     const controller = new AbortController();
     const reply = await requestModelReply(host, "p1", "prompt", 64, { signal: controller.signal });
-    expect(reply).toEqual({ ok: true, text: "partial", finish: "length" });
+    expect(reply).toEqual({ ok: true, text: "partial", finish: "length", meter: NO_METER });
     expect(calls[0].custom).toMatchObject({ extractData: false, stream: false, signal: controller.signal });
   });
 
   it("a TC reply is cleaned with the profile's instruct template before anyone parses it (03-H17)", async () => {
     const { host } = fakeHost("llamacpp", { choices: [{ text: "NO_DELTA\n<start_of_turn>user\nDELTA crossed value=true evidence=\"x\"", finish_reason: "stop" }] });
     host.instructSequences = () => ({ stop_sequence: "<end_of_turn>", input_sequence: "<start_of_turn>user" });
-    expect(await requestModelReply(host, "p1", "prompt", 64)).toEqual({ ok: true, text: "NO_DELTA\n", finish: "stop" });
+    expect(await requestModelReply(host, "p1", "prompt", 64)).toEqual({ ok: true, text: "NO_DELTA\n", finish: "stop", meter: NO_METER });
   });
 
   it("a deleted profile is config before any request goes out", async () => {
@@ -181,5 +184,61 @@ describe("requestModelReply: the typed seam (v2.4 plan 03 D1)", () => {
     const { host } = fakeHost("llamacpp");
     host.sendRequest = async () => { throw wrapped(new Error("Response not OK")); };
     expect(await requestModelReply(host, "p1", "prompt", 64)).toEqual({ ok: false, kind: "transport", message: "API request failed: Response not OK" });
+  });
+});
+
+describe("requestModelReply: reasoning effort, budget and reasoning-exhausted (v2.6 plan 05 R1/R2)", () => {
+  const openrouter = { api: "chat" as const, source: "openrouter", model: "m", includeBody: null };
+  const ccHost = (reply: unknown, route: ReasoningRoute = openrouter) => {
+    const made = fakeHost("openai", reply);
+    made.host.extractMessage = (json) => ((json as { choices: Array<{ message: { content: string } }> }).choices[0].message.content);
+    made.host.reasoningRoute = () => route;
+    const budgets: number[] = [];
+    const send = made.host.sendRequest;
+    made.host.sendRequest = async (id, prompt, maxTokens, custom, override) => { budgets.push(maxTokens); return send(id, prompt, maxTokens, custom, override); };
+    return { ...made, budgets };
+  };
+  const answered = { choices: [{ message: { content: "NO_DELTA", reasoning_content: "thinking" }, finish_reason: "stop" }] };
+
+  it("an applied level adds that level's budget to the answer budget and sends the effort", async () => {
+    const { host, calls, budgets } = ccHost(answered);
+    const reply = await requestModelReply(host, "p1", "prompt", 512, { effort: "medium", reasoningBudget: 2048 });
+    expect(budgets).toEqual([2560]);
+    expect(calls[0].override).toEqual({ stream: false, reasoning_effort: "medium", include_reasoning: true });
+    expect(reply).toEqual({ ok: true, text: "NO_DELTA", finish: "stop", meter: { effort: "medium", applied: true, collapsed: false, unsupported: null, budget: 2048, chars: 8, tokens: null } });
+  });
+
+  it("off and unsupported levels add no budget; unsupported sends nothing and says so", async () => {
+    const off = ccHost(answered);
+    await requestModelReply(off.host, "p1", "prompt", 512, { effort: "off", reasoningBudget: 2048 });
+    expect(off.budgets).toEqual([512]);
+    const tc = ccHost(answered, { api: "text", source: null, model: null, includeBody: null });
+    const reply = await requestModelReply(tc.host, "p1", "prompt", 512, { effort: "high", reasoningBudget: 6144 });
+    expect(tc.budgets).toEqual([512]);
+    expect(tc.calls[0].override).toEqual({ stream: false });
+    expect(reply).toMatchObject({ ok: true, meter: { applied: false, unsupported: expect.stringContaining("Text Completion") } });
+  });
+
+  it("control: default reads no route at all and changes nothing", async () => {
+    const { host, calls, budgets } = ccHost(answered);
+    host.reasoningRoute = () => { throw new Error("default must not read the route"); };
+    await requestModelReply(host, "p1", "prompt", 512, { reasoningBudget: 2048 });
+    expect(budgets).toEqual([512]);
+    expect(calls[0].override).toEqual({ stream: false });
+  });
+
+  it("an empty answer with reasoning present is reasoning-exhausted (the 2026-09-25 llama-server shape)", async () => {
+    const { host } = ccHost({ choices: [{ message: { content: "", reasoning_content: "x".repeat(900) }, finish_reason: "length" }], usage: { completion_tokens_details: { reasoning_tokens: 300 } } });
+    expect(await requestModelReply(host, "p1", "prompt", 300)).toEqual({ ok: false, kind: "reasoning-exhausted", message: "the model spent its whole budget thinking (900 chars, 300 tokens, finish length)" });
+  });
+
+  it("an empty answer cut at the limit is reasoning-exhausted even without reasoning evidence", async () => {
+    const { host } = fakeHost("llamacpp", { choices: [{ text: "", finish_reason: "length" }] });
+    expect(await requestModelReply(host, "p1", "prompt", 64)).toMatchObject({ ok: false, kind: "reasoning-exhausted" });
+  });
+
+  it("control: an empty answer that stopped on its own with no reasoning stays an ordinary empty reply", async () => {
+    const { host } = fakeHost("llamacpp", { choices: [{ text: "", finish_reason: "stop" }] });
+    expect(await requestModelReply(host, "p1", "prompt", 64)).toMatchObject({ ok: true, text: "" });
   });
 });

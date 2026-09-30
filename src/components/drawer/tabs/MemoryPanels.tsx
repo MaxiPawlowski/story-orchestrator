@@ -141,3 +141,15 @@ export const ArcCanonPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot
     </div>
   );
 };
+
+const AuthorMemoryPanels = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manager: RuntimeManager }) => (
+  <>
+    <NotStoredPanel snapshot={snapshot} manager={manager} />
+    <ArcCanonPanel snapshot={snapshot} manager={manager} />
+    <EpistemicPanel snapshot={snapshot} manager={manager} />
+    <LedgerPanel snapshot={snapshot} manager={manager} />
+    <EffectLedgerPanel snapshot={snapshot} />
+  </>
+);
+
+export default AuthorMemoryPanels;

@@ -8,6 +8,8 @@ import type { DecodeJournal } from "./messageIdentity";
 export type { DecodeJournal };
 import { dropJudgeCallsAfter } from "@judge/index";
 import { rewindNpcReplies } from "./npcReplyRewind";
+import { rollbackLoreFired } from "./loreFired";
+import { rollbackTensionHistory } from "./tensionState";
 import type { RuntimeExtras } from "./types";
 
 // The mutation contract spans every store, so the composition lives in one place
@@ -72,6 +74,8 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
     rewindNpcReplies(extras.firedNpcReplies, extras.firedNpcRepliesAt, messageId);
     if (typeof extras.lastSelfInjectionMessageId === "number" && extras.lastSelfInjectionMessageId >= messageId) extras.lastSelfInjectionMessageId = null;
     extras.extraction.audits = extras.extraction.audits.filter((audit) => audit.window.to < messageId);
+    extras.lore = rollbackLoreFired(extras.lore, messageId);
+    extras.tension = { ...extras.tension, history: rollbackTensionHistory(extras.tension.history, messageId) };
     engine.clampToChat(deps.context().chatLength);
     engine.discardPendingFrom(messageId);
   };
