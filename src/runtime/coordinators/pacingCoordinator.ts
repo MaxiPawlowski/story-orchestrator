@@ -24,6 +24,7 @@ export interface PacingCoordinatorDeps {
   setTension: (next: TensionRuntimeState) => void;
   getPacing: () => PacingSettings;
   hosts: { prompt: PromptHost };
+  ended?: () => boolean;
 }
 
 // Tension is written twice: optimistically while extractor deltas are queued (so the smoothed
@@ -105,7 +106,7 @@ export class PacingCoordinator {
   updateSteering() {
     const story = this.deps.getStory();
     const prompt = this.deps.hosts.prompt;
-    if (!story) {
+    if (!story || this.deps.ended?.()) {
       prompt.clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
       this.withholdGuidance();
       return;

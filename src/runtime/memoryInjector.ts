@@ -6,6 +6,7 @@ import {
   type ScoreContext,
 } from "@memory/index";
 import { EPISTEMIC_INJECTION_DEPTH, EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_DEPTH } from "@constants/defaults";
+import type { ChapterPort } from "./chapterPort";
 
 import { buildScoreContext } from "./scoreContext";
 import { activeSpeakerId, enabledCharacterIds, enabledCharacterNames, namesForRosterId, rosterIdForName, rosterMemberName } from "./roster";
@@ -23,6 +24,7 @@ export interface MemoryInjectorDeps {
   ledgerBindings: () => LedgerBinding[];
   setPinnedOverflow: (count: number) => void;
   hosts: () => InjectorHosts;
+  chapters?: () => Pick<ChapterPort, "inject">;
 }
 
 // What the memory stores put into SillyTavern's prompt, split out of MemoryCoordinator. The
@@ -73,6 +75,7 @@ export class MemoryInjector {
   update() {
     const story = this.deps.getStory();
     if (this.draft && (!story || this.draft.storyId !== storyKey(story))) this.draft = null;
+    const returning = this.deps.chapters?.().inject(this.hosts.prompt, Boolean(story && this.deps.enabled())) ?? new Map<string, string>();
     if (!story || !this.deps.enabled()) {
       clearAllMemoryInjection(this.hosts.prompt);
       this.stagedPrivate.clear();
@@ -95,7 +98,7 @@ export class MemoryInjector {
     this.stagedPrivate.clear();
     if (this.deps.capable()) {
       for (const id of enabledCharacterIds(story, this.hosts.roster)) {
-        const facts = buildMemoryInjectionBlocks(this.state.entries, id, options).facts;
+        const facts = [buildMemoryInjectionBlocks(this.state.entries, id, options).facts, returning.get(id) ?? ""].filter(Boolean).join("\n");
         const epistemic = renderPrivateEpistemicBlock(this.state.epistemic, namesForRosterId(story, id));
         this.stagedPrivate.set(id, { facts, epistemic });
       }

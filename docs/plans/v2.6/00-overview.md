@@ -65,7 +65,7 @@ v2.5 rules 1–14 and every invariant in `.claude/rules/architecture.md` are inh
       and before the play sessions (plan 10). This covers 05 R4, 06 C3, 07 Q-M and 03's rater legs.
 **Testing strategy (user, 2026-09-30):**
 
-13. **Real-LLM regression runs happen once, at the end.**
+13. **Real-LLM regression runs happen after development, tier by tier** (amended 2026-09-30 by plan 14: playable first, then feature groups, human sessions first in each tier, fixes inside the tier; the cumulative set runs ×2 at freeze).
     - Two kinds of LLM run are kept apart:
       - **Measurements** (spike legs, calibrations, the D1 corpus, any floor that decides a build) run when their plan
         needs them, because the build decision waits on them.
@@ -113,6 +113,7 @@ v2.5 rules 1–14 and every invariant in `.claude/rules/architecture.md` are inh
 | 11 | Agentic wizard: typed Studio tools, one reviewed step at a time, local or harness route | 04 H for the harness route | `11-agentic-wizard.md` |
 | 12 | Open judge: provider seam, public survey, provider calibration, every candidate use spiked | Phase C12: 04 H | `12-open-judge.md` |
 | 13 | Test suite review: inventory, mutation score, defect replay, prune, the final LLM suite list | step 0; runs **before** any plan adds tests | `13-test-suite-review.md` |
+| 14 | Tiered testing: T0 playable → T1 engine → T2 memory → T3 player surface → T4 mutations → T5 author → T6 model/judge → T7 freeze; sessions first, fix as we go | all development done; `so-session.mts` built first | `14-tiered-testing.md` |
 
 **Parallelism:**
 - Plan 13 runs first, right after step 0: its budget rules and suite list shape every later plan's tests.

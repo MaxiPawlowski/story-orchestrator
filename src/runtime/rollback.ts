@@ -1,3 +1,4 @@
+import { chapterKit, loadChapterKit } from "./chapterPort";
 import type { RollbackOutcome, StoryEngine } from "@engine/index";
 import type { SharedReadWindow } from "@extraction/index";
 import { getChatWindow } from "@extraction/index";
@@ -61,6 +62,7 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
   if (!Number.isFinite(messageId)) return { ok: true, result: "noop" };
   const { engine } = deps;
   const extras = deps.extras();
+  if (extras.memory?.chapters?.length && !chapterKit()) await loadChapterKit();
   if (decoded) {
     deps.journal.record("story", decoded.summary, deps.context().journal, decoded.note);
     extras.journal = deps.journal.getRecords();

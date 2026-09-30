@@ -1,6 +1,6 @@
 # Plan 07 — Chapters and saga memory: carry the arc across a story too long for one context
 
-**Status: DRAFT 2026-09-30, awaiting user approval. Nothing here is built.**
+**Status: code parts BUILT 2026-09-30 on branch `worktree-agent-a819623fde6832ab2`, every feature off until the Q-M floors run (see Gate record). Q-M arms, the corpus transcript/needles, D10/D11 and the Studio editor are open.**
 
 The user's request (2026-09-30), made while preparing to play the whole Adolion saga in one group chat:
 
@@ -630,3 +630,60 @@ A floor that is missed keeps its feature off by default and records why. Nothing
 ## Unresolved questions
 
 None.
+
+## Gate record
+
+**2026-09-30, branch `worktree-agent-a819623fde6832ab2` (merged master `180b01ec`). Code, jest, Storybook and the build only. No real-LLM run (overview rule 13: the Q-M arms belong to the final suite, plan 10 phase F), no lane, no scenario run, nothing touched ComfyUI. Every feature ships OFF (`seal`, `storySoFar`, `fold`; recap on) until the Q-M floors pass (principle 1).**
+
+### What was built, per task
+
+| Task | As built | Gate |
+|---|---|---|
+| 1 G8 | `snapshotBuilder.chapterParts` feeds open threads from `openArcs`, with "(since <chapter>)" for a carried thread | typecheck; narrative render |
+| 2 G4 | `memory/entities.selectCanonFacts`: pinned/locked first, the rest by `scoreEntry`, store order kept; folded rows excluded | `memory/chapters.test.ts` "canon fact selection" |
+| 3 G10 | `canonSynthesis` prose falls back to non-folded scene summaries; canon excludes folded arcs | jest (existing canon suites green) |
+| 4 corpus | `test/measurements/v2.6-07/saga-mini.story.json` (4 chapters + 1 interlude, 14 checkpoints) + `recipe.json` (arms A0/A1/A2, budget arms 400/700/1000 default 700, floors Q-M1..Q-M8, procedure). **Transcript, needles, goldens and `so-saga-recall.mts` NOT built**; no A0 baseline archived (the `v2.6-02/` baseline the lead asked about is not this plan's) | corpus story parses and has no chapter diagnostics (`runtime/chapters.test.ts`) |
+| 5 schema | `Checkpoint.chapter`, `Chapter {id,title,player_title?,kind?,seal?,final?}`, `ChapterSealPolicy`, `StoryV2.chapters/memory`; `engine/validate/chapters.ts` (rule table, duplicate/unknown/missing); `chapterById`/`chapterByCheckpoint` on the normalized story; `storyDiff` code `chapters-changed` (compatible). Studio diagnostics `chapter-missing`, `chapter-unknown`, `chapter-unreachable`, `chapter-no-exit`, `chapter-reentry`, `story-dead-end` in `studio/chapterDiagnostics.ts`, each with a consequence line | `runtime/chapters.test.ts` validation + diagnostics; `studio/diagnostics.test.ts` fires every code exactly once (new `chaptered` seed) |
+| 6 trigger | `runtime/chapters.ts` (lazy-only): `sealTarget` reads `visitedPath` (a missed seal retries at the next boundary; interludes skipped back over), `sealRange`, `chapterNumber`, settings, `buildChapterView` | table test on `test/fixtures/chapters-mini.story.json` (mutant "no interlude skip" fails 3) |
+| 7 record | `memory/chapterInput.ts`, `memory/chapterRecord.ts` (prompt, strict parser, verifier for citation ids + invented proper nouns, degraded record, saga prompt/verify) | `memory/chapters.test.ts` (refusals, planted name + missing id). No goldens: no live corpus yet |
+| 8 seal unit | `runtime/chapterSeal.ts` (lazy chunk): close scene, arc summaries, input (trimmed by `fitInput`, not map-reduce), write ×2 then degraded, saga if final, fold + patch + `chapter_seal` derived, era merge, save, journal, title card. `RunGuard` checks before every write; census rows `ChapterSeal.run/seal/mergeEras/unseal/editSummary`, `EffectsApplier.announceText` | `ownership.guard.test.ts`; `passProfiles.test.ts` row. **Fault-matrix rows not added** |
+| 9 fold | `memory/chapterFold.ts` (`foldedInto`, never delete; arcs by disposition), `memory/chapterUnfold.ts` (`unfoldChapters`, `unfoldAt`), `reverseMemoryState(…, unfold)`, `chapter_seal` in RE_DERIVED | `rollbackReplay.property.test.ts` generator gains `seal` (4 seeds × 400 cuts + middle deletes, both short-term shapes, plus a control that seals fold rows); mutant "no unfold" fails 16 of 18 |
+| 10 chronicle | `memory/chronicle.ts`: `renderChronicle` ladder (oldest to SHORT first, newest stays SUMMARY), era merge candidates/prompt/fallback, markdown export | `memory/chapters.test.ts` ladder, eras, Q-M6 byte-stability |
+| 11 blob | no bump: every new field optional and sanitized in `extras.ts` (plan 08 rule), nothing added to `isCurrentRecord` | full jest |
+| 12 story so far | registry key `storySoFar` (depth 8), injected by `ChapterPort.inject` from `MemoryInjector.update` | no dedicated test (full jest green) |
+| 13 bridge | `chapterBridge` (depth 1), carried on the next loud generation, committed with the continuity note | no dedicated test (full jest green) |
+| 14 player | title card `◆ Chapter N — title`, "Previously…" popup after the away recap (`showPreviously`), Overview "Your story" (`PlayerChapters`, ⚑ flags a summary to the journal), "The End" section, pipeline `complete`, `/story chapters|chapter|chronicle`, macros `story_chapter`, `story_chapter_number`, `story_so_far`, `story_previously`; Display group `ChapterControls` (`#so-chapter-seal`, `-story-so-far`, `-fold`, `-recap`, `#so-chapter-budget`) | Storybook `Drawer/PlayerChapters` (3), `Settings/ChapterControls` (2) |
+| 15 dossiers | derived from the records' PEOPLE lines at injection time and appended to each member's staged facts ("returning" lines), **not persisted** (deviation) | no dedicated test (full jest green) |
+| 16 author | drawer `ChaptersPanel` (`#so-chapters`, Scheduler tab): sections, status, edit summary (`author-edited`), re-seal (confirms over an edit), unseal (newest only), seal now; `/cp chapters|seal|unseal`; Repair row `chapter` for a degraded record; typed mutations `addChapter`, `updateChapter`, `removeChapter`, `setCheckpointChapter`, `setChapterPolicy` (listed in `MUTATIONS_WITHOUT_A_TOOL`: no proposal op yet). **Studio Chapters editor, GraphPanel lanes, wizard `setChapters` op NOT built** | Storybook `Drawer/ChaptersPanel` (4); `tools.test.ts` |
+| 17 fold | `chapterKit.fold` via the talk wiring: sealed messages replaced in the per-generation `coreChat` by the `Symbol.for("ignore")` extra, rows matched to message ids by `extra` identity; withheld on quiet/impersonate. Lives in the lazy kit, not a `stHost/promptFold.ts` (deviation). **Next-turn preview fold count and payload `folded` NOT built** | no dedicated test (full jest green) |
+| 18 endings | final seal, saga epilogue, `ended` state (steering cleared, boundary work only compacts short-term), chronicle export | no dedicated test (full jest green) |
+| 19 / 20 | archive recall (D10) and era seals (D11) **NOT built** | — |
+| 21 | Q-M runs **not run** (recipe only) | — |
+| 22 | Adolion `assemble.py` / aegis-as-chapter **not touched** (campaign repo, plan 02 owns it) | — |
+
+### Bundle
+
+Main entry `dist/index.js` **1,192,542 B** (budget 1,250,000; master before this plan 1,242,554). The chapter code is in lazy chunks (`chapterKit`, `chapterSeal`, `ChapterControls`, `PlayerChapters`); the saving over master comes from `copilotCoordinator` importing `@copilot/index` dynamically, which moved copilot + studio diagnostics/mutations out of the main entry.
+
+### Commands (all on the merged tree)
+
+| Command | Result |
+|---|---|
+| `npm run typecheck` | clean |
+| `npm run typecheck:test` | clean |
+| `npm run lint` | clean |
+| `npm test` | 355 suites passed, 1 skipped; 4754 tests passed, 1 skipped |
+| `npm run test:debug` | 454/454 (a first run before `npm run build` failed `so-run-header` "reads plan 08s nested manifest" because `dist/` was absent; green after the build) |
+| `npm run build` | ok, bundle `ed0931e81d4b` |
+| `npm run build:dev` | ok, bundle `03ecd37c86ac` |
+| `npm run test:release` | 77 pass, 0 fail, 2 skipped |
+| `npm run test:replay` | 25 of 25 killed |
+| `npx storybook build -o .sb-static-07 --quiet` + `npx http-server .sb-static-07 -p 6107 -s -c-1` + `npx test-storybook --url http://127.0.0.1:6107 --index-json` | 44 suites, 298 tests passed (incl. the 3 new files); server stopped, dir deleted |
+
+### Deviations and open items
+
+- Every default is OFF except the recap; the floors decide (Q-M1 seal + story so far, Q-M3/Q-M4 fold).
+- Not built: judge `memoryVerify` in the seal, epistemic fold, D10 archive recall, D11 eras, Studio Chapters editor + GraphPanel lanes + wizard `setChapters` op (mutations exist, no proposal op), `/cp activate` seal confirm, next-turn preview fold line and payload `folded`, map-reduce for oversize input (trimmed instead), fault-matrix rows for the seal unit, the corpus transcript/needles/goldens and `so-saga-recall.mts`, the Adolion change.
+- Dossiers are derived, not persisted, so the D12 "dossiers revert" rollback case holds by construction.
+- The unit fixture is `test/fixtures/chapters-mini.story.json`; the plan's `saga-mini` name is the Q-M corpus story under `test/measurements/v2.6-07/`.
+- The `chapter_seal` derived record lists folded rows as inputs, so a later rollback that removes one of them drops the seal; the property test found no divergence from replay with that rule.

@@ -1,4 +1,5 @@
 import { EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_KEY, MEMORY_INJECTION_KEY_PREFIX } from "@constants/defaults";
+import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { blockTokens, selectWithinBudget } from "./budget";
 import { isLive } from "./provenance";
 import { scoreEntry, type ScoreContext } from "./score";
@@ -146,4 +147,6 @@ export function clearAllMemoryInjection(prompt: PromptSink) {
   MEMORY_TIERS.forEach((tier) => prompt.clearStoryExtensionPrompt(memoryExtensionKey(tier)));
   prompt.clearStoryExtensionPrompt(EPISTEMIC_INJECTION_KEY);
   prompt.clearStoryExtensionPrompt(LEDGER_INJECTION_KEY);
+  prompt.clearStoryExtensionPrompt(INJECTION_REGISTRY.storySoFar.key);
+  prompt.clearStoryExtensionPrompt(INJECTION_REGISTRY.chapterBridge.key);
 }

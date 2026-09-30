@@ -130,7 +130,7 @@ const AuthorOverview = ({ snapshot, onFixWithWizard, onBranchFromOldest }: { sna
   </div>
 );
 
-export const OverviewTab = ({ snapshot, authorView, onOpenSettings, onFixWithWizard, onReread, onRestart, onRetry, onBranchFromOldest }: {
+export const OverviewTab = ({ snapshot, authorView, onOpenSettings, onFixWithWizard, onReread, onRestart, onRetry, onBranchFromOldest, onFlagChapter }: {
   snapshot: RuntimeSnapshot;
   authorView: boolean;
   onOpenSettings?: () => void;
@@ -139,9 +139,10 @@ export const OverviewTab = ({ snapshot, authorView, onOpenSettings, onFixWithWiz
   onRestart?: () => void;
   onRetry?: () => void;
   onBranchFromOldest?: (messageId: number) => void;
+  onFlagChapter?: (title: string) => void;
 }) => (
   <div className="flex flex-col gap-3">
-    <PlayerOverview snapshot={snapshot} onOpenSettings={onOpenSettings} onReread={onReread} onRestart={onRestart} onRetry={onRetry} />
+    <PlayerOverview snapshot={snapshot} onOpenSettings={onOpenSettings} onReread={onReread} onRestart={onRestart} onRetry={onRetry} onFlagChapter={onFlagChapter} />
     {authorView && <AuthorOverview snapshot={snapshot} onFixWithWizard={onFixWithWizard} onBranchFromOldest={onBranchFromOldest} />}
   </div>
 );

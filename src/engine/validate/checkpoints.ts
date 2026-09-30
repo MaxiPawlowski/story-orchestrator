@@ -5,6 +5,7 @@ import {
 } from "../schema";
 import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, rejectUnknownKeys } from "./common";
+import { readCheckpointChapter } from "./chapters";
 
 export const readRoster = (roster: StoryV2["roster"], errors: ValidationError[]): StoryV2["roster"] => roster.map((member, index) => {
   if (!isRecord(member) || member.role === undefined) return member;
@@ -242,5 +243,6 @@ export const readCheckpoint = (value: unknown, path: string, errors: ValidationE
   if (typeof value.convergence_threshold === "number" && Number.isFinite(value.convergence_threshold)) {
     checkpoint.convergence_threshold = value.convergence_threshold;
   }
+  readCheckpointChapter(value, checkpoint, path, errors);
   return checkpoint;
 };

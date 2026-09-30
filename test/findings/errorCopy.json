@@ -873,6 +873,16 @@
       "reason": "host name list read for a lookup tool falls back to an empty list"
     },
     {
+      "site": "src/runtime/chapterKit.ts#showPreviously",
+      "kind": 1,
+      "template": "`Previously — ${record.playerTitle}\\n\\n${record.summary}`",
+      "surface": "player",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "the last chapter's player title and summary, no error text"
+    },
+    {
       "site": "src/components/settings/GroupStoryBindingView.tsx#GroupStoryBindingView",
       "kind": 2,
       "template": "` Not confirmed: ${reason ?? \"the settings save could not be verified\"}.`",

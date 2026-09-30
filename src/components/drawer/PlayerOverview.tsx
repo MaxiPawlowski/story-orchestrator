@@ -1,6 +1,9 @@
 import { rollbackNoticeText, rollbackUnavailableText } from "@runtime/narrative";
 import { pipelineAction as pipelineActionText } from "@runtime/pipeline";
 import type { RuntimeSnapshot } from "@runtime/types";
+import { lazy, Suspense } from "react";
+
+const PlayerChapters = lazy(() => import("./PlayerChapters"));
 
 export interface PlayerOverviewProps {
   snapshot: RuntimeSnapshot;
@@ -8,6 +11,7 @@ export interface PlayerOverviewProps {
   onReread?: () => void;
   onRestart?: () => void;
   onRetry?: () => void;
+  onFlagChapter?: (title: string) => void;
 }
 
 // The default (player) surface: the narrative composition the runtime already builds, plus the
@@ -45,7 +49,7 @@ const NowSection = ({ lines }: { lines: string[] }) => (
   </div>
 );
 
-export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart, onRetry }: PlayerOverviewProps) => {
+export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart, onRetry, onFlagChapter }: PlayerOverviewProps) => {
   const { narrative, pipeline } = snapshot;
   const pipelineAction = pipelineActionText(pipeline);
   const sections = narrative.sections.filter((section) => section.id !== "status");
@@ -55,6 +59,8 @@ export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart, 
       {sections.map((section) => (
         section.id === "now"
           ? <NowSection key={section.id} lines={section.lines} />
+          : section.id === "chapters" && snapshot.chapters?.records.length
+          ? <Suspense key={section.id} fallback={null}><PlayerChapters chapters={snapshot.chapters} onFlag={onFlagChapter} /></Suspense>
           : (
             <div key={section.id} className="flex flex-col gap-1">
               <div className="font-medium">{section.label}</div>
