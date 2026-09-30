@@ -3,7 +3,7 @@ import { DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS } from "@memory/index"
 import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
 import { TALK_CHAIN_MAX_CAP, TALK_CHAIN_MAX_DEFAULT } from "@engine/index";
 import { defaultJudgeSettings, sanitizeJudgeSettings, type JudgeSettings } from "@judge/index";
-import { sanitizePassProfiles } from "./passProfiles";
+import { sanitizePassProfiles, sanitizeReasoningBudget, sanitizeRoleRoutes } from "./passProfiles";
 import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, StagecraftSettings } from "./types";
 import { isRecord } from "@utils/guards";
 import { defaultImageSettings, sanitizeImageSettings, type ImageSettings } from "../image/settings";
@@ -154,8 +154,10 @@ const sanitizeTalkSettings = (value: unknown): GlobalSettings["talk"] => {
 export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
   const defaults = defaultGlobalSettings();
   if (!isRecord(value)) return defaults;
-  const { profiles: rawProfiles, ...extraction }: Record<string, unknown> = isRecord(value.extraction) ? value.extraction : {};
+  const { profiles: rawProfiles, routes: rawRoutes, reasoningBudget: rawBudget, ...extraction }: Record<string, unknown> = isRecord(value.extraction) ? value.extraction : {};
   const profiles = sanitizePassProfiles(rawProfiles);
+  const routes = sanitizeRoleRoutes(rawRoutes);
+  const reasoningBudget = sanitizeReasoningBudget(rawBudget);
   const pacing = isRecord(value.pacing) ? value.pacing : {};
   const display = isRecord(value.display) ? value.display : {};
   const memory = isRecord(value.memory) ? value.memory : {};
@@ -171,6 +173,8 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
         : defaults.extraction.reconciliationMultiplier,
       stabilityLag: typeof extraction.stabilityLag === "number" && extraction.stabilityLag >= 0 ? extraction.stabilityLag : defaults.extraction.stabilityLag,
       ...(profiles ? { profiles } : {}),
+      ...(routes ? { routes } : {}),
+      ...(reasoningBudget ? { reasoningBudget } : {}),
     },
     pacing: { alpha: clampAlpha(pacing.alpha), hintEnabled: pacing.hintEnabled !== false },
     display: { announceTransitions: display.announceTransitions !== false, hudEnabled: display.hudEnabled !== false },

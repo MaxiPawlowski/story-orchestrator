@@ -7,11 +7,19 @@ export type StoryOrchestratorHostContext = SillyTavernContext;
 type HostMacroValue = string | ((nonce: string) => string);
 type MacrosHost = { MacrosParser: { registerMacro: (key: string, value: HostMacroValue, description?: string) => void; unregisterMacro: (key: string) => void } };
 
-const hostGlobal = globalThis as { SillyTavern?: { getContext?: () => unknown } };
+type HostYamlDocument = { errors: unknown[]; toJS: () => unknown };
+const hostGlobal = globalThis as { SillyTavern?: { getContext?: () => unknown; libs?: { yaml?: { parseDocument?: (text: string) => HostYamlDocument } } } };
 const macrosHost = await importSTModule<MacrosHost>("/scripts/macros.js");
 
 // `globalThis.SillyTavern` exists on every supported host (script.js:292, ST 1.18.0).
 export const getContext = (): StoryOrchestratorHostContext => hostGlobal.SillyTavern?.getContext?.() as StoryOrchestratorHostContext;
+
+// ST's bundled `yaml` (lib.js:105, exposed as `SillyTavern.libs`, script.js:293) — the parser the server's
+// `mergeObjectWithYaml` also uses (src/util.js:844).
+export const parseHostYaml = (text: string): unknown => {
+  const document = hostGlobal.SillyTavern?.libs?.yaml?.parseDocument?.(text);
+  return document && !document.errors.length ? document.toJS() : undefined;
+};
 
 /**
  * `extension_settings` is not ours to read until ST has loaded it: before

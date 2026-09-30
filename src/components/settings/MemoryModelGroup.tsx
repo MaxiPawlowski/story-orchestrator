@@ -5,7 +5,8 @@ import type { RuntimeSnapshot } from "@runtime/types";
 import type { SelfTestReport } from "@runtime/selfTest";
 import { createModelCall } from "@runtime/modelCall";
 import { roleHealth } from "@runtime/roleHealth";
-import { resolvedProfileId, resolveRoute } from "@runtime/passProfiles";
+import { resolvedProfileId, resolveRoute, withRoleEffort } from "@runtime/passProfiles";
+import { DEFAULT_REASONING_BUDGET, type ReasoningEffort, type ReasoningLevel } from "@utils/reasoningEffort";
 import type { PassRole } from "@extraction/passRole";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import { RoleProfilesGroup } from "./RoleProfilesGroup";
@@ -88,6 +89,11 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
     manager.setExtractionSettings({ profiles: profileId ? { ...rest, [role]: profileId } : rest });
   };
 
+  const setRoleEffort = (role: PassRole, effort: ReasoningEffort) => manager.setExtractionSettings({ routes: withRoleEffort(settings.routes, role, effort) });
+
+  const setReasoningBudget = (level: ReasoningLevel, tokens: number) =>
+    manager.setExtractionSettings({ reasoningBudget: { ...(settings.reasoningBudget ?? DEFAULT_REASONING_BUDGET), [level]: tokens } });
+
   const testRole = async (role: PassRole) => {
     const route = resolveRoute(settings, role, (id) => profiles.some((profile) => profile.id === id));
     setTestingRole(role);
@@ -133,6 +139,9 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
         testing={testingRole}
         onAssign={assignRole}
         onTest={(role) => void testRole(role)}
+        budget={settings.reasoningBudget}
+        onEffort={setRoleEffort}
+        onBudget={setReasoningBudget}
       />
     </div>
   );

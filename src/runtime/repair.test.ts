@@ -167,7 +167,7 @@ describe("v2.5 plan 01 B: a normalised entry switched on outside the story is a 
 });
 
 describe("v2.4 plan 08 T18: a routed role that cannot answer is a Repair row", () => {
-  const route = (role: string, state: string, detail = `${role} detail`) => ({ role, label: role, profileId: `${role}-profile`, state, detail });
+  const route = (role: string, state: string, detail = `${role} detail`) => ({ role, label: role, profileId: `${role}-profile`, state, detail, effort: "default" });
 
   it("names what stops, points at that role's own select, and comes after the memory model", () => {
     const routes = [route("read", "fallback"), route("director", "missing", "The profile chosen for speaker direction no longer exists (ID: gone)")];
@@ -189,7 +189,7 @@ describe("v2.4 plan 08 T18: a routed role that cannot answer is a Repair row", (
     expect(step?.area).toBe("model-role");
   });
 
-  it.each(["missing", "not-configured", "not-answering", "failed"])("%s is a row", (state) => {
+  it.each(["missing", "not-configured", "not-answering", "failed", "reasoning-exhausted"])("%s is a row", (state) => {
     expect(nextRepairStep(snapshotWith({ roleRoutes: [route("curator", state)] } as Partial<RuntimeSnapshot>))?.area).toBe("model-role");
   });
 

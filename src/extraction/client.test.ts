@@ -31,9 +31,9 @@ describe("askText over the client", () => {
     expect(await askText(routedModel(null), "prompt", { ...READ, debugResponse: "<think>draft</think>{\"ops\": []}" })).toBe("{\"ops\": []}");
   });
 
-  it("returns an empty reply when the model only reasoned", async () => {
+  it("a reply that only reasoned is reasoning-exhausted, not an empty answer (v2.6 plan 05 R2)", async () => {
     answer("<think>\nThe scene opens in the ruins and");
-    expect(await askText(routedModel(p1), "prompt", READ)).toBe("");
+    await expect(askText(routedModel(p1), "prompt", READ)).rejects.toMatchObject({ kind: "reasoning-exhausted" });
   });
 });
 
