@@ -299,3 +299,42 @@ The charters list what to try, not steps to follow.
 ## Unresolved
 
 None.
+
+## Gate record
+
+### 2026-09-30: session tooling (Before T0)
+
+**Built.**
+- `scripts/debug/so-session.mts`: `start <charterId> [--lane n] [--allow-comfy] [--no-seed]`, `stop [<dir>] [--stop-lane]`, `digest [<dir>]`, `cards [--write|--check]`, `validate`, `index`.
+  - `start` refuses an images/sprites card before touching anything unless `--allow-comfy`; seeds with `adolion-fresh seed <lane> --headed` (a `continue` card reuses its predecessor's lane and chat, no seed); deep-merges the card's settings into the settings root (images and sprites always written, off unless asked); reloads; opens the story's group in a fresh chat (`chats: 2`, `also: <story>` supported), `activateCheckpoint(startAt)`, seeds qualities, sets Author view per mode; captures a run header; spawns the journal, payload and console tails detached; writes `session.json` (pids, lane, chats, build, `playFrom`); prints the card.
+  - `stop` kills the tails, diffs the run header (`--allow chatId,chat,story,group,inventory.journal --allow-warnings`, output kept in `run-header-diff.txt`), reopens each chat and writes `journal-<chat>.json|md`, `chat-<chat>.json`, `state-end-<chat>.json`, then `rubric.json` from the card's rubric rows (all unscored).
+  - `digest` (pure, `lib/sessionDigest.mts`): flags with +-3 turns, and 12 anomaly kinds with `path:line`. Rows before `playFrom` are ignored.
+- `test/sessions/charters.json`: 36 cards (T0 3, T1 7, T2 6, T3 6, T4 4, T5 5, T6 4, T7 1) in the "Charter cards" format, written from the pinned story files. Validated by `lib/sessionCharters.mts` against `test/sessions/adolion-stories.json` (story index built by `so-session index` from the adolion-fresh pin `5e2974bd`: checkpoints, edges, qualities, roster, group per story). Every drive beat's checkpoint must exist in its story; every card needs a mustNotHappen item.
+- `docs/plans/v2.6/14-cards.md` (generated, drift-tested) and `docs/plans/v2.6/14-findings.md` (register skeleton).
+- node:test: `lib/sessionCharters.test.mts` (14) and `lib/sessionDigest.test.mts` (6) over `scripts/debug/fixtures/session/{clean,planted}`.
+
+**Commands (worktree, on `67888aef` + this work).**
+
+| Command | Result |
+|---|---|
+| `npm run typecheck` | 0 |
+| `npm run typecheck:test` | 0 |
+| `npm run lint` | 0 |
+| `npm test` | 364 suites passed, 1 skipped; 4862 tests passed, 1 skipped |
+| `npm run build` | 0 |
+| `npm run build:dev` | 0 |
+| `npm run test:debug` | 477/477 (first run 475/477: one legacy-pattern hit in the new file, fixed; one `identityVerbs` reap-prompt timing flake, 3/3 green alone and green in the re-run) |
+| `npm run test:release` | 79 tests, 77 pass, 0 fail |
+| `npm run test:replay` | 30 of 30 killed |
+| `npm run debug:typecheck` | 0 |
+
+**Live smoke.**
+- `start T0-1 --lane 4` (seeding): **failed inside `adolion-fresh seed`**, at the story imports. The staged dev bundle (built 21:53, bundle `b0bbadd6d160`) throws `TypeError: Cannot read properties of undefined (reading 'getState')` from `importStory → loadStory → updateInjection → MemoryInjector.update → ChapterPort.inject → chapterKit.returning`. Cause: `MemoryCoordinator.chapters` is a class field initialised with `deps: this.deps`, and the babel build assigns the constructor parameter property `this.deps = e` after the field initialisers (visible in `dist/index.js`), so the chapter host's `deps` is `undefined`. Jest (ts-jest) does not reproduce it. Not fixed here (plan 07 code); every adolion-fresh seed on this build fails until it is. Lane 4 stopped.
+- `start T0-1 --lane 1 --no-seed` (lane 1 seeded earlier at the same pin): all six steps ran; the tails wrote `journal.jsonl`/`console.jsonl`; `stop` exported journal, chat and end state and wrote `rubric.json`; the run-header diff had 0 differences; `digest` reported 0 flags, 0 anomalies. No message was sent. Lane 1 stopped, the smoke session dir removed.
+
+**Deviations.**
+- `start <charterId>` instead of `start <tier> <charter>` (the id carries the tier).
+- T1-2: The Guild Hall's alternate `the-sheridan-steward` has no gated edge in the pinned build (the other eight stories gate their refusal alternate on a quality); it is reached only from the author Driver panel. The card says so and aims beat 2 at `guild-hall`.
+- T0-1: adolion-fresh binds each group to its story, so a fresh group chat already plays it; the card reads the entry points instead of picking the story from scratch.
+- Wizard cards (T5-1..T5-4, T6-3) carry no checkpoint ids; `start` opens no chat for them.
+- The register keeps plan 14's columns; the digest's draft rows add a `what` column for the review.

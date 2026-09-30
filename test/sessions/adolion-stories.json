@@ -1,0 +1,4092 @@
+{
+ "commit": "5e2974bdfa534af1fc99b011db7c4944bf40d0df",
+ "stories": {
+  "adolion-academy": {
+   "title": "Adolion: House Nightriver",
+   "group": "Adolion - House Nightriver",
+   "start": "nightriver-house",
+   "checkpoints": [
+    {
+     "id": "nightriver-house",
+     "name": "Home to Nightriver"
+    },
+    {
+     "id": "fathers-summons",
+     "name": "Father's Summons"
+    },
+    {
+     "id": "natalia-named",
+     "name": "Natalia Named"
+    },
+    {
+     "id": "whispers",
+     "name": "Whispers in the Halls"
+    },
+    {
+     "id": "the-duel",
+     "name": "Trial by Combat"
+    },
+    {
+     "id": "night-of-knives",
+     "name": "The Night of Knives"
+    },
+    {
+     "id": "confront-father",
+     "name": "Father and Heir"
+    },
+    {
+     "id": "follow-the-trail",
+     "name": "The Trail of Ash"
+    },
+    {
+     "id": "leevon-in-chains",
+     "name": "Leevon in Chains"
+    },
+    {
+     "id": "the-sealed-crypt",
+     "name": "Beneath the Seal"
+    },
+    {
+     "id": "house-in-daylight",
+     "name": "A House in Daylight"
+    },
+    {
+     "id": "acad-mid-year-ball",
+     "name": "The Mid-Year Ball"
+    }
+   ],
+   "edges": [
+    [
+     "nightriver-house",
+     "fathers-summons"
+    ],
+    [
+     "fathers-summons",
+     "whispers"
+    ],
+    [
+     "fathers-summons",
+     "natalia-named"
+    ],
+    [
+     "natalia-named",
+     "whispers"
+    ],
+    [
+     "whispers",
+     "the-duel"
+    ],
+    [
+     "whispers",
+     "acad-mid-year-ball"
+    ],
+    [
+     "acad-mid-year-ball",
+     "the-duel"
+    ],
+    [
+     "the-duel",
+     "night-of-knives"
+    ],
+    [
+     "night-of-knives",
+     "confront-father"
+    ],
+    [
+     "night-of-knives",
+     "follow-the-trail"
+    ],
+    [
+     "night-of-knives",
+     "leevon-in-chains"
+    ],
+    [
+     "confront-father",
+     "the-sealed-crypt"
+    ],
+    [
+     "follow-the-trail",
+     "the-sealed-crypt"
+    ],
+    [
+     "leevon-in-chains",
+     "the-sealed-crypt"
+    ],
+    [
+     "the-sealed-crypt",
+     "house-in-daylight"
+    ]
+   ],
+   "qualities": [
+    "path",
+    "heir_is_second",
+    "duel_refused",
+    "evidence",
+    "duel_begun",
+    "duel_outcome",
+    "ambush_survived",
+    "approach",
+    "javon_exposed",
+    "acad_at_ball",
+    "ritual_stopped",
+    "heir_injuries",
+    "location"
+   ],
+   "roster": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Javon",
+    "Eriana",
+    "Welden",
+    "Leila",
+    "Hana",
+    "Haley",
+    "Forre",
+    "Kane",
+    "Ashleigh",
+    "Merryn",
+    "Tahlia"
+   ]
+  },
+  "adolion-adventurer": {
+   "title": "Adolion: The Adventurer's Road",
+   "group": "Adolion - The Adventurer's Road",
+   "start": "guild-hall",
+   "checkpoints": [
+    {
+     "id": "guild-hall",
+     "name": "The Guild Hall"
+    },
+    {
+     "id": "adv-guild-tavern",
+     "name": "Who Is Looking for a Party"
+    },
+    {
+     "id": "the-sheridan-steward",
+     "name": "The Sheridan Steward"
+    },
+    {
+     "id": "road-to-wendhope",
+     "name": "The Road North"
+    },
+    {
+     "id": "on-the-road",
+     "name": "On the Road"
+    },
+    {
+     "id": "at-the-walls",
+     "name": "Hold, Wendhope Is Closed"
+    },
+    {
+     "id": "outside-at-sundown",
+     "name": "Outside at Sundown"
+    },
+    {
+     "id": "first-night",
+     "name": "The Red Fog"
+    },
+    {
+     "id": "the-breach",
+     "name": "The Wall Breaks"
+    },
+    {
+     "id": "what-wendhope-knows",
+     "name": "What Wendhope Knows"
+    },
+    {
+     "id": "into-needlehaven",
+     "name": "Into Needlehaven"
+    },
+    {
+     "id": "the-lord-spirit",
+     "name": "The Lord Spirit of Needlehaven"
+    },
+    {
+     "id": "the-dying-forest",
+     "name": "The Dying Forest"
+    },
+    {
+     "id": "the-closed-mine",
+     "name": "The Closed Mine"
+    },
+    {
+     "id": "after-the-fog",
+     "name": "After the Fog"
+    },
+    {
+     "id": "adv-who-wants-in",
+     "name": "Who Wants In"
+    },
+    {
+     "id": "driftmere",
+     "name": "Driftmere"
+    },
+    {
+     "id": "adv-the-ice-witch",
+     "name": "The Witch of Eltaronal"
+    },
+    {
+     "id": "the-first-descent",
+     "name": "The First Descent"
+    },
+    {
+     "id": "between-the-floors",
+     "name": "Between the Floors"
+    },
+    {
+     "id": "the-changed-deep",
+     "name": "The Changed Deep"
+    },
+    {
+     "id": "the-sealed-wall",
+     "name": "The Sealed Wall"
+    },
+    {
+     "id": "the-seal-breaks",
+     "name": "The Seal Breaks"
+    },
+    {
+     "id": "the-devourer",
+     "name": "The God-Eater"
+    },
+    {
+     "id": "filwern-freed",
+     "name": "Filwern Freed"
+    },
+    {
+     "id": "the-wards-hold",
+     "name": "The Wards Hold"
+    },
+    {
+     "id": "what-filwern-left",
+     "name": "What Filwern Left"
+    }
+   ],
+   "edges": [
+    [
+     "guild-hall",
+     "road-to-wendhope"
+    ],
+    [
+     "guild-hall",
+     "adv-guild-tavern"
+    ],
+    [
+     "adv-guild-tavern",
+     "road-to-wendhope"
+    ],
+    [
+     "the-sheridan-steward",
+     "road-to-wendhope"
+    ],
+    [
+     "road-to-wendhope",
+     "at-the-walls"
+    ],
+    [
+     "road-to-wendhope",
+     "on-the-road"
+    ],
+    [
+     "on-the-road",
+     "at-the-walls"
+    ],
+    [
+     "at-the-walls",
+     "first-night"
+    ],
+    [
+     "at-the-walls",
+     "outside-at-sundown"
+    ],
+    [
+     "outside-at-sundown",
+     "first-night"
+    ],
+    [
+     "first-night",
+     "the-breach"
+    ],
+    [
+     "first-night",
+     "what-wendhope-knows"
+    ],
+    [
+     "the-breach",
+     "what-wendhope-knows"
+    ],
+    [
+     "what-wendhope-knows",
+     "into-needlehaven"
+    ],
+    [
+     "into-needlehaven",
+     "the-lord-spirit"
+    ],
+    [
+     "the-lord-spirit",
+     "the-dying-forest"
+    ],
+    [
+     "the-lord-spirit",
+     "the-closed-mine"
+    ],
+    [
+     "the-dying-forest",
+     "after-the-fog"
+    ],
+    [
+     "the-closed-mine",
+     "after-the-fog"
+    ],
+    [
+     "after-the-fog",
+     "driftmere"
+    ],
+    [
+     "after-the-fog",
+     "adv-who-wants-in"
+    ],
+    [
+     "adv-who-wants-in",
+     "driftmere"
+    ],
+    [
+     "driftmere",
+     "the-first-descent"
+    ],
+    [
+     "driftmere",
+     "adv-the-ice-witch"
+    ],
+    [
+     "adv-the-ice-witch",
+     "the-first-descent"
+    ],
+    [
+     "the-first-descent",
+     "between-the-floors"
+    ],
+    [
+     "between-the-floors",
+     "the-changed-deep"
+    ],
+    [
+     "the-changed-deep",
+     "the-sealed-wall"
+    ],
+    [
+     "the-sealed-wall",
+     "the-devourer"
+    ],
+    [
+     "the-sealed-wall",
+     "the-seal-breaks"
+    ],
+    [
+     "the-seal-breaks",
+     "the-devourer"
+    ],
+    [
+     "the-devourer",
+     "filwern-freed"
+    ],
+    [
+     "the-devourer",
+     "the-wards-hold"
+    ],
+    [
+     "filwern-freed",
+     "what-filwern-left"
+    ],
+    [
+     "the-wards-hold",
+     "what-filwern-left"
+    ]
+   ],
+   "qualities": [
+    "party_name",
+    "path",
+    "first_camp",
+    "reached_walls",
+    "inside_wendhope",
+    "sundown_outside",
+    "assault_begun",
+    "wall_breached",
+    "survived_first_night",
+    "evidence",
+    "knows_spirit",
+    "in_needlehaven",
+    "spirit_outcome",
+    "back_in_aegis",
+    "next_job",
+    "entered_mines",
+    "descent",
+    "knows_devourer",
+    "turned_back",
+    "past_the_seal",
+    "devourer_outcome",
+    "back_in_driftmere",
+    "adv_looking_for_hands",
+    "adv_celebrating",
+    "adv_to_eltaronal",
+    "party_rank",
+    "guild_reputation",
+    "party_injuries",
+    "location"
+   ],
+   "roster": [
+    "Adolion Narrator",
+    "Tobias",
+    "Belle",
+    "Dalan",
+    "Ellie",
+    "Vallie",
+    "Domas",
+    "Rydel",
+    "Fiana",
+    "Talis",
+    "Alida",
+    "Tatiana",
+    "Kashina",
+    "Alder",
+    "Gustall",
+    "Naomi",
+    "Giada",
+    "Riyo"
+   ]
+  },
+  "adolion-aegis": {
+   "title": "Adolion: Between the Roads",
+   "group": "Adolion - Between the Roads",
+   "start": "aegis-homecoming",
+   "checkpoints": [
+    {
+     "id": "aegis-homecoming",
+     "name": "Homecoming"
+    },
+    {
+     "id": "aegis-tobias-pleads",
+     "name": "Tobias Asks Once"
+    },
+    {
+     "id": "aegis-the-tavern",
+     "name": "The Guild Tavern"
+    },
+    {
+     "id": "aegis-market-street",
+     "name": "Market Street"
+    },
+    {
+     "id": "aegis-errands",
+     "name": "Errands"
+    },
+    {
+     "id": "aegis-the-curio-shop",
+     "name": "Aegis Delights and Curios"
+    },
+    {
+     "id": "aegis-the-chapel",
+     "name": "The Chapel with the Hole in Its Roof"
+    },
+    {
+     "id": "aegis-the-orphanage",
+     "name": "The Orphanage"
+    },
+    {
+     "id": "aegis-the-shrine",
+     "name": "The Rypanor Shrine"
+    },
+    {
+     "id": "aegis-victorys-tusk",
+     "name": "Victory's Tusk"
+    },
+    {
+     "id": "aegis-the-long-week",
+     "name": "The Long Week"
+    },
+    {
+     "id": "aegis-green-meadow",
+     "name": "Green Meadow Farms"
+    },
+    {
+     "id": "aegis-the-exam",
+     "name": "The Exam"
+    },
+    {
+     "id": "aegis-vallie-watches",
+     "name": "The Guildmaster Watches"
+    },
+    {
+     "id": "aegis-a-name-in-the-city",
+     "name": "A Name in the City"
+    },
+    {
+     "id": "aegis-tibalts-manor",
+     "name": "Lord Tibalt's Reception"
+    },
+    {
+     "id": "aegis-a-hard-lesson",
+     "name": "A Hard Lesson"
+    },
+    {
+     "id": "aegis-the-board",
+     "name": "Four Roads"
+    }
+   ],
+   "edges": [
+    [
+     "aegis-homecoming",
+     "aegis-the-tavern"
+    ],
+    [
+     "aegis-homecoming",
+     "aegis-tobias-pleads"
+    ],
+    [
+     "aegis-tobias-pleads",
+     "aegis-the-tavern"
+    ],
+    [
+     "aegis-the-tavern",
+     "aegis-market-street"
+    ],
+    [
+     "aegis-market-street",
+     "aegis-errands"
+    ],
+    [
+     "aegis-market-street",
+     "aegis-the-curio-shop"
+    ],
+    [
+     "aegis-errands",
+     "aegis-the-curio-shop"
+    ],
+    [
+     "aegis-the-curio-shop",
+     "aegis-the-chapel"
+    ],
+    [
+     "aegis-the-curio-shop",
+     "aegis-the-orphanage"
+    ],
+    [
+     "aegis-the-curio-shop",
+     "aegis-the-shrine"
+    ],
+    [
+     "aegis-the-curio-shop",
+     "aegis-victorys-tusk"
+    ],
+    [
+     "aegis-the-chapel",
+     "aegis-victorys-tusk"
+    ],
+    [
+     "aegis-the-orphanage",
+     "aegis-victorys-tusk"
+    ],
+    [
+     "aegis-the-shrine",
+     "aegis-victorys-tusk"
+    ],
+    [
+     "aegis-victorys-tusk",
+     "aegis-the-long-week"
+    ],
+    [
+     "aegis-victorys-tusk",
+     "aegis-green-meadow"
+    ],
+    [
+     "aegis-the-long-week",
+     "aegis-green-meadow"
+    ],
+    [
+     "aegis-green-meadow",
+     "aegis-the-exam"
+    ],
+    [
+     "aegis-the-exam",
+     "aegis-vallie-watches"
+    ],
+    [
+     "aegis-the-exam",
+     "aegis-a-name-in-the-city"
+    ],
+    [
+     "aegis-the-exam",
+     "aegis-tibalts-manor"
+    ],
+    [
+     "aegis-the-exam",
+     "aegis-a-hard-lesson"
+    ],
+    [
+     "aegis-vallie-watches",
+     "aegis-a-name-in-the-city"
+    ],
+    [
+     "aegis-vallie-watches",
+     "aegis-tibalts-manor"
+    ],
+    [
+     "aegis-vallie-watches",
+     "aegis-a-hard-lesson"
+    ],
+    [
+     "aegis-a-name-in-the-city",
+     "aegis-the-board"
+    ],
+    [
+     "aegis-tibalts-manor",
+     "aegis-the-board"
+    ],
+    [
+     "aegis-a-hard-lesson",
+     "aegis-the-board"
+    ]
+   ],
+   "qualities": [
+    "party_rank",
+    "guild_reputation",
+    "party_injuries",
+    "aegis_exam_entered",
+    "aegis_exam_declined",
+    "aegis_out_in_city",
+    "aegis_rivals_answered",
+    "aegis_gear_needed",
+    "aegis_downtime",
+    "aegis_at_the_tusk",
+    "aegis_duel_settled",
+    "aegis_farm_called",
+    "aegis_exam_underway",
+    "aegis_raiders_engaged",
+    "aegis_examiner_watching",
+    "aegis_exam",
+    "aegis_back_at_guild",
+    "aegis_city_favour",
+    "location"
+   ],
+   "roster": [
+    "Adolion Narrator",
+    "Tobias",
+    "Belle",
+    "Dalan",
+    "Vallie",
+    "Domas",
+    "Ellie",
+    "Fiana",
+    "Rydel",
+    "Kaian",
+    "Jasira",
+    "Grant",
+    "Konako",
+    "Alarise",
+    "Sophie",
+    "Calithra",
+    "Celedir",
+    "Lirael",
+    "Celeste",
+    "Arryn",
+    "Dahlia",
+    "Manako",
+    "Karrus",
+    "Ryenne",
+    "Kass",
+    "Yrelra",
+    "Naomi",
+    "Kashina",
+    "Karia",
+    "Mina",
+    "Oswyn",
+    "Panne",
+    "Karos",
+    "Diosanea",
+    "Liora",
+    "Akari",
+    "Rosea",
+    "Thorne",
+    "Dixton",
+    "Riyo"
+   ]
+  },
+  "adolion-deep": {
+   "title": "Adolion: Crimsonwing & Ebonwing",
+   "group": "Adolion - Crimsonwing & Ebonwing",
+   "start": "deep-joint-posting",
+   "checkpoints": [
+    {
+     "id": "deep-joint-posting",
+     "name": "Two Wings at One Counter"
+    },
+    {
+     "id": "deep-kela-and-ced",
+     "name": "Kela and Ced"
+    },
+    {
+     "id": "deep-with-crimsonwing",
+     "name": "Crimsonwing at the North Gate"
+    },
+    {
+     "id": "deep-with-ebonwing",
+     "name": "Ebonwing at the North Gate"
+    },
+    {
+     "id": "deep-the-north-road",
+     "name": "The North Road"
+    },
+    {
+     "id": "deep-the-march",
+     "name": "The March"
+    },
+    {
+     "id": "deep-ritual-fort",
+     "name": "Carrow Keep"
+    },
+    {
+     "id": "deep-the-altar",
+     "name": "The Altar in the Great Hall"
+    },
+    {
+     "id": "deep-nahalbuk-cells",
+     "name": "The Cells of Nahalbuk"
+    },
+    {
+     "id": "deep-what-unira-says",
+     "name": "What Unira Says"
+    },
+    {
+     "id": "deep-draxford-call",
+     "name": "The Draxford Call"
+    },
+    {
+     "id": "deep-miners-at-the-door",
+     "name": "The Miners at the Door"
+    },
+    {
+     "id": "deep-the-tunnels",
+     "name": "The Lower Workings"
+    },
+    {
+     "id": "deep-the-swarm",
+     "name": "The Swarm"
+    },
+    {
+     "id": "deep-into-the-dark",
+     "name": "Into the Dark"
+    },
+    {
+     "id": "deep-the-demonborn-camp",
+     "name": "The Hunted"
+    },
+    {
+     "id": "deep-the-blade-in-the-dark",
+     "name": "The Blade in the Dark"
+    },
+    {
+     "id": "deep-the-hive",
+     "name": "The Hive Heart"
+    },
+    {
+     "id": "deep-hive-burned",
+     "name": "The Hive Burns"
+    },
+    {
+     "id": "deep-hive-sealed",
+     "name": "The Breach Comes Down"
+    },
+    {
+     "id": "deep-the-reckoning",
+     "name": "The Reckoning"
+    }
+   ],
+   "edges": [
+    [
+     "deep-joint-posting",
+     "deep-with-crimsonwing"
+    ],
+    [
+     "deep-joint-posting",
+     "deep-with-ebonwing"
+    ],
+    [
+     "deep-joint-posting",
+     "deep-kela-and-ced"
+    ],
+    [
+     "deep-kela-and-ced",
+     "deep-with-crimsonwing"
+    ],
+    [
+     "deep-kela-and-ced",
+     "deep-with-ebonwing"
+    ],
+    [
+     "deep-with-crimsonwing",
+     "deep-the-north-road"
+    ],
+    [
+     "deep-with-ebonwing",
+     "deep-the-north-road"
+    ],
+    [
+     "deep-the-north-road",
+     "deep-ritual-fort"
+    ],
+    [
+     "deep-the-north-road",
+     "deep-the-march"
+    ],
+    [
+     "deep-the-march",
+     "deep-ritual-fort"
+    ],
+    [
+     "deep-ritual-fort",
+     "deep-the-altar"
+    ],
+    [
+     "deep-the-altar",
+     "deep-nahalbuk-cells"
+    ],
+    [
+     "deep-nahalbuk-cells",
+     "deep-what-unira-says"
+    ],
+    [
+     "deep-what-unira-says",
+     "deep-draxford-call"
+    ],
+    [
+     "deep-draxford-call",
+     "deep-the-tunnels"
+    ],
+    [
+     "deep-draxford-call",
+     "deep-miners-at-the-door"
+    ],
+    [
+     "deep-miners-at-the-door",
+     "deep-the-tunnels"
+    ],
+    [
+     "deep-the-tunnels",
+     "deep-the-swarm"
+    ],
+    [
+     "deep-the-tunnels",
+     "deep-into-the-dark"
+    ],
+    [
+     "deep-the-swarm",
+     "deep-into-the-dark"
+    ],
+    [
+     "deep-into-the-dark",
+     "deep-the-demonborn-camp"
+    ],
+    [
+     "deep-the-demonborn-camp",
+     "deep-the-blade-in-the-dark"
+    ],
+    [
+     "deep-the-demonborn-camp",
+     "deep-the-hive"
+    ],
+    [
+     "deep-the-blade-in-the-dark",
+     "deep-the-hive"
+    ],
+    [
+     "deep-the-hive",
+     "deep-hive-burned"
+    ],
+    [
+     "deep-the-hive",
+     "deep-hive-sealed"
+    ],
+    [
+     "deep-hive-burned",
+     "deep-the-reckoning"
+    ],
+    [
+     "deep-hive-sealed",
+     "deep-the-reckoning"
+    ]
+   ],
+   "qualities": [
+    "party_rank",
+    "guild_reputation",
+    "party_injuries",
+    "deep_partner",
+    "deep_posting_refused",
+    "deep_set_out",
+    "deep_first_camp",
+    "deep_fort_sighted",
+    "deep_hall_breached",
+    "deep_below_fort",
+    "deep_found_unira",
+    "deep_unira_truth",
+    "deep_reached_mines",
+    "deep_draxford_sworn",
+    "deep_draxford_refused",
+    "deep_in_the_tunnels",
+    "deep_terrorborn_met",
+    "deep_swarm",
+    "deep_breach_reached",
+    "deep_camp_found",
+    "deep_blade_found",
+    "deep_blade_left",
+    "cursed_blade",
+    "deep_hive_reached",
+    "deep_hive_outcome",
+    "deep_back_in_aegis",
+    "rival_bond",
+    "deep_standing_with_partner",
+    "location"
+   ],
+   "roster": [
+    "Adolion Narrator",
+    "Belle",
+    "Dalan",
+    "Ced",
+    "Kela",
+    "Runo",
+    "Safie",
+    "Vallie",
+    "Unira",
+    "Amthir",
+    "Nendira",
+    "Anax",
+    "Sana",
+    "Shadur",
+    "Shelur",
+    "Idira",
+    "Caelia",
+    "Caetus",
+    "Yuna"
+   ]
+  },
+  "adolion-east": {
+   "title": "Adolion: The Eastern Road",
+   "group": "Adolion - The Eastern Road",
+   "start": "east-landfall",
+   "checkpoints": [
+    {
+     "id": "east-landfall",
+     "name": "Landfall at Hianxo"
+    },
+    {
+     "id": "east-jiansho-academy",
+     "name": "Jiansho Academy"
+    },
+    {
+     "id": "east-honami-asks",
+     "name": "Honami Asks"
+    },
+    {
+     "id": "east-the-rounds",
+     "name": "The Opening Rounds"
+    },
+    {
+     "id": "east-the-upset",
+     "name": "The Upset"
+    },
+    {
+     "id": "east-the-hattaxi-shadow",
+     "name": "The Hattaxi Shadow"
+    },
+    {
+     "id": "east-the-final",
+     "name": "The Final Before the Emperor"
+    },
+    {
+     "id": "east-the-oni-road",
+     "name": "The Oni of Monoko"
+    },
+    {
+     "id": "east-the-road-inland",
+     "name": "The Road Inland"
+    },
+    {
+     "id": "east-harvest-festival",
+     "name": "The Harvest Festival"
+    },
+    {
+     "id": "east-the-rite-of-warding",
+     "name": "The Rite of Warding"
+    },
+    {
+     "id": "east-the-fever",
+     "name": "The Fever Returns"
+    },
+    {
+     "id": "east-the-crow-god",
+     "name": "The Crow God's Bargain"
+    },
+    {
+     "id": "east-the-yokai-realm",
+     "name": "The Yokai Realm"
+    },
+    {
+     "id": "east-the-foxes-favoured",
+     "name": "The Foxes Favoured"
+    },
+    {
+     "id": "east-the-crows-due",
+     "name": "The Crow's Due"
+    },
+    {
+     "id": "east-the-shared-ward",
+     "name": "The Shared Ward"
+    },
+    {
+     "id": "east-the-long-way-home",
+     "name": "The Long Way Home"
+    }
+   ],
+   "edges": [
+    [
+     "east-landfall",
+     "east-jiansho-academy"
+    ],
+    [
+     "east-jiansho-academy",
+     "east-the-rounds"
+    ],
+    [
+     "east-jiansho-academy",
+     "east-honami-asks"
+    ],
+    [
+     "east-honami-asks",
+     "east-the-rounds"
+    ],
+    [
+     "east-the-rounds",
+     "east-the-upset"
+    ],
+    [
+     "east-the-rounds",
+     "east-the-hattaxi-shadow"
+    ],
+    [
+     "east-the-upset",
+     "east-the-hattaxi-shadow"
+    ],
+    [
+     "east-the-hattaxi-shadow",
+     "east-the-final"
+    ],
+    [
+     "east-the-final",
+     "east-the-oni-road"
+    ],
+    [
+     "east-the-oni-road",
+     "east-the-road-inland"
+    ],
+    [
+     "east-the-road-inland",
+     "east-harvest-festival"
+    ],
+    [
+     "east-harvest-festival",
+     "east-the-rite-of-warding"
+    ],
+    [
+     "east-the-rite-of-warding",
+     "east-the-fever"
+    ],
+    [
+     "east-the-fever",
+     "east-the-crow-god"
+    ],
+    [
+     "east-the-crow-god",
+     "east-the-yokai-realm"
+    ],
+    [
+     "east-the-yokai-realm",
+     "east-the-foxes-favoured"
+    ],
+    [
+     "east-the-yokai-realm",
+     "east-the-crows-due"
+    ],
+    [
+     "east-the-yokai-realm",
+     "east-the-shared-ward"
+    ],
+    [
+     "east-the-foxes-favoured",
+     "east-the-long-way-home"
+    ],
+    [
+     "east-the-crows-due",
+     "east-the-long-way-home"
+    ],
+    [
+     "east-the-shared-ward",
+     "east-the-long-way-home"
+    ]
+   ],
+   "qualities": [
+    "party_rank",
+    "guild_reputation",
+    "party_injuries",
+    "east_at_academy",
+    "east_entered",
+    "east_refused_entry",
+    "east_round_fought",
+    "east_upset",
+    "east_odds",
+    "east_through_rounds",
+    "east_plot_known",
+    "east_final_called",
+    "east_tournament",
+    "east_left_hianxo",
+    "east_past_monoko",
+    "east_reached_tiunhime",
+    "east_warding_begun",
+    "east_fever_struck",
+    "east_fever_cause_known",
+    "east_crow_came",
+    "east_in_yokai_realm",
+    "east_gods",
+    "east_homeward",
+    "east_village_trust",
+    "eastern_debt",
+    "location"
+   ],
+   "roster": [
+    "Adolion Narrator",
+    "Belle",
+    "Dalan",
+    "Honami",
+    "Hanzo",
+    "Megumi",
+    "Tanya",
+    "Rikako",
+    "Hanabi",
+    "Shinen",
+    "Ebisu",
+    "Watara",
+    "Yurine",
+    "Akito",
+    "Rinne",
+    "Sota",
+    "Himari",
+    "Daigo",
+    "Koharu",
+    "Shiba",
+    "Tanabe",
+    "Eunie",
+    "Miyabi",
+    "Kanai",
+    "Fumio",
+    "Kanami"
+   ]
+  },
+  "adolion-esha": {
+   "title": "Adolion: Eshalanore",
+   "group": "Adolion - Eshalanore",
+   "start": "esha-the-last-chapel",
+   "checkpoints": [
+    {
+     "id": "esha-the-last-chapel",
+     "name": "The Last Chapel"
+    },
+    {
+     "id": "esha-the-guardians",
+     "name": "The Shrine Stones"
+    },
+    {
+     "id": "esha-bound-and-led",
+     "name": "Guests in Rope"
+    },
+    {
+     "id": "esha-the-road-in",
+     "name": "The Road In"
+    },
+    {
+     "id": "esha-the-court",
+     "name": "The Welcome of Eshalanore"
+    },
+    {
+     "id": "esha-the-empty-bed",
+     "name": "The Empty Bed"
+    },
+    {
+     "id": "esha-the-green-knight",
+     "name": "The Green Knight"
+    },
+    {
+     "id": "esha-her-gaze",
+     "name": "Her Eyes in the Leaves"
+    },
+    {
+     "id": "esha-the-ritual",
+     "name": "The Chalice Rite"
+    },
+    {
+     "id": "esha-the-lady",
+     "name": "The Lady of the Forest"
+    },
+    {
+     "id": "esha-the-oath-taken",
+     "name": "Under Her Oath"
+    },
+    {
+     "id": "esha-down-the-weeping-run",
+     "name": "Down the Weeping Run"
+    },
+    {
+     "id": "esha-the-burning-grove",
+     "name": "The Burning Grove"
+    },
+    {
+     "id": "esha-the-treeline",
+     "name": "The Treeline"
+    }
+   ],
+   "edges": [
+    [
+     "esha-the-last-chapel",
+     "esha-the-guardians"
+    ],
+    [
+     "esha-the-guardians",
+     "esha-the-court"
+    ],
+    [
+     "esha-the-guardians",
+     "esha-the-road-in"
+    ],
+    [
+     "esha-the-guardians",
+     "esha-bound-and-led"
+    ],
+    [
+     "esha-bound-and-led",
+     "esha-the-court"
+    ],
+    [
+     "esha-the-road-in",
+     "esha-the-court"
+    ],
+    [
+     "esha-the-court",
+     "esha-the-empty-bed"
+    ],
+    [
+     "esha-the-empty-bed",
+     "esha-the-green-knight"
+    ],
+    [
+     "esha-the-green-knight",
+     "esha-her-gaze"
+    ],
+    [
+     "esha-the-green-knight",
+     "esha-the-ritual"
+    ],
+    [
+     "esha-her-gaze",
+     "esha-the-ritual"
+    ],
+    [
+     "esha-the-ritual",
+     "esha-the-lady"
+    ],
+    [
+     "esha-the-lady",
+     "esha-the-oath-taken"
+    ],
+    [
+     "esha-the-lady",
+     "esha-the-burning-grove"
+    ],
+    [
+     "esha-the-lady",
+     "esha-down-the-weeping-run"
+    ],
+    [
+     "esha-the-oath-taken",
+     "esha-the-treeline"
+    ],
+    [
+     "esha-down-the-weeping-run",
+     "esha-the-treeline"
+    ],
+    [
+     "esha-the-burning-grove",
+     "esha-the-treeline"
+    ]
+   ],
+   "qualities": [
+    "party_rank",
+    "guild_reputation",
+    "party_injuries",
+    "esha_at_border",
+    "esha_led_in",
+    "esha_welcome_refused",
+    "esha_city_reached",
+    "esha_belle_missing",
+    "esha_ritual_known",
+    "esha_thornway_reached",
+    "esha_knight_faced",
+    "esha_her_gaze",
+    "esha_grove_reached",
+    "esha_lady_came",
+    "esha_escape",
+    "forest_oath",
+    "esha_out_of_the_trees",
+    "esha_dread",
+    "location"
+   ],
+   "roster": [
+    "Adolion Narrator",
+    "Belle",
+    "Dalan",
+    "Ashliel",
+    "Sali",
+    "Elowyn",
+    "The Lady of the Forest"
+   ]
+  },
+  "adolion-night": {
+   "title": "Adolion: Night Courts",
+   "group": "Adolion - Night Courts",
+   "start": "night-the-slums",
+   "checkpoints": [
+    {
+     "id": "night-the-slums",
+     "name": "Missing in the Slums"
+    },
+    {
+     "id": "night-the-soul-painter",
+     "name": "The Soul Painter"
+    },
+    {
+     "id": "night-the-accused",
+     "name": "The Accused"
+    },
+    {
+     "id": "night-erevan-insists",
+     "name": "Erevan Insists"
+    },
+    {
+     "id": "night-the-thornwood",
+     "name": "The Witch of Thornwood"
+    },
+    {
+     "id": "night-the-coven",
+     "name": "Three Sisters"
+    },
+    {
+     "id": "night-the-evergreen-blade",
+     "name": "The Blade of the Meadows"
+    },
+    {
+     "id": "night-the-kelger-falls",
+     "name": "The Fog at Kelger Falls"
+    },
+    {
+     "id": "night-the-long-night",
+     "name": "The Long Night"
+    },
+    {
+     "id": "night-the-castle-dracul",
+     "name": "Castle Dracul"
+    },
+    {
+     "id": "night-the-siege",
+     "name": "The Nightwolf Siege"
+    },
+    {
+     "id": "night-the-full-moon",
+     "name": "The Full Moon"
+    },
+    {
+     "id": "night-the-castle-bathorya",
+     "name": "Castle Bathorya"
+    },
+    {
+     "id": "night-the-pack-sworn",
+     "name": "Sworn to the Pack"
+    },
+    {
+     "id": "night-the-dragons-bargain",
+     "name": "The Dragon's Bargain"
+    },
+    {
+     "id": "night-the-inquisitions-due",
+     "name": "The Inquisition's Due"
+    },
+    {
+     "id": "night-owing-no-one",
+     "name": "Owing No One"
+    },
+    {
+     "id": "night-dawn",
+     "name": "Dawn over Thornwood"
+    }
+   ],
+   "edges": [
+    [
+     "night-the-slums",
+     "night-the-soul-painter"
+    ],
+    [
+     "night-the-soul-painter",
+     "night-the-accused"
+    ],
+    [
+     "night-the-accused",
+     "night-the-thornwood"
+    ],
+    [
+     "night-the-accused",
+     "night-erevan-insists"
+    ],
+    [
+     "night-erevan-insists",
+     "night-the-thornwood"
+    ],
+    [
+     "night-the-thornwood",
+     "night-the-coven"
+    ],
+    [
+     "night-the-coven",
+     "night-the-evergreen-blade"
+    ],
+    [
+     "night-the-coven",
+     "night-the-kelger-falls"
+    ],
+    [
+     "night-the-evergreen-blade",
+     "night-the-kelger-falls"
+    ],
+    [
+     "night-the-kelger-falls",
+     "night-the-long-night"
+    ],
+    [
+     "night-the-long-night",
+     "night-the-castle-dracul"
+    ],
+    [
+     "night-the-castle-dracul",
+     "night-the-siege"
+    ],
+    [
+     "night-the-siege",
+     "night-the-full-moon"
+    ],
+    [
+     "night-the-siege",
+     "night-the-castle-bathorya"
+    ],
+    [
+     "night-the-full-moon",
+     "night-the-castle-bathorya"
+    ],
+    [
+     "night-the-castle-bathorya",
+     "night-the-pack-sworn"
+    ],
+    [
+     "night-the-castle-bathorya",
+     "night-the-dragons-bargain"
+    ],
+    [
+     "night-the-castle-bathorya",
+     "night-the-inquisitions-due"
+    ],
+    [
+     "night-the-castle-bathorya",
+     "night-owing-no-one"
+    ],
+    [
+     "night-the-pack-sworn",
+     "night-dawn"
+    ],
+    [
+     "night-the-dragons-bargain",
+     "night-dawn"
+    ],
+    [
+     "night-the-inquisitions-due",
+     "night-dawn"
+    ],
+    [
+     "night-owing-no-one",
+     "night-dawn"
+    ]
+   ],
+   "qualities": [
+    "party_rank",
+    "guild_reputation",
+    "party_injuries",
+    "night_studio_found",
+    "night_reached_glasnoa",
+    "night_selena",
+    "night_stood_aside",
+    "night_in_thornwood",
+    "night_kayla_unmasked",
+    "night_at_coven",
+    "night_in_the_glade",
+    "cursed_blade",
+    "night_blade_left",
+    "night_in_kelger",
+    "night_fog_broken",
+    "night_castle_sighted",
+    "night_original_taken",
+    "night_in_astoria",
+    "night_pack_met",
+    "night_moon",
+    "night_at_bathorya",
+    "night_pact",
+    "night_sunrise",
+    "night_inquisition_suspicion",
+    "location"
+   ],
+   "roster": [
+    "Adolion Narrator",
+    "Belle",
+    "Dalan",
+    "Kayla",
+    "Erevan",
+    "Fael",
+    "Nyl",
+    "Kuromu",
+    "Ren",
+    "Selena",
+    "Nalea",
+    "Vivie",
+    "Felthorn",
+    "Zariah",
+    "Camilla",
+    "Cassius",
+    "Lobo",
+    "Alice",
+    "Gabriel",
+    "Morrigan"
+   ]
+  },
+  "adolion-saga": {
+   "title": "Adolion: The Saga",
+   "group": "Adolion - The Saga",
+   "start": "guild-hall",
+   "checkpoints": [
+    {
+     "id": "guild-hall",
+     "name": "The Guild Hall"
+    },
+    {
+     "id": "adv-guild-tavern",
+     "name": "Who Is Looking for a Party"
+    },
+    {
+     "id": "the-sheridan-steward",
+     "name": "The Sheridan Steward"
+    },
+    {
+     "id": "road-to-wendhope",
+     "name": "The Road North"
+    },
+    {
+     "id": "on-the-road",
+     "name": "On the Road"
+    },
+    {
+     "id": "at-the-walls",
+     "name": "Hold, Wendhope Is Closed"
+    },
+    {
+     "id": "outside-at-sundown",
+     "name": "Outside at Sundown"
+    },
+    {
+     "id": "first-night",
+     "name": "The Red Fog"
+    },
+    {
+     "id": "the-breach",
+     "name": "The Wall Breaks"
+    },
+    {
+     "id": "what-wendhope-knows",
+     "name": "What Wendhope Knows"
+    },
+    {
+     "id": "into-needlehaven",
+     "name": "Into Needlehaven"
+    },
+    {
+     "id": "the-lord-spirit",
+     "name": "The Lord Spirit of Needlehaven"
+    },
+    {
+     "id": "the-dying-forest",
+     "name": "The Dying Forest"
+    },
+    {
+     "id": "the-closed-mine",
+     "name": "The Closed Mine"
+    },
+    {
+     "id": "after-the-fog",
+     "name": "After the Fog"
+    },
+    {
+     "id": "adv-who-wants-in",
+     "name": "Who Wants In"
+    },
+    {
+     "id": "driftmere",
+     "name": "Driftmere"
+    },
+    {
+     "id": "adv-the-ice-witch",
+     "name": "The Witch of Eltaronal"
+    },
+    {
+     "id": "the-first-descent",
+     "name": "The First Descent"
+    },
+    {
+     "id": "between-the-floors",
+     "name": "Between the Floors"
+    },
+    {
+     "id": "the-changed-deep",
+     "name": "The Changed Deep"
+    },
+    {
+     "id": "the-sealed-wall",
+     "name": "The Sealed Wall"
+    },
+    {
+     "id": "the-seal-breaks",
+     "name": "The Seal Breaks"
+    },
+    {
+     "id": "the-devourer",
+     "name": "The God-Eater"
+    },
+    {
+     "id": "filwern-freed",
+     "name": "Filwern Freed"
+    },
+    {
+     "id": "the-wards-hold",
+     "name": "The Wards Hold"
+    },
+    {
+     "id": "what-filwern-left",
+     "name": "What Filwern Left"
+    },
+    {
+     "id": "nightriver-house",
+     "name": "Home to Nightriver"
+    },
+    {
+     "id": "fathers-summons",
+     "name": "Father's Summons"
+    },
+    {
+     "id": "natalia-named",
+     "name": "Natalia Named"
+    },
+    {
+     "id": "whispers",
+     "name": "Whispers in the Halls"
+    },
+    {
+     "id": "the-duel",
+     "name": "Trial by Combat"
+    },
+    {
+     "id": "night-of-knives",
+     "name": "The Night of Knives"
+    },
+    {
+     "id": "confront-father",
+     "name": "Father and Heir"
+    },
+    {
+     "id": "follow-the-trail",
+     "name": "The Trail of Ash"
+    },
+    {
+     "id": "leevon-in-chains",
+     "name": "Leevon in Chains"
+    },
+    {
+     "id": "the-sealed-crypt",
+     "name": "Beneath the Seal"
+    },
+    {
+     "id": "house-in-daylight",
+     "name": "A House in Daylight"
+    },
+    {
+     "id": "acad-mid-year-ball",
+     "name": "The Mid-Year Ball"
+    },
+    {
+     "id": "aegis-homecoming",
+     "name": "Homecoming"
+    },
+    {
+     "id": "aegis-tobias-pleads",
+     "name": "Tobias Asks Once"
+    },
+    {
+     "id": "aegis-the-tavern",
+     "name": "The Guild Tavern"
+    },
+    {
+     "id": "aegis-market-street",
+     "name": "Market Street"
+    },
+    {
+     "id": "aegis-errands",
+     "name": "Errands"
+    },
+    {
+     "id": "aegis-the-curio-shop",
+     "name": "Aegis Delights and Curios"
+    },
+    {
+     "id": "aegis-the-chapel",
+     "name": "The Chapel with the Hole in Its Roof"
+    },
+    {
+     "id": "aegis-the-orphanage",
+     "name": "The Orphanage"
+    },
+    {
+     "id": "aegis-the-shrine",
+     "name": "The Rypanor Shrine"
+    },
+    {
+     "id": "aegis-victorys-tusk",
+     "name": "Victory's Tusk"
+    },
+    {
+     "id": "aegis-the-long-week",
+     "name": "The Long Week"
+    },
+    {
+     "id": "aegis-green-meadow",
+     "name": "Green Meadow Farms"
+    },
+    {
+     "id": "aegis-the-exam",
+     "name": "The Exam"
+    },
+    {
+     "id": "aegis-vallie-watches",
+     "name": "The Guildmaster Watches"
+    },
+    {
+     "id": "aegis-a-name-in-the-city",
+     "name": "A Name in the City"
+    },
+    {
+     "id": "aegis-tibalts-manor",
+     "name": "Lord Tibalt's Reception"
+    },
+    {
+     "id": "aegis-a-hard-lesson",
+     "name": "A Hard Lesson"
+    },
+    {
+     "id": "aegis-the-board",
+     "name": "Four Roads"
+    },
+    {
+     "id": "deep-joint-posting",
+     "name": "Two Wings at One Counter"
+    },
+    {
+     "id": "deep-kela-and-ced",
+     "name": "Kela and Ced"
+    },
+    {
+     "id": "deep-with-crimsonwing",
+     "name": "Crimsonwing at the North Gate"
+    },
+    {
+     "id": "deep-with-ebonwing",
+     "name": "Ebonwing at the North Gate"
+    },
+    {
+     "id": "deep-the-north-road",
+     "name": "The North Road"
+    },
+    {
+     "id": "deep-the-march",
+     "name": "The March"
+    },
+    {
+     "id": "deep-ritual-fort",
+     "name": "Carrow Keep"
+    },
+    {
+     "id": "deep-the-altar",
+     "name": "The Altar in the Great Hall"
+    },
+    {
+     "id": "deep-nahalbuk-cells",
+     "name": "The Cells of Nahalbuk"
+    },
+    {
+     "id": "deep-what-unira-says",
+     "name": "What Unira Says"
+    },
+    {
+     "id": "deep-draxford-call",
+     "name": "The Draxford Call"
+    },
+    {
+     "id": "deep-miners-at-the-door",
+     "name": "The Miners at the Door"
+    },
+    {
+     "id": "deep-the-tunnels",
+     "name": "The Lower Workings"
+    },
+    {
+     "id": "deep-the-swarm",
+     "name": "The Swarm"
+    },
+    {
+     "id": "deep-into-the-dark",
+     "name": "Into the Dark"
+    },
+    {
+     "id": "deep-the-demonborn-camp",
+     "name": "The Hunted"
+    },
+    {
+     "id": "deep-the-blade-in-the-dark",
+     "name": "The Blade in the Dark"
+    },
+    {
+     "id": "deep-the-hive",
+     "name": "The Hive Heart"
+    },
+    {
+     "id": "deep-hive-burned",
+     "name": "The Hive Burns"
+    },
+    {
+     "id": "deep-hive-sealed",
+     "name": "The Breach Comes Down"
+    },
+    {
+     "id": "deep-the-reckoning",
+     "name": "The Reckoning"
+    },
+    {
+     "id": "east-landfall",
+     "name": "Landfall at Hianxo"
+    },
+    {
+     "id": "east-jiansho-academy",
+     "name": "Jiansho Academy"
+    },
+    {
+     "id": "east-honami-asks",
+     "name": "Honami Asks"
+    },
+    {
+     "id": "east-the-rounds",
+     "name": "The Opening Rounds"
+    },
+    {
+     "id": "east-the-upset",
+     "name": "The Upset"
+    },
+    {
+     "id": "east-the-hattaxi-shadow",
+     "name": "The Hattaxi Shadow"
+    },
+    {
+     "id": "east-the-final",
+     "name": "The Final Before the Emperor"
+    },
+    {
+     "id": "east-the-oni-road",
+     "name": "The Oni of Monoko"
+    },
+    {
+     "id": "east-the-road-inland",
+     "name": "The Road Inland"
+    },
+    {
+     "id": "east-harvest-festival",
+     "name": "The Harvest Festival"
+    },
+    {
+     "id": "east-the-rite-of-warding",
+     "name": "The Rite of Warding"
+    },
+    {
+     "id": "east-the-fever",
+     "name": "The Fever Returns"
+    },
+    {
+     "id": "east-the-crow-god",
+     "name": "The Crow God's Bargain"
+    },
+    {
+     "id": "east-the-yokai-realm",
+     "name": "The Yokai Realm"
+    },
+    {
+     "id": "east-the-foxes-favoured",
+     "name": "The Foxes Favoured"
+    },
+    {
+     "id": "east-the-crows-due",
+     "name": "The Crow's Due"
+    },
+    {
+     "id": "east-the-shared-ward",
+     "name": "The Shared Ward"
+    },
+    {
+     "id": "east-the-long-way-home",
+     "name": "The Long Way Home"
+    },
+    {
+     "id": "night-the-slums",
+     "name": "Missing in the Slums"
+    },
+    {
+     "id": "night-the-soul-painter",
+     "name": "The Soul Painter"
+    },
+    {
+     "id": "night-the-accused",
+     "name": "The Accused"
+    },
+    {
+     "id": "night-erevan-insists",
+     "name": "Erevan Insists"
+    },
+    {
+     "id": "night-the-thornwood",
+     "name": "The Witch of Thornwood"
+    },
+    {
+     "id": "night-the-coven",
+     "name": "Three Sisters"
+    },
+    {
+     "id": "night-the-evergreen-blade",
+     "name": "The Blade of the Meadows"
+    },
+    {
+     "id": "night-the-kelger-falls",
+     "name": "The Fog at Kelger Falls"
+    },
+    {
+     "id": "night-the-long-night",
+     "name": "The Long Night"
+    },
+    {
+     "id": "night-the-castle-dracul",
+     "name": "Castle Dracul"
+    },
+    {
+     "id": "night-the-siege",
+     "name": "The Nightwolf Siege"
+    },
+    {
+     "id": "night-the-full-moon",
+     "name": "The Full Moon"
+    },
+    {
+     "id": "night-the-castle-bathorya",
+     "name": "Castle Bathorya"
+    },
+    {
+     "id": "night-the-pack-sworn",
+     "name": "Sworn to the Pack"
+    },
+    {
+     "id": "night-the-dragons-bargain",
+     "name": "The Dragon's Bargain"
+    },
+    {
+     "id": "night-the-inquisitions-due",
+     "name": "The Inquisition's Due"
+    },
+    {
+     "id": "night-owing-no-one",
+     "name": "Owing No One"
+    },
+    {
+     "id": "night-dawn",
+     "name": "Dawn over Thornwood"
+    },
+    {
+     "id": "esha-the-last-chapel",
+     "name": "The Last Chapel"
+    },
+    {
+     "id": "esha-the-guardians",
+     "name": "The Shrine Stones"
+    },
+    {
+     "id": "esha-bound-and-led",
+     "name": "Guests in Rope"
+    },
+    {
+     "id": "esha-the-road-in",
+     "name": "The Road In"
+    },
+    {
+     "id": "esha-the-court",
+     "name": "The Welcome of Eshalanore"
+    },
+    {
+     "id": "esha-the-empty-bed",
+     "name": "The Empty Bed"
+    },
+    {
+     "id": "esha-the-green-knight",
+     "name": "The Green Knight"
+    },
+    {
+     "id": "esha-her-gaze",
+     "name": "Her Eyes in the Leaves"
+    },
+    {
+     "id": "esha-the-ritual",
+     "name": "The Chalice Rite"
+    },
+    {
+     "id": "esha-the-lady",
+     "name": "The Lady of the Forest"
+    },
+    {
+     "id": "esha-the-oath-taken",
+     "name": "Under Her Oath"
+    },
+    {
+     "id": "esha-down-the-weeping-run",
+     "name": "Down the Weeping Run"
+    },
+    {
+     "id": "esha-the-burning-grove",
+     "name": "The Burning Grove"
+    },
+    {
+     "id": "esha-the-treeline",
+     "name": "The Treeline"
+    },
+    {
+     "id": "war-the-summons",
+     "name": "The King's War Council"
+    },
+    {
+     "id": "war-the-queens-wing",
+     "name": "The Queen's Wing"
+    },
+    {
+     "id": "war-nightriver-answers",
+     "name": "House Nightriver Answers"
+    },
+    {
+     "id": "war-crimsonwing-answers",
+     "name": "Crimsonwing Answers"
+    },
+    {
+     "id": "war-ebonwing-answers",
+     "name": "Ebonwing Answers"
+    },
+    {
+     "id": "war-the-eastern-company",
+     "name": "The Eastern Company"
+    },
+    {
+     "id": "war-the-pack-runs",
+     "name": "The Pack Runs"
+    },
+    {
+     "id": "war-the-dragons-due",
+     "name": "The Dragon's Due"
+    },
+    {
+     "id": "war-the-inquisition-rides",
+     "name": "The Inquisition Rides"
+    },
+    {
+     "id": "war-the-ladys-gift",
+     "name": "The Lady's Gift"
+    },
+    {
+     "id": "war-the-front",
+     "name": "Fort Vicinitas"
+    },
+    {
+     "id": "war-behind-the-lines",
+     "name": "Behind the Lines"
+    },
+    {
+     "id": "war-the-pits",
+     "name": "Renfath"
+    },
+    {
+     "id": "war-the-slave-pens",
+     "name": "The Slave Pens"
+    },
+    {
+     "id": "war-malachs-fire",
+     "name": "Malach's Fire"
+    },
+    {
+     "id": "war-the-cult-revealed",
+     "name": "The Office of the Fallen"
+    },
+    {
+     "id": "war-the-last-field",
+     "name": "Aldermere Field"
+    },
+    {
+     "id": "war-the-dead-rise",
+     "name": "The Dead Rise"
+    },
+    {
+     "id": "war-the-field-is-ours",
+     "name": "The Field Is Ours"
+    },
+    {
+     "id": "war-the-truce-of-aldermere",
+     "name": "The Truce of Aldermere"
+    },
+    {
+     "id": "war-what-it-cost",
+     "name": "What It Cost"
+    },
+    {
+     "id": "war-the-crown-remembers",
+     "name": "The Crown Remembers"
+    },
+    {
+     "id": "saga-downtime-1",
+     "name": "Between Jobs (1)"
+    },
+    {
+     "id": "saga-board-2",
+     "name": "The Board, Again (2)"
+    },
+    {
+     "id": "saga-downtime-2",
+     "name": "Between Jobs (2)"
+    },
+    {
+     "id": "saga-board-3",
+     "name": "The Board, Again (3)"
+    },
+    {
+     "id": "saga-downtime-3",
+     "name": "Between Jobs (3)"
+    },
+    {
+     "id": "saga-board-4",
+     "name": "The Board, Again (4)"
+    },
+    {
+     "id": "saga-downtime-4",
+     "name": "Between Jobs (4)"
+    }
+   ],
+   "edges": [
+    [
+     "guild-hall",
+     "road-to-wendhope"
+    ],
+    [
+     "guild-hall",
+     "adv-guild-tavern"
+    ],
+    [
+     "adv-guild-tavern",
+     "road-to-wendhope"
+    ],
+    [
+     "the-sheridan-steward",
+     "road-to-wendhope"
+    ],
+    [
+     "road-to-wendhope",
+     "at-the-walls"
+    ],
+    [
+     "road-to-wendhope",
+     "on-the-road"
+    ],
+    [
+     "on-the-road",
+     "at-the-walls"
+    ],
+    [
+     "at-the-walls",
+     "first-night"
+    ],
+    [
+     "at-the-walls",
+     "outside-at-sundown"
+    ],
+    [
+     "outside-at-sundown",
+     "first-night"
+    ],
+    [
+     "first-night",
+     "the-breach"
+    ],
+    [
+     "first-night",
+     "what-wendhope-knows"
+    ],
+    [
+     "the-breach",
+     "what-wendhope-knows"
+    ],
+    [
+     "what-wendhope-knows",
+     "into-needlehaven"
+    ],
+    [
+     "into-needlehaven",
+     "the-lord-spirit"
+    ],
+    [
+     "the-lord-spirit",
+     "the-dying-forest"
+    ],
+    [
+     "the-lord-spirit",
+     "the-closed-mine"
+    ],
+    [
+     "the-dying-forest",
+     "after-the-fog"
+    ],
+    [
+     "the-closed-mine",
+     "after-the-fog"
+    ],
+    [
+     "after-the-fog",
+     "driftmere"
+    ],
+    [
+     "after-the-fog",
+     "adv-who-wants-in"
+    ],
+    [
+     "adv-who-wants-in",
+     "driftmere"
+    ],
+    [
+     "driftmere",
+     "the-first-descent"
+    ],
+    [
+     "driftmere",
+     "adv-the-ice-witch"
+    ],
+    [
+     "adv-the-ice-witch",
+     "the-first-descent"
+    ],
+    [
+     "the-first-descent",
+     "between-the-floors"
+    ],
+    [
+     "between-the-floors",
+     "the-changed-deep"
+    ],
+    [
+     "the-changed-deep",
+     "the-sealed-wall"
+    ],
+    [
+     "the-sealed-wall",
+     "the-devourer"
+    ],
+    [
+     "the-sealed-wall",
+     "the-seal-breaks"
+    ],
+    [
+     "the-seal-breaks",
+     "the-devourer"
+    ],
+    [
+     "the-devourer",
+     "filwern-freed"
+    ],
+    [
+     "the-devourer",
+     "the-wards-hold"
+    ],
+    [
+     "filwern-freed",
+     "what-filwern-left"
+    ],
+    [
+     "the-wards-hold",
+     "what-filwern-left"
+    ],
+    [
+     "nightriver-house",
+     "fathers-summons"
+    ],
+    [
+     "fathers-summons",
+     "whispers"
+    ],
+    [
+     "fathers-summons",
+     "natalia-named"
+    ],
+    [
+     "natalia-named",
+     "whispers"
+    ],
+    [
+     "whispers",
+     "the-duel"
+    ],
+    [
+     "whispers",
+     "acad-mid-year-ball"
+    ],
+    [
+     "acad-mid-year-ball",
+     "the-duel"
+    ],
+    [
+     "the-duel",
+     "night-of-knives"
+    ],
+    [
+     "night-of-knives",
+     "confront-father"
+    ],
+    [
+     "night-of-knives",
+     "follow-the-trail"
+    ],
+    [
+     "night-of-knives",
+     "leevon-in-chains"
+    ],
+    [
+     "confront-father",
+     "the-sealed-crypt"
+    ],
+    [
+     "follow-the-trail",
+     "the-sealed-crypt"
+    ],
+    [
+     "leevon-in-chains",
+     "the-sealed-crypt"
+    ],
+    [
+     "the-sealed-crypt",
+     "house-in-daylight"
+    ],
+    [
+     "aegis-homecoming",
+     "aegis-the-tavern"
+    ],
+    [
+     "aegis-homecoming",
+     "aegis-tobias-pleads"
+    ],
+    [
+     "aegis-tobias-pleads",
+     "aegis-the-tavern"
+    ],
+    [
+     "aegis-the-tavern",
+     "aegis-market-street"
+    ],
+    [
+     "aegis-market-street",
+     "aegis-errands"
+    ],
+    [
+     "aegis-market-street",
+     "aegis-the-curio-shop"
+    ],
+    [
+     "aegis-errands",
+     "aegis-the-curio-shop"
+    ],
+    [
+     "aegis-the-curio-shop",
+     "aegis-the-chapel"
+    ],
+    [
+     "aegis-the-curio-shop",
+     "aegis-the-orphanage"
+    ],
+    [
+     "aegis-the-curio-shop",
+     "aegis-the-shrine"
+    ],
+    [
+     "aegis-the-curio-shop",
+     "aegis-victorys-tusk"
+    ],
+    [
+     "aegis-the-chapel",
+     "aegis-victorys-tusk"
+    ],
+    [
+     "aegis-the-orphanage",
+     "aegis-victorys-tusk"
+    ],
+    [
+     "aegis-the-shrine",
+     "aegis-victorys-tusk"
+    ],
+    [
+     "aegis-victorys-tusk",
+     "aegis-the-long-week"
+    ],
+    [
+     "aegis-victorys-tusk",
+     "aegis-green-meadow"
+    ],
+    [
+     "aegis-the-long-week",
+     "aegis-green-meadow"
+    ],
+    [
+     "aegis-green-meadow",
+     "aegis-the-exam"
+    ],
+    [
+     "aegis-the-exam",
+     "aegis-vallie-watches"
+    ],
+    [
+     "aegis-the-exam",
+     "aegis-a-name-in-the-city"
+    ],
+    [
+     "aegis-the-exam",
+     "aegis-tibalts-manor"
+    ],
+    [
+     "aegis-the-exam",
+     "aegis-a-hard-lesson"
+    ],
+    [
+     "aegis-vallie-watches",
+     "aegis-a-name-in-the-city"
+    ],
+    [
+     "aegis-vallie-watches",
+     "aegis-tibalts-manor"
+    ],
+    [
+     "aegis-vallie-watches",
+     "aegis-a-hard-lesson"
+    ],
+    [
+     "aegis-a-name-in-the-city",
+     "aegis-the-board"
+    ],
+    [
+     "aegis-tibalts-manor",
+     "aegis-the-board"
+    ],
+    [
+     "aegis-a-hard-lesson",
+     "aegis-the-board"
+    ],
+    [
+     "deep-joint-posting",
+     "deep-with-crimsonwing"
+    ],
+    [
+     "deep-joint-posting",
+     "deep-with-ebonwing"
+    ],
+    [
+     "deep-joint-posting",
+     "deep-kela-and-ced"
+    ],
+    [
+     "deep-kela-and-ced",
+     "deep-with-crimsonwing"
+    ],
+    [
+     "deep-kela-and-ced",
+     "deep-with-ebonwing"
+    ],
+    [
+     "deep-with-crimsonwing",
+     "deep-the-north-road"
+    ],
+    [
+     "deep-with-ebonwing",
+     "deep-the-north-road"
+    ],
+    [
+     "deep-the-north-road",
+     "deep-ritual-fort"
+    ],
+    [
+     "deep-the-north-road",
+     "deep-the-march"
+    ],
+    [
+     "deep-the-march",
+     "deep-ritual-fort"
+    ],
+    [
+     "deep-ritual-fort",
+     "deep-the-altar"
+    ],
+    [
+     "deep-the-altar",
+     "deep-nahalbuk-cells"
+    ],
+    [
+     "deep-nahalbuk-cells",
+     "deep-what-unira-says"
+    ],
+    [
+     "deep-what-unira-says",
+     "deep-draxford-call"
+    ],
+    [
+     "deep-draxford-call",
+     "deep-the-tunnels"
+    ],
+    [
+     "deep-draxford-call",
+     "deep-miners-at-the-door"
+    ],
+    [
+     "deep-miners-at-the-door",
+     "deep-the-tunnels"
+    ],
+    [
+     "deep-the-tunnels",
+     "deep-the-swarm"
+    ],
+    [
+     "deep-the-tunnels",
+     "deep-into-the-dark"
+    ],
+    [
+     "deep-the-swarm",
+     "deep-into-the-dark"
+    ],
+    [
+     "deep-into-the-dark",
+     "deep-the-demonborn-camp"
+    ],
+    [
+     "deep-the-demonborn-camp",
+     "deep-the-blade-in-the-dark"
+    ],
+    [
+     "deep-the-demonborn-camp",
+     "deep-the-hive"
+    ],
+    [
+     "deep-the-blade-in-the-dark",
+     "deep-the-hive"
+    ],
+    [
+     "deep-the-hive",
+     "deep-hive-burned"
+    ],
+    [
+     "deep-the-hive",
+     "deep-hive-sealed"
+    ],
+    [
+     "deep-hive-burned",
+     "deep-the-reckoning"
+    ],
+    [
+     "deep-hive-sealed",
+     "deep-the-reckoning"
+    ],
+    [
+     "east-landfall",
+     "east-jiansho-academy"
+    ],
+    [
+     "east-jiansho-academy",
+     "east-the-rounds"
+    ],
+    [
+     "east-jiansho-academy",
+     "east-honami-asks"
+    ],
+    [
+     "east-honami-asks",
+     "east-the-rounds"
+    ],
+    [
+     "east-the-rounds",
+     "east-the-upset"
+    ],
+    [
+     "east-the-rounds",
+     "east-the-hattaxi-shadow"
+    ],
+    [
+     "east-the-upset",
+     "east-the-hattaxi-shadow"
+    ],
+    [
+     "east-the-hattaxi-shadow",
+     "east-the-final"
+    ],
+    [
+     "east-the-final",
+     "east-the-oni-road"
+    ],
+    [
+     "east-the-oni-road",
+     "east-the-road-inland"
+    ],
+    [
+     "east-the-road-inland",
+     "east-harvest-festival"
+    ],
+    [
+     "east-harvest-festival",
+     "east-the-rite-of-warding"
+    ],
+    [
+     "east-the-rite-of-warding",
+     "east-the-fever"
+    ],
+    [
+     "east-the-fever",
+     "east-the-crow-god"
+    ],
+    [
+     "east-the-crow-god",
+     "east-the-yokai-realm"
+    ],
+    [
+     "east-the-yokai-realm",
+     "east-the-foxes-favoured"
+    ],
+    [
+     "east-the-yokai-realm",
+     "east-the-crows-due"
+    ],
+    [
+     "east-the-yokai-realm",
+     "east-the-shared-ward"
+    ],
+    [
+     "east-the-foxes-favoured",
+     "east-the-long-way-home"
+    ],
+    [
+     "east-the-crows-due",
+     "east-the-long-way-home"
+    ],
+    [
+     "east-the-shared-ward",
+     "east-the-long-way-home"
+    ],
+    [
+     "night-the-slums",
+     "night-the-soul-painter"
+    ],
+    [
+     "night-the-soul-painter",
+     "night-the-accused"
+    ],
+    [
+     "night-the-accused",
+     "night-the-thornwood"
+    ],
+    [
+     "night-the-accused",
+     "night-erevan-insists"
+    ],
+    [
+     "night-erevan-insists",
+     "night-the-thornwood"
+    ],
+    [
+     "night-the-thornwood",
+     "night-the-coven"
+    ],
+    [
+     "night-the-coven",
+     "night-the-evergreen-blade"
+    ],
+    [
+     "night-the-coven",
+     "night-the-kelger-falls"
+    ],
+    [
+     "night-the-evergreen-blade",
+     "night-the-kelger-falls"
+    ],
+    [
+     "night-the-kelger-falls",
+     "night-the-long-night"
+    ],
+    [
+     "night-the-long-night",
+     "night-the-castle-dracul"
+    ],
+    [
+     "night-the-castle-dracul",
+     "night-the-siege"
+    ],
+    [
+     "night-the-siege",
+     "night-the-full-moon"
+    ],
+    [
+     "night-the-siege",
+     "night-the-castle-bathorya"
+    ],
+    [
+     "night-the-full-moon",
+     "night-the-castle-bathorya"
+    ],
+    [
+     "night-the-castle-bathorya",
+     "night-the-pack-sworn"
+    ],
+    [
+     "night-the-castle-bathorya",
+     "night-the-dragons-bargain"
+    ],
+    [
+     "night-the-castle-bathorya",
+     "night-the-inquisitions-due"
+    ],
+    [
+     "night-the-castle-bathorya",
+     "night-owing-no-one"
+    ],
+    [
+     "night-the-pack-sworn",
+     "night-dawn"
+    ],
+    [
+     "night-the-dragons-bargain",
+     "night-dawn"
+    ],
+    [
+     "night-the-inquisitions-due",
+     "night-dawn"
+    ],
+    [
+     "night-owing-no-one",
+     "night-dawn"
+    ],
+    [
+     "esha-the-last-chapel",
+     "esha-the-guardians"
+    ],
+    [
+     "esha-the-guardians",
+     "esha-the-court"
+    ],
+    [
+     "esha-the-guardians",
+     "esha-the-road-in"
+    ],
+    [
+     "esha-the-guardians",
+     "esha-bound-and-led"
+    ],
+    [
+     "esha-bound-and-led",
+     "esha-the-court"
+    ],
+    [
+     "esha-the-road-in",
+     "esha-the-court"
+    ],
+    [
+     "esha-the-court",
+     "esha-the-empty-bed"
+    ],
+    [
+     "esha-the-empty-bed",
+     "esha-the-green-knight"
+    ],
+    [
+     "esha-the-green-knight",
+     "esha-her-gaze"
+    ],
+    [
+     "esha-the-green-knight",
+     "esha-the-ritual"
+    ],
+    [
+     "esha-her-gaze",
+     "esha-the-ritual"
+    ],
+    [
+     "esha-the-ritual",
+     "esha-the-lady"
+    ],
+    [
+     "esha-the-lady",
+     "esha-the-oath-taken"
+    ],
+    [
+     "esha-the-lady",
+     "esha-the-burning-grove"
+    ],
+    [
+     "esha-the-lady",
+     "esha-down-the-weeping-run"
+    ],
+    [
+     "esha-the-oath-taken",
+     "esha-the-treeline"
+    ],
+    [
+     "esha-down-the-weeping-run",
+     "esha-the-treeline"
+    ],
+    [
+     "esha-the-burning-grove",
+     "esha-the-treeline"
+    ],
+    [
+     "war-the-summons",
+     "war-the-queens-wing"
+    ],
+    [
+     "war-the-summons",
+     "war-nightriver-answers"
+    ],
+    [
+     "war-the-summons",
+     "war-crimsonwing-answers"
+    ],
+    [
+     "war-the-summons",
+     "war-ebonwing-answers"
+    ],
+    [
+     "war-the-summons",
+     "war-the-eastern-company"
+    ],
+    [
+     "war-the-summons",
+     "war-the-pack-runs"
+    ],
+    [
+     "war-the-summons",
+     "war-the-dragons-due"
+    ],
+    [
+     "war-the-summons",
+     "war-the-inquisition-rides"
+    ],
+    [
+     "war-the-summons",
+     "war-the-ladys-gift"
+    ],
+    [
+     "war-the-summons",
+     "war-the-front"
+    ],
+    [
+     "war-the-queens-wing",
+     "war-nightriver-answers"
+    ],
+    [
+     "war-the-queens-wing",
+     "war-crimsonwing-answers"
+    ],
+    [
+     "war-the-queens-wing",
+     "war-ebonwing-answers"
+    ],
+    [
+     "war-the-queens-wing",
+     "war-the-eastern-company"
+    ],
+    [
+     "war-the-queens-wing",
+     "war-the-pack-runs"
+    ],
+    [
+     "war-the-queens-wing",
+     "war-the-dragons-due"
+    ],
+    [
+     "war-the-queens-wing",
+     "war-the-inquisition-rides"
+    ],
+    [
+     "war-the-queens-wing",
+     "war-the-ladys-gift"
+    ],
+    [
+     "war-the-queens-wing",
+     "war-the-front"
+    ],
+    [
+     "war-nightriver-answers",
+     "war-crimsonwing-answers"
+    ],
+    [
+     "war-nightriver-answers",
+     "war-ebonwing-answers"
+    ],
+    [
+     "war-nightriver-answers",
+     "war-the-eastern-company"
+    ],
+    [
+     "war-nightriver-answers",
+     "war-the-pack-runs"
+    ],
+    [
+     "war-nightriver-answers",
+     "war-the-dragons-due"
+    ],
+    [
+     "war-nightriver-answers",
+     "war-the-inquisition-rides"
+    ],
+    [
+     "war-nightriver-answers",
+     "war-the-ladys-gift"
+    ],
+    [
+     "war-nightriver-answers",
+     "war-the-front"
+    ],
+    [
+     "war-crimsonwing-answers",
+     "war-the-eastern-company"
+    ],
+    [
+     "war-crimsonwing-answers",
+     "war-the-pack-runs"
+    ],
+    [
+     "war-crimsonwing-answers",
+     "war-the-dragons-due"
+    ],
+    [
+     "war-crimsonwing-answers",
+     "war-the-inquisition-rides"
+    ],
+    [
+     "war-crimsonwing-answers",
+     "war-the-ladys-gift"
+    ],
+    [
+     "war-crimsonwing-answers",
+     "war-the-front"
+    ],
+    [
+     "war-ebonwing-answers",
+     "war-the-eastern-company"
+    ],
+    [
+     "war-ebonwing-answers",
+     "war-the-pack-runs"
+    ],
+    [
+     "war-ebonwing-answers",
+     "war-the-dragons-due"
+    ],
+    [
+     "war-ebonwing-answers",
+     "war-the-inquisition-rides"
+    ],
+    [
+     "war-ebonwing-answers",
+     "war-the-ladys-gift"
+    ],
+    [
+     "war-ebonwing-answers",
+     "war-the-front"
+    ],
+    [
+     "war-the-eastern-company",
+     "war-the-pack-runs"
+    ],
+    [
+     "war-the-eastern-company",
+     "war-the-dragons-due"
+    ],
+    [
+     "war-the-eastern-company",
+     "war-the-inquisition-rides"
+    ],
+    [
+     "war-the-eastern-company",
+     "war-the-ladys-gift"
+    ],
+    [
+     "war-the-eastern-company",
+     "war-the-front"
+    ],
+    [
+     "war-the-pack-runs",
+     "war-the-ladys-gift"
+    ],
+    [
+     "war-the-pack-runs",
+     "war-the-front"
+    ],
+    [
+     "war-the-dragons-due",
+     "war-the-ladys-gift"
+    ],
+    [
+     "war-the-dragons-due",
+     "war-the-front"
+    ],
+    [
+     "war-the-inquisition-rides",
+     "war-the-ladys-gift"
+    ],
+    [
+     "war-the-inquisition-rides",
+     "war-the-front"
+    ],
+    [
+     "war-the-ladys-gift",
+     "war-the-front"
+    ],
+    [
+     "war-the-front",
+     "war-the-pits"
+    ],
+    [
+     "war-the-front",
+     "war-behind-the-lines"
+    ],
+    [
+     "war-behind-the-lines",
+     "war-the-pits"
+    ],
+    [
+     "war-the-pits",
+     "war-the-slave-pens"
+    ],
+    [
+     "war-the-slave-pens",
+     "war-malachs-fire"
+    ],
+    [
+     "war-malachs-fire",
+     "war-the-cult-revealed"
+    ],
+    [
+     "war-the-cult-revealed",
+     "war-the-last-field"
+    ],
+    [
+     "war-the-last-field",
+     "war-the-dead-rise"
+    ],
+    [
+     "war-the-last-field",
+     "war-the-field-is-ours"
+    ],
+    [
+     "war-the-last-field",
+     "war-the-truce-of-aldermere"
+    ],
+    [
+     "war-the-last-field",
+     "war-what-it-cost"
+    ],
+    [
+     "war-the-dead-rise",
+     "war-the-field-is-ours"
+    ],
+    [
+     "war-the-dead-rise",
+     "war-the-truce-of-aldermere"
+    ],
+    [
+     "war-the-dead-rise",
+     "war-what-it-cost"
+    ],
+    [
+     "war-the-field-is-ours",
+     "war-the-crown-remembers"
+    ],
+    [
+     "war-the-truce-of-aldermere",
+     "war-the-crown-remembers"
+    ],
+    [
+     "war-what-it-cost",
+     "war-the-crown-remembers"
+    ],
+    [
+     "what-filwern-left",
+     "nightriver-house"
+    ],
+    [
+     "house-in-daylight",
+     "aegis-homecoming"
+    ],
+    [
+     "aegis-the-board",
+     "deep-joint-posting"
+    ],
+    [
+     "aegis-the-board",
+     "saga-downtime-1"
+    ],
+    [
+     "deep-the-reckoning",
+     "saga-downtime-1"
+    ],
+    [
+     "saga-downtime-1",
+     "saga-board-2"
+    ],
+    [
+     "saga-board-2",
+     "war-the-summons"
+    ],
+    [
+     "saga-board-2",
+     "east-landfall"
+    ],
+    [
+     "saga-board-2",
+     "saga-downtime-2"
+    ],
+    [
+     "east-the-long-way-home",
+     "saga-downtime-2"
+    ],
+    [
+     "saga-downtime-2",
+     "saga-board-3"
+    ],
+    [
+     "saga-board-3",
+     "war-the-summons"
+    ],
+    [
+     "saga-board-3",
+     "night-the-slums"
+    ],
+    [
+     "saga-board-3",
+     "saga-downtime-3"
+    ],
+    [
+     "night-dawn",
+     "saga-downtime-3"
+    ],
+    [
+     "saga-downtime-3",
+     "saga-board-4"
+    ],
+    [
+     "saga-board-4",
+     "war-the-summons"
+    ],
+    [
+     "saga-board-4",
+     "esha-the-last-chapel"
+    ],
+    [
+     "saga-board-4",
+     "saga-downtime-4"
+    ],
+    [
+     "esha-the-treeline",
+     "saga-downtime-4"
+    ],
+    [
+     "saga-downtime-4",
+     "war-the-summons"
+    ]
+   ],
+   "qualities": [
+    "location",
+    "party_name",
+    "adv_path",
+    "first_camp",
+    "reached_walls",
+    "inside_wendhope",
+    "sundown_outside",
+    "assault_begun",
+    "wall_breached",
+    "survived_first_night",
+    "adv_evidence",
+    "knows_spirit",
+    "in_needlehaven",
+    "spirit_outcome",
+    "back_in_aegis",
+    "next_job",
+    "entered_mines",
+    "descent",
+    "knows_devourer",
+    "turned_back",
+    "past_the_seal",
+    "devourer_outcome",
+    "back_in_driftmere",
+    "adv_looking_for_hands",
+    "adv_celebrating",
+    "adv_to_eltaronal",
+    "party_rank",
+    "guild_reputation",
+    "party_injuries",
+    "acad_path",
+    "heir_is_second",
+    "duel_refused",
+    "acad_evidence",
+    "duel_begun",
+    "duel_outcome",
+    "ambush_survived",
+    "approach",
+    "javon_exposed",
+    "acad_at_ball",
+    "ritual_stopped",
+    "heir_injuries",
+    "aegis_exam_entered",
+    "aegis_exam_declined",
+    "aegis_out_in_city",
+    "aegis_rivals_answered",
+    "aegis_gear_needed",
+    "aegis_downtime",
+    "aegis_at_the_tusk",
+    "aegis_duel_settled",
+    "aegis_farm_called",
+    "aegis_exam_underway",
+    "aegis_raiders_engaged",
+    "aegis_examiner_watching",
+    "aegis_exam",
+    "aegis_back_at_guild",
+    "aegis_city_favour",
+    "deep_partner",
+    "deep_posting_refused",
+    "deep_set_out",
+    "deep_first_camp",
+    "deep_fort_sighted",
+    "deep_hall_breached",
+    "deep_below_fort",
+    "deep_found_unira",
+    "deep_unira_truth",
+    "deep_reached_mines",
+    "deep_draxford_sworn",
+    "deep_draxford_refused",
+    "deep_in_the_tunnels",
+    "deep_terrorborn_met",
+    "deep_swarm",
+    "deep_breach_reached",
+    "deep_camp_found",
+    "deep_blade_found",
+    "deep_blade_left",
+    "cursed_blade",
+    "deep_hive_reached",
+    "deep_hive_outcome",
+    "deep_back_in_aegis",
+    "rival_bond",
+    "deep_standing_with_partner",
+    "east_at_academy",
+    "east_entered",
+    "east_refused_entry",
+    "east_round_fought",
+    "east_upset",
+    "east_odds",
+    "east_through_rounds",
+    "east_plot_known",
+    "east_final_called",
+    "east_tournament",
+    "east_left_hianxo",
+    "east_past_monoko",
+    "east_reached_tiunhime",
+    "east_warding_begun",
+    "east_fever_struck",
+    "east_fever_cause_known",
+    "east_crow_came",
+    "east_in_yokai_realm",
+    "east_gods",
+    "east_homeward",
+    "east_village_trust",
+    "eastern_debt",
+    "night_studio_found",
+    "night_reached_glasnoa",
+    "night_selena",
+    "night_stood_aside",
+    "night_in_thornwood",
+    "night_kayla_unmasked",
+    "night_at_coven",
+    "night_in_the_glade",
+    "night_blade_left",
+    "night_in_kelger",
+    "night_fog_broken",
+    "night_castle_sighted",
+    "night_original_taken",
+    "night_in_astoria",
+    "night_pack_met",
+    "night_moon",
+    "night_at_bathorya",
+    "night_pact",
+    "night_sunrise",
+    "night_inquisition_suspicion",
+    "esha_at_border",
+    "esha_led_in",
+    "esha_welcome_refused",
+    "esha_city_reached",
+    "esha_belle_missing",
+    "esha_ritual_known",
+    "esha_thornway_reached",
+    "esha_knight_faced",
+    "esha_her_gaze",
+    "esha_grove_reached",
+    "esha_lady_came",
+    "esha_escape",
+    "forest_oath",
+    "esha_out_of_the_trees",
+    "esha_dread",
+    "war_commission_taken",
+    "war_commission_refused",
+    "war_house_mustered",
+    "war_crimsonwing_mustered",
+    "war_ebonwing_mustered",
+    "war_east_mustered",
+    "war_pack_mustered",
+    "war_dracul_mustered",
+    "war_inquisition_mustered",
+    "war_oath_answered",
+    "war_reached_front",
+    "war_taken_captive",
+    "war_crossed_lines",
+    "war_in_nuwerth",
+    "war_pits_won",
+    "war_shelara_freed",
+    "war_out_of_nuwerth",
+    "war_malach",
+    "war_cult_exposed",
+    "war_on_the_field",
+    "war_battle_joined",
+    "war_book_taken",
+    "war_turn",
+    "war_outcome",
+    "war_home",
+    "war_front",
+    "saga_called_home",
+    "saga_back_to_guild",
+    "saga_board_1",
+    "saga_back_from_deep",
+    "saga_at_board_2",
+    "saga_board_2",
+    "saga_back_from_east",
+    "saga_at_board_3",
+    "saga_board_3",
+    "saga_back_from_night",
+    "saga_at_board_4",
+    "saga_board_4",
+    "saga_back_from_esha",
+    "saga_muster_answered",
+    "saga_war_called"
+   ],
+   "roster": [
+    "Adolion Narrator",
+    "Tobias",
+    "Belle",
+    "Dalan",
+    "Ellie",
+    "Vallie",
+    "Domas",
+    "Rydel",
+    "Fiana",
+    "Talis",
+    "Alida",
+    "Tatiana",
+    "Kashina",
+    "Alder",
+    "Gustall",
+    "Naomi",
+    "Giada",
+    "Riyo",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Javon",
+    "Eriana",
+    "Welden",
+    "Leila",
+    "Hana",
+    "Haley",
+    "Forre",
+    "Kane",
+    "Ashleigh",
+    "Merryn",
+    "Tahlia",
+    "Kaian",
+    "Jasira",
+    "Grant",
+    "Konako",
+    "Alarise",
+    "Sophie",
+    "Calithra",
+    "Celedir",
+    "Lirael",
+    "Celeste",
+    "Arryn",
+    "Dahlia",
+    "Manako",
+    "Karrus",
+    "Ryenne",
+    "Kass",
+    "Yrelra",
+    "Karia",
+    "Mina",
+    "Oswyn",
+    "Panne",
+    "Karos",
+    "Diosanea",
+    "Liora",
+    "Akari",
+    "Rosea",
+    "Thorne",
+    "Dixton",
+    "Ced",
+    "Kela",
+    "Runo",
+    "Safie",
+    "Unira",
+    "Amthir",
+    "Nendira",
+    "Anax",
+    "Sana",
+    "Shadur",
+    "Shelur",
+    "Idira",
+    "Caelia",
+    "Caetus",
+    "Yuna",
+    "Honami",
+    "Hanzo",
+    "Megumi",
+    "Tanya",
+    "Rikako",
+    "Hanabi",
+    "Shinen",
+    "Ebisu",
+    "Watara",
+    "Yurine",
+    "Akito",
+    "Rinne",
+    "Sota",
+    "Himari",
+    "Daigo",
+    "Koharu",
+    "Shiba",
+    "Tanabe",
+    "Eunie",
+    "Miyabi",
+    "Kanai",
+    "Fumio",
+    "Kanami",
+    "Kayla",
+    "Erevan",
+    "Fael",
+    "Nyl",
+    "Kuromu",
+    "Ren",
+    "Selena",
+    "Nalea",
+    "Vivie",
+    "Felthorn",
+    "Zariah",
+    "Camilla",
+    "Cassius",
+    "Lobo",
+    "Alice",
+    "Gabriel",
+    "Morrigan",
+    "Ashliel",
+    "Sali",
+    "Elowyn",
+    "The Lady of the Forest",
+    "Shelara",
+    "Alexander",
+    "Melisande",
+    "Kanna",
+    "Keder",
+    "Malach"
+   ]
+  },
+  "adolion-war": {
+   "title": "Adolion: Fire and War",
+   "group": "Adolion - Fire and War",
+   "start": "war-the-summons",
+   "checkpoints": [
+    {
+     "id": "war-the-summons",
+     "name": "The King's War Council"
+    },
+    {
+     "id": "war-the-queens-wing",
+     "name": "The Queen's Wing"
+    },
+    {
+     "id": "war-nightriver-answers",
+     "name": "House Nightriver Answers"
+    },
+    {
+     "id": "war-crimsonwing-answers",
+     "name": "Crimsonwing Answers"
+    },
+    {
+     "id": "war-ebonwing-answers",
+     "name": "Ebonwing Answers"
+    },
+    {
+     "id": "war-the-eastern-company",
+     "name": "The Eastern Company"
+    },
+    {
+     "id": "war-the-pack-runs",
+     "name": "The Pack Runs"
+    },
+    {
+     "id": "war-the-dragons-due",
+     "name": "The Dragon's Due"
+    },
+    {
+     "id": "war-the-inquisition-rides",
+     "name": "The Inquisition Rides"
+    },
+    {
+     "id": "war-the-ladys-gift",
+     "name": "The Lady's Gift"
+    },
+    {
+     "id": "war-the-front",
+     "name": "Fort Vicinitas"
+    },
+    {
+     "id": "war-behind-the-lines",
+     "name": "Behind the Lines"
+    },
+    {
+     "id": "war-the-pits",
+     "name": "Renfath"
+    },
+    {
+     "id": "war-the-slave-pens",
+     "name": "The Slave Pens"
+    },
+    {
+     "id": "war-malachs-fire",
+     "name": "Malach's Fire"
+    },
+    {
+     "id": "war-the-cult-revealed",
+     "name": "The Office of the Fallen"
+    },
+    {
+     "id": "war-the-last-field",
+     "name": "Aldermere Field"
+    },
+    {
+     "id": "war-the-dead-rise",
+     "name": "The Dead Rise"
+    },
+    {
+     "id": "war-the-field-is-ours",
+     "name": "The Field Is Ours"
+    },
+    {
+     "id": "war-the-truce-of-aldermere",
+     "name": "The Truce of Aldermere"
+    },
+    {
+     "id": "war-what-it-cost",
+     "name": "What It Cost"
+    },
+    {
+     "id": "war-the-crown-remembers",
+     "name": "The Crown Remembers"
+    }
+   ],
+   "edges": [
+    [
+     "war-the-summons",
+     "war-the-queens-wing"
+    ],
+    [
+     "war-the-summons",
+     "war-nightriver-answers"
+    ],
+    [
+     "war-the-summons",
+     "war-crimsonwing-answers"
+    ],
+    [
+     "war-the-summons",
+     "war-ebonwing-answers"
+    ],
+    [
+     "war-the-summons",
+     "war-the-eastern-company"
+    ],
+    [
+     "war-the-summons",
+     "war-the-pack-runs"
+    ],
+    [
+     "war-the-summons",
+     "war-the-dragons-due"
+    ],
+    [
+     "war-the-summons",
+     "war-the-inquisition-rides"
+    ],
+    [
+     "war-the-summons",
+     "war-the-ladys-gift"
+    ],
+    [
+     "war-the-summons",
+     "war-the-front"
+    ],
+    [
+     "war-the-queens-wing",
+     "war-nightriver-answers"
+    ],
+    [
+     "war-the-queens-wing",
+     "war-crimsonwing-answers"
+    ],
+    [
+     "war-the-queens-wing",
+     "war-ebonwing-answers"
+    ],
+    [
+     "war-the-queens-wing",
+     "war-the-eastern-company"
+    ],
+    [
+     "war-the-queens-wing",
+     "war-the-pack-runs"
+    ],
+    [
+     "war-the-queens-wing",
+     "war-the-dragons-due"
+    ],
+    [
+     "war-the-queens-wing",
+     "war-the-inquisition-rides"
+    ],
+    [
+     "war-the-queens-wing",
+     "war-the-ladys-gift"
+    ],
+    [
+     "war-the-queens-wing",
+     "war-the-front"
+    ],
+    [
+     "war-nightriver-answers",
+     "war-crimsonwing-answers"
+    ],
+    [
+     "war-nightriver-answers",
+     "war-ebonwing-answers"
+    ],
+    [
+     "war-nightriver-answers",
+     "war-the-eastern-company"
+    ],
+    [
+     "war-nightriver-answers",
+     "war-the-pack-runs"
+    ],
+    [
+     "war-nightriver-answers",
+     "war-the-dragons-due"
+    ],
+    [
+     "war-nightriver-answers",
+     "war-the-inquisition-rides"
+    ],
+    [
+     "war-nightriver-answers",
+     "war-the-ladys-gift"
+    ],
+    [
+     "war-nightriver-answers",
+     "war-the-front"
+    ],
+    [
+     "war-crimsonwing-answers",
+     "war-the-eastern-company"
+    ],
+    [
+     "war-crimsonwing-answers",
+     "war-the-pack-runs"
+    ],
+    [
+     "war-crimsonwing-answers",
+     "war-the-dragons-due"
+    ],
+    [
+     "war-crimsonwing-answers",
+     "war-the-inquisition-rides"
+    ],
+    [
+     "war-crimsonwing-answers",
+     "war-the-ladys-gift"
+    ],
+    [
+     "war-crimsonwing-answers",
+     "war-the-front"
+    ],
+    [
+     "war-ebonwing-answers",
+     "war-the-eastern-company"
+    ],
+    [
+     "war-ebonwing-answers",
+     "war-the-pack-runs"
+    ],
+    [
+     "war-ebonwing-answers",
+     "war-the-dragons-due"
+    ],
+    [
+     "war-ebonwing-answers",
+     "war-the-inquisition-rides"
+    ],
+    [
+     "war-ebonwing-answers",
+     "war-the-ladys-gift"
+    ],
+    [
+     "war-ebonwing-answers",
+     "war-the-front"
+    ],
+    [
+     "war-the-eastern-company",
+     "war-the-pack-runs"
+    ],
+    [
+     "war-the-eastern-company",
+     "war-the-dragons-due"
+    ],
+    [
+     "war-the-eastern-company",
+     "war-the-inquisition-rides"
+    ],
+    [
+     "war-the-eastern-company",
+     "war-the-ladys-gift"
+    ],
+    [
+     "war-the-eastern-company",
+     "war-the-front"
+    ],
+    [
+     "war-the-pack-runs",
+     "war-the-ladys-gift"
+    ],
+    [
+     "war-the-pack-runs",
+     "war-the-front"
+    ],
+    [
+     "war-the-dragons-due",
+     "war-the-ladys-gift"
+    ],
+    [
+     "war-the-dragons-due",
+     "war-the-front"
+    ],
+    [
+     "war-the-inquisition-rides",
+     "war-the-ladys-gift"
+    ],
+    [
+     "war-the-inquisition-rides",
+     "war-the-front"
+    ],
+    [
+     "war-the-ladys-gift",
+     "war-the-front"
+    ],
+    [
+     "war-the-front",
+     "war-the-pits"
+    ],
+    [
+     "war-the-front",
+     "war-behind-the-lines"
+    ],
+    [
+     "war-behind-the-lines",
+     "war-the-pits"
+    ],
+    [
+     "war-the-pits",
+     "war-the-slave-pens"
+    ],
+    [
+     "war-the-slave-pens",
+     "war-malachs-fire"
+    ],
+    [
+     "war-malachs-fire",
+     "war-the-cult-revealed"
+    ],
+    [
+     "war-the-cult-revealed",
+     "war-the-last-field"
+    ],
+    [
+     "war-the-last-field",
+     "war-the-dead-rise"
+    ],
+    [
+     "war-the-last-field",
+     "war-the-field-is-ours"
+    ],
+    [
+     "war-the-last-field",
+     "war-the-truce-of-aldermere"
+    ],
+    [
+     "war-the-last-field",
+     "war-what-it-cost"
+    ],
+    [
+     "war-the-dead-rise",
+     "war-the-field-is-ours"
+    ],
+    [
+     "war-the-dead-rise",
+     "war-the-truce-of-aldermere"
+    ],
+    [
+     "war-the-dead-rise",
+     "war-what-it-cost"
+    ],
+    [
+     "war-the-field-is-ours",
+     "war-the-crown-remembers"
+    ],
+    [
+     "war-the-truce-of-aldermere",
+     "war-the-crown-remembers"
+    ],
+    [
+     "war-what-it-cost",
+     "war-the-crown-remembers"
+    ]
+   ],
+   "qualities": [
+    "party_rank",
+    "guild_reputation",
+    "party_injuries",
+    "ritual_stopped",
+    "deep_partner",
+    "rival_bond",
+    "eastern_debt",
+    "night_pact",
+    "forest_oath",
+    "war_commission_taken",
+    "war_commission_refused",
+    "war_house_mustered",
+    "war_crimsonwing_mustered",
+    "war_ebonwing_mustered",
+    "war_east_mustered",
+    "war_pack_mustered",
+    "war_dracul_mustered",
+    "war_inquisition_mustered",
+    "war_oath_answered",
+    "war_reached_front",
+    "war_taken_captive",
+    "war_crossed_lines",
+    "war_in_nuwerth",
+    "war_pits_won",
+    "war_shelara_freed",
+    "war_out_of_nuwerth",
+    "war_malach",
+    "war_cult_exposed",
+    "war_on_the_field",
+    "war_battle_joined",
+    "war_book_taken",
+    "war_turn",
+    "war_outcome",
+    "war_home",
+    "war_front",
+    "location"
+   ],
+   "roster": [
+    "Adolion Narrator",
+    "Belle",
+    "Dalan",
+    "Shelara",
+    "Alexander",
+    "Melisande",
+    "Forre",
+    "Haley",
+    "Vallie",
+    "Kanna",
+    "Keder",
+    "Malach",
+    "Natalia",
+    "Welden",
+    "Ronan",
+    "Ced",
+    "Kela",
+    "Honami",
+    "Lobo",
+    "Erevan"
+   ]
+  }
+ },
+ "examples": {
+  "sun-ruins": {
+   "title": "Quest for the Sun Ruins",
+   "group": null,
+   "start": "cp1",
+   "checkpoints": [
+    {
+     "id": "cp1",
+     "name": "Investigate the Job Board"
+    },
+    {
+     "id": "cp2",
+     "name": "Accept the Mission"
+    },
+    {
+     "id": "cp3",
+     "name": "Departure Preparations"
+    },
+    {
+     "id": "cp-4a",
+     "name": "Travel with Luke"
+    },
+    {
+     "id": "cp-4b",
+     "name": "Travel Alone"
+    },
+    {
+     "id": "cp-4a1",
+     "name": "Riddle Solved"
+    },
+    {
+     "id": "cp-4a2",
+     "name": "Riddle Failed"
+    },
+    {
+     "id": "cp-5",
+     "name": "Find the Artifact"
+    },
+    {
+     "id": "cp-6",
+     "name": "Return to the Guild"
+    }
+   ],
+   "edges": [
+    [
+     "cp1",
+     "cp2"
+    ],
+    [
+     "cp2",
+     "cp3"
+    ],
+    [
+     "cp3",
+     "cp-4a"
+    ],
+    [
+     "cp3",
+     "cp-4b"
+    ],
+    [
+     "cp-4a",
+     "cp-4a1"
+    ],
+    [
+     "cp-4a",
+     "cp-4a2"
+    ],
+    [
+     "cp-4b",
+     "cp-5"
+    ],
+    [
+     "cp-4a1",
+     "cp-5"
+    ],
+    [
+     "cp-4a2",
+     "cp-5"
+    ],
+    [
+     "cp-5",
+     "cp-6"
+    ]
+   ],
+   "qualities": [
+    "approached_board",
+    "mission_accepted",
+    "luke_decision",
+    "riddle_answer",
+    "luke_alive",
+    "chamber_entered",
+    "artifact_secured",
+    "reward_claimed",
+    "guardian_respect"
+   ],
+   "roster": [
+    "DM Narrator",
+    "Arin",
+    "Ponticius",
+    "Luke"
+   ],
+   "path": "examples/sun-ruins/quest-for-the-sun-ruins.json"
+  }
+ }
+}

@@ -1,0 +1,25 @@
+{
+ "charter": "T1-1",
+ "tier": "T1",
+ "title": "Follow the hook",
+ "number": 1,
+ "dir": "scripts/debug/fixtures/session/clean",
+ "lane": 4,
+ "story": {
+  "kind": "adolion",
+  "id": "adolion-adventurer"
+ },
+ "mode": "player",
+ "startedAt": "2026-09-30T10:00:00.000Z",
+ "playFrom": "2026-09-30T10:00:30.000Z",
+ "stoppedAt": "2026-09-30T10:30:00.000Z",
+ "pids": {},
+ "chats": [
+  {
+   "chatId": "c1",
+   "group": "Adolion - The Adventurer's Road",
+   "primary": true
+  }
+ ],
+ "problems": []
+}
