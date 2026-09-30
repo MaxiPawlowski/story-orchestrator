@@ -1,6 +1,5 @@
 import type { StoryV2 } from "@engine/index";
-import { applyOp } from "../proposal";
-import { advanceAgent, agentStats, approvePlan, decideStep, newAgentSession, opPreview, pendingStep, resolveProvisioning, stopAgent } from "./loop";
+import { advanceAgent, agentStats, applyAgentOp, approvePlan, decideStep, newAgentSession, opPreview, pendingStep, resolveProvisioning, stopAgent } from "./loop";
 import { AgentRouteUnavailable, harnessRoute } from "./route";
 import { agentContext, scriptedRoute } from "./testing";
 import type { AgentSession } from "./types";
@@ -46,7 +45,7 @@ describe("agent loop (v2.6 plan 11 A2)", () => {
     expect(decided.apply).toEqual({ kind: "updateCheckpoint", id: "start", patch: { objective: "Take the sealed parcel from the harbour." } });
     expect(decided.session.status).toBe("running");
     expect(decided.session.steps[0].check).toContain("0 validation error(s), 0 blocking");
-    const next = await advanceAgent(decided.session, agentContext(applyOp(draft, decided.apply!)), route, AT);
+    const next = await advanceAgent(decided.session, agentContext(applyAgentOp(draft, decided.apply!)), route, AT);
     expect(prompts[1]).toContain("#1 updateCheckpoint → accepted");
     expect(prompts[1]).toContain("check: 0 validation error(s)");
     expect(next.session).toMatchObject({ status: "done", summary: "objective sharpened" });

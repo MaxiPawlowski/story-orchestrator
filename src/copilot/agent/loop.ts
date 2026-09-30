@@ -5,7 +5,7 @@ import { truncate } from "@utils/string";
 import { runDiagnostics } from "../../studio/diagnostics";
 import type { ProvisioningOp } from "@wizard/index";
 import { setHouseRules } from "../../studio/mutations";
-import { ambiguousRef, applyOp, applyOps, describeOp, isProvisioningOp, missingTarget, provisioningFollowUpOps, type OpAction, type OpDescription } from "../index";
+import { applyOp, applyOps, applyOpsChecked, diffProposal, isProvisioningOp, provisioningFollowUpOps, type OpAction, type OpDescription } from "../index";
 import { renderPlanPrompt, renderStepPrompt } from "./prompt";
 import { runReadTool } from "./readTools";
 import type { AgentAudit, AgentRoute, RouteAnswer } from "./route";
@@ -26,7 +26,10 @@ export const isProvisionOp = (op: AgentOp): op is ProvisioningOp => !isAgentOnly
 export const applyAgentOp = (draft: StoryV2, op: AgentOp): StoryV2 => (isAgentOnly(op) ? setHouseRules(draft, op.rules) : applyOp(draft, op));
 
 export const describeAgentOp = (op: AgentOp): OpDescription => {
-  if (!isAgentOnly(op)) return describeOp(op);
+  if (!isAgentOnly(op)) {
+    const diff = diffProposal([op]);
+    return diff.items[0] ?? diff.provisioning[0];
+  }
   return { action: "update", entity: "story.house_rules", label: op.rules.length ? `Set ${op.rules.length} house rule(s)` : "Clear the house rules" };
 };
 const clip = (text: string) => truncate(text, OBSERVATION_LIMIT);
@@ -137,9 +140,8 @@ export const recordUnparsed = (session: AgentSession, issues: string[], meta: St
 
 const editProblem = (draft: StoryV2, op: AgentOp): string | null => {
   if (isAgentOnly(op)) return null;
-  const missing = missingTarget(draft, op);
-  if (missing) return `${missing} not found`;
-  return ambiguousRef(draft, op);
+  const issue = applyOpsChecked(draft, [op]).issues[0];
+  return issue ? issue.replace(/^ops\.0: /, "") : null;
 };
 
 export const executeReply = (session: AgentSession, reply: AgentReply, context: AgentContext, meta: StepMeta): AgentTurn => {
