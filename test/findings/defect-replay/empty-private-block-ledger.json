@@ -1,0 +1,12 @@
+{
+  "id": "empty-private-block-ledger",
+  "defect": "applyLedger wrote through patch() without updateInjection",
+  "guards": ".claude/rules/gotchas.md: \"A store write that does not refresh its own injection is a silent empty block\" (v2.3 plan 05)",
+  "fixCommit": "6076a7ba 2.1/3",
+  "file": "src/runtime/coordinators/memoryCoordinator.ts",
+  "find": "?? null) }); this.updateInjection();",
+  "replace": "?? null) });",
+  "tests": [
+    "src/runtime/coordinators/memoryInjectionRefresh.review.test.ts"
+  ]
+}

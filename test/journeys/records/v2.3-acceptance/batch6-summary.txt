@@ -1,5 +1,0 @@
-J7 run1 code=0 automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped | cleanup:   clean | C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-24T05-50-51-746Z_journey-J7.json
-J7 run2 code=0 automated: 8 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped | cleanup:   clean | C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-24T06-19-58-409Z_journey-J7.json
-J11 run1 code=1 automated: 23 pass, 3 fail, 0 blocked, 0 not-runnable, 0 skipped | cleanup:   clean | C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-24T06-40-14-701Z_journey-J11.json
-J11 run2 code=1 automated: 25 pass, 1 fail, 0 blocked, 0 not-runnable, 0 skipped | cleanup:   clean | C:\dev\SillyTavern-MainBranch\public\scripts\extensions\third-party\story-orchestrator\.debug\2026-09-24T07-02-04-833Z_journey-J11.json
-DONE

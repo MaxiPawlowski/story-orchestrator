@@ -1,4 +1,0 @@
-DELTA rope_cut=true evidence="Mira saws through the rope and the crate crashes down."
-DELTA tension_current="tense" evidence="Mira saws through the rope and the crate crashes down."
-MEMORY type=event importance=2 expiration=session text="Mira sawed through a rope causing a crate to crash down." evidence="Mira saws through the rope and the crate crashes down."
-SCENE_NONE

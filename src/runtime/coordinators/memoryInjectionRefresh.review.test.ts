@@ -104,4 +104,12 @@ describe("a stored epistemic signal is injected in the same call (plan 05)", () 
     env.coordinator.applyEpistemic([{ tag: "hiding", subject: "Someone Else", content: SECRET, hiddenFrom: "Arin" }], 5);
     expect(injected().some((text) => text.includes(SECRET))).toBe(false);
   });
+
+  // v2.6 plan 13 defect replay `empty-private-block-ledger`: the ledger half of the same fix had no
+  // test, so dropping its `updateInjection()` survived every related suite.
+  it("refreshes the ledger block when the ledger read lands, without the caller asking", () => {
+    const env = harness();
+    env.coordinator.applyLedger([{ entity: "Ponticius", entityType: "character", field: "location", value: "the salt docks" }], 5);
+    expect(injected().some((text) => text.includes("the salt docks"))).toBe(true);
+  });
 });

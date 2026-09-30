@@ -1,0 +1,12 @@
+{
+  "id": "expansion-cache-outlives-contract",
+  "defect": "a pre-R9 cached chain (other contract) was kept and played single-route",
+  "guards": ".claude/rules/architecture.md: \"A cache does not survive its contract\" (v2.3 plan 07)",
+  "fixCommit": "54b6df20 v2.3: plans 01-11 as built, 2026-09-23 audit replan, V21 attestation",
+  "file": "src/runtime/extras.ts",
+  "find": ".filter(([, entry]) => entry.contract === EXPANSION_CONTRACT && EXPANSION_ORIGINS.has(entry.origin))",
+  "replace": ".filter(([, entry]) => EXPANSION_ORIGINS.has(entry.origin))",
+  "tests": [
+    "src/runtime/extrasHydrate.test.ts"
+  ]
+}

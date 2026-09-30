@@ -1,0 +1,12 @@
+{
+  "id": "reasoning-orphan-close",
+  "defect": "an orphan </think> (opener prefilled by the template) left the reasoning in the extraction reply",
+  "guards": ".claude/rules/gotchas.md: \"Inline reasoning is stripped at callExtractionModel\"",
+  "fixCommit": "1bb0e71b 2.1/7-8",
+  "file": "src/extraction/parse.ts",
+  "find": "{ open: \"<think>\", close: \"<\\\\/think>\", orphanClose: true },",
+  "replace": "{ open: \"<think>\", close: \"<\\\\/think>\", orphanClose: false },",
+  "tests": [
+    "src/extraction/parse.test.ts"
+  ]
+}

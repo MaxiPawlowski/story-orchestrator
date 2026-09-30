@@ -1,0 +1,12 @@
+{
+  "id": "delete-decodes-post-length",
+  "defect": "a middle delete rolled back from the post-delete length instead of the removed message",
+  "guards": ".claude/rules/gotchas.md: v2.4 plan 01 T1 (decodeDelete); test/findings/mutations/v24-01-T1.txt M1",
+  "fixCommit": "4ecafef1 v2.4 plan 01 T1: decode the delete. MESSAGE_DELETED carries post-delete chat.length (01-H1), so a middle delete, /cut range or tool-call run rolled back from the wrong message. Pure runtime/messageIdentity.ts (key send_date|name|is_user|len|fnv1a(mes), no is_system/swipe_id; decodeDelete prefix/suffix alignment -> exact|ambiguous(earliest)|stale(postLength); ChatIdentity snapshot keyed by chatId). TurnBridge refreshes on CHAT_CHANGED/MESSAGE_SENT/render/edit/swipe/update/swipe-delete, decodes before the await, purges turnKeys + rolls back (noteMutation) from start; non-exact decodes journaled via runRollback(decoded). events.ts MESSAGE_DELETED payload = chatLength. Manager 0 net lines (736/740). Tests: messageIdentity 11, turnBridgeDelete review 6, rollbackReplay +4 seeds x100 middle deletes; mutations M1-M5 each caught (test/findings/mutations/v24-01-T1.txt). Red fixtures v24-01-middle-delete/cut-range/toolcall-run(1.19.0)/tail-delete-control written + validated, NOT run live.",
+  "file": "src/runtime/messageIdentity.ts",
+  "find": "  return { start: earliest, count, basis: earliest === prefix ? \"exact\" : \"ambiguous\" };",
+  "replace": "  return { start: postLength, count, basis: earliest === prefix ? \"exact\" : \"ambiguous\" };",
+  "tests": [
+    "src/runtime/messageIdentity.test.ts"
+  ]
+}

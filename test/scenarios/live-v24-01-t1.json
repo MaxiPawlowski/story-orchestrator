@@ -1,5 +1,5 @@
 {
-  "_note": "v2.4 plan 01 T1, LIVE (real model, real extraction at cadence 1; so-scenario --sandbox --group 1759606632088). A played group chat (the T10 story: one speaker per turn, so every turn is exactly a player line and one reply). Three rows, each against the state recorded at the boundary before its target: (A) host_delete of a CONSUMED MIDDLE player line (ST's own deleteMessage), (B) /cut of a consumed middle turn (player line + reply, one MESSAGE_DELETED per row), (C) the tail control, deleting the newest turn. After each, record_state's scope must match: values, versions, active, path, boundary and the live memory/epistemic/ledger rows. Every off-path pass is let finish (schedulerIdle) before a recording and before a mutation, so no read in flight straddles the cut. Indices are read from the chat at the time, never hard-coded, because the greeting count varies. Rows: a real rollback is followed by re-reads of the messages that survive it, so the row check is the replay invariant rather than raw equality: every row recorded before the target is kept, no row built between the target and the mutation survives, and (for the cut and the tail, where the reply goes too) no re-read row cites the removed text; the middle delete removes only the player line, so its reply still legitimately mentions it (inv 11, live). A dropped recorded row is reported with its messageId, supersession and provenance. The engine scope (values, versions, active, path, boundary) is compared exactly. The last journal lines are logged at each mutation. Engine scope (revised after the first traced runs): the engine rewinds only what a later boundary APPLIED from the removed message onward (engine.shouldRollbackFromMessage), so writes read before the target and applied at a later boundary legitimately stay, and the boundary counter is not a message index. The check is therefore the replay invariant on the engine too: every rollback was requested from the decoded target; no applied write in the boundary log has a read window reaching the target; no transition fired at or after it survives; and no QUEUED write whose read window covered the removed message is still waiting. Active checkpoint and path are compared exactly. A queued write from the rollback's OWN re-read (reason rollback:N, finished after the mutation) read the chat as it is after the mutation (the scheduler re-reads its window at run time), so it is the replay's write, not a stale one, and is allowed.",
+  "_note": "v2.6 plan 13 R3: every 300000 ms budget is 600000 ms, merged from the retired v24-acc-I1-live.json, which was this fixture with only those budgets doubled (300 s timed out on the RTX PRO 4500 pod, v2.4 plan 09 E1). v2.4 plan 01 T1, LIVE (real model, real extraction at cadence 1; so-scenario --sandbox --group 1759606632088). A played group chat (the T10 story: one speaker per turn, so every turn is exactly a player line and one reply). Three rows, each against the state recorded at the boundary before its target: (A) host_delete of a CONSUMED MIDDLE player line (ST's own deleteMessage), (B) /cut of a consumed middle turn (player line + reply, one MESSAGE_DELETED per row), (C) the tail control, deleting the newest turn. After each, record_state's scope must match: values, versions, active, path, boundary and the live memory/epistemic/ledger rows. Every off-path pass is let finish (schedulerIdle) before a recording and before a mutation, so no read in flight straddles the cut. Indices are read from the chat at the time, never hard-coded, because the greeting count varies. Rows: a real rollback is followed by re-reads of the messages that survive it, so the row check is the replay invariant rather than raw equality: every row recorded before the target is kept, no row built between the target and the mutation survives, and (for the cut and the tail, where the reply goes too) no re-read row cites the removed text; the middle delete removes only the player line, so its reply still legitimately mentions it (inv 11, live). A dropped recorded row is reported with its messageId, supersession and provenance. The engine scope (values, versions, active, path, boundary) is compared exactly. The last journal lines are logged at each mutation. Engine scope (revised after the first traced runs): the engine rewinds only what a later boundary APPLIED from the removed message onward (engine.shouldRollbackFromMessage), so writes read before the target and applied at a later boundary legitimately stay, and the boundary counter is not a message index. The check is therefore the replay invariant on the engine too: every rollback was requested from the decoded target; no applied write in the boundary log has a read window reaching the target; no transition fired at or after it survives; and no QUEUED write whose read window covered the removed message is still waiting. Active checkpoint and path are compared exactly. A queued write from the rollback's OWN re-read (reason rollback:N, finished after the mutation) read the chat as it is after the mutation (the scheduler re-reads its window at run time), so it is the replay's write, not a stale one, and is allowed.",
   "steps": [
     {
       "import_story": {
@@ -13,7 +13,7 @@
     {
       "send_generate": {
         "text": "I set my pack down by the long table and look over the room.",
-        "timeoutMs": 300000,
+        "timeoutMs": 600000,
         "expectReply": true
       }
     },
@@ -21,7 +21,7 @@
       "wait": {
         "schedulerIdle": true,
         "quietMs": 8000,
-        "timeoutMs": 300000
+        "timeoutMs": 600000
       }
     },
     {
@@ -40,7 +40,7 @@
     {
       "send_generate": {
         "text": "I ask who else has signed up for the caravan guard work.",
-        "timeoutMs": 300000,
+        "timeoutMs": 600000,
         "expectReply": true
       }
     },
@@ -48,13 +48,13 @@
       "wait": {
         "schedulerIdle": true,
         "quietMs": 8000,
-        "timeoutMs": 300000
+        "timeoutMs": 600000
       }
     },
     {
       "send_generate": {
         "text": "I pour myself some water and listen to the answer.",
-        "timeoutMs": 300000,
+        "timeoutMs": 600000,
         "expectReply": true
       }
     },
@@ -62,7 +62,7 @@
       "wait": {
         "schedulerIdle": true,
         "quietMs": 8000,
-        "timeoutMs": 300000
+        "timeoutMs": 600000
       }
     },
     {
@@ -83,7 +83,7 @@
       "wait": {
         "schedulerIdle": true,
         "quietMs": 5000,
-        "timeoutMs": 300000
+        "timeoutMs": 600000
       }
     },
     {
@@ -126,7 +126,7 @@
     {
       "send_generate": {
         "text": "I check the straps on my pack one more time.",
-        "timeoutMs": 300000,
+        "timeoutMs": 600000,
         "expectReply": true
       }
     },
@@ -134,13 +134,13 @@
       "wait": {
         "schedulerIdle": true,
         "quietMs": 8000,
-        "timeoutMs": 300000
+        "timeoutMs": 600000
       }
     },
     {
       "send_generate": {
         "text": "I glance at the door and wait.",
-        "timeoutMs": 300000,
+        "timeoutMs": 600000,
         "expectReply": true
       }
     },
@@ -148,7 +148,7 @@
       "wait": {
         "schedulerIdle": true,
         "quietMs": 8000,
-        "timeoutMs": 300000
+        "timeoutMs": 600000
       }
     },
     {
@@ -169,7 +169,7 @@
       "wait": {
         "schedulerIdle": true,
         "quietMs": 5000,
-        "timeoutMs": 300000
+        "timeoutMs": 600000
       }
     },
     {
@@ -212,7 +212,7 @@
     {
       "send_generate": {
         "text": "I nod and shoulder the pack.",
-        "timeoutMs": 300000,
+        "timeoutMs": 600000,
         "expectReply": true
       }
     },
@@ -220,7 +220,7 @@
       "wait": {
         "schedulerIdle": true,
         "quietMs": 8000,
-        "timeoutMs": 300000
+        "timeoutMs": 600000
       }
     },
     {
@@ -241,7 +241,7 @@
       "wait": {
         "schedulerIdle": true,
         "quietMs": 5000,
-        "timeoutMs": 300000
+        "timeoutMs": 600000
       }
     },
     {

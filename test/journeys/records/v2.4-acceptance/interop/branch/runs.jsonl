@@ -1,4 +1,0 @@
-{"row":"branch","fixture":"test/scenarios/v24-02-branch-continue.json","run":1,"code":0,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T11:30:55Z","ended":"2026-09-25T11:31:15Z"}
-{"row":"branch","fixture":"test/scenarios/v24-02-branch-continue.json","run":2,"code":0,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T11:31:20Z","ended":"2026-09-25T11:31:40Z"}
-{"row":"branch","fixture":"test/scenarios/v24-acc-I6.json","run":1,"code":0,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T11:53:44Z","ended":"2026-09-25T11:54:06Z"}
-{"row":"branch","fixture":"test/scenarios/v24-acc-I6.json","run":2,"code":0,"headerCapture":0,"headerDiffCode":0,"blocking":0,"began":"2026-09-25T11:54:11Z","ended":"2026-09-25T11:54:33Z"}

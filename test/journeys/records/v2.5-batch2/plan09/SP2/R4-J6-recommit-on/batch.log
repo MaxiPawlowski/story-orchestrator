@@ -1,7 +1,0 @@
-lane 3 J6 run 1: code 1 · automated: 3 pass, 8 fail, 0 blocked, 0 not-runnable, 0 skipped (256 s)
-lane 3 J6 run 2: code 1 · automated: 3 pass, 8 fail, 0 blocked, 0 not-runnable, 0 skipped (281 s)
-{
-  "summary": "C:\\dev\\so-lanes\\batch-2026-09-27T02-42-29-700Z.json",
-  "green": 0,
-  "runs": 2
-}

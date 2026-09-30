@@ -1,7 +1,0 @@
-lane 1 test/scenarios/live-v25-01-real-books.json run 1: code 0 (94 s)
-lane 1 test/scenarios/live-v25-01-real-books.json run 2: code 0 (116 s)
-{
-  "summary": "C:\\dev\\so-lanes\\batch-2026-09-26T19-53-43-368Z.json",
-  "green": 2,
-  "runs": 2
-}

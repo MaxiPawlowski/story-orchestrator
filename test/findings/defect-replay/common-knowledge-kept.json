@@ -1,0 +1,12 @@
+{
+  "id": "common-knowledge-kept",
+  "defect": "Artemis gave a [knows] fact to everyone present; it was stored as private knowledge",
+  "guards": ".claude/rules/gotchas.md: \"v2.1 plan 10 ... dropCommonKnowledge\" (2026-09-19)",
+  "fixCommit": "f6b53ba7 2026-09-19 fixes: gated WI out of curator scope, epistemic common-knowledge drop, lead joins candidates, canon prose",
+  "file": "src/memory/epistemic.ts",
+  "find": "  return signals.filter((signal) => signal.tag !== \"knows\" || !common.has(knowledgeKey(signal.content)));",
+  "replace": "  return signals.filter(() => common.size >= 0);",
+  "tests": [
+    "src/memory/epistemic.test.ts"
+  ]
+}

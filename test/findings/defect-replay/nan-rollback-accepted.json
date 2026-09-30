@@ -1,0 +1,12 @@
+{
+  "id": "nan-rollback-accepted",
+  "defect": "runRollback accepted a non-finite id; Math.max(0, NaN) made shouldRollbackFromMessage true and rewound to boundary 0",
+  "guards": ".claude/rules/gotchas.md: \"Math.max(0, NaN) is NaN\" (V4)",
+  "fixCommit": "7e43fa8e v2.3 V4: continue/appendFinal commit their own boundary; group round keeps one boundary per reply, pinned to its message; no-id mutations rewind nothing (NaN rewound to boundary 0); live on host event bus x2 + 2 live mutations, real-generation half owed",
+  "file": "src/runtime/rollback.ts",
+  "find": "  if (!Number.isFinite(messageId)) return { ok: true, result: \"noop\" };\n  const { engine } = deps;",
+  "replace": "  const { engine } = deps;",
+  "tests": [
+    "src/runtime/rollback.review.test.ts"
+  ]
+}
