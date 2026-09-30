@@ -118,3 +118,4 @@ adolion-campaign/corpora/<story>/<run-id>/
 
 - D1's line lists need an author: a model-written set, labelled, plus a human spot-check of about 10 %? This decides whether D1 counts as "generated" data under plan 02 §Rules.
 - 07 archives its A0 baseline under `test/journeys/records/v2.6-02/` (07 l.533). This looks like a typo for `v2.6-07/`.
+- The two lanes disagree on the Saga group's `disabled_members` after a fresh import: 19 on lane 1 and 17 on lane 2, which is Leila and Naomi (see the `02-data-gaps.md` gate record). Every D1 Saga run starts from this state, so the 125-member cast apply needs a look before those runs.
