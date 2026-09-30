@@ -443,6 +443,26 @@
       "reason": "WriteResult reason: effect ledger and journal"
     },
     {
+      "site": "src/services/stHost/harness.ts#cancel",
+      "kind": 3,
+      "template": ".catch(() => undefined)",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "best-effort cancel; the plugin's own deadline kills the call anyway"
+    },
+    {
+      "site": "src/services/stHost/harness.ts#fetchHarnessStatus",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host read probe answers a neutral value the caller reads"
+    },
+    {
       "site": "src/services/stHost/judge.ts#judgeStatus",
       "kind": 3,
       "template": "catch {} #1",

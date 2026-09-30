@@ -4,7 +4,6 @@ import type { PassRole } from "@extraction/passRole";
 import type { NoteCall } from "./modelCallCore";
 import { roleEffort, roleHarness, type RouteSettings } from "./passProfiles";
 
-/** The author's own fallback for a harness route: a profile, only when set and still present. */
 export const fallbackRoute = (settings: RouteSettings, role: PassRole, exists: (profileId: string) => boolean): ModelRoute | null => {
   const profileId = roleHarness(settings, role) ? settings.routes?.[role]?.onFailure?.profileId : undefined;
   if (!profileId || !exists(profileId)) return null;

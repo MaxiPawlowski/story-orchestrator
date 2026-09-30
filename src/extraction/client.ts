@@ -1,5 +1,5 @@
-import { harnessStatusCached, refreshHarnessStatus, sendConnectionProfileRequest, sendHarness } from "@services/STAPI";
-import { isHarnessKey, parseHarnessKey } from "@utils/harness";
+import { sendConnectionProfileRequest, sendHarness } from "@services/STAPI";
+import { isHarnessKey } from "@utils/harness";
 import { PROBE_MAX_TOKENS, PROBE_PROMPT, PROBE_TIMEOUT_MS, type ProbeResult } from "./breaker";
 import type { ModelCall, ModelRoute } from "./modelRoute";
 import { replyVia } from "./reply";

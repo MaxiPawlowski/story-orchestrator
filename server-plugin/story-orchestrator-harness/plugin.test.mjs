@@ -246,6 +246,7 @@ test('a routed call runs in an owned home that is gone afterwards; the real logi
     assert.deepEqual(call.cwdListing, [], 'rule 4: the cwd is empty at spawn');
     assert.equal(call.stdin, 'P'.repeat(40_000));
     assert.ok(!JSON.stringify([call.argv, call.options.env]).includes('s'.repeat(100)));
+    assert.ok(!JSON.stringify([call.argv, call.options.env]).includes('P'.repeat(100)));
     assert.equal(call.options.env.ANTHROPIC_API_KEY, undefined);
     assert.equal(call.options.env.HTTPS_PROXY, 'http://proxy:1');
     assert.equal(fs.readFileSync(loginFile, 'utf8'), before);

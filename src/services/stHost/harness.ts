@@ -136,7 +136,8 @@ export async function sendHarnessRequest(request: HarnessRequest): Promise<Model
     ...(effort === "low" || effort === "medium" || effort === "high" ? { effort } : {}),
   });
   const cancel = () => {
-    void fetch(`${HARNESS_PLUGIN_BASE}/cancel`, { method: "POST", headers: { ...headers(), "Content-Type": "text/plain;charset=UTF-8", "X-SO-Plugin": "1" }, body: JSON.stringify({ requestId }) }).catch(() => undefined);
+    const cancelHeaders = { ...headers(), "Content-Type": "text/plain;charset=UTF-8", "X-SO-Plugin": "1" };
+    void fetch(`${HARNESS_PLUGIN_BASE}/cancel`, { method: "POST", headers: cancelHeaders, body: JSON.stringify({ requestId }) }).catch(() => undefined);
   };
   request.signal?.addEventListener("abort", cancel, { once: true });
   try {
@@ -160,7 +161,10 @@ export async function sendHarnessRequest(request: HarnessRequest): Promise<Model
   } catch (error) {
     const name = error instanceof Error ? error.name : "";
     if (name === "TimeoutError") return { ok: false, kind: "timeout", message: "the harness did not answer in time" };
-    if (name === "AbortError" || request.signal?.aborted) return { ok: false, kind: request.signal?.reason instanceof Error && request.signal.reason.name === "TimeoutError" ? "timeout" : "lapsed", message: "the request was cancelled" };
+    if (name === "AbortError" || request.signal?.aborted) {
+      const timedOut = request.signal?.reason instanceof Error && request.signal.reason.name === "TimeoutError";
+      return { ok: false, kind: timedOut ? "timeout" : "lapsed", message: "the request was cancelled" };
+    }
     return { ok: false, kind: "transport", message: error instanceof Error ? error.message : "the harness plugin could not be reached" };
   } finally {
     request.signal?.removeEventListener("abort", cancel);

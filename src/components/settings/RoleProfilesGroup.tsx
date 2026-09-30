@@ -66,7 +66,8 @@ const reasoningNote = (route: RoleRouteView): string | null => {
 };
 
 const meterText = (meter: RouteMeter): string =>
-  `${String(meter.calls)} call${meter.calls === 1 ? "" : "s"} this chat (${String(meter.failed)} failed, ${String(meter.fallback)} fell back), ${String(meter.inputTokens)} in / ${String(meter.outputTokens)} out tokens`;
+  `${String(meter.calls)} call${meter.calls === 1 ? "" : "s"} this chat (${String(meter.failed)} failed, ${String(meter.fallback)} fell back), ` +
+  `${String(meter.inputTokens)} in / ${String(meter.outputTokens)} out tokens`;
 
 export const RoleProfilesGroup = ({
   routes, assigned, profiles, testing, onAssign, onTest, onEffort, harnesses = [], harnessRoutes = {}, meters = [], onHarness, onFallback, onOpen,

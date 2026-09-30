@@ -58,21 +58,23 @@ export class AgentRouteUnavailable extends Error {
   }
 }
 
-export interface HarnessTransport {
-  call: (input: { prompt: string; expect: "plan" | "step"; tools: Array<Record<string, unknown>> }) => Promise<string>;
-}
+const AGENT_BRIDGE_PATH = "/api/plugins/story-orchestrator-harness/agent";
 
-export const AGENT_BRIDGE_PATH = "/api/plugins/story-orchestrator-harness/agent";
-
-export interface AgentToolBridge {
+interface AgentToolBridge {
   open: (input: { tools: Array<Record<string, unknown>>; harness: string; model: string }) => Promise<{ sessionId: string }>;
   nextCall: (sessionId: string) => Promise<{ tool: string; args: Record<string, unknown> } | { done: string }>;
   answer: (sessionId: string, result: { ok: boolean; text: string }) => Promise<void>;
   close: (sessionId: string) => Promise<void>;
 }
 
+export interface HarnessTransport {
+  call: (input: { prompt: string; expect: "plan" | "step"; tools: Array<Record<string, unknown>> }) => Promise<string>;
+  bridge?: AgentToolBridge;
+}
+
 export const HARNESS_ROUTE_REFUSAL = "The harness tool bridge is designed but not built (v2.6 plan 04 H, Agent tool bridge). Route \"Wizard and road ahead\" to a harness " +
-  "under Models per task: the agent then runs there through its text route. The wizard does not fall back to the local profile.";
+  "under Models per task: the agent then runs there through its text route. The wizard does not fall back to the local profile. " +
+  `Bridge endpoint (501 until built): ${AGENT_BRIDGE_PATH}.`;
 
 export const harnessRoute = (transport: HarnessTransport | null, tools: Array<Record<string, unknown>>): AgentRoute => ({
   id: "harness",

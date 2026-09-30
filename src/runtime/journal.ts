@@ -8,7 +8,8 @@ import type { ModelCallRecord } from "./modelCallLog";
 export const JOURNAL_LIMIT = 200;
 export const PAYLOAD_CAPTURE_LIMIT = 5;
 
-export type JournalEventKind = "status" | "flag" | "story" | "boundary" | "transition" | "extraction" | "delta" | "reconciliation" | "payload" | "talk" | "stagecraft" | "judge" | "lore" | "chapter" | "model-call";
+export type JournalEventKind = "status" | "flag" | "story" | "boundary" | "transition" | "extraction" | "delta" | "reconciliation" | "payload" | "talk" | "stagecraft"
+  | "judge" | "lore" | "chapter" | "model-call";
 
 // The persisted half of the journal: things nothing else records. Additive kinds read back fine
 // from older chats — `sanitizeJournalRecords` keeps any record that carries a kind and a summary.
@@ -49,7 +50,9 @@ export interface JournalSources {
   pending?: ApplyQueueEntry[];
 }
 
-const KIND_ORDER: JournalEventKind[] = ["flag", "story", "boundary", "transition", "extraction", "delta", "reconciliation", "talk", "judge", "model-call", "stagecraft", "lore", "chapter", "payload", "status"];
+const KIND_ORDER: JournalEventKind[] = [
+  "flag", "story", "boundary", "transition", "extraction", "delta", "reconciliation", "talk", "judge", "model-call", "stagecraft", "lore", "chapter", "payload", "status",
+];
 
 const rank = (kind: JournalEventKind) => KIND_ORDER.indexOf(kind);
 

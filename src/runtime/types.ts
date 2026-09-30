@@ -133,7 +133,6 @@ export interface RuntimeExtras {
   /** Which World Info entries each rendered reply's scans activated, by message. */
   lore: LoreRuntimeState;
   journal: JournalRecord[];
-  /** v2.6 plan 04 H4: every non-narrative model call, with the route that answered it (cap 300). */
   modelCalls: ModelCallRecord[];
   lastSessionAt: string | null;
   updatedAt: string;

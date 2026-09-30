@@ -4,9 +4,9 @@ import { routeKey, type ModelRoute, type RouteResolution } from "@extraction/mod
 import { harnessKey, isHarnessId, type HarnessId } from "@utils/harness";
 import { isReasoningEffort, type ReasoningBudget, type ReasoningEffort } from "@utils/reasoningEffort";
 
-// Which Connection Manager profile (or, since v2.6 plan 04 H, which CLI harness) each family of passes
-// asks. An unset role uses the memory model profile; a role set to a profile that no longer exists, or to a
-// harness model the plugin does not offer, REFUSES, so a pass never answers from a model the author did not choose.
+// Which Connection Manager profile each family of passes asks. An unset role uses the memory model
+// profile (the default for every role); a role set to a profile that no longer exists REFUSES, so a pass
+// never answers from a model the author did not choose.
 
 export type PassProfiles = Partial<Record<PassRole, string>>;
 
@@ -90,6 +90,5 @@ export function resolveRoute(settings: RouteSettings, role: PassRole, exists: (p
   return { ok: true, route: route(assigned), source: "role" };
 }
 
-/** A role's route key: its profile id, or `harness:<name>:<model>`. The breaker, health and the call ring key on it. */
 export const resolvedProfileId = (resolution: RouteResolution): string | null =>
   (resolution.ok ? (resolution.route ? routeKey(resolution.route) : null) : resolution.profileId);

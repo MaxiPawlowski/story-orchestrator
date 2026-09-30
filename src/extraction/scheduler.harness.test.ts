@@ -97,6 +97,17 @@ describe("H3: a harness route has its own breaker, and each lane is gated by its
     expect(summary).toHaveBeenCalledTimes(1);
   });
 
+  it("a background failure on a harness trips that harness, never the read route that did not fail", async () => {
+    const h = harness("local", HARNESS);
+    h.scheduler.schedule({ priority: 4, reason: "arc-summary", run: async () => { throw new ModelCallError("quota", "usage limit", HARNESS, null, Date.now() + 3_600_000); } });
+    await jest.advanceTimersByTimeAsync(800);
+    expect(h.scheduler.breakerOpen(HARNESS)).toBe(true);
+    expect(h.scheduler.breakerOpen("local")).toBe(false);
+    h.scheduler.schedule({ priority: 1, reason: "cadence", window: { from: 0, to: 4, messages: [] } });
+    await jest.advanceTimersByTimeAsync(800);
+    expect(h.applied).toEqual([4]);
+  });
+
   it("control: with no background route of its own the background lane waits on the read route", async () => {
     const h = harness(HARNESS, null);
     read.mockImplementation(async () => { throw new ModelCallError("auth", "not logged in", HARNESS); });

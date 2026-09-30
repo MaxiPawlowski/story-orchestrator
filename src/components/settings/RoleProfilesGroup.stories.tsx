@@ -125,7 +125,8 @@ export const HarnessRoute: Story = {
     harnessRoutes: { synthesis: { key: "harness:claude:sonnet", fallback: null } },
     meters: [{ route: "harness:claude:sonnet", calls: 3, ok: 2, failed: 1, fallback: 0, inputTokens: 1200, outputTokens: 90, costUsd: 0 }],
     routes: allFallback.map((entry) => (entry.role === "synthesis"
-      ? route("synthesis", "Summaries and canon", "not-logged-in", "harness:claude:sonnet", "Summaries and canon: claude is not logged in on the machine running SillyTavern: run `claude` once in a terminal there")
+      ? route("synthesis", "Summaries and canon", "not-logged-in", "harness:claude:sonnet",
+        "Summaries and canon: claude is not logged in on the machine running SillyTavern: run `claude` once in a terminal there")
       : entry)),
     onHarness: fn(),
     onFallback: fn(),
