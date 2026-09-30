@@ -20,7 +20,7 @@ import type { RunOwnership } from "./runToken";
 import type { LoadedStory, RuntimeExtras } from "./types";
 import { loadWizardSession, saveWizardSession } from "./wizardSessions";
 import { getPlayerName } from "@services/STAPI";
-import { storyEnded } from "./chapters";
+import { storyEnded } from "./chapterPort";
 
 export interface ManagerPort {
   view: { getStory: () => NormalizedStoryV2 | null; getState: () => EngineState | null; hosts: typeof coordinatorHosts };
@@ -61,7 +61,10 @@ export function wireCoordinators(port: ManagerPort) {
     getScene: () => port.extras().judge.scene,
     rereadWindow: (window, reason) => extraction.runNow(undefined, reason, window),
     unsaved: () => port.unsaved(),
-    chapterHost: { closeScene: (to) => extraction.closeSceneAt(to), announce: (text) => port.announce(text), journal: (summary, note) => port.journal("chapter", summary, note), playerName: () => getPlayerName() },
+    chapterHost: {
+      closeScene: (to) => extraction.closeSceneAt(to), announce: (text) => port.announce(text),
+      journal: (summary, note) => port.journal("chapter", summary, note), playerName: () => getPlayerName(),
+    },
   });
   const expansion: ExpansionCoordinator = new ExpansionCoordinator({
     ...view,

@@ -78,7 +78,7 @@ export interface NarrativeInput {
    * an objective that needs the player's own act must not read as one the world will resolve for them.
    */
   objectiveKind?: ObjectiveKind;
-  /** v2.6 plan 07 D6: sealed chapters as "title — short", the current one last; the saga record once the story ended. */
+  /** Sealed chapters as "title — short", the current one last; the saga record once the story ended. */
   chapters?: string[];
   epilogue?: string | null;
 }

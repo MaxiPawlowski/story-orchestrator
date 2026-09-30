@@ -7,37 +7,23 @@ export interface ChapterStores {
   chronicle: ChronicleState;
 }
 
-const reopen = (arc: ArcEntry): ArcEntry => {
-  const { resolvedAt: _at, resolvedMessageId: _message, resolvedBy: _by, ...rest } = arc;
-  return { ...rest, status: "open" };
-};
+const without = <T extends object>(row: T, keys: string[]): T => Object.fromEntries(Object.entries(row).filter(([key]) => !keys.includes(key))) as T;
 
-export function unfoldChapters<S extends ChapterStores>(state: S, recordIds: ReadonlySet<string>): Pick<S, keyof ChapterStores> {
-  if (!recordIds.size) return { entries: state.entries, arcs: state.arcs, chapters: state.chapters, chronicle: state.chronicle };
-  const entries = state.entries.map((entry) => {
-    if (!entry.foldedInto || !recordIds.has(entry.foldedInto)) return entry;
-    const { foldedInto: _folded, ...rest } = entry;
-    return rest;
+export function unfoldChapters(state: ChapterStores, gone: ReadonlySet<string>): ChapterStores {
+  if (!gone.size) return state;
+  const named = (id: string | undefined) => id !== undefined && gone.has(id);
+  const entries = state.entries.map((entry) => (named(entry.foldedInto) ? without(entry, ["foldedInto"]) : entry));
+  const arcs = state.arcs.map((arc): ArcEntry => {
+    const reopened: ArcEntry = named(arc.resolvedBy) ? { ...without(arc, ["resolvedAt", "resolvedMessageId", "resolvedBy"]), status: "open" } : arc;
+    return without(reopened, [...(named(arc.foldedInto) ? ["foldedInto"] : []), ...(named(arc.originChapter) ? ["originChapter"] : [])]);
   });
-  const arcs = state.arcs.map((arc) => {
-    let next = arc.resolvedBy && recordIds.has(arc.resolvedBy) ? reopen(arc) : arc;
-    if (next.foldedInto && recordIds.has(next.foldedInto)) {
-      const { foldedInto: _folded, ...rest } = next;
-      next = rest;
-    }
-    if (next.originChapter && recordIds.has(next.originChapter)) {
-      const { originChapter: _origin, ...rest } = next;
-      next = rest;
-    }
-    return next;
-  });
-  const chapters = state.chapters.filter((record) => !recordIds.has(record.id));
-  const eras = state.chronicle.eras.filter((era) => !era.recordIds.some((id) => recordIds.has(id)));
-  return { entries, arcs, chapters, chronicle: { eras } };
+  return {
+    entries,
+    arcs,
+    chapters: state.chapters.filter((record) => !gone.has(record.id)),
+    chronicle: { eras: state.chronicle.eras.filter((era) => !era.recordIds.some((id) => gone.has(id))) },
+  };
 }
 
-export function chaptersFrom(chapters: readonly ChapterRecord[], messageId: number, dropped: readonly string[]): Set<string> {
-  const point = Math.max(0, Math.floor(messageId));
-  const known = new Set(chapters.map((record) => record.id));
-  return new Set([...dropped.filter((id) => known.has(id)), ...chapters.filter((record) => record.sealedAt.messageId >= point).map((record) => record.id)]);
-}
+export const chaptersFrom = (chapters: readonly ChapterRecord[], messageId: number, dropped: readonly string[]): Set<string> =>
+  new Set(chapters.filter((record) => dropped.includes(record.id) || record.sealedAt.messageId >= messageId).map((record) => record.id));

@@ -22,7 +22,7 @@ import { sceneConflictValues } from "@memory/conflicts";
 import { emptyMirrorSummary, syncMemoryMirror, type MemoryMirrorSummary } from "../memoryMirror";
 import { MemoryInjector } from "../memoryInjector";
 import { CanonSynthesis } from "../canonSynthesis";
-import { ChapterPort } from "../chapterPort";
+import { ChapterPort, chapterKit } from "../chapterPort";
 import { buildMatchSets, judgePairRelations } from "../consolidationMatches";
 import { boundProvenance, boundValuesFor, MemoryQueue } from "../memoryQueue";
 import type { JudgeRuntime } from "../judge";
@@ -82,13 +82,7 @@ export class MemoryCoordinator {
     firedTransitions: () => this.deps.getFiredTransitions(), facts: () => this.getFacts(),
   });
   readonly chapters: ChapterPort = new ChapterPort({
-    getStory: () => this.deps.getStory(), getState: () => this.deps.getState(), memory: () => this.state, patch: (next) => this.patch(next),
-    record: (input) => this.record(input), model: () => this.deps.model, ownership: () => this.deps.ownership,
-    closeScene: (to) => this.deps.chapterHost?.closeScene(to) ?? Promise.resolve(), sceneStart: (to) => this.sceneStart(to),
-    summarizeArcs: (ids) => this.runArcSummaryPass(ids), updateInjection: () => this.updateInjection(), save: () => this.save(),
-    roster: () => (this.deps.getStory()?.roster ?? []).map((member) => ({ id: member.id, name: rosterMemberName(member) })),
-    playerName: () => this.deps.chapterHost?.playerName() ?? "", journal: (summary, detail) => this.deps.chapterHost?.journal(summary, detail),
-    announce: (text) => this.deps.chapterHost?.announce(text) ?? Promise.resolve(), storySoFarText: () => this.injector.storySoFarText(),
+    coordinator: this, deps: this.deps, memory: () => this.state, patch: (next) => this.patch(next), record: (input) => this.record(input), save: () => this.save(),
   });
   private consolidationInFlight = false;
   readonly queue: MemoryQueue;
@@ -312,7 +306,7 @@ export class MemoryCoordinator {
   // Everything a rollback means for memory, in @memory/reverse: the rows a mutation invalidated, the
   // artifacts derived from them, and the three stores that keep their own version history.
   rollbackFromMessage(messageId: number, boundary: number) {
-    this.patch(reverseMemoryState(this.state, messageId, boundary), false);
+    this.patch(reverseMemoryState(this.state, messageId, boundary, chapterKit()?.unfoldAt), false);
   }
 
   recordVerifyDrops(drops: VerifyDrop[]) { if (drops.length) this.patch({ verifyDrops: [...this.state.verifyDrops, ...drops].slice(-VERIFY_DROP_LIMIT) }, false); }
@@ -366,13 +360,6 @@ export class MemoryCoordinator {
   releaseStaleHold() { if (this.injector.releaseWithhold()) this.injector.update(); }
   withholdPrivateKnowledge() { this.injector.withholdPrivateKnowledge(); }
   onMemberDrafted(chId: number | [number]) { this.injector.onMemberDrafted(chId); }
-  carryBridge() { this.injector.carryBridge(this.enabled ? this.state.chapterBridge ?? null : null); }
-  commitBridge(rendered: boolean) {
-    const carried = this.injector.commitBridge();
-    if (!rendered || !carried || this.state.chapterBridge?.recordId !== carried) return;
-    this.patch({ chapterBridge: null }, false);
-    void this.save();
-  }
   getInjectionBlocks(): Record<MemoryTier, string> { return this.injector.blocks(); }
 
   // --- consolidation -----------------------------------------------------

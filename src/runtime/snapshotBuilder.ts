@@ -24,7 +24,7 @@ import { buildModelCalls } from "./modelCalls";
 import type { InlineSources, InlineView } from "./inlineTimeline";
 import { effectiveInlineLevel } from "./settingsModel";
 import { readChatIdentity } from "./chatIdentity";
-import { buildChapterView, storyEnded } from "./chapters";
+import { chapterKit, storyEnded } from "./chapterPort";
 import type { ExtensionPromptBlocks } from "@services/STAPI";
 import type { ExtractionHealth } from "@extraction/index";
 import type { CopilotCoordinator } from "./coordinators/copilotCoordinator";
@@ -151,6 +151,20 @@ const inlineView = (sources: SnapshotSources, story: NormalizedStoryV2 | null, l
   });
 };
 
+const chapterParts = (sources: SnapshotSources, story: NormalizedStoryV2 | null, state: EngineState | null) => {
+  const { memory } = sources.extras;
+  const records = memory.chapters ?? [];
+  const chapters = chapterKit()?.buildChapterView(story, state?.activeCheckpointId, records) ?? { declared: false, current: null, records: [], ended: storyEnded(records), epilogue: null };
+  const origins = new Map(records.map((record) => [record.id, record.playerTitle]));
+  const openThreads = sources.openThreads.map((text) => {
+    const origin = memory.arcs.find((arc) => arc.status === "open" && arc.text === text)?.originChapter;
+    return origin && origins.has(origin) ? `${text} (since ${origins.get(origin)})` : text;
+  });
+  const now = chapters.current && !chapters.ended ? [`Now: ${chapters.current.playerTitle}`] : [];
+  const chapterLines = chapters.records.length ? [...chapters.records.map((record) => `${record.playerTitle} — ${record.short}`), ...now] : [];
+  return { chapters, openThreads, chapterLines };
+};
+
 export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot {
   const { loaded, state, extras } = sources;
   const story = loaded?.story ?? null;
@@ -175,14 +189,8 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
   const agency = agencyFor(active);
   const agencyRecovery: AgencyRecovery | null = agencyRecoveryOf(story, state, sources.boundaryLog, extras.extraction.audits, playerTurnIds(sources.chat));
   const extractionHealth = sources.extractionHealth ?? null;
-  const records = extras.memory.chapters ?? [];
-  const chapters = buildChapterView(story, state?.activeCheckpointId, records);
-  const pipeline = derivePipelineStatus(extras.extraction, { generating: expansionInFlight(extras.expansion) }, extractionHealth, storyEnded(records));
-  const origins = new Map(records.map((record) => [record.id, record.playerTitle]));
-  const openThreads = sources.openThreads.map((text) => {
-    const origin = extras.memory.arcs.find((arc) => arc.status === "open" && arc.text === text)?.originChapter;
-    return origin && origins.has(origin) ? `${text} (since ${origins.get(origin)})` : text;
-  });
+  const { chapters, openThreads, chapterLines } = chapterParts(sources, story, state);
+  const pipeline = derivePipelineStatus(extras.extraction, { generating: expansionInFlight(extras.expansion) }, extractionHealth, chapters.ended);
   // What the next reply will carry, in ST's own assembly order. The private block is
   // attributed to the member the last talk decision drafted — in a group that is who ST will swap it
   // for — and the scene block reports the tracker's own staleness and last fallback.
@@ -207,7 +215,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     lastTransition: playerTransition(story, sources.boundaryLog),
     openThreads,
     canon: sources.canon,
-    chapters: chapters.records.length ? [...chapters.records.map((record) => `${record.playerTitle} — ${record.short}`), ...(chapters.current && !chapters.ended ? [`Now: ${chapters.current.playerTitle}`] : [])] : [],
+    chapters: chapterLines,
     epilogue: chapters.epilogue,
     tensionLevel: tension.level,
     pendingCount: pendingDeltas.length,

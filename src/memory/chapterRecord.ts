@@ -91,7 +91,7 @@ export function parseChapterRecord(text: string, input: ChapterInput): ChapterPa
   return { ok: true, record: { summary, short, consequences, people, open } };
 }
 
-const STOP = new Set(["I", "The", "A", "An", "And", "But", "Or", "In", "On", "At", "To", "Of", "It", "He", "She", "They", "We", "You", "His", "Her", "Their", "When", "Then", "After", "Before", "As", "With", "By", "From", "For"]);
+const STOP = new Set(("I The A An And But Or In On At To Of It He She They We You His Her Their When Then After Before As With By From For").split(" "));
 
 export function properNouns(text: string): string[] {
   const found = new Set<string>();
@@ -150,7 +150,8 @@ export function buildSagaPrompt(storyTitle: string, records: readonly ChapterRec
 }
 
 export function verifySaga(text: string, records: readonly ChapterRecord[], cast: string[]): string[] {
-  const known = [...records.flatMap((record) => [record.summary, record.playerTitle, ...record.consequences.map((item) => item.text), ...record.people.map((person) => person.name)]), ...cast].join("\n").toLowerCase();
+  const recorded = records.flatMap((record) => [record.summary, record.playerTitle, ...record.consequences.map((item) => item.text), ...record.people.map((person) => person.name)]);
+  const known = [...recorded, ...cast].join("\n").toLowerCase();
   const invented = properNouns(text).filter((name) => !known.includes(name.toLowerCase()));
   return [...(text.trim().split(/\s+/).length < 120 ? ["the epilogue is too short"] : []), ...(invented.length ? [`names not in the records: ${invented.join(", ")}`] : [])];
 }

@@ -49,6 +49,7 @@ const CALL_SITE_ROLES: Record<string, string[]> = {
   "generation/critic.ts": [],
   "generation/generate.ts": [],
   "runtime/canonSynthesis.ts": ["synthesis"],
+  "runtime/chapterSeal.ts": ["synthesis"],
   "runtime/coordinators/copilotCoordinator.ts": ["authoring"],
   "runtime/coordinators/expansionCoordinator.ts": ["authoring"],
   "runtime/coordinators/extractionCoordinator.ts": ["read", "synthesis"],

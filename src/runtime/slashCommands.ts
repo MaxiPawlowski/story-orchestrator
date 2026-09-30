@@ -2,8 +2,6 @@ import { getContext, sendSystemChatMessage } from "@services/STAPI";
 import type { RuntimeManager } from "./runtimeManager";
 import { renderBlackboardMemo } from "./blackboardMemo";
 import { loadChapterKit } from "./chapterPort";
-import { exportState } from "./stateExport";
-import { log } from "@utils/log";
 
 type SlashArgs = Record<string, unknown>;
 type SlashCommandFactory = { fromProps: (props: Record<string, unknown>) => unknown };
@@ -85,18 +83,14 @@ async function cpCommand(manager: RuntimeManager, value: string | string[]) {
     if (!snapshot.convergence.length) return show("No convergence anchors with progress qualities.");
     return dump(snapshot.convergence.map((entry) => `${entry.reached ? "✔" : "○"} ${entry.anchorId} ${entry.progress}/${entry.threshold}`).join("\n"));
   }
-  if (command === "chapters") return dump((manager.getSnapshot().memory.chapters ?? []).map((record) => `${record.id} [${record.status}] ${record.title} · messages ${record.range.from}-${record.range.to}`).join("\n") || "No chapter sealed yet.");
-  if (command === "seal") {
-    const record = await manager.chapters.sealNow();
-    return show(record ? `Sealed ${record.title}` : "Nothing to seal: the story declares no chapter here, or a seal is already running.");
-  }
-  if (command === "unseal") return show((await manager.chapters.unseal(parts[1] ?? "")) ? `Unsealed ${parts[1]}` : "Usage: /cp unseal <recordId> — only the newest record can be unsealed");
+  if (command === "chapters" || command === "seal" || command === "unseal") return (await loadChapterKit()).chapterSlash(manager, `cp-${command}`, parts[1], dump, show);
   if (command === "memorize") {
     const ok = await manager.memorizeChat();
     if (!ok) return show(manager.getSnapshot().memory.backfill?.lastError ?? "Memorize backlog could not start.");
     return show(manager.getSnapshot().status);
   }
-  return dump("Author commands: /cp list, /cp state, /cp activate <id>, /cp set <quality> <value>, /cp converge, /cp chapters, /cp seal, /cp unseal <recordId> · debug: /cp extract [response], /cp expand [response] · players want /story");
+  return dump("Author commands: /cp list, /cp state, /cp activate <id>, /cp set <quality> <value>, /cp converge, /cp chapters, /cp seal, /cp unseal <recordId>"
+    + " · debug: /cp extract [response], /cp expand [response] · players want /story");
 }
 
 async function memCommand(manager: RuntimeManager, value: string | string[]) {
@@ -129,20 +123,6 @@ async function memCommand(manager: RuntimeManager, value: string | string[]) {
   return dump("Commands: /so-mem list, /so-mem pin <number|id> on|off, /so-mem exclude <number|id>, /so-mem backlog");
 }
 
-async function chapterCommand(manager: RuntimeManager, command: string, arg: string | undefined) {
-  const kit = await loadChapterKit();
-  const snapshot = manager.getSnapshot();
-  const records = snapshot.memory.chapters ?? [];
-  if (command === "chapters") return dump(kit.chapterListText(manager.getStory(), records, snapshot.activeCheckpointId ?? undefined));
-  if (command === "chapter") {
-    const record = records[Number(arg) - 1];
-    return dump(record ? `${record.playerTitle}\n\n${record.summary}${record.epilogue ? `\n\n${record.epilogue}` : ""}` : "Usage: /story chapter <n> — /story chapters lists them");
-  }
-  const text = kit.chronicleMarkdown(snapshot.storyTitle ?? "Story", records, { author: snapshot.ui.authorView });
-  await exportState({ writeClipboard: (value) => navigator.clipboard.writeText(value), toast: window.toastr ?? {}, log: (value) => log.info(value) }, text, { ok: "The chronicle is on your clipboard", fallback: "Could not reach the clipboard; the chronicle is in the console" });
-  return text;
-}
-
 async function storyCommand(manager: RuntimeManager, value: string | string[]) {
   const parts = partsOf(value);
   const command = parts[0] ?? "recap";
@@ -158,7 +138,7 @@ async function storyCommand(manager: RuntimeManager, value: string | string[]) {
     await manager.flagMoment(parts.slice(1).join(" "));
     return show("Flagged this moment.");
   }
-  if (command === "chapters" || command === "chapter" || command === "chronicle") return chapterCommand(manager, command, parts[1]);
+  if (command === "chapters" || command === "chapter" || command === "chronicle") return (await loadChapterKit()).chapterSlash(manager, command, parts[1], dump, show);
   return dump("Commands: /story recap, /story threads, /story chapters, /story chapter <n>, /story chronicle export, /story flag [note]");
 }
 

@@ -131,7 +131,11 @@ export function startRuntime() {
   runtimeDisposers.push(readGatingModeWith(() => getGlobalSettings().worldInfo.gatingMode));
   startScheduler(live, runtimeDisposers);
   void loadInlineComposer().then(() => { if (started) runtimeManager.notify(); });
-  void loadChapterKit().then(() => { if (started) runtimeManager.refreshMemoryInjection(); });
+  void loadChapterKit().then((kit) => {
+    if (!started) return;
+    try { runtimeDisposers.push(kit.registerChapterMacros(runtimeManager)); } catch (error) { log.warn("chapter macros unavailable", error); }
+    runtimeManager.refreshMemoryInjection();
+  });
   registerHostSurfaces();
   startWatches();
   const access = windowAccess();

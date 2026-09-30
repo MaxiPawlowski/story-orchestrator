@@ -1,7 +1,7 @@
 import type { BoundaryResult } from "@engine/index";
 import { getChatWindow, planReconciliation, scheduleForcedCues, type ExtractionScheduler } from "@extraction/index";
 import type { SceneCoordinator } from "./coordinators/sceneCoordinator";
-import { storyEnded } from "./chapters";
+import { storyEnded } from "./chapterPort";
 import type { RuntimeManager } from "./runtimeManager";
 import { log } from "@utils/log";
 
@@ -27,7 +27,7 @@ export interface BoundaryWorkItem {
   order: number;
   when?: (context: BoundaryWorkContext) => boolean;
   run: (context: BoundaryWorkContext) => void;
-  /** v2.6 plan 07 D9: still runs after the story's final chapter sealed (the free epilogue). */
+  /** Still runs after the story's final chapter sealed (the free epilogue). */
   afterEnd?: true;
 }
 
@@ -85,8 +85,8 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     },
   },
   {
-    // v2.6 plan 07 D2: a boundary that left a chapter (or reached a final ending) seals it off the
-    // reply path, before scene-detect so the closing scene belongs to the chapter it ended.
+    // A boundary that left a chapter (or reached a final ending) seals it off the reply path, before
+    // scene-detect so the closing scene belongs to the chapter it ended.
     id: "chapter-seal",
     order: 44,
     run: ({ result, manager, scheduler }) => {
@@ -163,7 +163,7 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
 export const BOUNDARY_WORK = [...WORK_ITEMS].sort((left, right) => left.order - right.order);
 
 export function runBoundaryWork(context: BoundaryWorkContext) {
-  const ended = storyEnded(context.manager.chapters.records());
+  const ended = storyEnded(context.manager.chapters?.records());
   for (const item of BOUNDARY_WORK) {
     if ((ended && !item.afterEnd) || (item.when && !item.when(context))) continue;
     try {

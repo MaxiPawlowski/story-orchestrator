@@ -2,9 +2,123 @@ import type { NormalizedStoryV2 } from "@engine/index";
 import { estimateTokens } from "@memory/budget";
 import { renderChronicle } from "@memory/chronicle";
 import type { ArcEntry, ChapterRecord, EraLine } from "@memory/types";
-import { chapterOf, playerTitleOf, type ChapterSettings } from "./chapters";
+import { buildChapterView, chapterOf, chapterSettings, playerTitleOf, sealTarget, type ChapterSettings } from "./chapters";
+import type { ChapterHost, ChapterPort } from "./chapterPort";
+import { withholds } from "./generationLifecycle";
+import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
+import type { PromptHost } from "./hostPorts";
+import { chaptersFrom, unfoldChapters, type ChapterStores } from "@memory/chapterUnfold";
 
-export { chronicleMarkdown } from "@memory/chronicle";
+import { chronicleMarkdown } from "@memory/chronicle";
+import { registerHostMacro, unregisterHostMacro } from "@services/STAPI";
+import { exportState } from "./stateExport";
+import { log } from "@utils/log";
+import type { RuntimeManager } from "./runtimeManager";
+
+export { chronicleMarkdown };
+export { buildChapterView };
+
+export async function chapterSlash(manager: RuntimeManager, command: string, arg: string | undefined, dump: (text: string) => string, show: (text: string) => string): Promise<string> {
+  const snapshot = manager.getSnapshot();
+  const records = snapshot.memory.chapters ?? [];
+  if (command === "cp-chapters") {
+    return dump(records.map((record) => `${record.id} [${record.status}] ${record.title} · messages ${record.range.from}-${record.range.to}`).join("\n") || "No chapter sealed yet.");
+  }
+  if (command === "cp-seal") {
+    const record = await manager.chapters.sealNow();
+    return show(record ? `Sealed ${record.title}` : "Nothing to seal: the story declares no chapter here, or a seal is already running.");
+  }
+  if (command === "cp-unseal") return show((await manager.chapters.unseal(arg ?? "")) ? `Unsealed ${arg}` : "Usage: /cp unseal <recordId> — only the newest record can be unsealed");
+  if (command === "chapters") return dump(chapterListText(manager.getStory(), records, snapshot.activeCheckpointId ?? undefined));
+  if (command === "chapter") {
+    const record = records[Number(arg) - 1];
+    return dump(record ? `${record.playerTitle}\n\n${record.summary}${record.epilogue ? `\n\n${record.epilogue}` : ""}` : "Usage: /story chapter <n> — /story chapters lists them");
+  }
+  const text = chronicleMarkdown(snapshot.storyTitle ?? "Story", records, { author: snapshot.ui.authorView });
+  const copied = { ok: "The chronicle is on your clipboard", fallback: "Could not reach the clipboard; the chronicle is in the console" };
+  await exportState({ writeClipboard: (value) => navigator.clipboard.writeText(value), toast: window.toastr ?? {}, log: (value) => log.info(value) }, text, copied);
+  return text;
+}
+
+export function registerChapterMacros(manager: RuntimeManager): () => void {
+  const macros: Array<[string, () => string, string]> = [
+    ["story_chapter", () => manager.getCachedSnapshot().chapters?.current?.playerTitle ?? "(none)", "current chapter"],
+    ["story_chapter_number", () => String(manager.getCachedSnapshot().chapters?.current?.number || "(none)"), "current chapter number"],
+    ["story_so_far", () => manager.chapters.storySoFar() || "(none)", "chronicle + this chapter + open threads"],
+    ["story_previously", () => manager.getCachedSnapshot().chapters?.records.at(-1)?.summary ?? "(none)", "the last ended chapter's summary"],
+  ];
+  macros.forEach(([key, read, what]) => registerHostMacro(key, read, `Story Orchestrator: ${what}`));
+  return () => macros.forEach(([key]) => unregisterHostMacro(key));
+}
+
+const settingsOf = (host: ChapterHost) => chapterSettings(host.memory().settings.chapters);
+const recordsOf = (host: ChapterHost) => host.memory().chapters ?? [];
+
+export const injects = (host: ChapterHost): boolean => settingsOf(host).storySoFar && (host.deps.getStory()?.memory?.story_so_far ?? "block") === "block";
+
+export function due(host: ChapterHost) {
+  const state = host.deps.getState();
+  return state && settingsOf(host).seal ? sealTarget(host.deps.getStory(), state.activeCheckpointId, recordsOf(host), state.visitedPath) : null;
+}
+
+export function returning(host: ChapterHost): Map<string, string> {
+  const state = host.deps.getState();
+  const settings = settingsOf(host);
+  return state && settings.seal ? returningLines(host.deps.getStory(), recordsOf(host), state.visitedPath, state.lastMessageId, settings.dossierWindow) : new Map();
+}
+
+export function storySoFar(host: ChapterHost): string {
+  const memory = host.memory();
+  const story = host.deps.getStory();
+  const chapter = chapterOf(story, host.deps.getState()?.activeCheckpointId);
+  return story ? storySoFarText({ records: recordsOf(host), eras: memory.chronicle?.eras ?? [], canon: memory.canon && !memory.canon.stale ? memory.canon.text : "",
+    chapterTitle: chapter ? playerTitleOf(chapter) : null, threads: memory.arcs.filter((arc) => arc.status === "open"), settings: settingsOf(host) }) : "";
+}
+
+export function inject(port: ChapterPort, prompt: PromptHost, on: boolean): Map<string, string> {
+  const { key, depth } = INJECTION_REGISTRY.storySoFar;
+  const text = on && injects(port.host) ? storySoFar(port.host) : "";
+  if (text) prompt.setStoryExtensionPrompt(key, text, depth);
+  else prompt.clearStoryExtensionPrompt(key);
+  return on ? returning(port.host) : new Map();
+}
+
+export function carryBridge(port: ChapterPort, type: unknown) {
+  const memory = port.host.memory();
+  const bridge = !withholds(type) && memory.settings.enabled ? memory.chapterBridge ?? null : null;
+  port.carried = bridge?.recordId ?? null;
+  if (bridge) port.host.deps.hosts.prompt.setStoryExtensionPrompt(INJECTION_REGISTRY.chapterBridge.key, bridge.text, INJECTION_REGISTRY.chapterBridge.depth);
+}
+
+export function commitBridge(port: ChapterPort, rendered: boolean) {
+  const carried = port.carried;
+  port.carried = null;
+  port.host.deps.hosts.prompt.clearStoryExtensionPrompt(INJECTION_REGISTRY.chapterBridge.key);
+  if (!rendered || !carried || port.host.memory().chapterBridge?.recordId !== carried) return;
+  port.host.patch({ chapterBridge: null });
+  void port.host.save();
+}
+
+export function unfoldAt(stores: ChapterStores & { chapterBridge?: { recordId: string } | null }, messageId: number, dropped: readonly string[]) {
+  const gone = chaptersFrom(stores.chapters, messageId, dropped);
+  const unfolded = unfoldChapters({ ...stores, chronicle: { eras: stores.chronicle.eras.filter((era) => era.messageId < messageId) } }, gone);
+  return { ...unfolded, ...(stores.chapterBridge && gone.has(stores.chapterBridge.recordId) ? { chapterBridge: null } : {}) };
+}
+
+export function fold(host: ChapterHost, rows: FoldRow[], type: unknown, live: readonly unknown[]): FoldOutcome | null {
+  const records = recordsOf(host);
+  if (!records.length || !settingsOf(host).fold || withholds(type)) return null;
+  const block = host.deps.hosts.injection.readInjectedPromptBlocks().find((entry) => entry.key === INJECTION_REGISTRY.storySoFar.key)?.value ?? "";
+  const eras = host.memory().chronicle?.eras ?? [];
+  const covered = records.filter((record) => block.includes(record.short) || block.includes(record.summary) || eras.some((era) => era.recordIds.includes(record.id) && block.includes(era.text)));
+  if (!covered.length) return null;
+  const ids = new Map<unknown, number>();
+  live.forEach((message, index) => {
+    const extra = (message as { extra?: unknown } | null)?.extra;
+    if (extra && typeof extra === "object") ids.set(extra, index);
+  });
+  return foldRows(rows, (row) => ids.get(row.extra) ?? null, foldRange(covered, host.deps.getStory()));
+}
 
 const IGNORE = Symbol.for("ignore");
 

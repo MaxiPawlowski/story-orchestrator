@@ -67,7 +67,9 @@ const sanitizeChapters = (value: unknown): ChapterRecord[] => (Array.isArray(val
 
 const sanitizeChronicle = (value: unknown): ChronicleState => {
   const eras = (value as Partial<ChronicleState> | null)?.eras;
-  return { eras: Array.isArray(eras) ? eras.filter((era) => Boolean(era) && typeof era.id === "string" && typeof era.text === "string" && Array.isArray(era.recordIds) && typeof era.messageId === "number") : [] };
+  const valid = (era: ChronicleState["eras"][number]) => Boolean(era) && typeof era.id === "string" && typeof era.text === "string"
+    && Array.isArray(era.recordIds) && typeof era.messageId === "number";
+  return { eras: Array.isArray(eras) ? eras.filter(valid) : [] };
 };
 
 const sanitizeBridge = (value: unknown) => {

@@ -1,9 +1,21 @@
 import type { ChapterRecord } from "@memory/types";
-import type { ChapterSeal, ChapterSealDeps, SealAt } from "./chapterSeal";
-import { chapterOf, chapterSettings, playerTitleOf, sealTarget, type SealTarget } from "./chapters";
-import { withholds } from "./generationLifecycle";
+import type { DerivedRecord } from "@memory/derived";
+import type { PromptHost } from "./hostPorts";
+import type { MemoryCoordinator, MemoryCoordinatorDeps } from "./coordinators/memoryCoordinator";
+import type { ChapterSeal, SealAt } from "./chapterSeal";
+import type { SealTarget } from "./chapters";
+import type { MemoryRuntimeState } from "./types";
 
 type ChapterKit = typeof import("./chapterKit");
+
+export interface ChapterHost {
+  coordinator: MemoryCoordinator;
+  deps: MemoryCoordinatorDeps;
+  memory: () => MemoryRuntimeState;
+  patch: (next: Partial<MemoryRuntimeState>) => void;
+  record: (input: Omit<DerivedRecord, "id" | "boundary" | "messageId"> & { messageId?: number }) => void;
+  save: () => Promise<void>;
+}
 
 let kit: ChapterKit | null = null;
 
@@ -11,59 +23,27 @@ export const chapterKit = (): ChapterKit | null => kit;
 
 export const loadChapterKit = async (): Promise<ChapterKit> => (kit ??= await import("./chapterKit"));
 
-// The seal pipeline and its prompts live in a lazy chunk: the main entry holds only the trigger
-// and this door, so a story without chapters pays nothing for them.
+export const storyEnded = (records: readonly ChapterRecord[] = []): boolean => records.some((record) => record.final);
+
+// The main entry holds only this door: the trigger, the story-so-far block, the fold, the bridge note
+// and the dossiers live in the chapter kit (loaded at startup), the seal pass in its own chunk.
 export class ChapterPort {
   private unit: Promise<ChapterSeal> | null = null;
+  carried: string | null = null;
 
-  constructor(private readonly deps: ChapterSealDeps & { storySoFarText: () => string }) {}
+  constructor(readonly host: ChapterHost) {}
 
   private load(): Promise<ChapterSeal> {
-    return (this.unit ??= import("./chapterSeal").then(({ ChapterSeal: Unit }) => new Unit(this.deps)));
+    return (this.unit ??= import("./chapterSeal").then(({ ChapterSeal: Unit, sealDeps }) => new Unit(sealDeps(this.host))));
   }
 
-  settings() { return chapterSettings(this.deps.memory().settings.chapters); }
-
-  records(): ChapterRecord[] { return this.deps.memory().chapters ?? []; }
-
-  injects(): boolean { return this.settings().storySoFar && (this.deps.getStory()?.memory?.story_so_far ?? "block") === "block"; }
-
-  returning(): Map<string, string> {
-    const kit = chapterKit();
-    const state = this.deps.getState();
-    const settings = this.settings();
-    return kit && state && settings.seal ? kit.returningLines(this.deps.getStory(), this.records(), state.visitedPath, state.lastMessageId, settings.dossierWindow) : new Map();
-  }
-
-  storySoFar(): string {
-    const kit = chapterKit();
-    const memory = this.deps.memory();
-    const story = this.deps.getStory();
-    const chapter = chapterOf(story, this.deps.getState()?.activeCheckpointId);
-    return kit && story ? kit.storySoFarText({ records: this.records(), eras: memory.chronicle?.eras ?? [], canon: memory.canon && !memory.canon.stale ? memory.canon.text : "",
-      chapterTitle: chapter ? playerTitleOf(chapter) : null, threads: memory.arcs.filter((arc) => arc.status === "open"), settings: this.settings() }) : "";
-  }
-
-  due(): SealTarget | null {
-    const state = this.deps.getState();
-    return state && this.settings().seal ? sealTarget(this.deps.getStory(), state.activeCheckpointId, this.records(), state.visitedPath) : null;
-  }
-
-  // D7: sealed chapters leave THIS generation's prompt only while the block that replaces them is in
-  // it. Rows are replaced in the per-generation array, never mutated, so nothing needs undoing.
-  fold(rows: Array<{ extra?: unknown }>, type: unknown, live: readonly unknown[]) {
-    const kit = chapterKit();
-    const records = this.records();
-    if (!kit || !records.length || !this.settings().fold || withholds(type)) return null;
-    const block = this.deps.storySoFarText();
-    const eras = this.deps.memory().chronicle?.eras ?? [];
-    const covered = records.filter((record) => block.includes(record.short) || block.includes(record.summary) || eras.some((era) => era.recordIds.includes(record.id) && block.includes(era.text)));
-    if (!covered.length) return null;
-    const ids = new Map<unknown, number>();
-    live.forEach((message, index) => { const extra = (message as { extra?: unknown } | null)?.extra; if (extra && typeof extra === "object") ids.set(extra, index); });
-    return kit.foldRows(rows, (row) => ids.get(row.extra) ?? null, kit.foldRange(covered, this.deps.getStory()));
-  }
-
+  records(): ChapterRecord[] { return this.host.memory().chapters ?? []; }
+  inject(prompt: PromptHost, on: boolean): Map<string, string> { return kit?.inject(this, prompt, on) ?? new Map(); }
+  storySoFar(): string { return kit?.storySoFar(this.host) ?? ""; }
+  due(): SealTarget | null { return kit?.due(this.host) ?? null; }
+  fold(rows: Array<{ extra?: unknown }>, type: unknown, live: readonly unknown[]) { return kit?.fold(this.host, rows, type, live) ?? null; }
+  carryBridge(type: unknown) { kit?.carryBridge(this, type); }
+  commitBridge(rendered: boolean) { kit?.commitBridge(this, rendered); }
   async seal(target: SealTarget, at: SealAt) { return (await this.load()).seal(target, at); }
   async sealNow() { return (await this.load()).sealNow(); }
   async unseal(recordId: string) { return (await this.load()).unseal(recordId); }

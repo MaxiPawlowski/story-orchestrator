@@ -92,7 +92,9 @@ export function buildChapterView(story: NormalizedStoryV2 | null, activeCheckpoi
   return {
     declared: Boolean(story?.chapters?.length),
     current: active ? { id: active.id, number: chapterNumber(story, active.id), playerTitle: playerTitleOf(active), interlude: active.kind === "interlude" } : null,
-    records: records.map((record) => ({ id: record.id, number: chapterNumber(story, record.chapterId), playerTitle: record.playerTitle, short: record.short, summary: record.summary, final: Boolean(record.final) })),
+    records: records.map((record) => ({
+      id: record.id, number: chapterNumber(story, record.chapterId), playerTitle: record.playerTitle, short: record.short, summary: record.summary, final: Boolean(record.final),
+    })),
     ended: Boolean(ending),
     epilogue: ending?.epilogue ?? null,
   };
