@@ -138,6 +138,11 @@ export const MUTATIONS_WITHOUT_A_TOOL: Partial<Record<keyof typeof Mutations, st
   removeArcBridge: "covered by setArcBridges",
   clearStartCheckpoint: "setStartCheckpoint moves the start; a story without one does not validate",
   setStoryId: "the story's identity is the author's, set in the Story tab",
+  addChapter: "chapters have no proposal op yet; the wizard's setChapters op is open",
+  updateChapter: "chapters have no proposal op yet; the wizard's setChapters op is open",
+  removeChapter: "chapters have no proposal op yet; the wizard's setChapters op is open",
+  setCheckpointChapter: "chapters have no proposal op yet; the wizard's setChapters op is open",
+  setChapterPolicy: "chapters have no proposal op yet; the wizard's setChapters op is open",
 };
 
 export const renderArg = (name: string, spec: AgentArgSpec): string => `${name}${spec.required ? "" : "?"}: ${spec.type}${spec.doc ? ` (${spec.doc})` : ""}`;

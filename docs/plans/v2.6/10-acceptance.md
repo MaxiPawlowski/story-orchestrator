@@ -8,6 +8,8 @@ done and are the first work here.
 
 ## Changes from v2.5 plan 10
 
+0. **Plan 14 reorders this plan** (user, 2026-09-30). Human sessions run first inside each test tier, findings are fixed in their tier, and each tier closes with its own ×2 rows. Phase F below becomes T7: the cumulative set ×2 on the freeze. Where this plan says sessions are last, plan 14 wins.
+
 1. **Corpus.** Every matrix row that has an Adolion variant (from plans 01–03) runs both toy and Adolion ×2. A row
    counts green only when both columns are green.
 2. **The judge column is flipped.** The default column is judge on, and the **judge-off column** proves every fallback

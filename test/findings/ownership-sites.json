@@ -243,7 +243,31 @@
     },
     "src/runtime/effectsApplier.ts#EffectsApplier.announceTransition": {
       "status": "partial",
-      "note": "PARTIAL: guarded entirely from its CALLER. Its own body has no await before the write, so a guard inside would mint at the moment of the write and prove nothing; commitBoundary checks ownsOpenChat before calling it. Any new caller must do the same."
+      "note": "PARTIAL: guarded entirely from its CALLER. It only formats the checkpoint line and awaits announceText (partial, same reason); commitBoundary checks ownsOpenChat before calling it. Any new caller must do the same."
+    },
+    "src/runtime/effectsApplier.ts#EffectsApplier.announceText": {
+      "status": "partial",
+      "note": "PARTIAL: guarded entirely from its CALLER (was announceTransition's body until v2.6 plan 07 split it out for the chapter title card). The only write after its await is the journal line saying the note was refused; the /comment itself is the host call. commitBoundary and ChapterSeal.run check ownsOpenChat / their run before calling it. Any new caller must do the same."
+    },
+    "src/runtime/chapterSeal.ts#ChapterSeal.run": {
+      "status": "checked",
+      "note": "v2.6 plan 07 D2: one RunGuard minted over the sealed range; checked after closing the scene, after the arc summaries, after the record call (inside write), after the saga call, after the era merges, before the journal and title card. commitSeal (fold + record + derived) runs synchronously right after a check, so no await sits between the check and the store write."
+    },
+    "src/runtime/chapterSeal.ts#ChapterSeal.seal": {
+      "status": "local",
+      "note": "v2.6 plan 07: the only write after its await is the finally that clears inFlight, the unit's own in-memory bookkeeping (the CanonSynthesis.regenerateCanon rule): leaving it set because the world moved would wedge sealing for the session. The chapter writes are ChapterSeal.run's, which is checked."
+    },
+    "src/runtime/chapterSeal.ts#ChapterSeal.mergeEras": {
+      "status": "checked",
+      "note": "v2.6 plan 07 D4: one era line per pass; the run is checked after each model call, immediately before the chronicle patch and its era_merge derived record."
+    },
+    "src/runtime/chapterSeal.ts#ChapterSeal.unseal": {
+      "status": "checked",
+      "note": "v2.6 plan 07 D13: an author action. The unfold patch happens before the only await (the save); the journal line after it is checked against a run minted at the top."
+    },
+    "src/runtime/chapterSeal.ts#ChapterSeal.editSummary": {
+      "status": "checked",
+      "note": "v2.6 plan 07 D13: an author action. The record patch happens before the only await (the save); the journal line after it is checked against a run minted at the top."
     },
     "src/runtime/effectsApplier.ts#EffectsApplier.applyCastChanges>withLedger": {
       "status": "partial",

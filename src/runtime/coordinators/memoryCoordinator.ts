@@ -22,6 +22,7 @@ import { sceneConflictValues } from "@memory/conflicts";
 import { emptyMirrorSummary, syncMemoryMirror, type MemoryMirrorSummary } from "../memoryMirror";
 import { MemoryInjector } from "../memoryInjector";
 import { CanonSynthesis } from "../canonSynthesis";
+import { ChapterPort, chapterKit } from "../chapterPort";
 import { buildMatchSets, judgePairRelations } from "../consolidationMatches";
 import { boundProvenance, boundValuesFor, MemoryQueue } from "../memoryQueue";
 import type { JudgeRuntime } from "../judge";
@@ -56,13 +57,14 @@ export interface MemoryCoordinatorDeps {
   /** Read a named span again, rather than whatever the transcript now ends with. */
   rereadWindow?: (window: { from: number; to: number }, reason: string) => Promise<unknown>;
   hosts: MemoryHosts;
+  chapterHost?: { closeScene: (to: number) => Promise<void>; announce: (text: string) => Promise<void>; journal: (summary: string, detail?: string) => void; playerName: () => string };
 }
 
 // Owns everything that reads or writes extras.memory: tiers, arcs, canon, epistemic, ledger,
 // consolidation, World Info mirroring and prompt injection. The manager keeps the persist
 // boundary — this class only mutates the slice and asks for a save.
 export class MemoryCoordinator {
-  readonly injector = new MemoryInjector({
+  readonly injector: MemoryInjector = new MemoryInjector({
     getStory: () => this.deps.getStory(),
     getState: () => this.deps.getState(),
     memory: () => this.state,
@@ -71,12 +73,16 @@ export class MemoryCoordinator {
     ledgerBindings: () => this.ledgerBindings(),
     setPinnedOverflow: (count) => this.patch({ pinnedOverflow: count }),
     hosts: () => this.deps.hosts,
+    chapters: () => this.chapters,
   });
   readonly canon = new CanonSynthesis({
     getStory: () => this.deps.getStory(), getState: () => this.deps.getState(), memory: () => this.state,
     patch: (next) => this.patch(next), record: (input) => this.record(input), save: () => this.save(),
     model: () => this.deps.model, ownership: () => this.deps.ownership, enabled: () => this.enabled,
     firedTransitions: () => this.deps.getFiredTransitions(), facts: () => this.getFacts(),
+  });
+  readonly chapters: ChapterPort = new ChapterPort({
+    coordinator: this, deps: this.deps, memory: () => this.state, patch: (next) => this.patch(next), record: (input) => this.record(input), save: () => this.save(),
   });
   private consolidationInFlight = false;
   readonly queue: MemoryQueue;
@@ -300,7 +306,7 @@ export class MemoryCoordinator {
   // Everything a rollback means for memory, in @memory/reverse: the rows a mutation invalidated, the
   // artifacts derived from them, and the three stores that keep their own version history.
   rollbackFromMessage(messageId: number, boundary: number) {
-    this.patch(reverseMemoryState(this.state, messageId, boundary), false);
+    this.patch(reverseMemoryState(this.state, messageId, boundary, chapterKit()?.unfoldAt), false);
   }
 
   recordVerifyDrops(drops: VerifyDrop[]) { if (drops.length) this.patch({ verifyDrops: [...this.state.verifyDrops, ...drops].slice(-VERIFY_DROP_LIMIT) }, false); }

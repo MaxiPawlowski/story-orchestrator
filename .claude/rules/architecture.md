@@ -45,6 +45,7 @@ src/
     narrative.ts             # v2.1 plan 04 (pure): the one composed player "where am I" view — drawer Overview, away popup, /story recap
     inlineTimeline.ts        # v2.6 plan 08 (pure): the inline timeline — every item anchored under the message it is about, level/category/window filter, player copy vs author detail; rides the snapshot as `inline`
     messageInspector.ts      # v2.6 plan 08 (pure): one message's inline items grouped by category, for the author's inspector (W18)
+    chapters.ts / chapterPort.ts / chapterKit.ts / chapterSeal.ts # v2.6 plan 07: chapter seal trigger (pure, lazy-only) / the thin main-entry door on MemoryCoordinator.chapters / the lazy kit (story so far, bridge, fold, dossiers, slash, macros, "Previously…") / the lazy seal pipeline (delegated unit, RunGuard before every write); features off until the Q-M floors pass
     loreFired.ts             # v2.6 plan 08 (pure): `extras.lore.fired` — World Info activations per rendered reply (cap 100, no entry text), rolled back by message
     agencyRecovery.ts        # v2.3 plan 07 (pure): the refusal a boundary log shows — two gate boundaries with nothing fired at a checkpoint that declares exits
     pipeline.ts              # v2.1 plan 04 (pure): derived working/reading/stalled-rechecking/idle/not-configured/error signal
@@ -89,6 +90,7 @@ src/
                              #   v2.3 plan 10: loreScore.ts (the Score arm — MEASUREMENT only, pickLore is unchanged), loreRanking.ts (precision@4 / tie rate / nDCG@4 + the predeclared floors), loreRelevanceCalibration.ts (both arms over the same rows; exchanges reduced to a request key so the golden stays small)
   stagecraft/                # v2.1 plan 07 (pure): types.ts (curator ops, accept modes), prompt.ts, parse.ts (strict line parser), proposal.ts ("first || last" patch application, plan+preview), scope.ts (the stagecraft.lorebooks allowlist)
   memory/                    # plan 07: tier stores (facts/session/short_term/scene), scene detection, injection — pure except inject.ts
+                             #   v2.6 plan 07: chapterInput/chapterRecord (strict parser + verifier), chapterFold/chapterUnfold (`foldedInto`, never delete; `chapter_seal` derived kind, unfold inside reverseMemoryState), chronicle (budget arms 400/700/1000, ladder, eras)
   studio/                    # plan 11: Checkpoint Studio v2 — draft.ts (zustand store), mutations.ts (typed API = 12's contract), diagnostics.ts (8 checks), gateOptions.ts, qualityUsage.ts, graphAdapter.ts (v2→GraphPanel + Mermaid), io.ts (export/import), StudioModal.tsx + components/*, *.stories.tsx
                              #   v2.1 plan 05 tabs: Story (id/version/description/arc_template/requirements/arc_bridges) + Roster; save hands the record to the host via onSaved
                              #   v2.1 plan 06: the Copilot tab is the Wizard (StudioCopilot = interview + staged proposals + provisioning), WizardQuestions.tsx, ProvisioningCard.tsx

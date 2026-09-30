@@ -3,9 +3,10 @@ import type { JudgeCallRecord, JudgeMeterView, JudgeRuntimeState, SceneReadRecor
 import type { ExtractionHealth, ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
 import type {
-  ConflictPair, ArcEntry, DerivedRecord, EpistemicEntry, LedgerEntry, LedgerView, MemoryEntry, MemoryInjectionView,
+  ConflictPair, ArcEntry, ChapterRecord, ChronicleState, DerivedRecord, EpistemicEntry, LedgerEntry, LedgerView, MemoryEntry, MemoryInjectionView,
   MemoryStoreState, MemoryTier, Provenance, ScoreWeights,
 } from "@memory/index";
+import type { ChapterSettings, ChapterView } from "./chapters";
 import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
 import type { CuratorPassAudit, CuratorProposalRecord, StagecraftAcceptMode } from "@stagecraft/index";
@@ -159,6 +160,7 @@ export interface MemoryRuntimeSettings {
   tierBudgets: Record<MemoryTier, number>;
   tierTokenBudgets: Record<MemoryTier, number>;
   scoreWeights?: ScoreWeights;
+  chapters?: Partial<ChapterSettings>;
 }
 
 export interface MemoryBackfillState {
@@ -286,6 +288,10 @@ export interface MemoryRuntimeState extends MemoryStoreState {
   /** The first message this story's play covers in this chat: the player's last message when it
    *  started, or 0 before the player spoke. The first scene summary starts here; earlier history is the backlog's. */
   storyStart: number;
+  chapters?: ChapterRecord[];
+  chronicle?: ChronicleState;
+  chapterBridge?: { recordId: string; text: string } | null;
+  chapterRecapSeen?: string | null;
   updatedAt: string;
 }
 
@@ -430,6 +436,7 @@ export interface RuntimeSnapshot {
   extraction: ExtractionRuntimeState;
   expansion: ExpansionRuntimeState;
   memory: MemoryRuntimeState;
+  chapters?: ChapterView;
   pacing: PacingSettings;
   copilot: CopilotRuntimeSettings;
   ui: UiRuntimeSettings;
