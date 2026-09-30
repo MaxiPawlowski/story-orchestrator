@@ -1,8 +1,8 @@
 {
-  "at": "2026-09-30T15:03:44.087Z",
+  "at": "2026-09-30T15:41:48.900Z",
   "baseline": {
     "tests": 380,
-    "ms": 49872
+    "ms": 32671
   },
   "mutants": 25,
   "killed": 25,
@@ -10,7 +10,7 @@
     {
       "id": "background-write-unowned",
       "verdict": "killed",
-      "ms": 16401,
+      "ms": 8961,
       "killedBy": [
         "control: a switch during the LAST cast change stops before the background"
       ],
@@ -19,7 +19,7 @@
     {
       "id": "common-knowledge-kept",
       "verdict": "killed",
-      "ms": 10358,
+      "ms": 8621,
       "killedBy": [
         "dropCommonKnowledge drops a [knows] fact three characters are all handed in one batch, whatever its punctuation",
         "dropCommonKnowledge drops a fact every character present knows, even when only two are present"
@@ -29,7 +29,7 @@
     {
       "id": "curator-writes-gated-entry",
       "verdict": "killed",
-      "ms": 18532,
+      "ms": 12394,
       "killedBy": [
         "V10: a revert addresses the entry by its recorded uid an entry renamed into a checkpoint-gated one is left alone and kept"
       ],
@@ -38,7 +38,7 @@
     {
       "id": "delete-decodes-post-length",
       "verdict": "killed",
-      "ms": 14614,
+      "ms": 9737,
       "killedBy": [
         "v2.4 T1: decodeDelete decodes a middle delete to the removed message, not to the post-delete length",
         "v2.4 T1: decodeDelete decodes one event that removed a tool-call run with its reply (multi-count)",
@@ -51,7 +51,7 @@
     {
       "id": "derived-shared-hash-lifted",
       "verdict": "killed",
-      "ms": 11052,
+      "ms": 12702,
       "killedBy": [
         "derived artifacts reverse with their inputs keeps a shared hash excluded while an older exclusion survives"
       ],
@@ -60,7 +60,7 @@
     {
       "id": "empty-private-block-epistemic",
       "verdict": "killed",
-      "ms": 13650,
+      "ms": 10116,
       "killedBy": [
         "a stored epistemic signal is injected in the same call (plan 05) refreshes the private block when the epistemic read lands, without the caller asking"
       ],
@@ -69,7 +69,7 @@
     {
       "id": "empty-private-block-ledger",
       "verdict": "killed",
-      "ms": 13078,
+      "ms": 8981,
       "killedBy": [
         "a stored epistemic signal is injected in the same call (plan 05) refreshes the ledger block when the ledger read lands, without the caller asking"
       ],
@@ -78,7 +78,7 @@
     {
       "id": "expansion-cache-outlives-contract",
       "verdict": "killed",
-      "ms": 14573,
+      "ms": 9179,
       "killedBy": [
         "expansion cache contract a chain from another contract is dropped, and a current one is kept",
         "expansion cache contract a playing chain from another contract is dropped too, and so is one with no origin"
@@ -88,7 +88,7 @@
     {
       "id": "expansion-generate-unowned",
       "verdict": "killed",
-      "ms": 15058,
+      "ms": 10998,
       "killedBy": [
         "expansion generation is owned by the world it started in (plan 11) writes nothing into the chat that replaced it, and persists nothing for it"
       ],
@@ -97,7 +97,7 @@
     {
       "id": "generated-routes-ascending",
       "verdict": "killed",
-      "ms": 8499,
+      "ms": 10238,
       "killedBy": [
         "R9: a generated beat's outcomes are routes merges one outgoing transition per outcome, in declaration order",
         "R9: a generated beat's outcomes are routes sets the anchor-entry threshold from the WORST route, so no route starves it"
@@ -107,7 +107,7 @@
     {
       "id": "greeting-commits-boundary",
       "verdict": "killed",
-      "ms": 9319,
+      "ms": 12753,
       "killedBy": [
         "TurnBridge boundary commits ignores a 'first_message' message: no boundary, no afterSpeak replies",
         "TurnBridge boundary commits commits nothing for a fresh group chat posting every member's greeting before chat_changed",
@@ -119,7 +119,7 @@
     {
       "id": "lore-select-cache-without-story",
       "verdict": "killed",
-      "ms": 10745,
+      "ms": 17276,
       "killedBy": [
         "LoreSelector (v2.2 plan 04) does not reuse a cached selection after the chat swaps stories under the same lore scope"
       ],
@@ -128,7 +128,7 @@
     {
       "id": "lore-select-force-result-discarded",
       "verdict": "killed",
-      "ms": 13621,
+      "ms": 9846,
       "killedBy": [
         "LoreSelector (v2.2 plan 04) reports no selection when the host refuses the force, and does not claim it applied",
         "L5: the complete selection exclusive mode may act on X3: a refused force leaves no selection"
@@ -138,7 +138,7 @@
     {
       "id": "nan-host-message-id",
       "verdict": "killed",
-      "ms": 12824,
+      "ms": 8571,
       "killedBy": [
         "V4: what one turn is a null or empty id is not message 0"
       ],
@@ -147,7 +147,7 @@
     {
       "id": "nan-rollback-accepted",
       "verdict": "killed",
-      "ms": 14794,
+      "ms": 8691,
       "killedBy": [
         "V4: a mutation with no message id rewinds nothing, even where the engine would read the id as 'from the start'",
         "v2.4 plan 02 §10: every runRollback leaves its outcome on the notices records noop, history-unavailable and a missing id in order, each with a rising seq"
@@ -157,7 +157,7 @@
     {
       "id": "patch-spread-erases-derived",
       "verdict": "killed",
-      "ms": 16385,
+      "ms": 10441,
       "killedBy": [
         "control: a scene summary keeps its derived record, so a rollback past it restores the scene rows it expired"
       ],
@@ -166,7 +166,7 @@
     {
       "id": "reasoning-orphan-close",
       "verdict": "killed",
-      "ms": 13928,
+      "ms": 8905,
       "killedBy": [
         "stripChannelNoise survives a quoted opener or closer inside the reasoning",
         "stripChannelNoise drops reasoning whose opener was prefilled by the prompt template",
@@ -177,7 +177,7 @@
     {
       "id": "replace-graph-drops-history",
       "verdict": "killed",
-      "ms": 11156,
+      "ms": 13042,
       "killedBy": [
         "L4: replacing the graph under a live run keeps the history a later edit rolls back through"
       ],
@@ -186,7 +186,7 @@
     {
       "id": "replace-graph-drops-queue",
       "verdict": "killed",
-      "ms": 18700,
+      "ms": 9838,
       "killedBy": [
         "L4: replacing the graph under a live run keeps the write the boundary is about to commit"
       ],
@@ -195,7 +195,7 @@
     {
       "id": "rollback-keeps-pending-writes",
       "verdict": "killed",
-      "ms": 9917,
+      "ms": 8758,
       "killedBy": [
         "cross-store rollback without an engine transition drops queued writes whose read reached the mutation, on the path that restores nothing (v2.4 plan 01 T1 live)"
       ],
@@ -204,7 +204,7 @@
     {
       "id": "save-binds-late-empty-save",
       "verdict": "killed",
-      "ms": 70625,
+      "ms": 75452,
       "killedBy": [
         "v2.4 plan 02 (J10.14): a save that runs after the open chat changed holds back an empty save of another chat while our save is armed, and says why it did not count",
         "v2.4 plan 02 (J10.14): a save that runs after the open chat changed control: an empty save of the chat our save was asked for is sent",
@@ -222,7 +222,7 @@
     {
       "id": "talk-key-not-chat-scoped",
       "verdict": "killed",
-      "ms": 10378,
+      "ms": 11583,
       "killedBy": [
         "TalkController intercept scopes the decision to the chat, so a new chat at the same checkpoint and message index decides again"
       ],
@@ -231,7 +231,7 @@
     {
       "id": "talk-lead-outside-speakers",
       "verdict": "killed",
-      "ms": 11589,
+      "ms": 9845,
       "killedBy": [
         "buildCandidates adds a lead the speakers list leaves out, so the rules can still pick it",
         "buildCandidates alternates an added lead with the others under no_repeat instead of repeating it",
@@ -242,7 +242,7 @@
     {
       "id": "world-info-toggled-in-place",
       "verdict": "killed",
-      "ms": 12750,
+      "ms": 9635,
       "killedBy": [
         "worldInfoPlan lets a later checkpoint switch an earlier entry off, and replays in path order"
       ],
@@ -251,7 +251,7 @@
     {
       "id": "write-ahead-unverified",
       "verdict": "killed",
-      "ms": 18248,
+      "ms": 16639,
       "killedBy": [
         "the write-ahead record gates the effect (plan 11) refuses it, and says why, when the pending row is still unsaved"
       ],
