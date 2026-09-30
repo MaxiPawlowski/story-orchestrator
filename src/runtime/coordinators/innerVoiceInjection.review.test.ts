@@ -1,11 +1,15 @@
 import { fakeHosts } from "../../../test/support/fakeHosts";
 import { plantedModel } from "../../../test/support/modelCall";
 import { EPISTEMIC_INJECTION_KEY } from "@constants/defaults";
-import { NARRATOR_HEADER, type InnerBeat } from "@memory/index";
+import type { InnerBeat } from "@memory/index";
+import { NARRATOR_HEADER } from "@memory/innerRender";
+import { loadInnerRender } from "@memory/index";
 import { MemoryCoordinator } from "./memoryCoordinator";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
 
 const prompts = new Map<string, string>();
+
+beforeAll(async () => { await loadInnerRender(); });
 const MEMBERS = ["Arin", "Ponticius", "DM Narrator"];
 
 interface Setup {

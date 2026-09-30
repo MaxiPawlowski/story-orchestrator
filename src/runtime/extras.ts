@@ -71,11 +71,8 @@ const sanitizeMirrorBook = (value: unknown): MemoryMirrorBook | null => {
   return typeof book?.name === "string" && typeof book.chatId === "string" && book.name && book.chatId ? { name: book.name, chatId: book.chatId } : null;
 };
 
-const sanitizeInnerBeats = (value: unknown): { innerBeats?: InnerBeat[] } => {
-  const beats = Array.isArray(value) ? value.filter((beat): beat is InnerBeat => Boolean(beat) && typeof beat.memberId === "string" && typeof beat.beat === "string"
-    && typeof beat.basedOnMessageId === "number" && typeof beat.chatId === "string" && typeof beat.checkpointId === "string") : [];
-  return beats.length ? { innerBeats: beats.slice(-BEAT_RING_CAP) } : {};
-};
+const sanitizeInnerBeats = (value: unknown): { innerBeats?: InnerBeat[] } =>
+  (Array.isArray(value) && value.length ? { innerBeats: (value as InnerBeat[]).slice(-BEAT_RING_CAP) } : {});
 
 export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeState => {
   const existing = value?.memory;

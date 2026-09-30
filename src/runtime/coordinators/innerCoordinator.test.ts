@@ -170,7 +170,6 @@ describe("the beat at draft (host)", () => {
   it("switched off: never loads the pass and never adds a beat", async () => {
     const { deps } = harness();
     const host = createInnerBeatHost({ ...deps, enabled: () => false, memberName: (id) => id });
-    expect(host.due()).toBe(false);
     expect(host.beatFor("ponticius")).toBe("");
   });
 });

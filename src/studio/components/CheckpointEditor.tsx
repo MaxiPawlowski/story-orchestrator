@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { TENSION_LEVELS, type ArcBridge, type Checkpoint, type CheckpointEffects, type PrimitiveValue, type TalkControl, type TensionLevel } from "@engine/index";
 import { useDraftStore } from "../draft";
-import { addCheckpoint, clearStartCheckpoint, removeCheckpoint, setArcBridges, setCheckpointMotive, setStartCheckpoint, updateCheckpoint } from "../mutations";
+import { addCheckpoint, clearStartCheckpoint, removeCheckpoint, setArcBridges, setStartCheckpoint, updateCheckpoint } from "../mutations";
+import { setCheckpointMotive } from "../innerVoiceMutations";
 import AgencyEditor from "./AgencyEditor";
 import SnapshotEditor from "./SnapshotEditor";
 import EffectsEditor from "./EffectsEditor";

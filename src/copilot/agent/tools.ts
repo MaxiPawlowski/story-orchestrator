@@ -1,10 +1,13 @@
 import { isRecord } from "@utils/guards";
 import { nearestKey } from "@utils/levenshtein";
 import type { ProvisioningOpKind } from "@wizard/index";
-import type * as Mutations from "../../studio/mutations";
+import type * as CoreMutations from "../../studio/mutations";
+import type * as InnerVoiceMutations from "../../studio/innerVoiceMutations";
 import { parseProposal } from "../index";
 import type { ProposalOpKind } from "../types";
 import type { AgentOnlyOp, AgentOp, AgentToolCall, AgentToolFamily } from "./types";
+
+type Mutations = typeof CoreMutations & typeof InnerVoiceMutations;
 
 export type AgentArgType = "string" | "number" | "boolean" | "object" | "array" | "value";
 
@@ -19,7 +22,7 @@ export interface AgentToolSpec {
   family: AgentToolFamily;
   doc: string;
   args: Record<string, AgentArgSpec>;
-  backedBy?: keyof typeof Mutations;
+  backedBy?: keyof Mutations;
 }
 
 export type DraftOpKind = Exclude<ProposalOpKind, ProvisioningOpKind>;
@@ -33,7 +36,7 @@ const QUALITY = "{key, type: string|int|float|bool|enum, values?: string[], sour
 const CHECKPOINT = "{id, name, objective, type: anchor|intermediate, tension_target?, guidance?, agency?, talk_control?, convergence_threshold?}";
 const GATE = "{q, op: ==|!=|>=|<=|>|<|in, v} | {all: gate[]} | {any: gate[]} | {not: gate}";
 
-type EditSpec = Omit<AgentToolSpec, "name" | "family"> & { backedBy: keyof typeof Mutations };
+type EditSpec = Omit<AgentToolSpec, "name" | "family"> & { backedBy: keyof Mutations };
 
 export const EDIT_TOOLS = {
   setStoryField: {
@@ -145,7 +148,7 @@ export const AGENT_TOOLS: Record<string, AgentToolSpec> = Object.fromEntries([
 
 export const AGENT_TOOL_NAMES = Object.keys(AGENT_TOOLS);
 
-export const MUTATIONS_WITHOUT_A_TOOL: Partial<Record<keyof typeof Mutations, string>> = {
+export const MUTATIONS_WITHOUT_A_TOOL: Partial<Record<keyof Mutations, string>> = {
   nextId: "id helper",
   newQuality: "constructor; addQuality takes the full quality",
   newCheckpoint: "constructor; addCheckpoint takes the full checkpoint",

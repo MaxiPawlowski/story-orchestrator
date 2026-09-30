@@ -125,7 +125,7 @@ export function buildEpistemicPassPrompt(sceneText: string, participants: string
     participantHint,
     "Scene:",
     sceneText,
-    ...(reasoning ? ["", "Each character's own private reasoning (evidence ONLY for that same character's [intends] lines; never for anyone else):", reasoning] : []),
+    ...(reasoning ? ["", reasoning] : []),
     "",
     "Output:",
   ].filter((line) => line !== "").join("\n");

@@ -19,7 +19,7 @@ import { decodeDelete, messageKeys } from "@runtime/messageIdentity";
 import { applyConsolidation, type ConsolidationResult, type MatchSets } from "./consolidate";
 import { disappearingEntries, recordDerived, type DerivedRecord } from "./derived";
 import { applyEpistemicSignals } from "./epistemic";
-import { pushBeat } from "./innerVoice";
+import { pushBeat } from "./innerRender";
 import { applyLedgerSignals, buildLedgerView } from "./ledger";
 import { reverseMemoryState, type MemoryRollbackState } from "./reverse";
 import { addMemoryEntries, createMemoryState, excludeEntry, hashMemoryText, rollingShortTerm, type ShortTermPlacement } from "./stores";

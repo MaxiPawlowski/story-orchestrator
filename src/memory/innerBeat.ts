@@ -1,4 +1,4 @@
-import { isMetaCommentary } from "./innerVoice";
+import { isMetaCommentary } from "./innerRender";
 
 export interface InnerBeatPromptInput {
   storyTitle: string;

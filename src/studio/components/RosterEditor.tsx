@@ -1,7 +1,8 @@
 import React from "react";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import { useDraftStore } from "../draft";
-import { addRosterMember, nextId, removeRosterMember, setRosterDrive, setRosterView, updateRosterMember } from "../mutations";
+import { addRosterMember, nextId, removeRosterMember, updateRosterMember } from "../mutations";
+import { setRosterDrive, setRosterView } from "../innerVoiceMutations";
 
 // The roster is what every cast-facing picker offers: talk_control speakers and lead, npc_replies
 // members, cast_changes. Studio-born stories used to render those pickers empty (finding).

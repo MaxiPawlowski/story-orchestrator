@@ -1,6 +1,7 @@
 import { jaccardSimilarity } from "./similarity";
 import { isLive, keepPinnedFrom, provenance as provenanceOf, type ProvenanceSource } from "./provenance";
 import { EPISTEMIC_TAGS, generateMemoryId, type EpistemicEntry, type EpistemicTag, type ParsedEpistemicSignal } from "./types";
+import { lastAffirmed } from "./innerVoice";
 
 export const EPISTEMIC_MIN_LENGTH = 3;
 export const EPISTEMIC_DEDUP_THRESHOLD = 0.6;
@@ -73,7 +74,7 @@ export function applyEpistemicSignals(
     const subject = signal.subject.trim();
     if (!subject) continue;
     const same = [...next, ...added].find((entry) => isDuplicate(entry, signal));
-    if (same && signal.tag === "intends" && typeof ctx.messageId === "number" && ctx.messageId > (same.affirmedAt?.at(-1)?.messageId ?? same.messageId ?? -1)) {
+    if (same && signal.tag === "intends" && typeof ctx.messageId === "number" && ctx.messageId > lastAffirmed(same).messageId) {
       same.affirmedAt = [...(same.affirmedAt ?? []), { messageId: ctx.messageId, boundary: ctx.boundary }].slice(-AFFIRMATION_CAP);
     }
     if (same) continue;
@@ -183,8 +184,7 @@ export function rollbackEpistemic(entries: EpistemicEntry[], messageId: number):
     .flatMap((entry) => keepPinnedFrom(entry, messageId))
     .map((entry) => {
       const affirmed = entry.affirmedAt?.filter((stamp) => stamp.messageId < messageId);
-      const { affirmedAt: _stamps, ...bare } = entry;
-      const kept = !affirmed || affirmed.length === entry.affirmedAt?.length ? entry : affirmed.length ? { ...entry, affirmedAt: affirmed } : bare;
+      const kept = affirmed ? { ...entry, affirmedAt: affirmed.length ? affirmed : undefined } : entry;
       if (!kept.retiredAt || kept.retiredAt.messageId < messageId) return kept;
       const { supersededBy: _by, retiredAt: _at, ...rest } = kept;
       return rest;

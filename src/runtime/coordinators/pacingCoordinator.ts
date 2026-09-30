@@ -102,11 +102,6 @@ export class PacingCoordinator {
     return computeExpectedTension(this.deps.getStory(), this.deps.getState(), this.deps.getTensionTarget(), this.effectiveShape());
   }
 
-  steeringText(): string {
-    const activeId = this.deps.getState()?.activeCheckpointId ?? null;
-    return getSteeringHint(this.deps.getTension().smoothed, this.expectedTension(), undefined, agencyForCheckpoint(this.deps.getStory(), activeId))?.text ?? "";
-  }
-
   updateSteering() {
     const story = this.deps.getStory();
     const prompt = this.deps.hosts.prompt;

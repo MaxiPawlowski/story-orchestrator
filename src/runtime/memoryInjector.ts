@@ -3,7 +3,7 @@ import {
   applyEpistemicInjection, applyLedgerInjection, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildLedgerView,
   buildMemoryInjectionBlocks, clearAllMemoryInjection, memoryInjectionView, pinnedOverflowOf, type MemoryInjectionView, clearEpistemicInjection, memoryExtensionKey, openArcTexts,
   renderLedgerBlock, renderPrivateEpistemicBlock, renderSoloEpistemicBlock, type LedgerBinding, type LedgerView, type MemoryTier,
-  type ScoreContext, castVoices, hasInnerVoice, joinBlocks, renderCastAims, renderNarratorBlock, renderOwnAims, withoutLapsedIntents,
+  type ScoreContext, castVoices, hasInnerVoice, innerRender, joinBlocks, loadInnerRender, withoutLapsedIntents,
   type CastVoice, type EpistemicEntry,
 } from "@memory/index";
 import { EPISTEMIC_INJECTION_DEPTH, EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_DEPTH } from "@constants/defaults";
@@ -24,7 +24,7 @@ export interface MemoryInjectorDeps {
   ledgerBindings: () => LedgerBinding[];
   setPinnedOverflow: (count: number) => void;
   hosts: () => InjectorHosts;
-  beatFor?: (rosterId: string) => string;
+  beatFor: (rosterId: string) => string;
 }
 
 // What the memory stores put into SillyTavern's prompt, split out of MemoryCoordinator. The
@@ -80,22 +80,21 @@ export class MemoryInjector {
     return castVoices(story, this.deps.getState()?.activeCheckpointId ?? null);
   }
 
-  private memberBlock(story: NormalizedStoryV2, id: string, voices: CastVoice[], knowledge: EpistemicEntry[], beat = ""): string {
-    const voice = voices.find((candidate) => candidate.id === id);
-    const own = renderOwnAims(voice && beat ? { ...voice, beat } : voice);
+  private memberBlock(story: NormalizedStoryV2, id: string, knowledge: EpistemicEntry[], beat = ""): string {
     const known = this.deps.capable() ? knowledge : [];
-    if (voice?.omniscient) return joinBlocks(own, renderNarratorBlock(known, voices, id));
-    return joinBlocks(own, known.length ? renderPrivateEpistemicBlock(known, namesForRosterId(story, id)) : "");
+    const privateBlock = known.length ? renderPrivateEpistemicBlock(known, namesForRosterId(story, id)) : "";
+    const render = innerRender();
+    return render ? render.memberAimsBlock(this.voices(story), id, beat, known, privateBlock) : privateBlock;
   }
 
-  private soloAims(voices: CastVoice[], beat = ""): string {
-    if (voices.length !== 1) return renderCastAims(voices);
-    return renderOwnAims(beat ? { ...voices[0], beat } : voices[0]);
+  private soloBlock(story: NormalizedStoryV2, knowledge: string, beat = ""): string {
+    const render = innerRender();
+    return render ? joinBlocks(render.soloAims(this.voices(story), beat), knowledge) : knowledge;
   }
 
   memberPrivateBlock(rosterId: string): string {
     const story = this.deps.getStory();
-    return story ? this.memberBlock(story, rosterId, this.voices(story), this.knowledge()) : "";
+    return story ? this.memberBlock(story, rosterId, this.knowledge()) : "";
   }
 
   update() {
@@ -121,17 +120,18 @@ export class MemoryInjector {
     applyLedgerInjection(this.hosts.prompt, renderLedgerBlock(buildLedgerView(this.state.ledger, this.deps.ledgerBindings(), values, versions)), LEDGER_INJECTION_DEPTH);
 
     this.stagedPrivate.clear();
-    const voices = this.voices(story);
     const capable = this.deps.capable();
-    if (capable || hasInnerVoice(voices)) {
+    const voiced = hasInnerVoice(this.voices(story));
+    if (voiced && !innerRender()) void loadInnerRender().then(() => this.update());
+    if (capable || voiced) {
       const knowledge = this.knowledge();
       for (const id of enabledCharacterIds(story, this.hosts.roster)) {
         const facts = capable ? buildMemoryInjectionBlocks(this.state.entries, id, options).facts : null;
-        this.stagedPrivate.set(id, { facts, epistemic: this.memberBlock(story, id, voices, knowledge) });
+        this.stagedPrivate.set(id, { facts, epistemic: this.memberBlock(story, id, knowledge) });
       }
       // A group has no speaker between drafts: whatever holds the prompt at rest (impersonate, quiet
       // generations, other extensions) must not carry the last drafted member's private knowledge.
-      const solo = () => joinBlocks(this.soloAims(voices), capable ? renderSoloEpistemicBlock(knowledge, enabledCharacterNames(story, this.hosts.roster)) : "");
+      const solo = () => this.soloBlock(story, capable ? renderSoloEpistemicBlock(knowledge, enabledCharacterNames(story, this.hosts.roster)) : "");
       const group = Boolean(this.hosts.roster.getActiveGroup());
       const speakerBlock = this.withheld || group ? "" : speaker ? (this.stagedPrivate.get(speaker)?.epistemic ?? "") : solo();
       applyEpistemicInjection(this.hosts.prompt, speakerBlock, EPISTEMIC_INJECTION_DEPTH);
@@ -186,20 +186,19 @@ export class MemoryInjector {
       this.setPrivateBlocks(this.deps.capable() ? buildMemoryInjectionBlocks(this.state.entries, activeSpeakerId(story, this.hosts.roster), this.options()).facts : null, "");
       return;
     }
-    const beat = this.deps.beatFor?.(rosterId) ?? "";
-    const epistemic = beat ? this.memberBlock(story, rosterId, this.voices(story), this.knowledge(), beat) : staged.epistemic;
-    this.draft = { storyId: storyKey(story), rosterId, ...(beat ? { epistemic } : {}) };
+    const beat = this.deps.beatFor(rosterId);
+    const epistemic = beat ? this.memberBlock(story, rosterId, this.knowledge(), beat) : staged.epistemic;
+    this.draft = beat ? { storyId: storyKey(story), rosterId, epistemic } : { storyId: storyKey(story), rosterId };
     this.setPrivateBlocks(staged.facts, epistemic);
   }
 
   onSoloGeneration() {
     const story = this.deps.getStory();
     if (!story || this.withheld || this.hosts.roster.getActiveGroup() || !this.deps.enabled()) return;
-    const voices = this.voices(story);
-    const beat = voices.length === 1 ? this.deps.beatFor?.(voices[0].id) ?? "" : "";
+    const beat = story.roster.length === 1 ? this.deps.beatFor(story.roster[0].id) : "";
     if (!beat) return;
     const known = this.deps.capable() ? renderSoloEpistemicBlock(this.knowledge(), enabledCharacterNames(story, this.hosts.roster)) : "";
-    applyEpistemicInjection(this.hosts.prompt, joinBlocks(this.soloAims(voices, beat), known), EPISTEMIC_INJECTION_DEPTH);
+    applyEpistemicInjection(this.hosts.prompt, this.soloBlock(story, known, beat), EPISTEMIC_INJECTION_DEPTH);
   }
 
   blocks(): Record<MemoryTier, string> {

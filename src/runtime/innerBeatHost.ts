@@ -1,5 +1,11 @@
-import { beatAnchorId, freshBeat, type InnerBeat } from "@memory/index";
-import type { InnerCoordinator, InnerCoordinatorDeps } from "./coordinators/innerCoordinator";
+import { agencyForCheckpoint } from "@engine/index";
+import { takeBeat } from "@memory/innerRender";
+import { getSteeringHint } from "@pacing/index";
+import { InnerCoordinator, type InnerCoordinatorDeps } from "./coordinators/innerCoordinator";
+import type { MemoryCoordinator } from "./coordinators/memoryCoordinator";
+import type { PacingCoordinator } from "./coordinators/pacingCoordinator";
+import type { ManagerPort } from "./managerWiring";
+import { activeSpeakerId, enabledCharacterIds, nameForRosterId } from "./roster";
 
 export interface InnerBeatHostDeps extends InnerCoordinatorDeps {
   enabled: () => boolean;
@@ -7,31 +13,40 @@ export interface InnerBeatHostDeps extends InnerCoordinatorDeps {
 }
 
 export interface InnerBeatHost {
-  due: () => boolean;
   run: () => Promise<number>;
   beatFor: (rosterId: string) => string;
 }
 
 export function createInnerBeatHost(deps: InnerBeatHostDeps): InnerBeatHost {
-  let coordinator: Promise<InnerCoordinator> | null = null;
-  const load = () => (coordinator ??= import("./coordinators/innerCoordinator").then(({ InnerCoordinator }) => new InnerCoordinator(deps)));
+  const coordinator = new InnerCoordinator(deps);
   return {
-    due: () => deps.enabled() && Boolean(deps.getStory()),
-    run: async () => (await load()).run(),
-    beatFor: (rosterId) => {
-      if (!deps.enabled()) return "";
-      const beats = deps.getBeats() ?? [];
-      const anchor = { chatId: deps.chatId() ?? "", checkpointId: deps.getState()?.activeCheckpointId ?? null, basedOn: beatAnchorId(deps.chatRows()) };
-      const beat = freshBeat(beats, rosterId, anchor);
-      const name = deps.memberName(rosterId);
-      if (!beat) {
-        const held = beats.some((entry: InnerBeat) => entry.memberId === rosterId && entry.chatId === anchor.chatId);
-        deps.journal(held ? `Inner beat stale for ${name}` : `No inner beat for ${name}`, held ? "built on an older reply, another checkpoint or another chat" : undefined);
-        return "";
-      }
-      if (!beat.used) deps.setBeats(beats.map((entry) => (entry === beat ? { ...entry, used: true } : entry)));
-      deps.journal(`Inner beat used for ${name}`);
-      return beat.beat;
-    },
+    run: () => coordinator.run(),
+    beatFor: (rosterId) => (deps.enabled() ? takeBeat(rosterId, {
+      beats: deps.getBeats() ?? [], chatId: deps.chatId() ?? "", checkpointId: deps.getState()?.activeCheckpointId ?? null,
+      rows: deps.chatRows(), name: deps.memberName(rosterId), journal: deps.journal, setBeats: deps.setBeats,
+    }) : ""),
   };
+}
+
+export function innerBeatHostFor(port: ManagerPort, memory: MemoryCoordinator, pacing: PacingCoordinator): InnerBeatHost {
+  const { view, lifecycle } = port;
+  return createInnerBeatHost({
+    ...view,
+    ...lifecycle,
+    enabled: () => port.extras().memory.settings.innerBeat === true,
+    fanOut: () => port.extras().memory.settings.innerFanOut ?? "lead",
+    chatId: () => view.hosts.chat.chatId(),
+    chatRows: () => view.hosts.chat.chatRows(),
+    window: (from, to) => view.hosts.chat.chatWindow(from, to).messages,
+    group: () => Boolean(view.hosts.roster.getActiveGroup()),
+    enabledIds: () => enabledCharacterIds(view.getStory(), view.hosts.roster),
+    lastSpeaker: () => activeSpeakerId(view.getStory(), view.hosts.roster),
+    memberName: (rosterId) => nameForRosterId(view.getStory(), rosterId),
+    privateRows: (rosterId) => memory.injector.memberPrivateBlock(rosterId),
+    steering: () => getSteeringHint(port.extras().tension.smoothed, pacing.expectedTension(), undefined,
+      agencyForCheckpoint(view.getStory(), view.getState()?.activeCheckpointId ?? null))?.text ?? "",
+    getBeats: () => port.extras().memory.innerBeats,
+    setBeats: (next) => { port.extras().memory = { ...port.extras().memory, innerBeats: next }; },
+    journal: (summary, note) => port.journal("status", summary, note),
+  });
 }

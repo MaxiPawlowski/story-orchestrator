@@ -14,7 +14,7 @@ import {
   removeLedger, restoreEntry, setArcPinned, setLocked, setArcSummary, setEpistemicPinned, setLedgerPinned, setPinned,
   type ArcEntry, type DerivedRecord, type EpistemicEntry, type LedgerBinding, type LedgerView, type MemoryEntry,
   type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type UncertainPair,
-  consolidateTierJudged, clearContradicted, sceneRangeFrom, rollingShortTerm, type ShortTermPlacement, admitIntents, capIntents, intentEvidence,
+  consolidateTierJudged, clearContradicted, sceneRangeFrom, rollingShortTerm, type ShortTermPlacement, innerRender,
 } from "@memory/index";
 import { PAIR_JACCARD_FLOOR, type SceneReadRecord } from "@judge/index";
 import type { Provenance } from "@memory/provenance";
@@ -319,11 +319,15 @@ export class MemoryCoordinator {
   // --- epistemic / ledger ------------------------------------------------
 
   applyEpistemic(signals: ParsedEpistemicSignal[], messageId: number, retireIds: string[] = [], window?: { from: number; to: number }) {
-    const evidence = window ? intentEvidence(this.deps.hosts.chat.chatWindow(window.from, window.to).messages, this.deps.getStory()?.requirements?.personas ?? []) : null;
-    const kept = admitIntents(dropCommonKnowledge(signals, enabledCharacterNames(this.deps.getStory(), this.deps.hosts.roster)), evidence);
+    const inner = innerRender();
+    const story = this.deps.getStory();
+    const common = dropCommonKnowledge(signals, enabledCharacterNames(story, this.deps.hosts.roster));
+    const kept = inner && window
+      ? inner.admitIntents(common, inner.intentEvidence(this.deps.hosts.chat.chatWindow(window.from, window.to).messages, story?.requirements?.personas ?? []))
+      : common.filter((signal) => signal.tag !== "intends");
     const applied = applyEpistemicSignals(this.state.epistemic, kept, { boundary: this.boundaryStamp(), messageId }, retireIds);
     // Refresh here too, or a pass that lapses after this write injects the member an empty block.
-    this.patch({ epistemic: capEpistemic(capIntents(applied.entries)) }); this.updateInjection();
+    this.patch({ epistemic: capEpistemic(inner ? inner.capIntents(applied.entries) : applied.entries) }); this.updateInjection();
   }
 
   applyLedger(signals: ParsedLedgerSignal[], messageId: number) {
@@ -359,8 +363,6 @@ export class MemoryCoordinator {
   releaseStaleHold() { if (this.injector.releaseWithhold()) this.injector.update(); }
   withholdPrivateKnowledge() { this.injector.withholdPrivateKnowledge(); }
   onMemberDrafted(chId: number | [number]) { this.injector.onMemberDrafted(chId); }
-  onSoloGeneration() { this.injector.onSoloGeneration(); }
-  privateBlockFor(rosterId: string): string { return this.injector.memberPrivateBlock(rosterId); }
   getInjectionBlocks(): Record<MemoryTier, string> { return this.injector.blocks(); }
 
   // --- consolidation -----------------------------------------------------

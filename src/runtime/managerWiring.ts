@@ -19,8 +19,8 @@ import type { StoryUpdateDeps } from "./storyUpdate";
 import type { RunOwnership } from "./runToken";
 import type { LoadedStory, RuntimeExtras } from "./types";
 import { loadWizardSession, saveWizardSession } from "./wizardSessions";
-import { createInnerBeatHost } from "./innerBeatHost";
-import { activeSpeakerId, enabledCharacterIds, nameForRosterId } from "./roster";
+import type { InnerBeatHost } from "./innerBeatHost";
+import { loadInnerRender } from "@memory/index";
 
 export interface ManagerPort {
   view: { getStory: () => NormalizedStoryV2 | null; getState: () => EngineState | null; hosts: typeof coordinatorHosts };
@@ -62,24 +62,14 @@ export function wireCoordinators(port: ManagerPort) {
     unsaved: () => port.unsaved(),
     beatFor: (rosterId) => inner.beatFor(rosterId),
   });
-  const inner = createInnerBeatHost({
-    ...view,
-    ...lifecycle,
-    enabled: () => port.extras().memory.settings.innerBeat === true,
-    fanOut: () => port.extras().memory.settings.innerFanOut ?? "lead",
-    chatId: () => view.hosts.chat.chatId(),
-    chatRows: () => view.hosts.chat.chatRows(),
-    window: (from, to) => view.hosts.chat.chatWindow(from, to).messages,
-    group: () => Boolean(view.hosts.roster.getActiveGroup()),
-    enabledIds: () => enabledCharacterIds(view.getStory(), view.hosts.roster),
-    lastSpeaker: () => activeSpeakerId(view.getStory(), view.hosts.roster),
-    memberName: (rosterId) => nameForRosterId(view.getStory(), rosterId),
-    privateRows: (rosterId) => memory.privateBlockFor(rosterId),
-    steering: () => pacing.steeringText(),
-    getBeats: () => port.extras().memory.innerBeats,
-    setBeats: (next) => { port.extras().memory = { ...port.extras().memory, innerBeats: next }; },
-    journal: (summary, note) => port.journal("status", summary, note),
-  });
+  let innerHost: InnerBeatHost | null = null;
+  let innerLoad: Promise<InnerBeatHost> | null = null;
+  const inner = {
+    due: () => port.extras().memory.settings.innerBeat === true && Boolean(view.getStory()),
+    run: async () => (await (innerLoad ??= loadInnerRender().then(() => import("./innerBeatHost"))
+      .then(({ innerBeatHostFor }) => (innerHost = innerBeatHostFor(port, memory, pacing))))).run(),
+    beatFor: (rosterId: string) => innerHost?.beatFor(rosterId) ?? "",
+  };
   const expansion: ExpansionCoordinator = new ExpansionCoordinator({
     ...view,
     getStoryRaw: () => port.loaded()?.record.raw,

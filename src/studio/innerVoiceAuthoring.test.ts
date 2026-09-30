@@ -3,7 +3,7 @@ import { parseProposal } from "@copilot/index";
 import { applyAgentOp, checkToolCall, describeAgentOp } from "../copilot/agent";
 import { runDiagnostics } from "./diagnostics";
 import { newStoryDraft } from "./draft";
-import { setCheckpointMotive, setRosterDrive, setRosterView } from "./mutations";
+import { setCheckpointMotive, setRosterDrive, setRosterView } from "./innerVoiceMutations";
 import { sanitizeGlobalSettings } from "../runtime/settingsModel";
 
 const base = () => ({

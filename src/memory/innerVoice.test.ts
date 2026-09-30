@@ -1,9 +1,10 @@
 import { applyEpistemicSignals, rollbackEpistemic } from "./epistemic";
 import {
-  admitIntents, BEAT_RING_CAP, beatAnchorId, capIntents, castVoices, freshBeat, harvestReasoning, INTENT_LAPSE_BOUNDARIES, intentEvidence, intentLapsed,
-  isMetaCommentary, NARRATOR_HEADER, NARRATOR_SUBJECT_CAP, pushBeat, renderCastAims, renderNarratorBlock, renderOwnAims, rollbackBeats,
-  PROVISIONAL_MEDIAN_BOUNDARIES_PER_SCENE,
+  BEAT_RING_CAP, castVoices, INTENT_LAPSE_BOUNDARIES, intentLapsed, rollbackBeats, PROVISIONAL_MEDIAN_BOUNDARIES_PER_SCENE,
 } from "./innerVoice";
+import {
+  admitIntents, capIntents, intentEvidence, isMetaCommentary, beatAnchorId, freshBeat, harvestReasoning, HARVEST_HEADER, NARRATOR_HEADER, NARRATOR_SUBJECT_CAP, pushBeat, renderCastAims, renderNarratorBlock, renderOwnAims,
+} from "./innerRender";
 import { parseInnerBeat, renderInnerBeatPrompt } from "./innerBeat";
 import { parseEpistemicLine } from "./parse";
 import { provenance } from "./provenance";
@@ -179,6 +180,6 @@ describe("B2 reasoning harvest (switch off by default)", () => {
       { name: "Lyria", extra: { reasoning: "She wants the map gone." } },
       { name: "Lyria", extra: { reasoning: "outside the window" } },
     ];
-    expect(harvestReasoning(rows, { from: 0, to: 2 })).toBe("Kael: He fears the guard.\nLyria: She wants the map gone.");
+    expect(harvestReasoning(rows, { from: 0, to: 2 })).toBe(`${HARVEST_HEADER}\nKael: He fears the guard.\nLyria: She wants the map gone.`);
   });
 });

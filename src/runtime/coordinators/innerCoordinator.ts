@@ -1,9 +1,11 @@
 import { agencyForCheckpoint, renderAgencyPolicy, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { askText, type ModelCall } from "@extraction/modelRoute";
 import { stripChannelNoise } from "@extraction/parse";
-import { pushBeat, type InnerBeat } from "@memory/index";
+import type { InnerBeat } from "@memory/index";
+import { pushBeat } from "@memory/innerRender";
 import { INNER_BEAT_MAX_TOKENS, INNER_BEAT_REPAIR, parseInnerBeat, renderInnerBeatPrompt, type ParsedInnerBeat } from "@memory/innerBeat";
-import { buildCandidates, likelyNextSpeakers } from "@talk/index";
+import { buildCandidates } from "@talk/index";
+import { likelyNextSpeakers } from "@talk/nextSpeakers";
 import { beginRun, type RunOwnership } from "../runToken";
 import type { InnerFanOut } from "../types";
 

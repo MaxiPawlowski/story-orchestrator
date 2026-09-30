@@ -166,13 +166,10 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
 });
 
 const sanitizeInnerVoice = (memory: MemoryRuntimeSettings): MemoryRuntimeSettings => {
-  const { innerBeat, innerFanOut, harvestReasoning, ...rest } = memory;
-  return {
-    ...rest,
-    ...(innerBeat === true ? { innerBeat } : {}),
-    ...(innerFanOut === "top2" ? { innerFanOut } : {}),
-    ...(harvestReasoning === true ? { harvestReasoning } : {}),
-  };
+  if (memory.innerBeat !== true) delete memory.innerBeat;
+  if (memory.innerFanOut !== "top2") delete memory.innerFanOut;
+  if (memory.harvestReasoning !== true) delete memory.harvestReasoning;
+  return memory;
 };
 
 const clampAlpha = (value: unknown) => (typeof value === "number" && value >= 0 && value <= 1 ? value : DEFAULT_TENSION_EMA_ALPHA);
