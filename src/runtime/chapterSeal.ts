@@ -68,7 +68,8 @@ const fitInput = (input: ChapterInput, render: (input: ChapterInput) => string):
   let items = [...input.items];
   for (const kind of ["detail", "fact", "ledger"] as const) {
     while (estimateTokens(render({ ...input, items })) > CHAPTER_INPUT_TOKENS && items.some((item) => item.kind === kind)) {
-      items = items.filter((item, index) => index !== items.findIndex((candidate) => candidate.kind === kind));
+      const drop = items.findIndex((candidate) => candidate.kind === kind);
+      items = items.filter((_item, index) => index !== drop);
     }
   }
   return { ...input, items };

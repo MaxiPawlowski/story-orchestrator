@@ -152,7 +152,8 @@ export function nextRepairStep(snapshot: RuntimeSnapshot): RepairStep | null {
   }
   const degraded = (snapshot.memory?.chapters ?? []).find((record) => record.status === "degraded");
   if (degraded) {
-    return { area: "chapter", consequence: `Chapter "${degraded.playerTitle}" was sealed without a written summary.`, detail: "Re-seal it from the Chapters panel.", targetId: null, provisionable: false };
+    const consequence = `Chapter "${degraded.playerTitle}" was sealed without a written summary.`;
+    return { area: "chapter", consequence, detail: "Re-seal it from the Chapters panel.", targetId: null, provisionable: false };
   }
   return wiGatingStep(snapshot) ?? orphanedLorebookStep(snapshot);
 }
