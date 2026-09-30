@@ -9,35 +9,41 @@ import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
 import { browserProfileFor, debugDirFor, settleDialogs } from './connection.mts';
 
-const ROOT = resolve('C:/dev/SillyTavern-MainBranch/public/scripts/extensions/third-party/story-orchestrator');
+const ROOT = resolve('C:/dev/story-orchestrator');
+const ST = { ST_ROOT: 'C:/dev/SillyTavern-MainBranch' };
+const ST_ROOT_IN_TREE = resolve('C:/dev/SillyTavern-MainBranch/public/scripts/extensions/third-party/story-orchestrator');
 
 test('the browser profile never sits under ST public/, which ST serves to the network', () => {
-  const profile = browserProfileFor({}, resolve(ROOT, '.debug'), ROOT);
+  const profile = browserProfileFor(ST, resolve(ST_ROOT_IN_TREE, '.debug'), ROOT);
   assert.equal(profile, resolve('C:/dev/so-lanes/0/chromium-profile'));
   assert.ok(!profile.split(/[\\/]/).includes('public'));
 });
 
 test('a lane debug dir outside the served tree keeps its profile beside it', () => {
-  assert.equal(browserProfileFor({}, resolve('C:/dev/so-lanes/2/debug'), ROOT), resolve('C:/dev/so-lanes/2/debug/chromium-profile'));
+  assert.equal(browserProfileFor(ST, resolve('C:/dev/so-lanes/2/debug'), ROOT), resolve('C:/dev/so-lanes/2/debug/chromium-profile'));
 });
 
 test('ST_DEBUG_PROFILE_DIR and SO_LANES_ROOT override the default', () => {
-  assert.equal(browserProfileFor({ ST_DEBUG_PROFILE_DIR: 'D:/profiles/so' }, resolve(ROOT, '.debug'), ROOT), resolve('D:/profiles/so'));
-  assert.equal(browserProfileFor({ SO_LANES_ROOT: 'E:/lanes' }, resolve(ROOT, '.debug'), ROOT), resolve('E:/lanes/0/chromium-profile'));
+  assert.equal(browserProfileFor({ ...ST, ST_DEBUG_PROFILE_DIR: 'D:/profiles/so' }, resolve(ROOT, '.debug'), ROOT), resolve('D:/profiles/so'));
+  assert.equal(browserProfileFor({ ...ST, SO_LANES_ROOT: 'E:/lanes' }, resolve(ST_ROOT_IN_TREE, '.debug'), ROOT), resolve('E:/lanes/0/chromium-profile'));
 });
 
 test('v2.5 plan 12 P3: an unset or blank SO_DEBUG_DIR defaults to lane 0 outside the served tree', () => {
   const lane0 = resolve('C:/dev/so-lanes/0/debug');
-  assert.equal(debugDirFor({}, ROOT), lane0);
-  assert.equal(debugDirFor({ SO_DEBUG_DIR: '' }, ROOT), lane0);
-  assert.equal(debugDirFor({ SO_DEBUG_DIR: '   ' }, ROOT), lane0, 'whitespace is unset, not a directory named "   "');
-  assert.ok(!debugDirFor({}, ROOT).split(/[\/]/).includes('public'), 'run logs, journals and payload captures hold chat text; ST serves public/');
+  assert.equal(debugDirFor(ST, ROOT), lane0);
+  assert.equal(debugDirFor({ ...ST, SO_DEBUG_DIR: '' }, ROOT), lane0);
+  assert.equal(debugDirFor({ ...ST, SO_DEBUG_DIR: '   ' }, ROOT), lane0, 'whitespace is unset, not a directory named "   "');
+  assert.ok(!debugDirFor(ST, ROOT).split(/[\/]/).includes('public'), 'run logs, journals and payload captures hold chat text; ST serves public/');
   assert.equal(debugDirFor({ SO_LANES_ROOT: 'E:/lanes' }, ROOT), resolve('E:/lanes/0/debug'));
 });
 
 test('the default lane-0 debug dir keeps the existing lane-0 browser profile beside it', () => {
-  assert.equal(browserProfileFor({}, debugDirFor({}, ROOT), ROOT), resolve('C:/dev/so-lanes/0/chromium-profile'));
+  assert.equal(browserProfileFor(ST, debugDirFor(ST, ROOT), ROOT), resolve('C:/dev/so-lanes/0/chromium-profile'));
   assert.equal(browserProfileFor({ SO_LANES_ROOT: 'E:/lanes' }, debugDirFor({ SO_LANES_ROOT: 'E:/lanes' }, ROOT), ROOT), resolve('E:/lanes/0/chromium-profile'));
+});
+
+test('v2.6 step 0: with no ST_ROOT and no .st-root the lanes root is refused, never derived', () => {
+  assert.throws(() => debugDirFor({}, resolve('C:/nowhere/no-repo')), /ST_ROOT is not set/);
 });
 
 test('a relative SO_DEBUG_DIR resolves under the project root', () => {

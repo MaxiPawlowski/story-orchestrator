@@ -36,3 +36,5 @@ notes/
 .debug/
 .hf/
 .hybrid-framework/
+# v2.6 step 0: the SillyTavern root this checkout serves into (never derived)
+/.st-root

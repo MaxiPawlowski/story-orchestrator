@@ -6,9 +6,10 @@ import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { configuredStRoot } from '../lib/stRoot.mjs';
 
 const ROOT = resolve(fileURLToPath(new URL('../..', import.meta.url)));
-const ST_ROOT = process.env.ST_ROOT ? resolve(process.env.ST_ROOT) : resolve(ROOT, '../../../../..');
+const ST_ROOT = configuredStRoot(process.env, ROOT) ?? resolve(ROOT, '.st-root-unset');
 const EVENTS_JS = join(ST_ROOT, 'public', 'scripts', 'events.js');
 
 const sources = (dir: string): string[] => readdirSync(dir).flatMap((name) => {
@@ -36,8 +37,7 @@ export function hostEventTypes(eventsJs: string): Map<string, string> {
 
 test('every event name src/ subscribes to is a key or a value of ST event_types', (t) => {
   if (!existsSync(EVENTS_JS)) {
-    t.skip(`blocked: no SillyTavern checkout at ${ST_ROOT} (set ST_ROOT)`);
-    return;
+    assert.fail(`no SillyTavern checkout at ${ST_ROOT}: set ST_ROOT or write .st-root`);
   }
   const types = hostEventTypes(readFileSync(EVENTS_JS, 'utf-8'));
   assert.ok(types.size > 50, `parsed only ${types.size} event types from ${EVENTS_JS}`);

@@ -4,6 +4,7 @@ import { createWriteStream, existsSync, readFileSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
 import { PROJECT_ROOT } from './lib/connection.mts';
 import { diskFlavourIssue } from './lib/bundleFlavour.mts';
+import { lanesRootFor, requireStRoot } from './../lib/stRoot.mjs';
 
 const USAGE = `Usage: node scripts/debug/st-lanes.mts <command> [...]
 
@@ -24,10 +25,10 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
                                item that many times back to back on the SAME lane, so "twice" stays
                                "two consecutive runs on one install".`;
 
-const ST_ROOT = process.env.ST_ROOT ? resolve(process.env.ST_ROOT) : resolve(PROJECT_ROOT, '../../../../..');
+const ST_ROOT = requireStRoot(process.env, PROJECT_ROOT);
 // Outside the ST tree on purpose: a lane's data root holds a copy of secrets.json, and everything under
 // public/ (this extension's .debug included) is served over HTTP by the running SillyTavern.
-const LANES_ROOT = process.env.SO_LANES_ROOT ? resolve(process.env.SO_LANES_ROOT) : resolve(ST_ROOT, '..', 'so-lanes');
+const LANES_ROOT = lanesRootFor(process.env, PROJECT_ROOT);
 const SKIP_SEED = new Set(['backups', 'vectors', 'thumbnails']);
 
 const lanePaths = (n: number) => {

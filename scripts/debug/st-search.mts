@@ -9,6 +9,7 @@ import { resolve, relative, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PROJECT_ROOT } from './lib/connection.mts';
 import { writeJSON } from './lib/output.mts';
+import { configuredStRoot, stRootIssue } from '../lib/stRoot.mjs';
 
 async function pathExists(path) {
   try {
@@ -20,7 +21,8 @@ async function pathExists(path) {
 }
 
 async function findDefaultSTRoot() {
-  if (process.env.ST_ROOT) return resolve(process.env.ST_ROOT);
+  const configured = configuredStRoot(process.env, PROJECT_ROOT);
+  if (configured) return configured;
   let current = PROJECT_ROOT;
   for (let i = 0; i < 12; i += 1) {
     if (await pathExists(resolve(current, 'public', 'script.js'))) return current;
@@ -28,7 +30,7 @@ async function findDefaultSTRoot() {
     if (parent === current) break;
     current = parent;
   }
-  return resolve(PROJECT_ROOT, '..', '..', '..', '..', '..');
+  throw new Error(stRootIssue(null) ?? 'ST_ROOT is not set');
 }
 
 const DEFAULT_GLOBS = '*.js,*.ts,*.mjs';

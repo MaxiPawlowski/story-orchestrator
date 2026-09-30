@@ -13,6 +13,7 @@ import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { FLAVOURS } from "./buildChecks.mjs";
+import { requireStRoot } from "../lib/stRoot.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..", "..");
@@ -45,9 +46,8 @@ const sourceManifest = [...sourceFiles(), ...configFiles]
   .sort()
   .join("\n");
 
-/** The SillyTavern checkout this build was made against: ST_PUBLIC when set (an out-of-tree checkout),
- *  otherwise the tree this extension is sitting inside. */
-const stPublic = process.env.ST_PUBLIC ? resolve(process.env.ST_PUBLIC) : resolve(root, "..", "..", "..", "..", "..", "public");
+/** The SillyTavern checkout this build was made against: ST_PUBLIC when set, otherwise ST_ROOT or `.st-root`'s public/. Never derived. */
+const stPublic = process.env.ST_PUBLIC ? resolve(process.env.ST_PUBLIC) : join(requireStRoot(process.env, root), "public");
 const stRoot = dirname(stPublic);
 
 /** The host files this extension actually loads: every `importSTModule` call site, so the list

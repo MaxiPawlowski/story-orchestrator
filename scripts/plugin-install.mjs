@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { configuredStRoot, stRootIssue } from './lib/stRoot.mjs';
 
 const USAGE = `Usage: node scripts/plugin-install.mjs [--st-root <path>] [--check]
 
@@ -22,7 +23,11 @@ if (args.includes('--help')) {
     process.exit(0);
 }
 const rootFlag = args.indexOf('--st-root');
-const stRoot = path.resolve(rootFlag >= 0 ? args[rootFlag + 1] : process.env.ST_ROOT ?? path.resolve(extensionRoot, '..', '..', '..', '..', '..'));
+const stRoot = rootFlag >= 0 ? path.resolve(args[rootFlag + 1]) : configuredStRoot(process.env, extensionRoot);
+if (!stRoot) {
+    console.error(`${stRootIssue(null)}\n\n${USAGE}`);
+    process.exit(1);
+}
 
 if (!fs.existsSync(path.join(stRoot, 'src', 'plugin-loader.js'))) {
     console.error(`Not a SillyTavern root (no src/plugin-loader.js): ${stRoot}\n\n${USAGE}`);

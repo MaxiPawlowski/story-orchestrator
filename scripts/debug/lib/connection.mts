@@ -2,6 +2,7 @@ import { chromium, type Browser, type Page } from 'playwright';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve, dirname, relative, isAbsolute } from 'node:path';
+import { configuredStRoot, lanesRootFor } from '../../lib/stRoot.mjs';
 
 const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 
@@ -10,11 +11,6 @@ const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..'
 // `session.json`, the journey config snapshot and the asset baseline. v2.5 plan 12 P3: unset means
 // lane 0 (`<so-lanes>/0/debug`), outside ST's public/, because run logs, journals and payload
 // captures hold chat text and ST serves everything under public/.
-const lanesRootFor = (env: NodeJS.ProcessEnv, root: string): string => {
-  const configured = String(env.SO_LANES_ROOT ?? "").trim();
-  return configured ? resolve(configured) : resolve(root, "..", "..", "..", "..", "..", "..", "so-lanes");
-};
-
 export function debugDirFor(env: NodeJS.ProcessEnv, root: string = PROJECT_ROOT): string {
   const configured = String(env.SO_DEBUG_DIR ?? "").trim();
   return configured ? resolve(root, configured) : resolve(lanesRootFor(env, root), "0", "debug");
@@ -23,8 +19,8 @@ export function debugDirFor(env: NodeJS.ProcessEnv, root: string = PROJECT_ROOT)
 export function browserProfileFor(env: NodeJS.ProcessEnv, debugDir: string, root: string = PROJECT_ROOT): string {
   const configured = String(env.ST_DEBUG_PROFILE_DIR ?? "").trim();
   if (configured) return resolve(configured);
-  const stRoot = resolve(root, "..", "..", "..", "..", "..");
-  const fromServed = relative(resolve(stRoot, "public"), debugDir);
+  const stRoot = configuredStRoot(env, root);
+  const fromServed = stRoot ? relative(resolve(stRoot, "public"), debugDir) : "..";
   const served = fromServed !== "" && !fromServed.startsWith("..") && !isAbsolute(fromServed);
   const laneZero = resolve(lanesRootFor(env, root), "0");
   if (!served && debugDir !== resolve(laneZero, "debug")) return resolve(debugDir, "chromium-profile");
