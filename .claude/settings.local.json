@@ -40,7 +40,11 @@
       "PowerShell(npm run typecheck 2>&1)"
     ]
   },
+  "enabledMcpjsonServers": [
+    "playwright"
+  ],
   "enabledPlugins": {
     "runpod@runpod": true
-  }
+  },
+  "enableAllProjectMcpServers": true
 }
