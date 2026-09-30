@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadAllowlist, neverIssues, stageList, stageTree, targetIssues } from "./artifact.mjs";
@@ -26,7 +26,7 @@ const never = neverIssues(list, allowlist);
 if (never.length) fail(never.join("; "));
 
 const slot = resolve(stRoot, "public", "scripts", "extensions", "third-party", "story-orchestrator");
-rmSync(slot, { recursive: true, force: true });
+for (const entry of existsSync(slot) ? readdirSync(slot) : []) rmSync(join(slot, entry), { recursive: true, force: true });
 mkdirSync(slot, { recursive: true });
 stageTree(root, slot, list);
 const served = flavor === "dev" ? serveDev({ from: join(root, FLAVOURS.dev), to: join(slot, "dist") }) : null;

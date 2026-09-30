@@ -124,6 +124,8 @@ v2.5 rules 1–14 and every invariant in `.claude/rules/architecture.md` are inh
 
 ## Step 0: commit what is on disk (before any lane run)
 
+**Done 2026-09-30:** working tree committed (`20379cbf` GPU `/renew`, `4e60c4e9` explainer, `83b8c2bf` plan 19 + sprites + defaults on) under the full gate chain; repo moved to `C:\dev\story-orchestrator` (`7b98f4e0` explicit ST root, stage empties the slot); dev build staged (39 files); SV probe: `dist/index.js` 200, `docs/` `test/` `.debug/` `.claude/` `src/` 404. Lanes not yet re-seeded.
+
 **First, the repo move (W15):** move the repo to `C:\dev\story-orchestrator` and serve a staged copy into ST (v2.5 plan 12 SV; `.debug` goes to `C:\dev\so-lanes\0\debug`). Then re-seed the lanes and capture a run header that shows the new paths. The working tree holds four uncommitted things:
 - **plan 19:** `sharedRead`, judge extraction, `talkControl`, image settings/runtime, and the judge default flip;
 - **the sprite/VN stage:** `src/sprites/`, `stHost/sprites.ts`, the `global.d.ts` handle, the jest root and style stub,
