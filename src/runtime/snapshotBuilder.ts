@@ -8,7 +8,7 @@ import { buildNarrativeStatus, type NarrativeTransition, type RollbackNotice, ty
 import { agencyRecovery as agencyRecoveryOf, playerTurnIds, REFUSAL_PLAYER_TEXT, type AgencyRecovery } from "./agencyRecovery";
 import { jumpIndex } from "./messageJump";
 import type { MessageFingerprints } from "./fingerprints";
-import { derivePipelineStatus, expansionInFlight } from "./pipeline";
+import { derivePipelineStatus, expansionInFlight, type PipelineStatus } from "./pipeline";
 import { hasUnsavedChanges, SAVE_PLAYER_TEXT } from "./saveHealth";
 import { blobMismatch, loadPersistedRuntime, UNREADABLE_NOTICE } from "./persistence";
 import { findStoryRecord, listStoryRecords } from "./storyLibrary";
@@ -21,6 +21,8 @@ import { promptCost } from "./promptCost";
 import { promptBuckets } from "./promptBuckets";
 import { roleHealth } from "./roleHealth";
 import { buildModelCalls } from "./modelCalls";
+import type { InlineSources, InlineView } from "./inlineTimeline";
+import { effectiveInlineLevel } from "./settingsModel";
 import { readChatIdentity } from "./chatIdentity";
 import type { ExtensionPromptBlocks } from "@services/STAPI";
 import type { ExtractionHealth } from "@extraction/index";
@@ -123,6 +125,31 @@ const lastFiredTransition = (log: BoundaryLogEntry[], story: NormalizedStoryV2 |
   };
 };
 
+let inlineComposer: ((sources: InlineSources) => InlineView) | null = null;
+
+export const loadInlineComposer = async () => {
+  inlineComposer = (await import("./inlineTimeline")).composeInlineTimeline;
+};
+
+const inlineView = (sources: SnapshotSources, story: NormalizedStoryV2 | null, live: { tension: RuntimeSnapshot["tension"]; pipeline: PipelineStatus; agencyRecovery: boolean }) => {
+  const { extras } = sources;
+  const { memory } = extras;
+  const { inline: settings, authorView } = extras.ui;
+  if (!inlineComposer) {
+    const level = effectiveInlineLevel(settings.level, authorView);
+    return { level, requested: settings.level, window: settings.window, categories: settings.categories, newestMessageId: sources.chat.length - 1, byMessage: {} };
+  }
+  return inlineComposer({
+    story, settings: extras.ui.inline, authorView: extras.ui.authorView, chatLength: sources.chat.length,
+    boundaryLog: sources.boundaryLog, audits: extras.extraction.audits, pending: sources.pendingWrites, reconciliation: extras.extraction.reconciliationEvents,
+    memory: { entries: memory.entries, arcs: memory.arcs, derived: memory.derived, conflicts: memory.conflicts, verifyDrops: memory.verifyDrops },
+    loreFired: extras.lore.fired, talkDecisions: extras.talk.decisions, judgeCalls: extras.judge.calls, proposals: extras.stagecraft.proposals,
+    curatorPass: extras.stagecraft.lastPass, effects: extras.effects.ledger, tensionHistory: extras.tension.history,
+    tension: { expected: live.tension.expected, hint: live.tension.hint?.text ?? null }, payloadCaptures: sources.payloadCaptures, pipeline: live.pipeline,
+    agencyRecovery: live.agencyRecovery, lastRollback: sources.lastRollback, saveNotice: hasUnsavedChanges(extras.saveHealth) ? SAVE_PLAYER_TEXT : null,
+  });
+};
+
 export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot {
   const { loaded, state, extras } = sources;
   const story = loaded?.story ?? null;
@@ -184,6 +211,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     agencyNotice: agencyRecovery ? REFUSAL_PLAYER_TEXT : null,
     objectiveKind: agency.objective_kind,
   });
+  const inline = inlineView(sources, story, { tension, pipeline, agencyRecovery: Boolean(agencyRecovery) });
   const mismatch = loaded ? null : blobMismatch();
   const unreadable = mismatch?.kind === "unreadable" ? mismatch : null;
 
@@ -263,6 +291,8 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     nextTurnCost,
     nextTurnBuckets: promptBuckets.view(nextTurnCost.ownTokens),
     roleRoutes: roleHealth.view(),
+    lore: extras.lore,
+    inline,
     modelCalls: buildModelCalls({ judgeCalls: extras.judge.calls, audits: extras.extraction.audits, talkDecisions: extras.talk.decisions, curatorPass: extras.stagecraft.lastPass }),
   };
 }

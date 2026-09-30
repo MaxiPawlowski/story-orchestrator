@@ -4,7 +4,8 @@ import { DEFAULT_TENSION_EMA_ALPHA } from "@constants/defaults";
 import { capProposalRing } from "@stagecraft/index";
 import { createJudgeRuntime, sanitizeJudgeRuntime } from "@judge/index";
 import { sanitizeJournalRecords } from "./journal";
-import { defaultExtractionSettings, defaultMemorySettings, defaultStagecraftSettings, type ChatOverrides, type GlobalSettings } from "./settingsModel";
+import { defaultExtractionSettings, defaultInlineSettings, defaultMemorySettings, defaultStagecraftSettings, type ChatOverrides, type GlobalSettings } from "./settingsModel";
+import { createLore, sanitizeLore } from "./loreFired";
 import { EFFECT_LEDGER_LIMIT, JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
 import { createSaveHealth } from "./saveHealth";
 import type {
@@ -109,7 +110,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
 };
 
 export const createCopilot = (): CopilotRuntimeSettings => ({ enabled: true });
-export const createUi = (): UiRuntimeSettings => ({ authorView: false, announceTransitions: true, hudEnabled: true });
+export const createUi = (): UiRuntimeSettings => ({ authorView: false, announceTransitions: true, hudEnabled: true, inline: defaultInlineSettings() });
 export const createStagecraft = (): StagecraftRuntimeState => ({ settings: defaultStagecraftSettings(), proposals: [], lastPass: null, lastRunBoundary: -1, lastError: null });
 
 export const sanitizeStagecraft = (value: RuntimeExtras | undefined): StagecraftRuntimeState => {
@@ -205,6 +206,7 @@ export const createExtras = (read: () => GlobalSettings): RuntimeExtras => withG
   effects: createEffects(),
   saveHealth: createSaveHealth(),
   judge: createJudgeRuntime(),
+  lore: createLore(),
   journal: [],
   lastSessionAt: null,
   updatedAt: new Date().toISOString(),
@@ -256,7 +258,7 @@ export const applyGlobalSettings = (extras: RuntimeExtras, global: GlobalSetting
   extras.extraction = { ...extras.extraction, settings: { ...global.extraction } };
   extras.pacing = { alpha: global.pacing.alpha, hintEnabled: global.pacing.hintEnabled, shapeOverride: overrides.shapeOverride };
   extras.copilot = { ...global.copilot };
-  extras.ui = { authorView: overrides.authorView, announceTransitions: global.display.announceTransitions, hudEnabled: global.display.hudEnabled };
+  extras.ui = { authorView: overrides.authorView, announceTransitions: global.display.announceTransitions, hudEnabled: global.display.hudEnabled, inline: global.display.inline };
   extras.memory = { ...extras.memory, settings: { ...global.memory } };
   extras.talk = { ...extras.talk, enabled: overrides.talkEnabled ?? global.talk.enabled };
   extras.stagecraft = { ...extras.stagecraft, settings: { ...global.stagecraft } };
@@ -307,6 +309,7 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   extras.effects = sanitizeEffects(extras);
   extras.saveHealth = sanitizeSaveHealth(extras);
   extras.judge = sanitizeJudgeRuntime(extras.judge);
+  extras.lore = sanitizeLore(extras.lore);
   extras.journal = sanitizeJournalRecords(extras.journal);
   extras.lastSelfInjectionMessageId = typeof extras.lastSelfInjectionMessageId === "number" ? extras.lastSelfInjectionMessageId : null;
   extras.firedNpcReplies = extras.firedNpcReplies && typeof extras.firedNpcReplies === "object" ? extras.firedNpcReplies : {};

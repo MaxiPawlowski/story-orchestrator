@@ -145,5 +145,7 @@ export interface ReconciliationEvent {
   scheduledAt: string;
   resolvedAt: string | null;
   evidence: string[];
+  /** The stalled boundary's newest message, so the re-check can be placed under it. */
+  messageId?: number;
 }
 

@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from "react";
 import {
-  bindNavbarDrawerToggle, readProfileContextLimit, readProfilePresetName, showConfirmPopup, subscribeToHostEvents, toggleNavbarDrawer,
+  bindNavbarDrawerToggle, mountInlineHosts, readProfileContextLimit, readProfilePresetName, showConfirmPopup, subscribeToHostEvents, toggleNavbarDrawer,
+  type InlineHostSet,
 } from "@services/STAPI";
 import { contextLimitInvalidators, createContextLimitCache } from "@runtime/contextLimitCache";
 import packageJson from "../package.json";
@@ -19,7 +20,8 @@ import { type DriverController } from "@components/drawer/DriverPanel";
 import DrawerTabs from "./components/drawer/DrawerTabs";
 import HudStrip from "./components/drawer/HudStrip";
 import BranchNotice from "./components/drawer/BranchNotice";
-import { setDiagnosticsContext, useDraftStore, type StoryDraft } from "./studio/draft";
+import type { InlineActions } from "./components/inline/InlineDetail";
+import type { StoryDraft } from "./studio/draft";
 import { buildReplaySource, type GateReplaySource } from "./studio/gateReplay";
 import "./styles.css";
 
@@ -27,6 +29,7 @@ import "./styles.css";
 const EXTENSION_VERSION = String(packageJson.version ?? "unknown");
 
 const manager = startRuntime();
+const loadDraft = () => import("./studio/draft");
 const ui = createMountRegistry();
 
 const contextLimits = createContextLimitCache({ limit: readProfileContextLimit, presetOf: readProfilePresetName });
@@ -39,7 +42,7 @@ const memoryModelLimit = (profileId: string | null) => {
 
 if (__SO_DEV__) {
   ui.global("storyOrchestratorRuntime", manager);
-  ui.global("storyOrchestratorStudioDraft", useDraftStore);
+  void loadDraft().then(({ useDraftStore }) => ui.global("storyOrchestratorStudioDraft", useDraftStore));
   void import("./studio/StudioModal").then(({ STUDIO_TAB_IDS }) => ui.global("storyOrchestratorStudioTabs", STUDIO_TAB_IDS));
 }
 
@@ -55,6 +58,7 @@ const setStudioOpen = (next: boolean, intent?: StudioOpenIntent) => {
 };
 
 const openStudio = async (intent?: StudioOpenIntent) => {
+  const { useDraftStore, setDiagnosticsContext } = await loadDraft();
   const snapshot = manager.getSnapshot();
   const active = snapshot.library.find((story) => story.id === snapshot.storyId);
   const source = (active?.raw ?? manager.getPlayedStoryRaw()) as StoryDraft | null;
@@ -71,6 +75,7 @@ const openStudio = async (intent?: StudioOpenIntent) => {
 
 // A brand-new story: the wizard starts from an empty draft, never from whatever this chat plays.
 const openWizard = async () => {
+  const { useDraftStore, setDiagnosticsContext } = await loadDraft();
   if (useDraftStore.getState().dirty && !(await showConfirmPopup("Start a new story? Your unsaved Studio draft will be discarded.", { okButton: "New story", cancelButton: "Keep editing" }))) return;
   useDraftStore.getState().newDraft();
   setDiagnosticsContext({ worldInfoGating: getGlobalSettings().worldInfo.gatingMode });
@@ -113,7 +118,33 @@ const readReplaySource = (): GateReplaySource | null => {
   return source ? { ...source, jump: (messageId) => void jumpFromDrawer(messageId) } : null;
 };
 
+const inspectListeners = new Set<() => void>();
+let inspectTarget: number | null = null;
+const setInspectTarget = (messageId: number | null) => {
+  inspectTarget = messageId;
+  inspectListeners.forEach((listener) => listener());
+};
+const useInspectTarget = () => useSyncExternalStore(
+  (listener) => { inspectListeners.add(listener); return () => { inspectListeners.delete(listener); }; },
+  () => inspectTarget,
+);
+
+const inlineActions: InlineActions = {
+  run: (action) => {
+    if (action.kind === "pin-fact") void manager.setMemoryPinned(action.id, action.pinned);
+    else if (action.kind === "lock-fact") void manager.memoryActions.setMemoryLocked(action.id, action.locked);
+    else if (action.kind === "exclude-fact") void manager.excludeMemoryEntry(action.id);
+    else if (action.kind === "curator-op") void manager.setCuratorOpDecision(action.proposalId, action.index, action.decision);
+    else void manager.memoryActions.resolveMemoryConflict(action.key, action.keepId);
+  },
+  inspect: (messageId) => {
+    setInspectTarget(messageId);
+    openSoDrawer();
+  },
+};
+
 const StudioModal = lazy(() => import("./studio/StudioModal"));
+const InlineLayer = lazy(() => import("./components/inline/InlineLayer"));
 const ImageChatPanel = lazy(() => import("./image/ImageChatPanel"));
 
 const StudioHost = () => {
@@ -129,6 +160,7 @@ const StudioHost = () => {
         onClose={() => setStudioOpen(false)}
         copilotEnabled={snapshot.copilot.enabled}
         runCopilotStage={(input) => manager.runCopilotStage(input)}
+        agentModel={manager.model}
         onSaved={applySavedStory}
         wizardHost={wizardHost}
         intent={studioIntent}
@@ -194,6 +226,7 @@ const branchAtFloor = async (messageId: number) => {
 
 const DrawerPanel = () => {
   const snapshot = useRuntimeSnapshot();
+  const inspecting = useInspectTarget();
   const branch = snapshot.chatIdentity?.kind === "branch" ? snapshot.chatIdentity : null;
   return (
     <div className="p-2 text-sm flex flex-col gap-3 text-left">
@@ -222,6 +255,7 @@ const DrawerPanel = () => {
           onNewStory={() => void openWizard()}
           onBranchFromOldest={(messageId) => void branchAtFloor(messageId)}
           onJumpToMessage={(messageId) => void jumpFromDrawer(messageId)}
+          inspect={inspecting === null ? null : { messageId: inspecting, onClose: () => setInspectTarget(null), actions: inlineActions }}
           imagePanel={<Suspense fallback={<div className="text-xs">Loading illustrations…</div>}><ImageChatPanel manager={manager} snapshot={snapshot} /></Suspense>}
         />
       )}
@@ -318,6 +352,26 @@ const mountHud = () => {
   return true;
 };
 
+const InlineMount = ({ hosts }: { hosts: InlineHostSet }) => {
+  const snapshot = useRuntimeSnapshot();
+  if (!snapshot.ready) return null;
+  return <Suspense fallback={null}><InlineLayer view={snapshot.inline} hosts={hosts} actions={inlineActions} /></Suspense>;
+};
+
+const mountInline = () => {
+  if (document.getElementById("so-inline-root")) return true;
+  const mounted = mountInlineHosts();
+  if (!mounted.ok) return false;
+  ui.add(() => mounted.hosts.dispose());
+  const root = ui.element(document.createElement("div"));
+  root.id = "so-inline-root";
+  root.hidden = true;
+  document.body.appendChild(root);
+  ui.root(root, <InlineMount hosts={mounted.hosts} />);
+  if (__SO_DEV__) ui.global("storyOrchestratorInline", { attachTimes: () => mounted.hosts.attachTimes() });
+  return true;
+};
+
 const mountStudioHost = () => {
   if (document.getElementById("so-studio-root")) return true;
   const root = ui.element(document.createElement("div"));
@@ -338,8 +392,9 @@ const mount = (attempt = 0) => {
   const drawerMounted = mountTopBarDrawer();
   const hudMounted = mountHud();
   mountStudioHost();
+  const inlineMounted = mountInline();
 
-  if ((!settingsRootContainer || !drawerMounted || !hudMounted) && attempt < 50) {
+  if ((!settingsRootContainer || !drawerMounted || !hudMounted || !inlineMounted) && attempt < 50) {
     ui.timeout(() => mount(attempt + 1), 100);
   }
 };

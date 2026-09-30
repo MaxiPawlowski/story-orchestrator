@@ -155,3 +155,19 @@ export const ProvisioningCreatesAndRequires: Story = {
     await expect(useDraftStore.getState().draft.roster.map((member) => member.name)).toContain("Arin");
   },
 };
+
+export const AgentModeSitsBesideTheStagedWizard: Story = {
+  args: {
+    enabled: true,
+    runStage: stageRunner(VALID_RESPONSE),
+    runAgentTurn: async (session) => ({ session, apply: null }),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvasElement.querySelector('[data-so="wizard-mode"][data-mode="staged"]')).toHaveAttribute("aria-pressed", "true");
+    await expect(canvas.getByRole("button", { name: "Run stage" })).toBeInTheDocument();
+    await userEvent.click(canvas.getByRole("button", { name: "Agent" }));
+    await expect(canvas.getByLabelText("What should the agent build")).toBeInTheDocument();
+    await expect(canvas.queryByRole("button", { name: "Run stage" })).toBeNull();
+  },
+};

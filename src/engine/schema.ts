@@ -313,6 +313,11 @@ export interface StoryV2 {
   house_rules?: string[];
   scaffolding?: Record<string, Scaffolding>;
   objective_block?: "auto" | "off";
+  display?: StoryDisplay;
+}
+
+export interface StoryDisplay {
+  lore_names_public?: boolean;
 }
 
 export interface NormalizedTransition extends Transition {

@@ -55,6 +55,8 @@ import { withholds } from "./generationLifecycle";
 import { CoordinatorDelegates } from "./managerDelegates";
 import { required } from "@utils/guards";
 import { spikeSeams } from "./spikeSeams";
+import { recordLoreFired, type LoreFiredRecord } from "./loreFired";
+import type { InlineSettings } from "./settingsModel";
 
 const boundStoryForOpenChat = () => {
   const ctx = getContext();
@@ -364,6 +366,8 @@ export class RuntimeManager extends CoordinatorDelegates {
   setExtractionHold(hold: boolean) { this.extractionHold = hold; }
   isExtractionHeld() { return this.extractionHold; }
 
+  recordLoreFired(record: LoreFiredRecord) { if (!this.loaded) return; this.extras.lore = recordLoreFired(this.extras.lore, record); void this.persist(); this.notify(); }
+  setInlineSettings(patch: Partial<InlineSettings>) { this.setUiSettings({ inline: { ...this.extras.ui.inline, ...patch } }); }
   recordJudgeCall(record: JudgeCallRecord) { this.extras.judge = appendJudgeCall(this.extras.judge, record); this.touch(); }
   getSceneRead(): SceneReadRecord | null { return this.extras.judge.scene; }
   recordSceneRead(read: SceneReadRecord | null) { this.extras.judge = { ...this.extras.judge, scene: read }; this.notify(); }
@@ -446,9 +450,11 @@ export class RuntimeManager extends CoordinatorDelegates {
     }));
   }
 
-  capturePayload(reason = "generation") {
+  capturePayload(reason = "generation", type: string | null = null) {
     if (!this.loaded) return;
-    const capture: PayloadCapture = { at: new Date().toISOString(), boundary: this.engine.serialize().boundary, reason, blocks: readInjectedPromptBlocks() };
+    const length = Array.isArray(getContext().chat) ? getContext().chat.length : 0;
+    const messageId = type === "swipe" || type === "continue" ? length - 1 : length;
+    const capture: PayloadCapture = { at: new Date().toISOString(), boundary: this.engine.serialize().boundary, messageId, reason, blocks: readInjectedPromptBlocks() };
     if (this.journal.capture(capture)) this.notify();
   }
 

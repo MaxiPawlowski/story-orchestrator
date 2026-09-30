@@ -137,6 +137,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     ...(options.lore_select ? { lore_select: options.lore_select } : {}),
     ...(options.house_rules ? { house_rules: options.house_rules } : {}),
     ...(options.objective_block ? { objective_block: options.objective_block } : {}),
+    ...(options.display ? { display: options.display } : {}),
     startCheckpointId,
     checkpointById,
     outgoingByCheckpoint: orderOutgoing(checkpoints, normalizedTransitions),

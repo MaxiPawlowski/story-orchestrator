@@ -143,6 +143,17 @@ const readObjectiveBlock = (value: unknown, errors: ValidationError[]) => {
   return objectiveBlock;
 };
 
+const readDisplay = (value: unknown, errors: ValidationError[]): StoryV2["display"] => {
+  if (value === undefined) return undefined;
+  if (!isRecord(value)) {
+    addError(errors, "display", "display must be an object");
+    return undefined;
+  }
+  rejectUnknownKeys(value, ["lore_names_public"], "display", errors);
+  if (value.lore_names_public !== undefined && typeof value.lore_names_public !== "boolean") addError(errors, "display.lore_names_public", "lore_names_public must be true or false");
+  return value.lore_names_public === true ? { lore_names_public: true } : undefined;
+};
+
 export const readStoryOptions = (json: Record<string, unknown>, errors: ValidationError[]) => {
   if (json.player_intro !== undefined && typeof json.player_intro !== "string") addError(errors, "player_intro", "player_intro must be text");
   const playerIntro = typeof json.player_intro === "string" ? json.player_intro.trim() : "";
@@ -177,6 +188,7 @@ export const readStoryOptions = (json: Record<string, unknown>, errors: Validati
   const loreSelect = json.lore_select !== undefined ? readLoreSelect(json.lore_select, errors) : undefined;
   const houseRules = json.house_rules !== undefined ? readHouseRules(json.house_rules, errors) : undefined;
   const objectiveBlock = readObjectiveBlock(json.objective_block, errors);
+  const display = readDisplay(json.display, errors);
   return {
     ...(playerIntro ? { player_intro: playerIntro } : {}),
     ...(illustrations ? { illustrations } : {}),
@@ -187,5 +199,6 @@ export const readStoryOptions = (json: Record<string, unknown>, errors: Validati
     ...(loreSelect ? { lore_select: loreSelect } : {}),
     ...(houseRules ? { house_rules: houseRules } : {}),
     ...(objectiveBlock ? { objective_block: objectiveBlock } : {}),
+    ...(display ? { display } : {}),
   };
 };

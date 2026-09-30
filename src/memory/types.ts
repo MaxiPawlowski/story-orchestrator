@@ -41,6 +41,7 @@ export interface ArcEntry {
   openedAt: number;
   openedMessageId?: number;
   resolvedAt?: number;
+  resolvedMessageId?: number;
   summary?: string;
   pinned?: boolean;
   bridgeApplied?: boolean;

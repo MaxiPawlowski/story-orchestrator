@@ -84,6 +84,27 @@ describe("architecture guards", () => {
     }
   });
 
+  it("keeps the inline timeline on the snapshot: no manager getters and no host imports in components/inline", () => {
+    const offenders = (source: string) => [
+      ...[...source.matchAll(/manager\.get\w+\(/g)].map((match) => match[0]),
+      ...[...source.matchAll(/from\s+"([^"]+)"/g)].map((match) => match[1]).filter((specifier) => /@services|STAPI/.test(specifier)),
+    ];
+    for (const path of walk(join(SRC, "components/inline"))) {
+      expect({ path, offenders: offenders(readFileSync(path, "utf8")) }).toEqual({ path, offenders: [] });
+    }
+    expect(offenders('import { getContext } from "@services/STAPI";\nmanager.getSnapshot();')).toEqual(["manager.getSnapshot(", "@services/STAPI"]);
+  });
+
+  it("lets only the declared host modules touch ST's message DOM, and only inlineMount write into .mes_block", () => {
+    const relative = (path: string) => path.slice(SRC.length + 1).replace(/\\/g, "/");
+    const MESSAGE_DOM = /mes_block|\.mes\[mesid|closest\("\.mes"\)|#chat \.mes/;
+    const touchers = walk(SRC).filter((path) => MESSAGE_DOM.test(readFileSync(path, "utf8"))).map(relative).sort();
+    expect(touchers).toEqual(["services/stHost/image.ts", "services/stHost/imageSurface.ts", "services/stHost/inlineMount.ts", "sprites/stage.ts"]);
+    const blockWriters = walk(SRC).filter((path) => /mes_block/.test(readFileSync(path, "utf8"))).map(relative);
+    expect(blockWriters).toEqual(["services/stHost/inlineMount.ts"]);
+    expect(MESSAGE_DOM.test('document.querySelector(`.mes[mesid="3"] .mes_text`)')).toBe(true);
+  });
+
   it("keeps engine purity: no host imports below src/engine", () => {
     for (const path of walk(join(SRC, "engine"))) {
       const offenders = importsOf(path).filter((specifier) => specifier.includes("@services") || specifier.includes("STAPI"));

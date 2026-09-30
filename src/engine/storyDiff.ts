@@ -35,6 +35,7 @@ export type StoryDiffCode =
   | "requirements-changed"
   | "stagecraft-changed"
   | "story-objective-block-changed"
+  | "story-display-changed"
   | "scene-read-changed"
   | "lore-select-changed"
   | "house-rules-changed"
@@ -285,6 +286,7 @@ const diffStoryFields = (ctx: DiffContext) => {
   if (!sameValue(previous.requirements, next.requirements)) push("compatible", "requirements-changed", "requirements", "What the story needs from your setup changed.");
   // Presentation scope only: widening or narrowing the curator's allowlist never invalidates a run.
   if (!sameValue(previous.stagecraft, next.stagecraft)) push("compatible", "stagecraft-changed", "stagecraft", "Which lorebooks the background curator may edit changed.");
+  if (previous.display?.lore_names_public !== next.display?.lore_names_public) push("compatible", "story-display-changed", "display", "Whether players see World Info entry names changed.");
   if (previous.objective_block !== next.objective_block) push("compatible", "story-objective-block-changed", "objective_block", "Whether the objective line is added changed.");
   if (!sameValue(previous.lore_select, next.lore_select)) push("compatible", "lore-select-changed", "lore_select", "What lore-select may judge, or whether it excludes unpicked entries, changed.");
   if (!sameValue(previous.house_rules, next.house_rules)) push("compatible", "house-rules-changed", "house_rules", "What the narrator is held to changed.");

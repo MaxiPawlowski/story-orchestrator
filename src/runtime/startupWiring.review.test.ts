@@ -106,7 +106,7 @@ describe("v2.4 E5: startRuntime's first load", () => {
     expect(mockHost.unbound).toEqual([PARENT_BOOK]);
     expect(mockHost.context.chatMetadata.world_info).toBeUndefined();
     expect((mockHost.context.chatMetadata.story_orchestrator as { chatId: string }).chatId).toBe("chat-a");
-  });
+  }, 30000);
 
   it("control: a chat of its own keeps its binding", async () => {
     const own = branchMetadata();

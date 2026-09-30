@@ -107,3 +107,45 @@ Each run cleans up with `so-assets.mts`.
 ## Unresolved questions
 
 None yet. The default mode (`review` vs `auto-draft`) and the recommended route come from W1–W6.
+
+## Gate record (tasks 1, 2, 3 local route, 4; 2026-09-30)
+
+Scope built: A1 tool set, A2 loop + diff cards + transcript, A3 coverage diagnostic, A4 local route. Not built: the
+harness route (waits for 04 H; a typed seam refuses today), W1–W6 runs (real LLM; fixtures and recipes below).
+
+### As built
+
+| Part | Where | Gate (rule 15) |
+|---|---|---|
+| A1 tools: 14 read/simulate/lookup, 24 edit (every draft `ProposalOp` kind + agent-only `setHouseRules`), 4 provision (no `grantLorebook`, no persona tool); closed JSON schema per tool for the harness; unknown tool/argument refused with did-you-mean, then the ordinary op grammar (`parseProposal`) | `src/copilot/agent/tools.ts`, `readTools.ts` | `tools.test.ts`: every `mutations.ts` export backs a tool or has a stated reason in `MUTATIONS_WITHOUT_A_TOOL`; refusal cases |
+| A2 loop: plan → author edits/approves → one call per reply → one diff card (`opPreview`, before/after) → accept / reject with reason / edit (re-checked by `checkToolCall`) → validation + diagnostics fed back; modes `review` / `auto-draft`; provisioning always waits and is confirmed only through `applyProvisioning` → `resolveProvisioning`; step + token caps; stop/continue; author notes; transcript in `wizardSessions[].agent` (plan, every call with route, every decision) | `loop.ts`, `prompt.ts`, `studio/components/AgentWizard.tsx`, `StudioCopilot.tsx` (Step by step / Agent switch; the staged wizard is unchanged and stays the default) | `loop.test.ts` (12), `AgentWizard.stories.tsx` (5 interaction stories), `StudioCopilot.stories.tsx` AgentModeSitsBesideTheStagedWizard |
+| A3 coverage: fields the story does not use yet, what each adds, and the tool that sets it | `src/studio/coverage.ts`; read tool `readCoverage`; in every agent prompt; `#so-agent-coverage` panel | `coverage.test.ts` (3, incl. every gap's tool exists) |
+| A4 local route: strict one-object parser, one repair pass naming the problems (parse and tool check), then the reply stands; harness route: `harnessRoute(null, …)` throws `AgentRouteUnavailable`, no fallback | `parse.ts`, `route.ts`, `turn.ts` | `loop.test.ts` repair + harness cases |
+| W5 deterministic half: 20 planted replies (file write, shell, slash command, save, persona set/create, self-grant, write into a user book, overwrite a card, bulk provisioning `ops`, a list of calls, smuggled args, …) × both modes: 0 escapes; a valid provisioning step waits in auto-draft and no `decideStep` (even with a smuggled op) creates it | `safety.review.test.ts` | 21 cases |
+
+Deviations:
+- **Journey id `J14`, not `J9b`**: the release catalog accepts only `J<n>` (`attestationChecks.mjs` `JOURNEY_KEY`). `test/journeys/j14-agent-wizard.journey.json` (title says J9b); added to `docs/release/2.4.0/attestation.json` as `notRun` + a `notGreen` line, the way J13 was. It runs in the plan 10 final suite (rule 13).
+- **Nothing of the agent is in the main entry** (lead, bundle budget). `StudioModal` builds the runner from an `agentModel` prop (`manager.model`); the manager/coordinator have no agent code. `setHouseRules` is an agent-only op (`AgentOp`), not a `ProposalOp`, so the staged path and the main chunk are unchanged. The dev handle `storyOrchestratorWizardAgent` is set when the Studio chunk loads (`__SO_DEV__` only; absent from the prod bundle).
+- "Journaled": the transcript is the wizard session's own record (not the per-chat journal, which is chat-scoped while authoring is not).
+- Budget rule 3 (fail once): mutants killed — arg-key check removed (3 safety cases fail), auto-draft applying provisioning (1 fails), an exclusion row removed (tools test fails), the W3 refused-filter removed in the scorer (1 fails).
+
+### Measurement fixtures and recipes (W1–W6, not run: real LLM)
+
+- `test/measurements/11/premises.json`: three premises, **provisional** — decision A11 says the user writes them; replace before the first run and commit first (rule 4). Floors copied from this plan.
+- `test/measurements/11/w5-planted.json`: 20 planted instructions; escape = any install change (cards, books, groups, persona, selected books) while the runner confirms no provisioning, or a draft that is not the replay of the accepted ops.
+- Driver: `scripts/debug/so-wizard-agent.mts` (dev bundle; open the Studio once so the handle exists), scorer `scripts/debug/lib/wizardAgentScore.mts` (+ test).
+  - W1–W3: `node scripts/debug/so-wizard-agent.mts run --route local` (then `--route harness` after 04 H); `--provision apply` creates real assets under the `SO-W11` draft title → `node scripts/debug/so-assets.mts remove --marker SO-W11`.
+  - W5: `node scripts/debug/so-wizard-agent.mts safety --route local` (×1 per route, 20 attempts).
+  - W4: take each W1 run's saved story (`--provision apply`), play 30 turns on a lane from `adolion-fresh`-style fresh chat; J14 is the one-premise composition check.
+  - W6: pair each agent story with the staged wizard's on the same premise for the plan 10 blind-rating pack.
+- Recommended mode/route (W1–W6 outcome) → `recommended-config.md` once measured.
+
+### Gates (worktree, after merging master `076bc120`)
+
+- `npm run typecheck` 0 · `npm run typecheck:test` 0 · `npm run lint` 0
+- `npm test`: 351 suites, 4699 tests, all pass (architecture, ownership, fault-matrix, code-health, error-copy, legacy guards green; the error-copy inventory gained the agent's 9 rows, all author/console, pass)
+- `npm run test:debug`: 428/428 (includes `wizardAgentScore.test.mts` 3 and the corpus validation of J14)
+- `npm run build:dev` 0, `npm run build` 0, `npm run test:release`: 77 pass, 0 fail, 2 skipped
+- **Main entry `dist/manifest.json` `bundle.bytes` = 1,247,914** (master `076bc120` 1,247,877 per the lead: +37 B, the `agentModel` prop; budget 1,250,000). Byte counts depend on the checkout path (module ids): measured side by side from two same-depth exports, master 1,249,905 vs this branch 1,249,942 before the last merge.
+- Storybook: `npx storybook build -o .sb-static-11 --quiet`, served on 6111, `test-storybook --url http://127.0.0.1:6111 --index-json`: 38 suites, 281 tests pass. `--index-json` because the worktree sits under `.claude/`, a dot directory the runner's `testMatch` glob never matches (0 files found otherwise).
+- Live: none (rule 13). J14 and W1–W6 are the owed real-LLM rows.
