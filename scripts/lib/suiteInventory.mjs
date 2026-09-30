@@ -52,13 +52,14 @@ export function stepsShape(steps) {
   const modelCalls = verbs.filter((verb) => MODEL_VERBS.has(verb)).length;
   const needsLlm = generates > 0 || (modelCalls > 0 && !MOCKED.test(text));
   const evalAsserts = list.some((step) => typeof step?.eval === 'string' && /throw\b|ok\s*:\s*false|expectFail/.test(step.eval));
-  const asserts = verbs.filter((verb) => ASSERTING.has(verb)).length + (evalAsserts ? 1 : 0);
+  const uiAsserts = list.filter((step) => step?.ui && (/^(assert|hit-test)/.test(String(step.ui.action ?? '')) || Object.keys(step.ui).some((key) => key.startsWith('expect')))).length;
+  const asserts = verbs.filter((verb) => ASSERTING.has(verb)).length + (evalAsserts ? 1 : 0) + uiAsserts;
   return { steps: list.length, generates, modelCalls, needsLlm, asserts, vacuous: list.length > 0 && asserts === 0 };
 }
 
-/** A rough lane-time estimate in seconds: a real generation ~30 s, an unmocked model pass ~20 s, a step ~2 s. */
+/** A rough lane-time estimate in seconds: a real generation ~45 s (RTX PRO 4500 pod, 2026-09-20), an unmocked model pass ~20 s, a step ~2 s. */
 export function estimateSeconds(shape) {
-  return Math.round(5 + shape.steps * 2 + shape.generates * 30 + (shape.needsLlm ? shape.modelCalls * 20 : 0));
+  return Math.round(5 + shape.steps * 2 + shape.generates * 45 + (shape.needsLlm ? shape.modelCalls * 20 : 0));
 }
 
 export function isVacuousNeedleSpec(spec) {

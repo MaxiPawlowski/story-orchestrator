@@ -29,7 +29,10 @@ test('a step list needs a model when it generates, or calls a pass without a moc
   assert.equal(stepsShape([{ extract: {} }]).needsLlm, true);
   assert.equal(stepsShape([{ send: 'hi' }, { slash: '/x' }]).vacuous, true);
   assert.equal(stepsShape([{ eval: 'if (!ok) throw new Error("x")' }]).vacuous, false);
-  assert.equal(estimateSeconds(stepsShape([{ send_generate: 'a' }])), 5 + 2 + 30);
+  assert.equal(stepsShape([{ ui: { action: 'open-drawer' } }, { ui: { action: 'assert-player-clean' } }]).vacuous, false);
+  assert.equal(stepsShape([{ ui: { action: 'pointer-click', selector: '#a', expectVisible: '#b' } }]).vacuous, false);
+  assert.equal(stepsShape([{ ui: { action: 'open-drawer' } }]).vacuous, true);
+  assert.equal(estimateSeconds(stepsShape([{ send_generate: 'a' }])), 5 + 2 + 45);
 });
 
 test('an empty needle is vacuous, a real one is not', () => {
