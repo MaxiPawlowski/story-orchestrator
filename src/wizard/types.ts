@@ -1,3 +1,5 @@
+import type { AgentSession } from "../copilot/agent/types";
+
 export const WIZARD_QUESTION_LIMIT = 3;
 
 export interface WizardQuestion {
@@ -79,6 +81,7 @@ export interface WizardSessionState {
   createdLorebooks: string[];
   /** Author-confirmed write authority over existing lorebooks; never authored story content. */
   grants?: WizardLorebookGrant[];
+  agent?: AgentSession;
   seed: string;
   updatedAt: string;
 }
