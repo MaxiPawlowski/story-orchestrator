@@ -118,3 +118,134 @@ lanes on the current pod.** When it does not fit, items are merged or demoted un
 
 - The mutation tool, and how far to sample (the full pure tier may be slow on this box). Decided at R2 by a timing probe,
   not by the user.
+
+## As built (2026-09-30, wave 1)
+
+### Tasks and their gates
+
+| Task | Built | Gate |
+|---|---|---|
+| R1 inventory | `scripts/suite/inventory.mjs` (rules in `scripts/lib/suiteInventory.mjs`) → `13-inventory.md` + `13-inventory-timings.json` (one full `jest --json` run) | `scripts/lib/suiteInventory.test.mjs` (in `test:debug`); output committed |
+| R2a defect replay | `test/findings/defect-replay/*.json` (25 defects: find/replace mutant, the gotcha it replays, the fix commit, the killing tests) + `scripts/suite/defect-replay.mjs` (`npm run test:replay`: staged copy of the tree, baseline must be green, then each mutant must fail an assertion; a crash is not a kill) | **25/25 killed**; `scripts/lib/suiteMutants.test.mjs` fails `test:debug` when a spec no longer applies (re-anchor it) |
+| R2b mutation baseline | `scripts/suite/mutation-baseline.mjs` (`npm run suite:mutation`): TypeScript-AST mutants (equality, relational, logical, arithmetic, `!`, boolean, `if (false)`, conditional, `.some/.every`, `Math.min/max`) over the pure tier, stratified seed-stable sample, each judged by `jest --findRelatedTests <file> --bail` in its own staged copy | baseline recorded: `13-mutation-baseline.json` |
+| R3 decisions | `scripts/suite/decisions.mjs` (rules in `scripts/lib/suiteDecisions.mjs`, hand calls in `test/findings/suite-decisions.json`) → `13-decisions.md` | `scripts/lib/suiteDecisions.test.mjs`; replay still 25/25 after the retire |
+| R4 records | `scripts/suite/move-records.mjs`: uncited records copied to `C:\dev\backups\story-orchestrator\records\` with a sha256 manifest (`manifest.json`), verified, then deleted; a gate dir left empty keeps a `MOVED.md` pointer | `npm run test:release` green (attestation + citations) |
+| R5 final suite | `13-final-suite.md` (same script) | committed with its lane-time total |
+
+### R2: the tool decision (the plan's unresolved question)
+
+- **Custom runner, not Stryker.** Stryker is not installed, `node_modules` is one junction shared by every parallel agent,
+  and the jest setup (ts-jest, `diagnostics: false`, path aliases, the findings reporter) would need a Stryker jest-runner
+  config. `scripts/mutate.mjs` (2026-09-20) was the precedent: prove the mutant landed, then run the tests.
+- **Timing probe:** one `--findRelatedTests` run costs 14–240 s (a pure file can pull 40–120 related suites). With six
+  workers the effective rate was ~20 s per mutant, so the full population (4 469 mutants in 111 pure files) is ~25 h.
+  **Sample: 200, stratified by module dir, seed 20260930.** `--bail` exits before jest writes its JSON, so a bailed run is
+  read from its stderr summary (`classifyRun`).
+- **Baseline: 71.9 %** (143 killed / 199 scored, 1 crash; engine 69.1 %, memory 76.2 %, extraction 75.6 %, judge 68.5 %,
+  talk 2/3, pacing 3/4). The sample was drawn on the tree before plans 12 and 05 merged; the same `--seed --sample` re-run
+  is the comparison point. The 56 survivors are listed in the JSON; most are `if (…) → if (false)` and `cond ? → true ?`
+  in `engine/validate/*` diagnostics and `judge/*Calibration` measurement code.
+
+### R2: what the defect replay found
+
+- `empty-private-block-ledger` **survived every related suite**: the ledger half of the v2.3 plan 05 fix
+  (`applyLedger` → `updateInjection()`) had no test. Added one to `memoryInjectionRefresh.review.test.ts`; killed.
+- `expansion-generate-unowned`: removing the check after `generateReviewedBeats` survived, because the ownership tests
+  reach only the throwing path. The spec replays the historical defect instead (a run that never lapses, as the review
+  test's own negative control does); killed. The non-throwing path's check is still reached by no test (recorded, not fixed).
+- Six first-draft specs named the wrong test file; `defect-replay.mjs --discover` (runs every related test under the
+  mutant and names the files that failed) found the killers.
+
+### R3 outcome
+
+- **Retired: 1.** `test/scenarios/v24-acc-I1-live.json` was `live-v24-01-t1.json` with 15 budgets doubled; the budgets
+  were folded into `live-v24-01-t1` (600 000 ms) and the copy deleted.
+- **Demoted (out of the final suite, files kept): 34 LLM scenarios**: the v2.5 plan 09 spike legs, the L5 X1 and
+  mirror-rate calibration arms, the T13 spike legs, and every LLM scenario that names no guard (R3 rule 3).
+- **Merge candidates: 3 pairs** (fork routes a/b, two-ways bridge/ferry, preview-capture group/solo). Both halves stay
+  until a parameterised fixture exists.
+- **Vacuous, not fixed: 14 extractor fixtures** (`mustContain [""]`). The fix redefines the facts column, which is
+  v2.5 plan 05's open user decision 2 (X15). No other vacuous asset was found (jest, harness, scenarios, journeys: 0).
+- jest and Storybook are kept whole: 354 jest files cost ~200 s summed, and a per-file retire needs its own mutation run.
+  64 jest files name no guard; they are flagged `unnamed` for budget rule 1.
+- **Mutation gate:** no jest file was retired and one test was added, so the same sample cannot score lower; not re-run.
+
+### R4 outcome
+
+3 064 uncited record files (24.9 MB) moved to `C:\dev\backups\story-orchestrator\records\` (manifest with sha256,
+source commit). A record counts as cited when a doc, test, script or attestation names it or its run dir; a
+gate-directory mention (`records/v2.4-plan01/`) keeps only that dir's markdown; the attestation's implied
+`header-start.json` beside each cited run is cited too (found by `test:release` failing on the first attempt).
+**Target missed: `test/` is 33.4 MB** (records 25.2 MB, all cited file by file). Reaching 10 MB means moving cited
+records, which the plan's own rule forbids; that trade is the user's call.
+
+### R5 outcome
+
+`13-final-suite.md`: journeys 3.2 lane-h (measured medians where records exist), kept live scenarios 3.3, plus
+placeholder rows for 01, 03, 05/11/12, 09 and the judge-off column sized from their plan text. **It does not fit:**
+×2 is 73.5 lane-h at the plans' own sizing and 48.6 at the phase F caps R5 sets (regression legs only; measurement
+legs run once in their own plan, rule 13), against 40 (2 nights × 10 h × 2 lanes). The 8.6 lane-h gap is a plan 10 /
+user call: a third night, 09 on its own night, or 03/05 R3 rows ×1.
+
+### Deviations
+
+- Vacuity is read statically (no assertion step; empty needle), not by running each asset against a blank fixture:
+  most of those runs need a model, and v2.6 runs none before plan 10.
+- "Has ever failed on master" is proxied by the count of fix commits touching the file.
+- Measurement fixtures were demoted in place, not moved to `test/measurements/<plan>/`: plan 03 re-runs them and the
+  docs cite their paths. New measurements go to `test/measurements/` (plan 05 already does).
+- The inventory counts differ from the draft's table (354 jest files / 4 723 tests; 15 journeys / 144 checks, at merge of master 44921b8c): the
+  draft counted journey copies inside records.
+
+## Gate record (2026-09-30, wave 1, branch `worktree-agent-a155e9aa4a198a257`, master merged at `44921b8c`)
+
+Per task:
+- R1: `node scripts/suite/inventory.mjs --jest-json <jest --json> --replay test/findings/defect-replay-report.json` →
+  354 jest, 41 stories, 73 harness, 173 scenarios, 144 journey checks, 29 live-suite fixtures, 1 996 record files.
+- R2: `npm run test:replay` → baseline green (381 tests), **25 of 25 killed**.
+  `node scripts/suite/mutation-baseline.mjs --sample 200 --workers 6 --timeout 600000 --out docs/plans/v2.6/13-mutation-baseline.json`
+  → **71.9 %** (143/199 scored, 1 crash, 0 timeout), 4 051 s wall, on the tree before the plan 12/05/08/11 merges.
+- R3: `node scripts/suite/decisions.mjs` → 815 assets: 1 retired (merged), 34 LLM scenarios demoted, 3 merge pairs,
+  14 live-suite fixtures `fix (pending decision)`, the rest kept. Replay still 25/25 after the retire.
+- R4: `node scripts/suite/move-records.mjs` → 3 064 files (24.85 MB) moved, manifest
+  `C:\dev\backups\story-orchestrator\records\manifest.json`; `npm run test:release` green. `test/` 33.4 MB: **the 10 MB
+  target is NOT met** (cited records alone are 24.2 MB).
+- R5: `13-final-suite.md` committed: one pass 36.8 lane-h sized / 24.3 at the caps; ×2 48.6 of 40: **does not fit**,
+  gap 8.6 lane-h, stated for plan 10 / the user.
+
+Overall gates (overview rule 16), from this worktree after the last master merge, in this order:
+
+| Command | Result |
+|---|---|
+| `npm run typecheck` | exit 0 |
+| `npm run typecheck:test` | exit 0 |
+| `npm run lint` | exit 0 |
+| `npm test` | exit 0: 353 suites passed, 1 skipped; 4 722 tests passed, 1 skipped |
+| `npm run build` | exit 0 |
+| `npm run build:dev` | exit 0 (test:release's flavour test reads `dist-dev/`) |
+| `npm run test:debug` | exit 0: 454 pass, 0 fail |
+| `npm run test:release` | exit 0: 77 pass, 0 fail |
+| `npm run test:replay` | exit 0: 25 of 25 killed |
+| `npm run test-storybook:ci` | **not run** (port 6006 shared; no story touched) — the lead runs it at merge |
+
+No real-LLM run (overview rule 13). Order matters: `test:debug` and `test:release` read `dist/` and `dist-dev/`, so they
+fail on a fresh worktree until `build` and `build:dev` have run (seen on the first pass, not a defect).
+
+Setup note: the worktree started at `544975fb`, behind master; it was reset to master before any work, which also
+discarded the worktree's local `.claude/settings.local.json` edit.
+
+### Open for the lead / user
+
+- The 10 MB `test/` target versus "keep every cited record" (R4).
+- The 8.6 lane-h R5 gap (a third night, 09 on its own night, or 03/05 R3 rows ×1).
+- v2.5 plan 05 open decision 2 (the 14 vacuous facts needles).
+- The expansion non-throwing path's ownership check is reached by no test (R2 finding).
+- `npm run test:replay` should join the rule-16 list of overall gates (the rule already names "plan 13's defect-replay set").
+
+## User decisions 2026-09-30 (after wave 1)
+
+| Question | Decision |
+|---|---|
+| R4 `test/` < 10 MB target | **Dropped.** Every cited record stays in the repo; `test:release` keeps verifying citations. Uncited records stay moved out. |
+| Vacuous extractor needles (14 fixtures, v2.5 plan 05 open decision 2) | **Fix them**: a real needle each, or an explicit "no facts expectation". The facts number drops to its honest value. |
+| The 8.6 lane-hour gap in R5 | **Deferred** until development is finished and the suite list is final (user asked first whether development was done). |

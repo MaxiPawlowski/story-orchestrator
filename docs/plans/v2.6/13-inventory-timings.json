@@ -1,0 +1,1386 @@
+{
+  "at": "2026-09-30T15:42:10.381Z",
+  "totalTests": 4620,
+  "files": {
+    "src/constants/injectionRegistry.test.ts": {
+      "ms": 123,
+      "tests": 5
+    },
+    "src/copilot/authoring.test.ts": {
+      "ms": 217,
+      "tests": 12
+    },
+    "src/copilot/authoringA16.review.test.ts": {
+      "ms": 165,
+      "tests": 5
+    },
+    "src/copilot/parse.test.ts": {
+      "ms": 197,
+      "tests": 22
+    },
+    "src/copilot/proposal.test.ts": {
+      "ms": 209,
+      "tests": 16
+    },
+    "src/copilot/validate.test.ts": {
+      "ms": 211,
+      "tests": 19
+    },
+    "src/engine/agency.test.ts": {
+      "ms": 129,
+      "tests": 7
+    },
+    "src/engine/clampToChat.test.ts": {
+      "ms": 133,
+      "tests": 2
+    },
+    "src/engine/convergence.property.test.ts": {
+      "ms": 2335,
+      "tests": 1001
+    },
+    "src/engine/discardPendingFrom.test.ts": {
+      "ms": 125,
+      "tests": 2
+    },
+    "src/engine/engine.review.test.ts": {
+      "ms": 176,
+      "tests": 6
+    },
+    "src/engine/engine.test.ts": {
+      "ms": 273,
+      "tests": 32
+    },
+    "src/engine/evaluatedBlackboard.test.ts": {
+      "ms": 134,
+      "tests": 4
+    },
+    "src/engine/exampleStory.test.ts": {
+      "ms": 171,
+      "tests": 8
+    },
+    "src/engine/historySize.test.ts": {
+      "ms": 199,
+      "tests": 2
+    },
+    "src/engine/houseRules.test.ts": {
+      "ms": 172,
+      "tests": 3
+    },
+    "src/engine/independentStory.test.ts": {
+      "ms": 112,
+      "tests": 2
+    },
+    "src/engine/journeyStories.test.ts": {
+      "ms": 214,
+      "tests": 10
+    },
+    "src/engine/objectiveLine.test.ts": {
+      "ms": 261,
+      "tests": 13
+    },
+    "src/engine/playerFields.test.ts": {
+      "ms": 95,
+      "tests": 2
+    },
+    "src/engine/replaceGraph.test.ts": {
+      "ms": 104,
+      "tests": 3
+    },
+    "src/engine/rosterRole.test.ts": {
+      "ms": 129,
+      "tests": 2
+    },
+    "src/engine/stagecraftFormat.test.ts": {
+      "ms": 107,
+      "tests": 12
+    },
+    "src/engine/storyCorpus.test.ts": {
+      "ms": 458,
+      "tests": 3
+    },
+    "src/engine/storyDiff.test.ts": {
+      "ms": 250,
+      "tests": 28
+    },
+    "src/extraction/authority.review.test.ts": {
+      "ms": 448,
+      "tests": 7
+    },
+    "src/extraction/breakerSlowBackend.review.test.ts": {
+      "ms": 418,
+      "tests": 11
+    },
+    "src/extraction/callBudget.test.ts": {
+      "ms": 166,
+      "tests": 6
+    },
+    "src/extraction/callBudgetScale.test.ts": {
+      "ms": 396,
+      "tests": 6
+    },
+    "src/extraction/chunker.test.ts": {
+      "ms": 9133,
+      "tests": 9
+    },
+    "src/extraction/client.test.ts": {
+      "ms": 694,
+      "tests": 18
+    },
+    "src/extraction/clientSlowBackend.test.ts": {
+      "ms": 463,
+      "tests": 12
+    },
+    "src/extraction/commitGuard.test.ts": {
+      "ms": 136,
+      "tests": 7
+    },
+    "src/extraction/cues.test.ts": {
+      "ms": 92,
+      "tests": 3
+    },
+    "src/extraction/degenerate.test.ts": {
+      "ms": 185,
+      "tests": 7
+    },
+    "src/extraction/escapedEvidence.test.ts": {
+      "ms": 250,
+      "tests": 24
+    },
+    "src/extraction/evidence.test.ts": {
+      "ms": 232,
+      "tests": 15
+    },
+    "src/extraction/evidenceCorpus.test.ts": {
+      "ms": 194,
+      "tests": 3
+    },
+    "src/extraction/extraction.test.ts": {
+      "ms": 370,
+      "tests": 48
+    },
+    "src/extraction/hintSidecars.test.ts": {
+      "ms": 188,
+      "tests": 30
+    },
+    "src/extraction/inputBudget.test.ts": {
+      "ms": 137,
+      "tests": 7
+    },
+    "src/extraction/judgedRead.test.ts": {
+      "ms": 397,
+      "tests": 4
+    },
+    "src/extraction/labelledEvidence.test.ts": {
+      "ms": 230,
+      "tests": 39
+    },
+    "src/extraction/parse.test.ts": {
+      "ms": 187,
+      "tests": 20
+    },
+    "src/extraction/playerEvidence.test.ts": {
+      "ms": 576,
+      "tests": 19
+    },
+    "src/extraction/preflight.test.ts": {
+      "ms": 137,
+      "tests": 4
+    },
+    "src/extraction/reconcile.test.ts": {
+      "ms": 301,
+      "tests": 1
+    },
+    "src/extraction/sceneArms.test.ts": {
+      "ms": 111,
+      "tests": 14
+    },
+    "src/extraction/scheduler.breaker.test.ts": {
+      "ms": 370,
+      "tests": 17
+    },
+    "src/extraction/scheduler.routes.test.ts": {
+      "ms": 446,
+      "tests": 4
+    },
+    "src/extraction/scheduler.test.ts": {
+      "ms": 668,
+      "tests": 21
+    },
+    "src/extraction/schedulerClear.review.test.ts": {
+      "ms": 217,
+      "tests": 11
+    },
+    "src/extraction/schedulerDelayedError.review.test.ts": {
+      "ms": 152,
+      "tests": 4
+    },
+    "src/extraction/schedulerReadOwnership.review.test.ts": {
+      "ms": 240,
+      "tests": 2
+    },
+    "src/extraction/schedulerReread.review.test.ts": {
+      "ms": 283,
+      "tests": 11
+    },
+    "src/extraction/scopeExplain.test.ts": {
+      "ms": 131,
+      "tests": 7
+    },
+    "src/extraction/sharedReadBudget.test.ts": {
+      "ms": 613,
+      "tests": 9
+    },
+    "src/extraction/sharedReadFinish.test.ts": {
+      "ms": 391,
+      "tests": 6
+    },
+    "src/extraction/windowHygiene.test.ts": {
+      "ms": 629,
+      "tests": 50
+    },
+    "src/extraction/windowHygieneWiring.review.test.ts": {
+      "ms": 311,
+      "tests": 7
+    },
+    "src/generation/convergence.test.ts": {
+      "ms": 162,
+      "tests": 4
+    },
+    "src/generation/fork.property.test.ts": {
+      "ms": 766,
+      "tests": 3
+    },
+    "src/generation/fork.review.test.ts": {
+      "ms": 261,
+      "tests": 17
+    },
+    "src/generation/generation.test.ts": {
+      "ms": 211,
+      "tests": 12
+    },
+    "src/generation/judgedExpansion.test.ts": {
+      "ms": 419,
+      "tests": 7
+    },
+    "src/generation/latchGuard.test.ts": {
+      "ms": 97,
+      "tests": 2
+    },
+    "src/generation/merge.review.test.ts": {
+      "ms": 124,
+      "tests": 2
+    },
+    "src/image/image.test.ts": {
+      "ms": 493,
+      "tests": 9
+    },
+    "src/judge/accounting.review.test.ts": {
+      "ms": 480,
+      "tests": 25
+    },
+    "src/judge/cancelled.review.test.ts": {
+      "ms": 332,
+      "tests": 4
+    },
+    "src/judge/contradiction.test.ts": {
+      "ms": 513,
+      "tests": 17
+    },
+    "src/judge/curators.test.ts": {
+      "ms": 620,
+      "tests": 8
+    },
+    "src/judge/expansion.test.ts": {
+      "ms": 477,
+      "tests": 7
+    },
+    "src/judge/extraction.test.ts": {
+      "ms": 444,
+      "tests": 10
+    },
+    "src/judge/judge.test.ts": {
+      "ms": 590,
+      "tests": 33
+    },
+    "src/judge/llamaLogprob.test.ts": {
+      "ms": 626,
+      "tests": 8
+    },
+    "src/judge/lore.test.ts": {
+      "ms": 427,
+      "tests": 9
+    },
+    "src/judge/loreRanking.test.ts": {
+      "ms": 251,
+      "tests": 8
+    },
+    "src/judge/loreRelevance.test.ts": {
+      "ms": 3024,
+      "tests": 3
+    },
+    "src/judge/numbers.test.ts": {
+      "ms": 158,
+      "tests": 5
+    },
+    "src/judge/readiness.test.ts": {
+      "ms": 364,
+      "tests": 8
+    },
+    "src/judge/scene.test.ts": {
+      "ms": 410,
+      "tests": 6
+    },
+    "src/judge/warden.test.ts": {
+      "ms": 776,
+      "tests": 20
+    },
+    "src/judge/wardenLore.test.ts": {
+      "ms": 614,
+      "tests": 7
+    },
+    "src/memory/arcs.test.ts": {
+      "ms": 196,
+      "tests": 17
+    },
+    "src/memory/budget.test.ts": {
+      "ms": 214,
+      "tests": 8
+    },
+    "src/memory/canon.test.ts": {
+      "ms": 191,
+      "tests": 8
+    },
+    "src/memory/consolidate.test.ts": {
+      "ms": 144,
+      "tests": 12
+    },
+    "src/memory/contradictions.fixture.test.ts": {
+      "ms": 600,
+      "tests": 14
+    },
+    "src/memory/derived.test.ts": {
+      "ms": 270,
+      "tests": 15
+    },
+    "src/memory/epistemic.test.ts": {
+      "ms": 393,
+      "tests": 25
+    },
+    "src/memory/inject.test.ts": {
+      "ms": 196,
+      "tests": 11
+    },
+    "src/memory/injectFates.test.ts": {
+      "ms": 117,
+      "tests": 5
+    },
+    "src/memory/ledger.test.ts": {
+      "ms": 190,
+      "tests": 16
+    },
+    "src/memory/longFixture.test.ts": {
+      "ms": 588,
+      "tests": 5
+    },
+    "src/memory/parse.test.ts": {
+      "ms": 238,
+      "tests": 15
+    },
+    "src/memory/provenance.test.ts": {
+      "ms": 303,
+      "tests": 23
+    },
+    "src/memory/reversal.review.test.ts": {
+      "ms": 132,
+      "tests": 12
+    },
+    "src/memory/rollbackReplay.property.test.ts": {
+      "ms": 8772,
+      "tests": 17
+    },
+    "src/memory/sceneDetect.test.ts": {
+      "ms": 104,
+      "tests": 7
+    },
+    "src/memory/sceneSummary.test.ts": {
+      "ms": 129,
+      "tests": 13
+    },
+    "src/memory/score.test.ts": {
+      "ms": 204,
+      "tests": 6
+    },
+    "src/memory/shortTermLocality.spike.test.ts": {
+      "ms": 643,
+      "tests": 6
+    },
+    "src/memory/stores.test.ts": {
+      "ms": 228,
+      "tests": 12
+    },
+    "src/memory/supersede.test.ts": {
+      "ms": 124,
+      "tests": 3
+    },
+    "src/pacing/guidance.test.ts": {
+      "ms": 135,
+      "tests": 5
+    },
+    "src/pacing/pacing.test.ts": {
+      "ms": 288,
+      "tests": 18
+    },
+    "src/runtime/agencyRecovery.test.ts": {
+      "ms": 292,
+      "tests": 15
+    },
+    "src/runtime/architecture.test.ts": {
+      "ms": 284,
+      "tests": 14
+    },
+    "src/runtime/authoringFinish.test.ts": {
+      "ms": 491,
+      "tests": 4
+    },
+    "src/runtime/awayRecap.test.ts": {
+      "ms": 500,
+      "tests": 13
+    },
+    "src/runtime/blobChatStamp.review.test.ts": {
+      "ms": 474,
+      "tests": 5
+    },
+    "src/runtime/blobForeign.review.test.ts": {
+      "ms": 380,
+      "tests": 8
+    },
+    "src/runtime/blobUnreadable.review.test.ts": {
+      "ms": 470,
+      "tests": 16
+    },
+    "src/runtime/boundaryWork.test.ts": {
+      "ms": 300,
+      "tests": 8
+    },
+    "src/runtime/branchContinue.review.test.ts": {
+      "ms": 6476,
+      "tests": 19
+    },
+    "src/runtime/breakerWatch.test.ts": {
+      "ms": 399,
+      "tests": 5
+    },
+    "src/runtime/c1Surfaces.review.test.ts": {
+      "ms": 385,
+      "tests": 6
+    },
+    "src/runtime/chatIdentity.review.test.ts": {
+      "ms": 4785,
+      "tests": 14
+    },
+    "src/runtime/chatSave.test.ts": {
+      "ms": 424,
+      "tests": 20
+    },
+    "src/runtime/chatWrites.test.ts": {
+      "ms": 338,
+      "tests": 4
+    },
+    "src/runtime/codeHealth.guard.test.ts": {
+      "ms": 30122,
+      "tests": 21
+    },
+    "src/runtime/contextLimitCache.test.ts": {
+      "ms": 477,
+      "tests": 5
+    },
+    "src/runtime/continuity.test.ts": {
+      "ms": 437,
+      "tests": 4
+    },
+    "src/runtime/coordinators/abortedCall.review.test.ts": {
+      "ms": 449,
+      "tests": 8
+    },
+    "src/runtime/coordinators/backlogOwnership.review.test.ts": {
+      "ms": 791,
+      "tests": 15
+    },
+    "src/runtime/coordinators/budgetWiring.review.test.ts": {
+      "ms": 1297,
+      "tests": 23
+    },
+    "src/runtime/coordinators/contradictedSeed.review.test.ts": {
+      "ms": 561,
+      "tests": 16
+    },
+    "src/runtime/coordinators/copilotOwnedLorebooks.test.ts": {
+      "ms": 439,
+      "tests": 6
+    },
+    "src/runtime/coordinators/copilotOwnership.review.test.ts": {
+      "ms": 472,
+      "tests": 3
+    },
+    "src/runtime/coordinators/curatorTiersSpike.review.test.ts": {
+      "ms": 763,
+      "tests": 22
+    },
+    "src/runtime/coordinators/draftedPrivateBlock.review.test.ts": {
+      "ms": 436,
+      "tests": 5
+    },
+    "src/runtime/coordinators/epistemicMacro.review.test.ts": {
+      "ms": 633,
+      "tests": 6
+    },
+    "src/runtime/coordinators/expansionOwnership.review.test.ts": {
+      "ms": 673,
+      "tests": 10
+    },
+    "src/runtime/coordinators/expansionPreflight.review.test.ts": {
+      "ms": 342,
+      "tests": 3
+    },
+    "src/runtime/coordinators/extractionOwnership.review.test.ts": {
+      "ms": 490,
+      "tests": 16
+    },
+    "src/runtime/coordinators/extractionReadOwnership.review.test.ts": {
+      "ms": 292,
+      "tests": 2
+    },
+    "src/runtime/coordinators/factAttribution.review.test.ts": {
+      "ms": 605,
+      "tests": 7
+    },
+    "src/runtime/coordinators/memoryInjectionRefresh.review.test.ts": {
+      "ms": 558,
+      "tests": 3
+    },
+    "src/runtime/coordinators/memoryOwnership.review.test.ts": {
+      "ms": 588,
+      "tests": 26
+    },
+    "src/runtime/coordinators/modelSurface.review.test.ts": {
+      "ms": 370,
+      "tests": 2
+    },
+    "src/runtime/coordinators/pacingCoordinator.test.ts": {
+      "ms": 567,
+      "tests": 2
+    },
+    "src/runtime/coordinators/refuseIncomplete.review.test.ts": {
+      "ms": 566,
+      "tests": 3
+    },
+    "src/runtime/coordinators/sceneBurst.review.test.ts": {
+      "ms": 474,
+      "tests": 5
+    },
+    "src/runtime/coordinators/sceneDetectWorld.review.test.ts": {
+      "ms": 585,
+      "tests": 5
+    },
+    "src/runtime/coordinators/sceneFreshness.review.test.ts": {
+      "ms": 388,
+      "tests": 7
+    },
+    "src/runtime/coordinators/shortTermSpike.review.test.ts": {
+      "ms": 316,
+      "tests": 3
+    },
+    "src/runtime/coordinators/stagecraftCoordinator.review.test.ts": {
+      "ms": 1841,
+      "tests": 30
+    },
+    "src/runtime/coordinators/stagecraftCoordinator.test.ts": {
+      "ms": 1265,
+      "tests": 56
+    },
+    "src/runtime/coordinators/stagecraftWriteAhead.test.ts": {
+      "ms": 1604,
+      "tests": 10
+    },
+    "src/runtime/coordinators/wardenFamilies.review.test.ts": {
+      "ms": 525,
+      "tests": 16
+    },
+    "src/runtime/curatorDigestRunner.test.ts": {
+      "ms": 565,
+      "tests": 2
+    },
+    "src/runtime/curatorFilter.test.ts": {
+      "ms": 387,
+      "tests": 3
+    },
+    "src/runtime/curatorWriteAheadHydrate.review.test.ts": {
+      "ms": 2134,
+      "tests": 2
+    },
+    "src/runtime/devOnly.guard.test.ts": {
+      "ms": 26122,
+      "tests": 13
+    },
+    "src/runtime/effectLedger.test.ts": {
+      "ms": 559,
+      "tests": 14
+    },
+    "src/runtime/effectRestore.review.test.ts": {
+      "ms": 487,
+      "tests": 11
+    },
+    "src/runtime/effectsApplier.test.ts": {
+      "ms": 1018,
+      "tests": 34
+    },
+    "src/runtime/effectsOwnership.review.test.ts": {
+      "ms": 395,
+      "tests": 14
+    },
+    "src/runtime/epochAbort.review.test.ts": {
+      "ms": 113,
+      "tests": 6
+    },
+    "src/runtime/errorCopy.guard.test.ts": {
+      "ms": 1736,
+      "tests": 5
+    },
+    "src/runtime/exampleStory.review.test.ts": {
+      "ms": 102,
+      "tests": 1
+    },
+    "src/runtime/expansionLookahead.test.ts": {
+      "ms": 344,
+      "tests": 8
+    },
+    "src/runtime/extractionEnabled.guard.test.ts": {
+      "ms": 224,
+      "tests": 3
+    },
+    "src/runtime/extrasHydrate.test.ts": {
+      "ms": 531,
+      "tests": 10
+    },
+    "src/runtime/faultMatrix.guard.test.ts": {
+      "ms": 178,
+      "tests": 5
+    },
+    "src/runtime/findingsLedger.test.ts": {
+      "ms": 238,
+      "tests": 6
+    },
+    "src/runtime/fingerprintReconcile.review.test.ts": {
+      "ms": 2241,
+      "tests": 14
+    },
+    "src/runtime/fingerprints.test.ts": {
+      "ms": 518,
+      "tests": 17
+    },
+    "src/runtime/generationLifecycle.test.ts": {
+      "ms": 227,
+      "tests": 13
+    },
+    "src/runtime/generationWiring.review.test.ts": {
+      "ms": 486,
+      "tests": 6
+    },
+    "src/runtime/groupStoryBinding.test.ts": {
+      "ms": 83,
+      "tests": 2
+    },
+    "src/runtime/journal.test.ts": {
+      "ms": 434,
+      "tests": 19
+    },
+    "src/runtime/journalContract.review.test.ts": {
+      "ms": 722,
+      "tests": 5
+    },
+    "src/runtime/judge.test.ts": {
+      "ms": 489,
+      "tests": 8
+    },
+    "src/runtime/judgeExtraction.test.ts": {
+      "ms": 923,
+      "tests": 7
+    },
+    "src/runtime/judgeGate.review.test.ts": {
+      "ms": 848,
+      "tests": 5
+    },
+    "src/runtime/judgeMemory.test.ts": {
+      "ms": 638,
+      "tests": 5
+    },
+    "src/runtime/judgeMeter.review.test.ts": {
+      "ms": 544,
+      "tests": 7
+    },
+    "src/runtime/judgeMeterRollback.review.test.ts": {
+      "ms": 425,
+      "tests": 1
+    },
+    "src/runtime/judgeOwnership.review.test.ts": {
+      "ms": 369,
+      "tests": 7
+    },
+    "src/runtime/judgeProviderRouting.test.ts": {
+      "ms": 7568,
+      "tests": 7
+    },
+    "src/runtime/judgeSeam.golden.test.ts": {
+      "ms": 384,
+      "tests": 1
+    },
+    "src/runtime/legacyFree.guard.test.ts": {
+      "ms": 410,
+      "tests": 10
+    },
+    "src/runtime/librarySave.test.ts": {
+      "ms": 642,
+      "tests": 14
+    },
+    "src/runtime/lifecycleDispose.review.test.ts": {
+      "ms": 543,
+      "tests": 9
+    },
+    "src/runtime/liveSuiteTiers.test.ts": {
+      "ms": 516,
+      "tests": 2
+    },
+    "src/runtime/loreAborted.review.test.ts": {
+      "ms": 368,
+      "tests": 5
+    },
+    "src/runtime/loreExclusive.test.ts": {
+      "ms": 555,
+      "tests": 14
+    },
+    "src/runtime/loreForceWiring.review.test.ts": {
+      "ms": 628,
+      "tests": 7
+    },
+    "src/runtime/loreSelect.test.ts": {
+      "ms": 434,
+      "tests": 10
+    },
+    "src/runtime/macros.test.ts": {
+      "ms": 587,
+      "tests": 6
+    },
+    "src/runtime/manualRead.review.test.ts": {
+      "ms": 552,
+      "tests": 1
+    },
+    "src/runtime/memoryInjectorFates.test.ts": {
+      "ms": 355,
+      "tests": 3
+    },
+    "src/runtime/memoryMirror.test.ts": {
+      "ms": 611,
+      "tests": 30
+    },
+    "src/runtime/memoryQueue.test.ts": {
+      "ms": 784,
+      "tests": 34
+    },
+    "src/runtime/memoryQueueHeld.test.ts": {
+      "ms": 437,
+      "tests": 27
+    },
+    "src/runtime/messageIdentity.test.ts": {
+      "ms": 215,
+      "tests": 11
+    },
+    "src/runtime/messageJump.test.ts": {
+      "ms": 153,
+      "tests": 6
+    },
+    "src/runtime/messageJumpHost.test.ts": {
+      "ms": 430,
+      "tests": 4
+    },
+    "src/runtime/mirrorOwnership.review.test.ts": {
+      "ms": 529,
+      "tests": 9
+    },
+    "src/runtime/mirrorReaper.review.test.ts": {
+      "ms": 560,
+      "tests": 23
+    },
+    "src/runtime/mirrorScan.test.ts": {
+      "ms": 524,
+      "tests": 13
+    },
+    "src/runtime/modelCall.test.ts": {
+      "ms": 392,
+      "tests": 5
+    },
+    "src/runtime/modelCalls.test.ts": {
+      "ms": 351,
+      "tests": 6
+    },
+    "src/runtime/narrative.test.ts": {
+      "ms": 458,
+      "tests": 8
+    },
+    "src/runtime/nextTurn.test.ts": {
+      "ms": 333,
+      "tests": 7
+    },
+    "src/runtime/nextTurnCost.test.ts": {
+      "ms": 355,
+      "tests": 11
+    },
+    "src/runtime/npcRepliesOwnership.review.test.ts": {
+      "ms": 387,
+      "tests": 6
+    },
+    "src/runtime/npcReplyRewind.test.ts": {
+      "ms": 120,
+      "tests": 3
+    },
+    "src/runtime/npcReplyRoll.test.ts": {
+      "ms": 528,
+      "tests": 7
+    },
+    "src/runtime/npcStreamLanding.review.test.ts": {
+      "ms": 591,
+      "tests": 5
+    },
+    "src/runtime/npcTriggerStop.review.test.ts": {
+      "ms": 542,
+      "tests": 6
+    },
+    "src/runtime/ownership.guard.test.ts": {
+      "ms": 1121,
+      "tests": 11
+    },
+    "src/runtime/passProfiles.test.ts": {
+      "ms": 226,
+      "tests": 22
+    },
+    "src/runtime/persistenceRetention.test.ts": {
+      "ms": 420,
+      "tests": 6
+    },
+    "src/runtime/persistOwnership.review.test.ts": {
+      "ms": 401,
+      "tests": 5
+    },
+    "src/runtime/pipeline.test.ts": {
+      "ms": 519,
+      "tests": 16
+    },
+    "src/runtime/prodSurface.test.ts": {
+      "ms": 447,
+      "tests": 5
+    },
+    "src/runtime/promptBuckets.test.ts": {
+      "ms": 458,
+      "tests": 5
+    },
+    "src/runtime/promptCost.test.ts": {
+      "ms": 219,
+      "tests": 9
+    },
+    "src/runtime/qualityMacros.test.ts": {
+      "ms": 154,
+      "tests": 9
+    },
+    "src/runtime/quarantineExclusion.review.test.ts": {
+      "ms": 481,
+      "tests": 7
+    },
+    "src/runtime/reloadPromptBlocks.review.test.ts": {
+      "ms": 5270,
+      "tests": 9
+    },
+    "src/runtime/repair.test.ts": {
+      "ms": 548,
+      "tests": 32
+    },
+    "src/runtime/requestBudget.test.ts": {
+      "ms": 489,
+      "tests": 4
+    },
+    "src/runtime/requirements.test.ts": {
+      "ms": 305,
+      "tests": 12
+    },
+    "src/runtime/requirementsRefresh.review.test.ts": {
+      "ms": 452,
+      "tests": 3
+    },
+    "src/runtime/requirementsWatch.test.ts": {
+      "ms": 168,
+      "tests": 11
+    },
+    "src/runtime/roleCalibration.test.ts": {
+      "ms": 527,
+      "tests": 38
+    },
+    "src/runtime/roleHealth.test.ts": {
+      "ms": 158,
+      "tests": 6
+    },
+    "src/runtime/roleSelfTest.test.ts": {
+      "ms": 212,
+      "tests": 9
+    },
+    "src/runtime/rollback.review.test.ts": {
+      "ms": 510,
+      "tests": 9
+    },
+    "src/runtime/roster.test.ts": {
+      "ms": 473,
+      "tests": 11
+    },
+    "src/runtime/runGuard.test.ts": {
+      "ms": 177,
+      "tests": 6
+    },
+    "src/runtime/runOwner.abort.test.ts": {
+      "ms": 184,
+      "tests": 8
+    },
+    "src/runtime/runtimeManager.test.ts": {
+      "ms": 1569,
+      "tests": 102
+    },
+    "src/runtime/runToken.test.ts": {
+      "ms": 121,
+      "tests": 18
+    },
+    "src/runtime/samplerOverlay.test.ts": {
+      "ms": 87,
+      "tests": 10
+    },
+    "src/runtime/samplerOverlayEffect.test.ts": {
+      "ms": 428,
+      "tests": 10
+    },
+    "src/runtime/samplerOverlayHost.test.ts": {
+      "ms": 241,
+      "tests": 5
+    },
+    "src/runtime/saveEvidence.test.ts": {
+      "ms": 243,
+      "tests": 12
+    },
+    "src/runtime/saveHealth.test.ts": {
+      "ms": 177,
+      "tests": 8
+    },
+    "src/runtime/scanGatePlan.test.ts": {
+      "ms": 1820,
+      "tests": 12
+    },
+    "src/runtime/scanMemory.test.ts": {
+      "ms": 106,
+      "tests": 2
+    },
+    "src/runtime/sceneArmRunner.test.ts": {
+      "ms": 332,
+      "tests": 3
+    },
+    "src/runtime/sceneCoordinator.test.ts": {
+      "ms": 434,
+      "tests": 8
+    },
+    "src/runtime/sceneInjectWrite.review.test.ts": {
+      "ms": 479,
+      "tests": 7
+    },
+    "src/runtime/sceneStale.review.test.ts": {
+      "ms": 338,
+      "tests": 7
+    },
+    "src/runtime/scoreContext.test.ts": {
+      "ms": 117,
+      "tests": 1
+    },
+    "src/runtime/selfTest.review.test.ts": {
+      "ms": 136,
+      "tests": 3
+    },
+    "src/runtime/selfTest.test.ts": {
+      "ms": 164,
+      "tests": 13
+    },
+    "src/runtime/settingsLoad.test.ts": {
+      "ms": 347,
+      "tests": 2
+    },
+    "src/runtime/settingsRoot.test.ts": {
+      "ms": 363,
+      "tests": 7
+    },
+    "src/runtime/settingsView.review.test.ts": {
+      "ms": 548,
+      "tests": 3
+    },
+    "src/runtime/settingsWrites.test.ts": {
+      "ms": 602,
+      "tests": 9
+    },
+    "src/runtime/shippedLinks.guard.test.ts": {
+      "ms": 170,
+      "tests": 4
+    },
+    "src/runtime/slashCommands.test.ts": {
+      "ms": 588,
+      "tests": 6
+    },
+    "src/runtime/snapshotCache.test.ts": {
+      "ms": 489,
+      "tests": 7
+    },
+    "src/runtime/spikeFlags.test.ts": {
+      "ms": 334,
+      "tests": 2
+    },
+    "src/runtime/spikes/recommitEdit.review.test.ts": {
+      "ms": 54971,
+      "tests": 12
+    },
+    "src/runtime/spikes/sp5Scenario.test.ts": {
+      "ms": 685,
+      "tests": 13
+    },
+    "src/runtime/spikes/sp5ScenarioHost.test.ts": {
+      "ms": 293,
+      "tests": 3
+    },
+    "src/runtime/spikes/sp6Complications.test.ts": {
+      "ms": 2365,
+      "tests": 14
+    },
+    "src/runtime/spikes/sp7Chance.test.ts": {
+      "ms": 12447,
+      "tests": 16
+    },
+    "src/runtime/spikes/swipeBack.review.test.ts": {
+      "ms": 28721,
+      "tests": 11
+    },
+    "src/runtime/spikes/toolTurnProbe.test.ts": {
+      "ms": 329,
+      "tests": 1
+    },
+    "src/runtime/spikes/toolTurnSummary.test.ts": {
+      "ms": 104,
+      "tests": 4
+    },
+    "src/runtime/spikes/witnessFilter.test.ts": {
+      "ms": 137,
+      "tests": 7
+    },
+    "src/runtime/spikes/witnessFilterHost.test.ts": {
+      "ms": 608,
+      "tests": 4
+    },
+    "src/runtime/startupWiring.review.test.ts": {
+      "ms": 13244,
+      "tests": 13
+    },
+    "src/runtime/stateExport.test.ts": {
+      "ms": 127,
+      "tests": 3
+    },
+    "src/runtime/stopRuntime.test.ts": {
+      "ms": 528,
+      "tests": 6
+    },
+    "src/runtime/storyIdentity.test.ts": {
+      "ms": 566,
+      "tests": 16
+    },
+    "src/runtime/storyImportWarnings.review.test.ts": {
+      "ms": 335,
+      "tests": 2
+    },
+    "src/runtime/storySelectionOwnership.review.test.ts": {
+      "ms": 358,
+      "tests": 3
+    },
+    "src/runtime/storyStart.review.test.ts": {
+      "ms": 419,
+      "tests": 6
+    },
+    "src/runtime/storyUpdate.review.test.ts": {
+      "ms": 304,
+      "tests": 2
+    },
+    "src/runtime/storyUpdate.test.ts": {
+      "ms": 386,
+      "tests": 11
+    },
+    "src/runtime/talkControl.test.ts": {
+      "ms": 700,
+      "tests": 36
+    },
+    "src/runtime/talkOwnership.review.test.ts": {
+      "ms": 442,
+      "tests": 9
+    },
+    "src/runtime/turnBridge.review.test.ts": {
+      "ms": 365,
+      "tests": 12
+    },
+    "src/runtime/turnBridge.test.ts": {
+      "ms": 450,
+      "tests": 19
+    },
+    "src/runtime/turnBridgeDelete.review.test.ts": {
+      "ms": 367,
+      "tests": 6
+    },
+    "src/runtime/turnBridgeIdentity.review.test.ts": {
+      "ms": 490,
+      "tests": 8
+    },
+    "src/runtime/turnBridgeOwnership.review.test.ts": {
+      "ms": 354,
+      "tests": 8
+    },
+    "src/runtime/typedRead.test.ts": {
+      "ms": 316,
+      "tests": 2
+    },
+    "src/runtime/wizardSessions.test.ts": {
+      "ms": 336,
+      "tests": 10
+    },
+    "src/runtime/worldInfoEvidence.test.ts": {
+      "ms": 208,
+      "tests": 23
+    },
+    "src/runtime/worldInfoEvidenceHost.test.ts": {
+      "ms": 548,
+      "tests": 6
+    },
+    "src/runtime/worldInfoGates.test.ts": {
+      "ms": 228,
+      "tests": 11
+    },
+    "src/runtime/worldInfoGating.test.ts": {
+      "ms": 471,
+      "tests": 26
+    },
+    "src/runtime/worldInfoLedger.test.ts": {
+      "ms": 538,
+      "tests": 8
+    },
+    "src/runtime/worldInfoNormalize.test.ts": {
+      "ms": 363,
+      "tests": 8
+    },
+    "src/runtime/worldInfoScan.test.ts": {
+      "ms": 133,
+      "tests": 7
+    },
+    "src/runtime/worldInfoSettings.test.ts": {
+      "ms": 269,
+      "tests": 5
+    },
+    "src/services/stHost/authorNotes.test.ts": {
+      "ms": 230,
+      "tests": 9
+    },
+    "src/services/stHost/backgrounds.test.ts": {
+      "ms": 160,
+      "tests": 4
+    },
+    "src/services/stHost/capabilities.test.ts": {
+      "ms": 560,
+      "tests": 15
+    },
+    "src/services/stHost/chatFiles.test.ts": {
+      "ms": 220,
+      "tests": 11
+    },
+    "src/services/stHost/chatScenario.test.ts": {
+      "ms": 116,
+      "tests": 3
+    },
+    "src/services/stHost/contextBudget.test.ts": {
+      "ms": 116,
+      "tests": 4
+    },
+    "src/services/stHost/contextLimit.test.ts": {
+      "ms": 370,
+      "tests": 12
+    },
+    "src/services/stHost/extensionPrompts.test.ts": {
+      "ms": 130,
+      "tests": 13
+    },
+    "src/services/stHost/groups.test.ts": {
+      "ms": 156,
+      "tests": 6
+    },
+    "src/services/stHost/judge.review.test.ts": {
+      "ms": 370,
+      "tests": 2
+    },
+    "src/services/stHost/loreBindings.test.ts": {
+      "ms": 156,
+      "tests": 4
+    },
+    "src/services/stHost/macroEngine.test.ts": {
+      "ms": 200,
+      "tests": 5
+    },
+    "src/services/stHost/modelReply.test.ts": {
+      "ms": 412,
+      "tests": 26
+    },
+    "src/services/stHost/persistence.test.ts": {
+      "ms": 130,
+      "tests": 2
+    },
+    "src/services/stHost/popup.test.ts": {
+      "ms": 315,
+      "tests": 4
+    },
+    "src/services/stHost/promptBucketsParse.test.ts": {
+      "ms": 113,
+      "tests": 5
+    },
+    "src/services/stHost/saveWatcher.test.ts": {
+      "ms": 764,
+      "tests": 22
+    },
+    "src/services/stHost/saveWatcherStop.test.ts": {
+      "ms": 124,
+      "tests": 3
+    },
+    "src/services/stHost/slashCommands.test.ts": {
+      "ms": 199,
+      "tests": 4
+    },
+    "src/services/stHost/streamGuard.test.ts": {
+      "ms": 158,
+      "tests": 5
+    },
+    "src/services/stHost/typedResults.test.ts": {
+      "ms": 3407,
+      "tests": 3
+    },
+    "src/services/stHost/worldInfo.test.ts": {
+      "ms": 662,
+      "tests": 37
+    },
+    "src/services/stHost/worldInfoFiles.test.ts": {
+      "ms": 156,
+      "tests": 5
+    },
+    "src/services/stHost/worldInfoScan.test.ts": {
+      "ms": 240,
+      "tests": 6
+    },
+    "src/sprites/sprites.test.ts": {
+      "ms": 509,
+      "tests": 18
+    },
+    "src/stagecraft/createCandidate.test.ts": {
+      "ms": 361,
+      "tests": 19
+    },
+    "src/stagecraft/curatorDigest.spike.test.ts": {
+      "ms": 1593,
+      "tests": 6
+    },
+    "src/stagecraft/curatorTiers.test.ts": {
+      "ms": 305,
+      "tests": 20
+    },
+    "src/stagecraft/hardening.test.ts": {
+      "ms": 588,
+      "tests": 31
+    },
+    "src/stagecraft/stagecraft.test.ts": {
+      "ms": 195,
+      "tests": 23
+    },
+    "src/studio/diagnostics.test.ts": {
+      "ms": 456,
+      "tests": 26
+    },
+    "src/studio/draft.test.ts": {
+      "ms": 142,
+      "tests": 8
+    },
+    "src/studio/gateOptions.test.ts": {
+      "ms": 105,
+      "tests": 8
+    },
+    "src/studio/gateReplay.property.test.ts": {
+      "ms": 575,
+      "tests": 1
+    },
+    "src/studio/gateReplay.records.test.ts": {
+      "ms": 0,
+      "tests": 1
+    },
+    "src/studio/gateReplay.test.ts": {
+      "ms": 223,
+      "tests": 13
+    },
+    "src/studio/graphAdapter.test.ts": {
+      "ms": 166,
+      "tests": 2
+    },
+    "src/studio/io.test.ts": {
+      "ms": 106,
+      "tests": 3
+    },
+    "src/studio/mutations.test.ts": {
+      "ms": 315,
+      "tests": 18
+    },
+    "src/studio/qualityUsage.test.ts": {
+      "ms": 148,
+      "tests": 4
+    },
+    "src/talk/talk.test.ts": {
+      "ms": 318,
+      "tests": 27
+    },
+    "src/utils/guards.test.ts": {
+      "ms": 156,
+      "tests": 3
+    },
+    "src/utils/log.test.ts": {
+      "ms": 162,
+      "tests": 5
+    },
+    "src/utils/mountRegistry.test.ts": {
+      "ms": 295,
+      "tests": 4
+    },
+    "src/utils/samplerKeys.test.ts": {
+      "ms": 145,
+      "tests": 5
+    },
+    "src/utils/string.test.ts": {
+      "ms": 121,
+      "tests": 22
+    },
+    "src/utils/wordDiff.test.ts": {
+      "ms": 182,
+      "tests": 5
+    },
+    "src/wizard/ownership.review.test.ts": {
+      "ms": 493,
+      "tests": 2
+    },
+    "src/wizard/provisioning.test.ts": {
+      "ms": 399,
+      "tests": 26
+    }
+  }
+}

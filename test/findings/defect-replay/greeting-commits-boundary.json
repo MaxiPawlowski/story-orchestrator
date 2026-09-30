@@ -1,0 +1,12 @@
+{
+  "id": "greeting-commits-boundary",
+  "defect": "group greetings committed a boundary into the PREVIOUS chat story, which persist then wrote into the new chat",
+  "guards": ".claude/rules/gotchas.md: \"Which rendered messages are a turn (fixed 2026-09-19)\"",
+  "fixCommit": "1bb0e71b 2.1/7-8",
+  "file": "src/runtime/turnBridge.ts",
+  "find": "new Set([\"first_message\", \"extension\"]);",
+  "replace": "new Set([\"extension\"]);",
+  "tests": [
+    "src/runtime/turnBridge.test.ts"
+  ]
+}

@@ -1,0 +1,311 @@
+{
+  "_note": "v2.6 plan 13 R3/R5 inputs read by scripts/suite/decisions.mjs. Rule-based calls come from the inventory; this file holds only the calls a rule cannot make, each with its reason, plus the measured journey durations and the R5 placeholder rows.",
+  "retired": [
+    {
+      "path": "test/scenarios/v24-acc-I1-live.json",
+      "decision": "retire (merged)",
+      "reason": "duplicate: identical steps to test/scenarios/live-v24-01-t1.json except 15 budgets of 600000 ms; the budgets were folded into live-v24-01-t1 (v2.4 plan 09 E1: 300 s timed out on the RTX PRO 4500 pod). The archived runs stay under test/journeys/records/v2.4-acceptance/."
+    }
+  ],
+  "measurement": [
+    {
+      "pattern": "^live-v25-09-sp\\d",
+      "reason": "v2.5 plan 09 spike leg (SP1-SP8 arms): a measurement, not regression (budget rule 4); plan 03 re-runs the ones it keeps"
+    },
+    {
+      "pattern": "^v25-09-",
+      "reason": "v2.5 plan 09 spike leg (SP9 witness / SP10 tool-turn): a measurement (budget rule 4)"
+    },
+    {
+      "pattern": "^live-v25-08-l5-x1-",
+      "reason": "v2.5 plan 08 L5 X1 two-arm calibration (exclusive vs keyword): a measurement"
+    },
+    {
+      "pattern": "^live-v25-08-mirror-rate$",
+      "reason": "v2.5 plan 08 mirror-rate calibration: a measurement"
+    },
+    {
+      "pattern": "^live-v24-05-t13-",
+      "reason": "v2.4 plan 05 T13 scan-gating spike (manual + spike legs): a measurement"
+    }
+  ],
+  "mergeCandidates": [
+    {
+      "paths": [
+        "test/scenarios/live-generated-fork-a.json",
+        "test/scenarios/live-generated-fork-b.json"
+      ],
+      "reason": "the two routes of one R9 fork: one parameterised fixture would do; both routes stay covered until it exists"
+    },
+    {
+      "paths": [
+        "test/scenarios/live-two-ways-bridge.json",
+        "test/scenarios/live-two-ways-ferry.json"
+      ],
+      "reason": "the two routes of one fork story (99% identical steps)"
+    },
+    {
+      "paths": [
+        "test/scenarios/live-v24-08-preview-capture.json",
+        "test/scenarios/live-v24-08-preview-capture-solo.json"
+      ],
+      "reason": "group and solo arms of one preview-capture check (96% identical)"
+    }
+  ],
+  "pendingDecision": [
+    {
+      "pattern": "^extractor(6|7|8|9|1[0-4]|1[6-9]|20)$",
+      "reason": "vacuous facts needle (mustContain [\"\"], mustNotContain [\"zzz\"]); the fix redefines the facts column, which is v2.5 plan 05's open user decision 2 (X15: never silently). Not changed here."
+    }
+  ],
+  "journeyMinutes": {
+    "_source": "median span of journal-follow.jsonl / journey.log timestamps in the archived records (v2.4-acceptance, v2.4-postfreeze, v2.5-*), measured 2026-09-30; checks without a record use the step estimate",
+    "J3": 6.1,
+    "J5": 1.7,
+    "J6": 11.7,
+    "J7": 42.7,
+    "J8": 16.9,
+    "J11": 27.8,
+    "J12": 3.9
+  },
+  "overheadMinutes": 3,
+  "lanes": 2,
+  "nightHours": 10,
+  "placeholders": [
+    {
+      "section": "carry-over rows (01)",
+      "rows": [
+        {
+          "id": "01-fixes",
+          "what": "the seven post-batch-2 fix rows (J3.6/04 N1/SP2 R4, J8.10/SP6 K2, J5.8, E4 cycle, F2 live suite, C2 guard+control, J13 judge-on)",
+          "minutes": 60,
+          "note": "journey rows run inside the journeys section; the remainder is E4, F2, C2",
+          "capMinutes": 40,
+          "capReason": "journey rows already counted; E4, F2, C2 only"
+        },
+        {
+          "id": "01-v25-01",
+          "what": "G1(a/b), G2, G5, G8; G1(c)/G5 extension-disabled; the scanGatingActive mutant control",
+          "minutes": 60,
+          "capMinutes": 30,
+          "capReason": "the mutant control moves to the defect replay once it has a jest kill"
+        },
+        {
+          "id": "01-v25-02",
+          "what": "C1 + mutant; C2 guard/control; C7 + J3 scan-mode re-run; A37; A11 forced arm; A6/A11 mutants; four host-fact rows",
+          "minutes": 75,
+          "capMinutes": 35,
+          "capReason": "four host-fact rows are one-shot facts (verified once in 01), C1/A6/A11 mutants go to the defect replay"
+        },
+        {
+          "id": "01-v25-03",
+          "what": "MemorizeBacklog; turn-types and mutation checks; E4 cycle; E2 sweep; F2/F3; reply-path p95 (J1/J5/J7/J8/J9/J10 are in the journeys section)",
+          "minutes": 60,
+          "capMinutes": 30,
+          "capReason": "E2 sweep and reply-path p95 are measurements, ×1 in 01"
+        },
+        {
+          "id": "01-v25-04",
+          "what": "N1 re-run; K0 scored (Adolion variant from 02 D5)",
+          "minutes": 30,
+          "capMinutes": 20
+        },
+        {
+          "id": "01-v25-05",
+          "what": "F2 live suite toy + Adolion D6; J3/J12 after F1a (journeys section); F7 CC arm",
+          "minutes": 45,
+          "capMinutes": 30,
+          "capReason": "F3 arm report is a reading, not a run"
+        },
+        {
+          "id": "01-v25-06",
+          "what": "J13 judge-on arm (journeys section); recommended-config curator row",
+          "minutes": 20,
+          "capMinutes": 10
+        },
+        {
+          "id": "01-v25-07",
+          "what": "A4 buckets on a CC profile lane (live-v25-07-a4-buckets)",
+          "minutes": 10,
+          "capMinutes": 10
+        },
+        {
+          "id": "01-v25-08",
+          "what": "G-L1 U6 file-mode fallback; G-L4 P2; G-L5 X5 + story-flag column; L6 step-0 J7 replay; G-J",
+          "minutes": 90,
+          "capMinutes": 45,
+          "capReason": "L6 step-0 J7 replay is J7 (journeys section)"
+        }
+      ]
+    },
+    {
+      "section": "recommended-config rows (05, 11, 12)",
+      "rows": [
+        {
+          "id": "05-R3",
+          "what": "reasoning effort per role: each recommended level at its floor",
+          "minutes": 60,
+          "note": "placeholder: plan 05 not built",
+          "capMinutes": 40,
+          "capReason": "only the recommended level per role, not the whole ladder (the ladder is the 05 measurement)"
+        },
+        {
+          "id": "05-R4",
+          "what": "checkpoint-scoped reply effort, if its spike floor passed",
+          "minutes": 30,
+          "note": "placeholder: plan 05 not built",
+          "capMinutes": 30
+        },
+        {
+          "id": "11-J9b",
+          "what": "agentic wizard: one premise to a saved story",
+          "minutes": 25,
+          "note": "placeholder: plan 11 not built",
+          "capMinutes": 25
+        },
+        {
+          "id": "11-W1-W6",
+          "what": "wizard rows W1-W6 (W4: 3 generated stories x 30 turns)",
+          "minutes": 150,
+          "note": "placeholder: plan 11 not built",
+          "capMinutes": 60,
+          "capReason": "W4 plays 1 generated story x 30 turns here; the 3-story measurement stays in 11"
+        },
+        {
+          "id": "12-providers",
+          "what": "every recommended provider x use, calibration fixtures with floors unchanged",
+          "minutes": 60,
+          "note": "placeholder: plan 12 not built",
+          "capMinutes": 40,
+          "capReason": "recommended provider x use only"
+        }
+      ]
+    },
+    {
+      "section": "kept spike rows (03)",
+      "rows": [
+        {
+          "id": "03-SP1",
+          "what": "S1, S3 on the 16 lab scenarios",
+          "minutes": 60,
+          "note": "placeholder until 03 decides include/drop",
+          "capMinutes": 20,
+          "capReason": "regression leg of an include only; the corpus runs are 03 measurements"
+        },
+        {
+          "id": "03-SP2",
+          "what": "R4/R5 on the lab",
+          "minutes": 30,
+          "note": "placeholder",
+          "capMinutes": 15
+        },
+        {
+          "id": "03-SP4",
+          "what": "T3 append vs rolling on Act III needles",
+          "minutes": 75,
+          "note": "placeholder",
+          "capMinutes": 20,
+          "capReason": "include/drop decided in 03; the T3 needle corpus is a measurement"
+        },
+        {
+          "id": "03-SP5",
+          "what": "story-owned scenario, live leg",
+          "minutes": 20,
+          "note": "placeholder",
+          "capMinutes": 10
+        },
+        {
+          "id": "03-SP6",
+          "what": "complication pool K2-K4 (the plan's longest run, its own lane overnight)",
+          "minutes": 180,
+          "note": "placeholder; 03 states about 3 lane-hours",
+          "capMinutes": 60,
+          "capReason": "K2 regression leg; K3/K4 release counts are the 03 measurement"
+        },
+        {
+          "id": "03-SP7",
+          "what": "D4/D4b seeded chance",
+          "minutes": 30,
+          "note": "placeholder",
+          "capMinutes": 15
+        },
+        {
+          "id": "03-SP8",
+          "what": "curator tiers W3/W4(b)",
+          "minutes": 60,
+          "note": "placeholder",
+          "capMinutes": 20
+        },
+        {
+          "id": "03-SP9-SP10",
+          "what": "witness filter F1-F4; tool-call turns Q1-Q3",
+          "minutes": 45,
+          "note": "placeholder",
+          "capMinutes": 15
+        }
+      ]
+    },
+    {
+      "section": "integration (09)",
+      "rows": [
+        {
+          "id": "09-I1",
+          "what": "adolion-adventurer full route",
+          "minutes": 90,
+          "note": "placeholder: plan 09 not built",
+          "capMinutes": 90
+        },
+        {
+          "id": "09-I2",
+          "what": "adolion-academy full route",
+          "minutes": 90,
+          "note": "placeholder",
+          "capMinutes": 90
+        },
+        {
+          "id": "09-I3",
+          "what": "adolion-saga, two acts",
+          "minutes": 120,
+          "note": "placeholder",
+          "capMinutes": 120
+        },
+        {
+          "id": "09-I4",
+          "what": "mutation storm, 60 turns",
+          "minutes": 75,
+          "note": "placeholder",
+          "capMinutes": 60
+        },
+        {
+          "id": "09-I5",
+          "what": "outage mid-play, 40 turns",
+          "minutes": 50,
+          "note": "placeholder",
+          "capMinutes": 40
+        },
+        {
+          "id": "09-I6",
+          "what": "reload/reopen, I1-I3 at 3 cut points",
+          "minutes": 45,
+          "note": "placeholder",
+          "capMinutes": 0,
+          "capReason": "folded into I1-I3: reopen at the three cut points inside the same runs"
+        }
+      ]
+    },
+    {
+      "section": "judge-off column (10)",
+      "rows": [
+        {
+          "id": "10-judge-off",
+          "what": "the judge-consuming journeys (J5, J8, J11, J13) with every judge use off",
+          "minutes": 70,
+          "note": "judge defaults on since v2.6 rule 5; plan 10 keeps the off column",
+          "capMinutes": 45,
+          "capReason": "J8 and J11 carry the judge-consuming checks; J5/J13 off arms ride the carry-over rows"
+        }
+      ]
+    }
+  ],
+  "cutNote": "Placeholder minutes are each plan's own sizing; capMinutes is the phase F budget this plan (R5) gives the owning plan: the regression leg only, because measurement legs run once in their own plan (overview rule 13)."
+}

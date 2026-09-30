@@ -87,7 +87,7 @@ v2.5 rules 1–14 and every invariant in `.claude/rules/architecture.md` are inh
 16. **Every plan ends with the overall gates**, run from the main checkout before merge:
     - `typecheck`, `typecheck:test`, `lint`, `test` (which includes the architecture, ownership and fault-matrix
       guards), `test:debug`, `build`, `test:release` and `test-storybook:ci`;
-    - plus plan 13's defect-replay set once it exists.
+    - plus `test:replay` (plan 13's defect-replay set; every mutant must be killed).
 
     Passing them is the "done" line of every gate record.
 17. **The suite is reviewed before it grows** (plan 13). New tests follow its budget rules: name what they guard, justify

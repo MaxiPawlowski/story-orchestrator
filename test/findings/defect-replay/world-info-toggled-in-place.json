@@ -1,0 +1,12 @@
+{
+  "id": "world-info-toggled-in-place",
+  "defect": "checkpoint world_info was toggled in place and leaked across chats; the plan must replay the path in order",
+  "guards": ".claude/rules/architecture.md: \"Checkpoint world_info is rebuilt from the chat's path, never toggled in place\" (2026-09-19)",
+  "fixCommit": "717f3099 world_info effects: rebuild gated entries from the chat path",
+  "file": "src/runtime/worldInfoGates.ts",
+  "find": "    disable.forEach((ref) => ref.comments.forEach((comment) => enabled.get(ref.lorebook)?.delete(comment)));",
+  "replace": "",
+  "tests": [
+    "src/runtime/worldInfoGates.test.ts"
+  ]
+}

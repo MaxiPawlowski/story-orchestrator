@@ -1,7 +1,0 @@
-lane 2 test/scenarios/live-v25-05-breaker-slow.json run 1: code 0 (162 s)
-lane 2 test/scenarios/live-v25-05-breaker-slow.json run 2: code 0 (207 s)
-{
-  "summary": "C:\\dev\\so-lanes\\batch-2026-09-26T05-36-59-803Z.json",
-  "green": 2,
-  "runs": 2
-}

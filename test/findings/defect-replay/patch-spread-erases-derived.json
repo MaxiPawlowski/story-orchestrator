@@ -1,0 +1,12 @@
+{
+  "id": "patch-spread-erases-derived",
+  "defect": "addSceneSummary recorded the derived row then patched a state copied before it, erasing the scene_summary record",
+  "guards": ".claude/rules/gotchas.md: \"A patch spread from a state computed BEFORE a side write erases that write\" (v2.4 plan 01 T1)",
+  "fixCommit": "6076a7ba 2.1/3",
+  "file": "src/runtime/coordinators/memoryCoordinator.ts",
+  "find": "    this.patch({ ...capped, sceneCount: sceneOccurrence });\n    this.record({ kind: \"scene_summary\", inputs: [], outputId: written.accepted[0]?.id, range: window, removed, messageId: window.to });",
+  "replace": "    this.record({ kind: \"scene_summary\", inputs: [], outputId: written.accepted[0]?.id, range: window, removed, messageId: window.to });\n    this.patch({ ...capped, derived: this.state.derived.filter((row) => row.kind !== \"scene_summary\"), sceneCount: sceneOccurrence });",
+  "tests": [
+    "src/runtime/coordinators/memoryOwnership.review.test.ts"
+  ]
+}

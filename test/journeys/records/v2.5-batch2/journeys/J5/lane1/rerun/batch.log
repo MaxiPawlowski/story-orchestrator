@@ -1,6 +1,0 @@
-lane 1 J5 run 1: code 0 · automated: 7 pass, 0 fail, 0 blocked, 0 not-runnable, 0 skipped (116 s)
-{
-  "summary": "C:\\dev\\so-lanes\\batch-2026-09-26T22-57-53-187Z.json",
-  "green": 1,
-  "runs": 1
-}

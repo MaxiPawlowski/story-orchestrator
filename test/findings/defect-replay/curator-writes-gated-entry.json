@@ -1,0 +1,12 @@
+{
+  "id": "curator-writes-gated-entry",
+  "defect": "the WI curator could write a checkpoint-gated entry and fight the path replay",
+  "guards": ".claude/rules/architecture.md: \"Stagecraft proposes, it never writes ... isCuratorWritable refuses one at the write edge\" (2026-09-19)",
+  "fixCommit": "f6b53ba7 2026-09-19 fixes: gated WI out of curator scope, epistemic common-knowledge drop, lead joins candidates, canon prose",
+  "file": "src/stagecraft/scope.ts",
+  "find": " && !isCheckpointGated(story, lorebook, comment);",
+  "replace": ";",
+  "tests": [
+    "src/runtime/coordinators/stagecraftCoordinator.review.test.ts"
+  ]
+}

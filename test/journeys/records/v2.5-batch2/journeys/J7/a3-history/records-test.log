@@ -1,9 +1,0 @@
-PASS src/studio/gateReplayB2tmp.records.test.ts
-  v2.5 plan 07 A3 correctness check over archived J3/J7 engine histories
-    √ replaying every unchanged gate reproduces each recorded fired boundary, 100%, and the runs carry a progress fire (10 ms)
-
-Test Suites: 1 passed, 1 total
-Tests:       1 passed, 1 total
-Snapshots:   0 total
-Time:        4.493 s
-Ran all test suites matching src/studio/gateReplayB2tmp.records.test.ts.

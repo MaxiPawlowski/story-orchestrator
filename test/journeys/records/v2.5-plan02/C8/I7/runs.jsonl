@@ -1,2 +1,0 @@
-{"row":"C8/I7","fixture":"test/scenarios/v24-acc-I7.json","sha256":"7f3addffaf618e1844348d70f68f470f5344d0ebdbbf905bd0ebe4a72f5d2fde","run":1,"code":0,"headerCapture":0,"served":"0f4332fac075","headerDiffCode":0,"blocking":0,"began":"2026-09-26T05:51:58Z","ended":"2026-09-26T05:52:54Z"}
-{"row":"C8/I7","fixture":"test/scenarios/v24-acc-I7.json","sha256":"7f3addffaf618e1844348d70f68f470f5344d0ebdbbf905bd0ebe4a72f5d2fde","run":2,"code":0,"headerCapture":0,"served":"0f4332fac075","headerDiffCode":0,"blocking":0,"began":"2026-09-26T05:52:54Z","ended":"2026-09-26T05:54:13Z"}
