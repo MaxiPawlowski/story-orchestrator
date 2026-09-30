@@ -30,6 +30,8 @@ The user is away until their quota returns. Their instructions, verbatim in subs
    - weak points (untested paths, `todo` census or fault-matrix rows, disabled-by-default features nobody will exercise, bundle headroom);
    - open items left by each plan;
    - improvements.
+**Amended by the user 2026-09-30:** everything the review identifies is **fixed right away**; there is no `fix-in-testing` or `defer` bucket for review findings. Ask the user only where a finding genuinely needs their decision (product direction, scope, spend); record the question in `15-review.md` and keep fixing the rest meanwhile.
+
 2. **Merge the two lists** into `15-review.md`. Record who found each item and whether both agreed, then triage each one: `close-before-testing`, `fix-in-testing`, or `defer to v2.7`.
 3. **Build every `close-before-testing` item** as the final development step, with a gate per task and the overall gates (rule 16).
 4. **Only then mark v2.6 development done** (update the CLAUDE.md status row).
