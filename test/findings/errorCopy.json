@@ -901,6 +901,16 @@
       "silentCatch": null,
       "verdict": "pass",
       "reason": "the last chapter's player title and summary, no error text"
+    },
+    {
+      "site": "src/components/settings/GroupStoryBindingView.tsx#GroupStoryBindingView",
+      "kind": 2,
+      "template": "` Not confirmed: ${reason ?? \"the settings save could not be verified\"}.`",
+      "surface": "player",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "v2.6 plan 04 G: the reason is LibrarySaveEvidence's own sentence (observedReason / heldGroupBinding), never an exception message"
     }
   ]
 }

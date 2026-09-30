@@ -2,7 +2,7 @@ import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { getContext } from "./context";
 import { subscribeToHostEvent } from "./events";
 import { scriptModule } from "./modules";
-import { guardStreamToChat, type GuardedStream, type StreamGuard } from "./streamGuard";
+import { guardStreamToChat, watchChatMove, type GuardedStream, type StreamGuard } from "./streamGuard";
 
 export function isHostGenerating(): boolean {
   return Boolean(scriptModule.isGenerating());
@@ -24,6 +24,24 @@ export function guardHostStream(chatId: string): StreamGuard {
     onToken: (listener) => subscribeToHostEvent("STREAM_TOKEN_RECEIVED", listener),
     settle: () => scriptModule.activateSendButtons(),
   });
+}
+
+const CHAT_MOVE_POLL_MS = 50;
+
+export function watchHostChatMove(chatId: string, onMoved: () => void): () => void {
+  return watchChatMove(chatId, {
+    chatId: () => String(scriptModule.getCurrentChatId() ?? ""),
+    subscribe: (listener) => {
+      const target = typeof document === "undefined" ? null : document.getElementById("chat");
+      const observer = target && typeof MutationObserver !== "undefined" ? new MutationObserver(listener) : null;
+      observer?.observe(target as HTMLElement, { childList: true });
+      const timer = setInterval(listener, CHAT_MOVE_POLL_MS);
+      return () => {
+        observer?.disconnect();
+        clearInterval(timer);
+      };
+    },
+  }, onMoved);
 }
 
 export const hostSystemUserName: string = scriptModule.systemUserName;

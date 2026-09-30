@@ -127,6 +127,15 @@ describe("capability probes", () => {
 
   // V17: a 500 was cached as `absent` for the page load, so one bad moment switched consolidation to
   // keyword overlap until a reload.
+  it("v2.6 plan 04 S: the sprite stage's route is absent only when ST never mounted it, and a 500 is retried", async () => {
+    globalThis.fetch = okFetch(404) as unknown as typeof fetch;
+    await expect(probeCapability("sprites")).resolves.toMatchObject({ state: "absent", detail: expect.stringContaining("/api/sprites") });
+    globalThis.fetch = okFetch(500) as unknown as typeof fetch;
+    await expect(probeCapability("sprites", { refresh: true })).resolves.toMatchObject({ state: "error" });
+    globalThis.fetch = okFetch(200) as unknown as typeof fetch;
+    await expect(probeCapability("sprites", { refresh: true })).resolves.toMatchObject({ state: "present" });
+  });
+
   it("reads a failing vectors route as an error it will retry, not as an absent feature", async () => {
     globalThis.fetch = okFetch(500) as unknown as typeof fetch;
     await expect(probeCapability("vectors")).resolves.toMatchObject({ state: "error", detail: expect.stringContaining("500") });
