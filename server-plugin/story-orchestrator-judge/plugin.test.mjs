@@ -223,6 +223,26 @@ test('PS-J 3: per user at most 2 in flight and 60 a minute; the excess answers 4
     assert.equal(later.out.statusCode, 200, 'the window slides');
 });
 
+test('seam golden: a page call routed to the typesafe provider reaches TypeSafe byte-identical to the pre-seam plugin', async () => {
+    process.env.TYPESAFE_API_KEY = 'sk-test-golden';
+    delete process.env.TYPESAFE_BASE_URL;
+    const seen = [];
+    const fetchImpl = async (url, init) => {
+        seen.push({ url, method: init.method, headers: init.headers, body: init.body });
+        return new Response('{"model":"jev-1.13.0","answers":{"greeting":{"type":"noul","noul":0.97}}}', { status: 200 });
+    };
+    const { res, out } = fakeResponse();
+    await plugin.createHandlers({ fetchImpl }).receive(pageRequest(question), res);
+    assert.equal(out.statusCode, 200);
+    assert.deepEqual(seen, [{
+        url: 'https://api.typesafe.ai/v1/systemone',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer sk-test-golden' },
+        body: '{"state":{"transcript":[{"speaker":"Max","text":"hello"}]},"questions":{"greeting":{"type":"noul","instructions":"Is `transcript` a greeting?"}},"model":"jev-1.13.0"}',
+    }]);
+    assert.deepEqual(out.body, { model: 'jev-1.13.0', answers: { greeting: { type: 'noul', noul: 0.97 } } });
+});
+
 test('live: one real call through the handler (JUDGE_LIVE=1)', { skip: process.env.JUDGE_LIVE !== '1' }, async () => {
     delete process.env.TYPESAFE_API_KEY;
     const { res, out } = fakeResponse();
