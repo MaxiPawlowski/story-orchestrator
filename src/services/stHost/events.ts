@@ -42,6 +42,10 @@ export interface HostEventPayloads {
   // Script.js:9902, slash-commands.js:5437.
   CHARACTER_EDITED: [payload: { detail?: { id?: unknown; character?: unknown } } | undefined];
   CHARACTER_MESSAGE_RENDERED: [messageId: number, messageType?: string];
+  // Script.js:5912/5919.
+  USER_MESSAGE_RENDERED: [messageId: number];
+  // Script.js:1474, after older messages are prepended to #chat.
+  MORE_MESSAGES_LOADED: [];
   PRESET_CHANGED: [payload: { apiId: string; name: string }];
   // Script.js:5318 (main Generate only, dry runs too) and openai.js:3146 (every CC request, awaited before fetch).
   GENERATE_AFTER_DATA: [generateData: Record<string, unknown>, dryRun?: boolean];

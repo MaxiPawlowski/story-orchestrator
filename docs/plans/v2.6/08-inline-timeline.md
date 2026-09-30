@@ -1,6 +1,6 @@
 # Plan 08 — The inline timeline: what the machine did, under the message it did it at
 
-**Status: DRAFT 2026-09-30, awaiting user approval. Nothing here is built.**
+**Status: BUILT 2026-09-30 (code, jest, Storybook, build); live gates (J3/J6/J8, mobile, floors) deferred to plan 10 phase F. See Gate record.**
 
 The user's request (2026-09-30): the player should see more of what runs in the background while
 they play. That means background passes, recorded data and activated World Info, shown in the chat
@@ -236,3 +236,48 @@ and the default stays 0.
 ## Unresolved questions
 
 None.
+
+## Gate record
+
+**2026-09-30, branch `worktree-agent-ad63351bbf00ad182` (fast-forwarded to master `a272ce8c`, then merged master `0aec773c` after plan 12 landed and `076bc120` after plan 05 landed). Code, jest, Storybook and the build only. No real-LLM run (overview rule 13: J3/J6/J8 live legs belong to plan 10 phase F), no lane, no scenario run, nothing touched ComfyUI.**
+
+### What was built, per task
+
+| Task | As built | Gate |
+|---|---|---|
+| 1 Data gaps, blob 6 | `BLOB_VERSION` 5 → **6** (`runtime/persistence.ts`); a v5 blob is unreadable-until-Restart like every other version (no migration, rule 9). New `extras.lore.fired` (`runtime/loreFired.ts`: `{messageId, entries:[{book, uid, comment, via: constant\|key\|forced\|mirror, gated?}]}`, cap 100, no entry text) written from `worldInfoEvidenceHost` when a rendered loud generation settles (`LoreEvidence.lastSettled()` + `loreFiredRecord`, chat-checked) through `manager.recordLoreFired`; `extras.tension.history` (`{messageId, level, smoothed}`, cap 50) appended by `PacingCoordinator.applyCommitted` and rebuilt by `replayCommitted` (rows below the log floor kept); `ArcEntry.resolvedMessageId` (G3), and `rollbackArcs` reopens an arc resolved at/after the cut message; `ReconciliationEvent.messageId` (G2, the stalled boundary's `lastMessageId`) and `PayloadCapture.messageId` (the reply index: `chat.length`, or `length-1` for swipe/continue), both used by the journal instead of `-1`. `runtime/rollback.ts` quarantine drops lore and tension-history rows `>= messageId` on every path | `loreFired.test.ts` (rollback ≡ replay for both rings, 4 seeds × 61 cuts, plus an inclusive-cut control; caps/sanitize; record tagging; arc G3 reopen), `rollback.review.test.ts` (quarantine drops both), `blobUnreadable.review.test.ts` (v7 foreign, v5 "the format before v6", v6 shape rows) |
+| 2 Composer | `runtime/inlineTimeline.ts` (pure): D3 anchoring for every event kind, pending → applied with a back-reference under the draining boundary's reply, D4 levels (`itemShown`: `level <= view.level`, `until` for summaries a detailed row replaces), categories, window; player copy uses `player_name` only ("The story moved on" without one), counts, tension words. Rides the snapshot as `inline` (all levels, filtered at render) plus `lore` | `inlineTimeline.test.ts` (10): anchoring, pending→applied, level/persona/category/window filter, speaker pick only under an existing reply, **spoiler property** on sun-ruins and the Adolion adventurer (no checkpoint id or name, quality key or gated entry name in any L1/L2 text; mutant `Now at ${to}` fails both), inspector grouping, settings sanitize |
+| 3 Settings | install-wide `display.inline {level 0-4 (default 1), categories, window (default 20, max 200)}` in `settingsModel.ts` (+ `effectiveInlineLevel` = `min(level, authorView ? 4 : 2)`); Display group `InlineControls` (`#so-inline-level`, `[data-so="inline-category"]`, `#so-inline-window`, `[data-so="inline-level-capped"]`); story schema `display.lore_names_public?` (validated, `story-display-changed` compatible diff) | `inlineTimeline.test.ts` sanitize case; `runtimeManager.test.ts` ui defaults; typecheck |
+| 4 `stHost/inlineMount.ts` | the only writer into ST's message DOM: `#so-inline-<mesid>.so-inline-host` as the last child of `.mes_block` (deviation: the plan said "after `.mes_block`", but `.mes` is a flex row, so a sibling would sit beside the message), removes unwanted or misplaced (renumbered) hosts, re-sync on `CHARACTER_MESSAGE_RENDERED`, `USER_MESSAGE_RENDERED`, `MESSAGE_UPDATED`, `MESSAGE_DELETED`, `MESSAGE_SWIPED`, `MORE_MESSAGES_LOADED`, `CHAT_CHANGED` (one microtask per burst), `WriteResult`, attach-time samples for the floor | `inlineMount.test.ts` (jsdom, 4), `typedResults.test.ts`, `architecture.test.ts` (message-DOM touchers pinned to `stHost/{image,imageSurface,inlineMount}.ts` + `sprites/stage.ts`; only `inlineMount` names `.mes_block`; control regex case) |
+| 5 Components | `components/inline/InlineLayer.tsx` (one React root `#so-inline-root`, a portal per host), `InlineStrip.tsx` (Font Awesome category chips with counts, collapsed by default, expansion per viewer in memory, inspector button at L3+), `InlineDetail.tsx` (state icon, player text, author detail and actions at L3+). L3 actions call existing manager paths only: `setMemoryPinned`, `memoryActions.setMemoryLocked`, `excludeMemoryEntry`, `setCuratorOpDecision`, `memoryActions.resolveMemoryConflict` | Storybook `Inline/InlineStrip` (4), `Inline/InlineDetail` (2); `architecture.test.ts` (components/inline: no manager getters, no host imports) |
+| Inspector (W18) | `runtime/messageInspector.ts` (pure: one message's items by category, level-replaced summaries dropped) + `components/drawer/MessageInspector.tsx` (`#so-inspector`, `[data-so="inspector-section"]`, `MessageCitation`), opened by the chip's inspect button: module-level target in `index.tsx`, drawer opened, rendered above the tabs in author view only | Storybook `Drawer/MessageInspector` (2), `inlineTimeline.test.ts` inspector case |
+| 6 CSS | not added to the Tailwind `:is()` root list: every utility rule is nested under that list, so one more selector there cost ~29 KB of main entry. The inline UI uses its own `so-inline-*` classes in `components/inline/inline.css` (loaded with the lazy chunk; scoped `:is(#chat .so-inline-host, #so-inspector)`), ST `menu_button` for actions; `.storybook/preview.ts` wraps `Inline/*` titles in `#chat > #so-inline-0.so-inline-host` | Storybook render + a11y |
+| 7 Transition note | kept, relabelled "Also post a chat note when the checkpoint changes" (`#so-announce-transitions`), default unchanged (on) until the sessions decide (W11) | — |
+| 8 Harness | `so-ui.mts inline [mesid]` (every chip opened in turn: rows, states, levels, element count per strip, effective level, attach-time median), `inline-level <n>`; scenario `ui` actions `inline` / `inline-level`; `assert-player-clean` sweeps the inline strips (text needles + raw-error markers, and `INLINE_PLAYER_FORBIDDEN_SELECTORS`: inspect, actions, detail, level 3/4 rows or strips); spoiler checklist rows added (`docs/plans/v2.1/test-plan.md`) | `so-ui.test.mts` (new case with a leak control), `scenarioSchema` |
+| 9 Live gate | **NOT run** (rule 13). J3 L1/L2, J6 mutation storm, J8 at L3, mobile 390x844 + hit-test, and the floors are owed to plan 10 phase F; `so-ui.mts inline` reports what the floors need | — |
+
+### Main entry budget (F1, 1 250 000 B, not raised)
+
+`dist/manifest.json` `bundle.bytes` = **1 242 543** (sha256 `63ee2a07c333…`), master `076bc120` builds 1 247 877 (so this plan nets -5 334 B). To fit, the composer is loaded with `import()` at startup (`snapshotBuilder.loadInlineComposer`; until it lands the snapshot carries an empty view at the right level), and these went behind `React.lazy`: `InlineLayer`, `MessageInspector`, `InlineControls`, the Studio draft store (`index.tsx` loads `studio/draft` on open), the author-only `ConflictQueue` and the memory author panels (`MemoryPanels` default `AuthorMemoryPanels`; two DrawerTabs stories now `findBy` the lazy text; `so-ui memory-queue` already polls).
+
+### Blob 6 is shared with plan 07 (overview rule 18)
+
+v6 = the v5 record shape (`isCurrentRecord` unchanged: `engineState`, `engineHistory`, `pinnedStory`, `extras`) plus, in `extras`: `lore.fired[]`, `tension.history[]`, `memory.arcs[].resolvedMessageId?`, `extraction.reconciliationEvents[].messageId?`. Plan 07 adds its fields (`memory.chapters`, `memory.dossiers`, `memory.chronicle`, `ArcEntry.originChapter/resolvedBy`, derived kinds `chapter_seal`/`era_merge`) **inside v6 without another bump**, on two conditions: each new field is optional on read (its sanitizer turns absent into the empty value), and nothing is added to `isCurrentRecord`. No v6 blob exists in any released build, so "absent" can only mean "written by a v6 build from before 07 landed" and reads as empty.
+
+### Commands (final run, after the master merge)
+
+| Command | Result |
+|---|---|
+| `npm run typecheck && npm run typecheck:test && npm run lint` | exit 0 |
+| `npm test` | 350 suites, 4677 tests passed |
+| `npm run test:debug` | 426 passed |
+| `npm run build` | compiled, 0 warnings; main entry 1 242 543 B |
+| `npm run build:dev && npm run test:release` | 77 passed, 2 skipped (R3 no package tree, R4 not release mode), 0 failed |
+| `npx storybook build -o .sb-static-08 --quiet`, `npx http-server .sb-static-08 -p 6108 -s -c-1`, `node node_modules/@storybook/test-runner/dist/test-storybook.js --url http://127.0.0.1:6108 --index-json` | 40 suites, 283 tests passed (the path form finds 0 tests from a worktree under `.claude/`, so `--index-json`) |
+
+### Deviations and notes
+
+- `startupWiring.review.test.ts` "unbinds the parent's mirror…" timed out at 5 s twice in full runs (cold `import("./index")` of the whole runtime graph under load; 3/3 green alone): its timeout is now 30 s.
+- A stale `lazy.py` from another session in the shared scratchpad was run by name collision and edited `components/settings/MemoryModelGroup.tsx`; reverted before commit. Scratch scripts are now prefixed.
+- `scripts/debug/so-legacy-books.mts` keeps `CURRENT_BLOB_VERSION = 5`: it is the finished v2.5 step-9 mover, not a reader of live chats.
+- Budget rule 3 (fail once): the spoiler property (mutant transition text), the rollback property (inclusive-cut control), the architecture guards (control strings), `inlineMount` renumbering (a kept misplaced host fails the case) and the so-ui sweep (leak control) each carry their failing case.

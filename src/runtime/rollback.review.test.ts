@@ -24,6 +24,8 @@ function harness() {
   const extras = {
     extraction: { audits: [] as Array<{ id: string; window: { from: number; to: number } }> },
     judge: { calls: [], scene: null },
+    lore: { fired: [{ messageId: 2, entries: [] }, { messageId: 3, entries: [] }] },
+    tension: { levels: [], smoothed: null, history: [{ messageId: 2, level: "calm", smoothed: 0.1 }, { messageId: 4, level: "tense", smoothed: 0.5 }] },
   } as unknown as RuntimeExtras;
   extras.extraction.audits = [
     { id: "old", window: { from: 0, to: 2 } },
@@ -72,6 +74,13 @@ describe("cross-store rollback without an engine transition", () => {
     // the engine leaves it alone, so the no-op must NOT revalidate (it would rebuild the merged story
     // for nothing).
     expect(h.revalidateExpansion).not.toHaveBeenCalled();
+  });
+
+  it("drops the persisted lore activations and tension history of the mutated message and later (v2.6 plan 08)", async () => {
+    const h = harness();
+    await runRollback(h.deps, 3);
+    expect(h.extras.lore.fired.map((record) => record.messageId)).toEqual([2]);
+    expect(h.extras.tension.history.map((row) => row.messageId)).toEqual([2]);
   });
 
   it("drops queued writes whose read reached the mutation, on the path that restores nothing (v2.4 plan 01 T1 live)", async () => {

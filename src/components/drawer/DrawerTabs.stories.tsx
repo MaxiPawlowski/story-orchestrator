@@ -623,7 +623,7 @@ export const Memory: Story = {
     await expect(canvas.getByText(/The sun-key opens the inner sanctum\./)).toBeInTheDocument();
     await expect(canvas.getByText("⤳ superseded")).toBeInTheDocument();
     await expect(canvas.getByText("⚠ contradicted")).toBeInTheDocument();
-    await expect(canvas.getByText(/Arcs \(open 1 · resolved 1\)/)).toBeInTheDocument();
+    await expect(await canvas.findByText(/Arcs \(open 1 · resolved 1\)/)).toBeInTheDocument();
     await expect(canvas.getByText(/The guild master's warning proved true\./)).toBeInTheDocument();
     await expect(canvas.getByText(/Epistemic map \(2\)/)).toBeInTheDocument();
     await expect(canvas.getByText(/\[hiding from Arin\]/)).toBeInTheDocument();
@@ -674,7 +674,7 @@ export const MemoryNotStored: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
-    await userEvent.click(canvas.getByText(/Not stored — no support in the chat \(1\)/));
+    await userEvent.click(await canvas.findByText(/Not stored — no support in the chat \(1\)/));
     await expect(canvas.getByText("Arin killed the sphinx.")).toBeInTheDocument();
     await expect(canvas.getByText(/support 0\.04 · jev-1\.13\.0/)).toBeInTheDocument();
     await expect(canvas.getByRole("button", { name: "Store anyway" })).toBeInTheDocument();

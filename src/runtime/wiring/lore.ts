@@ -60,6 +60,7 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
     lastMessageId: chatLastId,
     innermostType: () => innermostType(generation),
     journal: (flag) => runtimeManager.noteRecap(flag.summary, flag.detail, "lore"),
+    fired: (record) => runtimeManager.recordLoreFired(record),
     notify: () => runtimeManager.notify(),
   });
   disposers.push(() => loreWatch.dispose());
