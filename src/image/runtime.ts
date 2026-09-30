@@ -10,7 +10,7 @@ import { buildGraph } from "./graph";
 import { imageMessages, parseImageReply, sceneForImage, assembleImagePrompt, type ImageRequest, type ImageReply, type ImageScene } from "./prompt";
 import { ImageQueue } from "./queue";
 import { pickImageCheckpoint, resolveImageRoute, type ImageArgs, type Route } from "./routing";
-import { automationAllowsCues, sanitizeImageChatState, sanitizeImageOverride, type ImageOverride, type ImageSettings } from "./settings";
+import { automationAllowsCues, messageAlreadyDrawn, sanitizeImageChatState, sanitizeImageOverride, type ImageOverride, type ImageSettings } from "./settings";
 import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
 import { worldInfoPlan } from "@runtime/worldInfoGates";
 import { visualLore } from "./lore";
@@ -43,6 +43,7 @@ export class StoryImageDirector {
   private lastPlan: ImagePlan | null = null;
   private listeners = new Set<() => void>();
   private pending = new Set<string>();
+  private pendingTargets = new Set<string>();
 
   constructor(private readonly manager: RuntimeManager) { this.queue.subscribe(() => this.notify()); }
 
@@ -69,7 +70,11 @@ export class StoryImageDirector {
       || !automationAllowsCues(settings.automation.mode) || !art?.[kind === "checkpoint" ? "checkpoints" : "scenes"]) return;
     const key = `${chat.id}:${snapshot.storyId}:${snapshot.storyIdentity.playedVersion}:${kind}:${name}:${snapshot.boundary}`;
     if (this.pending.has(key) || current(snapshot.storyId).emitted.includes(key)) return;
+    if (messageAlreadyDrawn(chat, at)) return;
+    const target = at === null ? null : `${chat.id}:${at}`;
+    if (target && this.pendingTargets.has(target)) return;
     this.pending.add(key);
+    if (target) this.pendingTargets.add(target);
     try {
       await this.direct({ purpose: "scene", text: kind === "checkpoint" ? `Establishing shot of ${name}.` : `The scene moves to ${name}.`, messageId: at }, {}, key);
     } catch (error) {
@@ -77,6 +82,7 @@ export class StoryImageDirector {
       this.notify();
     } finally {
       this.pending.delete(key);
+      if (target) this.pendingTargets.delete(target);
     }
   }
 
@@ -94,10 +100,10 @@ export class StoryImageDirector {
         if (result.fired) void this.cue("checkpoint", result.context.lastMessageId, this.manager.getSnapshot().activeCheckpointName ?? result.activeCheckpointId);
       }),
       this.manager.onSceneBreakConfirmed((audit) => {
-        if (audit.sceneBreak?.reason) void this.cue("scene", audit.window.to, audit.sceneBreak.reason);
+        if (audit.sceneBreak?.reason && audit.sceneBreak.reason !== "cast") void this.cue("scene", audit.window.to, audit.sceneBreak.reason);
       }),
       this.manager.onRollback(() => this.queue.cancelAll()),
-      this.manager.onEpochChanged(() => { this.pending.clear(); this.queue.cancelAll(); }),
+      this.manager.onEpochChanged(() => { this.pending.clear(); this.pendingTargets.clear(); this.queue.cancelAll(); }),
     ];
     return () => { off.forEach((unsubscribe) => unsubscribe()); this.queue.cancelAll(); };
   }
@@ -113,8 +119,13 @@ export class StoryImageDirector {
     const saved = await imageWriteChatSettings({ ...state, automationCount: count }, chat.id);
     if (!saved.ok) { this.lastError = saved.reason; this.notify(); return; }
     if (count % settings.automation.everyN !== 0) return;
+    if (messageAlreadyDrawn(chat, messageId)) return;
+    const target = `${chat.id}:${messageId}`;
+    if (this.pendingTargets.has(target)) return;
+    this.pendingTargets.add(target);
     try { await this.direct({ purpose: "scene", text: "", messageId }); }
     catch { this.notify(); }
+    finally { this.pendingTargets.delete(target); }
   }
 
   async plan(request: ImageRequest, args: ImageArgs = {}): Promise<ImagePlan> {

@@ -6,7 +6,8 @@ import { required } from "@utils/guards";
 
 const settings = (patch: Partial<JudgeSettings> = {}, uses: Partial<JudgeSettings["uses"]> = {}): JudgeSettings => {
   const base = defaultJudgeSettings();
-  return { ...base, ...patch, uses: { ...base.uses, ...uses } };
+  const none = Object.fromEntries(JUDGE_USE_KEYS.map((key) => [key, false])) as JudgeSettings["uses"];
+  return { ...base, ...patch, uses: { ...none, ...uses } };
 };
 
 const ready = { configured: true, keySource: "st-secrets", model: "jev-1.13.0", pluginVersion: "1.0.0" };
@@ -29,17 +30,26 @@ export default meta;
 
 type Story = StoryObj<typeof JudgeSettingsGroup>;
 
-export const OffByDefault: Story = {
+export const OnByDefault: Story = {
+  args: { settings: defaultJudgeSettings() },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     const master = canvasElement.querySelector<HTMLInputElement>("#so-judge-enabled");
-    await expect(master?.checked).toBe(false);
+    await expect(master?.checked).toBe(true);
     const director = canvasElement.querySelector<HTMLInputElement>("#so-judge-use-director");
-    await expect(director?.checked).toBe(false);
-    await expect(director?.disabled).toBe(true);
+    await expect(director?.checked).toBe(true);
+    await expect(director?.disabled).toBe(false);
     await expect(canvas.getByText(/Nothing is sent while this is off/)).toBeInTheDocument();
     await userEvent.click(master as HTMLInputElement);
-    await expect(args.onChange).toHaveBeenCalledWith({ enabled: true });
+    await expect(args.onChange).toHaveBeenCalledWith({ enabled: false });
+  },
+};
+
+export const MasterOffDisablesEveryUse: Story = {
+  args: { settings: { ...defaultJudgeSettings(), enabled: false } },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector<HTMLInputElement>("#so-judge-enabled")?.checked).toBe(false);
+    await expect(canvasElement.querySelector<HTMLInputElement>("#so-judge-use-director")?.disabled).toBe(true);
   },
 };
 
@@ -58,6 +68,7 @@ export const OnlyBuiltUsesAreListed: Story = {
       "so-judge-use-typed-extraction",
       "so-judge-use-stall-check",
       "so-judge-use-curator-filter",
+      "so-judge-use-expressions",
     ]);
     await expect(JUDGE_USE_KEYS.length).toBeGreaterThan(rows.length);
     await userEvent.click(rows[1]);

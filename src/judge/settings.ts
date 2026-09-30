@@ -19,6 +19,7 @@ export const JUDGE_USE_KEYS = [
   "agencyCheck",
   "houseRules",
   "loreExclusive",
+  "expressions",
 ] as const;
 
 export type JudgeUseKey = (typeof JUDGE_USE_KEYS)[number];
@@ -58,10 +59,10 @@ export interface JudgeRuntimeState {
   meter: JudgeMeter;
 }
 
-export const defaultJudgeUses = (): JudgeUses => Object.fromEntries(JUDGE_USE_KEYS.map((key) => [key, false])) as JudgeUses;
+export const defaultJudgeUses = (): JudgeUses => Object.fromEntries(JUDGE_USE_KEYS.map((key) => [key, true])) as JudgeUses;
 
 export const defaultJudgeSettings = (): JudgeSettings => ({
-  enabled: false,
+  enabled: true,
   model: JUDGE_DEFAULT_MODEL,
   timeoutMs: JUDGE_DEFAULT_TIMEOUT_MS,
   uses: defaultJudgeUses(),
@@ -75,10 +76,10 @@ export function sanitizeJudgeSettings(value: unknown): JudgeSettings {
   const expansion = isRecord(value.expansion) ? value.expansion : {};
   const variants = expansion.variants === 2 || expansion.variants === 3 ? expansion.variants : 1;
   return {
-    enabled: value.enabled === true,
+    enabled: typeof value.enabled === "boolean" ? value.enabled : defaults.enabled,
     model: typeof value.model === "string" && value.model.trim() ? value.model.trim() : defaults.model,
     timeoutMs: typeof value.timeoutMs === "number" && value.timeoutMs >= 1 && value.timeoutMs <= 10_000 ? value.timeoutMs : defaults.timeoutMs,
-    uses: Object.fromEntries(JUDGE_USE_KEYS.map((key) => [key, uses[key] === true])) as JudgeUses,
+    uses: Object.fromEntries(JUDGE_USE_KEYS.map((key) => [key, typeof uses[key] === "boolean" ? uses[key] : defaults.uses[key]])) as JudgeUses,
     expansion: {
       variants,
       temperature: typeof expansion.temperature === "number" && expansion.temperature >= 0 && expansion.temperature <= 2 ? expansion.temperature : defaults.expansion.temperature,
@@ -225,6 +226,12 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
       "a timeout, a refused pick or a timed entry keeps the keyword scan as it is.",
     sends: "nothing beyond Lore selection: it acts on the same request",
   },
+  expressions: {
+    label: "Sprite expressions",
+    description: "Reads each passage of a reply as it streams and picks which character it is about and their facial expression, for the sprite stage. " +
+      "Otherwise the sprite model, then the local classifier, decide.",
+    sends: "each reply's passages, the on-stage character names and the expression labels with their descriptions",
+  },
 };
 
 export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = [
@@ -243,6 +250,7 @@ export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = [
   "agencyCheck",
   "houseRules",
   "loreExclusive",
+  "expressions",
 ];
 
 // Steering-grade usages, listed only in author view.

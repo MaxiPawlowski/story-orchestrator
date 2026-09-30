@@ -42,20 +42,27 @@ export interface ImageSettings {
 
 export const automationAllowsCues = (mode: ImageSettings["automation"]["mode"]): boolean => mode === "story" || mode === "everyN";
 
+// One automatic illustration per reply: a cadence trigger and a checkpoint/scene cue that land on the
+// same message collapse to the first, so a player never sees the same reply drawn twice.
+export const messageAlreadyDrawn = (
+  chat: { messages?: Array<{ extra?: { media?: unknown[] } }> } | null | undefined,
+  messageId: number | null,
+): boolean => messageId !== null && Boolean(chat?.messages?.[messageId]?.extra?.media?.length);
+
 const row = (patch: Partial<ImageRoute> = {}): ImageRoute => ({
   checkpoint: WAI, quality: "base", aspect: "portrait", shot: "upper", placement: "inline",
   candidates: 1, extraPositive: "", extraNegative: "", safeMode: "inherit", directorMayOverride: false, ...patch,
 });
 
 export const defaultImageSettings = (): ImageSettings => ({
-  enabled: false,
+  enabled: true,
   directorProfileId: "",
   comfyUrl: "",
   contextMessages: 6,
   maxTokens: 900,
   useJsonSchema: true,
   defaults: { quality: "base", seedPolicy: "random", fixedSeed: 1 },
-  automation: { mode: "manual", everyN: 5 },
+  automation: { mode: "everyN", everyN: 5 },
   safeMode: false,
   purposes: {
     scene: row({ aspect: "auto", shot: "cowboy", directorMayOverride: true }),
@@ -136,7 +143,7 @@ export const sanitizeImageSettings = (value: unknown): ImageSettings => {
     return typeof entry.file === "string" && typeof entry.label === "string" && (entry.base === "flux" || entry.base === "illustrious") && typeof entry.weight === "object" && entry.weight !== null;
   }) : [];
   return {
-    enabled: raw.enabled === true,
+    enabled: typeof raw.enabled === "boolean" ? raw.enabled : defaults.enabled,
     directorProfileId: str(raw.directorProfileId), comfyUrl: str(raw.comfyUrl),
     contextMessages: Math.round(num(raw.contextMessages, defaults.contextMessages, 1, 30)),
     maxTokens: Math.round(num(raw.maxTokens, defaults.maxTokens, 200, 4000)),
@@ -146,7 +153,10 @@ export const sanitizeImageSettings = (value: unknown): ImageSettings => {
       seedPolicy: pick(["random", "lockPerMessage", "fixed"] as const, originalDefaults.seedPolicy, "random"),
       fixedSeed: num(originalDefaults.fixedSeed, 1, 0, 2 ** 32 - 1),
     },
-    automation: { mode: pick(["manual", "story", "everyN", "tool"] as const, originalAutomation.mode, "manual"), everyN: Math.round(num(originalAutomation.everyN, 5, 1, 100)) },
+    automation: {
+      mode: pick(["manual", "story", "everyN", "tool"] as const, originalAutomation.mode, defaults.automation.mode),
+      everyN: Math.round(num(originalAutomation.everyN, defaults.automation.everyN, 1, 100)),
+    },
     safeMode: raw.safeMode === true, purposes: routes,
     upscalers: Object.fromEntries(Object.entries(record(raw.upscalers)).filter((entry): entry is [string, string] => typeof entry[1] === "string")),
     loras, characters,

@@ -203,7 +203,10 @@ export function buildStallRequest(leaves: StallLeaf[], window: TypedWindowMessag
     state: { transcript: window.map((message) => ({ id: msgKey(message), speaker: message.speaker, text: message.text })) },
     questions: Object.fromEntries(leaves.map((leaf, index) => {
       const value = Array.isArray(leaf.v) ? leaf.v.map(phrase).join(" or ") : phrase(leaf.v);
-      return [`leaf:${index}`, noul(`Does \`transcript\` show that the answer to "${leaf.rubric}" is ${value}?`)];
+      const question = leaf.op === "==" || leaf.op === ">="
+        ? `Does \`transcript\` show that the answer to "${leaf.rubric}" is ${value}?`
+        : `Does \`transcript\` show a value for "${leaf.rubric}" that is ${leaf.op === "in" ? `one of ${value}` : `${leaf.op} ${value}`}?`;
+      return [`leaf:${index}`, noul(question)];
     })),
   };
 }

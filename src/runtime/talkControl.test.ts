@@ -446,6 +446,31 @@ describe("chained multi-speaker turns", () => {
     expect(calls.decisions.at(-1)).toMatchObject({ chosenRosterId: null, chosenName: null, source: "judge" });
   });
 
+  it("does not ask a speaker to answer their own reply or repeat within a chain", async () => {
+    let last = "guard";
+    const judge = jest.fn(async (input: { candidates: Array<{ rosterId: string }> }) => ({
+      kind: "member" as const,
+      rosterId: input.candidates[0].rosterId,
+      name: input.candidates[0].rosterId === "guard" ? "Mara" : "Finn",
+      confidence: 0.9,
+      via: "choice" as const,
+    }));
+    const { host, calls } = makeChainHost([], { judgeDirector: judge, getLastSpeakerRosterId: () => last });
+    const controller = new TalkController(host);
+    controller.onWrapperStarted({ type: "normal" });
+    await controller.intercept(makeAbort().abort, "normal");
+    await controller.onWrapperFinished();
+    expect(calls.triggered).toEqual(["Finn"]);
+    expect(judge.mock.calls[1][0].candidates.map((entry) => entry.rosterId)).toEqual(["sage"]);
+
+    last = "sage";
+    controller.onWrapperStarted({ type: "normal" });
+    controller.onGenerationStarted({ force_chid: 1 });
+    await controller.onWrapperFinished();
+    expect(calls.triggered).toEqual(["Finn"]);
+    expect(judge).toHaveBeenCalledTimes(2);
+  });
+
   it("stops at max without asking the judge for one more", async () => {
     const judge = jest.fn(async (): Promise<{ kind: "member"; rosterId: string; name: string; confidence: number; via: "choice" }> => ({ kind: "member", rosterId: "sage", name: "Finn", confidence: 0.9, via: "choice" }));
     const { host, calls } = makeChainHost([], {

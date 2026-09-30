@@ -174,15 +174,21 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
   const residual = scope.filter((entry) => !answered.has(entry.key));
   const contract = readContract(options, window, residual);
   const prompt = renderSharedReadPrompt(contract);
-  const ask = (): Promise<ExtractionReply> => (scope.length ? options.model(prompt, options.ask) : Promise.resolve({ text: "NO_DELTA", finish: "stop" }));
+  const ask = (maxTokens?: number): Promise<ExtractionReply> => (scope.length
+    ? options.model(prompt, { ...options.ask, ...(maxTokens ? { maxTokens } : {}) })
+    : Promise.resolve({ text: "NO_DELTA", finish: "stop" }));
   let reply = await ask();
   let parsed = parseSharedReadResponse(reply.text, options.story);
+  let responseTokens = options.ask.maxTokens ?? DEFAULT_RESPONSE_TOKENS;
   if (refusal(reply, parsed, options.ask.maxTokens)) {
-    reply = await ask();
+    const larger = Math.max(responseTokens, 1024);
+    const fits = !fitted.record || fitted.record.tokens <= inputBudget(fitted.record.contextLimit, larger).input;
+    if (reply.finish === "length" && fits) responseTokens = larger;
+    reply = await ask(responseTokens > (options.ask.maxTokens ?? DEFAULT_RESPONSE_TOKENS) ? responseTokens : undefined);
     parsed = parseSharedReadResponse(reply.text, options.story);
   }
   const rawResponse = reply.text;
-  const refused = refusal(reply, parsed, options.ask.maxTokens);
+  const refused = refusal(reply, parsed, responseTokens);
   const screened = refused ? { accepted: [], rejected: [{ line: rawResponse.slice(0, 500), reason: refused }] } : screenDeltas(parsed, residual, answered, window);
   const audit: SharedReadAudit = {
     id: createId({ prompt, rawResponse, at: Date.now() }),
@@ -199,7 +205,7 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     ...(parsed.sceneBreak ? { sceneBreak: parsed.sceneBreak } : {}),
     ...(judged ? { judged: { keys: judged.answered, model: judged.model, confidences: judged.confidences, ...(judged.fallback ? { fallback: judged.fallback } : {}) } } : {}),
     ...(failure.message !== undefined ? { judged: { keys: [], model: null, confidences: {}, fallback: "error", error: failure.message } } : {}),
-    ...(fitted.record ? { budget: fitted.record } : {}),
+    ...(fitted.record ? { budget: { ...fitted.record, maxTokens: responseTokens } } : {}),
     ...(fitted.trimmedFrom !== null ? { trimmedFrom: fitted.trimmedFrom } : {}),
     ...(fitted.truncated.length ? { truncated: fitted.truncated } : {}),
     ...(window.form ? { windowForm: window.form } : {}),

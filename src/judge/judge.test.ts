@@ -215,40 +215,40 @@ describe("decideDirector", () => {
 });
 
 describe("judge settings", () => {
-  it("defaults every usage off, whatever the master switch says", () => {
+  it("enables shipped uses by default and keeps the judge configurable", () => {
     const defaults = defaultJudgeSettings();
-    expect(defaults.enabled).toBe(false);
-    expect(JUDGE_USE_KEYS.every((key) => defaults.uses[key] === false)).toBe(true);
+    expect(defaults.enabled).toBe(true);
+    expect(JUDGE_USE_KEYS.every((key) => defaults.uses[key] === true)).toBe(true);
     expect(defaults.expansion).toEqual({ variants: 1, temperature: 0.7, pick: "code" });
     expect(defaults.model).toBe("jev-1.13.0");
   });
 
   it("sanitizes stored values and ignores unknown keys", () => {
     const sanitized = sanitizeJudgeSettings({ enabled: "yes", model: "  ", timeoutMs: 99_999, uses: { director: true, bogus: true, memoryVerify: "true" }, expansion: { variants: 5, temperature: 3, pick: "llm" } });
-    expect(sanitized.enabled).toBe(false);
+    expect(sanitized.enabled).toBe(true);
     expect(sanitized.model).toBe("jev-1.13.0");
     expect(sanitized.timeoutMs).toBe(1500);
     expect(sanitized.uses.director).toBe(true);
-    expect(sanitized.uses.memoryVerify).toBe(false);
+    expect(sanitized.uses.memoryVerify).toBe(true);
     expect(Object.keys(sanitized.uses)).toEqual([...JUDGE_USE_KEYS]);
     expect(sanitized.expansion).toEqual({ variants: 1, temperature: 0.7, pick: "llm" });
     expect(sanitizeJudgeSettings(null)).toEqual(defaultJudgeSettings());
   });
 
   it("needs the master switch, the usage and its dependency", () => {
-    const on = sanitizeJudgeSettings({ enabled: true, uses: { director: true, expansionLookahead: true } });
+    const on = sanitizeJudgeSettings({ enabled: true, uses: { director: true, expansionLookahead: true, lookahead: false } });
     expect(judgeUseActive(on, "director")).toBe(true);
     expect(judgeUseActive(on, "expansionLookahead")).toBe(false);
     expect(judgeUseActive({ ...on, uses: { ...on.uses, lookahead: true } }, "expansionLookahead")).toBe(true);
     expect(judgeUseActive({ ...on, enabled: false }, "director")).toBe(false);
   });
 
-  it("L5: loreExclusive is off by default, its own switch, and needs loreSelect", () => {
-    expect(defaultJudgeSettings().uses.loreExclusive).toBe(false);
-    const exclusive = sanitizeJudgeSettings({ enabled: true, uses: { loreExclusive: true } });
+  it("L5: loreExclusive is on by default, its own switch, and needs loreSelect", () => {
+    expect(defaultJudgeSettings().uses.loreExclusive).toBe(true);
+    const exclusive = sanitizeJudgeSettings({ enabled: true, uses: { loreExclusive: true, loreSelect: false } });
     expect(judgeUseActive(exclusive, "loreExclusive")).toBe(false);
     expect(judgeUseActive({ ...exclusive, uses: { ...exclusive.uses, loreSelect: true } }, "loreExclusive")).toBe(true);
-    expect(judgeUseActive(sanitizeJudgeSettings({ enabled: true, uses: { loreSelect: true } }), "loreExclusive")).toBe(false);
+    expect(judgeUseActive(sanitizeJudgeSettings({ enabled: true, uses: { loreSelect: true, loreExclusive: false } }), "loreExclusive")).toBe(false);
   });
 
   it("keeps a bounded call ring and drops records past a rollback point", () => {

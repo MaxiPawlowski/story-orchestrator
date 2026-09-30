@@ -36,7 +36,8 @@ const answers = (breakP: number): Record<string, JudgeAnswer> => ({
 });
 
 const setup = (uses: Partial<JudgeSettings["uses"]>, breakP = 0.82) => {
-  const settings: JudgeSettings = { ...defaultJudgeSettings(), enabled: true, uses: { ...defaultJudgeSettings().uses, ...uses } };
+  const settings: JudgeSettings = { ...defaultJudgeSettings(), enabled: true,
+    uses: { ...Object.fromEntries(Object.keys(defaultJudgeSettings().uses).map((key) => [key, false])) as JudgeSettings["uses"], ...uses } };
   const requests: JudgeRequest[] = [];
   const calls: string[] = [];
   const judge = new JudgeRuntime({ ownership: testOwnership(),

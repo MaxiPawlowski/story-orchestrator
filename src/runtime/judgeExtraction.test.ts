@@ -71,7 +71,8 @@ const setup = async (uses: Partial<JudgeSettings["uses"]>, answer: (request: Jud
   mockContext.chat = [{ mes: "Welcome to the hall.", name: "Mara" }, { mes: "The key is under the mat.", name: "Mara" }, { mes: "I pick up the brass key.", name: "Max", is_user: true }];
   mockContext.chatMetadata = {};
   mockContext.extensionSettings = {};
-  const settings: JudgeSettings = { ...defaultJudgeSettings(), enabled: true, uses: { ...defaultJudgeSettings().uses, ...uses } };
+  const settings: JudgeSettings = { ...defaultJudgeSettings(), enabled: true,
+    uses: { ...Object.fromEntries(Object.keys(defaultJudgeSettings().uses).map((key) => [key, false])) as JudgeSettings["uses"], ...uses } };
   const transport = jest.fn<ReturnType<JudgeTransport>, Parameters<JudgeTransport>>(async (request) => answer(request));
   const manager = new RuntimeManager();
   const uses_: string[] = [];

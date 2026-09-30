@@ -83,6 +83,8 @@ describe("stall pre-check core (v2.2 plan 06)", () => {
     const request = buildStallRequest(leaves, window);
     expect(request.questions["leaf:0"].instructions).toBe('Does `transcript` show that the answer to "What did the player answer?" is "moon"?');
     expect(request.questions["leaf:1"].instructions).toBe('Does `transcript` show that the answer to "Did the party pass the gate?" is yes?');
+    expect(buildStallRequest([{ q: "party_name", rubric: "What name was registered?", type: "string", op: "!=", v: "" }], window).questions["leaf:0"].instructions)
+      .toBe('Does `transcript` show a value for "What name was registered?" that is != ""?');
     expect(validateJudgeRequest(request)).toEqual([]);
   });
 

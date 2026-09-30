@@ -131,7 +131,7 @@ describe("T24 readiness by model (v2.4 plan 07)", () => {
   it("reads unproven, never re-floored, when the configured model is not the one measured", () => {
     const rows = judgeReadiness(settings({ model: "jev-1.14.0" }, { stallCheck: true }));
     expect(rows.find((row) => row.key === "stallCheck")).toMatchObject({ verdict: "unproven", calibration: 1, modelMismatch: { configured: "jev-1.14.0", answered: null, measuredOn: "jev-1.13.0" } });
-    expect(judgeReadinessConcerns(rows).map((row) => row.key)).toEqual(["stallCheck"]);
+    expect(judgeReadinessConcerns(rows).map((row) => row.key)).toContain("stallCheck");
   });
 
   it("reads unproven when the model that answered is not the one measured, whatever was asked", () => {

@@ -7,13 +7,13 @@ import { defaultGlobalSettings, sanitizeGlobalSettings } from "./settingsStore";
 
 describe("worldInfo settings (v2.5 plan 01)", () => {
   it("defaults to the file path with an empty ledger and no provenance, and no plan flips that", () => {
-    expect(defaultGlobalSettings().worldInfo).toEqual({ gatingMode: "file", normalized: {}, normalizedFrom: {}, scanMemory: false });
-    expect(sanitizeGlobalSettings({}).worldInfo).toEqual({ gatingMode: "file", normalized: {}, normalizedFrom: {}, scanMemory: false });
+    expect(defaultGlobalSettings().worldInfo).toEqual({ gatingMode: "file", normalized: {}, normalizedFrom: {}, scanMemory: true });
+    expect(sanitizeGlobalSettings({}).worldInfo).toEqual({ gatingMode: "file", normalized: {}, normalizedFrom: {}, scanMemory: true });
   });
 
   it("keeps an explicit scan mode and a clean ledger, and drops anything else", () => {
     expect(sanitizeGlobalSettings({ worldInfo: { gatingMode: "scan", normalized: { Ruins: ["CP1", "CP1", "", 3], Empty: [], Junk: "x" } } }).worldInfo)
-      .toEqual({ gatingMode: "scan", normalized: { Ruins: ["CP1"] }, normalizedFrom: {}, scanMemory: false });
+      .toEqual({ gatingMode: "scan", normalized: { Ruins: ["CP1"] }, normalizedFrom: {}, scanMemory: true });
     expect(sanitizeGlobalSettings({ worldInfo: { gatingMode: "SCAN" } }).worldInfo.gatingMode).toBe("file");
   });
 
@@ -33,9 +33,10 @@ describe("worldInfo settings (v2.5 plan 01)", () => {
     expect(sanitizeGlobalSettings({ worldInfo: { normalized: {}, normalizedFrom } }).worldInfo.normalizedFrom).toEqual({ Ruins: [{ comment: "CP1", wasOn: true }] });
   });
 
-  it("L4: memory scanning is off by default and only an explicit true switches it on", () => {
-    expect(defaultGlobalSettings().worldInfo.scanMemory).toBe(false);
+  it("L4: memory scanning is on by default and an explicit false switches it off", () => {
+    expect(defaultGlobalSettings().worldInfo.scanMemory).toBe(true);
     expect(sanitizeGlobalSettings({ worldInfo: { scanMemory: true } }).worldInfo.scanMemory).toBe(true);
-    expect(sanitizeGlobalSettings({ worldInfo: { scanMemory: "yes" } }).worldInfo.scanMemory).toBe(false);
+    expect(sanitizeGlobalSettings({ worldInfo: { scanMemory: false } }).worldInfo.scanMemory).toBe(false);
+    expect(sanitizeGlobalSettings({ worldInfo: { scanMemory: "yes" } }).worldInfo.scanMemory).toBe(true);
   });
 });

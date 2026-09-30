@@ -7,6 +7,7 @@ import { sanitizePassProfiles } from "./passProfiles";
 import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, StagecraftSettings } from "./types";
 import { isRecord } from "@utils/guards";
 import { defaultImageSettings, sanitizeImageSettings, type ImageSettings } from "../image/settings";
+import { defaultSpriteSettings, sanitizeSpriteSettings, type SpriteSettings } from "../sprites/settings";
 
 // The system default for answering one player message with several voices. A checkpoint's own
 // `talk_control.chain` overrides each field; absent fields fall back here.
@@ -30,6 +31,7 @@ export interface GlobalSettings {
   judge: JudgeSettings;
   worldInfo: WorldInfoSettings;
   image: ImageSettings;
+  sprites: SpriteSettings;
   spikes: SpikeSettings;
 }
 
@@ -62,7 +64,7 @@ export interface WorldInfoSettings {
   scanMemory: boolean;
 }
 
-export const defaultWorldInfoSettings = (): WorldInfoSettings => ({ gatingMode: "file", normalized: {}, normalizedFrom: {}, scanMemory: false });
+export const defaultWorldInfoSettings = (): WorldInfoSettings => ({ gatingMode: "file", normalized: {}, normalizedFrom: {}, scanMemory: true });
 
 const sanitizeProvenance = (value: unknown): Record<string, NormalizedFrom[]> => {
   if (!isRecord(value)) return {};
@@ -92,7 +94,7 @@ const sanitizeWorldInfoSettings = (value: unknown): WorldInfoSettings => {
     gatingMode: value.gatingMode === "scan" ? "scan" : "file",
     normalized,
     normalizedFrom: sanitizeProvenance(value.normalizedFrom),
-    scanMemory: value.scanMemory === true,
+    scanMemory: typeof value.scanMemory === "boolean" ? value.scanMemory : defaultWorldInfoSettings().scanMemory,
   };
 };
 
@@ -112,8 +114,7 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   tierTokenBudgets: { ...DEFAULT_TIER_TOKEN_BUDGETS },
 });
 
-// Off by default: an agent that edits the author's lorebook has to be asked for.
-export const defaultStagecraftSettings = (): StagecraftSettings => ({ curatorEnabled: false, acceptMode: "review", wardenEnabled: false, wardenAcceptMode: "review" });
+export const defaultStagecraftSettings = (): StagecraftSettings => ({ curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review" });
 
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
@@ -126,6 +127,7 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   judge: defaultJudgeSettings(),
   worldInfo: defaultWorldInfoSettings(),
   image: defaultImageSettings(),
+  sprites: defaultSpriteSettings(),
   spikes: defaultSpikeSettings(),
 });
 
@@ -176,11 +178,11 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     memory: { ...defaults.memory, ...memory, injectionDepths: { ...defaults.memory.injectionDepths, ...(isRecord(memory.injectionDepths) ? memory.injectionDepths : {}) } } as MemoryRuntimeSettings,
     talk: sanitizeTalkSettings(value.talk),
     stagecraft: {
-      curatorEnabled: isRecord(value.stagecraft) && value.stagecraft.curatorEnabled === true,
+       curatorEnabled: isRecord(value.stagecraft) && typeof value.stagecraft.curatorEnabled === "boolean" ? value.stagecraft.curatorEnabled : defaults.stagecraft.curatorEnabled,
       acceptMode: isRecord(value.stagecraft) && STAGECRAFT_ACCEPT_MODES.includes(value.stagecraft.acceptMode as StagecraftAcceptMode)
         ? (value.stagecraft.acceptMode as StagecraftAcceptMode)
         : defaults.stagecraft.acceptMode,
-      wardenEnabled: isRecord(value.stagecraft) && value.stagecraft.wardenEnabled === true,
+       wardenEnabled: isRecord(value.stagecraft) && typeof value.stagecraft.wardenEnabled === "boolean" ? value.stagecraft.wardenEnabled : defaults.stagecraft.wardenEnabled,
       wardenAcceptMode: isRecord(value.stagecraft) && STAGECRAFT_ACCEPT_MODES.includes(value.stagecraft.wardenAcceptMode as StagecraftAcceptMode)
         ? (value.stagecraft.wardenAcceptMode as StagecraftAcceptMode)
         : defaults.stagecraft.wardenAcceptMode,
@@ -188,6 +190,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     judge: sanitizeJudgeSettings(value.judge),
     worldInfo: sanitizeWorldInfoSettings(value.worldInfo),
     image: sanitizeImageSettings(value.image),
+    sprites: sanitizeSpriteSettings(value.sprites),
     spikes: sanitizeSpikeSettings(value.spikes),
   };
 };

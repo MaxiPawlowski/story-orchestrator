@@ -875,7 +875,7 @@ describe("stagecraft hydrate (v2.2 plan 05)", () => {
   it("drops a record that names no curator, and takes the settings from the defaults, never the chat", () => {
     const hydrated = sanitizeStagecraft({ stagecraft: { settings: { curatorEnabled: true, acceptMode: "auto" }, proposals: [{ id: "wi-1", ops: [], dropped: [] }, { id: "wi-2", curator: "wi", ops: [], dropped: [] }, { id: "w-1", curator: "warden", ops: [], dropped: [] }], lastPass: null, lastRunBoundary: 3, lastError: null } } as unknown as RuntimeExtras);
     expect(hydrated.proposals.map((record) => record.id)).toEqual(["wi-2", "w-1"]);
-    expect(hydrated.settings).toEqual({ curatorEnabled: false, acceptMode: "review", wardenEnabled: false, wardenAcceptMode: "review" });
+    expect(hydrated.settings).toEqual({ curatorEnabled: true, acceptMode: "review", wardenEnabled: true, wardenAcceptMode: "review" });
   });
 
 

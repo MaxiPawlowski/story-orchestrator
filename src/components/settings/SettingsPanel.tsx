@@ -12,6 +12,7 @@ import { MemoryModelGroup } from "./MemoryModelGroup";
 import { DisplayGroup, LorebooksGroup, PacingGroup, StagecraftGroup, TalkGroup } from "./PlayGroups";
 
 const ImageGroup = lazy(() => import("../../image/ImageGroup"));
+const SpriteGroup = lazy(() => import("../../sprites/SpriteGroup"));
 
 export interface SettingsHost {
   extensionVersion: string;
@@ -119,6 +120,7 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
               <MemoryModelGroup snapshot={snapshot} manager={manager} />
               <DisplayGroup snapshot={snapshot} manager={manager} />
               <Suspense fallback={<div className="text-xs">Loading image setup…</div>}><ImageGroup manager={manager} /></Suspense>
+              <Suspense fallback={null}><SpriteGroup manager={manager} /></Suspense>
             </div>
           </details>
           <details id="so-author-services" className="so-settings-section">

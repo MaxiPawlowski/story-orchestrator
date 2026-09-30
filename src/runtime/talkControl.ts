@@ -130,6 +130,7 @@ interface ChainState {
   spokeCount: number;
   aborted: boolean;
   hold: boolean;
+  speakers: string[];
 }
 
 export class TalkController {
@@ -174,7 +175,7 @@ export class TalkController {
     if (!control) return;
     // The first intercept of a loud, non-forced group pass opens this turn's chain.
     if (!this.chain) {
-      this.chain = { key: this.passKey(), checkpointId: this.host.getCheckpointInfo()?.id ?? "", spokeCount: 0, aborted: false, hold: false };
+      this.chain = { key: this.passKey(), checkpointId: this.host.getCheckpointInfo()?.id ?? "", spokeCount: 0, aborted: false, hold: false, speakers: [] };
     }
     const decision = await this.ensureDecision(control, this.passKey());
     if (decision.kind === "pass") return;
@@ -227,6 +228,8 @@ export class TalkController {
     const config = this.chainConfig(control);
     if (!config || !config.enabled) { this.endChain(); return; }
     chain.spokeCount += 1;
+    const lastSpeaker = this.host.getLastSpeakerRosterId();
+    if (lastSpeaker) chain.speakers.push(lastSpeaker);
     if (chain.spokeCount >= config.max) { this.endChain(); return; }
     if (config.stopOnTransition && (this.host.getCheckpointInfo()?.id ?? "") !== chain.checkpointId) { this.endChain(); return; }
     const run = beginRun(this.host.ownership, this.window());
@@ -250,7 +253,8 @@ export class TalkController {
   // Hand back to the player is only offered when the checkpoint asks for it. With no judge or LLM
   // director there is nothing to say "enough", so the chain stops rather than let the rules loop.
   private async decideChainSpeaker(control: TalkControl, config: TalkChainConfig, chain: ChainState): Promise<string | null> {
-    const candidates = buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds());
+    const candidates = buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds())
+      .filter((candidate) => !chain.speakers.includes(candidate.rosterId));
     if (!candidates.length) return null;
     const window = this.host.getWindow();
     const handBack = config.stopOnPlayer;

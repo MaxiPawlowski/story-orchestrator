@@ -2,13 +2,26 @@ import { CHECKPOINTS, FAMILIES, FLUX, JANKU, WAI } from "./catalog";
 import { buildGraph } from "./graph";
 import { imageMessages, sceneForImage } from "./prompt";
 import { resolveImageRoute } from "./routing";
-import { automationAllowsCues, defaultImageSettings, sanitizeImageChatState, sanitizeImageOverride, sanitizeImageSettings } from "./settings";
+import { automationAllowsCues, defaultImageSettings, messageAlreadyDrawn, sanitizeImageChatState, sanitizeImageOverride, sanitizeImageSettings } from "./settings";
 import { visualLore } from "./lore";
 
 const graph = (file: string, hires = false) => {
   const checkpoint = CHECKPOINTS.find((entry) => entry.file === file)!;
   return buildGraph({ checkpoint, family: FAMILIES[checkpoint.family], loras: [], positive: "a forest path", negative: "blurry", size: { width: 832, height: 1216 }, seed: 3, hires, upscaler: FAMILIES[checkpoint.family].upscaler });
 };
+
+describe("Image Director automatic triggers (plan 16/18 repair)", () => {
+  const chat = (media: unknown[]) => ({ messages: [{ extra: { media } }] }) as never;
+
+  it("collapses a cadence trigger and a cue on the same reply to one illustration", () => {
+    // The first automatic trigger draws the reply; the second sees the media and stays out.
+    expect(messageAlreadyDrawn(chat([]), 0)).toBe(false);
+    expect(messageAlreadyDrawn(chat([{ url: "/a.png" }]), 0)).toBe(true);
+    // Control: a chat with no media, and the opening cue with no target, are never skipped by this guard.
+    expect(messageAlreadyDrawn(chat([]), 0)).toBe(false);
+    expect(messageAlreadyDrawn(chat([{ url: "/a.png" }]), null)).toBe(false);
+  });
+});
 
 describe("Image Director merge", () => {
   it("preserves the proven SDXL and FLUX graph routes and the hi-res pass", () => {

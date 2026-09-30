@@ -149,6 +149,7 @@ export function startRuntime() {
   void settingsReady().then(() => {
     if (typeof document !== "undefined" && typeof getContext().eventSource?.on === "function") {
       void import("../image/start").then(({ startImage }) => { if (started) startImage(runtimeManager); });
+      void import("../sprites/start").then(({ startSprites }) => { if (started) startSprites(runtimeManager); });
     }
     void refreshSpikes();
     if (runtimeManager.getSnapshot().ready) return;
@@ -160,6 +161,7 @@ export function startRuntime() {
 
 export function stopRuntime() {
   if (typeof document !== "undefined") void import("../image/start").then(({ stopImage }) => stopImage());
+  if (typeof document !== "undefined") void import("../sprites/start").then(({ stopSprites }) => stopSprites());
   bridge?.stop();
   bridge = null;
   runtimeManager.invalidateRuns();

@@ -85,6 +85,11 @@ export {
 } from "@services/stHost/image";
 export { reserveGpu, releaseGpu, gpuBrokerStatus } from "@services/stHost/gpuBroker";
 export { registerImageSurface } from "@services/stHost/imageSurface";
+export {
+  spriteCast, spriteDraftedName, spriteMessage, spriteChatLength, spriteStreamingMessageId, spriteList, spriteClassifyLocal,
+  spriteWriteExpressions, spriteVnMode, spriteReducedMotion, spriteBuiltInExpressionsActive,
+  type SpriteCastMember, type SpriteChatMessage,
+} from "@services/stHost/sprites";
 export type { VectorItem, VectorMatch } from "@services/stHost/vectors";
 export { probeCapability, capabilityReport, capabilityState, invalidateCapabilities, hostFacts, renderCapabilityReport, CAPABILITY_IDS } from "@services/stHost/capabilities";
 export type { CapabilityId, CapabilityReport, CapabilityState, HostFacts } from "@services/stHost/capabilities";

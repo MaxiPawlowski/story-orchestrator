@@ -210,7 +210,8 @@ describe("T23: a hot-swap that removes a rule", () => {
 
 describe("T22/T23 wiring (runtime/continuity.ts)", () => {
   const judgeWith = (uses: Partial<JudgeSettings["uses"]>, enabled = true) => {
-    const settings: JudgeSettings = { ...defaultJudgeSettings(), enabled, uses: { ...defaultJudgeSettings().uses, ...uses } };
+    const settings: JudgeSettings = { ...defaultJudgeSettings(), enabled,
+      uses: { ...Object.fromEntries(Object.keys(defaultJudgeSettings().uses).map((key) => [key, false])) as JudgeSettings["uses"], ...uses } };
     const requests: JudgeRequest[] = [];
     const judge = new JudgeRuntime({ ownership: testOwnership(),
       getSettings: () => settings,

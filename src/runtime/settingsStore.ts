@@ -49,11 +49,9 @@ export function getGlobalSettings(): GlobalSettings {
   const sanitized = sanitizeGlobalSettings(root[SETTINGS_KEY]);
   const stored = root[SETTINGS_KEY] as { image?: unknown } | undefined;
   if (settingsAreLoaded?.() && stored?.image === undefined) {
-    // Seed the image settings once from the standalone Image Director's root, so an install that used
-    // that extension keeps its routes and character bindings. Automatic images start off until validated.
     const prior = getContext().extensionSettings["st-image-director"];
     if (prior && typeof prior === "object") {
-      sanitized.image = { ...sanitizeImageSettings(prior), enabled: false, directorProfileId: sanitized.extraction.profiles?.authoring ?? "" };
+      sanitized.image = { ...sanitizeImageSettings(prior), directorProfileId: sanitized.extraction.profiles?.authoring ?? "" };
     }
   }
   if (settingsAreLoaded?.()) root[SETTINGS_KEY] = sanitized;
@@ -74,6 +72,7 @@ export function setGlobalSettings(patch: Partial<{ [K in keyof GlobalSettings]: 
     judge: { ...current.judge, ...(patch.judge ?? {}), uses: { ...current.judge.uses, ...(patch.judge?.uses ?? {}) }, expansion: { ...current.judge.expansion, ...(patch.judge?.expansion ?? {}) } },
     worldInfo: { ...current.worldInfo, ...(patch.worldInfo ?? {}) },
     image: { ...current.image, ...(patch.image ?? {}) },
+    sprites: { ...current.sprites, ...(patch.sprites ?? {}) },
     spikes: { ...current.spikes, ...(patch.spikes ?? {}) },
   };
   const sanitized = sanitizeGlobalSettings(next);
