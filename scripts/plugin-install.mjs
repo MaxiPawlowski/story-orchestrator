@@ -5,7 +5,7 @@ import { configuredStRoot, stRootIssue } from './lib/stRoot.mjs';
 
 const USAGE = `Usage: node scripts/plugin-install.mjs [--st-root <path>] [--check]
 
-Copies both Story Orchestrator server plugins into <ST root>/plugins/.
+Copies every Story Orchestrator server plugin into <ST root>/plugins/.
 The ST root defaults to five levels above this extension (public/scripts/extensions/third-party/<ext>),
 or ST_ROOT. ST loads it only with enableServerPlugins: true in config.yaml, after a restart.
 --check reports whether the installed copy matches this one, without writing.`;
@@ -15,6 +15,7 @@ const extensionRoot = path.resolve(here, '..');
 const PLUGINS = {
     'story-orchestrator-judge': ['package.json', 'index.mjs'],
     'story-orchestrator-gpu': ['package.json', 'index.mjs', 'gate.mjs'],
+    'story-orchestrator-harness': ['package.json', 'index.mjs'],
 };
 
 const args = process.argv.slice(2);

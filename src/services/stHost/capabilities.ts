@@ -16,7 +16,7 @@ import { installScanGating, probeScanGating } from "./worldInfoScan";
 // attempt, and is NOT cached, so the next use retries it.
 
 export type CapabilityState = "present" | "absent" | "error";
-export type CapabilityId = "macros" | "macroArgs" | "slashCommands" | "backgrounds" | "vectors" | "judge" | "contextBudget" | "wiScanGating" | "sprites";
+export type CapabilityId = "macros" | "macroArgs" | "slashCommands" | "backgrounds" | "vectors" | "judge" | "harness" | "contextBudget" | "wiScanGating" | "sprites";
 
 export interface CapabilityReport {
   id: CapabilityId;
@@ -82,6 +82,8 @@ const judgeProbe: Probe = async () => {
   return status.configured ? present(`plugin ${status.pluginVersion ?? "?"}, ${status.model ?? "model unknown"}`) : absent("the judge plugin is installed but holds no key");
 };
 
+const harnessProbe: Probe = () => import("./harness").then((module) => module.harnessCapability());
+
 // The next-turn preview states its blocks as a share of the main API's prompt budget.
 // A build that cannot say it shows "budget unknown", never a guessed number.
 const contextBudgetProbe: Probe = () => {
@@ -118,6 +120,7 @@ const PROBES: Record<CapabilityId, Probe> = {
   backgrounds: backgroundsProbe,
   vectors: vectorsProbe,
   judge: judgeProbe,
+  harness: harnessProbe,
   contextBudget: contextBudgetProbe,
   wiScanGating: wiScanGatingProbe,
   sprites: spritesProbe,

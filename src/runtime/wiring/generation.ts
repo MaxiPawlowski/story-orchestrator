@@ -14,6 +14,7 @@ import { generationWatch } from "../generationWatch";
 import { promptCost } from "../promptCost";
 import { attachPromptBuckets } from "../promptBucketsHost";
 import { roleHealth } from "../roleHealth";
+import { modelCallLog } from "../modelCallLog";
 import { spikeSeams } from "../spikeSeams";
 import type { LoreWiring } from "./lore";
 import type { Disposers, LiveParts } from "./types";
@@ -70,6 +71,7 @@ export const attachGenerationObservers = (live: LiveParts, disposers: Disposers,
     health: (id) => live.scheduler?.profileHealth(id) ?? null,
     notify: () => runtimeManager.notify(),
   }));
+  disposers.push(modelCallLog.attach((record) => runtimeManager.recordModelCall(record)));
   disposers.push(attachPromptBuckets(() => runtimeManager.notify()));
   disposers.push(promptCost.attach({ count: countTokens, budget: readPromptBudget, notify: () => runtimeManager.notify(), busy: () => generation.snapshot().outermost !== null }));
   disposers.push(runtimeManager.subscribe(() => {

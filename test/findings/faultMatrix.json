@@ -660,6 +660,16 @@
     "inner|aborted": {
       "status": "todo",
       "note": "No test aborts a held inner call. The run signal is passed to the model call, so an abort rejects like a backend failure, but that path is not exercised."
-    }
+    },
+    "harnessTransport|delayedSuccess": {"status": "partial", "evidence": "src/runtime/harnessRouting.test.ts#a harness route goes to the harness transport, with the role, the bound and a spawn-padded deadline", "note": "v2.6 plan 04 H: covered: a late harness answer is returned to its caller like a profile answer, keyed on its route. Not covered here: the caller's RunOwnership decides whether it is written (the census row for createModelCallVia.call says the call record itself lands in the chat open at the time)."},
+    "harnessTransport|delayedError": {"status": "covered", "evidence": "src/runtime/harnessRouting.test.ts#with no fallback chosen the role pauses: the failure is thrown, never answered from the memory profile", "note": "A harness failure is thrown as a ModelCallError keyed on the route; with no author fallback nothing answers in its place."},
+    "harnessTransport|malformedResponse": {"status": "covered", "evidence": "src/runtime/harnessRouting.test.ts#a harness failure is a ModelCallError keyed on the route, carrying the quota's retry time", "alsoEvidence": ["server-plugin/story-orchestrator-harness/plugin.test.mjs#HARNESS_LIVE=1: one real PONG per offered, logged-in harness"], "note": "An empty harness answer is `malformed` (a breaker failure, never a fallback); the plugin classifies unreadable CLI output as `malformed` itself."},
+    "harnessTransport|duplicateCompletion": {"status": "na", "note": "One HTTP request carries one plugin answer: the transport has no path by which one call completes twice."},
+    "harnessTransport|backendUnavailable": {"status": "covered", "evidence": "src/services/stHost/harness.test.ts#names a missing plugin and a refused user as config, never as a model failure", "note": "A missing plugin or a refused user reads as config, so the role shows why instead of tripping a transport breaker."},
+    "harnessTransport|beforeHostWrite": {"status": "na", "note": "The harness transport performs no SillyTavern host write; it only answers text."},
+    "harnessTransport|afterHostWrite": {"status": "na", "note": "The harness transport performs no SillyTavern host write; it only answers text."},
+    "harnessTransport|persistFailure": {"status": "na", "note": "The transport persists nothing itself: the call record rides the chat's ordinary persist, whose failure the save evidence already covers."},
+    "harnessTransport|worldSwitched": {"status": "todo", "note": "A harness call that lands after a chat switch is recorded in the call ring of the chat now open (telemetry only); no test pins that yet."},
+    "harnessTransport|aborted": {"status": "covered", "evidence": "server-plugin/story-orchestrator-harness/plugin.test.mjs#cancel stops only the call of the user who made it", "alsoEvidence": ["server-plugin/story-orchestrator-harness/plugin.test.mjs#rule 6 / P0-3: the deadline kills the process tree and answers timeout"], "note": "A cancelled or timed-out harness call kills its process tree and answers lapsed/timeout."}
   }
 }

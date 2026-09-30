@@ -1,0 +1,75 @@
+{
+  "plan": "docs/plans/v2.6/04-remaining-builds.md",
+  "step": "H Phase A (v2.5 plan 13 H6)",
+  "declaredAt": "2026-09-30",
+  "status": "recipe only; not run (lane time, real models, final suite)",
+  "rule": "A route is 'recommended' for a role only if it meets every floor of that role on two consecutive runs; 'usable' when it answers and parses below a floor; 'refused' when it fails isolation or does not parse. Defaults stay 'Same as memory model' whatever the numbers. Floors are v2.4 plan 08's, never retuned.",
+  "preconditions": [
+    "server-plugin/story-orchestrator-harness installed (npm run plugin:install) and ST restarted",
+    "plugins/story-orchestrator-harness/config.json sets offer: true for the harness under test, and PHASE0 isolation rows green for it",
+    "the CLI is logged in on the ST machine (the plugin refuses a stale login: run the CLI once in a terminal, never inside a copy)",
+    "opencode: POST /api/plugins/story-orchestrator-harness/warm once as admin before the first arm",
+    "dev build staged (npm run build:dev && npm run stage -- --flavor dev), st-session reload",
+    "so-run-header capture before the batch, diff after"
+  ],
+  "baseline": "shared-65733265d301",
+  "loginStates2026-09-30": {
+    "claude": "stale (access token expired): login refresh needed (user) before any claude:* arm",
+    "codex": "fresh (Logged in using ChatGPT)",
+    "opencode": "fresh"
+  },
+  "roles": [
+    {
+      "order": 1,
+      "role": "authoring",
+      "passRole": "wizard",
+      "arms": ["harness:claude:opus", "harness:claude:sonnet", "harness:opencode:openai/gpt-6-astra"],
+      "command": "node scripts/debug/so-role-calibration.mts run --role authoring --profile <arm> --arm <arm-slug>-r<n> --record",
+      "floor": "v2.4 plan 08 authoring floors (es opShape >= 0.90 is the first row to read)"
+    },
+    {
+      "order": 2,
+      "role": "memorize",
+      "passRole": "memorize",
+      "arms": ["harness:claude:sonnet", "harness:opencode:openai/gpt-6-astra-fast"],
+      "command": "no calibration fixture: route extraction.routes.memorize to <arm>, run so-journey J3 with a memorize backlog; record latency and completion",
+      "floor": "completes the whole-chat pass in one call (A11 timed out at 256 s locally)"
+    },
+    {
+      "order": 3,
+      "role": "synthesis",
+      "passRole": "synthesis",
+      "arms": ["harness:claude:sonnet", "harness:opencode:openai/gpt-6-astra"],
+      "command": "node scripts/debug/so-role-calibration.mts run --role synthesis --profile <arm> --arm <arm-slug>-r<n> --record",
+      "floor": "v2.4 plan 08 synthesis floors"
+    },
+    {
+      "order": 4,
+      "role": "expansion + critic",
+      "passRole": "expansion",
+      "arms": ["generator harness:claude:sonnet / critic harness:opencode:openai/gpt-6-astra", "the reverse"],
+      "command": "not built: the H10 critic split needs the H9 role split, which v2.6 plan 04 H did not build",
+      "floor": "n/a until H9"
+    },
+    {
+      "order": 5,
+      "role": "curator",
+      "passRole": "curator",
+      "arms": ["harness:claude:haiku", "harness:opencode:openai/gpt-6-astra-fast"],
+      "command": "node scripts/debug/so-role-calibration.mts run --role curator --profile <arm> --arm <arm-slug>-r<n> --record",
+      "floor": "v2.4 plan 08 curator floors (opShape); local already meets them on 65733265d301, cloud only if it beats that"
+    },
+    {
+      "order": 6,
+      "role": "read",
+      "passRole": "read",
+      "arms": ["harness:claude:haiku", "harness:opencode:openai/gpt-6-astra-fast"],
+      "command": "set extraction.routes.read to <arm>; node scripts/debug/so-live-suite.mts run --min 0.9 --min-tier facts=0.68,rejected=0.9 --expect-count 22",
+      "floor": "plotDeltaAccuracy >= 0.9, facts >= 0.68, rejected >= 0.9; also count calls per J3 session"
+    }
+  ],
+  "codex": "harness:codex:default joins each row when its quota allows",
+  "perArm": ["two consecutive runs", "p50/p90 latency", "input/output tokens per call (usage from the call ring)", "spawnMs", "calls per role per J3 session"],
+  "goldens": "test/goldens/live/role-calibration/<role>-<arm>.json",
+  "writeTo": "docs/plans/v2.5/recommended-config.md (a column per route); no default flipped"
+}

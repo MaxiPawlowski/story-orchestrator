@@ -17,7 +17,8 @@ prompt/parse path on the real model (globalThis.storyOrchestratorLiveSuite.runRo
 then scores it against the floors predeclared in docs/plans/v2.4/08-author-observability.md
 (§"Per-role calibration floors"). A floor is never retuned.
 
-  --profile <name|id>  route the role to this Connection Manager profile for the run (extraction.profiles[role]);
+  --profile <name|id>  route the role to this Connection Manager profile for the run (extraction.profiles[role]),
+                       or to a harness route harness:<claude|codex|opencode>:<model> (extraction.routes[role], v2.6 plan 04 H Phase A);
                        without it the role is UNSET for the run (the memory-model fallback). The role map is
                        restored afterwards and read back.
   --effort <level>     v2.6 plan 05 R3: pin this role's reasoning effort for the run (extraction.routes[role]); the role map is
@@ -118,17 +119,23 @@ async function setRoute(page, role: string, profile: string | null) {
   return evaluateInST(page, ({ role, profile }) => {
     const rt = globalThis.storyOrchestratorRuntime;
     const profiles = SillyTavern.getContext().extensionSettings?.connectionManager?.profiles ?? [];
-    const before = { ...(rt.getGlobalSettings().extraction.profiles ?? {}) };
-    const next = { ...before };
+    const extraction = rt.getGlobalSettings().extraction;
+    const before = { profiles: { ...(extraction.profiles ?? {}) }, routes: JSON.parse(JSON.stringify(extraction.routes ?? {})) };
+    const next = { ...before.profiles };
     let chosen = null;
-    if (profile) {
+    const harness = profile?.startsWith('harness:') ? profile.split(':') : null;
+    if (harness) {
+      const [, name, ...model] = harness;
+      rt.setExtractionSettings({ routes: { ...before.routes, [role]: { route: { kind: 'harness', harness: name, model: model.join(':'), options: before.routes[role]?.route?.options ?? {} } } } });
+      chosen = { id: profile, name: profile };
+    } else if (profile) {
       chosen = profiles.find((entry) => entry.id === profile || entry.name === profile);
       if (!chosen) throw new Error(`no Connection Manager profile named or id'd "${profile}"`);
       next[role] = chosen.id;
     } else {
       delete next[role];
     }
-    rt.setExtractionSettings({ profiles: next });
+    if (!harness) rt.setExtractionSettings({ profiles: next });
     const route = (rt.getSnapshot().roleRoutes ?? []).find((entry) => entry.role === role) ?? null;
     const memory = profiles.find((entry) => entry.id === rt.getGlobalSettings().extraction.profileId);
     return { before, route, profile: chosen ? { id: chosen.id, name: chosen.name } : { id: memory?.id ?? null, name: memory?.name ?? null, fallback: true } };
@@ -138,8 +145,9 @@ async function setRoute(page, role: string, profile: string | null) {
 async function restoreRoute(page, before) {
   const after = await evaluateInST(page, (before) => {
     const rt = globalThis.storyOrchestratorRuntime;
-    rt.setExtractionSettings({ profiles: before });
-    return rt.getGlobalSettings().extraction.profiles ?? {};
+    rt.setExtractionSettings({ profiles: before.profiles, routes: before.routes });
+    const extraction = rt.getGlobalSettings().extraction;
+    return { profiles: extraction.profiles ?? {}, routes: extraction.routes ?? {} };
   }, before);
   await saveSettingsNow(page);
   return after;

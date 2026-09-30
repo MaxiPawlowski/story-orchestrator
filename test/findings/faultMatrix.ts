@@ -22,6 +22,7 @@ export const FAULT_PACKAGES = [
   "wiEvidence",
   "wiNormalize",
   "inner",
+  "harnessTransport",
 ] as const;
 
 export const FAULT_SHAPES = [

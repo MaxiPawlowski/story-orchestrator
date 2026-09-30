@@ -31,6 +31,7 @@ const schedulerHost = (live: LiveParts): SchedulerHost => ({
   noteHealth: (summary, detail) => runtimeManager.noteRecap(summary, detail),
   probeModel,
   profileExists,
+  heavyRouteKey: () => routedProfileId("synthesis"),
   mutationSettled: () => runtimeManager.rollbackSettled(),
   epoch: () => runtimeManager.getRunContext().sessionEpoch,
   judgeTyped: () => live.typedJudge,

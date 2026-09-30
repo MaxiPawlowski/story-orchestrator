@@ -165,6 +165,13 @@ const chapterParts = (sources: SnapshotSources, story: NormalizedStoryV2 | null,
   return { chapters, openThreads, chapterLines };
 };
 
+const modelCallSlices = (extras: SnapshotSources["extras"]) => ({
+  modelCalls: buildModelCalls({
+    judgeCalls: extras.judge.calls, audits: extras.extraction.audits, talkDecisions: extras.talk.decisions, curatorPass: extras.stagecraft.lastPass, routed: extras.modelCalls,
+  }),
+  modelCallRing: extras.modelCalls,
+});
+
 export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot {
   const { loaded, state, extras } = sources;
   const story = loaded?.story ?? null;
@@ -312,6 +319,6 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     roleRoutes: roleHealth.view(),
     lore: extras.lore,
     inline,
-    modelCalls: buildModelCalls({ judgeCalls: extras.judge.calls, audits: extras.extraction.audits, talkDecisions: extras.talk.decisions, curatorPass: extras.stagecraft.lastPass }),
+    ...modelCallSlices(extras),
   };
 }

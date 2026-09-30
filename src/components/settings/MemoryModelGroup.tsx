@@ -1,18 +1,31 @@
-import { useRef, useState } from "react";
-import { listConnectionProfiles, profileExists } from "@services/STAPI";
+import { useEffect, useRef, useState } from "react";
+import { harnessListed, listConnectionProfiles, profileExists, refreshHarnessStatus, type HarnessStatus } from "@services/STAPI";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { SelfTestReport } from "@runtime/selfTest";
 import { createModelCall } from "@runtime/modelCall";
 import { roleHealth } from "@runtime/roleHealth";
-import { resolvedProfileId, resolveRoute, withRoleEffort } from "@runtime/passProfiles";
+import { resolvedProfileId, resolveRoute, roleHarness } from "@runtime/passProfiles";
+import { HARNESS_LABELS, harnessVendor, routeMeters, withRoleEffort, withRoleFallback, withRoleHarness } from "@runtime/roleRouteEdits";
+import { HARNESS_IDS, harnessKey, parseHarnessKey } from "@utils/harness";
+import { PASS_ROLES } from "@extraction/passRole";
 import type { ReasoningEffort } from "@utils/reasoningEffort";
 import type { PassRole } from "@extraction/passRole";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import { GroupHeader } from "./GroupHeader";
-import { RoleProfilesGroup } from "./RoleProfilesGroup";
+import { RoleProfilesGroup, type HarnessOption, type RoleHarnessRoute } from "./RoleProfilesGroup";
 
 type Settings = RuntimeSnapshot["extraction"]["settings"];
+
+export const harnessOptions = (status: HarnessStatus | null): HarnessOption[] => HARNESS_IDS.flatMap((harness) => {
+  const row = status?.harnesses[harness];
+  if (!row?.installed || !row.offered) return [];
+  return row.models.map((model) => ({
+    key: harnessKey(harness, model.id),
+    label: `${HARNESS_LABELS[harness]} · ${model.id}${row.fresh ? "" : " (log in first)"}`,
+    vendor: harnessVendor(harness, model.id),
+  }));
+});
 
 const AdvancedExtraction = ({ settings, manager }: { settings: Settings; manager: RuntimeManager }) => (
   <details className="text-sm">
@@ -65,6 +78,22 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
   const [testingRole, setTestingRole] = useState<PassRole | null>(null);
   const profiles = listConnectionProfiles();
   const settings = snapshot.extraction.settings;
+  const [harnessStatus, setHarnessStatus] = useState<HarnessStatus | null>(null);
+  const [askHarness, setAskHarness] = useState(false);
+  const harnessRoutes = Object.fromEntries(PASS_ROLES.flatMap((role) => {
+    const harness = roleHarness(settings, role);
+    const route: RoleHarnessRoute | null = harness ? { key: harnessKey(harness.harness, harness.model), fallback: settings.routes?.[role]?.onFailure?.profileId ?? null } : null;
+    return route ? [[role, route]] : [];
+  }));
+  const wantsHarness = askHarness || Object.keys(harnessRoutes).length > 0;
+  useEffect(() => {
+    if (!wantsHarness) return undefined;
+    let live = true;
+    void refreshHarnessStatus().then((status) => { if (live) setHarnessStatus(status); });
+    return () => { live = false; };
+  }, [wantsHarness]);
+  const setRoleHarness = (role: PassRole, key: string | null) => manager.setExtractionSettings({ routes: withRoleHarness(settings.routes, role, key ? parseHarnessKey(key) : null) });
+  const setRoleFallback = (role: PassRole, profileId: string | null) => manager.setExtractionSettings({ routes: withRoleFallback(settings.routes, role, profileId) });
 
   const runSelfTest = async () => {
     if (selfTestRunning) {
@@ -92,7 +121,7 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
   const setRoleEffort = (role: PassRole, effort: ReasoningEffort) => manager.setExtractionSettings({ routes: withRoleEffort(settings.routes, role, effort) });
 
   const testRole = async (role: PassRole) => {
-    const route = resolveRoute(settings, role, (id) => profiles.some((profile) => profile.id === id));
+    const route = resolveRoute(settings, role, (id) => profiles.some((profile) => profile.id === id), harnessListed);
     setTestingRole(role);
     const { runRoleSelfTest } = await import("@runtime/roleSelfTest");
     roleHealth.record(await runRoleSelfTest(role, { profileId: route.ok ? resolvedProfileId(route) : null }));
@@ -137,6 +166,12 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
         onAssign={assignRole}
         onTest={(role) => void testRole(role)}
         onEffort={setRoleEffort}
+        harnesses={harnessOptions(harnessStatus)}
+        harnessRoutes={harnessRoutes}
+        meters={routeMeters(snapshot.modelCallRing ?? [])}
+        onHarness={setRoleHarness}
+        onFallback={setRoleFallback}
+        onOpen={() => setAskHarness(true)}
       />
     </div>
   );

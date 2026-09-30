@@ -1,10 +1,25 @@
 import type { ModelFinish, ReasoningMeter } from "@services/STAPI";
 import type { ReasoningEffort } from "@utils/reasoningEffort";
+import { harnessKey, parseHarnessKey, type HarnessId } from "@utils/harness";
 import { detectDegenerate } from "./degenerate";
 import type { PassRole } from "./passRole";
 import type { RequestBudget } from "./tokenMeter";
 
-export type ModelRoute = { kind: "profile"; profileId: string; effort?: ReasoningEffort };
+export interface HarnessRouteOptions {
+  timeoutScale?: number;
+}
+
+export type ModelRoute =
+  | { kind: "profile"; profileId: string; effort?: ReasoningEffort }
+  | { kind: "harness"; harness: HarnessId; model: string; effort?: ReasoningEffort; options?: HarnessRouteOptions };
+
+export const routeKey = (route: ModelRoute): string => (route.kind === "profile" ? route.profileId : harnessKey(route.harness, route.model));
+
+export interface CallUsage {
+  input: number | null;
+  output: number | null;
+  costUsd: number | null;
+}
 
 export type RouteResolution = { ok: true; route: ModelRoute | null; source: "role" | "fallback" } | { ok: false; profileId: string; reason: string };
 
@@ -18,6 +33,8 @@ export interface ExtractionReply {
   text: string;
   finish: ModelFinish;
   meter?: ReasoningMeter;
+  usage?: CallUsage;
+  spawnMs?: number | null;
 }
 
 export interface ModelAsk {
@@ -38,7 +55,11 @@ export interface ModelCall {
   planted?: (pass: ModelPass) => string | null;
 }
 
-export const profileRoute = (profileId: string | null | undefined): ModelRoute | null => (profileId ? { kind: "profile", profileId } : null);
+export const profileRoute = (profileId: string | null | undefined): ModelRoute | null => {
+  const harness = profileId ? parseHarnessKey(profileId) : null;
+  if (harness) return { kind: "harness", ...harness };
+  return profileId ? { kind: "profile", profileId } : null;
+};
 
 export const isPlanted =(model: ModelCall, ask: ModelAsk): boolean => (ask.debugResponse ?? model.planted?.(ask.pass) ?? null) !== null;
 
