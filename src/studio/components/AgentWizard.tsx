@@ -1,9 +1,9 @@
 import React, { useRef, useState } from "react";
 import type { StoryV2 } from "@engine/index";
-import { applyOp, isProvisioningOp, type ProposalOp } from "@copilot/index";
+
 import {
-  AGENT_MODES, addAuthorNote, agentStats, applyProvisioningFollowUps, approvePlan, checkToolCall, decideStep, newAgentSession, opPreview, pendingStep, resolveProvisioning,
-  resumeAgent, setAgentMode, stopAgent, type AgentMode, type AgentSession, type AgentStep, type AgentTurn,
+  AGENT_MODES, addAuthorNote, agentStats, applyAgentOp, applyProvisioningFollowUps, approvePlan, isProvisionOp, checkToolCall, decideStep, newAgentSession, opPreview, pendingStep, resolveProvisioning,
+  resumeAgent, setAgentMode, stopAgent, type AgentMode, type AgentOp, type AgentSession, type AgentStep, type AgentTurn,
 } from "@copilot/agent/index";
 import { emptyEnvironment } from "@wizard/index";
 import { coverageGaps, storyCoverage } from "../coverage";
@@ -49,8 +49,8 @@ const Coverage = () => {
         {gaps.map((row) => (
           <li key={row.id} data-so="coverage-row">
             <span className="st-pill px-1 text-[10px]">{row.scope === "story" ? "story" : `${row.used}/${row.total}`}</span>
-            <span className="ml-1">{row.label}</span>
-            <span className="ml-1 st-muted">{row.adds}</span>
+            <span className="ml-2">{row.label}</span>
+            <span className="ml-2 st-muted">{row.adds}</span>
           </li>
         ))}
       </ul>
@@ -59,14 +59,14 @@ const Coverage = () => {
 };
 
 const StepLog = ({ steps }: { steps: AgentStep[] }) => (
-  <ol className="st-subpanel flex max-h-[220px] flex-col gap-1 overflow-auto p-2 text-xs" aria-label="Agent steps">
+  <ol className="st-subpanel flex flex-col gap-1 overflow-auto p-2 text-xs" aria-label="Agent steps">
     {steps.length === 0 ? <li className="st-muted">No steps yet.</li> : steps.map((step) => (
       <li key={step.id} data-so="agent-step" data-status={step.status}>
         <details>
           <summary className="cursor-pointer">
             #{step.id} <code>{step.call.tool}</code> <span className="st-pill px-1 text-[10px]">{step.status}</span>
-            {step.route === "harness" ? <span className="ml-1 st-muted">harness</span> : null}
-            {step.thought ? <span className="ml-1 st-muted">{step.thought}</span> : null}
+            {step.route === "harness" ? <span className="ml-2 st-muted">harness</span> : null}
+            {step.thought ? <span className="ml-2 st-muted">{step.thought}</span> : null}
           </summary>
           <pre className="whitespace-pre-wrap">{step.observation}</pre>
           {step.check ? <pre className="whitespace-pre-wrap st-muted">{step.check}</pre> : null}
@@ -91,9 +91,9 @@ interface CardProps {
   step: AgentStep;
   busy: boolean;
   host?: WizardHost;
-  onAccept: (op?: ProposalOp) => void;
+  onAccept: (op?: AgentOp) => void;
   onReject: (reason: string) => void;
-  onProvision: (op: ProposalOp) => void;
+  onProvision: (op: AgentOp) => void;
 }
 
 const EditCard = ({ step, busy, onAccept, onReject }: CardProps) => {
@@ -107,7 +107,7 @@ const EditCard = ({ step, busy, onAccept, onReject }: CardProps) => {
     try {
       const { kind, ...args } = JSON.parse(text) as Record<string, unknown>;
       const check = checkToolCall({ tool: String(kind), args });
-      if (!check.ok || !check.op || isProvisioningOp(check.op)) return setProblem(check.ok ? "That is not a draft change." : check.message);
+      if (!check.ok || !check.op || isProvisionOp(check.op)) return setProblem(check.ok ? "That is not a draft change." : check.message);
       setProblem(null);
       onAccept(check.op);
     } catch (error) {
@@ -131,7 +131,7 @@ const EditCard = ({ step, busy, onAccept, onReject }: CardProps) => {
         <textarea
           data-so="agent-edit-text"
           aria-label="Edit the change"
-          className="text_pole st-input min-h-[100px] font-mono text-xs"
+          className="text_pole st-input min-h-[60px] text-xs"
           value={text}
           onChange={(event) => setText(event.target.value)}
         />
@@ -152,7 +152,7 @@ const EditCard = ({ step, busy, onAccept, onReject }: CardProps) => {
 const ProvisionCard = ({ step, busy, host, onReject, onProvision }: CardProps) => {
   const [reason, setReason] = useState("");
   const draft = useDraftStore((state) => state.draft);
-  if (!step.op || !isProvisioningOp(step.op)) return null;
+  if (!step.op || !isProvisionOp(step.op)) return null;
   return (
     <section data-so="agent-card" data-kind="provision" className="flex flex-col gap-2" aria-label="Agent asset">
       {step.thought ? <div className="text-xs st-muted">{step.thought}</div> : null}
@@ -195,7 +195,7 @@ const PlanEditor = ({ session, busy, onGo }: { session: AgentSession; busy: bool
   const [text, setText] = useState(session.plan.join("\n"));
   return (
     <div className="flex flex-col gap-2">
-      <textarea id="so-agent-plan" aria-label="The agent's plan" className="text_pole st-input min-h-[100px]" value={text} onChange={(event) => setText(event.target.value)} />
+      <textarea id="so-agent-plan" aria-label="The agent's plan" className="text_pole st-input min-h-[60px]" value={text} onChange={(event) => setText(event.target.value)} />
       <button id="so-agent-go" type="button" className="st-button primary self-start" disabled={busy || !text.trim()} onClick={() => onGo(text.split("\n"))}>Go</button>
     </div>
   );
@@ -228,7 +228,7 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
         }
         const result = await runTurn(current, useDraftStore.getState().draft);
         const apply = result.apply;
-        if (apply) mutate((draft) => applyOp(draft, apply));
+        if (apply) mutate((draft) => applyAgentOp(draft, apply));
         current = commit(result.session);
       }
     } catch (caught) {
@@ -242,12 +242,12 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
     if (!session) return;
     const result = decideStep(session, step.id, decision, useDraftStore.getState().draft);
     const apply = result.apply;
-    if (apply) mutate((draft) => applyOp(draft, apply));
+    if (apply) mutate((draft) => applyAgentOp(draft, apply));
     void drive(result.session);
   };
 
-  const provision = async (step: AgentStep, op: ProposalOp) => {
-    if (!session || !host || !isProvisioningOp(op)) return;
+  const provision = async (step: AgentStep, op: AgentOp) => {
+    if (!session || !host || !isProvisionOp(op)) return;
     setBusy(true);
     try {
       const outcome = await host.applyProvisioning(op, useDraftStore.getState().draft);
@@ -287,7 +287,7 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
           </div>
           {session.status === "awaiting-plan" ? <PlanEditor session={session} busy={busy} onGo={(plan) => void drive(approvePlan(session, plan))} /> : null}
           {session.plan.length && session.status !== "awaiting-plan" ? (
-            <ol className="list-decimal pl-5 text-xs" aria-label="Agreed plan">{session.plan.map((step, index) => <li key={index}>{step}</li>)}</ol>
+            <ol className="text-xs" aria-label="Agreed plan">{session.plan.map((step, index) => <li key={index}>{`${index + 1}. ${step}`}</li>)}</ol>
           ) : null}
           {pending ? (
             <PendingCard

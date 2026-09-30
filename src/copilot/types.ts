@@ -52,7 +52,6 @@ export type ProposalOp =
   | { kind: "setStagecraft"; stagecraft: StoryStagecraft }
   | { kind: "setSceneRead"; sceneRead: StorySceneRead }
   | { kind: "setLoreSelect"; loreSelect: StoryLoreSelect }
-  | { kind: "setHouseRules"; rules: string[] }
   | ProvisioningOp;
 
 export type ProposalOpKind = ProposalOp["kind"];

@@ -2,9 +2,9 @@ import { isRecord } from "@utils/guards";
 import { nearestKey } from "@utils/levenshtein";
 import type { ProvisioningOpKind } from "@wizard/index";
 import type * as Mutations from "../../studio/mutations";
-import { readOp } from "../parseOps";
-import type { ProposalOp, ProposalOpKind } from "../types";
-import type { AgentToolCall, AgentToolFamily } from "./types";
+import { parseProposal } from "../index";
+import type { ProposalOpKind } from "../types";
+import type { AgentOnlyOp, AgentOp, AgentToolCall, AgentToolFamily } from "./types";
 
 export type AgentArgType = "string" | "number" | "boolean" | "object" | "array" | "value";
 
@@ -72,7 +72,7 @@ export const EDIT_TOOLS = {
   setSceneRead: { backedBy: "setSceneRead", doc: "Replace the scene places and times.", args: { sceneRead: req("object", "{locations?, times?, inject?}") } },
   setLoreSelect: { backedBy: "setLoreSelect", doc: "Replace the lore-select books.", args: { loreSelect: req("object", "{lorebooks, top_k?}") } },
   setHouseRules: { backedBy: "setHouseRules", doc: "Replace the house rules (the full list).", args: { rules: req("array", "one rule per string") } },
-} satisfies Record<DraftOpKind, EditSpec>;
+} satisfies Record<DraftOpKind | AgentOnlyOp["kind"], EditSpec>;
 
 export const PROVISION_TOOLS = {
   createCharacterCard: {
@@ -182,7 +182,7 @@ const hint = (typed: string, known: readonly string[]): string => {
 };
 
 export type ToolCheck =
-  | { ok: true; spec: AgentToolSpec; op?: ProposalOp }
+  | { ok: true; spec: AgentToolSpec; op?: AgentOp }
   | { ok: false; message: string };
 
 export const checkToolCall = (call: AgentToolCall): ToolCheck => {
@@ -198,8 +198,13 @@ export const checkToolCall = (call: AgentToolCall): ToolCheck => {
   });
   if (problems.length) return { ok: false, message: problems.join("; ") };
   if (spec.family !== "edit" && spec.family !== "provision") return { ok: true, spec };
-  const issues: string[] = [];
-  const op = readOp({ ...call.args, kind: call.tool }, call.tool, issues);
+  if (call.tool === "setHouseRules") {
+    const rules = (Array.isArray(call.args.rules) ? call.args.rules : []).filter((rule): rule is string => typeof rule === "string" && rule.trim().length > 0);
+    return { ok: true, spec, op: { kind: "setHouseRules", rules } };
+  }
+  const parsed = parseProposal(JSON.stringify({ summary: "", ops: [{ ...call.args, kind: call.tool }] }));
+  const issues = parsed.issues.map((issue) => issue.replace(/^ops\.0/, call.tool));
+  const op = parsed.proposal.ops[0];
   if (!op || issues.length) return { ok: false, message: issues.join("; ") || `${call.tool}: arguments did not parse` };
   return { ok: true, spec, op };
 };

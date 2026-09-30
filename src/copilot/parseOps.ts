@@ -139,7 +139,6 @@ const STORY_SHAPE_OPS: Record<string, OpReader> = {
   },
   setLoreSelect: readSetLoreSelect,
   setSceneRead: readSetSceneRead,
-  setHouseRules: (value) => ({ kind: "setHouseRules", rules: readStringList(value.rules) }),
 };
 
 const readCreateCharacterCard: OpReader = (value, path, issues) => {

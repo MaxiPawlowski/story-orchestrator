@@ -73,7 +73,6 @@ export function saveWizardSession(session: WizardSessionUpdate): Promise<Library
   const merged: WizardSessionState = {
     ...session,
     ...(session.grants === undefined && previous?.grants ? { grants: previous.grants } : {}),
-    ...(session.agent === undefined && previous?.agent ? { agent: previous.agent } : {}),
     createdLorebooks: session.createdLorebooks ?? previous?.createdLorebooks ?? [],
     updatedAt: new Date().toISOString(),
   };

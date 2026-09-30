@@ -2,7 +2,7 @@ import {
   activateGlobalLorebook, bindChatLorebook, capabilityState, clearStoryExtensionPrompt, countTokens,
   createCharacterCard, createGroup, createLorebook, currentChatOwner, DEFAULT_VECTOR_SOURCE, disableWIEntry,
   ensureLorebook, getActiveGroup, getAllCharacterNames, getCharacterNameById, getContext, getPlayerName,
-  hostSystemUserName, listAllLorebooks, listBackgrounds, listGlobalLorebooks, listGroupNames, loadLorebook, readInjectedPromptBlocks,
+  hostSystemUserName, listAllLorebooks, listGlobalLorebooks, listGroupNames, loadLorebook, readInjectedPromptBlocks,
   readWIEntry, readWIEntryAt, resolveGroupMemberId, restoreWIEntryAt, setStoryExtensionPrompt, unbindChatLorebook, updateWIEntryByUid,
   upsertWIEntry, vectorInsert, vectorPurge, vectorQuery,
 } from "@services/STAPI";
@@ -48,5 +48,5 @@ const mirrorHost: MirrorHost = {
 
 export const coordinatorHosts = {
   prompt: promptHost, player: playerHost, provisioning: provisioningHost, curator: curatorHost, chat: chatHost, roster: rosterHost,
-  injection: injectionHost, vectors: vectorHost, tokens: tokenHost, mirror: mirrorHost, backgrounds: { listBackgrounds },
+  injection: injectionHost, vectors: vectorHost, tokens: tokenHost, mirror: mirrorHost,
 };

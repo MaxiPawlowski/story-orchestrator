@@ -305,7 +305,7 @@ const StagedWizard: React.FC<Props & { modeSwitch?: React.ReactNode }> = ({ enab
   const persist = (patch: Partial<WizardSessionState>) => {
     if (!host?.saveSession) return;
     const { createdLorebooks: _coordinatorOwned, ...fresh } = newWizardSession(sessionKey);
-    host.saveSession({ ...fresh, stage, history, questions, applied, ...patch });
+    host.saveSession({ ...fresh, stage, history, questions, applied, agent: host.loadSession?.(sessionKey)?.agent, ...patch });
   };
   const provisioning = useProvisioning({ host, mutate, applied, setApplied, setEnvironment, persist });
 

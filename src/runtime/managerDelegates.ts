@@ -1,6 +1,5 @@
 import { type StoryV2 } from "@engine/index";
 import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Suggestion } from "@copilot/index";
-import type { AgentRouteId, AgentSession, AgentTurn } from "@copilot/agent/index";
 import type { ProvisioningEnvironment, ProvisioningOp, ProvisioningResult, WizardSessionState, WizardSessionUpdate } from "@wizard/index";
 import { type ExtraGateSource, type ParsedFact, type ReadOwnership, type SharedReadAudit } from "@extraction/index";
 import {
@@ -25,9 +24,6 @@ export abstract class CoordinatorDelegates {
     input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[]; environment?: ProvisioningEnvironment },
     debugResponse?: string,
   ): Promise<ProposalResult> { return this.co.copilot.runStage(input, debugResponse); }
-  async runWizardAgentTurn(input: { session: AgentSession; draft: StoryV2; route?: AgentRouteId }, debugResponse?: string): Promise<AgentTurn> {
-    return this.co.copilot.runAgentTurn(input, debugResponse);
-  }
   getProvisioningEnvironment(draft?: StoryV2): ProvisioningEnvironment { return this.co.copilot.getProvisioningEnvironment(draft); }
   async applyProvisioning(op: ProvisioningOp, draft?: StoryV2): Promise<ProvisioningResult> { return this.co.copilot.applyProvisioning(op, draft); }
   async readProvisioningEntry(lorebook: string, comment: string): Promise<WIEntrySnapshot | null> { return this.co.copilot.readProvisioningEntry(lorebook, comment); }

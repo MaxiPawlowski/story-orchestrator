@@ -10,7 +10,8 @@ import { scoreAgentRuns, w5Escapes, type AgentRunRecord } from './lib/wizardAgen
 const USAGE = `Usage: node scripts/debug/so-wizard-agent.mts <command> [options]
 
 v2.6 plan 11 measurements (W1-W3, W5) for the agentic wizard. Needs the DEV bundle
-(storyOrchestratorWizardAgent) and a real authoring profile: no --debug, this is a real-LLM leg.
+(storyOrchestratorWizardAgent, set when the Studio chunk loads: open the Studio once first,
+e.g. node scripts/debug/so-ui.mts open-studio) and a real authoring profile; this is a real-LLM leg.
 
   run [--premise <id>] [--mode review|auto-draft] [--route local|harness] [--max-steps <n>] [--provision reject|apply]
       One agent run per premise of test/measurements/11/premises.json (or the one named).
@@ -42,7 +43,7 @@ const drive = (page, input: DriveInput) => evaluateInST(page, async (input: Driv
   const rt = (globalThis as any).storyOrchestratorRuntime;
   const agent = (globalThis as any).storyOrchestratorWizardAgent;
   const store = (globalThis as any).storyOrchestratorStudioDraft;
-  if (!rt?.runWizardAgentTurn || !agent || !store) throw new Error('needs the dev bundle: storyOrchestratorRuntime.runWizardAgentTurn, storyOrchestratorWizardAgent and the Studio draft store');
+  if (!rt?.model || !agent || !store) throw new Error('needs the dev bundle: storyOrchestratorRuntime.model, storyOrchestratorWizardAgent and the Studio draft store');
   store.getState().newDraft();
   store.getState().mutate((draft) => ({ ...draft, title: input.title }));
   let session = agent.newAgentSession(input.goal, input.mode, { maxSteps: input.maxSteps });
@@ -66,7 +67,8 @@ const drive = (page, input: DriveInput) => evaluateInST(page, async (input: Driv
       continue;
     }
     if (session.status !== 'planning' && session.status !== 'running') break;
-    const turn = await rt.runWizardAgentTurn({ session, draft: store.getState().draft, route: input.route });
+    const draft = store.getState().draft;
+    const turn = await agent.runAgentTurn({ session, draft, model: rt.model, environment: rt.getProvisioningEnvironment(draft), route: input.route });
     session = turn.session;
     if (turn.apply) { accepted.push(turn.apply); store.getState().mutate((draft) => agent.applyDraftOp(draft, turn.apply)); }
   }

@@ -1,5 +1,9 @@
 import type { ProposalOp } from "../types";
 
+export type AgentOnlyOp = { kind: "setHouseRules"; rules: string[] };
+
+export type AgentOp = ProposalOp | AgentOnlyOp;
+
 export const AGENT_MODES = ["review", "auto-draft"] as const;
 export type AgentMode = (typeof AGENT_MODES)[number];
 
@@ -22,7 +26,7 @@ export interface AgentStep {
   call: AgentToolCall;
   family: AgentToolFamily | null;
   status: AgentStepStatus;
-  op?: ProposalOp;
+  op?: AgentOp;
   observation: string;
   reason?: string;
   check?: string;

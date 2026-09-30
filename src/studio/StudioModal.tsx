@@ -13,6 +13,8 @@ import StoryEditor from "./components/StoryEditor";
 import StudioGraph from "./components/StudioGraph";
 import StudioCopilot, { type WizardHost } from "./components/StudioCopilot";
 import type { AgentTurnRunner } from "./components/AgentWizard";
+import * as wizardAgent from "@copilot/agent/index";
+import type { ModelCall } from "@extraction/modelRoute";
 import StudioToolbar, { type StudioSaveHandler } from "./components/StudioToolbar";
 import { GateReplayContext } from "./replayContext";
 import type { GateReplaySource } from "./gateReplay";
@@ -52,11 +54,18 @@ const readHostOptions = (): StudioHostOptions => {
   return { personaNames: safe(listPersonas), memberNames: safe(listGroupMembers), lorebookNames: safe(listGlobalLorebooks), backgroundNames: safe(listBackgrounds) };
 };
 
+if (__SO_DEV__) Object.assign(globalThis, { storyOrchestratorWizardAgent: wizardAgent });
+
+const agentTurnRunner = (model: ModelCall | undefined, host: WizardHost | undefined): AgentTurnRunner | undefined =>
+  (model && host
+    ? (session, draft) => wizardAgent.runAgentTurn({ session, draft, model, environment: host.environment(draft), backgrounds: () => readHostOptions().backgroundNames })
+    : undefined);
+
 type Props = {
   onClose: () => void;
   copilotEnabled?: boolean;
   runCopilotStage?: (input: AuthoringStageInput) => Promise<ProposalResult>;
-  runAgentTurn?: AgentTurnRunner;
+  agentModel?: ModelCall;
   onSaved?: StudioSaveHandler;
   hostOptions?: StudioHostOptions;
   wizardHost?: WizardHost;
@@ -234,7 +243,7 @@ const StudioFooter = ({ onSaved }: { onSaved?: StudioSaveHandler }) => {
   );
 };
 
-const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopilotStage, runAgentTurn, onSaved, hostOptions, wizardHost, intent, replay = null }) => {
+const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopilotStage, agentModel, onSaved, hostOptions, wizardHost, intent, replay = null }) => {
   const [tab, setTab] = useState<StudioTab>(intent?.tab ?? "graph");
   const options = useMemo(() => hostOptions ?? readHostOptions(), [hostOptions]);
   const tabs = copilotEnabled ? [...BASE_TABS, { id: "copilot" as StudioTab, label: "Wizard" }] : BASE_TABS;
@@ -279,7 +288,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
               options={options}
               copilotEnabled={copilotEnabled}
               runCopilotStage={runCopilotStage}
-              runAgentTurn={runAgentTurn}
+              runAgentTurn={agentTurnRunner(agentModel, wizardHost)}
               wizardHost={wizardHost}
               intent={intent}
               onSelect={setTab}

@@ -14,7 +14,6 @@ import {
   setCheckpointEffects,
   setCheckpointSnapshot,
   setRequirements,
-  setHouseRules,
   setLoreSelect,
   setSceneRead,
   setStagecraft,
@@ -129,8 +128,6 @@ export const applyOp = (draft: StoryV2, op: ProposalOp): StoryV2 => {
       return setSceneRead(draft, op.sceneRead);
     case "setLoreSelect":
       return setLoreSelect(draft, op.loreSelect);
-    case "setHouseRules":
-      return setHouseRules(draft, op.rules);
     default:
       return draft;
   }
@@ -251,8 +248,6 @@ export const describeOp = (op: ProposalOp): OpDescription => {
       return { action: "update", entity: "story.lore_select", label: op.loreSelect.lorebooks.length ? `Lore-select may pick from ${op.loreSelect.lorebooks.join(", ")}` : "No lore-select books" };
     case "setSceneRead":
       return { action: "update", entity: "story.scene_read", label: op.sceneRead.locations?.length ? `Scene places: ${op.sceneRead.locations.join(", ")}` : "No scene places" };
-    case "setHouseRules":
-      return { action: "update", entity: "story.house_rules", label: op.rules.length ? `Set ${op.rules.length} house rule(s)` : "Clear the house rules" };
     default:
       return { action: "update", entity: "unknown", label: "Unknown change" };
   }
