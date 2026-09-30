@@ -22,6 +22,7 @@ export async function init(router) {
             res.status(409).json({ error: error instanceof Error ? error.message : 'GPU unavailable' });
         }
     });
+    router.post('/renew', (req, res) => res.json({ renewed: gate.renew(req.body?.lease) }));
     router.post('/release', async (req, res) => {
         try { res.json({ released: await gate.release(req.body?.lease) }); }
         catch (error) { res.status(409).json({ error: error instanceof Error ? error.message : 'Image model could not be unloaded.' }); }

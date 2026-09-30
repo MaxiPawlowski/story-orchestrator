@@ -148,3 +148,44 @@ test('recovery does not resume text over an image model that ComfyUI could not f
     now += 15_000;
     assert.equal(await abandoned.recover(), false);
 });
+
+test('a renewed lease survives an idle queue until its heartbeats stop', async () => {
+    let now = 1;
+    const calls = [];
+    const batch = new GpuGate({ now: () => now, sleep: async () => {}, fetchImpl: async (url) => {
+        calls.push(url);
+        return Response.json({ queue_running: [], queue_pending: [] });
+    } });
+    batch.phase = 'image';
+    batch.lease = 'batch';
+    batch.leaseAt = 1;
+    assert.equal(batch.renew('other'), false);
+    for (now = 30_000; now <= 3_600_000; now += 30_000) {
+        assert.equal(batch.renew('batch'), true);
+        assert.equal(await batch.recover(), false);
+    }
+    assert.equal(calls.length, 0);
+    now = 3_600_000 + 119_000;
+    assert.equal(await batch.recover(), false);
+    now += 2_000;
+    assert.equal(await batch.recover(), true);
+    assert.equal(batch.status().phase, 'text');
+    assert.equal(batch.renew('batch'), false);
+});
+
+test('a renewed lease is never interrupted while it keeps renewing', async () => {
+    let now = 1;
+    const calls = [];
+    const batch = new GpuGate({ now: () => now, sleep: async () => {}, fetchImpl: async (url) => {
+        calls.push(url);
+        return Response.json({ queue_running: ['render'], queue_pending: [] });
+    } });
+    batch.phase = 'image';
+    batch.lease = 'batch';
+    batch.leaseAt = 1;
+    for (now = 30_000; now <= 1_800_000; now += 30_000) {
+        batch.renew('batch');
+        assert.equal(await batch.recover(), false);
+    }
+    assert.equal(calls.filter((url) => url.endsWith('/interrupt')).length, 0);
+});

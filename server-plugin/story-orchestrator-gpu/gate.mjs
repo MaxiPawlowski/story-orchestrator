@@ -19,6 +19,7 @@ export class GpuGate {
         this.pending = null;
         this.lease = null;
         this.leaseAt = 0;
+        this.renewedAt = 0;
         this.authorization = null;
     }
 
@@ -111,6 +112,12 @@ export class GpuGate {
         }
     }
 
+    renew(lease) {
+        if (!this.lease || this.lease !== lease) return false;
+        this.renewedAt = this.now();
+        return true;
+    }
+
     async release(lease) {
         if (!this.lease || this.lease !== lease) return false;
         this.phase = 'releasing';
@@ -143,6 +150,7 @@ export class GpuGate {
     resume() {
         this.lease = null;
         this.leaseAt = 0;
+        this.renewedAt = 0;
         this.phase = 'text';
         this.pending = null;
         const ready = this.waiting.splice(0);
@@ -150,8 +158,9 @@ export class GpuGate {
     }
 
     async recover() {
-        const elapsed = this.now() - this.leaseAt;
-        if (this.phase !== 'image' || !this.lease || elapsed < 60_000) return false;
+        const renewed = this.renewedAt > 0;
+        const elapsed = this.now() - (renewed ? this.renewedAt : this.leaseAt);
+        if (this.phase !== 'image' || !this.lease || elapsed < (renewed ? 120_000 : 60_000)) return false;
         try {
             const response = await this.fetch(`${this.comfy}/queue`, { signal: AbortSignal.timeout(3000) });
             if (!response.ok) return false;
