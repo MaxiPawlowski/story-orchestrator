@@ -1,0 +1,73 @@
+2026-09-30T20:52:24.665Z 1/1 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: A37 output budget: read: API request failed: Response not OK; synthesis: API request failed: Response not OK; authoring: API request failed: Response not OK; director: API request failed: Response not OK; curator: API request failed: Response not OK :: [{"role":"read","finish":null,"error":"API request failed: Response not OK","requests":[]},{"role":"synthesis","finish":null,"error":"API request failed: Response not OK","requests":[]},{"role":"authoring","finish":null,"error":"API request failed: Response not OK","requests":[]},{"role":"director","finish":null,"error":"API request failed: Response not OK","requests":[]},{"role":"curator","finish":null,"error":"API request failed: Response not OK","requests":[]}]
+2026-09-30T20:52:24.667Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:2319)
+2026-09-30T20:52:24.667Z     at async <anonymous>:316:30
+2026-09-30T20:52:25.439Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-30T20-52-25-416Z_so-scenario-failure.json
+2026-09-30T20:52:34.546Z Wrote JSON: C:\dev\so-lanes\3\debug\2026-09-30T20-52-34-545Z_so-scenario-result.json
+2026-09-30T20:52:34.547Z {
+2026-09-30T20:52:34.547Z   "ok": false,
+2026-09-30T20:52:34.547Z   "steps": 1,
+2026-09-30T20:52:34.547Z   "cleanup": {
+2026-09-30T20:52:34.547Z     "importedStoryHashes": [],
+2026-09-30T20:52:34.547Z     "library": {
+2026-09-30T20:52:34.547Z       "changed": false,
+2026-09-30T20:52:34.547Z       "removed": [],
+2026-09-30T20:52:34.547Z       "restored": []
+2026-09-30T20:52:34.547Z     },
+2026-09-30T20:52:34.547Z     "clearedDebugResponses": [],
+2026-09-30T20:52:34.547Z     "soloChats": {
+2026-09-30T20:52:34.547Z       "deleted": [],
+2026-09-30T20:52:34.547Z       "leaked": []
+2026-09-30T20:52:34.547Z     },
+2026-09-30T20:52:34.547Z     "sandboxChatId": "2026-09-30@17h52m22s500ms",
+2026-09-30T20:52:34.547Z     "owned": [
+2026-09-30T20:52:34.547Z       "2026-09-30@17h52m22s500ms"
+2026-09-30T20:52:34.547Z     ],
+2026-09-30T20:52:34.548Z     "deleted": [
+2026-09-30T20:52:34.548Z       "2026-09-30@17h52m22s500ms"
+2026-09-30T20:52:34.548Z     ],
+2026-09-30T20:52:34.548Z     "notDeleted": [],
+2026-09-30T20:52:34.548Z     "resurrected": [],
+2026-09-30T20:52:34.548Z     "lateFileRepaired": [],
+2026-09-30T20:52:34.548Z     "saveSettleMs": 1532,
+2026-09-30T20:52:34.548Z     "skipped": [],
+2026-09-30T20:52:34.548Z     "currentChatAtCleanup": "2026-09-30@17h52m22s500ms",
+2026-09-30T20:52:34.548Z     "currentGroupAtCleanup": "1759606632088",
+2026-09-30T20:52:34.548Z     "chatAfterCleanup": "2026-09-20@07h06m38s396ms",
+2026-09-30T20:52:34.548Z     "branchChats": {
+2026-09-30T20:52:34.548Z       "recorded": [],
+2026-09-30T20:52:34.548Z       "deleted": [],
+2026-09-30T20:52:34.548Z       "failed": [],
+2026-09-30T20:52:34.548Z       "leaked": []
+2026-09-30T20:52:34.548Z     },
+2026-09-30T20:52:34.548Z     "mirrorBooks": {
+2026-09-30T20:52:34.548Z       "deleted": [],
+2026-09-30T20:52:34.548Z       "failed": [],
+2026-09-30T20:52:34.548Z       "leaked": []
+2026-09-30T20:52:34.548Z     },
+2026-09-30T20:52:34.548Z     "reapPrompts": {
+2026-09-30T20:52:34.548Z       "dismissed": [],
+2026-09-30T20:52:34.548Z       "leaked": []
+2026-09-30T20:52:34.548Z     },
+2026-09-30T20:52:34.548Z     "extraction": {
+2026-09-30T20:52:34.548Z       "restored": false,
+2026-09-30T20:52:34.548Z       "unchanged": true,
+2026-09-30T20:52:34.548Z       "settings": {
+2026-09-30T20:52:34.548Z         "enabled": true,
+2026-09-30T20:52:34.548Z         "cadence": 1,
+2026-09-30T20:52:34.548Z         "stabilityLag": 0,
+2026-09-30T20:52:34.548Z         "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-09-30T20:52:34.548Z         "profiles": {
+2026-09-30T20:52:34.548Z           "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-09-30T20:52:34.548Z           "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-09-30T20:52:34.548Z           "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-09-30T20:52:34.548Z           "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-09-30T20:52:34.548Z           "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+2026-09-30T20:52:34.548Z         }
+2026-09-30T20:52:34.548Z       }
+2026-09-30T20:52:34.548Z     },
+2026-09-30T20:52:34.548Z     "judge": {
+2026-09-30T20:52:34.548Z       "restored": false,
+2026-09-30T20:52:34.548Z       "unchanged": true
+2026-09-30T20:52:34.548Z     }
+2026-09-30T20:52:34.548Z   }
+2026-09-30T20:52:34.548Z }

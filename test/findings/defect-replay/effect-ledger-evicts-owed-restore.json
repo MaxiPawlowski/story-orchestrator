@@ -1,0 +1,12 @@
+{
+  "id": "effect-ledger-evicts-owed-restore",
+  "defect": "v2.6 plan 01 (the Saga cast disagreement from v2.6 plan 02): the effect ledger kept only its newest 200 rows, whatever their status. The Saga's start checkpoint writes 119 cast rows (more with a concurrent hydrate apply and refused write-aheads), so the oldest applied rows fell off, and leaving the chat could not put those members back: the group kept the first 17-19 names of the disable list disabled, the count set by how many extra rows the timing produced",
+  "guards": "docs/plans/v2.6/01-carry-over-proof.md Gate record, Saga cast row",
+  "fixCommit": "v2.6 plan 01: effect ledger trims settled rows only",
+  "file": "src/runtime/effectLedger.ts",
+  "find": "export function appendRow(rows: EffectLedgerRow[], row: EffectLedgerRow): EffectLedgerRow[] {\n  return trimLedger([...rows, row]);\n}",
+  "replace": "export function appendRow(rows: EffectLedgerRow[], row: EffectLedgerRow): EffectLedgerRow[] {\n  return [...rows, row].slice(-EFFECT_LEDGER_LIMIT);\n}",
+  "tests": [
+    "src/runtime/effectLedger.test.ts"
+  ]
+}

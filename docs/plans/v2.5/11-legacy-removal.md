@@ -600,3 +600,9 @@ Gates (after the two tests): typecheck, typecheck:test, lint, debug:typecheck ex
 - D2 lane 2: `so-legacy-books.mts move-dir --src C:\dev\so-lanes\2\data --dst <backup>\lanes\2\data --port 8102` after J7 finished and `st-lanes stop 2`: tree hash match true. D3: `st-lanes seed 2` (no `--fresh`), `start 2`.
 - D1 round-trip (PR-08): `Story Orchestrator - Untitled Story.json` copied from the backup into lane 2's `worlds/`: sha256 `eb319e0fa976` identical on both sides; after `st-session reload` the server's `world_names` lists it and `/api/worldinfo/get` returns 1 entry (table: 1). The copy stays in the lane (a lane is a copy).
 - Plan 11: steps 0-9 and live gates L1-L6 green; the dangling-binding text corrected above. Still open: the unscored human rows (J10.9, J10.10, J1.8, J1.9) for plan 10's human session; `test-storybook:ci` verbatim from the main checkout (next build).
+
+## Gate record (v2.6 carry-over, bundle f8eaa0675102)
+
+- `test-storybook` (built with `ST_PUBLIC`, served, `--index-json`): 41 suites / 289 tests pass. The human rows J1.8, J1.9, J10.9, J10.10 moved to plan 10.
+
+Full record: `docs/plans/v2.6/01-carry-over-proof.md` §Gate record (no-LLM half, 2026-09-30); records under `test/journeys/records/v2.6-01/`.

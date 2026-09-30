@@ -1,0 +1,12 @@
+{
+  "id": "studio-chunk-global-outlives-stop",
+  "defect": "v2.6 plan 01, E4 cycle live (lane 3, 2026-09-30): the lazy Studio chunk set storyOrchestratorWizardAgent on globalThis at module scope, outside the mount registry, so storyOrchestratorStop left it behind (E4 wants 0 storyOrchestrator globals after stop)",
+  "guards": "v2.5 plan 03 E4 row, carried by v2.6 plan 01",
+  "fixCommit": "v2.6 plan 01: the wizard agent global goes through ui.global",
+  "file": "src/studio/StudioModal.tsx",
+  "find": "export const WIZARD_AGENT = wizardAgent;",
+  "replace": "export const WIZARD_AGENT = wizardAgent;\nif (__SO_DEV__) Object.assign(globalThis, { storyOrchestratorWizardAgent: wizardAgent });",
+  "tests": [
+    "src/studio/lazyGlobals.guard.test.ts"
+  ]
+}

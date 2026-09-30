@@ -8,12 +8,6 @@
   ],
   "rejected": [],
   "facts": {
-    "minCount": 0,
-    "mustContain": [
-      ""
-    ],
-    "mustNotContain": [
-      "zzz"
-    ]
+    "none": "a guard's stance is scene state the stance delta already carries; no durable fact is claimed"
   }
 }

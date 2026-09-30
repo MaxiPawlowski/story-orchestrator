@@ -34,11 +34,27 @@ describe("the effect ledger records writes before they happen", () => {
     expect(applied[0].status).toBe("applied");
   });
 
-  it("keeps the newest rows and forgets the oldest", () => {
-    const rows = Array.from({ length: 250 }, (_, index) => pendingRow(write(`m${index}`, false, true)));
-    expect(appendRow([], rows[rows.length - 1])).toHaveLength(1);
-    const built = rows.reduce((all, row) => appendRow(all, row), [] as EffectLedgerRow[]);
+  it("forgets the oldest SETTLED rows first, keeping the newest", () => {
+    const settled = Array.from({ length: 250 }, (_, index) => ({ ...pendingRow(write(`m${index}`, false, true)), status: "reverted" as const }));
+    expect(appendRow([], settled[settled.length - 1])).toHaveLength(1);
+    const built = settled.reduce((all, row) => appendRow(all, row), [] as EffectLedgerRow[]);
     expect(built).toHaveLength(200);
+    expect(built[0].target).toEqual(target("m50"));
+  });
+
+  it("v2.6 plan 01 (Saga cast leak): never forgets a row it still owes a restore, so leaving the chat puts back every member", () => {
+    const live = Array.from({ length: 125 }, (_, index) => ({ ...pendingRow(write(`m${index}`, false, true)), status: "applied" as const }));
+    const noise = Array.from({ length: 100 }, (_, index) => ({ ...pendingRow(write(`n${index}`, false, true)), status: "failed" as const }));
+    const built = [...live.slice(0, 60), ...noise, ...live.slice(60)].reduce((all, row) => appendRow(all, row), [] as EffectLedgerRow[]);
+    expect(built.filter((row) => row.status === "applied")).toHaveLength(125);
+    expect(built).toHaveLength(200);
+    const held = Object.fromEntries(live.map((row) => [row.target.kind === "cast" ? row.target.member : "", { disabled: true }]));
+    expect(restorePlan(built, reads(held)).steps).toHaveLength(125);
+  });
+
+  it("keeps every live row even past the limit, because a forgotten applied row is a leaked host change", () => {
+    const live = Array.from({ length: 230 }, (_, index) => pendingRow(write(`m${index}`, false, true)));
+    expect(live.reduce((all, row) => appendRow(all, row), [] as EffectLedgerRow[])).toHaveLength(230);
   });
 });
 

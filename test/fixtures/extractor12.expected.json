@@ -8,16 +8,15 @@
   ],
   "rejected": [
     {
-      "reason": "missing evidence", "scope": "golden"
+      "reason": "missing evidence",
+      "scope": "golden"
     }
   ],
   "facts": {
-    "minCount": 0,
+    "scope": "live",
+    "minCount": 1,
     "mustContain": [
-      ""
-    ],
-    "mustNotContain": [
-      "zzz"
+      "pact"
     ]
   }
 }

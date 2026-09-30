@@ -70,7 +70,7 @@ export const EDIT_TOOLS = {
   setRequirements: { backedBy: "setRequirements", doc: "Replace what the story requires to run.", args: { requirements: req("object", "{personas?, members?, lorebooks?}") } },
   setStagecraft: { backedBy: "setStagecraft", doc: "Replace the curator's lorebook scope.", args: { stagecraft: req("object", "{lorebooks: string[]}") } },
   setSceneRead: { backedBy: "setSceneRead", doc: "Replace the scene places and times.", args: { sceneRead: req("object", "{locations?, times?, inject?}") } },
-  setLoreSelect: { backedBy: "setLoreSelect", doc: "Replace the lore-select books.", args: { loreSelect: req("object", "{lorebooks, top_k?}") } },
+  setLoreSelect: { backedBy: "setLoreSelect", doc: "Replace the lore-select books.", args: { loreSelect: req("object", "{lorebooks, top_k?, exclusive?}") } },
   setHouseRules: { backedBy: "setHouseRules", doc: "Replace the house rules (the full list).", args: { rules: req("array", "one rule per string") } },
 } satisfies Record<DraftOpKind | AgentOnlyOp["kind"], EditSpec>;
 

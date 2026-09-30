@@ -43,7 +43,10 @@ const memoryModelLimit = (profileId: string | null) => {
 if (__SO_DEV__) {
   ui.global("storyOrchestratorRuntime", manager);
   void loadDraft().then(({ useDraftStore }) => ui.global("storyOrchestratorStudioDraft", useDraftStore));
-  void import("./studio/StudioModal").then(({ STUDIO_TAB_IDS }) => ui.global("storyOrchestratorStudioTabs", STUDIO_TAB_IDS));
+  void import("./studio/StudioModal").then(({ STUDIO_TAB_IDS, WIZARD_AGENT }) => {
+    ui.global("storyOrchestratorStudioTabs", STUDIO_TAB_IDS);
+    if (__SO_DEV__) ui.global("storyOrchestratorWizardAgent", WIZARD_AGENT);
+  });
 }
 
 // One Studio for the whole extension: the settings panel and the drawer's author view are separate

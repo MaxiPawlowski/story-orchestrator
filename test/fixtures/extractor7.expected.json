@@ -8,12 +8,6 @@
   ],
   "rejected": [],
   "facts": {
-    "minCount": 0,
-    "mustContain": [
-      ""
-    ],
-    "mustNotContain": [
-      "zzz"
-    ]
+    "none": "a hull reading is state the hull_integrity delta already carries; no durable fact is claimed"
   }
 }

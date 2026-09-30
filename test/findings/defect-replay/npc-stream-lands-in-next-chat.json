@@ -1,0 +1,13 @@
+{
+  "id": "npc-stream-lands-in-next-chat",
+  "defect": "v2.5 plan 02 C1/D1: an NPC reply that was still streaming when the chat switched wrote its tokens into chat[messageId] of the chat that replaced it, and ST saved it there",
+  "guards": "v2.6 plan 01 carry-over: the v2.5 plan 02 C1 mutant control (no write check) as a deterministic kill",
+  "fixCommit": "7708d9e2 v2.5 C1/D1: guard the NPC reply stream to its chat",
+  "file": "src/services/stHost/streamGuard.ts",
+  "find": "      if (anchor === undefined || deps.chatId() !== chatId || deps.chat()[messageId] !== anchor) {",
+  "replace": "      if (anchor === undefined) {",
+  "tests": [
+    "src/services/stHost/streamGuard.test.ts",
+    "src/runtime/npcStreamLanding.review.test.ts"
+  ]
+}

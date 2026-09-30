@@ -39,6 +39,8 @@ test('an empty needle is vacuous, a real one is not', () => {
   assert.deepEqual(isVacuousNeedleSpec({ mustContain: [''], mustNotContain: ['zzz'] }), ['mustContain: ""']);
   assert.deepEqual(isVacuousNeedleSpec({ mustContain: ['gate'] }), []);
   assert.deepEqual(isVacuousNeedleSpec(undefined), []);
+  assert.deepEqual(isVacuousNeedleSpec({ none: 'the delta carries it' }), []);
+  assert.deepEqual(isVacuousNeedleSpec({ minCount: 0 }), ['no assertion']);
 });
 
 test('fix commits are counted per path from a name-only log', () => {

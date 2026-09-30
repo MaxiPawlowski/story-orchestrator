@@ -6,7 +6,8 @@ import { createJudgeRuntime, sanitizeJudgeRuntime } from "@judge/index";
 import { sanitizeJournalRecords } from "./journal";
 import { defaultExtractionSettings, defaultInlineSettings, defaultMemorySettings, defaultStagecraftSettings, type ChatOverrides, type GlobalSettings } from "./settingsModel";
 import { createLore, sanitizeLore } from "./loreFired";
-import { EFFECT_LEDGER_LIMIT, JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
+import { JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
+import { trimLedger } from "./effectLedger";
 import { createSaveHealth } from "./saveHealth";
 import type {
   CopilotRuntimeSettings, EffectLedgerRow, EffectsRuntimeState, ExtractionRuntimeState, MemoryMirrorBook,
@@ -177,7 +178,7 @@ export const sanitizeEffects = (value: RuntimeExtras | undefined): EffectsRuntim
   if (!existing) return createEffects();
   return {
     ledger: Array.isArray(existing.ledger)
-      ? existing.ledger.filter((row): row is EffectLedgerRow => Boolean(row) && typeof row.id === "string" && typeof row.effect === "string" && Boolean(row.target)).slice(-EFFECT_LEDGER_LIMIT)
+      ? trimLedger(existing.ledger.filter((row): row is EffectLedgerRow => Boolean(row) && typeof row.id === "string" && typeof row.effect === "string" && Boolean(row.target)))
       : [],
     cast: Array.isArray(existing.cast) ? existing.cast.filter((entry) => entry && typeof entry.member === "string").map((entry) => ({ member: entry.member, disabled: entry.disabled === true })) : [],
   };
