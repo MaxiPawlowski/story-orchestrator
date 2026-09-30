@@ -103,7 +103,8 @@ const readUpdateRosterMember: OpReader = (value, path, issues) => {
 const readSetLoreSelect: OpReader = (value) => {
   const source = isRecord(value.loreSelect) ? value.loreSelect : isRecord(value.lore_select) ? value.lore_select : value;
   const topK = typeof source.top_k === "number" ? source.top_k : undefined;
-  return { kind: "setLoreSelect", loreSelect: { lorebooks: readStringList(source.lorebooks), ...(topK !== undefined ? { top_k: topK } : {}), ...(source.exclusive === true ? { exclusive: true } : {}) } };
+  const exclusive = source.exclusive === true ? { exclusive: true } : {};
+  return { kind: "setLoreSelect", loreSelect: { lorebooks: readStringList(source.lorebooks), ...(topK !== undefined ? { top_k: topK } : {}), ...exclusive } };
 };
 
 const readSetSceneRead: OpReader = (value) => {

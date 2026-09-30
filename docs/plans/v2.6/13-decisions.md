@@ -18,12 +18,12 @@ Rules applied:
 | LLM scenario | keep | 32 |
 | LLM scenario | merge | 6 |
 | harness | keep | 73 |
-| jest | keep | 354 |
+| jest | keep | 357 |
 | journey check | keep | 144 |
 | live suite | keep | 29 |
-| no-LLM scenario | keep | 102 |
+| no-LLM scenario | keep | 103 |
 | retired | retire (merged) | 1 |
-| storybook | keep | 41 |
+| storybook | keep | 44 |
 
 Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% killed of 199 scored mutants (sample 200 of 4469, seed 20260930). The R3 gate "not lower after pruning" holds by construction for this wave: no jest file was retired, so the same sample runs against the same tests.
 
@@ -121,6 +121,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | jest | `src/memory/arcs.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
 | jest | `src/memory/budget.test.ts` | keep | guards a named defect |
 | jest | `src/memory/canon.test.ts` | keep | unnamed: names no invariant, defect or contract (touched by 1 fix commit(s)); name it on next touch (budget rule 1) |
+| jest | `src/memory/chapters.test.ts` | keep | guards a named defect |
 | jest | `src/memory/consolidate.test.ts` | keep | guards a named defect |
 | jest | `src/memory/contradictions.fixture.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
 | jest | `src/memory/derived.test.ts` | keep | defect-replay killer: derived-shared-hash-lifted (killed) |
@@ -152,6 +153,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | jest | `src/runtime/branchContinue.review.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/breakerWatch.test.ts` | keep | guards a named contract |
 | jest | `src/runtime/c1Surfaces.review.test.ts` | keep | guards a named defect |
+| jest | `src/runtime/chapters.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
 | jest | `src/runtime/chatIdentity.review.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/chatSave.test.ts` | keep | defect-replay killer: save-binds-late-empty-save (killed) |
 | jest | `src/runtime/chatWrites.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
@@ -374,6 +376,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | jest | `src/studio/gateReplay.test.ts` | keep | guards a named contract |
 | jest | `src/studio/graphAdapter.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
 | jest | `src/studio/io.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
+| jest | `src/studio/lazyGlobals.guard.test.ts` | keep | defect-replay killer: studio-chunk-global-outlives-stop |
 | jest | `src/studio/mutations.test.ts` | keep | guards a named defect |
 | jest | `src/studio/qualityUsage.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
 | jest | `src/talk/talk.test.ts` | keep | defect-replay killer: talk-lead-outside-speakers (killed) |
@@ -386,6 +389,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | jest | `src/wizard/ownership.review.test.ts` | keep | guards a named defect |
 | jest | `src/wizard/provisioning.test.ts` | keep | guards a named contract |
 | storybook | `src/components/drawer/BranchNotice.stories.tsx` | keep | UI contract: 2 interaction plays + a11y |
+| storybook | `src/components/drawer/ChaptersPanel.stories.tsx` | keep | UI contract: 4 interaction plays + a11y |
 | storybook | `src/components/drawer/ConflictQueue.stories.tsx` | keep | UI contract: 17 interaction plays + a11y |
 | storybook | `src/components/drawer/DrawerTabs.stories.tsx` | keep | UI contract: 47 interaction plays + a11y |
 | storybook | `src/components/drawer/DriverPanel.stories.tsx` | keep | UI contract: 7 interaction plays + a11y |
@@ -393,11 +397,13 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | storybook | `src/components/drawer/MessageInspector.stories.tsx` | keep | UI contract: 2 interaction plays + a11y |
 | storybook | `src/components/drawer/ModelCallsPanel.stories.tsx` | keep | UI contract: 3 interaction plays + a11y |
 | storybook | `src/components/drawer/NextTurnPanel.stories.tsx` | keep | UI contract: 10 interaction plays + a11y |
+| storybook | `src/components/drawer/PlayerChapters.stories.tsx` | keep | UI contract: 3 interaction plays + a11y |
 | storybook | `src/components/drawer/PlayerOverview.stories.tsx` | keep | UI contract: 11 interaction plays + a11y |
 | storybook | `src/components/drawer/StagecraftPanel.stories.tsx` | keep | UI contract: 16 interaction plays + a11y |
 | storybook | `src/components/inline/InlineDetail.stories.tsx` | keep | UI contract: 2 interaction plays + a11y |
 | storybook | `src/components/inline/InlineStrip.stories.tsx` | keep | UI contract: 4 interaction plays + a11y |
 | storybook | `src/components/settings/CapabilitiesGroup.stories.tsx` | keep | UI contract: 8 interaction plays + a11y |
+| storybook | `src/components/settings/ChapterControls.stories.tsx` | keep | UI contract: 2 interaction plays + a11y |
 | storybook | `src/components/settings/EntryPoints.stories.tsx` | keep | UI contract: 6 interaction plays + a11y |
 | storybook | `src/components/settings/JudgeSettingsGroup.stories.tsx` | keep | UI contract: 17 interaction plays + a11y |
 | storybook | `src/components/settings/RoleProfilesGroup.stories.tsx` | keep | UI contract: 4 interaction plays + a11y |
@@ -500,6 +506,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | harness | `server-plugin/story-orchestrator-gpu/gate.test.mjs` | keep | harness guard (nothing named) |
 | harness | `server-plugin/story-orchestrator-judge/plugin.test.mjs` | keep | harness guard (defect) |
 | no-LLM scenario | `test/scenarios/authority-enforcement.json` | keep | deterministic tier, no backend (contract) |
+| no-LLM scenario | `test/scenarios/e2-failed-pass-player-clean.json` | keep | deterministic tier, no backend (nothing named) |
 | no-LLM scenario | `test/scenarios/effects-author-note-role.json` | keep | deterministic tier, no backend (nothing named) |
 | no-LLM scenario | `test/scenarios/effects-preset.json` | keep | deterministic tier, no backend (nothing named) |
 | no-LLM scenario | `test/scenarios/effects-slash-quoting.json` | keep | deterministic tier, no backend (nothing named) |

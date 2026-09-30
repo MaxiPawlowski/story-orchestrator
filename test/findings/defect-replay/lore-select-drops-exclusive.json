@@ -4,8 +4,8 @@
   "guards": "v2.6 plan 01 carry-over (v2.5 plan 08 row: the Copilot setLoreSelect drops exclusive)",
   "fixCommit": "b041eaa7 v2.6 plan 01: G-L1 U6 diagnosed; copilot setLoreSelect keeps exclusive",
   "file": "src/copilot/parseOps.ts",
-  "find": ", ...(source.exclusive === true ? { exclusive: true } : {}) } };",
-  "replace": " } };",
+  "find": "  const exclusive = source.exclusive === true ? { exclusive: true } : {};",
+  "replace": "  const exclusive = {};",
   "tests": [
     "src/copilot/parse.test.ts"
   ]
