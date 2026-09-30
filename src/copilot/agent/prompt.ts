@@ -1,0 +1,63 @@
+import type { StoryV2 } from "@engine/index";
+import type { ProvisioningEnvironment } from "@wizard/index";
+import { truncate } from "@utils/string";
+import { renderCoverage, storyCoverage } from "../../studio/coverage";
+import { runReadTool } from "./readTools";
+import { renderToolSchema } from "./tools";
+import { emptyLookup, type AgentSession, type AgentStep } from "./types";
+
+const RECENT_STEPS = 12;
+const RECENT_OBSERVATION = 600;
+
+const RULES = [
+  "You are the agent inside the Story Orchestrator wizard. You change the story draft ONLY through the tools listed below, one tool call per reply, and the author reviews every change.",
+  "Reply with exactly one JSON object and nothing else.",
+  [
+    "Cover the whole story model, not only the beats: qualities with rubrics, checkpoints with objectives, tension targets and agency policy,",
+    "gates the reader can score, the cast with roles, requirements, lore select, house rules, backgrounds, and the cards and lorebook the story needs.",
+    "readCoverage lists what the story does not use yet.",
+  ].join(" "),
+  [
+    "Provisioning tools create NEW SillyTavern assets and the author confirms each one.",
+    "You never edit an existing card or lorebook, never touch personas, and never save the story: saving is the author's click.",
+  ].join(" "),
+  "After each accepted write you are shown the validation and diagnostics. Fix blocking problems before adding more.",
+  "A rejected step comes back with the author's reason. Do not repeat it unchanged.",
+];
+
+const renderStep = (step: AgentStep): string => {
+  const parts = [`#${step.id} ${step.call.tool} → ${step.status}`];
+  if (step.reason) parts.push(`author's reason: ${step.reason}`);
+  parts.push(truncate(step.observation, RECENT_OBSERVATION));
+  if (step.check) parts.push(`check: ${truncate(step.check, RECENT_OBSERVATION)}`);
+  return parts.join("\n  ");
+};
+
+const renderInstall = (environment: ProvisioningEnvironment): string => [
+  `characters on the install: ${environment.characterNames.length}`,
+  `lorebooks on the install: ${environment.lorebookNames.length}`,
+  `lorebooks this story may write into: ${environment.ownedLorebooks.join(", ") || "(none yet: create the story's own lorebook first)"}`,
+].join("\n");
+
+const header = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment): string[] => [
+  RULES.join("\n"),
+  `TOOLS\n${renderToolSchema()}`,
+  `GOAL\n${session.goal}`,
+  `DRAFT\n${runReadTool("readStory", {}, draft, emptyLookup())}`,
+  `UNUSED FIELDS\n${renderCoverage(storyCoverage(draft))}`,
+  `INSTALL (create-only)\n${renderInstall(environment)}`,
+  ...(session.notes.length > 1 ? [`AUTHOR NOTES\n${session.notes.slice(1).filter((note) => note.role === "author").map((note) => `- ${note.text}`).join("\n")}`] : []),
+];
+
+export const renderPlanPrompt = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment): string => [
+  ...header(session, draft, environment),
+  "REPLY NOW with the plan only: {\"plan\": [\"one step per entry, in the order you will do them\"]}",
+].join("\n\n");
+
+export const renderStepPrompt = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment): string => [
+  ...header(session, draft, environment),
+  `PLAN (agreed with the author)\n${session.plan.map((step, index) => `${index + 1}. ${step}`).join("\n")}`,
+  `RECENT STEPS (newest last)\n${session.steps.slice(-RECENT_STEPS).map(renderStep).join("\n") || "(none yet)"}`,
+  `Budget: step ${session.steps.length + 1} of ${session.budget.maxSteps}.`,
+  "REPLY NOW with one tool call: {\"thought\": \"why this step\", \"tool\": \"<name>\", \"args\": {…}} — or {\"done\": \"what you did\"} when the plan is finished.",
+].join("\n\n");

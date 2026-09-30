@@ -129,6 +129,7 @@ const StudioHost = () => {
         onClose={() => setStudioOpen(false)}
         copilotEnabled={snapshot.copilot.enabled}
         runCopilotStage={(input) => manager.runCopilotStage(input)}
+        runAgentTurn={(session, draft) => manager.runWizardAgentTurn({ session, draft })}
         onSaved={applySavedStory}
         wizardHost={wizardHost}
         intent={studioIntent}
@@ -357,3 +358,4 @@ const stopExtension = () => {
 };
 
 if (__SO_DEV__) ui.global("storyOrchestratorStop", stopExtension);
+if (__SO_DEV__) void import("@copilot/agent/index").then((agent) => ui.global("storyOrchestratorWizardAgent", agent));

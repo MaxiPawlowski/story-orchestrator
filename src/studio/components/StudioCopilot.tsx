@@ -6,7 +6,9 @@ import {
   wizardSessionKey, type ExistingEntry, type ProvisioningEnvironment, type ProvisioningOp, type ProvisioningResult,
   type WizardAnswer, type WizardQuestion, type WizardSessionState, type WizardSessionUpdate,
 } from "@wizard/index";
+import { isAgentSession, type AgentSession } from "@copilot/agent/index";
 import { useDraftStore } from "../draft";
+import AgentWizard, { type AgentTurnRunner } from "./AgentWizard";
 import ProposalReview from "./ProposalReview";
 import ProvisioningCard from "./ProvisioningCard";
 import WizardQuestions from "./WizardQuestions";
@@ -63,6 +65,7 @@ export interface WizardHost {
 type Props = {
   enabled?: boolean;
   runStage?: (input: AuthoringStageInput) => Promise<ProposalResult>;
+  runAgentTurn?: AgentTurnRunner;
   host?: WizardHost;
   initialStage?: CopilotStage;
   seedMissing?: { personas?: string[]; members?: string[]; lorebooks?: string[] };
@@ -249,7 +252,25 @@ const stageSummary = (stageResult: ProposalResult) => (stageResult.status === "q
     ? stageResult.proposal.summary || `Proposed ${stageResult.proposal.ops.length} change(s).`
     : `Could not produce a valid proposal: ${stageResult.issues[0] ?? "unknown error"}`);
 
-const StudioCopilot: React.FC<Props> = ({ enabled = true, runStage, host, initialStage, seedMissing }) => {
+const WizardModeSwitch = ({ mode, onSelect }: { mode: "staged" | "agent"; onSelect: (mode: "staged" | "agent") => void }) => (
+  <div className="flex flex-wrap items-center gap-1" role="group" aria-label="Wizard mode">
+    {(["staged", "agent"] as const).map((entry) => (
+      <button
+        key={entry}
+        type="button"
+        data-so="wizard-mode"
+        data-mode={entry}
+        aria-pressed={mode === entry}
+        className={`st-tab rounded px-2 py-1 text-xs ${mode === entry ? "st-tab-active" : ""}`}
+        onClick={() => onSelect(entry)}
+      >
+        {entry === "staged" ? "Step by step" : "Agent"}
+      </button>
+    ))}
+  </div>
+);
+
+const StagedWizard: React.FC<Props & { modeSwitch?: React.ReactNode }> = ({ enabled = true, runStage, host, initialStage, seedMissing, modeSwitch }) => {
   const mutate = useDraftStore((state) => state.mutate);
   const draftId = useDraftStore((state) => state.draft.id);
   const draftTitle = useDraftStore((state) => state.draft.title);
@@ -356,6 +377,7 @@ const StudioCopilot: React.FC<Props> = ({ enabled = true, runStage, host, initia
 
   return (
     <div id="so-wizard" className="flex h-full flex-col gap-3" aria-label="Story wizard">
+      {modeSwitch}
       <WizardStepBar stage={stage} onSelect={selectStage} />
       <WizardConversation history={history} />
       {applied.length > 0 && (
@@ -381,6 +403,36 @@ const StudioCopilot: React.FC<Props> = ({ enabled = true, runStage, host, initia
       ) : null}
       <LorebookGrantCards environment={environment} results={provisioning.results} busy={provisioning.busy !== null} onProvision={(index, op) => void provisioning.provision(index, op)} />
       <WizardComposer label={stepForStage(stage).label} message={message} busy={busy} onChange={setMessage} onRun={() => void run(message.trim(), history)} />
+    </div>
+  );
+};
+
+const AgentPane = ({ runTurn, host }: { runTurn: AgentTurnRunner; host?: WizardHost }) => {
+  const draftId = useDraftStore((state) => state.draft.id);
+  const draftTitle = useDraftStore((state) => state.draft.title);
+  const sessionKey = wizardSessionKey({ id: draftId, title: draftTitle });
+  const [initial] = useState(() => {
+    const stored = host?.loadSession?.(sessionKey)?.agent;
+    return isAgentSession(stored) ? stored : null;
+  });
+  const persist = (agent: AgentSession) => {
+    if (!host?.saveSession) return;
+    const { createdLorebooks: _coordinatorOwned, ...stored } = host.loadSession?.(sessionKey) ?? newWizardSession(sessionKey);
+    host.saveSession({ ...stored, agent });
+  };
+  return <AgentWizard runTurn={runTurn} host={host} initial={initial} onPersist={persist} />;
+};
+
+const StudioCopilot: React.FC<Props> = (props) => {
+  const [mode, setMode] = useState<"staged" | "agent">("staged");
+  const available = (props.enabled ?? true) && Boolean(props.runStage);
+  if (!props.runAgentTurn || !available) return <StagedWizard {...props} />;
+  const modeSwitch = <WizardModeSwitch mode={mode} onSelect={setMode} />;
+  if (mode === "staged") return <StagedWizard {...props} modeSwitch={modeSwitch} />;
+  return (
+    <div id="so-wizard" className="flex h-full flex-col gap-3" aria-label="Story wizard">
+      {modeSwitch}
+      <AgentPane runTurn={props.runAgentTurn} host={props.host} />
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import type { WizardSessionState } from "@wizard/index";
+import { newAgentSession } from "@copilot/agent/index";
 import { clearWizardSession, loadWizardSession, onWizardSessionSave, saveWizardSession } from "./wizardSessions";
 
 const settings: Record<string, unknown> = {};
@@ -50,6 +51,13 @@ describe("wizardSessions (R8)", () => {
     expect(loadWizardSession("sun-ruins")?.createdLorebooks).toEqual(["Harbour"]);
     settings["story-orchestrator"] = { wizardSessions: [{ ...session({ key: "listless", applied: ["Harbour"] }), createdLorebooks: undefined }] };
     expect(loadWizardSession("listless")?.createdLorebooks).toEqual([]);
+  });
+
+  it("keeps the agent transcript through a staged-wizard snapshot that does not carry it (v2.6 plan 11 A2)", () => {
+    const agent = newAgentSession("a heist", "review", {}, "2026-09-30T00:00:00.000Z");
+    saveWizardSession(session({ agent }));
+    saveWizardSession(session({ stage: "checkpoints" }));
+    expect(loadWizardSession("sun-ruins")?.agent).toEqual(agent);
   });
 
   it("keeps sessions of other keys untouched", () => {

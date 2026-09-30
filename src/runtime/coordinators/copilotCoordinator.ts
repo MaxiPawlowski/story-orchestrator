@@ -5,6 +5,7 @@ import {
   runAuthoringStage, runDriverReport, runDriverSuggest, type CopilotMessage, type CopilotStage, type DriverContext,
   type ProposalResult, type Suggestion,
 } from "@copilot/index";
+import type { AgentRouteId, AgentSession, AgentTurn, HarnessTransport } from "@copilot/agent/index";
 import type { ModelAsk, ModelCall } from "@extraction/index";
 import {
   newWizardSession, recordGrant, validateProvisioningOp, wizardSessionKey, type ProvisioningEnvironment,
@@ -30,6 +31,8 @@ export interface CopilotCoordinatorDeps {
   wizardSession?: (key: string) => WizardSessionState | null;
   saveWizardSession?: (session: WizardSessionState) => void;
   openChat?: () => string | null;
+  listBackgrounds?: () => string[];
+  harness?: HarnessTransport | null;
   hosts: { prompt: PromptHost; chat: Pick<ChatHost, "lastMessageText">; provisioning: ProvisioningHost };
 }
 
@@ -47,6 +50,24 @@ export class CopilotCoordinator {
   async runStage(input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[]; environment?: ProvisioningEnvironment }, debugResponse?: string): Promise<ProposalResult> {
     const environment = input.environment ?? (input.stage === "provisioning" ? this.getProvisioningEnvironment(input.draft) : undefined);
     return runAuthoringStage({ ...input, environment }, this.deps.model, this.ask(debugResponse));
+  }
+
+  async runAgentTurn(input: { session: AgentSession; draft: StoryV2; route?: AgentRouteId }, debugResponse?: string): Promise<AgentTurn> {
+    const host = this.deps.hosts.provisioning;
+    const { AGENT_TOOLS, advanceAgent, harnessRoute, localRoute, toolJsonSchema } = await import("@copilot/agent/index");
+    const route = input.route === "harness"
+      ? harnessRoute(this.deps.harness ?? null, Object.values(AGENT_TOOLS).map(toolJsonSchema))
+      : localRoute(this.deps.model, this.ask(debugResponse));
+    return advanceAgent(input.session, {
+      draft: input.draft,
+      environment: this.getProvisioningEnvironment(input.draft),
+      lookup: {
+        characters: () => host.getAllCharacterNames(),
+        lorebooks: () => host.listAllLorebooks(),
+        groups: () => host.listGroupNames(),
+        backgrounds: () => this.deps.listBackgrounds?.() ?? [],
+      },
+    }, route);
   }
 
   // What the install already has, plus which lorebooks this story owns — the only facts the

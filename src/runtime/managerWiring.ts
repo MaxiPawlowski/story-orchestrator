@@ -125,6 +125,7 @@ export function wireCoordinators(port: ManagerPort) {
     wizardSession: (key) => loadWizardSession(key),
     saveWizardSession: (session) => saveWizardSession(session),
     openChat: () => String(view.hosts.chat.chatId() ?? "") || null,
+    listBackgrounds: () => view.hosts.backgrounds.listBackgrounds(),
   });
   const rollbackDeps: RollbackDeps = {
     ...port.rollback, engine, memory, stagecraft, pacing, revalidateExpansion: () => expansion.revalidateInserted(), extras: () => port.extras(),
