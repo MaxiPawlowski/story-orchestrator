@@ -12,6 +12,7 @@ import { DisplayGroup, LorebooksGroup, PacingGroup, StagecraftGroup, TalkGroup }
 
 const ImageGroup = lazy(() => import("../../image/ImageGroup"));
 const SpriteGroup = lazy(() => import("../../sprites/SpriteGroup"));
+const GroupStoryBinding = lazy(() => import("./GroupStoryBinding"));
 const MemoryModelGroup = lazy(() => import("./MemoryModelGroup").then((module) => ({ default: module.MemoryModelGroup })));
 
 export interface SettingsHost {
@@ -110,6 +111,7 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             <summary>This chat <span className="opacity-60">— select and continue a story</span></summary>
             <div className="flex flex-col gap-3 pt-2">
               <StoryGroup snapshot={snapshot} manager={manager} busy={busy} setBusy={setBusy} importOpen={importOpen} />
+              <Suspense fallback={null}><GroupStoryBinding snapshot={snapshot} busy={busy} /></Suspense>
               <button type="button" className="menu_button self-start" onClick={host.openDrawer}>Open story and chat preferences</button>
             </div>
           </details>

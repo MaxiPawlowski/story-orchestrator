@@ -3,7 +3,8 @@ import { keywordSet, placeSet, readSpriteProfile, readSpriteSets, resolveSprite,
 import {
   buildExpressionRequest, classifyExpressions, expressionGrammar, localLabel, parseExpressionLines, readExpressionAnswers, NARRATION, type ExpressionInput,
 } from "./classify";
-import { sanitizeSpriteSettings } from "./settings";
+import { defaultSpriteSettings, sanitizeSpriteSettings } from "./settings";
+import { spriteActivation, spritesActive, storyDirectsStage, storySpriteChoice, userSpriteChoice } from "./activation";
 import { directionKeys, figureBox, frameSlice, isSpotlit, memberDirection, readStageDirection } from "./direction";
 import type { JudgeAnswer } from "@judge/types";
 
@@ -121,6 +122,30 @@ describe("expression classifier", () => {
 describe("sprite settings", () => {
   it("clamps numbers and keeps known modes", () => {
     expect(sanitizeSpriteSettings({ stage: "sideways", segmentChars: 5, crossfadeMs: 300 })).toMatchObject({ stage: "vn", segmentChars: 400, crossfadeMs: 300 });
+  });
+
+  const directed = { checkpoints: [{ effects: {} }, { effects: { stage: { spotlight: "Belle" } } }] };
+  const undirected = { checkpoints: [{ effects: { stage: { framing: "sideways" } } }, {}] };
+
+  it("W11 U1: the install switch is off by default, and an unset or unmarked enabled is not a user choice", () => {
+    expect(defaultSpriteSettings()).toMatchObject({ enabled: false, explicit: false });
+    expect(sanitizeSpriteSettings({ enabled: true })).toMatchObject({ enabled: false, explicit: false });
+    expect(sanitizeSpriteSettings({ enabled: false, explicit: true })).toMatchObject({ enabled: false, explicit: true });
+    expect(sanitizeSpriteSettings({ explicit: true })).toMatchObject({ explicit: false });
+  });
+
+  it("W11 U1: a story that directs a stage turns sprites on for its chats unless the user switched them off", () => {
+    expect(storyDirectsStage(directed)).toBe(true);
+    expect(storyDirectsStage(undirected)).toBe(false);
+    expect(storyDirectsStage(null)).toBe(false);
+    const unset = defaultSpriteSettings();
+    expect(spriteActivation(unset, true)).toBe("story");
+    expect(spriteActivation(unset, false)).toBe("off");
+    expect(spriteActivation(userSpriteChoice(false), true)).toBe("user-off");
+    expect(spriteActivation(userSpriteChoice(true), false)).toBe("user-on");
+    expect(spriteActivation(storySpriteChoice(), true)).toBe("story");
+    expect(["story", "user-on"].map((activation) => spritesActive(activation as never))).toEqual([true, true]);
+    expect(["off", "user-off"].map((activation) => spritesActive(activation as never))).toEqual([false, false]);
   });
 });
 

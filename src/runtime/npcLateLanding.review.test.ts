@@ -9,46 +9,20 @@ const st = {
   chat: [] as Row[],
   processor: null as FakeStream | null,
   tokens: new Set<() => void>(),
+  moves: new Set<() => void>(),
   saves: [] as Array<{ chatId: string; rows: string[] }>,
   generating: false,
   settled: 0,
   opened: 0,
-  feed: null as Feed | null,
+  global: new AbortController(),
+  respond: null as ((text: string) => void) | null,
   finished: null as Promise<void> | null,
 };
-
-class Feed {
-  private queue: Array<string | null> = [];
-  private wake: (() => void) | null = null;
-  constructor(private readonly signal: AbortSignal) {
-    signal.addEventListener("abort", () => this.wake?.());
-  }
-  push(value: string | null) {
-    this.queue.push(value);
-    this.wake?.();
-  }
-  async *read() {
-    let text = "";
-    for (;;) {
-      while (!this.queue.length) {
-        if (this.signal.aborted) throw new Error("aborted");
-        await new Promise<void>((resolve) => { this.wake = resolve; });
-        this.wake = null;
-      }
-      if (this.signal.aborted) throw new Error("aborted");
-      const next = this.queue.shift();
-      if (next === null || next === undefined) return;
-      text += next;
-      yield text;
-    }
-  }
-}
 
 class FakeStream {
   messageId = -1;
   isStopped = false;
   isFinished = false;
-  result = "";
   abortController = new AbortController();
 
   async onProgressStreaming(messageId: number, text: string) {
@@ -59,43 +33,55 @@ class FakeStream {
     this.abortController.abort();
     this.isFinished = true;
   }
-
-  async generate(feed: Feed) {
-    try {
-      for await (const text of feed.read()) {
-        if (this.isStopped || this.abortController.signal.aborted) return this.result;
-        this.result = text;
-        for (const listener of [...st.tokens]) await listener();
-        await this.onProgressStreaming(this.messageId, text);
-      }
-    } catch {
-      if (!this.isFinished) this.isStopped = true;
-      return this.result;
-    }
-    this.isFinished = true;
-    return this.result;
-  }
 }
 
-const streamReply = async () => {
-  const processor = new FakeStream();
-  st.processor = processor;
+const response = (signal: AbortSignal) => new Promise<string>((resolve, reject) => {
+  st.respond = resolve;
+  signal.addEventListener("abort", () => reject(new Error("aborted")), { once: true });
+});
+
+const saveReply = (text: string) => {
+  st.chat.push({ mes: text });
+  return st.chat.length - 1;
+};
+
+const nonStreamingReply = async () => {
+  st.global = new AbortController();
   st.generating = true;
   st.opened += 1;
-  const feed = new Feed(processor.abortController.signal);
-  st.feed = feed;
-  st.chat.push({ mes: "..." });
-  processor.messageId = st.chat.length - 1;
-  const text = await processor.generate(feed);
   try {
-    if (!processor.isStopped && processor.isFinished) {
-      await processor.onProgressStreaming(processor.messageId, text);
-      st.saves.push({ chatId: st.chatId, rows: st.chat.map((row) => row.mes) });
-    }
+    const text = await response(st.global.signal);
+    saveReply(text);
+    st.saves.push({ chatId: st.chatId, rows: st.chat.map((row) => row.mes) });
+  } catch {
+    return;
   } finally {
     st.generating = false;
   }
 };
+
+const lateHeadersReply = async () => {
+  const processor = new FakeStream();
+  st.processor = processor;
+  st.generating = true;
+  st.opened += 1;
+  try {
+    const first = await response(processor.abortController.signal);
+    if (processor.isStopped) return;
+    processor.messageId = saveReply("...");
+    for (const listener of [...st.tokens]) await listener();
+    await processor.onProgressStreaming(processor.messageId, first);
+    processor.isFinished = true;
+    await processor.onProgressStreaming(processor.messageId, first);
+    st.saves.push({ chatId: st.chatId, rows: st.chat.map((row) => row.mes) });
+  } catch {
+    return;
+  } finally {
+    st.generating = false;
+  }
+};
+
+let mode: "non-streaming" | "late-headers" = "non-streaming";
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -104,10 +90,10 @@ jest.mock("@services/STAPI", () => ({
   getActiveGroup: () => null,
   isHostGenerating: () => st.generating,
   stopHostGeneration: () => {
+    st.global.abort();
     st.processor?.onStopStreaming();
     return { ok: true, stopped: true };
   },
-  watchHostChatMove: () => () => undefined,
   guardHostStream: (chatId: string) => jest.requireActual("@services/stHost/streamGuard").guardStreamToChat(chatId, {
     processor: () => st.processor,
     chatId: () => st.chatId,
@@ -118,9 +104,16 @@ jest.mock("@services/STAPI", () => ({
     },
     settle: () => { st.settled += 1; },
   }),
+  watchHostChatMove: (chatId: string, onMoved: () => void) => jest.requireActual("@services/stHost/streamGuard").watchChatMove(chatId, {
+    chatId: () => st.chatId,
+    subscribe: (listener: () => void) => {
+      st.moves.add(listener);
+      return () => st.moves.delete(listener);
+    },
+  }, onMoved),
   executeSlashCommands: (command: string) => {
     if (!command.startsWith("/trigger")) return Promise.resolve(true);
-    st.finished = streamReply();
+    st.finished = mode === "non-streaming" ? nonStreamingReply() : lateHeadersReply();
     return st.finished.then(() => true, () => false);
   },
 }));
@@ -140,9 +133,13 @@ function harness() {
     signal: () => aborter.signal,
   };
   const extras = { firedNpcReplies: {}, lastSelfInjectionMessageId: -1, ui: {}, requirements: { ready: true } } as never;
-  const populate = () => {
+  const tick = () => [...st.moves].forEach((listener) => listener());
+  const switchAndLoad = () => {
+    st.chat.length = 0;
     st.chatId = "chat-b";
+    tick();
     st.chat.splice(0, st.chat.length, { mes: "b0 greeting" }, { mes: "b1 the player's own line" }, { mes: "b2 reply" });
+    tick();
   };
   const chatChanged = () => {
     current = { ...current, chatId: "chat-b", sessionEpoch: current.sessionEpoch + 1 };
@@ -150,107 +147,88 @@ function harness() {
     aborter = new AbortController();
     old.abort();
   };
-  return { applier: new EffectsApplier(ownership), extras, populate, chatChanged };
+  return { applier: new EffectsApplier(ownership), extras, switchAndLoad, chatChanged };
 }
 
-const tick = async (rounds = 20) => {
+const flush = async (rounds = 20) => {
   for (let index = 0; index < rounds; index += 1) await Promise.resolve();
 };
 
-const started = async () => {
-  for (let index = 0; index < 50 && !st.feed; index += 1) await Promise.resolve();
-  if (!st.feed) throw new Error("the /trigger never started");
-  return st.feed;
+const requested = async () => {
+  for (let index = 0; index < 50 && !st.respond; index += 1) await Promise.resolve();
+  if (!st.respond) throw new Error("the /trigger never sent its request");
+  return st.respond;
 };
 
 const chatB = () => ({ page: st.chat.map((row) => row.mes), saved: st.saves.filter((save) => save.chatId === "chat-b") });
+const untouchedB = ["b0 greeting", "b1 the player's own line", "b2 reply"];
 
 let detach: () => void = () => undefined;
 beforeEach(() => {
+  mode = "non-streaming";
   st.chatId = "chat-a";
   st.chat.splice(0, st.chat.length, { mes: "a0 greeting" });
   st.processor = null;
   st.tokens.clear();
+  st.moves.clear();
   st.saves = [];
   st.generating = false;
   st.settled = 0;
   st.opened = 0;
-  st.feed = null;
+  st.respond = null;
   st.finished = null;
   detach = generationWatch.attach(() => st.opened);
 });
 afterEach(() => detach());
 
-const untouchedB = ["b0 greeting", "b1 the player's own line", "b2 reply"];
-
-describe("v2.5 C1 (D1): an llm NPC /trigger reply never lands in the chat the player switched to", () => {
-  it("a switch mid-stream leaves the populated next chat untouched in memory and unsaved (tokens after the load, CHAT_CHANGED later)", async () => {
+describe("v2.6 plan 04 C1r: an llm NPC reply that answers after the next chat loaded, before CHAT_CHANGED", () => {
+  it("a NON-streaming reply (saveReply appends into the open chat, script.js:5531) does not land in the next chat", async () => {
     const h = harness();
     const firing = h.applier.fireNpcReplies(checkpoint, h.extras, "onEnter");
-    const feed = await started();
-    feed.push("Hello");
-    await tick();
-    h.populate();
-    feed.push(" there");
-    await tick();
-    h.chatChanged();
-    feed.push(", traveller");
-    feed.push(null);
-    await firing;
-    expect(chatB()).toEqual({ page: untouchedB, saved: [] });
-  });
-
-  it("a switch after the last token (the natural finish) still writes and saves nothing in the next chat", async () => {
-    const h = harness();
-    const firing = h.applier.fireNpcReplies(checkpoint, h.extras, "onEnter");
-    const feed = await started();
-    feed.push("Hello");
-    await tick();
-    h.populate();
-    feed.push(null);
-    await st.finished?.catch(() => undefined);
+    const respond = await requested();
+    h.switchAndLoad();
+    respond("Hello, traveller");
+    await flush();
     h.chatChanged();
     await firing;
     expect(chatB()).toEqual({ page: untouchedB, saved: [] });
   });
 
-  it("a switch before the first token does not turn the stop into a finish that saves the next chat", async () => {
+  it("a streaming reply whose headers arrive after the switch (onStartStreaming pushes its placeholder, :3633) does not land", async () => {
+    mode = "late-headers";
     const h = harness();
     const firing = h.applier.fireNpcReplies(checkpoint, h.extras, "onEnter");
-    const feed = await started();
-    h.populate();
+    const respond = await requested();
+    h.switchAndLoad();
+    respond("Hello, traveller");
+    await flush();
     h.chatChanged();
-    await tick();
-    feed.push("Hello");
-    feed.push(null);
     await firing;
     expect(chatB()).toEqual({ page: untouchedB, saved: [] });
   });
 
-  it("a halted reply gives the send button back, once", async () => {
+  it("control: a non-streaming reply in a chat that did not move lands and is saved once", async () => {
     const h = harness();
     const firing = h.applier.fireNpcReplies(checkpoint, h.extras, "onEnter");
-    const feed = await started();
-    feed.push("Hello");
-    await tick();
-    h.populate();
-    h.chatChanged();
-    feed.push(null);
+    const respond = await requested();
+    respond("Hello, traveller");
     await firing;
-    expect(st.settled).toBe(1);
+    expect({ page: st.chat.map((row) => row.mes), saves: st.saves }).toEqual({
+      page: ["a0 greeting", "Hello, traveller"],
+      saves: [{ chatId: "chat-a", rows: ["a0 greeting", "Hello, traveller"] }],
+    });
   });
 
-  it("control: a reply in a chat that did not move streams, lands and is saved exactly as before", async () => {
+  it("control: a streaming reply in a chat that did not move lands and is saved once", async () => {
+    mode = "late-headers";
     const h = harness();
     const firing = h.applier.fireNpcReplies(checkpoint, h.extras, "onEnter");
-    const feed = await started();
-    feed.push("Hello");
-    feed.push(" there");
-    feed.push(null);
+    const respond = await requested();
+    respond("Hello, traveller");
     await firing;
     expect({ page: st.chat.map((row) => row.mes), saves: st.saves, settled: st.settled }).toEqual({
-      page: ["a0 greeting", "Hello there"],
-      saves: [{ chatId: "chat-a", rows: ["a0 greeting", "Hello there"] }],
+      page: ["a0 greeting", "Hello, traveller"],
+      saves: [{ chatId: "chat-a", rows: ["a0 greeting", "Hello, traveller"] }],
       settled: 0,
     });
   });

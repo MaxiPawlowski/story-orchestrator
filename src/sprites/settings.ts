@@ -4,6 +4,7 @@ export type StageMode = "vn" | "always" | "off";
 
 export interface SpriteSettings {
   enabled: boolean;
+  explicit: boolean;
   stage: StageMode;
   profileId: string;
   segmentChars: number;
@@ -12,8 +13,11 @@ export interface SpriteSettings {
   breathing: boolean;
 }
 
+export type SpriteActivation = "user-on" | "user-off" | "story" | "off";
+
 export const defaultSpriteSettings = (): SpriteSettings => ({
-  enabled: true,
+  enabled: false,
+  explicit: false,
   stage: "vn",
   profileId: "",
   segmentChars: 400,
@@ -28,8 +32,10 @@ const within = (value: unknown, min: number, max: number, fallback: number) =>
 export function sanitizeSpriteSettings(value: unknown): SpriteSettings {
   const d = defaultSpriteSettings();
   if (!isRecord(value)) return d;
+  const explicit = value.explicit === true && typeof value.enabled === "boolean";
   return {
-    enabled: typeof value.enabled === "boolean" ? value.enabled : d.enabled,
+    enabled: explicit ? value.enabled === true : d.enabled,
+    explicit,
     stage: value.stage === "always" || value.stage === "off" || value.stage === "vn" ? value.stage : d.stage,
     profileId: typeof value.profileId === "string" ? value.profileId : d.profileId,
     segmentChars: within(value.segmentChars, 120, 2000, d.segmentChars),

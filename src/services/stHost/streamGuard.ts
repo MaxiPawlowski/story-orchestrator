@@ -64,3 +64,25 @@ export function guardStreamToChat(chatId: string, deps: StreamGuardDeps): Stream
     },
   };
 }
+
+export interface ChatMoveDeps {
+  chatId: () => string;
+  subscribe: (listener: () => void) => () => void;
+}
+
+export function watchChatMove(chatId: string, deps: ChatMoveDeps, onMoved: () => void): () => void {
+  let done = false;
+  let off: () => void = () => undefined;
+  const check = () => {
+    if (done || deps.chatId() === chatId) return;
+    done = true;
+    off();
+    onMoved();
+  };
+  off = deps.subscribe(check);
+  if (done) off();
+  return () => {
+    done = true;
+    off();
+  };
+}

@@ -49,7 +49,7 @@ const cleanInput = (): InventoryInput => ({
         { id: 'adolion-esha', version: 6, hash: 'h2', title: 'Adolion: Eshalanore', raw: { checkpoints: [{}] } },
         { id: 'so-j9-wizard', version: 1, hash: 'h3', title: 'Wizard', raw: {} },
       ],
-      settings: { extraction: { enabled: true, cadence: 1, stabilityLag: 0, profileId: 'p' }, image: { enabled: false, comfyUrl: '' }, sprites: { enabled: false } },
+      settings: { extraction: { enabled: true, cadence: 1, stabilityLag: 0, profileId: 'p' }, image: { enabled: false, comfyUrl: '' }, sprites: { enabled: false, explicit: true } },
     } },
     world_info_settings: { world_info: { globalSelect: ['Adolion World', 'Adolion Academy Checkpoints', 'Adolion - Eshalanore'] } },
   },
@@ -132,6 +132,7 @@ test('a lane with image or sprite generation on fails, and the strip switches bo
   assert.deepEqual(plan.media, { image: true, sprites: true });
   assert.deepEqual(plan.settings.extension_settings['story-orchestrator'].settings.image, { enabled: false, comfyUrl: 'x' });
   assert.equal(plan.settings.extension_settings['story-orchestrator'].settings.sprites.enabled, false);
+  assert.equal(plan.settings.extension_settings['story-orchestrator'].settings.sprites.explicit, true);
 });
 
 test('the strip removes the campaign\'s assets from the lane copy and nothing of the user\'s', () => {

@@ -73,6 +73,12 @@ export const provisioningFollowUpOps = (draft: StoryV2, op: ProvisioningOp): Pro
   return ops;
 };
 
+const keepAuthorLoreFlags = (draft: StoryV2, next: NonNullable<StoryV2["lore_select"]>): NonNullable<StoryV2["lore_select"]> => ({
+  ...next,
+  ...(next.min_p === undefined && draft.lore_select?.min_p !== undefined ? { min_p: draft.lore_select.min_p } : {}),
+  ...(next.exclusive === undefined && draft.lore_select?.exclusive ? { exclusive: true } : {}),
+});
+
 export const applyOp = (draft: StoryV2, op: ProposalOp): StoryV2 => {
   if (isProvisioningOp(op)) return draft;
   switch (op.kind) {
@@ -127,7 +133,7 @@ export const applyOp = (draft: StoryV2, op: ProposalOp): StoryV2 => {
     case "setSceneRead":
       return setSceneRead(draft, op.sceneRead);
     case "setLoreSelect":
-      return setLoreSelect(draft, op.loreSelect);
+      return setLoreSelect(draft, keepAuthorLoreFlags(draft, op.loreSelect));
     default:
       return draft;
   }
