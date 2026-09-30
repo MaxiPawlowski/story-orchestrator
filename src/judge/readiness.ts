@@ -1,5 +1,6 @@
 import { canonicalModel, isFloatingModel } from "./policy";
-import { JUDGE_USE_KEYS, type JudgeSettings, type JudgeUseKey } from "./settings";
+import { judgeUseActive, JUDGE_USE_KEYS, type JudgeRouteKey, type JudgeSettings, type JudgeUseKey } from "./settings";
+import { DEFAULT_JUDGE_PROVIDER, type JudgeProviderId } from "./providers";
 
 // Re-measured The recommended-configuration table as data the settings
 // panel can render — the numbers are RECORDED measurements, not a re-run, so the panel says where
@@ -14,7 +15,7 @@ import { JUDGE_USE_KEYS, type JudgeSettings, type JudgeUseKey } from "./settings
 // ones, and a use that is on but whose dependency is off says so. adds the model: a rate
 // measured on one model says nothing about another, so a mismatch reads `unproven` (never re-floored).
 
-export type JudgeReadinessKey = JudgeUseKey | "warden";
+export type JudgeReadinessKey = JudgeRouteKey;
 
 export interface JudgeReadinessFact {
   /** Accuracy at the recorded floor, or null when nothing has measured this use. */
@@ -119,6 +120,51 @@ export const RING_USE_TO_READINESS: Record<string, JudgeReadinessKey[]> = {
   warden: ["warden"],
 };
 
+export const JUDGE_READINESS_BY_PROVIDER: Record<JudgeProviderId, Partial<Record<JudgeReadinessKey, JudgeReadinessFact>>> = {
+  typesafe: JUDGE_READINESS,
+  "llama-logprob": {},
+};
+
+export const readinessFact = (provider: JudgeProviderId, key: JudgeReadinessKey): JudgeReadinessFact =>
+  JUDGE_READINESS_BY_PROVIDER[provider][key] ?? {
+    calibration: null,
+    latencyP50Ms: null,
+    live: null,
+    measuredOn: null,
+    recommendation: "Not calibrated on this provider: keeps its usual path until it is.",
+  };
+
+export const providerCleared = (provider: JudgeProviderId, key: JudgeReadinessKey): boolean =>
+  provider === DEFAULT_JUDGE_PROVIDER || readinessFact(provider, key).calibration !== null;
+
+export const RING_USE_ROUTE_KEYS: Record<string, JudgeReadinessKey[]> = {
+  ...RING_USE_TO_READINESS,
+  lore: ["loreSelect", "loreExclusive"],
+  warden: ["warden", "agencyCheck", "houseRules"],
+  expressions: ["expressions"],
+};
+
+export type JudgeRouteRefusal = "uncalibrated" | "split";
+
+export interface JudgeRoute {
+  provider: JudgeProviderId;
+  keys: JudgeReadinessKey[];
+  refused?: JudgeRouteRefusal;
+}
+
+const keyActive = (settings: JudgeSettings, key: JudgeReadinessKey) => key === "warden" || judgeUseActive(settings, key);
+
+export function judgeRoute(settings: JudgeSettings, use: string): JudgeRoute {
+  const keys = RING_USE_ROUTE_KEYS[use] ?? [];
+  if (!keys.length) return { provider: DEFAULT_JUDGE_PROVIDER, keys };
+  const active = keys.filter((key) => keyActive(settings, key));
+  const deciding = active.length ? active : keys.slice(0, 1);
+  const providers = [...new Set(deciding.map((key) => settings.provider?.[key] ?? DEFAULT_JUDGE_PROVIDER))];
+  const provider = providers[0];
+  if (providers.length > 1) return { provider, keys: deciding, refused: "split" };
+  return deciding.every((key) => providerCleared(provider, key)) ? { provider, keys: deciding } : { provider, keys: deciding, refused: "uncalibrated" };
+}
+
 export type JudgeReadinessVerdict = "off" | "unproven" | "measured" | "blocked";
 
 export interface JudgeModelMismatch {
@@ -131,10 +177,13 @@ export interface JudgeReadinessRow extends JudgeReadinessFact {
   key: JudgeReadinessKey;
   enabled: boolean;
   verdict: JudgeReadinessVerdict;
+  provider: JudgeProviderId;
   /** Set when the verdict is `blocked`: the dependency that is off. */
   blockedBy?: JudgeUseKey;
   /** Set when the model in effect is not the one the row was measured on. */
   modelMismatch?: JudgeModelMismatch;
+  uncalibratedOn?: JudgeProviderId;
+  splitFrom?: JudgeReadinessKey[];
 }
 
 /**
@@ -149,6 +198,13 @@ function modelMismatch(configured: string, answered: string | null, measuredOn: 
   return { configured, answered, measuredOn };
 }
 
+const splitPartners = (settings: JudgeSettings, key: JudgeReadinessKey): JudgeReadinessKey[] => {
+  const use = Object.keys(RING_USE_ROUTE_KEYS).find((ring) => RING_USE_ROUTE_KEYS[ring].includes(key));
+  if (!use) return [];
+  const route = judgeRoute(settings, use);
+  return route.refused === "split" && route.keys.includes(key) ? route.keys.filter((other) => settings.provider?.[other] !== settings.provider?.[key]) : [];
+};
+
 /**
  * One row per use, in the order the settings declare them, plus the warden when its own switch is
  * on. `blocked` is its own verdict because an enabled use whose dependency is off is not doing
@@ -161,13 +217,18 @@ export function judgeReadiness(
   extra: { warden?: boolean } = {},
 ): JudgeReadinessRow[] {
   const row = (key: JudgeReadinessKey, enabled: boolean): JudgeReadinessRow => {
-    const fact = JUDGE_READINESS[key];
-    if (!settings.enabled || !enabled) return { key, ...fact, enabled, verdict: "off" };
+    const provider = settings.provider?.[key] ?? DEFAULT_JUDGE_PROVIDER;
+    const fact = readinessFact(provider, key);
+    const base = { key, ...fact, enabled, provider };
+    if (!settings.enabled || !enabled) return { ...base, verdict: "off" };
     const dependency = key === "warden" ? undefined : dependencies[key];
-    if (dependency && settings.uses[dependency] !== true) return { key, ...fact, enabled, verdict: "blocked", blockedBy: dependency };
-    if (fact.calibration === null) return { key, ...fact, enabled, verdict: "unproven" };
-    const mismatch = modelMismatch(settings.model, lastAnswered, fact.measuredOn);
-    return mismatch ? { key, ...fact, enabled, verdict: "unproven", modelMismatch: mismatch } : { key, ...fact, enabled, verdict: "measured" };
+    if (dependency && settings.uses[dependency] !== true) return { ...base, verdict: "blocked", blockedBy: dependency };
+    if (!providerCleared(provider, key)) return { ...base, verdict: "unproven", uncalibratedOn: provider };
+    const split = settings.provider ? splitPartners(settings, key) : [];
+    if (split.length) return { ...base, verdict: "unproven", splitFrom: split };
+    if (fact.calibration === null) return { ...base, verdict: "unproven" };
+    const mismatch = provider === DEFAULT_JUDGE_PROVIDER ? modelMismatch(settings.model, lastAnswered, fact.measuredOn) : undefined;
+    return mismatch ? { ...base, verdict: "unproven", modelMismatch: mismatch } : { ...base, verdict: "measured" };
   };
   const rows = JUDGE_USE_KEYS.map((key) => row(key, settings.uses[key] === true));
   return extra.warden ? [...rows, row("warden", true)] : rows;
