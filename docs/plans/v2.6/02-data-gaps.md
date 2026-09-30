@@ -133,3 +133,21 @@ Gate met: consecutive seeds on lane 1 give identical inventories, and a planted 
   - Before the settle, two seeds' inventories differed only in `disabled_members`: the reads raced the cast writes.
 - **Lanes 1 and 2 disagree on the Saga group's cast.** The two lanes' inventories differ only in the Saga group's `disabled_members` (19 vs 17: Leila, Naomi). Lane 1 is stable across three seeds, so this is a cross-lane difference in the 125-member cast apply, not seed noise. It is open.
 - The run header was not captured around the seeds. `adolion-fresh` records the campaign commit and pin; the bundle is the staged dev build at master.
+
+**Overall gates.** Run in the worktree after merging master `5092b5e0`, in this order, all exit 0.
+
+| Gate | Result |
+|---|---|
+| `npm run typecheck` | exit 0 |
+| `npm run typecheck:test` | exit 0 |
+| `npm run lint` | exit 0 |
+| `npm test` | 354 suites, 4722 tests pass |
+| `npm run build` | exit 0 |
+| `npm run test:debug` | 437 pass, 0 fail |
+| `npm run build:dev` | exit 0 |
+| `npm run test:release` | 77 pass, 0 fail |
+
+- `test-storybook:ci` was skipped, per the brief.
+- In a fresh worktree, `test:debug` needs `dist/manifest.json` and `test:release` needs `dist-dev/`. The first pass failed on exactly those two tests before `build` and `build:dev` had run. No source changed between the two passes.
+- No LLM run.
+- No `src/` change, so the bundle size is untouched.
