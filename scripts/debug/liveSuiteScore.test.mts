@@ -173,3 +173,24 @@ test('v2.5 plan 05 F2: the new expectations are frozen as written before any liv
   const actual = Object.fromEntries(Object.keys(frozen).map((name) => [name, createHash('sha256').update(fs.readFileSync(path.join(process.cwd(), 'test/fixtures', `${name}.expected.json`), 'utf8').replace(/\r\n/g, '\n')).digest('hex').slice(0, 16)]));
   assert.deepEqual(actual, frozen);
 });
+
+test('v2.6 plan 01: a declared "none" and a golden scope are not scored, and a spec that claims nothing is vacuous', () => {
+  const none = scoreContains('facts', { none: 'state the delta carries' }, [{ text: 'anything' }]);
+  assert.deepEqual([none.scored, none.vacuous], [false, undefined]);
+  assert.match(none.detail, /declares no facts expectation: state the delta carries/);
+  assert.equal(scoreContains('facts', { scope: 'golden', mustContain: ['key'] }, []).scored, false);
+  const live = scoreContains('facts', { scope: 'live', minCount: 1, mustContain: ['pact'] }, []);
+  assert.deepEqual([live.scored, live.pass], [true, false]);
+  assert.deepEqual(scoreContains('facts', { minCount: 0 }, []).vacuous, ['no assertion']);
+  assert.deepEqual(scoreContains('facts', { mustContain: [], mustNotContain: ['chest'] }, []).vacuous, undefined);
+});
+
+test('v2.6 plan 01: no extractor fixture carries a vacuous expectation in any tier, and the facts column is 5 claims + 9 declared none', () => {
+  const tiers = ['facts', 'memory', 'epistemic', 'ledger', 'arcs'] as const;
+  const vacuous = liveFixtures().flatMap((name) => tiers.flatMap((tier) => (scoreContains(tier, expectedOf(name)[tier], []).vacuous ?? []).map((entry) => `${name}.${tier}: ${entry}`)));
+  assert.deepEqual(vacuous, []);
+  const declaredNone = liveFixtures().filter((name) => typeof expectedOf(name).facts?.none === 'string');
+  assert.deepEqual(declaredNone, ['extractor10', 'extractor11', 'extractor14', 'extractor16', 'extractor20', 'extractor6', 'extractor7', 'extractor8', 'extractor9']);
+  const liveScoped = liveFixtures().filter((name) => expectedOf(name).facts?.scope === 'live');
+  assert.deepEqual(liveScoped, ['extractor12', 'extractor17', 'extractor18', 'extractor19']);
+});

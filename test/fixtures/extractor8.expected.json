@@ -8,12 +8,6 @@
   ],
   "rejected": [],
   "facts": {
-    "minCount": 0,
-    "mustContain": [
-      ""
-    ],
-    "mustNotContain": [
-      "zzz"
-    ]
+    "none": "weather is scene state the weather delta already carries; no durable fact is claimed"
   }
 }

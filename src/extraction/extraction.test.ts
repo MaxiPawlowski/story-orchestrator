@@ -209,7 +209,7 @@ describe("shared read parser", () => {
     expect(parsed.rejected).toEqual([]);
   });
 
-  type TierSpec = { minCount?: number; mustContain?: string[]; mustNotContain?: string[] };
+  type TierSpec = { minCount?: number; mustContain?: string[]; mustNotContain?: string[]; none?: string; scope?: "golden" | "live" };
   const fixturesDir = path.join(process.cwd(), "test/fixtures");
   const CORPUS = fs.readdirSync(fixturesDir)
     .filter((file) => /^extractor.+\.story\.json$/.test(file))
@@ -228,7 +228,7 @@ describe("shared read parser", () => {
     const expected = readJson<{
       deltas: Array<{ q: string; v: unknown; evidence: string }>;
       rejected: Array<{ reason: string }>;
-      facts: { minCount: number; mustContain: string[]; mustNotContain: string[] };
+      facts: TierSpec;
       spec?: { activeCheckpointId?: string; window?: { from: number; to: number }; canon?: string; blackboard?: BlackboardSnapshot; epistemicLedgerCapable?: boolean; openArcs?: string[]; entities?: string[] };
       promptExcludes?: string[];
       epistemic?: TierSpec;
@@ -250,11 +250,12 @@ describe("shared read parser", () => {
       expect(parsed.deltas.find((delta) => delta.delta.q === entry.q)?.evidence).toContain(entry.evidence);
     });
     expect(parsed.rejected.map((entry) => entry.reason)).toEqual(expected.rejected.map((entry) => entry.reason));
-    if (expected.facts.minCount > 0) expect(parsed.facts.length).toBeGreaterThanOrEqual(expected.facts.minCount);
-    for (const substring of expected.facts.mustContain) {
+    const goldenFacts = expected.facts.none === undefined && expected.facts.scope !== "live";
+    if (goldenFacts && (expected.facts.minCount ?? 0) > 0) expect(parsed.facts.length).toBeGreaterThanOrEqual(expected.facts.minCount ?? 0);
+    for (const substring of goldenFacts ? expected.facts.mustContain ?? [] : []) {
       if (substring) expect(parsed.facts.some((fact) => fact.text.includes(substring))).toBe(true);
     }
-    for (const substring of expected.facts.mustNotContain) {
+    for (const substring of goldenFacts ? expected.facts.mustNotContain ?? [] : []) {
       if (substring) expect(parsed.facts.some((fact) => fact.text.includes(substring))).toBe(false);
     }
     const tiers: Array<[string, TierSpec | undefined, unknown[]]> = [["epistemic", expected.epistemic, parsed.epistemic], ["ledger", expected.ledger, parsed.ledger], ["arcs", expected.arcs, parsed.arcs]];
@@ -265,6 +266,16 @@ describe("shared read parser", () => {
       for (const needle of spec.mustContain ?? []) expect([tier, needle, haystack.includes(needle.toLowerCase())]).toEqual([tier, needle, true]);
       for (const needle of spec.mustNotContain ?? []) expect([tier, needle, haystack.includes(needle.toLowerCase())]).toEqual([tier, needle, false]);
     }
+  });
+
+  it.each(CORPUS.filter((name) => readJson<{ facts: TierSpec }>(`${name}.expected.json`).facts.scope === "live"))("%s: its live-scoped facts needle holds on the archived live answer", (name) => {
+    const liveGolden = path.join(process.cwd(), "test/goldens/live", `${name}.response.txt`);
+    const expected = readJson<{ facts: TierSpec; spec?: Record<string, unknown> }>(`${name}.expected.json`);
+    const run = buildFixtureRun({ story: readJson<unknown>(`${name}.story.json`), transcript: readJson<Array<{ index: number; speaker: string; text: string }>>(`${name}.transcript.json`), ...(expected.spec ?? {}) });
+    const parsed = parseSharedReadResponse(fs.readFileSync(liveGolden, "utf8"), run.story);
+    const haystack = parsed.facts.map((fact) => fact.text).join(" — ").toLowerCase();
+    expect(parsed.facts.length).toBeGreaterThanOrEqual(expected.facts.minCount ?? 0);
+    expect((expected.facts.mustContain ?? []).filter((needle) => !haystack.includes(needle.toLowerCase()))).toEqual([]);
   });
 });
 

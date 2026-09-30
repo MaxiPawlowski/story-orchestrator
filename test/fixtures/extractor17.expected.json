@@ -8,12 +8,10 @@
   ],
   "rejected": [],
   "facts": {
-    "minCount": 0,
+    "scope": "live",
+    "minCount": 1,
     "mustContain": [
-      ""
-    ],
-    "mustNotContain": [
-      "zzz"
+      "nightingale"
     ]
   }
 }

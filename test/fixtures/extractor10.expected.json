@@ -18,12 +18,6 @@
   ],
   "rejected": [],
   "facts": {
-    "minCount": 0,
-    "mustContain": [
-      ""
-    ],
-    "mustNotContain": [
-      "zzz"
-    ]
+    "none": "a door, an alarm and a guard count are state the three deltas already carry; no durable fact is claimed"
   }
 }
