@@ -1,4 +1,5 @@
-import { JudgeBusyError, type JudgeRequest, type JudgeResponse, type JudgeTransport } from "@judge/index";
+import { isJudgeProviderId, JudgeBusyError, type JudgeProviderId, type JudgeProviderStatus, type JudgeRequest, type JudgeResponse, type JudgeTransport } from "@judge/index";
+import type { LlamaComplete } from "@judge/llamaLogprob";
 import { getContext } from "./context";
 import { importSTModule } from "./modules";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
@@ -14,7 +15,21 @@ export interface JudgeStatus {
   keySource: string | null;
   pluginVersion: string | null;
   maxInFlight?: number | null;
+  providers?: Partial<Record<JudgeProviderId, JudgeProviderStatus>>;
 }
+
+const readProviders = (value: unknown): Partial<Record<JudgeProviderId, JudgeProviderStatus>> | undefined => {
+  if (!isRecord(value)) return undefined;
+  return Object.fromEntries(Object.entries(value).filter(([id, entry]) => isJudgeProviderId(id) && isRecord(entry)).map(([id, entry]) => {
+    const row = entry as Record<string, unknown>;
+    return [id, {
+      configured: row.configured === true,
+      keySource: typeof row.keySource === "string" ? row.keySource : null,
+      local: row.local === true,
+      host: typeof row.host === "string" ? row.host : null,
+    }];
+  }));
+};
 
 // public/scripts/secrets.js:349 — writes through /api/secrets/write, clears nothing we own, and the
 // server never hands a non-exportable key back to the page (src/endpoints/secrets.js:568).
@@ -32,12 +47,14 @@ export async function judgeStatus(): Promise<JudgeStatus | null> {
     if (!response.ok) return null;
     const data = await response.json() as unknown;
     if (!isRecord(data)) return null;
+    const providers = readProviders(data.providers);
     return {
       configured: data.configured === true,
       model: typeof data.model === "string" ? data.model : null,
       keySource: typeof data.keySource === "string" ? data.keySource : null,
       pluginVersion: typeof data.pluginVersion === "string" ? data.pluginVersion : null,
       maxInFlight: isRecord(data.limits) && typeof data.limits.maxInFlight === "number" ? data.limits.maxInFlight : null,
+      ...(providers ? { providers } : {}),
     };
   } catch {
     return null;
@@ -66,6 +83,18 @@ export const judgeTransport: JudgeTransport = async (request: JudgeRequest, opti
     clearTimeout(timer);
     options.signal?.removeEventListener("abort", onEpochAbort);
   }
+};
+
+export const judgeLlamaComplete: LlamaComplete = async (body, options) => {
+  const response = await fetch(`${JUDGE_PLUGIN_BASE}/providers/llama-logprob/completion`, {
+    method: "POST",
+    headers: { ...headers(), "Content-Type": "text/plain;charset=UTF-8", "X-SO-Plugin": "1" },
+    body: JSON.stringify(body),
+    ...(options.signal ? { signal: options.signal } : {}),
+  });
+  if (BUSY_STATUSES.has(response.status)) throw new JudgeBusyError(response.status);
+  if (!response.ok) throw new Error(`judge plugin llama-logprob ${response.status}`);
+  return await response.json() as unknown;
 };
 
 export async function writeJudgeSecret(value: string): Promise<WriteResult> {

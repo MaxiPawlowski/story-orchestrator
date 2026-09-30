@@ -3,8 +3,14 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-export const PLUGIN_VERSION = '1.1.0';
+export const PLUGIN_VERSION = '1.2.0';
 export const SECRET_KEY = 'typesafe_api_key';
+export const LLAMA_SECRET_KEY = 'so_judge_llama_key';
+export const PROVIDERS = Object.freeze({
+    typesafe: Object.freeze({ id: 'typesafe', contract: 'native', secretKey: SECRET_KEY, envKey: 'TYPESAFE_API_KEY', dotenv: true, keyRequired: true }),
+    'llama-logprob': Object.freeze({ id: 'llama-logprob', contract: 'logprob', secretKey: LLAMA_SECRET_KEY, envKey: 'SO_JUDGE_LLAMA_KEY', dotenv: false, keyRequired: false, urlEnv: 'SO_JUDGE_LLAMA_URL' }),
+});
+export const LLAMA_LIMITS = Object.freeze({ maxPredict: 4, maxProbs: 50, maxPromptChars: 140_000 });
 export const DEFAULT_MODEL = 'jev-1.13.0';
 export const MAX_CHOICE_OPTIONS = 255;
 export const MAX_REQUEST_CHARS = 140_000;
@@ -25,7 +31,7 @@ const DOTENV_FILE = path.join(os.homedir(), '.typesafe', 'api-key', '.env');
 export const info = {
     id: 'story-orchestrator-judge',
     name: 'Story Orchestrator judge',
-    description: 'Server-side proxy from Story Orchestrator to the TypeSafe System One API; the API key never reaches the page.',
+    description: 'Server-side proxy from Story Orchestrator to its judge providers (TypeSafe System One, llama-server log-probabilities); keys never reach the page.',
 };
 
 const apiUrl = () => `${(process.env.TYPESAFE_BASE_URL ?? 'https://api.typesafe.ai').replace(/\/$/, '')}/v1/systemone`;
@@ -58,21 +64,85 @@ function keyFromDotenv(file = DOTENV_FILE) {
     return '';
 }
 
-export async function resolveKey(request) {
+let utilModule;
+
+async function loadUtil() {
+    if (utilModule !== undefined) return utilModule;
+    try {
+        const here = path.dirname(fileURLToPath(import.meta.url));
+        utilModule = await import(pathToFileURL(path.resolve(here, '..', '..', 'src', 'util.js')).href);
+    } catch {
+        utilModule = null;
+    }
+    return utilModule;
+}
+
+export async function userAccountsEnabled() {
+    const util = await loadUtil();
+    if (typeof util?.getConfigValue !== 'function') return false;
+    try {
+        return util.getConfigValue('enableUserAccounts', false, 'boolean') === true;
+    } catch {
+        return false;
+    }
+}
+
+export async function resolveKey(request, providerId = 'typesafe', options = {}) {
+    const provider = PROVIDERS[providerId];
+    if (!provider) return null;
     const secrets = await loadSecrets();
     if (typeof secrets?.readSecret === 'function' && request?.user?.directories) {
         try {
-            const value = secrets.readSecret(request.user.directories, SECRET_KEY);
+            const value = secrets.readSecret(request.user.directories, provider.secretKey);
             if (typeof value === 'string' && value.trim()) return { key: value.trim(), source: 'st-secrets' };
         } catch {
             // fall through to the next source
         }
     }
-    const fromEnv = process.env.TYPESAFE_API_KEY?.trim();
+    const accounts = typeof options.accountsEnabled === 'boolean' ? options.accountsEnabled : await userAccountsEnabled();
+    if (accounts) return null;
+    const fromEnv = process.env[provider.envKey]?.trim();
     if (fromEnv) return { key: fromEnv, source: 'env' };
-    const fromDotenv = keyFromDotenv();
+    const fromDotenv = provider.dotenv ? keyFromDotenv() : '';
     if (fromDotenv) return { key: fromDotenv, source: 'dotenv' };
     return null;
+}
+
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
+
+export function llamaEndpoint(env = process.env) {
+    const raw = env[PROVIDERS['llama-logprob'].urlEnv]?.trim();
+    if (!raw) return null;
+    try {
+        const url = new URL(raw);
+        if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+        return { base: url.href.replace(/\/$/, ''), host: url.host, local: LOOPBACK_HOSTS.has(url.hostname) };
+    } catch {
+        return null;
+    }
+}
+
+export function validateLlamaBody(body) {
+    if (!isRecord(body)) return { issues: ['body must be a JSON object'] };
+    const issues = [];
+    if (typeof body.prompt !== 'string' || !body.prompt.trim()) issues.push('prompt must be a non-empty string');
+    else if (body.prompt.length > LLAMA_LIMITS.maxPromptChars) issues.push(`prompt is over ${LLAMA_LIMITS.maxPromptChars} chars`);
+    if (!Number.isInteger(body.n_predict) || body.n_predict < 1 || body.n_predict > LLAMA_LIMITS.maxPredict) issues.push(`n_predict must be 1-${LLAMA_LIMITS.maxPredict}`);
+    if (!Number.isInteger(body.n_probs) || body.n_probs < 1 || body.n_probs > LLAMA_LIMITS.maxProbs) issues.push(`n_probs must be 1-${LLAMA_LIMITS.maxProbs}`);
+    if (typeof body.temperature !== 'number' || body.temperature < 0 || body.temperature > 2) issues.push('temperature must be 0-2');
+    if (issues.length) return { issues };
+    return {
+        issues,
+        payload: {
+            prompt: body.prompt,
+            n_predict: body.n_predict,
+            n_probs: body.n_probs,
+            temperature: body.temperature,
+            cache_prompt: body.cache_prompt === true,
+            post_sampling_probs: body.post_sampling_probs === true,
+            stream: false,
+        },
+    };
 }
 
 const isRecord = (value) => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -116,15 +186,15 @@ export function validateRequest(body) {
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function callUpstream(key, payload, fetchImpl) {
+async function callUpstream(key, payload, fetchImpl, url = apiUrl()) {
     let last = null;
     for (let attempt = 0; attempt < 2; attempt += 1) {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
         try {
-            const response = await fetchImpl(apiUrl(), {
+            const response = await fetchImpl(url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+                headers: key ? { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` } : { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
                 signal: controller.signal,
             });
@@ -193,20 +263,49 @@ export function createLimiter({ maxInFlight = MAX_IN_FLIGHT_PER_USER, perMinute 
     };
 }
 
-export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now } = {}) {
+export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, accountsEnabled, env = process.env } = {}) {
     const acquire = createLimiter({ now });
+    const keyOptions = typeof accountsEnabled === 'boolean' ? { accountsEnabled } : {};
+    const guarded = async (request, response, run) => {
+        const blocked = guardRequest(request);
+        if (blocked) return response.status(blocked.status).json({ error: blocked.error });
+        const read = await readTextBody(request);
+        if (read.error) return response.status(read.status).json({ error: read.error });
+        const release = acquire(request?.user?.profile?.handle ?? 'default-user');
+        if (!release) return response.status(429).json({ error: 'too many judge calls for this user; retry shortly' });
+        try {
+            return await run({ ...request, headers: request.headers, user: request.user, body: read.body }, response);
+        } finally {
+            release();
+        }
+    };
     const handlers = {
         async status(request, response) {
-            const resolved = await resolveKey(request);
+            const resolved = await resolveKey(request, 'typesafe', keyOptions);
+            const llama = llamaEndpoint(env);
+            const llamaKey = llama ? await resolveKey(request, 'llama-logprob', keyOptions) : null;
             return response.json({
                 configured: Boolean(resolved), keySource: resolved?.source ?? null, model: DEFAULT_MODEL, pluginVersion: PLUGIN_VERSION,
                 limits: { maxInFlight: MAX_IN_FLIGHT_PER_USER, perMinute: MAX_CALLS_PER_MINUTE_PER_USER },
+                providers: {
+                    typesafe: { configured: Boolean(resolved), keySource: resolved?.source ?? null, contract: PROVIDERS.typesafe.contract, local: false, host: new URL(apiUrl()).host },
+                    'llama-logprob': { configured: Boolean(llama), keySource: llamaKey?.source ?? null, contract: PROVIDERS['llama-logprob'].contract, local: llama?.local ?? false, host: llama?.host ?? null },
+                },
             });
+        },
+        async llamaCompletion(request, response) {
+            const endpoint = llamaEndpoint(env);
+            if (!endpoint) return response.status(409).json({ configured: false, error: `no llama-server configured (set ${PROVIDERS['llama-logprob'].urlEnv} on the SillyTavern server)` });
+            const { issues, payload } = validateLlamaBody(request.body);
+            if (issues.length) return response.status(400).json({ error: 'invalid request', issues });
+            const resolved = await resolveKey(request, 'llama-logprob', keyOptions);
+            const upstream = await callUpstream(resolved?.key ?? null, payload, fetchImpl, `${endpoint.base}/completion`);
+            response.status(upstream.status).type('application/json').send(upstream.text);
         },
         async systemone(request, response) {
             const issues = validateRequest(request.body);
             if (issues.length) return response.status(400).json({ error: 'invalid request', issues });
-            const resolved = await resolveKey(request);
+            const resolved = await resolveKey(request, 'typesafe', keyOptions);
             if (!resolved) return response.status(409).json({ configured: false, error: 'no TypeSafe API key configured' });
             const model = typeof request.body.model === 'string' && request.body.model.trim() ? request.body.model.trim() : DEFAULT_MODEL;
             if (!PERMITTED_MODELS.includes(model)) return response.status(400).json({ error: `model not permitted: ${model}`, permitted: PERMITTED_MODELS });
@@ -214,18 +313,11 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now } 
             const upstream = await callUpstream(resolved.key, payload, fetchImpl);
             response.status(upstream.status).type('application/json').send(upstream.text);
         },
-        async receive(request, response) {
-            const blocked = guardRequest(request);
-            if (blocked) return response.status(blocked.status).json({ error: blocked.error });
-            const read = await readTextBody(request);
-            if (read.error) return response.status(read.status).json({ error: read.error });
-            const release = acquire(request?.user?.profile?.handle ?? 'default-user');
-            if (!release) return response.status(429).json({ error: 'too many judge calls for this user; retry shortly' });
-            try {
-                return await handlers.systemone({ ...request, headers: request.headers, user: request.user, body: read.body }, response);
-            } finally {
-                release();
-            }
+        receive(request, response) {
+            return guarded(request, response, handlers.systemone);
+        },
+        receiveLlama(request, response) {
+            return guarded(request, response, handlers.llamaCompletion);
         },
     };
     return handlers;
@@ -235,6 +327,7 @@ export async function init(router) {
     const handlers = createHandlers();
     router.get('/status', (request, response) => { void handlers.status(request, response); });
     router.post('/systemone', (request, response) => { void handlers.receive(request, response); });
+    router.post('/providers/llama-logprob/completion', (request, response) => { void handlers.receiveLlama(request, response); });
     const resolved = await resolveKey(null);
     console.log(`[story-orchestrator-judge] loaded; key from ${resolved?.source ?? 'ST secrets (per user) or not configured'}`);
 }

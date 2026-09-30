@@ -199,3 +199,44 @@ export const ReadinessSilentWhenEverythingIsMeasured: Story = {
     await expect(canvasElement.querySelector("#so-judge-recommended-config")).toBeInTheDocument();
   },
 };
+
+export const PrivacyNoticeOncePerProviderThatLeavesTheMachine: Story = {
+  args: { settings: settings({ enabled: true }, { director: true }), status: ready },
+  play: async ({ args, canvasElement }) => {
+    const notice = canvasElement.querySelector("#so-judge-privacy-typesafe");
+    await expect(notice?.textContent).toContain("sent to TypeSafe");
+    await expect(notice?.querySelector("a")?.getAttribute("href")).toBe("https://typesafe.ai/legal/privacy-policy");
+    await expect(canvasElement.querySelector("#so-judge-privacy-llama-logprob")).toBeNull();
+    await userEvent.click(required(canvasElement.querySelector<HTMLButtonElement>("#so-judge-privacy-ack-typesafe"), "ack button"));
+    await expect(args.onChange).toHaveBeenCalledWith({ noticesSeen: ["typesafe"] });
+  },
+};
+
+export const AcknowledgedNoticeStaysGone: Story = {
+  args: { settings: settings({ enabled: true, noticesSeen: ["typesafe"] }, { director: true }), status: ready },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-judge-privacy-typesafe")).toBeNull();
+  },
+};
+
+export const RoutedToAnUncalibratedLocalProvider: Story = {
+  args: {
+    settings: settings({ enabled: true, provider: { ...defaultJudgeSettings().provider, stallCheck: "llama-logprob" } }, { stallCheck: true }),
+    status: {
+      ...ready,
+      providers: {
+        typesafe: { configured: true, keySource: "st-secrets", local: false, host: "api.typesafe.ai" },
+        "llama-logprob": { configured: true, keySource: null, local: true, host: "127.0.0.1:8080" },
+      },
+    },
+  },
+  play: async ({ args, canvasElement }) => {
+    const select = required(canvasElement.querySelector<HTMLSelectElement>("#so-judge-provider-stall-check"), "stall provider select");
+    await expect(select.value).toBe("llama-logprob");
+    await expect(canvasElement.querySelector("#so-judge-readiness")?.textContent).toContain("which nothing has calibrated it on");
+    await expect(canvasElement.querySelector("#so-judge-local-llama-logprob")?.textContent).toContain("runs on this machine (127.0.0.1:8080)");
+    await expect(canvasElement.querySelector("#so-judge-privacy-llama-logprob")).toBeNull();
+    await userEvent.selectOptions(required(canvasElement.querySelector<HTMLSelectElement>("#so-judge-provider-memory-verify"), "memory provider select"), "llama-logprob");
+    await expect(args.onChange).toHaveBeenCalledWith({ provider: { memoryVerify: "llama-logprob" } });
+  },
+};
