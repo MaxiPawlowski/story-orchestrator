@@ -1,10 +1,23 @@
 import { abortReasonName } from "@utils/signals";
 import type { HostModelRequestCustom } from "./hostTypes";
 import { isRecord } from "@utils/guards";
+import { isReasoningExhausted, reasoningExhaustedMessage, type ReasoningEffort } from "@utils/reasoningEffort";
+import { readReasoning, reasoningPayload, type ReasoningRoute } from "./reasoningPayload";
 
 export type ModelFinish = "stop" | "length" | "unknown";
-export type ModelFailureKind = "lapsed" | "timeout" | "transport" | "config";
-export type ModelReply = { ok: true; text: string; finish: ModelFinish } | { ok: false; kind: ModelFailureKind; message: string };
+export type ModelFailureKind = "lapsed" | "timeout" | "transport" | "config" | "reasoning-exhausted";
+
+export interface ReasoningMeter {
+  effort: ReasoningEffort;
+  applied: boolean;
+  collapsed: boolean;
+  unsupported: string | null;
+  budget: number;
+  chars: number;
+  tokens: number | null;
+}
+
+export type ModelReply = { ok: true; text: string; finish: ModelFinish; meter: ReasoningMeter } | { ok: false; kind: ModelFailureKind; message: string };
 
 export interface ModelSamplers {
   temperature?: number;
@@ -14,6 +27,8 @@ export interface ModelSamplers {
 export interface ModelRequestOptions {
   signal?: AbortSignal;
   samplers?: ModelSamplers;
+  effort?: ReasoningEffort;
+  reasoningBudget?: number;
 }
 
 export interface InstructSequences {
@@ -30,6 +45,7 @@ export interface ModelRequestHost {
   apiSelected: (api: string | undefined) => string | null;
   extractMessage: (json: unknown, type: string) => string;
   instructSequences: (name: string | undefined) => InstructSequences | null;
+  reasoningRoute?: (profileId: string) => ReasoningRoute | null;
 }
 
 export const TEXT_COMPLETION_API = "textgenerationwebui";
@@ -125,18 +141,26 @@ export async function requestModelReply(host: ModelRequestHost, profileId: strin
   if (!host.profileExists(profileId)) return { ok: false, kind: "config", message: `The selected memory model profile no longer exists or is not supported (ID: ${profileId})` };
   const profile = host.profile(profileId);
   const selected = host.apiSelected(profile?.api);
+  const effort = options.effort ?? "default";
+  const plan = reasoningPayload(effort === "default" ? null : host.reasoningRoute?.(profileId) ?? null, effort);
+  const budget = plan.applied && plan.thinks ? Math.max(0, Math.round(options.reasoningBudget ?? 0)) : 0;
+  const total = maxTokens + budget;
   try {
     const json = await host.sendRequest(
       profileId,
       [{ role: "user", content: prompt }],
-      maxTokens,
+      total,
       { extractData: false, includePreset: true, includeInstruct: true, stream: false, ...(signal ? { signal } : {}) },
-      samplerPayload(selected, options.samplers, maxTokens),
+      { ...samplerPayload(selected, options.samplers, total), ...plan.payload },
     );
     const type = selected === CHAT_COMPLETION_API ? CHAT_COMPLETION_API : TEXT_COMPLETION_API;
     const extracted = host.extractMessage(json, type);
     const text = type === TEXT_COMPLETION_API ? cleanTextCompletionReply(extracted, host.instructSequences(profile?.instruct)) : extracted;
-    return { ok: true, text, finish: readFinish(json) };
+    const finish = readFinish(json);
+    const read = readReasoning(json);
+    const meter: ReasoningMeter = { effort, applied: plan.applied, collapsed: plan.collapsed, unsupported: plan.unsupported, budget, chars: read.chars, tokens: read.tokens };
+    if (isReasoningExhausted(text, finish, meter)) return { ok: false, kind: "reasoning-exhausted", message: reasoningExhaustedMessage(meter, finish) };
+    return { ok: true, text, finish, meter };
   } catch (error) {
     return { ok: false, ...classifyHostFailure(error, signal) };
   }

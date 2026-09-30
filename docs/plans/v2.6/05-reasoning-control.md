@@ -1,6 +1,6 @@
 # Plan 05 — Reasoning control
 
-**Status: DRAFT 2026-09-30. Nothing built.** Overview: `00-overview.md`.
+**Status: R0-R2 BUILT 2026-09-30 (code + unit tests, see §Gate record). R3/R4 are measurements, not run: recipes below.** Overview: `00-overview.md`.
 
 ## Problem
 
@@ -29,6 +29,59 @@
 | F7 | With `extractData: false`, the CC reply JSON exposes `reasoning_content` separately (usable for metering) | `modelReply.ts:129-139` | capture |
 
 Output: a verified host-facts table in the overview, with file:line (the v2.4 `host-facts.md` shape).
+
+### R0 — verified 2026-09-30 (ST `7c3994196`, source read, no capture yet)
+
+Captures (the "verify by" column above) need a live ST + backend and run with R3; every row below is a source read.
+
+| # | Verdict | Evidence | What the build does with it |
+|---|---|---|---|
+| F1 | **Holds.** With the profile's preset found, `processRequest` → `presetToGeneratePayload` → `createGenerationParameters(settings)` then `{...payload, ...overridePayload}`; `sendRequest` spreads our payload into the request data first | `custom-request.js:555, 601, 605`; `extensions/shared.js:460` | our `reasoning_effort` / `include_reasoning` / `custom_include_body` win over the preset's |
+| F2 | **Holds.** Our override skips `getReasoningEffort` (client mapping, `openai.js:2545-2665`: `auto`→omitted, `min`→`low`/`none`/`minimal` per source), so we send the value each server branch takes | `openai.js:2545`, `:2821` | `reasoningPayload` maps per source (table below) and refuses a level a source cannot take |
+| F3 | **Wrong as written.** `chat-completions.js:1122` is `sendDeepSeekRequest`, not the custom source. The custom source forwards `reasoning_effort` only for `OPENAI_REASONING_EFFORT_MODELS` (`o1`, `o3*`, `gpt-5*`) or a `koboldcpp/*` model, `include_reasoning` irrelevant | `chat-completions.js:1071-1183` (DeepSeek), `:2600-2606` (custom/openai), `src/constants.js:461` | llama-server behind `custom` is driven through `custom_include_body` only; a `koboldcpp/` model gets `reasoning_effort` |
+| F4 | **Holds.** Client: `custom_include_body` is the preset's (or `oai_settings`') string, macro-substituted (`openai.js:2924`); ours replaces it. Server: `mergeObjectWithYaml` is a SHALLOW `Object.assign` (a YAML sequence folds item by item) | `util.js:844-864`, `chat-completions.js:2409` | the host reads the preset's body (or `oai_settings.custom_include_body` when the preset lacks the key, `custom-request.js:588-593`), substitutes macros, parses it with ST's own `yaml` (`SillyTavern.libs.yaml`, `lib.js:105`), and we send the merged object as JSON (valid YAML), with `chat_template_kwargs` merged one level deeper so an author's own kwargs survive |
+| F5 | **Open (needs the pod).** llama-server switches thinking with `chat_template_kwargs.enable_thinking` (gotcha 2026-09-25). No per-request budget key is assumed | gotchas.md | custom: `off` = `enable_thinking:false`; `low`/`medium`/`high` = `enable_thinking:true`, flagged `collapsed` (UI: "only switches thinking on or off"). R3's artemis-cc arm re-checks with a curl |
+| F6 | **Holds.** `text-completions.js` has no reasoning handling at all (grep: 0 hits) | `src/endpoints/backends/text-completions.js` | every level on a TC profile is `unsupported`: nothing is sent, no budget is added, the row says so. No prefill lever is built (no family measured) |
+| F7 | **Holds.** With `extractData:false` the raw JSON comes back; reasoning sits in `choices[0].message.reasoning_content` (custom/llama, DeepSeek), `.reasoning` (OpenRouter), Claude `content[].thinking`, Gemini `parts[].thought`; tokens in `usage.completion_tokens_details.reasoning_tokens` / `usageMetadata.thoughtsTokenCount` | `reasoning.js:121-140`, `custom-request.js:462-488` | `readReasoning` meters chars (+ tokens when present); the answer stays `content` only |
+
+**OpenRouter (W23):** `bodyParams.reasoning = { exclude: !include_reasoning }` and `reasoning.effort = reasoning_effort` verbatim
+(`chat-completions.js:2301-2350`). The client maps `min` to `none` for OpenRouter (`openai.js:2619`), so `none` is accepted.
+
+**Mapping as built (`src/services/stHost/reasoningPayload.ts`).** Kept to the sources this install plays on plus the ones
+whose server branch takes the level verbatim; the rest say "not mapped" instead of guessing (the bundle budget, §Gate record,
+also argued for a short table). DeepSeek (`low`/`high` only, `chat-completions.js:1122`) and `koboldcpp/*` behind `custom`
+(`:2604`) are verified and deliberately left unmapped until a profile needs them.
+
+| Source | `off` | `low` / `medium` / `high` |
+|---|---|---|
+| `openrouter` | `reasoning_effort: "none"`, reasoning excluded | the level, `include_reasoning: true` |
+| `custom` (llama-server etc.) | `custom_include_body` merged with `chat_template_kwargs.enable_thinking: false` | `enable_thinking: true` (collapsed: one "on" level) |
+| `makersuite`, `vertexai` | `reasoning_effort: "min"` (Flash budget 0; Pro keeps its minimum, `prompt-converters.js:1182`) | the level |
+| `openai`, `azure_openai`, `claude`, `xai` | **unsupported** | the level (the server maps or drops it per model: OpenAI only for reasoning models, Claude via `calculateClaudeBudgetTokens` as a fraction of `max_tokens` with a 1024 floor) |
+| anything else, Text Completion | **unsupported** ("not mapped" / "Text Completion sends a raw prompt") | **unsupported** |
+
+**Decisions made while building (R1/R2):**
+
+- `inner` is not added to `PASS_ROLES` here. Plan 06 Q4 makes it its own role, and plan 06 owns the pass, its self-test run
+  (`roleSelfTest.ts` `RUNS`), its live-suite `ROLE_PASS` entry and its Repair consequence. Effort and budget are keyed by
+  `PassRole` everywhere (`sanitizeRoleRoutes` iterates `PASS_ROLES`), so `inner` gets both the moment plan 06 adds it.
+- `reasoningBudget` is an install-wide settings key (`extraction.reasoningBudget`, sanitized per level to an integer in
+  0–32768, defaults low 512 / medium 2048 / high 6144). No panel control: R3 sets it, and the three number inputs cost more
+  bundle than the budget had left.
+- The whole "Memory model" settings group (`MemoryModelGroup`, which holds "Models per task" and its new effort select) is
+  now a lazy chunk, the `SettingsPanel` `ImageGroup`/`SpriteGroup` shape (`lazy(() => import(...))` in a `Suspense`, fallback
+  `null`). After plan 12 merged, master's main entry had 59 B of F1 headroom; the budget is not raised. It sits inside the
+  collapsed "General setup" disclosure, and the chunk loads when the panel mounts, so `#so-extraction-profile` and
+  `#so-role-profile-*` exist before anyone can open it.
+- A `reasoning-exhausted` read is NOT retried (the scheduler's 3-attempt loop now stops on it like `config`): the same
+  request at the same budget spends it again. It is still recorded as this chat's failed read (journal via `noteHealth`),
+  never a breaker trip, never a config problem, never a pause.
+- `reasoning-exhausted` is also raised when a reply was ONLY an inline think block (`stripReasoningBlocks` left nothing):
+  before, that read as an empty answer and a parse failure. A probe that exhausts still counts as the model answering.
+- The call record is per role, in memory, on `roleHealth` (the snapshot's `roleRoutes`), not a new ring: the last
+  observation per role carries the meter (`effort`, `applied`, `collapsed`, `unsupported`, `budget`, reasoning `chars`,
+  `tokens`) or the exhaustion. An observation made under another profile or effort is ignored, so a fixed setting clears the
+  Repair row at once. There is no plan 13 call ring in the tree to extend.
 
 ## R1 — One `effort` per role, across every route kind
 
@@ -84,6 +137,36 @@ Output: a verified host-facts table in the overview, with file:line (the v2.4 `h
   - Hypothesis to test, not to assume: `read`/`director` best at `off`, `authoring`/`synthesis` gain at `medium`.
 - **Output:** a table in `docs/plans/v2.6/recommended-reasoning.md` and one line per role in the UI. Defaults stay `default`.
 
+### R3 run recipe (not run; batched with the measurement schedule)
+
+Pre-declared in `test/measurements/v2.6-05/r3-matrix.json` (arms, roles, commands, floors, latency bounds, output paths).
+Both harness entry points take `--effort <level>`, pin `extraction.routes[role]` for the run, read back what the connection
+did (`reasoning.applied/unsupported/collapsed`, reasoning chars/tokens) into the report, and restore + read back the
+role map afterwards (`scripts/debug/lib/roleEffort.mts`).
+
+1. Lane from `adolion-fresh` is not needed (fixtures are self-contained); any seeded lane with the three profiles. Dev build:
+   `npm run build:dev && npm run stage -- --flavor dev`, `st-session.mts reload`.
+2. `so-run-header.mts capture --label v26-05-r3` (profiles and settings are install-wide).
+3. OpenRouter arm: write the chosen model into the matrix file and commit it before the first call.
+4. Per arm × role × level, twice consecutively:
+   - read: `node scripts/debug/so-live-suite.mts run --effort <level> --expect-count 29`
+   - others: `node scripts/debug/so-role-calibration.mts run --role <role> --effort <level> --arm <arm>-<level>-r<n>` (`--profile <name>` to
+     route the role to the arm's profile; authoring adds `--holdout`)
+5. `so-role-calibration.mts verdict r1 r2` per cell; read cells need both reports `ok:true` and p95 within the bound.
+6. `so-run-header.mts diff` against step 2; copy every report to `test/measurements/v2.6-05/<arm>/`; write
+   `docs/plans/v2.6/recommended-reasoning.md`; the UI line per role reads from it. Defaults stay `default`.
+
+### R4 spike recipe (not run; code NOT built)
+
+R4 needs its own build before the measurement: `effects.reasoning` in `schema.ts`/`validate.ts`, an arm/disarm in
+`samplerOverlay.ts` keyed chat + checkpoint, written by `samplerOverlayHost` into loud requests only and only over keys the
+request already carries (`reasoning_effort`; for `custom`, `chat_template_kwargs` merged as in F4), behind a spike flag
+(`spikes.reasoningEffect`, default off, `__SO_DEV__` dynamic import like `runtime/spikes/`). `reasoningPayload` is reusable.
+Then: 20 climax turns across 2 Adolion stories from `adolion-fresh`, each turn generated twice (control = checkpoint without
+`effects.reasoning`, arm = `high`), payload captured with `st-payload.mts arm --persist` to prove the key landed, pairs
+shuffled blind into the rating pack (overview rule 11). Floor as declared above: arm preferred ≥ 60 % and p95 reply
+latency ≤ 2× control; a miss is recorded as not built.
+
 ## R4 — Checkpoint `effects.reasoning` for the main reply (spike)
 
 - **What:** `effects.reasoning: "off" | "low" | "medium" | "high"` on a checkpoint (e.g. a climax thinks harder).
@@ -137,3 +220,68 @@ Output: a verified host-facts table in the overview, with file:line (the v2.4 `h
 None. The hosted source is **OpenRouter** (overview W23). R0 checks how ST's OpenRouter source passes
 `reasoning_effort` and picks one reasoning-capable model per R3 run, stated before the run. Budget: about 300–600
 calls.
+
+## Gate record
+
+### 2026-09-30 — R0, R1, R2 built (code + unit tests); R3, R4 not run
+
+Worktree branch `worktree-agent-a8b067543e2b713fe`, merged with master `0aec773c` (plan 12) before the final gates.
+
+**What landed**
+
+- R0: the verified host-facts table above (§R0), source-read against ST `7c3994196`. F3 was wrong as written (line 1122 is
+  DeepSeek); F5 stays open until the pod is up; captures run with R3.
+- R1: `ReasoningEffort` (`src/utils/reasoningEffort.ts`), per role under `extraction.routes[role].route.options.effort`
+  (plan 13 H7 key shape; `sanitizeRoleRoutes`, unknown → dropped = `default`), carried on the resolved `ModelRoute.effort`
+  (`passProfiles.resolveRoute`, fallback and role routes alike), mapped by the pure `reasoningPayload(route, effort)`
+  (`src/services/stHost/reasoningPayload.ts`), host read of source/model/preset body in `connectionProfiles.ts`
+  (`readReasoningRoute`, merge per F4 via `parseHostYaml` in `context.ts`). `default` reads no route and sends nothing.
+  Unsupported sends nothing and says why (`meter.unsupported`, the role row's note). UI: an effort select per role in
+  "Models per task" (`#so-role-effort-<role>`), with the unsupported / collapsed note (`[data-so="role-reasoning-note"]`).
+- R2: `maxTokens = answer budget + reasoningBudget[level]` only when applied and not `off` (`requestModelReply`); the call
+  timeout grows with it (`replyVia`). New failure kind `reasoning-exhausted` (empty answer with reasoning present, or cut at
+  the limit; also an inline-think-only reply). Scheduler: failed read, journaled, not retried, never a breaker/config/pause.
+  A probe that exhausts still closes the breaker. Repair: `roleRoutes` state `reasoning-exhausted` →
+  "The model spent its whole budget thinking — lower the effort for <role> or raise the budget." Meter per call
+  (`ReasoningMeter`: effort, applied, collapsed, unsupported, budget, reasoning chars, tokens) on the role row.
+- R3/R4: recipes above; `test/measurements/v2.6-05/r3-matrix.json` pre-declares arms, commands, floors and latency bounds;
+  `so-live-suite.mts` and `so-role-calibration.mts` gained `--effort <level>` (`scripts/debug/lib/roleEffort.mts`: pin,
+  read back what the connection did, restore + read back, p50/p95).
+
+**Gates (all from this worktree, after the merge with master `0aec773c`)**
+
+| Command | Result |
+|---|---|
+| `npm run typecheck` | exit 0 |
+| `npm run typecheck:test` | exit 0 |
+| `npm run lint` | exit 0 |
+| `npm test` | 347 suites, 4654 tests passed (one earlier run under load timed out `startupWiring.review` "unbinds the parent's mirror…" at 5 s; passes alone and on the full re-run) |
+| `npm run test:debug` | 425 pass, 0 fail (run after `npm run build`; before a build the run-header manifest test has nothing to read) |
+| `npm run build` | exit 0; **main entry `dist/manifest.json` `bundle.bytes` = 1 247 877** (F1 budget 1 250 000; master `0aec773c` was 1 249 941) |
+| `npm run build:dev` then `npm run test:release` | 77 pass, 0 fail (the dev-flavour check needs `dist-dev/`) |
+| Storybook: `storybook build --output-dir .sb-static-05`, `http-server -p 6105`, `test-storybook --url http://127.0.0.1:6105 --index-json` | 37 suites, 275 tests passed, incl. `settings-roleprofilesgroup--reasoning-effort` (`--index-json` because the `node_modules` junction resolves the runner's rootDir to the main checkout) |
+
+**Mutants (budget rule 3), each killed by the named test file:** budget not added (`modelReply.test`), include body
+replaced instead of merged (`reasoningPayload.test`), exhaustion never detected (`modelReply.test`), exhausted role not a
+Repair row (`reasoningControl.test`), exhausted read retried (`scheduler.breaker.test`), probe exhaustion counted as a
+failure (`client.test`), effort dropped from the route (`reasoningControl.test`), inline think block not exhausted
+(`client.test`), sanitizer keeping an unknown effort (`reasoningControl.test`). 9 of 9 killed.
+
+**Deviations**
+
+- Bundle: the feature costs ~8 KB minified; the whole `MemoryModelGroup` became a lazy chunk (see §Decisions) instead of
+  raising F1. The install-wide budget has no panel control (settings key only).
+- The per-profile capability probe (`stHost/capabilities.ts` shape) and the `CapabilitiesGroup` read-out are NOT built: the
+  answer comes from the mapping plus the per-call meter on the role row, which needs no extra call. Add the probe only if
+  R3 shows a source whose acceptance the mapping cannot predict.
+- Mapping is narrower than the R0 survey (DeepSeek, `koboldcpp/*`, and six OpenAI-shaped sources read "not mapped").
+- `inner` role not added (plan 06 owns it; effort/budget attach automatically).
+- Journal: the exhaustion reaches the journal through the scheduler's existing `noteHealth` ("extraction failed: <reason>"),
+  no new journal kind. Off-path passes outside the scheduler (curator, synthesis, director) surface it on the role row only.
+
+**Live gate: NOT run** (overview rule 13: batched; no backend used here). Pending for the final suite / measurement schedule:
+the runtime gate in §Gates (one real call per role × level on Artemis TC + CC, payload captured at the server hop asserting the
+key landed or `applied: false`, a forced small budget reproducing `reasoning-exhausted`, run-header diff around the batch),
+R3 (recipe + matrix above; OpenRouter model to be written into the matrix before the first call) and R4 (needs its spike
+build first).
+

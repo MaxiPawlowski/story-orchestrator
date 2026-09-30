@@ -5,7 +5,7 @@ import { replyVia } from "./reply";
 
 export async function probeModel(profileId: string, timeoutMs: number = PROBE_TIMEOUT_MS): Promise<ProbeResult> {
   const reply = await sendConnectionProfileRequest(profileId, PROBE_PROMPT, PROBE_MAX_TOKENS, { signal: AbortSignal.timeout(timeoutMs) });
-  if (reply.ok) return { ok: true };
+  if (reply.ok || reply.kind === "reasoning-exhausted") return { ok: true };
   return { ok: false, kind: reply.kind, message: reply.kind === "timeout" ? `the memory model did not answer a probe within ${timeoutMs} ms` : reply.message };
 }
 
