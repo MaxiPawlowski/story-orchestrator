@@ -2,7 +2,7 @@ import { type RosterMember } from "@engine/index";
 import type { ProposalOp } from "./types";
 import { isRecord } from "@utils/guards";
 import {
-  readArcBridges, readArcTemplate, readCheckpoint, readCheckpointPatch, readEffects, readGate, readQuality,
+  readArcBridges, readArcTemplate, readCheckpoint, readCheckpointPatch, readEffects, readGate, readInnerVoice, readQuality,
   readQualityPatch, readRequirements, readRosterMember, readSnapshot, readStringList, readTransition,
   readTransitionPatch, readTransitionRef, requireString,
 } from "./parseFields";
@@ -97,6 +97,7 @@ const readUpdateRosterMember: OpReader = (value, path, issues) => {
   const patch: Partial<RosterMember> = {};
   if (isRecord(value.patch) && typeof value.patch.name === "string") patch.name = value.patch.name;
   if (isRecord(value.patch) && typeof value.patch.role === "string") patch.role = value.patch.role.trim() || undefined;
+  if (isRecord(value.patch)) Object.assign(patch, readInnerVoice(value.patch));
   return { kind: "updateRosterMember", id, patch };
 };
 

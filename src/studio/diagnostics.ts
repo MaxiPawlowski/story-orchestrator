@@ -42,6 +42,8 @@ export const DIAGNOSTIC_CODES = [
   "house-rule-compound",
   "checkpoint-inherits-author-note",
   "world-info-rests-off",
+  "motive-member-unknown",
+  "motive-for-player",
 ] as const;
 
 // Every code says what it costs the story before it says what is technically wrong: the
@@ -76,6 +78,8 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   "house-rule-compound": "The check asks one question per rule, so a rule that demands two things is judged on whichever one the model reads.",
   "checkpoint-inherits-author-note": "The model keeps being told an earlier checkpoint's note here.",
   "world-info-rests-off": "These lorebook entries stay off in their lorebooks, and are switched on only in this story's own chats.",
+  "motive-member-unknown": "Nobody is told this motive, because no cast member has that id.",
+  "motive-for-player": "Motives describe the characters; the player's choices are theirs, so this one is never given to anyone.",
 };
 
 // D: what the Studio needs to know about the install, not the story.
@@ -471,6 +475,20 @@ const checkWorldInfoGating = (run: DiagnosticRun) => {
   }
 };
 
+const checkMotives = (run: DiagnosticRun) => {
+  const { draft, push } = run;
+  const cast = new Set(draft.roster.map((member) => member.id));
+  const players = new Set(["player", "user", "{{user}}", ...(draft.requirements?.personas ?? [])].map((name) => name.trim().toLowerCase()));
+  draft.checkpoints.forEach((checkpoint, index) => {
+    Object.keys(checkpoint.motives ?? {}).forEach((id) => {
+      if (cast.has(id)) return;
+      const path = `checkpoints.${index}.motives.${id}`;
+      if (players.has(id.trim().toLowerCase())) push("motive-for-player", "warning", path, `'${id}' is the player; motives describe the characters, and the player's choices are theirs`);
+      else push("motive-member-unknown", "warning", path, `motive for '${id}', which is not a roster id`);
+    });
+  });
+};
+
 const DIAGNOSTIC_CHECKS = [
   checkGates,
   checkAnchorsReachable,
@@ -488,6 +506,7 @@ const DIAGNOSTIC_CHECKS = [
   checkHouseRules,
   checkSceneLocation,
   checkWorldInfoGating,
+  checkMotives,
 ];
 
 export const runDiagnostics = (draft: StoryV2, context: DiagnosticsContext = {}): Diagnostic[] => {

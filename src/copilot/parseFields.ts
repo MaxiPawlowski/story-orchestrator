@@ -183,6 +183,12 @@ export const readEffects = (value: unknown, path: string, issues: string[]): Che
   return effects;
 };
 
+const readMotives = (value: unknown): Record<string, string> | undefined => {
+  if (!isRecord(value)) return undefined;
+  const kept = Object.entries(value).filter((entry): entry is [string, string] => typeof entry[1] === "string" && entry[1].trim().length > 0);
+  return kept.length ? Object.fromEntries(kept.map(([id, text]) => [id, text.trim()])) : undefined;
+};
+
 export const readCheckpointPatch = (value: Record<string, unknown>, path: string, issues: string[]): Partial<Checkpoint> => {
   const patch: Partial<Checkpoint> = {};
   if (typeof value.name === "string") patch.name = value.name;
@@ -195,6 +201,8 @@ export const readCheckpointPatch = (value: Record<string, unknown>, path: string
   if (typeof value.tension_target === "string" && (TENSION_LEVELS as readonly string[]).includes(value.tension_target)) patch.tension_target = value.tension_target as TensionLevel;
   if (value.state_snapshot !== undefined) patch.state_snapshot = readSnapshot(value.state_snapshot, `${path}.state_snapshot`, issues);
   if (value.effects !== undefined) patch.effects = readEffects(value.effects, `${path}.effects`, issues);
+  const motives = readMotives(value.motives);
+  if (motives) patch.motives = motives;
   return patch;
 };
 
@@ -219,7 +227,8 @@ export const readCheckpoint = (value: unknown, path: string, issues: string[]): 
     ...(patch.convergence_threshold !== undefined ? { convergence_threshold: patch.convergence_threshold } : {}),
     ...(patch.tension_target ? { tension_target: patch.tension_target } : {}),
     ...(patch.state_snapshot ? { state_snapshot: patch.state_snapshot } : {}),
-    ...(patch.effects ? { effects: patch.effects } : {})
+    ...(patch.effects ? { effects: patch.effects } : {}),
+    ...(patch.motives ? { motives: patch.motives } : {})
   };
 };
 
@@ -283,8 +292,13 @@ export const readRosterMember = (value: unknown, path: string, issues: string[])
     issues.push(`${path}.id: required`);
     return null;
   }
-  return { id: value.id, ...(typeof value.name === "string" ? { name: value.name } : {}), ...(typeof value.role === "string" && value.role.trim() ? { role: value.role.trim() } : {}) };
+  return { id: value.id, ...(typeof value.name === "string" ? { name: value.name } : {}), ...(typeof value.role === "string" && value.role.trim() ? { role: value.role.trim() } : {}), ...readInnerVoice(value) };
 };
+
+export const readInnerVoice = (value: Record<string, unknown>): Pick<RosterMember, "drive" | "view"> => ({
+  ...(typeof value.drive === "string" && value.drive.trim() ? { drive: value.drive.trim() } : {}),
+  ...(value.view === "own" || value.view === "omniscient" ? { view: value.view } : {}),
+});
 
 export const readArcTemplate = (value: unknown, path: string, issues: string[]): ArcTemplate | null | undefined => {
   if (value === null) return null;
