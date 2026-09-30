@@ -80,7 +80,7 @@ export type { ConnectionProfileSummary } from "@services/stHost/connectionProfil
 export { countTokens, countTokensBatch } from "@services/stHost/tokenizer";
 export { readProfileContextLimit, readProfilePresetName } from "@services/stHost/contextLimit";
 export { vectorInsert, vectorQuery, vectorPurge, DEFAULT_VECTOR_SOURCE } from "@services/stHost/vectors";
-export { judgeStatus, judgeTransport, writeJudgeSecret, JUDGE_PLUGIN_BASE, JUDGE_PLUGIN_ID, JUDGE_SECRET_KEY, type JudgeStatus } from "@services/stHost/judge";
+export { judgeLlamaComplete, judgeStatus, judgeTransport, writeJudgeSecret, JUDGE_PLUGIN_BASE, JUDGE_PLUGIN_ID, JUDGE_SECRET_KEY, type JudgeStatus } from "@services/stHost/judge";
 export {
   imageChat, imageModel, imageRender, imageSave, imageDelete, imagePlace, imageChatSettings, imageWriteChatSettings, imageComfyUrl, imageReview,
   type ImageChat, type ImageMedia,
