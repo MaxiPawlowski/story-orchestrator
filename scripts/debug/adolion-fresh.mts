@@ -5,7 +5,7 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { lanesRootFor, REPO_ROOT } from '../lib/stRoot.mjs';
 import {
-  buildInventory, buildManifest, checkInventory, diffInventories, installerProblems, isInstalledBook, stripPlan,
+  buildInventory, buildManifest, checkInventory, diffInventories, expectedStartDisabled, installerProblems, isInstalledBook, stripPlan,
   type AdolionManifest, type Inventory, type LaneDisk, type RuntimeReadiness,
 } from './lib/adolionFresh.mts';
 
@@ -258,6 +258,26 @@ async function pagePhase(mode: 'seed' | 'check', exportDir: string, commit: stri
       }
       await page.waitForTimeout(1000);
     };
+    const waitForStartCast = async (groupName: string, expected: string[]) => {
+      const started = Date.now();
+      let last = -1;
+      let progressAt = Date.now();
+      let disabled = 0;
+      while (Date.now() - progressAt < 60000 && Date.now() - started < 900000) {
+        const now = await evaluateInST(page, async (name: string) => {
+          const ctx = SillyTavern.getContext();
+          const response = await fetch('/api/groups/all', { method: 'POST', headers: ctx.getRequestHeaders(), body: '{}' });
+          const groups = response.ok ? await response.json() : [];
+          return (groups.find((group: { name?: string }) => group.name === name)?.disabled_members ?? []) as string[];
+        }, groupName);
+        disabled = expected.filter((avatar) => now.includes(avatar)).length;
+        const extra = now.filter((avatar) => !expected.includes(avatar)).length;
+        if (disabled === expected.length && !extra) return { done: true, expected: expected.length, disabled, ms: Date.now() - started, stalledMs: 0 };
+        if (disabled !== last) { last = disabled; progressAt = Date.now(); }
+        await page.waitForTimeout(1000);
+      }
+      return { done: false, expected: expected.length, disabled, ms: Date.now() - started, stalledMs: Date.now() - progressAt };
+    };
     const openBound = async (name: string) => {
       const opened = await evaluateInST(page, async (groupName: string) => {
         const ctx = SillyTavern.getContext();
@@ -335,8 +355,10 @@ async function pagePhase(mode: 'seed' | 'check', exportDir: string, commit: stri
           const snapshot = rt.getSnapshot();
           return { ok, storyId: snapshot?.storyId ?? null, checkpoint: snapshot?.engine?.activeCheckpointId ?? snapshot?.activeCheckpointId ?? null, status: snapshot?.status ?? null };
         }, { raw, id: story.id });
-        imports.push({ story: story.id, group: group.name, chatId: where.chatId, ...result });
+        const cast = await waitForStartCast(group.name, expectedStartDisabled(manifest, group));
+        imports.push({ story: story.id, group: group.name, chatId: where.chatId, ...result, cast });
         if (!result.ok || result.storyId !== story.id) problems.push(`import ${story.id}: ${JSON.stringify(result)}`);
+        if (!cast.done) problems.push(`import ${story.id}: the start cast never finished applying (${cast.disabled}/${cast.expected} disabled, stalled ${cast.stalledMs} ms)`);
         await settle();
       }
       out.imports = imports;
