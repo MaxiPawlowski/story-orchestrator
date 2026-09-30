@@ -38,6 +38,9 @@
     "test:debug": "node --test \"scripts/debug/**/*.test.mts\" \"scripts/lib/*.test.mjs\"",
     "typecheck:test": "tsc -p tsconfig.test.json",
     "mutate": "node scripts/mutate.mjs",
+    "test:replay": "node scripts/suite/defect-replay.mjs",
+    "suite:inventory": "node scripts/suite/inventory.mjs",
+    "suite:mutation": "node scripts/suite/mutation-baseline.mjs",
     "test:release": "node --test \"scripts/release/*.test.mjs\""
   },
   "eslintConfig": {

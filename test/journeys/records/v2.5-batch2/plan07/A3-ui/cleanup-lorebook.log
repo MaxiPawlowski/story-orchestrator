@@ -1,9 +1,0 @@
-2026-09-26T23:08:31.637Z {
-2026-09-26T23:08:31.639Z   "command": "/world silent=true state=off \"Xentar Checkpoints\"",
-2026-09-26T23:08:31.639Z   "ok": true,
-2026-09-26T23:08:31.639Z   "pipe": "",
-2026-09-26T23:08:31.639Z   "messagesBefore": 1,
-2026-09-26T23:08:31.639Z   "messagesAfter": 1,
-2026-09-26T23:08:31.639Z   "newMessages": 0
-2026-09-26T23:08:31.639Z }
-2026-09-26T23:08:31.656Z Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-26T23-08-31-654Z_st-slash-result.json

@@ -1,9 +1,0 @@
-{
-  "lane": 2, "batch": "B3", "rows": ["J11", "J12"],
-  "prep": { "reload": "st-session reload ok", "openGroup": "1759606632088 ok", "profile": "/profile Artemis RunPod RP ok, #send_but interactable", "bundleServed": "65733265d3015e620e5f26221d4cbfdbce59541b49e356c69c13642f386f0cab", "pong": { "Artemis RunPod": "ok 536 ms", "Artemis RunPod RP": "ok 689 ms", "Image Director": "ok 617 ms", "Story Orchestrator Memory RunPod": "ok 613 ms", "Story Orchestrator Memory Local": "API request failed (5 ms), not used by J11/J12 (profile inherit)" }, "ref24": { "cadence": 3, "acceptMode": "review", "judge": "enabled false, all uses false", "steppedThinking.is_enabled": false, "changed": "nothing" }, "plugin": "GET /api/plugins/story-orchestrator-judge/status 200 {configured:true,keySource:dotenv,model:jev-1.13.0}" },
-  "headerBatchStart": "header-batch-start.json",
-  "headerBatchEnd": "header-batch-end-diff.log: 0 differences, 0 blocking (--allow build.head)",
-  "assets": "so-assets assert-clean --marker SO-J11: clean (assert-clean-SO-J11-end.log)",
-  "groups": "1759606632088: 55 chats (as at start), disabled []; 1789797226071: 9 chats (as at start), disabled []; no 2026-09-25 chat listed in either server group file, no listed chat missing its file",
-  "manualRepair": "after J11 run1: editGroup(1759606632088, true, false) on the live (correct) group object, to drop the deleted sandbox chat the server file still listed"
-}

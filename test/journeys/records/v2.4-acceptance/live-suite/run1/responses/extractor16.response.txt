@@ -1,4 +1,0 @@
-DELTA tension_current value="critical" evidence="The floor cracks and the ceiling begins to collapse around them."
-MEMORY type="scene" importance=3 expiration="scene" text="The floor is cracking and the ceiling is collapsing around the characters." evidence="The floor cracks and the ceiling begins to collapse around them."
-SCENE_NONE
-[arc] Characters must escape the collapsing structure

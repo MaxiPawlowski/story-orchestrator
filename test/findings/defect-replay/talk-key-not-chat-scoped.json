@@ -1,0 +1,12 @@
+{
+  "id": "talk-key-not-chat-scoped",
+  "defect": "the talk decision key was checkpoint:message, so a new chat reused the previous chat decision",
+  "guards": ".claude/rules/gotchas.md: \"Plan 14 speaker direction ... The decision key is chat-scoped\" (v2.1 plan 08)",
+  "fixCommit": "1bb0e71b 2.1/7-8",
+  "file": "src/runtime/talkControl.ts",
+  "find": "return `${this.host.getChatId() ?? \"?\"}:${this.host.getCheckpointInfo()?.id ?? \"?\"}:${this.host.getLastMessageId()}`;",
+  "replace": "return `${this.host.getCheckpointInfo()?.id ?? \"?\"}:${this.host.getLastMessageId()}`;",
+  "tests": [
+    "src/runtime/talkControl.test.ts"
+  ]
+}

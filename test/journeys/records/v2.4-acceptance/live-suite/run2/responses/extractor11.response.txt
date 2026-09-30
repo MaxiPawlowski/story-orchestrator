@@ -1,4 +1,0 @@
-DELTA bridge_lowered value=true evidence="The drawbridge groans down across the moat."
-DELTA tension_current value="calm" evidence="The drawbridge groans down across the moat."
-MEMORY type=detail importance=1 expiration=scene text="The drawbridge has been lowered across the moat." evidence="The drawbridge groans down across the moat."
-SCENE_NONE

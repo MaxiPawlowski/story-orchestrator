@@ -1,0 +1,12 @@
+{
+  "id": "talk-lead-outside-speakers",
+  "defect": "a lead that speakers left out was never a candidate: the Adolion narrator went silent for 12 turns",
+  "guards": ".claude/rules/gotchas.md: \"A lead that speakers leaves out is still a candidate\" (2026-09-19)",
+  "fixCommit": "f6b53ba7 2026-09-19 fixes: gated WI out of curator scope, epistemic common-knowledge drop, lead joins candidates, canon prose",
+  "file": "src/talk/rules.ts",
+  "find": "const refs = [...control.speakers, ...(control.lead ? [{ member: control.lead }] : [])];",
+  "replace": "const refs = [...control.speakers];",
+  "tests": [
+    "src/talk/talk.test.ts"
+  ]
+}

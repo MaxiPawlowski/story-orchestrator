@@ -1,0 +1,13 @@
+{
+  "id": "save-binds-late-empty-save",
+  "defect": "a save asked for in one chat ran inside a chat switch and wrote an EMPTY chat under the next chat name",
+  "guards": ".claude/rules/gotchas.md: \"ST binds a chat save to the chat that is open when the save RUNS\" (v2.4 plan 02)",
+  "fixCommit": "3a7ef379 fix: a save asked for in one chat could write an EMPTY chat into the next (a new branch lost every message). ST's saveChatConditional polls >=100 ms before reading the open chat and openGroupChat clears + repoints chat_id before loading; our persist also saved twice. savePersistedRuntime no longer saves; the save watcher, armed with the chat asked for, holds back an empty save of another chat and counts a save that landed elsewhere as lost (reason in save evidence). Found by J10.14 flake + in-page recorder; M-S1..S5 killed. jest 2913",
+  "file": "src/services/stHost/persistence.ts",
+  "find": "  if (target.messages === 0) return `the open chat changed before the save ran: an empty save",
+  "replace": "  if (false) return `the open chat changed before the save ran: an empty save",
+  "tests": [
+    "src/services/stHost/saveWatcher.test.ts",
+    "src/runtime/chatSave.test.ts"
+  ]
+}
