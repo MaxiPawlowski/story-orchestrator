@@ -17,14 +17,14 @@ Rules applied:
 | LLM scenario | demote | 34 |
 | LLM scenario | keep | 32 |
 | LLM scenario | merge | 6 |
-| harness | keep | 71 |
-| jest | keep | 347 |
-| journey check | keep | 143 |
+| harness | keep | 72 |
+| jest | keep | 354 |
+| journey check | keep | 144 |
 | live suite | fix (pending decision) | 14 |
 | live suite | keep | 15 |
 | no-LLM scenario | keep | 101 |
 | retired | retire (merged) | 1 |
-| storybook | keep | 37 |
+| storybook | keep | 41 |
 
 Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% killed of 199 scored mutants (sample 200 of 4469, seed 20260930). The R3 gate "not lower after pruning" holds by construction for this wave: no jest file was retired, so the same sample runs against the same tests.
 
@@ -33,6 +33,9 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | Tier | Asset | Decision | Reason |
 |---|---|---|---|
 | jest | `src/constants/injectionRegistry.test.ts` | keep | guards a named defect |
+| jest | `src/copilot/agent/loop.test.ts` | keep | guards a named contract |
+| jest | `src/copilot/agent/safety.review.test.ts` | keep | guards a named defect |
+| jest | `src/copilot/agent/tools.test.ts` | keep | guards a named contract |
 | jest | `src/copilot/authoring.test.ts` | keep | unnamed: names no invariant, defect or contract (touched by 3 fix commit(s)); name it on next touch (budget rule 1) |
 | jest | `src/copilot/authoringA16.review.test.ts` | keep | guards a named defect |
 | jest | `src/copilot/parse.test.ts` | keep | guards a named contract |
@@ -204,6 +207,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | jest | `src/runtime/generationLifecycle.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/generationWiring.review.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/groupStoryBinding.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
+| jest | `src/runtime/inlineTimeline.test.ts` | keep | guards a named contract |
 | jest | `src/runtime/journal.test.ts` | keep | guards a named contract |
 | jest | `src/runtime/journalContract.review.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/judge.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
@@ -221,6 +225,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | jest | `src/runtime/liveSuiteTiers.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/loreAborted.review.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/loreExclusive.test.ts` | keep | guards a named defect |
+| jest | `src/runtime/loreFired.test.ts` | keep | guards a named contract |
 | jest | `src/runtime/loreForceWiring.review.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/loreSelect.test.ts` | keep | defect-replay killer: lore-select-cache-without-story (killed), lore-select-force-result-discarded (killed) |
 | jest | `src/runtime/macros.test.ts` | keep | guards a named contract |
@@ -338,6 +343,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | jest | `src/services/stHost/contextLimit.test.ts` | keep | guards a named contract |
 | jest | `src/services/stHost/extensionPrompts.test.ts` | keep | guards a named defect |
 | jest | `src/services/stHost/groups.test.ts` | keep | guards a named defect |
+| jest | `src/services/stHost/inlineMount.test.ts` | keep | guards a named contract |
 | jest | `src/services/stHost/judge.review.test.ts` | keep | guards a named defect |
 | jest | `src/services/stHost/loreBindings.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
 | jest | `src/services/stHost/macroEngine.test.ts` | keep | guards a named contract |
@@ -360,6 +366,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | jest | `src/stagecraft/curatorTiers.test.ts` | keep | guards a named contract |
 | jest | `src/stagecraft/hardening.test.ts` | keep | unnamed: names no invariant, defect or contract (touched by 1 fix commit(s)); name it on next touch (budget rule 1) |
 | jest | `src/stagecraft/stagecraft.test.ts` | keep | guards a named contract |
+| jest | `src/studio/coverage.test.ts` | keep | guards a named contract |
 | jest | `src/studio/diagnostics.test.ts` | keep | guards a named defect |
 | jest | `src/studio/draft.test.ts` | keep | guards a named contract |
 | jest | `src/studio/gateOptions.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
@@ -384,10 +391,13 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | storybook | `src/components/drawer/DrawerTabs.stories.tsx` | keep | UI contract: 47 interaction plays + a11y |
 | storybook | `src/components/drawer/DriverPanel.stories.tsx` | keep | UI contract: 7 interaction plays + a11y |
 | storybook | `src/components/drawer/HudStrip.stories.tsx` | keep | UI contract: 8 interaction plays + a11y |
+| storybook | `src/components/drawer/MessageInspector.stories.tsx` | keep | UI contract: 2 interaction plays + a11y |
 | storybook | `src/components/drawer/ModelCallsPanel.stories.tsx` | keep | UI contract: 3 interaction plays + a11y |
 | storybook | `src/components/drawer/NextTurnPanel.stories.tsx` | keep | UI contract: 10 interaction plays + a11y |
 | storybook | `src/components/drawer/PlayerOverview.stories.tsx` | keep | UI contract: 11 interaction plays + a11y |
 | storybook | `src/components/drawer/StagecraftPanel.stories.tsx` | keep | UI contract: 16 interaction plays + a11y |
+| storybook | `src/components/inline/InlineDetail.stories.tsx` | keep | UI contract: 2 interaction plays + a11y |
+| storybook | `src/components/inline/InlineStrip.stories.tsx` | keep | UI contract: 4 interaction plays + a11y |
 | storybook | `src/components/settings/CapabilitiesGroup.stories.tsx` | keep | UI contract: 8 interaction plays + a11y |
 | storybook | `src/components/settings/EntryPoints.stories.tsx` | keep | UI contract: 6 interaction plays + a11y |
 | storybook | `src/components/settings/JudgeSettingsGroup.stories.tsx` | keep | UI contract: 17 interaction plays + a11y |
@@ -400,6 +410,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | storybook | `src/components/studio/Toolbar.stories.tsx` | keep | UI contract: 3 interaction plays + a11y |
 | storybook | `src/studio/StudioModal.stories.tsx` | keep | UI contract: 9 interaction plays + a11y |
 | storybook | `src/studio/components/AgencyEditor.stories.tsx` | keep | UI contract: 5 interaction plays + a11y |
+| storybook | `src/studio/components/AgentWizard.stories.tsx` | keep | UI contract: 5 interaction plays + a11y |
 | storybook | `src/studio/components/CheckpointEditor.stories.tsx` | keep | UI contract: 8 interaction plays + a11y |
 | storybook | `src/studio/components/DiagnosticsPanel.stories.tsx` | keep | UI contract: 3 interaction plays + a11y |
 | storybook | `src/studio/components/GateBuilder.stories.tsx` | keep | UI contract: 4 interaction plays + a11y |
@@ -410,7 +421,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | storybook | `src/studio/components/RosterEditor.stories.tsx` | keep | UI contract: 5 interaction plays + a11y |
 | storybook | `src/studio/components/ScopePreview.stories.tsx` | keep | UI contract: 2 interaction plays + a11y |
 | storybook | `src/studio/components/StoryEditor.stories.tsx` | keep | UI contract: 12 interaction plays + a11y |
-| storybook | `src/studio/components/StudioCopilot.stories.tsx` | keep | UI contract: 8 interaction plays + a11y |
+| storybook | `src/studio/components/StudioCopilot.stories.tsx` | keep | UI contract: 9 interaction plays + a11y |
 | storybook | `src/studio/components/StudioGraph.stories.tsx` | keep | UI contract: 1 interaction plays + a11y |
 | storybook | `src/studio/components/StudioToolbar.stories.tsx` | keep | UI contract: 4 interaction plays + a11y |
 | storybook | `src/studio/components/TalkControlEditor.stories.tsx` | keep | UI contract: 4 interaction plays + a11y |
@@ -447,6 +458,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | harness | `scripts/debug/lib/st-ready.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/lib/timeoutArm.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/lib/wiGatingHarness.test.mts` | keep | harness guard (nothing named) |
+| harness | `scripts/debug/lib/wizardAgentScore.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/liveSuiteScore.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/m6Contention.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/memoryFatesProbe.test.mts` | keep | harness guard (defect) |
@@ -714,6 +726,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | journey check | `J12.4` | keep | no-LLM journey check (S13) |
 | journey check | `J12.5` | keep | LLM journey check (S13) |
 | journey check | `J13.1` | keep | LLM journey check, no finding id |
+| journey check | `J14.1` | keep | no-LLM journey check (W19) |
 | journey check | `J2.1` | keep | no-LLM journey check (U7) |
 | journey check | `J2.2` | keep | no-LLM journey check (U7) |
 | journey check | `J2.3` | keep | no-LLM journey check (U7) |

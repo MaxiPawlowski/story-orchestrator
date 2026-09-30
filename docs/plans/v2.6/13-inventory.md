@@ -13,28 +13,31 @@ Column heuristics (all read from the asset text; `scripts/lib/suiteInventory.mjs
 
 | Tier | Assets | Tests / checks | Needs LLM | Guards nothing named | Vacuous | Runtime |
 |---|---|---|---|---|---|---|
-| jest: pure unit | 119 | 2371 | 0 | 31 | 0 | 57.9 s |
-| jest: unit (host faked) | 228 | 2275 | 0 | 33 | 0 | 291.8 s |
-| Storybook | 37 | 275 stories, 271 plays | 0 | — | 0 files without a play | build + run, minutes |
-| harness (node --test) | 71 | 553 | 0 | 32 | 0 | seconds |
-| debug tools (not tests) | 42 | — | — | — | 23 without a harness test | — |
+| jest: pure unit | 122 | 2394 | 0 | 31 | 0 | 57.9 s |
+| jest: unit (host faked) | 232 | 2296 | 0 | 33 | 0 | 291.8 s |
+| Storybook | 41 | 289 stories, 285 plays | 0 | — | 0 files without a play | build + run, minutes |
+| harness (node --test) | 72 | 557 | 0 | 33 | 0 | seconds |
+| debug tools (not tests) | 43 | — | — | — | 24 without a harness test | — |
 | no-LLM scenario | 101 | 1290 steps | 0 | 31 | 0 | ~51 min est. |
 | LLM scenario | 72 | 1906 steps | 72 | 19 | 0 | ~387 min est. |
-| journey check | 14 journeys | 143 checks (21 human) | 45 | 66 with no finding id | 0 | ~114 min est. |
+| journey check | 15 journeys | 144 checks (21 human) | 45 | 66 with no finding id | 0 | ~114 min est. |
 | live suite (extractor fixtures) | 29 | 93 tiers | 29 (live); goldens replay in jest | — | 14 | ~12 min est. |
 | fixtures / goldens (support) | 190 | — | — | — | 1 unreferenced | — |
-| measurement (test/measurements, budget rule 4) | 1 | — | — | — | — | not regression |
+| measurement (test/measurements, budget rule 4) | 3 | — | — | — | — | not regression |
 | spike fixture | 1 | — | — | — | 0 unreferenced | — |
 | story fixtures in test/scenarios | 20 | — | — | — | — | — |
 | archived run records | 1987 files in 34 dirs | 1987 cited | — | — | — | 24.04 MB (24.04 MB cited) |
 
-jest total: 347 files, 4646 tests, 349.7 s summed per-file runtime.
+jest total: 354 files, 4690 tests, 349.7 s summed per-file runtime.
 
 ## jest files
 
 | File | Tier | Tests | Runtime s | Guards | Replay kills | Fix commits | Dup titles | Vacuous |
 |---|---|---|---|---|---|---|---|---|
 | `src/constants/injectionRegistry.test.ts` | pure unit | 5 | 0.1 | defect |  | 0 |  |  |
+| `src/copilot/agent/loop.test.ts` | pure unit | 12 | ? | contract |  | 0 |  |  |
+| `src/copilot/agent/safety.review.test.ts` | pure unit | 3 | ? | defect |  | 0 |  |  |
+| `src/copilot/agent/tools.test.ts` | pure unit | 8 | ? | contract |  | 0 |  |  |
 | `src/copilot/authoring.test.ts` | pure unit | 12 | 0.2 | nothing named |  | 3 |  |  |
 | `src/copilot/authoringA16.review.test.ts` | pure unit | 5 | 0.2 | defect |  | 1 |  |  |
 | `src/copilot/parse.test.ts` | pure unit | 22 | 0.2 | contract |  | 1 |  |  |
@@ -206,6 +209,7 @@ jest total: 347 files, 4646 tests, 349.7 s summed per-file runtime.
 | `src/runtime/generationLifecycle.test.ts` | unit (host faked) | 13 | 0.2 | defect |  | 1 |  |  |
 | `src/runtime/generationWiring.review.test.ts` | unit (host faked) | 6 | 0.5 | defect |  | 2 |  |  |
 | `src/runtime/groupStoryBinding.test.ts` | unit (host faked) | 2 | 0.1 | nothing named |  | 0 |  |  |
+| `src/runtime/inlineTimeline.test.ts` | unit (host faked) | 9 | ? | contract |  | 0 |  |  |
 | `src/runtime/journal.test.ts` | unit (host faked) | 19 | 0.4 | contract |  | 2 |  |  |
 | `src/runtime/journalContract.review.test.ts` | unit (host faked) | 5 | 0.7 | defect |  | 1 |  |  |
 | `src/runtime/judge.test.ts` | unit (host faked) | 8 | 0.5 | nothing named |  | 0 |  |  |
@@ -223,6 +227,7 @@ jest total: 347 files, 4646 tests, 349.7 s summed per-file runtime.
 | `src/runtime/liveSuiteTiers.test.ts` | unit (host faked) | 2 | 0.5 | defect |  | 1 |  |  |
 | `src/runtime/loreAborted.review.test.ts` | unit (host faked) | 5 | 0.4 | defect |  | 0 |  |  |
 | `src/runtime/loreExclusive.test.ts` | unit (host faked) | 14 | 0.6 | defect |  | 0 |  |  |
+| `src/runtime/loreFired.test.ts` | unit (host faked) | 5 | ? | contract |  | 0 |  |  |
 | `src/runtime/loreForceWiring.review.test.ts` | unit (host faked) | 7 | 0.6 | defect |  | 1 |  |  |
 | `src/runtime/loreSelect.test.ts` | unit (host faked) | 10 | 0.4 | defect | lore-select-cache-without-story (killed), lore-select-force-result-discarded (killed) | 0 |  |  |
 | `src/runtime/macros.test.ts` | unit (host faked) | 6 | 0.6 | contract |  | 0 |  |  |
@@ -340,6 +345,7 @@ jest total: 347 files, 4646 tests, 349.7 s summed per-file runtime.
 | `src/services/stHost/contextLimit.test.ts` | unit (host faked) | 12 | 0.4 | contract |  | 1 |  |  |
 | `src/services/stHost/extensionPrompts.test.ts` | unit (host faked) | 13 | 0.1 | defect |  | 0 |  |  |
 | `src/services/stHost/groups.test.ts` | unit (host faked) | 6 | 0.2 | defect |  | 0 |  |  |
+| `src/services/stHost/inlineMount.test.ts` | unit (host faked) | 4 | ? | contract |  | 0 |  |  |
 | `src/services/stHost/judge.review.test.ts` | unit (host faked) | 2 | 0.4 | defect |  | 0 |  |  |
 | `src/services/stHost/loreBindings.test.ts` | unit (host faked) | 4 | 0.2 | nothing named |  | 0 |  |  |
 | `src/services/stHost/macroEngine.test.ts` | unit (host faked) | 5 | 0.2 | contract |  | 0 |  |  |
@@ -362,6 +368,7 @@ jest total: 347 files, 4646 tests, 349.7 s summed per-file runtime.
 | `src/stagecraft/curatorTiers.test.ts` | pure unit | 20 | 0.3 | contract |  | 0 |  |  |
 | `src/stagecraft/hardening.test.ts` | pure unit | 31 | 0.6 | nothing named |  | 1 |  |  |
 | `src/stagecraft/stagecraft.test.ts` | pure unit | 23 | 0.2 | contract |  | 2 |  |  |
+| `src/studio/coverage.test.ts` | unit (host faked) | 3 | ? | contract |  | 0 |  |  |
 | `src/studio/diagnostics.test.ts` | unit (host faked) | 26 | 0.5 | defect |  | 0 |  |  |
 | `src/studio/draft.test.ts` | unit (host faked) | 8 | 0.1 | contract |  | 0 |  |  |
 | `src/studio/gateOptions.test.ts` | unit (host faked) | 8 | 0.1 | nothing named |  | 0 |  |  |
@@ -391,10 +398,13 @@ jest total: 347 files, 4646 tests, 349.7 s summed per-file runtime.
 | `src/components/drawer/DrawerTabs.stories.tsx` | 47 | 47 | 2 |
 | `src/components/drawer/DriverPanel.stories.tsx` | 7 | 7 | 0 |
 | `src/components/drawer/HudStrip.stories.tsx` | 8 | 8 | 0 |
+| `src/components/drawer/MessageInspector.stories.tsx` | 2 | 2 | 0 |
 | `src/components/drawer/ModelCallsPanel.stories.tsx` | 3 | 3 | 0 |
 | `src/components/drawer/NextTurnPanel.stories.tsx` | 10 | 10 | 0 |
 | `src/components/drawer/PlayerOverview.stories.tsx` | 11 | 11 | 0 |
 | `src/components/drawer/StagecraftPanel.stories.tsx` | 16 | 16 | 0 |
+| `src/components/inline/InlineDetail.stories.tsx` | 2 | 2 | 0 |
+| `src/components/inline/InlineStrip.stories.tsx` | 4 | 4 | 0 |
 | `src/components/settings/CapabilitiesGroup.stories.tsx` | 8 | 8 | 0 |
 | `src/components/settings/EntryPoints.stories.tsx` | 6 | 6 | 0 |
 | `src/components/settings/JudgeSettingsGroup.stories.tsx` | 17 | 17 | 1 |
@@ -407,6 +417,7 @@ jest total: 347 files, 4646 tests, 349.7 s summed per-file runtime.
 | `src/components/studio/Toolbar.stories.tsx` | 3 | 3 | 0 |
 | `src/studio/StudioModal.stories.tsx` | 9 | 9 | 0 |
 | `src/studio/components/AgencyEditor.stories.tsx` | 5 | 5 | 0 |
+| `src/studio/components/AgentWizard.stories.tsx` | 5 | 5 | 0 |
 | `src/studio/components/CheckpointEditor.stories.tsx` | 8 | 8 | 0 |
 | `src/studio/components/DiagnosticsPanel.stories.tsx` | 3 | 3 | 0 |
 | `src/studio/components/GateBuilder.stories.tsx` | 4 | 4 | 0 |
@@ -417,7 +428,7 @@ jest total: 347 files, 4646 tests, 349.7 s summed per-file runtime.
 | `src/studio/components/RosterEditor.stories.tsx` | 5 | 5 | 0 |
 | `src/studio/components/ScopePreview.stories.tsx` | 2 | 2 | 0 |
 | `src/studio/components/StoryEditor.stories.tsx` | 12 | 12 | 1 |
-| `src/studio/components/StudioCopilot.stories.tsx` | 8 | 8 | 0 |
+| `src/studio/components/StudioCopilot.stories.tsx` | 9 | 9 | 0 |
 | `src/studio/components/StudioGraph.stories.tsx` | 1 | 1 | 0 |
 | `src/studio/components/StudioToolbar.stories.tsx` | 4 | 4 | 0 |
 | `src/studio/components/TalkControlEditor.stories.tsx` | 4 | 4 | 0 |
@@ -459,6 +470,7 @@ jest total: 347 files, 4646 tests, 349.7 s summed per-file runtime.
 | `scripts/debug/lib/st-ready.test.mts` | 2 | nothing named | 0 |  |
 | `scripts/debug/lib/timeoutArm.test.mts` | 12 | nothing named | 1 |  |
 | `scripts/debug/lib/wiGatingHarness.test.mts` | 6 | nothing named | 0 |  |
+| `scripts/debug/lib/wizardAgentScore.test.mts` | 3 | nothing named | 0 |  |
 | `scripts/debug/liveSuiteScore.test.mts` | 18 | defect | 1 |  |
 | `scripts/debug/m6Contention.test.mts` | 4 | defect | 0 |  |
 | `scripts/debug/memoryFatesProbe.test.mts` | 5 | defect | 0 |  |
@@ -474,7 +486,7 @@ jest total: 347 files, 4646 tests, 349.7 s summed per-file runtime.
 | `scripts/debug/so-run-header.test.mts` | 29 | defect | 1 |  |
 | `scripts/debug/so-save-recorder.test.mts` | 9 | nothing named | 0 |  |
 | `scripts/debug/so-scenario.runSteps.test.mts` | 4 | defect | 0 |  |
-| `scripts/debug/so-ui.test.mts` | 19 | defect | 1 |  |
+| `scripts/debug/so-ui.test.mts` | 20 | defect | 1 |  |
 | `scripts/debug/sp6Score.test.mts` | 6 | nothing named | 0 |  |
 | `scripts/debug/st-lanes.test.mts` | 6 | contract | 1 |  |
 | `scripts/debug/st-payload.test.mts` | 14 | defect | 0 |  |
@@ -544,7 +556,7 @@ jest total: 347 files, 4646 tests, 349.7 s summed per-file runtime.
 | `test/scenarios/live-v24-01-foreign.json` | no-LLM scenario | 14 | 0 | 33 | contract | 1 | 0 | yes |  |
 | `test/scenarios/live-v24-01-guidance-generated.json` | LLM scenario | 14 | 2 | 143 | contract | 3 | 0 | yes |  |
 | `test/scenarios/live-v24-01-guidance.json` | LLM scenario | 15 | 2 | 125 | contract | 5 | 0 | yes |  |
-| `test/scenarios/live-v24-01-t1.json` | LLM scenario | 48 | 6 | 371 | contract | 11 | 0 | yes |  |
+| `test/scenarios/live-v24-01-t1.json` | LLM scenario | 48 | 6 | 371 | contract | 13 | 0 | yes |  |
 | `test/scenarios/live-v24-01-t10.json` | LLM scenario | 12 | 2 | 119 | contract | 2 | 0 | yes |  |
 | `test/scenarios/live-v24-01-t6.json` | no-LLM scenario | 18 | 0 | 41 | contract | 1 | 0 | yes |  |
 | `test/scenarios/live-v24-02-e2-solo-epistemic.json` | LLM scenario | 16 | 2 | 127 | contract | 3 | 0 | yes |  |
@@ -736,6 +748,7 @@ jest total: 347 files, 4646 tests, 349.7 s summed per-file runtime.
 | J12.4 | `j12-unaided-schedule.journey.json` | auto |  | 1 | 7 | S13 |  |
 | J12.5 | `j12-unaided-schedule.journey.json` | auto | yes | 8 | 66 | S13 |  |
 | J13.1 | `j13-reply-effect.journey.json` | auto | yes | 27 | 1049 |  |  |
+| J14.1 | `j14-agent-wizard.journey.json` | auto |  | 6 | 17 | W19 |  |
 | J2.1 | `j2-author-loop.journey.json` | auto |  | 3 | 11 | U7 |  |
 | J2.2 | `j2-author-loop.journey.json` | auto |  | 3 | 11 | U7 |  |
 | J2.3 | `j2-author-loop.journey.json` | auto |  | 2 | 9 | U7 |  |
@@ -868,7 +881,7 @@ Support files whose name, stem or directory no test, scenario, journey or script
 
 ## Debug tools without a harness test
 
-`so-artifact-smoke.mts`, `so-backlog-ownership-check.mts`, `so-copilot.mts`, `so-curator-suite.mts`, `so-extraction-check.mts`, `so-judge.mts`, `so-library.mts`, `so-lore-probe.mts`, `so-mutation-check.mts`, `so-popup-injection-check.mts`, `so-read-ownership-check.mts`, `so-runtime-check.mts`, `so-sp6-score.mts`, `so-state.mts`, `so-studio-keyboard.mts`, `so-timeout-arm.mts`, `so-turn-types-check.mts`, `st-actions.mts`, `st-chat.mts`, `st-context.mts`, `st-extension-settings.mts`, `st-navigation.mts`, `st-search.mts`
+`so-artifact-smoke.mts`, `so-backlog-ownership-check.mts`, `so-copilot.mts`, `so-curator-suite.mts`, `so-extraction-check.mts`, `so-judge.mts`, `so-library.mts`, `so-lore-probe.mts`, `so-mutation-check.mts`, `so-popup-injection-check.mts`, `so-read-ownership-check.mts`, `so-runtime-check.mts`, `so-sp6-score.mts`, `so-state.mts`, `so-studio-keyboard.mts`, `so-timeout-arm.mts`, `so-turn-types-check.mts`, `so-wizard-agent.mts`, `st-actions.mts`, `st-chat.mts`, `st-context.mts`, `st-extension-settings.mts`, `st-navigation.mts`, `st-search.mts`
 
 ## Archived run records
 

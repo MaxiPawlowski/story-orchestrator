@@ -17,12 +17,12 @@ Lane time per row: a measured median where archived records hold one (journeys),
 | integration (09) | 7.8 | 6.7 |
 | judge-off column (10) | 1.2 | 0.8 |
 | **one pass (LLM rows)** | **36.8** | **24.3** |
-| **x2** | **73.5** | **48.5** |
+| **x2** | **73.6** | **48.6** |
 | capacity: 2 nights x 10 h x 2 lanes | 40.0 | 40.0 |
 
 The cut already applied by R3: 34 LLM scenarios demoted (spike legs, calibration arms, and LLM scenarios that name no guard; 5.0 lane-hours per pass by the step estimate) and 1 duplicate retired. Placeholder minutes are each plan's own sizing; capMinutes is the phase F budget this plan (R5) gives the owning plan: the regression leg only, because measurement legs run once in their own plan (overview rule 13).
 
-**Does not fit, even at the caps**: x2 needs 48.5 of 40.0 lane-hours, 8.5 over (at the plans' own sizing: 73.5). The rows already built (journeys, live scenarios) take 13.0 lane-hours x2; the rest is placeholder rows for plans not yet built. Closing the gap is a plan 10 / user call, not a silent cut: a third night, integration (09) x2 on its own night, or the measurement-adjacent rows (03, 05 R3) x1 in phase F.
+**Does not fit, even at the caps**: x2 needs 48.6 of 40.0 lane-hours, 8.6 over (at the plans' own sizing: 73.6). The rows already built (journeys, live scenarios) take 13.1 lane-hours x2; the rest is placeholder rows for plans not yet built. Closing the gap is a plan 10 / user call, not a silent cut: a third night, integration (09) x2 on its own night, or the measurement-adjacent rows (03, 05 R3) x1 in phase F.
 
 ## no-LLM scenarios (phase F step 1, any lane)
 
@@ -48,6 +48,7 @@ The cut already applied by R3: 34 LLM scenarios demoted (spike legs, calibration
 | J11 | `j11-judgment-backend.journey.json`: 26 checks (16 need a model, 0 human, scored in plan 10's sessions) | 31 | 31 | measured median 27.8 min + 3 |
 | J12 | `j12-unaided-schedule.journey.json`: 5 checks (2 need a model, 0 human, scored in plan 10's sessions) | 7 | 7 | measured median 3.9 min + 3 |
 | J13 | `j13-reply-effect.journey.json`: 1 checks (1 need a model, 0 human, scored in plan 10's sessions) | 20 | 20 | estimate + 3 |
+| J14 | `j14-agent-wizard.journey.json`: 1 checks (0 need a model, 0 human, scored in plan 10's sessions) | 3 | 3 | estimate + 3 |
 
 ## live scenarios kept by R3
 
