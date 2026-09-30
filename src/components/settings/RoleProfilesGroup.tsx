@@ -57,6 +57,7 @@ export const ROLE_EGRESS: Record<PassRole, string> = {
   authoring: "The wizard and the road ahead send the story draft and your notes",
   director: "Speaker direction sends the roster and the recent turns, before every group reply (a harness adds 2-7 s)",
   curator: "The curator sends its lorebook entries and the recent turns",
+  inner: "The inner voice sends the drafted character's private knowledge and the recent turns, before that character speaks",
 };
 
 const reasoningNote = (route: RoleRouteView): string | null => {
