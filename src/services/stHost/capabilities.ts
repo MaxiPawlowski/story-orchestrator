@@ -16,7 +16,7 @@ import { installScanGating, probeScanGating } from "./worldInfoScan";
 // attempt, and is NOT cached, so the next use retries it.
 
 export type CapabilityState = "present" | "absent" | "error";
-export type CapabilityId = "macros" | "macroArgs" | "slashCommands" | "backgrounds" | "vectors" | "judge" | "contextBudget" | "wiScanGating";
+export type CapabilityId = "macros" | "macroArgs" | "slashCommands" | "backgrounds" | "vectors" | "judge" | "contextBudget" | "wiScanGating" | "sprites";
 
 export interface CapabilityReport {
   id: CapabilityId;
@@ -103,6 +103,14 @@ const wiScanGatingProbe: Probe = async () => {
   }
 };
 
+const spritesProbe: Probe = async () => {
+  const headers = (getContext() as unknown as { getRequestHeaders: () => Record<string, string> }).getRequestHeaders();
+  const response = await fetch("/api/sprites/get?name=so-capability-probe", { headers });
+  if (response.status === 404 || response.status === 405) return absent("this build has no /api/sprites route, so the sprite stage never shows a character");
+  if (!response.ok) throw new Error(`the sprites API answered ${String(response.status)}`);
+  return present("sprites API");
+};
+
 const PROBES: Record<CapabilityId, Probe> = {
   macros: macrosProbe,
   macroArgs: macroArgsProbe,
@@ -112,6 +120,7 @@ const PROBES: Record<CapabilityId, Probe> = {
   judge: judgeProbe,
   contextBudget: contextBudgetProbe,
   wiScanGating: wiScanGatingProbe,
+  sprites: spritesProbe,
 };
 
 export const CAPABILITY_IDS = Object.keys(PROBES) as CapabilityId[];

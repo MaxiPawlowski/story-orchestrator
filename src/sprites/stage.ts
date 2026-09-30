@@ -1,6 +1,6 @@
 import {
   imageModel, spriteBuiltInExpressionsActive, spriteCast, spriteClassifyLocal, spriteDraftedName, spriteList, spriteMessage, spriteChatLength,
-  spriteReducedMotion, spriteVnMode, spriteWriteExpressions, subscribeToHostEvents,
+  spriteReducedMotion, spriteVnMode, spriteWriteExpressions, subscribeToHostEvents, capabilityState, type CapabilityState,
 } from "@services/STAPI";
 import { judgeUseActive } from "@judge/index";
 import type { RuntimeManager } from "@runtime/runtimeManager";
@@ -9,7 +9,7 @@ import { log } from "@utils/log";
 import { classifyExpressions, NARRATION, type ExpressionDeps, type ExpressionRead } from "./classify";
 import { keywordSet, placeSet, readSpriteProfile, readSpriteSets, resolveSprite, spriteIndex, unionLabels, type SpriteProfile, type SpriteSetRule } from "./profile";
 import { segmentText, type Segment } from "./segment";
-import type { SpriteSettings } from "./settings";
+import { spriteActivation, spritesActive, storyDirectsStage, type SpriteActivation, type SpriteSettings } from "./settings";
 import { setGlobalSettings } from "@runtime/settingsStore";
 import { isRecord } from "@utils/guards";
 import { directionKeys, isSpotlit, memberDirection, readStageDirection, type Framing, type StageDirection } from "./direction";
@@ -37,6 +37,8 @@ export interface StageView {
   speaking: string | null;
   framing: Framing;
   settings: SpriteSettings;
+  activation: SpriteActivation;
+  capability: CapabilityState | "checking";
   reducedMotion: boolean;
 }
 
@@ -74,6 +76,7 @@ export class SpriteStage {
   private loading = 0;
   private playback: ReturnType<typeof setTimeout>[] = [];
   private snapshot: StageView;
+  private capability: CapabilityState | "checking" = "checking";
 
   constructor(private readonly manager: RuntimeManager) {
     this.snapshot = this.compose();
@@ -95,9 +98,18 @@ export class SpriteStage {
     return () => this.listeners.delete(listener);
   };
 
+  private directs: { story: unknown; value: boolean } = { story: null, value: false };
+
+  activation(): SpriteActivation {
+    const story = this.manager.getStory();
+    if (story !== this.directs.story) this.directs = { story, value: storyDirectsStage(story) };
+    return spriteActivation(this.settings(), this.directs.value);
+  }
+
   private compose(): StageView {
     const settings = this.settings();
-    const shown = settings.enabled && settings.stage !== "off" && (settings.stage === "always" || spriteVnMode()) && !spriteBuiltInExpressionsActive();
+    const activation = this.activation();
+    const shown = spritesActive(activation) && settings.stage !== "off" && (settings.stage === "always" || spriteVnMode()) && !spriteBuiltInExpressionsActive();
     const direction = this.direction();
     const actors = this.actors
       .filter((actor) => !memberDirection(direction, actor.keys).hidden)
@@ -108,6 +120,8 @@ export class SpriteStage {
       speaking: this.speaking,
       framing: direction?.framing ?? "full",
       settings,
+      activation,
+      capability: this.capability,
       reducedMotion: spriteReducedMotion(),
     };
   }
@@ -147,6 +161,14 @@ export class SpriteStage {
 
   async reload(): Promise<void> {
     const ticket = ++this.loading;
+    this.capability = await capabilityState("sprites");
+    if (ticket !== this.loading) return;
+    if (this.capability === "absent") {
+      this.actors = [];
+      this.stream = null;
+      this.notify();
+      return;
+    }
     const cast = spriteCast();
     const actors: Actor[] = [];
     for (const member of cast.members) {
@@ -201,6 +223,7 @@ export class SpriteStage {
   }
 
   private placeChanged(): void {
+    if (this.activation() !== this.snapshot.activation) this.notify();
     if (!this.actors.length) return;
     const place = this.place();
     if (`${place.location}|${place.checkpoint}` === this.placeKey) return;
@@ -299,7 +322,7 @@ export class SpriteStage {
 
   private feed(text: string, final: boolean): void {
     const stream = this.stream;
-    if (!stream || !this.settings().enabled || !this.actors.length) return;
+    if (!stream || !spritesActive(this.activation()) || !this.actors.length) return;
     if (!final) stream.streamed = true;
     const segments = segmentText(text, this.settings().segmentChars, final);
     const fresh = segments.filter((segment) => !stream.reads.has(keyOf(segment.text)) && !stream.segments.some((known) => keyOf(known.text) === keyOf(segment.text)));

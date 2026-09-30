@@ -28,6 +28,7 @@ jest.mock("@services/STAPI", () => ({
   readServerBoundary: async () => null,
   getContext: () => ({ chat: host.chat, chatId: "chat-a", extensionSettings: {}, chatMetadata: {} }),
   getActiveGroup: () => null,
+  watchHostChatMove: () => () => undefined,
   guardHostStream: () => ({ halt: () => false, release: () => undefined }),
   executeSlashCommands: async (command: string) => {
     spoken.push(command);

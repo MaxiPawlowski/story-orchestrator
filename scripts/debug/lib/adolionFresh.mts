@@ -88,11 +88,13 @@ export interface StripPlan {
   media: { image: boolean; sprites: boolean };
 }
 
+const spritesSwitchedOff = (value: unknown) => record(value).enabled === false && record(value).explicit === true;
+
 export function mediaOff(root: Record<string, any>) {
   if (!root.settings || typeof root.settings !== 'object') root.settings = {};
-  const was = { image: record(root.settings.image).enabled !== false, sprites: record(root.settings.sprites).enabled !== false };
+  const was = { image: record(root.settings.image).enabled !== false, sprites: !spritesSwitchedOff(root.settings.sprites) };
   root.settings.image = { ...record(root.settings.image), enabled: false };
-  root.settings.sprites = { ...record(root.settings.sprites), enabled: false };
+  root.settings.sprites = { ...record(root.settings.sprites), enabled: false, explicit: true };
   return was;
 }
 
@@ -208,7 +210,7 @@ export function buildInventory(manifest: AdolionManifest, input: InventoryInput)
       .sort((a, b) => a.id.localeCompare(b.id)),
     selected: sorted(strings(record(record(input.settings.world_info_settings).world_info).globalSelect)),
     extraction: Object.keys(extraction).length ? canonical({ enabled: extraction.enabled, cadence: extraction.cadence, stabilityLag: extraction.stabilityLag, profileId: extraction.profileId ?? null }) as Record<string, unknown> : null,
-    media: { image: record(record(root.settings).image).enabled !== false, sprites: record(record(root.settings).sprites).enabled !== false },
+    media: { image: record(record(root.settings).image).enabled !== false, sprites: !spritesSwitchedOff(record(root.settings).sprites) },
     ledger: input.ledger ? { lorebooks: sorted(strings(input.ledger.lorebooks)), characters: sorted(strings(input.ledger.characters)) } : null,
     runtime: input.runtime ? Object.fromEntries(Object.keys(input.runtime).sort().map((id) => [id, input.runtime![id]])) : null,
   };

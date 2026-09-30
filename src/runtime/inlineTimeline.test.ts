@@ -156,6 +156,10 @@ describe("inline timeline composer (v2.6 plan 08 D3/D4)", () => {
     expect(inspection.sections.map((section) => section.category)).toEqual(["progress", "memory", "lore", "cast", "pacing", "calls"]);
     expect(inspection.sections.find((section) => section.category === "lore")?.items.some((item) => item.id.startsWith("lore:count"))).toBe(false);
     expect(inspectMessage(view, 0).sections).toEqual([]);
+    const kinds = (messageId: number) => inspectMessage(view, messageId).sections.flatMap((section) => section.items.map((item) => item.id.split(":").slice(0, 2).join(":")));
+    expect(["progress:gate", "cast:talk"].filter((kind) => !kinds(3).includes(kind))).toEqual([]);
+    expect(kinds(2)).toContain("memory:delta");
+    expect(["memory:raw", "calls:read"].filter((kind) => !kinds(5).includes(kind))).toEqual([]);
   });
 
   it("returns the requested level alongside the effective one", () => {

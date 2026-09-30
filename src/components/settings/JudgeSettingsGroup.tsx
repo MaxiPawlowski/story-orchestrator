@@ -163,7 +163,8 @@ export function JudgeSettingsGroup({
   const [key, setKey] = useState("");
   const [saved, setSaved] = useState<"idle" | "saved" | "failed">("idle");
   const ready = typeof status === "object" && status !== null && status.configured;
-  const readiness = judgeReadiness(settings, JUDGE_USE_DEPENDENCIES, meter?.lastAnsweredModel ?? null, { warden: wardenEnabled });
+  const readiness = judgeReadiness(settings, JUDGE_USE_DEPENDENCIES, meter?.lastAnsweredModel ?? null, { warden: wardenEnabled })
+    .filter((row) => authorView || row.key === "warden" || !AUTHOR_JUDGE_USES.includes(row.key));
   const concerns = judgeReadinessConcerns(readiness);
   const enabledMeasured = readiness.filter((row) => row.verdict === "measured");
   const inUse = providersInUse(settings, wardenEnabled);

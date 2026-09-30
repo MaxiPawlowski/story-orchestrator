@@ -14,6 +14,7 @@ import {
   getActiveGroup,
   getContext,
   guardHostStream,
+  watchHostChatMove,
   isHostGenerating,
   stopHostGeneration,
 } from "@services/STAPI";
@@ -422,17 +423,23 @@ export class EffectsApplier {
 
   private async speak(reply: NpcReplyEffect) {
     if (reply.kind === "scripted") return fireReply(reply);
-    const stream = guardHostStream(openChatId());
+    const chatId = openChatId();
+    const stream = guardHostStream(chatId);
     const lapse = this.ownership.signal?.();
     const before = generationWatch.openedCount();
+    let stopped = false;
     const stopIfOurs = () => {
+      if (stopped) return;
+      stopped = true;
       if (stream.halt()) return;
       if (before !== null && generationWatch.openedCount() === before + 1 && isHostGenerating()) stopHostGeneration();
     };
     lapse?.addEventListener("abort", stopIfOurs, { once: true });
+    const unwatch = watchHostChatMove(chatId, stopIfOurs);
     try {
       await fireReply(reply);
     } finally {
+      unwatch();
       lapse?.removeEventListener("abort", stopIfOurs);
       stream.release();
     }

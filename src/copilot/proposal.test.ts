@@ -40,6 +40,13 @@ describe("applyOp", () => {
     expect(cleared.arc_bridges).toBeUndefined();
   });
 
+  it("v2.6 plan 04 B17: a wizard lore-scope edit keeps the author's exclusive flag and min_p, which the op cannot state", () => {
+    const authored = { ...baseDraft(), lore_select: { lorebooks: ["Vault Lore"], min_p: 0.2, exclusive: true } };
+    const next = applyOp(authored, { kind: "setLoreSelect", loreSelect: { lorebooks: ["Vault Lore", "Heist Lore"], top_k: 6 } });
+    expect(next.lore_select).toEqual({ lorebooks: ["Vault Lore", "Heist Lore"], top_k: 6, min_p: 0.2, exclusive: true });
+    expect(applyOp(baseDraft(), { kind: "setLoreSelect", loreSelect: { lorebooks: ["Heist Lore"] } }).lore_select).toEqual({ lorebooks: ["Heist Lore"] });
+  });
+
   it("does not mutate the input draft", () => {
     const draft = baseDraft();
     applyOp(draft, { kind: "addQuality", quality: { key: "loot", type: "int", source: "extractor", rubric: "?" } });
