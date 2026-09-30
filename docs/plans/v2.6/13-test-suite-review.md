@@ -166,7 +166,7 @@ lanes on the current pod.** When it does not fit, items are merged or demoted un
   until a parameterised fixture exists.
 - **Vacuous, not fixed: 14 extractor fixtures** (`mustContain [""]`). The fix redefines the facts column, which is
   v2.5 plan 05's open user decision 2 (X15). No other vacuous asset was found (jest, harness, scenarios, journeys: 0).
-- jest and Storybook are kept whole: 345 jest files cost ~200 s summed, and a per-file retire needs its own mutation run.
+- jest and Storybook are kept whole: 354 jest files cost ~200 s summed, and a per-file retire needs its own mutation run.
   64 jest files name no guard; they are flagged `unnamed` for budget rule 1.
 - **Mutation gate:** no jest file was retired and one test was added, so the same sample cannot score lower; not re-run.
 
@@ -176,15 +176,15 @@ lanes on the current pod.** When it does not fit, items are merged or demoted un
 source commit). A record counts as cited when a doc, test, script or attestation names it or its run dir; a
 gate-directory mention (`records/v2.4-plan01/`) keeps only that dir's markdown; the attestation's implied
 `header-start.json` beside each cited run is cited too (found by `test:release` failing on the first attempt).
-**Target missed: `test/` is 33.3 MB** (records 25.2 MB, all cited file by file). Reaching 10 MB means moving cited
+**Target missed: `test/` is 33.4 MB** (records 25.2 MB, all cited file by file). Reaching 10 MB means moving cited
 records, which the plan's own rule forbids; that trade is the user's call.
 
 ### R5 outcome
 
 `13-final-suite.md`: journeys 3.2 lane-h (measured medians where records exist), kept live scenarios 3.3, plus
 placeholder rows for 01, 03, 05/11/12, 09 and the judge-off column sized from their plan text. **It does not fit:**
-×2 is 73.5 lane-h at the plans' own sizing and 48.5 at the phase F caps R5 sets (regression legs only; measurement
-legs run once in their own plan, rule 13), against 40 (2 nights × 10 h × 2 lanes). The 8.5 lane-h gap is a plan 10 /
+×2 is 73.5 lane-h at the plans' own sizing and 48.6 at the phase F caps R5 sets (regression legs only; measurement
+legs run once in their own plan, rule 13), against 40 (2 nights × 10 h × 2 lanes). The 8.6 lane-h gap is a plan 10 /
 user call: a third night, 09 on its own night, or 03/05 R3 rows ×1.
 
 ### Deviations
@@ -194,5 +194,50 @@ user call: a third night, 09 on its own night, or 03/05 R3 rows ×1.
 - "Has ever failed on master" is proxied by the count of fix commits touching the file.
 - Measurement fixtures were demoted in place, not moved to `test/measurements/<plan>/`: plan 03 re-runs them and the
   docs cite their paths. New measurements go to `test/measurements/` (plan 05 already does).
-- The inventory counts differ from the draft's table (345 jest files / 4 619 tests; 14 journeys / 143 checks): the
+- The inventory counts differ from the draft's table (354 jest files / 4 723 tests; 15 journeys / 144 checks, at merge of master 44921b8c): the
   draft counted journey copies inside records.
+
+## Gate record (2026-09-30, wave 1, branch `worktree-agent-a155e9aa4a198a257`, master merged at `44921b8c`)
+
+Per task:
+- R1: `node scripts/suite/inventory.mjs --jest-json <jest --json> --replay test/findings/defect-replay-report.json` →
+  354 jest, 41 stories, 73 harness, 173 scenarios, 144 journey checks, 29 live-suite fixtures, 1 996 record files.
+- R2: `npm run test:replay` → baseline green (381 tests), **25 of 25 killed**.
+  `node scripts/suite/mutation-baseline.mjs --sample 200 --workers 6 --timeout 600000 --out docs/plans/v2.6/13-mutation-baseline.json`
+  → **71.9 %** (143/199 scored, 1 crash, 0 timeout), 4 051 s wall, on the tree before the plan 12/05/08/11 merges.
+- R3: `node scripts/suite/decisions.mjs` → 815 assets: 1 retired (merged), 34 LLM scenarios demoted, 3 merge pairs,
+  14 live-suite fixtures `fix (pending decision)`, the rest kept. Replay still 25/25 after the retire.
+- R4: `node scripts/suite/move-records.mjs` → 3 064 files (24.85 MB) moved, manifest
+  `C:\dev\backups\story-orchestrator\records\manifest.json`; `npm run test:release` green. `test/` 33.4 MB: **the 10 MB
+  target is NOT met** (cited records alone are 24.2 MB).
+- R5: `13-final-suite.md` committed: one pass 36.8 lane-h sized / 24.3 at the caps; ×2 48.6 of 40: **does not fit**,
+  gap 8.6 lane-h, stated for plan 10 / the user.
+
+Overall gates (overview rule 16), from this worktree after the last master merge, in this order:
+
+| Command | Result |
+|---|---|
+| `npm run typecheck` | exit 0 |
+| `npm run typecheck:test` | exit 0 |
+| `npm run lint` | exit 0 |
+| `npm test` | exit 0: 353 suites passed, 1 skipped; 4 722 tests passed, 1 skipped |
+| `npm run build` | exit 0 |
+| `npm run build:dev` | exit 0 (test:release's flavour test reads `dist-dev/`) |
+| `npm run test:debug` | exit 0: 454 pass, 0 fail |
+| `npm run test:release` | exit 0: 77 pass, 0 fail |
+| `npm run test:replay` | exit 0: 25 of 25 killed |
+| `npm run test-storybook:ci` | **not run** (port 6006 shared; no story touched) — the lead runs it at merge |
+
+No real-LLM run (overview rule 13). Order matters: `test:debug` and `test:release` read `dist/` and `dist-dev/`, so they
+fail on a fresh worktree until `build` and `build:dev` have run (seen on the first pass, not a defect).
+
+Setup note: the worktree started at `544975fb`, behind master; it was reset to master before any work, which also
+discarded the worktree's local `.claude/settings.local.json` edit.
+
+### Open for the lead / user
+
+- The 10 MB `test/` target versus "keep every cited record" (R4).
+- The 8.6 lane-h R5 gap (a third night, 09 on its own night, or 03/05 R3 rows ×1).
+- v2.5 plan 05 open decision 2 (the 14 vacuous facts needles).
+- The expansion non-throwing path's ownership check is reached by no test (R2 finding).
+- `npm run test:replay` should join the rule-16 list of overall gates (the rule already names "plan 13's defect-replay set").

@@ -16,8 +16,8 @@ Column heuristics (all read from the asset text; `scripts/lib/suiteInventory.mjs
 | jest: pure unit | 122 | 2394 | 0 | 31 | 0 | 57.9 s |
 | jest: unit (host faked) | 232 | 2296 | 0 | 33 | 0 | 291.8 s |
 | Storybook | 41 | 289 stories, 285 plays | 0 | — | 0 files without a play | build + run, minutes |
-| harness (node --test) | 72 | 557 | 0 | 33 | 0 | seconds |
-| debug tools (not tests) | 43 | — | — | — | 24 without a harness test | — |
+| harness (node --test) | 73 | 565 | 0 | 34 | 0 | seconds |
+| debug tools (not tests) | 44 | — | — | — | 25 without a harness test | — |
 | no-LLM scenario | 101 | 1290 steps | 0 | 31 | 0 | ~51 min est. |
 | LLM scenario | 72 | 1906 steps | 72 | 19 | 0 | ~387 min est. |
 | journey check | 15 journeys | 144 checks (21 human) | 45 | 66 with no finding id | 0 | ~114 min est. |
@@ -26,7 +26,7 @@ Column heuristics (all read from the asset text; `scripts/lib/suiteInventory.mjs
 | measurement (test/measurements, budget rule 4) | 3 | — | — | — | — | not regression |
 | spike fixture | 1 | — | — | — | 0 unreferenced | — |
 | story fixtures in test/scenarios | 20 | — | — | — | — | — |
-| archived run records | 1987 files in 34 dirs | 1987 cited | — | — | — | 24.04 MB (24.04 MB cited) |
+| archived run records | 1996 files in 35 dirs | 1996 cited | — | — | — | 24.18 MB (24.18 MB cited) |
 
 jest total: 354 files, 4690 tests, 349.7 s summed per-file runtime.
 
@@ -443,6 +443,7 @@ jest total: 354 files, 4690 tests, 349.7 s summed per-file runtime.
 | `scripts/debug/eventNames.test.mts` | 2 | defect | 0 |  |
 | `scripts/debug/journeyTallies.test.mts` | 27 | defect | 0 |  |
 | `scripts/debug/legacyFree.test.mts` | 6 | contract | 0 |  |
+| `scripts/debug/lib/adolionFresh.test.mts` | 8 | nothing named | 0 |  |
 | `scripts/debug/lib/assetScope.test.mts` | 2 | defect | 0 |  |
 | `scripts/debug/lib/bundleFlavour.test.mts` | 6 | nothing named | 0 |  |
 | `scripts/debug/lib/calibrationVerdict.test.mts` | 5 | defect | 0 |  |
@@ -617,7 +618,7 @@ jest total: 354 files, 4690 tests, 349.7 s summed per-file runtime.
 | `test/scenarios/live-v25-09-sp6-k2.json` | LLM scenario | 17 | 2 | 129 | contract | 3 | 0 | yes |  |
 | `test/scenarios/live-v25-09-sp7-d4.json` | LLM scenario | 18 | 3 | 176 | contract | 6 | 0 | yes |  |
 | `test/scenarios/live-v25-09-sp7-d4b.json` | LLM scenario | 12 | 2 | 119 | contract | 3 | 0 | yes |  |
-| `test/scenarios/live-v25-09-sp8-w3-safety.json` | LLM scenario | 103 | 24 | 1291 | contract | 4 | 0 | yes |  |
+| `test/scenarios/live-v25-09-sp8-w3-safety.json` | LLM scenario | 103 | 24 | 1291 | contract | 5 | 0 | yes |  |
 | `test/scenarios/live-v25-11-a7-idless-import.json` | no-LLM scenario | 9 | 0 | 23 | defect | 3 | 1 | yes |  |
 | `test/scenarios/live-v25-12-lazy-chunks.json` | no-LLM scenario | 14 | 0 | 33 | contract | 4 | 1 | yes |  |
 | `test/scenarios/live-v4-turn-identity.json` | no-LLM scenario | 4 | 0 | 13 | defect | 9 | 1 |  |  |
@@ -686,9 +687,9 @@ jest total: 354 files, 4690 tests, 349.7 s summed per-file runtime.
 | `test/scenarios/v24-pf-AE04-scene-refused.json` | no-LLM scenario | 7 | 0 | 19 | nothing named | 4 | 1 | yes |  |
 | `test/scenarios/v24-pf-curator-same-chat.json` | LLM scenario | 11 | 0 | 67 | nothing named | 5 | 1 | yes |  |
 | `test/scenarios/v24-pf-curator-switch.json` | LLM scenario | 14 | 0 | 73 | nothing named | 6 | 1 | yes |  |
-| `test/scenarios/v25-09-tool-turn.json` | LLM scenario | 15 | 10 | 485 | contract | 5 | 0 | yes |  |
+| `test/scenarios/v25-09-tool-turn.json` | LLM scenario | 15 | 10 | 485 | contract | 6 | 0 | yes |  |
 | `test/scenarios/v25-09-witness-f4.json` | LLM scenario | 32 | 20 | 969 | contract | 4 | 0 | yes |  |
-| `test/scenarios/v25-09-witness.json` | no-LLM scenario | 28 | 0 | 61 | defect | 8 | 0 | yes |  |
+| `test/scenarios/v25-09-witness.json` | no-LLM scenario | 28 | 0 | 61 | defect | 9 | 0 | yes |  |
 
 ## Journey checks
 
@@ -881,7 +882,7 @@ Support files whose name, stem or directory no test, scenario, journey or script
 
 ## Debug tools without a harness test
 
-`so-artifact-smoke.mts`, `so-backlog-ownership-check.mts`, `so-copilot.mts`, `so-curator-suite.mts`, `so-extraction-check.mts`, `so-judge.mts`, `so-library.mts`, `so-lore-probe.mts`, `so-mutation-check.mts`, `so-popup-injection-check.mts`, `so-read-ownership-check.mts`, `so-runtime-check.mts`, `so-sp6-score.mts`, `so-state.mts`, `so-studio-keyboard.mts`, `so-timeout-arm.mts`, `so-turn-types-check.mts`, `so-wizard-agent.mts`, `st-actions.mts`, `st-chat.mts`, `st-context.mts`, `st-extension-settings.mts`, `st-navigation.mts`, `st-search.mts`
+`adolion-fresh.mts`, `so-artifact-smoke.mts`, `so-backlog-ownership-check.mts`, `so-copilot.mts`, `so-curator-suite.mts`, `so-extraction-check.mts`, `so-judge.mts`, `so-library.mts`, `so-lore-probe.mts`, `so-mutation-check.mts`, `so-popup-injection-check.mts`, `so-read-ownership-check.mts`, `so-runtime-check.mts`, `so-sp6-score.mts`, `so-state.mts`, `so-studio-keyboard.mts`, `so-timeout-arm.mts`, `so-turn-types-check.mts`, `so-wizard-agent.mts`, `st-actions.mts`, `st-chat.mts`, `st-context.mts`, `st-extension-settings.mts`, `st-navigation.mts`, `st-search.mts`
 
 ## Archived run records
 
@@ -921,3 +922,4 @@ Support files whose name, stem or directory no test, scenario, journey or script
 | `v2.5-plan04` | 3 | 0.03 | 3 | 0.03 |
 | `v2.5-plan07` | 22 | 0.98 | 22 | 0.98 |
 | `v2.5-plan11` | 9 | 0.07 | 9 | 0.07 |
+| `v2.6-02` | 9 | 0.14 | 9 | 0.14 |

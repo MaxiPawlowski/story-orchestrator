@@ -17,7 +17,7 @@ Rules applied:
 | LLM scenario | demote | 34 |
 | LLM scenario | keep | 32 |
 | LLM scenario | merge | 6 |
-| harness | keep | 72 |
+| harness | keep | 73 |
 | jest | keep | 354 |
 | journey check | keep | 144 |
 | live suite | fix (pending decision) | 14 |
@@ -431,6 +431,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% kille
 | harness | `scripts/debug/eventNames.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/journeyTallies.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/legacyFree.test.mts` | keep | harness guard (contract) |
+| harness | `scripts/debug/lib/adolionFresh.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/lib/assetScope.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/lib/bundleFlavour.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/lib/calibrationVerdict.test.mts` | keep | harness guard (defect) |
