@@ -140,12 +140,12 @@ Deviations:
   - W6: pair each agent story with the staged wizard's on the same premise for the plan 10 blind-rating pack.
 - Recommended mode/route (W1–W6 outcome) → `recommended-config.md` once measured.
 
-### Gates (worktree, after merging master `076bc120`)
+### Gates (worktree, after merging master `fc5ea3ab`)
 
 - `npm run typecheck` 0 · `npm run typecheck:test` 0 · `npm run lint` 0
-- `npm test`: 351 suites, 4699 tests, all pass (architecture, ownership, fault-matrix, code-health, error-copy, legacy guards green; the error-copy inventory gained the agent's 9 rows, all author/console, pass)
-- `npm run test:debug`: 428/428 (includes `wizardAgentScore.test.mts` 3 and the corpus validation of J14)
+- `npm test`: 354 suites, 4722 tests, all pass (architecture, ownership, fault-matrix, code-health, error-copy, legacy guards green; the error-copy inventory gained the agent's 9 rows, all author/console, pass)
+- `npm run test:debug`: 429/429 (includes `wizardAgentScore.test.mts` 3 and the corpus validation of J14)
 - `npm run build:dev` 0, `npm run build` 0, `npm run test:release`: 77 pass, 0 fail, 2 skipped
-- **Main entry `dist/manifest.json` `bundle.bytes` = 1,247,914** (master `076bc120` 1,247,877 per the lead: +37 B, the `agentModel` prop; budget 1,250,000). Byte counts depend on the checkout path (module ids): measured side by side from two same-depth exports, master 1,249,905 vs this branch 1,249,942 before the last merge.
-- Storybook: `npx storybook build -o .sb-static-11 --quiet`, served on 6111, `test-storybook --url http://127.0.0.1:6111 --index-json`: 38 suites, 281 tests pass. `--index-json` because the worktree sits under `.claude/`, a dot directory the runner's `testMatch` glob never matches (0 files found otherwise).
+- **Main entry `dist/manifest.json` `bundle.bytes` = 1,242,580** (master `fc5ea3ab` 1,242,543 per the lead: +37 B, the `agentModel` prop; budget 1,250,000). Byte counts depend on the checkout path (module ids): measured side by side from two same-depth exports, master 1,249,905 vs this branch 1,249,942 before the last merge.
+- Storybook: `npx storybook build -o .sb-static-11 --quiet`, served on 6111, `test-storybook --url http://127.0.0.1:6111 --index-json`: 41 suites, 289 tests pass. `--index-json` because the worktree sits under `.claude/`, a dot directory the runner's `testMatch` glob never matches (0 files found otherwise).
 - Live: none (rule 13). J14 and W1–W6 are the owed real-LLM rows.
