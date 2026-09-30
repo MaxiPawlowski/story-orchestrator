@@ -523,7 +523,7 @@ export class ExtractionScheduler {
       try {
         return await task();
       } catch (error) {
-        if (isLapse(error) || failureClass(error) === "config") throw error;
+        if (isLapse(error) || failureClass(error) === "config" || failureClass(error) === "exhausted") throw error;
         lastError = error;
         if (attempt < 2) await new Promise((resolve) => globalThis.setTimeout(resolve, 250 * 2 ** attempt));
       }

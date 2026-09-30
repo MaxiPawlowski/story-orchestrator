@@ -79,7 +79,9 @@ export interface SillyTavernContext {
   // `main_api` and `oai_settings` (st-context.js:200, :227), read for Generate()'s
   // `send_if_empty` branch (script.js:4455).
   mainApi?: string;
-  chatCompletionSettings?: { send_if_empty?: string };
+  // `custom_include_body` (openai.js:476) is what a preset without the key falls back to (custom-request.js:588-593).
+  chatCompletionSettings?: { send_if_empty?: string; custom_include_body?: string };
+  substituteParams?: (text: string) => string;
   groups: HostGroup[];
   characters: HostCharacter[];
   worldInfo?: Record<string, HostWorldInfoEntry>;

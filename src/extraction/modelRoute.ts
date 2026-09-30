@@ -1,9 +1,10 @@
-import type { ModelFinish } from "@services/STAPI";
+import type { ModelFinish, ReasoningMeter } from "@services/STAPI";
+import type { ReasoningEffort } from "@utils/reasoningEffort";
 import { detectDegenerate } from "./degenerate";
 import type { PassRole } from "./passRole";
 import type { RequestBudget } from "./tokenMeter";
 
-export type ModelRoute = { kind: "profile"; profileId: string };
+export type ModelRoute = { kind: "profile"; profileId: string; effort?: ReasoningEffort };
 
 export type RouteResolution = { ok: true; route: ModelRoute | null; source: "role" | "fallback" } | { ok: false; profileId: string; reason: string };
 
@@ -16,6 +17,7 @@ export type ModelPass = typeof MODEL_PASSES[number];
 export interface ExtractionReply {
   text: string;
   finish: ModelFinish;
+  meter?: ReasoningMeter;
 }
 
 export interface ModelAsk {

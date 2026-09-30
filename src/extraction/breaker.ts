@@ -6,7 +6,7 @@ export const PROBE_TIMEOUT_MAX_MS = BREAKER_BACKOFF_MS[BREAKER_BACKOFF_MS.length
 export const DANGLING_PROFILE_DETAIL = "The selected memory model profile no longer exists";
 
 export type ProbeTrigger = "backoff" | "online-status" | "profile-updated" | "player";
-export type FailureClass = "lapsed" | "transport" | "config" | "bug";
+export type FailureClass = "lapsed" | "transport" | "config" | "exhausted" | "bug";
 
 export interface ProbeResult {
   ok: boolean;
@@ -29,6 +29,7 @@ export type ExtractionHealth =
 export const failureClass = (error: unknown): FailureClass => {
   const kind = error instanceof Error && error.name === "ModelCallError" && "kind" in error ? error.kind : null;
   if (kind === "lapsed" || kind === "config") return kind;
+  if (kind === "reasoning-exhausted") return "exhausted";
   return kind === "transport" || kind === "timeout" ? "transport" : "bug";
 };
 

@@ -1,6 +1,7 @@
-import { getContext } from "./context";
+import { getContext, parseHostYaml } from "./context";
 import { extensionsSharedModule } from "./modules";
 import { requestModelReply, type InstructSequences, type ModelReply, type ModelRequestHost, type ModelRequestOptions } from "./modelReply";
+import { foldIncludeBody, type ReasoningRoute } from "./reasoningPayload";
 import { isRecord } from "@utils/guards";
 
 export interface ConnectionProfileSummary {
@@ -42,13 +43,40 @@ export function profileExists(profileId: string): boolean {
   return listConnectionProfiles().some((profile) => profile.id === profileId);
 }
 
-const readProfile = (profileId: string): { api?: string; instruct?: string } | null => {
+interface ProfileRead {
+  api?: string;
+  instruct?: string;
+  preset?: string;
+  model?: string;
+}
+
+const optionalText = (value: unknown): string | undefined => (typeof value === "string" ? value : undefined);
+
+const readProfile = (profileId: string): ProfileRead | null => {
   const root = getContext().extensionSettings as Record<string, unknown>;
   const settings = isRecord(root.connectionManager) ? root.connectionManager : {};
   const profiles = Array.isArray(settings.profiles) ? settings.profiles : [];
   const found = profiles.filter(isRecord).find((profile) => profile.id === profileId);
   if (!found) return null;
-  return { api: typeof found.api === "string" ? found.api : undefined, instruct: typeof found.instruct === "string" ? found.instruct : undefined };
+  return { api: optionalText(found.api), instruct: optionalText(found.instruct), preset: optionalText(found.preset), model: optionalText(found.model) };
+};
+
+const readIncludeBody = (presetName: string | undefined): Record<string, unknown> | null => {
+  const context = getContext();
+  const preset = presetName ? context.getPresetManager?.("openai")?.getCompletionPresetByName(presetName) : undefined;
+  if (!preset) return null;
+  const raw = "custom_include_body" in preset ? preset.custom_include_body : context.chatCompletionSettings?.custom_include_body;
+  if (typeof raw !== "string" || !raw.trim()) return null;
+  return foldIncludeBody(parseHostYaml(context.substituteParams ? context.substituteParams(raw) : raw));
+};
+
+const readReasoningRoute = (profileId: string): ReasoningRoute | null => {
+  const profile = readProfile(profileId);
+  const map = profile?.api ? getContext().CONNECT_API_MAP?.[profile.api] : undefined;
+  if (!profile || !map) return null;
+  const api = map.selected === "openai" ? "chat" : map.selected === "textgenerationwebui" ? "text" : null;
+  const source = typeof map.source === "string" ? map.source : null;
+  return { api, source, model: profile.model ?? null, includeBody: api === "chat" && source === "custom" ? readIncludeBody(profile.preset) : null };
 };
 
 const readInstructSequences = (name: string | undefined): InstructSequences | null => {
@@ -73,6 +101,7 @@ const modelRequestHost = (): ModelRequestHost => ({
     return typeof json === "string" ? json : "";
   },
   instructSequences: readInstructSequences,
+  reasoningRoute: readReasoningRoute,
 });
 
 export async function sendConnectionProfileRequest(profileId: string, prompt: string, maxTokens: number, options: ModelRequestOptions = {}): Promise<ModelReply> {

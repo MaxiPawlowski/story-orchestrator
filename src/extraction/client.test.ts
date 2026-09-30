@@ -1,6 +1,6 @@
 import { sendConnectionProfileRequest } from "@services/STAPI";
 import { testModel } from "../../test/support/modelCallHost";
-import { callExtractionReply, routedModel } from "./client";
+import { callExtractionReply, probeModel, routedModel } from "./client";
 import { isLapse, ModelCallError } from "./modelError";
 import { askText, profileRoute, type ModelAsk } from "./modelRoute";
 import { parseSharedReadResponse } from "./parse";
@@ -31,9 +31,9 @@ describe("askText over the client", () => {
     expect(await askText(routedModel(null), "prompt", { ...READ, debugResponse: "<think>draft</think>{\"ops\": []}" })).toBe("{\"ops\": []}");
   });
 
-  it("returns an empty reply when the model only reasoned", async () => {
+  it("a reply that only reasoned is reasoning-exhausted, not an empty answer (v2.6 plan 05 R2)", async () => {
     answer("<think>\nThe scene opens in the ruins and");
-    expect(await askText(routedModel(p1), "prompt", READ)).toBe("");
+    await expect(askText(routedModel(p1), "prompt", READ)).rejects.toMatchObject({ kind: "reasoning-exhausted" });
   });
 });
 
@@ -140,5 +140,17 @@ describe("per-role routing in the one ModelCall", () => {
     const model = testModel("memory", { curator: "gone" }, (id) => id === "memory");
     await expect(model("prompt", { role: "curator", pass: "curator" })).rejects.toMatchObject({ kind: "config", profileId: "gone" });
     expect(send).not.toHaveBeenCalled();
+  });
+});
+
+describe("probeModel (v2.6 plan 05 R2)", () => {
+  it("a probe the model spent thinking still proves the backend answers, so the breaker can close", async () => {
+    send.mockResolvedValueOnce({ ok: false, kind: "reasoning-exhausted", message: "spent" });
+    expect(await probeModel("p1")).toEqual({ ok: true });
+  });
+
+  it("control: a transport failure is still a failed probe", async () => {
+    send.mockResolvedValueOnce({ ok: false, kind: "transport", message: "down" });
+    expect(await probeModel("p1")).toMatchObject({ ok: false, kind: "transport" });
   });
 });
