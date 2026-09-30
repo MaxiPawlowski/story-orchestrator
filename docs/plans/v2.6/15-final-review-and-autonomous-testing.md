@@ -70,3 +70,5 @@ The user is away until their quota returns. Their instructions, verbatim in subs
   - English only (W25).
   - Adolion lanes start from `adolion-fresh`. Chained charters continue their own lane.
 - **Hand-off for 2026-10-01:** a single `docs/plans/v2.6/14-review-pack.md` with the tiers, findings by severity, open questions for the user and links to the evidence.
+
+**Amended by the user 2026-09-30:** a test or charter that proves not informative enough may be improved and re-run; keep the original run and record why it changed.
