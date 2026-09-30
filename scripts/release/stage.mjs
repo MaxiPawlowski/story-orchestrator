@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { loadAllowlist, neverIssues, stageList, stageTree, targetIssues } from "./artifact.mjs";
 import { FLAVOURS, flavourIssues } from "./buildChecks.mjs";
 import { serveDev } from "./serveFlavour.mjs";
+import { configuredStRoot } from "../lib/stRoot.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const args = process.argv.slice(2);
@@ -12,8 +13,8 @@ const fail = (message) => { console.error(`stage refused: ${message}`); process.
 
 const flavor = argValue("--flavor") ?? "prod";
 if (!(flavor in FLAVOURS)) fail(`unknown --flavor ${flavor}: expected prod or dev`);
-const stRoot = argValue("--st-root") ?? process.env.ST_ROOT;
-if (!stRoot) fail("pass --st-root <SillyTavern root> or set ST_ROOT; it is never derived");
+const stRoot = argValue("--st-root") ?? configuredStRoot(process.env, root);
+if (!stRoot) fail("pass --st-root <SillyTavern root>, set ST_ROOT or write .st-root; it is never derived");
 const issues = targetIssues(resolve(stRoot), root);
 if (issues.length) fail(issues.join("; "));
 
