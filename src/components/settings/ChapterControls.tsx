@@ -33,7 +33,7 @@ export const ChapterControls = ({ snapshot, manager }: GroupProps) => {
       ))}
       <label className="flex items-center gap-2 text-xs">
         <span>Story so far budget</span>
-        <select id="so-chapter-budget" value={settings.chronicleTokens} onChange={(event) => write({ chronicleTokens: Number(event.target.value) })}>
+        <select id="so-chapter-budget" aria-label="Story so far budget" value={settings.chronicleTokens} onChange={(event) => write({ chronicleTokens: Number(event.target.value) })}>
           {CHRONICLE_BUDGET_ARMS.map((tokens) => <option key={tokens} value={tokens}>{tokens} tokens</option>)}
         </select>
       </label>

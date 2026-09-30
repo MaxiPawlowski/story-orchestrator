@@ -25,5 +25,11 @@ export function unfoldChapters(state: ChapterStores, gone: ReadonlySet<string>):
   };
 }
 
+export function unfoldAt(stores: ChapterStores & { chapterBridge?: { recordId: string } | null }, messageId: number, dropped: readonly string[]) {
+  const gone = chaptersFrom(stores.chapters, messageId, dropped);
+  const unfolded = unfoldChapters({ ...stores, chronicle: { eras: stores.chronicle.eras.filter((era) => era.messageId < messageId) } }, gone);
+  return { ...unfolded, ...(stores.chapterBridge && gone.has(stores.chapterBridge.recordId) ? { chapterBridge: null } : {}) };
+}
+
 export const chaptersFrom = (chapters: readonly ChapterRecord[], messageId: number, dropped: readonly string[]): Set<string> =>
   new Set(chapters.filter((record) => dropped.includes(record.id) || record.sealedAt.messageId >= messageId).map((record) => record.id));

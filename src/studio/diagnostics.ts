@@ -42,6 +42,12 @@ export const DIAGNOSTIC_CODES = [
   "house-rule-compound",
   "checkpoint-inherits-author-note",
   "world-info-rests-off",
+  "chapter-missing",
+  "chapter-unknown",
+  "chapter-unreachable",
+  "chapter-no-exit",
+  "chapter-reentry",
+  "story-dead-end",
 ] as const;
 
 // Every code says what it costs the story before it says what is technically wrong: the
@@ -76,6 +82,12 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   "house-rule-compound": "The check asks one question per rule, so a rule that demands two things is judged on whichever one the model reads.",
   "checkpoint-inherits-author-note": "The model keeps being told an earlier checkpoint's note here.",
   "world-info-rests-off": "These lorebook entries stay off in their lorebooks, and are switched on only in this story's own chats.",
+  "chapter-missing": "The story cannot load, because this checkpoint belongs to no chapter.",
+  "chapter-unknown": "The story cannot load, because this checkpoint names a chapter that does not exist.",
+  "chapter-unreachable": "This chapter is never played, so it is never written up.",
+  "chapter-no-exit": "The story stops in this chapter, but it is not marked as the last one, so it is never closed.",
+  "chapter-reentry": "Going back to an earlier chapter reopens a closed record, so the story so far repeats itself.",
+  "story-dead-end": "The story stops here without an ending, so its last chapter is never written up.",
 };
 
 // D: what the Studio needs to know about the install, not the story.
@@ -471,6 +483,37 @@ const checkWorldInfoGating = (run: DiagnosticRun) => {
   }
 };
 
+const checkChapters = (run: DiagnosticRun) => {
+  const { draft, push, reachableFrom, startId } = run;
+  const chapters = draft.chapters ?? [];
+  if (!chapters.length) return;
+  const order = new Map(chapters.map((chapter, index) => [chapter.id, index]));
+  const chapterOf = (id: string) => run.checkpointById.get(id)?.chapter;
+  draft.checkpoints.forEach((checkpoint, index) => {
+    const path = `checkpoints.${index}.chapter`;
+    if (!checkpoint.chapter) push("chapter-missing", "blocking", path, `checkpoint '${checkpoint.id}' names no chapter`);
+    else if (!order.has(checkpoint.chapter)) push("chapter-unknown", "blocking", path, `checkpoint '${checkpoint.id}' names undeclared chapter '${checkpoint.chapter}'`);
+  });
+  const reachable = new Set([startId, ...reachableFrom(startId)]);
+  const leaves = (id: string) => draft.transitions.some((transition) => chapterOf(transition.from) === id && chapterOf(transition.to) !== id);
+  const hasExit = (checkpointId: string) => draft.transitions.some((transition) => transition.from === checkpointId);
+  chapters.forEach((chapter, index) => {
+    const members = draft.checkpoints.filter((checkpoint) => checkpoint.chapter === chapter.id);
+    const path = `chapters.${index}`;
+    if (!members.some((checkpoint) => reachable.has(checkpoint.id))) push("chapter-unreachable", "warning", path, `no checkpoint of chapter '${chapter.id}' is reachable from the start`);
+    else if (!chapter.final && !leaves(chapter.id)) push("chapter-no-exit", "warning", path, `no transition leaves chapter '${chapter.id}', and it is not final`);
+  });
+  draft.transitions.forEach((transition, index) => {
+    const from = order.get(chapterOf(transition.from) ?? "");
+    const to = order.get(chapterOf(transition.to) ?? "");
+    if (from !== undefined && to !== undefined && to < from) push("chapter-reentry", "warning", `transitions.${index}`, `'${transition.from}' leads back into earlier chapter '${chapters[to].id}'`);
+  });
+  draft.checkpoints.forEach((checkpoint, index) => {
+    const chapter = chapters[order.get(checkpoint.chapter ?? "") ?? -1];
+    if (chapter && !chapter.final && !hasExit(checkpoint.id)) push("story-dead-end", "warning", `checkpoints.${index}`, `checkpoint '${checkpoint.id}' has no way on and chapter '${chapter.id}' is not final`);
+  });
+};
+
 const DIAGNOSTIC_CHECKS = [
   checkGates,
   checkAnchorsReachable,
@@ -488,6 +531,7 @@ const DIAGNOSTIC_CHECKS = [
   checkHouseRules,
   checkSceneLocation,
   checkWorldInfoGating,
+  checkChapters,
 ];
 
 export const runDiagnostics = (draft: StoryV2, context: DiagnosticsContext = {}): Diagnostic[] => {

@@ -7,7 +7,7 @@ import type { ChapterHost, ChapterPort } from "./chapterPort";
 import { withholds } from "./generationLifecycle";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import type { PromptHost } from "./hostPorts";
-import { chaptersFrom, unfoldChapters, type ChapterStores } from "@memory/chapterUnfold";
+import { unfoldAt } from "@memory/chapterUnfold";
 
 import { chronicleMarkdown } from "@memory/chronicle";
 import { registerHostMacro, showTextPopup, unregisterHostMacro } from "@services/STAPI";
@@ -109,11 +109,7 @@ export function commitBridge(port: ChapterPort, rendered: boolean) {
   void port.host.save();
 }
 
-export function unfoldAt(stores: ChapterStores & { chapterBridge?: { recordId: string } | null }, messageId: number, dropped: readonly string[]) {
-  const gone = chaptersFrom(stores.chapters, messageId, dropped);
-  const unfolded = unfoldChapters({ ...stores, chronicle: { eras: stores.chronicle.eras.filter((era) => era.messageId < messageId) } }, gone);
-  return { ...unfolded, ...(stores.chapterBridge && gone.has(stores.chapterBridge.recordId) ? { chapterBridge: null } : {}) };
-}
+export { unfoldAt };
 
 export function fold(host: ChapterHost, rows: FoldRow[], type: unknown, live: readonly unknown[]): FoldOutcome | null {
   const records = recordsOf(host);

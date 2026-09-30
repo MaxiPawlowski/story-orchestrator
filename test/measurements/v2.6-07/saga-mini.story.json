@@ -1,0 +1,49 @@
+{
+  "format": 2,
+  "id": "saga-mini",
+  "version": 1,
+  "title": "Saga Mini",
+  "description": "The Q-M corpus story: three chapters and an interlude over fourteen checkpoints. Needles are planted in chapters 1-3 and asked at the start of chapter 4's first scene.",
+  "chapters": [
+    { "id": "ch1", "title": "The Salt Road", "player_title": "The Salt Road" },
+    { "id": "ch2", "title": "Harrowgate Under Watch", "player_title": "Harrowgate" },
+    { "id": "rest", "title": "The Ferry Night", "kind": "interlude" },
+    { "id": "ch3", "title": "The Drowned Archive", "player_title": "The Archive" },
+    { "id": "ch4", "title": "The Last Tide", "player_title": "The Last Tide", "final": true }
+  ],
+  "qualities": [
+    { "key": "leg", "type": "int", "source": "extractor", "monotonic": true, "rubric": "How many legs of the journey are done? One per checkpoint passed." }
+  ],
+  "checkpoints": [
+    { "id": "c1", "name": "The Caravan", "objective": "Join the salt caravan.", "type": "anchor", "start": true, "chapter": "ch1" },
+    { "id": "c2", "name": "The Dunes", "objective": "Cross the dunes.", "type": "intermediate", "chapter": "ch1" },
+    { "id": "c3", "name": "The Well", "objective": "Reach the last well.", "type": "anchor", "chapter": "ch1" },
+    { "id": "c4", "name": "The Gate", "objective": "Talk past the gate watch.", "type": "intermediate", "chapter": "ch2" },
+    { "id": "c5", "name": "The Market", "objective": "Find the quartermaster.", "type": "intermediate", "chapter": "ch2" },
+    { "id": "c6", "name": "The Magistrate", "objective": "Answer the magistrate.", "type": "anchor", "chapter": "ch2" },
+    { "id": "c7", "name": "The Ferry", "objective": "Cross the river at night.", "type": "anchor", "chapter": "rest" },
+    { "id": "c8", "name": "The Stair", "objective": "Descend into the archive.", "type": "intermediate", "chapter": "ch3" },
+    { "id": "c9", "name": "The Flooded Hall", "objective": "Cross the flooded hall.", "type": "intermediate", "chapter": "ch3" },
+    { "id": "c10", "name": "The Keeper", "objective": "Bargain with the keeper.", "type": "anchor", "chapter": "ch3" },
+    { "id": "c11", "name": "The Shore", "objective": "Return to the shore.", "type": "intermediate", "chapter": "ch4" },
+    { "id": "c12", "name": "The Boats", "objective": "Ready the boats.", "type": "intermediate", "chapter": "ch4" },
+    { "id": "c13", "name": "The Tide", "objective": "Ride out the tide.", "type": "intermediate", "chapter": "ch4" },
+    { "id": "c14", "name": "Landfall", "objective": "Make landfall.", "type": "anchor", "chapter": "ch4" }
+  ],
+  "transitions": [
+    { "from": "c1", "to": "c2", "priority": 1, "gate": { "q": "leg", "op": ">=", "v": 1 } },
+    { "from": "c2", "to": "c3", "priority": 1, "gate": { "q": "leg", "op": ">=", "v": 2 } },
+    { "from": "c3", "to": "c4", "priority": 1, "gate": { "q": "leg", "op": ">=", "v": 3 } },
+    { "from": "c4", "to": "c5", "priority": 1, "gate": { "q": "leg", "op": ">=", "v": 4 } },
+    { "from": "c5", "to": "c6", "priority": 1, "gate": { "q": "leg", "op": ">=", "v": 5 } },
+    { "from": "c6", "to": "c7", "priority": 1, "gate": { "q": "leg", "op": ">=", "v": 6 } },
+    { "from": "c7", "to": "c8", "priority": 1, "gate": { "q": "leg", "op": ">=", "v": 7 } },
+    { "from": "c8", "to": "c9", "priority": 1, "gate": { "q": "leg", "op": ">=", "v": 8 } },
+    { "from": "c9", "to": "c10", "priority": 1, "gate": { "q": "leg", "op": ">=", "v": 9 } },
+    { "from": "c10", "to": "c11", "priority": 1, "gate": { "q": "leg", "op": ">=", "v": 10 } },
+    { "from": "c11", "to": "c12", "priority": 1, "gate": { "q": "leg", "op": ">=", "v": 11 } },
+    { "from": "c12", "to": "c13", "priority": 1, "gate": { "q": "leg", "op": ">=", "v": 12 } },
+    { "from": "c13", "to": "c14", "priority": 1, "gate": { "q": "leg", "op": ">=", "v": 13 } }
+  ],
+  "roster": []
+}

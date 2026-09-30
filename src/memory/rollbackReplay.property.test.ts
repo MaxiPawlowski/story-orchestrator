@@ -23,7 +23,9 @@ import { applyLedgerSignals, buildLedgerView } from "./ledger";
 import { reverseMemoryState, type MemoryRollbackState } from "./reverse";
 import { addMemoryEntries, createMemoryState, excludeEntry, hashMemoryText, rollingShortTerm, type ShortTermPlacement } from "./stores";
 import { appendShortTerm } from "./shortTermAppend";
-import type { ArcEntry, EpistemicEntry, LedgerEntry, MemoryEntry } from "./types";
+import type { ArcEntry, ChapterRecord, ChronicleState, EpistemicEntry, LedgerEntry, MemoryEntry } from "./types";
+import { foldChapter } from "./chapterFold";
+import { unfoldAt } from "./chapterUnfold";
 
 const ITERATIONS = 400;
 const SEEDS = [1, 7, 20260921, 424242];
@@ -41,14 +43,16 @@ const SUBJECTS = ["Mara", "Kael", "Belle"];
 const FIELDS = ["condition", "location"];
 const TAGS = ["knows", "believes", "suspects"] as const;
 
-interface Op { kind: "read" | "ledger" | "epistemic" | "consolidate" | "exclude" | "compact"; messageId: number; index: number }
+interface Op { kind: "read" | "ledger" | "epistemic" | "consolidate" | "exclude" | "compact" | "seal"; messageId: number; index: number }
+
+const KINDS: Op["kind"][] = ["read", "read", "ledger", "epistemic", "consolidate", "exclude", "compact", "seal"];
 
 const memory = (index: number, messageId: number) => ({
   id: `m${index}`,
   tier: "facts",
   text: `fact ${index}`,
   type: "fact",
-  importance: 2,
+  importance: index % 3 === 0 ? 1 : 2,
   expiration: "permanent",
   entities: [SUBJECTS[index % SUBJECTS.length]],
   confidence: 1,
@@ -71,13 +75,35 @@ interface World {
   canon: { text: string; inputHash: string; updatedAt: string } | null;
   verifyDrops: Array<{ entry: MemoryEntry }>;
   derived: DerivedRecord[];
+  chapters: ChapterRecord[];
+  chronicle: ChronicleState;
 }
 
-const emptyWorld = (): World => ({ ...createMemoryState(), shortTermSummaryEnd: -1, arcs: [], epistemic: [], ledger: [], canon: null, verifyDrops: [], derived: [] });
+const emptyWorld = (): World => ({
+  ...createMemoryState(), shortTermSummaryEnd: -1, arcs: [], epistemic: [], ledger: [], canon: null, verifyDrops: [], derived: [], chapters: [], chronicle: { eras: [] },
+});
+
+const seal = (world: World, op: Op): World => {
+  const previous = world.chapters[world.chapters.length - 1];
+  const record = {
+    id: `ch${op.index}`,
+    range: { from: previous ? previous.range.to + 1 : 0, to: op.messageId },
+    open: [],
+    sealedAt: { boundary: op.messageId, messageId: op.messageId, at: 0, pathLength: world.chapters.length + 1 },
+  } as Partial<ChapterRecord> as ChapterRecord;
+  const folded = foldChapter(world, record, () => "carry");
+  const moved = folded.shortTermSummaryEnd > world.shortTermSummaryEnd;
+  const derived = recordDerived(world.derived, {
+    kind: "chapter_seal", inputs: [...folded.folded, ...folded.resolved], outputId: record.id, boundary: op.messageId, messageId: op.messageId,
+    ...(moved ? { range: { from: world.shortTermSummaryEnd + 1, to: folded.shortTermSummaryEnd } } : {}),
+  });
+  return { ...world, entries: folded.entries, arcs: folded.arcs, shortTermSummaryEnd: folded.shortTermSummaryEnd, chapters: [...world.chapters, record], derived };
+};
 
 const SHORT_TERM_LIMITS = { rows: 3, tokens: Number.POSITIVE_INFINITY };
 
 const stepWith = (shape: ShortTermPlacement) => (world: World, op: Op): World => {
+  if (op.kind === "seal") return seal(world, op);
   if (op.kind === "read") {
     const { state } = addMemoryEntries(world, [memory(op.index, op.messageId)], { from: op.messageId, to: op.messageId });
     return { ...world, ...state };
@@ -126,13 +152,13 @@ const step = stepWith(rollingShortTerm);
 const appendStep = stepWith(appendShortTerm);
 
 const rollbackTo = (world: World, messageId: number, boundary: number): World => {
-  const next = reverseMemoryState(world as World & Pick<MemoryRollbackState, "storyStart">, messageId, boundary);
+  const next = reverseMemoryState(world as World & Pick<MemoryRollbackState, "storyStart">, messageId, boundary, unfoldAt);
   return { ...world, ...next };
 };
 
 /** The ledger read model, which is what a player and the prompt actually see. */
 const ledgerView = (ledger: LedgerEntry[]) => buildLedgerView(ledger, [], {}, {}).map((row) => `${row.entity}|${row.field}=${row.value}`);
-const entryView = (entries: MemoryEntry[]) => entries.map((entry) => `${entry.id}${entry.supersededBy ? `->${entry.supersededBy}` : ""}|recall=${entry.recallCount}|confirmed=${(entry.confirmedAt ?? []).map((at) => at.messageId).join(",")}`).sort();
+const entryView = (entries: MemoryEntry[]) => entries.map((entry) => `${entry.id}${entry.supersededBy ? `->${entry.supersededBy}` : ""}${entry.foldedInto ? `@${entry.foldedInto}` : ""}|recall=${entry.recallCount}|confirmed=${(entry.confirmedAt ?? []).map((at) => at.messageId).join(",")}`).sort();
 const beliefView = (entries: EpistemicEntry[]) => entries.map((entry) => `${entry.subject}|${entry.tag}|${entry.content}${entry.supersededBy ? "|retired" : ""}`).sort();
 const derivedView = (records: DerivedRecord[]) => records.map((record) => `${record.kind}|${record.messageId}|${record.outputId ?? ""}|${(record.inputs ?? []).join(",")}|${(record.removed ?? []).map((entry) => entry.id).join(",")}|${record.hash ?? ""}`).sort();
 
@@ -141,7 +167,7 @@ const randomCuts = (seed: number, step: (world: World, op: Op) => World) => {
     const random = rng(seed);
     const ops: Op[] = [];
     const full = emptyWorld();
-    const kinds: Op["kind"][] = ["read", "read", "ledger", "epistemic", "consolidate", "exclude", "compact"];
+    const kinds = KINDS;
 
     for (let index = 0; index < 60; index += 1) {
       // Message ids ascend, so every op has a position on the timeline a mutation could reach.
@@ -155,6 +181,8 @@ const randomCuts = (seed: number, step: (world: World, op: Op) => World) => {
       full.epistemic = next.epistemic;
       full.derived = next.derived;
       full.shortTermSummaryEnd = next.shortTermSummaryEnd;
+      full.arcs = next.arcs;
+      full.chapters = next.chapters;
     }
 
     for (let probe = 0; probe < ITERATIONS; probe += 1) {
@@ -168,6 +196,7 @@ const randomCuts = (seed: number, step: (world: World, op: Op) => World) => {
       expect({ where, excluded: [...rolled.excluded].sort() }).toEqual({ where, excluded: [...replayed.excluded].sort() });
       expect({ where, derived: derivedView(rolled.derived) }).toEqual({ where, derived: derivedView(replayed.derived) });
       expect({ where, watermark: rolled.shortTermSummaryEnd }).toEqual({ where, watermark: replayed.shortTermSummaryEnd });
+      expect({ where, chapters: rolled.chapters.map((record) => record.id) }).toEqual({ where, chapters: replayed.chapters.map((record) => record.id) });
       // And the read-coverage log, so a forced re-read after the rollback is not discarded as seen.
       expect({ where, coverage: rolled.writeLog.map((entry) => entry.range.to) }).toEqual({ where, coverage: replayed.writeLog.map((entry) => entry.range.to) });
     }
@@ -185,8 +214,7 @@ describe("review: rollback is replay", () => {
 const middleDeletes = (seed: number, step: (world: World, op: Op) => World) => {
   {
     const random = rng(seed);
-    const kinds: Op["kind"][] = ["read", "read", "ledger", "epistemic", "consolidate", "exclude", "compact"];
-    const ops: Op[] = Array.from({ length: 60 }, (_, index) => ({ kind: kinds[Math.floor(random() * kinds.length)], messageId: index, index }));
+    const ops: Op[] = Array.from({ length: 60 }, (_, index) => ({ kind: KINDS[Math.floor(random() * KINDS.length)], messageId: index, index }));
     const full = ops.reduce(step, emptyWorld());
     const chat = ops.map((op) => ({ send_date: `t${op.messageId}`, name: op.messageId % 2 ? "Arin" : "Player", is_user: op.messageId % 2 === 0, mes: `message ${op.messageId}` }));
     const before = messageKeys(chat);
@@ -205,6 +233,7 @@ const middleDeletes = (seed: number, step: (world: World, op: Op) => World) => {
       expect({ where, excluded: [...rolled.excluded].sort() }).toEqual({ where, excluded: [...replayed.excluded].sort() });
       expect({ where, derived: derivedView(rolled.derived) }).toEqual({ where, derived: derivedView(replayed.derived) });
       expect({ where, watermark: rolled.shortTermSummaryEnd }).toEqual({ where, watermark: replayed.shortTermSummaryEnd });
+      expect({ where, chapters: rolled.chapters.map((record) => record.id) }).toEqual({ where, chapters: replayed.chapters.map((record) => record.id) });
     }
   }
 };
@@ -226,5 +255,16 @@ describe("v2.5 plan 09 SP4 T1: rollback is replay with the append-only short_ter
     expect(full.entries.filter((entry) => entry.tier === "short_term").length).toBe(SHORT_TERM_LIMITS.rows);
     expect(compactions.some((record) => (record.removed ?? []).length > 0)).toBe(true);
     expect(compactions.every((record) => record.inputs.length === 0)).toBe(true);
+  });
+});
+
+describe("v2.6 plan 07: rollback is replay across chapter seals", () => {
+  it("control: the generator seals chapters that fold rows, so the property covers the fold", () => {
+    const random = rng(SEEDS[0]);
+    const ops: Op[] = Array.from({ length: 60 }, (_, index) => ({ kind: KINDS[Math.floor(random() * KINDS.length)], messageId: index, index }));
+    const full = ops.reduce(step, emptyWorld());
+    expect(full.chapters.length).toBeGreaterThan(1);
+    expect(full.entries.some((entry) => entry.foldedInto)).toBe(true);
+    expect(full.derived.some((record) => record.kind === "chapter_seal" && record.range)).toBe(true);
   });
 });

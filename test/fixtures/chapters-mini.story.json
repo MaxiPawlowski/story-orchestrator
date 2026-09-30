@@ -1,0 +1,29 @@
+{
+  "format": 2,
+  "id": "chapters-mini",
+  "version": 1,
+  "title": "Chapters Mini",
+  "description": "Two chapters and an interlude, for the chapter seal tests.",
+  "chapters": [
+    { "id": "arrival", "title": "Arrival at Harrowgate", "player_title": "Arrival" },
+    { "id": "camp", "title": "Night Camp", "kind": "interlude" },
+    { "id": "siege", "title": "The Siege of Harrowgate", "player_title": "The Siege", "final": true, "seal": { "open_threads": "close" } }
+  ],
+  "qualities": [
+    { "key": "step", "type": "int", "source": "extractor", "monotonic": true, "rubric": "How far has the party come?" }
+  ],
+  "checkpoints": [
+    { "id": "gate", "name": "The Gate", "objective": "Reach the town gate.", "type": "anchor", "start": true, "chapter": "arrival" },
+    { "id": "market", "name": "The Market", "objective": "Find the quartermaster.", "type": "intermediate", "chapter": "arrival" },
+    { "id": "fire", "name": "Campfire", "objective": "Rest the night.", "type": "anchor", "chapter": "camp" },
+    { "id": "walls", "name": "The Walls", "objective": "Hold the walls.", "type": "intermediate", "chapter": "siege" },
+    { "id": "dawn", "name": "Dawn", "objective": "See the siege through.", "type": "anchor", "chapter": "siege" }
+  ],
+  "transitions": [
+    { "from": "gate", "to": "market", "priority": 1, "gate": { "q": "step", "op": ">=", "v": 1 } },
+    { "from": "market", "to": "fire", "priority": 1, "gate": { "q": "step", "op": ">=", "v": 2 } },
+    { "from": "fire", "to": "walls", "priority": 1, "gate": { "q": "step", "op": ">=", "v": 3 } },
+    { "from": "walls", "to": "dawn", "priority": 1, "gate": { "q": "step", "op": ">=", "v": 4 } }
+  ],
+  "roster": []
+}
