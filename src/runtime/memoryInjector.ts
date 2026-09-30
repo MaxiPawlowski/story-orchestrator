@@ -6,6 +6,8 @@ import {
   type ScoreContext,
 } from "@memory/index";
 import { EPISTEMIC_INJECTION_DEPTH, EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_DEPTH } from "@constants/defaults";
+import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
+import type { ChapterPort } from "./chapterPort";
 
 import { buildScoreContext } from "./scoreContext";
 import { activeSpeakerId, enabledCharacterIds, enabledCharacterNames, namesForRosterId, rosterIdForName, rosterMemberName } from "./roster";
@@ -23,6 +25,7 @@ export interface MemoryInjectorDeps {
   ledgerBindings: () => LedgerBinding[];
   setPinnedOverflow: (count: number) => void;
   hosts: () => InjectorHosts;
+  chapters?: () => Pick<ChapterPort, "storySoFar" | "injects" | "returning">;
 }
 
 // What the memory stores put into SillyTavern's prompt, split out of MemoryCoordinator. The
@@ -34,6 +37,7 @@ export class MemoryInjector {
   private draft: { storyId: string; rosterId: string | null } | null = null;
   private withheld = false;
   private lastInjection: MemoryInjectionView | null = null;
+  private bridgeCarried: string | null = null;
   private readonly highWater: Partial<Record<MemoryTier, number>> = {};
 
   constructor(private readonly deps: MemoryInjectorDeps) {}
@@ -73,6 +77,7 @@ export class MemoryInjector {
   update() {
     const story = this.deps.getStory();
     if (this.draft && (!story || this.draft.storyId !== storyKey(story))) this.draft = null;
+    const returning = this.applyStorySoFar(story);
     if (!story || !this.deps.enabled()) {
       clearAllMemoryInjection(this.hosts.prompt);
       this.stagedPrivate.clear();
@@ -95,7 +100,7 @@ export class MemoryInjector {
     this.stagedPrivate.clear();
     if (this.deps.capable()) {
       for (const id of enabledCharacterIds(story, this.hosts.roster)) {
-        const facts = buildMemoryInjectionBlocks(this.state.entries, id, options).facts;
+        const facts = [buildMemoryInjectionBlocks(this.state.entries, id, options).facts, returning.get(id) ?? ""].filter(Boolean).join("\n");
         const epistemic = renderPrivateEpistemicBlock(this.state.epistemic, namesForRosterId(story, id));
         this.stagedPrivate.set(id, { facts, epistemic });
       }
@@ -109,6 +114,31 @@ export class MemoryInjector {
     } else {
       clearEpistemicInjection(this.hosts.prompt);
     }
+  }
+
+  // v2.6 plan 07 D5/D8: the chronicle, this chapter's canon and the open threads in one block above
+  // the tiers, and a returning member's dossier line for that member's own drafts only.
+  private applyStorySoFar(story: NormalizedStoryV2 | null): Map<string, string> {
+    const chapters = this.deps.chapters?.();
+    const key = INJECTION_REGISTRY.storySoFar.key;
+    const text = story && chapters && this.deps.enabled() && chapters.injects() ? chapters.storySoFar() : "";
+    if (text) this.hosts.prompt.setStoryExtensionPrompt(key, text, INJECTION_REGISTRY.storySoFar.depth);
+    else this.hosts.prompt.clearStoryExtensionPrompt(key);
+    return story && chapters ? chapters.returning() : new Map();
+  }
+
+  storySoFarText(): string { return this.hosts.injection.readInjectedPromptBlocks().find((block) => block.key === INJECTION_REGISTRY.storySoFar.key)?.value ?? ""; }
+
+  carryBridge(bridge: { recordId: string; text: string } | null) {
+    this.bridgeCarried = bridge?.recordId ?? null;
+    if (bridge) this.hosts.prompt.setStoryExtensionPrompt(INJECTION_REGISTRY.chapterBridge.key, bridge.text, INJECTION_REGISTRY.chapterBridge.depth);
+  }
+
+  commitBridge(): string | null {
+    const carried = this.bridgeCarried;
+    this.bridgeCarried = null;
+    this.hosts.prompt.clearStoryExtensionPrompt(INJECTION_REGISTRY.chapterBridge.key);
+    return carried;
   }
 
   private setPrivateBlocks(facts: string, epistemic: string) {

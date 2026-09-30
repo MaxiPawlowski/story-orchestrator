@@ -22,6 +22,7 @@ import { sceneConflictValues } from "@memory/conflicts";
 import { emptyMirrorSummary, syncMemoryMirror, type MemoryMirrorSummary } from "../memoryMirror";
 import { MemoryInjector } from "../memoryInjector";
 import { CanonSynthesis } from "../canonSynthesis";
+import { ChapterPort } from "../chapterPort";
 import { buildMatchSets, judgePairRelations } from "../consolidationMatches";
 import { boundProvenance, boundValuesFor, MemoryQueue } from "../memoryQueue";
 import type { JudgeRuntime } from "../judge";
@@ -56,13 +57,14 @@ export interface MemoryCoordinatorDeps {
   /** Read a named span again, rather than whatever the transcript now ends with. */
   rereadWindow?: (window: { from: number; to: number }, reason: string) => Promise<unknown>;
   hosts: MemoryHosts;
+  chapterHost?: { closeScene: (to: number) => Promise<void>; announce: (text: string) => Promise<void>; journal: (summary: string, detail?: string) => void; playerName: () => string };
 }
 
 // Owns everything that reads or writes extras.memory: tiers, arcs, canon, epistemic, ledger,
 // consolidation, World Info mirroring and prompt injection. The manager keeps the persist
 // boundary — this class only mutates the slice and asks for a save.
 export class MemoryCoordinator {
-  readonly injector = new MemoryInjector({
+  readonly injector: MemoryInjector = new MemoryInjector({
     getStory: () => this.deps.getStory(),
     getState: () => this.deps.getState(),
     memory: () => this.state,
@@ -71,12 +73,22 @@ export class MemoryCoordinator {
     ledgerBindings: () => this.ledgerBindings(),
     setPinnedOverflow: (count) => this.patch({ pinnedOverflow: count }),
     hosts: () => this.deps.hosts,
+    chapters: () => this.chapters,
   });
   readonly canon = new CanonSynthesis({
     getStory: () => this.deps.getStory(), getState: () => this.deps.getState(), memory: () => this.state,
     patch: (next) => this.patch(next), record: (input) => this.record(input), save: () => this.save(),
     model: () => this.deps.model, ownership: () => this.deps.ownership, enabled: () => this.enabled,
     firedTransitions: () => this.deps.getFiredTransitions(), facts: () => this.getFacts(),
+  });
+  readonly chapters: ChapterPort = new ChapterPort({
+    getStory: () => this.deps.getStory(), getState: () => this.deps.getState(), memory: () => this.state, patch: (next) => this.patch(next),
+    record: (input) => this.record(input), model: () => this.deps.model, ownership: () => this.deps.ownership,
+    closeScene: (to) => this.deps.chapterHost?.closeScene(to) ?? Promise.resolve(), sceneStart: (to) => this.sceneStart(to),
+    summarizeArcs: (ids) => this.runArcSummaryPass(ids), updateInjection: () => this.updateInjection(), save: () => this.save(),
+    roster: () => (this.deps.getStory()?.roster ?? []).map((member) => ({ id: member.id, name: rosterMemberName(member) })),
+    playerName: () => this.deps.chapterHost?.playerName() ?? "", journal: (summary, detail) => this.deps.chapterHost?.journal(summary, detail),
+    announce: (text) => this.deps.chapterHost?.announce(text) ?? Promise.resolve(), storySoFarText: () => this.injector.storySoFarText(),
   });
   private consolidationInFlight = false;
   readonly queue: MemoryQueue;
@@ -354,6 +366,13 @@ export class MemoryCoordinator {
   releaseStaleHold() { if (this.injector.releaseWithhold()) this.injector.update(); }
   withholdPrivateKnowledge() { this.injector.withholdPrivateKnowledge(); }
   onMemberDrafted(chId: number | [number]) { this.injector.onMemberDrafted(chId); }
+  carryBridge() { this.injector.carryBridge(this.enabled ? this.state.chapterBridge ?? null : null); }
+  commitBridge(rendered: boolean) {
+    const carried = this.injector.commitBridge();
+    if (!rendered || !carried || this.state.chapterBridge?.recordId !== carried) return;
+    this.patch({ chapterBridge: null }, false);
+    void this.save();
+  }
   getInjectionBlocks(): Record<MemoryTier, string> { return this.injector.blocks(); }
 
   // --- consolidation -----------------------------------------------------

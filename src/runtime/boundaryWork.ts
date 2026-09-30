@@ -1,6 +1,7 @@
 import type { BoundaryResult } from "@engine/index";
 import { getChatWindow, planReconciliation, scheduleForcedCues, type ExtractionScheduler } from "@extraction/index";
 import type { SceneCoordinator } from "./coordinators/sceneCoordinator";
+import { storyEnded } from "./chapters";
 import type { RuntimeManager } from "./runtimeManager";
 import { log } from "@utils/log";
 
@@ -26,6 +27,8 @@ export interface BoundaryWorkItem {
   order: number;
   when?: (context: BoundaryWorkContext) => boolean;
   run: (context: BoundaryWorkContext) => void;
+  /** v2.6 plan 07 D9: still runs after the story's final chapter sealed (the free epilogue). */
+  afterEnd?: true;
 }
 
 const WORK_ITEMS: BoundaryWorkItem[] = [
@@ -82,6 +85,18 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     },
   },
   {
+    // v2.6 plan 07 D2: a boundary that left a chapter (or reached a final ending) seals it off the
+    // reply path, before scene-detect so the closing scene belongs to the chapter it ended.
+    id: "chapter-seal",
+    order: 44,
+    run: ({ result, manager, scheduler }) => {
+      const target = manager.chapters.due();
+      if (!target) return;
+      const at = { boundary: result.boundary, messageId: result.context.lastMessageId };
+      scheduler.schedule({ priority: 1, reason: `chapter-seal:${target.chapter.id}`, run: async () => { await manager.chapters.seal(target, at); } });
+    },
+  },
+  {
     // The probe is the condition: detectSceneBreak advances the location/cast cursor, so it must
     // run exactly once per boundary.
     id: "scene-detect",
@@ -119,6 +134,7 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
   {
     id: "short-term-compaction",
     order: 60,
+    afterEnd: true,
     when: ({ result, manager }) => manager.shouldCompactShortTerm(result.context.lastMessageId),
     run: ({ manager, scheduler }) => {
       scheduler.schedule({ priority: 2, reason: "short-term-compaction", run: async () => { await manager.runShortTermCompaction(); } });
@@ -147,8 +163,9 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
 export const BOUNDARY_WORK = [...WORK_ITEMS].sort((left, right) => left.order - right.order);
 
 export function runBoundaryWork(context: BoundaryWorkContext) {
+  const ended = storyEnded(context.manager.chapters.records());
   for (const item of BOUNDARY_WORK) {
-    if (item.when && !item.when(context)) continue;
+    if ((ended && !item.afterEnd) || (item.when && !item.when(context))) continue;
     try {
       item.run(context);
     } catch (error) {

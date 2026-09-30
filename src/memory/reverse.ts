@@ -3,7 +3,8 @@ import { rollbackEpistemic } from "./epistemic";
 import { rollbackLedger } from "./ledger";
 import { dropByMessageId, hashMemoryText, stripLinksAfter } from "./stores";
 import { rollbackArcs } from "./arcs";
-import type { ArcEntry, MemoryEntry, MemoryStoreState } from "./types";
+import { chaptersFrom, unfoldChapters } from "./chapterUnfold";
+import type { ArcEntry, ChapterRecord, ChronicleState, MemoryEntry, MemoryStoreState } from "./types";
 
 // Everything a rollback means for memory, in one pure function: the rows a mutation
 // invalidated, the derived artifacts built from them, and the three stores that keep their own
@@ -19,6 +20,9 @@ export interface MemoryRollbackState extends MemoryStoreState {
   verifyDrops: Array<{ entry: MemoryEntry }>;
   derived: DerivedRecord[];
   storyStart: number;
+  chapters?: ChapterRecord[];
+  chronicle?: ChronicleState;
+  chapterBridge?: { recordId: string; text: string } | null;
 }
 
 export function reverseMemoryState<S extends MemoryRollbackState>(state: S, messageId: number, boundary: number): Partial<S> {
@@ -36,8 +40,12 @@ export function reverseMemoryState<S extends MemoryRollbackState>(state: S, mess
   reversal.restored.forEach((entry) => {
     if (!excluded.includes(hashMemoryText(entry.text))) byId.set(entry.id, stripLinksAfter(entry, messageId));
   });
-  const entries = [...byId.values()];
-  let arcs = rollbackArcs(state.arcs, messageId, boundary);
+  const sealed = state.chapters ?? [];
+  const unsealed = chaptersFrom(sealed, messageId, reversal.outputIds);
+  const eras = (state.chronicle?.eras ?? []).filter((era) => era.messageId < messageId);
+  const unfolded = unfoldChapters({ entries: [...byId.values()], arcs: state.arcs, chapters: sealed, chronicle: { eras } }, unsealed);
+  const entries = unfolded.entries;
+  let arcs = rollbackArcs(unfolded.arcs, messageId, boundary);
   const staleArcSummaries = new Set(reversal.dropped.filter((record) => record.kind === "arc_summary").flatMap((record) => record.inputs));
   if (staleArcSummaries.size) arcs = arcs.map((arc) => {
     if (!staleArcSummaries.has(arc.id)) return arc;
@@ -57,6 +65,8 @@ export function reverseMemoryState<S extends MemoryRollbackState>(state: S, mess
     verifyDrops: state.verifyDrops.filter((drop) => (drop.entry.messageId ?? -1) < messageId),
     shortTermSummaryEnd: reversal.watermark === null ? state.shortTermSummaryEnd : Math.min(state.shortTermSummaryEnd, reversal.watermark),
     ...(canonStale ? { canon: null } : {}),
+    ...(state.chapters ? { chapters: unfolded.chapters, chronicle: unfolded.chronicle } : {}),
+    ...(state.chapterBridge && unsealed.has(state.chapterBridge.recordId) ? { chapterBridge: null } : {}),
     ...(state.storyStart > messageId ? { storyStart: messageId } : {}),
   } as Partial<S>;
 }

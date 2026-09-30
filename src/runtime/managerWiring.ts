@@ -19,6 +19,8 @@ import type { StoryUpdateDeps } from "./storyUpdate";
 import type { RunOwnership } from "./runToken";
 import type { LoadedStory, RuntimeExtras } from "./types";
 import { loadWizardSession, saveWizardSession } from "./wizardSessions";
+import { getPlayerName } from "@services/STAPI";
+import { storyEnded } from "./chapters";
 
 export interface ManagerPort {
   view: { getStory: () => NormalizedStoryV2 | null; getState: () => EngineState | null; hosts: typeof coordinatorHosts };
@@ -38,6 +40,7 @@ export interface ManagerPort {
   sceneBreakListeners: Set<(audit: SharedReadAudit, collect?: SchedulerJob[]) => void>;
   arcResolvedListeners: Set<(arcIds: string[]) => void>;
   journal: (kind: JournalRecordKind, summary: string, note?: string) => void;
+  announce: (text: string) => Promise<void>;
   rollback: Pick<RollbackDeps, "journal" | "context" | "refreshRequirements" | "reapplyCheckpoint" | "notices" | "onApplied">;
   storyUpdate: Pick<StoryUpdateDeps, "swapStory" | "restart" | "journal">;
 }
@@ -58,6 +61,7 @@ export function wireCoordinators(port: ManagerPort) {
     getScene: () => port.extras().judge.scene,
     rereadWindow: (window, reason) => extraction.runNow(undefined, reason, window),
     unsaved: () => port.unsaved(),
+    chapterHost: { closeScene: (to) => extraction.closeSceneAt(to), announce: (text) => port.announce(text), journal: (summary, note) => port.journal("chapter", summary, note), playerName: () => getPlayerName() },
   });
   const expansion: ExpansionCoordinator = new ExpansionCoordinator({
     ...view,
@@ -101,6 +105,7 @@ export function wireCoordinators(port: ManagerPort) {
     getTension: () => port.extras().tension,
     setTension: (next) => { port.extras().tension = next; },
     getPacing: () => port.extras().pacing,
+    ended: () => storyEnded(port.extras().memory.chapters ?? []),
   });
   const stagecraft = new StagecraftCoordinator({
     ...view,

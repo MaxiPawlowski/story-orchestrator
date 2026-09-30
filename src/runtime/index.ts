@@ -26,6 +26,7 @@ import { log } from "@utils/log";
 import { readGatingModeWith } from "./worldInfoMode";
 import { getGlobalSettings } from "./settingsStore";
 import { loadInlineComposer } from "./snapshotBuilder";
+import { loadChapterKit } from "./chapterPort";
 
 let started = false;
 let bridge: TurnBridge | null = null;
@@ -130,6 +131,7 @@ export function startRuntime() {
   runtimeDisposers.push(readGatingModeWith(() => getGlobalSettings().worldInfo.gatingMode));
   startScheduler(live, runtimeDisposers);
   void loadInlineComposer().then(() => { if (started) runtimeManager.notify(); });
+  void loadChapterKit().then(() => { if (started) runtimeManager.refreshMemoryInjection(); });
   registerHostSurfaces();
   startWatches();
   const access = windowAccess();

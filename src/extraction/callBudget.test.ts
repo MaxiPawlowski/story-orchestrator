@@ -35,7 +35,7 @@ describe("callBudget: one declared table for every memory-model call (v2.4 plan 
       if ("fixed" in budget) continue;
       expect({ family, ordered: budget.floor <= budget.cap }).toEqual({ family, ordered: true });
     }
-    expect(Object.keys(MAX_TOKENS_TABLE).sort()).toEqual(["arcSummary", "canon", "curator", "epistemic", "ledger", "sceneSummary", "sharedRead", "shortTerm"]);
+    expect(Object.keys(MAX_TOKENS_TABLE).sort()).toEqual(["arcSummary", "canon", "chapterSeal", "curator", "epistemic", "ledger", "sceneSummary", "sharedRead", "shortTerm"]);
   });
 
   it("reads a prompt's input at four characters a token", () => {

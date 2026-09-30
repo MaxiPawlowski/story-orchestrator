@@ -110,6 +110,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     fireSceneBreakReplies: (occurrence) => this.effects.fireNpcReplies(this.engine.activeCheckpoint, this.extras, "sceneBreak", occurrence),
     sceneBreakListeners: this.sceneBreakListeners, arcResolvedListeners: this.arcResolvedListeners,
     journal: (kind, summary, note) => { this.journal.record(kind, summary, this.journalContext(), note); this.extras.journal = this.journal.getRecords(); },
+    announce: (text) => this.effects.announceText(text, this.extras, this.owner.ownsOpenChat()),
     rollback: {
       journal: this.journal, context: () => ({ ...this.getBoundaryContext(), journal: this.journalContext() }), refreshRequirements: () => this.refreshRequirements(),
       reapplyCheckpoint: async (messageId) => { await this.effects.restoreFor(this.extras, { since: messageId }); await this.applyActive("hydrate"); },
@@ -541,7 +542,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   rosterIdForName(name: string): string | null { return rosterIdForName(this.loaded?.story ?? null, name); }
 
   onGenerationStarted(type: unknown, dryRun?: unknown) {
-    if (withholds(type)) this.withholdTurnBlocks(); else this.memory.releaseStaleHold();
+    if (withholds(type)) this.withholdTurnBlocks(); else { this.memory.releaseStaleHold(); this.memory.carryBridge(); }
     this.stagecraft.onGenerationStarted(type, dryRun);
   }
 

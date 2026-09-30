@@ -98,10 +98,10 @@ export function rollbackArcs(arcs: ArcEntry[], messageId: number, boundary: numb
 }
 
 export function capResolvedArcs(arcs: ArcEntry[], cap: number = ARC_RESOLVED_CAP): ArcEntry[] {
-  const resolvedUnpinned = arcs.filter((arc) => arc.status === "resolved" && !arc.pinned);
+  const resolvedUnpinned = arcs.filter((arc) => arc.status === "resolved" && !arc.pinned && !arc.foldedInto);
   if (resolvedUnpinned.length <= cap) return arcs;
   const keep = new Set(resolvedUnpinned.slice(-cap).map((arc) => arc.id));
-  return arcs.filter((arc) => arc.status !== "resolved" || arc.pinned || keep.has(arc.id));
+  return arcs.filter((arc) => arc.status !== "resolved" || arc.pinned || arc.foldedInto || keep.has(arc.id));
 }
 
 export function capOpenArcs(arcs: ArcEntry[], cap: number = ARC_OPEN_CAP): ArcEntry[] {

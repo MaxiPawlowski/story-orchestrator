@@ -63,6 +63,10 @@ export function registerRuntimeMacros(manager: RuntimeManager): () => void {
   register("story_player_name", () => getPlayerName() || "(player)", "Story Orchestrator v2 player persona name");
   register("story_blackboard", () => renderBlackboardMemo(manager.getCachedSnapshot()), "Story Orchestrator v2 blackboard");
   register("story_canon", () => manager.getCanon() || "(none)", "Story Orchestrator v2 derived canon");
+  register("story_chapter", () => manager.getCachedSnapshot().chapters?.current?.playerTitle ?? "(none)", "Story Orchestrator current chapter");
+  register("story_chapter_number", () => String(manager.getCachedSnapshot().chapters?.current?.number || "(none)"), "Story Orchestrator current chapter number");
+  register("story_so_far", () => manager.chapters.storySoFar() || "(none)", "Story Orchestrator chronicle + this chapter + open threads");
+  register("story_previously", () => manager.getCachedSnapshot().chapters?.records.at(-1)?.summary ?? "(none)", "Story Orchestrator last ended chapter's summary");
   MEMORY_TIERS.forEach((tier) => {
     register(`story_memory_${tier}`, () => manager.getMemoryInjectionBlocks()[tier] || "(none)", `Story Orchestrator v2 memory tier: ${tier}`);
   });
