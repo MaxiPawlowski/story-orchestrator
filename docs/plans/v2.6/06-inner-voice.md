@@ -188,3 +188,85 @@ This phase replaces Stepped Thinking's "think before speaking".
 ## Unresolved questions
 
 None.
+
+## Gate record
+
+2026-09-30, branch `worktree-agent-a7829fc99319d6b0b`, on master `fb31e640` (merged). Not merged to master. No lanes and no real-LLM runs (out of scope per brief).
+
+### Built
+
+- **A**: `roster[].drive`, `roster[].view` (`own` | `omniscient`) and `checkpoints[].motives` (roster id → text) in `engine/schema.ts`. Validated in `engine/validate/checkpoints.ts` (optional, trimmed, wrong types refused). Diagnostics: `motive-member-unknown` and `motive-for-player`, each with a consequence. Studio: a drive input and a narrator-view box in `RosterEditor`, and a `MotivesEditor` in `CheckpointEditor`. Mutations: `setRosterDrive`, `setRosterView` and `setCheckpointMotive` in `studio/innerVoiceMutations.ts`, a lazy-only file, which stays within the budget. The plan 11 agent tools of the same names are backed by it: `tools.test` counts `mutations.ts` + `innerVoiceMutations.ts` as one surface. Coverage rows for `drive` and `motives`. The proposal grammar carries drive/view/motives through `updateRosterMember` and `updateCheckpoint`.
+- **B**: `[intends] Name | …` in both epistemic contracts.
+  - Evidence rule: the claim must come from the speaker, or name a character in a character line. It is dropped when it is the player/persona or meta-commentary.
+  - A restatement appends `affirmedAt` (cap 32). Rollback trims the affirmations.
+  - Lapse happens after `INTENT_LAPSE_SCENES` (3) scene summaries or `INTENT_LAPSE_BOUNDARIES` boundaries, whichever comes first. Pinned or locked intents never lapse.
+  - Open-intent cap: 3 per subject.
+  - The B2 reasoning harvest (`memory.settings.harvestReasoning`) is off by default.
+- **C**: the `inner` PassRole ("Inner voice"), plus `memory/innerBeat.ts` (prompt, the BEAT/TONE parser, one repair).
+  - `InnerCoordinator` runs off-path from boundary work `inner-beat` (order 58, fire-and-forget), and only when the newest row is a character reply.
+  - Its candidates are the likely next speakers: lead-only, or `top2` via `innerFanOut`. Budget: 2 calls per player turn.
+  - It holds a `RunOwnership` token and checks it after each call. Its census row is `checked`.
+  - Beat ring cap 6. Beats are used only when fresh (same chat, checkpoint and anchor), and the journal records used, stale or missing beats.
+  - `memory.settings.innerBeat` is off by default, with no panel control.
+  - The debug global is `storyOrchestratorDebugInnerResponse`.
+- **D**: an `omniscient` member gets a narrator block (the cast's aims and intents, plus hiding/knows rows, 6 per subject). Everyone else gets their own aims and the private block. Author view: `InnerVoicePanel` (`#so-inner-voice`) in the lazy Scheduler tab, listed in `PLAYER_FORBIDDEN_SELECTORS` and in the spoiler checklist.
+- Chat blob: `memory.innerBeats` and `affirmedAt` are optional on read. Nothing was added to `isCurrentRecord`, and the blob stays v6.
+
+### Bundle
+
+- **Main entry `dist/index.js` = 1,199,987 B**, under the 1,250,000 budget, which was not raised.
+- Before master's plan 07 lazy split, this plan alone on `180b01ec` measured 1,249,959–1,250,002 B. That was only after the trims below; the first build was 1,259,799 B.
+- The render, beat, intent-admission, harvest, host and wiring code moved into lazy chunks:
+  - `memory/innerRender.ts`, loaded by `loadInnerRender()`.
+  - `runtime/innerBeatHost.ts` + `innerCoordinator.ts`.
+  - `talk/nextSpeakers.ts`.
+  - `studio/innerVoiceMutations.ts`.
+- Two findings for whoever next fights the budget:
+  - **A lazy module that imports a main-entry file directly (not through its barrel) knocks that file out of webpack's module concatenation, and it grows.** This happened to `memory/epistemic.ts` and `talk/rules.ts` here. It cost ~1.3 KB for a single `@engine/validate/checkpoints` import. `p06_concat.py`-style stats diffs (top-level modules in the initial chunk, master vs branch) show it.
+  - babel-loader emits helpers **per file** (no transform-runtime). A new file, or one without a prior object spread, gets `_objectSpread`/`_defineProperty`/… inlined, which is ~700 B. Plain assignments in `castVoices` avoided it.
+- **Deviation**: when a story has authored voices, the render chunk loads on the first `MemoryInjector.update()`, which then re-runs itself. The epistemic pass loads it too. Until it lands, aims are absent. For intents, `applyEpistemic` drops `[intends]` until then; both extraction paths await the load after `beginRun` (before the ownership check).
+
+### Commands (on `49c16a42`, the merge of `fb31e640`)
+
+| Command | Result |
+|---|---|
+| `npm run typecheck` | 0 |
+| `npm run typecheck:test` | 0 |
+| `npm run lint` | 0 |
+| `npm test` | 360 suites passed, 1 skipped. 4821 tests passed, 1 skipped |
+| `npm run test:debug` | 454/454 (after a build: `so-run-header.test` reads `dist/manifest.json`) |
+| `npm run build` | 0, main 1,199,987 B |
+| `npm run build:dev` | 0 |
+| `npm run build` | 0 |
+| `npm run test:release` | 77 pass, 2 skipped, 0 fail |
+| `npm run test:replay` | 25 of 25 killed. `empty-private-block-epistemic` was re-anchored on the new `applyEpistemic` line |
+| `npx storybook build -o .sb-static-06 --quiet` → `npx test-storybook --url http://127.0.0.1:6106 --index-json` | 47 suites / 312 tests passed. Server stopped, dir deleted |
+
+Plan-local mutants (scratchpad `p06_mutants.py`, each against its named test): all 10 killed.
+
+| Mutant | Target |
+|---|---|
+| M1 | affirmation rollback |
+| M2 | evidence rule |
+| M3 | ownership check |
+| M4 | per-turn budget |
+| M5 | lapse filter |
+| M6 | narrator skips itself |
+| M7 | motive only for the drafted member |
+| M8 | beat rollback |
+| M9 | intent cap |
+| M10 | player persona excluded |
+
+### Not green / open
+
+- **K is provisional**: `INTENT_LAPSE_BOUNDARIES = 3 × PROVISIONAL_MEDIAN_BOUNDARIES_PER_SCENE (8) = 24`. The D1 corpus median is still pending (02), so K must be re-set from it. Recipe: `test/measurements/v2.6-06/k-intent-lapse.json`.
+- **Live legs not run** (brief: no real-LLM runs, no lanes). They are NOT green:
+  - C0–C5 inner-beat spike, including the C1 readiness and C2 cost fan-out arms: `c-inner-beat-spike.json`.
+  - B intents quality: `b-intents.json`.
+  - A payload / D privacy legs: `a-d-live-legs.json`.
+  - All four belong to the final suite (overview rules 13–17).
+- The live-suite `intents` tier scorer is not built. The B recipe names its floors, but `so-live-suite.mts` does not score that tier yet.
+- The B2 harvest and C beat switches are off by default and have no settings-panel control. Each has to be set in `extensionSettings` until its spike floor passes.
+- The wizard prompt text does not mention drive or motives. The plan 11 agent has the tools, but its prompt was not updated (W19 is plan 11's).
+- Fault matrix: all 10 `inner|*` cells are declared, and `inner|aborted` stays `todo`.
+- The intent wire format is the pipe form `[intends] Name | …`, matching the other epistemic tags.
