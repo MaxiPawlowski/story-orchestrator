@@ -149,6 +149,7 @@ export const ReadinessNamesWhatIsNotWorking: Story = {
   args: {
     settings: settings({ enabled: true }, { stallCheck: true, expansionLookahead: true }),
     status: ready,
+    authorView: true,
   },
   play: async ({ canvasElement }) => {
     const readiness = canvasElement.querySelector("#so-judge-readiness");
@@ -238,5 +239,23 @@ export const RoutedToAnUncalibratedLocalProvider: Story = {
     await expect(canvasElement.querySelector("#so-judge-privacy-llama-logprob")).toBeNull();
     await userEvent.selectOptions(required(canvasElement.querySelector<HTMLSelectElement>("#so-judge-provider-memory-verify"), "memory provider select"), "llama-logprob");
     await expect(args.onChange).toHaveBeenCalledWith({ provider: { memoryVerify: "llama-logprob" } });
+  },
+};
+
+// v2.6 plan 04 B17: exclusive lore selection is author-only. It is on by default and unmeasured, so its readiness
+// concern named it in the player's panel although the switch itself was hidden there.
+export const ExclusiveLoreIsAuthorOnly: Story = {
+  args: { settings: settings({ enabled: true }, { loreSelect: true, loreExclusive: true }), status: ready },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-judge-use-lore-exclusive")).toBeNull();
+    await expect(canvasElement.querySelector("#so-judge-readiness")?.textContent ?? "").not.toContain("Exclusive lore selection");
+  },
+};
+
+export const AuthorSeesExclusiveLoreReadiness: Story = {
+  args: { settings: settings({ enabled: true }, { loreSelect: true, loreExclusive: true }), status: ready, authorView: true },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-judge-use-lore-exclusive")).not.toBeNull();
+    await expect(canvasElement.querySelector("#so-judge-readiness")?.textContent).toContain("Exclusive lore selection");
   },
 };
